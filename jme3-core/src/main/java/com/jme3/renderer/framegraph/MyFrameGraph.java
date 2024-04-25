@@ -4,6 +4,7 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.pass.FGModule;
 import com.jme3.renderer.framegraph.parameters.RenderParameterGroup;
 import com.jme3.renderer.framegraph.parameters.ParameterBinding;
 import com.jme3.renderer.framegraph.parameters.ParameterSpace;
@@ -21,6 +22,7 @@ import java.util.LinkedList;
 public class MyFrameGraph {
     
     private final LinkedList<FGModule> passes = new LinkedList<>();
+    private final LinkedList<FGModule> executionQueue = new LinkedList<>();
     private final ParameterSpace parameters = new ParameterSpace();
     private final RenderContext context;
     
@@ -73,25 +75,34 @@ public class MyFrameGraph {
     public void execute() {
         // prepare passes for execution
         for (FGModule p : passes) {
-            p.prepare(context);
+            if (p.prepare(context)) {
+                executionQueue.add(p);
+            }
         }
         // execute
-        for (FGModule p : passes) {
+        for (FGModule p : executionQueue) {
             // accept parameters as arguments to the pass
             parameters.pull(p);
             // execute pass
-            p.execute(context);
-            // apply resulting output parameters to connected input parameters
-            parameters.push(p);
-            // reset depth render range
-            context.setDepthRange(DepthRange.IDENTITY);
-            // reset geometry handler
-            context.getRenderManager().setGeometryRenderHandler(null);
+            if (p.readyForExecution(context)) {
+                p.execute(context);
+                parameters.push(p);
+                resetRenderState();
+            }
         }
         // reset passes
         for (FGModule p : passes) {
             p.reset();
         }
+        executionQueue.clear();
+    }
+    
+    /**
+     * Resets the render state so that one pass's render does not affect another render.
+     */
+    protected void resetRenderState() {
+        context.setDepthRange(DepthRange.IDENTITY);
+        context.getRenderManager().setGeometryRenderHandler(null);
     }
     
     /**

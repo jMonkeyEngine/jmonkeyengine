@@ -13,7 +13,6 @@ import com.jme3.material.logic.TiledRenderGrid;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.framegraph.parameters.WorldRenderParam;
-import java.util.LinkedList;
 
 /**
  *
@@ -38,9 +37,9 @@ public class TileDeferredShadingModule extends DeferredShadingModule implements 
         tileParam = addParameter(new WorldRenderParam<>(TILE_INFO, frameGraph.getWorldParameters(), TILE_INFO));
     }
     @Override
-    public void prepare(RenderContext context) {
-        super.prepare(context);
+    public boolean prepare(RenderContext context) {
         //context.getRenderManager().calculateTileInfo();
+        return super.prepare(context);
     }
     @Override
     public void execute(RenderContext context) {

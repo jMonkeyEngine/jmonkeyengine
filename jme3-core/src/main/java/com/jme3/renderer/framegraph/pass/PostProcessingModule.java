@@ -9,7 +9,6 @@ import com.jme3.profile.AppProfiler;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.framegraph.AbstractModule;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
@@ -62,7 +61,9 @@ public class PostProcessingModule extends AbstractModule {
         }
     }
     @Override
-    public void prepare(RenderContext context) {}
+    public boolean prepare(RenderContext context) {
+        return true;
+    }
     @Override
     public void execute(RenderContext context) {
         context.setDepthRange(DepthRange.IDENTITY);

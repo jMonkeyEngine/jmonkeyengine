@@ -7,7 +7,6 @@ package com.jme3.renderer.framegraph.pass;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
-import com.jme3.renderer.framegraph.AbstractModule;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.texture.Texture2D;
@@ -44,7 +43,9 @@ public class BackgroundScreenTestModule extends AbstractModule {
     
     }
     @Override
-    public void prepare(RenderContext context) {}
+    public boolean prepare(RenderContext context) {
+        return true;
+    }
     @Override
     public void execute(RenderContext context) {
         

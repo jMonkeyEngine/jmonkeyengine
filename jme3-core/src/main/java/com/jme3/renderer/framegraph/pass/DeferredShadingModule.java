@@ -13,7 +13,6 @@ import com.jme3.material.logic.DeferredSinglePassLightingLogic;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.framegraph.AbstractModule;
 import com.jme3.renderer.framegraph.parameters.MatRenderParam;
 import com.jme3.renderer.framegraph.MyFrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
@@ -92,7 +91,7 @@ public class DeferredShadingModule extends AbstractModule {
         
     }
     @Override
-    public void prepare(RenderContext context) {
+    public boolean prepare(RenderContext context) {
         if (debug == null) {
             debug = new FrameBuffer(context.getWidth(), context.getHeight(), 1);
             FrameBuffer.FrameBufferTextureTarget t = FrameBuffer.FrameBufferTarget.newTarget(
@@ -100,15 +99,20 @@ public class DeferredShadingModule extends AbstractModule {
             debug.setDepthTarget(t);
             depthCopy.setTextureTarget(t);
         }
+        return true;
+    }
+    @Override
+    public boolean readyForExecution(RenderContext context) {
+        return executeState.get();
     }
     @Override
     public void execute(RenderContext context) {
-        
+            
         context.getRenderer().copyFrameBuffer(gBuffer.get(),
                 context.getViewPort().getOutputFrameBuffer(), false, true);
-        
+
         context.getRenderer().copyFrameBuffer(gBuffer.get(), debug, false, true);
-        
+
         //makeRenderStateTests(context, "pre tests");
         selectTechnique(screenMat, context.getRenderManager());
         context.setDepthRange(1, 1);
@@ -116,7 +120,7 @@ public class DeferredShadingModule extends AbstractModule {
         screenRect.updateGeometricState();
         context.getRenderManager().renderGeometry(screenRect, lightList.get());
         //screenMat.render(screenRect, lightList.produce(), context.getRenderManager());
-        
+
         //makeRenderStateTests(context, "post tests");
         
     }
@@ -160,7 +164,8 @@ public class DeferredShadingModule extends AbstractModule {
         test(rm.getLightFilter(), "light filter");
         test(vp.getBackgroundColor(), "viewport background");
         test(vp.getOutputFrameBuffer(), "viewport output framebuffer");
-        test("color:"+vp.isClearColor()+", depth:"+vp.isClearDepth()+", stencil:"+vp.isClearStencil(), "viewport clear flags");
+        test("color:"+vp.isClearColor()+", depth:"+vp.isClearDepth()+", stencil:"
+                +vp.isClearStencil(), "viewport clear flags");
     }
     private void test(Object object, String label) {
         System.out.println("  "+label+" = "+(object == null ? "null" : object.toString().replaceAll("\n", "; ")));

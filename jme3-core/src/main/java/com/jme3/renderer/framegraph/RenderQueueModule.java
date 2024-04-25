@@ -4,6 +4,7 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.pass.AbstractModule;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;

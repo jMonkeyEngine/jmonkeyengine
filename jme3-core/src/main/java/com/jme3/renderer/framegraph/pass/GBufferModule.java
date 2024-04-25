@@ -63,11 +63,14 @@ public class GBufferModule extends ForwardModule implements GeometryRenderHandle
     }
     
     @Override
-    public void prepare(RenderContext context) {
-        super.prepare(context);
-        if (context.isSizeChanged() || gBuffer == null) {
-            reshape(context.getRenderer(), context.getWidth(), context.getHeight());
+    public boolean prepare(RenderContext context) {
+        if (super.prepare(context)) {
+            if (context.isSizeChanged() || gBuffer == null) {
+                reshape(context.getRenderer(), context.getWidth(), context.getHeight());
+            }
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -96,17 +99,17 @@ public class GBufferModule extends ForwardModule implements GeometryRenderHandle
             return false;
         }
         rm.renderGeometry(geom);
-        if(material.getActiveTechnique() != null){
-            if(material.getMaterialDef().getTechniqueDefs(GBUFFER_PASS) != null){
+        if (material.getActiveTechnique() != null) {
+            if (material.getMaterialDef().getTechniqueDefs(GBUFFER_PASS) != null) {
                 LightList lights = geom.getFilterWorldLights();
-                for(Light light : lights){
-                    if(!tempLights.contains(light)){
+                for (Light light : lights) {
+                    if (!tempLights.contains(light)) {
                         tempLights.add(light);
                     }
                 }
                 // Whether it has lights or not, material objects containing GBufferPass will perform
                 // DeferredShading, and shade according to shadingModelId
-                //hasDraw.accept(true);
+                hasDraw.set(true);
                 return true;
             }
         }
@@ -118,7 +121,7 @@ public class GBufferModule extends ForwardModule implements GeometryRenderHandle
         super.reset();
         tempLights.clear();
         lightData.clear();
-        //hasDraw.accept(false);
+        hasDraw.set(false);
     }
     
     protected void reshape(Renderer renderer, int w, int h) {
