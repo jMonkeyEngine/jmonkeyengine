@@ -10,7 +10,7 @@ import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.DepthRange;
-import com.jme3.renderer.framegraph.MyFrameGraph;
+import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.util.SafeArrayList;
 
@@ -21,7 +21,7 @@ import com.jme3.util.SafeArrayList;
 public class PostProcessingModule extends AbstractModule {
     
     @Override
-    public void initialize(MyFrameGraph frameGraph) {}
+    public void initialize(FrameGraph frameGraph) {}
     @Override
     public void preFrame(RenderContext context) {
         ViewPort vp = context.getViewPort();

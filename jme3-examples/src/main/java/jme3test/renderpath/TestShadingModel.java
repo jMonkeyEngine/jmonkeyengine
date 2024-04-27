@@ -14,7 +14,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.parameters.MatRenderParam;
-import com.jme3.renderer.framegraph.MyFrameGraph;
+import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderPipelineFactory;
 import com.jme3.renderer.framegraph.pass.DeferredShadingModule;
 import com.jme3.renderer.queue.RenderQueue;
@@ -58,7 +58,7 @@ public class TestShadingModel extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
-        MyFrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
+        FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
         //MyFrameGraph graph = RenderPipelineFactory.createBackroundScreenTest(assetManager, renderManager);
         renderManager.setFrameGraph(graph);
         

@@ -5,7 +5,7 @@
 package com.jme3.renderer.framegraph.pass;
 
 import com.jme3.renderer.framegraph.DepthRange;
-import com.jme3.renderer.framegraph.MyFrameGraph;
+import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.queue.RenderQueue;
 
@@ -27,7 +27,7 @@ public class ForwardModule extends AbstractModule {
     }
     
     @Override
-    public void initialize(MyFrameGraph frameGraph) {}
+    public void initialize(FrameGraph frameGraph) {}
     @Override
     public boolean prepare(RenderContext context) {
         return !context.getRenderQueue().isQueueEmpty(bucket);

@@ -27,7 +27,7 @@ public class TestDeferredShading extends SimpleApplication {
 //        renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
 //        renderManager.setSinglePassLightBatchSize(30);
 //        renderManager.setRenderPath(RenderManager.RenderPath.Forward);
-        renderManager.setMaxDeferredShadingLights(1000);// Pre-allocate a maximum value for light sources to ensure the maximum number of light sources in the scene does not exceed this value.
+        //renderManager.setMaxDeferredShadingLights(1000);// Pre-allocate a maximum value for light sources to ensure the maximum number of light sources in the scene does not exceed this value.
         //renderManager.setRenderPath(RenderManager.RenderPath.Deferred);
         renderManager.setSinglePassLightBatchSize(200);
         Quad quad = new Quad(15, 15);

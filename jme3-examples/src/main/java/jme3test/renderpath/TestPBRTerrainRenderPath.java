@@ -198,7 +198,7 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         // For this scene, use a tileSize=64 configuration (at 1600*900 resolution)
-        renderManager.setForceTileSize(64);// 1600 * 900 resolution config
+        //renderManager.setForceTileSize(64);// 1600 * 900 resolution config
         setupKeys();
         setUpTerrain();
         setUpTerrainMaterial();

@@ -54,7 +54,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.framegraph.parameters.MatRenderParam;
-import com.jme3.renderer.framegraph.MyFrameGraph;
+import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderPipelineFactory;
 import com.jme3.renderer.framegraph.pass.GBufferModule;
 import com.jme3.renderer.queue.RenderQueue;
@@ -655,7 +655,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
     @Override
     public void simpleInitApp() {
         
-        MyFrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
+        FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
         renderManager.setFrameGraph(graph);
         
         Geometry debugView = new Geometry("debug", new Quad(200, 200));

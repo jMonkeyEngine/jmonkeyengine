@@ -7,7 +7,7 @@ package com.jme3.renderer.framegraph.pass;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
-import com.jme3.renderer.framegraph.MyFrameGraph;
+import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
@@ -26,7 +26,7 @@ public class BackgroundScreenTestModule extends AbstractModule {
     }
     
     @Override
-    public void initialize(MyFrameGraph frameGraph) {
+    public void initialize(FrameGraph frameGraph) {
     
         screen = new Picture("TestScreen");
         screen.setWidth(1f);

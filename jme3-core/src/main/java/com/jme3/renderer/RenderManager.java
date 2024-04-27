@@ -46,13 +46,12 @@ import com.jme3.profile.AppProfiler;
 import com.jme3.profile.AppStep;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
-import com.jme3.renderer.framegraph.MyFrameGraph;
-import com.jme3.renderer.framegraph.parameters.ParameterSpace;
+import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.ResourcePool;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
-import com.jme3.renderer.pass.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -111,8 +110,8 @@ public class RenderManager {
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
-    private final ParameterSpace parameters = new ParameterSpace();
-    private MyFrameGraph myFrameGraph;
+    private final ResourcePool resPool = new ResourcePool();
+    private FrameGraph frameGraph;
     private Camera prevCam = null;
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
@@ -147,15 +146,6 @@ public class RenderManager {
     }
     
     /**
-     * Gets the global parameter space for rendering.
-     * 
-     * @return 
-     */
-    public ParameterSpace getParameters() {
-        return parameters;
-    }
-    
-    /**
      * Sets the framegraph used for rendering if the rendered viewport
      * has no framegraph assigned.
      * <p>
@@ -164,8 +154,8 @@ public class RenderManager {
      * 
      * @param frameGraph default framegraph, or null to not use a framegraph by default for rendering
      */
-    public void setFrameGraph(MyFrameGraph frameGraph) {
-        this.myFrameGraph = frameGraph;
+    public void setFrameGraph(FrameGraph frameGraph) {
+        this.frameGraph = frameGraph;
     }
     
     /**
@@ -174,8 +164,8 @@ public class RenderManager {
      * 
      * @return default framegraph, or null if framegraphs are not used by default for rendering
      */
-    public MyFrameGraph getFrameGraph() {
-        return myFrameGraph;
+    public FrameGraph getFrameGraph() {
+        return frameGraph;
     }
 
     /**
@@ -1274,14 +1264,14 @@ public class RenderManager {
             processors = null;
         }
         
-        MyFrameGraph fg = vp.getFrameGraph();
+        FrameGraph fg = vp.getFrameGraph();
         if (fg == null) {
-            fg = myFrameGraph;
+            fg = frameGraph;
         }
         
         if (fg != null) {
             
-            fg.prepareRender(vp, prof, tpf);
+            fg.getContext().update(vp, prof, tpf);
             fg.preFrame();
             
         } else if (processors != null) {

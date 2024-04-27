@@ -489,9 +489,10 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
         // todo: For light probes (temporarily implemented based on preCompute light probe), get light probe grid based on current view frustum visible range, execute multi pass according to light probe grid
         // todo: For reflection probes, use textureArray (cubemap projection, with mipmap), collect reflection probes visible to current camera view frustum, and limit the number of reflection probes allowed in the current view frustum
         if(useLightTextures){
-            if (lightNum != renderManager.getMaxDeferredShadingLights()) {
+            int max = 1024;
+            if (lightNum != max) {
                 cleanupLightData();
-                prepareLightData(renderManager.getMaxDeferredShadingLights());
+                prepareLightData(max);
             }
             // todo:Currently, this texturePackMode is only suitable for scenes where there are a large number of light sources per frame. The number of light sources is submitted to the texture all at once, so lightNum can be pre-allocated, but light source information can also be submitted to the texture all at once here, and then drawn in multiple passes (drawing each time by the specified singlePassLightBatchSize)
             useAmbientLight = SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(lights, ambientColor, probes, true);

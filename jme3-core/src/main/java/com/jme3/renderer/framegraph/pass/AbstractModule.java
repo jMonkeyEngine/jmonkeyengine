@@ -5,8 +5,8 @@
 package com.jme3.renderer.framegraph.pass;
 
 import com.jme3.renderer.framegraph.RenderContext;
-import com.jme3.renderer.framegraph.pass.FGModule;
-import com.jme3.renderer.framegraph.parameters.RenderParameter;
+import com.jme3.renderer.framegraph.parameters.ParamSocket;
+import com.jme3.renderer.framegraph.parameters.Referenceable;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -16,11 +16,18 @@ import java.util.LinkedList;
  */
 public abstract class AbstractModule implements FGModule {
 
-    private final LinkedList<RenderParameter> parameters = new LinkedList<>();
+    private final LinkedList<ParamSocket> inSockets = new LinkedList<>();
+    private final LinkedList<ParamSocket> outSockets = new LinkedList<>();
+    private int refs = 0;
     
     @Override
-    public Collection<RenderParameter> getRenderParameters() {
-        return parameters;
+    public Collection<ParamSocket> getInputSockets() {
+        return inSockets;
+    }
+    
+    @Override
+    public Collection<ParamSocket> getOutputSockets() {
+        return outSockets;
     }
     
     @Override
@@ -28,15 +35,25 @@ public abstract class AbstractModule implements FGModule {
     
     @Override
     public void postQueue(RenderContext context) {}
-    
+
     @Override
-    public boolean readyForExecution(RenderContext context) {
-        return true;
+    public int compileNumReferences() {
+        return (refs = outSockets.size());
+    }
+
+    @Override
+    public int removeReference() {
+        return --refs;
+    }
+
+    @Override
+    public void dereferenceUpstream(Collection<Referenceable> derefs) {
+        derefs.addAll(inSockets);
     }
     
-    protected final <T extends RenderParameter> T addParameter(T p) {
-        parameters.add(p);
-        return p;
+    @Override
+    public int getNumReferences() {
+        return refs;
     }
     
 }

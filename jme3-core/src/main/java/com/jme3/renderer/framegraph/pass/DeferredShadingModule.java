@@ -14,7 +14,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.parameters.MatRenderParam;
-import com.jme3.renderer.framegraph.MyFrameGraph;
+import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.framegraph.parameters.TextureTargetParam;
 import com.jme3.renderer.framegraph.parameters.ValueRenderParam;
@@ -27,7 +27,7 @@ import com.jme3.ui.Picture;
  *
  * @author codex
  */
-public class DeferredShadingModule extends AbstractModule {
+public class DeferredShadingModule extends ScreenModule {
     
     public final static String RT_0 = "Context_InGBuff0";
     public final static String RT_1 = "Context_InGBuff1";
@@ -42,9 +42,6 @@ public class DeferredShadingModule extends AbstractModule {
     private static final String MATDEF = "Common/MatDefs/ShadingCommon/DeferredShading.j3md";
     
     protected final AssetManager assetManager;
-    protected Material screenMat;
-    protected Picture screenRect;
-    protected DeferredSinglePassLightingLogic logic;
     protected MatRenderParam[] matParams = new MatRenderParam[5];
     protected ValueRenderParam<LightList> lightList;
     protected ValueRenderParam<Boolean> executeState;
@@ -57,37 +54,38 @@ public class DeferredShadingModule extends AbstractModule {
     }
     
     @Override
-    public void initialize(MyFrameGraph frameGraph) {
+    public void initialize(FrameGraph frameGraph) {
         
-        screenMat = createMaterial();
-        screenRect = new Picture("DeferredShadingPass_Rect");
-        screenRect.setWidth(1);
-        screenRect.setHeight(1);
-        screenRect.setIgnoreTransform(true);
-        screenRect.setMaterial(screenMat);
+        super.initialize(frameGraph);
         
+        Material screenMat = screenRect.getMaterial();
         RenderState rs = screenMat.getAdditionalRenderState();
-        rs.setDepthWrite(true);
         rs.setDepthTest(true);
+        rs.setDepthWrite(true);
         rs.setDepthFunc(RenderState.TestFunction.Greater);
-        //rs.setBlendMode(RenderState.BlendMode.Alpha);
-        //screenMat.setTransparent(true);
         screenMat.setBoolean("UseLightsCullMode", false);
         
-        assignTechniqueLogic(screenMat);
+        for (TechniqueDef t : screenMat.getMaterialDef().getTechniqueDefs(PASS)) {
+            t.setLogic(new DeferredSinglePassLightingLogic(t, true));
+        }
         
         // material render parameters automatically apply their values
-        matParams[0] = addParameter(new MatRenderParam(RT_0, screenMat, VarType.Texture2D));
-        matParams[1] = addParameter(new MatRenderParam(RT_1, screenMat, VarType.Texture2D));
-        matParams[2] = addParameter(new MatRenderParam(RT_2, screenMat, VarType.Texture2D));
-        matParams[3] = addParameter(new MatRenderParam(RT_3, screenMat, VarType.Texture2D));
-        matParams[4] = addParameter(new MatRenderParam(RT_4, screenMat, VarType.Texture2D));
-        lightList = addParameter(new ValueRenderParam<>(LIGHT_DATA));
-        executeState = addParameter(new ValueRenderParam<>(EXECUTE_STATE));
-        gBuffer = addParameter(new ValueRenderParam<>(IN_FRAME_BUFFER));
-        depthCopy = addParameter(new TextureTargetParam(DEPTH_DEBUG, null));
+        matParams[0] = addInput(new MatRenderParam(RT_0, screenMat, VarType.Texture2D));
+        matParams[1] = addInput(new MatRenderParam(RT_1, screenMat, VarType.Texture2D));
+        matParams[2] = addInput(new MatRenderParam(RT_2, screenMat, VarType.Texture2D));
+        matParams[3] = addInput(new MatRenderParam(RT_3, screenMat, VarType.Texture2D));
+        matParams[4] = addInput(new MatRenderParam(RT_4, screenMat, VarType.Texture2D));
+        lightList = addInput(new ValueRenderParam<>(LIGHT_DATA));
+        executeState = addInput(new ValueRenderParam<>(EXECUTE_STATE));
+        gBuffer = addInput(new ValueRenderParam<>(IN_FRAME_BUFFER));
+        depthCopy = addOutput(new TextureTargetParam(DEPTH_DEBUG, null));
         
-        bindParameters(frameGraph);
+        for (int i = 0; i < matParams.length; i++) {
+            frameGraph.bindToOutput(GBufferModule.RENDER_TARGETS[i], matParams[i]);
+        }
+        frameGraph.bindToOutput(GBufferModule.LIGHT_DATA, lightList);
+        frameGraph.bindToOutput(GBufferModule.EXECUTE_STATE, executeState);
+        frameGraph.bindToOutput(GBufferModule.G_FRAME_BUFFER, gBuffer);
         
     }
     @Override
@@ -102,73 +100,25 @@ public class DeferredShadingModule extends AbstractModule {
         return true;
     }
     @Override
-    public boolean readyForExecution(RenderContext context) {
-        return executeState.get();
-    }
-    @Override
     public void execute(RenderContext context) {
-            
+        
         context.getRenderer().copyFrameBuffer(gBuffer.get(),
                 context.getViewPort().getOutputFrameBuffer(), false, true);
 
         context.getRenderer().copyFrameBuffer(gBuffer.get(), debug, false, true);
-
-        //makeRenderStateTests(context, "pre tests");
-        selectTechnique(screenMat, context.getRenderManager());
+        
+        screenRect.getMaterial().selectTechnique(PASS, context.getRenderManager());
         context.setDepthRange(1, 1);
         context.getRenderer().setFrameBuffer(context.getViewPort().getOutputFrameBuffer());
         screenRect.updateGeometricState();
         context.getRenderManager().renderGeometry(screenRect, lightList.get());
-        //screenMat.render(screenRect, lightList.produce(), context.getRenderManager());
-
-        //makeRenderStateTests(context, "post tests");
         
     }
     @Override
     public void reset() {}
-    
-    protected Material createMaterial() {
+    @Override
+    protected Material createScreenMaterial() {
         return new Material(assetManager, MATDEF);
-    }
-    protected void bindParameters(MyFrameGraph frameGraph) {
-        for (int i = 0; i < matParams.length; i++) {
-            frameGraph.bindToOutput(GBufferModule.RENDER_TARGETS[i], matParams[i]);
-        }
-        frameGraph.bindToOutput(GBufferModule.LIGHT_DATA, lightList);
-        frameGraph.bindToOutput(GBufferModule.EXECUTE_STATE, executeState);
-        frameGraph.bindToOutput(GBufferModule.G_FRAME_BUFFER, gBuffer);
-    }
-    protected void assignTechniqueLogic(Material material) {
-        for (TechniqueDef t : screenMat.getMaterialDef().getTechniqueDefs(PASS)) {
-            t.setLogic(new DeferredSinglePassLightingLogic(t, true));
-        }
-    }
-    protected void selectTechnique(Material mat, RenderManager rm) {
-        mat.selectTechnique(PASS, rm);
-    }
-    
-    private void makeRenderStateTests(RenderContext context, String label) {
-        Renderer r = context.getRenderer();
-        RenderManager rm = context.getRenderManager();
-        ViewPort vp = context.getViewPort();
-        System.out.println(label+":");
-        test(r.getCurrentFrameBuffer(), "framebuffer");
-        test(context.getDepthRange(), "depth");
-        test(rm.getCurrentCamera(), "camera");
-        test(rm.getGeometryRenderHandler(), "handler");
-        test(rm.getRenderFilter(), "geometry filter");
-        test(rm.getPreferredLightMode(), "preferred light mode");
-        test(rm.getForcedTechnique(), "forced technique");
-        test(rm.getForcedRenderState(), "forced renderstate");
-        test(rm.getForcedMatParams().size(), "num forced mat params");
-        test(rm.getLightFilter(), "light filter");
-        test(vp.getBackgroundColor(), "viewport background");
-        test(vp.getOutputFrameBuffer(), "viewport output framebuffer");
-        test("color:"+vp.isClearColor()+", depth:"+vp.isClearDepth()+", stencil:"
-                +vp.isClearStencil(), "viewport clear flags");
-    }
-    private void test(Object object, String label) {
-        System.out.println("  "+label+" = "+(object == null ? "null" : object.toString().replaceAll("\n", "; ")));
     }
     
 }

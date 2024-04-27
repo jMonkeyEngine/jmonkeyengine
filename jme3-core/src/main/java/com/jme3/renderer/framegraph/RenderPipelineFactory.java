@@ -23,7 +23,7 @@ import com.jme3.renderer.framegraph.pass.TileDeferredShadingModule;
  */
 public class RenderPipelineFactory {
     
-    public static MyFrameGraph create(Application app, RenderPath path) {
+    public static FrameGraph create(Application app, RenderPath path) {
         RenderManager rm = app.getRenderManager();
         switch (path) {
             case Forward: return createForwardPipeline(rm);
@@ -34,7 +34,7 @@ public class RenderPipelineFactory {
         }
     }
     
-    private static MyFrameGraph addBasicPasses(MyFrameGraph g) {
+    private static FrameGraph addBasicPasses(FrameGraph g) {
         g.add(ForwardModule.opaque());
         g.add(ForwardModule.sky());
         g.add(ForwardModule.transparent());
@@ -44,18 +44,18 @@ public class RenderPipelineFactory {
         return g;
     }
     
-    public static MyFrameGraph createForwardPipeline(RenderManager rm) {
-        return addBasicPasses(new MyFrameGraph(rm));
+    public static FrameGraph createForwardPipeline(RenderManager rm) {
+        return addBasicPasses(new FrameGraph(rm));
     }
     
-    public static MyFrameGraph createForwardPlusPipeline(RenderManager rm) {
+    public static FrameGraph createForwardPlusPipeline(RenderManager rm) {
         throw new UnsupportedOperationException("ForwardPlus render pipeline is currently unsupported.");
     }
     
-    public static MyFrameGraph createDeferredPipeline(AssetManager am, RenderManager rm) {
-        MyFrameGraph g = new MyFrameGraph(rm);
+    public static FrameGraph createDeferredPipeline(AssetManager am, RenderManager rm) {
+        FrameGraph g = new FrameGraph(rm);
         g.add(new GBufferModule());
-        g.add(new DeferredShadingModule(am));
+        //g.add(new DeferredShadingModule(am));
         g.add(ForwardModule.sky());
         g.add(ForwardModule.transparent());
         g.add(new GuiModule());
@@ -64,15 +64,15 @@ public class RenderPipelineFactory {
         return g;
     }
     
-    public static MyFrameGraph createTileDeferredPipeline(AssetManager am, RenderManager rm) {
-        MyFrameGraph g = new MyFrameGraph(rm);
+    public static FrameGraph createTileDeferredPipeline(AssetManager am, RenderManager rm) {
+        FrameGraph g = new FrameGraph(rm);
         g.add(new GBufferModule());
         g.add(new TileDeferredShadingModule(am));
         return addBasicPasses(g);
     }
     
-    public static MyFrameGraph createBackroundScreenTest(AssetManager am, RenderManager rm) {
-        MyFrameGraph g = new MyFrameGraph(rm);
+    public static FrameGraph createBackroundScreenTest(AssetManager am, RenderManager rm) {
+        FrameGraph g = new FrameGraph(rm);
         g.add(new BackgroundScreenTestModule(am));
         g.add(ForwardModule.opaque());
         g.add(ForwardModule.sky());

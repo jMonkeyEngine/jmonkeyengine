@@ -70,6 +70,7 @@ public class RenderContext {
         }
         Camera cam = viewPort.getCamera();
         sizeChanged = width != cam.getWidth() || height != cam.getHeight();
+        //System.out.println("size changed? "+sizeChanged);
         width = cam.getWidth();
         height = cam.getHeight();
     }

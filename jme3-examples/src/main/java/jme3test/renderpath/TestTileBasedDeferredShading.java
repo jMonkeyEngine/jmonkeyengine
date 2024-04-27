@@ -26,11 +26,11 @@ public class TestTileBasedDeferredShading extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         // Based on your current resolution and total light source count, try adjusting the tileSize - it must be a power of 2 such as 32, 64, 128 etc.
-        renderManager.setForceTileSize(128);// 1600 * 900 resolution config
+        //renderManager.setForceTileSize(128);// 1600 * 900 resolution config
 //        renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
 //        renderManager.setSinglePassLightBatchSize(30);
 //        renderManager.setRenderPath(RenderManager.RenderPath.Forward);
-        renderManager.setMaxDeferredShadingLights(1000);
+        //renderManager.setMaxDeferredShadingLights(1000);
         //renderManager.setRenderPath(RenderManager.RenderPath.TiledDeferred);
         Quad quad = new Quad(15, 15);
         Geometry geo = new Geometry("Floor", quad);

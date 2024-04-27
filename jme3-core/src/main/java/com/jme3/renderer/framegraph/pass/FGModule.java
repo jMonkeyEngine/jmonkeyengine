@@ -4,16 +4,16 @@
  */
 package com.jme3.renderer.framegraph.pass;
 
-import com.jme3.renderer.framegraph.MyFrameGraph;
+import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
-import com.jme3.renderer.framegraph.parameters.RenderParameterGroup;
+import com.jme3.renderer.framegraph.parameters.SocketGroup;
 
 /**
  *
  * @author codex
  * @param <T>
  */
-public interface FGModule <T extends MyFrameGraph> extends RenderParameterGroup {
+public interface FGModule <T extends FrameGraph> extends SocketGroup {
     
     /**
      * Initializes the pass to the framegraph.
@@ -26,6 +26,8 @@ public interface FGModule <T extends MyFrameGraph> extends RenderParameterGroup 
     
     /**
      * Called before the render buckets are queued.
+     * <p>
+     * This method is called before parameters are pulled.
      * 
      * @param context 
      */
@@ -33,6 +35,8 @@ public interface FGModule <T extends MyFrameGraph> extends RenderParameterGroup 
     
     /**
      * Called after the render buckets are queued.
+     * <p>
+     * This method is called before parameters are pulled.
      * 
      * @param context 
      */
@@ -41,25 +45,15 @@ public interface FGModule <T extends MyFrameGraph> extends RenderParameterGroup 
     /**
      * Prepares the pass for execution and determines if execution should occur.
      * <p>
-     * Execution should be vetoed on this step if possible, because the framegraph
-     * does not need to pull or push parameters from the parameter space for this pass
-     * if execution is vetoed on this step.
+     * If execution is vetoed on this step, parameter pulling, execution, parameter
+     * pushing, and render state reset will not occur.
+     * <p>
+     * This method is called before parameters are pulled.
      * 
      * @param context 
      * @return true if execution should occur
      */
     public boolean prepare(RenderContext context);
-    
-    /**
-     * Returns true if this pass is ready for execution.
-     * <p>
-     * If this pass is not ready for execution, the framegraph will not execute
-     * this pass and will not push parameters from this pass to bound parameters.
-     * 
-     * @param context
-     * @return 
-     */
-    public boolean readyForExecution(RenderContext context);
     
     /**
      * Executes this pass.
@@ -69,7 +63,7 @@ public interface FGModule <T extends MyFrameGraph> extends RenderParameterGroup 
     public void execute(RenderContext context);
     
     /**
-     * Resets this pass after execution.
+     * Resets this pass after all passes have been executed.
      */
     public void reset();
     

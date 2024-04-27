@@ -2,18 +2,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer;
+
+import com.jme3.scene.Geometry;
 
 /**
  *
  * @author codex
  */
-public interface FGSource {
+public interface GeometryRenderHandler {
     
-    public String getName();
-    
-    public abstract void postLinkValidate();
-    
-    public abstract FGBindable yieldBindable();
+    public boolean renderGeometry(RenderManager rm, Geometry geom);
     
 }

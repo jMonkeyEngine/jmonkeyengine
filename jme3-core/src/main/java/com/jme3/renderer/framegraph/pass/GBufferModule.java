@@ -4,19 +4,18 @@
  */
 package com.jme3.renderer.framegraph.pass;
 
-import com.jme3.renderer.framegraph.pass.ForwardModule;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.framegraph.MyFrameGraph;
+import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderContext;
 import com.jme3.renderer.framegraph.parameters.TextureTargetParam;
 import com.jme3.renderer.framegraph.parameters.ValueRenderParam;
-import com.jme3.renderer.pass.GeometryRenderHandler;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
@@ -52,7 +51,7 @@ public class GBufferModule extends ForwardModule implements GeometryRenderHandle
     }
     
     @Override
-    public void initialize(MyFrameGraph frameGraph) {
+    public void initialize(FrameGraph frameGraph) {
         super.initialize(frameGraph);
         for (int i = 0; i < targets.length; i++) {
             targets[i] = addParameter(new TextureTargetParam(RENDER_TARGETS[i], null));
@@ -64,13 +63,10 @@ public class GBufferModule extends ForwardModule implements GeometryRenderHandle
     
     @Override
     public boolean prepare(RenderContext context) {
-        if (super.prepare(context)) {
-            if (context.isSizeChanged() || gBuffer == null) {
-                reshape(context.getRenderer(), context.getWidth(), context.getHeight());
-            }
-            return true;
+        if (context.isSizeChanged() || gBuffer == null) {
+            reshape(context.getRenderer(), context.getWidth(), context.getHeight());
         }
-        return false;
+        return super.prepare(context);
     }
 
     @Override
@@ -126,6 +122,8 @@ public class GBufferModule extends ForwardModule implements GeometryRenderHandle
     
     protected void reshape(Renderer renderer, int w, int h) {
         if (gBuffer != null) {
+            //w = gBuffer.getWidth();
+            //h = gBuffer.getHeight();
             gBuffer.dispose();
             gBuffer.deleteObject(renderer);
         }
