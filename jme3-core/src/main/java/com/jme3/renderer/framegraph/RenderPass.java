@@ -11,11 +11,14 @@ import java.util.List;
  *
  * @author codex
  */
-public class RenderPass {
+public abstract class RenderPass {
     
     private final LinkedList<ResourceTicket> inputs = new LinkedList<>();
     private final LinkedList<ResourceTicket> outputs = new LinkedList<>();
-    private int refs;
+    private int refs = 0;
+    
+    public abstract void createResources(RenderContext context, ResourceList resources);
+    public abstract void execute(RenderContext context);
     
     public void countReferences() {
         refs = outputs.size();
@@ -28,13 +31,8 @@ public class RenderPass {
         return refs > 0;
     }
     
-    public void dereferenceInputs(ResourceRegistry registry, List<RenderResource> resList) {
-        for (ResourceTicket i : inputs) {
-            RenderResource r = registry.locateResource(i);
-            if (!r.dereference()) {
-                resList.add(r);
-            }
-        }
+    public void dereferenceInputs(ResourceList resources, List<RenderResource> resList) {
+        resources.dereferenceListed(inputs, resList);
     }
     
 }

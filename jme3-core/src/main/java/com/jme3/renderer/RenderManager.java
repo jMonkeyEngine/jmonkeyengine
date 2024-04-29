@@ -47,7 +47,7 @@ import com.jme3.profile.AppStep;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.ResourcePool;
+import com.jme3.renderer.framegraph.ResourceAllocator;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -110,7 +110,7 @@ public class RenderManager {
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
-    private final ResourcePool resPool = new ResourcePool();
+    private final ResourceAllocator resPool = new ResourceAllocator();
     private FrameGraph frameGraph;
     private Camera prevCam = null;
     private Material forcedMaterial = null;
@@ -132,7 +132,6 @@ public class RenderManager {
     private int singlePassLightBatchSize = 1;
     private MatParamOverride boundDrawBufferId = new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
     private Predicate<Geometry> renderFilter;
-
 
     /**
      * Creates a high-level rendering interface over the
@@ -166,6 +165,15 @@ public class RenderManager {
      */
     public FrameGraph getFrameGraph() {
         return frameGraph;
+    }
+    
+    /**
+     * Gets the global resource pool used to store potential render resources.
+     * 
+     * @return 
+     */
+    public ResourceAllocator getResourcePool() {
+        return resPool;
     }
 
     /**

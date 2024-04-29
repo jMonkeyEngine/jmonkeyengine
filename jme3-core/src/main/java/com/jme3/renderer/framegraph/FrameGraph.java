@@ -4,6 +4,7 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.RenderManager;
 import java.util.LinkedList;
 
 /**
@@ -14,10 +15,12 @@ import java.util.LinkedList;
 public class FrameGraph {
     
     private final LinkedList<RenderPass> passes = new LinkedList<>();
-    private final ResourceRegistry resources;
+    private final ResourceList resources;
+    private final RenderContext context;
 
-    public FrameGraph(ResourcePool pool) {
-        this.resources = new ResourceRegistry(pool);
+    public FrameGraph(RenderManager renderManager) {
+        this.resources = new ResourceList(renderManager.getResourcePool(), 30);
+        this.context = new RenderContext(renderManager);
     }
     
     public void cull() {
@@ -27,7 +30,7 @@ public class FrameGraph {
         }
         // fetch unreferences resources
         LinkedList<RenderResource> cull = new LinkedList<>();
-        resources.getUnreferencedResources(cull);
+        resources.getUnreferenced(cull);
         RenderResource res;
         while ((res = cull.pollFirst()) != null) {
             // dereference producer of resource
@@ -39,7 +42,13 @@ public class FrameGraph {
     }
     
     public void execute() {
-        
+        // create resources...
+        // execute
+        for (RenderPass p : passes) {
+            if (p.isReferenced()) {
+                p.execute(context);
+            }
+        }
     }
     
 }

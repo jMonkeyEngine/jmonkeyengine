@@ -13,46 +13,30 @@ public class RenderResource <T> {
     
     private final RenderPass producer;
     private final ResourceDef<T> def;
-    private final ResourceTicket<T> ticket;
+    private int index;
     private T resource;
     private int refs = 0;
-    private int users = 0;
 
-    public RenderResource(RenderPass producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
+    public RenderResource(RenderPass producer, ResourceDef<T> def) {
         this.producer = producer;
         this.def = def;
-        this.ticket = ticket;
     }
     
     public void create() {
-        if (resource == null) {
-            resource = def.create();
-        }
+        resource = def.create();
     }
     public void setResource(T resource) {
         this.resource = resource;
     }
-    
-    public void acquire() {
-        users++;
-    }
-    public boolean release() {
-        users--;
-        return isUsed();
-    }
-    public boolean isUsed() {
-        return users > 0;
+    public void setIndex(int index) {
+        this.index = index;
     }
     
     public void reference() {
         refs++;
     }
-    public boolean dereference() {
+    public void release() {
         refs--;
-        return isReferenced();
-    }
-    public boolean isReferenced() {
-        return refs > 0;
     }
     
     public RenderPass getProducer() {
@@ -61,14 +45,21 @@ public class RenderResource <T> {
     public ResourceDef<T> getDefinition() {
         return def;
     }
-    public ResourceTicket getTicket() {
-        return ticket;
+    public int getIndex() {
+        return index;
     }
     public T getResource() {
         return resource;
     }
+    
     public boolean isVirtual() {
         return resource == null;
+    }
+    public boolean isReferenced() {
+        return refs > 0;
+    }
+    public boolean isUsed() {
+        return refs >= 0;
     }
     
 }

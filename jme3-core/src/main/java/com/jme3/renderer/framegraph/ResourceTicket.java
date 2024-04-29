@@ -16,44 +16,70 @@ package com.jme3.renderer.framegraph;
  */
 public class ResourceTicket <T> {
     
-    private String name;
     private int index;
     
-    public ResourceTicket(String name) {
-        this(name, -1);
+    public ResourceTicket() {
+        this(-1);
     }
     public ResourceTicket(int index) {
-        this(null, index);
-    }
-    public ResourceTicket(String name, int index) {
-        this.name = name;
         this.index = index;
     }
     
-    public ResourceTicket<T> copy() {
-        return new ResourceTicket(name, index);
+    /**
+     * Copies this ticket's info to the target.
+     * <p>
+     * If the target is null, a new instance will be created and
+     * written to.
+     * 
+     * @param target copy target (can be null)
+     * @return target
+     */
+    public ResourceTicket<T> copyTo(ResourceTicket<T> target) {
+        if (target == null) {
+            target = new ResourceTicket();
+        }
+        target.index = index;
+        return target;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    
+    /**
+     * Sets the resource index.
+     * 
+     * @param index 
+     */
     public void setIndex(int index) {
         this.index = index;
     }
     
-    public String getName() {
-        return name;
-    }
+    /**
+     * Gets the resource index.
+     * 
+     * @return 
+     */
     public int getIndex() {
         return index;
-    }
-    public boolean isLocateByName() {
-        return index < 0 && name != null;
     }
     
     @Override
     public String toString() {
-        return "ResourceTicket[name="+(name != null ? "\""+name+"\"" : null)+", index="+index+"]";
+        return "ResourceTicket["+index+"]";
+    }
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + this.index;
+        return hash;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final ResourceTicket<?> other = (ResourceTicket<?>) obj;
+        return this.index == other.index;
     }
     
 }

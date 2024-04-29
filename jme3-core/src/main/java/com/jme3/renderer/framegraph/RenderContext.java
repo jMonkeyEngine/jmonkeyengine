@@ -48,14 +48,12 @@ public class RenderContext {
     private ViewPort viewPort;
     private AppProfiler profiler;
     private final DepthRange depth = new DepthRange();
+    private final CameraSize camSize = new CameraSize();
     private float tpf;
-    private int width, height;
-    private boolean sizeChanged = false;
 
     public RenderContext(RenderManager renderManager, ViewPort viewPort) {
         this.renderManager = renderManager;
         this.viewPort = viewPort;
-        width = height = -1;
     }
     public RenderContext(RenderManager renderManager) {
         this(renderManager, null);
@@ -68,11 +66,7 @@ public class RenderContext {
         if (viewPort == null) {
             throw new NullPointerException("ViewPort cannot be null.");
         }
-        Camera cam = viewPort.getCamera();
-        sizeChanged = width != cam.getWidth() || height != cam.getHeight();
-        //System.out.println("size changed? "+sizeChanged);
-        width = cam.getWidth();
-        height = cam.getHeight();
+        camSize.update(viewPort.getCamera());
     }
     
     public void setDepthRange(float start, float end) {
@@ -81,7 +75,6 @@ public class RenderContext {
             renderManager.getRenderer().setDepthRange(depth);
         }
     }
-    
     public void setDepthRange(DepthRange depth) {
         if (!this.depth.equals(depth)) {
             renderManager.getRenderer().setDepthRange(this.depth.set(depth));
@@ -91,27 +84,24 @@ public class RenderContext {
     public DepthRange getDepthRange() {
         return depth;
     }
-    
     public RenderManager getRenderManager() {
         return renderManager;
     }
-    
     public ViewPort getViewPort() {
         return viewPort;
     }
-    
     public AppProfiler getProfiler() {
         return profiler;
     }
-    
+    public CameraSize getCameraSize() {
+        return camSize;
+    }
     public float getTpf() {
         return tpf;
     }
-    
     public Renderer getRenderer() {
         return renderManager.getRenderer();
     }
-    
     public RenderQueue getRenderQueue() {
         if (viewPort != null) {
             return viewPort.getQueue();
@@ -122,18 +112,6 @@ public class RenderContext {
     
     public boolean isProfilerAvailable() {
         return profiler != null;
-    }
-    
-    public int getWidth() {
-        return width;
-    }
-    
-    public int getHeight() {
-        return height;
-    }
-    
-    public boolean isSizeChanged() {
-        return sizeChanged;
     }
     
 }

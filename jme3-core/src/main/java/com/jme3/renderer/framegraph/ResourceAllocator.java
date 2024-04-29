@@ -11,7 +11,7 @@ import java.util.LinkedList;
  *
  * @author codex
  */
-public class ResourcePool {
+public class ResourceAllocator {
     
     private final LinkedList<RenderResource> resources = new LinkedList<>();
     
@@ -22,14 +22,24 @@ public class ResourcePool {
         resources.add(res);
     }
     
-    public <T> boolean acquireExisting(RenderResource<T> resource) {
+    /**
+     * Reallocates a resource from the pool to the given resource, if the
+     * resource definition accepts.
+     * 
+     * @param <T>
+     * @param resource
+     * @return true if a resource was reallocated to the given resource
+     */
+    public <T> boolean reallocateTo(RenderResource<T> resource) {
         for (Iterator<RenderResource> it = resources.iterator(); it.hasNext();) {
-            RenderResource<Object> r = it.next();
-            T result = resource.getDefinition().repurpose(r.getDefinition(), r.getResource());
-            if (result != null) {
-                resource.setResource(result);
-                it.remove();
-                return true;
+            RenderResource res = it.next();
+            if (resource.getDefinition().isOfResourceType(res.getResource().getClass())) {
+                T r = (T)res.getResource();
+                if (resource.getDefinition().acceptReallocationOf(r)) {
+                    resource.setResource(r);
+                    it.remove();
+                    return true;
+                }
             }
         }
         return false;
