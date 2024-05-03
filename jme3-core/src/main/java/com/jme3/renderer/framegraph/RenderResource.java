@@ -11,25 +11,22 @@ package com.jme3.renderer.framegraph;
  */
 public class RenderResource <T> {
     
-    private final RenderPass producer;
+    private final ResourceProducer producer;
     private final ResourceDef<T> def;
-    private int index;
+    private final ResourceTicket<T> ticket;
     private T resource;
     private int refs = 0;
+    private int timeout = 0;
+    private boolean watched = false;
 
-    public RenderResource(RenderPass producer, ResourceDef<T> def) {
+    public RenderResource(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
         this.producer = producer;
         this.def = def;
+        this.ticket = ticket;
     }
     
     public void create() {
         resource = def.create();
-    }
-    public void setResource(T resource) {
-        this.resource = resource;
-    }
-    public void setIndex(int index) {
-        this.index = index;
     }
     
     public void reference() {
@@ -38,18 +35,37 @@ public class RenderResource <T> {
     public void release() {
         refs--;
     }
+    public boolean tickTimeout() {
+        return timeout-- > 0;
+    }
     
-    public RenderPass getProducer() {
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+    public void setResource(T resource) {
+        this.resource = resource;
+    }
+    public void setWatched(boolean watched) {
+        this.watched = watched;
+    }
+    
+    public ResourceProducer getProducer() {
         return producer;
     }
     public ResourceDef<T> getDefinition() {
         return def;
     }
-    public int getIndex() {
-        return index;
+    public ResourceTicket<T> getTicket() {
+        return ticket;
     }
     public T getResource() {
         return resource;
+    }
+    public int getIndex() {
+        return ticket.getIndex();
+    }
+    public int getNumReferences() {
+        return refs;
     }
     
     public boolean isVirtual() {
@@ -60,6 +76,15 @@ public class RenderResource <T> {
     }
     public boolean isUsed() {
         return refs >= 0;
+    }
+    public boolean isWatched() {
+        return watched;
+    }
+    
+    @Override
+    public String toString() {
+        return "RenderResource[index="+ticket.getIndex()+", resource="
+                +(resource != null ? resource.getClass().getName() : "null")+"]";
     }
     
 }

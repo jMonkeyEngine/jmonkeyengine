@@ -4,6 +4,8 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.Texture;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,15 +18,18 @@ public class ResourceList {
     
     private static final int INITIAL_SIZE = 20;
     
-    private final ResourceAllocator allocator;
+    private ResourceRecycler recycler;
     private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
     private int nextSlot = 0;
 
-    public ResourceList(ResourceAllocator allocator) {
-        this.allocator = allocator;
+    public ResourceList(ResourceRecycler recycler) {
+        this.recycler = recycler;
     }
     
     protected <T> RenderResource<T> locate(ResourceTicket<T> ticket) {
+        if (ticket == null) {
+            throw new NullPointerException("Ticket cannot be null.");
+        }
         final int i = ticket.getIndex();
         if (i >= 0 && i < resources.size()) {
             RenderResource<T> res = resources.get(i);
@@ -57,61 +62,185 @@ public class ResourceList {
         }
     }
     protected RenderResource remove(int index) {
+        RenderResource prev = resources.set(index, null);
+        if (prev != null && prev.isReferenced()) {
+            throw new IllegalStateException("Cannot remove "+prev+" because it is referenced.");
+        }
         nextSlot = Math.min(nextSlot, index);
-        return resources.set(index, null);
+        return prev;
     }
     
-    public <T> ResourceTicket<T> register(RenderPass producer, ResourceDef<T> def) {
-        return new ResourceTicket<>(add(new RenderResource<>(producer, def)));
+    public <T> ResourceTicket<T> register(ResourceProducer producer, ResourceDef<T> def) {
+        return register(producer, def, null);
     }
+    public <T> ResourceTicket<T> register(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> store) {
+        ResourceTicket<T> t = new ResourceTicket<>();
+        t.setIndex(add(new RenderResource<>(producer, def, t)));
+        store = t.copyIndexTo(store);
+        System.out.println("    "+producer+": register "+t);
+        return store;
+    }
+    
     public void reference(ResourceTicket ticket) {
         locate(ticket).reference();
+        System.out.println("    "+locate(ticket).getProducer()+": reference "+ticket);
     }
+    public boolean referenceOptional(ResourceTicket ticket) {
+        if (ticket != null) {
+            reference(ticket);
+            return true;
+        }
+        System.out.println("    optional reference failed");
+        return false;
+    }
+    public void reference(ResourceTicket... tickets) {
+        for (ResourceTicket t : tickets) {
+            reference(t);
+        }
+    }
+    public void referenceOptional(ResourceTicket... tickets) {
+        for (ResourceTicket t : tickets) {
+            referenceOptional(t);
+        }
+    }
+    
+    public <T, R extends ResourceDef<T>> R getDef(Class<R> type, ResourceTicket<T> ticket) {
+        ResourceDef<T> def = locate(ticket).getDefinition();
+        if (type.isAssignableFrom(def.getClass())) {
+            return (R)def;
+        }
+        return null;
+    }
+    
     public <T> T acquire(ResourceTicket<T> ticket) {
         RenderResource<T> res = locate(ticket);
-        if (res.isVirtual() && (!res.getDefinition().isAcceptsReallocated() || allocator.reallocateTo(res))) {
+        if (!res.isUsed()) {
+            throw new IllegalStateException(res+" was unexpectedly acquired.");
+        }
+        System.out.println("    acquire resource from "+ticket);
+        if (!res.isVirtual()) {
+            System.out.println("      resource already created");
+        }
+        if (res.isVirtual() && !recycler.recycle(res)) {
+            System.out.println("      create from scratch for "+res);
             res.create();
         }
         return res.getResource();
     }
-    public void release(ResourceTicket ticket) {
-        RenderResource res = locate(ticket);
-        res.release();
-        if (!res.isUsed()) {
-            remove(ticket.getIndex());
+    public <T> T acquire(ResourceTicket<T> ticket, T value) {
+        if (ticket != null) {
+            return acquire(ticket);
+        } else {
+            return value;
         }
-        if (res.getDefinition().isReallocatable()) {
-            allocator.add(res);
+    }
+    public void acquireColorTargets(FrameBuffer fbo, ResourceTicket<? extends Texture>... tickets) {
+        for (ResourceTicket<? extends Texture> t : tickets) {
+            fbo.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(acquire(t)));
         }
     }
     
-    public void getUnreferenced(List<RenderResource> resList) {
-        for (int i = 0; i < resources.size(); i++) {
-            RenderResource r = resources.get(i);
-            if (r != null && !r.isReferenced()) {
-                resList.add(r);
+    public void release(ResourceTicket ticket) {
+        if (ticket != null) {
+            RenderResource res = locate(ticket);
+            res.release();
+            if (!res.isUsed()) {
+                System.out.println("    resource is not used: "+res);
+                remove(ticket.getIndex());
+                if (res.getDefinition().isRecycleable()) {
+                    recycler.add(res);
+                }
             }
         }
     }
-    public void dereferenceListed(List<ResourceTicket> tickets, List<RenderResource> resList) {
+    public boolean releaseOptional(ResourceTicket ticket) {
+        if (ticket != null) {
+            release(ticket);
+            return true;
+        }
+        return false;
+    }
+    public void release(ResourceTicket... tickets) {
+        for (ResourceTicket t : tickets) {
+            release(t);
+        }
+    }
+    public void releaseOptional(ResourceTicket... tickets) {
+        for (ResourceTicket t : tickets) {
+            releaseOptional(t);
+        }
+    }
+    
+    public void watch(ResourceTicket ticket) {
+        locate(ticket).setWatched(true);
+    }
+    public boolean watchOptional(ResourceTicket ticket) {
+        if (ticket != null) {
+            watch(ticket);
+            return true;
+        }
+        return false;
+    }
+    public void watch(ResourceTicket... tickets) {
+        for (ResourceTicket t : tickets) {
+            watch(t);
+        }
+    }
+    public void watchOptional(ResourceTicket... tickets) {
+        for (ResourceTicket t : tickets) {
+            watchOptional(t);
+        }
+    }
+    
+    public void dereferenceListed(List<ResourceTicket> tickets, List<RenderResource> target) {
         for (ResourceTicket t : tickets) {
             RenderResource r = locate(t);
             r.release();
             if (!r.isReferenced()) {
-                resList.add(r);
+                target.add(r);
             }
         }
     }
-    public void discardUnreferenced() {
-        for (int i = 0; i < resources.size(); i++) {
-            RenderResource r = resources.get(i);
-            if (!r.isReferenced()) {
-                remove(i);
+    public void cullUnreferenced() {
+        LinkedList<RenderResource> cull = new LinkedList<>();
+        for (RenderResource r : resources) {
+            if (r != null && !r.isReferenced()) {
+                cull.add(r);
+            }
+        }
+        RenderResource resource;
+        while ((resource = cull.pollFirst()) != null) {
+            // dereference producer of resource
+            if (!resource.getProducer().dereference()) {
+                // if producer is not referenced, dereference all input resources
+                for (ResourceTicket t : resource.getProducer().getInputTickets()) {
+                    RenderResource r = locate(t);
+                    r.release();
+                    if (!r.isReferenced()) {
+                        cull.addLast(r);
+                    }
+                }
+                // remove all output resources
+                for (ResourceTicket t : resource.getProducer().getOutputTickets()) {
+                    remove(t.getIndex());
+                }
             }
         }
     }
+    
     public void clear() {
+        int n = 0;
         int size = resources.size();
+        for (RenderResource r : resources) {
+            if (r != null) {
+                n++;
+                if (r.isUsed()) {
+                    System.out.println("Warning: "+r+" still retains "+(r.getNumReferences()+1)+" references");
+                }
+            }
+        }
+        System.out.println("peak concurrent resources: "+size);
+        System.out.println("unculled resources: "+n);
         resources = new ArrayList<>(size);
         nextSlot = 0;
     }

@@ -47,7 +47,7 @@ import com.jme3.profile.AppStep;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.ResourceAllocator;
+import com.jme3.renderer.framegraph.ResourceRecycler;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -110,7 +110,7 @@ public class RenderManager {
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
-    private final ResourceAllocator resPool = new ResourceAllocator();
+    private final ResourceRecycler recycler = new ResourceRecycler();
     private FrameGraph frameGraph;
     private Camera prevCam = null;
     private Material forcedMaterial = null;
@@ -172,8 +172,8 @@ public class RenderManager {
      * 
      * @return 
      */
-    public ResourceAllocator getResourcePool() {
-        return resPool;
+    public ResourceRecycler getResourceRecycler() {
+        return recycler;
     }
 
     /**
@@ -499,6 +499,15 @@ public class RenderManager {
      */
     public void setForcedMaterial(Material mat) {
         forcedMaterial = mat;
+    }
+    
+    /**
+     * Gets the forced material.
+     * 
+     * @return 
+     */
+    public Material getForcedMaterial() {
+        return forcedMaterial;
     }
 
     /**
@@ -1280,7 +1289,7 @@ public class RenderManager {
         if (fg != null) {
             
             fg.getContext().update(vp, prof, tpf);
-            fg.preFrame();
+            //fg.preFrame();
             
         } else if (processors != null) {
             if (prof != null) {
@@ -1318,7 +1327,7 @@ public class RenderManager {
 
         if (fg != null) {
             
-            fg.postQueue();
+            //fg.postQueue();
             
         } else if (processors != null) {
             if (prof != null) {
@@ -1422,6 +1431,9 @@ public class RenderManager {
                 renderViewPort(vp, tpf);
             }
         }
+        
+        recycler.flush();
+        
     }
 
     /**

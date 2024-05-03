@@ -16,12 +16,24 @@ package com.jme3.renderer.framegraph;
  */
 public class ResourceTicket <T> {
     
+    private static long nextId = 0;
+    
+    private final long id;
+    private String name;
     private int index;
     
     public ResourceTicket() {
-        this(-1);
+        this(null, -1);
+    }
+    public ResourceTicket(String name) {
+        this(name, -1);
     }
     public ResourceTicket(int index) {
+        this(null, index);
+    }
+    public ResourceTicket(String name, int index) {
+        this.id = nextId++;
+        this.name = name;
         this.index = index;
     }
     
@@ -34,7 +46,7 @@ public class ResourceTicket <T> {
      * @param target copy target (can be null)
      * @return target
      */
-    public ResourceTicket<T> copyTo(ResourceTicket<T> target) {
+    public ResourceTicket<T> copyIndexTo(ResourceTicket<T> target) {
         if (target == null) {
             target = new ResourceTicket();
         }
@@ -43,12 +55,45 @@ public class ResourceTicket <T> {
     }
     
     /**
-     * Sets the resource index.
+     * Sets the name of this ticket.
+     * <p>
+     * Names are used to locate a particular ticket among a group.
      * 
-     * @param index 
+     * @param name 
+     * @return this ticket instance
      */
-    public void setIndex(int index) {
+    public ResourceTicket<T> setName(String name) {
+        this.name = name;
+        return this;
+    }
+    
+    /**
+     * Sets the index.
+     * 
+     * @param index
+     * @return this instance
+     */
+    protected ResourceTicket<T> setIndex(int index) {
         this.index = index;
+        return this;
+    }
+    
+    /**
+     * Gets the id unique to this ticket.
+     * 
+     * @return 
+     */
+    public long getId() {
+        return id;
+    }
+    
+    /**
+     * Gets the name of this ticket.
+     * 
+     * @return 
+     */
+    public String getName() {
+        return name;
     }
     
     /**
@@ -62,24 +107,7 @@ public class ResourceTicket <T> {
     
     @Override
     public String toString() {
-        return "ResourceTicket["+index+"]";
-    }
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + this.index;
-        return hash;
-    }
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        final ResourceTicket<?> other = (ResourceTicket<?>) obj;
-        return this.index == other.index;
+        return "Ticket[id="+id+", name="+name+", index="+index+"]";
     }
     
 }
