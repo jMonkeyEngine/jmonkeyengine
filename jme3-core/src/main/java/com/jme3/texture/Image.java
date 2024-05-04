@@ -942,14 +942,19 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * into a multisample texture (on OpenGL3.1 and higher).
      */
     public void setMultiSamples(int multiSamples) {
-        if (multiSamples <= 0)
+        if (multiSamples <= 0) {
             throw new IllegalArgumentException("multiSamples must be > 0");
+        }
 
-        if (getData(0) != null)
-            throw new IllegalArgumentException("Cannot upload data as multisample texture");
+        if (multiSamples > 1) {
+            if (getData(0) != null) {
+                throw new IllegalArgumentException("Cannot upload data as multisample texture");
+            }
 
-        if (hasMipmaps())
-            throw new IllegalArgumentException("Multisample textures do not support mipmaps");
+            if (hasMipmaps()) {
+                throw new IllegalArgumentException("Multisample textures do not support mipmaps");
+            }
+        }
 
         this.multiSamples = multiSamples;
     }
