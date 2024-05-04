@@ -695,6 +695,27 @@ public class BoundingSphere extends BoundingVolume {
     }
 
     /**
+     * Tests for approximate equality with the specified bounding sphere, using
+     * the specified tolerance. If {@code other} is null, false is returned.
+     * Either way, the current instance is unaffected.
+     *
+     * @param sphere the bounding sphere to compare (unaffected) or null for none
+     * @param epsilon the tolerance for each component
+     * @return true if all components are within tolerance, otherwise false
+     */
+    public boolean isSimilar(BoundingSphere sphere, float epsilon) {
+        if (sphere == null) {
+            return false;
+        } else if (Float.compare(Math.abs(sphere.getRadius() - radius), epsilon) > 0) {
+            return false;
+        } else if (!center.isSimilar(sphere.getCenter(), epsilon)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * <code>toString</code> returns the string representation of this object.
      * The form is: "Radius: RRR.SSSS Center: vector".
      *
