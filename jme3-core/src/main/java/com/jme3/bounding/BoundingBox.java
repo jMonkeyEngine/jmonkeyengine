@@ -634,8 +634,33 @@ public class BoundingBox extends BoundingVolume {
         hash = 59 * hash + Float.floatToIntBits(zExtent);
         hash = 59 * hash + center.hashCode();
         // The checkPlane field is ignored.
-        
+
         return hash;
+    }
+
+    /**
+     * Tests for approximate equality with the specified bounding box, using the
+     * specified tolerance. If {@code other} is null, false is returned. Either
+     * way, the current instance is unaffected.
+     *
+     * @param aabb the bounding box to compare (unaffected) or null for none
+     * @param epsilon the tolerance for each component
+     * @return true if all components are within tolerance, otherwise false
+     */
+    public boolean isSimilar(BoundingBox aabb, float epsilon) {
+        if (aabb == null) {
+            return false;
+        } else if (Float.compare(Math.abs(aabb.xExtent - xExtent), epsilon) > 0) {
+            return false;
+        } else if (Float.compare(Math.abs(aabb.yExtent - yExtent), epsilon) > 0) {
+            return false;
+        } else if (Float.compare(Math.abs(aabb.zExtent - zExtent), epsilon) > 0) {
+            return false;
+        } else if (!center.isSimilar(aabb.getCenter(), epsilon)) {
+            return false;
+        }
+        // The checkPlane field is ignored.
+        return true;
     }
 
     /**
