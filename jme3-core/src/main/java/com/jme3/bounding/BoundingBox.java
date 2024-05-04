@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -585,6 +585,57 @@ public class BoundingBox extends BoundingVolume {
         BoundingBox rVal = new BoundingBox(center.clone(),
                 xExtent, yExtent, zExtent);
         return rVal;
+    }
+
+    /**
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code other} is null, false is returned. Either way, the current
+     * instance is unaffected.
+     *
+     * @param other the object to compare (may be null, unaffected)
+     * @return true if {@code this} and {@code other} have identical values,
+     *     otherwise false
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof BoundingBox)) {
+            return false;
+        }
+
+        if (this == other) {
+            return true;
+        }
+
+        BoundingBox otherBoundingBox = (BoundingBox) other;
+        if (Float.compare(xExtent, otherBoundingBox.xExtent) != 0) {
+            return false;
+        } else if (Float.compare(yExtent, otherBoundingBox.yExtent) != 0) {
+            return false;
+        } else if (Float.compare(zExtent, otherBoundingBox.zExtent) != 0) {
+            return false;
+        } else if (!center.equals(otherBoundingBox.getCenter())) {
+            return false;
+        }
+        // The checkPlane field is ignored.
+        return true;
+    }
+
+    /**
+     * Returns a hash code. If two bounding boxes have identical values, they
+     * will have the same hash code. The current instance is unaffected.
+     *
+     * @return a 32-bit value for use in hashing
+     */
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 59 * hash + Float.floatToIntBits(xExtent);
+        hash = 59 * hash + Float.floatToIntBits(yExtent);
+        hash = 59 * hash + Float.floatToIntBits(zExtent);
+        hash = 59 * hash + center.hashCode();
+        // The checkPlane field is ignored.
+        
+        return hash;
     }
 
     /**
