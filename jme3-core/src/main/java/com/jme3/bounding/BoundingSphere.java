@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -649,6 +649,49 @@ public class BoundingSphere extends BoundingVolume {
         }
 
         return new BoundingSphere(radius, center.clone());
+    }
+
+    /**
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code other} is null, false is returned. Either way, the current
+     * instance is unaffected.
+     *
+     * @param other the object to compare (may be null, unaffected)
+     * @return true if {@code this} and {@code other} have identical values,
+     *     otherwise false
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof BoundingSphere)) {
+            return false;
+        }
+
+        if (this == other) {
+            return true;
+        }
+
+        BoundingSphere otherBoundingSphere = (BoundingSphere) other;
+        if (Float.compare(radius, otherBoundingSphere.getRadius()) != 0) {
+            return false;
+        } else if (!center.equals(otherBoundingSphere.getCenter())) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns a hash code. If two bounding boxes have identical values, they
+     * will have the same hash code. The current instance is unaffected.
+     *
+     * @return a 32-bit value for use in hashing
+     */
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 59 * hash + Float.floatToIntBits(radius);
+        hash = 59 * hash + center.hashCode();
+
+        return hash;
     }
 
     /**
