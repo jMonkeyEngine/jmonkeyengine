@@ -676,6 +676,7 @@ public class BoundingSphere extends BoundingVolume {
         } else if (!center.equals(otherBoundingSphere.getCenter())) {
             return false;
         }
+        // The checkPlane field is ignored.
         return true;
     }
 
@@ -690,6 +691,7 @@ public class BoundingSphere extends BoundingVolume {
         int hash = 3;
         hash = 59 * hash + Float.floatToIntBits(radius);
         hash = 59 * hash + center.hashCode();
+        // The checkPlane field is ignored.
 
         return hash;
     }
@@ -711,7 +713,7 @@ public class BoundingSphere extends BoundingVolume {
         } else if (!center.isSimilar(sphere.getCenter(), epsilon)) {
             return false;
         }
-
+        // The checkPlane field is ignored.
         return true;
     }
 
