@@ -13,9 +13,9 @@ import com.jme3.post.Filter;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.framegraph.DeferredGraphConstructor;
 import com.jme3.renderer.framegraph.ForwardGraphConstructor;
 import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.TestConstructor;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -58,7 +58,8 @@ public class TestShadingModel extends SimpleApplication {
         
         //FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
         FrameGraph graph = new FrameGraph(assetManager, renderManager);
-        graph.setConstructor(new ForwardGraphConstructor());
+        graph.setConstructor(new DeferredGraphConstructor());
+        //graph.setConstructor(new ForwardGraphConstructor());
         //graph.setConstructor(new TestConstructor());
         //MyFrameGraph graph = RenderPipelineFactory.createBackroundScreenTest(assetManager, renderManager);
         viewPort.setFrameGraph(graph);
@@ -166,7 +167,7 @@ public class TestShadingModel extends SimpleApplication {
 
         if (frame == 2) {
             
-            //rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
+            rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
 
         }
         if (frame > 10 && modelNode.getParent() == null) {

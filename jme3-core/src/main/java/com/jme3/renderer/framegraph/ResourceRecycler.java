@@ -16,17 +16,26 @@ public class ResourceRecycler {
     private final LinkedList<RenderResource> resources = new LinkedList<>();
     private int timeout = 1;
     
-    public void add(RenderResource res) {
-        if (res.isVirtual()) {
-            throw new IllegalArgumentException("Resource cannot be virtual.");
+    public void add(RenderResource resource) {
+        if (resource.isVirtual() && resource.getResource() != null) {
+            throw new IllegalArgumentException("Resource cannot be virtual or null.");
         }
-        if (res.getDefinition().getRecycleTimeout() >= 0) {
-            res.setTimeout(res.getDefinition().getRecycleTimeout());
+        if (resource.getDefinition().getRecycleTimeout() >= 0) {
+            resource.setTimeout(resource.getDefinition().getRecycleTimeout());
         } else {
-            res.setTimeout(timeout);
+            resource.setTimeout(timeout);
         }
         //res.getDefinition().destroy(res.getResource());
-        resources.add(res);
+        resources.add(resource);
+    }
+    public void add(Object resource) {
+        if (resource == null) {
+            throw new NullPointerException("Resource cannot be null.");
+        }
+        RenderResource r = new RenderResource(null, null, null);
+        r.setResource(resource);
+        r.setTimeout(timeout);
+        resources.add(r);
     }
     
     public <T> boolean recycle(RenderResource<T> resource) {
@@ -34,13 +43,11 @@ public class ResourceRecycler {
         if (!def.isAcceptsRecycled()) {
             return false;
         }
-        System.out.println("      try "+resources.size()+" available resources to recycle");
         for (Iterator<RenderResource> it = resources.iterator(); it.hasNext();) {
             RenderResource res = it.next();
             if (def.isOfResourceType(res.getResource().getClass())) {
                 T r = (T)res.getResource();
                 if (def.applyRecycled(r)) {
-                    System.out.println("      recycle for "+resource);
                     resource.setResource(r);
                     it.remove();
                     return true;
@@ -49,7 +56,6 @@ public class ResourceRecycler {
         }
         return false;
     }
-    
     public void flush() {
         // Note: flushing resources on the same frame they were created causes the
         // screen to render black. Guess: destroying output texture early causes
@@ -63,7 +69,6 @@ public class ResourceRecycler {
                 it.remove();
             }
         }
-        System.out.println("resources flushed: "+n);
     }
     
 }

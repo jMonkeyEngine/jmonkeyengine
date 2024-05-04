@@ -4,7 +4,7 @@
 
 attribute vec3 inPosition;
 
-#ifdef USE_LIGHTS_CULL_MODE
+#ifndef USE_LIGHTS_CULL_MODE
     varying vec2 texCoord;
 #endif
 varying mat4 viewProjectionMatrixInverse;

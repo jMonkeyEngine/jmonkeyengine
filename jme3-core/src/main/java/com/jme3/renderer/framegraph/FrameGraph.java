@@ -24,8 +24,8 @@ public class FrameGraph {
 
     public FrameGraph(AssetManager assetManager, RenderManager renderManager) {
         this.assetManager = assetManager;
-        this.resources = new ResourceList(renderManager.getResourceRecycler());
-        this.context = new FGRenderContext(this.assetManager, renderManager);
+        this.resources = new ResourceList(renderManager.getRecycler());
+        this.context = new FGRenderContext(this, renderManager);
     }
     
     public void execute() {
@@ -89,7 +89,7 @@ public class FrameGraph {
         return resources;
     }
     public ResourceRecycler getRecycler() {
-        return context.getRenderManager().getResourceRecycler();
+        return context.getRenderManager().getRecycler();
     }
     public FGRenderContext getContext() {
         return context;

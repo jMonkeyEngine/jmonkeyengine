@@ -4,12 +4,8 @@
  */
 package com.jme3.renderer.framegraph;
 
-import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
-import com.jme3.renderer.GeometryRenderHandler;
-import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
-import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -18,13 +14,14 @@ import com.jme3.texture.Texture2D;
  *
  * @author codex
  */
-public class BucketPass extends RenderPass implements GeometryRenderHandler {
+public class BucketPass extends RenderPass {
     
     private Bucket bucket;
     private DepthRange depth;
     private int samples = 1;
     private boolean flush = true;
     private ResourceTicket<Texture2D> inColor, inDepth, outColor, outDepth;
+    private ResourceTicket<FrameBuffer> frameBuffer;
     private Texture2D fTex;
     
     public BucketPass(Bucket bucket) {
@@ -48,48 +45,33 @@ public class BucketPass extends RenderPass implements GeometryRenderHandler {
         int h = context.getHeight();
         outColor = register(new TextureDef2D(w, h, samples, Image.Format.RGBA8), outColor);
         outDepth = register(new TextureDef2D(w, h, samples, Image.Format.Depth), outDepth);
+        frameBuffer = register(new FrameBufferDef(w, h, samples), frameBuffer);
         referenceOptional(inColor, inDepth);
     }
     @Override
     protected void execute(FGRenderContext context) {
-        frameBuffer.addColorTarget(context.createTextureTarget(resources.acquire(outColor)));
-        frameBuffer.setDepthTarget(context.createTextureTarget(resources.acquire(outDepth)));
-        context.setFrameBuffer(frameBuffer, true, true, true);
+        FrameBuffer fb = resources.acquire(frameBuffer);
+        fb.clearColorTargets();
+        // no need to clear the depth target, since we are assigning one below
+        fb.addColorTarget(context.createTextureTarget(resources.acquire(outColor)));
+        fb.setDepthTarget(context.createTextureTarget(resources.acquire(outDepth)));
+        context.setFrameBuffer(fb, true, true, true);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
-        //context.getRenderManager().setGeometryRenderHandler(this);
         context.transferTextures(resources.acquire(inColor, null), resources.acquire(inDepth, null));
         context.getRenderer().setDepthRange(depth);
         if (bucket == Bucket.Gui) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), true);
         }
-        //context.getRenderer().setDepthRange(0, 0);
         context.renderViewPortQueue(bucket, flush);
         if (bucket == Bucket.Gui) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), false);
         }
-        //context.transferTextures(fTex, null, false);
-        frameBuffer.clearColorTargets();
+        fb.clearColorTargets();
     }
     @Override
     protected void reset(FGRenderContext context) {}
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
-    @Override
-    protected FrameBuffer createFrameBuffer(FGRenderContext context) {
-        return new FrameBuffer(context.getWidth(), context.getHeight(), samples);
-        //return null;
-    }
-    @Override
-    public boolean isReferenced() {
-        return super.isReferenced();
-        //return true;
-    }
-    @Override
-    public boolean renderGeometry(RenderManager rm, Geometry geom) {
-        rm.renderGeometry(geom);
-        System.out.println("RENDER GEOMETRY: "+geom);
-        return true;
-    }
     
     public void setDepthRange(DepthRange depth) {
         this.depth = depth;

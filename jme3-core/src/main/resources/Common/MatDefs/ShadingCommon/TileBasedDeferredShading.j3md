@@ -23,11 +23,10 @@ MaterialDef DeferredShading {
         Texture2D TileLightDecode
         Texture2D TileLightIndex
     }
-
+    
     Technique TileBasedDeferredPass {
     
         Pipeline Deferred
-        LightMode TileBasedDeferredSinglePass
 
         VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/ShadingCommon/DeferredShading.vert
         FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/ShadingCommon/TileBasedDeferredShading.frag

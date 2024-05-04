@@ -1,8 +1,12 @@
 
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 
-#ifdef WRITE_COLOR
+#ifdef WRITE_COLOR_MAP
     uniform sampler2D m_ColorMap;
+#else
+    #ifdef WRITE_COLOR
+        uniform vec4 m_Color;
+    #endif
 #endif
 #ifdef WRITE_DEPTH
     uniform sampler2D m_DepthMap;
@@ -15,10 +19,14 @@ varying vec2 texCoord;
 
 void main() {
     
-    #ifdef WRITE_COLOR
+    #ifdef WRITE_COLOR_MAP
         gl_FragColor = texture2D(m_ColorMap, texCoord);
     #else
-        gl_FragColor = vec4(0.0);
+        #ifdef WRITE_COLOR
+            gl_FragColor = m_Color;
+        #else
+            gl_FragColor = vec4(0.0);
+        #endif
     #endif
     
     #ifdef WRITE_DEPTH

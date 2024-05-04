@@ -13,13 +13,13 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 public class TestConstructor implements GraphConstructor {
     
     private BucketPass opaque, sky;
-    private ResultPass result;
+    private OutputPass result;
     
     @Override
     public void addPasses(FrameGraph frameGraph) {
         opaque = frameGraph.add(new BucketPass(Bucket.Opaque));
         sky = frameGraph.add(new BucketPass(Bucket.Sky, DepthRange.REAR));
-        result = frameGraph.add(new ResultPass());
+        result = frameGraph.add(new OutputPass());
     }
     @Override
     public void preparePasses(FGRenderContext context) {

@@ -19,7 +19,6 @@ public abstract class RenderPass implements ResourceProducer {
     private final LinkedList<ResourceTicket> outputs = new LinkedList<>();
     private final CameraSize camSize = new CameraSize();
     private int refs = 0;
-    protected FrameBuffer frameBuffer;
     
     public void initializePass(FrameGraph frameGraph) {
         this.resources = frameGraph.getResources();
@@ -29,12 +28,6 @@ public abstract class RenderPass implements ResourceProducer {
         prepare(context);
     }
     public void executeRender(FGRenderContext context) {
-        if (camSize.update(context.getCameraSize()) || frameBuffer == null) {
-            if (frameBuffer != null) {
-                destroyFrameBuffer(context, frameBuffer);
-            }
-            frameBuffer = createFrameBuffer(context);
-        }
         execute(context);
         context.popRenderSettings();
         releaseAll();
@@ -53,14 +46,6 @@ public abstract class RenderPass implements ResourceProducer {
     protected abstract void execute(FGRenderContext context);
     protected abstract void reset(FGRenderContext context);
     protected abstract void cleanup(FrameGraph frameGraph);
-    
-    protected FrameBuffer createFrameBuffer(FGRenderContext context) {
-        return null;
-    }
-    protected void destroyFrameBuffer(FGRenderContext context, FrameBuffer fbo) {
-        fbo.dispose();
-        //fbo.deleteObject(context.getRenderer());
-    }
     
     protected <T> ResourceTicket<T> register(ResourceDef<T> def, ResourceTicket<T> ticket) {
         ticket = resources.register(this, def, ticket);
@@ -87,12 +72,12 @@ public abstract class RenderPass implements ResourceProducer {
             referenceOptional(t);
         }
     }
-    private void releaseAll() {
+    protected void releaseAll() {
         for (ResourceTicket t : inputs) {
-            resources.release(t);
+            resources.releaseOptional(t);
         }
         for (ResourceTicket t : outputs) {
-            resources.release(t);
+            resources.releaseOptional(t);
         }
     }
     
@@ -128,6 +113,10 @@ public abstract class RenderPass implements ResourceProducer {
     @Override
     public LinkedList<ResourceTicket> getOutputTickets() {
         return outputs;
+    }
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
     }
     
 }

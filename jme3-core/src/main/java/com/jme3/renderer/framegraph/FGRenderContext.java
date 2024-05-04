@@ -56,13 +56,13 @@ import java.util.function.Predicate;
  */
 public class FGRenderContext {
     
+    private final FrameGraph frameGraph;
     private final RenderManager renderManager;
     private ViewPort viewPort;
     private AppProfiler profiler;
     private final CameraSize camSize = new CameraSize();
     private float tpf;
-    private Geometry screen;
-    private final Material transferMat;
+    private final FullScreenQuad screen;
     
     private String forcedTechnique;
     private Material forcedMat;
@@ -71,10 +71,10 @@ public class FGRenderContext {
     private Predicate<Geometry> geomFilter;
     private RenderState renderState;
 
-    public FGRenderContext(AssetManager assetManager, RenderManager renderManager) {
+    public FGRenderContext(FrameGraph frameGraph, RenderManager renderManager) {
+        this.frameGraph = frameGraph;
         this.renderManager = renderManager;
-        transferMat = new Material(assetManager, "Common/MatDefs/ShadingCommon/TextureTransfer.j3md");
-        //transferMat.getAdditionalRenderState().setDepthFunc(RenderState.TestFunction.Less);
+        this.screen = new FullScreenQuad(this.frameGraph.getAssetManager());
     }
     
     public void update(ViewPort vp, AppProfiler profiler, float tpf) {
@@ -118,49 +118,10 @@ public class FGRenderContext {
         viewPort.getQueue().renderQueue(bucket, renderManager, viewPort.getCamera(), clear);
     }
     public void renderFullscreen(Material mat) {
-        if (screen == null) {
-            Mesh mesh = new Mesh();
-            mesh.setBuffer(VertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(
-                0, 0, 0,
-                1, 0, 0,
-                0, 1, 0,
-                1, 1, 0
-            ));
-            mesh.setBuffer(VertexBuffer.Type.Index, 3, BufferUtils.createIntBuffer(
-                0, 1, 2,
-                1, 3, 2
-            ));
-            mesh.updateBound();
-            mesh.updateCounts();
-            mesh.setStatic();
-            screen = new Geometry("Screen", mesh);
-        }
-        screen.setMaterial(mat);
-        screen.updateGeometricState();
-        renderManager.renderGeometry(screen);
+        screen.render(renderManager, mat);
     }
     public void transferTextures(Texture2D color, Texture2D depth) {
-        transferTextures(color, depth, BlendMode.Off);
-    }
-    public void transferTextures(Texture2D color, Texture2D depth, BlendMode blend) {
-        boolean writeDepth = depth != null;
-        if (color != null || writeDepth) {
-            transferMat.setTexture("ColorMap", color);
-            transferMat.setTexture("DepthMap", depth);
-            transferMat.getAdditionalRenderState().setDepthTest(writeDepth);
-            transferMat.getAdditionalRenderState().setDepthWrite(writeDepth);
-            //transferMat.getAdditionalRenderState().setBlendMode(BlendMode.Off);
-            System.out.println("blend="+blend);
-            transferMat.getAdditionalRenderState().setBlendMode(blend);
-            //transferMat.setTransparent(blend == BlendMode.Alpha
-            //        || blend == BlendMode.AlphaAdditive || blend == BlendMode.AlphaSumA);
-            //System.out.println("blendmode="+transferMat.getAdditionalRenderState().getBlendMode());
-            //System.out.println("alpha="+transferMat.isTransparent());
-            renderFullscreen(transferMat);
-        }
-    }
-    public FrameBuffer.FrameBufferTextureTarget createTextureTarget(Texture tex) {
-        return FrameBuffer.FrameBufferTarget.newTarget(tex);
+        screen.render(renderManager, color, depth);
     }
     
     public void setFrameBuffer(FrameBuffer fbo) {
@@ -169,6 +130,9 @@ public class FGRenderContext {
     public void setFrameBuffer(FrameBuffer fbo, boolean clearColor, boolean clearDepth, boolean clearStencil) {
         setFrameBuffer(fbo);
         renderManager.getRenderer().clearBuffers(clearColor, clearDepth, clearStencil);
+    }
+    public FrameBuffer.FrameBufferTextureTarget createTextureTarget(Texture tex) {
+        return FrameBuffer.FrameBufferTarget.newTarget(tex);
     }
     
     public RenderManager getRenderManager() {
@@ -192,6 +156,9 @@ public class FGRenderContext {
         } else {
             return null;
         }
+    }
+    public FullScreenQuad getScreen() {
+        return screen;
     }
     public float getTpf() {
         return tpf;

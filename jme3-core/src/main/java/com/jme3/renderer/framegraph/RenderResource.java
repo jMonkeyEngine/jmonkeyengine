@@ -17,6 +17,7 @@ public class RenderResource <T> {
     private T resource;
     private int refs = 0;
     private int timeout = 0;
+    private boolean virtual = true;
     private boolean watched = false;
 
     public RenderResource(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
@@ -26,7 +27,7 @@ public class RenderResource <T> {
     }
     
     public void create() {
-        resource = def.create();
+        setResource(def.create());
     }
     
     public void reference() {
@@ -44,6 +45,7 @@ public class RenderResource <T> {
     }
     public void setResource(T resource) {
         this.resource = resource;
+        virtual = false;
     }
     public void setWatched(boolean watched) {
         this.watched = watched;
@@ -69,7 +71,7 @@ public class RenderResource <T> {
     }
     
     public boolean isVirtual() {
-        return resource == null;
+        return virtual;
     }
     public boolean isReferenced() {
         return refs > 0;

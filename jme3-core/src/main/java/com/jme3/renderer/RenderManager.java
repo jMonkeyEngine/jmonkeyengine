@@ -143,39 +143,19 @@ public class RenderManager {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
     }
-    
-    /**
-     * Sets the framegraph used for rendering if the rendered viewport
-     * has no framegraph assigned.
-     * <p>
-     * If this framegraph is null, and the viewport currently being rendered has
-     * no framegraph assigned, JME's legacy forward rendering method will be used.
-     * 
-     * @param frameGraph default framegraph, or null to not use a framegraph by default for rendering
-     */
-    public void setFrameGraph(FrameGraph frameGraph) {
-        this.frameGraph = frameGraph;
-    }
-    
-    /**
-     * Gets the framegraph used for rendering if the rendered viewport
-     * has no framegraph assigned.
-     * 
-     * @return default framegraph, or null if framegraphs are not used by default for rendering
-     */
+
     public FrameGraph getFrameGraph() {
         return frameGraph;
     }
-    
-    /**
-     * Gets the global resource pool used to store potential render resources.
-     * 
-     * @return 
-     */
-    public ResourceRecycler getResourceRecycler() {
-        return recycler;
+
+    public void setFrameGraph(FrameGraph frameGraph) {
+        this.frameGraph = frameGraph;
     }
 
+    public ResourceRecycler getRecycler() {
+        return recycler;
+    }
+    
     /**
      * Sets the GeometryRenderHandler used to render geometry.
      * <p>
@@ -1285,13 +1265,11 @@ public class RenderManager {
         if (fg == null) {
             fg = frameGraph;
         }
-        
         if (fg != null) {
-            
             fg.getContext().update(vp, prof, tpf);
-            //fg.preFrame();
-            
-        } else if (processors != null) {
+        }
+        
+        if (processors != null) {
             if (prof != null) {
                 prof.vpStep(VpStep.PreFrame, vp, null);
             }
@@ -1325,11 +1303,7 @@ public class RenderManager {
             renderScene(scenes.get(i), vp);
         }
 
-        if (fg != null) {
-            
-            //fg.postQueue();
-            
-        } else if (processors != null) {
+        if (processors != null) {
             if (prof != null) {
                 prof.vpStep(VpStep.PostQueue, vp, null);
             }
@@ -1432,6 +1406,7 @@ public class RenderManager {
             }
         }
         
+        // flush unrecycled resources
         recycler.flush();
         
     }

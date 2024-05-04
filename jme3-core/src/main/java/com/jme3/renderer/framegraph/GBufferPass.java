@@ -94,8 +94,23 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         return false;
     }
 
-    public void setDepth(ResourceTicket<Texture2D> depth) {
-        this.depth = depth.copyIndexTo(this.depth);
+    public ResourceTicket<Texture2D> getDepth() {
+        return depth;
+    }
+    public ResourceTicket<Texture2D> getDiffuse() {
+        return diffuse;
+    }
+    public ResourceTicket<Texture2D> getSpecular() {
+        return specular;
+    }
+    public ResourceTicket<Texture2D> getEmissive() {
+        return emissive;
+    }
+    public ResourceTicket<Texture2D> getNormal() {
+        return normal;
+    }
+    public ResourceTicket<LightList> getLights() {
+        return lights;
     }
     
 }

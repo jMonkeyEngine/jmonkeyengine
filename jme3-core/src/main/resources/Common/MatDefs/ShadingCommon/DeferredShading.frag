@@ -42,12 +42,14 @@ void main(){
     // unpack GBuffer
     vec4 shadingInfo = texture2D(Context_InGBuff2, innerTexCoord);
     int shadingModelId = int(floor(shadingInfo.a));
+    float depth = texture2D(GBUFFER_DEPTH, texCoord).r;
+    gl_FragDepth = depth;
     // Perform corresponding pixel shading based on the shading model
     if(IS_LIT(shadingModelId)){
         // lit shading model
         // todo:For now, use the big branch first, and extract the common parts later
         if(shadingModelId == LEGACY_LIGHTING){
-            vec3 vPos = getPosition(innerTexCoord, viewProjectionMatrixInverse);
+            vec3 vPos = getPosition(innerTexCoord, depth, viewProjectionMatrixInverse);
             vec4 buff1 = texture2D(Context_InGBuff1, innerTexCoord);
             vec4 diffuseColor = texture2D(Context_InGBuff0, innerTexCoord);
             vec3 specularColor = floor(buff1.rgb) * 0.01f;
@@ -128,7 +130,7 @@ void main(){
         }
         else if(shadingModelId == STANDARD_LIGHTING){
             // todo:
-            vec3 vPos = getPosition(innerTexCoord, viewProjectionMatrixInverse);
+            vec3 vPos = getPosition(innerTexCoord, depth, viewProjectionMatrixInverse);
             vec4 buff0 = texture2D(Context_InGBuff0, innerTexCoord);
             vec4 buff1 = texture2D(Context_InGBuff1, innerTexCoord);
             vec3 emissive = shadingInfo.rgb;
