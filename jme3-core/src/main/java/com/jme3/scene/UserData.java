@@ -33,9 +33,6 @@ package com.jme3.scene;
 
 import com.jme3.export.*;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -85,10 +82,6 @@ public final class UserData implements Savable {
     private static final int TYPE_BYTE          = 11;
     /** Key number that identifies the data type: Enum|enum. */
     private static final int TYPE_ENUM          = 12;
-    /** Key number that identifies the data type: BigInteger. */
-    private static final int TYPE_BIG_INTEGER   = 13;
-    /** Key number that identifies the data type: BigDecimal. */
-    private static final int TYPE_BIG_DECIMAL   = 14;
 
     /** data-type */
     protected byte type;
@@ -184,10 +177,6 @@ public final class UserData implements Savable {
             return TYPE_BYTE;
         } else if (type instanceof Enum) {
             return TYPE_ENUM;
-        } else if (type instanceof BigDecimal) {
-            return TYPE_BIG_DECIMAL;
-        } else if (type instanceof BigInteger) {
-            return TYPE_BIG_INTEGER;
         } else {
             throw new IllegalArgumentException("Unsupported type: " + type.getClass().getName());
         }
@@ -257,17 +246,6 @@ public final class UserData implements Savable {
                 oc.write(className.getName(), "className", null);
                 oc.write(en, "enumVal", (Enum)null);
                 break;
-            case TYPE_BIG_DECIMAL:
-                BigDecimal decimal = (BigDecimal) value;
-                BigInteger toint   = decimal.unscaledValue();
-                
-                oc.write(decimal.scale(), "scaledValue", 0);
-                oc.write(toint.toByteArray(), "bigDecimal", null);
-                break;
-            case TYPE_BIG_INTEGER:
-                BigInteger integer = (BigInteger) value;
-                oc.write(integer.toByteArray(), "bigInteger", null);
-                break;
             default:
                 throw new UnsupportedOperationException("Unsupported value type: " + value.getClass());
         }
@@ -327,56 +305,11 @@ public final class UserData implements Savable {
             case TYPE_ENUM:
                 value = readEnum(ic, null, null);
                 break;
-            case TYPE_BIG_DECIMAL:
-                value = readBigNumber(ic, null, null, true);
-                break;
-            case TYPE_BIG_INTEGER:
-                value = readBigNumber(ic, null, null, false);
-                break;
             default:
                 throw new UnsupportedOperationException("Unknown type of stored data: " + type);
         }
     }
-    
-    /**
-     * Responsible method of reading (importing) a big number.
-     * 
-     * @param in data input ("buffer")
-     * @param prefix prefix if you are reading a list, otherwise null
-     * @param suffix suffix if you are reading a list, otherwise null
-     * @param isDecimal <code>true</code> if you want to read a decimal number;
-     *                  otherwise <code>false</code> for an integer
-     * @return number
-     * 
-     * @throws IOException If any error occurs during decoding
-     */
-    private Number readBigNumber(InputCapsule in, String prefix, String suffix, boolean isDecimal) throws IOException {
-        if (prefix == null) {
-            prefix = "";
-        }
-        if (suffix == null) {
-            suffix = "";
-        }
         
-        if (isDecimal) {
-            byte[] decimalBits = in.readByteArray(prefix + "bigDecimal" + suffix, null);
-            int scaleBits      = in.readInt(prefix + "scaledValue" + suffix, 0);
-            
-            if (decimalBits == null)
-                throw new IOException("The bytes of the number (BigDecimal) could not be found.");
-            
-            BigInteger bigInt = new BigInteger(decimalBits);
-            return new BigDecimal(bigInt, scaleBits, MathContext.UNLIMITED);
-        } else {
-            byte[] intBits = in.readByteArray(prefix + "bigInteger" + suffix, null);
-            
-            if (intBits == null)
-                throw new IOException("The bytes of the number (BigInteger) could not be found.");
-            
-            return new BigInteger(intBits);
-        }
-    }
-    
     /**
      * Method responsible for reading (importing) an object of type 'enum' (if possible).
      * 
@@ -465,18 +398,6 @@ public final class UserData implements Savable {
                     oc.write(TYPE_ENUM, listName + "t" + counter, 0);
                     oc.write(className.getName(), listName + "v(className)" + counter, null);
                     oc.write(en,  listName + "v(enumVal)" + counter, (Enum)null);
-                } else if (o instanceof BigDecimal) {
-                    BigDecimal decimal = (BigDecimal) o;
-                    BigInteger toint   = decimal.unscaledValue();
-
-                    oc.write(TYPE_BIG_DECIMAL, listName + "t" + counter, 0);
-                    oc.write(decimal.scale(), listName + "v(scaledValue)" + counter, 0);
-                    oc.write(toint.toByteArray(), listName + "v(bigDecimal)" + counter, null);
-                } else if (o instanceof BigInteger) {
-                    BigInteger integer = (BigInteger) o;
-                    
-                    oc.write(TYPE_BIG_INTEGER, listName + "t" + counter, 0);
-                    oc.write(integer.toByteArray(), listName + "v(bigInteger)" + counter, null);
                 } else {
                     throw new UnsupportedOperationException("Unsupported type stored in the list: " + o.getClass());
                 }
@@ -537,12 +458,6 @@ public final class UserData implements Savable {
                     break;
                 case TYPE_ENUM:
                     list.add(readEnum(ic, listName + "v(", ")" + i));
-                    break;
-                case TYPE_BIG_DECIMAL:
-                    list.add(readBigNumber(ic, listName + "v(", ")" + i, true));
-                    break;
-                case TYPE_BIG_INTEGER:
-                    list.add(readBigNumber(ic, listName + "v(", ")" + i, false));
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown type of stored data in a list: " + type);

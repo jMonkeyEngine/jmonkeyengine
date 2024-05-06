@@ -40,8 +40,6 @@ import com.jme3.scene.Spatial;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,14 +77,10 @@ public class TestUserData extends SimpleApplication {
         Node emptyNode = new Node("Empty");
         
         emptyNode.setUserData("Options", TestEnum.OPTION1);
-        emptyNode.setUserData("Big Decimal", new BigDecimal("4852300.12587441266855"));
-        emptyNode.setUserData("Big Integer", new BigInteger("4886652221154555899845"));
         
         List<Object> data = new ArrayList<>();
         data.add(TestEnum.OPTION2);
         data.add(TestEnum.OPTION3);
-        data.add(new BigInteger("89546748798645465"));
-        data.add(new BigDecimal("89656265.26548965"));
         
         emptyNode.setUserData("List<?>", data);
         exportAndImport(emptyNode);
