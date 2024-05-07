@@ -91,7 +91,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest,windows-2019,macOS-latest]
-        jdk: [8, 11, 17]
+        jdk: [11, 17]
         include:
           - os: ubuntu-latest
             osName: linux
@@ -101,8 +101,6 @@ jobs:
             deploy: false
           - os: macOS-latest
             osName: mac
-            deploy: false
-          - jdk: 8
             deploy: false
           - jdk: 11
             deploy: false
