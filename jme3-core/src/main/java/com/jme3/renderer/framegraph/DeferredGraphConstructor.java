@@ -4,6 +4,11 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.passes.DeferredPass;
+import com.jme3.renderer.framegraph.passes.GBufferPass;
+import com.jme3.renderer.framegraph.passes.OutputBucketPass;
+import com.jme3.renderer.framegraph.passes.OutputPass;
+import com.jme3.renderer.framegraph.passes.PostProcessingPass;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 
 /**
@@ -13,7 +18,7 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 public class DeferredGraphConstructor implements GraphConstructor {
     
     private GBufferPass gbuf;
-    private TileDeferredPass deferred;
+    private DeferredPass deferred;
     private OutputPass defOut;
     private OutputBucketPass sky, transparent, gui, translucent;
     private PostProcessingPass post;
@@ -21,7 +26,7 @@ public class DeferredGraphConstructor implements GraphConstructor {
     @Override
     public void addPasses(FrameGraph frameGraph) {
         gbuf = frameGraph.add(new GBufferPass());
-        deferred = frameGraph.add(new TileDeferredPass());
+        deferred = frameGraph.add(new DeferredPass());
         defOut = frameGraph.add(new OutputPass());
         sky = frameGraph.add(new OutputBucketPass(Bucket.Sky, DepthRange.REAR));
         transparent = frameGraph.add(new OutputBucketPass(Bucket.Transparent));

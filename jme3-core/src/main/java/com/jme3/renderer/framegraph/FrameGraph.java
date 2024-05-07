@@ -4,6 +4,7 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.passes.RenderPass;
 import com.jme3.asset.AssetManager;
 import com.jme3.renderer.RenderManager;
 import java.util.LinkedList;
@@ -15,6 +16,9 @@ import java.util.LinkedList;
  */
 public class FrameGraph {
     
+    private static int nextId = 0;
+    
+    private final int id;
     private final AssetManager assetManager;
     private final ResourceList resources;
     private final FGRenderContext context;
@@ -23,13 +27,13 @@ public class FrameGraph {
     private boolean debug = false;
 
     public FrameGraph(AssetManager assetManager, RenderManager renderManager) {
+        this.id = nextId++;
         this.assetManager = assetManager;
-        this.resources = new ResourceList(renderManager.getRecycler());
+        this.resources = new ResourceList(renderManager.getRenderObjectsMap());
         this.context = new FGRenderContext(this, renderManager);
     }
     
     public void execute() {
-        System.out.println("render viewport: "+context.getViewPort().getName());
         // prepare passes
         if (constructor != null) {
             constructor.preparePasses(context);
@@ -45,10 +49,11 @@ public class FrameGraph {
         context.pushRenderSettings();
         for (RenderPass p : passes) {
             if (p.isReferenced()) {
-                System.out.println("  execute pass: "+p);
                 p.executeRender(context);
+                context.popRenderSettings();
             }
         }
+        context.popFrameBuffer();
         // reset passes
         for (RenderPass p : passes) {
             p.resetRender(context);
@@ -66,7 +71,7 @@ public class FrameGraph {
     }
     public <T extends RenderPass> T add(T pass) {
         passes.addLast(pass);
-        pass.initializePass(this);
+        pass.initializePass(this, passes.size()-1);
         return pass;
     }
     public <T extends RenderPass> T get(Class<T> type) {
@@ -82,14 +87,17 @@ public class FrameGraph {
         this.debug = debug;
     }
     
+    public int getId() {
+        return id;
+    }
     public AssetManager getAssetManager() {
         return assetManager;
     }
     public ResourceList getResources() {
         return resources;
     }
-    public ResourceRecycler getRecycler() {
-        return context.getRenderManager().getRecycler();
+    public RenderObjectMap getRecycler() {
+        return context.getRenderManager().getRenderObjectsMap();
     }
     public FGRenderContext getContext() {
         return context;

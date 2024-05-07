@@ -47,7 +47,7 @@ import com.jme3.profile.AppStep;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.ResourceRecycler;
+import com.jme3.renderer.framegraph.RenderObjectMap;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -110,7 +110,7 @@ public class RenderManager {
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
-    private final ResourceRecycler recycler = new ResourceRecycler();
+    private final RenderObjectMap renderObjects = new RenderObjectMap();
     private FrameGraph frameGraph;
     private Camera prevCam = null;
     private Material forcedMaterial = null;
@@ -152,8 +152,8 @@ public class RenderManager {
         this.frameGraph = frameGraph;
     }
 
-    public ResourceRecycler getRecycler() {
-        return recycler;
+    public RenderObjectMap getRenderObjectsMap() {
+        return renderObjects;
     }
     
     /**
@@ -1123,7 +1123,7 @@ public class RenderManager {
     }
 
     private void setViewPort(Camera cam) {
-        // this will make sure to update viewport only if needed
+        // this will make sure to clearReservations viewport only if needed
         if (cam != prevCam || cam.isViewportChanged()) {
             viewX      = (int) (cam.getViewPortLeft() * cam.getWidth());
             viewY      = (int) (cam.getViewPortBottom() * cam.getHeight());
@@ -1345,11 +1345,15 @@ public class RenderManager {
             
         }
         
-        // clear any remaining spatials that were not rendered.
+        // clearMap any remaining spatials that were not rendered.
         clearQueue(vp);
 
         if (prof != null) {
             prof.vpStep(VpStep.EndRender, vp, null);
+        }
+        
+        if (fg != null) {
+            renderObjects.clearReservations();
         }
         
     }
@@ -1406,8 +1410,8 @@ public class RenderManager {
             }
         }
         
-        // flush unrecycled resources
-        recycler.flush();
+        // flushMap unrecycled resources
+        renderObjects.flushMap();
         
     }
 

@@ -2,12 +2,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.renderer.framegraph.definitions.TextureDef2D;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
 import com.jme3.material.logic.DeferredSinglePassLightingLogic;
+import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -20,9 +24,7 @@ public class DeferredPass extends RenderPass {
 
     private ResourceTicket<Texture2D> depth, diffuse, specular, emissive, normal, outColor;
     private ResourceTicket<LightList> lights;
-    private ResourceTicket<FrameBuffer> frameBuffer;
     private Material material;
-    private final CameraSize camSize = new CameraSize();
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
@@ -36,35 +38,37 @@ public class DeferredPass extends RenderPass {
         int w = context.getWidth();
         int h = context.getHeight();
         outColor = register(new TextureDef2D(w, h, Image.Format.RGBA8), outColor);
-        frameBuffer = register(new FrameBufferDef(w, h, 1), frameBuffer);
+        reserve(outColor);
         reference(depth, diffuse, specular, emissive, normal);
         referenceOptional(lights);
     }
     @Override
     protected void execute(FGRenderContext context) {
-        FrameBuffer fb = resources.acquire(frameBuffer);
-        fb.clearColorTargets();
-        fb.setDepthTarget((FrameBuffer.FrameBufferTextureTarget)null);
-        resources.acquireColorTargets(fb, outColor);
-        context.setFrameBuffer(fb, true, true, true);
+        resources.acquireColorTargets(frameBuffer, outColor);
+        context.getRenderer().setFrameBuffer(frameBuffer);
+        context.getRenderer().clearBuffers(true, true, true);
         material.setTexture("Context_InGBuff0", resources.acquire(diffuse));
         material.setTexture("Context_InGBuff1", resources.acquire(specular));
         material.setTexture("Context_InGBuff2", resources.acquire(emissive));
         material.setTexture("Context_InGBuff3", resources.acquire(normal));
         material.setTexture("Context_InGBuff4", resources.acquire(depth));
         material.selectTechnique("DeferredPass", context.getRenderManager());
-        LightList lightList = resources.acquire(lights, null);
+        LightList lightList = resources.acquireOrElse(lights, null);
+        context.getRenderer().setDepthRange(0, 1);
         if (lightList != null) {
             context.getScreen().render(context.getRenderManager(), material, lightList);
         } else {
             context.renderFullscreen(material);
         }
-        fb.clearColorTargets();
     }
     @Override
-    public void reset(FGRenderContext context) {}
+    protected void reset(FGRenderContext context) {}
     @Override
-    public void cleanup(FrameGraph frameGraph) {}
+    protected void cleanup(FrameGraph frameGraph) {}
+    @Override
+    protected FrameBuffer createFrameBuffer(FGRenderContext context) {
+        return new FrameBuffer(context.getWidth(), context.getHeight(), 1);
+    }
 
     public void setDepth(ResourceTicket<Texture2D> depth) {
         this.depth = depth;

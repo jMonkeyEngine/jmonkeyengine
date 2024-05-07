@@ -4,6 +4,7 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.passes.OutputBucketPass;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 
 /**

@@ -2,16 +2,17 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.definitions;
 
 import com.jme3.texture.Image;
+import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 
 /**
  *
  * @author codex
  */
-public class TextureDef2D extends ResourceDef<Texture2D> {
+public class TextureDef2D implements ResourceDef<Texture2D> {
 
     private int width, height, samples;
     private Image.Format format;
@@ -20,7 +21,6 @@ public class TextureDef2D extends ResourceDef<Texture2D> {
         this(width, height, 1, format);
     }
     public TextureDef2D(int width, int height, int samples, Image.Format format) {
-        super(Texture2D.class);
         this.width = width;
         this.height = height;
         this.samples = samples;
@@ -28,7 +28,7 @@ public class TextureDef2D extends ResourceDef<Texture2D> {
     }
 
     @Override
-    public Texture2D create() {
+    public Texture2D createResource() {
         if (samples != 1) {
             return new Texture2D(width, height, samples, format);
         } else {
@@ -36,14 +36,17 @@ public class TextureDef2D extends ResourceDef<Texture2D> {
         }
     }
     @Override
-    public boolean applyRecycled(Texture2D resource) {
-        Image img = resource.getImage();
-        return img.getWidth() == width && img.getHeight() == height
-                && img.getFormat() == format && img.getMultiSamples() == samples;
-    }
-    @Override
-    public void destroy(Texture2D tex) {
-        tex.getImage().dispose();
+    public Texture2D applyResource(Object resource) {
+        if (!(resource instanceof Texture2D)) {
+            return null;
+        }
+        Texture2D tex = (Texture2D)resource;
+        Image img = tex.getImage();
+        if (img.getWidth() == width && img.getHeight() == height
+                && img.getFormat() == format && img.getMultiSamples() == samples) {
+            return tex;
+        }
+        return null;
     }
 
     public void setWidth(int width) {

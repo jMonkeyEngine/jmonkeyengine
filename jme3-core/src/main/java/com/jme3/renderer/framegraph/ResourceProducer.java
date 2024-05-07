@@ -12,6 +12,8 @@ import java.util.Collection;
  */
 public interface ResourceProducer {
     
+    public int getIndex();
+    
     public boolean dereference();
     public boolean isReferenced();
     

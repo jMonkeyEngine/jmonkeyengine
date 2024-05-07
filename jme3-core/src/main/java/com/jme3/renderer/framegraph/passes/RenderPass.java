@@ -2,8 +2,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.renderer.framegraph.CameraSize;
+import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.ResourceList;
+import com.jme3.renderer.framegraph.ResourceProducer;
+import com.jme3.renderer.framegraph.ResourceTicket;
+import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -14,13 +21,16 @@ import java.util.LinkedList;
  */
 public abstract class RenderPass implements ResourceProducer {
     
-    protected ResourceList resources;
     private final LinkedList<ResourceTicket> inputs = new LinkedList<>();
     private final LinkedList<ResourceTicket> outputs = new LinkedList<>();
     private final CameraSize camSize = new CameraSize();
+    private int index = -1;
     private int refs = 0;
+    protected ResourceList resources;
+    protected FrameBuffer frameBuffer;
     
-    public void initializePass(FrameGraph frameGraph) {
+    public void initializePass(FrameGraph frameGraph, int index) {
+        this.index = index;
         this.resources = frameGraph.getResources();
         initialize(frameGraph);
     }
@@ -28,8 +38,13 @@ public abstract class RenderPass implements ResourceProducer {
         prepare(context);
     }
     public void executeRender(FGRenderContext context) {
+        if (camSize.update(context.getCameraSize()) || frameBuffer == null) {
+            if (frameBuffer != null) {
+                disposeFrameBuffer(frameBuffer);
+            }
+            frameBuffer = createFrameBuffer(context);
+        }
         execute(context);
-        context.popRenderSettings();
         releaseAll();
     }
     public void resetRender(FGRenderContext context) {
@@ -47,21 +62,34 @@ public abstract class RenderPass implements ResourceProducer {
     protected abstract void reset(FGRenderContext context);
     protected abstract void cleanup(FrameGraph frameGraph);
     
+    protected FrameBuffer createFrameBuffer(FGRenderContext context) {
+        return null;
+    }
+    protected void disposeFrameBuffer(FrameBuffer fb) {
+        fb.dispose();
+    }
+    
     protected <T> ResourceTicket<T> register(ResourceDef<T> def, ResourceTicket<T> ticket) {
         ticket = resources.register(this, def, ticket);
         addOutput(ticket);
         return ticket;
     }
+    protected void reserve(ResourceTicket ticket) {
+        resources.reserve(index, ticket);
+    }
+    protected void reserve(ResourceTicket... tickets) {
+        resources.reserve(index, tickets);
+    }
     protected void reference(ResourceTicket ticket) {
-        resources.reference(ticket);
+        resources.reference(index, ticket);
         addInput(ticket);
     }
     protected void reference(ResourceTicket... tickets) {
-        resources.reference(tickets);
+        resources.reference(index, tickets);
         addInputs(tickets);
     }
     protected boolean referenceOptional(ResourceTicket ticket) {
-        if (resources.referenceOptional(ticket)) {
+        if (resources.referenceOptional(index, ticket)) {
             addInput(ticket);
             return true;
         }
@@ -96,7 +124,14 @@ public abstract class RenderPass implements ResourceProducer {
     public void countReferences() {
         refs = outputs.size();
     }
+    public boolean isAssigned() {
+        return index >= 0;
+    }
     
+    @Override
+    public int getIndex() {
+        return index;
+    }
     @Override
     public boolean dereference() {
         refs--;

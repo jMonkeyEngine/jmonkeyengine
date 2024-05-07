@@ -2,15 +2,20 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.passes;
 
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
 import com.jme3.material.logic.TileBasedDeferredSinglePassLightingLogic;
 import com.jme3.material.logic.TiledRenderGrid;
+import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.ResourceTicket;
+import com.jme3.renderer.framegraph.definitions.TextureDef2D;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
+import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 
 /**
@@ -22,7 +27,6 @@ public class TileDeferredPass extends RenderPass {
     private ResourceTicket<Texture2D> diffuse, specular, emissive, normal, depth, outColor;
     private ResourceTicket<LightList> lights;
     private ResourceTicket<TiledRenderGrid> tiles;
-    private ResourceTicket<FrameBuffer> frameBuffer;
     private Material material;
     private final TiledRenderGrid tileInfo = new TiledRenderGrid();
     
@@ -41,12 +45,10 @@ public class TileDeferredPass extends RenderPass {
     }
     @Override
     protected void execute(FGRenderContext context) {
-        FrameBuffer fb = resources.acquire(frameBuffer);
-        fb.clearColorTargets();
-        fb.setDepthTarget((FrameBuffer.FrameBufferTextureTarget)null);
-        resources.acquireColorTargets(fb, outColor);
-        context.setFrameBuffer(fb, true, true, true);
-        TiledRenderGrid trg = resources.acquire(tiles, null);
+        resources.acquireColorTargets(frameBuffer, outColor);
+        context.getRenderer().setFrameBuffer(frameBuffer);
+        context.getRenderer().clearBuffers(true, true, true);
+        TiledRenderGrid trg = resources.acquireOrElse(tiles, null);
         if (trg != null) {
             tileInfo.copyFrom(trg);
         }
@@ -57,18 +59,21 @@ public class TileDeferredPass extends RenderPass {
         material.setTexture("Context_InGBuff3", resources.acquire(normal));
         material.setTexture("Context_InGBuff4", resources.acquire(depth));
         material.selectTechnique("TileBasedDeferredPass", context.getRenderManager());
-        LightList lightList = resources.acquire(lights, null);
+        LightList lightList = resources.acquireOrElse(lights, null);
         if (lightList != null) {
             context.getScreen().render(context.getRenderManager(), material, lightList);
         } else {
             context.renderFullscreen(material);
         }
-        fb.clearColorTargets();
     }
     @Override
     protected void reset(FGRenderContext context) {}
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
+    @Override
+    protected FrameBuffer createFrameBuffer(FGRenderContext context) {
+        return new FrameBuffer(context.getWidth(), context.getHeight(), 1);
+    }
 
     public void setDiffuse(ResourceTicket<Texture2D> diffuse) {
         this.diffuse = diffuse;

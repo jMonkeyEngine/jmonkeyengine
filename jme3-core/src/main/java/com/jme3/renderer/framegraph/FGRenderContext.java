@@ -99,7 +99,7 @@ public class FGRenderContext {
         renderState = renderManager.getForcedRenderState();
     }
     /**
-     * Applies saved render settings.
+     * Applies saved render settings, except the framebuffer.
      */
     public void popRenderSettings() {
         renderManager.setForcedTechnique(forcedTechnique);
@@ -113,6 +113,12 @@ public class FGRenderContext {
             renderManager.getRenderer().setBackgroundColor(viewPort.getBackgroundColor());
         }
     }
+    /**
+     * Applies the saved framebuffer.
+     */
+    public void popFrameBuffer() {
+        renderManager.getRenderer().setFrameBuffer(frameBuffer);
+    }
     
     public void renderViewPortQueue(RenderQueue.Bucket bucket, boolean clear) {
         viewPort.getQueue().renderQueue(bucket, renderManager, viewPort.getCamera(), clear);
@@ -122,17 +128,6 @@ public class FGRenderContext {
     }
     public void transferTextures(Texture2D color, Texture2D depth) {
         screen.render(renderManager, color, depth);
-    }
-    
-    public void setFrameBuffer(FrameBuffer fbo) {
-        renderManager.getRenderer().setFrameBuffer(fbo);
-    }
-    public void setFrameBuffer(FrameBuffer fbo, boolean clearColor, boolean clearDepth, boolean clearStencil) {
-        setFrameBuffer(fbo);
-        renderManager.getRenderer().clearBuffers(clearColor, clearDepth, clearStencil);
-    }
-    public FrameBuffer.FrameBufferTextureTarget createTextureTarget(Texture tex) {
-        return FrameBuffer.FrameBufferTarget.newTarget(tex);
     }
     
     public RenderManager getRenderManager() {

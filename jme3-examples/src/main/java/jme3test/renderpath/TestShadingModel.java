@@ -14,7 +14,6 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.DeferredGraphConstructor;
-import com.jme3.renderer.framegraph.ForwardGraphConstructor;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
@@ -133,7 +132,6 @@ public class TestShadingModel extends SimpleApplication {
 //        fpp.addFilter(new FXAAFilter());
         //fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(1.0f)));
 //        fpp.addFilter(new SSAOFilter(0.5f, 3, 0.2f, 0.2f));
-        //fpp.addFilter(new DepthDebugFilter());
         viewPort.addProcessor(fpp);
         
         DirectionalLightShadowRenderer dr = new DirectionalLightShadowRenderer(assetManager, 1024, 2);
@@ -157,7 +155,6 @@ public class TestShadingModel extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         cam.lookAt(new Vector3f(), Vector3f.UNIT_Y);
-        System.out.println("------------------- FRAME");
     }
 
     @Override
@@ -173,25 +170,6 @@ public class TestShadingModel extends SimpleApplication {
         if (frame > 10 && modelNode.getParent() == null) {
             rootNode.attachChild(modelNode);
         }
-    }
-    
-    private class DepthDebugFilter extends Filter {
-
-        @Override
-        protected void initFilter(AssetManager assetManager, RenderManager renderManager, ViewPort vp, int w, int h) {
-            material = new Material(assetManager, "Common/MatDefs/Post/DepthDebug.j3md");
-        }
-
-        @Override
-        protected Material getMaterial() {
-            return material;
-        }
-        
-        @Override
-        protected boolean isRequiresDepthTexture() {
-            return true;
-        }
-        
     }
     
 }

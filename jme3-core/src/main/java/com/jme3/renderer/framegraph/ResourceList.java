@@ -4,8 +4,10 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,14 +20,19 @@ public class ResourceList {
     
     private static final int INITIAL_SIZE = 20;
     
-    private ResourceRecycler recycler;
+    private RenderObjectMap map;
     private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
     private int nextSlot = 0;
 
-    public ResourceList(ResourceRecycler recycler) {
-        this.recycler = recycler;
+    public ResourceList(RenderObjectMap recycler) {
+        this.map = recycler;
     }
     
+    protected <T> RenderResource<T> create(ResourceProducer producer, ResourceDef<T> def) {
+        RenderResource res = new RenderResource<>(producer, def, new ResourceTicket<>());
+        res.getTicket().setIndex(add(res));
+        return res;
+    }
     protected <T> RenderResource<T> locate(ResourceTicket<T> ticket) {
         if (ticket == null) {
             throw new NullPointerException("Ticket cannot be null.");
@@ -70,71 +77,95 @@ public class ResourceList {
         return prev;
     }
     
-    public <T> ResourceTicket<T> register(ResourceProducer producer, ResourceDef<T> def) {
-        return register(producer, def, null);
-    }
     public <T> ResourceTicket<T> register(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> store) {
-        ResourceTicket<T> t = new ResourceTicket<>();
-        t.setIndex(add(new RenderResource<>(producer, def, t)));
-        store = t.copyIndexTo(store);
-        return store;
+        return create(producer, def).getTicket().copyIndexTo(store);
     }
     
-    public void reference(ResourceTicket ticket) {
-        locate(ticket).reference();
+    public void reserve(int passIndex, ResourceTicket ticket) {
+        if (ticket.getObjectId() >= 0) {
+            map.reserve(ticket.getObjectId(), passIndex);
+            locate(ticket).getTicket().setObjectId(ticket.getObjectId());
+        }
     }
-    public boolean referenceOptional(ResourceTicket ticket) {
+    public void reserve(int passIndex, ResourceTicket... tickets) {
+        for (ResourceTicket t : tickets) {
+            reserve(passIndex, t);
+        }
+    }
+    
+    public void reference(int passIndex, ResourceTicket ticket) {
+        locate(ticket).reference(passIndex);
+    }
+    public boolean referenceOptional(int passIndex, ResourceTicket ticket) {
         if (ticket != null) {
-            reference(ticket);
+            reference(passIndex, ticket);
             return true;
         }
         return false;
     }
-    public void reference(ResourceTicket... tickets) {
+    public void reference(int passIndex, ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
-            reference(t);
+            reference(passIndex, t);
         }
     }
-    public void referenceOptional(ResourceTicket... tickets) {
+    public void referenceOptional(int passIndex, ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
-            referenceOptional(t);
+            referenceOptional(passIndex, t);
         }
     }
     
-    public <T, R extends ResourceDef<T>> R getDef(Class<R> type, ResourceTicket<T> ticket) {
+    public <T, R extends ResourceDef<T>> R getDefinition(Class<R> type, ResourceTicket<T> ticket) {
         ResourceDef<T> def = locate(ticket).getDefinition();
         if (type.isAssignableFrom(def.getClass())) {
             return (R)def;
         }
         return null;
     }
-    public <T> void setDirect(ResourceTicket<T> ticket, T resource) {
-        locate(ticket).setResource(resource);
-    }
     
     public <T> T acquire(ResourceTicket<T> ticket) {
-        RenderResource<T> res = locate(ticket);
-        if (!res.isUsed()) {
-            throw new IllegalStateException(res+" was unexpectedly acquired.");
+        RenderResource<T> resource = locate(ticket);
+        if (!resource.isUsed()) {
+            throw new IllegalStateException(resource+" was unexpectedly acquired.");
         }
-        if (res.isVirtual() && !recycler.recycle(res)) {
-            res.create();
+        if (resource.isVirtual()) {
+            map.allocate(resource);
         }
-        return res.getResource();
+        ticket.setObjectId(resource.getObject().getId());
+        return resource.getResource();
     }
-    public <T> T acquire(ResourceTicket<T> ticket, T value) {
+    public <T> T acquireOrElse(ResourceTicket<T> ticket, T value) {
         if (ticket != null) {
-            T r = acquire(ticket);
-            if (r != null) {
-                return r;
-            }
+            return acquire(ticket);
         }
         return value;
     }
+    
     public void acquireColorTargets(FrameBuffer fbo, ResourceTicket<? extends Texture>... tickets) {
-        for (ResourceTicket<? extends Texture> t : tickets) {
-            fbo.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(acquire(t)));
+        if (tickets.length == 0) {
+            fbo.clearColorTargets();
+            return;
         }
+        if (tickets.length < fbo.getNumColorTargets()) {
+            fbo.removeColorTargetsAbove(tickets.length-1);
+        }
+        int i = 0;
+        for (int n = Math.min(fbo.getNumColorTargets(), tickets.length); i < n; i++) {
+            Texture existing = fbo.getColorTarget(i).getTexture();
+            Texture acquired = acquire((ResourceTicket<Texture>)tickets[i]);
+            if (acquired != existing) {
+                fbo.setColorTarget(i, FrameBuffer.FrameBufferTarget.newTarget(acquired));
+            }
+        }
+        for (; i < tickets.length; i++) {
+            fbo.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(acquire(tickets[i])));
+        }
+    }
+    public void acquireDepthTarget(FrameBuffer fbo, ResourceTicket<? extends Texture> ticket) {
+        Texture acquired = acquire((ResourceTicket<Texture>)ticket);
+        if (fbo.getDepthTarget() != null && acquired == fbo.getDepthTarget().getTexture()) {
+            return;
+        }
+        fbo.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(acquired));
     }
     
     public void release(ResourceTicket ticket) {
@@ -142,20 +173,8 @@ public class ResourceList {
         res.release();
         if (!res.isUsed()) {
             remove(ticket.getIndex());
-            if (res.getDefinition().isRecycleable()) {
-                recycler.add(res);
-            } else if (res.getResource() != null) {
-                res.getDefinition().destroy(res.getResource());
-            }
-        }
-    }
-    public void releaseNoRecycle(ResourceTicket ticket) {
-        RenderResource res = locate(ticket);
-        res.release();
-        if (!res.isUsed()) {
-            remove(ticket.getIndex());
-        } else if (res.getResource() != null) {
-            res.getDefinition().destroy(res.getResource());
+            res.getObject().release();
+            res.setObject(null);
         }
     }
     public boolean releaseOptional(ResourceTicket ticket) {
@@ -170,47 +189,12 @@ public class ResourceList {
             release(t);
         }
     }
-    public void releaseNoRecycle(ResourceTicket... tickets) {
-        for (ResourceTicket t : tickets) {
-            releaseNoRecycle(t);
-        }
-    }
     public void releaseOptional(ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
             releaseOptional(t);
         }
     }
     
-    public void watch(ResourceTicket ticket) {
-        locate(ticket).setWatched(true);
-    }
-    public boolean watchOptional(ResourceTicket ticket) {
-        if (ticket != null) {
-            watch(ticket);
-            return true;
-        }
-        return false;
-    }
-    public void watch(ResourceTicket... tickets) {
-        for (ResourceTicket t : tickets) {
-            watch(t);
-        }
-    }
-    public void watchOptional(ResourceTicket... tickets) {
-        for (ResourceTicket t : tickets) {
-            watchOptional(t);
-        }
-    }
-    
-    public void dereferenceListed(List<ResourceTicket> tickets, List<RenderResource> target) {
-        for (ResourceTicket t : tickets) {
-            RenderResource r = locate(t);
-            r.release();
-            if (!r.isReferenced()) {
-                target.add(r);
-            }
-        }
-    }
     public void cullUnreferenced() {
         LinkedList<RenderResource> cull = new LinkedList<>();
         for (RenderResource r : resources) {
@@ -221,24 +205,29 @@ public class ResourceList {
         RenderResource resource;
         while ((resource = cull.pollFirst()) != null) {
             // dereference producer of resource
-            if (!resource.getProducer().dereference()) {
-                // if producer is not referenced, dereference all input resources
-                for (ResourceTicket t : resource.getProducer().getInputTickets()) {
-                    RenderResource r = locate(t);
-                    r.release();
-                    if (!r.isReferenced()) {
-                        cull.addLast(r);
+            ResourceProducer producer = resource.getProducer();
+            if (producer != null) {
+                if (!producer.dereference()) {
+                    // if producer is not referenced, dereference all input resources
+                    for (ResourceTicket t : resource.getProducer().getInputTickets()) {
+                        RenderResource r = locate(t);
+                        r.release();
+                        if (!r.isReferenced()) {
+                            cull.addLast(r);
+                        }
+                    }
+                    // remove all output resources
+                    for (ResourceTicket t : resource.getProducer().getOutputTickets()) {
+                        remove(t.getIndex());
                     }
                 }
-                // remove all output resources
-                for (ResourceTicket t : resource.getProducer().getOutputTickets()) {
-                    remove(t.getIndex());
-                }
+            } else {
+                remove(resource.getIndex());
             }
         }
     }
-    
     public void clear() {
+        // TODO: throw exceptions for unreleased resources.
         int size = resources.size();
         resources = new ArrayList<>(size);
         nextSlot = 0;

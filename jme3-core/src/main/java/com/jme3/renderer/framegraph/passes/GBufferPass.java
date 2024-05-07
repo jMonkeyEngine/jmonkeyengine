@@ -2,15 +2,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.renderer.framegraph.definitions.ValueDef;
+import com.jme3.renderer.framegraph.definitions.TextureDef2D;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
@@ -37,24 +41,27 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
-        depth = register(new TextureDef2D(w, h, Image.Format.Depth), depth).setName("depth");
-        diffuse = register(new TextureDef2D(w, h, Image.Format.RGBA16F), diffuse).setName("diffuse");
-        specular = register(new TextureDef2D(w, h, Image.Format.RGBA16F), specular).setName("specular");
-        emissive = register(new TextureDef2D(w, h, Image.Format.RGBA16F), emissive).setName("emissive");
-        normal = register(new TextureDef2D(w, h, Image.Format.RGBA32F), normal).setName("normal");
-        lights = register(ValueDef.create(n -> new LightList(null)), lights).setName("lights");
+        depth = register(new TextureDef2D(w, h, Image.Format.Depth), depth);
+        diffuse = register(new TextureDef2D(w, h, Image.Format.RGBA16F), diffuse);
+        specular = register(new TextureDef2D(w, h, Image.Format.RGBA16F), specular);
+        emissive = register(new TextureDef2D(w, h, Image.Format.RGBA16F), emissive);
+        normal = register(new TextureDef2D(w, h, Image.Format.RGBA32F), normal);
+        lights = register(new ValueDef(LightList.class, n -> new LightList(null)), lights);
+        reserve(depth, diffuse, specular, emissive, normal);
     }
     @Override
     protected void execute(FGRenderContext context) {
-        // acquire and attach texture targets
-        frameBuffer.setDepthTarget(context.createTextureTarget(resources.acquire(depth)));
+        // acquire texture targets
         resources.acquireColorTargets(frameBuffer, diffuse, specular, emissive, normal);
+        resources.acquireDepthTarget(frameBuffer, depth);
+        context.getRenderer().setFrameBuffer(frameBuffer);
+        context.getRenderer().clearBuffers(true, true, true);
         LightList lightList = resources.acquire(lights);
         // render to gBuffer
-        context.setFrameBuffer(frameBuffer, true, true, true);
         context.getRenderer().setBackgroundColor(mask.set(context.getViewPort().getBackgroundColor()).setAlpha(0));
         context.getRenderManager().setForcedTechnique(GBUFFER_PASS);
         context.getRenderManager().setGeometryRenderHandler(this);
+        context.getRenderer().setDepthRange(0, 1);
         context.renderViewPortQueue(RenderQueue.Bucket.Opaque, true);
         // add accumulated lights
         while (!accumulatedLights.isEmpty()) {

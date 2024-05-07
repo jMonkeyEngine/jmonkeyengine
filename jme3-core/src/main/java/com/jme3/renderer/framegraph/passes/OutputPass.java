@@ -2,9 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.passes;
 
 import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -28,7 +31,8 @@ public class OutputPass extends RenderPass {
     }
     @Override
     protected void execute(FGRenderContext context) {
-        context.transferTextures(resources.acquire(inColor, null), resources.acquire(inDepth, null));
+        context.popFrameBuffer();
+        context.transferTextures(resources.acquireOrElse(inColor, null), resources.acquireOrElse(inDepth, null));
     }
     @Override
     protected void reset(FGRenderContext context) {}

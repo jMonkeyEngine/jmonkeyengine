@@ -4,6 +4,8 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.definitions.ResourceDef;
+
 /**
  *
  * @author codex
@@ -14,23 +16,20 @@ public class RenderResource <T> {
     private final ResourceProducer producer;
     private final ResourceDef<T> def;
     private final ResourceTicket<T> ticket;
-    private T resource;
+    private final TimeFrame lifetime;
+    private RenderObject<T> object;
     private int refs = 0;
     private int timeout = 0;
-    private boolean virtual = true;
-    private boolean watched = false;
 
     public RenderResource(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
         this.producer = producer;
         this.def = def;
         this.ticket = ticket;
+        this.lifetime = new TimeFrame(this.producer.getIndex(), 0);
     }
     
-    public void create() {
-        setResource(def.create());
-    }
-    
-    public void reference() {
+    public void reference(int index) {
+        lifetime.extendTo(index);
         refs++;
     }
     public void release() {
@@ -43,12 +42,11 @@ public class RenderResource <T> {
     public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
-    public void setResource(T resource) {
-        this.resource = resource;
-        virtual = false;
-    }
-    public void setWatched(boolean watched) {
-        this.watched = watched;
+    public void setObject(RenderObject<T> object) {
+        this.object = object;
+        if (this.object != null) {
+            ticket.setObjectId(this.object.getId());
+        }
     }
     
     public ResourceProducer getProducer() {
@@ -60,8 +58,14 @@ public class RenderResource <T> {
     public ResourceTicket<T> getTicket() {
         return ticket;
     }
+    public TimeFrame getLifeTime() {
+        return lifetime;
+    }
+    public RenderObject<T> getObject() {
+        return object;
+    }
     public T getResource() {
-        return resource;
+        return object.getObject();
     }
     public int getIndex() {
         return ticket.getIndex();
@@ -71,7 +75,7 @@ public class RenderResource <T> {
     }
     
     public boolean isVirtual() {
-        return virtual;
+        return object == null;
     }
     public boolean isReferenced() {
         return refs > 0;
@@ -79,14 +83,10 @@ public class RenderResource <T> {
     public boolean isUsed() {
         return refs >= 0;
     }
-    public boolean isWatched() {
-        return watched;
-    }
     
     @Override
     public String toString() {
-        return "RenderResource[index="+ticket.getIndex()+", resource="
-                +(resource != null ? resource.getClass().getName() : "null")+"]";
+        return "RenderResource[index="+ticket.getIndex()+"]";
     }
     
 }

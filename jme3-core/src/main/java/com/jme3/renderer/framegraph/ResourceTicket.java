@@ -21,6 +21,7 @@ public class ResourceTicket <T> {
     private final long id;
     private String name;
     private int index;
+    private int objectId;
     
     public ResourceTicket() {
         this(null, -1);
@@ -78,6 +79,10 @@ public class ResourceTicket <T> {
         return this;
     }
     
+    public void setObjectId(int objectId) {
+        this.objectId = objectId;
+    }
+    
     /**
      * Gets the id unique to this ticket.
      * 
@@ -103,6 +108,10 @@ public class ResourceTicket <T> {
      */
     public int getIndex() {
         return index;
+    }
+    
+    public int getObjectId() {
+        return objectId;
     }
     
     @Override

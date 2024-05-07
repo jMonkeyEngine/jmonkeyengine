@@ -260,11 +260,31 @@ public class FrameBuffer extends NativeObject {
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
     }
-
+    
     public void addColorTarget(FrameBufferTextureTarget colorBuf){
         // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
+    }
+    
+    /**
+     * Sets the color target at the index.
+     * 
+     * @param i
+     * @param colorBuf 
+     */
+    public void setColorTarget(int i, FrameBufferTextureTarget colorBuf) {
+        colorBuf.slot = i;
+        colorBufs.set(i, colorBuf);
+    }
+    
+    /**
+     * Removes all color targets stored at indices above the specified index.
+     * 
+     * @param i 
+     */
+    public void removeColorTargetsAbove(int i) {
+        colorBufs.removeIf(rb -> rb.slot > i);
     }
 
     /**

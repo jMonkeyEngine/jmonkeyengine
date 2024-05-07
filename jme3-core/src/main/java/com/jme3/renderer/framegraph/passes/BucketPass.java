@@ -2,9 +2,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.renderer.framegraph.definitions.TextureDef2D;
 import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.framegraph.DepthRange;
+import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
@@ -21,7 +26,6 @@ public class BucketPass extends RenderPass {
     private int samples = 1;
     private boolean flush = true;
     private ResourceTicket<Texture2D> inColor, inDepth, outColor, outDepth;
-    private ResourceTicket<FrameBuffer> frameBuffer;
     private Texture2D fTex;
     
     public BucketPass(Bucket bucket) {
@@ -45,19 +49,16 @@ public class BucketPass extends RenderPass {
         int h = context.getHeight();
         outColor = register(new TextureDef2D(w, h, samples, Image.Format.RGBA8), outColor);
         outDepth = register(new TextureDef2D(w, h, samples, Image.Format.Depth), outDepth);
-        frameBuffer = register(new FrameBufferDef(w, h, samples), frameBuffer);
         referenceOptional(inColor, inDepth);
     }
     @Override
     protected void execute(FGRenderContext context) {
-        FrameBuffer fb = resources.acquire(frameBuffer);
-        fb.clearColorTargets();
-        // no need to clear the depth target, since we are assigning one below
-        fb.addColorTarget(context.createTextureTarget(resources.acquire(outColor)));
-        fb.setDepthTarget(context.createTextureTarget(resources.acquire(outDepth)));
-        context.setFrameBuffer(fb, true, true, true);
+        resources.acquireColorTargets(frameBuffer, outColor);
+        resources.acquireDepthTarget(frameBuffer, inDepth);
+        context.getRenderer().setFrameBuffer(frameBuffer);
+        context.getRenderer().clearBuffers(true, true, true);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
-        context.transferTextures(resources.acquire(inColor, null), resources.acquire(inDepth, null));
+        context.transferTextures(resources.acquireOrElse(inColor, null), resources.acquireOrElse(inDepth, null));
         context.getRenderer().setDepthRange(depth);
         if (bucket == Bucket.Gui) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), true);
@@ -66,7 +67,6 @@ public class BucketPass extends RenderPass {
         if (bucket == Bucket.Gui) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), false);
         }
-        fb.clearColorTargets();
     }
     @Override
     protected void reset(FGRenderContext context) {}

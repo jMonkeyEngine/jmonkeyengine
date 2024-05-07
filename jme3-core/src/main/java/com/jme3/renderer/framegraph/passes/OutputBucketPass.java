@@ -2,8 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.renderer.framegraph.DepthRange;
+import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 
 /**
@@ -30,6 +33,7 @@ public class OutputBucketPass extends RenderPass {
     protected void prepare(FGRenderContext context) {}
     @Override
     protected void execute(FGRenderContext context) {
+        context.popFrameBuffer();
         if (bucket == Bucket.Gui) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), true);
         }
