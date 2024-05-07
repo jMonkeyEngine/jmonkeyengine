@@ -70,7 +70,7 @@ public abstract class RenderPass implements ResourceProducer {
     }
     
     protected <T> ResourceTicket<T> register(ResourceDef<T> def, ResourceTicket<T> ticket) {
-        ticket = resources.register(this, def, ticket);
+        ticket = resources.declare(this, def, ticket);
         addOutput(ticket);
         return ticket;
     }

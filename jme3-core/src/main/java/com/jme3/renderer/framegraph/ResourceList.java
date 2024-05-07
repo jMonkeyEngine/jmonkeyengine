@@ -77,7 +77,7 @@ public class ResourceList {
         return prev;
     }
     
-    public <T> ResourceTicket<T> register(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> store) {
+    public <T> ResourceTicket<T> declare(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> store) {
         return create(producer, def).getTicket().copyIndexTo(store);
     }
     
