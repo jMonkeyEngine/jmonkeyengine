@@ -69,7 +69,7 @@ public abstract class RenderPass implements ResourceProducer {
         fb.dispose();
     }
     
-    protected <T> ResourceTicket<T> register(ResourceDef<T> def, ResourceTicket<T> ticket) {
+    protected <T> ResourceTicket<T> declare(ResourceDef<T> def, ResourceTicket<T> ticket) {
         ticket = resources.declare(this, def, ticket);
         addOutput(ticket);
         return ticket;

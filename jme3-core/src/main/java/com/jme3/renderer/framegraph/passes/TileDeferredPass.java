@@ -39,7 +39,7 @@ public class TileDeferredPass extends RenderPass {
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        outColor = register(new TextureDef2D(context.getWidth(), context.getHeight(), Image.Format.RGBA8), outColor);
+        outColor = declare(new TextureDef2D(context.getWidth(), context.getHeight(), Image.Format.RGBA8), outColor);
         reference(diffuse, specular, emissive, normal, depth);
         referenceOptional(lights, tiles);
     }

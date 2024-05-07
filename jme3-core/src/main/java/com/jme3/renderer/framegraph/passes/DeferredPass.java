@@ -37,7 +37,7 @@ public class DeferredPass extends RenderPass {
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
-        outColor = register(new TextureDef2D(w, h, Image.Format.RGBA8), outColor);
+        outColor = declare(new TextureDef2D(w, h, Image.Format.RGBA8), outColor);
         reserve(outColor);
         reference(depth, diffuse, specular, emissive, normal);
         referenceOptional(lights);

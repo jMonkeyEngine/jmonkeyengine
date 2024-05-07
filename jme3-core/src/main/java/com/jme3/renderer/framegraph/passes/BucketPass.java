@@ -47,8 +47,8 @@ public class BucketPass extends RenderPass {
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
-        outColor = register(new TextureDef2D(w, h, samples, Image.Format.RGBA8), outColor);
-        outDepth = register(new TextureDef2D(w, h, samples, Image.Format.Depth), outDepth);
+        outColor = declare(new TextureDef2D(w, h, samples, Image.Format.RGBA8), outColor);
+        outDepth = declare(new TextureDef2D(w, h, samples, Image.Format.Depth), outDepth);
         referenceOptional(inColor, inDepth);
     }
     @Override

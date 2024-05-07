@@ -41,12 +41,12 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
-        depth = register(new TextureDef2D(w, h, Image.Format.Depth), depth);
-        diffuse = register(new TextureDef2D(w, h, Image.Format.RGBA16F), diffuse);
-        specular = register(new TextureDef2D(w, h, Image.Format.RGBA16F), specular);
-        emissive = register(new TextureDef2D(w, h, Image.Format.RGBA16F), emissive);
-        normal = register(new TextureDef2D(w, h, Image.Format.RGBA32F), normal);
-        lights = register(new ValueDef(LightList.class, n -> new LightList(null)), lights);
+        depth = declare(new TextureDef2D(w, h, Image.Format.Depth), depth);
+        diffuse = declare(new TextureDef2D(w, h, Image.Format.RGBA16F), diffuse);
+        specular = declare(new TextureDef2D(w, h, Image.Format.RGBA16F), specular);
+        emissive = declare(new TextureDef2D(w, h, Image.Format.RGBA16F), emissive);
+        normal = declare(new TextureDef2D(w, h, Image.Format.RGBA32F), normal);
+        lights = declare(new ValueDef(LightList.class, n -> new LightList(null)), lights);
         reserve(depth, diffuse, specular, emissive, normal);
     }
     @Override
