@@ -121,17 +121,6 @@ public class J3MLoader implements AssetLoader {
         }
     }
 
-    // Pipeline <MODE>
-    private void readPipeline(String statement) throws IOException{
-        String[] split = statement.split(whitespacePattern);
-        if (split.length != 2){
-            throw new IOException("Pipeline statement syntax incorrect");
-        }
-
-        TechniqueDef.Pipeline pl = TechniqueDef.Pipeline.valueOf(split[1]);
-        technique.setPipeline(pl);
-    }
-
     // LightMode <MODE>
     private void readLightMode(String statement) throws IOException{
         String[] split = statement.split(whitespacePattern);
@@ -578,7 +567,7 @@ public class J3MLoader implements AssetLoader {
                 split[0].equals("TessellationEvaluationShader")) {
             readShaderStatement(statement.getLine());
         }else if(split[0].equals("Pipeline")){
-            readPipeline(statement.getLine());
+            throw new UnsupportedOperationException("Pipeline statement is not supported.");
         }else if (split[0].equals("LightMode")){
             readLightMode(statement.getLine());
         }else if (split[0].equals("LightSpace")){

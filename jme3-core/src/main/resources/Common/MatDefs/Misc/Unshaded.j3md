@@ -92,9 +92,9 @@ MaterialDef Unshaded {
         }
     }
 
-    Technique GBufferPass{
-        Pipeline Deferred
-        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Misc/Unshaded.vert
+    Technique GBufferPass {
+        
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100 : Common/MatDefs/Misc/Unshaded.vert
         FragmentShader GLSL310 GLSL300 GLSL150 GLSL100 : Common/MatDefs/Misc/UnshadedGBufferPack.frag
 
         WorldParameters {

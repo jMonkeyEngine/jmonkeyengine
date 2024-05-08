@@ -217,8 +217,8 @@ MaterialDef PBR Lighting {
 
     }
 
-    Technique GBufferPass{
-        Pipeline Deferred
+    Technique GBufferPass {
+        
         VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/PBRLightingGBufferPack.vert
         FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/PBRLightingGBufferPack.frag
 

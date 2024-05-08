@@ -82,29 +82,6 @@ import java.util.function.Predicate;
  */
 public class RenderManager {
 
-    // RenderPath
-    public enum RenderPath {
-        None(-1, "None"),
-        Forward(0, "Forward"),
-        ForwardPlus(1, "ForwardPlus"),
-        Deferred(2, "Deferred"),
-        TiledDeferred(3, "TiledDeferred")
-        ;
-        private int id;
-        private String info;
-        RenderPath(int id, String info){
-            this.id = id;
-            this.info = info;
-        }
-
-        public int getId() {
-            return id;
-        }
-        public String getInfo(){
-            return info;
-        }
-    }
-
     private final Renderer renderer;
     private final UniformBindingManager uniformBindingManager = new UniformBindingManager();
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();

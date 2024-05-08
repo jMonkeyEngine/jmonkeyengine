@@ -112,8 +112,6 @@ public class ViewPort {
     protected boolean clearStencil = false;
     private boolean enabled = true;
 
-    private RenderManager.RenderPath renderPath = RenderManager.RenderPath.None;
-
     /**
      * Creates a new viewport. User code should generally use these methods instead:<br>
      * <ul>
@@ -129,18 +127,6 @@ public class ViewPort {
     public ViewPort(String name, Camera cam) {
         this.name = name;
         this.cam = cam;
-    }
-
-    /**
-     * forceRenderPath,if None use GlobalRenderPath
-     * @param renderPath
-     */
-    public void setRenderPath(RenderManager.RenderPath renderPath) {
-        this.renderPath = renderPath;
-    }
-
-    public RenderManager.RenderPath getRenderPath() {
-        return renderPath;
     }
 
     /**

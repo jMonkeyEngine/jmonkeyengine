@@ -261,8 +261,8 @@ MaterialDef Phong Lighting {
 
     }
 
-    Technique GBufferPass{
-        Pipeline Deferred
+    Technique GBufferPass {
+        
         VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/LightingGBufferPack.vert
         FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/LightingGBufferPack.frag
 
