@@ -11,33 +11,34 @@ import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
  * @author codex
  */
 public class ResourceList {
-    
+
     private static final int INITIAL_SIZE = 20;
     
-    private RenderObjectMap map;
+    private final RenderObjectMap map;
     private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
     private int nextSlot = 0;
 
-    public ResourceList(RenderObjectMap recycler) {
-        this.map = recycler;
+    public ResourceList(RenderObjectMap map) {
+        this.map = map;
     }
     
     protected <T> RenderResource<T> create(ResourceProducer producer, ResourceDef<T> def) {
         RenderResource res = new RenderResource<>(producer, def, new ResourceTicket<>());
-        res.getTicket().setIndex(add(res));
+        res.getTicket().setLocalIndex(add(res));
         return res;
     }
     protected <T> RenderResource<T> locate(ResourceTicket<T> ticket) {
         if (ticket == null) {
             throw new NullPointerException("Ticket cannot be null.");
         }
-        final int i = ticket.getIndex();
+        final int i = ticket.getWorldIndex();
         if (i >= 0 && i < resources.size()) {
             RenderResource<T> res = resources.get(i);
             if (res != null) {
@@ -84,7 +85,7 @@ public class ResourceList {
     public void reserve(int passIndex, ResourceTicket ticket) {
         if (ticket.getObjectId() >= 0) {
             map.reserve(ticket.getObjectId(), passIndex);
-            locate(ticket).getTicket().setObjectId(ticket.getObjectId());
+            ticket.copyObjectTo(locate(ticket).getTicket());
         }
     }
     public void reserve(int passIndex, ResourceTicket... tickets) {
@@ -97,7 +98,7 @@ public class ResourceList {
         locate(ticket).reference(passIndex);
     }
     public boolean referenceOptional(int passIndex, ResourceTicket ticket) {
-        if (ticket != null) {
+        if (ticket != null && ticket.getWorldIndex() >= 0) {
             reference(passIndex, ticket);
             return true;
         }
@@ -130,7 +131,7 @@ public class ResourceList {
         if (resource.isVirtual()) {
             map.allocate(resource);
         }
-        ticket.setObjectId(resource.getObject().getId());
+        resource.getTicket().copyObjectTo(ticket);
         return resource.getResource();
     }
     public <T> T acquireOrElse(ResourceTicket<T> ticket, T value) {
@@ -139,14 +140,13 @@ public class ResourceList {
         }
         return value;
     }
-    
     public void acquireColorTargets(FrameBuffer fbo, ResourceTicket<? extends Texture>... tickets) {
         if (tickets.length == 0) {
             fbo.clearColorTargets();
             return;
         }
         if (tickets.length < fbo.getNumColorTargets()) {
-            fbo.removeColorTargetsAbove(tickets.length-1);
+            fbo.trimColorTargetsTo(tickets.length-1);
         }
         int i = 0;
         for (int n = Math.min(fbo.getNumColorTargets(), tickets.length); i < n; i++) {
@@ -172,13 +172,16 @@ public class ResourceList {
         RenderResource res = locate(ticket);
         res.release();
         if (!res.isUsed()) {
-            remove(ticket.getIndex());
+            remove(ticket.getWorldIndex());
             res.getObject().release();
             res.setObject(null);
+            if (res.getDefinition().isDisposeOnRelease()) {
+                map.dispose(res);
+            }
         }
     }
     public boolean releaseOptional(ResourceTicket ticket) {
-        if (ticket != null) {
+        if (ticket != null && ticket.getWorldIndex() >= 0) {
             release(ticket);
             return true;
         }
@@ -206,23 +209,26 @@ public class ResourceList {
         while ((resource = cull.pollFirst()) != null) {
             // dereference producer of resource
             ResourceProducer producer = resource.getProducer();
-            if (producer != null) {
-                if (!producer.dereference()) {
-                    // if producer is not referenced, dereference all input resources
-                    for (ResourceTicket t : resource.getProducer().getInputTickets()) {
-                        RenderResource r = locate(t);
-                        r.release();
-                        if (!r.isReferenced()) {
-                            cull.addLast(r);
-                        }
+            if (producer == null) {
+                remove(resource.getIndex());
+                continue;
+            }
+            if (!producer.dereference()) {
+                // if producer is not referenced, dereference all input resources
+                for (ResourceTicket t : producer.getInputTickets()) {
+                    if (t.getWorldIndex() < 0) {
+                        continue;
                     }
-                    // remove all output resources
-                    for (ResourceTicket t : resource.getProducer().getOutputTickets()) {
-                        remove(t.getIndex());
+                    RenderResource r = locate(t);
+                    r.release();
+                    if (!r.isReferenced()) {
+                        cull.addLast(r);
                     }
                 }
-            } else {
-                remove(resource.getIndex());
+                // remove all output resources
+                for (ResourceTicket t : producer.getOutputTickets()) {
+                    remove(t.getWorldIndex());
+                }
             }
         }
     }

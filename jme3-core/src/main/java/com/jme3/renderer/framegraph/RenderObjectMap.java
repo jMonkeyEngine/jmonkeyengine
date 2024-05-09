@@ -18,7 +18,10 @@ public class RenderObjectMap {
     private final int timeout = 1;
     
     protected <T> RenderObject<T> create(ResourceDef<T> def) {
-        RenderObject obj = new RenderObject(def.createResource(), timeout, def.getDisposalMethod());
+        return create(def, def.createResource());
+    }
+    protected <T> RenderObject<T> create(ResourceDef<T> def, T value) {
+        RenderObject obj = new RenderObject(def, value, timeout);
         objectMap.put(obj.getId(), obj);
         return obj;
     }
@@ -42,7 +45,8 @@ public class RenderObjectMap {
             }
         }
         for (RenderObject obj : objectMap.values()) {
-            if (!obj.isAcquired() && !obj.isReservedWithin(resource.getLifeTime())
+            if (!obj.isAcquired()
+                    && !obj.isReserved(resource.getLifeTime())
                     && applyToResource(resource, obj)) {
                 return;
             }
@@ -58,6 +62,15 @@ public class RenderObjectMap {
             return true;
         }
         return false;
+    }
+    public void dispose(RenderResource resource) {
+        int id = resource.getTicket().getObjectId();
+        if (id >= 0) {
+            RenderObject obj = objectMap.remove(id);
+            if (obj != null) {
+                obj.dispose();
+            }
+        }
     }
     
     public void clearReservations() {

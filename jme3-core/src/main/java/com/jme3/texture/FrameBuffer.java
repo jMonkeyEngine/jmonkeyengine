@@ -283,7 +283,7 @@ public class FrameBuffer extends NativeObject {
      * 
      * @param i 
      */
-    public void removeColorTargetsAbove(int i) {
+    public void trimColorTargetsTo(int i) {
         colorBufs.removeIf(rb -> rb.slot > i);
     }
 

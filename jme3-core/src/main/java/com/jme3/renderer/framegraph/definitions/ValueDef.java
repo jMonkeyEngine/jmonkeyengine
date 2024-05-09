@@ -17,7 +17,8 @@ public class ValueDef <T> implements ResourceDef<T> {
     private final Class<T> type;
     private Function<Object, T> create;
     private Consumer<T> reset;
-
+    private boolean dispose = false;
+    
     public ValueDef(Class<T> type, Function<Object, T> create) {
         this.type = type;
         this.create = create;
@@ -36,12 +37,19 @@ public class ValueDef <T> implements ResourceDef<T> {
         }
         return null;
     }
+    @Override
+    public boolean isDisposeOnRelease() {
+        return dispose;
+    }
 
     public void setCreate(Function<Object, T> create) {
         this.create = create;
     }
     public void setReset(Consumer<T> reset) {
         this.reset = reset;
+    }
+    public void setDispose(boolean dispose) {
+        this.dispose = dispose;
     }
 
     public Class<T> getType() {
@@ -52,6 +60,9 @@ public class ValueDef <T> implements ResourceDef<T> {
     }
     public Consumer<T> getReset() {
         return reset;
+    }
+    public boolean isDispose() {
+        return dispose;
     }
     
 }

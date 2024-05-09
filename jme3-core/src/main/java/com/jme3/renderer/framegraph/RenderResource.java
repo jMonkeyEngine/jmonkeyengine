@@ -68,7 +68,7 @@ public class RenderResource <T> {
         return object.getObject();
     }
     public int getIndex() {
-        return ticket.getIndex();
+        return ticket.getWorldIndex();
     }
     public int getNumReferences() {
         return refs;
@@ -86,7 +86,7 @@ public class RenderResource <T> {
     
     @Override
     public String toString() {
-        return "RenderResource[index="+ticket.getIndex()+"]";
+        return "RenderResource[index="+ticket.getWorldIndex()+"]";
     }
     
 }

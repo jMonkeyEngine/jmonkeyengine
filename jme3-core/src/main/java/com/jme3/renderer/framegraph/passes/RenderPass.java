@@ -49,11 +49,11 @@ public abstract class RenderPass implements ResourceProducer {
     }
     public void resetRender(FGRenderContext context) {
         reset(context);
-        inputs.clear();
-        outputs.clear();
     }
     public void cleanupPass(FrameGraph frameGraph) {
         cleanup(frameGraph);
+        inputs.clear();
+        outputs.clear();
     }
     
     protected abstract void initialize(FrameGraph frameGraph);
@@ -71,7 +71,7 @@ public abstract class RenderPass implements ResourceProducer {
     
     protected <T> ResourceTicket<T> declare(ResourceDef<T> def, ResourceTicket<T> ticket) {
         ticket = resources.declare(this, def, ticket);
-        addOutput(ticket);
+        //addOutput(ticket);
         return ticket;
     }
     protected void reserve(ResourceTicket ticket) {
@@ -82,15 +82,15 @@ public abstract class RenderPass implements ResourceProducer {
     }
     protected void reference(ResourceTicket ticket) {
         resources.reference(index, ticket);
-        addInput(ticket);
+        //addInput(ticket);
     }
     protected void reference(ResourceTicket... tickets) {
         resources.reference(index, tickets);
-        addInputs(tickets);
+        //addInputs(tickets);
     }
     protected boolean referenceOptional(ResourceTicket ticket) {
         if (resources.referenceOptional(index, ticket)) {
-            addInput(ticket);
+            //addInput(ticket);
             return true;
         }
         return false;
@@ -119,6 +119,23 @@ public abstract class RenderPass implements ResourceProducer {
     protected <T> ResourceTicket<T> addOutput(ResourceTicket<T> output) {
         outputs.add(output);
         return output;
+    }
+    
+    protected <T> ResourceTicket<T> addInput(String name) {
+        return addInput(new ResourceTicket<>(name));
+    }
+    protected <T> ResourceTicket<T> addOutput(String name) {
+        return addOutput(new ResourceTicket<>(name));
+    }
+    
+    public <T> ResourceTicket<T> connectToOutput(String name, ResourceTicket<T> ticket) {
+        for (ResourceTicket t : outputs) {
+            if (name.equals(t.getName())) {
+                ticket.addSource(t);
+                return t;
+            }
+        }
+        return null;
     }
     
     public void countReferences() {

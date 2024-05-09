@@ -11,7 +11,6 @@ import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
-import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
 
@@ -42,13 +41,17 @@ public class BucketPass extends RenderPass {
     @Override
     protected void initialize(FrameGraph frameGraph) {
         fTex = (Texture2D)frameGraph.getAssetManager().loadTexture("Common/Textures/MissingTexture.png");
+        inColor = addInput("InColor");
+        inDepth = addInput("InDepth");
+        outColor = addOutput("OutDepth");
+        outDepth = addOutput("OutDepth");
     }
     @Override
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
-        outColor = declare(new TextureDef2D(w, h, samples, Image.Format.RGBA8), outColor);
-        outDepth = declare(new TextureDef2D(w, h, samples, Image.Format.Depth), outDepth);
+        declare(new TextureDef2D(w, h, samples, Image.Format.RGBA8), outColor);
+        declare(new TextureDef2D(w, h, samples, Image.Format.Depth), outDepth);
         referenceOptional(inColor, inDepth);
     }
     @Override
@@ -76,25 +79,9 @@ public class BucketPass extends RenderPass {
     public void setDepthRange(DepthRange depth) {
         this.depth = depth;
     }
-    public void setInColor(ResourceTicket<Texture2D> inColor) {
-        this.inColor = inColor;
-    }
-    public void setInDepth(ResourceTicket<Texture2D> inDepth) {
-        this.inDepth = inDepth;
-    }
-    public void setInput(BucketPass pass) {
-        inColor = pass.outColor.copyIndexTo(null);
-        inDepth = pass.outDepth.copyIndexTo(null);
-    }
     
     public DepthRange getDepthRange() {
         return depth;
-    }
-    public ResourceTicket<Texture2D> getOutColor() {
-        return outColor;
-    }
-    public ResourceTicket<Texture2D> getOutDepth() {
-        return outDepth;
     }
     
     @Override

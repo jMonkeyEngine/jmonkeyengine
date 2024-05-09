@@ -4,6 +4,7 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.util.NativeObject;
 import java.util.BitSet;
 import java.util.function.Consumer;
@@ -22,19 +23,25 @@ public class RenderObject <T> {
     
     private final int id;
     private final T object;
-    private final int timeoutDuration;
+    private int timeoutDuration;
     private int timeout = 0;
     private boolean acquired = false;
     private final BitSet reservations = new BitSet();
-    private final Consumer disposer;
+    private Consumer disposer;
 
-    public RenderObject(T object, int timeout, Consumer<T> disposer) {
+    public RenderObject(ResourceDef<T> def, T object, int timeout) {
         this.id = nextId++;
+        if (object == null) {
+            throw new NullPointerException("Object cannot be null.");
+        }
         this.object = object;
-        this.timeoutDuration = timeout;
-        if (disposer != null) {
-            this.disposer = disposer;
-        } else if (object instanceof NativeObject) {
+        this.timeoutDuration = def.getStaticTimeout();
+        if (this.timeoutDuration < 0) {
+            this.timeoutDuration = timeout;
+        }
+        disposer = def.getDisposalMethod();
+        if (disposer != null);
+        else if (object instanceof NativeObject) {
             this.disposer = NATIVE;
         } else {
             this.disposer = DEFAULT;
@@ -42,7 +49,7 @@ public class RenderObject <T> {
     }
 
     public boolean acquire(TimeFrame time, boolean reserved) {
-        if (acquired || (!reserved && isReservedWithin(time))) {
+        if (acquired || (!reserved && isReserved(time))) {
             return false;
         }
         acquire();
@@ -81,7 +88,7 @@ public class RenderObject <T> {
     public boolean isAcquired() {
         return acquired;
     }
-    public boolean isReservedWithin(TimeFrame frame) {
+    public boolean isReserved(TimeFrame frame) {
         if (frame.getStartIndex() >= reservations.size()) {
             return false;
         }

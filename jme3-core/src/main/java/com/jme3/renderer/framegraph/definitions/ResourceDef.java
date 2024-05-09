@@ -13,12 +13,50 @@ import java.util.function.Consumer;
  */
 public interface ResourceDef <T> {
     
+    /**
+     * Creates a new resources from scratch.
+     * 
+     * @return 
+     */
     public T createResource();
     
+    /**
+     * Repurposes the given resource.
+     * 
+     * @param resource
+     * @return repurposed resource, or null if the given resource is not usable.
+     */
     public T applyResource(Object resource);
     
+    /**
+     * Gets the Consumer used to dispose of a resource.
+     * 
+     * @return resource disposer, or null
+     */
     public default Consumer<T> getDisposalMethod() {
         return null;
+    }
+    
+    /**
+     * Returns true if the resource should be disposed after being
+     * released and having no users.
+     * 
+     * @return 
+     */
+    public default boolean isDisposeOnRelease() {
+        return false;
+    }
+    
+    /**
+     * Returns the number of frames which the resource must be
+     * static (unused throughout rendering) before it is disposed.
+     * <p>
+     * If negative, the default timeout value will be used instead.
+     * 
+     * @return static timeout duration
+     */
+    public default int getStaticTimeout() {
+        return -1;
     }
     
 }
