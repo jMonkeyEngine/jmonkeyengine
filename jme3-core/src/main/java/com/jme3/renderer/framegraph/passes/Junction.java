@@ -34,5 +34,8 @@ public class Junction extends RenderPass {
     public boolean setIndex(int index) {
         return ticket.setSourceIndex(index);
     }
+    public int getNumOptions() {
+        return ticket.getSources().size();
+    }
     
 }

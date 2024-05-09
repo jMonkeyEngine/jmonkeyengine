@@ -36,6 +36,9 @@ public class RenderObjectMap {
     }
     
     public <T> void allocate(RenderResource<T> resource) {
+        if (resource.isUndefined()) {
+            throw new IllegalArgumentException("Cannot allocate object to an undefined resource.");
+        }
         ResourceDef<T> def = resource.getDefinition();
         int id = resource.getTicket().getObjectId();
         if (id >= 0) {
@@ -62,6 +65,16 @@ public class RenderObjectMap {
             return true;
         }
         return false;
+    }
+    public <T> T extract(RenderResource<T> resource) {
+        if (resource.isUndefined()) {
+            return null;
+        }
+        if (resource.isVirtual()) {
+            allocate(resource);
+        }
+        RenderObject<T> obj = objectMap.remove(resource.getTicket().getObjectId());
+        return (obj != null ? obj.getObject() : null);
     }
     public void dispose(RenderResource resource) {
         int id = resource.getTicket().getObjectId();

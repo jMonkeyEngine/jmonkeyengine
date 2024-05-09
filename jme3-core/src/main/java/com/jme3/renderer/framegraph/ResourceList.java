@@ -180,6 +180,29 @@ public class ResourceList {
         fbo.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(acquired));
     }
     
+    protected <T> T extract(RenderResource<T> resource, ResourceTicket<T> ticket) {
+        if (!resource.isUsed()) {
+            throw new IllegalStateException(resource+" was unexpectedly extracted.");
+        }
+        resource.getTicket().copyObjectTo(ticket);
+        return map.extract(resource);
+    }
+    public <T> T extract(ResourceTicket<T> ticket) {
+        RenderResource<T> resource = locate(ticket);
+        T object = extract(resource, ticket);
+        if (object == null) {
+            throw new NullPointerException("Failed to extract resource.");
+        }
+        return object;
+    }
+    public <T> T extractOrElse(ResourceTicket<T> ticket, T value) {
+        if (ticket != null && ticket.getWorldIndex() >= 0) {
+            T object = extract(locate(ticket), ticket);
+            if (object != null) return object;
+        }
+        return value;
+    }
+    
     public void release(ResourceTicket ticket) {
         RenderResource res = locate(ticket);
         res.release();

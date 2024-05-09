@@ -31,10 +31,8 @@
  */
 package com.jme3.renderer.framegraph;
 
-import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
-import com.jme3.material.RenderState.BlendMode;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;
@@ -42,12 +40,8 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
-import com.jme3.util.BufferUtils;
 import java.util.function.Predicate;
 
 /**
@@ -154,6 +148,9 @@ public class FGRenderContext {
     }
     public FullScreenQuad getScreen() {
         return screen;
+    }
+    public RenderingBlackboard getBlackboard() {
+        return renderManager.getBlackboard();
     }
     public float getTpf() {
         return tpf;

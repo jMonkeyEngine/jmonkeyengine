@@ -16,10 +16,16 @@ import java.util.function.Function;
  * @param <T>
  */
 public class Attribute <T> extends RenderPass implements Function<Object, T> {
-
+    
+    private final Class<T> paramType;
+    private String paramName;
+    private T value;
     private ResourceTicket<T> ticket;
     private ValueDef<T> def;
-    private T value;
+
+    public Attribute(Class<T> paramType) {
+        this.paramType = paramType;
+    }
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
@@ -34,6 +40,9 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
     }
     @Override
     protected void execute(FGRenderContext context) {
+        if (paramName != null) {
+            value = context.getBlackboard().get(paramName, paramType);
+        }
         if (value != null) {
             resources.acquire(ticket);
         } else {
@@ -49,10 +58,19 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
         return value;
     }
     
+    public void setParamName(String name) {
+        this.paramName = name;
+    }
     public void setValue(T value) {
         this.value = value;
     }
     
+    public Class<T> getParamType() {
+        return paramType;
+    }
+    public String getParamName() {
+        return paramName;
+    }
     public T getValue() {
         return value;
     }

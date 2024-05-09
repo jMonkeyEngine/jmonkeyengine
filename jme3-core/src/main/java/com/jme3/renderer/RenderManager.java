@@ -48,6 +48,7 @@ import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderObjectMap;
+import com.jme3.renderer.framegraph.RenderingBlackboard;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -88,6 +89,7 @@ public class RenderManager {
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
     private final RenderObjectMap renderObjects = new RenderObjectMap();
+    private final RenderingBlackboard blackboard = new RenderingBlackboard();
     private FrameGraph frameGraph;
     private Camera prevCam = null;
     private Material forcedMaterial = null;
@@ -131,6 +133,10 @@ public class RenderManager {
 
     public RenderObjectMap getRenderObjectsMap() {
         return renderObjects;
+    }
+    
+    public RenderingBlackboard getBlackboard() {
+        return blackboard;
     }
     
     /**
