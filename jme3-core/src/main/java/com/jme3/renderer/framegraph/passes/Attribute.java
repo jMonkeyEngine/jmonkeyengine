@@ -26,6 +26,7 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
         ticket = addOutput("Attribute");
         def = new ValueDef<>(null, this);
         def.setDispose(true);
+        def.setUseExisting(false);
     }
     @Override
     protected void prepare(FGRenderContext context) {
@@ -33,7 +34,11 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
     }
     @Override
     protected void execute(FGRenderContext context) {
-        resources.acquire(ticket);
+        if (value != null) {
+            resources.acquire(ticket);
+        } else {
+            resources.markUndefined(ticket);
+        }
     }
     @Override
     protected void reset(FGRenderContext context) {}
@@ -41,9 +46,6 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
     protected void cleanup(FrameGraph frameGraph) {}
     @Override
     public T apply(Object t) {
-        if (value == null) {
-            throw new NullPointerException("Attribute value cannot be null.");
-        }
         return value;
     }
     

@@ -32,6 +32,12 @@ public class TileDeferredPass extends RenderPass {
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
+        diffuse = addInput("Diffuse");
+        specular = addInput("Specular");
+        emissive = addInput("Emissive");
+        normal = addInput("Normal");
+        depth = addInput("Depth");
+        outColor = addOutput("Color");
         material = new Material(frameGraph.getAssetManager(), "Common/MatDefs/ShadingCommon/TileBasedDeferredShading.j3md");
         for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("TileBasedDeferredPass")) {
             t.setLogic(new TileBasedDeferredSinglePassLightingLogic(t, tileInfo));
@@ -39,7 +45,8 @@ public class TileDeferredPass extends RenderPass {
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        outColor = declare(new TextureDef2D(context.getWidth(), context.getHeight(), Image.Format.RGBA8), outColor);
+        declare(new TextureDef2D(context.getWidth(), context.getHeight(), Image.Format.RGBA8), outColor);
+        reserve(outColor);
         reference(diffuse, specular, emissive, normal, depth);
         referenceOptional(lights, tiles);
     }

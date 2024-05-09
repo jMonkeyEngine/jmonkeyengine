@@ -122,9 +122,11 @@ public class ResourceList {
         }
         return null;
     }
+    public void markUndefined(ResourceTicket ticket) {
+        locate(ticket).setUndefined();
+    }
     
-    public <T> T acquire(ResourceTicket<T> ticket) {
-        RenderResource<T> resource = locate(ticket);
+    protected <T> T acquire(RenderResource<T> resource, ResourceTicket<T> ticket) {
         if (!resource.isUsed()) {
             throw new IllegalStateException(resource+" was unexpectedly acquired.");
         }
@@ -134,9 +136,19 @@ public class ResourceList {
         resource.getTicket().copyObjectTo(ticket);
         return resource.getResource();
     }
+    public <T> T acquire(ResourceTicket<T> ticket) {
+        RenderResource<T> resource = locate(ticket);
+        if (resource.isUndefined()) {
+            throw new NullPointerException("Resource is undefined.");
+        }
+        return acquire(resource, ticket);
+    }
     public <T> T acquireOrElse(ResourceTicket<T> ticket, T value) {
-        if (ticket != null) {
-            return acquire(ticket);
+        if (ticket != null && ticket.getWorldIndex() >= 0) {
+            RenderResource<T> resource = locate(ticket);
+            if (!resource.isUndefined()) {
+                return acquire(resource, ticket);
+            }
         }
         return value;
     }

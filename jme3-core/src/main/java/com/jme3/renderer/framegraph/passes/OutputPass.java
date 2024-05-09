@@ -4,12 +4,10 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
-import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
 
 /**
@@ -23,6 +21,8 @@ public class OutputPass extends RenderPass {
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
+        inColor = addInput("Color");
+        inDepth = addInput("Depth");
         fTex = (Texture2D)frameGraph.getAssetManager().loadTexture("Common/Textures/MissingTexture.png");
     }
     @Override

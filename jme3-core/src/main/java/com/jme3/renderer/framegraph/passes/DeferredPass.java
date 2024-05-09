@@ -28,6 +28,12 @@ public class DeferredPass extends RenderPass {
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
+        depth = addInput("Depth");
+        diffuse = addInput("Diffuse");
+        specular = addInput("Specular");
+        emissive = addInput("Emissive");
+        normal = addInput("Normal");
+        outColor = addOutput("Color");
         material = new Material(frameGraph.getAssetManager(), "Common/MatDefs/ShadingCommon/DeferredShading.j3md");
         for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("DeferredPass")) {
             t.setLogic(new DeferredSinglePassLightingLogic(t));
@@ -37,7 +43,7 @@ public class DeferredPass extends RenderPass {
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
-        outColor = declare(new TextureDef2D(w, h, Image.Format.RGBA8), outColor);
+        declare(new TextureDef2D(w, h, Image.Format.RGBA8), outColor);
         reserve(outColor);
         reference(depth, diffuse, specular, emissive, normal);
         referenceOptional(lights);

@@ -38,6 +38,15 @@ public interface ResourceDef <T> {
     }
     
     /**
+     * Returns true if resources can be reallocated to this definition.
+     * 
+     * @return 
+     */
+    public default boolean isUseExisting() {
+        return true;
+    }
+    
+    /**
      * Returns true if the resource should be disposed after being
      * released and having no users.
      * 

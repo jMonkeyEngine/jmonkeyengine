@@ -32,21 +32,29 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     
     private ResourceTicket<Texture2D> depth, diffuse, specular, emissive, normal;
     private ResourceTicket<LightList> lights;
+    private final ValueDef<LightList> lightDef = new ValueDef(LightList.class, n -> new LightList(null));
     private final LinkedList<Light> accumulatedLights = new LinkedList<>();
     private final ColorRGBA mask = new ColorRGBA();
     
     @Override
-    protected void initialize(FrameGraph frameGraph) {}
+    protected void initialize(FrameGraph frameGraph) {
+        depth = addOutput("Depth");
+        diffuse = addOutput("Diffuse");
+        specular = addOutput("Specular");
+        emissive = addOutput("Emissive");
+        normal = addOutput("normal");
+        lightDef.setReset(list -> list.clear());
+    }
     @Override
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
-        depth = declare(new TextureDef2D(w, h, Image.Format.Depth), depth);
-        diffuse = declare(new TextureDef2D(w, h, Image.Format.RGBA16F), diffuse);
-        specular = declare(new TextureDef2D(w, h, Image.Format.RGBA16F), specular);
-        emissive = declare(new TextureDef2D(w, h, Image.Format.RGBA16F), emissive);
-        normal = declare(new TextureDef2D(w, h, Image.Format.RGBA32F), normal);
-        lights = declare(new ValueDef(LightList.class, n -> new LightList(null)), lights);
+        declare(new TextureDef2D(w, h, Image.Format.Depth), depth);
+        declare(new TextureDef2D(w, h, Image.Format.RGBA16F), diffuse);
+        declare(new TextureDef2D(w, h, Image.Format.RGBA16F), specular);
+        declare(new TextureDef2D(w, h, Image.Format.RGBA16F), emissive);
+        declare(new TextureDef2D(w, h, Image.Format.RGBA32F), normal);
+        declare(lightDef, lights);
         reserve(depth, diffuse, specular, emissive, normal);
     }
     @Override

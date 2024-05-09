@@ -20,6 +20,7 @@ public class RenderResource <T> {
     private RenderObject<T> object;
     private int refs = 0;
     private int timeout = 0;
+    private boolean undefined = false;
 
     public RenderResource(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
         this.producer = producer;
@@ -43,10 +44,19 @@ public class RenderResource <T> {
         this.timeout = timeout;
     }
     public void setObject(RenderObject<T> object) {
+        if (undefined) {
+            throw new IllegalStateException("Resource is already undefined.");
+        }
         this.object = object;
         if (this.object != null) {
             ticket.setObjectId(this.object.getId());
         }
+    }
+    public void setUndefined() {
+        if (object != null) {
+            throw new IllegalArgumentException("Resource is already defined.");
+        }
+        undefined = true;
     }
     
     public ResourceProducer getProducer() {
@@ -75,13 +85,16 @@ public class RenderResource <T> {
     }
     
     public boolean isVirtual() {
-        return object == null;
+        return object == null && !undefined;
     }
     public boolean isReferenced() {
         return refs > 0;
     }
     public boolean isUsed() {
         return refs >= 0;
+    }
+    public boolean isUndefined() {
+        return undefined;
     }
     
     @Override
