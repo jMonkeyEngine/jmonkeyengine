@@ -26,11 +26,13 @@ public class RenderObjectMap {
         return obj;
     }
     protected <T> boolean applyToResource(RenderResource<T> resource, RenderObject object) {
-        T r = resource.getDefinition().applyResource(object.getObject());
-        if (r != null) {
-            object.acquire();
-            resource.setObject(object);
-            return true;
+        if (!object.isAcquired() && !object.isConstant()) {
+            T r = resource.getDefinition().applyResource(object.getObject());
+            if (r != null) {
+                object.acquire();
+                resource.setObject(object, r);
+                return true;
+            }
         }
         return false;
     }
@@ -42,21 +44,19 @@ public class RenderObjectMap {
         ResourceDef<T> def = resource.getDefinition();
         int id = resource.getTicket().getObjectId();
         if (id >= 0) {
-            RenderObject reserved = objectMap.get(id);
-            if (reserved != null && !reserved.isAcquired() && applyToResource(resource, reserved)) {
+            RenderObject obj = objectMap.get(id);
+            if (obj != null && applyToResource(resource, obj)) {
                 return;
             }
         }
         for (RenderObject obj : objectMap.values()) {
-            if (!obj.isAcquired()
-                    && !obj.isReserved(resource.getLifeTime())
-                    && applyToResource(resource, obj)) {
+            if (!obj.isReserved(resource.getLifeTime()) && applyToResource(resource, obj)) {
                 return;
             }
         }
         RenderObject<T> obj = create(def);
         obj.acquire();
-        resource.setObject(obj);
+        resource.setObject(obj, obj.getObject());
     }
     public boolean reserve(int objectId, int index) {
         RenderObject obj = objectMap.get(objectId);
@@ -97,7 +97,9 @@ public class RenderObjectMap {
             if (!obj.tickTimeout()) {
                 obj.dispose();
                 it.remove();
+                continue;
             }
+            obj.setConstant(false);
         }
     }
     public void clearMap() {

@@ -29,9 +29,9 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        ticket = addOutput("Attribute");
+        ticket = addOutput("Value");
         def = new ValueDef<>(null, this);
-        def.setDispose(true);
+        def.setDisposeOnRelease(true);
         def.setUseExisting(false);
     }
     @Override
@@ -45,8 +45,9 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
         }
         if (value != null) {
             resources.acquire(ticket);
+            resources.setConstant(ticket);
         } else {
-            resources.markUndefined(ticket);
+            resources.setUndefined(ticket);
         }
     }
     @Override

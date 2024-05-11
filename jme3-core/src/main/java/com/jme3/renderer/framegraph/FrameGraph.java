@@ -7,6 +7,7 @@ package com.jme3.renderer.framegraph;
 import com.jme3.renderer.framegraph.passes.RenderPass;
 import com.jme3.asset.AssetManager;
 import com.jme3.renderer.RenderManager;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -62,16 +63,23 @@ public class FrameGraph {
         resources.clear();
     }
     
-    public void setConstructor(GraphConstructor constructor) {
-        if (this.constructor != null || constructor == null) {
-            throw new IllegalStateException();
-        }
-        this.constructor = constructor;
-        this.constructor.addPasses(this);
-    }
     public <T extends RenderPass> T add(T pass) {
         passes.addLast(pass);
         pass.initializePass(this, passes.size()-1);
+        return pass;
+    }
+    public <T extends RenderPass> T add(T pass, int index) {
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("Index cannot be negative.");
+        }
+        if (index >= passes.size()) {
+            return add(pass);
+        }
+        passes.add(index, pass);
+        pass.initializePass(this, index);
+        for (RenderPass p : passes) {
+            p.shiftExecutionIndex(index, 1);
+        }
         return pass;
     }
     public <T extends RenderPass> T get(Class<T> type) {
@@ -82,7 +90,65 @@ public class FrameGraph {
         }
         return null;
     }
+    public <T extends RenderPass> T get(Class<T> type, String name) {
+        for (RenderPass p : passes) {
+            if (name.equals(p.getName()) && type.isAssignableFrom(p.getClass())) {
+                return (T)p;
+            }
+        }
+        return null;
+    }
+    public <T extends RenderPass> T get(Class<T> type, int id) {
+        for (RenderPass p : passes) {
+            if (id == p.getId() && type.isAssignableFrom(p.getClass())) {
+                return (T)p;
+            }
+        }
+        return null;
+    }
+    public RenderPass remove(int i) {
+        RenderPass pass = passes.remove(i);
+        pass.cleanupPass(this);
+        for (RenderPass p : passes) {
+            p.disconnectFrom(pass);
+            p.shiftExecutionIndex(i, -1);
+        }
+        return pass;
+    }
+    public boolean remove(RenderPass pass) {
+        int i = 0;
+        for (Iterator<RenderPass> it = passes.iterator(); it.hasNext();) {
+            RenderPass p = it.next();
+            if (p == pass) {
+                it.remove();
+                break;
+            }
+            i++;
+        }
+        if (i < passes.size()) {
+            pass.cleanupPass(this);
+            for (RenderPass p : passes) {
+                p.disconnectFrom(pass);
+                p.shiftExecutionIndex(i, -1);
+            }
+            return true;
+        }
+        return false;
+    }
+    public void clear() {
+        for (RenderPass p : passes) {
+            p.cleanupPass(this);
+        }
+        passes.clear();
+    }
     
+    public void setConstructor(GraphConstructor constructor) {
+        if (this.constructor != null || constructor == null) {
+            throw new IllegalStateException();
+        }
+        this.constructor = constructor;
+        this.constructor.addPasses(this);
+    }
     public void setDebug(boolean debug) {
         this.debug = debug;
     }

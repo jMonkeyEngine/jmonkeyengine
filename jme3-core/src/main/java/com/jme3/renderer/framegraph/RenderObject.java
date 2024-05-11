@@ -16,17 +16,18 @@ import java.util.function.Consumer;
  */
 public class RenderObject <T> {
     
-    private static final Consumer DEFAULT = object -> {};
+    private static final Consumer<Object> DEFAULT = object -> {};
     private static final Consumer<NativeObject> NATIVE = object -> object.dispose();
     
     private static int nextId = 0;
     
     private final int id;
     private final T object;
+    private final BitSet reservations = new BitSet();
     private int timeoutDuration;
     private int timeout = 0;
     private boolean acquired = false;
-    private final BitSet reservations = new BitSet();
+    private boolean constant = true;
     private Consumer disposer;
 
     public RenderObject(ResourceDef<T> def, T object, int timeout) {
@@ -79,6 +80,10 @@ public class RenderObject <T> {
         return timeout-- > 0;
     }
     
+    public void setConstant(boolean constant) {
+        this.constant = constant;
+    }
+    
     public int getId() {
         return id;
     }
@@ -99,6 +104,9 @@ public class RenderObject <T> {
             }
         }
         return false;
+    }
+    public boolean isConstant() {
+        return constant;
     }
     
     public static int getNextId() {

@@ -4,7 +4,7 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
-import com.jme3.renderer.framegraph.definitions.TextureDef2D;
+import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.FGRenderContext;
@@ -50,8 +50,8 @@ public class BucketPass extends RenderPass {
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
-        declare(new TextureDef2D(w, h, samples, Image.Format.RGBA8), outColor);
-        declare(new TextureDef2D(w, h, samples, Image.Format.Depth), outDepth);
+        declare(new TextureDef(w, h, samples, Image.Format.RGBA8), outColor);
+        declare(new TextureDef(w, h, samples, Image.Format.Depth), outDepth);
         referenceOptional(inColor, inDepth);
     }
     @Override

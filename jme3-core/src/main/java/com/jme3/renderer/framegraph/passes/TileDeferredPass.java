@@ -12,7 +12,7 @@ import com.jme3.material.logic.TiledRenderGrid;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
-import com.jme3.renderer.framegraph.definitions.TextureDef2D;
+import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
@@ -45,7 +45,7 @@ public class TileDeferredPass extends RenderPass {
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        declare(new TextureDef2D(context.getWidth(), context.getHeight(), Image.Format.RGBA8), outColor);
+        declare(new TextureDef(context.getWidth(), context.getHeight(), Image.Format.RGBA8), outColor);
         reserve(outColor);
         reference(diffuse, specular, emissive, normal, depth);
         referenceOptional(lights, tiles);

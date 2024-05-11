@@ -1,0 +1,19 @@
+
+nextId=4
+
+define jme_Attr = com.jme3.renderer.framegraph.passes.Attribute
+define jme_Bucket = com.jme3.renderer.framegraph.passes.BucketPass
+define jme_Output = com.jme3.renderer.framegraph.passes.OutputPass
+define jme_Junction = com.jme3.renderer.framegraph.passes.Junction
+
+pass{src=jme_Attr; id=0; name=Attribute}
+pass{src=jme_Attr; id=2; name=Attribute}
+pass{src=jme_Junction; id=4; name=Junction; length=2}
+pass{src=jme_Bucket; id=1; name=Opaque Bucket; bucket=Opaque}
+pass{src=jme_Output; id=3; name=Output}
+
+connection{out=0:Value; in=4:Input0}
+connection{out=2:Value; in=4:Input1}
+connection{out=4:Value; in=1:Color}
+connection{out=1:Color; in=3:Color}
+

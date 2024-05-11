@@ -5,7 +5,7 @@
 package com.jme3.renderer.framegraph.passes;
 
 import com.jme3.renderer.framegraph.definitions.ValueDef;
-import com.jme3.renderer.framegraph.definitions.TextureDef2D;
+import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
@@ -49,11 +49,11 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
-        declare(new TextureDef2D(w, h, Image.Format.Depth), depth);
-        declare(new TextureDef2D(w, h, Image.Format.RGBA16F), diffuse);
-        declare(new TextureDef2D(w, h, Image.Format.RGBA16F), specular);
-        declare(new TextureDef2D(w, h, Image.Format.RGBA16F), emissive);
-        declare(new TextureDef2D(w, h, Image.Format.RGBA32F), normal);
+        declare(new TextureDef(w, h, Image.Format.Depth), depth);
+        declare(new TextureDef(w, h, Image.Format.RGBA16F), diffuse);
+        declare(new TextureDef(w, h, Image.Format.RGBA16F), specular);
+        declare(new TextureDef(w, h, Image.Format.RGBA16F), emissive);
+        declare(new TextureDef(w, h, Image.Format.RGBA32F), normal);
         declare(lightDef, lights);
         reserve(depth, diffuse, specular, emissive, normal);
     }

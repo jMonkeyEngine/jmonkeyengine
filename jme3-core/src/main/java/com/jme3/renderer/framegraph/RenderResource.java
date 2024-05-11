@@ -17,7 +17,8 @@ public class RenderResource <T> {
     private final ResourceDef<T> def;
     private final ResourceTicket<T> ticket;
     private final TimeFrame lifetime;
-    private RenderObject<T> object;
+    private RenderObject object;
+    private T resource;
     private int refs = 0;
     private int timeout = 0;
     private boolean undefined = false;
@@ -26,7 +27,7 @@ public class RenderResource <T> {
         this.producer = producer;
         this.def = def;
         this.ticket = ticket;
-        this.lifetime = new TimeFrame(this.producer.getIndex(), 0);
+        this.lifetime = new TimeFrame(this.producer.getExecutionIndex(), 0);
     }
     
     public void reference(int index) {
@@ -43,11 +44,12 @@ public class RenderResource <T> {
     public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
-    public void setObject(RenderObject<T> object) {
+    public void setObject(RenderObject object, T resource) {
         if (undefined) {
             throw new IllegalStateException("Resource is already undefined.");
         }
         this.object = object;
+        this.resource = resource;
         if (this.object != null) {
             ticket.setObjectId(this.object.getId());
         }
@@ -71,11 +73,11 @@ public class RenderResource <T> {
     public TimeFrame getLifeTime() {
         return lifetime;
     }
-    public RenderObject<T> getObject() {
+    public RenderObject getObject() {
         return object;
     }
     public T getResource() {
-        return object.getObject();
+        return resource;
     }
     public int getIndex() {
         return ticket.getWorldIndex();

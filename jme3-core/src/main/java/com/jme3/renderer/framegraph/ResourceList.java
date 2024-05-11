@@ -48,6 +48,9 @@ public class ResourceList {
         }
         throw new IndexOutOfBoundsException(ticket+" is out of bounds for size "+resources.size());
     }
+    protected boolean validate(ResourceTicket ticket) {
+        return ticket != null && ticket.getWorldIndex() >= 0;
+    }
     protected int add(RenderResource res) {
         assert res != null;
         if (nextSlot >= resources.size()) {
@@ -122,8 +125,19 @@ public class ResourceList {
         }
         return null;
     }
-    public void markUndefined(ResourceTicket ticket) {
+    public void setUndefined(ResourceTicket ticket) {
         locate(ticket).setUndefined();
+    }
+    public void setConstant(ResourceTicket ticket) {
+        RenderObject obj = locate(ticket).getObject();
+        if (obj != null) {
+            obj.setConstant(true);
+        }
+    }
+    public void setConstantOptional(ResourceTicket ticket) {
+        if (validate(ticket)) {
+            setConstant(ticket);
+        }
     }
     
     protected <T> T acquire(RenderResource<T> resource, ResourceTicket<T> ticket) {
@@ -144,7 +158,7 @@ public class ResourceList {
         return acquire(resource, ticket);
     }
     public <T> T acquireOrElse(ResourceTicket<T> ticket, T value) {
-        if (ticket != null && ticket.getWorldIndex() >= 0) {
+        if (validate(ticket)) {
             RenderResource<T> resource = locate(ticket);
             if (!resource.isUndefined()) {
                 return acquire(resource, ticket);
@@ -209,7 +223,7 @@ public class ResourceList {
         if (!res.isUsed()) {
             remove(ticket.getWorldIndex());
             res.getObject().release();
-            res.setObject(null);
+            res.setObject(null, null);
             if (res.getDefinition().isDisposeOnRelease()) {
                 map.dispose(res);
             }

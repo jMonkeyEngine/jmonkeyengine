@@ -15,6 +15,12 @@ public class RenderingBlackboard {
     private final HashMap<String, Parameter> parameters = new HashMap<>();
     
     public <T> void set(String name, Class<T> type, T value) {
+        if (type == null) {
+            throw new NullPointerException("Parameter type cannot be null.");
+        }
+        if (name == null) {
+            return;
+        }
         if (value == null) {
             delete(name);
             return;
@@ -27,6 +33,9 @@ public class RenderingBlackboard {
         }
     }
     public <T> T get(String name, Class<T> type) {
+        if (name == null) {
+            return null;
+        }
         Parameter param = parameters.get(name);
         if (param == null || !type.isAssignableFrom(param.type)) {
             return null;
@@ -35,7 +44,7 @@ public class RenderingBlackboard {
     }
     
     public boolean delete(String name) {
-        return parameters.remove(name) != null;
+        return name != null && parameters.remove(name) != null;
     }
     public void clear() {
         parameters.clear();

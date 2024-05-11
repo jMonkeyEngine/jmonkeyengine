@@ -29,6 +29,18 @@ public interface ResourceDef <T> {
     public T applyResource(Object resource);
     
     /**
+     * Returns the number of frames which the resource must be
+     * static (unused throughout rendering) before it is disposed.
+     * <p>
+     * If negative, the default timeout value will be used instead.
+     * 
+     * @return static timeout duration
+     */
+    public default int getStaticTimeout() {
+        return -1;
+    }
+    
+    /**
      * Gets the Consumer used to dispose of a resource.
      * 
      * @return resource disposer, or null
@@ -54,18 +66,6 @@ public interface ResourceDef <T> {
      */
     public default boolean isDisposeOnRelease() {
         return false;
-    }
-    
-    /**
-     * Returns the number of frames which the resource must be
-     * static (unused throughout rendering) before it is disposed.
-     * <p>
-     * If negative, the default timeout value will be used instead.
-     * 
-     * @return static timeout duration
-     */
-    public default int getStaticTimeout() {
-        return -1;
     }
     
 }

@@ -7,28 +7,31 @@ package com.jme3.renderer.framegraph.definitions;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.Texture3D;
 
 /**
  *
  * @author codex
+ * @param <T>
  */
-public class TextureDef2D implements ResourceDef<Texture2D> {
+public class TextureDef <T extends Texture> extends AbstractResourceDef<T> {
 
-    private int width, height, samples;
+    private int width, height, depth, samples;
     private Image.Format format;
     
-    public TextureDef2D(int width, int height, Image.Format format) {
-        this(width, height, 1, format);
+    public TextureDef(int width, int height, Image.Format format) {
+        this(width, height, 0, 1, format);
     }
-    public TextureDef2D(int width, int height, int samples, Image.Format format) {
+    public TextureDef(int width, int height, int depth, int samples, Image.Format format) {
         this.width = width;
         this.height = height;
+        this.depth = depth;
         this.samples = samples;
         this.format = format;
     }
 
     @Override
-    public Texture2D createResource() {
+    public Texture createResource() {
         if (samples != 1) {
             return new Texture2D(width, height, samples, format);
         } else {
@@ -36,15 +39,22 @@ public class TextureDef2D implements ResourceDef<Texture2D> {
         }
     }
     @Override
-    public Texture2D applyResource(Object resource) {
-        if (!(resource instanceof Texture2D)) {
+    public Texture applyResource(Object resource) {
+        Image img;
+        if (resource instanceof Texture) {
+            img = ((Texture)resource).getImage();
+        } else if (resource instanceof Image) {
+            img = (Image)resource;
+        } else {
             return null;
         }
-        Texture2D tex = (Texture2D)resource;
-        Image img = tex.getImage();
-        if (img.getWidth() == width && img.getHeight() == height
+        if (img.getWidth() == width && img.getHeight() == height && (img.getDepth() == depth || depth <= 0)
                 && img.getFormat() == format && img.getMultiSamples() == samples) {
-            return tex;
+            if (depth <= 0) {
+                return new Texture2D(img);
+            } else {
+                return new Texture3D(img);
+            }
         }
         return null;
     }

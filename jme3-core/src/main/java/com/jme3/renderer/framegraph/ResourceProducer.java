@@ -12,7 +12,7 @@ import java.util.Collection;
  */
 public interface ResourceProducer {
     
-    public int getIndex();
+    public int getExecutionIndex();
     
     public boolean dereference();
     public boolean isReferenced();

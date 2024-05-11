@@ -21,9 +21,13 @@ import java.util.LinkedList;
  */
 public abstract class RenderPass implements ResourceProducer {
     
+    private static int nextId = 0;
+    
     private final LinkedList<ResourceTicket> inputs = new LinkedList<>();
     private final LinkedList<ResourceTicket> outputs = new LinkedList<>();
     private final CameraSize camSize = new CameraSize();
+    private int id = nextId++;
+    private String name = "";
     private int index = -1;
     private int refs = 0;
     protected ResourceList resources;
@@ -35,6 +39,9 @@ public abstract class RenderPass implements ResourceProducer {
         initialize(frameGraph);
     }
     public void prepareRender(FGRenderContext context) {
+        if (index < 0) {
+            throw new IllegalStateException("Pass is not properly initialized for rendering.");
+        }
         prepare(context);
     }
     public void executeRender(FGRenderContext context) {
@@ -52,8 +59,12 @@ public abstract class RenderPass implements ResourceProducer {
     }
     public void cleanupPass(FrameGraph frameGraph) {
         cleanup(frameGraph);
+        for (ResourceTicket t : inputs) {
+            t.setSource(null);
+        }
         inputs.clear();
         outputs.clear();
+        index = -1;
     }
     
     protected abstract void initialize(FrameGraph frameGraph);
@@ -120,7 +131,6 @@ public abstract class RenderPass implements ResourceProducer {
         outputs.add(output);
         return output;
     }
-    
     protected <T> ResourceTicket<T> addInput(String name) {
         return addInput(new ResourceTicket<>(name));
     }
@@ -128,25 +138,45 @@ public abstract class RenderPass implements ResourceProducer {
         return addOutput(new ResourceTicket<>(name));
     }
     
-    public <T> ResourceTicket<T> connectToOutput(String name, ResourceTicket<T> ticket) {
-        for (ResourceTicket t : outputs) {
-            if (name.equals(t.getName())) {
-                ticket.addSource(t);
-                return t;
+    public void disconnectFrom(RenderPass pass) {
+        for (ResourceTicket in : inputs) {
+            if (pass.getOutputTickets().contains(in.getSource())) {
+                in.setSource(null);
             }
         }
-        return null;
     }
     
     public void countReferences() {
         refs = outputs.size();
     }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public void useNextId() {
+        id = nextId++;
+    }
+    public void shiftExecutionIndex(int base, int amount) {
+        if (index > base) {
+            index += amount;
+        }
+    }
+    
+    public String getName() {
+        return name;
+    }
+    public int getId() {
+        return id;
+    }
+    
     public boolean isAssigned() {
         return index >= 0;
     }
     
     @Override
-    public int getIndex() {
+    public int getExecutionIndex() {
         return index;
     }
     @Override
@@ -169,6 +199,10 @@ public abstract class RenderPass implements ResourceProducer {
     @Override
     public String toString() {
         return getClass().getSimpleName();
+    }
+    
+    public static void setNextId(int id) {
+        nextId = id;
     }
     
 }

@@ -5,7 +5,6 @@
 package com.jme3.renderer.framegraph;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * References a {@link RenderResource} by either name or index.
@@ -25,8 +24,7 @@ public class ResourceTicket <T> {
     private String name;
     private int localIndex;
     private int objectId = -1;
-    private int sourceIndex = 0;
-    private ArrayList<ResourceTicket<T>> sources;
+    private ResourceTicket<T> source;
     
     public ResourceTicket() {
         this(null, -1);
@@ -43,22 +41,6 @@ public class ResourceTicket <T> {
         this.localIndex = index;
     }
     
-    public int addSource(ResourceTicket<T> source) {
-        if (sources == null) {
-            sources = new ArrayList<>(1);
-        }
-        if (sources.add(source)) {
-            return sources.size()-1;
-        }
-        return -1;
-    }
-    public boolean removeSource(ResourceTicket<T> source) {
-        return sources.remove(source);
-    }
-    public void clearSources() {
-        sources.clear();
-    }
-    
     public ResourceTicket<T> copyIndexTo(ResourceTicket<T> target) {
         if (target == null) {
             target = new ResourceTicket();
@@ -73,6 +55,9 @@ public class ResourceTicket <T> {
         return target;
     }
     
+    public void setSource(ResourceTicket<T> source) {
+        this.source = source;
+    }
     public ResourceTicket<T> setName(String name) {
         this.name = name;
         return this;
@@ -84,10 +69,6 @@ public class ResourceTicket <T> {
     public void setObjectId(int objectId) {
         this.objectId = objectId;
     }
-    public boolean setSourceIndex(int sourceIndex) {
-        this.sourceIndex = sourceIndex;
-        return this.sourceIndex >= 0 && this.sourceIndex < sources.size();
-    }
     
     public long getId() {
         return id;
@@ -96,9 +77,8 @@ public class ResourceTicket <T> {
         return name;
     }
     public int getWorldIndex() {
-        ResourceTicket src = getCurrentSource();
-        if (src != null) {
-            int i = src.getWorldIndex();
+        if (source != null) {
+            int i = source.getWorldIndex();
             if (i >= 0) return i;
         }
         return localIndex;
@@ -109,14 +89,8 @@ public class ResourceTicket <T> {
     public int getObjectId() {
         return objectId;
     }
-    public ResourceTicket<T> getCurrentSource() {
-        if (sourceIndex >= 0 && sourceIndex < sources.size()) {
-            return sources.get(sourceIndex);
-        }
-        return null;
-    }
-    public ArrayList<ResourceTicket<T>> getSources() {
-        return sources;
+    public ResourceTicket<T> getSource() {
+        return source;
     }
     
     @Override

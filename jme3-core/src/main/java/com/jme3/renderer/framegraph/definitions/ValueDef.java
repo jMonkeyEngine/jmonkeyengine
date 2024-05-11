@@ -12,14 +12,11 @@ import java.util.function.Function;
  * @author codex
  * @param <T>
  */
-public class ValueDef <T> implements ResourceDef<T> {
+public class ValueDef <T> extends AbstractResourceDef<T> {
 
     private final Class<T> type;
     private Function<Object, T> create;
     private Consumer<T> reset;
-    private Consumer<T> disposal;
-    private boolean useExisting = true;
-    private boolean dispose = false;
     
     public ValueDef(Class<T> type, Function<Object, T> create) {
         this.type = type;
@@ -39,33 +36,12 @@ public class ValueDef <T> implements ResourceDef<T> {
         }
         return null;
     }
-    @Override
-    public Consumer<T> getDisposalMethod() {
-        return disposal;
-    }
-    @Override
-    public boolean isUseExisting() {
-        return useExisting;
-    }
-    @Override
-    public boolean isDisposeOnRelease() {
-        return dispose;
-    }
 
     public void setCreate(Function<Object, T> create) {
         this.create = create;
     }
     public void setReset(Consumer<T> reset) {
         this.reset = reset;
-    }
-    public void setDisposal(Consumer<T> disposal) {
-        this.disposal = disposal;
-    }
-    public void setUseExisting(boolean useExisting) {
-        this.useExisting = useExisting;
-    }
-    public void setDispose(boolean dispose) {
-        this.dispose = dispose;
     }
 
     public Class<T> getType() {

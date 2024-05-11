@@ -4,7 +4,7 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
-import com.jme3.renderer.framegraph.definitions.TextureDef2D;
+import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
@@ -43,7 +43,7 @@ public class DeferredPass extends RenderPass {
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
-        declare(new TextureDef2D(w, h, Image.Format.RGBA8), outColor);
+        declare(new TextureDef(w, h, Image.Format.RGBA8), outColor);
         reserve(outColor);
         reference(depth, diffuse, specular, emissive, normal);
         referenceOptional(lights);
