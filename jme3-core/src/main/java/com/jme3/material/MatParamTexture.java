@@ -81,7 +81,7 @@ public class MatParamTexture extends MatParam {
      * Sets the texture associated with this material parameter.
      *
      * @param value the texture object to set
-     * @throws IllegalArgumentException if the provided value is not a {@link Texture}
+     * @throws RuntimeException if the provided value is not a {@link Texture}
      */
     public void setTextureValue(Texture value) {
         setValue(value);
