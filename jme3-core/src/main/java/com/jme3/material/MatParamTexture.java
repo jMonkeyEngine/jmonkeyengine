@@ -86,22 +86,6 @@ public class MatParamTexture extends MatParam {
     public void setTextureValue(Texture value) {
         setValue(value);
     }
-    
-    /**
-     * Overrides the base class {@link MatParam#setValue(Object)} to allow null
-     * values.
-     *
-     * @param value the object to set as the value (must be a {@link Texture} or null)
-     * @throws IllegalArgumentException if the provided value is not a {@link Texture} and not null
-     */
-    @Override
-    public void setValue(Object value) {
-        if ((value == null) || value instanceof Texture) {
-            this.value = value;
-        } else {
-            throw new IllegalArgumentException("Value must be a Texture object");
-        }
-    }
 
     /**
      * Gets the required color space for this texture parameter.
