@@ -14,8 +14,6 @@ import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 
 /**
@@ -27,6 +25,7 @@ public class TileDeferredPass extends RenderPass {
     private ResourceTicket<Texture2D> diffuse, specular, emissive, normal, depth, outColor;
     private ResourceTicket<LightList> lights;
     private ResourceTicket<TiledRenderGrid> tiles;
+    private TextureDef<Texture2D> colorDef;
     private Material material;
     private final TiledRenderGrid tileInfo = new TiledRenderGrid();
     
@@ -38,6 +37,10 @@ public class TileDeferredPass extends RenderPass {
         normal = addInput("Normal");
         depth = addInput("Depth");
         outColor = addOutput("Color");
+        lights = addInput("Lights");
+        tiles = addInput("TileInfo");
+        colorDef = new TextureDef<>(Texture2D.class, img -> new Texture2D(img));
+        colorDef.setFormatFlexible(true);
         material = new Material(frameGraph.getAssetManager(), "Common/MatDefs/ShadingCommon/TileBasedDeferredShading.j3md");
         for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("TileBasedDeferredPass")) {
             t.setLogic(new TileBasedDeferredSinglePassLightingLogic(t, tileInfo));
@@ -45,7 +48,8 @@ public class TileDeferredPass extends RenderPass {
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        declare(new TextureDef(context.getWidth(), context.getHeight(), Image.Format.RGBA8), outColor);
+        colorDef.setSize(context.getWidth(), context.getHeight());
+        declare(colorDef, outColor);
         reserve(outColor);
         reference(diffuse, specular, emissive, normal, depth);
         referenceOptional(lights, tiles);

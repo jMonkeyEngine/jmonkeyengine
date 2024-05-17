@@ -14,7 +14,7 @@ import java.util.Iterator;
  */
 public class RenderObjectMap {
     
-    private final HashMap<Integer, RenderObject> objectMap = new HashMap<>();
+    private final HashMap<Long, RenderObject> objectMap = new HashMap<>();
     private final int timeout = 1;
     
     protected <T> RenderObject<T> create(ResourceDef<T> def) {
@@ -25,11 +25,13 @@ public class RenderObjectMap {
         objectMap.put(obj.getId(), obj);
         return obj;
     }
-    protected <T> boolean applyToResource(RenderResource<T> resource, RenderObject object) {
+    protected boolean isAvailable(RenderObject object) {
+        return !object.isAcquired() && !object.isConstant();
+    }
+    protected <T> boolean applyDirectResource(RenderResource<T> resource, RenderObject object) {
         if (!object.isAcquired() && !object.isConstant()) {
-            T r = resource.getDefinition().applyResource(object.getObject());
+            T r = resource.getDefinition().applyDirectResource(object.getObject());
             if (r != null) {
-                object.acquire();
                 resource.setObject(object, r);
                 return true;
             }
@@ -42,23 +44,51 @@ public class RenderObjectMap {
             throw new IllegalArgumentException("Cannot allocate object to an undefined resource.");
         }
         ResourceDef<T> def = resource.getDefinition();
-        int id = resource.getTicket().getObjectId();
+        long id = resource.getTicket().getObjectId();
+        // allocate reserved object
         if (id >= 0) {
             RenderObject obj = objectMap.get(id);
-            if (obj != null && applyToResource(resource, obj)) {
-                return;
+            if (obj != null && isAvailable(obj) && 
+                    (obj.isReservedAt(resource.getLifeTime().getStartIndex())
+                    || !obj.isReservedWithin(resource.getLifeTime()))) {
+                // reserved object is only applied if it is accepted by the definition
+                T r = def.applyDirectResource(obj.getObject());
+                if (r == null) {
+                    r = def.applyIndirectResource(obj.getObject());
+                }
+                if (r != null) {
+                    resource.setObject(obj, r);
+                    return;
+                }
             }
         }
+        // find object to allocate
+        T indirectRes = null;
+        RenderObject indirectObj = null;
         for (RenderObject obj : objectMap.values()) {
-            if (!obj.isReserved(resource.getLifeTime()) && applyToResource(resource, obj)) {
-                return;
+            if (isAvailable(obj) && !obj.isReservedWithin(resource.getLifeTime())) {
+                T r = def.applyDirectResource(obj.getObject());
+                if (r != null) {
+                    resource.setObject(obj, r);
+                    return;
+                }
+                if (indirectObj == null) {
+                    indirectRes = def.applyIndirectResource(obj.getObject());
+                    if (indirectRes != null) {
+                        indirectObj = obj;
+                    }
+                }
             }
         }
-        RenderObject<T> obj = create(def);
-        obj.acquire();
-        resource.setObject(obj, obj.getObject());
+        if (indirectObj != null) {
+            // allocate indirect object
+            resource.setObject(indirectObj, indirectRes);
+        } else {
+            // create new object
+            resource.setObject(create(def));
+        }
     }
-    public boolean reserve(int objectId, int index) {
+    public boolean reserve(long objectId, int index) {
         RenderObject obj = objectMap.get(objectId);
         if (obj != null) {
             obj.reserve(index);
@@ -77,7 +107,7 @@ public class RenderObjectMap {
         return (obj != null ? obj.getObject() : null);
     }
     public void dispose(RenderResource resource) {
-        int id = resource.getTicket().getObjectId();
+        long id = resource.getTicket().getObjectId();
         if (id >= 0) {
             RenderObject obj = objectMap.remove(id);
             if (obj != null) {

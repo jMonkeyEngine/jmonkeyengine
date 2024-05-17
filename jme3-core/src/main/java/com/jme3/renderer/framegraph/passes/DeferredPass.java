@@ -4,7 +4,6 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
-import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
@@ -12,8 +11,8 @@ import com.jme3.material.logic.DeferredSinglePassLightingLogic;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
+import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
 
 /**
@@ -24,6 +23,7 @@ public class DeferredPass extends RenderPass {
 
     private ResourceTicket<Texture2D> depth, diffuse, specular, emissive, normal, outColor;
     private ResourceTicket<LightList> lights;
+    private TextureDef<Texture2D> colorDef;
     private Material material;
     
     @Override
@@ -34,6 +34,8 @@ public class DeferredPass extends RenderPass {
         emissive = addInput("Emissive");
         normal = addInput("Normal");
         outColor = addOutput("Color");
+        colorDef = new TextureDef<>(Texture2D.class, img -> new Texture2D(img));
+        colorDef.setFormatFlexible(true);
         material = new Material(frameGraph.getAssetManager(), "Common/MatDefs/ShadingCommon/DeferredShading.j3md");
         for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("DeferredPass")) {
             t.setLogic(new DeferredSinglePassLightingLogic(t));
@@ -41,9 +43,8 @@ public class DeferredPass extends RenderPass {
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        int w = context.getWidth();
-        int h = context.getHeight();
-        declare(new TextureDef(w, h, Image.Format.RGBA8), outColor);
+        colorDef.setSize(context.getWidth(), context.getHeight());
+        declare(colorDef, outColor);
         reserve(outColor);
         reference(depth, diffuse, specular, emissive, normal);
         referenceOptional(lights);

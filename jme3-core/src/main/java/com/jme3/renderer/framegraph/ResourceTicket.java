@@ -4,8 +4,6 @@
  */
 package com.jme3.renderer.framegraph;
 
-import java.util.ArrayList;
-
 /**
  * References a {@link RenderResource} by either name or index.
  * <p>
@@ -18,12 +16,9 @@ import java.util.ArrayList;
  */
 public class ResourceTicket <T> {
     
-    private static long nextId = 0;
-    
-    private final long id;
     private String name;
     private int localIndex;
-    private int objectId = -1;
+    private long objectId = -1;
     private ResourceTicket<T> source;
     
     public ResourceTicket() {
@@ -36,7 +31,6 @@ public class ResourceTicket <T> {
         this(null, index);
     }
     public ResourceTicket(String name, int index) {
-        this.id = nextId++;
         this.name = name;
         this.localIndex = index;
     }
@@ -66,13 +60,10 @@ public class ResourceTicket <T> {
         this.localIndex = index;
         return this;
     }
-    public void setObjectId(int objectId) {
+    public void setObjectId(long objectId) {
         this.objectId = objectId;
     }
     
-    public long getId() {
-        return id;
-    }
     public String getName() {
         return name;
     }
@@ -86,16 +77,19 @@ public class ResourceTicket <T> {
     public int getLocalIndex() {
         return localIndex;
     }
-    public int getObjectId() {
+    public long getObjectId() {
         return objectId;
     }
     public ResourceTicket<T> getSource() {
         return source;
     }
+    public boolean hasSource() {
+        return source != null;
+    }
     
     @Override
     public String toString() {
-        return "Ticket[id="+id+", name="+name+", index="+localIndex+"]";
+        return "Ticket[name="+name+", index="+localIndex+"]";
     }
     
 }

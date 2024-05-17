@@ -113,7 +113,15 @@ public interface InputCapsule {
     public Savable readSavable(String name, Savable defVal) throws IOException;
     public Savable[] readSavableArray(String name, Savable[] defVal) throws IOException;
     public Savable[][] readSavableArray2D(String name, Savable[][] defVal) throws IOException;
-
+    public default <T extends Savable> T readSavable(String name, Class<T> type, T defVal) throws IOException {
+        Savable s = readSavable(name, defVal);
+        if (s != defVal && type.isAssignableFrom(s.getClass())) {
+            return (T)s;
+        } else {
+            return defVal;
+        }
+    }
+    
 
     // ArrayLists
 

@@ -149,9 +149,6 @@ public class FGRenderContext {
     public FullScreenQuad getScreen() {
         return screen;
     }
-    public RenderingBlackboard getBlackboard() {
-        return renderManager.getBlackboard();
-    }
     public float getTpf() {
         return tpf;
     }

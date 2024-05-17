@@ -21,12 +21,24 @@ public interface ResourceDef <T> {
     public T createResource();
     
     /**
+     * Repurposes the given resource only if the resource is of
+     * a certain type.
+     * <p>
+     * For reallocation, direct resources are preferred over indirect
+     * resources. Usually because direct resources are more performant.
+     * 
+     * @param resource
+     * @return 
+     */
+    public T applyDirectResource(Object resource);
+    
+    /**
      * Repurposes the given resource.
      * 
      * @param resource
      * @return repurposed resource, or null if the given resource is not usable.
      */
-    public T applyResource(Object resource);
+    public T applyIndirectResource(Object resource);
     
     /**
      * Returns the number of frames which the resource must be

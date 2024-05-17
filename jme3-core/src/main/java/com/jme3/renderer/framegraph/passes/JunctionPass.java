@@ -13,11 +13,18 @@ import com.jme3.renderer.framegraph.ResourceTicket;
  * @author codex
  * @param <T>
  */
-public class Junction <T> extends RenderPass {
+public class JunctionPass <T> extends RenderPass {
     
-    private int length = 2;
-    private int index = 0;
+    private int length;
     private ResourceTicket<T> output;
+    private GraphSource<Integer> source;
+    
+    public JunctionPass() {
+        this(2);
+    }
+    public JunctionPass(int length) {
+        this.length = length;
+    }
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
@@ -28,7 +35,7 @@ public class Junction <T> extends RenderPass {
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        output.setSource(getInputTickets().get(index));
+        output.setSource(getInputTickets().get(source.getGraphValue(context.getViewPort())));
     }
     @Override
     protected void execute(FGRenderContext context) {}
@@ -37,13 +44,10 @@ public class Junction <T> extends RenderPass {
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
     @Override
-    public boolean isReferenced() {
+    public boolean isUsed() {
         return true;
     }
-
-    public void setIndex(int index) {
-        this.index = 0;
-    }
+    
     public void setLength(int length) {
         this.length = length;
     }

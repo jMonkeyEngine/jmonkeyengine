@@ -9,8 +9,9 @@ import java.util.function.Consumer;
 /**
  *
  * @author codex
+ * @param <T>
  */
-public abstract class AbstractResourceDef <T> implements ResourceDef {
+public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
     
     private Consumer<T> disposalMethod;
     private int staticTimeout = -1;

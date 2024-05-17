@@ -9,51 +9,66 @@ import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.ValueDef;
 import java.util.function.Function;
+import com.jme3.renderer.framegraph.GraphTarget;
 
 /**
  *
  * @author codex
  * @param <T>
  */
-public class Attribute <T> extends RenderPass implements Function<Object, T> {
+public class AttributePass <T> extends RenderPass implements Function<Object, T> {
     
     private final Class<T> paramType;
     private String paramName;
+    private ResourceTicket<T> in, out;
     private T value;
-    private ResourceTicket<T> ticket;
     private ValueDef<T> def;
+    private GraphTarget<T> target;
+    private GraphSource<T> source;
 
-    public Attribute(Class<T> paramType) {
+    public AttributePass(Class<T> paramType, String paramName) {
         this.paramType = paramType;
+        this.paramName = paramName;
     }
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        ticket = addOutput("Value");
+        in = addInput("Value");
+        out = addOutput("Value");
         def = new ValueDef<>(null, this);
         def.setDisposeOnRelease(true);
         def.setUseExisting(false);
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        declare(def, ticket);
+        declare(def, out);
+        referenceOptional(in);
     }
     @Override
     protected void execute(FGRenderContext context) {
-        if (paramName != null) {
-            value = context.getBlackboard().get(paramName, paramType);
+        value = resources.acquireOrElse(in, null);
+        if (value != null && target != null) {
+            target.setGraphValue(context.getViewPort(), value);
+            resources.setConstant(in);
+        }
+        if (source != null) {
+            value = source.getGraphValue(context.getViewPort());
         }
         if (value != null) {
-            resources.acquire(ticket);
-            resources.setConstant(ticket);
+            resources.acquire(out);
+            resources.setConstant(out);
         } else {
-            resources.setUndefined(ticket);
+            resources.setUndefined(out);
         }
     }
     @Override
     protected void reset(FGRenderContext context) {}
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
+    @Override
+    public boolean isUsed() {
+        return super.isUsed() || in.hasSource();
+    }
     @Override
     public T apply(Object t) {
         return value;
@@ -62,8 +77,11 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
     public void setParamName(String name) {
         this.paramName = name;
     }
-    public void setValue(T value) {
-        this.value = value;
+    public void setTarget(GraphTarget<T> target) {
+        this.target = target;
+    }
+    public void setSource(GraphSource<T> source) {
+        this.source = source;
     }
     
     public Class<T> getParamType() {
@@ -71,9 +89,6 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
     }
     public String getParamName() {
         return paramName;
-    }
-    public T getValue() {
-        return value;
     }
     
 }

@@ -19,9 +19,9 @@ public class RenderObject <T> {
     private static final Consumer<Object> DEFAULT = object -> {};
     private static final Consumer<NativeObject> NATIVE = object -> object.dispose();
     
-    private static int nextId = 0;
+    private static long nextId = 0;
     
-    private final int id;
+    private final long id;
     private final T object;
     private final BitSet reservations = new BitSet();
     private int timeoutDuration;
@@ -48,14 +48,7 @@ public class RenderObject <T> {
             this.disposer = DEFAULT;
         }
     }
-
-    public boolean acquire(TimeFrame time, boolean reserved) {
-        if (acquired || (!reserved && isReserved(time))) {
-            return false;
-        }
-        acquire();
-        return true;
-    }
+    
     public void acquire() {
         timeout = timeoutDuration;
         acquired = true;
@@ -84,7 +77,7 @@ public class RenderObject <T> {
         this.constant = constant;
     }
     
-    public int getId() {
+    public long getId() {
         return id;
     }
     public T getObject() {
@@ -93,7 +86,10 @@ public class RenderObject <T> {
     public boolean isAcquired() {
         return acquired;
     }
-    public boolean isReserved(TimeFrame frame) {
+    public boolean isReservedAt(int index) {
+        return reservations.get(index);
+    }
+    public boolean isReservedWithin(TimeFrame frame) {
         if (frame.getStartIndex() >= reservations.size()) {
             return false;
         }
@@ -109,7 +105,7 @@ public class RenderObject <T> {
         return constant;
     }
     
-    public static int getNextId() {
+    public static long getNextId() {
         return nextId;
     }
     

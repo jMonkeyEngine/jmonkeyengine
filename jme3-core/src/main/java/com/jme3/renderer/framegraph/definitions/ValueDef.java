@@ -15,43 +15,47 @@ import java.util.function.Function;
 public class ValueDef <T> extends AbstractResourceDef<T> {
 
     private final Class<T> type;
-    private Function<Object, T> create;
-    private Consumer<T> reset;
+    private Function<Object, T> builder;
+    private Consumer<T> reviser;
     
     public ValueDef(Class<T> type, Function<Object, T> create) {
         this.type = type;
-        this.create = create;
+        this.builder = create;
     }
     
     @Override
     public T createResource() {
-        return create.apply(null);
+        return builder.apply(null);
     }
     @Override
-    public T applyResource(Object resource) {
-        if (reset != null && type.isAssignableFrom(resource.getClass())) {
+    public T applyDirectResource(Object resource) {
+        if (reviser != null && type.isAssignableFrom(resource.getClass())) {
             T res = (T)resource;
-            reset.accept(res);
+            reviser.accept(res);
             return res;
         }
         return null;
     }
-
-    public void setCreate(Function<Object, T> create) {
-        this.create = create;
+    @Override
+    public T applyIndirectResource(Object resource) {
+        return null;
     }
-    public void setReset(Consumer<T> reset) {
-        this.reset = reset;
+
+    public void setBuilder(Function<Object, T> builder) {
+        this.builder = builder;
+    }
+    public void setReviser(Consumer<T> reviser) {
+        this.reviser = reviser;
     }
 
     public Class<T> getType() {
         return type;
     }
-    public Function<Object, T> getCreate() {
-        return create;
+    public Function<Object, T> getBuilder() {
+        return builder;
     }
-    public Consumer<T> getReset() {
-        return reset;
+    public Consumer<T> getReviser() {
+        return reviser;
     }
     
 }

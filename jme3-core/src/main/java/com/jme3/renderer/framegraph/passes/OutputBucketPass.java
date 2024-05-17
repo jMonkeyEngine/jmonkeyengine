@@ -48,7 +48,7 @@ public class OutputBucketPass extends RenderPass {
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
     @Override
-    public boolean isReferenced() {
+    public boolean isUsed() {
         return true;
     }
     

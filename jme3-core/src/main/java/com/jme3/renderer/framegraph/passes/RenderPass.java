@@ -4,6 +4,11 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.renderer.framegraph.CameraSize;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
@@ -12,14 +17,16 @@ import com.jme3.renderer.framegraph.ResourceProducer;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Objects;
 
 /**
  *
  * @author codex
  */
-public abstract class RenderPass implements ResourceProducer {
+public abstract class RenderPass implements ResourceProducer, Savable {
     
     private static int nextId = 0;
     
@@ -138,6 +145,28 @@ public abstract class RenderPass implements ResourceProducer {
         return addOutput(new ResourceTicket<>(name));
     }
     
+    protected ResourceTicket getInputByName(String name) {
+        for (ResourceTicket t : inputs) {
+            if (name.equals(t.getName())) {
+                return t;
+            }
+        }
+        return null;
+    }
+    protected ResourceTicket getOutputByName(String name) {
+        for (ResourceTicket t : outputs) {
+            if (name.equals(t.getName())) {
+                return t;
+            }
+        }
+        return null;
+    }
+    
+    public void makeInput(RenderPass pass, String outTicket, String inTicket) {
+        ResourceTicket out = Objects.requireNonNull(pass.getOutputByName(outTicket));
+        ResourceTicket in = Objects.requireNonNull(getInputByName(inTicket));
+        in.setSource(out);
+    }
     public void disconnectFrom(RenderPass pass) {
         for (ResourceTicket in : inputs) {
             if (pass.getOutputTickets().contains(in.getSource())) {
@@ -182,10 +211,10 @@ public abstract class RenderPass implements ResourceProducer {
     @Override
     public boolean dereference() {
         refs--;
-        return isReferenced();
+        return isUsed();
     }
     @Override
-    public boolean isReferenced() {
+    public boolean isUsed() {
         return refs > 0;
     }
     @Override
@@ -199,6 +228,18 @@ public abstract class RenderPass implements ResourceProducer {
     @Override
     public String toString() {
         return getClass().getSimpleName();
+    }
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(id, "id", -1);
+        out.write(name, "name", "RenderPass");
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        id = in.readInt("id", -1);
+        name = in.readString("name", "RenderPass");
     }
     
     public static void setNextId(int id) {

@@ -43,7 +43,7 @@ public class OutputPass extends RenderPass {
         return new FrameBuffer(context.getWidth(), context.getHeight(), 1);
     }
     @Override
-    public boolean isReferenced() {
+    public boolean isUsed() {
         return true;
     }
     

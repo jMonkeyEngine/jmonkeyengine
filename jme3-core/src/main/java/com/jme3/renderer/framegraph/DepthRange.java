@@ -4,11 +4,18 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
+import java.io.IOException;
+
 /**
  *
  * @author codex
  */
-public class DepthRange {
+public class DepthRange implements Savable {
     
     public static final DepthRange IDENTITY = new DepthRange();
     public static final DepthRange FRONT = new DepthRange(0, 0);
@@ -37,6 +44,18 @@ public class DepthRange {
         // no need to validate range here
         start = range.start;
         end = range.end;
+        return this;
+    }
+    
+    public final DepthRange setStart(float start) {
+        validateRange(start, end);
+        this.start = start;
+        return this;
+    }
+    
+    public final DepthRange setEnd(float end) {
+        validateRange(start, end);
+        this.end = end;
         return this;
     }
     
@@ -81,10 +100,21 @@ public class DepthRange {
         hash = 79 * hash + Float.floatToIntBits(this.end);
         return hash;
     }
-    
     @Override
     public String toString() {
         return "DepthRange["+start+" -> "+end+"]";
+    }
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(start, "start", 0);
+        out.write(end, "end", 1);
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        start = in.readFloat("start", 0);
+        end = in.readFloat("end", 1);
     }
     
 }

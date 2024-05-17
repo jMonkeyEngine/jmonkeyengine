@@ -6,7 +6,15 @@ package com.jme3.renderer.framegraph;
 
 import com.jme3.renderer.framegraph.passes.RenderPass;
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.renderer.RenderManager;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -15,7 +23,7 @@ import java.util.LinkedList;
  * 
  * @author codex
  */
-public class FrameGraph {
+public class FrameGraph implements Savable {
     
     private static int nextId = 0;
     
@@ -49,7 +57,7 @@ public class FrameGraph {
         // execute passes
         context.pushRenderSettings();
         for (RenderPass p : passes) {
-            if (p.isReferenced()) {
+            if (p.isUsed()) {
                 p.executeRender(context);
                 context.popRenderSettings();
             }
@@ -173,6 +181,18 @@ public class FrameGraph {
     }
     public boolean isDebug() {
         return debug;
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(passes.toArray(RenderPass[]::new), "passes", new RenderPass[0]);
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        RenderPass[] array = (RenderPass[])in.readSavableArray("passes", new RenderPass[0]);
+        passes.addAll(Arrays.asList(array));
     }
     
 }

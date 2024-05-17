@@ -48,7 +48,6 @@ import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderObjectMap;
-import com.jme3.renderer.framegraph.RenderingBlackboard;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -72,10 +71,10 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * A high-level rendering interface that is
- * above the Renderer implementation. RenderManager takes care
- * of rendering the scene graphs attached to each viewport and
- * handling SceneProcessors.
+ * A high-level rendering interface that is above the Renderer implementation.
+ * <p>
+ * RenderManager takes care of rendering the scene graphs attached to each
+ * viewport and handling SceneProcessors.
  *
  * @see SceneProcessor
  * @see ViewPort
@@ -89,7 +88,6 @@ public class RenderManager {
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
     private final RenderObjectMap renderObjects = new RenderObjectMap();
-    private final RenderingBlackboard blackboard = new RenderingBlackboard();
     private FrameGraph frameGraph;
     private Camera prevCam = null;
     private Material forcedMaterial = null;
@@ -133,10 +131,6 @@ public class RenderManager {
 
     public RenderObjectMap getRenderObjectsMap() {
         return renderObjects;
-    }
-    
-    public RenderingBlackboard getBlackboard() {
-        return blackboard;
     }
     
     /**

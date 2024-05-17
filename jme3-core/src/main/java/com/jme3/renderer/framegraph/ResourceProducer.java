@@ -15,7 +15,7 @@ public interface ResourceProducer {
     public int getExecutionIndex();
     
     public boolean dereference();
-    public boolean isReferenced();
+    public boolean isUsed();
     
     public Collection<ResourceTicket> getInputTickets();
     public Collection<ResourceTicket> getOutputTickets();

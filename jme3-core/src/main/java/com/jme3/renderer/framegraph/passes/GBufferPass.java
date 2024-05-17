@@ -5,7 +5,6 @@
 package com.jme3.renderer.framegraph.passes;
 
 import com.jme3.renderer.framegraph.definitions.ValueDef;
-import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
@@ -15,12 +14,14 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
+import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
 import java.util.LinkedList;
+import java.util.function.Function;
 
 /**
  *
@@ -30,32 +31,46 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     
     private final static String GBUFFER_PASS = "GBufferPass";
     
-    private ResourceTicket<Texture2D> depth, diffuse, specular, emissive, normal;
+    private ResourceTicket<Texture2D> diffuse, specular, emissive, normal, depth;
     private ResourceTicket<LightList> lights;
-    private final ValueDef<LightList> lightDef = new ValueDef(LightList.class, n -> new LightList(null));
+    private TextureDef<Texture2D>[] texDefs = new TextureDef[5];
+    private ValueDef<LightList> lightDef ;
     private final LinkedList<Light> accumulatedLights = new LinkedList<>();
     private final ColorRGBA mask = new ColorRGBA();
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        depth = addOutput("Depth");
-        diffuse = addOutput("Diffuse");
+        diffuse  = addOutput("Diffuse");
         specular = addOutput("Specular");
         emissive = addOutput("Emissive");
-        normal = addOutput("normal");
-        lightDef.setReset(list -> list.clear());
+        normal   = addOutput("normal");
+        depth    = addOutput("Depth");
+        Function<Image, Texture2D> tex = img -> new Texture2D(img);
+        texDefs[0] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
+        texDefs[1] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
+        texDefs[2] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
+        texDefs[3] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA32F);
+        texDefs[4] = new TextureDef<>(Texture2D.class, tex, Image.Format.Depth);
+        for (TextureDef<Texture2D> d : texDefs) {
+            d.setFormatFlexible(true);
+        }
+        lightDef = new ValueDef(LightList.class, n -> new LightList(null));
+        lightDef.setReviser(list -> list.clear());
     }
     @Override
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
-        declare(new TextureDef(w, h, Image.Format.Depth), depth);
-        declare(new TextureDef(w, h, Image.Format.RGBA16F), diffuse);
-        declare(new TextureDef(w, h, Image.Format.RGBA16F), specular);
-        declare(new TextureDef(w, h, Image.Format.RGBA16F), emissive);
-        declare(new TextureDef(w, h, Image.Format.RGBA32F), normal);
+        for (TextureDef<Texture2D> d : texDefs) {
+            d.setSize(w, h);
+        }
+        declare(texDefs[0], diffuse);
+        declare(texDefs[1], specular);
+        declare(texDefs[2], emissive);
+        declare(texDefs[3], normal);
+        declare(texDefs[4], depth);
         declare(lightDef, lights);
-        reserve(depth, diffuse, specular, emissive, normal);
+        reserve(diffuse, specular, emissive, normal, depth);
     }
     @Override
     protected void execute(FGRenderContext context) {

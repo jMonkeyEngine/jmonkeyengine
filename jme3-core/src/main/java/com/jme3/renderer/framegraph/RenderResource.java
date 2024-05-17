@@ -5,6 +5,7 @@
 package com.jme3.renderer.framegraph;
 
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
+import java.util.Objects;
 
 /**
  *
@@ -44,13 +45,21 @@ public class RenderResource <T> {
     public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
+    public void setObject(RenderObject<T> object) {
+        setObject(object, object.getObject());
+    }
     public void setObject(RenderObject object, T resource) {
+        Objects.requireNonNull(resource, "Object resource cannot be null.");
         if (undefined) {
             throw new IllegalStateException("Resource is already undefined.");
+        }
+        if (object.isAcquired()) {
+            throw new IllegalStateException("Object is already acquired.");
         }
         this.object = object;
         this.resource = resource;
         if (this.object != null) {
+            this.object.acquire();
             ticket.setObjectId(this.object.getId());
         }
     }
