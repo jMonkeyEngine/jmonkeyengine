@@ -172,6 +172,16 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> {
     public void setColorSpaceFlexible(boolean colorSpaceFlexible) {
         this.colorSpaceFlexible = colorSpaceFlexible;
     }
+    public void setWrap(Texture.WrapMode mode) {
+        wrapS = wrapT = wrapR = mode;
+    }
+    public void setWrap(Texture.WrapAxis axis, Texture.WrapMode mode) {
+        switch (axis) {
+            case S: wrapS = mode; break;
+            case T: wrapT = mode; break;
+            case R: wrapR = mode; break;
+        }
+    }
 
     public Class<T> getType() {
         return type;
@@ -211,6 +221,14 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> {
     }
     public boolean isColorSpaceFlexible() {
         return colorSpaceFlexible;
+    }
+    public Texture.WrapMode getWrap(Texture.WrapAxis axis) {
+        switch (axis) {
+            case S: return wrapS;
+            case T: return wrapT;
+            case R: return wrapR;
+            default: throw new IllegalArgumentException();
+        }
     }
     
 }

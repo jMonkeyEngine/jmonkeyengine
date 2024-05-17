@@ -22,6 +22,7 @@ public class RenderResource <T> {
     private T resource;
     private int refs = 0;
     private int timeout = 0;
+    private boolean survivesRefCull = false;
     private boolean undefined = false;
 
     public RenderResource(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
@@ -94,6 +95,9 @@ public class RenderResource <T> {
     public int getNumReferences() {
         return refs;
     }
+    public void setSurvivesRefCull(boolean survivesRefCull) {
+        this.survivesRefCull = survivesRefCull;
+    }
     
     public boolean isVirtual() {
         return object == null && !undefined;
@@ -106,6 +110,9 @@ public class RenderResource <T> {
     }
     public boolean isUndefined() {
         return undefined;
+    }
+    public boolean isSurvivesRefCull() {
+        return survivesRefCull;
     }
     
     @Override

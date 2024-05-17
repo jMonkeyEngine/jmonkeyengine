@@ -67,6 +67,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -88,6 +89,7 @@ public class RenderManager {
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
     private final RenderObjectMap renderObjects = new RenderObjectMap();
+    private final LinkedList<FrameGraph> executedFrameGraphs = new LinkedList<>();
     private FrameGraph frameGraph;
     private Camera prevCam = null;
     private Material forcedMaterial = null;
@@ -120,15 +122,35 @@ public class RenderManager {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
     }
-
+    
+    /**
+     * Gets the default FrameGraph used when a ViewPort does not have a
+     * FrameGraph already assigned to it.
+     * 
+     * @return 
+     */
     public FrameGraph getFrameGraph() {
         return frameGraph;
     }
-
+    
+    /**
+     * Sets the default FrameGraph used when a ViewPort does not have a
+     * FrameGraph already assigned to it.
+     * <p>
+     * If null, ViewPorts without FrameGraphs will be rendered using the standard
+     * forward renderer.
+     * 
+     * @param frameGraph default FrameGraph, or null
+     */
     public void setFrameGraph(FrameGraph frameGraph) {
         this.frameGraph = frameGraph;
     }
-
+    
+    /**
+     * Gets the map that stores and manages rendering objects used by FrameGraphs.
+     * 
+     * @return 
+     */
     public RenderObjectMap getRenderObjectsMap() {
         return renderObjects;
     }
@@ -1293,9 +1315,9 @@ public class RenderManager {
         }
         
         if (fg != null) {
-            
-            fg.execute();
-            
+            if (fg.execute()) {
+                executedFrameGraphs.add(fg);
+            }
         } else {
 
             if (prof != null) {
@@ -1387,7 +1409,13 @@ public class RenderManager {
             }
         }
         
-        // flushMap unrecycled resources
+        // call post frames for executed frame graphs only
+        for (FrameGraph fg : executedFrameGraphs) {
+            fg.postFrame();
+        }
+        executedFrameGraphs.clear();
+        
+        // flush object map
         renderObjects.flushMap();
         
     }
@@ -1422,7 +1450,7 @@ public class RenderManager {
      * Set a render filter. Every geometry will be tested against this filter
      * before rendering and will only be rendered if the filter returns true.
      * 
-     * @param filter
+     * @param filter the render filter
      */
     public void setRenderFilter(Predicate<Geometry> filter) {
         renderFilter = filter;
@@ -1431,8 +1459,7 @@ public class RenderManager {
     /**
      * Returns the render filter that the RenderManager is currently using
      * 
-     * @param filter
-     *            the render filter
+     * @return 
      */
     public Predicate<Geometry> getRenderFilter() {
         return renderFilter;

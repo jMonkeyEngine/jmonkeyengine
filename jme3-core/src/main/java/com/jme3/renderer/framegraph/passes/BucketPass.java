@@ -15,6 +15,7 @@ import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
+import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
 import java.io.IOException;
@@ -31,7 +32,6 @@ public class BucketPass extends RenderPass {
     private boolean flush = true;
     private ResourceTicket<Texture2D> inColor, inDepth, outColor, outDepth;
     private TextureDef<Texture2D> colorDef, depthDef;
-    private Texture2D fTex;
     
     public BucketPass() {
         this(Bucket.Opaque, DepthRange.IDENTITY);
@@ -49,7 +49,6 @@ public class BucketPass extends RenderPass {
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        fTex = (Texture2D)frameGraph.getAssetManager().loadTexture("Common/Textures/MissingTexture.png");
         inColor = addInput("Color");
         inDepth = addInput("Depth");
         outColor = addOutput("Color");
@@ -72,9 +71,10 @@ public class BucketPass extends RenderPass {
     }
     @Override
     protected void execute(FGRenderContext context) {
-        resources.acquireColorTargets(frameBuffer, outColor);
-        resources.acquireDepthTarget(frameBuffer, inDepth);
-        context.getRenderer().setFrameBuffer(frameBuffer);
+        FrameBuffer fb = getFrameBuffer(context, 1);
+        resources.acquireColorTargets(fb, outColor);
+        resources.acquireDepthTarget(fb, inDepth);
+        context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         context.transferTextures(resources.acquireOrElse(inColor, null), resources.acquireOrElse(inDepth, null));

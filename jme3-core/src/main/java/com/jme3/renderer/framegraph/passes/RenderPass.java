@@ -19,6 +19,7 @@ import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Objects;
 
@@ -30,15 +31,14 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     
     private static int nextId = 0;
     
-    private final LinkedList<ResourceTicket> inputs = new LinkedList<>();
-    private final LinkedList<ResourceTicket> outputs = new LinkedList<>();
-    private final CameraSize camSize = new CameraSize();
     private int id = nextId++;
     private String name = "";
     private int index = -1;
     private int refs = 0;
+    private final LinkedList<ResourceTicket> inputs = new LinkedList<>();
+    private final LinkedList<ResourceTicket> outputs = new LinkedList<>();
+    private final LinkedList<PassFrameBuffer> frameBuffers = new LinkedList<>();
     protected ResourceList resources;
-    protected FrameBuffer frameBuffer;
     
     public void initializePass(FrameGraph frameGraph, int index) {
         this.index = index;
@@ -52,17 +52,22 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         prepare(context);
     }
     public void executeRender(FGRenderContext context) {
-        if (camSize.update(context.getCameraSize()) || frameBuffer == null) {
-            if (frameBuffer != null) {
-                disposeFrameBuffer(frameBuffer);
-            }
-            frameBuffer = createFrameBuffer(context);
-        }
         execute(context);
         releaseAll();
     }
     public void resetRender(FGRenderContext context) {
         reset(context);
+    }
+    public void postFrame(FrameGraph frameGraph) {
+        for (Iterator<PassFrameBuffer> it = frameBuffers.iterator(); it.hasNext();) {
+            PassFrameBuffer fb = it.next();
+            if (!fb.used) {
+                fb.dispose();
+                it.remove();
+            } else {
+                fb.used = false;
+            }
+        }
     }
     public void cleanupPass(FrameGraph frameGraph) {
         cleanup(frameGraph);
@@ -80,16 +85,12 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     protected abstract void reset(FGRenderContext context);
     protected abstract void cleanup(FrameGraph frameGraph);
     
-    protected FrameBuffer createFrameBuffer(FGRenderContext context) {
-        return null;
-    }
-    protected void disposeFrameBuffer(FrameBuffer fb) {
-        fb.dispose();
-    }
-    
     protected <T> ResourceTicket<T> declare(ResourceDef<T> def, ResourceTicket<T> ticket) {
+        return resources.declare(this, def, ticket);
+    }
+    protected <T> ResourceTicket<T> declareLocal(ResourceDef<T> def, ResourceTicket<T> ticket) {
         ticket = resources.declare(this, def, ticket);
-        //addOutput(ticket);
+        resources.setSurvivesReferenceCull(ticket);
         return ticket;
     }
     protected void reserve(ResourceTicket ticket) {
@@ -131,9 +132,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         inputs.add(input);
         return input;
     }
-    protected void addInputs(ResourceTicket... inputs) {
-        this.inputs.addAll(Arrays.asList(inputs));
-    }
     protected <T> ResourceTicket<T> addOutput(ResourceTicket<T> output) {
         outputs.add(output);
         return output;
@@ -144,7 +142,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     protected <T> ResourceTicket<T> addOutput(String name) {
         return addOutput(new ResourceTicket<>(name));
     }
-    
     protected ResourceTicket getInputByName(String name) {
         for (ResourceTicket t : inputs) {
             if (name.equals(t.getName())) {
@@ -160,6 +157,20 @@ public abstract class RenderPass implements ResourceProducer, Savable {
             }
         }
         return null;
+    }
+    
+    protected FrameBuffer getFrameBuffer(int width, int height, int samples) {
+        for (PassFrameBuffer fb : frameBuffers) {
+            if (fb.qualifies(width, height, samples)) {
+                return fb.use();
+            }
+        }
+        PassFrameBuffer fb = new PassFrameBuffer(width, height, samples);
+        frameBuffers.add(fb);
+        return fb.use();
+    }
+    protected FrameBuffer getFrameBuffer(FGRenderContext context, int samples) {
+        return getFrameBuffer(context.getWidth(), context.getHeight(), samples);
     }
     
     public void makeInput(RenderPass pass, String outTicket, String inTicket) {
@@ -178,19 +189,17 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     public void countReferences() {
         refs = outputs.size();
     }
+    public void shiftExecutionIndex(int threshold, boolean positive) {
+        if (index > threshold) {
+            index += (positive ? 1 : -1);
+        }
+    }
+    
     public void setName(String name) {
         this.name = name;
     }
     public void setId(int id) {
         this.id = id;
-    }
-    public void useNextId() {
-        id = nextId++;
-    }
-    public void shiftExecutionIndex(int base, int amount) {
-        if (index > base) {
-            index += amount;
-        }
     }
     
     public String getName() {
@@ -199,7 +208,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     public int getId() {
         return id;
     }
-    
     public boolean isAssigned() {
         return index >= 0;
     }
@@ -244,6 +252,32 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     
     public static void setNextId(int id) {
         nextId = id;
+    }
+    
+    private static class PassFrameBuffer {
+        
+        public final FrameBuffer frameBuffer;
+        public boolean used = false;
+        
+        public PassFrameBuffer(int width, int height, int samples) {
+            frameBuffer = new FrameBuffer(width, height, samples);
+        }
+        
+        public FrameBuffer use() {
+            used = true;
+            return frameBuffer;
+        }
+        
+        public boolean qualifies(int width, int height, int samples) {
+            return frameBuffer.getWidth()   == width
+                && frameBuffer.getHeight()  == height
+                && frameBuffer.getSamples() == samples;
+        }
+        
+        public void dispose() {
+            frameBuffer.dispose();
+        }
+        
     }
     
 }

@@ -196,6 +196,16 @@ public class ResourceList {
         }
     }
     
+    /**
+     * Sets the resource at the ticket so that it cannot be culled
+     * by number of references.
+     * 
+     * @param ticket 
+     */
+    public void setSurvivesReferenceCull(ResourceTicket ticket) {
+        locate(ticket).setSurvivesRefCull(true);
+    }
+    
     protected <T> T acquire(RenderResource<T> resource, ResourceTicket<T> ticket) {
         if (!resource.isUsed()) {
             throw new IllegalStateException(resource+" was unexpectedly acquired.");
@@ -349,13 +359,15 @@ public class ResourceList {
     }
     
     /**
-     * Iteratively culls all resources and resource producers found
-     * to be unused.
+     * Culls all resources and resource producers found to be unused.
+     * <p>
+     * This should only be called after producers have fully counted their
+     * references, and prior to execution.
      */
     public void cullUnreferenced() {
         LinkedList<RenderResource> cull = new LinkedList<>();
         for (RenderResource r : resources) {
-            if (r != null && !r.isReferenced()) {
+            if (r != null && !r.isReferenced() && !r.isSurvivesRefCull()) {
                 cull.add(r);
             }
         }
@@ -381,7 +393,7 @@ public class ResourceList {
                 }
                 // remove all output resources
                 for (ResourceTicket t : producer.getOutputTickets()) {
-                    remove(t.getWorldIndex());
+                    remove(t.getLocalIndex());
                 }
             }
         }

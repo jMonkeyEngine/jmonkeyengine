@@ -34,6 +34,7 @@ public class FrameGraph implements Savable {
     private final LinkedList<RenderPass> passes = new LinkedList<>();
     private GraphConstructor constructor;
     private boolean debug = false;
+    private boolean viewPortRendered = false;
 
     public FrameGraph(AssetManager assetManager, RenderManager renderManager) {
         this.id = nextId++;
@@ -42,7 +43,7 @@ public class FrameGraph implements Savable {
         this.context = new FGRenderContext(this, renderManager);
     }
     
-    public void execute() {
+    public boolean execute() {
         // prepare passes
         if (constructor != null) {
             constructor.preparePasses(context);
@@ -69,6 +70,17 @@ public class FrameGraph implements Savable {
         }
         // cleanup resources
         resources.clear();
+        boolean vpr = viewPortRendered;
+        viewPortRendered = true;
+        return !vpr;
+    }
+    public void postFrame() {
+        // notify passes
+        for (RenderPass p : passes) {
+            p.postFrame(this);
+        }
+        // reset flags
+        viewPortRendered = false;
     }
     
     public <T extends RenderPass> T add(T pass) {
@@ -86,7 +98,7 @@ public class FrameGraph implements Savable {
         passes.add(index, pass);
         pass.initializePass(this, index);
         for (RenderPass p : passes) {
-            p.shiftExecutionIndex(index, 1);
+            p.shiftExecutionIndex(index, true);
         }
         return pass;
     }
@@ -115,30 +127,42 @@ public class FrameGraph implements Savable {
         return null;
     }
     public RenderPass remove(int i) {
-        RenderPass pass = passes.remove(i);
-        pass.cleanupPass(this);
-        for (RenderPass p : passes) {
-            p.disconnectFrom(pass);
-            p.shiftExecutionIndex(i, -1);
+        int j = 0;
+        RenderPass removed = null;
+        for (Iterator<RenderPass> it = passes.iterator(); it.hasNext();) {
+            RenderPass p = it.next();
+            if (removed != null) {
+                p.disconnectFrom(removed);
+                p.shiftExecutionIndex(i, false);
+            } else if (j++ == i) {
+                removed = p;
+                it.remove();
+            }
         }
-        return pass;
+        if (removed != null) {
+            removed.cleanupPass(this);
+        }
+        return removed;
     }
     public boolean remove(RenderPass pass) {
         int i = 0;
+        boolean found = false;
         for (Iterator<RenderPass> it = passes.iterator(); it.hasNext();) {
             RenderPass p = it.next();
+            if (found) {
+                // shift execution indices down
+                p.disconnectFrom(pass);
+                p.shiftExecutionIndex(i, false);
+                continue;
+            }
             if (p == pass) {
                 it.remove();
-                break;
+                found = true;
             }
             i++;
         }
-        if (i < passes.size()) {
+        if (found) {
             pass.cleanupPass(this);
-            for (RenderPass p : passes) {
-                p.disconnectFrom(pass);
-                p.shiftExecutionIndex(i, -1);
-            }
             return true;
         }
         return false;
