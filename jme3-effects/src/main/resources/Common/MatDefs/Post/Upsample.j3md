@@ -1,0 +1,23 @@
+MaterialDef Upsample {
+
+    MaterialParameters {
+        Texture2D Texture
+        Vector2 TexelSize
+        Float FilterRadius : 0.01
+        Int BoundDrawBuffer
+        Int NumSamples
+    }
+
+    Technique {
+        VertexShader   GLSL300 GLSL150 GLSL100: Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Post/Upsample.frag
+
+        WorldParameters {
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            RESOLVE_MS : NumSamples
+        }
+    }
+}

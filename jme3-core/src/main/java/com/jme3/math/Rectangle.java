@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -252,5 +252,20 @@ public final class Rectangle implements Savable, Cloneable, java.io.Serializable
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+    }
+
+    /**
+     * Returns a string representation of the Recatangle, which is unaffected.
+     * For example, a rectangle with vertices at (1,0,0), (2,0,0), (1,2,0), and
+     * (2,2,0) is represented by:
+     * <pre>
+     * Rectangle [A: (1.0, 0.0, 0.0)  B: (2.0, 0.0, 0.0)  C: (1.0, 2.0, 0.0)]
+     * </pre>
+     *
+     * @return the string representation (not null, not empty)
+     */
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [A: " + a + "  B: " + b + "  C: " + c + "]";
     }
 }
