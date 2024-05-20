@@ -8,7 +8,6 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.io.GraphSource;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
