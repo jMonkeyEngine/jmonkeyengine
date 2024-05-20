@@ -56,8 +56,9 @@ public class TileDeferredPass extends RenderPass {
     }
     @Override
     protected void execute(FGRenderContext context) {
-        resources.acquireColorTargets(frameBuffer, outColor);
-        context.getRenderer().setFrameBuffer(frameBuffer);
+        FrameBuffer fb = getFrameBuffer(context, 1);
+        resources.acquireColorTargets(fb, outColor);
+        context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         TiledRenderGrid trg = resources.acquireOrElse(tiles, null);
         if (trg != null) {
@@ -81,10 +82,6 @@ public class TileDeferredPass extends RenderPass {
     protected void reset(FGRenderContext context) {}
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
-    @Override
-    protected FrameBuffer createFrameBuffer(FGRenderContext context) {
-        return new FrameBuffer(context.getWidth(), context.getHeight(), 1);
-    }
 
     public void setDiffuse(ResourceTicket<Texture2D> diffuse) {
         this.diffuse = diffuse;

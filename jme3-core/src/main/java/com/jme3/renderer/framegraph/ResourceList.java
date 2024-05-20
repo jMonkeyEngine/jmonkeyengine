@@ -24,6 +24,7 @@ public class ResourceList {
     private final RenderObjectMap map;
     private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
     private int nextSlot = 0;
+    private int textureBinds = 0;
 
     public ResourceList(RenderObjectMap map) {
         this.map = map;
@@ -39,7 +40,10 @@ public class ResourceList {
             throw new NullPointerException("Ticket cannot be null.");
         }
         final int i = ticket.getWorldIndex();
-        if (i >= 0 && i < resources.size()) {
+        if (i < 0) {
+            throw new NullPointerException(ticket+" does not point to any resource (negative index).");
+        }
+        if (i < resources.size()) {
             RenderResource<T> res = resources.get(i);
             if (res != null) {
                 return res;
@@ -206,6 +210,13 @@ public class ResourceList {
         locate(ticket).setSurvivesRefCull(true);
     }
     
+    public boolean isVirtual(ResourceTicket ticket, boolean optional) {
+        if (!optional || validate(ticket)) {
+            return locate(ticket).isVirtual();
+        }
+        return true;
+    }
+    
     protected <T> T acquire(RenderResource<T> resource, ResourceTicket<T> ticket) {
         if (!resource.isUsed()) {
             throw new IllegalStateException(resource+" was unexpectedly acquired.");
@@ -229,7 +240,7 @@ public class ResourceList {
     public <T> T acquire(ResourceTicket<T> ticket) {
         RenderResource<T> resource = locate(ticket);
         if (resource.isUndefined()) {
-            throw new NullPointerException("Resource is undefined.");
+            throw new NullPointerException("Cannot acquire undefined resource.");
         }
         return acquire(resource, ticket);
     }
@@ -267,10 +278,12 @@ public class ResourceList {
             Texture acquired = acquire((ResourceTicket<Texture>)tickets[i]);
             if (acquired != existing) {
                 fbo.setColorTarget(i, FrameBuffer.FrameBufferTarget.newTarget(acquired));
+                textureBinds++;
             }
         }
         for (; i < tickets.length; i++) {
             fbo.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(acquire(tickets[i])));
+            textureBinds++;
         }
     }
     /**
@@ -279,15 +292,22 @@ public class ResourceList {
      * If the texture is already assigned to the framebuffer as the depth target,
      * the nothing changes.
      * 
+     * @param <T>
      * @param fbo
      * @param ticket 
+     * @return  
      */
-    public void acquireDepthTarget(FrameBuffer fbo, ResourceTicket<? extends Texture> ticket) {
-        Texture acquired = acquire((ResourceTicket<Texture>)ticket);
-        if (fbo.getDepthTarget() != null && acquired == fbo.getDepthTarget().getTexture()) {
-            return;
+    public <T extends Texture> T acquireDepthTarget(FrameBuffer fbo, ResourceTicket<T> ticket) {
+        T acquired = acquire(ticket);
+        FrameBuffer.RenderBuffer target = fbo.getDepthTarget();
+        boolean nullTarget = target == null;
+        boolean unequalTargets = target != null && acquired != target.getTexture();
+        System.out.println("null? "+nullTarget+"   unequal? "+unequalTargets);
+        if (nullTarget || unequalTargets) {
+            fbo.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(acquired));
+            textureBinds++;
         }
-        fbo.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(acquired));
+        return acquired;
     }
     
     protected <T> T extract(RenderResource<T> resource, ResourceTicket<T> ticket) {
@@ -333,8 +353,7 @@ public class ResourceList {
         res.release();
         if (!res.isUsed()) {
             remove(ticket.getWorldIndex());
-            res.getObject().release();
-            res.setObject(null, null);
+            res.setObject(null);
             if (res.getDefinition().isDisposeOnRelease()) {
                 map.dispose(res);
             }
@@ -356,6 +375,13 @@ public class ResourceList {
         for (ResourceTicket t : tickets) {
             releaseOptional(t);
         }
+    }
+    
+    /**
+     * Prepares this for rendering.
+     */
+    public void beginRenderingSession() {
+        textureBinds = 0;
     }
     
     /**
@@ -407,6 +433,10 @@ public class ResourceList {
         int size = resources.size();
         resources = new ArrayList<>(size);
         nextSlot = 0;
+    }
+    
+    public int getTextureBinds() {
+        return textureBinds;
     }
     
 }

@@ -47,9 +47,16 @@ public class RenderResource <T> {
         this.timeout = timeout;
     }
     public void setObject(RenderObject<T> object) {
-        setObject(object, object.getObject());
+        if (object != null) {
+            setObject(object, object.getObject());
+        } else if (this.object != null) {
+            this.object.release();
+            this.object = null;
+            resource = null;
+        }
     }
     public void setObject(RenderObject object, T resource) {
+        Objects.requireNonNull(object, "Object cannot be null.");
         Objects.requireNonNull(resource, "Object resource cannot be null.");
         if (undefined) {
             throw new IllegalStateException("Resource is already undefined.");
@@ -59,10 +66,8 @@ public class RenderResource <T> {
         }
         this.object = object;
         this.resource = resource;
-        if (this.object != null) {
-            this.object.acquire();
-            ticket.setObjectId(this.object.getId());
-        }
+        this.object.acquire();
+        ticket.setObjectId(this.object.getId());
     }
     public void setUndefined() {
         if (object != null) {

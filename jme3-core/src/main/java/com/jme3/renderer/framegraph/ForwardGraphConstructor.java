@@ -4,8 +4,12 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.passes.Attribute;
+import com.jme3.renderer.framegraph.passes.BucketPass;
 import com.jme3.renderer.framegraph.passes.OutputBucketPass;
+import com.jme3.renderer.framegraph.passes.OutputPass;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
+import com.jme3.texture.Texture2D;
 
 /**
  *
@@ -13,15 +17,28 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
  */
 public class ForwardGraphConstructor implements GraphConstructor {
     
-    private OutputBucketPass opaque, sky, transparent, gui, translucent;
+    private BucketPass opaque;
+    private OutputPass opaqueOut;
+    private Attribute<Texture2D> opaqueAttr;
+    private OutputBucketPass sky, transparent, gui, translucent;
     
     @Override
     public void addPasses(FrameGraph frameGraph) {
-        opaque = frameGraph.add(new OutputBucketPass(Bucket.Opaque));
+        
+        opaque = frameGraph.add(new BucketPass(Bucket.Opaque));
+        opaqueOut = frameGraph.add(new OutputPass());
         sky = frameGraph.add(new OutputBucketPass(Bucket.Sky, DepthRange.REAR));
         transparent = frameGraph.add(new OutputBucketPass(Bucket.Transparent));
         gui = frameGraph.add(new OutputBucketPass(Bucket.Gui, DepthRange.FRONT));
         translucent = frameGraph.add(new OutputBucketPass(Bucket.Translucent));
+        opaqueAttr = frameGraph.add(new Attribute<>());
+        
+        opaqueOut.makeInput(opaque, "Color", "Color");
+        opaqueOut.makeInput(opaque, "Depth", "Depth");
+        
+        opaqueAttr.makeInput(opaque, "Color", "Value");
+        opaqueAttr.setName("OpaqueColor");
+        
     }
     @Override
     public void preparePasses(FGRenderContext context) {

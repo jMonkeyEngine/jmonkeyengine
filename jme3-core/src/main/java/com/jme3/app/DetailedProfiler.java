@@ -57,6 +57,7 @@ public class DetailedProfiler implements AppProfiler {
     private String curAppPath = null;
     private String curVpPath = null;
     private String curSpPath = null;
+    private String curFgPath = null;
     private VpStep lastVpStep = null;
 
     private final StringBuilder path = new StringBuilder(256);
@@ -184,6 +185,16 @@ public class DetailedProfiler implements AppProfiler {
             addStep(path.toString(), System.nanoTime());
         }
 
+    }
+    
+    @Override
+    public void fgStep(FgStep step, String... additionalInfo) {
+        if (data != null) {
+            curFgPath = getPath("", additionalInfo);
+            path.setLength(0);
+            path.append(curAppPath).append("/").append(curVpPath).append(curFgPath);
+            addStep(path.toString(), System.nanoTime());
+        }
     }
 
     public Map<String, StatLine> getStats() {

@@ -4,15 +4,10 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
-import com.jme3.renderer.ViewPort;
-
 /**
  *
  * @author codex
- * @param <T>
  */
-public interface GraphSource <T> {
-    
-    public T getGraphValue(ViewPort viewPort);
+public class Value {
     
 }

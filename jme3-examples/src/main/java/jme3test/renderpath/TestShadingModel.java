@@ -1,7 +1,7 @@
 package jme3test.renderpath;
 
+import com.jme3.app.DetailedProfilerState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.AssetManager;
 import com.jme3.environment.EnvironmentProbeControl;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
@@ -9,18 +9,20 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.post.Filter;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.DeferredGraphConstructor;
 import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.RenderObjectMap;
+import com.jme3.renderer.framegraph.io.MatParamTargetControl;
+import com.jme3.renderer.framegraph.passes.Attribute;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.shader.VarType;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.plugins.ktx.KTXLoader;
@@ -36,7 +38,8 @@ public class TestShadingModel extends SimpleApplication {
     private DirectionalLight dl;
 
     private float roughness = 0.0f;
-
+    
+    private FrameGraph graph;
     private Node modelNode;
     private int frame = 0;
     private Material pbrMat;
@@ -46,17 +49,30 @@ public class TestShadingModel extends SimpleApplication {
     public static void main(String[] args) {
         TestShadingModel app = new TestShadingModel();
         AppSettings settings = new AppSettings(true);
+        settings.setWidth(768);
+        settings.setHeight(768);
         //settings.setGraphicsDebug(true);
         //settings.setGraphicsTrace(true);
         app.setSettings(settings);
         app.start();
     }
+    
+    @Override
+    public void simpleUpdate(float tpf) {
+        //cam.lookAt(new Vector3f(), Vector3f.UNIT_Y);
+        RenderObjectMap objects = renderManager.getRenderObjectMap();
+    }
 
     @Override
     public void simpleInitApp() {
         
+        stateManager.attach(new DetailedProfilerState());
+        //flyCam.setEnabled(false);
+        flyCam.setDragToRotate(true);
+        inputManager.setCursorVisible(true);
+        
         //FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
-        FrameGraph graph = new FrameGraph(assetManager, renderManager);
+        graph = new FrameGraph(assetManager, renderManager);
         graph.setConstructor(new DeferredGraphConstructor());
         //graph.setConstructor(new ForwardGraphConstructor());
         //graph.setConstructor(new TestConstructor());
@@ -68,16 +84,22 @@ public class TestShadingModel extends SimpleApplication {
         viewPort.setBackgroundColor(ColorRGBA.Green.mult(0.2f));
         //viewPort.setBackgroundColor(ColorRGBA.White);
         
+//        FrameBuffer fb = new FrameBuffer(768, 768, 1);
+//        Texture2D depth = new Texture2D(768, 768, Image.Format.Depth);
+//        fb.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(depth));
+//        viewPort.setOutputFrameBuffer(fb);
+        
         Geometry debugView = new Geometry("debug", new Quad(150, 150));
         debugView.setLocalTranslation(0, 200, 0);
         Material debugMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         //debugMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
         //debugMat.setTransparent(true);
         debugView.setMaterial(debugMat);
-        //MatRenderParam texParam = new MatRenderParam("ColorMap", debugMat, VarType.Texture2D);
-        //texParam.enableDebug();
-        //graph.bindToOutput(DeferredShadingModule.DEPTH_DEBUG, texParam);
-        //guiNode.attachChild(debugView);
+        //debugMat.setTexture("ColorMap", depth);
+//        MatParamTargetControl texParam = new MatParamTargetControl("ColorMap", VarType.Texture2D);
+//        graph.get(Attribute.class, "OpaqueColor").setTarget(texParam);
+//        debugView.addControl(texParam);
+//        guiNode.attachChild(debugView);
         
         // UNLIT
         Material unlitMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -92,7 +114,7 @@ public class TestShadingModel extends SimpleApplication {
         unlitSphere.setLocalTranslation(-5, 0, 0);
         unlitSphere.setLocalRotation(new Quaternion(new float[]{(float) Math.toRadians(-90), 0, 0}));
         unlitSphere.setMaterial(unlitMat);
-        unlitSphere.setQueueBucket(RenderQueue.Bucket.Opaque);
+        unlitSphere.setQueueBucket(RenderQueue.Bucket.Transparent);
         rootNode.attachChild(unlitSphere);
 
         // LEGACY_LIGHTING
@@ -150,11 +172,6 @@ public class TestShadingModel extends SimpleApplication {
 
         //new RenderPathHelper(this);
         flyCam.setMoveSpeed(10.0f);
-    }
-    
-    @Override
-    public void simpleUpdate(float tpf) {
-        cam.lookAt(new Vector3f(), Vector3f.UNIT_Y);
     }
 
     @Override

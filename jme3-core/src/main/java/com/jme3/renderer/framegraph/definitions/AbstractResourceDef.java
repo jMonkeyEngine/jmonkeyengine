@@ -17,7 +17,6 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
     private int staticTimeout = -1;
     private boolean useExisting = true;
     private boolean disposeOnRelease = false;
-    private boolean survivesReferenceCull = false;
     
     @Override
     public int getStaticTimeout() {

@@ -33,6 +33,7 @@ public class DeferredPass extends RenderPass {
         specular = addInput("Specular");
         emissive = addInput("Emissive");
         normal = addInput("Normal");
+        lights = addInput("Lights");
         outColor = addOutput("Color");
         colorDef = new TextureDef<>(Texture2D.class, img -> new Texture2D(img));
         colorDef.setFormatFlexible(true);

@@ -34,7 +34,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     private ResourceTicket<Texture2D> diffuse, specular, emissive, normal, depth;
     private ResourceTicket<LightList> lights;
     private TextureDef<Texture2D>[] texDefs = new TextureDef[5];
-    private ValueDef<LightList> lightDef ;
+    private ValueDef<LightList> lightDef;
     private final LinkedList<Light> accumulatedLights = new LinkedList<>();
     private final ColorRGBA mask = new ColorRGBA();
     
@@ -43,8 +43,9 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         diffuse  = addOutput("Diffuse");
         specular = addOutput("Specular");
         emissive = addOutput("Emissive");
-        normal   = addOutput("normal");
+        normal   = addOutput("Normal");
         depth    = addOutput("Depth");
+        lights   = addOutput("Lights");
         Function<Image, Texture2D> tex = img -> new Texture2D(img);
         texDefs[0] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
         texDefs[1] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
@@ -70,38 +71,32 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         declare(texDefs[3], normal);
         declare(texDefs[4], depth);
         declare(lightDef, lights);
-        reserve(diffuse, specular, emissive, normal, depth);
+        reserve(diffuse, specular, emissive, normal, depth, lights);
     }
     @Override
     protected void execute(FGRenderContext context) {
         // acquire texture targets
-        resources.acquireColorTargets(frameBuffer, diffuse, specular, emissive, normal);
-        resources.acquireDepthTarget(frameBuffer, depth);
-        context.getRenderer().setFrameBuffer(frameBuffer);
+        FrameBuffer fb = getFrameBuffer(context, 1);
+        fb.setMultiTarget(true);
+        resources.acquireColorTargets(fb, diffuse, specular, emissive, normal);
+        resources.acquireDepthTarget(fb, depth);
+        context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         LightList lightList = resources.acquire(lights);
         // render to gBuffer
         context.getRenderer().setBackgroundColor(mask.set(context.getViewPort().getBackgroundColor()).setAlpha(0));
         context.getRenderManager().setForcedTechnique(GBUFFER_PASS);
         context.getRenderManager().setGeometryRenderHandler(this);
-        context.getRenderer().setDepthRange(0, 1);
         context.renderViewPortQueue(RenderQueue.Bucket.Opaque, true);
         // add accumulated lights
         while (!accumulatedLights.isEmpty()) {
             lightList.add(accumulatedLights.pollFirst());
         }
-        frameBuffer.clearColorTargets();
     }
     @Override
     protected void reset(FGRenderContext context) {}
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
-    @Override
-    protected FrameBuffer createFrameBuffer(FGRenderContext context) {
-        FrameBuffer buffer = new FrameBuffer(context.getWidth(), context.getHeight(), 1);
-        buffer.setMultiTarget(true);
-        return buffer;
-    }
     @Override
     public boolean renderGeometry(RenderManager rm, Geometry geom) {
         Material material = geom.getMaterial();
@@ -110,37 +105,16 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         }
         rm.renderGeometry(geom);
         if (material.getActiveTechnique() != null) {
-            if (material.getMaterialDef().getTechniqueDefs(GBUFFER_PASS) != null) {
-                LightList lts = geom.getFilterWorldLights();
-                for (Light l : lts) {
-                    // todo: checking for containment is very slow
-                    if (!accumulatedLights.contains(l)) {
-                        accumulatedLights.add(l);
-                    }
+            LightList lts = geom.getFilterWorldLights();
+            for (Light l : lts) {
+                // todo: checking for containment is very slow
+                if (!accumulatedLights.contains(l)) {
+                    accumulatedLights.add(l);
                 }
-                return true;
             }
+            return true;
         }
         return false;
-    }
-
-    public ResourceTicket<Texture2D> getDepth() {
-        return depth;
-    }
-    public ResourceTicket<Texture2D> getDiffuse() {
-        return diffuse;
-    }
-    public ResourceTicket<Texture2D> getSpecular() {
-        return specular;
-    }
-    public ResourceTicket<Texture2D> getEmissive() {
-        return emissive;
-    }
-    public ResourceTicket<Texture2D> getNormal() {
-        return normal;
-    }
-    public ResourceTicket<LightList> getLights() {
-        return lights;
     }
     
 }

@@ -8,8 +8,6 @@ MaterialDef TextureTransfer {
     }
 
     Technique {
-    
-        Pipeline Deferred
 
         VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/ShadingCommon/Screen.vert
         FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/ShadingCommon/TextureTransfer.frag

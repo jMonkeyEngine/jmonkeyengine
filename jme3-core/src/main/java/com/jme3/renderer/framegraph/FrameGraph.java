@@ -11,10 +11,13 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.profile.AppProfiler;
+import com.jme3.profile.FgStep;
+import com.jme3.profile.VpStep;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -25,62 +28,86 @@ import java.util.LinkedList;
  */
 public class FrameGraph implements Savable {
     
-    private static int nextId = 0;
-    
-    private final int id;
     private final AssetManager assetManager;
     private final ResourceList resources;
     private final FGRenderContext context;
     private final LinkedList<RenderPass> passes = new LinkedList<>();
     private GraphConstructor constructor;
     private boolean debug = false;
-    private boolean viewPortRendered = false;
+    private boolean rendered = false;
 
     public FrameGraph(AssetManager assetManager, RenderManager renderManager) {
-        this.id = nextId++;
         this.assetManager = assetManager;
-        this.resources = new ResourceList(renderManager.getRenderObjectsMap());
+        this.resources = new ResourceList(renderManager.getRenderObjectMap());
         this.context = new FGRenderContext(this, renderManager);
     }
     
+    public void configure(ViewPort vp, AppProfiler prof, float tpf) {
+        context.target(vp, prof, tpf);
+    }
+    public void preFrame() {
+        for (RenderPass p : passes) {
+            p.preFrame(context);
+        }
+    }
+    public void postQueue() {
+        for (RenderPass p : passes) {
+            p.postQueue(context);
+        }
+    }
     public boolean execute() {
-        // prepare passes
-        if (constructor != null) {
-            constructor.preparePasses(context);
-        } else for (RenderPass p : passes) {
+        // prepare
+        ViewPort vp = context.getViewPort();
+        AppProfiler prof = context.getProfiler();
+        if (prof != null) prof.vpStep(VpStep.FrameGraphSetup, vp, null);
+        if (!rendered) {
+            resources.beginRenderingSession();
+        }
+        for (RenderPass p : passes) {
+            if (prof != null) {
+                prof.fgStep(FgStep.Prepare, p.getProfilerName());
+            }
             p.prepareRender(context);
         }
+        // cull resources
+        if (prof != null) prof.vpStep(VpStep.FrameGraphCull, vp, null);
         for (RenderPass p : passes) {
             p.countReferences();
         }
-        // cull resources
         resources.cullUnreferenced();
-        // execute passes
+        // execute
+        if (prof != null) prof.vpStep(VpStep.FrameGraphExecute, vp, null);
         context.pushRenderSettings();
         for (RenderPass p : passes) {
             if (p.isUsed()) {
+                if (prof != null) {
+                    prof.fgStep(FgStep.Execute, p.getProfilerName());
+                }
                 p.executeRender(context);
                 context.popRenderSettings();
             }
         }
         context.popFrameBuffer();
-        // reset passes
+        // reset
+        if (prof != null) prof.vpStep(VpStep.FrameGraphReset, vp, null);
         for (RenderPass p : passes) {
+            if (prof != null) {
+                prof.fgStep(FgStep.Reset, p.getProfilerName());
+            }
             p.resetRender(context);
         }
         // cleanup resources
         resources.clear();
-        boolean vpr = viewPortRendered;
-        viewPortRendered = true;
-        return !vpr;
+        if (rendered) return false;
+        else return (rendered = true);
     }
-    public void postFrame() {
+    public void renderingComplete() {
         // notify passes
         for (RenderPass p : passes) {
-            p.postFrame(this);
+            p.renderingComplete();
         }
         // reset flags
-        viewPortRendered = false;
+        rendered = false;
     }
     
     public <T extends RenderPass> T add(T pass) {
@@ -185,9 +212,6 @@ public class FrameGraph implements Savable {
         this.debug = debug;
     }
     
-    public int getId() {
-        return id;
-    }
     public AssetManager getAssetManager() {
         return assetManager;
     }
@@ -195,7 +219,7 @@ public class FrameGraph implements Savable {
         return resources;
     }
     public RenderObjectMap getRecycler() {
-        return context.getRenderManager().getRenderObjectsMap();
+        return context.getRenderManager().getRenderObjectMap();
     }
     public FGRenderContext getContext() {
         return context;

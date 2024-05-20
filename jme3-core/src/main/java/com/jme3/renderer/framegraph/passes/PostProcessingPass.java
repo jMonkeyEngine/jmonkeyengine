@@ -8,6 +8,7 @@ import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
+import com.jme3.renderer.RenderContext;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.util.SafeArrayList;
@@ -49,6 +50,36 @@ public class PostProcessingPass extends RenderPass {
     @Override
     public boolean isUsed() {
         return true;
+    }
+    @Override
+    public void preFrame(FGRenderContext context) {
+        SafeArrayList<SceneProcessor> processors = context.getViewPort().getProcessors();
+        if (!processors.isEmpty()) {
+            AppProfiler prof = context.getProfiler();
+            for (SceneProcessor p : processors.getArray()) {
+                if (!p.isInitialized()) {
+                    p.initialize(context.getRenderManager(), context.getViewPort());
+                }
+                p.setProfiler(prof);
+                if (prof != null) {
+                    prof.spStep(SpStep.ProcPreFrame, p.getClass().getSimpleName());
+                }
+                p.preFrame(context.getTpf());
+            }
+        }
+    }
+    @Override
+    public void postQueue(FGRenderContext context) {
+        SafeArrayList<SceneProcessor> processors = context.getViewPort().getProcessors();
+        if (!processors.isEmpty()) {
+            AppProfiler prof = context.getProfiler();
+            for (SceneProcessor p : processors.getArray()) {
+                if (prof != null) {
+                    prof.spStep(SpStep.ProcPostQueue, p.getClass().getSimpleName());
+                }
+                p.postQueue(context.getViewPort().getQueue());
+            }
+        }
     }
     
 }

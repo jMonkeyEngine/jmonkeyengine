@@ -4,25 +4,32 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.renderer.framegraph.DepthRange;
+import com.jme3.renderer.framegraph.io.GraphSource;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
+import java.io.IOException;
 
 /**
  *
  * @author codex
  * @param <T>
  */
-public class JunctionPass <T> extends RenderPass {
+public class Junction <T> extends RenderPass {
     
     private int length;
     private ResourceTicket<T> output;
     private GraphSource<Integer> source;
     
-    public JunctionPass() {
+    public Junction() {
         this(2);
     }
-    public JunctionPass(int length) {
+    public Junction(int length) {
         this.length = length;
     }
     
@@ -46,6 +53,18 @@ public class JunctionPass <T> extends RenderPass {
     @Override
     public boolean isUsed() {
         return true;
+    }
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(length, "length", 2);
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule in = im.getCapsule(this);
+        length = in.readInt("length", 2);
     }
     
     public void setLength(int length) {

@@ -151,7 +151,7 @@ public class RenderManager {
      * 
      * @return 
      */
-    public RenderObjectMap getRenderObjectsMap() {
+    public RenderObjectMap getRenderObjectMap() {
         return renderObjects;
     }
     
@@ -1264,14 +1264,14 @@ public class RenderManager {
         if (fg == null) {
             fg = frameGraph;
         }
-        if (fg != null) {
-            fg.getContext().update(vp, prof, tpf);
-        }
         
-        if (processors != null) {
-            if (prof != null) {
-                prof.vpStep(VpStep.PreFrame, vp, null);
-            }
+        if (prof != null && (fg != null || processors != null)) {
+            prof.vpStep(VpStep.PreFrame, vp, null);
+        }
+        if (fg != null) {
+            fg.configure(vp, prof, tpf);
+            fg.preFrame();
+        } else if (processors != null) {
             for (SceneProcessor p : processors.getArray()) {
                 if (!p.isInitialized()) {
                     p.initialize(this, vp);
@@ -1301,11 +1301,13 @@ public class RenderManager {
         for (int i = scenes.size() - 1; i >= 0; i--) {
             renderScene(scenes.get(i), vp);
         }
-
-        if (processors != null) {
-            if (prof != null) {
-                prof.vpStep(VpStep.PostQueue, vp, null);
-            }
+        
+        if (prof != null && (fg != null || processors != null)) {
+            prof.vpStep(VpStep.PostQueue, vp, null);
+        }
+        if (fg != null) {
+            fg.postQueue();
+        } else if (processors != null) {
             for (SceneProcessor p : processors.getArray()) {
                 if (prof != null) {
                     prof.spStep(SpStep.ProcPostQueue, p.getClass().getSimpleName());
@@ -1315,6 +1317,7 @@ public class RenderManager {
         }
         
         if (fg != null) {
+            // returns true on first execution this frame
             if (fg.execute()) {
                 executedFrameGraphs.add(fg);
             }
@@ -1339,20 +1342,21 @@ public class RenderManager {
                     prof.vpStep(VpStep.ProcEndRender, vp, null);
                 }
             }
-            //renders the translucent objects queue after processors have been rendered
+            
+            // render the translucent objects queue after processors have been rendered
             renderTranslucentQueue(vp);
             
         }
         
-        // clearMap any remaining spatials that were not rendered.
+        // clear any remaining spatials that were not rendered.
         clearQueue(vp);
-
-        if (prof != null) {
-            prof.vpStep(VpStep.EndRender, vp, null);
-        }
         
         if (fg != null) {
             renderObjects.clearReservations();
+        }
+
+        if (prof != null) {
+            prof.vpStep(VpStep.EndRender, vp, null);
         }
         
     }
@@ -1376,8 +1380,9 @@ public class RenderManager {
         if (renderer instanceof NullRenderer) {
             return;
         }
-
+        
         uniformBindingManager.newFrame();
+        renderObjects.newFrame();
 
         if (prof != null) {
             prof.appStep(AppStep.RenderPreviewViewPorts);
@@ -1411,7 +1416,7 @@ public class RenderManager {
         
         // call post frames for executed frame graphs only
         for (FrameGraph fg : executedFrameGraphs) {
-            fg.postFrame();
+            fg.renderingComplete();
         }
         executedFrameGraphs.clear();
         

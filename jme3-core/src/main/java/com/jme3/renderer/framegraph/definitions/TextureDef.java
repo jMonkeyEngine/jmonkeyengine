@@ -7,7 +7,9 @@ package com.jme3.renderer.framegraph.definitions;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.image.ColorSpace;
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -15,7 +17,7 @@ import java.util.function.Function;
  * @author codex
  * @param <T>
  */
-public class TextureDef <T extends Texture> extends AbstractResourceDef<T> {
+public class TextureDef <T extends Texture> extends AbstractResourceDef<T> implements Consumer<T> {
 
     private final Class<T> type;
     private Function<Image, T> textureBuilder;
@@ -26,8 +28,8 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> {
     private int samples = 1;
     private Image.Format format;
     private ColorSpace colorSpace = ColorSpace.Linear;
-    private Texture.MagFilter magFilter = Texture.MagFilter.Nearest;
-    private Texture.MinFilter minFilter = Texture.MinFilter.NearestNearestMipMap;
+    private Texture.MagFilter magFilter;
+    private Texture.MinFilter minFilter;
     private Texture.ShadowCompareMode shadowCompare;
     private Texture.WrapMode wrapS, wrapT, wrapR;
     private boolean formatFlexible = false;
@@ -47,7 +49,11 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> {
     
     @Override
     public T createResource() {
-        return createTexture(new Image(format, width, height, depth, null, colorSpace));
+        if (depth > 0) {
+            return createTexture(new Image(format, width, height, depth, new ArrayList<>(depth), colorSpace));
+        } else {
+            return createTexture(new Image(format, width, height, null, colorSpace));
+        }
     }
     @Override
     public T applyDirectResource(Object resource) {
@@ -78,6 +84,15 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> {
             return textureBuilder.apply(img);
         }
         return null;
+    }
+    @Override
+    public Consumer<T> getDisposalMethod() {
+        return this;
+    }
+    @Override
+    public void accept(T t) {
+        System.out.println("dispose texture");
+        t.getImage().dispose();
     }
     
     private T createTexture(Image img) {

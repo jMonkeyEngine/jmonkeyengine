@@ -73,12 +73,28 @@ public interface AppProfiler {
 
     /**
      * Called at the beginning of the specified SpStep (SceneProcessor step).
-     * For more detailed steps it is possible to provide additional information as strings, like the name of the processor.
+     * <p>
+     * For more detailed steps it is possible to provide additional information as strings,
+     * like the name of the processor.
      *
      * @param step the SceneProcessor step that's about to begin
      * @param additionalInfo information about the SceneProcessor step
      */
     public void spStep(SpStep step, String... additionalInfo);
+    
+    /**
+     * Called at the beginning of the specified FgStep (FrameGraph step).
+     * <p>
+     * For more detailed steps it is possible to provide additional information as strings,
+     * such as the name of the pass.
+     * 
+     * @param step
+     * @param additionalInfo 
+     */
+    public default void fgStep(FgStep step, String... additionalInfo) {
+        // implementation is optional
+    }
+    
 }
 
 

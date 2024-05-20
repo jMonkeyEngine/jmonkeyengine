@@ -8,6 +8,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.FGRenderContext;
@@ -32,6 +33,7 @@ public class BucketPass extends RenderPass {
     private boolean flush = true;
     private ResourceTicket<Texture2D> inColor, inDepth, outColor, outDepth;
     private TextureDef<Texture2D> colorDef, depthDef;
+    private Texture2D depthTex;
     
     public BucketPass() {
         this(Bucket.Opaque, DepthRange.IDENTITY);
@@ -73,7 +75,8 @@ public class BucketPass extends RenderPass {
     protected void execute(FGRenderContext context) {
         FrameBuffer fb = getFrameBuffer(context, 1);
         resources.acquireColorTargets(fb, outColor);
-        resources.acquireDepthTarget(fb, inDepth);
+        depthTex = resources.acquireDepthTarget(fb, outDepth);
+        System.out.println(fb.getDepthTarget());
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
@@ -92,7 +95,12 @@ public class BucketPass extends RenderPass {
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
     @Override
+    public String getProfilerName() {
+        return super.getProfilerName()+"["+bucket+"]";
+    }
+    @Override
     public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
         OutputCapsule out = ex.getCapsule(this);
         out.write(bucket, "bucket", Bucket.Opaque);
         out.write(depth, "depth", DepthRange.IDENTITY);
@@ -101,6 +109,7 @@ public class BucketPass extends RenderPass {
     }
     @Override
     public void read(JmeImporter im) throws IOException {
+        super.read(im);
         InputCapsule in = im.getCapsule(this);
         bucket = in.readEnum("bucket", Bucket.class, Bucket.Opaque);
         depth.set(in.readSavable("depth", DepthRange.class, DepthRange.IDENTITY));

@@ -9,7 +9,6 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
-import com.jme3.renderer.framegraph.CameraSize;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceList;
@@ -18,7 +17,6 @@ import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -32,7 +30,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     private static int nextId = 0;
     
     private int id = nextId++;
-    private String name = "";
+    private String name;
     private int index = -1;
     private int refs = 0;
     private final LinkedList<ResourceTicket> inputs = new LinkedList<>();
@@ -43,6 +41,9 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     public void initializePass(FrameGraph frameGraph, int index) {
         this.index = index;
         this.resources = frameGraph.getResources();
+        if (name == null) {
+            name = getClass().getSimpleName();
+        }
         initialize(frameGraph);
     }
     public void prepareRender(FGRenderContext context) {
@@ -57,17 +58,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     }
     public void resetRender(FGRenderContext context) {
         reset(context);
-    }
-    public void postFrame(FrameGraph frameGraph) {
-        for (Iterator<PassFrameBuffer> it = frameBuffers.iterator(); it.hasNext();) {
-            PassFrameBuffer fb = it.next();
-            if (!fb.used) {
-                fb.dispose();
-                it.remove();
-            } else {
-                fb.used = false;
-            }
-        }
     }
     public void cleanupPass(FrameGraph frameGraph) {
         cleanup(frameGraph);
@@ -85,6 +75,30 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     protected abstract void reset(FGRenderContext context);
     protected abstract void cleanup(FrameGraph frameGraph);
     
+    public void renderingComplete() {
+        for (Iterator<PassFrameBuffer> it = frameBuffers.iterator(); it.hasNext();) {
+            PassFrameBuffer fb = it.next();
+            if (!fb.used) {
+                fb.dispose();
+                it.remove();
+            } else {
+                fb.used = false;
+            }
+        }
+    }
+    public void preFrame(FGRenderContext context) {}
+    public void postQueue(FGRenderContext context) {}
+    
+    public void setPassProperty(String name, String value) throws Exception {
+        if (!setProperty(name, value)) switch (name) {
+            case "id": id = Integer.parseInt(value); break;
+            case "name": this.name = value; break;
+        }
+    }
+    protected boolean setProperty(String name, String value) throws Exception {
+        return false;
+    }
+    
     protected <T> ResourceTicket<T> declare(ResourceDef<T> def, ResourceTicket<T> ticket) {
         return resources.declare(this, def, ticket);
     }
@@ -101,18 +115,12 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     }
     protected void reference(ResourceTicket ticket) {
         resources.reference(index, ticket);
-        //addInput(ticket);
     }
     protected void reference(ResourceTicket... tickets) {
         resources.reference(index, tickets);
-        //addInputs(tickets);
     }
     protected boolean referenceOptional(ResourceTicket ticket) {
-        if (resources.referenceOptional(index, ticket)) {
-            //addInput(ticket);
-            return true;
-        }
-        return false;
+        return resources.referenceOptional(index, ticket);
     }
     protected void referenceOptional(ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
@@ -158,6 +166,18 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         }
         return null;
     }
+    public void makeInput(RenderPass pass, String outTicket, String inTicket) {
+        ResourceTicket out = Objects.requireNonNull(pass.getOutputByName(outTicket));
+        ResourceTicket in = Objects.requireNonNull(getInputByName(inTicket));
+        in.setSource(out);
+    }
+    public void disconnectFrom(RenderPass pass) {
+        for (ResourceTicket in : inputs) {
+            if (pass.getOutputTickets().contains(in.getSource())) {
+                in.setSource(null);
+            }
+        }
+    }
     
     protected FrameBuffer getFrameBuffer(int width, int height, int samples) {
         for (PassFrameBuffer fb : frameBuffers) {
@@ -173,19 +193,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return getFrameBuffer(context.getWidth(), context.getHeight(), samples);
     }
     
-    public void makeInput(RenderPass pass, String outTicket, String inTicket) {
-        ResourceTicket out = Objects.requireNonNull(pass.getOutputByName(outTicket));
-        ResourceTicket in = Objects.requireNonNull(getInputByName(inTicket));
-        in.setSource(out);
-    }
-    public void disconnectFrom(RenderPass pass) {
-        for (ResourceTicket in : inputs) {
-            if (pass.getOutputTickets().contains(in.getSource())) {
-                in.setSource(null);
-            }
-        }
-    }
-    
     public void countReferences() {
         refs = outputs.size();
     }
@@ -194,7 +201,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
             index += (positive ? 1 : -1);
         }
     }
-    
     public void setName(String name) {
         this.name = name;
     }
@@ -204,6 +210,9 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     
     public String getName() {
         return name;
+    }
+    public String getProfilerName() {
+        return getName();
     }
     public int getId() {
         return id;

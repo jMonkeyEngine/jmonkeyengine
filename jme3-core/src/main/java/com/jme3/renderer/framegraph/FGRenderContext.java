@@ -71,7 +71,7 @@ public class FGRenderContext {
         this.screen = new FullScreenQuad(this.frameGraph.getAssetManager());
     }
     
-    public void update(ViewPort vp, AppProfiler profiler, float tpf) {
+    public void target(ViewPort vp, AppProfiler profiler, float tpf) {
         this.viewPort = vp;
         this.profiler = profiler;
         this.tpf = tpf;

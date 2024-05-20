@@ -4,10 +4,15 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
+import java.io.IOException;
 
 /**
  *
@@ -24,6 +29,9 @@ public class OutputBucketPass extends RenderPass {
     public OutputBucketPass(Bucket bucket, DepthRange depth) {
         this.bucket = bucket;
         this.depth = depth;
+        if (this.bucket == Bucket.Inherit) {
+            throw new IllegalArgumentException("Rendered bucket cannot be Inherit.");
+        }
     }
     
     
@@ -50,6 +58,22 @@ public class OutputBucketPass extends RenderPass {
     @Override
     public boolean isUsed() {
         return true;
+    }
+    @Override
+    public String getProfilerName() {
+        return super.getProfilerName()+"["+bucket+"]";
+    }
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(depth, "depth", DepthRange.IDENTITY);
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule in = im.getCapsule(this);
+        depth = in.readSavable("depth", DepthRange.class, DepthRange.IDENTITY);
     }
     
 }

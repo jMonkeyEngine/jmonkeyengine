@@ -35,6 +35,7 @@ package com.jme3.app;
 
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.AppStep;
+import com.jme3.profile.FgStep;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.ViewPort;
@@ -204,4 +205,5 @@ public class BasicProfiler implements AppProfiler {
     @Override
     public void spStep(SpStep step, String... additionalInfo) {
     }
+    
 }

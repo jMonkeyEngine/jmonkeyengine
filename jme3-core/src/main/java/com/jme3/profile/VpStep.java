@@ -48,6 +48,10 @@ public enum VpStep {
     PostFrame,
     ProcEndRender,
     RenderBucket,
+    FrameGraphSetup,
+    FrameGraphCull,
+    FrameGraphExecute,
+    FrameGraphReset,
     EndRender
 }
 
