@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -336,6 +336,7 @@ public class LegacyApplication implements Application, SystemListener {
         Camera guiCam = new Camera(settings.getWidth(), settings.getHeight());
         guiViewPort = renderManager.createPostView("Gui Default", guiCam);
         guiViewPort.setClearFlags(false, false, false);
+        guiViewPort.setUseFrameGraphs(false);
     }
 
     /**

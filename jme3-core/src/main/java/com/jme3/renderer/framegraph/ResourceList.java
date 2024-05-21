@@ -55,11 +55,30 @@ public class ResourceList {
         this.map = map;
     }
     
+    /**
+     * Creates and adds a new render resource.
+     * 
+     * @param <T>
+     * @param producer
+     * @param def
+     * @return new render resource
+     */
     protected <T> RenderResource<T> create(ResourceProducer producer, ResourceDef<T> def) {
         RenderResource res = new RenderResource<>(producer, def, new ResourceTicket<>());
         res.getTicket().setLocalIndex(add(res));
         return res;
     }
+    /**
+     * Locates the resource associated with the ticket.
+     * 
+     * @param <T>
+     * @param ticket ticket to locate with (not null)
+     * @return located resource
+     * @throws NullPointerException if ticket is null
+     * @throws NullPointerException if ticket's world index is negative
+     * @throws NullPointerException if ticket points to a null resource
+     * @throws IndexOutOfBoundsException if ticket's world index is &gt;= size
+     */
     protected <T> RenderResource<T> locate(ResourceTicket<T> ticket) {
         if (ticket == null) {
             throw new NullPointerException("Ticket cannot be null.");
@@ -77,9 +96,21 @@ public class ResourceList {
         }
         throw new IndexOutOfBoundsException(ticket+" is out of bounds for size "+resources.size());
     }
+    /**
+     * Returns true if the ticket can be used to locate a resource.
+     * 
+     * @param ticket
+     * @return 
+     */
     protected boolean validate(ResourceTicket ticket) {
         return ticket != null && ticket.getWorldIndex() >= 0;
     }
+    /**
+     * Adds the resource to the first available slot.
+     * 
+     * @param res
+     * @return 
+     */
     protected int add(RenderResource res) {
         assert res != null;
         if (nextSlot >= resources.size()) {
@@ -101,6 +132,12 @@ public class ResourceList {
             return i;
         }
     }
+    /**
+     * Removes the resource at the index.
+     * 
+     * @param index
+     * @return 
+     */
     protected RenderResource remove(int index) {
         RenderResource prev = resources.set(index, null);
         if (prev != null && prev.isReferenced()) {

@@ -1260,9 +1260,12 @@ public class RenderManager {
             processors = null;
         }
         
-        FrameGraph fg = vp.getFrameGraph();
-        if (fg == null) {
-            fg = frameGraph;
+        FrameGraph fg = null;
+        if (vp.isUseFrameGraphs()) {
+            fg = vp.getFrameGraph();
+            if (fg == null) {
+                fg = frameGraph;
+            }
         }
         
         if (prof != null && (fg != null || processors != null)) {

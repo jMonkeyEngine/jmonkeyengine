@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,6 +111,7 @@ public class ViewPort {
      */
     protected boolean clearStencil = false;
     private boolean enabled = true;
+    private boolean useFrameGraphs = true;
 
     /**
      * Creates a new viewport. User code should generally use these methods instead:<br>
@@ -430,12 +431,51 @@ public class ViewPort {
         return enabled;
     }
     
+    /**
+     * Sets the framegraph used by this viewport for rendering.
+     * <p>
+     * If null, the render manager's default framegraph, if not null, will be
+     * used to render this viewport. If all else fails, the default forward
+     * renderer will be used.
+     * <p>
+     * default=null
+     * 
+     * @param framegraph framegraph, or null
+     */
     public void setFrameGraph(FrameGraph framegraph) {
         this.framegraph = framegraph;
     }
     
+    /**
+     * Gets the framegraph used by this viewport for rendering.
+     * 
+     * @return 
+     */
     public FrameGraph getFrameGraph() {
         return framegraph;
+    }
+    
+    /**
+     * Enables this viewport to use framegraphs when rendering.
+     * <p>
+     * If false, the default forward renderer will always be used to
+     * render this viewport.
+     * <p>
+     * default=true
+     * 
+     * @param useFrameGraphs 
+     */
+    public void setUseFrameGraphs(boolean useFrameGraphs) {
+        this.useFrameGraphs = useFrameGraphs;
+    }
+    
+    /**
+     * Returns true if framegraphs can be used to render this viewport.
+     * 
+     * @return 
+     */
+    public boolean isUseFrameGraphs() {
+        return useFrameGraphs;
     }
 
 }

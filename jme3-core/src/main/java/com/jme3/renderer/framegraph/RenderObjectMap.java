@@ -53,26 +53,39 @@ public class RenderObjectMap {
     private int totalObjects = 0;
     private int flushedObjects = 0;
     
+    public RenderObjectMap() {}
+    
+    /**
+     * Creates a new render object with a new internal object.
+     * 
+     * @param <T>
+     * @param def
+     * @return 
+     */
     protected <T> RenderObject<T> create(ResourceDef<T> def) {
         return create(def, def.createResource());
     }
+    /**
+     * Creates a new render object with the given internal object.
+     * 
+     * @param <T>
+     * @param def
+     * @param value internal object
+     * @return 
+     */
     protected <T> RenderObject<T> create(ResourceDef<T> def, T value) {
         RenderObject obj = new RenderObject(def, value, timeout);
         objectMap.put(obj.getId(), obj);
         return obj;
     }
+    /**
+     * Returns true if the render object is available for reallocation.
+     * 
+     * @param object
+     * @return 
+     */
     protected boolean isAvailable(RenderObject object) {
         return !object.isAcquired() && !object.isConstant();
-    }
-    protected <T> boolean applyDirectResource(RenderResource<T> resource, RenderObject object) {
-        if (!object.isAcquired() && !object.isConstant()) {
-            T r = resource.getDefinition().applyDirectResource(object.getObject());
-            if (r != null) {
-                resource.setObject(object, r);
-                return true;
-            }
-        }
-        return false;
     }
     
     /**
