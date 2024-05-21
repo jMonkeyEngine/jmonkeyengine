@@ -48,9 +48,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.instancing.InstancedNode;
-import com.jme3.scene.shape.Sphere;
+import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.system.AppSettings;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
@@ -132,8 +130,8 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
         AppSettings appSettings = new AppSettings(true);
         // For this scene, use a tileSize=64 configuration (at 1600*900 resolution)
         // TileSize 64
-        appSettings.setWidth(1600);
-        appSettings.setHeight(900);
+        appSettings.setWidth(768);
+        appSettings.setHeight(768);
         appSettings.setVSync(false);
         app.setSettings(appSettings);
         app.showSettings = false;
@@ -197,6 +195,10 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, true));
+        flyCam.setDragToRotate(true);
+        
         // For this scene, use a tileSize=64 configuration (at 1600*900 resolution)
         //renderManager.setForceTileSize(64);// 1600 * 900 resolution config
         setupKeys();

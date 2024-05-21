@@ -18,7 +18,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
-import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -39,6 +39,8 @@ public class TestDeferredPBRShading extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, false));
+        
         roughness = 1.0f;
         assetManager.registerLoader(KTXLoader.class, "ktx");
 

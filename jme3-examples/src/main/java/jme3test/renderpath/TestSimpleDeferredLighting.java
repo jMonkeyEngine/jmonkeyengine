@@ -33,6 +33,7 @@
 package jme3test.renderpath;
 
 import com.jme3.app.ChaseCameraAppState;
+import com.jme3.app.DetailedProfilerState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.environment.EnvironmentCamera;
@@ -48,15 +49,12 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.*;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState;
 import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.framegraph.parameters.MatRenderParam;
 import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.RenderPipelineFactory;
-import com.jme3.renderer.framegraph.pass.GBufferModule;
+import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -65,7 +63,6 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.instancing.InstancedGeometry;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.shader.VarType;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
@@ -75,7 +72,7 @@ import com.jme3.util.TangentBinormalGenerator;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestSimpleDeferredLighting extends SimpleApplication implements ActionListener {
-    private RenderManager.RenderPath currentRenderPath;
+    
     private boolean bUseFramegraph = true;
     private Material mat;
     private BitmapText hitText;
@@ -106,7 +103,9 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
     public static void main(String[] args){
         TestSimpleDeferredLighting app = new TestSimpleDeferredLighting();
         AppSettings appSettings = new AppSettings(true);
-        appSettings.setRenderer(AppSettings.LWJGL_OPENGL40);
+        //appSettings.setRenderer(AppSettings.LWJGL_OPENGL40);
+        appSettings.setWidth(768);
+        appSettings.setHeight(768);
         app.setSettings(appSettings);
         app.start();
     }
@@ -655,8 +654,13 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
     @Override
     public void simpleInitApp() {
         
-        FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
-        renderManager.setFrameGraph(graph);
+        
+        stateManager.attach(new DetailedProfilerState());
+        
+        //FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
+        FrameGraph graph = FrameGraphFactory.deferred(assetManager, renderManager, true);
+        //FrameGraph graph = FrameGraphFactory.forward(assetManager, renderManager);
+        viewPort.setFrameGraph(graph);
         
         Geometry debugView = new Geometry("debug", new Quad(200, 200));
         debugView.setLocalTranslation(0, 200, 0);
@@ -664,17 +668,16 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         //debugMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
         //debugMat.setTransparent(true);
         debugView.setMaterial(debugMat);
-        MatRenderParam texParam = new MatRenderParam("ColorMap", debugMat, VarType.Texture2D);
+        //MatRenderParam texParam = new MatRenderParam("ColorMap", debugMat, VarType.Texture2D);
         //texParam.enableDebug();
-        graph.bindToOutput(GBufferModule.RENDER_TARGETS[1], texParam);
-        guiNode.attachChild(debugView);
+        //graph.bindToOutput(GBufferModule.RENDER_TARGETS[1], texParam);
+        //guiNode.attachChild(debugView);
         
-        currentRenderPath = RenderManager.RenderPath.ForwardPlus;
         //renderManager.setRenderPath(currentRenderPath);
-        testScene7();
+        testScene10();
 //        cam.setFrustumPerspective(45.0f, 4.0f / 3.0f, 0.01f, 100.0f);
         flyCam.setMoveSpeed(10.0f);
-        // deferred下闪烁
+        // deferred
 //        testScene7();
         
         
@@ -684,18 +687,10 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         setPauseOnLostFocus(false);
         flyCam.setDragToRotate(true);
         flyCam.setMoveSpeed(50.0f);
+        
+        viewPort.setBackgroundColor(ColorRGBA.DarkGray);
 
-        makeHudText();
         registerInput();
-    }
-
-    private void makeHudText() {
-        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        hitText = new BitmapText(guiFont, false);
-        hitText.setSize(guiFont.getCharSet().getRenderedSize());
-        hitText.setText("RendererPath : "+ currentRenderPath.getInfo());
-        hitText.setLocalTranslation(0, cam.getHeight(), 0);
-        guiNode.attachChild(hitText);
     }
 
     private void registerInput(){
@@ -762,18 +757,8 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
             //renderManager.enableFramegraph(bUseFramegraph);
         }
         if(name.equals("toggleRenderPath") && !isPressed){
-            if(currentRenderPath == RenderManager.RenderPath.Deferred){
-                currentRenderPath = RenderManager.RenderPath.TiledDeferred;
-            }
-            else if(currentRenderPath == RenderManager.RenderPath.TiledDeferred){
-                currentRenderPath = RenderManager.RenderPath.Forward;
-            }
-            else{
-                currentRenderPath = RenderManager.RenderPath.Deferred;
-            }
             //renderManager.setRenderPath(currentRenderPath);
 //            getRenderManager().setForcedTechnique(null);
-            hitText.setText("RendererPath : "+ currentRenderPath.getInfo());
         }
 //        if(name.equals("addInstNum") && !isPressed){
 //            if(sceneId == 6){

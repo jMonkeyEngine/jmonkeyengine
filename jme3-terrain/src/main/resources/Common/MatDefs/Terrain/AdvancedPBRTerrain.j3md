@@ -350,10 +350,11 @@ MaterialDef Advanced PBR Terrain {
         }
     }
 
-    Technique GBufferPass{
-        Pipeline Deferred
+    Technique GBufferPass {
+        
         VertexShader   GLSL300 GLSL150 :   Common/MatDefs/Terrain/PBRTerrain.vert
         FragmentShader GLSL300 GLSL150 : Common/MatDefs/Terrain/GBufferPack/AdvancedPBRTerrainGBufferPack.frag
+        
         WorldParameters {
             WorldViewProjectionMatrix
             CameraPosition

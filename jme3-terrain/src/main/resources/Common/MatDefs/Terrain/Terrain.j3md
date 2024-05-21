@@ -36,8 +36,8 @@ MaterialDef Terrain {
         }
 	}
 
-	Technique GBufferPass{
-        Pipeline Deferred
+	Technique GBufferPass {
+	    
         VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/Terrain.vert
         FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/GBufferPack/TerrainGBufferPack.frag
 

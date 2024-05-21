@@ -3,14 +3,13 @@ package jme3test.renderpath;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
-import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.ToneMapFilter;
-import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.instancing.InstancedNode;
 import com.jme3.scene.shape.Quad;
@@ -25,6 +24,9 @@ public class TestTileBasedDeferredShading extends SimpleApplication {
     private Material material;
     @Override
     public void simpleInitApp() {
+        
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, true));
+        
         // Based on your current resolution and total light source count, try adjusting the tileSize - it must be a power of 2 such as 32, 64, 128 etc.
         //renderManager.setForceTileSize(128);// 1600 * 900 resolution config
 //        renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);

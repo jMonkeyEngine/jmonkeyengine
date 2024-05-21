@@ -9,7 +9,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.ToneMapFilter;
-import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.instancing.InstancedNode;
 import com.jme3.scene.shape.Quad;
@@ -23,7 +23,10 @@ public class TestDeferredShading extends SimpleApplication {
     private Material material;
     @Override
     public void simpleInitApp() {
-        // Test Forward↓
+        
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, false));
+        
+        // Test Forward
 //        renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
 //        renderManager.setSinglePassLightBatchSize(30);
 //        renderManager.setRenderPath(RenderManager.RenderPath.Forward);

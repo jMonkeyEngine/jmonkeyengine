@@ -11,7 +11,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.framegraph.RenderPipelineFactory;
+import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -23,22 +23,12 @@ import com.jme3.shadow.DirectionalLightShadowFilter;
  * @author JohnKkk
  */
 public class TestDeferredShadingPathShadow extends SimpleApplication implements ActionListener {
-    private RenderManager.RenderPath currentRenderPath;
-    private BitmapText hitText;
-
-    private void makeHudText() {
-        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        hitText = new BitmapText(guiFont, false);
-        hitText.setSize(guiFont.getCharSet().getRenderedSize());
-        hitText.setText("RendererPath : "+ currentRenderPath.getInfo());
-        hitText.setLocalTranslation(0, cam.getHeight(), 0);
-        guiNode.attachChild(hitText);
-    }
 
     @Override
     public void simpleInitApp() {
         
-        renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Forward));
+        //renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Forward));
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, true));
         
         Material boxMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         Node tank = (Node) assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
@@ -89,10 +79,6 @@ public class TestDeferredShadingPathShadow extends SimpleApplication implements 
         inputManager.addListener(this, "toggleRenderPath");
         inputManager.addMapping("toggleRenderPath", new KeyTrigger(KeyInput.KEY_SPACE));
 
-        currentRenderPath = RenderManager.RenderPath.Forward;
-        //renderManager.setRenderPath(currentRenderPath);
-        makeHudText();
-
         flyCam.setMoveSpeed(20.0f);
     }
 
@@ -103,18 +89,6 @@ public class TestDeferredShadingPathShadow extends SimpleApplication implements 
 
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
-        if(name.equals("toggleRenderPath") && !isPressed){
-            if(currentRenderPath == RenderManager.RenderPath.Deferred){
-                currentRenderPath = RenderManager.RenderPath.TiledDeferred;
-            }
-            else if(currentRenderPath == RenderManager.RenderPath.TiledDeferred){
-                currentRenderPath = RenderManager.RenderPath.Forward;
-            }
-            else{
-                currentRenderPath = RenderManager.RenderPath.Deferred;
-            }
-            //renderManager.setRenderPath(currentRenderPath);
-            hitText.setText("RendererPath : "+ currentRenderPath.getInfo());
-        }
+        
     }
 }

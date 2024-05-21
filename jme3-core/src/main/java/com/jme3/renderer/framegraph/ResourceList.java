@@ -380,7 +380,6 @@ public class ResourceList {
         FrameBuffer.RenderBuffer target = fbo.getDepthTarget();
         boolean nullTarget = target == null;
         boolean unequalTargets = target != null && acquired != target.getTexture();
-        System.out.println("null? "+nullTarget+"   unequal? "+unequalTargets);
         if (nullTarget || unequalTargets) {
             fbo.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(acquired));
             textureBinds++;

@@ -137,7 +137,6 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
     }
     @Override
     public void accept(T t) {
-        System.out.println("dispose texture");
         t.getImage().dispose();
     }
     

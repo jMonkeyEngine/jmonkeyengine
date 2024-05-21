@@ -41,8 +41,8 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.renderer.framegraph.DeferredGraphConstructor;
 import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -67,8 +67,9 @@ public class TestRenderPathPointDirectionalAndSpotLightShadows extends SimpleApp
     @Override
     public void simpleInitApp() {
         
-        FrameGraph graph = new FrameGraph(assetManager, renderManager);
-        graph.setConstructor(new DeferredGraphConstructor());
+        //FrameGraph graph = new FrameGraph(assetManager, renderManager);
+        //graph.setConstructor(new DeferredGraphConstructor());
+        FrameGraph graph = FrameGraphFactory.deferred(assetManager, renderManager, false);
         viewPort.setFrameGraph(graph);
         //renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred));
         

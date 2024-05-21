@@ -69,7 +69,7 @@ public class TestShadingModel extends SimpleApplication {
         inputManager.setCursorVisible(true);
         
         //FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
-        graph = FrameGraphFactory.deferred(assetManager, renderManager, true);
+        graph = FrameGraphFactory.deferred(assetManager, renderManager, false);
         //graph.setConstructor(new ForwardGraphConstructor());
         //graph.setConstructor(new TestConstructor());
         //MyFrameGraph graph = RenderPipelineFactory.createBackroundScreenTest(assetManager, renderManager);

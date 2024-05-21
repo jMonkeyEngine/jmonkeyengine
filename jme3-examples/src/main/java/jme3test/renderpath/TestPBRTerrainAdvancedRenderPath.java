@@ -43,8 +43,7 @@ import com.jme3.light.LightProbe;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.framegraph.RenderPipelineFactory;
+import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.shader.VarType;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
@@ -196,7 +195,8 @@ public class TestPBRTerrainAdvancedRenderPath extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred));
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, true));
+        //renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred));
         //renderManager.setRenderPath(RenderManager.RenderPath.TiledDeferred);
         setupKeys();
         setUpTerrain();
