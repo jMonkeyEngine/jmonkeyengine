@@ -38,6 +38,7 @@ import com.jme3.font.BitmapFont;
 import com.jme3.material.Material;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.Caps;
+import com.jme3.renderer.framegraph.FrameGraphData;
 import com.jme3.scene.Spatial;
 import com.jme3.shader.Glsl100ShaderGenerator;
 import com.jme3.shader.Glsl150ShaderGenerator;
@@ -454,6 +455,16 @@ public class DesktopAssetManager implements AssetManager {
     @Override
     public FilterPostProcessor loadFilter(String name) {
         return loadFilter(new FilterKey(name));
+    }
+    
+    @Override
+    public FrameGraphData loadFrameGraph(FrameGraphKey key) {
+        return loadAsset(key);
+    }
+    
+    @Override
+    public FrameGraphData loadFrameGraph(String name) {
+        return loadAsset(new FrameGraphKey(name));
     }
 
     /**

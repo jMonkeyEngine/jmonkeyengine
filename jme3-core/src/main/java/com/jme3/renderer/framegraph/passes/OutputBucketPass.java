@@ -51,6 +51,9 @@ public class OutputBucketPass extends RenderPass {
     private Bucket bucket;
     private DepthRange depth;
 
+    public OutputBucketPass() {
+        this(Bucket.Opaque, DepthRange.IDENTITY);
+    }
     public OutputBucketPass(Bucket bucket) {
         this(bucket, DepthRange.IDENTITY);
     }
@@ -95,12 +98,14 @@ public class OutputBucketPass extends RenderPass {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule out = ex.getCapsule(this);
+        out.write(bucket, "bucket", Bucket.Opaque);
         out.write(depth, "depth", DepthRange.IDENTITY);
     }
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
+        bucket = in.readEnum("bucket", Bucket.class, Bucket.Opaque);
         depth = in.readSavable("depth", DepthRange.class, DepthRange.IDENTITY);
     }
     

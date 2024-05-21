@@ -33,18 +33,12 @@ package com.jme3.renderer.framegraph;
 
 import com.jme3.renderer.framegraph.passes.RenderPass;
 import com.jme3.asset.AssetManager;
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
+import com.jme3.asset.FrameGraphKey;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.FgStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -86,15 +80,17 @@ import java.util.LinkedList;
  * 
  * @author codex
  */
-public class FrameGraph implements Savable {
+public class FrameGraph {
     
     private final AssetManager assetManager;
     private final ResourceList resources;
     private final FGRenderContext context;
     private final LinkedList<RenderPass> passes = new LinkedList<>();
+    private String name = "FrameGraph";
     private boolean rendered = false;
     
     /**
+     * Creates a new blank framegraph.
      * 
      * @param assetManager asset manager (not null)
      * @param renderManager render manager (not null)
@@ -103,6 +99,37 @@ public class FrameGraph implements Savable {
         this.assetManager = assetManager;
         this.resources = new ResourceList(renderManager.getRenderObjectMap());
         this.context = new FGRenderContext(this, renderManager);
+    }
+    /**
+     * Creates a new framegraph from the given data.
+     * 
+     * @param assetManager
+     * @param renderManager
+     * @param data 
+     */
+    public FrameGraph(AssetManager assetManager, RenderManager renderManager, FrameGraphData data) {
+        this(assetManager, renderManager);
+        applyData(data);
+    }
+    /**
+     * Creates a new framegraph from data obtained by the given asset key.
+     * 
+     * @param assetManager
+     * @param renderManager
+     * @param key 
+     */
+    public FrameGraph(AssetManager assetManager, RenderManager renderManager, FrameGraphKey key) {
+        this(assetManager, renderManager, assetManager.loadFrameGraph(key));
+    }
+    /**
+     * Creates a new framegraph from data obtained by the given asset name.
+     * 
+     * @param assetManager
+     * @param renderManager
+     * @param dataAsset 
+     */
+    public FrameGraph(AssetManager assetManager, RenderManager renderManager, String dataAsset) {
+        this(assetManager, renderManager, assetManager.loadFrameGraph(dataAsset));
     }
     
     /**
@@ -359,6 +386,15 @@ public class FrameGraph implements Savable {
     }
     
     /**
+     * Sets the name of this framegraph.
+     * 
+     * @param name 
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    /**
      * 
      * @return 
      */
@@ -388,17 +424,49 @@ public class FrameGraph implements Savable {
     public RenderManager getRenderManager() {
         return context.getRenderManager();
     }
-
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule out = ex.getCapsule(this);
-        out.write(passes.toArray(RenderPass[]::new), "passes", new RenderPass[0]);
+    /**
+     * Gets the name of this framegraph.
+     * 
+     * @return 
+     */
+    public String getName() {
+        return name;
     }
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule in = im.getCapsule(this);
-        RenderPass[] array = (RenderPass[])in.readSavableArray("passes", new RenderPass[0]);
-        passes.addAll(Arrays.asList(array));
+    
+    /**
+     * Applies the framegraph data to this framegraph.
+     * 
+     * @param data
+     * @return this instance
+     */
+    public final FrameGraph applyData(FrameGraphData data) {
+        data.apply(this);
+        return this;
+    }
+    /**
+     * Applies the framegraph data to this framegraph.
+     * 
+     * @param data
+     * @return this instance
+     * @throws ClassCastException
+     * @throws NullPointerException
+     */
+    public FrameGraph applyData(Object data) {
+        if (data != null && data instanceof FrameGraphData) {
+            return FrameGraph.this.applyData((FrameGraphData)data);
+        } else if (data != null) {
+            throw new ClassCastException(data.getClass()+" cannot be cast to "+FrameGraphData.class);
+        } else {
+            throw new NullPointerException("Proxy cannot be null");
+        }
+    }
+    /**
+     * Creates exportable framegraph data.
+     * 
+     * @return 
+     */
+    public FrameGraphData createData() {
+        return new FrameGraphData(this, passes);
     }
     
 }

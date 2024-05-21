@@ -46,6 +46,7 @@ package com.jme3.renderer.framegraph;
 public class ResourceTicket <T> {
     
     private String name;
+    private int passId = -1;
     private int localIndex;
     private long objectId = -1;
     private ResourceTicket<T> source;
@@ -128,6 +129,14 @@ public class ResourceTicket <T> {
         return this;
     }
     /**
+     * Sets the id of this pass this ticket belongs to.
+     * 
+     * @param passId 
+     */
+    public void setPassId(int passId) {
+        this.passId = passId;
+    }
+    /**
      * Sets the local index.
      * <p>
      * The local index is overriden if the source ticket is not null and
@@ -155,6 +164,13 @@ public class ResourceTicket <T> {
      */
     public String getName() {
         return name;
+    }
+    /**
+     * 
+     * @return 
+     */
+    public int getPassId() {
+        return passId;
     }
     /**
      * Gets the world index.

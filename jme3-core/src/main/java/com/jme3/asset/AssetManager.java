@@ -39,6 +39,7 @@ import com.jme3.font.BitmapFont;
 import com.jme3.material.Material;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.Caps;
+import com.jme3.renderer.framegraph.FrameGraphData;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.OBJLoader;
 import com.jme3.shader.ShaderGenerator;
@@ -363,6 +364,24 @@ public interface AssetManager {
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
     public FilterPostProcessor loadFilter(String name);
+    
+    /**
+     * Loads a framegraph *.j3g file with a FrameGraphKey.
+     * 
+     * @param key asset key of the framegraph file to load
+     * @return loaded framegraph
+     * @see #loadAsset(com.jme3.asset.AssetKey)
+     */
+    public FrameGraphData loadFrameGraph(FrameGraphKey key);
+    
+    /**
+     * Loads a framegraph *.j3g file with a FrameGraphKey.
+     * 
+     * @param name asset name of the framegraph file to load
+     * @return loaded framegraph
+     * @see #loadAsset(com.jme3.asset.AssetKey)
+     */
+    public FrameGraphData loadFrameGraph(String name);
     
     /**
      * Sets the shaderGenerator to generate shaders based on shaderNodes.
