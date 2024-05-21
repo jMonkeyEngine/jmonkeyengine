@@ -14,7 +14,8 @@ import com.jme3.scene.control.AbstractControl;
 import com.jme3.shader.VarType;
 
 /**
- *
+ * Controls a material parameter based on values provided by a framegraph.
+ * 
  * @author codex
  * @param <T>
  */

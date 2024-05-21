@@ -8,13 +8,15 @@ import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
-import com.jme3.renderer.RenderContext;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.util.SafeArrayList;
 
 /**
- *
+ * Runs viewport post-processors.
+ * <p>
+ * FilterPostProcessor is rendered to the viewport's output framebuffer.
+ * 
  * @author codex
  */
 public class PostProcessingPass extends RenderPass {

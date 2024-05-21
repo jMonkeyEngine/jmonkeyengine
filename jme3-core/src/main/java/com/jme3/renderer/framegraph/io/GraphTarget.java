@@ -14,6 +14,12 @@ import com.jme3.renderer.ViewPort;
  */
 public interface GraphTarget <T> {
     
+    /**
+     * Sets the value recieved from the framegraph.
+     * 
+     * @param viewPort viewport currently being rendered
+     * @param value value from framegraph
+     */
     public void setGraphValue(ViewPort viewPort, T value);
     
 }

@@ -17,7 +17,8 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;
 
 /**
- *
+ * Renders GBuffer information using tiled deferred lighting to a color texture.
+ * 
  * @author codex
  */
 public class TileDeferredPass extends RenderPass {
@@ -82,31 +83,5 @@ public class TileDeferredPass extends RenderPass {
     protected void reset(FGRenderContext context) {}
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
-
-    public void setDiffuse(ResourceTicket<Texture2D> diffuse) {
-        this.diffuse = diffuse;
-    }
-    public void setSpecular(ResourceTicket<Texture2D> specular) {
-        this.specular = specular;
-    }
-    public void setEmissive(ResourceTicket<Texture2D> emissive) {
-        this.emissive = emissive;
-    }
-    public void setNormal(ResourceTicket<Texture2D> normal) {
-        this.normal = normal;
-    }
-    public void setDepth(ResourceTicket<Texture2D> depth) {
-        this.depth = depth;
-    }
-    public void setLights(ResourceTicket<LightList> lights) {
-        this.lights = lights;
-    }
-    public void setTiles(ResourceTicket<TiledRenderGrid> tiles) {
-        this.tiles = tiles;
-    }
-
-    public ResourceTicket<Texture2D> getOutColor() {
-        return outColor;
-    }
     
 }

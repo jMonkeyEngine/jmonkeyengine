@@ -45,8 +45,11 @@ import com.jme3.texture.Texture2D;
 import java.util.function.Predicate;
 
 /**
- * In order to be compatible with existing logic, FGRenderContext is currently just a local proxy, and may gradually replace the existing state machine manager in the future.
- * @author JohnKkk
+ * Contains necessary context for framegraph rendering.
+ * <p>
+ * Also manages renderer states, to ensure settings do no leak between passes.
+ * 
+ * @author codex
  */
 public class FGRenderContext {
     
@@ -54,7 +57,6 @@ public class FGRenderContext {
     private final RenderManager renderManager;
     private ViewPort viewPort;
     private AppProfiler profiler;
-    private final CameraSize camSize = new CameraSize();
     private float tpf;
     private final FullScreenQuad screen;
     
@@ -71,6 +73,13 @@ public class FGRenderContext {
         this.screen = new FullScreenQuad(this.frameGraph.getAssetManager());
     }
     
+    /**
+     * Targets this context to the viewport.
+     * 
+     * @param vp
+     * @param profiler
+     * @param tpf 
+     */
     public void target(ViewPort vp, AppProfiler profiler, float tpf) {
         this.viewPort = vp;
         this.profiler = profiler;
@@ -78,7 +87,6 @@ public class FGRenderContext {
         if (viewPort == null) {
             throw new NullPointerException("ViewPort cannot be null.");
         }
-        camSize.update(viewPort.getCamera());
     }
     
     /**
@@ -114,31 +122,74 @@ public class FGRenderContext {
         renderManager.getRenderer().setFrameBuffer(frameBuffer);
     }
     
+    /**
+     * Renders the specified queue bucket.
+     * 
+     * @param bucket queue bucket to render (not null and not {@link RenderQueue.Bucket#Inherit})
+     * @param clear true to flush the bucket
+     */
     public void renderViewPortQueue(RenderQueue.Bucket bucket, boolean clear) {
         viewPort.getQueue().renderQueue(bucket, renderManager, viewPort.getCamera(), clear);
     }
+    /**
+     * Renders the material on a fullscreen quad.
+     * 
+     * @param mat 
+     */
     public void renderFullscreen(Material mat) {
         screen.render(renderManager, mat);
     }
+    /**
+     * Renders the color and depth textures on a fullscreen quad, where
+     * the color texture informs the color, and the depth texture informs
+     * the depth.
+     * <p>
+     * If both color and depth are null, no rendering will be performed
+     * 
+     * @param color color texture, or null
+     * @param depth depth texture, or null
+     */
     public void transferTextures(Texture2D color, Texture2D depth) {
         screen.render(renderManager, color, depth);
     }
     
+    /**
+     * Gets the render manager.
+     * 
+     * @return 
+     */
     public RenderManager getRenderManager() {
         return renderManager;
     }
+    /**
+     * Gets the viewport currently being rendered.
+     * 
+     * @return 
+     */
     public ViewPort getViewPort() {
         return viewPort;
     }
+    /**
+     * Gets the profiler.
+     * 
+     * @return app profiler, or null
+     */
     public AppProfiler getProfiler() {
         return profiler;
     }
-    public CameraSize getCameraSize() {
-        return camSize;
-    }
+    /**
+     * Gets the renderer held by the render manager.
+     * 
+     * @return 
+     */
     public Renderer getRenderer() {
         return renderManager.getRenderer();
     }
+    /**
+     * Gets the render queue held by the viewport.
+     * 
+     * @return 
+     */
     public RenderQueue getRenderQueue() {
         if (viewPort != null) {
             return viewPort.getQueue();
@@ -146,19 +197,44 @@ public class FGRenderContext {
             return null;
         }
     }
+    /**
+     * Gets the fullscreen quad used for fullscreen renders.
+     * 
+     * @return 
+     */
     public FullScreenQuad getScreen() {
         return screen;
     }
+    /**
+     * Gets the time per frame.
+     * 
+     * @return 
+     */
     public float getTpf() {
         return tpf;
     }
+    /**
+     * Gets the camera width.
+     * 
+     * @return 
+     */
     public int getWidth() {
-        return camSize.getWidth();
+        return viewPort.getCamera().getWidth();
     }
+    /**
+     * Gets the camera height.
+     * 
+     * @return 
+     */
     public int getHeight() {
-        return camSize.getHeight();
+        return viewPort.getCamera().getHeight();
     }
     
+    /**
+     * Returns true if the app profiler is not null.
+     * 
+     * @return 
+     */
     public boolean isProfilerAvailable() {
         return profiler != null;
     }

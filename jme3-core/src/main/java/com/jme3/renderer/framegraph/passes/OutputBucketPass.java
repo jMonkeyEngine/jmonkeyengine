@@ -15,7 +15,8 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import java.io.IOException;
 
 /**
- *
+ * Renders a queue bucket to the viewport's output framebuffer.
+ * 
  * @author codex
  */
 public class OutputBucketPass extends RenderPass {

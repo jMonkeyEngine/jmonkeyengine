@@ -24,7 +24,11 @@ import java.util.LinkedList;
 import java.util.function.Function;
 
 /**
- *
+ * Renders diffuse, specular, emissive, normal, and depth information to a set of
+ * textures.
+ * <p>
+ * Lights from rendered geometries are accumulated and exported.
+ * 
  * @author codex
  */
 public class GBufferPass extends RenderPass implements GeometryRenderHandler {
@@ -33,8 +37,8 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     
     private ResourceTicket<Texture2D> diffuse, specular, emissive, normal, depth;
     private ResourceTicket<LightList> lights;
-    private TextureDef<Texture2D>[] texDefs = new TextureDef[5];
     private ValueDef<LightList> lightDef;
+    private final TextureDef<Texture2D>[] texDefs = new TextureDef[5];
     private final LinkedList<Light> accumulatedLights = new LinkedList<>();
     private final ColorRGBA mask = new ColorRGBA();
     

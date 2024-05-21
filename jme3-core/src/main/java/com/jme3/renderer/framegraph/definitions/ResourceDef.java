@@ -7,7 +7,9 @@ package com.jme3.renderer.framegraph.definitions;
 import java.util.function.Consumer;
 
 /**
- *
+ * Creates and reallocates objects for a resource and defines how that resource
+ * will behaves.
+ * 
  * @author codex
  * @param <T>
  */

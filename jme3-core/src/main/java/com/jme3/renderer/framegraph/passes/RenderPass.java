@@ -22,7 +22,8 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 /**
- *
+ * Performs rendering operations.
+ * 
  * @author codex
  */
 public abstract class RenderPass implements ResourceProducer, Savable {

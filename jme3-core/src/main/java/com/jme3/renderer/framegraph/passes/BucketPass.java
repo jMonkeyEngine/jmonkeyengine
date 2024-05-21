@@ -22,7 +22,8 @@ import com.jme3.texture.Texture2D;
 import java.io.IOException;
 
 /**
- *
+ * Renders a queue bucket to a set of color and depth textures.
+ * 
  * @author codex
  */
 public class BucketPass extends RenderPass {
@@ -120,10 +121,20 @@ public class BucketPass extends RenderPass {
         }
     }
     
+    /**
+     * Sets the depth range objects are rendered within.
+     * 
+     * @param depth depth range (not null, unaffected)
+     */
     public void setDepthRange(DepthRange depth) {
         this.depth.set(depth);
     }
     
+    /**
+     * Gets the depth range objects are rendered within.
+     * 
+     * @return 
+     */
     public DepthRange getDepthRange() {
         return depth;
     }

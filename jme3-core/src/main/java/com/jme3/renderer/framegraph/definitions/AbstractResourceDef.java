@@ -34,16 +34,45 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
     public boolean isDisposeOnRelease() {
         return disposeOnRelease;
     }
-
+    
+    /**
+     * Sets the consumer responsible for disposing the resource.
+     * <p>
+     * default=null
+     * 
+     * @param disposalMethod disposal consumer, or null to use defaults
+     */
     public void setDisposalMethod(Consumer<T> disposalMethod) {
         this.disposalMethod = disposalMethod;
     }
+    /**
+     * Sets the number of frames the resource can be static before being
+     * disposed.
+     * <p>
+     * If less than zero, the default value will be used instead.
+     * 
+     * @param staticTimout 
+     */
     public void setStaticTimeout(int staticTimout) {
         this.staticTimeout = staticTimout;
     }
+    /**
+     * Sets this definition to allow for use of reallocated objects.
+     * <p>
+     * default=true
+     * 
+     * @param useExisting 
+     */
     public void setUseExisting(boolean useExisting) {
         this.useExisting = useExisting;
     }
+    /**
+     * Sets the resource to be disposed when it is unused.
+     * <p>
+     * default=false
+     * 
+     * @param disposeOnRelease 
+     */
     public void setDisposeOnRelease(boolean disposeOnRelease) {
         this.disposeOnRelease = disposeOnRelease;
     }

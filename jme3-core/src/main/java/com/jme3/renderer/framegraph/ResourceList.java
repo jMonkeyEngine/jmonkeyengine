@@ -7,14 +7,12 @@ package com.jme3.renderer.framegraph;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
- *
+ * Manages render resource declarations, references, and releases for a framegraph.
+ * 
  * @author codex
  */
 public class ResourceList {
@@ -99,7 +97,7 @@ public class ResourceList {
     }
     
     /**
-     * If the ticket contains a valid object ID, that object will be reserved
+     * If the ticket contains a valid object ID, that render object will be reserved
      * at the index.
      * <p>
      * Reserved objects cannot be allocated to another resource before the indexed
@@ -114,6 +112,12 @@ public class ResourceList {
             ticket.copyObjectTo(locate(ticket).getTicket());
         }
     }
+    /**
+     * Makes reservations for each given ticket.
+     * 
+     * @param passIndex
+     * @param tickets 
+     */
     public void reserve(int passIndex, ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
             reserve(passIndex, t);
@@ -127,24 +131,44 @@ public class ResourceList {
      * which is referencing the resource, which is important for determining resource
      * lifetime.
      * 
-     * @param passIndex
+     * @param passIndex render pass index
      * @param ticket 
      */
     public void reference(int passIndex, ResourceTicket ticket) {
         locate(ticket).reference(passIndex);
     }
+    /**
+     * References the resource associated with the ticket if the ticket
+     * is not null and does not have a negative world index.
+     * 
+     * @param passIndex render pass index
+     * @param ticket
+     * @return 
+     */
     public boolean referenceOptional(int passIndex, ResourceTicket ticket) {
-        if (ticket != null && ticket.getWorldIndex() >= 0) {
+        if (validate(ticket)) {
             reference(passIndex, ticket);
             return true;
         }
         return false;
     }
+    /**
+     * References resources associated with the tickets.
+     * 
+     * @param passIndex render pass index
+     * @param tickets 
+     */
     public void reference(int passIndex, ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
             reference(passIndex, t);
         }
     }
+    /**
+     * Optionally references resources associated with the tickets.
+     * 
+     * @param passIndex render pass index
+     * @param tickets 
+     */
     public void referenceOptional(int passIndex, ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
             referenceOptional(passIndex, t);
@@ -194,6 +218,12 @@ public class ResourceList {
             obj.setConstant(true);
         }
     }
+    /**
+     * Marks the resource associated with the ticket if the ticket is not
+     * null and does not have a negative world index.
+     * 
+     * @param ticket 
+     */
     public void setConstantOptional(ResourceTicket ticket) {
         if (validate(ticket)) {
             setConstant(ticket);
@@ -210,6 +240,16 @@ public class ResourceList {
         locate(ticket).setSurvivesRefCull(true);
     }
     
+    /**
+     * Returns true if the resource associated with the ticket is virtual.
+     * <p>
+     * A resource is virtual if it does not contain a concrete object and is
+     * not marked as undefined.
+     * 
+     * @param ticket
+     * @param optional
+     * @return 
+     */
     public boolean isVirtual(ResourceTicket ticket, boolean optional) {
         if (!optional || validate(ticket)) {
             return locate(ticket).isVirtual();
@@ -244,6 +284,17 @@ public class ResourceList {
         }
         return acquire(resource, ticket);
     }
+    /**
+     * If the ticket is not null and has a positive or zero world index, an object
+     * will be acquired for the resource and returned.
+     * <p>
+     * Otherwise, the given default value will be returned.
+     * 
+     * @param <T>
+     * @param ticket
+     * @param value default value
+     * @return 
+     */
     public <T> T acquireOrElse(ResourceTicket<T> ticket, T value) {
         if (validate(ticket)) {
             RenderResource<T> resource = locate(ticket);
@@ -335,6 +386,17 @@ public class ResourceList {
         }
         return object;
     }
+    /**
+     * If the ticket is not null and has a positive or zero world index, an object
+     * will be extracted by the resource and returned.
+     * <p>
+     * Otherwise, the given default value will be returned.
+     * 
+     * @param <T>
+     * @param ticket
+     * @param value
+     * @return 
+     */
     public <T> T extractOrElse(ResourceTicket<T> ticket, T value) {
         if (ticket != null && ticket.getWorldIndex() >= 0) {
             T object = extract(locate(ticket), ticket);
@@ -359,6 +421,13 @@ public class ResourceList {
             }
         }
     }
+    /**
+     * Releases the ticket if the ticket is not null and contains a non-negative
+     * world index.
+     * 
+     * @param ticket
+     * @return 
+     */
     public boolean releaseOptional(ResourceTicket ticket) {
         if (ticket != null && ticket.getWorldIndex() >= 0) {
             release(ticket);
@@ -366,11 +435,21 @@ public class ResourceList {
         }
         return false;
     }
+    /**
+     * Releases the resources obtained by the tickets from use.
+     * 
+     * @param tickets 
+     */
     public void release(ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
             release(t);
         }
     }
+    /**
+     * Optionally releases the resources obtained by the tickets from use.
+     * 
+     * @param tickets 
+     */
     public void releaseOptional(ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
             releaseOptional(t);
@@ -379,6 +458,8 @@ public class ResourceList {
     
     /**
      * Prepares this for rendering.
+     * <p>
+     * This should only be called once per frame.
      */
     public void beginRenderingSession() {
         textureBinds = 0;
@@ -435,6 +516,12 @@ public class ResourceList {
         nextSlot = 0;
     }
     
+    /**
+     * Gets the number of known texture binds that occured during
+     * the last render frame.
+     * 
+     * @return 
+     */
     public int getTextureBinds() {
         return textureBinds;
     }

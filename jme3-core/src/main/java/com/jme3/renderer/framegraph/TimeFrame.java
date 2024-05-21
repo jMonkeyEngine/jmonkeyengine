@@ -5,14 +5,24 @@
 package com.jme3.renderer.framegraph;
 
 /**
- *
+ * Represents a period of time starting at the start of the indexed pass, and
+ * lasting for the duration of a number of following passes.
+ * 
  * @author codex
  */
 public class TimeFrame {
     
     private int index, length;
     
+    /**
+     * 
+     */
     private TimeFrame() {}
+    /**
+     * 
+     * @param passIndex
+     * @param length 
+     */
     public TimeFrame(int passIndex, int length) {
         this.index = passIndex;
         this.length = length;
@@ -24,9 +34,21 @@ public class TimeFrame {
         }
     }
     
+    /**
+     * Extends, but does not retract, the length so that this time frame
+     * includes the given index.
+     * 
+     * @param passIndex 
+     */
     public void extendTo(int passIndex) {
         length = Math.max(length, passIndex-this.index);
     }
+    /**
+     * Copies this to the target time frame.
+     * 
+     * @param target
+     * @return 
+     */
     public TimeFrame copyTo(TimeFrame target) {
         if (target == null) {
             target = new TimeFrame();
@@ -36,20 +58,47 @@ public class TimeFrame {
         return target;
     }
     
+    /**
+     * Gets index of the first pass this time frame includes.
+     * 
+     * @return 
+     */
     public int getStartIndex() {
         return index;
     }
+    /**
+     * Gets the length.
+     * 
+     * @return 
+     */
     public int getLength() {
         return length;
     }
+    /**
+     * Gets index of the last pass this time frame includes.
+     * 
+     * @return 
+     */
     public int getEndIndex() {
         return index+length;
     }
     
+    /**
+     * Returns true if this time frame overlaps the given time frame.
+     * 
+     * @param time
+     * @return 
+     */
     public boolean overlaps(TimeFrame time) {
         return index <= time.index+time.length && index+length >= time.index;
     }
-    public boolean contains(int index) {
+    /**
+     * Returns true if this time frame includes the given index.
+     * 
+     * @param index
+     * @return 
+     */
+    public boolean includes(int index) {
         return index <= index && index+length >= index;
     }
     

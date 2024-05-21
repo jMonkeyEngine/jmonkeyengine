@@ -10,7 +10,8 @@ import java.util.BitSet;
 import java.util.function.Consumer;
 
 /**
- *
+ * Stores an object used for rendering.
+ * 
  * @author codex
  * @param <T>
  */
@@ -29,7 +30,13 @@ public class RenderObject <T> {
     private boolean acquired = false;
     private boolean constant = true;
     private Consumer disposer;
-
+    
+    /**
+     * 
+     * @param def
+     * @param object
+     * @param timeout 
+     */
     public RenderObject(ResourceDef<T> def, T object, int timeout) {
         this.id = nextId++;
         if (object == null) {
@@ -49,46 +56,104 @@ public class RenderObject <T> {
         }
     }
     
+    /**
+     * Acquires this render object for use.
+     */
     public void acquire() {
+        if (acquired) {
+            throw new IllegalStateException("Already acquired.");
+        }
         timeout = timeoutDuration;
         acquired = true;
     }
+    /**
+     * Releases this render object from use.
+     */
     public void release() {
         if (!acquired) {
             throw new IllegalStateException("Already released.");
         }
         acquired = false;
     }
+    /**
+     * Reserves this render object for use at the specified render pass index.
+     * 
+     * @param index 
+     */
     public void reserve(int index) {
         reservations.set(index);
     }
+    /**
+     * Disposes the internal object.
+     */
     public void dispose() {
         disposer.accept(object);
     }
     
+    /**
+     * Clears all reservations.
+     */
     public void clearReservations() {
         reservations.clear();
     }
+    /**
+     * Ticks down the timer tracking frames since last use.
+     * 
+     * @return true if the timer has not expired
+     */
     public boolean tickTimeout() {
         return timeout-- > 0;
     }
     
+    /**
+     * Sets this render object as constant, so that this cannot be reallocated.
+     * 
+     * @param constant 
+     */
     public void setConstant(boolean constant) {
         this.constant = constant;
     }
     
+    /**
+     * Gets the id of this render object.
+     * 
+     * @return 
+     */
     public long getId() {
         return id;
     }
+    /**
+     * Gets the internal object.
+     * 
+     * @return 
+     */
     public T getObject() {
         return object;
     }
+    /**
+     * Returns true if this render object is acquired (and not yet released).
+     * 
+     * @return 
+     */
     public boolean isAcquired() {
         return acquired;
     }
+    /**
+     * Returns true if this render object is reserved at the given
+     * render pass index.
+     * 
+     * @param index
+     * @return 
+     */
     public boolean isReservedAt(int index) {
         return reservations.get(index);
     }
+    /**
+     * Returns true if this render object is reserved within the time frame.
+     * 
+     * @param frame
+     * @return 
+     */
     public boolean isReservedWithin(TimeFrame frame) {
         if (frame.getStartIndex() >= reservations.size()) {
             return false;
@@ -101,10 +166,20 @@ public class RenderObject <T> {
         }
         return false;
     }
+    /**
+     * Returns true if this render object is constant.
+     * 
+     * @return 
+     */
     public boolean isConstant() {
         return constant;
     }
     
+    /**
+     * Gets the next id.
+     * 
+     * @return 
+     */
     public static long getNextId() {
         return nextId;
     }

@@ -12,27 +12,57 @@ import com.jme3.export.Savable;
 import java.io.IOException;
 
 /**
- *
+ * Defines the range between 0 and 1 at values written to depth buffers
+ * are clamped to.
+ * 
  * @author codex
  */
 public class DepthRange implements Savable {
     
+    /**
+     * Range between 0 and 1.
+     */
     public static final DepthRange IDENTITY = new DepthRange();
+    /**
+     * Range that clamps to zero.
+     */
     public static final DepthRange FRONT = new DepthRange(0, 0);
+    /**
+     * Range that clamps to one.
+     */
     public static final DepthRange REAR = new DepthRange(1, 1);
     
     private float start, end;
 
+    /**
+     * Creates a new range between 0 and 1.
+     */
     public DepthRange() {
         set(0, 1);
     }
+    /**
+     * 
+     * @param start
+     * @param end 
+     */
     public DepthRange(float start, float end) {
         set(start, end);
     }
+    /**
+     * 
+     * @param range 
+     */
     public DepthRange(DepthRange range) {
         set(range);
     }
     
+    /**
+     * Sets the range.
+     * 
+     * @param start lower bound
+     * @param end upper bound
+     * @return this instance
+     */
     public final DepthRange set(float start, float end) {
         validateRange(start, end);
         this.start = start;
@@ -40,6 +70,12 @@ public class DepthRange implements Savable {
         return this;
     }
     
+    /**
+     * Sets the range.
+     * 
+     * @param range
+     * @return this instance
+     */
     public final DepthRange set(DepthRange range) {
         // no need to validate range here
         start = range.start;
@@ -47,22 +83,44 @@ public class DepthRange implements Savable {
         return this;
     }
     
+    /**
+     * Sets the start (lower) bound.
+     * 
+     * @param start
+     * @return this instance
+     */
     public final DepthRange setStart(float start) {
         validateRange(start, end);
         this.start = start;
         return this;
     }
     
+    /**
+     * Sets the end (upper) bound.
+     * 
+     * @param end
+     * @return 
+     */
     public final DepthRange setEnd(float end) {
         validateRange(start, end);
         this.end = end;
         return this;
     }
     
+    /**
+     * Gets the start (lower) bound.
+     * 
+     * @return 
+     */
     public float getStart() {
         return start;
     }
     
+    /**
+     * Gets the end (upper) bound.
+     * 
+     * @return 
+     */
     public float getEnd() {
         return end;
     }

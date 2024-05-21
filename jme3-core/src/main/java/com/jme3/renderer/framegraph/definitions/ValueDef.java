@@ -8,7 +8,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- *
+ * General resource definition implementation.
+ * 
  * @author codex
  * @param <T>
  */
@@ -40,20 +41,43 @@ public class ValueDef <T> extends AbstractResourceDef<T> {
     public T applyIndirectResource(Object resource) {
         return null;
     }
-
+    
+    /**
+     * Sets the builder function that constructs new objects.
+     * 
+     * @param builder 
+     */
     public void setBuilder(Function<Object, T> builder) {
         this.builder = builder;
     }
+    /**
+     * Sets the consumer that alters objects for reallocation.
+     * 
+     * @param reviser 
+     */
     public void setReviser(Consumer<T> reviser) {
         this.reviser = reviser;
     }
-
+    
+    /**
+     * Gets the object type handled by this definition.
+     * 
+     * @return 
+     */
     public Class<T> getType() {
         return type;
     }
+    /**
+     * 
+     * @return 
+     */
     public Function<Object, T> getBuilder() {
         return builder;
     }
+    /**
+     * 
+     * @return 
+     */
     public Consumer<T> getReviser() {
         return reviser;
     }

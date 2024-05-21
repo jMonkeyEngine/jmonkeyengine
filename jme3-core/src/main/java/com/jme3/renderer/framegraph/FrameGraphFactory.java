@@ -16,11 +16,19 @@ import com.jme3.renderer.framegraph.passes.TileDeferredPass;
 import com.jme3.renderer.queue.RenderQueue;
 
 /**
- *
+ * Utility class for constructing common framegraphs.
+ * 
  * @author codex
  */
 public class FrameGraphFactory {
     
+    /**
+     * Constructs a standard forward framegraph, with no controllable features.
+     * 
+     * @param assetManager
+     * @param renderManager
+     * @return forward framegraph
+     */
     public static FrameGraph forward(AssetManager assetManager, RenderManager renderManager) {
         FrameGraph fg = new FrameGraph(assetManager, renderManager);
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Opaque));
@@ -32,6 +40,14 @@ public class FrameGraphFactory {
         return fg;
     }
     
+    /**
+     * Constructs a deferred or tiled deferred framegraph.
+     * 
+     * @param assetManager
+     * @param renderManager
+     * @param tiled true to construct advanced tiled deferred
+     * @return deferred framegraph
+     */
     public static FrameGraph deferred(AssetManager assetManager, RenderManager renderManager, boolean tiled) {
         FrameGraph fg = new FrameGraph(assetManager, renderManager);
         GBufferPass gbuf = fg.add(new GBufferPass());

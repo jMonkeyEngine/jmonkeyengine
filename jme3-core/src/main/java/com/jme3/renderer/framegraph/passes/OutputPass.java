@@ -8,10 +8,11 @@ import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.texture.Texture2D;
-import java.util.Objects;
 
 /**
- *
+ * Renders a set of color and depth textures on a fullscreen quad to the
+ * viewport's output framebuffer.
+ * 
  * @author codex
  */
 public class OutputPass extends RenderPass {

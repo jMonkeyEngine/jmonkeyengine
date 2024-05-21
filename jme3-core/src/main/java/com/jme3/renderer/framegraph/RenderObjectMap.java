@@ -10,12 +10,11 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 /**
- *
+ * Manages creation, reallocation, and disposal of {@link RenderObject}s.
+ * 
  * @author codex
  */
 public class RenderObjectMap {
-
-    private static final Logger LOG = Logger.getLogger(RenderObjectMap.class.getName());
     
     private final HashMap<Long, RenderObject> objectMap = new HashMap<>();
     private final int timeout = 1;
@@ -50,6 +49,17 @@ public class RenderObjectMap {
         return false;
     }
     
+    /**
+     * Allocates a render object to the resource.
+     * <p>
+     * First, if this resource holds an object id, the corresponding render object,
+     * if it still exists, will be tried for reallocation. Then, each render object
+     * will be tried for reallocation. Finally, if all else fails, a new render object
+     * will be created and allocated to the resource.
+     * 
+     * @param <T>
+     * @param resource 
+     */
     public <T> void allocate(RenderResource<T> resource) {
         if (resource.isUndefined()) {
             throw new IllegalArgumentException("Cannot allocate object to an undefined resource.");
@@ -108,6 +118,15 @@ public class RenderObjectMap {
         resource.setObject(create(def));
         objectsCreated++;
     }
+    /**
+     * Makes a reservation of render object holding the specified id at the render
+     * pass index so that no other resource may (without a reservation) use that 
+     * render object at that time.
+     * 
+     * @param objectId
+     * @param index
+     * @return 
+     */
     public boolean reserve(long objectId, int index) {
         RenderObject obj = objectMap.get(objectId);
         if (obj != null) {
@@ -117,6 +136,16 @@ public class RenderObjectMap {
         }
         return false;
     }
+    /**
+     * Untracks the render object held by the resource.
+     * <p>
+     * If the resource is virtual, a new resource will be allocated then
+     * immediately untracked.
+     * 
+     * @param <T>
+     * @param resource
+     * @return 
+     */
     public <T> T extract(RenderResource<T> resource) {
         if (resource.isUndefined()) {
             return null;
@@ -127,6 +156,11 @@ public class RenderObjectMap {
         RenderObject<T> obj = objectMap.remove(resource.getTicket().getObjectId());
         return (obj != null ? obj.getObject() : null);
     }
+    /**
+     * Disposes the render object pointed to by the resource.
+     * 
+     * @param resource 
+     */
     public void dispose(RenderResource resource) {
         long id = resource.getTicket().getObjectId();
         if (id >= 0) {
@@ -137,6 +171,9 @@ public class RenderObjectMap {
         }
     }
     
+    /**
+     * Should be called only when a new rendering frame begins (before rendering).
+     */
     public void newFrame() {
         totalAllocations = 0;
         officialReservations = 0;
@@ -146,11 +183,19 @@ public class RenderObjectMap {
         objectsReallocated = 0;
         flushedObjects = 0;
     }
+    /**
+     * Clears reservations of all tracked render objects.
+     */
     public void clearReservations() {
         for (RenderObject obj : objectMap.values()) {
             obj.clearReservations();
         }
     }
+    /**
+     * Flushes the map.
+     * <p>
+     * Any render objects that have not been used for a number of frames are disposed.
+     */
     public void flushMap() {
         totalObjects = objectMap.size();
         for (Iterator<RenderObject> it = objectMap.values().iterator(); it.hasNext();) {
@@ -164,6 +209,11 @@ public class RenderObjectMap {
             obj.setConstant(false);
         }
     }
+    /**
+     * Clears the map.
+     * <p>
+     * All tracked render objects are disposed.
+     */
     public void clearMap() {
         for (RenderObject obj : objectMap.values()) {
             obj.dispose();
@@ -171,27 +221,74 @@ public class RenderObjectMap {
         objectMap.clear();
     }
 
+    /**
+     * Get the total number of allocations that occured during the last render frame.
+     * 
+     * @return 
+     */
     public int getTotalAllocations() {
         return totalAllocations;
     }
+    /**
+     * Gets the number of official reservations that occured during the last
+     * render frame.
+     * <p>
+     * An official reservation is one made using {@link #reserve(long, int)}.
+     * 
+     * @return 
+     */
     public int getOfficialReservations() {
         return officialReservations;
     }
+    /**
+     * Gets the number of completed reservations that occured during the
+     * last render frame.
+     * <p>
+     * A completed reservation is declared and allocated.
+     * 
+     * @return 
+     */
     public int getCompletedReservations() {
         return completedReservations;
     }
+    /**
+     * Gets the number of incomplete or failed reservations that occured
+     * during the last render frame.
+     * 
+     * @return 
+     */
     public int getFailedReservations() {
         return failedReservations;
     }
+    /**
+     * Gets the number of render objects created during the last render frame.
+     * 
+     * @return 
+     */
     public int getObjectsCreated() {
         return objectsCreated;
     }
+    /**
+     * Gets the number of reallocations that occured during the last render frame.
+     * 
+     * @return 
+     */
     public int getObjectsReallocated() {
         return objectsReallocated;
     }
+    /**
+     * Gets the number of render objects present before flushing.
+     * 
+     * @return 
+     */
     public int getTotalObjects() {
         return totalObjects;
     }
+    /**
+     * Gets the number of render objects disposed during flushing.
+     * 
+     * @return 
+     */
     public int getFlushedObjects() {
         return flushedObjects;
     }

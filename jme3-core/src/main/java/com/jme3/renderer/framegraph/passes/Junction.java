@@ -15,7 +15,11 @@ import com.jme3.renderer.framegraph.ResourceTicket;
 import java.io.IOException;
 
 /**
- *
+ * Merges several inputs into one output by choosing one input to connect to
+ * the output using a controllable index.
+ * <p>
+ * This pass does no rendering and cannot be culled.
+ * 
  * @author codex
  * @param <T>
  */

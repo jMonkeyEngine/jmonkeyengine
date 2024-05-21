@@ -8,7 +8,8 @@ import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import java.util.Objects;
 
 /**
- *
+ * Represents an existing or future resource used for rendering.
+ * 
  * @author codex
  * @param <T>
  */
@@ -21,10 +22,15 @@ public class RenderResource <T> {
     private RenderObject object;
     private T resource;
     private int refs = 0;
-    private int timeout = 0;
     private boolean survivesRefCull = false;
     private boolean undefined = false;
 
+    /**
+     * 
+     * @param producer
+     * @param def
+     * @param ticket 
+     */
     public RenderResource(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
         this.producer = producer;
         this.def = def;
@@ -32,20 +38,27 @@ public class RenderResource <T> {
         this.lifetime = new TimeFrame(this.producer.getExecutionIndex(), 0);
     }
     
+    /**
+     * Reference this resource from the specified render pass index.
+     * 
+     * @param index 
+     */
     public void reference(int index) {
         lifetime.extendTo(index);
         refs++;
     }
+    /**
+     * Releases this resource from one user.
+     */
     public void release() {
         refs--;
     }
-    public boolean tickTimeout() {
-        return timeout-- > 0;
-    }
     
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
+    /**
+     * Sets the render object held by this resource.
+     * 
+     * @param object 
+     */
     public void setObject(RenderObject<T> object) {
         if (object != null) {
             setObject(object, object.getObject());
@@ -55,6 +68,12 @@ public class RenderResource <T> {
             resource = null;
         }
     }
+    /**
+     * Sets the render object and concrete resource held by this render resource.
+     * 
+     * @param object
+     * @param resource 
+     */
     public void setObject(RenderObject object, T resource) {
         Objects.requireNonNull(object, "Object cannot be null.");
         Objects.requireNonNull(resource, "Object resource cannot be null.");
@@ -69,6 +88,9 @@ public class RenderResource <T> {
         this.object.acquire();
         ticket.setObjectId(this.object.getId());
     }
+    /**
+     * Marks this resource as undefined.
+     */
     public void setUndefined() {
         if (object != null) {
             throw new IllegalArgumentException("Resource is already defined.");
@@ -76,46 +98,119 @@ public class RenderResource <T> {
         undefined = true;
     }
     
+    /**
+     * Gets this resource's producer.
+     * 
+     * @return 
+     */
     public ResourceProducer getProducer() {
         return producer;
     }
+    /**
+     * Gets the resource definition.
+     * 
+     * @return 
+     */
     public ResourceDef<T> getDefinition() {
         return def;
     }
+    /**
+     * Gets the resource ticket.
+     * 
+     * @return 
+     */
     public ResourceTicket<T> getTicket() {
         return ticket;
     }
+    /**
+     * Gets the lifetime of this resource in render pass indices.
+     * 
+     * @return 
+     */
     public TimeFrame getLifeTime() {
         return lifetime;
     }
+    /**
+     * Gets the render object.
+     * 
+     * @return 
+     */
     public RenderObject getObject() {
         return object;
     }
+    /**
+     * Gets the concrete resource.
+     * 
+     * @return 
+     */
     public T getResource() {
         return resource;
     }
+    /**
+     * Gets the index of this resource.
+     * 
+     * @return 
+     */
     public int getIndex() {
         return ticket.getWorldIndex();
     }
+    /**
+     * Gets the number of references to this resource.
+     * 
+     * @return 
+     */
     public int getNumReferences() {
         return refs;
     }
+    /**
+     * Returns true if this resource always survives cull by reference.
+     * 
+     * @param survivesRefCull 
+     */
     public void setSurvivesRefCull(boolean survivesRefCull) {
         this.survivesRefCull = survivesRefCull;
     }
     
+    /**
+     * Returns true if this resource is virtual.
+     * <p>
+     * A resource is virtual when it does not hold a concrete resource
+     * and is not set as undefined.
+     * 
+     * @return 
+     */
     public boolean isVirtual() {
         return object == null && !undefined;
     }
+    /**
+     * Returns true if this resource is referenced by users other than the
+     * producer.
+     * 
+     * @return 
+     */
     public boolean isReferenced() {
         return refs > 0;
     }
+    /**
+     * Returns true if this resource is used (including the producer).
+     * 
+     * @return 
+     */
     public boolean isUsed() {
         return refs >= 0;
     }
+    /**
+     * Returns true if this resource is marked as undefined.
+     * 
+     * @return 
+     */
     public boolean isUndefined() {
         return undefined;
     }
+    /**
+     * 
+     * @return 
+     */
     public boolean isSurvivesRefCull() {
         return survivesRefCull;
     }
