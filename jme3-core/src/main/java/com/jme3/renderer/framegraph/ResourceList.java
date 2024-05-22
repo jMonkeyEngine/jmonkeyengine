@@ -46,11 +46,12 @@ public class ResourceList {
 
     private static final int INITIAL_SIZE = 20;
     
-    private final RenderObjectMap map;
+    private RenderObjectMap map;
     private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
     private int nextSlot = 0;
     private int textureBinds = 0;
 
+    public ResourceList() {}
     public ResourceList(RenderObjectMap map) {
         this.map = map;
     }
@@ -587,6 +588,15 @@ public class ResourceList {
      */
     public int getTextureBinds() {
         return textureBinds;
+    }
+    
+    /**
+     * Sets the render object map.
+     * 
+     * @param map 
+     */
+    public void setObjectMap(RenderObjectMap map) {
+        this.map = map;
     }
     
 }

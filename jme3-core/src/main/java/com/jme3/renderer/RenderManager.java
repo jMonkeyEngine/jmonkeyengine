@@ -1272,7 +1272,7 @@ public class RenderManager {
             prof.vpStep(VpStep.PreFrame, vp, null);
         }
         if (fg != null) {
-            fg.configure(vp, prof, tpf);
+            fg.configure(this, vp, prof, tpf);
             fg.preFrame();
         } else if (processors != null) {
             for (SceneProcessor p : processors.getArray()) {

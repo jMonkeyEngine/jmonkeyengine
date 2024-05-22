@@ -95,11 +95,13 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
     
     @Override
     public T createResource() {
+        Image img;
         if (depth > 0) {
-            return createTexture(new Image(format, width, height, depth, new ArrayList<>(depth), colorSpace));
+            img = new Image(format, width, height, depth, new ArrayList<>(depth), colorSpace);
         } else {
-            return createTexture(new Image(format, width, height, null, colorSpace));
+            img = new Image(format, width, height, null, colorSpace);
         }
+        return createTexture(img);
     }
     @Override
     public T applyDirectResource(Object resource) {

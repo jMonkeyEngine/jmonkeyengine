@@ -33,6 +33,8 @@ package com.jme3.renderer.framegraph;
 
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
+import com.jme3.opencl.CommandQueue;
+import com.jme3.opencl.Context;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;
@@ -54,11 +56,13 @@ import java.util.function.Predicate;
 public class FGRenderContext {
     
     private final FrameGraph frameGraph;
-    private final RenderManager renderManager;
+    private RenderManager renderManager;
     private ViewPort viewPort;
     private AppProfiler profiler;
     private float tpf;
     private final FullScreenQuad screen;
+    private Context clContext;
+    private CommandQueue clQueue;
     
     private String forcedTechnique;
     private Material forcedMat;
@@ -66,27 +70,40 @@ public class FGRenderContext {
     private GeometryRenderHandler geomRender;
     private Predicate<Geometry> geomFilter;
     private RenderState renderState;
-
-    public FGRenderContext(FrameGraph frameGraph, RenderManager renderManager) {
+    
+    public FGRenderContext(FrameGraph frameGraph) {
+        this(frameGraph, null);
+    }
+    public FGRenderContext(FrameGraph frameGraph, Context clContext) {
         this.frameGraph = frameGraph;
-        this.renderManager = renderManager;
+        this.clContext = clContext;
         this.screen = new FullScreenQuad(this.frameGraph.getAssetManager());
     }
     
     /**
      * Targets this context to the viewport.
      * 
+     * @param rm
      * @param vp
      * @param profiler
      * @param tpf 
      */
-    public void target(ViewPort vp, AppProfiler profiler, float tpf) {
+    public void target(RenderManager rm, ViewPort vp, AppProfiler profiler, float tpf) {
+        this.renderManager = rm;
         this.viewPort = vp;
         this.profiler = profiler;
         this.tpf = tpf;
         if (viewPort == null) {
             throw new NullPointerException("ViewPort cannot be null.");
         }
+    }
+    /**
+     * Returns true if the context is ready for rendering.
+     * 
+     * @return 
+     */
+    public boolean isReady() {
+        return renderManager != null && viewPort != null;
     }
     
     /**
@@ -154,6 +171,23 @@ public class FGRenderContext {
     }
     
     /**
+     * Sets the OpenCL context for compute shading.
+     * 
+     * @param clContext 
+     */
+    public void setCLContext(Context clContext) {
+        this.clContext = clContext;
+    }
+    /**
+     * Sets the OpenCL command queue for compute shading.
+     * 
+     * @param clQueue 
+     */
+    public void setCLQueue(CommandQueue clQueue) {
+        this.clQueue = clQueue;
+    }
+    
+    /**
      * Gets the render manager.
      * 
      * @return 
@@ -204,6 +238,22 @@ public class FGRenderContext {
      */
     public FullScreenQuad getScreen() {
         return screen;
+    }
+    /**
+     * Gets the OpenCL context for compute shading.
+     * 
+     * @return 
+     */
+    public Context getCLContext() {
+        return clContext;
+    }
+    /**
+     * Gets the OpenCL command queue assigned to this context.
+     * 
+     * @return 
+     */
+    public CommandQueue getCLQueue() {
+        return clQueue;
     }
     /**
      * Gets the time per frame.

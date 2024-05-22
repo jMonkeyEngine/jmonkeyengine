@@ -34,6 +34,8 @@ package com.jme3.renderer.framegraph;
 import com.jme3.renderer.framegraph.passes.RenderPass;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.FrameGraphKey;
+import com.jme3.opencl.CommandQueue;
+import com.jme3.opencl.Context;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.FgStep;
 import com.jme3.profile.VpStep;
@@ -95,10 +97,10 @@ public class FrameGraph {
      * @param assetManager asset manager (not null)
      * @param renderManager render manager (not null)
      */
-    public FrameGraph(AssetManager assetManager, RenderManager renderManager) {
+    public FrameGraph(AssetManager assetManager) {
         this.assetManager = assetManager;
-        this.resources = new ResourceList(renderManager.getRenderObjectMap());
-        this.context = new FGRenderContext(this, renderManager);
+        this.resources = new ResourceList();
+        this.context = new FGRenderContext(this);
     }
     /**
      * Creates a new framegraph from the given data.
@@ -107,8 +109,8 @@ public class FrameGraph {
      * @param renderManager
      * @param data 
      */
-    public FrameGraph(AssetManager assetManager, RenderManager renderManager, FrameGraphData data) {
-        this(assetManager, renderManager);
+    public FrameGraph(AssetManager assetManager, FrameGraphData data) {
+        this(assetManager);
         applyData(data);
     }
     /**
@@ -118,8 +120,8 @@ public class FrameGraph {
      * @param renderManager
      * @param key 
      */
-    public FrameGraph(AssetManager assetManager, RenderManager renderManager, FrameGraphKey key) {
-        this(assetManager, renderManager, assetManager.loadFrameGraph(key));
+    public FrameGraph(AssetManager assetManager, FrameGraphKey key) {
+        this(assetManager, assetManager.loadFrameGraph(key));
     }
     /**
      * Creates a new framegraph from data obtained by the given asset name.
@@ -128,19 +130,21 @@ public class FrameGraph {
      * @param renderManager
      * @param dataAsset 
      */
-    public FrameGraph(AssetManager assetManager, RenderManager renderManager, String dataAsset) {
-        this(assetManager, renderManager, assetManager.loadFrameGraph(dataAsset));
+    public FrameGraph(AssetManager assetManager, String dataAsset) {
+        this(assetManager, assetManager.loadFrameGraph(dataAsset));
     }
     
     /**
      * Configures the framegraph rendering context.
      * 
+     * @param rm
      * @param vp viewport to render (not null)
      * @param prof profiler (may be null)
      * @param tpf time per frame
      */
-    public void configure(ViewPort vp, AppProfiler prof, float tpf) {
-        context.target(vp, prof, tpf);
+    public void configure(RenderManager rm, ViewPort vp, AppProfiler prof, float tpf) {
+        resources.setObjectMap(rm.getRenderObjectMap());
+        context.target(rm, vp, prof, tpf);
     }
     /**
      * Pre-frame operations.
@@ -393,6 +397,24 @@ public class FrameGraph {
     public void setName(String name) {
         this.name = name;
     }
+    /**
+     * Sets the OpenCL context for compute shading.
+     * 
+     * @param clContext 
+     */
+    public void setCLContext(Context clContext) {
+        context.setCLContext(clContext);
+    }
+    /**
+     * Assigns this framegraph to the OpenCL command queue.
+     * <p>
+     * Passes do not need to use the assigned command queue, but are encouraged to.
+     * 
+     * @param clQueue 
+     */
+    public void setCLQueue(CommandQueue clQueue) {
+        context.setCLQueue(clQueue);
+    }
     
     /**
      * 
@@ -423,6 +445,14 @@ public class FrameGraph {
      */
     public RenderManager getRenderManager() {
         return context.getRenderManager();
+    }
+    /**
+     * Gets the OpenCL context for compute shading.
+     * 
+     * @return 
+     */
+    public Context getCLContext() {
+        return context.getCLContext();
     }
     /**
      * Gets the name of this framegraph.

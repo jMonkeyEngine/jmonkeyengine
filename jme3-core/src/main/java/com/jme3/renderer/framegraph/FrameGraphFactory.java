@@ -53,11 +53,10 @@ public class FrameGraphFactory {
      * Constructs a standard forward framegraph, with no controllable features.
      * 
      * @param assetManager
-     * @param renderManager
      * @return forward framegraph
      */
-    public static FrameGraph forward(AssetManager assetManager, RenderManager renderManager) {
-        FrameGraph fg = new FrameGraph(assetManager, renderManager);
+    public static FrameGraph forward(AssetManager assetManager) {
+        FrameGraph fg = new FrameGraph(assetManager);
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Opaque));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Transparent));
@@ -71,12 +70,11 @@ public class FrameGraphFactory {
      * Constructs a deferred or tiled deferred framegraph.
      * 
      * @param assetManager
-     * @param renderManager
      * @param tiled true to construct advanced tiled deferred
      * @return deferred framegraph
      */
-    public static FrameGraph deferred(AssetManager assetManager, RenderManager renderManager, boolean tiled) {
-        FrameGraph fg = new FrameGraph(assetManager, renderManager);
+    public static FrameGraph deferred(AssetManager assetManager, boolean tiled) {
+        FrameGraph fg = new FrameGraph(assetManager);
         GBufferPass gbuf = fg.add(new GBufferPass());
         RenderPass deferred;
         if (!tiled) {
