@@ -658,7 +658,8 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         //FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
         FrameGraph graph = new FrameGraph(assetManager, "Common/FrameGraphs/Deferred.j3g");
         //FrameGraph graph = FrameGraphFactory.forward(assetManager, renderManager);
-        viewPort.setFrameGraph(graph);
+        //viewPort.setFrameGraph(graph);
+        renderManager.setFrameGraph(graph);
         
         viewPort.setBackgroundColor(ColorRGBA.Green.mult(.1f));
         
@@ -674,7 +675,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         //guiNode.attachChild(debugView);
         
         //renderManager.setRenderPath(currentRenderPath);
-        testScene1();
+        testScene7();
 //        cam.setFrustumPerspective(45.0f, 4.0f / 3.0f, 0.01f, 100.0f);
         flyCam.setMoveSpeed(10.0f);
         // deferred
