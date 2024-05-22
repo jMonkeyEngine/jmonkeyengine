@@ -37,6 +37,7 @@ import com.jme3.app.DetailedProfilerState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.environment.EnvironmentCamera;
+import com.jme3.environment.EnvironmentProbeControl;
 import com.jme3.environment.LightProbeFactory;
 import com.jme3.environment.generation.JobProgressAdapter;
 import com.jme3.environment.util.EnvMapUtils;
@@ -52,9 +53,7 @@ import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
-import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -654,13 +653,15 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
     @Override
     public void simpleInitApp() {
         
-        
         stateManager.attach(new DetailedProfilerState());
         
         //FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
-        FrameGraph graph = FrameGraphFactory.deferred(assetManager, renderManager, true);
+        FrameGraph graph = new FrameGraph(assetManager, renderManager);
+        graph.applyData(assetManager.loadFrameGraph("Common/FrameGraphs/Deferred.j3g"));
         //FrameGraph graph = FrameGraphFactory.forward(assetManager, renderManager);
         viewPort.setFrameGraph(graph);
+        
+        viewPort.setBackgroundColor(ColorRGBA.Green.mult(.1f));
         
         Geometry debugView = new Geometry("debug", new Quad(200, 200));
         debugView.setLocalTranslation(0, 200, 0);
@@ -674,7 +675,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         //guiNode.attachChild(debugView);
         
         //renderManager.setRenderPath(currentRenderPath);
-        testScene10();
+        testScene1();
 //        cam.setFrustumPerspective(45.0f, 4.0f / 3.0f, 0.01f, 100.0f);
         flyCam.setMoveSpeed(10.0f);
         // deferred
@@ -688,7 +689,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         flyCam.setDragToRotate(true);
         flyCam.setMoveSpeed(50.0f);
         
-        viewPort.setBackgroundColor(ColorRGBA.DarkGray);
+        rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
 
         registerInput();
     }

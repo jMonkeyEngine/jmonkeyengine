@@ -54,10 +54,10 @@ void main(){
     float depth = texture2D(GBUFFER_DEPTH, texCoord).r;
     gl_FragDepth = depth;
     // Perform corresponding pixel shading based on the shading model
-    if(IS_LIT(shadingModelId)){
+    if (IS_LIT(shadingModelId)) {
         // lit shading model
         // todo:For now, use the big branch first, and extract the common parts later
-        if(shadingModelId == LEGACY_LIGHTING){
+        if (shadingModelId == LEGACY_LIGHTING) {
             vec3 vPos = getPosition(innerTexCoord, depth, viewProjectionMatrixInverse);
             vec4 buff1 = texture2D(Context_InGBuff1, innerTexCoord);
             vec4 diffuseColor = texture2D(Context_InGBuff0, innerTexCoord);
@@ -230,8 +230,7 @@ void main(){
 //                i+=3;
 //                #endif
 //            }
-        }
-        else if(shadingModelId == STANDARD_LIGHTING){
+        } else if (shadingModelId == STANDARD_LIGHTING) {
             // todo:
             vec3 vPos = getPosition(innerTexCoord, depth, viewProjectionMatrixInverse);
             vec4 buff0 = texture2D(Context_InGBuff0, innerTexCoord);
@@ -351,11 +350,12 @@ void main(){
                     //        #endif
 
                     gl_FragColor.rgb += directLighting * spotFallOff;
-                    #if defined(USE_TEXTURE_PACK_MODE)
                     i++;
-                    #else
-                    i++;
-                    #endif
+                    //#if defined(USE_TEXTURE_PACK_MODE)
+                    //i++;
+                    //#else
+                    //i++;
+                    //#endif
                 }
             }
             // skyLight and reflectionProbe
@@ -363,13 +363,13 @@ void main(){
             gl_FragColor.rgb += skyLightAndReflection;
             gl_FragColor.rgb += emissive;
             gl_FragColor.a = alpha;
-        }
-        else if(shadingModelId == SUBSURFACE_SCATTERING){
+        } else if (shadingModelId == SUBSURFACE_SCATTERING) {
             // todo:
         }
-    }
-    else if(shadingModelId == UNLIT){
+    } else if (shadingModelId == UNLIT) {
         gl_FragColor.rgb = shadingInfo.rgb;
         gl_FragColor.a = min(fract(shadingInfo.a) * 10.0f, 0.0f);
+    } else {
+        discard;
     }
 }

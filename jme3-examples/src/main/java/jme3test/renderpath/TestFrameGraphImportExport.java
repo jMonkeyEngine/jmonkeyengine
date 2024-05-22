@@ -62,7 +62,7 @@ import java.util.logging.Logger;
 public class TestFrameGraphImportExport extends SimpleApplication {
     
     private final String path = System.getProperty("user.home")+"/myGraph";
-    private final boolean export = true;
+    private final boolean export = false;
     private final boolean xml = false;
     
     public static void main(String[] args) {

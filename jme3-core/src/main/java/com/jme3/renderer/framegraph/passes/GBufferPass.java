@@ -134,6 +134,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         if(material.getMaterialDef().getTechniqueDefs(rm.getForcedTechnique()) == null) {
             return false;
         }
+        System.out.println("render geometry");
         rm.renderGeometry(geom);
         if (material.getActiveTechnique() != null) {
             LightList lts = geom.getFilterWorldLights();

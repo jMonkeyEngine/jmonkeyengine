@@ -60,7 +60,7 @@ public class Junction <T> extends RenderPass {
         this(2);
     }
     public Junction(int length) {
-        this.length = length;
+        setLength(length);
     }
     
     @Override
@@ -72,7 +72,11 @@ public class Junction <T> extends RenderPass {
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        output.setSource(getInputTickets().get(source.getGraphValue(context.getViewPort())));
+        if (source != null) {
+            output.setSource(getInputTickets().get(source.getGraphValue(context.getViewPort())));
+        } else {
+            output.setSource(getInputTickets().getFirst());
+        }
     }
     @Override
     protected void execute(FGRenderContext context) {}
@@ -97,8 +101,21 @@ public class Junction <T> extends RenderPass {
         length = in.readInt("length", 2);
     }
     
-    public void setLength(int length) {
+    public final void setLength(int length) {
+        if (length <= 0) {
+            throw new IllegalArgumentException("Length must be greater than zero.");
+        }
         this.length = length;
+    }
+    public void setIndexSource(GraphSource<Integer> source) {
+        this.source = source;
+    }
+    
+    public int getLength() {
+        return length;
+    }
+    public GraphSource<Integer> getIndexSource() {
+        return source;
     }
     
 }
