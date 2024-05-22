@@ -196,7 +196,7 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
-        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, true));
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, true));
         flyCam.setDragToRotate(true);
         
         // For this scene, use a tileSize=64 configuration (at 1600*900 resolution)

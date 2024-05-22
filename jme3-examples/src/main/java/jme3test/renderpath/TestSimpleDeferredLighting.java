@@ -656,8 +656,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         stateManager.attach(new DetailedProfilerState());
         
         //FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
-        FrameGraph graph = new FrameGraph(assetManager, renderManager);
-        graph.applyData(assetManager.loadFrameGraph("Common/FrameGraphs/Deferred.j3g"));
+        FrameGraph graph = new FrameGraph(assetManager, "Common/FrameGraphs/Deferred.j3g");
         //FrameGraph graph = FrameGraphFactory.forward(assetManager, renderManager);
         viewPort.setFrameGraph(graph);
         

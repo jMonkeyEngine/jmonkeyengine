@@ -25,7 +25,7 @@ public class TestTileBasedDeferredShading extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
-        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, true));
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, true));
         
         // Based on your current resolution and total light source count, try adjusting the tileSize - it must be a power of 2 such as 32, 64, 128 etc.
         //renderManager.setForceTileSize(128);// 1600 * 900 resolution config

@@ -195,7 +195,7 @@ public class TestPBRTerrainAdvancedRenderPath extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, true));
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, true));
         //renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred));
         //renderManager.setRenderPath(RenderManager.RenderPath.TiledDeferred);
         setupKeys();

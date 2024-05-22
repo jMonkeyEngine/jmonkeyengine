@@ -39,7 +39,7 @@ public class TestDeferredPBRShading extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
-        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, false));
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, false));
         
         roughness = 1.0f;
         assetManager.registerLoader(KTXLoader.class, "ktx");

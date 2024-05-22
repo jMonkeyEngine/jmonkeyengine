@@ -80,7 +80,7 @@ public class TestFrameGraphImportExport extends SimpleApplication {
         final File file = new File(path+"."+(xml ? "xml" : "j3g"));
         
         if (export) {
-            FrameGraph graph = FrameGraphFactory.deferred(assetManager, renderManager, false);
+            FrameGraph graph = FrameGraphFactory.deferred(assetManager, false);
             try {
                 if (xml) {
                     XMLExporter.getInstance().save(graph.createData(), file);
@@ -95,7 +95,7 @@ public class TestFrameGraphImportExport extends SimpleApplication {
             stateManager.attach(new DetailedProfilerState());
             flyCam.setDragToRotate(true);
             try {
-                FrameGraph graph = new FrameGraph(assetManager, renderManager);
+                FrameGraph graph = new FrameGraph(assetManager);
                 if (xml) {
                     graph.applyData(XMLImporter.getInstance().load(file));
                 } else {

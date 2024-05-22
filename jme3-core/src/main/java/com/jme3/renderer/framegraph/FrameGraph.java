@@ -483,12 +483,30 @@ public class FrameGraph {
      */
     public FrameGraph applyData(Object data) {
         if (data != null && data instanceof FrameGraphData) {
-            return FrameGraph.this.applyData((FrameGraphData)data);
+            return applyData((FrameGraphData)data);
         } else if (data != null) {
             throw new ClassCastException(data.getClass()+" cannot be cast to "+FrameGraphData.class);
         } else {
             throw new NullPointerException("Proxy cannot be null");
         }
+    }
+    /**
+     * Loads and applies framegraph data from the key.
+     * 
+     * @param key
+     * @return 
+     */
+    public FrameGraph loadData(FrameGraphKey key) {
+        return applyData(assetManager.loadFrameGraph(key));
+    }
+    /**
+     * Loads and applies framegraph data at the specified asset path.
+     * 
+     * @param assetPath
+     * @return 
+     */
+    public FrameGraph loadData(String assetPath) {
+        return applyData(assetManager.loadFrameGraph(assetPath));
     }
     /**
      * Creates exportable framegraph data.

@@ -28,7 +28,7 @@ public class TestDeferredShadingPathShadow extends SimpleApplication implements 
     public void simpleInitApp() {
         
         //renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Forward));
-        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, true));
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, true));
         
         Material boxMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         Node tank = (Node) assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");

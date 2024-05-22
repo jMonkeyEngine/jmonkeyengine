@@ -69,7 +69,7 @@ public class TestRenderPathPointDirectionalAndSpotLightShadows extends SimpleApp
         
         //FrameGraph graph = new FrameGraph(assetManager, renderManager);
         //graph.setConstructor(new DeferredGraphConstructor());
-        FrameGraph graph = FrameGraphFactory.deferred(assetManager, renderManager, false);
+        FrameGraph graph = FrameGraphFactory.deferred(assetManager, false);
         viewPort.setFrameGraph(graph);
         //renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred));
         

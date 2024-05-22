@@ -100,7 +100,7 @@ public class TestShadingModel extends SimpleApplication {
         
         //FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
         //graph = FrameGraphFactory.deferred(assetManager, renderManager, false);
-        graph = new FrameGraph(assetManager, renderManager);
+        graph = new FrameGraph(assetManager);
         graph.applyData(assetManager.loadFrameGraph("Common/FrameGraphs/Deferred.j3g"));
         //graph.setConstructor(new ForwardGraphConstructor());
         //graph.setConstructor(new TestConstructor());

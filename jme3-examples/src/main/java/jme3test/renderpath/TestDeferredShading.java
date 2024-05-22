@@ -24,7 +24,7 @@ public class TestDeferredShading extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
-        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, renderManager, false));
+        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, false));
         
         // Test Forward
 //        renderManager.setPreferredLightMode(TechniqueDef.LightMode.SinglePass);
