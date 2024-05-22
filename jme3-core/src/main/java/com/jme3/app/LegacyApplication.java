@@ -336,7 +336,7 @@ public class LegacyApplication implements Application, SystemListener {
         Camera guiCam = new Camera(settings.getWidth(), settings.getHeight());
         guiViewPort = renderManager.createPostView("Gui Default", guiCam);
         guiViewPort.setClearFlags(false, false, false);
-        guiViewPort.setUseFrameGraphs(false);
+        //guiViewPort.setUseFrameGraphs(false);
     }
 
     /**

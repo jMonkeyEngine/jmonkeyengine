@@ -662,6 +662,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         renderManager.setFrameGraph(graph);
         
         viewPort.setBackgroundColor(ColorRGBA.Green.mult(.1f));
+        guiViewPort.setClearFlags(false, true, false);
         
         Geometry debugView = new Geometry("debug", new Quad(200, 200));
         debugView.setLocalTranslation(0, 200, 0);
