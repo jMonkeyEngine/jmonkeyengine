@@ -60,9 +60,9 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
     private int samples = 1;
     private Image.Format format;
     private ColorSpace colorSpace = ColorSpace.Linear;
-    private Texture.MagFilter magFilter;
-    private Texture.MinFilter minFilter;
-    private Texture.ShadowCompareMode shadowCompare;
+    private Texture.MagFilter magFilter = Texture.MagFilter.Bilinear;
+    private Texture.MinFilter minFilter = Texture.MinFilter.BilinearNoMipMaps;
+    private Texture.ShadowCompareMode shadowCompare = Texture.ShadowCompareMode.Off;
     private Texture.WrapMode wrapS, wrapT, wrapR;
     private boolean formatFlexible = false;
     private boolean colorSpaceFlexible = false;

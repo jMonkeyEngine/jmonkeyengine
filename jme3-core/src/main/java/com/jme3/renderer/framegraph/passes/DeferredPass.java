@@ -35,6 +35,7 @@ import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
 import com.jme3.material.logic.DeferredSinglePassLightingLogic;
+import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
@@ -49,18 +50,18 @@ import com.jme3.texture.Texture2D;
  */
 public class DeferredPass extends RenderPass {
 
-    private ResourceTicket<Texture2D> depth, diffuse, specular, emissive, normal, outColor;
+    private ResourceTicket<Texture2D> diffuse, specular, emissive, normal, depth, outColor;
     private ResourceTicket<LightList> lights;
     private TextureDef<Texture2D> colorDef;
     private Material material;
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        depth = addInput("Depth");
         diffuse = addInput("Diffuse");
         specular = addInput("Specular");
         emissive = addInput("Emissive");
         normal = addInput("Normal");
+        depth = addInput("Depth");
         lights = addInput("Lights");
         outColor = addOutput("Color");
         colorDef = new TextureDef<>(Texture2D.class, img -> new Texture2D(img));
@@ -75,7 +76,7 @@ public class DeferredPass extends RenderPass {
         colorDef.setSize(context.getWidth(), context.getHeight());
         declare(colorDef, outColor);
         reserve(outColor);
-        reference(depth, diffuse, specular, emissive, normal);
+        reference(diffuse, specular, emissive, normal, depth);
         referenceOptional(lights);
     }
     @Override
@@ -84,6 +85,7 @@ public class DeferredPass extends RenderPass {
         resources.acquireColorTargets(fb, outColor);
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
+        context.getRenderer().setBackgroundColor(ColorRGBA.Blue);
         material.setTexture("Context_InGBuff0", resources.acquire(diffuse));
         material.setTexture("Context_InGBuff1", resources.acquire(specular));
         material.setTexture("Context_InGBuff2", resources.acquire(emissive));
@@ -92,6 +94,7 @@ public class DeferredPass extends RenderPass {
         material.selectTechnique("DeferredPass", context.getRenderManager());
         LightList lightList = resources.acquireOrElse(lights, null);
         context.getRenderer().setDepthRange(0, 1);
+        //context.renderFullscreen(material);
         if (lightList != null) {
             context.getScreen().render(context.getRenderManager(), material, lightList);
         } else {

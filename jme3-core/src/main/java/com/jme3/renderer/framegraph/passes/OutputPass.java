@@ -31,10 +31,15 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.texture.Texture2D;
+import java.io.IOException;
 
 /**
  * Renders a set of color and depth textures on a fullscreen quad to the
@@ -45,6 +50,12 @@ import com.jme3.texture.Texture2D;
 public class OutputPass extends RenderPass {
     
     private ResourceTicket<Texture2D> color, depth;
+    private float alphaDiscard = -1;
+
+    public OutputPass() {}
+    public OutputPass(float alphaDiscard) {
+        this.alphaDiscard = alphaDiscard;
+    }
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
@@ -60,6 +71,9 @@ public class OutputPass extends RenderPass {
         context.popFrameBuffer();
         Texture2D colorTex = resources.acquireOrElse(color, null);
         Texture2D depthTex = resources.acquireOrElse(depth, null);
+        if (alphaDiscard >= 0) {
+            context.getScreen().setAlphaDiscard(alphaDiscard);
+        }
         context.transferTextures(colorTex, depthTex);
     }
     @Override
@@ -69,6 +83,16 @@ public class OutputPass extends RenderPass {
     @Override
     public boolean isUsed() {
         return true;
+    }
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(alphaDiscard, "AlphaDiscard", -1);
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        alphaDiscard = in.readFloat("AlphaDiscard", -1);
     }
     
 }

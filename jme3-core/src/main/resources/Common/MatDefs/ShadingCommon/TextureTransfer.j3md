@@ -3,8 +3,7 @@ MaterialDef TextureTransfer {
     MaterialParameters {
         Texture2D ColorMap
         Texture2D DepthMap
-        Color Color
-        Float Alpha
+        Float AlphaDiscard
     }
 
     Technique {
@@ -22,9 +21,8 @@ MaterialDef TextureTransfer {
 
         Defines {
             WRITE_COLOR_MAP : ColorMap
-            WRITE_COLOR : Color
             WRITE_DEPTH : DepthMap
-            WRITE_ALPHA : Alpha
+            ALPHA_DISCARD : AlphaDiscard
         }
     }
 

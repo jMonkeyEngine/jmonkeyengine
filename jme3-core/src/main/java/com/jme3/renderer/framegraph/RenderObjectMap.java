@@ -31,6 +31,8 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.framegraph.debug.FGFrameCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,6 +44,7 @@ import java.util.Iterator;
  */
 public class RenderObjectMap {
     
+    private final RenderManager renderManager;
     private final HashMap<Long, RenderObject> objectMap = new HashMap<>();
     private final int timeout = 1;
     private int totalAllocations = 0;
@@ -53,7 +56,9 @@ public class RenderObjectMap {
     private int totalObjects = 0;
     private int flushedObjects = 0;
     
-    public RenderObjectMap() {}
+    public RenderObjectMap(RenderManager renderManager) {
+        this.renderManager = renderManager;
+    }
     
     /**
      * Creates a new render object with a new internal object.
@@ -103,6 +108,7 @@ public class RenderObjectMap {
         if (resource.isUndefined()) {
             throw new IllegalArgumentException("Cannot allocate object to an undefined resource.");
         }
+        FGFrameCapture cap = renderManager.getFrameCapture();
         totalAllocations++;
         ResourceDef<T> def = resource.getDefinition();
         if (def.isUseExisting()) {
@@ -120,12 +126,15 @@ public class RenderObjectMap {
                     }
                     if (r != null) {
                         resource.setObject(obj, r);
+                        if (cap != null) cap.reallocateObject(id, resource.getIndex(),
+                                resource.getResource().getClass().getSimpleName());
                         completedReservations++;
                         objectsReallocated++;
                         return;
                     }
                 }
                 failedReservations++;
+                if (cap != null) cap.acquireSpecificFailed(id, resource.getIndex());
             }
             // find object to allocate
             T indirectRes = null;
@@ -135,6 +144,8 @@ public class RenderObjectMap {
                     T r = def.applyDirectResource(obj.getObject());
                     if (r != null) {
                         resource.setObject(obj, r);
+                        if (cap != null) cap.reallocateObject(obj.getId(), resource.getIndex(),
+                                resource.getResource().getClass().getSimpleName());
                         objectsReallocated++;
                         return;
                     }
@@ -149,12 +160,16 @@ public class RenderObjectMap {
             if (indirectObj != null) {
                 // allocate indirect object
                 resource.setObject(indirectObj, indirectRes);
+                if (cap != null) cap.reallocateObject(indirectObj.getId(), resource.getIndex(),
+                        resource.getResource().getClass().getSimpleName());
                 objectsReallocated++;
                 return;
             }
         }
         // create new object
         resource.setObject(create(def));
+        if (cap != null) cap.createObject(resource.getObject().getId(),
+                resource.getIndex(), resource.getResource().getClass().getSimpleName());
         objectsCreated++;
     }
     /**
@@ -171,6 +186,9 @@ public class RenderObjectMap {
         if (obj != null) {
             obj.reserve(index);
             officialReservations++;
+            if (renderManager.getFrameCapture() != null) {
+                renderManager.getFrameCapture().reserveObject(objectId, index);
+            }
             return true;
         }
         return false;
@@ -205,6 +223,9 @@ public class RenderObjectMap {
         if (id >= 0) {
             RenderObject obj = objectMap.remove(id);
             if (obj != null) {
+                if (renderManager.getFrameCapture() != null) {
+                    renderManager.getFrameCapture().disposeObject(id);
+                }
                 obj.dispose();
             }
         }
@@ -237,15 +258,29 @@ public class RenderObjectMap {
      */
     public void flushMap() {
         totalObjects = objectMap.size();
+        if (renderManager.getFrameCapture() != null) {
+            renderManager.getFrameCapture().flushObjects(totalObjects);
+        }
+        FGFrameCapture cap = renderManager.getFrameCapture();
         for (Iterator<RenderObject> it = objectMap.values().iterator(); it.hasNext();) {
             RenderObject obj = it.next();
             if (!obj.tickTimeout()) {
+                if (cap != null) cap.disposeObject(obj.getId());
                 obj.dispose();
                 it.remove();
                 flushedObjects++;
                 continue;
             }
             obj.setConstant(false);
+        }
+        if (cap != null) {
+            cap.value("totalAllocations", totalAllocations);
+            cap.value("officialReservations", officialReservations);
+            cap.value("completedReservations", completedReservations);
+            cap.value("failedReservations", failedReservations);
+            cap.value("objectsCreated", objectsCreated);
+            cap.value("objectsReallocated", objectsReallocated);
+            cap.value("flushedObjects", flushedObjects);
         }
     }
     /**
@@ -254,7 +289,9 @@ public class RenderObjectMap {
      * All tracked render objects are disposed.
      */
     public void clearMap() {
+        FGFrameCapture cap = renderManager.getFrameCapture();
         for (RenderObject obj : objectMap.values()) {
+            if (cap != null) cap.disposeObject(obj.getId());
             obj.dispose();
         }
         objectMap.clear();

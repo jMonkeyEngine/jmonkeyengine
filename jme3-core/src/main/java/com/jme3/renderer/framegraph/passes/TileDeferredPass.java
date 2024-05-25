@@ -70,6 +70,7 @@ public class TileDeferredPass extends RenderPass {
         colorDef = new TextureDef<>(Texture2D.class, img -> new Texture2D(img));
         colorDef.setFormatFlexible(true);
         material = new Material(frameGraph.getAssetManager(), "Common/MatDefs/ShadingCommon/TileBasedDeferredShading.j3md");
+        material = material.clone();
         for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("TileBasedDeferredPass")) {
             t.setLogic(new TileBasedDeferredSinglePassLightingLogic(t, tileInfo));
         }

@@ -1,9 +1,9 @@
 // SHADING_MODEL
 // 0 is clearRT mask
-#define LEGACY_LIGHTING                        1
-#define STANDARD_LIGHTING                      2
-#define UNLIT                                  3
-#define SUBSURFACE_SCATTERING                  4
+#define LEGACY_LIGHTING       1
+#define STANDARD_LIGHTING     2
+#define UNLIT                 3
+#define SUBSURFACE_SCATTERING 4
 
 #define IS_LIT(SHADING_MODEL_ID) (SHADING_MODEL_ID == LEGACY_LIGHTING || SHADING_MODEL_ID == STANDARD_LIGHTING || SHADING_MODEL_ID == SUBSURFACE_SCATTERING)
 

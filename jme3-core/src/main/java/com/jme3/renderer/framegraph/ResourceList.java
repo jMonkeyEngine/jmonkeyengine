@@ -31,6 +31,8 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.framegraph.debug.FGFrameCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
@@ -46,7 +48,9 @@ public class ResourceList {
 
     private static final int INITIAL_SIZE = 20;
     
+    private RenderManager renderManager;
     private RenderObjectMap map;
+    private FGFrameCapture cap;
     private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
     private int nextSlot = 0;
     private int textureBinds = 0;
@@ -158,7 +162,9 @@ public class ResourceList {
      * @return 
      */
     public <T> ResourceTicket<T> declare(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> store) {
-        return create(producer, def).getTicket().copyIndexTo(store);
+        RenderResource<T> resource = create(producer, def);
+        if (cap != null) cap.declareResource(resource.getIndex(), (store != null ? store.getName() : ""));
+        return resource.getTicket().copyIndexTo(store);
     }
     
     /**
@@ -200,7 +206,9 @@ public class ResourceList {
      * @param ticket 
      */
     public void reference(int passIndex, ResourceTicket ticket) {
-        locate(ticket).reference(passIndex);
+        RenderResource resource = locate(ticket);
+        resource.reference(passIndex);
+        if (cap != null) cap.referenceResource(resource.getIndex(), ticket.getName());
     }
     /**
      * References the resource associated with the ticket if the ticket
@@ -267,7 +275,9 @@ public class ResourceList {
      * @param ticket 
      */
     public void setUndefined(ResourceTicket ticket) {
-        locate(ticket).setUndefined();
+        RenderResource resource = locate(ticket);
+        resource.setUndefined();
+        if (cap != null) cap.setResourceUndefined(resource.getIndex(), ticket.getName());
     }
     
     /**
@@ -281,6 +291,7 @@ public class ResourceList {
         RenderObject obj = locate(ticket).getObject();
         if (obj != null) {
             obj.setConstant(true);
+            if (cap != null) cap.setObjectConstant(obj.getId());
         }
     }
     /**
@@ -329,6 +340,7 @@ public class ResourceList {
         if (resource.isVirtual()) {
             map.allocate(resource);
         }
+        if (cap != null) cap.acquireResource(resource.getIndex(), ticket.getName());
         resource.getTicket().copyObjectTo(ticket);
         return resource.getResource();
     }
@@ -394,11 +406,13 @@ public class ResourceList {
             Texture acquired = acquire((ResourceTicket<Texture>)tickets[i]);
             if (acquired != existing) {
                 fbo.setColorTarget(i, FrameBuffer.FrameBufferTarget.newTarget(acquired));
+                if (cap != null) cap.bindTexture(tickets[i].getWorldIndex(), tickets[i].getName());
                 textureBinds++;
             }
         }
         for (; i < tickets.length; i++) {
             fbo.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(acquire(tickets[i])));
+            if (cap != null) cap.bindTexture(tickets[i].getWorldIndex(), tickets[i].getName());
             textureBinds++;
         }
     }
@@ -420,6 +434,7 @@ public class ResourceList {
         boolean unequalTargets = target != null && acquired != target.getTexture();
         if (nullTarget || unequalTargets) {
             fbo.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(acquired));
+            if (cap != null) cap.bindTexture(ticket.getWorldIndex(), ticket.getName());
             textureBinds++;
         }
         return acquired;
@@ -475,13 +490,19 @@ public class ResourceList {
      * @param ticket 
      */
     public void release(ResourceTicket ticket) {
-        RenderResource res = locate(ticket);
-        res.release();
-        if (!res.isUsed()) {
+        RenderResource resource = locate(ticket);
+        resource.release();
+        if (cap != null) {
+            cap.releaseResource(resource.getIndex(), ticket.getName());
+            if (!resource.isUsed()) {
+                cap.releaseObject(resource.getObject().getId());
+            }
+        }
+        if (!resource.isUsed()) {
             remove(ticket.getWorldIndex());
-            res.setObject(null);
-            if (res.getDefinition().isDisposeOnRelease()) {
-                map.dispose(res);
+            resource.setObject(null);
+            if (resource.getDefinition().isDisposeOnRelease()) {
+                map.dispose(resource);
             }
         }
     }
@@ -578,6 +599,10 @@ public class ResourceList {
         int size = resources.size();
         resources = new ArrayList<>(size);
         nextSlot = 0;
+        if (cap != null) {
+            cap.clearResources(size);
+            cap.value("framebufferTextureBinds", textureBinds);
+        }
     }
     
     /**
@@ -593,10 +618,12 @@ public class ResourceList {
     /**
      * Sets the render object map.
      * 
-     * @param map 
+     * @param renderManager
      */
-    public void setObjectMap(RenderObjectMap map) {
-        this.map = map;
+    public void setRenderManager(RenderManager renderManager) {
+        this.renderManager = renderManager;
+        this.map = this.renderManager.getRenderObjectMap();
+        this.cap = this.renderManager.getFrameCapture();
     }
     
 }

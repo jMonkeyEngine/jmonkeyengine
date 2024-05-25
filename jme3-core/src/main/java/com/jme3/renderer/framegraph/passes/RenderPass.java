@@ -508,6 +508,13 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return exportId;
     }
     /**
+     * 
+     * @return 
+     */
+    public int getIndex() {
+        return index;
+    }
+    /**
      * Returns true if this pass is assigned to a framegraph.
      * 
      * @return 

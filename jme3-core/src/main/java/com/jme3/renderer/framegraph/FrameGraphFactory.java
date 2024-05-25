@@ -32,7 +32,7 @@
 package com.jme3.renderer.framegraph;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.framegraph.passes.Attribute;
 import com.jme3.renderer.framegraph.passes.DeferredPass;
 import com.jme3.renderer.framegraph.passes.GBufferPass;
 import com.jme3.renderer.framegraph.passes.OutputBucketPass;
@@ -41,6 +41,7 @@ import com.jme3.renderer.framegraph.passes.PostProcessingPass;
 import com.jme3.renderer.framegraph.passes.RenderPass;
 import com.jme3.renderer.framegraph.passes.TileDeferredPass;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.texture.Texture2D;
 
 /**
  * Utility class for constructing common framegraphs.
@@ -82,12 +83,14 @@ public class FrameGraphFactory {
         } else {
             deferred = fg.add(new TileDeferredPass());
         }
-        OutputPass defOut = fg.add(new OutputPass());
+        OutputPass defOut = fg.add(new OutputPass(0));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Transparent));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Gui, DepthRange.FRONT));
         fg.add(new PostProcessingPass());
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Translucent));
+        Attribute<Texture2D> gbufDebug = fg.add(new Attribute<>());
+        gbufDebug.setName("GBufferDebug");
         
         deferred.makeInput(gbuf, "Diffuse", "Diffuse");
         deferred.makeInput(gbuf, "Specular", "Specular");
@@ -98,6 +101,8 @@ public class FrameGraphFactory {
         
         defOut.makeInput(deferred, "Color", "Color");
         defOut.makeInput(gbuf, "Depth", "Depth");
+        
+        gbufDebug.makeInput(gbuf, "Diffuse", "Value");
         
         return fg;
         

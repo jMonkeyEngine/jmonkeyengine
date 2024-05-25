@@ -48,6 +48,7 @@ import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderObjectMap;
+import com.jme3.renderer.framegraph.debug.FGFrameCapture;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -65,11 +66,14 @@ import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A high-level rendering interface that is above the Renderer implementation.
@@ -88,9 +92,10 @@ public class RenderManager {
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
-    private final RenderObjectMap renderObjects = new RenderObjectMap();
+    private final RenderObjectMap renderObjects;
     private final LinkedList<FrameGraph> executedFrameGraphs = new LinkedList<>();
     private FrameGraph frameGraph;
+    private FGFrameCapture frameCapture;
     private Camera prevCam = null;
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
@@ -111,6 +116,7 @@ public class RenderManager {
     private int singlePassLightBatchSize = 1;
     private MatParamOverride boundDrawBufferId = new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
     private Predicate<Geometry> renderFilter;
+    private int captureLifetime = 0;
 
     /**
      * Creates a high-level rendering interface over the
@@ -121,6 +127,7 @@ public class RenderManager {
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
+        this.renderObjects = new RenderObjectMap(this);
     }
     
     /**
@@ -153,6 +160,29 @@ public class RenderManager {
      */
     public RenderObjectMap getRenderObjectMap() {
         return renderObjects;
+    }
+    
+    /**
+     * Sets the frame capture that captures relevant framegraph rendering events.
+     * 
+     * @param frameCapture 
+     * @param frames 
+     */
+    public void setFrameCapture(FGFrameCapture frameCapture, int frames) {
+        this.frameCapture = frameCapture;
+        this.captureLifetime = frames;
+        if (this.captureLifetime <= 0) {
+            this.frameCapture = null;
+        }
+    }
+    
+    /**
+     * Gets the frame capture that captures relevant framegraph rendering events.
+     * 
+     * @return 
+     */
+    public FGFrameCapture getFrameCapture() {
+        return frameCapture;
     }
     
     /**
@@ -1425,6 +1455,16 @@ public class RenderManager {
         
         // flush object map
         renderObjects.flushMap();
+        
+        // tick frame capture
+        if (frameCapture != null && --captureLifetime <= 0) {
+            try {
+                frameCapture.export();
+            } catch (IOException ex) {
+                Logger.getLogger(RenderManager.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            frameCapture = null;
+        }
         
     }
 

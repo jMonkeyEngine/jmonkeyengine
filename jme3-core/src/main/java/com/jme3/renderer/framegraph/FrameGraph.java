@@ -41,6 +41,7 @@ import com.jme3.profile.FgStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.framegraph.debug.FGFrameCapture;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -95,7 +96,6 @@ public class FrameGraph {
      * Creates a new blank framegraph.
      * 
      * @param assetManager asset manager (not null)
-     * @param renderManager render manager (not null)
      */
     public FrameGraph(AssetManager assetManager) {
         this.assetManager = assetManager;
@@ -106,7 +106,6 @@ public class FrameGraph {
      * Creates a new framegraph from the given data.
      * 
      * @param assetManager
-     * @param renderManager
      * @param data 
      */
     public FrameGraph(AssetManager assetManager, FrameGraphData data) {
@@ -117,7 +116,6 @@ public class FrameGraph {
      * Creates a new framegraph from data obtained by the given asset key.
      * 
      * @param assetManager
-     * @param renderManager
      * @param key 
      */
     public FrameGraph(AssetManager assetManager, FrameGraphKey key) {
@@ -127,7 +125,6 @@ public class FrameGraph {
      * Creates a new framegraph from data obtained by the given asset name.
      * 
      * @param assetManager
-     * @param renderManager
      * @param dataAsset 
      */
     public FrameGraph(AssetManager assetManager, String dataAsset) {
@@ -143,7 +140,7 @@ public class FrameGraph {
      * @param tpf time per frame
      */
     public void configure(RenderManager rm, ViewPort vp, AppProfiler prof, float tpf) {
-        resources.setObjectMap(rm.getRenderObjectMap());
+        resources.setRenderManager(rm);
         context.target(rm, vp, prof, tpf);
     }
     /**
@@ -179,14 +176,20 @@ public class FrameGraph {
         // prepare
         ViewPort vp = context.getViewPort();
         AppProfiler prof = context.getProfiler();
+        FGFrameCapture cap = context.getFrameCapture();
+        if (cap != null) {
+            if (!rendered) {
+                cap.renderFrame();
+            }
+            cap.renderViewPort(context.getViewPort());
+        }
         if (prof != null) prof.vpStep(VpStep.FrameGraphSetup, vp, null);
         if (!rendered) {
             resources.beginRenderingSession();
         }
         for (RenderPass p : passes) {
-            if (prof != null) {
-                prof.fgStep(FgStep.Prepare, p.getProfilerName());
-            }
+            if (prof != null) prof.fgStep(FgStep.Prepare, p.getProfilerName());
+            if (cap != null) cap.prepareRenderPass(p.getIndex(), p.getProfilerName());
             p.prepareRender(context);
         }
         // cull passes and resources
@@ -200,9 +203,8 @@ public class FrameGraph {
         context.pushRenderSettings();
         for (RenderPass p : passes) {
             if (p.isUsed()) {
-                if (prof != null) {
-                    prof.fgStep(FgStep.Execute, p.getProfilerName());
-                }
+                if (prof != null) prof.fgStep(FgStep.Execute, p.getProfilerName());
+                if (cap != null) cap.executeRenderPass(p.getIndex(), p.getProfilerName());
                 p.executeRender(context);
                 context.popRenderSettings();
             }
@@ -211,9 +213,7 @@ public class FrameGraph {
         // reset
         if (prof != null) prof.vpStep(VpStep.FrameGraphReset, vp, null);
         for (RenderPass p : passes) {
-            if (prof != null) {
-                prof.fgStep(FgStep.Reset, p.getProfilerName());
-            }
+            if (prof != null) prof.fgStep(FgStep.Reset, p.getProfilerName());
             p.resetRender(context);
         }
         // cleanup resources
@@ -515,6 +515,11 @@ public class FrameGraph {
      */
     public FrameGraphData createData() {
         return new FrameGraphData(this, passes);
+    }
+    
+    @Override
+    public String toString() {
+        return "FrameGraph ("+name+")";
     }
     
 }

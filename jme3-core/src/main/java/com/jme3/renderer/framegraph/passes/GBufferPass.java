@@ -85,6 +85,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         texDefs[4] = new TextureDef<>(Texture2D.class, tex, Image.Format.Depth);
         for (TextureDef<Texture2D> d : texDefs) {
             d.setFormatFlexible(true);
+            //d.setUseExisting(false);
         }
         lightDef = new ValueDef(LightList.class, n -> new LightList(null));
         lightDef.setReviser(list -> list.clear());
@@ -114,8 +115,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         LightList lightList = resources.acquire(lights);
-        // render to gBuffer
-        context.getRenderer().setBackgroundColor(mask.set(context.getViewPort().getBackgroundColor()).setAlpha(0));
+        context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         context.getRenderManager().setForcedTechnique(GBUFFER_PASS);
         context.getRenderManager().setGeometryRenderHandler(this);
         context.renderViewPortQueue(RenderQueue.Bucket.Opaque, true);
@@ -134,7 +134,6 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         if(material.getMaterialDef().getTechniqueDefs(rm.getForcedTechnique()) == null) {
             return false;
         }
-        System.out.println("render geometry");
         rm.renderGeometry(geom);
         if (material.getActiveTechnique() != null) {
             LightList lts = geom.getFilterWorldLights();

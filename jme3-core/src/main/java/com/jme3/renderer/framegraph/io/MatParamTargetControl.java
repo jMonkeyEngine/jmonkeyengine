@@ -50,6 +50,7 @@ public class MatParamTargetControl <T> extends AbstractControl implements GraphT
     
     private final String name;
     private final VarType type;
+    private ViewPort[] viewPorts;
     private Material material;
     private T value;
     
@@ -85,11 +86,28 @@ public class MatParamTargetControl <T> extends AbstractControl implements GraphT
     }
     @Override
     public void setGraphValue(ViewPort viewPort, T value) {
-        this.value = value;
+        if (containsViewPort(viewPort)) {
+            this.value = value;
+        }
+    }
+    
+    private boolean containsViewPort(ViewPort vp) {
+        if (viewPorts == null) return true;
+        for (ViewPort p : viewPorts) {
+            if (p == vp) return true;
+        }
+        return false;
+    }
+    
+    public void setViewPorts(ViewPort... viewPorts) {
+        this.viewPorts = viewPorts;
     }
     
     public T getValue() {
         return value;
+    }
+    public ViewPort[] getViewPorts() {
+        return viewPorts;
     }
     
 }

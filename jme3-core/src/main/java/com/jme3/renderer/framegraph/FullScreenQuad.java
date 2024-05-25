@@ -113,6 +113,15 @@ public class FullScreenQuad {
             transferMat.getAdditionalRenderState().setDepthTest(writeDepth);
             transferMat.getAdditionalRenderState().setDepthWrite(writeDepth);
             render(rm, transferMat);
+            setAlphaDiscard(null);
+        }
+    }
+    
+    public void setAlphaDiscard(Float alphaDiscard) {
+        if (alphaDiscard == null) {
+            transferMat.clearParam("AlphaDiscard");
+        } else {
+            transferMat.setFloat("AlphaDiscard", alphaDiscard);
         }
     }
     

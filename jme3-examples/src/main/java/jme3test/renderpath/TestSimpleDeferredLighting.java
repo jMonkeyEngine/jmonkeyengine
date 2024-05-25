@@ -37,7 +37,6 @@ import com.jme3.app.DetailedProfilerState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.environment.EnvironmentCamera;
-import com.jme3.environment.EnvironmentProbeControl;
 import com.jme3.environment.LightProbeFactory;
 import com.jme3.environment.generation.JobProgressAdapter;
 import com.jme3.environment.util.EnvMapUtils;
@@ -54,6 +53,10 @@ import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.FrameGraphFactory;
+import com.jme3.renderer.framegraph.debug.FGFrameCapture;
+import com.jme3.renderer.framegraph.io.MatParamTargetControl;
+import com.jme3.renderer.framegraph.passes.Attribute;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -62,6 +65,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.instancing.InstancedGeometry;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.shader.VarType;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
@@ -69,6 +73,7 @@ import com.jme3.texture.plugins.ktx.KTXLoader;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
+import java.io.File;
 
 public class TestSimpleDeferredLighting extends SimpleApplication implements ActionListener {
     
@@ -656,24 +661,37 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         stateManager.attach(new DetailedProfilerState());
         
         //FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
-        FrameGraph graph = new FrameGraph(assetManager, "Common/FrameGraphs/Deferred.j3g");
+        FrameGraph forward = new FrameGraph(assetManager, "Common/FrameGraphs/Forward.j3g");
+        forward.setName("forward");
+        //FrameGraph deferred = new FrameGraph(assetManager, "Common/FrameGraphs/Deferred.j3g");
+        FrameGraph deferred = FrameGraphFactory.deferred(assetManager, false);
+        deferred.setName("deferred1");
+        FrameGraph deferred2 = FrameGraphFactory.deferred(assetManager, false);
+        deferred2.setName("deferred2");
         //FrameGraph graph = FrameGraphFactory.forward(assetManager, renderManager);
-        //viewPort.setFrameGraph(graph);
-        renderManager.setFrameGraph(graph);
+        viewPort.setFrameGraph(deferred);
+        guiViewPort.setFrameGraph(deferred);
+        //renderManager.setFrameGraph(deferred);
+        renderManager.setFrameGraph(forward);
+        
+        File capTarget = new File(System.getProperty("user.home")+"/earlyFrameCapture.txt");
+        FGFrameCapture cap = new FGFrameCapture(capTarget);
+        cap.setIncludeNanos(false);
+        renderManager.setFrameCapture(cap, 6);
         
         viewPort.setBackgroundColor(ColorRGBA.Green.mult(.1f));
-        guiViewPort.setClearFlags(false, true, false);
+        guiViewPort.setBackgroundColor(ColorRGBA.Red.mult(.1f));
+        //guiViewPort.setClearFlags(false, true, false);
         
         Geometry debugView = new Geometry("debug", new Quad(200, 200));
         debugView.setLocalTranslation(0, 200, 0);
         Material debugMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        //debugMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-        //debugMat.setTransparent(true);
         debugView.setMaterial(debugMat);
-        //MatRenderParam texParam = new MatRenderParam("ColorMap", debugMat, VarType.Texture2D);
-        //texParam.enableDebug();
-        //graph.bindToOutput(GBufferModule.RENDER_TARGETS[1], texParam);
-        //guiNode.attachChild(debugView);
+        MatParamTargetControl texTarget = new MatParamTargetControl("ColorMap", VarType.Texture2D);
+        texTarget.setViewPorts(viewPort);
+        deferred.get(Attribute.class, "GBufferDebug").addTarget(texTarget);
+        debugView.addControl(texTarget);
+        guiNode.attachChild(debugView);
         
         //renderManager.setRenderPath(currentRenderPath);
         testScene7();
@@ -690,7 +708,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         flyCam.setDragToRotate(true);
         flyCam.setMoveSpeed(50.0f);
         
-        rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
+        //rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
 
         registerInput();
     }
@@ -707,7 +725,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
     }
 
     @Override
-    public void simpleUpdate(float tpf){
+    public void simpleUpdate(float tpf) {
         if(sceneId == 1){
             angle += tpf * 0.25f;
             angle %= FastMath.TWO_PI;
@@ -727,7 +745,6 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
 //            }
         }
         else if(sceneId == 9){
-            frame++;
 
             if (frame == 2) {
                 modelNode.removeFromParent();

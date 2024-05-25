@@ -40,6 +40,7 @@ import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.framegraph.debug.FGFrameCapture;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
@@ -240,6 +241,14 @@ public class FGRenderContext {
         return screen;
     }
     /**
+     * Gets the debug frame capture if one is assigned.
+     * 
+     * @return 
+     */
+    public FGFrameCapture getFrameCapture() {
+        return renderManager.getFrameCapture();
+    }
+    /**
      * Gets the OpenCL context for compute shading.
      * 
      * @return 
@@ -287,6 +296,14 @@ public class FGRenderContext {
      */
     public boolean isProfilerAvailable() {
         return profiler != null;
+    }
+    /**
+     * Returns true if a debug frame snapshot is assigned.
+     * 
+     * @return 
+     */
+    public boolean isFrameCaptureActive() {
+        return renderManager.getFrameCapture() != null;
     }
     
 }

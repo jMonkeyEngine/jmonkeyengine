@@ -57,7 +57,7 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
     private ResourceTicket<T> in, out;
     private T value;
     private ValueDef<T> def;
-    private LinkedList<GraphTarget<T>> targets;
+    private final LinkedList<GraphTarget<T>> targets = new LinkedList<>();
     private GraphSource<T> source;
     
     @Override
