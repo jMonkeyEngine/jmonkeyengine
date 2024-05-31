@@ -32,7 +32,7 @@
 package com.jme3.renderer.framegraph;
 
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.framegraph.debug.FGFrameCapture;
+import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
@@ -50,7 +50,7 @@ public class ResourceList {
     
     private RenderManager renderManager;
     private RenderObjectMap map;
-    private FGFrameCapture cap;
+    private GraphEventCapture cap;
     private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
     private int nextSlot = 0;
     private int textureBinds = 0;
@@ -119,7 +119,7 @@ public class ResourceList {
     protected int add(RenderResource res) {
         assert res != null;
         if (nextSlot >= resources.size()) {
-            // add resource to end of list
+            // addEvent resource to end of list
             resources.add(res);
             nextSlot++;
             return resources.size()-1;
@@ -395,24 +395,31 @@ public class ResourceList {
     public void acquireColorTargets(FrameBuffer fbo, ResourceTicket<? extends Texture>... tickets) {
         if (tickets.length == 0) {
             fbo.clearColorTargets();
+            fbo.setUpdateNeeded();
             return;
         }
         if (tickets.length < fbo.getNumColorTargets()) {
             fbo.trimColorTargetsTo(tickets.length-1);
+            fbo.setUpdateNeeded();
         }
         int i = 0;
         for (int n = Math.min(fbo.getNumColorTargets(), tickets.length); i < n; i++) {
-            Texture existing = fbo.getColorTarget(i).getTexture();
-            Texture acquired = acquire((ResourceTicket<Texture>)tickets[i]);
-            if (acquired != existing) {
-                fbo.setColorTarget(i, FrameBuffer.FrameBufferTarget.newTarget(acquired));
-                if (cap != null) cap.bindTexture(tickets[i].getWorldIndex(), tickets[i].getName());
-                textureBinds++;
-            }
+            replaceColorTarget(fbo, tickets[i], i);
         }
         for (; i < tickets.length; i++) {
-            fbo.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(acquire(tickets[i])));
+            fbo.addColorTarget(FrameBuffer.target(acquire(tickets[i])));
+            fbo.setUpdateNeeded();
             if (cap != null) cap.bindTexture(tickets[i].getWorldIndex(), tickets[i].getName());
+            textureBinds++;
+        }
+    }
+    private <T extends Texture> void replaceColorTarget(FrameBuffer fbo, ResourceTicket<T> ticket, int i) {
+        Texture existing = fbo.getColorTarget(i).getTexture();
+        Texture acquired = acquire(ticket);
+        if (acquired != existing) {
+            fbo.setColorTarget(i, FrameBuffer.target(acquired));
+            fbo.setUpdateNeeded();
+            if (cap != null) cap.bindTexture(ticket.getWorldIndex(), ticket.getName());
             textureBinds++;
         }
     }
@@ -433,11 +440,23 @@ public class ResourceList {
         boolean nullTarget = target == null;
         boolean unequalTargets = target != null && acquired != target.getTexture();
         if (nullTarget || unequalTargets) {
-            fbo.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(acquired));
+            fbo.setDepthTarget(FrameBuffer.target(acquired));
+            fbo.setUpdateNeeded();
             if (cap != null) cap.bindTexture(ticket.getWorldIndex(), ticket.getName());
             textureBinds++;
         }
         return acquired;
+    }
+    
+    /**
+     * Directly assign the resource associated with the ticket to the value.
+     * 
+     * @param <T>
+     * @param ticket 
+     * @param value 
+     */
+    public <T> void setDirect(ResourceTicket<T> ticket, T value) {
+        map.setDirect(locate(ticket), value);
     }
     
     protected <T> T extract(RenderResource<T> resource, ResourceTicket<T> ticket) {
@@ -492,13 +511,11 @@ public class ResourceList {
     public void release(ResourceTicket ticket) {
         RenderResource resource = locate(ticket);
         resource.release();
-        if (cap != null) {
-            cap.releaseResource(resource.getIndex(), ticket.getName());
-            if (!resource.isUsed()) {
+        if (cap != null) cap.releaseResource(resource.getIndex(), ticket.getName());
+        if (!resource.isUsed()) {
+            if (cap != null && resource.getObject() != null) {
                 cap.releaseObject(resource.getObject().getId());
             }
-        }
-        if (!resource.isUsed()) {
             remove(ticket.getWorldIndex());
             resource.setObject(null);
             if (resource.getDefinition().isDisposeOnRelease()) {
@@ -623,7 +640,7 @@ public class ResourceList {
     public void setRenderManager(RenderManager renderManager) {
         this.renderManager = renderManager;
         this.map = this.renderManager.getRenderObjectMap();
-        this.cap = this.renderManager.getFrameCapture();
+        this.cap = this.renderManager.getGraphCapture();
     }
     
 }

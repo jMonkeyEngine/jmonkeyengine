@@ -46,6 +46,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
+import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import java.util.LinkedList;
 import java.util.function.Function;
@@ -64,10 +65,13 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     
     private ResourceTicket<Texture2D> diffuse, specular, emissive, normal, depth;
     private ResourceTicket<LightList> lights;
+    private ResourceTicket<Integer> numRendersTicket;
     private ValueDef<LightList> lightDef;
+    private ValueDef<Integer> numRendersDef;
     private final TextureDef<Texture2D>[] texDefs = new TextureDef[5];
     private final LinkedList<Light> accumulatedLights = new LinkedList<>();
-    private final ColorRGBA mask = new ColorRGBA();
+    private Texture2D diffuseTex;
+    private int numRenders = 0;
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
@@ -77,23 +81,34 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         normal   = addOutput("Normal");
         depth    = addOutput("Depth");
         lights   = addOutput("Lights");
+        numRendersTicket = addOutput("NumRenders");
         Function<Image, Texture2D> tex = img -> new Texture2D(img);
         texDefs[0] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
         texDefs[1] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
         texDefs[2] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
         texDefs[3] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA32F);
         texDefs[4] = new TextureDef<>(Texture2D.class, tex, Image.Format.Depth);
+        int i = -1;
         for (TextureDef<Texture2D> d : texDefs) {
+            i++;
             d.setFormatFlexible(true);
             //d.setUseExisting(false);
+            //d.setDisposeOnRelease(true);
+            //d.setStaticTimeout(0);
         }
         lightDef = new ValueDef(LightList.class, n -> new LightList(null));
         lightDef.setReviser(list -> list.clear());
+        numRendersDef = new ValueDef(Boolean.class, n -> true);
+        numRendersDef.setUseExisting(false);
+        numRendersDef.setDisposeOnRelease(true);
     }
     @Override
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth();
         int h = context.getHeight();
+        if (diffuseTex == null || diffuseTex.getImage().getWidth() != w || diffuseTex.getImage().getHeight() != h) {
+            diffuseTex = new Texture2D(w, h, Image.Format.RGBA16F);
+        }
         for (TextureDef<Texture2D> d : texDefs) {
             d.setSize(w, h);
         }
@@ -103,13 +118,16 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         declare(texDefs[3], normal);
         declare(texDefs[4], depth);
         declare(lightDef, lights);
+        declare(numRendersDef, numRendersTicket);
         reserve(diffuse, specular, emissive, normal, depth, lights);
+        numRenders = 0;
     }
     @Override
     protected void execute(FGRenderContext context) {
         // acquire texture targets
         FrameBuffer fb = getFrameBuffer(context, 1);
         fb.setMultiTarget(true);
+        //resources.setDirect(diffuse, diffuseTex);
         resources.acquireColorTargets(fb, diffuse, specular, emissive, normal);
         resources.acquireDepthTarget(fb, depth);
         context.getRenderer().setFrameBuffer(fb);
@@ -123,6 +141,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         while (!accumulatedLights.isEmpty()) {
             lightList.add(accumulatedLights.pollFirst());
         }
+        resources.setDirect(numRendersTicket, numRenders);
     }
     @Override
     protected void reset(FGRenderContext context) {}
@@ -135,6 +154,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
             return false;
         }
         rm.renderGeometry(geom);
+        numRenders++;
         if (material.getActiveTechnique() != null) {
             LightList lts = geom.getFilterWorldLights();
             for (Light l : lts) {

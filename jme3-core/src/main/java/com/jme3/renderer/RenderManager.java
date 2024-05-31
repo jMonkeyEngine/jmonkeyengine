@@ -48,7 +48,7 @@ import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.RenderObjectMap;
-import com.jme3.renderer.framegraph.debug.FGFrameCapture;
+import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -95,7 +95,7 @@ public class RenderManager {
     private final RenderObjectMap renderObjects;
     private final LinkedList<FrameGraph> executedFrameGraphs = new LinkedList<>();
     private FrameGraph frameGraph;
-    private FGFrameCapture frameCapture;
+    private GraphEventCapture graphCapture;
     private Camera prevCam = null;
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
@@ -168,11 +168,11 @@ public class RenderManager {
      * @param frameCapture 
      * @param frames 
      */
-    public void setFrameCapture(FGFrameCapture frameCapture, int frames) {
-        this.frameCapture = frameCapture;
+    public void setGraphCapture(GraphEventCapture frameCapture, int frames) {
+        this.graphCapture = frameCapture;
         this.captureLifetime = frames;
         if (this.captureLifetime <= 0) {
-            this.frameCapture = null;
+            this.graphCapture = null;
         }
     }
     
@@ -181,8 +181,8 @@ public class RenderManager {
      * 
      * @return 
      */
-    public FGFrameCapture getFrameCapture() {
-        return frameCapture;
+    public GraphEventCapture getGraphCapture() {
+        return graphCapture;
     }
     
     /**
@@ -599,7 +599,7 @@ public class RenderManager {
      * material or any overrides that exist in the scene graph that have the
      * same name.
      *
-     * @param override The override to add
+     * @param override The override to addEvent
      * @see MatParamOverride
      * @see #removeForcedMatParam(com.jme3.material.MatParamOverride)
      */
@@ -853,7 +853,7 @@ public class RenderManager {
                 preloadScene(children.get(i));
             }
         } else if (scene instanceof Geometry) {
-            // add to the render queue
+            // addEvent to the render queue
             Geometry gm = (Geometry) scene;
             if (gm.getMaterial() == null) {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
@@ -934,7 +934,7 @@ public class RenderManager {
                 queueSubScene(children.get(i), vp);
             }
         } else if (scene instanceof Geometry) {
-            // add to the render queue
+            // addEvent to the render queue
             Geometry gm = (Geometry) scene;
             if (gm.getMaterial() == null) {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
@@ -1414,6 +1414,10 @@ public class RenderManager {
             return;
         }
         
+        if (graphCapture != null) {
+            graphCapture.startRenderFrame();
+        }
+        
         uniformBindingManager.newFrame();
         renderObjects.newFrame();
 
@@ -1447,7 +1451,11 @@ public class RenderManager {
             }
         }
         
-        // call post frames for executed frame graphs only
+        if (graphCapture != null) {
+            graphCapture.endRenderFrame();
+        }
+        
+        // cleanup for executed framegraphs only
         for (FrameGraph fg : executedFrameGraphs) {
             fg.renderingComplete();
         }
@@ -1457,13 +1465,13 @@ public class RenderManager {
         renderObjects.flushMap();
         
         // tick frame capture
-        if (frameCapture != null && --captureLifetime <= 0) {
+        if (graphCapture != null && --captureLifetime <= 0) {
             try {
-                frameCapture.export();
+                graphCapture.export();
             } catch (IOException ex) {
                 Logger.getLogger(RenderManager.class.getName()).log(Level.SEVERE, null, ex);
             }
-            frameCapture = null;
+            graphCapture = null;
         }
         
     }

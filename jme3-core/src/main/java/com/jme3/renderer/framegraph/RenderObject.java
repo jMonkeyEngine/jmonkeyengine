@@ -55,7 +55,7 @@ public class RenderObject <T> {
     private int timeoutDuration;
     private int timeout = 0;
     private boolean acquired = false;
-    private boolean constant = true;
+    private boolean constant = false;
     private Consumer disposer;
     
     /**

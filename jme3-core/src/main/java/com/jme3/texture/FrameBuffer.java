@@ -249,6 +249,16 @@ public class FrameBuffer extends NativeObject {
             return t;
         }
     }
+    
+    public static FrameBufferTextureTarget target(Texture tx) {
+        return FrameBufferTarget.newTarget(tx);
+    }
+    public static FrameBufferBufferTarget target(Format format) {
+        return FrameBufferTarget.newTarget(format);
+    }
+    public static FrameBufferTextureTarget target(Texture tx, TextureCubeMap.Face face) {
+        return FrameBufferTarget.newTarget(tx, face);
+    }
 
     /**
      * A private constructor to inhibit instantiation of this class.

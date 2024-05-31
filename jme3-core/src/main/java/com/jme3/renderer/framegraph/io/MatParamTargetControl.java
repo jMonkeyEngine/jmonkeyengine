@@ -61,8 +61,10 @@ public class MatParamTargetControl <T> extends AbstractControl implements GraphT
     
     @Override
     protected void controlUpdate(float tpf) {
+        //System.out.println("check: assign to material?");
         if (value != null) {
-            material.setParam(name, type, value);
+            //System.out.println("assign "+value.getClass().getSimpleName()+" to material");
+            //material.setParam(name, type, value);
         }
     }
     @Override
@@ -88,6 +90,11 @@ public class MatParamTargetControl <T> extends AbstractControl implements GraphT
     public void setGraphValue(ViewPort viewPort, T value) {
         if (containsViewPort(viewPort)) {
             this.value = value;
+            if (this.value != null) {
+                material.setParam(name, type, this.value);
+            } else {
+                material.clearParam(name);
+            }
         }
     }
     

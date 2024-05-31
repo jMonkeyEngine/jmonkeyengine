@@ -52,6 +52,7 @@ public class DeferredPass extends RenderPass {
 
     private ResourceTicket<Texture2D> diffuse, specular, emissive, normal, depth, outColor;
     private ResourceTicket<LightList> lights;
+    private ResourceTicket<Integer> numRenders;
     private TextureDef<Texture2D> colorDef;
     private Material material;
     
@@ -63,6 +64,7 @@ public class DeferredPass extends RenderPass {
         normal = addInput("Normal");
         depth = addInput("Depth");
         lights = addInput("Lights");
+        numRenders = addInput("NumRenders");
         outColor = addOutput("Color");
         colorDef = new TextureDef<>(Texture2D.class, img -> new Texture2D(img));
         colorDef.setFormatFlexible(true);
@@ -77,15 +79,19 @@ public class DeferredPass extends RenderPass {
         declare(colorDef, outColor);
         reserve(outColor);
         reference(diffuse, specular, emissive, normal, depth);
-        referenceOptional(lights);
+        referenceOptional(lights, numRenders);
     }
     @Override
     protected void execute(FGRenderContext context) {
         FrameBuffer fb = getFrameBuffer(context, 1);
+        //if (resources.acquireOrElse(numRenders, 1) == 0) {
+        //    return;
+        //}
         resources.acquireColorTargets(fb, outColor);
-        context.getRenderer().setFrameBuffer(fb);
-        context.getRenderer().clearBuffers(true, true, true);
-        context.getRenderer().setBackgroundColor(ColorRGBA.Blue);
+        context.popFrameBuffer();
+        //context.getRenderer().setFrameBuffer(fb);
+        //context.getRenderer().clearBuffers(true, true, true);
+        //context.getRenderer().setBackgroundColor(ColorRGBA.Blue.clone().setAlpha(0));
         material.setTexture("Context_InGBuff0", resources.acquire(diffuse));
         material.setTexture("Context_InGBuff1", resources.acquire(specular));
         material.setTexture("Context_InGBuff2", resources.acquire(emissive));
@@ -93,8 +99,9 @@ public class DeferredPass extends RenderPass {
         material.setTexture("Context_InGBuff4", resources.acquire(depth));
         material.selectTechnique("DeferredPass", context.getRenderManager());
         LightList lightList = resources.acquireOrElse(lights, null);
-        context.getRenderer().setDepthRange(0, 1);
+        //context.getRenderer().setDepthRange(0, 1);
         //context.renderFullscreen(material);
+        //context.getScreen().setAlphaDiscard(0f);
         if (lightList != null) {
             context.getScreen().render(context.getRenderManager(), material, lightList);
         } else {
@@ -105,5 +112,9 @@ public class DeferredPass extends RenderPass {
     protected void reset(FGRenderContext context) {}
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
+    @Override
+    public boolean isUsed() {
+        return true;
+    }
     
 }

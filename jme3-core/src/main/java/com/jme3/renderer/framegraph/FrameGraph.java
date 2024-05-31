@@ -41,7 +41,7 @@ import com.jme3.profile.FgStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.framegraph.debug.FGFrameCapture;
+import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -176,11 +176,8 @@ public class FrameGraph {
         // prepare
         ViewPort vp = context.getViewPort();
         AppProfiler prof = context.getProfiler();
-        FGFrameCapture cap = context.getFrameCapture();
+        GraphEventCapture cap = context.getGraphCapture();
         if (cap != null) {
-            if (!rendered) {
-                cap.renderFrame();
-            }
             cap.renderViewPort(context.getViewPort());
         }
         if (prof != null) prof.vpStep(VpStep.FrameGraphSetup, vp, null);
@@ -218,8 +215,12 @@ public class FrameGraph {
         }
         // cleanup resources
         resources.clear();
-        if (rendered) return false;
-        else return (rendered = true);
+        if (rendered) {
+            return false;
+        } else {
+            rendered = true;
+            return true;
+        }
     }
     /**
      * Should be called only when all rendering for the frame is complete.
@@ -478,14 +479,16 @@ public class FrameGraph {
      * 
      * @param data
      * @return this instance
-     * @throws ClassCastException
-     * @throws NullPointerException
+     * @throws ClassCastException if the object is not an instance of {@link FrameGraphData}.
+     * @throws NullPointerException if the object is null
      */
     public FrameGraph applyData(Object data) {
-        if (data != null && data instanceof FrameGraphData) {
-            return applyData((FrameGraphData)data);
-        } else if (data != null) {
-            throw new ClassCastException(data.getClass()+" cannot be cast to "+FrameGraphData.class);
+        if (data != null) {
+            if (data instanceof FrameGraphData) {
+                return applyData((FrameGraphData)data);
+            } else {
+                throw new ClassCastException(data.getClass()+" cannot be cast to "+FrameGraphData.class);
+            }
         } else {
             throw new NullPointerException("Proxy cannot be null");
         }

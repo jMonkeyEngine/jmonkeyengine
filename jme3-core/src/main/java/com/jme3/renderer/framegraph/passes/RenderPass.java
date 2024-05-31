@@ -36,11 +36,14 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.renderer.Camera;
+import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceList;
 import com.jme3.renderer.framegraph.ResourceProducer;
 import com.jme3.renderer.framegraph.ResourceTicket;
+import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import java.io.IOException;
@@ -388,12 +391,13 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * If no existing framebuffer matches, a new framebuffer will be created
      * and returned.
      * 
+     * @param cap graph event capturer, for debugging, may be null.
      * @param width
      * @param height
      * @param samples
      * @return 
      */
-    protected FrameBuffer getFrameBuffer(int width, int height, int samples) {
+    protected FrameBuffer getFrameBuffer(GraphEventCapture cap, int width, int height, int samples) {
         for (PassFrameBuffer fb : frameBuffers) {
             if (fb.qualifies(width, height, samples)) {
                 return fb.use();
@@ -401,20 +405,35 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         }
         PassFrameBuffer fb = new PassFrameBuffer(width, height, samples);
         frameBuffers.add(fb);
+        if (cap != null) cap.createFrameBuffer(fb.frameBuffer);
         return fb.use();
+    }
+    /**
+     * Gets an existing framebuffer that matches the given properties.
+     * <p>
+     * In no existing framebuffer matches, a new framebuffer will be created
+     * and returned.
+     * 
+     * @param width
+     * @param height
+     * @param samples
+     * @return 
+     */
+    protected FrameBuffer getFrameBuffer(int width, int height, int samples) {
+        return getFrameBuffer(null, width, height, samples);
     }
     /**
      * Gets an existing framebuffer that matches the context.
      * <p>
      * If no existing framebuffer matches, a new framebuffer will be created
-     * and returned.
+     * and returned. Uses event capturing if available.
      * 
      * @param context
      * @param samples
      * @return 
      */
     protected FrameBuffer getFrameBuffer(FGRenderContext context, int samples) {
-        return getFrameBuffer(context.getWidth(), context.getHeight(), samples);
+        return getFrameBuffer(context.getGraphCapture(), context.getWidth(), context.getHeight(), samples);
     }
     
     /**
@@ -446,7 +465,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * 
      * @param shift 
      */
-    public void shiftId(long shift) {
+    public void shiftId(int shift) {
         id += shift;
     }
     /**

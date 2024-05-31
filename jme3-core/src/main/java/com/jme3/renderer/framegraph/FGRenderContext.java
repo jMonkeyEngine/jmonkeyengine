@@ -40,7 +40,7 @@ import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.framegraph.debug.FGFrameCapture;
+import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
@@ -245,8 +245,8 @@ public class FGRenderContext {
      * 
      * @return 
      */
-    public FGFrameCapture getFrameCapture() {
-        return renderManager.getFrameCapture();
+    public GraphEventCapture getGraphCapture() {
+        return renderManager.getGraphCapture();
     }
     /**
      * Gets the OpenCL context for compute shading.
@@ -303,7 +303,7 @@ public class FGRenderContext {
      * @return 
      */
     public boolean isFrameCaptureActive() {
-        return renderManager.getFrameCapture() != null;
+        return renderManager.getGraphCapture() != null;
     }
     
 }

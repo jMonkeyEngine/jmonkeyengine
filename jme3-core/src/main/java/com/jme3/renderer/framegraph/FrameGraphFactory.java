@@ -83,7 +83,7 @@ public class FrameGraphFactory {
         } else {
             deferred = fg.add(new TileDeferredPass());
         }
-        OutputPass defOut = fg.add(new OutputPass(0));
+        //OutputPass defOut = fg.add(new OutputPass(0));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Transparent));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Gui, DepthRange.FRONT));
@@ -98,9 +98,10 @@ public class FrameGraphFactory {
         deferred.makeInput(gbuf, "Normal", "Normal");
         deferred.makeInput(gbuf, "Depth", "Depth");
         deferred.makeInput(gbuf, "Lights", "Lights");
+        deferred.makeInput(gbuf, "NumRenders", "NumRenders");
         
-        defOut.makeInput(deferred, "Color", "Color");
-        defOut.makeInput(gbuf, "Depth", "Depth");
+        //defOut.makeInput(deferred, "Color", "Color");
+        //defOut.makeInput(gbuf, "Depth", "Depth");
         
         gbufDebug.makeInput(gbuf, "Diffuse", "Value");
         

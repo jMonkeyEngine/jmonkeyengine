@@ -32,7 +32,7 @@
 package com.jme3.renderer.framegraph;
 
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.framegraph.debug.FGFrameCapture;
+import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,7 +46,7 @@ public class RenderObjectMap {
     
     private final RenderManager renderManager;
     private final HashMap<Long, RenderObject> objectMap = new HashMap<>();
-    private final int timeout = 1;
+    private final int timeout = 2;
     private int totalAllocations = 0;
     private int officialReservations = 0;
     private int completedReservations = 0;
@@ -108,33 +108,12 @@ public class RenderObjectMap {
         if (resource.isUndefined()) {
             throw new IllegalArgumentException("Cannot allocate object to an undefined resource.");
         }
-        FGFrameCapture cap = renderManager.getFrameCapture();
+        GraphEventCapture cap = renderManager.getGraphCapture();
         totalAllocations++;
         ResourceDef<T> def = resource.getDefinition();
         if (def.isUseExisting()) {
-            long id = resource.getTicket().getObjectId();
-            // allocate reserved object
-            if (id >= 0) {
-                RenderObject obj = objectMap.get(id);
-                if (obj != null && isAvailable(obj)
-                        && (obj.isReservedAt(resource.getLifeTime().getStartIndex())
-                        || !obj.isReservedWithin(resource.getLifeTime()))) {
-                    // reserved object is only applied if it is accepted by the definition
-                    T r = def.applyDirectResource(obj.getObject());
-                    if (r == null) {
-                        r = def.applyIndirectResource(obj.getObject());
-                    }
-                    if (r != null) {
-                        resource.setObject(obj, r);
-                        if (cap != null) cap.reallocateObject(id, resource.getIndex(),
-                                resource.getResource().getClass().getSimpleName());
-                        completedReservations++;
-                        objectsReallocated++;
-                        return;
-                    }
-                }
-                failedReservations++;
-                if (cap != null) cap.acquireSpecificFailed(id, resource.getIndex());
+            if (allocateSpecific(resource)) {
+                return;
             }
             // find object to allocate
             T indirectRes = null;
@@ -173,6 +152,62 @@ public class RenderObjectMap {
         objectsCreated++;
     }
     /**
+     * Allocates the specific render object directly referenced by the resource,
+     * if one is referenced.
+     * 
+     * @param <T>
+     * @param resource 
+     * @return true if the specific render object was allocated
+     */
+    public <T> boolean allocateSpecific(RenderResource<T> resource) {
+        GraphEventCapture cap = renderManager.getGraphCapture();
+        ResourceDef<T> def = resource.getDefinition();
+        long id = resource.getTicket().getObjectId();
+        if (id < 0) return false;
+        // allocate reserved object
+        RenderObject obj = objectMap.get(id);
+        if (cap != null) cap.attemptReallocation(id, resource.getIndex());
+        if (obj != null && isAvailable(obj)
+                && (obj.isReservedAt(resource.getLifeTime().getStartIndex())
+                || !obj.isReservedWithin(resource.getLifeTime()))) {
+            // reserved object is only applied if it is accepted by the definition
+            T r = def.applyDirectResource(obj.getObject());
+            if (r == null) {
+                r = def.applyIndirectResource(obj.getObject());
+            }
+            if (r != null) {
+                resource.setObject(obj, r);
+                if (cap != null) cap.reallocateObject(id, resource.getIndex(),
+                        resource.getResource().getClass().getSimpleName());
+                completedReservations++;
+                objectsReallocated++;
+                return true;
+            }
+        }
+        failedReservations++;
+        if (cap != null) cap.allocateSpecificFailed(obj, resource);
+        return false;
+    }
+    /**
+     * Directly creates a new render object containing the value for the render
+     * resource.
+     * <p>
+     * The object is still subject to the resource's definition, although the definition
+     * may not have created the internal value.
+     * 
+     * @param <T>
+     * @param resource
+     * @param value 
+     */
+    public <T> void setDirect(RenderResource<T> resource, T value) {
+        RenderObject<T> object = create(resource.getDefinition(), value);
+        resource.setObject(object, value);
+        if (renderManager.getGraphCapture() != null) {
+            renderManager.getGraphCapture().setObjectDirect(
+                    object.getId(), resource.getIndex(), value.getClass().getSimpleName());
+        }
+    }
+    /**
      * Makes a reservation of render object holding the specified id at the render
      * pass index so that no other resource may (without a reservation) use that 
      * render object at that time.
@@ -186,8 +221,8 @@ public class RenderObjectMap {
         if (obj != null) {
             obj.reserve(index);
             officialReservations++;
-            if (renderManager.getFrameCapture() != null) {
-                renderManager.getFrameCapture().reserveObject(objectId, index);
+            if (renderManager.getGraphCapture() != null) {
+                renderManager.getGraphCapture().reserveObject(objectId, index);
             }
             return true;
         }
@@ -223,8 +258,8 @@ public class RenderObjectMap {
         if (id >= 0) {
             RenderObject obj = objectMap.remove(id);
             if (obj != null) {
-                if (renderManager.getFrameCapture() != null) {
-                    renderManager.getFrameCapture().disposeObject(id);
+                if (renderManager.getGraphCapture() != null) {
+                    renderManager.getGraphCapture().disposeObject(id);
                 }
                 obj.dispose();
             }
@@ -258,10 +293,10 @@ public class RenderObjectMap {
      */
     public void flushMap() {
         totalObjects = objectMap.size();
-        if (renderManager.getFrameCapture() != null) {
-            renderManager.getFrameCapture().flushObjects(totalObjects);
+        if (renderManager.getGraphCapture() != null) {
+            renderManager.getGraphCapture().flushObjects(totalObjects);
         }
-        FGFrameCapture cap = renderManager.getFrameCapture();
+        GraphEventCapture cap = renderManager.getGraphCapture();
         for (Iterator<RenderObject> it = objectMap.values().iterator(); it.hasNext();) {
             RenderObject obj = it.next();
             if (!obj.tickTimeout()) {
@@ -289,7 +324,7 @@ public class RenderObjectMap {
      * All tracked render objects are disposed.
      */
     public void clearMap() {
-        FGFrameCapture cap = renderManager.getFrameCapture();
+        GraphEventCapture cap = renderManager.getGraphCapture();
         for (RenderObject obj : objectMap.values()) {
             if (cap != null) cap.disposeObject(obj.getId());
             obj.dispose();

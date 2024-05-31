@@ -54,7 +54,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.FrameGraphFactory;
-import com.jme3.renderer.framegraph.debug.FGFrameCapture;
+import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.io.MatParamTargetControl;
 import com.jme3.renderer.framegraph.passes.Attribute;
 import com.jme3.renderer.queue.RenderQueue;
@@ -659,6 +659,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
     public void simpleInitApp() {
         
         stateManager.attach(new DetailedProfilerState());
+        //guiViewPort.setEnabled(false);
         
         //FrameGraph graph = RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred);
         FrameGraph forward = new FrameGraph(assetManager, "Common/FrameGraphs/Forward.j3g");
@@ -672,16 +673,22 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         viewPort.setFrameGraph(deferred);
         guiViewPort.setFrameGraph(deferred);
         //renderManager.setFrameGraph(deferred);
-        renderManager.setFrameGraph(forward);
+        //renderManager.setFrameGraph(forward);
         
         File capTarget = new File(System.getProperty("user.home")+"/earlyFrameCapture.txt");
-        FGFrameCapture cap = new FGFrameCapture(capTarget);
+        GraphEventCapture cap = new GraphEventCapture(capTarget);
         cap.setIncludeNanos(false);
-        renderManager.setFrameCapture(cap, 6);
+        renderManager.setGraphCapture(cap, 6);
         
         viewPort.setBackgroundColor(ColorRGBA.Green.mult(.1f));
         guiViewPort.setBackgroundColor(ColorRGBA.Red.mult(.1f));
         //guiViewPort.setClearFlags(false, true, false);
+        
+        //Camera myCam = cam.clone();
+        //ViewPort vp = renderManager.createPostView("myPostView", myCam);
+        //vp.setClearFlags(false, true, false);
+        //vp.attachScene(rootNode);
+        //vp.setFrameGraph(deferred);
         
         Geometry debugView = new Geometry("debug", new Quad(200, 200));
         debugView.setLocalTranslation(0, 200, 0);
