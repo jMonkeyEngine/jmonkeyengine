@@ -121,6 +121,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setRotation(Quaternion rot) {
+        assert isValidQuaternion(rot) : "Invalid rotation " + rot;
         this.rot.set(rot);
         return this;
     }
@@ -132,6 +133,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setTranslation(Vector3f trans) {
+        assert isValidVector(trans) : "Invalid translation " + trans;
         this.translation.set(trans);
         return this;
     }
@@ -152,6 +154,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(Vector3f scale) {
+        assert isValidVector(scale) : "Invalid scale " + scale;
         this.scale.set(scale);
         return this;
     }
@@ -163,6 +166,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(float scale) {
+        assert isValidNumber(scale) : "Invalid scale " + scale;
         this.scale.set(scale, scale, scale);
         return this;
     }
@@ -286,6 +290,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setTranslation(float x, float y, float z) {
+        assert isValidNumber(x) && isValidNumber(y) && isValidNumber(z) : "Invalid translation " + x + ", " + y + ", " + z;
         translation.set(x, y, z);
         return this;
     }
@@ -299,6 +304,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(float x, float y, float z) {
+        assert isValidNumber(x) && isValidNumber(y) && isValidNumber(z) : "Invalid scale " + x + ", " + y + ", " + z;
         scale.set(x, y, z);
         return this;
     }
@@ -559,5 +565,17 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+    }
+
+    private static boolean isValidQuaternion(Quaternion quaternion) {
+        return quaternion!=null && isValidNumber(quaternion.x) && isValidNumber(quaternion.y) && isValidNumber(quaternion.z) && isValidNumber(quaternion.w);
+    }
+
+    private static boolean isValidVector(Vector3f vector) {
+        return vector != null && isValidNumber(vector.x) && isValidNumber(vector.y) && isValidNumber(vector.z);
+    }
+
+    private static boolean isValidNumber(float number) {
+        return !Float.isNaN(number) && !Float.isInfinite(number);
     }
 }
