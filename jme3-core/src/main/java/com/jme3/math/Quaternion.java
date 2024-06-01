@@ -1613,7 +1613,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Tests whether the argument is a valid quaternion, returning false if it's
      * null or if any component is NaN or infinite.
      *
-     * @param quaternion the vector to test (unaffected)
+     * @param quaternion the quaternion to test (unaffected)
      * @return true if non-null and finite, otherwise false
      */
     public static boolean isValidQuaternion(Quaternion quaternion) {
