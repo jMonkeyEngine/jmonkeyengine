@@ -62,7 +62,7 @@ import java.util.logging.Logger;
 public class TestFrameGraphImportExport extends SimpleApplication {
     
     private final String path = System.getProperty("user.home")+"/myGraph";
-    private final boolean export = false;
+    private final boolean export = true;
     private final boolean xml = false;
     
     public static void main(String[] args) {
@@ -80,7 +80,7 @@ public class TestFrameGraphImportExport extends SimpleApplication {
         final File file = new File(path+"."+(xml ? "xml" : "j3g"));
         
         if (export) {
-            FrameGraph graph = FrameGraphFactory.deferred(assetManager, false);
+            FrameGraph graph = FrameGraphFactory.deferred(assetManager, true);
             try {
                 if (xml) {
                     XMLExporter.getInstance().save(graph.createData(), file);

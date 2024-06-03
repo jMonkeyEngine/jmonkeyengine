@@ -46,7 +46,7 @@ public class RenderObjectMap {
     
     private final RenderManager renderManager;
     private final HashMap<Long, RenderObject> objectMap = new HashMap<>();
-    private final int timeout = 1;
+    private int staticTimeout = 1;
     
     // statistics
     private int totalAllocations = 0;
@@ -81,7 +81,7 @@ public class RenderObjectMap {
      * @return 
      */
     protected <T> RenderObject<T> create(ResourceDef<T> def, T value) {
-        RenderObject obj = new RenderObject(def, value, timeout);
+        RenderObject obj = new RenderObject(def, value, staticTimeout);
         objectMap.put(obj.getId(), obj);
         return obj;
     }
@@ -344,7 +344,28 @@ public class RenderObjectMap {
         }
         objectMap.clear();
     }
-
+    
+    /**
+     * Sets the default number of frame boundaries an object can experience without
+     * being used before being disposed.
+     * <p>
+     * default=1 (can survive one frame boundary)
+     * 
+     * @param staticTimeout 
+     */
+    public void setStaticTimeout(int staticTimeout) {
+        this.staticTimeout = staticTimeout;
+    }
+    
+    /**
+     * Gets the default number of frame boundaries an object can experience without
+     * being used before being disposed.
+     * 
+     * @return 
+     */
+    public int getStaticTimeout() {
+        return staticTimeout;
+    }
     /**
      * Get the total number of allocations that occured during the last render frame.
      * 

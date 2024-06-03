@@ -89,8 +89,6 @@ public class FrameGraphFactory {
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Gui, DepthRange.FRONT));
         fg.add(new PostProcessingPass());
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Translucent));
-        Attribute<Texture2D> gbufDebug = fg.add(new Attribute<>());
-        gbufDebug.setName("GBufferDebug");
         
         deferred.makeInput(gbuf, "Diffuse", "Diffuse");
         deferred.makeInput(gbuf, "Specular", "Specular");
@@ -101,8 +99,6 @@ public class FrameGraphFactory {
         
         defOut.makeInput(deferred, "Color", "Color");
         defOut.makeInput(gbuf, "Depth", "Depth");
-        
-        gbufDebug.makeInput(gbuf, "Diffuse", "Value");
         
         return fg;
         

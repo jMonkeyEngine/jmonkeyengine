@@ -1515,7 +1515,7 @@ public class RenderManager {
     /**
      * Returns the render filter that the RenderManager is currently using
      * 
-     * @return 
+     * @return the render filter 
      */
     public Predicate<Geometry> getRenderFilter() {
         return renderFilter;
