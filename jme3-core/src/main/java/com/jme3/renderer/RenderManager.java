@@ -1388,6 +1388,12 @@ public class RenderManager {
             renderObjects.clearReservations();
         }
 
+        /*
+         * the call to setCamera will indirectly cause a clipRect to be set, must be cleared to avoid surprising results
+         * if renderer#copyFrameBuffer is used later
+         */
+        renderer.clearClipRect();
+
         if (prof != null) {
             prof.vpStep(VpStep.EndRender, vp, null);
         }
