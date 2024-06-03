@@ -88,11 +88,7 @@ public class DeferredPass extends RenderPass {
     @Override
     protected void execute(FGRenderContext context) {
         //material = new Material(assetManager, "Common/MatDefs/ShadingCommon/DeferredShading.j3md");
-        System.out.println("deferred pass: "+context.getViewPort().getName());
         FrameBuffer fb = getFrameBuffer(context, 1);
-        //if (resources.acquireOrElse(numRenders, 1) == 0) {
-        //    return;
-        //}
         resources.acquireColorTargets(fb, outColor);
         //context.popFrameBuffer();
         context.getRenderer().setFrameBuffer(fb);

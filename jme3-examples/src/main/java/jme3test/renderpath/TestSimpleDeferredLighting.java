@@ -667,7 +667,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         FrameGraph forward = new FrameGraph(assetManager, "Common/FrameGraphs/Forward.j3g");
         forward.setName("forward");
         //FrameGraph deferred = new FrameGraph(assetManager, "Common/FrameGraphs/Deferred.j3g");
-        FrameGraph deferred = FrameGraphFactory.deferred(assetManager, false);
+        FrameGraph deferred = FrameGraphFactory.deferred(assetManager, true);
         deferred.setName("deferred1");
         FrameGraph deferred2 = FrameGraphFactory.deferred(assetManager, false);
         deferred2.setName("deferred2");
@@ -680,7 +680,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         File capTarget = new File(System.getProperty("user.home")+"/earlyFrameCapture.txt");
         GraphEventCapture cap = new GraphEventCapture(capTarget);
         cap.setIncludeNanos(false);
-        renderManager.setGraphCapture(cap, 10);
+        //renderManager.setGraphCapture(cap, 10);
         
         viewPort.setBackgroundColor(ColorRGBA.Green.mult(.1f));
         guiViewPort.setBackgroundColor(ColorRGBA.Red.mult(.1f));

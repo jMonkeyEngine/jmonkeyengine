@@ -41,15 +41,12 @@ void main(){
     // unpack GBuffer
     vec4 shadingInfo = texture2D(Context_InGBuff2, innerTexCoord);
     int shadingModelId = int(floor(shadingInfo.a));
-    //shadingModelId = -1;
+    
     float depth = texture2D(GBUFFER_DEPTH, texCoord).r;
     gl_FragDepth = depth;
     // Due to GPU architecture, each shading mode is performed for each pixel, which is very inefficient.
     // TODO: Remove these if statements if possible.
-    if (shadingModelId == -1) {
-        gl_FragColor.rgb = texture2D(Context_InGBuff0, innerTexCoord).rgb;
-        gl_FragColor.a = 1.0;
-    } else if (shadingModelId == LEGACY_LIGHTING) {
+    if (shadingModelId == LEGACY_LIGHTING) {
         vec3 vPos = getPosition(innerTexCoord, depth, viewProjectionMatrixInverse);
         vec4 buff1 = texture2D(Context_InGBuff1, innerTexCoord);
         vec4 diffuseColor = texture2D(Context_InGBuff0, innerTexCoord);

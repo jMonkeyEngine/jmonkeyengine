@@ -84,11 +84,11 @@ public class FrameGraphFactory {
             deferred = fg.add(new TileDeferredPass());
         }
         OutputPass defOut = fg.add(new OutputPass(0f));
-//        fg.add(new OutputBucketPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
-//        fg.add(new OutputBucketPass(RenderQueue.Bucket.Transparent));
+        fg.add(new OutputBucketPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
+        fg.add(new OutputBucketPass(RenderQueue.Bucket.Transparent));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Gui, DepthRange.FRONT));
-//        fg.add(new PostProcessingPass());
-//        fg.add(new OutputBucketPass(RenderQueue.Bucket.Translucent));
+        fg.add(new PostProcessingPass());
+        fg.add(new OutputBucketPass(RenderQueue.Bucket.Translucent));
         Attribute<Texture2D> gbufDebug = fg.add(new Attribute<>());
         gbufDebug.setName("GBufferDebug");
         
@@ -98,7 +98,6 @@ public class FrameGraphFactory {
         deferred.makeInput(gbuf, "Normal", "Normal");
         deferred.makeInput(gbuf, "Depth", "Depth");
         deferred.makeInput(gbuf, "Lights", "Lights");
-        deferred.makeInput(gbuf, "NumRenders", "NumRenders");
         
         defOut.makeInput(deferred, "Color", "Color");
         defOut.makeInput(gbuf, "Depth", "Depth");
