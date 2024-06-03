@@ -167,7 +167,7 @@ public class FGRenderContext {
      * @param color color texture, or null
      * @param depth depth texture, or null
      */
-    public void transferTextures(Texture2D color, Texture2D depth) {
+    public void renderTextures(Texture2D color, Texture2D depth) {
         screen.render(renderManager, color, depth);
     }
     

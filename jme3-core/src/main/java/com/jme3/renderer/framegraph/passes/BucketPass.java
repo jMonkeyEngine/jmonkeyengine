@@ -108,7 +108,7 @@ public class BucketPass extends RenderPass {
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
-        context.transferTextures(resources.acquireOrElse(inColor, null), resources.acquireOrElse(inDepth, null));
+        context.renderTextures(resources.acquireOrElse(inColor, null), resources.acquireOrElse(inDepth, null));
         context.getRenderer().setDepthRange(depth);
         if (bucket == Bucket.Gui) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), true);

@@ -49,6 +49,7 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.*;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
@@ -63,6 +64,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.instancing.InstancedGeometry;
+import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shader.VarType;
@@ -678,7 +680,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         File capTarget = new File(System.getProperty("user.home")+"/earlyFrameCapture.txt");
         GraphEventCapture cap = new GraphEventCapture(capTarget);
         cap.setIncludeNanos(false);
-        renderManager.setGraphCapture(cap, 6);
+        renderManager.setGraphCapture(cap, 10);
         
         viewPort.setBackgroundColor(ColorRGBA.Green.mult(.1f));
         guiViewPort.setBackgroundColor(ColorRGBA.Red.mult(.1f));
@@ -693,12 +695,18 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         Geometry debugView = new Geometry("debug", new Quad(200, 200));
         debugView.setLocalTranslation(0, 200, 0);
         Material debugMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        //debugMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
         debugView.setMaterial(debugMat);
         MatParamTargetControl texTarget = new MatParamTargetControl("ColorMap", VarType.Texture2D);
         texTarget.setViewPorts(viewPort);
         deferred.get(Attribute.class, "GBufferDebug").addTarget(texTarget);
         debugView.addControl(texTarget);
         guiNode.attachChild(debugView);
+        
+        Geometry g = new Geometry("test", new Box(1, 1, 1));
+        g.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        g.setQueueBucket(RenderQueue.Bucket.Opaque);
+        //guiNode.attachChild(g);
         
         //renderManager.setRenderPath(currentRenderPath);
         testScene7();

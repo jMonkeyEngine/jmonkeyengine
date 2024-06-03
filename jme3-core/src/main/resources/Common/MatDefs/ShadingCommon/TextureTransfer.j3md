@@ -4,6 +4,7 @@ MaterialDef TextureTransfer {
         Texture2D ColorMap
         Texture2D DepthMap
         Float AlphaDiscard
+        Boolean Debug
     }
 
     Technique {
@@ -23,6 +24,7 @@ MaterialDef TextureTransfer {
             WRITE_COLOR_MAP : ColorMap
             WRITE_DEPTH : DepthMap
             ALPHA_DISCARD : AlphaDiscard
+            DEBUG : Debug
         }
     }
 

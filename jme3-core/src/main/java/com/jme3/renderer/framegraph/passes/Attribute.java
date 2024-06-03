@@ -75,15 +75,22 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
     }
     @Override
     protected void execute(FGRenderContext context) {
-        value = resources.acquireOrElse(in, null);
-        if (value != null && !targets.isEmpty()) {
+        T inVal = resources.acquireOrElse(in, null);
+        if (inVal != null && !targets.isEmpty()) {
+            boolean used = false;
             for (GraphTarget<T> t : targets) {
-                t.setGraphValue(context.getViewPort(), value);
+                if (t.setGraphValue(context.getViewPort(), inVal)) {
+                    used = true;
+                }
             }
-            resources.setConstant(in);
+            if (used) {
+                resources.setConstant(in);
+            }
         }
         if (source != null) {
             value = source.getGraphValue(context.getViewPort());
+        } else {
+            value = null;
         }
         if (value != null) {
             resources.acquire(out);

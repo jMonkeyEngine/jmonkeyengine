@@ -472,7 +472,7 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
         int numLights = 0;
         Renderer renderer = renderManager.getRenderer();
         boolean isLightCullStageDraw = false;
-        if(geometry.getUserData(LIGHT_CULL_DRAW_STAGE) != null){
+        if (geometry.getUserData(LIGHT_CULL_DRAW_STAGE) != null) {
             isLightCullStageDraw = geometry.getUserData(LIGHT_CULL_DRAW_STAGE);
         }
         // todo: One optimization approach here is:
@@ -501,25 +501,30 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
 //            Uniform lightCount = shader.getUniform("g_LightCount");
 //            lightCount.setValue(VarType.Int, count);
 //            lightCount.setValue(VarType.Int, this.lightNum);
-            geometry.getMaterial().setInt("NBLight", count);
-            if(count == 0){
-                numLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, numLights, isLightCullStageDraw, lastBindUnit.textureUnit);
+            // Note: setting the light count here makes the new value miss the render
+            //geometry.getMaterial().setInt("NBLight", count);
+            if (count == 0) {
+                updateLightListPackToTexture(shader, geometry, lights, count,
+                        renderManager, numLights, isLightCullStageDraw, lastBindUnit.textureUnit);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
             } else while (numLights < count) {
                 // todo:Optimize deferred using the second method, here use the geometrys (rect, sphere) of the current class for drawing, instead of using the geometry passed in (or pass two geometry externally, one rect one sphereinstance)
-                numLights = updateLightListPackToTexture(shader, geometry, lights, count, renderManager, numLights, isLightCullStageDraw, lastBindUnit.textureUnit);
+                numLights = updateLightListPackToTexture(shader, geometry, lights, count,
+                        renderManager, numLights, isLightCullStageDraw, lastBindUnit.textureUnit);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
             }
         } else {
             int batchSize = renderManager.getSinglePassLightBatchSize();
             if (lights.size() == 0) {
-                updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, 0, isLightCullStageDraw);
+                updateLightListUniforms(shader, geometry, lights, batchSize,
+                        renderManager, 0, isLightCullStageDraw);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
             } else while (numLights < lights.size()) {
-                numLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, numLights, isLightCullStageDraw);
+                numLights = updateLightListUniforms(shader, geometry, lights, batchSize,
+                        renderManager, numLights, isLightCullStageDraw);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
             }

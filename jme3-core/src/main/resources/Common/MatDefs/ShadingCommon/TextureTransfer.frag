@@ -19,8 +19,15 @@ void main() {
         gl_FragColor = texture2D(m_ColorMap, texCoord);
         #ifdef ALPHA_DISCARD
             if (gl_FragColor.a <= m_AlphaDiscard) {
+                //gl_FragColor = vec4(1.0);
                 discard;
             }
+        #endif
+        if (gl_FragColor.rgb == vec3(0.0)) {
+            //gl_FragColor.rgb = vec3(1.0, 0.0, 0.0);
+        }
+        #ifdef DEBUG
+            gl_FragColor.rgba = vec4(gl_FragColor.a, 0.0, 0.0, 1.0);
         #endif
     #else
         gl_FragColor = vec4(0.0);

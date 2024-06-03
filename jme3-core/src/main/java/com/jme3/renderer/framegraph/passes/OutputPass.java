@@ -35,6 +35,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
@@ -50,10 +51,12 @@ import java.io.IOException;
 public class OutputPass extends RenderPass {
     
     private ResourceTicket<Texture2D> color, depth;
-    private float alphaDiscard = -1;
+    private Float alphaDiscard;
 
-    public OutputPass() {}
-    public OutputPass(float alphaDiscard) {
+    public OutputPass() {
+        this(null);
+    }
+    public OutputPass(Float alphaDiscard) {
         this.alphaDiscard = alphaDiscard;
     }
     
@@ -71,10 +74,10 @@ public class OutputPass extends RenderPass {
         context.popFrameBuffer();
         Texture2D colorTex = resources.acquireOrElse(color, null);
         Texture2D depthTex = resources.acquireOrElse(depth, null);
-        if (alphaDiscard >= 0) {
+        if (alphaDiscard != null) {
             context.getScreen().setAlphaDiscard(alphaDiscard);
         }
-        context.transferTextures(colorTex, depthTex);
+        context.renderTextures(colorTex, depthTex);
     }
     @Override
     protected void reset(FGRenderContext context) {}
@@ -82,7 +85,7 @@ public class OutputPass extends RenderPass {
     protected void cleanup(FrameGraph frameGraph) {}
     @Override
     public boolean isUsed() {
-        return true;
+        return color.hasSource() || depth.hasSource();
     }
     @Override
     public void write(JmeExporter ex) throws IOException {

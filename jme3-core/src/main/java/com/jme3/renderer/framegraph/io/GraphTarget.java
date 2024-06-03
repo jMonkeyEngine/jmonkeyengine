@@ -46,7 +46,8 @@ public interface GraphTarget <T> {
      * 
      * @param viewPort viewport currently being rendered
      * @param value value from framegraph
+     * @return true if value is used
      */
-    public void setGraphValue(ViewPort viewPort, T value);
+    public boolean setGraphValue(ViewPort viewPort, T value);
     
 }

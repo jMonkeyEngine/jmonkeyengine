@@ -70,7 +70,6 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     private ValueDef<Integer> numRendersDef;
     private final TextureDef<Texture2D>[] texDefs = new TextureDef[5];
     private final LinkedList<Light> accumulatedLights = new LinkedList<>();
-    private Texture2D diffuseTex;
     private int numRenders = 0;
     
     @Override
@@ -88,9 +87,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         texDefs[2] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
         texDefs[3] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA32F);
         texDefs[4] = new TextureDef<>(Texture2D.class, tex, Image.Format.Depth);
-        int i = -1;
         for (TextureDef<Texture2D> d : texDefs) {
-            i++;
             d.setFormatFlexible(true);
             //d.setUseExisting(false);
             //d.setDisposeOnRelease(true);
@@ -104,11 +101,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        int w = context.getWidth();
-        int h = context.getHeight();
-        if (diffuseTex == null || diffuseTex.getImage().getWidth() != w || diffuseTex.getImage().getHeight() != h) {
-            diffuseTex = new Texture2D(w, h, Image.Format.RGBA16F);
-        }
+        int w = context.getWidth(), h = context.getHeight();
         for (TextureDef<Texture2D> d : texDefs) {
             d.setSize(w, h);
         }
@@ -119,7 +112,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         declare(texDefs[4], depth);
         declare(lightDef, lights);
         declare(numRendersDef, numRendersTicket);
-        reserve(diffuse, specular, emissive, normal, depth, lights);
+        reserve(diffuse, specular, emissive, normal, depth);
         numRenders = 0;
     }
     @Override

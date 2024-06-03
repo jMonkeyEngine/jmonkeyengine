@@ -25,6 +25,7 @@ public class GraphEventCapture {
     private final LinkedList<Event> events = new LinkedList<>();
     private int frame = 0;
     private boolean includeNanos = true;
+    private long userNanos = 0;
 
     public GraphEventCapture(File target) {
         this.target = target;
@@ -33,19 +34,22 @@ public class GraphEventCapture {
     private void add(Event c) {
         events.addLast(c);
     }
-    public void addEvent(String operation, Object... arguments) {
-        add(new Event(operation, arguments));
+    public void addUserEvent(String operation, Object... arguments) {
+        add(new Event("USEREVENT", operation, arguments));
+    }
+    public void value(String name, Object value) {
+        add(new Value(name, value));
     }
     
     public void startRenderFrame() {
-        add(new SuperEvent("StartRenderFrame", frame));
+        add(new Event("SUPEREVENT", "StartRenderFrame", frame));
     }
     public void endRenderFrame() {
-        add(new SuperEvent("EndRenderFrame", frame++));
+        add(new Event("SUPEREVENT", "EndRenderFrame", frame++));
     }
     public void renderViewPort(ViewPort vp) {
         Camera cam = vp.getCamera();
-        add(new SuperEvent("StartViewPort", vp.getName(), cam.getWidth(), cam.getHeight()));
+        add(new Event("SUPEREVENT", "StartViewPort", vp.getName(), cam.getWidth(), cam.getHeight()));
     }
     public void prepareRenderPass(int index, String name) {
         events.add(new Event("PrepareRenderPass", index, name));
@@ -116,8 +120,22 @@ public class GraphEventCapture {
         add(new Event("FlushObjects", size));
     }
     
-    public void value(String name, Object value) {
-        add(new Value(name, value));
+    public void startNanos(String subject) {
+        userNanos = System.nanoTime();
+        add(new Event("PROFILE", "StartNanos", subject));
+    }
+    public long lapNanos(String subject) {
+        return breakNanos(subject, subject);
+    }
+    public long breakNanos(String endSubject, String startSubject) {
+        long duration = endNanos(endSubject);
+        startNanos(startSubject);
+        return duration;
+    }
+    public long endNanos(String subject) {
+        long duration = Math.abs(System.nanoTime()-userNanos);
+        add(new Event("PROFILE", "EndNanos", subject, duration+"ns", (duration/1000000)+"ms"));
+        return duration;
     }
     
     public void export() throws IOException {
@@ -137,18 +155,22 @@ public class GraphEventCapture {
     public void setIncludeNanos(boolean includeNanos) {
         this.includeNanos = includeNanos;
     }
-    
     public boolean isIncludeNanos() {
         return includeNanos;
     }
     
-    private class Event {
+    private static class Event {
         
+        protected String eventType;
         protected final String operation;
         protected final Object[] arguments;
         protected final long startNanos;
-
+        
         public Event(String operation, Object... arguments) {
+            this("EVENT", operation, arguments);
+        }
+        public Event(String eventType, String operation, Object... arguments) {
+            this.eventType = eventType;
             this.operation = operation;
             this.arguments = arguments;
             this.startNanos = System.nanoTime();
@@ -180,23 +202,11 @@ public class GraphEventCapture {
             return builder.append(')').toString();
         }
         public String getEventType() {
-            return "EVENT";
+            return eventType;
         }
         
     }
-    private class SuperEvent extends Event {
-        
-        public SuperEvent(String operation, Object... arguments) {
-            super(operation, arguments);
-        }
-        
-        @Override
-        public String getEventType() {
-            return "SUPEREVENT";
-        }
-        
-    }
-    private class Value extends Event {
+    private static class Value extends Event {
         
         public Value(String field, Object value) {
             super(field, value);
@@ -215,21 +225,18 @@ public class GraphEventCapture {
         }
         
     }
-    private class Failure extends Event {
+    private static class Failure extends Event {
         
         public Failure(String operation, Check... checks) {
             super(operation, new Object[checks.length]);
             int i = 0;
             for (; i < checks.length; i++) {
-                boolean success = checks[i].run();
-                if (!success) {
+                if (!checks[i].run()) {
                     arguments[i] = checks[i].name;
-                    if (checks[i].terminal) {
-                        break;
-                    }
-                    continue;
+                    if (checks[i].terminal) break;
+                } else {
+                    arguments[i] = '-';
                 }
-                arguments[i] = '-';
             }
             for (; i < checks.length; i++) {
                 arguments[i] = '?';
@@ -243,7 +250,7 @@ public class GraphEventCapture {
         
     }
     
-    private class Check {
+    private static class Check {
         
         private final String name;
         private final Supplier<Boolean> check;

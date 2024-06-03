@@ -138,6 +138,10 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
         return this;
     }
     @Override
+    public boolean isDisposeOnRelease() {
+        return false;
+    }
+    @Override
     public void accept(T t) {
         t.getImage().dispose();
     }

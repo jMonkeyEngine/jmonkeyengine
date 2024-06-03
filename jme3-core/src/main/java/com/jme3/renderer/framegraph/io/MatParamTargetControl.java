@@ -87,7 +87,7 @@ public class MatParamTargetControl <T> extends AbstractControl implements GraphT
         }
     }
     @Override
-    public void setGraphValue(ViewPort viewPort, T value) {
+    public boolean setGraphValue(ViewPort viewPort, T value) {
         if (containsViewPort(viewPort)) {
             this.value = value;
             if (this.value != null) {
@@ -95,7 +95,9 @@ public class MatParamTargetControl <T> extends AbstractControl implements GraphT
             } else {
                 material.clearParam(name);
             }
+            return true;
         }
+        return false;
     }
     
     private boolean containsViewPort(ViewPort vp) {

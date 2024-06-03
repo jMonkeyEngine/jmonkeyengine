@@ -119,7 +119,7 @@ public class ResourceList {
     protected int add(RenderResource res) {
         assert res != null;
         if (nextSlot >= resources.size()) {
-            // addEvent resource to end of list
+            // addUserEvent resource to end of list
             resources.add(res);
             nextSlot++;
             return resources.size()-1;
@@ -437,9 +437,7 @@ public class ResourceList {
     public <T extends Texture> T acquireDepthTarget(FrameBuffer fbo, ResourceTicket<T> ticket) {
         T acquired = acquire(ticket);
         FrameBuffer.RenderBuffer target = fbo.getDepthTarget();
-        boolean nullTarget = target == null;
-        boolean unequalTargets = target != null && acquired != target.getTexture();
-        if (nullTarget || unequalTargets) {
+        if (target == null || acquired != target.getTexture()) {
             fbo.setDepthTarget(FrameBuffer.target(acquired));
             fbo.setUpdateNeeded();
             if (cap != null) cap.bindTexture(ticket.getWorldIndex(), ticket.getName());
@@ -456,7 +454,7 @@ public class ResourceList {
      * @param value 
      */
     public <T> void setDirect(ResourceTicket<T> ticket, T value) {
-        map.setDirect(locate(ticket), value);
+        map.allocateDirect(locate(ticket), value);
     }
     
     protected <T> T extract(RenderResource<T> resource, ResourceTicket<T> ticket) {
@@ -517,10 +515,10 @@ public class ResourceList {
                 cap.releaseObject(resource.getObject().getId());
             }
             remove(ticket.getWorldIndex());
-            resource.setObject(null);
             if (resource.getDefinition().isDisposeOnRelease()) {
                 map.dispose(resource);
             }
+            resource.setObject(null);
         }
     }
     /**

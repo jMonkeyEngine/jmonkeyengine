@@ -31,6 +31,7 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
@@ -49,7 +50,8 @@ import com.jme3.texture.Texture2D;
  * @author codex
  */
 public class DeferredPass extends RenderPass {
-
+    
+    private AssetManager assetManager;
     private ResourceTicket<Texture2D> diffuse, specular, emissive, normal, depth, outColor;
     private ResourceTicket<LightList> lights;
     private ResourceTicket<Integer> numRenders;
@@ -68,7 +70,9 @@ public class DeferredPass extends RenderPass {
         outColor = addOutput("Color");
         colorDef = new TextureDef<>(Texture2D.class, img -> new Texture2D(img));
         colorDef.setFormatFlexible(true);
-        material = new Material(frameGraph.getAssetManager(), "Common/MatDefs/ShadingCommon/DeferredShading.j3md");
+        //colorDef.setUseExisting(false);
+        assetManager = frameGraph.getAssetManager();
+        material = new Material(assetManager, "Common/MatDefs/ShadingCommon/DeferredShading.j3md");
         for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("DeferredPass")) {
             t.setLogic(new DeferredSinglePassLightingLogic(t));
         }
@@ -83,15 +87,17 @@ public class DeferredPass extends RenderPass {
     }
     @Override
     protected void execute(FGRenderContext context) {
+        //material = new Material(assetManager, "Common/MatDefs/ShadingCommon/DeferredShading.j3md");
+        System.out.println("deferred pass: "+context.getViewPort().getName());
         FrameBuffer fb = getFrameBuffer(context, 1);
         //if (resources.acquireOrElse(numRenders, 1) == 0) {
         //    return;
         //}
         resources.acquireColorTargets(fb, outColor);
-        context.popFrameBuffer();
-        //context.getRenderer().setFrameBuffer(fb);
-        //context.getRenderer().clearBuffers(true, true, true);
-        //context.getRenderer().setBackgroundColor(ColorRGBA.Blue.clone().setAlpha(0));
+        //context.popFrameBuffer();
+        context.getRenderer().setFrameBuffer(fb);
+        context.getRenderer().clearBuffers(true, true, true);
+        context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         material.setTexture("Context_InGBuff0", resources.acquire(diffuse));
         material.setTexture("Context_InGBuff1", resources.acquire(specular));
         material.setTexture("Context_InGBuff2", resources.acquire(emissive));
@@ -103,8 +109,10 @@ public class DeferredPass extends RenderPass {
         //context.renderFullscreen(material);
         //context.getScreen().setAlphaDiscard(0f);
         if (lightList != null) {
+            material.setInt("NBLight", lightList.size());
             context.getScreen().render(context.getRenderManager(), material, lightList);
         } else {
+            material.setInt("NBLight", 0);
             context.renderFullscreen(material);
         }
     }

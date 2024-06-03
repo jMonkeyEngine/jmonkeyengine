@@ -46,7 +46,9 @@ public class RenderObjectMap {
     
     private final RenderManager renderManager;
     private final HashMap<Long, RenderObject> objectMap = new HashMap<>();
-    private final int timeout = 2;
+    private final int timeout = 1;
+    
+    // statistics
     private int totalAllocations = 0;
     private int officialReservations = 0;
     private int completedReservations = 0;
@@ -199,7 +201,7 @@ public class RenderObjectMap {
      * @param resource
      * @param value 
      */
-    public <T> void setDirect(RenderResource<T> resource, T value) {
+    public <T> void allocateDirect(RenderResource<T> resource, T value) {
         RenderObject<T> object = create(resource.getDefinition(), value);
         resource.setObject(object, value);
         if (renderManager.getGraphCapture() != null) {
@@ -249,6 +251,19 @@ public class RenderObjectMap {
         return (obj != null ? obj.getObject() : null);
     }
     /**
+     * Removes the render object holding the given value from the map.
+     * 
+     * @param value 
+     */
+    public void remove(Object value) {
+        for (Iterator<RenderObject> it = objectMap.values().iterator(); it.hasNext();) {
+            RenderObject object = it.next();
+            if (object.getObject() == value) {
+                it.remove();
+            }
+        }
+    }
+    /**
      * Disposes the render object pointed to by the resource.
      * 
      * @param resource 
@@ -293,10 +308,8 @@ public class RenderObjectMap {
      */
     public void flushMap() {
         totalObjects = objectMap.size();
-        if (renderManager.getGraphCapture() != null) {
-            renderManager.getGraphCapture().flushObjects(totalObjects);
-        }
         GraphEventCapture cap = renderManager.getGraphCapture();
+        if (cap != null) cap.flushObjects(totalObjects);
         for (Iterator<RenderObject> it = objectMap.values().iterator(); it.hasNext();) {
             RenderObject obj = it.next();
             if (!obj.tickTimeout()) {

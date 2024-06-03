@@ -599,7 +599,7 @@ public class RenderManager {
      * material or any overrides that exist in the scene graph that have the
      * same name.
      *
-     * @param override The override to addEvent
+     * @param override The override to addUserEvent
      * @see MatParamOverride
      * @see #removeForcedMatParam(com.jme3.material.MatParamOverride)
      */
@@ -853,7 +853,7 @@ public class RenderManager {
                 preloadScene(children.get(i));
             }
         } else if (scene instanceof Geometry) {
-            // addEvent to the render queue
+            // addUserEvent to the render queue
             Geometry gm = (Geometry) scene;
             if (gm.getMaterial() == null) {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
@@ -934,7 +934,7 @@ public class RenderManager {
                 queueSubScene(children.get(i), vp);
             }
         } else if (scene instanceof Geometry) {
-            // addEvent to the render queue
+            // addUserEvent to the render queue
             Geometry gm = (Geometry) scene;
             if (gm.getMaterial() == null) {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
