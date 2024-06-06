@@ -42,6 +42,8 @@ import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.Image;
+import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 
 /**
@@ -57,6 +59,7 @@ public class DeferredPass extends RenderPass {
     private ResourceTicket<Integer> numRenders;
     private TextureDef<Texture2D> colorDef;
     private Material material;
+    private int maxLights = 1000;
     
     @Override
     protected void initialize(FrameGraph frameGraph) {

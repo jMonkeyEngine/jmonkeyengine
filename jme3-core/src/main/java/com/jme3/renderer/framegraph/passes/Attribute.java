@@ -31,12 +31,15 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
 import com.jme3.renderer.framegraph.io.GraphTarget;
 import com.jme3.renderer.framegraph.io.GraphSource;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.ValueDef;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.function.Function;
 
@@ -54,19 +57,23 @@ import java.util.function.Function;
  */
 public class Attribute <T> extends RenderPass implements Function<Object, T> {
     
+    public static final String VALUE = "Value";
+    
     private ResourceTicket<T> in, out;
     private T value;
     private ValueDef<T> def;
     private final LinkedList<GraphTarget<T>> targets = new LinkedList<>();
     private GraphSource<T> source;
+    private boolean constantOutput = false;
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        in = addInput("Value");
-        out = addOutput("Value");
+        in = addInput(VALUE);
+        out = addOutput(VALUE);
         def = new ValueDef<>(null, this);
         def.setDisposeOnRelease(true);
         def.setUseExisting(false);
+        def.setDisposalMethod(object -> {});
     }
     @Override
     protected void prepare(FGRenderContext context) {
@@ -94,7 +101,7 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
         }
         if (value != null) {
             resources.acquire(out);
-            resources.setConstant(out);
+            if (constantOutput) resources.setConstant(out);
         } else {
             resources.setUndefined(out);
         }
@@ -113,6 +120,16 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
     @Override
     public T apply(Object t) {
         return value;
+    }
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        ex.getCapsule(this).write(constantOutput, "constantOutput", false);
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        constantOutput = im.getCapsule(this).readBoolean("constantOutput", false);
     }
     
     /**
@@ -141,6 +158,29 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
      */
     public void setSource(GraphSource<T> source) {
         this.source = source;
+    }
+    /**
+     * If true, the outgoing object is set as constant.
+     * 
+     * @param constantOutput 
+     */
+    public void setConstantOutput(boolean constantOutput) {
+        this.constantOutput = constantOutput;
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    public ValueDef<T> getOutputDef() {
+        return def;
+    }
+    /**
+     * 
+     * @return 
+     */
+    public boolean isConstantOutput() {
+        return constantOutput;
     }
     
 }

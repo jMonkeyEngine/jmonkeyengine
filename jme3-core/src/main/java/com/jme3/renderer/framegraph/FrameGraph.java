@@ -42,6 +42,7 @@ import com.jme3.profile.VpStep;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.debug.GraphEventCapture;
+import com.jme3.renderer.framegraph.passes.Attribute;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -273,6 +274,21 @@ public class FrameGraph {
         return pass;
     }
     /**
+     * Creates and adds an Attribute pass and links it to the given ticket.
+     * <p>
+     * This is handy for quickly debugging various resources in the graph.
+     * 
+     * @param <T>
+     * @param ticket ticket to reference from
+     * @return created Attribute
+     */
+    public <T> Attribute<T> addAttribute(ResourceTicket<T> ticket) {
+        Attribute<T> attr = add(new Attribute<>());
+        attr.getInput(Attribute.VALUE).setSource(ticket);
+        return attr;
+    }
+    
+    /**
      * Gets the first pass that is of or a subclass of the given class.
      * 
      * @param <T>
@@ -319,6 +335,7 @@ public class FrameGraph {
         }
         return null;
     }
+    
     /**
      * Removes the pass at the index in the queue.
      * <p>

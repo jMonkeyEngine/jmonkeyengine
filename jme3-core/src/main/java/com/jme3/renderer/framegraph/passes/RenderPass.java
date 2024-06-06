@@ -36,8 +36,6 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
-import com.jme3.renderer.Camera;
-import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceList;
@@ -69,6 +67,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     private final LinkedList<ResourceTicket> outputs = new LinkedList<>();
     private final LinkedList<PassFrameBuffer> frameBuffers = new LinkedList<>();
     protected ResourceList resources;
+    protected boolean autoTicketRelease = true;
     
     /**
      * Initializes the pass to the framegraph.
@@ -102,7 +101,9 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      */
     public void executeRender(FGRenderContext context) {
         execute(context);
-        releaseAll();
+        if (autoTicketRelease) {
+            releaseAll();
+        }
     }
     /**
      * Resets the pass from rendering.
@@ -337,7 +338,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param name
      * @return 
      */
-    protected ResourceTicket getInputByName(String name) {
+    public ResourceTicket getInput(String name) {
         for (ResourceTicket t : inputs) {
             if (name.equals(t.getName())) {
                 return t;
@@ -351,7 +352,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param name
      * @return 
      */
-    protected ResourceTicket getOutputByName(String name) {
+    public ResourceTicket getOutput(String name) {
         for (ResourceTicket t : outputs) {
             if (name.equals(t.getName())) {
                 return t;
@@ -368,8 +369,8 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param inTicket 
      */
     public void makeInput(RenderPass pass, String outTicket, String inTicket) {
-        ResourceTicket out = Objects.requireNonNull(pass.getOutputByName(outTicket));
-        ResourceTicket in = Objects.requireNonNull(getInputByName(inTicket));
+        ResourceTicket out = Objects.requireNonNull(pass.getOutput(outTicket));
+        ResourceTicket in = Objects.requireNonNull(getInput(inTicket));
         in.setSource(out);
     }
     /**

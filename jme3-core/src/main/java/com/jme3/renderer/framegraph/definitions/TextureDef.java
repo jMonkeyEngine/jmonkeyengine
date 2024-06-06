@@ -50,7 +50,7 @@ import java.util.function.Function;
  * @param <T>
  */
 public class TextureDef <T extends Texture> extends AbstractResourceDef<T> implements Consumer<T> {
-
+    
     private final Class<T> type;
     private Function<Image, T> textureBuilder;
     private Function<Object, Image> imageExtractor;
@@ -232,6 +232,22 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
         this.depth = depth;
     }
     /**
+     * Sets the width and height of the texture to the length.
+     * 
+     * @param length 
+     */
+    public void setSquare(int length) {
+        width = height = length;
+    }
+    /**
+     * Sets the width, height, and depth of the texture to the length.
+     * 
+     * @param length 
+     */
+    public void setCube(int length) {
+        width = height = depth = length;
+    }
+    /**
      * Sets the width and height of the texture.
      * 
      * @param width
@@ -252,6 +268,29 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
         setWidth(width);
         setHeight(height);
         setDepth(depth);
+    }
+    /**
+     * Sets the given texture demensions to contain the specified number of pixels.
+     * 
+     * @param pixels
+     * @param w true to set width
+     * @param h true to set height
+     * @param d true to set depth
+     */
+    public void setNumPixels(int pixels, boolean w, boolean h, boolean d) {
+        int n = 0;
+        if (w) n++;
+        if (h) n++;
+        if (d) n++;
+        int length;
+        switch (n) {
+            case 3:  length = (int)Math.ceil(Math.cbrt(pixels)); break;
+            case 2:  length = (int)Math.ceil(Math.sqrt(pixels)); break;
+            default: length = pixels;
+        }
+        if (w) width = length;
+        if (h) height = length;
+        if (d) depth = length;
     }
     /**
      * Sets the number of samples of the texture's image.

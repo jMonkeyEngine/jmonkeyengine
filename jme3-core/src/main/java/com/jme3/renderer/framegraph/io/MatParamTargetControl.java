@@ -34,6 +34,7 @@ package com.jme3.renderer.framegraph.io;
 import com.jme3.material.Material;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.SceneGraphIterator;
 import com.jme3.scene.Spatial;
@@ -60,13 +61,7 @@ public class MatParamTargetControl <T> extends AbstractControl implements GraphT
     }
     
     @Override
-    protected void controlUpdate(float tpf) {
-        //System.out.println("check: assign to material?");
-        if (value != null) {
-            //System.out.println("assign "+value.getClass().getSimpleName()+" to material");
-            //material.setParam(name, type, value);
-        }
-    }
+    protected void controlUpdate(float tpf) {}
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {}
     @Override
