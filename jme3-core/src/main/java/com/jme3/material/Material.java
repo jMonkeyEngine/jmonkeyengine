@@ -907,22 +907,23 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
 
     private void updateRenderState(Geometry geometry, RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
+        RenderState finalRenderState;
         if (renderManager.getForcedRenderState() != null) {
-            mergedRenderState.copyFrom(renderManager.getForcedRenderState());
+            finalRenderState = mergedRenderState.copyFrom(renderManager.getForcedRenderState());
         } else if (techniqueDef.getRenderState() != null) {
-            mergedRenderState.copyFrom(RenderState.DEFAULT);
-            techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState);
+            finalRenderState = mergedRenderState.copyFrom(RenderState.DEFAULT);
+            finalRenderState = techniqueDef.getRenderState().copyMergedTo(additionalState, finalRenderState);
         } else {
-            mergedRenderState.copyFrom(RenderState.DEFAULT);
-            RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState);
+            finalRenderState = mergedRenderState.copyFrom(RenderState.DEFAULT);
+            finalRenderState = RenderState.DEFAULT.copyMergedTo(additionalState, finalRenderState);
         }
         // test if the face cull mode should be flipped before render
-        if (mergedRenderState.isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
-            mergedRenderState.flipFaceCull();
+        if (finalRenderState.isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
+            finalRenderState.flipFaceCull();
         }
-        renderer.applyRenderState(mergedRenderState);
+        renderer.applyRenderState(finalRenderState);
     }
-    
+
     /**
      * Returns true if the geometry world scale indicates that normals will be backward.
      * @param scalar geometry world scale

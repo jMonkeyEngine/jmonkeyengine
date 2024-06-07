@@ -497,7 +497,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         // This will activate the "effective data" scrubber.
         showGLDataEffective.set(settings.getBoolean("GLDataEffectiveDebug"));
         
-        glData.depthSize = settings.getBitsPerPixel();
         glData.alphaSize = settings.getAlphaBits();
         glData.sRGB = settings.isGammaCorrection(); // Not compatible with very old devices
         

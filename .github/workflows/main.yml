@@ -46,6 +46,7 @@ on:
   push:
     branches:
       - master
+      - v3.7
       - v3.6
       - v3.5
       - v3.4
@@ -69,7 +70,7 @@ jobs:
         with:
           fetch-depth: 1
       - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v2
+        uses: gradle/actions/wrapper-validation@v3
       - name: Build
         run: |
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
@@ -90,7 +91,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest,windows-2019,macOS-latest]
-        jdk: [8, 11, 17]
+        jdk: [11, 17]
         include:
           - os: ubuntu-latest
             osName: linux
@@ -100,8 +101,6 @@ jobs:
             deploy: false
           - os: macOS-latest
             osName: mac
-            deploy: false
-          - jdk: 8
             deploy: false
           - jdk: 11
             deploy: false
@@ -125,7 +124,7 @@ jobs:
           path: build/native
 
       - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v2
+        uses: gradle/actions/wrapper-validation@v3
       - name: Build Engine
         shell: bash
         run: |

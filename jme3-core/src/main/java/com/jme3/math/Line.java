@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -273,5 +273,21 @@ public class Line implements Savable, Cloneable, java.io.Serializable {
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+    }
+
+    /**
+     * Returns a string representation of the Line, which is unaffected. For
+     * example, a line with origin (1,0,0) and direction (0,1,0) is represented
+     * by:
+     * <pre>
+     * Line [Origin: (1.0, 0.0, 0.0)  Direction: (0.0, 1.0, 0.0)]
+     * </pre>
+     *
+     * @return the string representation (not null, not empty)
+     */
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [Origin: " + origin
+                + "  Direction: " + direction + "]";
     }
 }

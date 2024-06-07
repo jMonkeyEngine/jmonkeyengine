@@ -259,7 +259,7 @@ void main(){
                     alphaBlend = alphaBlend_2;
                 }
 
-                texChannelForAlphaBlending = int(mod($i, 4.0)); //pick the correct channel (r g b or a) based on the layer's index
+                texChannelForAlphaBlending = int(mod(float($i), 4.0)); //pick the correct channel (r g b or a) based on the layer's index
                 switch(texChannelForAlphaBlending) {
                     case 0:
                         finalAlphaBlendForLayer = alphaBlend.r;

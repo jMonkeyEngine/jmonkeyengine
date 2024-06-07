@@ -282,11 +282,6 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
 //    }
 //}
 
-wrapper {
-    gradleVersion = '7.6.2'
-}
-
-
 retrolambda {
   javaVersion JavaVersion.VERSION_1_7
   incremental true
