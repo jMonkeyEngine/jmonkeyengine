@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':jme3-desktop')
+    implementation project(':jme3-core')
+    implementation project(':jme3-effects')
+    implementation project(':jme3-terrain')
+    implementation project(':jme3-lwjgl3')
+    implementation project(':jme3-plugins')
+
+    implementation 'com.aventstack:extentreports:5.1.1'
+    implementation platform('org.junit:junit-bom:5.9.1')
+    implementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly project(':jme3-testdata')
+}
+
+tasks.register("screenshotTest", Test) {
+    useJUnitPlatform{
+        filter{
+            includeTags 'integration'
+        }
+    }
+}
+
+
+test {
+    useJUnitPlatform{
+        filter{
+            excludeTags 'integration'
+        }
+    }
+    jvmArgs = [ "-Xmx1g" ] //already very low on memory available for the 3D renderer, don't let java steal too much of it
+}
