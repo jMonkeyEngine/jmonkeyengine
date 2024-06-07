@@ -36,7 +36,6 @@ import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
@@ -50,6 +49,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import java.util.LinkedList;
 import java.util.function.Function;
+import com.jme3.renderer.GeometryRenderHandler;
 
 /**
  * Renders diffuse, specular, emissive, normal, and depth information to a set of
@@ -63,7 +63,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     
     private final static String GBUFFER_PASS = "GBufferPass";
     
-    private ResourceTicket<Texture2D> diffuse, specular, emissive, normal, depth;
+    private ResourceTicket<Texture2D>[] gbuffers;
     private ResourceTicket<LightList> lights;
     private ResourceTicket<Integer> numRendersTicket;
     private ValueDef<LightList> lightDef;
@@ -74,12 +74,8 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        diffuse  = addOutput("Diffuse");
-        specular = addOutput("Specular");
-        emissive = addOutput("Emissive");
-        normal   = addOutput("Normal");
-        depth    = addOutput("Depth");
-        lights   = addOutput("Lights");
+        gbuffers = addOutputGroup("GBufferData", 5);
+        lights = addOutput("Lights");
         numRendersTicket = addOutput("NumRenders");
         Function<Image, Texture2D> tex = img -> new Texture2D(img);
         texDefs[0] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
@@ -87,12 +83,6 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         texDefs[2] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
         texDefs[3] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA32F);
         texDefs[4] = new TextureDef<>(Texture2D.class, tex, Image.Format.Depth);
-        for (TextureDef<Texture2D> d : texDefs) {
-            d.setFormatFlexible(true);
-            //d.setUseExisting(false);
-            //d.setDisposeOnRelease(true);
-            //d.setStaticTimeout(0);
-        }
         lightDef = new ValueDef(LightList.class, n -> new LightList(null));
         lightDef.setReviser(list -> list.clear());
         numRendersDef = new ValueDef(Boolean.class, n -> true);
@@ -102,17 +92,13 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     @Override
     protected void prepare(FGRenderContext context) {
         int w = context.getWidth(), h = context.getHeight();
-        for (TextureDef<Texture2D> d : texDefs) {
-            d.setSize(w, h);
+        for (int i = 0; i < gbuffers.length; i++) {
+            texDefs[i].setSize(w, h);
+            declare(texDefs[i], gbuffers[i]);
         }
-        declare(texDefs[0], diffuse);
-        declare(texDefs[1], specular);
-        declare(texDefs[2], emissive);
-        declare(texDefs[3], normal);
-        declare(texDefs[4], depth);
         declare(lightDef, lights);
         declare(numRendersDef, numRendersTicket);
-        reserve(diffuse, specular, emissive, normal, depth);
+        reserve(gbuffers);
         numRenders = 0;
     }
     @Override
@@ -121,8 +107,8 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         FrameBuffer fb = getFrameBuffer(context, 1);
         fb.setMultiTarget(true);
         //resources.setDirect(diffuse, diffuseTex);
-        resources.acquireColorTargets(fb, diffuse, specular, emissive, normal);
-        resources.acquireDepthTarget(fb, depth);
+        resources.acquireColorTargets(fb, gbuffers[0], gbuffers[1], gbuffers[2], gbuffers[3]);
+        resources.acquireDepthTarget(fb, gbuffers[4]);
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         LightList lightList = resources.acquire(lights);

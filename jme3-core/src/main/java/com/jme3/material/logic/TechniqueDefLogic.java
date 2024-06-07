@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
 import com.jme3.material.Material.BindUnits;
 import com.jme3.renderer.Caps;
+import com.jme3.renderer.RenderLogic;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.DefineList;
@@ -94,4 +95,5 @@ public interface TechniqueDefLogic {
      * @param lastBindUnits the index of the most recently used units
      */
     public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits);
+    
 }

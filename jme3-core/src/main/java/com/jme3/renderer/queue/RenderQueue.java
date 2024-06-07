@@ -33,11 +33,11 @@ package com.jme3.renderer.queue;
 
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import java.util.LinkedList;
+import com.jme3.renderer.GeometryRenderHandler;
 
 /**
  * <code>RenderQueue</code> is used to queue up and sort
@@ -66,7 +66,7 @@ public class RenderQueue {
     }
 
     /**
-     * The render queue <code>Bucket</code> specifies the bucket
+     * The renderGeometry queue <code>Bucket</code> specifies the bucket
      * to which the spatial will be placed when rendered.
      * <p>
      * The behavior of the rendering will differ depending on which

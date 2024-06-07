@@ -36,7 +36,6 @@ import com.jme3.material.RenderState;
 import com.jme3.opencl.CommandQueue;
 import com.jme3.opencl.Context;
 import com.jme3.profile.AppProfiler;
-import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -46,6 +45,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;
 import java.util.function.Predicate;
+import com.jme3.renderer.GeometryRenderHandler;
 
 /**
  * Contains necessary context for framegraph rendering.

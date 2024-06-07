@@ -208,5 +208,5 @@ void main(){
     Context_OutGBuff1.a = m_Shininess;
 
     // shading model id
-    Context_OutGBuff2.a = LEGACY_LIGHTING;
+    Context_OutGBuff2.a = PHONG_LIGHTING;
 }

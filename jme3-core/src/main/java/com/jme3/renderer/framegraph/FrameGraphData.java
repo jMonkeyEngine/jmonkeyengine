@@ -156,9 +156,19 @@ public class FrameGraphData implements Savable {
         connections = null;
     }
     
+    /**
+     * Returns true if this data is export only, otherwise the data is import only.
+     * 
+     * @return 
+     */
     public boolean isExportOnly() {
         return export;
     }
+    /**
+     * Returns true if this data has been consumed.
+     * 
+     * @return 
+     */
     public boolean isConsumed() {
         return passes == null;
     }

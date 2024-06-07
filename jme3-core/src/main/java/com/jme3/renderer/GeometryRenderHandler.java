@@ -43,8 +43,8 @@ public interface GeometryRenderHandler {
     /**
      * Renders the given geometry, or returns false.
      * 
-     * @param rm render manager
-     * @param geom geometry to render
+     * @param rm renderGeometry manager
+     * @param geom geometry to renderGeometry
      * @return true if the geometry was rendered
      */
     public boolean renderGeometry(RenderManager rm, Geometry geom);

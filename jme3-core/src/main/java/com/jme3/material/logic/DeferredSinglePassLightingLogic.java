@@ -105,11 +105,8 @@ public final class DeferredSinglePassLightingLogic extends DefaultTechniqueDefLo
     private final int ambientDefines;
     
     public DeferredSinglePassLightingLogic(TechniqueDef techniqueDef) {
-        this(techniqueDef, true);
-    }
-    public DeferredSinglePassLightingLogic(TechniqueDef techniqueDef, boolean useLightTextures) {
         super(techniqueDef);
-        this.useLightTextures = useLightTextures;
+        this.useLightTextures = true;
         singlePassLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_DEFERRED_SINGLE_PASS_LIGHTING, VarType.Boolean);
         if (this.useLightTextures) {
             packNbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_PACK_NB_LIGHTS, VarType.Int);

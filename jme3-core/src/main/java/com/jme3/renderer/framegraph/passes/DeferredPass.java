@@ -54,7 +54,8 @@ import com.jme3.texture.Texture2D;
 public class DeferredPass extends RenderPass {
     
     private AssetManager assetManager;
-    private ResourceTicket<Texture2D> diffuse, specular, emissive, normal, depth, outColor;
+    private ResourceTicket<Texture2D>[] gbuffers;
+    private ResourceTicket<Texture2D> outColor;
     private ResourceTicket<LightList> lights;
     private ResourceTicket<Integer> numRenders;
     private TextureDef<Texture2D> colorDef;
@@ -63,11 +64,7 @@ public class DeferredPass extends RenderPass {
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        diffuse = addInput("Diffuse");
-        specular = addInput("Specular");
-        emissive = addInput("Emissive");
-        normal = addInput("Normal");
-        depth = addInput("Depth");
+        gbuffers = addInputGroup("GBufferData", 5);
         lights = addInput("Lights");
         numRenders = addInput("NumRenders");
         outColor = addOutput("Color");
@@ -85,33 +82,28 @@ public class DeferredPass extends RenderPass {
         colorDef.setSize(context.getWidth(), context.getHeight());
         declare(colorDef, outColor);
         reserve(outColor);
-        reference(diffuse, specular, emissive, normal, depth);
+        reference(gbuffers);
         referenceOptional(lights, numRenders);
     }
     @Override
     protected void execute(FGRenderContext context) {
-        //material = new Material(assetManager, "Common/MatDefs/ShadingCommon/DeferredShading.j3md");
         FrameBuffer fb = getFrameBuffer(context, 1);
         resources.acquireColorTargets(fb, outColor);
-        //context.popFrameBuffer();
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
-        material.setTexture("Context_InGBuff0", resources.acquire(diffuse));
-        material.setTexture("Context_InGBuff1", resources.acquire(specular));
-        material.setTexture("Context_InGBuff2", resources.acquire(emissive));
-        material.setTexture("Context_InGBuff3", resources.acquire(normal));
-        material.setTexture("Context_InGBuff4", resources.acquire(depth));
+        material.setTexture("Context_InGBuff0", resources.acquire(gbuffers[0]));
+        material.setTexture("Context_InGBuff1", resources.acquire(gbuffers[1]));
+        material.setTexture("Context_InGBuff2", resources.acquire(gbuffers[2]));
+        material.setTexture("Context_InGBuff3", resources.acquire(gbuffers[3]));
+        material.setTexture("Context_InGBuff4", resources.acquire(gbuffers[4]));
         material.selectTechnique("DeferredPass", context.getRenderManager());
         LightList lightList = resources.acquireOrElse(lights, null);
-        //context.getRenderer().setDepthRange(0, 1);
-        //context.renderFullscreen(material);
-        //context.getScreen().setAlphaDiscard(0f);
         if (lightList != null) {
-            material.setInt("NBLight", lightList.size());
+            material.setInt("NBLights", lightList.size());
             context.getScreen().render(context.getRenderManager(), material, lightList);
         } else {
-            material.setInt("NBLight", 0);
+            material.setInt("NBLights", 0);
             context.renderFullscreen(material);
         }
     }

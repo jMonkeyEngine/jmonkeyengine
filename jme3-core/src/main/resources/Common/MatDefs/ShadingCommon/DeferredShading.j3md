@@ -1,23 +1,25 @@
 MaterialDef DeferredShading {
 
     MaterialParameters {
-        Int NBLight
-        // For instancing
-        Boolean UseInstancing
-        // UseLightsCull
+    
+        Int NBLights       
         Boolean UseLightsCullMode
+        Boolean UseLightTextures
 
-        // Context GBuffer Data
-        Texture2D Context_InGBuff0
-        Texture2D Context_InGBuff1
-        Texture2D Context_InGBuff2
-        Texture2D Context_InGBuff3
-        Texture2D Context_InGBuff4
+        // GBuffer Data
+        Texture2D GBuffer0
+        Texture2D GBuffer1
+        Texture2D GBuffer2
+        Texture2D GBuffer3
+        Texture2D GBuffer4
 
         // LightData
-        Texture2D LightPackData1
-        Texture2D LightPackData2
-        Texture2D LightPackData3
+        Texture2D LightTex1
+        Texture2D LightTex2
+        Texture2D LightTex3
+        Vector2 LightTexSize
+        Vector2 LightTexInv
+        
     }
 
     Technique DeferredPass {
@@ -34,8 +36,9 @@ MaterialDef DeferredShading {
         }
 
         Defines {
-            INSTANCING : UseInstancing
             USE_LIGHTS_CULL_MODE : UseLightsCullMode
+            USE_LIGHT_TEXTURES : UseLightTextures
+            NB_LIGHTS : NBLights
         }
     }
 

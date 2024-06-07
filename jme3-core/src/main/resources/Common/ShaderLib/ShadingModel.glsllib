@@ -1,18 +1,4 @@
-// SHADING_MODEL
-// 0 is clearRT mask
-#define LEGACY_LIGHTING       1
-#define STANDARD_LIGHTING     2
+#define PHONG_LIGHTING        1
+#define PBR_LIGHTING          2
 #define UNLIT                 3
 #define SUBSURFACE_SCATTERING 4
-
-#define IS_LIT(SHADING_MODEL_ID) (SHADING_MODEL_ID == LEGACY_LIGHTING || SHADING_MODEL_ID == STANDARD_LIGHTING || SHADING_MODEL_ID == SUBSURFACE_SCATTERING)
-
-
-#ifdef USE_REFLECTION_PROBE
-    uniform vec3 m_FresnelParams;
-    vec4 computeProbeRef(in vec3 wPosition, in vec3 wNormal, in vec3 wViewDir, in float VdotN){
-        vec4 refVec;
-        refVec.xyz  = reflect(wViewDir, wNormal);
-        refVec.w    = m_FresnelParams.x + m_FresnelParams.y * pow(1.0 + VdotN, m_FresnelParams.z);
-    }
-#endif

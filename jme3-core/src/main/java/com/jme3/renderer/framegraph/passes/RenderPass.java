@@ -45,6 +45,8 @@ import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -66,6 +68,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     private final LinkedList<ResourceTicket> inputs = new LinkedList<>();
     private final LinkedList<ResourceTicket> outputs = new LinkedList<>();
     private final LinkedList<PassFrameBuffer> frameBuffers = new LinkedList<>();
+    private final HashMap<String, ResourceTicket[]> groups = new HashMap<>();
     protected ResourceList resources;
     protected boolean autoTicketRelease = true;
     
@@ -125,10 +128,12 @@ public abstract class RenderPass implements ResourceProducer, Savable {
             t.setPassId(-1);
         }
         for (ResourceTicket t : outputs) {
+            t.setSource(null);
             t.setPassId(-1);
         }
         inputs.clear();
         outputs.clear();
+        groups.clear();
         index = -1;
     }
     
@@ -333,6 +338,79 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return addOutput(new ResourceTicket<>(name));
     }
     /**
+     * Adds the ticket array as a group input under the given name.
+     * 
+     * @param <T>
+     * @param name
+     * @param array
+     * @return ticket array
+     */
+    protected <T> ResourceTicket<T>[] addInputGroup(String name, ResourceTicket<T>... array) {
+        for (ResourceTicket<T> t : array) {
+            if (t == null) {
+                throw new NullPointerException("Ticket cannot be null in group.");
+            }
+            addInput(t);
+        }
+        groups.put(name, array);
+        return array;
+    }
+    /**
+     * Adds the ticket array as a group output under the given name.
+     * 
+     * @param <T>
+     * @param name
+     * @param array
+     * @return ticket array
+     */
+    protected <T> ResourceTicket<T>[] addOutputGroup(String name, ResourceTicket<T>... array) {
+        for (ResourceTicket<T> t : array) {
+            if (t == null) {
+                throw new NullPointerException("Ticket cannot be null in group.");
+            }
+            addOutput(t);
+        }
+        groups.put(name, array);
+        return array;
+    }
+    /**
+     * Creates and adds a ticket array as a group input of the specified length under the given name.
+     * <p>
+     * Each ticket is named the given name suffixed by the array index.
+     * 
+     * @param <T>
+     * @param name
+     * @param length
+     * @return created ticket array
+     */
+    protected <T> ResourceTicket<T>[] addInputGroup(String name, int length) {
+        ResourceTicket<T>[] array = new ResourceTicket[length];
+        for (int i = 0; i < length; i++) {
+            addInput(array[i] = new ResourceTicket<>(name+i));
+        }
+        groups.put(name, array);
+        return array;
+    }
+    /**
+     * Creates and adds a ticket array as a group output of the specified length under the given name.
+     * <p>
+     * Each ticket is named the given name suffixed by the array index.
+     * 
+     * @param <T>
+     * @param name
+     * @param length
+     * @return create ticket array
+     */
+    protected <T> ResourceTicket<T>[] addOutputGroup(String name, int length) {
+        ResourceTicket<T>[] array = new ResourceTicket[length];
+        for (int i = 0; i < length; i++) {
+            addOutput(array[i] = new ResourceTicket<>(name+i));
+        }
+        groups.put(name, array);
+        return array;
+    }
+    
+    /**
      * Gets the named input ticket, or null if none exists.
      * 
      * @param name
@@ -361,17 +439,43 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return null;
     }
     /**
-     * Makes the named output ticket belonging to the given pass the source of
-     * the named input ticket belonging to this pass.
+     * Gets the ticket array registered under the name.
+     * 
+     * @param name
+     * @return 
+     */
+    public ResourceTicket[] getGroup(String name) {
+        return groups.get(name);
+    }
+    
+    /**
+     * Makes the named source (output) ticket belonging to the given pass the source of
+     * the named target (input) ticket belonging to this pass.
+     * <p>
+     * If both the source name and target name correspond to ticket groups, the
+     * groups will be connected.
      * 
      * @param pass
-     * @param outTicket
-     * @param inTicket 
+     * @param sourceTicket
+     * @param targetTicket 
      */
-    public void makeInput(RenderPass pass, String outTicket, String inTicket) {
-        ResourceTicket out = Objects.requireNonNull(pass.getOutput(outTicket));
-        ResourceTicket in = Objects.requireNonNull(getInput(inTicket));
-        in.setSource(out);
+    public void makeInput(RenderPass pass, String sourceTicket, String targetTicket) {
+        ResourceTicket[] sourceArray = pass.getGroup(sourceTicket);
+        if (sourceArray != null) {
+            ResourceTicket[] targetArray = getGroup(targetTicket);
+            if (targetArray != null) {
+                if (sourceArray.length < targetArray.length) {
+                    throw new IllegalArgumentException("Source ticket array does not satisfy target ticket array.");
+                }
+                for (int i = 0; i < targetArray.length; i++) {
+                    targetArray[i].setSource(sourceArray[i]);
+                }
+                return;
+            }
+        }
+        ResourceTicket source = Objects.requireNonNull(pass.getOutput(sourceTicket), "Source ticket cannot be null.");
+        ResourceTicket target = Objects.requireNonNull(getInput(targetTicket), "Target ticket cannot be null.");
+        target.setSource(source);
     }
     /**
      * Nullifies all sources belonging to the given pass.

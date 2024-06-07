@@ -32,7 +32,6 @@
 package com.jme3.renderer.framegraph;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.renderer.framegraph.passes.Attribute;
 import com.jme3.renderer.framegraph.passes.DeferredPass;
 import com.jme3.renderer.framegraph.passes.GBufferPass;
 import com.jme3.renderer.framegraph.passes.OutputBucketPass;
@@ -41,7 +40,6 @@ import com.jme3.renderer.framegraph.passes.PostProcessingPass;
 import com.jme3.renderer.framegraph.passes.RenderPass;
 import com.jme3.renderer.framegraph.passes.TileDeferredPass;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.Texture2D;
 
 /**
  * Utility class for constructing common framegraphs.
@@ -90,12 +88,13 @@ public class FrameGraphFactory {
         fg.add(new PostProcessingPass());
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Translucent));
         
-        deferred.makeInput(gbuf, "Diffuse", "Diffuse");
-        deferred.makeInput(gbuf, "Specular", "Specular");
-        deferred.makeInput(gbuf, "Emissive", "Emissive");
-        deferred.makeInput(gbuf, "Normal", "Normal");
-        deferred.makeInput(gbuf, "Depth", "Depth");
-        deferred.makeInput(gbuf, "Lights", "Lights");
+        deferred.makeInput(gbuf, "GBufferData", "GBufferData");
+//        deferred.makeInput(gbuf, "Diffuse", "Diffuse");
+//        deferred.makeInput(gbuf, "Specular", "Specular");
+//        deferred.makeInput(gbuf, "Emissive", "Emissive");
+//        deferred.makeInput(gbuf, "Normal", "Normal");
+//        deferred.makeInput(gbuf, "Depth", "Depth");
+//        deferred.makeInput(gbuf, "Lights", "Lights");
         
         defOut.makeInput(deferred, "Color", "Color");
         defOut.makeInput(gbuf, "Depth", "Depth");
