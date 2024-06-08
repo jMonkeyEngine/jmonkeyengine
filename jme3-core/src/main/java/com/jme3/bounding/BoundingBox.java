@@ -613,11 +613,9 @@ public class BoundingBox extends BoundingVolume {
             return false;
         } else if (Float.compare(zExtent, otherBoundingBox.zExtent) != 0) {
             return false;
-        } else if (!center.equals(otherBoundingBox.getCenter())) {
-            return false;
+        } else {
+            return super.equals(otherBoundingBox);
         }
-        // The checkPlane field is ignored.
-        return true;
     }
 
     /**
@@ -632,8 +630,7 @@ public class BoundingBox extends BoundingVolume {
         hash = 59 * hash + Float.floatToIntBits(xExtent);
         hash = 59 * hash + Float.floatToIntBits(yExtent);
         hash = 59 * hash + Float.floatToIntBits(zExtent);
-        hash = 59 * hash + center.hashCode();
-        // The checkPlane field is ignored.
+        hash = 59 * hash + super.hashCode();
 
         return hash;
     }

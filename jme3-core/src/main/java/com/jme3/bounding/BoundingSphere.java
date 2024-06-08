@@ -673,11 +673,9 @@ public class BoundingSphere extends BoundingVolume {
         BoundingSphere otherBoundingSphere = (BoundingSphere) other;
         if (Float.compare(radius, otherBoundingSphere.getRadius()) != 0) {
             return false;
-        } else if (!center.equals(otherBoundingSphere.getCenter())) {
-            return false;
+        } else {
+            return super.equals(otherBoundingSphere);
         }
-        // The checkPlane field is ignored.
-        return true;
     }
 
     /**
@@ -690,8 +688,7 @@ public class BoundingSphere extends BoundingVolume {
     public int hashCode() {
         int hash = 3;
         hash = 59 * hash + Float.floatToIntBits(radius);
-        hash = 59 * hash + center.hashCode();
-        // The checkPlane field is ignored.
+        hash = 59 * hash + super.hashCode();
 
         return hash;
     }
