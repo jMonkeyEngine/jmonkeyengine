@@ -46,6 +46,7 @@ import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 //import com.jme.scene.TriMesh;
+import java.util.Objects;
 
 /**
  * <code>BoundingBox</code> describes a bounding volume as an axis-aligned box.
@@ -626,10 +627,7 @@ public class BoundingBox extends BoundingVolume {
      */
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 59 * hash + Float.floatToIntBits(xExtent);
-        hash = 59 * hash + Float.floatToIntBits(yExtent);
-        hash = 59 * hash + Float.floatToIntBits(zExtent);
+        int hash = Objects.hash(xExtent, yExtent, zExtent);
         hash = 59 * hash + super.hashCode();
 
         return hash;

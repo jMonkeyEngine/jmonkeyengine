@@ -40,6 +40,7 @@ import com.jme3.math.*;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.Objects;
 
 /**
  * <code>BoundingVolume</code> defines an interface for dealing with
@@ -216,8 +217,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
      */
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 59 * hash + center.hashCode();
+        int hash = Objects.hash(center);
         // The checkPlane field is ignored.
 
         return hash;

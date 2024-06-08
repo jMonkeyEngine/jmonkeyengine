@@ -43,6 +43,7 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -686,8 +687,7 @@ public class BoundingSphere extends BoundingVolume {
      */
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 59 * hash + Float.floatToIntBits(radius);
+        int hash = Objects.hash(radius);
         hash = 59 * hash + super.hashCode();
 
         return hash;
