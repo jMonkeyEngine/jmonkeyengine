@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,11 +59,14 @@ import java.util.logging.Logger;
  * This is more or less the same as ScreenshotAppState but without the keyboard input
  * (because in a headless environment, there is no keyboard and trying to configure it caused
  * errors).
+ *
+ * @author Richard Tingle (aka richtea)
+ *
  */
 public class ScreenshotNoInputAppState extends AbstractAppState implements ActionListener, SceneProcessor {
 
     private static final Logger logger = Logger.getLogger(ScreenshotNoInputAppState.class.getName());
-    private String filePath = null;
+    private String filePath;
     private boolean capture = false;
     private boolean numbered = true;
     private Renderer renderer;
