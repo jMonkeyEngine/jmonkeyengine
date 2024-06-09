@@ -35,5 +35,4 @@ test {
             excludeTags 'integration'
         }
     }
-    jvmArgs = [ "-Xmx1g" ] //already very low on memory available for the 3D renderer, don't let java steal too much of it
 }
