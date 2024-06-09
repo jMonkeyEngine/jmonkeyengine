@@ -32,7 +32,7 @@
 package org.jmonkeyengine.screenshottests.testframework;
 
 /**
- * The size the test should be run at. Try to keep it small to reduce teh file size of the screenshots saved into the
+ * The size the test should be run at. Try to keep it small to reduce the file size of the screenshots saved into the
  * repository.
  *
  * @author Richard Tingle (aka richtea)

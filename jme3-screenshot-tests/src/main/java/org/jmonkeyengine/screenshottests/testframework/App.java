@@ -37,6 +37,7 @@ import com.jme3.app.state.VideoRecorderAppState;
 import com.jme3.math.ColorRGBA;
 
 /**
+ * The app used for the tests. AppState(s) are used to inject the actual test code.
  * @author Richard Tingle (aka richtea)
  */
 public class App extends SimpleApplication {

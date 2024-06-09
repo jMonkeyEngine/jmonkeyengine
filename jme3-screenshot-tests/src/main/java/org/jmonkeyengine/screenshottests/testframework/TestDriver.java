@@ -216,7 +216,7 @@ public class TestDriver extends BaseAppState{
 
                 if(!Files.exists(expectedImage)){
                     try{
-                        Path savedImage = saveGeneratedImageToSavedImages(generatedImage, thisFrameBaseImageFileName);
+                        Path savedImage = saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName);
                         attachImage("New image:", thisFrameBaseImageFileName + ".png", savedImage);
                         String message = "Expected image not found, is this a new test? If so collect the new image from the step artefacts";
                         if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
@@ -238,7 +238,7 @@ public class TestDriver extends BaseAppState{
                     }
                 } else {
                     //save the generated image to the build directory
-                    Path savedImage = saveGeneratedImageToSavedImages(generatedImage, thisFrameBaseImageFileName);
+                    Path savedImage = saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName);
 
                     attachImage("Expected", thisFrameBaseImageFileName + "_expected.png", expectedImage);
                     attachImage("Actual", thisFrameBaseImageFileName + "_actual.png", savedImage);
@@ -287,7 +287,11 @@ public class TestDriver extends BaseAppState{
         }
     }
 
-    private static Path saveGeneratedImageToSavedImages(Path generatedImage, String imageFileName) throws IOException{
+    /**
+     * Saves the image with the exact file name it needs to go into the resources directory to be a new reference image
+     * if the instigator of the change wants to accept this as the new "correct" state.
+     */
+    private static Path saveGeneratedImageToChangedImages(Path generatedImage, String imageFileName) throws IOException{
         Path savedImage = Paths.get("build/changed-images/" + imageFileName + ".png");
         Files.createDirectories(savedImage.getParent());
         Files.copy(generatedImage, savedImage, StandardCopyOption.REPLACE_EXISTING);
@@ -300,7 +304,7 @@ public class TestDriver extends BaseAppState{
      * may be committed to the repository it is important to keep them as small as possible and worth the extra CPU time
      * to do so
      */
-    public static void aggressivelyCompressImage(Path path) throws IOException {
+    private static void aggressivelyCompressImage(Path path) throws IOException {
         // Load your image
         BufferedImage image = ImageIO.read(path.toFile());
 
@@ -322,18 +326,28 @@ public class TestDriver extends BaseAppState{
         writer.dispose();
     }
 
-    public static void attachImage(String title, String fileName, Path originalImage) throws IOException{
+    /**
+     * Attaches the image to the report. A copy of the image is made in the report directory
+     */
+    private static void attachImage(String title, String fileName, Path originalImage) throws IOException{
         ExtentTest test = ExtentReportExtension.getCurrentTest();
         Files.copy(originalImage.toAbsolutePath(), Paths.get("build/reports/" + fileName), StandardCopyOption.REPLACE_EXISTING);
         test.addScreenCaptureFromPath(fileName, title);
     }
 
-    public static void attachImage(String title, String fileName, BufferedImage originalImage) throws IOException{
+    /**
+     * Attaches the image to the report. The image is written to the report directory
+     */
+    private static void attachImage(String title, String fileName, BufferedImage originalImage) throws IOException{
         ExtentTest test = ExtentReportExtension.getCurrentTest();
         ImageIO.write(originalImage, "png", Paths.get("build/reports/" + fileName).toFile());
         test.addScreenCaptureFromPath(fileName, title);
     }
 
+    /**
+     * Tests that the images are the same. If they are not the same it will return false (which may fail the test
+     * depending on the test type). Different sizes are so fatal that they will immediately fail the test.
+     */
     private static boolean imagesAreTheSame(BufferedImage img1, BufferedImage img2) {
         if (img1.getWidth() != img2.getWidth() || img1.getHeight() != img2.getHeight()) {
             ExtentReportExtension.getCurrentTest().createNode("Image 1 size : " + img1.getWidth() + "x" + img1.getHeight());
@@ -343,7 +357,7 @@ public class TestDriver extends BaseAppState{
 
         for (int y = 0; y < img1.getHeight(); y++) {
             for (int x = 0; x < img1.getWidth(); x++) {
-                if (!pixelsApproximatelyEqual(img1.getRGB(x, y),img2.getRGB(x, y))) {
+                if (img1.getRGB(x, y)  != img2.getRGB(x, y)){
                     return false;
                 }
             }
@@ -351,6 +365,10 @@ public class TestDriver extends BaseAppState{
         return true;
     }
 
+    /**
+     * Creates an image that highlights the differences between the two images. The reference image is shown
+     * dully in grey with blue, yellow, orange and red showing where pixels are different.
+     */
     private static BufferedImage createComparisonImage(BufferedImage img1, BufferedImage img2) {
         BufferedImage comparisonImage = new BufferedImage(img1.getWidth(), img1.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
@@ -399,16 +417,6 @@ public class TestDriver extends BaseAppState{
         // Combine the components back into a single int
 
         return (a << 24) | (r << 16) | (g << 8) | b;
-    }
-
-    private static boolean pixelsApproximatelyEqual(int pixel1, int pixel2){
-        if(pixel1 == pixel2){
-            return true;
-        }
-
-        int pixelDifference = getMaximumComponentDifference(pixel1, pixel2);
-
-        return pixelDifference <= PixelSamenessDegree.SAME.getMaximumAllowedDifference();
     }
 
     private static PixelSamenessDegree categorisePixelDifference(int pixel1, int pixel2){

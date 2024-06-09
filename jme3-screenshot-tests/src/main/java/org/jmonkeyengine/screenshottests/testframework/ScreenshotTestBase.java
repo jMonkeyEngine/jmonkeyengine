@@ -44,6 +44,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @Tag("integration")
 public abstract class ScreenshotTestBase{
 
+    /**
+     * Initialises a screenshot test. The resulting object should be configured (if neccessary) and then started
+     * by calling {@link ScreenshotTest#run()}.
+     * @param initialStates
+     * @return
+     */
     public ScreenshotTest screenshotTest(AppState... initialStates){
         return new ScreenshotTest(initialStates);
     }

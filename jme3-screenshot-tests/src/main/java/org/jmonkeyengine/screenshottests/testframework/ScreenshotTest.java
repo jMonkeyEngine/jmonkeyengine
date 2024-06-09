@@ -96,7 +96,7 @@ public class ScreenshotTest{
         AppSettings settings = new AppSettings(true);
         settings.setResolution(resolution.getWidth(), resolution.getHeight());
         settings.setAudioRenderer(null); // Disable audio (for headless)
-        settings.setUseInput(false);
+        settings.setUseInput(false); //while it will run with inputs on it causes non-fatal errors.
 
         String imageFilePrefix = baseImageFileName == null ? calculateImageFilePrefix() : baseImageFileName;
 
@@ -107,8 +107,7 @@ public class ScreenshotTest{
     private String calculateImageFilePrefix(){
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 
-        // The element at index 2 is the caller of this method
-        // (0 is getStackTrace, 1 is getCallerInfo, 2 is the caller of getCallerInfo etc)
+        // The element at index 2 is the caller of this method, so at 3 should be the test class
         if (stackTrace.length > 3) {
             StackTraceElement caller = stackTrace[3];
             return caller.getClassName() + "." + caller.getMethodName();

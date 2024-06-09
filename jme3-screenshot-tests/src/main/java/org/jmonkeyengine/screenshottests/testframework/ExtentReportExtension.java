@@ -44,6 +44,8 @@ import org.junit.jupiter.api.extension.TestWatcher;
 import java.util.Optional;
 
 /**
+ * This creates the Extent report and manages the test lifecycle
+ *
  * @author Richard Tingle (aka richtea)
  */
 public class ExtentReportExtension implements BeforeAllCallback, AfterAllCallback, TestWatcher, BeforeTestExecutionCallback{
@@ -64,6 +66,10 @@ public class ExtentReportExtension implements BeforeAllCallback, AfterAllCallbac
 
     @Override
     public void afterAll(ExtensionContext context) {
+        /*
+        * this writes the entire report after each test class. This sucks but I don't think there is
+        * anywhere else I can hook into the lifecycle of the end of all tests to write the report.
+        */
         extent.flush();
     }
 
