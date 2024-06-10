@@ -33,6 +33,7 @@ The engine is used by several commercial game studios and computer-science cours
  - [Depthris (on Itch)](https://codewalker.itch.io/depthris)
  - [Stranded (on Itch)](https://tgiant.itch.io/stranded)
  - [The Afflicted Forests (Coming Soon to Steam)](https://www.indiedb.com/games/the-afflicted-forests)
+ - [Star Colony: Beyond Horizons (on Google Play)](https://play.google.com/store/apps/details?id=game.colony.ColonyBuilder)
 
 ## Getting Started
 
