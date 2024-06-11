@@ -30,7 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.scene.plugins.gltf;
-import com.jme3.plugins.json.JsonElement;
+
+import com.google.gson.JsonElement;
 
 /**
  * Interface to handle a glTF extra.

@@ -11,7 +11,6 @@ sourceSets {
 
 dependencies {
     api project(':jme3-core')
-    implementation project(':jme3-plugins-json')
-    implementation project(':jme3-plugins-json-gson')
+    api 'com.google.code.gson:gson:2.9.1'
     testRuntimeOnly project(':jme3-desktop')
 }
