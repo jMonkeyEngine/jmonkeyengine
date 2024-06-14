@@ -46,6 +46,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;
 import java.util.function.Predicate;
 import com.jme3.renderer.GeometryRenderHandler;
+import com.jme3.material.logic.RenderLogic;
 
 /**
  * Contains necessary context for framegraph rendering.
@@ -69,6 +70,7 @@ public class FGRenderContext {
     private Material forcedMat;
     private FrameBuffer frameBuffer;
     private GeometryRenderHandler geomRender;
+    private RenderLogic logic;
     private Predicate<Geometry> geomFilter;
     private RenderState renderState;
     
@@ -115,6 +117,7 @@ public class FGRenderContext {
         forcedMat = renderManager.getForcedMaterial();
         frameBuffer = renderManager.getRenderer().getCurrentFrameBuffer();
         geomRender = renderManager.getGeometryRenderHandler();
+        logic = renderManager.getRenderLogic();
         geomFilter = renderManager.getRenderFilter();
         renderState = renderManager.getForcedRenderState();
     }
@@ -126,6 +129,7 @@ public class FGRenderContext {
         renderManager.setForcedMaterial(forcedMat);
         renderManager.getRenderer().setFrameBuffer(frameBuffer);
         renderManager.setGeometryRenderHandler(geomRender);
+        renderManager.setRenderLogic(logic);
         renderManager.setRenderFilter(geomFilter);
         renderManager.setForcedRenderState(renderState);
         renderManager.getRenderer().setDepthRange(0, 1);

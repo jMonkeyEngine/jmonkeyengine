@@ -67,7 +67,6 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     private ResourceTicket<LightList> lights;
     private ResourceTicket<Integer> numRendersTicket;
     private ValueDef<LightList> lightDef;
-    private ValueDef<Integer> numRendersDef;
     private final TextureDef<Texture2D>[] texDefs = new TextureDef[5];
     private final LinkedList<Light> accumulatedLights = new LinkedList<>();
     private int numRenders = 0;
@@ -85,9 +84,6 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         texDefs[4] = new TextureDef<>(Texture2D.class, tex, Image.Format.Depth);
         lightDef = new ValueDef(LightList.class, n -> new LightList(null));
         lightDef.setReviser(list -> list.clear());
-        numRendersDef = new ValueDef(Boolean.class, n -> true);
-        numRendersDef.setUseExisting(false);
-        numRendersDef.setDisposeOnRelease(true);
     }
     @Override
     protected void prepare(FGRenderContext context) {
@@ -97,7 +93,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
             declare(texDefs[i], gbuffers[i]);
         }
         declare(lightDef, lights);
-        declare(numRendersDef, numRendersTicket);
+        declare(null, numRendersTicket);
         reserve(gbuffers);
         numRenders = 0;
     }
@@ -106,7 +102,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         // acquire texture targets
         FrameBuffer fb = getFrameBuffer(context, 1);
         fb.setMultiTarget(true);
-        //resources.setDirect(diffuse, diffuseTex);
+        //resources.setPrimitive(diffuse, diffuseTex);
         resources.acquireColorTargets(fb, gbuffers[0], gbuffers[1], gbuffers[2], gbuffers[3]);
         resources.acquireDepthTarget(fb, gbuffers[4]);
         context.getRenderer().setFrameBuffer(fb);
@@ -120,7 +116,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         while (!accumulatedLights.isEmpty()) {
             lightList.add(accumulatedLights.pollFirst());
         }
-        resources.setDirect(numRendersTicket, numRenders);
+        resources.setPrimitive(numRendersTicket, numRenders);
     }
     @Override
     protected void reset(FGRenderContext context) {}

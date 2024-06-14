@@ -51,7 +51,7 @@ public class RenderResource <T> {
     private int refs = 0;
     private boolean survivesRefCull = false;
     private boolean undefined = false;
-
+    
     /**
      * 
      * @param producer
@@ -89,8 +89,10 @@ public class RenderResource <T> {
     public void setObject(RenderObject<T> object) {
         if (object != null) {
             setObject(object, object.getObject());
-        } else if (this.object != null) {
-            this.object.release();
+        } else {
+            if (this.object != null) {
+                this.object.release();
+            }
             this.object = null;
             resource = null;
         }
@@ -114,6 +116,15 @@ public class RenderResource <T> {
         this.resource = resource;
         this.object.acquire();
         ticket.setObjectId(this.object.getId());
+    }
+    /**
+     * Directly sets the concrete resource held by this render resource.
+     * 
+     * @param resource 
+     */
+    public void setPrimitive(T resource) {
+        object = null;
+        this.resource = resource;
     }
     /**
      * Marks this resource as undefined.
@@ -207,7 +218,19 @@ public class RenderResource <T> {
      * @return 
      */
     public boolean isVirtual() {
-        return object == null && !undefined;
+        return resource == null && !undefined;
+    }
+    /**
+     * Returns true if this resource is primitive.
+     * <p>
+     * A resource is primitive when it holds a concrete resource without a
+     * corresponding render object. Primitive resources are handled niavely,
+     * because they are not directly associated with a render object.
+     * 
+     * @return 
+     */
+    public boolean isPrimitive() {
+        return resource != null && object == null;
     }
     /**
      * Returns true if this resource is referenced by users other than the

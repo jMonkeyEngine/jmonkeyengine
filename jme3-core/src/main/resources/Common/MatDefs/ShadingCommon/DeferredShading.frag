@@ -23,13 +23,10 @@ uniform vec3 g_CameraPosition;
 uniform int m_NBLights;
 
 #ifdef USE_LIGHT_TEXTURES
-    //uniform int g_LightCount;
-    uniform sampler2D m_NBLightss;
     uniform sampler2D m_LightTex1;
     uniform sampler2D m_LightTex2;
     uniform sampler2D m_LightTex3;
-    uniform vec2 m_LightTexSize;
-    uniform vec2 m_LightTexInv;
+    uniform float m_LightTexInv;
 #else
     uniform vec4 g_LightData[NB_LIGHTS];
 #endif
@@ -44,8 +41,7 @@ void main(){
     // unpack m_GBuffer
     vec4 shadingInfo = texture2D(m_GBuffer2, innerTexCoord);
     int shadingModelId = int(floor(shadingInfo.a));
-    
-    float depth = texture2D(m_DepthGBuffer, texCoord).r;
+    float depth = texture2D(m_GBuffer4, innerTexCoord).r;
     gl_FragDepth = depth;
     // Due to GPU architecture, each shading mode is performed for each pixel, which is very inefficient.
     // TODO: Remove these if statements if possible.
@@ -59,24 +55,16 @@ void main(){
         float shininess = buff1.a;
         float alpha = diffuseColor.a;
         vec3 normal = texture2D(m_GBuffer3, innerTexCoord).xyz;
-        vec3 viewDir  = normalize(g_CameraPosition - vPos);
+        vec3 viewDir = normalize(g_CameraPosition - vPos);
         gl_FragColor.rgb = AmbientSum * diffuseColor.rgb;
         gl_FragColor.a = alpha;
         //int lightNum = 0;
-        #ifdef USE_LIGHT_TEXTURES
-            float lightTexSizeInv = 1.0f / (float(PACK_NB_LIGHTS) - 1.0f);
-            int x = 0;
-            int y = 0;
-        #endif
-        for (int i = 0; i < m_NBLights;) {
+        for (int i = 0; i < NB_LIGHTS;) {
             #ifdef USE_LIGHT_TEXTURES
-                vec2 pixel = vec2(x, y) * m_LightTexInv;
+                vec2 pixel = vec2(i, 0);
+                pixel.x *= m_LightTexInv;
                 vec4 lightColor = texture2D(m_LightTex1, pixel);
                 vec4 lightData1 = texture2D(m_LightTex2, pixel);
-                if (++x >= m_LightTexSize.x) {
-                    x = 0;
-                    y++;
-                }
             #else
                 vec4 lightColor = g_LightData[i];
                 vec4 lightData1 = g_LightData[i+1];
@@ -91,37 +79,23 @@ void main(){
                 if (lightColor.w > 1.0) {
             #endif
                     #ifdef USE_LIGHT_TEXTURES
-                        spotFallOff =  computeSpotFalloff(texture2D(m_LightTex3, pixel), lightVec);
+                        spotFallOff = computeSpotFalloff(texture2D(m_LightTex3, pixel), lightVec);
                     #else
-                        spotFallOff =  computeSpotFalloff(g_LightData[i+2], lightVec);
+                        spotFallOff = computeSpotFalloff(g_LightData[i+2], lightVec);
                     #endif
             #if __VERSION__ >= 110
                 }
             #endif
 
             #ifdef NORMALMAP
-                //Normal map -> lighting is computed in tangent space
+                // Normal map -> lighting is computed in tangent space
                 lightDir.xyz = normalize(lightDir.xyz * tbnMat);
             #else
-                //no Normal map -> lighting is computed in view space
+                // no Normal map -> lighting is computed in view space
                 lightDir.xyz = normalize(lightDir.xyz);
             #endif
 
             vec2 light = computeLighting(normal, viewDir, lightDir.xyz, lightDir.w * spotFallOff , shininess);
-
-            // Workaround, since it is not possible to modify varying variables
-            //        #ifdef USE_REFLECTION
-            //             // Interpolate light specularity toward reflection color
-            //             // Multiply result by specular map
-            //             specularColor = mix(specularColor * light.y, refColor, refVec.w) * specularColor;
-            //             light.y = 1.0;
-            //        #endif
-            //
-            //        #ifdef COLORRAMP
-            //           diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
-            //           specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
-            //           light.xy = vec2(1.0);
-            //        #endif
 
             gl_FragColor.rgb += lightColor.rgb * diffuseColor.rgb  * vec3(light.x) +
             lightColor.rgb * specularColor.rgb * vec3(light.y);
@@ -130,6 +104,9 @@ void main(){
             #else
                 i += 3;
             #endif
+        }
+        if (NB_LIGHTS < 10) {
+            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
         }
     } else if (shadingModelId == PBR_LIGHTING) {
         // PBR shading
@@ -147,25 +124,16 @@ void main(){
         vec4 n1n2 = texture2D(m_GBuffer3, innerTexCoord);
         vec3 normal = octDecode(n1n2.xy);
         vec3 norm = octDecode(n1n2.zw);
-        vec3 viewDir  = normalize(g_CameraPosition - vPos);
+        vec3 viewDir = normalize(g_CameraPosition - vPos);
         float ndotv = max( dot( normal, viewDir ),0.0);
         int lightNum = 0;
-        #ifdef USE_LIGHT_TEXTURES
-            float lightTexSizeInv = 1.0f / (float(PACK_NB_LIGHTS) - 1.0f);
-            int x = 0;
-            int y = 0;
-        #else
-        #endif
         gl_FragColor.rgb = vec3(0.0);
-        for (int i = 0; i < m_NBLights;) {
+        for (int i = 0; i < NB_LIGHTS;) {
             #ifdef USE_LIGHT_TEXTURES
-                vec2 pixel = vec2(x, y) * m_LightTexInv;
+                vec2 pixel = vec2(i, 0);
+                pixel.x *= m_LightTexInv;
                 vec4 lightColor = texture2D(m_LightTex1, pixel);
                 vec4 lightData1 = texture2D(m_LightTex2, pixel);
-                if (++x >= m_LightTexSize.x) {
-                    x = 0;
-                    y++;
-                }
             #else
                 vec4 lightColor = g_LightData[i];
                 vec4 lightData1 = g_LightData[i+1];
@@ -214,10 +182,10 @@ void main(){
             #endif
         }
         // skyLight and reflectionProbe
-        vec3 skyLightAndReflection = renderSkyLightAndReflectionProbes(
+        vec3 skyLight = renderSkyLightAndReflectionProbes(
                 indoorSunLightExposure, viewDir, vPos, normal, norm,
                 Roughness, diffuseColor, specularColor, ndotv, ao);
-        gl_FragColor.rgb += skyLightAndReflection;
+        gl_FragColor.rgb += skyLight;
         gl_FragColor.rgb += emissive;
         gl_FragColor.a = alpha;
         gl_FragColor.rgb = vec3(1-lightNum);

@@ -1,10 +1,6 @@
 MaterialDef DeferredShading {
 
     MaterialParameters {
-    
-        Int NBLights       
-        Boolean UseLightsCullMode
-        Boolean UseLightTextures
 
         // GBuffer Data
         Texture2D GBuffer0
@@ -17,7 +13,7 @@ MaterialDef DeferredShading {
         Texture2D LightTex1
         Texture2D LightTex2
         Texture2D LightTex3
-        Vector2 LightTexSize
+        Int LightTexSize
         Vector2 LightTexInv
         
     }
@@ -34,12 +30,7 @@ MaterialDef DeferredShading {
             ViewProjectionMatrix
             ResolutionInverse
         }
-
-        Defines {
-            USE_LIGHTS_CULL_MODE : UseLightsCullMode
-            USE_LIGHT_TEXTURES : UseLightTextures
-            NB_LIGHTS : NBLights
-        }
+        
     }
 
 }

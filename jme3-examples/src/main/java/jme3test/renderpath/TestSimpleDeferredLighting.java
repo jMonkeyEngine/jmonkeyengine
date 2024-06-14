@@ -666,13 +666,13 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         FrameGraph forward = new FrameGraph(assetManager, "Common/FrameGraphs/Forward.j3g");
         forward.setName("forward");
         //FrameGraph deferred = new FrameGraph(assetManager, "Common/FrameGraphs/Deferred.j3g");
-        FrameGraph deferred = FrameGraphFactory.deferred(assetManager, true);
+        FrameGraph deferred = FrameGraphFactory.deferred(assetManager, false);
         deferred.setName("deferred1");
-        FrameGraph deferred2 = FrameGraphFactory.deferred(assetManager, false);
-        deferred2.setName("deferred2");
+        //FrameGraph deferred2 = FrameGraphFactory.deferred(assetManager, false);
+        //deferred2.setName("deferred2");
         //FrameGraph graph = FrameGraphFactory.forward(assetManager, renderManager);
         viewPort.setFrameGraph(deferred);
-        guiViewPort.setFrameGraph(deferred);
+        //guiViewPort.setFrameGraph(deferred);
         //renderManager.setFrameGraph(deferred);
         //renderManager.setFrameGraph(forward);
         
@@ -696,11 +696,11 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         Material debugMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         //debugMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
         debugView.setMaterial(debugMat);
-        MatParamTargetControl texTarget = new MatParamTargetControl("ColorMap", VarType.Texture2D);
-        texTarget.setViewPorts(viewPort);
-        deferred.get(Attribute.class, "GBufferDebug").addTarget(texTarget);
-        debugView.addControl(texTarget);
-        guiNode.attachChild(debugView);
+        //MatParamTargetControl texTarget = new MatParamTargetControl("ColorMap", VarType.Texture2D);
+        //texTarget.setViewPorts(viewPort);
+        //deferred.get(Attribute.class, "GBufferDebug").addTarget(texTarget);
+        //debugView.addControl(texTarget);
+        //guiNode.attachChild(debugView);
         
         Geometry g = new Geometry("test", new Box(1, 1, 1));
         g.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));

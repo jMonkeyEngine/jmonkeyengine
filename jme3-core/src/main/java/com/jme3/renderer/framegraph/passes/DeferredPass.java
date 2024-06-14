@@ -32,49 +32,95 @@
 package com.jme3.renderer.framegraph.passes;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
 import com.jme3.light.LightList;
+import com.jme3.light.LightProbe;
+import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
-import com.jme3.material.logic.DeferredSinglePassLightingLogic;
+import com.jme3.material.logic.SkyLightAndReflectionProbeRender;
+import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.Caps;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.Renderer;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.TextureDef;
+import com.jme3.scene.Geometry;
+import com.jme3.shader.DefineList;
+import com.jme3.shader.Shader;
+import com.jme3.shader.Uniform;
+import com.jme3.shader.VarType;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.image.ImageRaster;
+import java.io.IOException;
+import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Renders GBuffer information using deferred lighting to a color texture.
  * 
  * @author codex
  */
-public class DeferredPass extends RenderPass {
+public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     
+    private static Defines defs;
+    private static final List<LightProbe> localProbeList = new LinkedList<>();
+    
+    private boolean tiled = false;
     private AssetManager assetManager;
-    private ResourceTicket<Texture2D>[] gbuffers;
     private ResourceTicket<Texture2D> outColor;
     private ResourceTicket<LightList> lights;
-    private ResourceTicket<Integer> numRenders;
+    private ResourceTicket<Integer> numLights;
+    private ResourceTicket<ColorRGBA> ambient;
+    private ResourceTicket<List<LightProbe>> probes;
     private TextureDef<Texture2D> colorDef;
     private Material material;
+    private Texture2D[] lightTextures = new Texture2D[3];
     private int maxLights = 1000;
+    private ColorRGBA ambientColor = new ColorRGBA();
+    private List<LightProbe> probeList;
+    
+    public DeferredPass() {}
+    public DeferredPass(boolean tiled) {
+        this.tiled = tiled;
+    }
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        gbuffers = addInputGroup("GBufferData", 5);
+        // Lighting Arguments:
+        // IF LightTextures = undefined
+        //     EITHER provide raw light list
+        //     OR provide processed light list (without ambient or probes), ambient color, and probe list.
+        // ELSE provide 3 light textures, number of lights, ambient color, and probe list.
+        addInputGroup("GBufferData", 5);
         lights = addInput("Lights");
-        numRenders = addInput("NumRenders");
+        addInputGroup("LightTextures", 3);
+        numLights = addInput("NumLights");
+        ambient = addInput("Ambient");
+        probes = addInput("Probes");
         outColor = addOutput("Color");
         colorDef = new TextureDef<>(Texture2D.class, img -> new Texture2D(img));
         colorDef.setFormatFlexible(true);
-        //colorDef.setUseExisting(false);
         assetManager = frameGraph.getAssetManager();
         material = new Material(assetManager, "Common/MatDefs/ShadingCommon/DeferredShading.j3md");
-        for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("DeferredPass")) {
-            t.setLogic(new DeferredSinglePassLightingLogic(t));
+        if (defs == null) {
+            defs = new Defines();
+            for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("DeferredPass")) {
+                defs.config(t);
+            }
         }
     }
     @Override
@@ -82,8 +128,10 @@ public class DeferredPass extends RenderPass {
         colorDef.setSize(context.getWidth(), context.getHeight());
         declare(colorDef, outColor);
         reserve(outColor);
-        reference(gbuffers);
-        referenceOptional(lights, numRenders);
+        // groups are stored by hashmap, which makes it absolutely fine to fetch every frame
+        reference(getGroup("GBufferData"));
+        referenceOptional(lights, numLights, ambient, probes);
+        referenceOptional(getGroup("LightTextures"));
     }
     @Override
     protected void execute(FGRenderContext context) {
@@ -92,28 +140,174 @@ public class DeferredPass extends RenderPass {
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
-        material.setTexture("Context_InGBuff0", resources.acquire(gbuffers[0]));
-        material.setTexture("Context_InGBuff1", resources.acquire(gbuffers[1]));
-        material.setTexture("Context_InGBuff2", resources.acquire(gbuffers[2]));
-        material.setTexture("Context_InGBuff3", resources.acquire(gbuffers[3]));
-        material.setTexture("Context_InGBuff4", resources.acquire(gbuffers[4]));
+        ResourceTicket<Texture2D>[] gbuffers = getGroup("GBufferData");
+        for (int i = 0; i < gbuffers.length; i++) {
+            material.setTexture("GBuffer"+i, resources.acquire(gbuffers[i]));
+        }
         material.selectTechnique("DeferredPass", context.getRenderManager());
-        LightList lightList = resources.acquireOrElse(lights, null);
-        if (lightList != null) {
-            material.setInt("NBLights", lightList.size());
-            context.getScreen().render(context.getRenderManager(), material, lightList);
+        material.getActiveTechnique().getDef().setLogic(this);
+        acquireGroupOrElse("LightTextures", lightTextures, null);
+        if (lightTextures[0] == null) {
+            context.getScreen().render(context.getRenderManager(), material, resources.acquire(lights));
         } else {
-            material.setInt("NBLights", 0);
+            for (int i = 1; i <= lightTextures.length; i++) {
+                material.setTexture("LightTex"+i, lightTextures[i-1]);
+            }
             context.renderFullscreen(material);
         }
+        material.getActiveTechnique().getDef().setLogic(null);
     }
     @Override
     protected void reset(FGRenderContext context) {}
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
     @Override
-    public boolean isUsed() {
-        return true;
+    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
+            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
+        // defines should only be set in this method
+        boolean useLightTex = lightTextures[0] != null;
+        defines.set(defs.useTextures, useLightTex);
+        if (!useLightTex) {
+            ColorRGBA amb = resources.acquireOrElse(ambient, null);
+            if (amb == null) {
+                probeList = localProbeList;
+                // extract ambient and probes from light list
+                SkyLightAndReflectionProbeRender.extractSkyLightAndReflectionProbes(
+                        lights, ambientColor, probeList, true);
+            } else {
+                // lights are already processed: get ambient and probes from resources
+                ambientColor.set(amb);
+                probeList = resources.acquire(probes);
+            }
+            defines.set(defs.numLights, lights.size()*3);
+        } else {
+            // get resources for lighting with textures
+            ambientColor.set(resources.acquire(ambient));
+            probeList = resources.acquire(probes);
+            defines.set(defs.numLights, resources.acquire(numLights));
+        }
+        defines.set(defs.numProbes, Math.min(probeList.size(), 3));
+        return material.getActiveTechnique().getDef().getShader(assetManager, rendererCaps, defines);
+    }
+    @Override
+    public void render(RenderManager rm, Shader shader, Geometry geometry,
+            LightList lights, Material.BindUnits lastBindUnits) {
+        Renderer renderer = rm.getRenderer();
+        injectShaderGlobals(rm, shader, lastBindUnits.textureUnit);
+        if (lightTextures[0] == null) {
+            // pass light data by uniforms
+            injectLightBuffers(shader, lights);
+        } else {
+            // pass light data by textures
+            injectLightTextures(shader);
+        }
+        renderer.setShader(shader);
+        TechniqueDefLogic.renderMeshFromGeometry(renderer, geometry);
+        probeList = null;
+    }
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(tiled, "tiled", false);
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule in = im.getCapsule(this);
+        tiled = in.readBoolean("tiled", false);
+    }
+    
+    private void injectShaderGlobals(RenderManager rm, Shader shader, int lastTexUnit) {
+        shader.getUniform("g_AmbientLightColor").setValue(VarType.Vector4, ambientColor);
+        if (probeList != null && !probeList.isEmpty()) {
+            int i = 0;
+            // inject light probes
+            for (LightProbe p : probeList) {
+                String num = (++i > 1 ? String.valueOf(i) : "");
+                Uniform sky = shader.getUniform("g_SkyLightData"+num);
+                Uniform coeffs = shader.getUniform("g_ShCoeffs"+num);
+                Uniform env = shader.getUniform("g_ReflectionEnvMap"+num);
+                lastTexUnit = SkyLightAndReflectionProbeRender.setSkyLightAndReflectionProbeData(
+                        rm, lastTexUnit, sky, coeffs, env, p);
+                // shaders only support up to 3 probes at once
+                if (i == 3) break;
+            }
+        } else {
+            // disable light probes
+            shader.getUniform("g_SkyLightData").setValue(VarType.Matrix4, LightProbe.FALLBACK_MATRIX);
+        }
+    }
+    private void injectLightBuffers(Shader shader, LightList lights) {
+        // ambient lights and probes should already have been extracted at this point
+        Uniform data = shader.getUniform("g_LightData");
+        int n = lights.size()*3;
+        data.setVector4Length(n);
+        int i = 0;
+        for (Light l : lights) {
+            Light.Type type = l.getType();
+            writeColorToUniform(data, l.getColor(), type.getId(), i++);
+            switch (type) {
+                case Directional:
+                    DirectionalLight dl = (DirectionalLight)l;
+                    writeVectorToUniform(data, dl.getDirection(), -1, i++);
+                    data.setVector4InArray(0, 0, 0, 0, i++);
+                    break;
+                case Point:
+                    PointLight pl = (PointLight)l;
+                    writeVectorToUniform(data, pl.getPosition(), pl.getInvRadius(), i++);
+                    data.setVector4InArray(0, 0, 0, 0, i++);
+                    break;
+                case Spot:
+                    SpotLight sl = (SpotLight)l;
+                    writeVectorToUniform(data, sl.getPosition(), sl.getInvSpotRange(), i++);
+                    writeVectorToUniform(data, sl.getDirection(), sl.getPackedAngleCos(), i++);
+                    break;
+                case Ambient:
+                case Probe:
+                    throw new IllegalStateException("Internal: ambient and probe lights should not be present.");
+                default:
+                    throw new UnsupportedOperationException("Light "+type+" not supported.");
+            }
+        }
+        // just in case, fill in the remaining elements
+        while (i < n) {
+            data.setVector4InArray(0, 0, 0, 0, i++);
+        }
+    }
+    private void injectLightTextures(Shader shader) {
+        int w = lightTextures[0].getImage().getWidth();
+        shader.getUniform("m_LightTexInv").setValue(VarType.Vector2, new Vector2f(1f/w, 0));
+    }
+    
+    private void writeVectorToUniform(Uniform uniform, Vector3f vec, float w, int i) {
+        uniform.setVector4InArray(vec.x, vec.y, vec.z, w, i);
+    }
+    private void writeColorToUniform(Uniform uniform, ColorRGBA color, float a, int i) {
+        uniform.setVector4InArray(color.r, color.g, color.b, a, i);
+    }
+    
+    /**
+     * Registers and tracks necessary define IDs for all deferred passes.
+     */
+    private static class Defines {
+        
+        private static final String DEFINE_NB_LIGHTS = "NB_LIGHTS";
+        private static final String DEFINE_NB_PROBES = "NB_PROBES";
+        private static final String DEFINE_USE_LIGHT_TEXTURES = "USE_LIGHT_TEXTURES";
+        private static final String DEFINE_USE_AMBIENT_LIGHT = "USE_AMBIENT_LIGHT";
+        
+        public int numLights, useTextures, numProbes, useAmbientLight;
+        
+        public Defines() {}
+        
+        public void config(TechniqueDef def) {
+            numLights = def.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
+            numProbes = def.addShaderUnmappedDefine(DEFINE_NB_PROBES, VarType.Int);
+            useTextures = def.addShaderUnmappedDefine(DEFINE_USE_LIGHT_TEXTURES, VarType.Boolean);
+            useAmbientLight = def.addShaderUnmappedDefine(DEFINE_USE_AMBIENT_LIGHT, VarType.Boolean);
+        }
+        
     }
     
 }

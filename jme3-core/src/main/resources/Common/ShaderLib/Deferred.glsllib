@@ -22,7 +22,7 @@ uniform sampler2D m_GBuffer0;
 uniform sampler2D m_GBuffer1;
 uniform sampler2D m_GBuffer2;
 uniform sampler2D m_GBuffer3;
-uniform sampler2D m_DepthGBuffer;
+uniform sampler2D m_GBuffer4;
 //#endif
 
 vec3 decodeNormal(in vec4 enc){
@@ -44,7 +44,7 @@ vec3 getPosition(in vec2 texCoord, in float depth, in mat4 matrixInverse){
 }
 
 vec3 getPosition(in vec2 texCoord, in mat4 matrixInverse){
-    return getPosition(texCoord, texture2D(depthGBuffer, texCoord).r, matrixInverse);
+    return getPosition(texCoord, texture2D(m_GBuffer4, texCoord).r, matrixInverse);
 }
 
 

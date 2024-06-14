@@ -146,13 +146,13 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
         t.getImage().dispose();
     }
     
-    private T createTexture(Image img) {
+    protected T createTexture(Image img) {
         T tex = textureBuilder.apply(img);
         tex.getImage().setMultiSamples(samples);
         setupTexture(tex);
         return tex;
     }
-    private void setupTexture(Texture tex) {
+    protected void setupTexture(Texture tex) {
         if (magFilter != null) {
             tex.setMagFilter(magFilter);
         }
@@ -168,17 +168,23 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
         if (wrapT != null) {
             tex.setWrap(Texture.WrapAxis.T, wrapT);
         }
-        if (wrapR != null) {
+        if (wrapR != null && depth > 0) {
             tex.setWrap(Texture.WrapAxis.R, wrapR);
         }
     }
-    private boolean validateImage(Image img) {
-        return img.getWidth() == width && img.getHeight() == height && (depth == 0 || img.getDepth() == depth)
+    protected boolean validateImage(Image img) {
+        return validateImageSize(img)
             && (samples <= 0 || img.getMultiSamples() == samples)
-            && (img.getFormat() == format || (formatFlexible && img.getFormat().isDepthFormat() == format.isDepthFormat()))
+            && validateImageFormat(img)
             && (colorSpaceFlexible || img.getColorSpace() == colorSpace);
     }
-
+    protected boolean validateImageSize(Image img) {
+        return img.getWidth() == width && img.getHeight() == height && (depth == 0 || img.getDepth() == depth);
+    }
+    protected boolean validateImageFormat(Image img) {
+        return img.getFormat() == format || (formatFlexible && img.getFormat().isDepthFormat() == format.isDepthFormat());
+    }
+    
     /**
      * Sets the function that constructs a texture from an image.
      * 
@@ -278,6 +284,9 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
      * @param d true to set depth
      */
     public void setNumPixels(int pixels, boolean w, boolean h, boolean d) {
+        width = height = 1;
+        if (depth > 0) depth = 1;
+        else depth = 0;
         int n = 0;
         if (w) n++;
         if (h) n++;

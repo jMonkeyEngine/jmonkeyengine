@@ -107,7 +107,7 @@ public class ResourceList {
      * @param ticket
      * @return 
      */
-    protected boolean validate(ResourceTicket ticket) {
+    public boolean validate(ResourceTicket ticket) {
         return ticket != null && ticket.getWorldIndex() >= 0;
     }
     /**
@@ -490,13 +490,19 @@ public class ResourceList {
     
     /**
      * Directly assign the resource associated with the ticket to the value.
+     * <p>
+     * A render object is not created to store the value. Instead, the render resource
+     * will directly store the value. Note that the value will be lost when the
+     * render resource is destroyed.
+     * <p>
+     * This is intended to called in place of {@link #acquire(com.jme3.renderer.framegraph.ResourceTicket)}.
      * 
      * @param <T>
      * @param ticket 
      * @param value 
      */
-    public <T> void setDirect(ResourceTicket<T> ticket, T value) {
-        map.allocateDirect(locate(ticket), value);
+    public <T> void setPrimitive(ResourceTicket<T> ticket, T value) {
+        locate(ticket).setPrimitive(value);
     }
     
     protected <T> T extract(RenderResource<T> resource, ResourceTicket<T> ticket) {
@@ -557,10 +563,17 @@ public class ResourceList {
                 cap.releaseObject(resource.getObject().getId());
             }
             remove(ticket.getWorldIndex());
-            if (resource.getDefinition().isDisposeOnRelease()) {
-                map.dispose(resource);
+            if (!resource.isVirtual() && !resource.isUndefined()) {
+                ResourceDef def = resource.getDefinition();
+                if (def != null && def.isDisposeOnRelease()) {
+                    if (!resource.isPrimitive()) {
+                        map.dispose(resource);
+                    } else {
+                        resource.getDefinition().dispose(resource.getResource());
+                    }
+                }
+                resource.setObject(null);
             }
-            resource.setObject(null);
         }
     }
     /**
@@ -631,7 +644,7 @@ public class ResourceList {
             if (!producer.dereference()) {
                 // if producer is not referenced, dereference all input resources
                 for (ResourceTicket t : producer.getInputTickets()) {
-                    if (t.getWorldIndex() < 0) {
+                    if (!validate(t)) {
                         continue;
                     }
                     RenderResource r = locate(t);

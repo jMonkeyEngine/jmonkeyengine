@@ -7,6 +7,7 @@ package com.jme3.renderer.framegraph.light;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
+import com.jme3.light.LightProbe;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.math.ColorRGBA;
@@ -14,6 +15,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ImageRaster;
+import java.util.List;
 
 /**
  *
@@ -24,6 +26,7 @@ public class LightImagePacker {
     private final Texture2D[] textures = new Texture2D[3];
     private final ImageRaster[] rasters = new ImageRaster[3];
     private final ColorRGBA tempColor = new ColorRGBA();
+    private boolean hasAmbient = false;
     
     public LightImagePacker() {}
     
@@ -41,51 +44,55 @@ public class LightImagePacker {
         return textures[i];
     }
     
-    public void packLightsToTextures(LightList lights) {
+    public int packLights(LightList lights, ColorRGBA ambient, List<LightProbe> probes) {
+        ambient.set(0, 0, 0, 1);
+        probes.clear();
         if (lights.size() == 0) {
-            return;
+            return 0;
         }
-        int x = 0, y = 0;
-        int w = textures[0].getImage().getWidth();
-        int h = textures[0].getImage().getHeight();
+        int numLights = 0;
+        int i = 0;
+        int limit = textures[0].getImage().getWidth();
         boolean spotlight = false;
+        hasAmbient = false;
         for (Light l : lights) {
-            if (l.getType() == Light.Type.Ambient || l.getType() == Light.Type.Probe) {
+            if (l.getType() == Light.Type.Ambient) {
+                ambient.addLocal(l.getColor());
+                hasAmbient = true;
+                continue;
+            }
+            if (l.getType() == Light.Type.Probe) {
+                probes.add((LightProbe)l);
                 continue;
             }
             tempColor.set(l.getColor()).setAlpha(l.getType().getId());
-            rasters[0].setPixel(x, y, tempColor);
+            rasters[0].setPixel(i, 0, tempColor);
             switch (l.getType()) {
                 case Directional:
                     DirectionalLight dl = (DirectionalLight)l;
-                    vectorToColor(dl.getDirection(), tempColor);
-                    rasters[1].setPixel(x, y, tempColor);
+                    vectorToColor(dl.getDirection(), tempColor).a = 0;
+                    rasters[1].setPixel(i, 0, tempColor);
                     break;
                 case Point:
                     PointLight pl = (PointLight)l;
                     vectorToColor(pl.getPosition(), tempColor);
                     tempColor.a = pl.getInvRadius();
-                    rasters[1].setPixel(x, y, tempColor);
+                    rasters[1].setPixel(i, 0, tempColor);
                     break;
                 case Spot:
                     SpotLight sl = (SpotLight)l;
                     vectorToColor(sl.getPosition(), tempColor);
                     tempColor.a = sl.getInvSpotRange();
-                    rasters[1].setPixel(x, y, tempColor);
-                    // We transform the spot direction in view space here to save 5 varying later in the lighting shader
-                    // one vec4 less and a vec4 that becomes a vec3
-                    // the downside is that spotAngleCos decoding happens now in the frag shader.
+                    rasters[1].setPixel(i, 0, tempColor);
                     vectorToColor(sl.getDirection(), tempColor);
                     tempColor.a = sl.getPackedAngleCos();
-                    rasters[2].setPixel(x, y, tempColor);
+                    rasters[2].setPixel(i, 0, tempColor);
                     spotlight = true;
                     break;
             }
-            if (++x >= w) {
-                x = 0;
-                if (++y >= h) {
-                    break;
-                }
+            numLights++;
+            if (++i >= limit) {
+                break;
             }
         }
         textures[0].getImage().setUpdateNeeded();
@@ -93,6 +100,11 @@ public class LightImagePacker {
         if (spotlight) {
             textures[2].getImage().setUpdateNeeded();
         }
+        return numLights;
+    }
+    
+    public boolean hasAmbientLight() {
+        return hasAmbient;
     }
     
     private void validateSamples(Texture2D tex) {

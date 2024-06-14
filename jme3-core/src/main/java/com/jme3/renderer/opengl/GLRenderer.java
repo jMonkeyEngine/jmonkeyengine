@@ -1434,6 +1434,7 @@ public final class GLRenderer implements Renderer {
                 gl.glUniform1i(loc, i.intValue());
                 break;
             default:
+                System.out.println("uniform value = "+uniform.getValue().toString());
                 throw new UnsupportedOperationException(
                         "Unsupported uniform type: " + uniform.getVarType() + " for " + uniform.getBinding());
         }

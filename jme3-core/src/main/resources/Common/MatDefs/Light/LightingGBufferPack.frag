@@ -181,8 +181,8 @@ void main(){
     #endif
 
     // pack
-    Context_OutGBuff3.xyz = normal;
-    Context_OutGBuff0.a = alpha;
+    outGBuffer3.xyz = normal;
+    outGBuffer0.a = alpha;
 
 //    #ifdef USE_REFLECTION
 //        vec4 refColor = Optics_GetEnvColor(m_EnvMap, refVec.xyz);
@@ -203,10 +203,10 @@ void main(){
 //       SpecularSum2.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
 //       light.xy = vec2(1.0);
 //    #endif
-    Context_OutGBuff0.rgb = diffuseColor.rgb * DiffuseSum.rgb;
-    Context_OutGBuff1.rgb = specularColor.rgb * SpecularSum.rgb * 100.0f + AmbientSum * 0.01f;
-    Context_OutGBuff1.a = m_Shininess;
+    outGBuffer0.rgb = diffuseColor.rgb * DiffuseSum.rgb;
+    outGBuffer1.rgb = specularColor.rgb * SpecularSum.rgb * 100.0f + AmbientSum * 0.01f;
+    outGBuffer1.a = m_Shininess;
 
     // shading model id
-    Context_OutGBuff2.a = PHONG_LIGHTING;
+    outGBuffer2.a = PHONG_LIGHTING;
 }

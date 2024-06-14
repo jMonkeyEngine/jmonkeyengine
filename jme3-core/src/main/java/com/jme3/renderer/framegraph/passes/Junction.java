@@ -52,7 +52,10 @@ import java.io.IOException;
  */
 public class Junction <T> extends RenderPass {
     
+    private static final String INPUT = "Input";
+    
     private int length;
+    private int groupSize;
     private ResourceTicket<T> output;
     private GraphSource<Integer> source;
     
@@ -62,20 +65,60 @@ public class Junction <T> extends RenderPass {
     public Junction(int length) {
         setLength(length);
     }
+    public Junction(int length, int groupSize) {
+        setLength(length);
+        setGroupSize(groupSize);
+    }
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
         for (int i = 0; i < length; i++) {
-            addInput("Input"+i);
+            if (groupSize > 1) {
+                addInputGroup(getInputName(i), groupSize);
+            } else {
+                addInput(getInputName(i));
+            }
         }
-        output = addOutput("Value");
+        if (groupSize > 1) {
+            addOutputGroup("Value", groupSize);
+        } else {
+            output = addOutput("Value");
+        }
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        if (source != null) {
-            output.setSource(getInputTickets().get(source.getGraphValue(context.getViewPort())));
+        int size;
+        if (groupSize > 1) {
+            size = getGroups().size();
         } else {
-            output.setSource(getInputTickets().getFirst());
+            size = getInputTickets().size();
+        }
+        // remove excess tickets
+        while (size > length) {
+            size--;
+            if (groupSize > 1) {
+                ResourceTicket[] array = removeGroup(getInputName(size));
+                for (ResourceTicket t : array) {
+                    t.setSource(null);
+                }
+            } else {
+                getInputTickets().removeLast().setSource(null);
+            }
+        }
+        // add deficit tickets
+        while (size < length) {
+            if (groupSize > 1) {
+                addInputGroup(getInputName(size), groupSize);
+            } else {
+                addInput(getInputName(size));
+            }
+            size++;
+        }
+        // connect output to input
+        if (source != null) {
+            connect(source.getGraphValue(context.getViewPort()));
+        } else {
+            connect(0);
         }
     }
     @Override
@@ -86,19 +129,35 @@ public class Junction <T> extends RenderPass {
     protected void cleanup(FrameGraph frameGraph) {}
     @Override
     public boolean isUsed() {
-        return true;
+        // This pass will never execute
+        return false;
     }
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule out = ex.getCapsule(this);
         out.write(length, "length", 2);
+        out.write(groupSize, "groupSize", 1);
     }
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
         length = in.readInt("length", 2);
+        groupSize = in.readInt("groupSize", 1);
+    }
+    
+    private void connect(int i) {
+        boolean assignNull = i < 0 || i >= length;
+        if (groupSize > 1) {
+            ResourceTicket[] inArray = getGroup("Input"+i);
+            ResourceTicket[] outArray = getGroup("Value");
+            for (int j = 0; j < groupSize; j++) {
+                outArray[j].setSource(assignNull ? null : inArray[j]);
+            }
+        } else {
+            output.setSource(assignNull ? null : getInputTickets().get(i));
+        }
     }
     
     public final void setLength(int length) {
@@ -107,6 +166,15 @@ public class Junction <T> extends RenderPass {
         }
         this.length = length;
     }
+    public final void setGroupSize(int groupSize) {
+        if (isAssigned()) {
+            throw new IllegalStateException("Cannot alter group size after initialization.");
+        }
+        if (groupSize <= 0) {
+            throw new IllegalArgumentException("Group length must be greater than zero.");
+        }
+        this.groupSize = groupSize;
+    }
     public void setIndexSource(GraphSource<Integer> source) {
         this.source = source;
     }
@@ -114,8 +182,15 @@ public class Junction <T> extends RenderPass {
     public int getLength() {
         return length;
     }
+    public int getGroupSize() {
+        return groupSize;
+    }
     public GraphSource<Integer> getIndexSource() {
         return source;
+    }
+    
+    public static String getInputName(int i) {
+        return INPUT+i;
     }
     
 }

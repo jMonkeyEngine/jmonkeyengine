@@ -41,6 +41,7 @@ import com.jme3.shader.Shader.ShaderType;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Describes a technique definition.
@@ -66,6 +67,7 @@ public class TechniqueDef implements Savable, Cloneable {
      * Describes light rendering mode.
      */
     public enum LightMode {
+        
         /**
          * Disable light-based rendering
          */
@@ -134,6 +136,11 @@ public class TechniqueDef implements Savable, Cloneable {
          */
         StaticPass,
         
+        /**
+         * 
+         */
+        Custom,
+        
     }
 
     public enum ShadowMode {
@@ -175,6 +182,7 @@ public class TechniqueDef implements Savable, Cloneable {
     private LightMode lightMode = LightMode.Disable;
     private ShadowMode shadowMode = ShadowMode.Disable;
     private TechniqueDefLogic logic;
+    private boolean logicInit = false;
 
     private ArrayList<UniformBinding> worldBinds;
     //The space in which the light should be transposed before sending to the shader.
@@ -260,9 +268,35 @@ public class TechniqueDef implements Savable, Cloneable {
     public void setLogic(TechniqueDefLogic logic) {
         this.logic = logic;
     }
-
+    
     public TechniqueDefLogic getLogic() {
         return logic;
+    }
+    
+    public <T extends TechniqueDefLogic> T getLogic(Class<T> type) {
+        if (logic == null) return null;
+        if (!type.isAssignableFrom(logic.getClass())) {
+            throw new ClassCastException("TechniqueDefLogic is not of "+type.getName());
+        }
+        return (T)logic;
+    }
+    
+    /**
+     * Sets the technique def logic if the current logic is null or of a different type.
+     * 
+     * @param <T>
+     * @param type
+     * @param func
+     * @return 
+     */
+    public <T extends TechniqueDefLogic> T setLogicOrElse(Class<T> type, Function<TechniqueDef, T> func) {
+        if (logic == null || !type.isAssignableFrom(logic.getClass())) {
+            T l = func.apply(this);
+            setLogic(l);
+            return l;
+        } else {
+            return (T)logic;
+        }
     }
 
     /**
@@ -457,7 +491,6 @@ public class TechniqueDef implements Savable, Cloneable {
      */
     public int addShaderUnmappedDefine(String defineName, VarType defineType) {
         int defineId = defineNames.size();
-
         defineNames.add(defineName);
         defineTypes.add(defineType);
         return defineId;

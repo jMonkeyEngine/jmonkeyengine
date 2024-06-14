@@ -279,6 +279,44 @@ public abstract class RenderPass implements ResourceProducer, Savable {
             referenceOptional(t);
         }
     }
+    
+    /**
+     * Acquires a set of resources from a ticket group and stores them in
+     * the array.
+     * 
+     * @param <T>
+     * @param name
+     * @param array
+     * @return 
+     */
+    protected <T> T[] acquireGroup(String name, T[] array) {
+        ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroup(name), "Ticket group cannot be null.");
+        int n = Math.min(array.length, tickets.length);
+        for (int i = 0; i < n; i++) {
+            array[i] = resources.acquire(tickets[i]);
+        }
+        return array;
+    }
+    /**
+     * Acquires a set of resources from a ticket group and stores them in
+     * the array.
+     * <p>
+     * Tickets that are invalid will acquire {@code val}.
+     * 
+     * @param <T>
+     * @param name
+     * @param array
+     * @param val
+     * @return 
+     */
+    protected <T> T[] acquireGroupOrElse(String name, T[] array, T val) {
+        ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroup(name), "Ticket group cannot be null.");
+        int n = Math.min(array.length, tickets.length);
+        for (int i = 0; i < n; i++) {
+            array[i] = resources.acquireOrElse(tickets[i], val);
+        }
+        return array;
+    }
     /**
      * Releases all reasources associated with any registered ticket.
      * <p>
@@ -376,7 +414,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     /**
      * Creates and adds a ticket array as a group input of the specified length under the given name.
      * <p>
-     * Each ticket is named the given name suffixed by the array index.
+     * Each ticket's name is formatted as the {@code groupName+"["+index+"]"}.
      * 
      * @param <T>
      * @param name
@@ -386,7 +424,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     protected <T> ResourceTicket<T>[] addInputGroup(String name, int length) {
         ResourceTicket<T>[] array = new ResourceTicket[length];
         for (int i = 0; i < length; i++) {
-            addInput(array[i] = new ResourceTicket<>(name+i));
+            addInput(array[i] = new ResourceTicket<>(name+"["+i+"]"));
         }
         groups.put(name, array);
         return array;
@@ -394,7 +432,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     /**
      * Creates and adds a ticket array as a group output of the specified length under the given name.
      * <p>
-     * Each ticket is named the given name suffixed by the array index.
+     * Each ticket's name is formatted as the {@code groupName+"["+index+"]"}.
      * 
      * @param <T>
      * @param name
@@ -404,9 +442,35 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     protected <T> ResourceTicket<T>[] addOutputGroup(String name, int length) {
         ResourceTicket<T>[] array = new ResourceTicket[length];
         for (int i = 0; i < length; i++) {
-            addOutput(array[i] = new ResourceTicket<>(name+i));
+            addOutput(array[i] = new ResourceTicket<>(name+"["+i+"]"));
         }
         groups.put(name, array);
+        return array;
+    }
+    
+    /**
+     * Removes all members of the named group from the input and output lists.
+     * 
+     * @param <T>
+     * @param name
+     * @return 
+     */
+    protected <T> ResourceTicket<T>[] removeGroup(String name) {
+        ResourceTicket<T>[] array = groups.remove(name);
+        if (array == null) {
+            return null;
+        }
+        // Once we determine which list group members were added to, we only
+        // need to remove from that list for future members.
+        byte state = 0;
+        for (ResourceTicket<T> t : array) {
+            if (state >= 0 && inputs.remove(t)) {
+                state = 1;
+            }
+            if (state <= 0 && outputs.remove(t)) {
+                state = -1;
+            }
+        }
         return array;
     }
     
@@ -645,6 +709,13 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      */
     public boolean isAssigned() {
         return index >= 0;
+    }
+    /**
+     * 
+     * @return 
+     */
+    protected HashMap<String, ResourceTicket[]> getGroups() {
+        return groups;
     }
     
     @Override

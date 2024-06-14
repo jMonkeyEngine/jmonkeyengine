@@ -109,4 +109,14 @@ public interface ResourceDef <T> {
         return false;
     }
     
+    /**
+     * Disposes the resource using the disposal method, if not null.
+     * 
+     * @param resource 
+     */
+    public default void dispose(T resource) {
+        Consumer<T> d = getDisposalMethod();
+        if (d != null) d.accept(resource);
+    }
+    
 }

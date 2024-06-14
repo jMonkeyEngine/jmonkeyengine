@@ -34,6 +34,7 @@ package com.jme3.renderer.framegraph;
 import com.jme3.asset.AssetManager;
 import com.jme3.renderer.framegraph.passes.DeferredPass;
 import com.jme3.renderer.framegraph.passes.GBufferPass;
+import com.jme3.renderer.framegraph.passes.LightImagePass;
 import com.jme3.renderer.framegraph.passes.OutputBucketPass;
 import com.jme3.renderer.framegraph.passes.OutputPass;
 import com.jme3.renderer.framegraph.passes.PostProcessingPass;
@@ -75,6 +76,7 @@ public class FrameGraphFactory {
     public static FrameGraph deferred(AssetManager assetManager, boolean tiled) {
         FrameGraph fg = new FrameGraph(assetManager);
         GBufferPass gbuf = fg.add(new GBufferPass());
+        LightImagePass lightImg = fg.add(new LightImagePass());
         RenderPass deferred;
         if (!tiled) {
             deferred = fg.add(new DeferredPass());
@@ -88,16 +90,17 @@ public class FrameGraphFactory {
         fg.add(new PostProcessingPass());
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Translucent));
         
+        lightImg.makeInput(gbuf, "Lights", "Lights");
+        
+        deferred.makeInput(lightImg, "Textures", "LightTextures");
+        deferred.makeInput(lightImg, "NumLights", "NumLights");
+        deferred.makeInput(lightImg, "Ambient", "Ambient");
+        deferred.makeInput(lightImg, "Probes", "Probes");
+        //deferred.makeInput(gbuf, "Lights", "Lights");
         deferred.makeInput(gbuf, "GBufferData", "GBufferData");
-//        deferred.makeInput(gbuf, "Diffuse", "Diffuse");
-//        deferred.makeInput(gbuf, "Specular", "Specular");
-//        deferred.makeInput(gbuf, "Emissive", "Emissive");
-//        deferred.makeInput(gbuf, "Normal", "Normal");
-//        deferred.makeInput(gbuf, "Depth", "Depth");
-//        deferred.makeInput(gbuf, "Lights", "Lights");
         
         defOut.makeInput(deferred, "Color", "Color");
-        defOut.makeInput(gbuf, "Depth", "Depth");
+        defOut.makeInput(gbuf, "GBufferData[4]", "Depth");
         
         return fg;
         
