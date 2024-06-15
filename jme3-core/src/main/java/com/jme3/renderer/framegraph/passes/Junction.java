@@ -52,8 +52,6 @@ import java.io.IOException;
  */
 public class Junction <T> extends RenderPass {
     
-    private static final String INPUT = "Input";
-    
     private int length;
     private int groupSize;
     private ResourceTicket<T> output;
@@ -89,7 +87,8 @@ public class Junction <T> extends RenderPass {
     protected void prepare(FGRenderContext context) {
         int size;
         if (groupSize > 1) {
-            size = getGroups().size();
+            // output is also a group, so subtract one
+            size = getGroups().size()-1;
         } else {
             size = getInputTickets().size();
         }
@@ -150,7 +149,7 @@ public class Junction <T> extends RenderPass {
     private void connect(int i) {
         boolean assignNull = i < 0 || i >= length;
         if (groupSize > 1) {
-            ResourceTicket[] inArray = getGroup("Input"+i);
+            ResourceTicket[] inArray = getGroup(getInputName(i));
             ResourceTicket[] outArray = getGroup("Value");
             for (int j = 0; j < groupSize; j++) {
                 outArray[j].setSource(assignNull ? null : inArray[j]);
@@ -190,7 +189,7 @@ public class Junction <T> extends RenderPass {
     }
     
     public static String getInputName(int i) {
-        return INPUT+i;
+        return "Input["+i+"]";
     }
     
 }

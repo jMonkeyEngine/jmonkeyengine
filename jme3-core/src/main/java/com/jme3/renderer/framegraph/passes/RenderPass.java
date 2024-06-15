@@ -519,27 +519,56 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * If both the source name and target name correspond to ticket groups, the
      * groups will be connected.
      * 
-     * @param pass
+     * @param sourcePass
      * @param sourceTicket
      * @param targetTicket 
+     * @param start start index (inclusive) for connecting groups
+     * @param end end index (exclusive) for connecting groups
      */
-    public void makeInput(RenderPass pass, String sourceTicket, String targetTicket) {
-        ResourceTicket[] sourceArray = pass.getGroup(sourceTicket);
+    public void makeInput(RenderPass sourcePass, String sourceTicket, String targetTicket, int start, int end) {
+        ResourceTicket[] sourceArray = sourcePass.getGroup(sourceTicket);
         if (sourceArray != null) {
             ResourceTicket[] targetArray = getGroup(targetTicket);
             if (targetArray != null) {
-                if (sourceArray.length < targetArray.length) {
-                    throw new IllegalArgumentException("Source ticket array does not satisfy target ticket array.");
-                }
-                for (int i = 0; i < targetArray.length; i++) {
+                int n = Math.min(end, Math.min(targetArray.length, sourceArray.length));
+                for (int i = start; i < n; i++) {
                     targetArray[i].setSource(sourceArray[i]);
                 }
                 return;
             }
         }
-        ResourceTicket source = Objects.requireNonNull(pass.getOutput(sourceTicket), "Source ticket cannot be null.");
+        ResourceTicket source = Objects.requireNonNull(sourcePass.getOutput(sourceTicket), "Source ticket cannot be null.");
         ResourceTicket target = Objects.requireNonNull(getInput(targetTicket), "Target ticket cannot be null.");
         target.setSource(source);
+    }
+    /**
+     * Makes the named source (output) ticket belonging to the given pass the source of
+     * the named target (input) ticket belonging to this pass.
+     * <p>
+     * If both the source name and target name correspond to ticket groups, the
+     * groups will be connected.
+     * 
+     * @param sourcePass
+     * @param sourceTicket
+     * @param targetTicket
+     * @param start start index (inclusive) for connecting groups
+     */
+    public void makeInput(RenderPass sourcePass, String sourceTicket, String targetTicket, int start) {
+        makeInput(sourcePass, sourceTicket, targetTicket, start, Integer.MAX_VALUE);
+    }
+    /**
+     * Makes the named source (output) ticket belonging to the given pass the source of
+     * the named target (input) ticket belonging to this pass.
+     * <p>
+     * If both the source name and target name correspond to ticket groups, the
+     * groups will be connected.
+     * 
+     * @param pass
+     * @param sourceTicket
+     * @param targetTicket 
+     */
+    public void makeInput(RenderPass pass, String sourceTicket, String targetTicket) {
+        makeInput(pass, sourceTicket, targetTicket, 0, Integer.MAX_VALUE);
     }
     /**
      * Nullifies all sources belonging to the given pass.

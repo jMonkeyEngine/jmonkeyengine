@@ -34,6 +34,7 @@ package com.jme3.renderer.framegraph;
 import com.jme3.asset.AssetManager;
 import com.jme3.renderer.framegraph.passes.DeferredPass;
 import com.jme3.renderer.framegraph.passes.GBufferPass;
+import com.jme3.renderer.framegraph.passes.Junction;
 import com.jme3.renderer.framegraph.passes.LightImagePass;
 import com.jme3.renderer.framegraph.passes.OutputBucketPass;
 import com.jme3.renderer.framegraph.passes.OutputPass;
@@ -77,6 +78,7 @@ public class FrameGraphFactory {
         FrameGraph fg = new FrameGraph(assetManager);
         GBufferPass gbuf = fg.add(new GBufferPass());
         LightImagePass lightImg = fg.add(new LightImagePass());
+        Junction lightJunct = fg.add(new Junction(2, 7));
         RenderPass deferred;
         if (!tiled) {
             deferred = fg.add(new DeferredPass());
@@ -92,11 +94,18 @@ public class FrameGraphFactory {
         
         lightImg.makeInput(gbuf, "Lights", "Lights");
         
-        deferred.makeInput(lightImg, "Textures", "LightTextures");
-        deferred.makeInput(lightImg, "NumLights", "NumLights");
-        deferred.makeInput(lightImg, "Ambient", "Ambient");
-        deferred.makeInput(lightImg, "Probes", "Probes");
-        //deferred.makeInput(gbuf, "Lights", "Lights");
+        lightJunct.setName("LightPackMethod");
+        lightJunct.makeInput(lightImg, "Textures", "Input[0]", 0, 3);
+        lightJunct.makeInput(lightImg, "NumLights", "Input[0][3]");
+        lightJunct.makeInput(lightImg, "Ambient", "Input[0][4]");
+        lightJunct.makeInput(lightImg, "Probes", "Input[0][5]");
+        lightJunct.makeInput(gbuf, "Lights", "Input[1][6]");
+        
+        deferred.makeInput(lightJunct, "Value", "LightTextures", 0, 3);
+        deferred.makeInput(lightJunct, "Value[3]", "NumLights");
+        deferred.makeInput(lightJunct, "Value[4]", "Ambient");
+        deferred.makeInput(lightJunct, "Value[5]", "Probes");
+        deferred.makeInput(lightJunct, "Value[6]", "Lights");
         deferred.makeInput(gbuf, "GBufferData", "GBufferData");
         
         defOut.makeInput(deferred, "Color", "Color");

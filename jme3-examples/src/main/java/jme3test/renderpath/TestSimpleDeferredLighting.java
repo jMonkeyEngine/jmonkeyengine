@@ -52,11 +52,12 @@ import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
+import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.renderer.framegraph.debug.GraphEventCapture;
-import com.jme3.renderer.framegraph.io.MatParamTargetControl;
-import com.jme3.renderer.framegraph.passes.Attribute;
+import com.jme3.renderer.framegraph.io.GraphSource;
+import com.jme3.renderer.framegraph.passes.Junction;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -66,7 +67,6 @@ import com.jme3.scene.instancing.InstancedGeometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.shader.VarType;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
@@ -675,6 +675,9 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         //guiViewPort.setFrameGraph(deferred);
         //renderManager.setFrameGraph(deferred);
         //renderManager.setFrameGraph(forward);
+        
+        Junction lightingMethod = deferred.get(Junction.class, "LightPackMethod");
+        lightingMethod.setIndexSource(vp -> 0);
         
         File capTarget = new File(System.getProperty("user.home")+"/earlyFrameCapture.txt");
         GraphEventCapture cap = new GraphEventCapture(capTarget);
