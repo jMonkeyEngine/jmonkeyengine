@@ -672,7 +672,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         //deferred2.setName("deferred2");
         //FrameGraph graph = FrameGraphFactory.forward(assetManager, renderManager);
         viewPort.setFrameGraph(deferred);
-        //guiViewPort.setFrameGraph(deferred);
+        guiViewPort.setFrameGraph(deferred);
         //renderManager.setFrameGraph(deferred);
         //renderManager.setFrameGraph(forward);
         

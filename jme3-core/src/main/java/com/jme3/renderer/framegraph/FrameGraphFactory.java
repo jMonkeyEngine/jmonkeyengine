@@ -58,6 +58,7 @@ public class FrameGraphFactory {
      */
     public static FrameGraph forward(AssetManager assetManager) {
         FrameGraph fg = new FrameGraph(assetManager);
+        fg.setName("Forward");
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Opaque));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Transparent));
@@ -81,8 +82,10 @@ public class FrameGraphFactory {
         Junction lightJunct = fg.add(new Junction(2, 7));
         RenderPass deferred;
         if (!tiled) {
+            fg.setName("Deferred");
             deferred = fg.add(new DeferredPass());
         } else {
+            fg.setName("TiledDeferred");
             deferred = fg.add(new TileDeferredPass());
         }
         OutputPass defOut = fg.add(new OutputPass(0f));
