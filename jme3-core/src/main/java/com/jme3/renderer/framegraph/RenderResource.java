@@ -123,6 +123,9 @@ public class RenderResource <T> {
      * @param resource 
      */
     public void setPrimitive(T resource) {
+        if (undefined) {
+            throw new IllegalStateException("Resource is already marked as undefined.");
+        }
         object = null;
         this.resource = resource;
     }
@@ -130,8 +133,8 @@ public class RenderResource <T> {
      * Marks this resource as undefined.
      */
     public void setUndefined() {
-        if (object != null) {
-            throw new IllegalArgumentException("Resource is already defined.");
+        if (resource != null) {
+            throw new IllegalStateException("Resource is already defined.");
         }
         undefined = true;
     }

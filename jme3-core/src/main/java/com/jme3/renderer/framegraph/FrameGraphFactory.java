@@ -32,6 +32,9 @@
 package com.jme3.renderer.framegraph;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.material.logic.TiledRenderGrid;
+import com.jme3.renderer.framegraph.client.GraphClient;
+import com.jme3.renderer.framegraph.passes.Attribute;
 import com.jme3.renderer.framegraph.passes.DeferredPass;
 import com.jme3.renderer.framegraph.passes.GBufferPass;
 import com.jme3.renderer.framegraph.passes.Junction;
@@ -39,8 +42,6 @@ import com.jme3.renderer.framegraph.passes.LightImagePass;
 import com.jme3.renderer.framegraph.passes.OutputBucketPass;
 import com.jme3.renderer.framegraph.passes.OutputPass;
 import com.jme3.renderer.framegraph.passes.PostProcessingPass;
-import com.jme3.renderer.framegraph.passes.RenderPass;
-import com.jme3.renderer.framegraph.passes.TileDeferredPass;
 import com.jme3.renderer.queue.RenderQueue;
 
 /**
@@ -57,15 +58,19 @@ public class FrameGraphFactory {
      * @return forward framegraph
      */
     public static FrameGraph forward(AssetManager assetManager) {
+        
         FrameGraph fg = new FrameGraph(assetManager);
         fg.setName("Forward");
+        
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Opaque));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Transparent));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Gui, DepthRange.FRONT));
         fg.add(new PostProcessingPass());
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Translucent));
+        
         return fg;
+        
     }
     
     /**
@@ -76,18 +81,17 @@ public class FrameGraphFactory {
      * @return deferred framegraph
      */
     public static FrameGraph deferred(AssetManager assetManager, boolean tiled) {
+        
         FrameGraph fg = new FrameGraph(assetManager);
+        fg.setName(tiled ? "TiledDeferred" : "Deferred");
+        
         GBufferPass gbuf = fg.add(new GBufferPass());
+        Attribute tileInfoAttr = fg.add(new Attribute());
+        Junction tileJunct1 = fg.add(new Junction(1, 1));
         LightImagePass lightImg = fg.add(new LightImagePass());
-        Junction lightJunct = fg.add(new Junction(2, 7));
-        RenderPass deferred;
-        if (!tiled) {
-            fg.setName("Deferred");
-            deferred = fg.add(new DeferredPass());
-        } else {
-            fg.setName("TiledDeferred");
-            deferred = fg.add(new TileDeferredPass());
-        }
+        Junction lightJunct = fg.add(new Junction(1, 6));
+        Junction tileJunct2 = fg.add(new Junction(1, 2));
+        DeferredPass deferred = fg.add(new DeferredPass());
         OutputPass defOut = fg.add(new OutputPass(0f));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Transparent));
@@ -95,21 +99,38 @@ public class FrameGraphFactory {
         fg.add(new PostProcessingPass());
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Translucent));
         
+        GraphClient<TiledRenderGrid> tileInfo = fg.post("TileInfo", new GraphClient());
+        tileInfo.setValue(new TiledRenderGrid());
+        tileInfoAttr.setName("TileInfo");
+        tileInfoAttr.setSource(tileInfo);
+        
+        GraphClient<Integer> tileToggle = fg.post("TileToggle", new GraphClient());
+        tileToggle.setValue(tiled ? 0 : -1);
+        tileJunct1.makeInput(tileInfoAttr, Attribute.OUTPUT, Junction.getInput(0));
+        tileJunct1.setIndexSource(tileToggle);
+        
         lightImg.makeInput(gbuf, "Lights", "Lights");
+        lightImg.makeInput(tileInfoAttr, Attribute.OUTPUT, "TileInfo");
         
+        GraphClient<Integer> lightPackMethod = fg.post("LightPackMethod", new GraphClient());
+        lightPackMethod.setValue(tiled ? 0 : -1);
         lightJunct.setName("LightPackMethod");
-        lightJunct.makeInput(lightImg, "Textures", "Input[0]", 0, 3);
-        lightJunct.makeInput(lightImg, "NumLights", "Input[0][3]");
-        lightJunct.makeInput(lightImg, "Ambient", "Input[0][4]");
-        lightJunct.makeInput(lightImg, "Probes", "Input[0][5]");
-        lightJunct.makeInput(gbuf, "Lights", "Input[1][6]");
+        lightJunct.makeGroupInput(lightImg, "Textures", Junction.getInput(0), 0, 0, 3);
+        lightJunct.makeInput(lightImg, "NumLights", Junction.getInput(0, 3));
+        lightJunct.makeInput(lightImg, "Ambient", Junction.getInput(0, 4));
+        lightJunct.makeInput(lightImg, "Probes", Junction.getInput(0, 5));
+        lightJunct.setIndexSource(lightPackMethod);
         
-        deferred.makeInput(lightJunct, "Value", "LightTextures", 0, 3);
-        deferred.makeInput(lightJunct, "Value[3]", "NumLights");
-        deferred.makeInput(lightJunct, "Value[4]", "Ambient");
-        deferred.makeInput(lightJunct, "Value[5]", "Probes");
-        deferred.makeInput(lightJunct, "Value[6]", "Lights");
-        deferred.makeInput(gbuf, "GBufferData", "GBufferData");
+        tileJunct2.makeGroupInput(lightImg, "TileTextures", Junction.getInput(0));
+        tileJunct2.setIndexSource(tileToggle);
+        
+        deferred.makeGroupInput(gbuf, "GBufferData", "GBufferData");
+        deferred.makeInput(gbuf, "Lights", "Lights");
+        deferred.makeGroupInput(lightJunct, Junction.getOutput(), "LightTextures", 0, 0, 3);
+        deferred.makeInput(lightJunct, Junction.getOutput(3), "NumLights");
+        deferred.makeInput(lightJunct, Junction.getOutput(4), "Ambient");
+        deferred.makeInput(lightJunct, Junction.getOutput(5), "Probes");
+        deferred.makeGroupInput(tileJunct2, Junction.getOutput(), "TileTextures");
         
         defOut.makeInput(deferred, "Color", "Color");
         defOut.makeInput(gbuf, "GBufferData[4]", "Depth");

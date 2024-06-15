@@ -35,7 +35,6 @@ import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
 import com.jme3.material.Material.BindUnits;
 import com.jme3.material.TechniqueDef.LightMode;
-import com.jme3.material.logic.RenderLogic;
 import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
@@ -165,11 +164,7 @@ public final class Technique {
      * @param lastTexUnit the index of the most recently used texture unit
      */
     void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits) {
-        if (renderManager.getRenderLogic() != null) {
-            renderManager.getRenderLogic().render(renderManager, shader, geometry, lights, lastBindUnits);
-        } else {
-            def.getLogic().render(renderManager, shader, geometry, lights, lastBindUnits);
-        }
+        def.getLogic().render(renderManager, shader, geometry, lights, lastBindUnits);
     }
     
     /**

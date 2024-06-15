@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.renderer.framegraph.io;
+package com.jme3.renderer.framegraph.client;
 
 import com.jme3.material.Material;
 import com.jme3.renderer.RenderManager;

@@ -34,6 +34,8 @@ package com.jme3.renderer.framegraph.definitions;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.Texture3D;
+import com.jme3.texture.TextureArray;
 import com.jme3.texture.image.ColorSpace;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -50,6 +52,9 @@ import java.util.function.Function;
  * @param <T>
  */
 public class TextureDef <T extends Texture> extends AbstractResourceDef<T> implements Consumer<T> {
+    
+    public static final Function<Image, Texture2D> TEXTURE_2D = img -> new Texture2D(img);
+    public static final Function<Image, Texture3D> TEXTURE_3D = img -> new Texture3D(img);
     
     private final Class<T> type;
     private Function<Image, T> textureBuilder;
@@ -431,6 +436,15 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
         return depth;
     }
     /**
+     * Returns the number of pixels contained in the texture.
+     * 
+     * @return 
+     */
+    public int getNumPixels() {
+        if (depth > 0) return width*height*depth;
+        else return width*height;
+    }
+    /**
      * 
      * @return 
      */
@@ -492,6 +506,13 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
             case R: return wrapR;
             default: throw new IllegalArgumentException();
         }
+    }
+    
+    public static TextureDef<Texture2D> texture2D() {
+        return new TextureDef<>(Texture2D.class, TEXTURE_2D);
+    }
+    public static TextureDef<Texture3D> texture3D() {
+        return new TextureDef<>(Texture3D.class, TEXTURE_3D);
     }
     
 }

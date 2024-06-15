@@ -27,6 +27,12 @@ uniform int m_NBLights;
     uniform sampler2D m_LightTex2;
     uniform sampler2D m_LightTex3;
     uniform float m_LightTexInv;
+    #ifdef TILED_LIGHTS
+        uniform sampler2D m_Tiles;
+        uniform sampler2D m_LightIndex;
+        uniform vec3 m_LightIndexSize; // x=width, yz=size inverse
+        #define TILES true
+    #endif
 #else
     uniform vec4 g_LightData[NB_LIGHTS];
 #endif
@@ -59,9 +65,42 @@ void main(){
         gl_FragColor.rgb = AmbientSum * diffuseColor.rgb;
         gl_FragColor.a = alpha;
         //int lightNum = 0;
+        #ifdef TILES
+        // fetch index info from tile this fragment is contained by
+        vec4 tileInfo = texture2D(m_Tiles, innerTexCoord);
+        int x = int(tileInfo.x);
+        int y = int(tileInfo.y);
+        int componentIndex = int(tileInfo.z);
+        int lightCount = int(tileInfo.w);
+        vec4 lightIndex = vec4(-1.0);
+        for (int i = 0; i < lightCount;) {
+        #else
         for (int i = 0; i < NB_LIGHTS;) {
+        #endif
             #ifdef USE_LIGHT_TEXTURES
-                vec2 pixel = vec2(m_LightTexInv * i, 0);
+                #ifdef TILED_LIGHTS
+                    if (componentIndex == 0 || lightIndex.x < 0) {
+                        // get indices from next pixel
+                        lightIndex = texture2D(m_LightIndex, vec2(x, y) * m_LightIndexSize.yz);
+                        if (componentIndex == 0 && ++x >= m_LightIndexSize.x) {
+                            x = 0;
+                            y++;
+                        }
+                    }
+                    // apply index from each component in order
+                    vec2 pixel = vec2(m_LightTexInv, 0);
+                    switch (componentIndex) {
+                        case 0: pixel.x *= lightIndex.x; break;
+                        case 1: pixel.x *= lightIndex.y; break;
+                        case 2: pixel.x *= lightIndex.z; break;
+                        case 3: pixel.x *= lightIndex.w; break;
+                    }
+                    if (++componentIndex > 3) {
+                        componentIndex = 0;
+                    }
+                #else
+                    vec2 pixel = vec2(m_LightTexInv * i, 0);
+                #endif
                 vec4 lightColor = texture2D(m_LightTex1, pixel);
                 vec4 lightData1 = texture2D(m_LightTex2, pixel);
             #else
@@ -74,16 +113,16 @@ void main(){
 
             float spotFallOff = 1.0;
             #if __VERSION__ >= 110
-                // allow use of control flow
-                if (lightColor.w > 1.0) {
+            // allow use of control flow
+            if (lightColor.w > 1.0) {
             #endif
-                    #ifdef USE_LIGHT_TEXTURES
-                        spotFallOff = computeSpotFalloff(texture2D(m_LightTex3, pixel), lightVec);
-                    #else
-                        spotFallOff = computeSpotFalloff(g_LightData[i+2], lightVec);
-                    #endif
+                #ifdef USE_LIGHT_TEXTURES
+                    spotFallOff = computeSpotFalloff(texture2D(m_LightTex3, pixel), lightVec);
+                #else
+                    spotFallOff = computeSpotFalloff(g_LightData[i+2], lightVec);
+                #endif
             #if __VERSION__ >= 110
-                }
+            }
             #endif
 
             #ifdef NORMALMAP

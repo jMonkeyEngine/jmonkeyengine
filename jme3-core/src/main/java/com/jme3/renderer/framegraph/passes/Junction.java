@@ -35,7 +35,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.renderer.framegraph.io.GraphSource;
+import com.jme3.renderer.framegraph.client.GraphSource;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
@@ -52,10 +52,13 @@ import java.io.IOException;
  */
 public class Junction <T> extends RenderPass {
     
+    private static final int EXTRA_INPUTS = 0;
+    
     private int length;
     private int groupSize;
     private ResourceTicket<T> output;
     private GraphSource<Integer> source;
+    private int defaultIndex = 0;
     
     public Junction() {
         this(2);
@@ -72,31 +75,30 @@ public class Junction <T> extends RenderPass {
     protected void initialize(FrameGraph frameGraph) {
         for (int i = 0; i < length; i++) {
             if (groupSize > 1) {
-                addInputGroup(getInputName(i), groupSize);
+                addInputGroup(Junction.getInput(i), groupSize);
             } else {
-                addInput(getInputName(i));
+                addInput(Junction.getInput(i));
             }
         }
         if (groupSize > 1) {
-            addOutputGroup("Value", groupSize);
+            addOutputGroup(Junction.getOutput(), groupSize);
         } else {
-            output = addOutput("Value");
+            output = addOutput(Junction.getOutput());
         }
     }
     @Override
     protected void prepare(FGRenderContext context) {
         int size;
         if (groupSize > 1) {
-            // output is also a group, so subtract one
             size = getGroups().size()-1;
         } else {
-            size = getInputTickets().size();
+            size = getInputTickets().size()-EXTRA_INPUTS;
         }
         // remove excess tickets
         while (size > length) {
             size--;
             if (groupSize > 1) {
-                ResourceTicket[] array = removeGroup(getInputName(size));
+                ResourceTicket[] array = removeGroup(Junction.getInput(size));
                 for (ResourceTicket t : array) {
                     t.setSource(null);
                 }
@@ -107,9 +109,9 @@ public class Junction <T> extends RenderPass {
         // add deficit tickets
         while (size < length) {
             if (groupSize > 1) {
-                addInputGroup(getInputName(size), groupSize);
+                addInputGroup(Junction.getInput(size), groupSize);
             } else {
-                addInput(getInputName(size));
+                addInput(Junction.getInput(size));
             }
             size++;
         }
@@ -117,7 +119,7 @@ public class Junction <T> extends RenderPass {
         if (source != null) {
             connect(source.getGraphValue(context.getViewPort()));
         } else {
-            connect(0);
+            connect(defaultIndex);
         }
     }
     @Override
@@ -137,6 +139,7 @@ public class Junction <T> extends RenderPass {
         OutputCapsule out = ex.getCapsule(this);
         out.write(length, "length", 2);
         out.write(groupSize, "groupSize", 1);
+        out.write(defaultIndex, "defaultIndex", 0);
     }
     @Override
     public void read(JmeImporter im) throws IOException {
@@ -144,13 +147,14 @@ public class Junction <T> extends RenderPass {
         InputCapsule in = im.getCapsule(this);
         length = in.readInt("length", 2);
         groupSize = in.readInt("groupSize", 1);
+        defaultIndex = in.readInt("defaultIndex", 0);
     }
     
     private void connect(int i) {
         boolean assignNull = i < 0 || i >= length;
         if (groupSize > 1) {
-            ResourceTicket[] inArray = getGroup(getInputName(i));
-            ResourceTicket[] outArray = getGroup("Value");
+            ResourceTicket[] inArray = getGroup(Junction.getInput(i));
+            ResourceTicket[] outArray = getGroup(Junction.getOutput());
             for (int j = 0; j < groupSize; j++) {
                 outArray[j].setSource(assignNull ? null : inArray[j]);
             }
@@ -167,7 +171,7 @@ public class Junction <T> extends RenderPass {
     }
     public final void setGroupSize(int groupSize) {
         if (isAssigned()) {
-            throw new IllegalStateException("Cannot alter group size after initialization.");
+            throw new IllegalStateException("Cannot alter group size while assigned to a framegraph.");
         }
         if (groupSize <= 0) {
             throw new IllegalArgumentException("Group length must be greater than zero.");
@@ -176,6 +180,9 @@ public class Junction <T> extends RenderPass {
     }
     public void setIndexSource(GraphSource<Integer> source) {
         this.source = source;
+    }
+    public void setDefaultIndex(int defaultIndex) {
+        this.defaultIndex = defaultIndex;
     }
     
     public int getLength() {
@@ -187,9 +194,21 @@ public class Junction <T> extends RenderPass {
     public GraphSource<Integer> getIndexSource() {
         return source;
     }
+    public int getDefaultIndex() {
+        return defaultIndex;
+    }
     
-    public static String getInputName(int i) {
+    public static String getInput(int i) {
         return "Input["+i+"]";
+    }
+    public static String getInput(int i, int j) {
+        return "Input["+i+"]["+j+"]";
+    }
+    public static String getOutput() {
+        return "Value";
+    }
+    public static String getOutput(int i) {
+        return "Value["+i+"]";
     }
     
 }

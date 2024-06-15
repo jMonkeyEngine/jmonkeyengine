@@ -103,22 +103,6 @@ public class TechniqueDef implements Savable, Cloneable {
         SinglePassAndImageBased,
 
         /**
-         * Enable light rendering by using deferred single pass.
-         * <p>
-         * An array of light positions and light colors is passed to the shader
-         * containing the world light list for the geometry being rendered.
-         */
-        DeferredSinglePass,
-
-        /**
-         * Enable light rendering by using tile-based deferred single pass.
-         * <p>
-         * An array of light positions and light colors is passed to the shader
-         * containing the world light list for the geometry being rendered.
-         */
-        TileBasedDeferredSinglePass,
-
-        /**
          * @deprecated OpenGL1 is not supported anymore
          */
         @Deprecated

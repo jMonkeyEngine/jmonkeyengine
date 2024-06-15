@@ -31,7 +31,6 @@
  */
 package com.jme3.renderer;
 
-import com.jme3.material.logic.RenderLogic;
 import com.jme3.light.DefaultLightFilter;
 import com.jme3.light.LightFilter;
 import com.jme3.light.LightList;
@@ -103,7 +102,6 @@ public class RenderManager {
     private RenderState forcedRenderState = null;
     private final SafeArrayList<MatParamOverride> forcedOverrides
             = new SafeArrayList<>(MatParamOverride.class);
-    private RenderLogic logic;
     private GeometryRenderHandler renderGeometry;
     private int viewX;
     private int viewY;
@@ -206,27 +204,6 @@ public class RenderManager {
      */
     public GeometryRenderHandler getGeometryRenderHandler() {
         return renderGeometry;
-    }
-
-    /**
-     * Sets the technique rendering logic.
-     * <p>
-     * If not null, the rendering logic is used in place of a rendered technique's
-     * normal logic. This feature is highly experimental.
-     * 
-     * @param logic 
-     */
-    public void setRenderLogic(RenderLogic logic) {
-        this.logic = logic;
-    }
-    
-    /**
-     * Gets the technique rendering logic.
-     * 
-     * @return 
-     */
-    public RenderLogic getRenderLogic() {
-        return logic;
     }
 
     /**

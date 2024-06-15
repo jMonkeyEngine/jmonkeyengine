@@ -32,7 +32,6 @@
 package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.material.logic.RenderLogic;
 import com.jme3.shader.VarType;
 import com.jme3.texture.image.ColorSpace;
 

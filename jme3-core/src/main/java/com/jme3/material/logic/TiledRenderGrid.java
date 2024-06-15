@@ -31,13 +31,19 @@
  */
 package com.jme3.material.logic;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.renderer.Camera;
+import java.io.IOException;
 
 /**
  *
  * @author codex
  */
-public class TiledRenderGrid {
+public class TiledRenderGrid implements Savable {
     
     private int divisions = 4;
     private int forcedTileSize = 64;
@@ -111,6 +117,19 @@ public class TiledRenderGrid {
     }
     public boolean needsUpdate() {
         return tileSize <= 0 || gridWidth <= 0 || gridHeight <= 0;
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(divisions, "divisions", 4);
+        out.write(forcedTileSize, "forcedTileSize", 64);
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        divisions = in.readInt("divisions", 4);
+        forcedTileSize = in.readInt("forcedTileSize", 64);
     }
     
 }

@@ -33,15 +33,13 @@ package com.jme3.renderer.framegraph.passes;
 
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.renderer.framegraph.io.GraphTarget;
-import com.jme3.renderer.framegraph.io.GraphSource;
+import com.jme3.renderer.framegraph.client.GraphTarget;
+import com.jme3.renderer.framegraph.client.GraphSource;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
-import com.jme3.renderer.framegraph.definitions.ValueDef;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.function.Function;
 
 /**
  * Interface pass between the framegraph and game logic, allowing them to communicate.
@@ -55,29 +53,23 @@ import java.util.function.Function;
  * @author codex
  * @param <T>
  */
-public class Attribute <T> extends RenderPass implements Function<Object, T> {
+public class Attribute <T> extends RenderPass {
     
-    public static final String VALUE = "Value";
+    public static final String INPUT = "Input", OUTPUT = "Output";
     
     private ResourceTicket<T> in, out;
-    private T value;
-    private ValueDef<T> def;
-    private final LinkedList<GraphTarget<T>> targets = new LinkedList<>();
+    private T defaultValue = null;
     private GraphSource<T> source;
-    private boolean constantOutput = false;
+    private final LinkedList<GraphTarget<T>> targets = new LinkedList<>();
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        in = addInput(VALUE);
-        out = addOutput(VALUE);
-        def = new ValueDef<>(null, this);
-        def.setDisposeOnRelease(true);
-        def.setUseExisting(false);
-        def.setDisposalMethod(object -> {});
+        in = addInput(INPUT);
+        out = addOutput(OUTPUT);
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        declare(def, out);
+        declare(null, out);
         referenceOptional(in);
     }
     @Override
@@ -94,14 +86,14 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
                 resources.setConstant(in);
             }
         }
+        T outVal;
         if (source != null) {
-            value = source.getGraphValue(context.getViewPort());
+            outVal = source.getGraphValue(context.getViewPort());
         } else {
-            value = null;
+            outVal = defaultValue;
         }
-        if (value != null) {
-            resources.acquire(out);
-            if (constantOutput) resources.setConstant(out);
+        if (outVal != null) {
+            resources.setPrimitive(out, outVal);
         } else {
             resources.setUndefined(out);
         }
@@ -116,20 +108,6 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
     @Override
     public boolean isUsed() {
         return super.isUsed() || in.hasSource();
-    }
-    @Override
-    public T apply(Object t) {
-        return value;
-    }
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        super.write(ex);
-        ex.getCapsule(this).write(constantOutput, "constantOutput", false);
-    }
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        super.read(im);
-        constantOutput = im.getCapsule(this).readBoolean("constantOutput", false);
     }
     
     /**
@@ -160,27 +138,50 @@ public class Attribute <T> extends RenderPass implements Function<Object, T> {
         this.source = source;
     }
     /**
-     * If true, the outgoing object is set as constant.
      * 
-     * @param constantOutput 
+     * @param defaultValue 
      */
-    public void setConstantOutput(boolean constantOutput) {
-        this.constantOutput = constantOutput;
+    public void setDefaultValue(T defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    /**
+     * 
+     * @return 
+     */
+    public T getDefaultValue() {
+        return defaultValue;
     }
     
     /**
      * 
      * @return 
      */
-    public ValueDef<T> getOutputDef() {
-        return def;
+    public static String getInput() {
+        return "Value";
+    }
+    /**
+     * 
+     * @param i
+     * @return 
+     */
+    public static String getInput(int i) {
+        return "Value["+i+"]";
     }
     /**
      * 
      * @return 
      */
-    public boolean isConstantOutput() {
-        return constantOutput;
+    public static String getOutput() {
+        return "Value";
+    }
+    /**
+     * 
+     * @param i
+     * @return 
+     */
+    public static String getOutput(int i) {
+        return "Value["+i+"]";
     }
     
 }

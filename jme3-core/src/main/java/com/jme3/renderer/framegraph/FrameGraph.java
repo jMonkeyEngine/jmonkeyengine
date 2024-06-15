@@ -43,6 +43,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.passes.Attribute;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -90,6 +91,7 @@ public class FrameGraph {
     private final ResourceList resources;
     private final FGRenderContext context;
     private final LinkedList<RenderPass> passes = new LinkedList<>();
+    private final HashMap<String, Object> blackboard = new HashMap<>();
     private String name = "FrameGraph";
     private boolean rendered = false;
     
@@ -284,7 +286,7 @@ public class FrameGraph {
      */
     public <T> Attribute<T> addAttribute(ResourceTicket<T> ticket) {
         Attribute<T> attr = add(new Attribute<>());
-        attr.getInput(Attribute.VALUE).setSource(ticket);
+        attr.getInput(Attribute.OUTPUT).setSource(ticket);
         return attr;
     }
     
@@ -405,6 +407,49 @@ public class FrameGraph {
             p.cleanupPass(this);
         }
         passes.clear();
+    }
+    
+    /**
+     * Posts an object to the blackboard.
+     * 
+     * @param <T>
+     * @param name
+     * @param object
+     * @return given object
+     */
+    public <T> T post(String name, T object) {
+        blackboard.put(name, object);
+        return object;
+    }
+    /**
+     * Reads an object from the blackboard.
+     * 
+     * @param <T>
+     * @param name
+     * @return 
+     */
+    public <T> T fetch(String name) {
+        Object obj = blackboard.get(name);
+        if (obj != null) {
+            return (T)obj;
+        } else {
+            return null;
+        }
+    }
+    /**
+     * Removes an object from the blackboard.
+     * 
+     * @param <T>
+     * @param name
+     * @return 
+     */
+    public <T> T remove(String name) {
+        Object obj = blackboard.remove(name);
+        if (obj != null) {
+            return (T)obj;
+        } else {
+            return null;
+        }
     }
     
     /**

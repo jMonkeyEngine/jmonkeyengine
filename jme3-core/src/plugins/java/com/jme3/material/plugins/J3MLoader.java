@@ -655,12 +655,6 @@ public class J3MLoader implements AssetLoader {
             case SinglePass:
                 technique.setLogic(new SinglePassLightingLogic(technique));
                 break;
-            case DeferredSinglePass:
-                technique.setLogic(new DeferredSinglePassLightingLogic(technique));
-                break;
-            case TileBasedDeferredSinglePass:
-                technique.setLogic(new TileBasedDeferredSinglePassLightingLogic(technique, null));
-                break;
             case StaticPass:
                 technique.setLogic(new StaticPassLightingLogic(technique));
                 break;
