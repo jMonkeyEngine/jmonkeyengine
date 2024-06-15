@@ -50,9 +50,9 @@ public class LightImagePacker {
         if (lights.size() == 0) {
             return 0;
         }
-        int numLights = 0;
         int i = 0;
-        int limit = textures[0].getImage().getWidth();
+        final int limit = textures[0].getImage().getWidth();
+        boolean packedLight = false;
         boolean spotlight = false;
         hasAmbient = false;
         for (Light l : lights) {
@@ -65,6 +65,7 @@ public class LightImagePacker {
                 probes.add((LightProbe)l);
                 continue;
             }
+            packedLight = true;
             tempColor.set(l.getColor()).setAlpha(l.getType().getId());
             rasters[0].setPixel(i, 0, tempColor);
             switch (l.getType()) {
@@ -90,17 +91,18 @@ public class LightImagePacker {
                     spotlight = true;
                     break;
             }
-            numLights++;
             if (++i >= limit) {
                 break;
             }
         }
-        textures[0].getImage().setUpdateNeeded();
-        textures[1].getImage().setUpdateNeeded();
-        if (spotlight) {
-            textures[2].getImage().setUpdateNeeded();
+        if (packedLight) {
+            textures[0].getImage().setUpdateNeeded();
+            textures[1].getImage().setUpdateNeeded();
+            if (spotlight) {
+                textures[2].getImage().setUpdateNeeded();
+            }
         }
-        return numLights;
+        return i;
     }
     
     public boolean hasAmbientLight() {

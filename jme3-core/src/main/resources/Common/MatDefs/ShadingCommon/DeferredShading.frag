@@ -61,8 +61,7 @@ void main(){
         //int lightNum = 0;
         for (int i = 0; i < NB_LIGHTS;) {
             #ifdef USE_LIGHT_TEXTURES
-                vec2 pixel = vec2(i, 0);
-                pixel.x *= m_LightTexInv;
+                vec2 pixel = vec2(m_LightTexInv * i, 0);
                 vec4 lightColor = texture2D(m_LightTex1, pixel);
                 vec4 lightData1 = texture2D(m_LightTex2, pixel);
             #else
@@ -95,19 +94,21 @@ void main(){
                 lightDir.xyz = normalize(lightDir.xyz);
             #endif
 
-            vec2 light = computeLighting(normal, viewDir, lightDir.xyz, lightDir.w * spotFallOff , shininess);
-
+            vec2 light = computeLighting(normal, viewDir, lightDir.xyz,
+                                         lightDir.w * spotFallOff, shininess);
+            
             gl_FragColor.rgb += lightColor.rgb * diffuseColor.rgb  * vec3(light.x) +
-            lightColor.rgb * specularColor.rgb * vec3(light.y);
+                                lightColor.rgb * specularColor.rgb * vec3(light.y);
+            
             #ifdef USE_LIGHT_TEXTURES
                 i++;
             #else
                 i += 3;
             #endif
         }
-        if (NB_LIGHTS < 10) {
-            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        }
+        //if (NB_LIGHTS == 1) {
+        //    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        //}
     } else if (shadingModelId == PBR_LIGHTING) {
         // PBR shading
         vec3 vPos = getPosition(innerTexCoord, depth, viewProjectionMatrixInverse);
@@ -130,8 +131,7 @@ void main(){
         gl_FragColor.rgb = vec3(0.0);
         for (int i = 0; i < NB_LIGHTS;) {
             #ifdef USE_LIGHT_TEXTURES
-                vec2 pixel = vec2(i, 0);
-                pixel.x *= m_LightTexInv;
+                vec2 pixel = vec2(m_LightTexInv * i, 0);
                 vec4 lightColor = texture2D(m_LightTex1, pixel);
                 vec4 lightData1 = texture2D(m_LightTex2, pixel);
             #else

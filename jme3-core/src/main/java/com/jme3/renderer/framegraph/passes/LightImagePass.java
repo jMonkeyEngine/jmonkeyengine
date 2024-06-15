@@ -115,7 +115,7 @@ public class LightImagePass extends RenderPass {
             int width = getWidth();
             ByteBuffer data = BufferUtils.createByteBuffer((int)Math.ceil(format.getBitsPerPixel()/8)*width);
             Image img = new Image(format, width, 1, data, null, getColorSpace());
-            img.setMipmapsGenerated(false);
+            //img.setMipmapsGenerated(false);
             return createTexture(img);
         }
         @Override

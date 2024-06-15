@@ -186,6 +186,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
             probeList = resources.acquire(probes);
             defines.set(defs.numLights, resources.acquire(numLights));
         }
+        //defines.set(defs.numLights, 1);
         defines.set(defs.numProbes, Math.min(probeList.size(), 3));
         return material.getActiveTechnique().getDef().getShader(assetManager, rendererCaps, defines);
     }
@@ -277,7 +278,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     }
     private void injectLightTextures(Shader shader) {
         int w = lightTextures[0].getImage().getWidth();
-        shader.getUniform("m_LightTexInv").setValue(VarType.Vector2, new Vector2f(1f/w, 0));
+        shader.getUniform("m_LightTexInv").setValue(VarType.Float, 1f/w);
     }
     
     private void writeVectorToUniform(Uniform uniform, Vector3f vec, float w, int i) {
