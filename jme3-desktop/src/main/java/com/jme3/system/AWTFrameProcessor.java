@@ -335,7 +335,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
         return enabled;
     }
 
-    public void setEnabled(final boolean enabled) {
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
@@ -444,8 +444,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
      * @param main
      *            true if this processor is main.
      */
-    public void bind(final Component destination, final Application application, ViewPort viewPort,
-            boolean main) {
+    public void bind(Component destination, Application application, ViewPort viewPort, boolean main) {
 
         if (hasApplication()) {
             throw new RuntimeException("This process is already bonded.");
@@ -584,8 +583,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
      *            true to fix the aspect ratio.
      * @return the new frame transfer.
      */
-    protected AWTComponentRenderer reshapeInThread(final int width, final int height,
-            final boolean fixAspect) {
+    protected AWTComponentRenderer reshapeInThread(int width, int height, boolean fixAspect) {
 
         reshapeCurrentViewPort(width, height);
 
@@ -661,7 +659,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
             viewPort.setOutputFrameBuffer(frameBuffer);
         }
 
-        for (final SceneProcessor sceneProcessor : processors) {
+        for (SceneProcessor sceneProcessor : processors) {
             if (!sceneProcessor.isInitialized()) {
                 sceneProcessor.initialize(renderManager, viewPort);
             } else {

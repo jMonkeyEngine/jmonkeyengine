@@ -44,14 +44,15 @@ import java.util.EnumMap;
 
 public class ImageToAwt {
 
-    private static final EnumMap<Format, DecodeParams> params
-            = new EnumMap<Format, DecodeParams>(Format.class);
+    private static final EnumMap<Format, DecodeParams> params = new EnumMap<Format, DecodeParams>(
+            Format.class);
 
     private static class DecodeParams {
 
         final int bpp, am, rm, gm, bm, as, rs, gs, bs, im, is;
 
-        public DecodeParams(int bpp, int am, int rm, int gm, int bm, int as, int rs, int gs, int bs, int im, int is) {
+        public DecodeParams(int bpp, int am, int rm, int gm, int bm, int as, int rs, int gs, int bs, int im,
+                int is) {
             this.bpp = bpp;
             this.am = am;
             this.rm = rm;
@@ -65,20 +66,20 @@ public class ImageToAwt {
             this.is = is;
         }
 
-        public DecodeParams(int bpp, int rm, int rs, int im, int is, boolean alpha){
+        public DecodeParams(int bpp, int rm, int rs, int im, int is, boolean alpha) {
             this.bpp = bpp;
-            if (alpha){
+            if (alpha) {
                 this.am = rm;
                 this.as = rs;
                 this.rm = 0;
                 this.rs = 0;
-            }else{
+            } else {
                 this.rm = rm;
                 this.rs = rs;
                 this.am = 0;
                 this.as = 0;
             }
-            
+
             this.gm = 0;
             this.bm = 0;
             this.gs = 0;
@@ -87,12 +88,19 @@ public class ImageToAwt {
             this.is = is;
         }
 
-        /*
-         * public DecodeParams(int bpp, int rm, int rs, int im, int is){ this(bpp, rm, rs, im, is, false); }
-         */
+        @SuppressWarnings("unused")
+        public DecodeParams(int bpp, int rm, int rs, int im, int is) {
+            this(bpp, rm, rs, im, is, false);
+        }
+
     }
 
     static {
+        /*
+         * Masks and shift operations. "m" stands for mask and "s" for shift. After that the mask-/shift-
+         * pattern is shown by "x" for used byte, "_" for unused byte or a number to mark a specific bit. "m4"
+         * and "s4" are for two byte nibble mask and shift.
+         */
         final int mx___ = 0xff000000;
         final int m_x__ = 0x00ff0000;
         final int m__x_ = 0x0000ff00;
@@ -121,68 +129,59 @@ public class ImageToAwt {
         @SuppressWarnings("unused")
         final int s4___x = 0;
 
-        final int m5___  = 0xf800;
-        final int m_5__  = 0x07c0;
-        final int m__5_  = 0x003e;
-        final int m___1  = 0x0001;
+        final int m5___ = 0xf800;
+        final int m_5__ = 0x07c0;
+        final int m__5_ = 0x003e;
+        final int m___1 = 0x0001;
 
-        final int s5___  = 11;
-        final int s_5__  = 6;
-        final int s__5_  = 1;
-        final int s___1  = 0;
+        final int s5___ = 11;
+        final int s_5__ = 6;
+        final int s__5_ = 1;
+        final int s___1 = 0;
 
-        final int m5__   = 0xf800;
-        final int m_6_   = 0x07e0;
-        final int m__5   = 0x001f;
+        final int m5__ = 0xf800;
+        final int m_6_ = 0x07e0;
+        final int m__5 = 0x001f;
 
-        final int s5__   = 11;
-        final int s_6_   = 5;
-        final int s__5   = 0;
+        final int s5__ = 11;
+        final int s_6_ = 5;
+        final int s__5 = 0;
 
-        final int mxx__  = 0xffff0000;
-        final int sxx__  = 32;
-        final int m__xx  = 0x0000ffff;
-        final int s__xx  = 0;
+        final int mxx__ = 0xffff0000;
+        final int sxx__ = 32;
+        final int m__xx = 0x0000ffff;
+        final int s__xx = 0;
 
         // Note: compressed, depth, and floating-point formats are not included here.
-        
-        params.put(Format.ABGR8,    new DecodeParams(4, mx___, m___x, m__x_, m_x__,
-                                                        sx___, s___x, s__x_, s_x__,
-                                                        mxxxx, sxxxx));
 
-        params.put(Format.Alpha8,   new DecodeParams(1, mxxxx, sxxxx, mxxxx, sxxxx, true));
-        params.put(Format.BGR8,     new DecodeParams(3, 0,     m___x, m__x_, m_x__,
-                                                        0,     s___x, s__x_, s_x__,
-                                                        mxxxx, sxxxx));
-        
-        params.put(Format.Luminance8,  new DecodeParams(1, mxxxx, sxxxx, mxxxx, sxxxx, false));
+        params.put(Format.ABGR8,
+                new DecodeParams(4, mx___, m___x, m__x_, m_x__, sx___, s___x, s__x_, s_x__, mxxxx, sxxxx));
+
+        params.put(Format.Alpha8, new DecodeParams(1, mxxxx, sxxxx, mxxxx, sxxxx, true));
+        params.put(Format.BGR8,
+                new DecodeParams(3, 0, m___x, m__x_, m_x__, 0, s___x, s__x_, s_x__, mxxxx, sxxxx));
+
+        params.put(Format.Luminance8, new DecodeParams(1, mxxxx, sxxxx, mxxxx, sxxxx, false));
 
         params.put(Format.Luminance16F, new DecodeParams(2, mxxxx, sxxxx, mxxxx, sxxxx, false));
-        params.put(Format.Luminance16FAlpha16F, new DecodeParams(4, m__xx, mxx__, 0, 0,
-                                                                    s__xx, sxx__, 0, 0,
-                                                                    mxxxx, sxxxx));
+        params.put(Format.Luminance16FAlpha16F,
+                new DecodeParams(4, m__xx, mxx__, 0, 0, s__xx, sxx__, 0, 0, mxxxx, sxxxx));
         params.put(Format.Luminance32F, new DecodeParams(4, mxxxx, sxxxx, mxxxx, sxxxx, false));
-        params.put(Format.Luminance8,   new DecodeParams(1, mxxxx, sxxxx, mxxxx, sxxxx, false));
-        params.put(Format.RGB5A1,       new DecodeParams(2, m___1, m5___, m_5__, m__5_,
-                                                            s___1, s5___, s_5__, s__5_,
-                                                            mxxxx, sxxxx));
-        params.put(Format.RGB565,       new DecodeParams(2, 0,     m5__ , m_6_ , m__5,
-                                                            0,     s5__ , s_6_ , s__5,
-                                                            mxxxx, sxxxx));
-        params.put(Format.RGB8,         new DecodeParams(3, 0,     m_x__, m__x_, m___x,
-                                                            0,     s_x__, s__x_, s___x,
-                                                            mxxxx, sxxxx));
-        params.put(Format.RGBA8,        new DecodeParams(4, m___x, mx___, m_x__, m__x_,
-                                                            s___x, sx___, s_x__, s__x_,
-                                                            mxxxx, sxxxx));
-        params.put(Format.BGRA8,        new DecodeParams(4, m___x, m__x_, m_x__, mx___,
-                                                            s___x, s__x_, s_x__, sx___,
-                                                            mxxxx, sxxxx));
+        params.put(Format.Luminance8, new DecodeParams(1, mxxxx, sxxxx, mxxxx, sxxxx, false));
+        params.put(Format.RGB5A1,
+                new DecodeParams(2, m___1, m5___, m_5__, m__5_, s___1, s5___, s_5__, s__5_, mxxxx, sxxxx));
+        params.put(Format.RGB565,
+                new DecodeParams(2, 0, m5__, m_6_, m__5, 0, s5__, s_6_, s__5, mxxxx, sxxxx));
+        params.put(Format.RGB8,
+                new DecodeParams(3, 0, m_x__, m__x_, m___x, 0, s_x__, s__x_, s___x, mxxxx, sxxxx));
+        params.put(Format.RGBA8,
+                new DecodeParams(4, m___x, mx___, m_x__, m__x_, s___x, sx___, s_x__, s__x_, mxxxx, sxxxx));
+        params.put(Format.BGRA8,
+                new DecodeParams(4, m___x, m__x_, m_x__, mx___, s___x, s__x_, s_x__, sx___, mxxxx, sxxxx));
 
-        params.put(Format.ARGB8,        new DecodeParams(4, mx___, m_x__, m__x_, m___x,
-                                                            sx___, s_x__, s__x_, s___x,
-                                                            mxxxx, sxxxx));
-        
+        params.put(Format.ARGB8,
+                new DecodeParams(4, mx___, m_x__, m__x_, m___x, sx___, s_x__, s__x_, s___x, mxxxx, sxxxx));
+
     }
 
     /**
@@ -191,25 +190,25 @@ public class ImageToAwt {
     private ImageToAwt() {
     }
 
-    private static int Ix(int x, int y, int w){
+    private static int Ix(int x, int y, int w) {
         return y * w + x;
     }
 
-    private static int readPixel(ByteBuffer buf, int idx, int bpp){
+    private static int readPixel(ByteBuffer buf, int idx, int bpp) {
         buf.position(idx);
         int original = buf.get() & 0xff;
-        while ((--bpp) > 0){
+        while ((--bpp) > 0) {
             original = (original << 8) | (buf.get() & 0xff);
         }
         return original;
     }
 
-    private static void writePixel(ByteBuffer buf, int idx, int pixel, int bpp){
+    private static void writePixel(ByteBuffer buf, int idx, int pixel, int bpp) {
         buf.position(idx);
-        while ((--bpp) >= 0){
-//            pixel = pixel >> 8;
+        while ((--bpp) >= 0) {
+            // pixel = pixel >> 8;
             byte bt = (byte) ((pixel >> (bpp * 8)) & 0xff);
-//            buf.put( (byte) (pixel & 0xff) );
+            // buf.put( (byte) (pixel & 0xff) );
             buf.put(bt);
         }
     }
@@ -217,9 +216,12 @@ public class ImageToAwt {
     /**
      * Convert an AWT image to jME image. XXX not implemented yet!
      *
-     * @param image the input image (not null, unaffected)
-     * @param format the data format
-     * @param buf the output buffer (not null, modified)
+     * @param image
+     *            the input image (not null, unaffected)
+     * @param format
+     *            the data format
+     * @param buf
+     *            the output buffer (not null, modified)
      */
     public static void convert(BufferedImage image, Format format, ByteBuffer buf) {
         DecodeParams p = params.get(format);
@@ -238,8 +240,8 @@ public class ImageToAwt {
         int reductionB = 8 - Integer.bitCount(p.bm);
 
         int initialPos = buf.position();
-        for (int y = 0; y < height; y++){
-            for (int x = 0; x < width; x++){
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 // Get ARGB
                 int argb = image.getRGB(x, y);
 
@@ -256,12 +258,11 @@ public class ImageToAwt {
                 b = b & 0xff;
 
                 // Set full alpha if target image has no alpha
-                if (!alpha)
-                    a = 0xff;
+                if (!alpha) a = 0xff;
 
                 // Convert color to luminance if target
                 // image is in luminance format
-                if (luminance){
+                if (luminance) {
                     // convert RGB to luminance
                 }
 
@@ -271,7 +272,7 @@ public class ImageToAwt {
                 r = r >> reductionR;
                 g = g >> reductionG;
                 b = b >> reductionB;
-                
+
                 // Put components into appropriate positions
                 a = (a << p.as) & p.am;
                 r = (r << p.rs) & p.rm;
@@ -279,7 +280,7 @@ public class ImageToAwt {
                 b = (b << p.bs) & p.bm;
 
                 int outputPixel = ((a | r | g | b) << p.is) & p.im;
-                int i = initialPos + (Ix(x,y,width) * p.bpp);
+                int i = initialPos + (Ix(x, y, width) * p.bpp);
                 writePixel(buf, i, outputPixel, p.bpp);
             }
         }
@@ -287,18 +288,18 @@ public class ImageToAwt {
 
     private static final double LOG2 = Math.log(2);
 
-    public static void createData(Image image, boolean mipmaps){
+    public static void createData(Image image, boolean mipmaps) {
         int bpp = image.getFormat().getBitsPerPixel();
         int w = image.getWidth();
         int h = image.getHeight();
-        if (!mipmaps){
-            image.setData(BufferUtils.createByteBuffer(w*h*bpp/8));
+        if (!mipmaps) {
+            image.setData(BufferUtils.createByteBuffer(w * h * bpp / 8));
             return;
         }
         int expectedMipmaps = 1 + (int) Math.ceil(Math.log(Math.max(h, w)) / LOG2);
         int[] mipMapSizes = new int[expectedMipmaps];
         int total = 0;
-        for (int i = 0; i < mipMapSizes.length; i++){
+        for (int i = 0; i < mipMapSizes.length; i++) {
             int size = (w * h * bpp) / 8;
             total += size;
             mipMapSizes[i] = size;
@@ -310,25 +311,24 @@ public class ImageToAwt {
     }
 
     /**
-     * Convert the image from the given format to the output format.
-     * It is assumed that both images have buffers with the appropriate
-     * number of elements and that both have the same dimensions.
+     * Convert the image from the given format to the output format. It is assumed that both images have
+     * buffers with the appropriate number of elements and that both have the same dimensions.
      *
-     * @param input the input image (not null, unaffected)
-     * @param output the output image (not null, modified)
+     * @param input
+     *            the input image (not null, unaffected)
+     * @param output
+     *            the output image (not null, modified)
      */
-    public static void convert(Image input, Image output){
-        DecodeParams inParams  = params.get(input.getFormat());
+    public static void convert(Image input, Image output) {
+        DecodeParams inParams = params.get(input.getFormat());
         DecodeParams outParams = params.get(output.getFormat());
 
-        if (inParams == null || outParams == null)
-            throw new UnsupportedOperationException();
+        if (inParams == null || outParams == null) throw new UnsupportedOperationException();
 
-        int width  = input.getWidth();
+        int width = input.getWidth();
         int height = input.getHeight();
 
-        if (width != output.getWidth() || height != output.getHeight())
-            throw new IllegalArgumentException();
+        if (width != output.getWidth() || height != output.getHeight()) throw new IllegalArgumentException();
 
         ByteBuffer inData = input.getData(0);
 
@@ -348,11 +348,11 @@ public class ImageToAwt {
         int expansionB = 8 - Integer.bitCount(inParams.bm);
 
         int inputPixel;
-        for (int y = 0; y < height; y++){
-            for (int x = 0; x < width; x++){
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 int i = Ix(x, y, width) * inParams.bpp;
                 inputPixel = (readPixel(inData, i, inParams.bpp) & inParams.im) >> inParams.is;
-                
+
                 int a = (inputPixel & inParams.am) >> inParams.as;
                 int r = (inputPixel & inParams.rm) >> inParams.rs;
                 int g = (inputPixel & inParams.gm) >> inParams.gs;
@@ -368,30 +368,27 @@ public class ImageToAwt {
                 g = g << expansionG;
                 b = b << expansionB;
 
-                if (inLum)
-                    b = g = r;
+                if (inLum) b = g = r;
 
-                if (!inAlpha)
-                    a = 0xff;
+                if (!inAlpha) a = 0xff;
 
-//                int argb = (a << 24) | (r << 16) | (g << 8) | b;
-//                out.setRGB(x, y, argb);
+                // int argb = (a << 24) | (r << 16) | (g << 8) | b;
+                // out.setRGB(x, y, argb);
             }
         }
     }
 
-    public static BufferedImage convert(Image image, boolean do16bit, boolean fullAlpha, int mipLevel){
+    public static BufferedImage convert(Image image, boolean do16bit, boolean fullAlpha, int mipLevel) {
         Format format = image.getFormat();
         DecodeParams p = params.get(format);
-        if (p == null)
-            throw new UnsupportedOperationException();
+        if (p == null) throw new UnsupportedOperationException();
 
         int width = image.getWidth();
         int height = image.getHeight();
 
         int level = mipLevel;
-        while (--level >= 0){
-            width  /= 2;
+        while (--level >= 0) {
+            width /= 2;
             height /= 2;
         }
 
@@ -403,44 +400,38 @@ public class ImageToAwt {
         boolean alpha = false;
         boolean luminance = false;
         boolean rgb = false;
-        if (p.am != 0)
-            alpha = true;
+        if (p.am != 0) alpha = true;
 
-        if (p.rm != 0 && p.gm == 0 && p.bm == 0)
-            luminance = true;
-        else if (p.rm != 0 && p.gm != 0 && p.bm != 0)
-            rgb = true;
+        if (p.rm != 0 && p.gm == 0 && p.bm == 0) luminance = true;
+        else if (p.rm != 0 && p.gm != 0 && p.bm != 0) rgb = true;
 
         // alpha OR luminance but not both
-        if ( (alpha && !rgb && !luminance) || (luminance && !alpha && !rgb) ){
+        if ((alpha && !rgb && !luminance) || (luminance && !alpha && !rgb)) {
             out = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-        }else if ( (rgb && alpha) || (luminance && alpha) ){
-            if (do16bit){
-                if (fullAlpha){
+        } else if ((rgb && alpha) || (luminance && alpha)) {
+            if (do16bit) {
+                if (fullAlpha) {
                     ColorModel model = AWTLoader.AWT_RGBA4444;
                     WritableRaster raster = model.createCompatibleWritableRaster(width, width);
                     out = new BufferedImage(model, raster, false, null);
-                }else{
+                } else {
                     // RGB5_A1
                     ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
-                    int[] nBits = {5, 5, 5, 1};
-                    int[] bOffs = {0, 1, 2, 3};
+                    int[] nBits = { 5, 5, 5, 1 };
+                    int[] bOffs = { 0, 1, 2, 3 };
                     ColorModel colorModel = new ComponentColorModel(cs, nBits, true, false,
-                                                                    Transparency.BITMASK,
-                                                                    DataBuffer.TYPE_BYTE);
-                    WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,
-                                                                           width, height,
-                                                                           width*2, 2,
-                                                                           bOffs, null);
+                            Transparency.BITMASK, DataBuffer.TYPE_BYTE);
+                    WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, width,
+                            height, width * 2, 2, bOffs, null);
                     out = new BufferedImage(colorModel, raster, false, null);
                 }
-            }else{
+            } else {
                 out = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
             }
-        }else{
-            if (do16bit){
+        } else {
+            if (do16bit) {
                 out = new BufferedImage(width, height, BufferedImage.TYPE_USHORT_565_RGB);
-            }else{
+            } else {
                 out = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             }
         }
@@ -449,20 +440,20 @@ public class ImageToAwt {
         int expansionR = 8 - Integer.bitCount(p.rm);
         int expansionG = 8 - Integer.bitCount(p.gm);
         int expansionB = 8 - Integer.bitCount(p.bm);
-        
-        if (expansionR < 0){
+
+        if (expansionR < 0) {
             expansionR = 0;
         }
-        
+
         int mipPos = 0;
-        for (int i = 0; i < mipLevel; i++){
+        for (int i = 0; i < mipLevel; i++) {
             mipPos += image.getMipMapSizes()[i];
         }
         int inputPixel;
-        for (int y = 0; y < height; y++){
-            for (int x = 0; x < width; x++){
-                int i = mipPos + (Ix(x,y,width) * p.bpp);
-                inputPixel = (readPixel(buf,i,p.bpp) & p.im) >> p.is;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int i = mipPos + (Ix(x, y, width) * p.bpp);
+                inputPixel = (readPixel(buf, i, p.bpp) & p.im) >> p.is;
                 int a = (inputPixel & p.am) >> p.as;
                 int r = (inputPixel & p.rm) >> p.rs;
                 int g = (inputPixel & p.gm) >> p.gs;
@@ -477,12 +468,10 @@ public class ImageToAwt {
                 r = r << expansionR;
                 g = g << expansionG;
                 b = b << expansionB;
-                
-                if (luminance)
-                    b = g = r;
 
-                if (!alpha)
-                    a = 0xff;
+                if (luminance) b = g = r;
+
+                if (!alpha) a = 0xff;
 
                 int argb = (a << 24) | (r << 16) | (g << 8) | b;
                 out.setRGB(x, y, argb);
