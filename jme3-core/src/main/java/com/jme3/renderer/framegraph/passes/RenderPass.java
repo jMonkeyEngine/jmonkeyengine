@@ -45,10 +45,10 @@ import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -58,6 +58,7 @@ import java.util.Objects;
  */
 public abstract class RenderPass implements ResourceProducer, Savable {
     
+    private static final String LIST_PREFIX = "#ElementOfList:";
     private static int nextId = 0;
     
     private int id = nextId++;
@@ -292,7 +293,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param array
      * @return 
      */
-    protected <T> T[] acquireGroup(String name, T[] array) {
+    protected <T> T[] acquireArray(String name, T[] array) {
         ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroupArray(name), "Ticket group cannot be null.");
         int n = Math.min(array.length, tickets.length);
         for (int i = 0; i < n; i++) {
@@ -312,7 +313,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param val
      * @return 
      */
-    protected <T> T[] acquireGroupOrElse(String name, T[] array, T val) {
+    protected <T> T[] acquireArrayOrElse(String name, T[] array, T val) {
         ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroupArray(name), "Ticket group cannot be null.");
         int n = Math.min(array.length, tickets.length);
         for (int i = 0; i < n; i++) {
@@ -320,6 +321,26 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         }
         return array;
     }
+    /**
+     * Acquires a list of resources from a ticket group and stores them in the given list.
+     * 
+     * @param <T>
+     * @param name group name
+     * @param list list to store resources in (or null to create a new {@link LinkedList}).
+     * @return given list
+     */
+    protected <T> List<T> acquireList(String name, List<T> list) {
+        if (list == null) {
+            list = new LinkedList<>();
+        }
+        ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroupArray(name), "Ticket group cannot be null.");
+        for (ResourceTicket<T> t : tickets) {
+            T res = resources.acquireOrElse(t, null);
+            if (res != null) list.add(res);
+        }
+        return list;
+    }
+    
     /**
      * Releases all reasources associated with any registered ticket.
      * <p>
@@ -341,7 +362,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param input
      * @return given ticket
      */
-    protected <T> ResourceTicket<T> addInput(ResourceTicket<T> input) {
+    private <T> ResourceTicket<T> addInput(ResourceTicket<T> input) {
         inputs.add(input);
         input.setPassId(id);
         return input;
@@ -353,7 +374,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param output
      * @return given ticket
      */
-    protected <T> ResourceTicket<T> addOutput(ResourceTicket<T> output) {
+    private <T> ResourceTicket<T> addOutput(ResourceTicket<T> output) {
         outputs.add(output);
         output.setPassId(id);
         return output;
@@ -366,6 +387,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @return created ticket
      */
     protected <T> ResourceTicket<T> addInput(String name) {
+        validateUserTicketName(name);
         return addInput(new ResourceTicket<>(name));
     }
     /**
@@ -376,6 +398,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @return created ticket
      */
     protected <T> ResourceTicket<T> addOutput(String name) {
+        validateUserTicketName(name);
         return addOutput(new ResourceTicket<>(name));
     }
     /**
@@ -389,12 +412,13 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @return created ticket array
      */
     protected <T> ResourceTicket<T>[] addInputGroup(String name, int length) {
-        ResourceTicket<T>[] array = new ResourceTicket[length];
+        validateUserTicketName(name);
+        TicketGroup group = new TicketGroup(name, length);
         for (int i = 0; i < length; i++) {
-            addInput(array[i] = new ResourceTicket<>(groupTicketName(name, i), name));
+            group.array[i] = addInput(group.create(i));
         }
-        groups.put(name, new TicketGroup(name, array));
-        return array;
+        groups.put(name, group);
+        return group.array;
     }
     /**
      * Creates and adds a ticket array as a group output of the specified length under the given name.
@@ -407,20 +431,28 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @return create ticket array
      */
     protected <T> ResourceTicket<T>[] addOutputGroup(String name, int length) {
-        ResourceTicket<T>[] array = new ResourceTicket[length];
+        validateUserTicketName(name);
+        TicketGroup group = new TicketGroup(name, length);
         for (int i = 0; i < length; i++) {
-            addOutput(array[i] = new ResourceTicket<>(groupTicketName(name, i), name));
+            group.array[i] = addOutput(group.create(i));
         }
-        groups.put(name, new TicketGroup(name, array));
-        return array;
+        groups.put(name, group);
+        return group.array;
     }
     /**
      * Creates an input group of indefinite size.
      * 
      * @param name 
      */
-    protected void addInputGroup(String name) {
+    protected void addInputList(String name) {
+        validateUserTicketName(name);
         groups.put(name, new TicketGroup(name));
+    }
+    
+    private void validateUserTicketName(String name) {
+        if (name.startsWith("#")) {
+            throw new IllegalArgumentException("Cannot start ticket name with reserved '#' symbol.");
+        }
     }
     
     /**
@@ -438,6 +470,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         // Once we determine which list group members were added to, we only
         // need to remove from that list for future members.
         byte state = 0;
+        if (group.list) state = 1;
         for (ResourceTicket<T> t : group.array) {
             if (state >= 0 && inputs.remove(t)) {
                 state = 1;
@@ -534,8 +567,16 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      */
     public void makeInput(RenderPass sourcePass, String sourceTicket, String targetTicket) {
         ResourceTicket source = Objects.requireNonNull(sourcePass.getOutput(sourceTicket), "Source ticket cannot be null.");
-        ResourceTicket target = Objects.requireNonNull(getInput(targetTicket), "Target ticket cannot be null.");
-        target.setSource(source);
+        if (targetTicket.startsWith(LIST_PREFIX)) {
+            TicketGroup g = Objects.requireNonNull(groups.get(targetTicket.substring(LIST_PREFIX.length())), "List group cannot be null.");
+            if (!g.list) {
+                throw new IllegalStateException("Group must be a list.");
+            }
+            g.add().setSource(source);
+        } else {
+            ResourceTicket target = Objects.requireNonNull(getInput(targetTicket), "Target ticket cannot be null.");
+            target.setSource(source);
+        }
     }
     /**
      * Adds the indicated source ticket as an input to the target indefinite group.
@@ -544,13 +585,33 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param sourceTicket
      * @param targetGroup 
      */
-    public void addInputToGroup(RenderPass sourcePass, String sourceTicket, String targetGroup) {
+    public void makeInputToList(RenderPass sourcePass, String sourceTicket, String targetGroup) {
         ResourceTicket source = Objects.requireNonNull(sourcePass.getOutput(sourceTicket), "Source ticket cannot be null.");
         TicketGroup target = Objects.requireNonNull(groups.get(targetGroup), "Target group cannot be null.");
-        if (!target.indefinite) {
+        if (!target.list) {
             throw new IllegalStateException("Target group must be indefinite.");
         }
         target.add().setSource(source);
+    }
+    
+    /**
+     * Disconnects all input tickets in this pass that have the given ticket as
+     * their source.
+     * 
+     * @param ticket 
+     */
+    public void disconnectInputsFrom(ResourceTicket ticket) {
+        for (ResourceTicket in : inputs) {
+            if (in.getSource() == ticket) {
+                in.setSource(null);
+                if (in.getGroupName() != null) {
+                    TicketGroup g = groups.get(in.getGroupName());
+                    if (g != null && g.list) {
+                        g.remove(in);
+                    }
+                }
+            }
+        }
     }
     /**
      * Nullifies all sources belonging to the given pass.
@@ -563,7 +624,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
                 in.setSource(null);
                 if (in.getGroupName() != null) {
                     TicketGroup g = groups.get(in.getGroupName());
-                    if (g != null && g.indefinite) {
+                    if (g != null && g.list) {
                         g.remove(in);
                     }
                 }
@@ -784,6 +845,15 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     public static String groupTicketName(String group, int i) {
         return group+'['+i+']';
     }
+    /**
+     * 
+     * @param group
+     * @param i
+     * @return 
+     */
+    public static String listTicketName(String group) {
+        return LIST_PREFIX+group;
+    }
     
     private static class PassFrameBuffer {
         
@@ -814,30 +884,34 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         
         public final String name;
         public ResourceTicket<T>[] array;
-        public boolean indefinite = false;
+        public boolean list = false;
         
         public TicketGroup(String name) {
             this.name = name;
-            this.indefinite = true;
+            this.array = new ResourceTicket[0];
+            this.list = true;
         }
-        public TicketGroup(String name, ResourceTicket<T>... array) {
+        public TicketGroup(String name, int length) {
             this.name = name;
-            this.array = array;
+            this.array = new ResourceTicket[length];
+        }
+        
+        public ResourceTicket<T> create(int i) {
+            return new ResourceTicket<>(groupTicketName(name, i), name);
+        }
+        private ResourceTicket<T> create() {
+            return new ResourceTicket<>(listTicketName(name), name);
         }
         
         public ResourceTicket<T> add() {
-            if (!indefinite) {
-                throw new IllegalStateException("Group must be indefinite to alter ticket array.");
-            }
+            requireAsList();
             ResourceTicket[] temp = new ResourceTicket[array.length+1];
             System.arraycopy(array, 0, temp, 0, array.length);
             array = temp;
-            return (array[array.length-1] = new ResourceTicket<>(groupTicketName(name, array.length-1), name));
+            return (array[array.length-1] = create());
         }
         public int remove(ResourceTicket t) {
-            if (!indefinite) {
-                throw new IllegalStateException("Group must be indefinite to alter ticket array.");
-            }
+            requireAsList();
             int i = array.length-1;
             for (; i >= 0; i--) {
                 if (array[i] == t) break;
@@ -853,6 +927,12 @@ public abstract class RenderPass implements ResourceProducer, Savable {
                 array = temp;
             }
             return i;
+        }
+        
+        private void requireAsList() {
+            if (!list) {
+                throw new IllegalStateException("Group must be a list to alter ticket array.");
+            }
         }
         
     }

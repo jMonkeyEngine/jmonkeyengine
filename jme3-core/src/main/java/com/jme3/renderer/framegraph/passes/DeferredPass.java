@@ -147,7 +147,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         }
         material.selectTechnique("DeferredPass", context.getRenderManager());
         material.getActiveTechnique().getDef().setLogic(this);
-        acquireGroupOrElse("LightTextures", lightTextures, null);
+        acquireArrayOrElse("LightTextures", lightTextures, null);
         if (lightTextures[0] == null) {
             context.getScreen().render(context.getRenderManager(), material, resources.acquire(lights));
         } else {
@@ -155,7 +155,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
                 material.setTexture("LightTex"+i, lightTextures[i-1]);
             }
             // get textures used for screenspace light tiling
-            acquireGroupOrElse("TileTextures", tileTextures, null);
+            acquireArrayOrElse("TileTextures", tileTextures, null);
             if (tileTextures[0] != null) {
                 material.setTexture("m_Tiles", tileTextures[0]);
                 material.setTexture("m_LightIndex", tileTextures[1]);
