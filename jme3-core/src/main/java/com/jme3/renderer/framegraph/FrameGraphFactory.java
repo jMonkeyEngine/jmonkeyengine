@@ -33,7 +33,7 @@ package com.jme3.renderer.framegraph;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.logic.TiledRenderGrid;
-import com.jme3.renderer.framegraph.client.GraphClient;
+import com.jme3.renderer.framegraph.client.GraphSetting;
 import com.jme3.renderer.framegraph.passes.Attribute;
 import com.jme3.renderer.framegraph.passes.DeferredPass;
 import com.jme3.renderer.framegraph.passes.GBufferPass;
@@ -99,21 +99,18 @@ public class FrameGraphFactory {
         fg.add(new PostProcessingPass());
         fg.add(new OutputBucketPass(RenderQueue.Bucket.Translucent));
         
-        GraphClient<TiledRenderGrid> tileInfo = fg.post("TileInfo", new GraphClient());
-        tileInfo.setValue(new TiledRenderGrid());
+        GraphSetting<TiledRenderGrid> tileInfo = fg.setSetting("TileInfo", new TiledRenderGrid(), true);
         tileInfoAttr.setName("TileInfo");
         tileInfoAttr.setSource(tileInfo);
         
-        GraphClient<Integer> tileToggle = fg.post("TileToggle", new GraphClient());
-        tileToggle.setValue(tiled ? 0 : -1);
+        GraphSetting<Integer> tileToggle = fg.setSetting("TileToggle", tiled ? 0 : -1, true);
         tileJunct1.makeInput(tileInfoAttr, Attribute.OUTPUT, Junction.getInput(0));
         tileJunct1.setIndexSource(tileToggle);
         
         lightImg.makeInput(gbuf, "Lights", "Lights");
         lightImg.makeInput(tileInfoAttr, Attribute.OUTPUT, "TileInfo");
         
-        GraphClient<Integer> lightPackMethod = fg.post("LightPackMethod", new GraphClient());
-        lightPackMethod.setValue(tiled ? 0 : -1);
+        GraphSetting<Integer> lightPackMethod = fg.setSetting("LightPackMethod", tiled ? 0 : -1, true);
         lightJunct.setName("LightPackMethod");
         lightJunct.makeGroupInput(lightImg, "Textures", Junction.getInput(0), 0, 0, 3);
         lightJunct.makeInput(lightImg, "NumLights", Junction.getInput(0, 3));

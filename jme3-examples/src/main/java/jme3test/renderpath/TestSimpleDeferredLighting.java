@@ -55,7 +55,7 @@ import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.renderer.framegraph.debug.GraphEventCapture;
-import com.jme3.renderer.framegraph.client.GraphClient;
+import com.jme3.renderer.framegraph.client.GraphSetting;
 import com.jme3.renderer.framegraph.passes.Junction;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
@@ -676,7 +676,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         //renderManager.setFrameGraph(forward);
         
         Junction lightingMethod = deferred.get(Junction.class, "LightPackMethod");
-        lightingMethod.setIndexSource(vp -> 0);
+        lightingMethod.setIndexSource((fg, vp) -> 0);
         
         File capTarget = new File(System.getProperty("user.home")+"/earlyFrameCapture.txt");
         GraphEventCapture cap = new GraphEventCapture(capTarget);

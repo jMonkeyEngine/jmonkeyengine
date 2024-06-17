@@ -34,7 +34,9 @@ package com.jme3.renderer.framegraph.passes;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.export.NullSavable;
 import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.renderer.framegraph.client.GraphSource;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
@@ -117,7 +119,7 @@ public class Junction <T> extends RenderPass {
         }
         // connect output to input
         if (source != null) {
-            connect(source.getGraphValue(context.getViewPort()));
+            connect(source.getGraphValue(frameGraph, context.getViewPort()));
         } else {
             connect(defaultIndex);
         }
@@ -140,6 +142,9 @@ public class Junction <T> extends RenderPass {
         out.write(length, "length", 2);
         out.write(groupSize, "groupSize", 1);
         out.write(defaultIndex, "defaultIndex", 0);
+        if (source != null && source instanceof Savable) {
+            out.write((Savable)source, "source", NullSavable.INSTANCE);
+        }
     }
     @Override
     public void read(JmeImporter im) throws IOException {
@@ -148,13 +153,14 @@ public class Junction <T> extends RenderPass {
         length = in.readInt("length", 2);
         groupSize = in.readInt("groupSize", 1);
         defaultIndex = in.readInt("defaultIndex", 0);
+        source = (GraphSource<Integer>)in.readSavable("source", null);
     }
     
     private void connect(int i) {
         boolean assignNull = i < 0 || i >= length;
         if (groupSize > 1) {
-            ResourceTicket[] inArray = getGroup(Junction.getInput(i));
-            ResourceTicket[] outArray = getGroup(Junction.getOutput());
+            ResourceTicket[] inArray = getGroupArray(Junction.getInput(i));
+            ResourceTicket[] outArray = getGroupArray(Junction.getOutput());
             for (int j = 0; j < groupSize; j++) {
                 outArray[j].setSource(assignNull ? null : inArray[j]);
             }

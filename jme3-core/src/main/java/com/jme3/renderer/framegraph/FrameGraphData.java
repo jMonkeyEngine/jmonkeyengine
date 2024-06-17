@@ -36,11 +36,13 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.export.SavableObject;
 import com.jme3.renderer.framegraph.passes.RenderPass;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Holds framegraph data ready for import or export.
@@ -51,17 +53,27 @@ import java.util.LinkedList;
  */
 public class FrameGraphData implements Savable {
     
+    private static final String DEF_NAME = "FrameGraph";
+    private static final RenderPass[] DEF_PASSES = new RenderPass[0];
+    private static final SavablePassConnection[] DEF_CONNECTIONS = new SavablePassConnection[0];
+    private static final HashMap<String, Savable> DEF_SETTINGS = new HashMap<>();
+    
     private final boolean export;
     private String name;
     private RenderPass[] passes;
     private SavablePassConnection[] connections;
+    private Map<String, SavableObject> settings;
     
     public FrameGraphData() {
         export = false;
     }
-    public FrameGraphData(FrameGraph fg, Collection<RenderPass> passes) {
+    public FrameGraphData(FrameGraph fg, Collection<RenderPass> passes, Map<String, Object> settings) {
         this.name = fg.getName();
         this.passes = passes.toArray(RenderPass[]::new);
+        this.settings = new HashMap<>();
+        for (String key : settings.keySet()) {
+            this.settings.put(key, new SavableObject(settings.get(key)));
+        }
         export = true;
     }
 
@@ -89,9 +101,10 @@ public class FrameGraphData implements Savable {
             }
         }
         OutputCapsule out = ex.getCapsule(this);
-        out.write(name, "name", "FrameGraph");
-        out.write(passes, "passes", new RenderPass[0]);
-        out.write(list.toArray(SavablePassConnection[]::new), "connections", new SavablePassConnection[0]);
+        out.write(name, "name", DEF_NAME);
+        out.write(passes, "passes", DEF_PASSES);
+        out.write(list.toArray(SavablePassConnection[]::new), "connections", DEF_CONNECTIONS);
+        out.writeStringSavableMap(settings, "settings", DEF_SETTINGS);
         // reset export ids
         for (RenderPass p : passes) {
             p.setExportId(-1);
@@ -99,6 +112,7 @@ public class FrameGraphData implements Savable {
         idMap.clear();
         list.clear();
         passes = null;
+        settings.clear();
     }
     @Override
     public void read(JmeImporter im) throws IOException {
@@ -120,6 +134,7 @@ public class FrameGraphData implements Savable {
             SavablePassConnection c = connections[i] = (SavablePassConnection)array[i];
             c.shiftIds(baseId);
         }
+        settings = (Map<String, SavableObject>)in.readStringSavableMap("settings", DEF_SETTINGS);
     }
     
     /**
@@ -150,6 +165,10 @@ public class FrameGraphData implements Savable {
             RenderPass input = cache.get(c.getInputId());
             RenderPass output = cache.get(c.getOutputId());
             input.makeInput(output, c.getOutputTicket(), c.getInputTicket());
+        }
+        // transfer settings
+        for (String key : settings.keySet()) {
+            fg.setSetting(key, settings.get(key).getObject());
         }
         cache.clear();
         passes = null;

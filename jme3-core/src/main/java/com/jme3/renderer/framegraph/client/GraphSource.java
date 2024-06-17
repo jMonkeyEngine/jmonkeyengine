@@ -32,6 +32,7 @@
 package com.jme3.renderer.framegraph.client;
 
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.framegraph.FrameGraph;
 
 /**
  * Provides values to a framegraph from game logic.
@@ -44,9 +45,10 @@ public interface GraphSource <T> {
     /**
      * Gets the value provided to the framegraph.
      * 
+     * @param frameGraph framegraph currently rendering
      * @param viewPort viewport currently being rendered
      * @return value (may be null in some circumstances)
      */
-    public T getGraphValue(ViewPort viewPort);
+    public T getGraphValue(FrameGraph frameGraph, ViewPort viewPort);
     
 }

@@ -32,6 +32,7 @@
 package com.jme3.renderer.framegraph.client;
 
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.framegraph.FrameGraph;
 
 /**
  * Receives values from a FrameGraph.
@@ -44,10 +45,11 @@ public interface GraphTarget <T> {
     /**
      * Sets the value recieved from the framegraph.
      * 
+     * @param frameGraph framegraph currently rendering
      * @param viewPort viewport currently being rendered
      * @param value value from framegraph
      * @return true if value is used
      */
-    public boolean setGraphValue(ViewPort viewPort, T value);
+    public boolean setGraphValue(FrameGraph frameGraph, ViewPort viewPort, T value);
     
 }

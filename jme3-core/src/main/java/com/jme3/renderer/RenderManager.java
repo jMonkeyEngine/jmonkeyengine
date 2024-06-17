@@ -1303,7 +1303,7 @@ public class RenderManager {
         }
         if (fg != null) {
             fg.configure(this, vp, prof, tpf);
-            fg.preFrame();
+            //fg.preFrame();
         } else if (processors != null) {
             for (SceneProcessor p : processors.getArray()) {
                 if (!p.isInitialized()) {
@@ -1326,26 +1326,25 @@ public class RenderManager {
             renderer.clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
         }
         
-        if (prof != null) {
-            prof.vpStep(VpStep.RenderScene, vp, null);
-        }
-        // flatten scenes into render queue
-        List<Spatial> scenes = vp.getScenes();
-        for (int i = scenes.size() - 1; i >= 0; i--) {
-            renderScene(scenes.get(i), vp);
-        }
-        
-        if (prof != null && (fg != null || processors != null)) {
-            prof.vpStep(VpStep.PostQueue, vp, null);
-        }
-        if (fg != null) {
-            fg.postQueue();
-        } else if (processors != null) {
-            for (SceneProcessor p : processors.getArray()) {
+        if (fg == null) {
+            if (prof != null) {
+                prof.vpStep(VpStep.RenderScene, vp, null);
+            }
+            // flatten scenes into render queue
+            List<Spatial> scenes = vp.getScenes();
+            for (int i = scenes.size() - 1; i >= 0; i--) {
+                renderScene(scenes.get(i), vp);
+            }
+            if (processors != null) {
                 if (prof != null) {
-                    prof.spStep(SpStep.ProcPostQueue, p.getClass().getSimpleName());
+                    prof.vpStep(VpStep.PostQueue, vp, null);
                 }
-                p.postQueue(vp.getQueue());
+                for (SceneProcessor p : processors.getArray()) {
+                    if (prof != null) {
+                        prof.spStep(SpStep.ProcPostQueue, p.getClass().getSimpleName());
+                    }
+                    p.postQueue(vp.getQueue());
+                }
             }
         }
         
@@ -1378,11 +1377,11 @@ public class RenderManager {
             
             // render the translucent objects queue after processors have been rendered
             renderTranslucentQueue(vp);
+        
+            // clear any remaining spatials that were not rendered.
+            clearQueue(vp);
             
         }
-        
-        // clear any remaining spatials that were not rendered.
-        clearQueue(vp);
         
         if (fg != null) {
             renderObjects.clearReservations();

@@ -31,8 +31,12 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.export.NullSavable;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.renderer.framegraph.client.GraphTarget;
 import com.jme3.renderer.framegraph.client.GraphSource;
 import com.jme3.renderer.framegraph.FGRenderContext;
@@ -78,7 +82,7 @@ public class Attribute <T> extends RenderPass {
         if (inVal != null && !targets.isEmpty()) {
             boolean used = false;
             for (GraphTarget<T> t : targets) {
-                if (t.setGraphValue(context.getViewPort(), inVal)) {
+                if (t.setGraphValue(frameGraph, context.getViewPort(), inVal)) {
                     used = true;
                 }
             }
@@ -88,7 +92,7 @@ public class Attribute <T> extends RenderPass {
         }
         T outVal;
         if (source != null) {
-            outVal = source.getGraphValue(context.getViewPort());
+            outVal = source.getGraphValue(frameGraph, context.getViewPort());
         } else {
             outVal = defaultValue;
         }
@@ -108,6 +112,26 @@ public class Attribute <T> extends RenderPass {
     @Override
     public boolean isUsed() {
         return super.isUsed() || in.hasSource();
+    }
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule out = ex.getCapsule(this);
+        out.writeFromCollection(targets, "targets", true);
+        if (source != null && source instanceof Savable) {
+            out.write((Savable)source, "source", NullSavable.INSTANCE);
+        }
+        if (defaultValue != null && defaultValue instanceof Savable) {
+            out.write((Savable)defaultValue, "default", NullSavable.INSTANCE);
+        }
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule in = im.getCapsule(this);
+        in.readToCollection("targets", targets);
+        source = (GraphSource<T>)in.readSavable("source", null);
+        defaultValue = (T)in.readSavable("default", null);
     }
     
     /**

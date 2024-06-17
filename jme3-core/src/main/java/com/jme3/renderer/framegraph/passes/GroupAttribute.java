@@ -4,12 +4,19 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.NullSavable;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.client.GraphSource;
 import com.jme3.renderer.framegraph.client.GraphTarget;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -36,28 +43,28 @@ public class GroupAttribute extends RenderPass {
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        for (ResourceTicket t : getGroup(OUTPUT)) {
+        for (ResourceTicket t : getGroupArray(OUTPUT)) {
             declare(null, t);
         }
-        referenceOptional(getGroup(INPUT));
+        referenceOptional(getGroupArray(INPUT));
     }
     @Override
     protected void execute(FGRenderContext context) {
         ViewPort vp = context.getViewPort();
-        ResourceTicket[] inTickets = getGroup(INPUT);
+        ResourceTicket[] inTickets = getGroupArray(INPUT);
         for (int i = 0, n = Math.min(groupSize, targets.size()); i < n; i++) {
             Object value = resources.acquireOrElse(inTickets[i], null);
             GraphTarget t = targets.get(i);
-            if (t != null && t.setGraphValue(vp, value)) {
+            if (t != null && t.setGraphValue(frameGraph, vp, value)) {
                 resources.setConstant(inTickets[i]);
             }
         }
         int i = 0;
-        ResourceTicket[] outTickets = getGroup(OUTPUT);
+        ResourceTicket[] outTickets = getGroupArray(OUTPUT);
         for (int n = Math.min(groupSize, sources.size()); i < n; i++) {
             GraphSource s = sources.get(i);
             if (s != null) {
-                Object value = s.getGraphValue(vp);
+                Object value = s.getGraphValue(frameGraph, vp);
                 if (value != null) {
                     resources.setPrimitive(outTickets[i], value);
                     continue;
@@ -73,6 +80,22 @@ public class GroupAttribute extends RenderPass {
     protected void reset(FGRenderContext context) {}
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(groupSize, "groupSize", 2);
+        out.writeFromCollection(sources, "sources", true);
+        out.writeFromCollection(targets, "targets", true);
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule in = im.getCapsule(this);
+        groupSize = in.readInt("groupSize", 2);
+        in.readToCollection("sources", sources);
+        in.readToCollection("targets", targets);
+    }
        
     public void setGroupSize(int groupSize) {
         if (isAssigned()) {

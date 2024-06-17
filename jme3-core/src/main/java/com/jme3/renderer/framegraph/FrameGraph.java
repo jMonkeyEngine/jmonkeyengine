@@ -41,6 +41,7 @@ import com.jme3.profile.FgStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.framegraph.client.GraphSetting;
 import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.passes.Attribute;
 import java.util.HashMap;
@@ -91,7 +92,7 @@ public class FrameGraph {
     private final ResourceList resources;
     private final FGRenderContext context;
     private final LinkedList<RenderPass> passes = new LinkedList<>();
-    private final HashMap<String, Object> blackboard = new HashMap<>();
+    private final HashMap<String, Object> settings = new HashMap<>();
     private String name = "FrameGraph";
     private boolean rendered = false;
     
@@ -286,7 +287,7 @@ public class FrameGraph {
      */
     public <T> Attribute<T> addAttribute(ResourceTicket<T> ticket) {
         Attribute<T> attr = add(new Attribute<>());
-        attr.getInput(Attribute.OUTPUT).setSource(ticket);
+        attr.getInput(Attribute.INPUT).setSource(ticket);
         return attr;
     }
     
@@ -356,7 +357,7 @@ public class FrameGraph {
         for (Iterator<RenderPass> it = passes.iterator(); it.hasNext();) {
             RenderPass p = it.next();
             if (removed != null) {
-                p.disconnectFrom(removed);
+                p.disconnectInputsFrom(removed);
                 p.shiftExecutionIndex(i, false);
             } else if (j++ == i) {
                 removed = p;
@@ -383,7 +384,7 @@ public class FrameGraph {
             RenderPass p = it.next();
             if (found) {
                 // shift execution indices down
-                p.disconnectFrom(pass);
+                p.disconnectInputsFrom(pass);
                 p.shiftExecutionIndex(i, false);
                 continue;
             }
@@ -410,26 +411,58 @@ public class FrameGraph {
     }
     
     /**
-     * Posts an object to the blackboard.
+     * Sets the setting under the name.
      * 
      * @param <T>
      * @param name
      * @param object
      * @return given object
      */
-    public <T> T post(String name, T object) {
-        blackboard.put(name, object);
+    public <T> T setSetting(String name, T object) {
+        settings.put(name, object);
         return object;
     }
     /**
-     * Reads an object from the blackboard.
+     * Sets the setting under the name and creates a GraphSetting
+     * of the same name.
+     * 
+     * @param <T>
+     * @param name
+     * @param object
+     * @param create
+     * @return created graph setting
+     */
+    public <T> GraphSetting<T> setSetting(String name, T object, boolean create) {
+        setSetting(name, object);
+        if (create) {
+            return new GraphSetting<>(name);
+        } else {
+            return null;
+        }
+    }
+    /**
+     * Sets an integer setting based on a boolean value.
+     * <p>
+     * If the boolean is true, 0 is written, otherwise -1 is written. This is
+     * used primarily for Junction sources: 0 points to the first input, and -1
+     * points to no input.
+     * 
+     * @param name
+     * @param value
+     * @return 
+     */
+    public int setJunctionSetting(String name, boolean value) {
+        return setSetting(name, value ? 0 : -1);
+    }
+    /**
+     * Gets the setting under the name, or null.
      * 
      * @param <T>
      * @param name
      * @return 
      */
-    public <T> T fetch(String name) {
-        Object obj = blackboard.get(name);
+    public <T> T getSetting(String name) {
+        Object obj = settings.get(name);
         if (obj != null) {
             return (T)obj;
         } else {
@@ -437,19 +470,29 @@ public class FrameGraph {
         }
     }
     /**
-     * Removes an object from the blackboard.
+     * Removes the setting under the name.
      * 
      * @param <T>
      * @param name
-     * @return 
+     * @return removed setting, or null
      */
-    public <T> T remove(String name) {
-        Object obj = blackboard.remove(name);
+    public <T> T removeSetting(String name) {
+        Object obj = settings.remove(name);
         if (obj != null) {
             return (T)obj;
         } else {
             return null;
         }
+    }
+    /**
+     * Gets the settings map.
+     * <p>
+     * The returned map may be modified.
+     * 
+     * @return 
+     */
+    public HashMap<String, Object> getSettingsMap() {
+        return settings;
     }
     
     /**
@@ -579,7 +622,7 @@ public class FrameGraph {
      * @return 
      */
     public FrameGraphData createData() {
-        return new FrameGraphData(this, passes);
+        return new FrameGraphData(this, passes, settings);
     }
     
     @Override

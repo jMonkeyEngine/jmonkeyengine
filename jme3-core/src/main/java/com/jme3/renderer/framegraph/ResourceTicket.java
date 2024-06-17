@@ -45,7 +45,7 @@ package com.jme3.renderer.framegraph;
  */
 public class ResourceTicket <T> {
     
-    private String name;
+    private String name, groupName;
     private int passId = -1;
     private int localIndex;
     private long objectId = -1;
@@ -64,6 +64,17 @@ public class ResourceTicket <T> {
      */
     public ResourceTicket(String name) {
         this(name, -1);
+    }
+    /**
+     * Creates a ticket with the name, belonging to the named group,
+     * and with a negative local index.
+     * 
+     * @param name
+     * @param groupName 
+     */
+    public ResourceTicket(String name, String groupName) {
+        this(name, -1);
+        this.groupName = groupName;
     }
     /**
      * Creates a ticket with the local index.
@@ -164,6 +175,14 @@ public class ResourceTicket <T> {
      */
     public String getName() {
         return name;
+    }
+    /**
+     * Gets the name of the group this ticket is a member of, if any.
+     * 
+     * @return group name, or null
+     */
+    public String getGroupName() {
+        return groupName;
     }
     /**
      * 

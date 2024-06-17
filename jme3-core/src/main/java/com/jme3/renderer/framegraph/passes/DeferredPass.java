@@ -130,9 +130,9 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         declare(colorDef, outColor);
         reserve(outColor);
         // groups are stored by hashmap, which makes it absolutely fine to fetch every frame
-        reference(getGroup("GBufferData"));
+        reference(getGroupArray("GBufferData"));
         referenceOptional(lights, numLights, ambient, probes);
-        referenceOptional(getGroup("LightTextures"));
+        referenceOptional(getGroupArray("LightTextures"));
     }
     @Override
     protected void execute(FGRenderContext context) {
@@ -141,7 +141,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
-        ResourceTicket<Texture2D>[] gbuffers = getGroup("GBufferData");
+        ResourceTicket<Texture2D>[] gbuffers = getGroupArray("GBufferData");
         for (int i = 0; i < gbuffers.length; i++) {
             material.setTexture("GBuffer"+i, resources.acquire(gbuffers[i]));
         }
