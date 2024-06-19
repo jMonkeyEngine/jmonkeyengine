@@ -92,7 +92,7 @@ public class Junction <T> extends RenderPass {
     protected void prepare(FGRenderContext context) {
         int size;
         if (groupSize > 1) {
-            size = getGroups().size()-1;
+            size = getNumGroups()-1;
         } else {
             size = getInputTickets().size()-EXTRA_INPUTS;
         }

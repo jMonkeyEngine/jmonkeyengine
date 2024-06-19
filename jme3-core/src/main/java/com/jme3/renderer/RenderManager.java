@@ -1326,7 +1326,13 @@ public class RenderManager {
             renderer.clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
         }
         
-        if (fg == null) {
+        if (fg != null) {
+            // returns true on first execution this frame
+            if (fg.execute()) {
+                executedFrameGraphs.add(fg);
+            }
+        } else {
+
             if (prof != null) {
                 prof.vpStep(VpStep.RenderScene, vp, null);
             }
@@ -1346,15 +1352,7 @@ public class RenderManager {
                     p.postQueue(vp.getQueue());
                 }
             }
-        }
-        
-        if (fg != null) {
-            // returns true on first execution this frame
-            if (fg.execute()) {
-                executedFrameGraphs.add(fg);
-            }
-        } else {
-
+            
             if (prof != null) {
                 prof.vpStep(VpStep.FlushQueue, vp, null);
             }
@@ -1383,6 +1381,7 @@ public class RenderManager {
             
         }
         
+        // clear all reservations made
         if (fg != null) {
             renderObjects.clearReservations();
         }

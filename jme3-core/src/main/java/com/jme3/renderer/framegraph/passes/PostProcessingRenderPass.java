@@ -46,7 +46,9 @@ import com.jme3.util.SafeArrayList;
  * 
  * @author codex
  */
-public class PostProcessingPass extends RenderPass {
+public class PostProcessingRenderPass extends RenderPass {
+    
+    
 
     @Override
     protected void initialize(FrameGraph frameGraph) {}

@@ -67,6 +67,12 @@ public class FullScreenQuad {
             0, 1, 2,
             1, 3, 2
         ));
+        mesh.setBuffer(VertexBuffer.Type.TexCoord, 2, BufferUtils.createFloatBuffer(
+            1, 0,
+            1, 1,
+            0, 0,
+            0, 1
+        ));
         mesh.updateBound();
         mesh.updateCounts();
         mesh.setStatic();

@@ -39,9 +39,10 @@ import com.jme3.renderer.framegraph.passes.DeferredPass;
 import com.jme3.renderer.framegraph.passes.GBufferPass;
 import com.jme3.renderer.framegraph.passes.Junction;
 import com.jme3.renderer.framegraph.passes.LightImagePass;
-import com.jme3.renderer.framegraph.passes.OutputBucketPass;
+import com.jme3.renderer.framegraph.passes.OutputRenderPass;
 import com.jme3.renderer.framegraph.passes.OutputPass;
-import com.jme3.renderer.framegraph.passes.PostProcessingPass;
+import com.jme3.renderer.framegraph.passes.PostProcessingRenderPass;
+import com.jme3.renderer.framegraph.passes.SceneEnqueuePass;
 import com.jme3.renderer.queue.RenderQueue;
 
 /**
@@ -62,12 +63,12 @@ public class FrameGraphFactory {
         FrameGraph fg = new FrameGraph(assetManager);
         fg.setName("Forward");
         
-        fg.add(new OutputBucketPass(RenderQueue.Bucket.Opaque));
-        fg.add(new OutputBucketPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
-        fg.add(new OutputBucketPass(RenderQueue.Bucket.Transparent));
-        fg.add(new OutputBucketPass(RenderQueue.Bucket.Gui, DepthRange.FRONT));
-        fg.add(new PostProcessingPass());
-        fg.add(new OutputBucketPass(RenderQueue.Bucket.Translucent));
+        fg.add(new OutputRenderPass(RenderQueue.Bucket.Opaque));
+        fg.add(new OutputRenderPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
+        fg.add(new OutputRenderPass(RenderQueue.Bucket.Transparent));
+        fg.add(new OutputRenderPass(RenderQueue.Bucket.Gui, DepthRange.FRONT));
+        fg.add(new PostProcessingRenderPass());
+        fg.add(new OutputRenderPass(RenderQueue.Bucket.Translucent));
         
         return fg;
         
@@ -85,6 +86,7 @@ public class FrameGraphFactory {
         FrameGraph fg = new FrameGraph(assetManager);
         fg.setName(tiled ? "TiledDeferred" : "Deferred");
         
+        SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass());
         GBufferPass gbuf = fg.add(new GBufferPass());
         Attribute tileInfoAttr = fg.add(new Attribute());
         Junction tileJunct1 = fg.add(new Junction(1, 1));
@@ -93,11 +95,13 @@ public class FrameGraphFactory {
         Junction tileJunct2 = fg.add(new Junction(1, 2));
         DeferredPass deferred = fg.add(new DeferredPass());
         OutputPass defOut = fg.add(new OutputPass(0f));
-        fg.add(new OutputBucketPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
-        fg.add(new OutputBucketPass(RenderQueue.Bucket.Transparent));
-        fg.add(new OutputBucketPass(RenderQueue.Bucket.Gui, DepthRange.FRONT));
-        fg.add(new PostProcessingPass());
-        fg.add(new OutputBucketPass(RenderQueue.Bucket.Translucent));
+        OutputRenderPass sky = fg.add(new OutputRenderPass(DepthRange.REAR));
+        OutputRenderPass transparent = fg.add(new OutputRenderPass());
+        OutputRenderPass gui = fg.add(new OutputRenderPass(DepthRange.FRONT, false));
+        fg.add(new PostProcessingRenderPass());
+        OutputRenderPass translucent = fg.add(new OutputRenderPass());
+        
+        gbuf.makeInput(enqueue, "Opaque", "Geometry");
         
         GraphSetting<TiledRenderGrid> tileInfo = fg.setSetting("TileInfo", new TiledRenderGrid(), true);
         tileInfoAttr.setName("TileInfo");
@@ -131,6 +135,11 @@ public class FrameGraphFactory {
         
         defOut.makeInput(deferred, "Color", "Color");
         defOut.makeInput(gbuf, "GBufferData[4]", "Depth");
+        
+        sky.makeInput(enqueue, "Sky", "Geometry");
+        transparent.makeInput(enqueue, "Transparent", "Geometry");
+        gui.makeInput(enqueue, "Gui", "Geometry");
+        translucent.makeInput(enqueue, "Translucent", "Geometry");
         
         return fg;
         

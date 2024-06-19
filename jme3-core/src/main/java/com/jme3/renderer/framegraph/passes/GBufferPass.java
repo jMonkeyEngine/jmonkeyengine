@@ -45,11 +45,11 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import java.util.LinkedList;
 import java.util.function.Function;
 import com.jme3.renderer.GeometryRenderHandler;
+import com.jme3.renderer.queue.GeometryList;
 
 /**
  * Renders diffuse, specular, emissive, normal, and depth information to a set of
@@ -63,6 +63,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     
     private final static String GBUFFER_PASS = "GBufferPass";
     
+    private ResourceTicket<GeometryList> geometry;
     private ResourceTicket<Texture2D>[] gbuffers;
     private ResourceTicket<LightList> lights;
     private ResourceTicket<Integer> numRendersTicket;
@@ -73,6 +74,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
+        geometry = addInput("Geometry");
         gbuffers = addOutputGroup("GBufferData", 5);
         lights = addOutput("Lights");
         numRendersTicket = addOutput("NumRenders");
@@ -95,6 +97,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         declare(lightDef, lights);
         declare(null, numRendersTicket);
         reserve(gbuffers);
+        reference(geometry);
         numRenders = 0;
     }
     @Override
@@ -111,7 +114,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         context.getRenderManager().setForcedTechnique(GBUFFER_PASS);
         context.getRenderManager().setGeometryRenderHandler(this);
-        context.renderViewPortQueue(RenderQueue.Bucket.Opaque, true);
+        context.renderGeometryList(resources.acquire(geometry), null, this);
         // add accumulated lights
         while (!accumulatedLights.isEmpty()) {
             lightList.add(accumulatedLights.pollFirst());

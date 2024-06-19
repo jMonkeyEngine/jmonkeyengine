@@ -35,9 +35,12 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.ResourceTicket;
+import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import java.io.IOException;
 
@@ -46,39 +49,42 @@ import java.io.IOException;
  * 
  * @author codex
  */
-public class OutputBucketPass extends RenderPass {
+public class OutputRenderPass extends RenderPass {
     
-    private Bucket bucket;
+    private ResourceTicket<GeometryList> geometry;
     private DepthRange depth;
+    private boolean perspective = true;
 
-    public OutputBucketPass() {
-        this(Bucket.Opaque, DepthRange.IDENTITY);
+    public OutputRenderPass() {
+        this(DepthRange.IDENTITY, true);
     }
-    public OutputBucketPass(Bucket bucket) {
-        this(bucket, DepthRange.IDENTITY);
+    public OutputRenderPass(DepthRange range) {
+        this(range, true);
     }
-    public OutputBucketPass(Bucket bucket, DepthRange depth) {
-        this.bucket = bucket;
+    public OutputRenderPass(DepthRange depth, boolean perspective) {
         this.depth = depth;
-        if (this.bucket == Bucket.Inherit) {
-            throw new IllegalArgumentException("Rendered bucket cannot be Inherit.");
-        }
+        this.perspective = perspective;
     }
     
     
     @Override
-    protected void initialize(FrameGraph frameGraph) {}
+    protected void initialize(FrameGraph frameGraph) {
+        geometry = addInput("Geometry");
+    }
     @Override
-    protected void prepare(FGRenderContext context) {}
+    protected void prepare(FGRenderContext context) {
+        reference(geometry);
+    }
     @Override
     protected void execute(FGRenderContext context) {
         context.popFrameBuffer();
-        if (bucket == Bucket.Gui) {
+        if (!perspective) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), true);
         }
         context.getRenderer().setDepthRange(depth);
-        context.renderViewPortQueue(bucket, true);
-        if (bucket == Bucket.Gui) {
+        //context.renderViewPortQueue(bucket, true);
+        context.renderGeometryList(resources.acquire(geometry), null, null);
+        if (!perspective) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), false);
         }
     }
@@ -88,25 +94,21 @@ public class OutputBucketPass extends RenderPass {
     protected void cleanup(FrameGraph frameGraph) {}
     @Override
     public boolean isUsed() {
-        return true;
-    }
-    @Override
-    public String getProfilerName() {
-        return super.getProfilerName()+"["+bucket+"]";
+        return geometry.hasSource();
     }
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule out = ex.getCapsule(this);
-        out.write(bucket, "bucket", Bucket.Opaque);
         out.write(depth, "depth", DepthRange.IDENTITY);
+        out.write(perspective, "perspective", true);
     }
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
-        bucket = in.readEnum("bucket", Bucket.class, Bucket.Opaque);
         depth = in.readSavable("depth", DepthRange.class, DepthRange.IDENTITY);
+        perspective = in.readBoolean("perspective", true);
     }
     
 }

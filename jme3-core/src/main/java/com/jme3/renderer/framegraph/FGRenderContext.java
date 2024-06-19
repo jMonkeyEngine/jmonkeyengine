@@ -36,6 +36,7 @@ import com.jme3.material.RenderState;
 import com.jme3.opencl.CommandQueue;
 import com.jme3.opencl.Context;
 import com.jme3.profile.AppProfiler;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -46,6 +47,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;
 import java.util.function.Predicate;
 import com.jme3.renderer.GeometryRenderHandler;
+import com.jme3.renderer.queue.GeometryList;
 
 /**
  * Contains necessary context for framegraph rendering.
@@ -148,6 +150,28 @@ public class FGRenderContext {
      */
     public void renderViewPortQueue(RenderQueue.Bucket bucket, boolean clear) {
         viewPort.getQueue().renderQueue(bucket, renderManager, viewPort.getCamera(), clear);
+    }
+    /**
+     * Renders the given geometry list with the camera and render handler.
+     * 
+     * @param list list of geometry to render (not null)
+     * @param cam camera to render with (or null to render with the current viewport camera)
+     * @param handler handler to render with (or null to render with {@link GeometryRenderHandler#DEFAULT})
+     */
+    public void renderGeometryList(GeometryList list, Camera cam, GeometryRenderHandler handler) {
+        if (cam == null) {
+            cam = viewPort.getCamera();
+        }
+        if (handler == null) {
+            handler = GeometryRenderHandler.DEFAULT;
+        }
+        list.setCamera(cam);
+        list.sort();
+        for (Geometry g : list) {
+            assert g != null;
+            handler.renderGeometry(renderManager, g);
+            g.queueDistance = Float.NEGATIVE_INFINITY;
+        }
     }
     /**
      * Renders the material on a fullscreen quad.

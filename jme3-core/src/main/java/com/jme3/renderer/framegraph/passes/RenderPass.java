@@ -788,6 +788,14 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     public boolean isAssigned() {
         return index >= 0;
     }
+    /**
+     * Gets the number of ticket groups.
+     * 
+     * @return 
+     */
+    public int getNumGroups() {
+        return groups.size();
+    }
     
     @Override
     public int getExecutionIndex() {

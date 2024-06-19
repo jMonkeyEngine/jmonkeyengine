@@ -248,7 +248,7 @@ public abstract class Filter implements Savable {
      * @param w the width
      * @param h the height
      */
-    protected final void init(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    public final void init(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         //  cleanup(renderManager.getRenderer());
         defaultPass = new Pass();
         defaultPass.init(renderManager.getRenderer(), w, h, getDefaultPassTextureFormat(), getDefaultPassDepthFormat());
@@ -260,7 +260,7 @@ public abstract class Filter implements Savable {
      *
      * @param r the Renderer
      */
-    protected final void cleanup(Renderer r) {   
+    public final void cleanup(Renderer r) {   
         processor = null;
         if (defaultPass != null) {
             defaultPass.cleanup(r);
@@ -302,6 +302,15 @@ public abstract class Filter implements Savable {
     protected abstract Material getMaterial();
     
     /**
+     * Public mirror of {@link #getMaterial()}.
+     * 
+     * @return 
+     */
+    public Material getPassMaterial() {
+        return getMaterial();
+    }
+    
+    /**
      * Override if you want to do something special with the depth texture;
      *
      * @param depthTexture the desired Texture
@@ -326,7 +335,16 @@ public abstract class Filter implements Savable {
      */
     protected void preFrame(float tpf) {
     }
-
+    
+    /**
+     * Public mirror of {@link #preFrame(float)}.
+     * 
+     * @param tpf 
+     */
+    public void filterPreFrame(float tpf) {
+        
+    }
+    
     /**
      * Override this method if you want to make a pass just after the frame has been rendered and just before the filter rendering
      *
@@ -446,10 +464,37 @@ public abstract class Filter implements Savable {
     }
     
     /**
+     * Returns true if this filter can be used by framegraph passes.
+     * 
+     * @return 
+     */
+    public boolean isFrameGraphCompatible() {
+        return false;
+    }
+    
+    /**
+     * Public mirror of {@link #isRequiresSceneTexture()}
+     * 
+     * @return 
+     */
+    public boolean isReqSceneTex() {
+        return isRequiresSceneTexture();
+    }
+    
+    /**
+     * Public mirror of {@link #isRequiresDepthTexture()}
+     * 
+     * @return 
+     */
+    public boolean isReqDepthTex() {
+        return isRequiresDepthTexture();
+    }
+    
+    /**
      * returns the list of the postRender passes
      * @return the pre-existing List
      */
-    protected List<Pass> getPostRenderPasses() {
+    public List<Pass> getPostRenderPasses() {
         return postRenderPasses;
     }
 
@@ -492,4 +537,15 @@ public abstract class Filter implements Savable {
      */
     protected void postFilter(Renderer r, FrameBuffer buffer){        
     }
+    
+    /**
+     * Public mirror of {@link #postFilter(com.jme3.renderer.Renderer, com.jme3.texture.FrameBuffer)}
+     * 
+     * @param r
+     * @param buffer 
+     */
+    public void filterPostRender(Renderer r, FrameBuffer buffer) {
+        postFilter(r, buffer);
+    }
+    
 }
