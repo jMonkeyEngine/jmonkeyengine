@@ -35,7 +35,7 @@ import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
 import com.jme3.material.logic.TileBasedDeferredSinglePassLightingLogic;
-import com.jme3.material.logic.TiledRenderGrid;
+import com.jme3.renderer.framegraph.light.TiledRenderGrid;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;

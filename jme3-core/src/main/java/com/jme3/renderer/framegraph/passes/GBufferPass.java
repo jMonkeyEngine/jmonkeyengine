@@ -41,7 +41,6 @@ import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.TextureDef;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
@@ -50,6 +49,8 @@ import java.util.LinkedList;
 import java.util.function.Function;
 import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.queue.GeometryList;
+import com.jme3.scene.ParentIterator;
+import com.jme3.scene.Spatial;
 
 /**
  * Renders diffuse, specular, emissive, normal, and depth information to a set of
@@ -69,7 +70,6 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     private ResourceTicket<Integer> numRendersTicket;
     private ValueDef<LightList> lightDef;
     private final TextureDef<Texture2D>[] texDefs = new TextureDef[5];
-    private final LinkedList<Light> accumulatedLights = new LinkedList<>();
     private int numRenders = 0;
     
     @Override
@@ -114,10 +114,13 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         context.getRenderManager().setForcedTechnique(GBUFFER_PASS);
         context.getRenderManager().setGeometryRenderHandler(this);
-        context.renderGeometryList(resources.acquire(geometry), null, this);
-        // add accumulated lights
-        while (!accumulatedLights.isEmpty()) {
-            lightList.add(accumulatedLights.pollFirst());
+        GeometryList bucket = resources.acquire(geometry);
+        context.renderGeometryList(bucket, null, this);
+        // get lights for all rendered geometries
+        for (Spatial s : new ParentIterator(bucket)) {
+            for (Light l : s.getLocalLightList()) {
+                lightList.add(l);
+            }
         }
         resources.setPrimitive(numRendersTicket, numRenders);
     }
@@ -133,16 +136,6 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         }
         rm.renderGeometry(geom);
         numRenders++;
-        if (material.getActiveTechnique() != null) {
-            LightList lts = geom.getFilterWorldLights();
-            for (Light l : lts) {
-                // todo: checking for containment is very slow
-                if (!accumulatedLights.contains(l)) {
-                    accumulatedLights.add(l);
-                }
-            }
-            return true;
-        }
         return false;
     }
     

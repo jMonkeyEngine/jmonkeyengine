@@ -48,6 +48,7 @@ public class DepthOfFieldPass extends RenderPass {
     @Override
     protected void prepare(FGRenderContext context) {
         declare(texDef, result);
+        reserve(result);
         reference(color, depth);
         texDef.setSize(context.getWidth(), context.getHeight());
         material.setFloat("XScale", blurScale/context.getWidth());
@@ -66,7 +67,9 @@ public class DepthOfFieldPass extends RenderPass {
     @Override
     protected void reset(FGRenderContext context) {}
     @Override
-    protected void cleanup(FrameGraph frameGraph) {}
+    protected void cleanup(FrameGraph frameGraph) {
+        material = null;
+    }
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);

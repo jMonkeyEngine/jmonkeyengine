@@ -9,7 +9,6 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
-import com.jme3.material.logic.TiledRenderGrid;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
@@ -41,6 +40,7 @@ public class LightFrustum {
     private final Vector4f lightLeft = new Vector4f();
     private final Vector4f lightUp = new Vector4f();
     private final Vector4f lightCenter = new Vector4f();
+    private boolean fullscreen = false;
     
     public LightFrustum calculateCamera(Camera cam) {
         viewPortWidth = cam.getWidth() * 0.5f;
@@ -76,8 +76,12 @@ public class LightFrustum {
     }
     public LightFrustum fromPoint(PointLight pl) {
         
-        float r = pl.getRadius();
-        if(r <= 0)return null;
+        //return fullscreen();
+        
+        float r = Math.abs(pl.getRadius());
+        if (r == 0) {
+            throw new IllegalStateException("PointLight radius cannot be zero in this context.");
+        }
         float lr = r * camLeftCoeff;
         float tr = r * camTopCoeff;
         tempVec4.set(pl.getPosition().x, pl.getPosition().y, pl.getPosition().z, 1.0f);
@@ -143,27 +147,32 @@ public class LightFrustum {
         return fullscreen();
     }
     public LightFrustum fullscreen() {
+        fullscreen = true;
         left = bottom = 0;
-        right = viewPortWidth;
-        top = viewPortHeight;
+        right = viewPortWidth*2;
+        top = viewPortHeight*2;
         return this;
     }
     
     public void write(ArrayList<LinkedList<Integer>> tileIndices, TiledRenderGrid tileInfo, int lightIndex) {
-        int width = tileInfo.getGridWidth();
-        int numTiles = tileInfo.getNumTiles();
-        int tileLeft = (int)Math.max(Math.floor(left / tileInfo.getTileSize()), 0);
-        int tileRight = (int)Math.min(Math.ceil(right / tileInfo.getTileSize()), width);
-        int tileBottom = (int)Math.max(Math.floor(bottom / tileInfo.getTileSize()), 0);
-        int tileTop = (int)Math.min(Math.ceil(top / tileInfo.getTileSize()), tileInfo.getGridHeight());
-        for (int b = tileBottom; b < tileTop; b++) {
-            int base = b*width;
-            for (int l = tileLeft; l < tileRight; l++) {
-                int tileId = l+base;
-                if (tileId >= 0 && tileId < numTiles) {
-                    tileIndices.get(tileId).add(lightIndex);
+        if (!fullscreen) {
+            int width = tileInfo.getGridWidth();
+            int numTiles = tileInfo.getNumTiles();
+            int tileLeft = (int)Math.max(Math.floor(left / tileInfo.getTileSize()), 0);
+            int tileRight = (int)Math.min(Math.ceil(right / tileInfo.getTileSize()), width);
+            int tileBottom = (int)Math.max(Math.floor(bottom / tileInfo.getTileSize()), 0);
+            int tileTop = (int)Math.min(Math.ceil(top / tileInfo.getTileSize()), tileInfo.getGridHeight());
+            for (int b = tileBottom; b < tileTop; b++) {
+                int base = b*width;
+                for (int l = tileLeft; l < tileRight; l++) {
+                    int tileId = l+base;
+                    if (tileId >= 0 && tileId < numTiles) {
+                        tileIndices.get(tileId).add(lightIndex);
+                    }
                 }
             }
+        } else for (LinkedList<Integer> l : tileIndices) {
+            l.add(lightIndex);
         }
     }
     

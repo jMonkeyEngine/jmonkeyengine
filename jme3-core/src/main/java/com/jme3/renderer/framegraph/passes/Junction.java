@@ -155,6 +155,10 @@ public class Junction <T> extends RenderPass {
         defaultIndex = in.readInt("defaultIndex", 0);
         source = (GraphSource<Integer>)in.readSavable("source", null);
     }
+    @Override
+    public <T> ResourceTicket<T> addTicketSlot(String group) {
+        throw new UnsupportedOperationException("Cannot resize group.");
+    }
     
     private void connect(int i) {
         boolean assignNull = i < 0 || i >= length;

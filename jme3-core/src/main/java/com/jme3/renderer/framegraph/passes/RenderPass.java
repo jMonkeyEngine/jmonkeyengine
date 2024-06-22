@@ -50,6 +50,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Performs rendering operations for a framegraph.
@@ -302,6 +303,24 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return array;
     }
     /**
+     * Acquires a set of resources from a ticket group and stores them in an
+     * array created by the function.
+     * 
+     * @param <T>
+     * @param name
+     * @param func
+     * @return 
+     */
+    protected <T> T[] acquireArray(String name, Function<Integer, T[]> func) {
+        ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroupArray(name), "Ticket group cannot be null.");
+        T[] array = func.apply(tickets.length);
+        int n = Math.min(array.length, tickets.length);
+        for (int i = 0; i < n; i++) {
+            array[i] = resources.acquire(tickets[i]);
+        }
+        return array;
+    }
+    /**
      * Acquires a set of resources from a ticket group and stores them in
      * the array.
      * <p>
@@ -315,6 +334,27 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      */
     protected <T> T[] acquireArrayOrElse(String name, T[] array, T val) {
         ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroupArray(name), "Ticket group cannot be null.");
+        int n = Math.min(array.length, tickets.length);
+        for (int i = 0; i < n; i++) {
+            array[i] = resources.acquireOrElse(tickets[i], val);
+        }
+        return array;
+    }
+    /**
+     * Acquires a set of resources from a ticket group and stores them in an
+     * array created by the function.
+     * <p>
+     * Tickets that are invalid will acquire {@code val}.
+     * 
+     * @param <T>
+     * @param name
+     * @param func
+     * @param val
+     * @return 
+     */
+    protected <T> T[] acquireArrayOrElse(String name, Function<Integer, T[]> func, T val) {
+        ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroupArray(name), "Ticket group cannot be null.");
+        T[] array = func.apply(tickets.length);
         int n = Math.min(array.length, tickets.length);
         for (int i = 0; i < n; i++) {
             array[i] = resources.acquireOrElse(tickets[i], val);
@@ -593,6 +633,23 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         }
         target.add().setSource(source);
     }
+    /**
+     * Adds a ticket to the end of a group.
+     * <p>
+     * The group cannot be a list.
+     * 
+     * @param <T>
+     * @param group
+     * @return added ticket
+     */
+    public <T> ResourceTicket<T> addTicketSlot(String group) {
+        TicketGroup g = groups.get(group);
+        if (g == null) {
+            throw new NullPointerException("Ticket group cannot be null.");
+        }
+        g.requireAs(false);
+        return g.add();
+    }
     
     /**
      * Disconnects all input tickets in this pass that have the given ticket as
@@ -639,27 +696,38 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * and returned.
      * 
      * @param cap graph event capturer, for debugging, may be null.
+     * @param tag 
+     * @param width
+     * @param height
+     * @param samples
+     * @return 
+     */
+    protected FrameBuffer getFrameBuffer(GraphEventCapture cap, String tag, int width, int height, int samples) {
+        if (tag == null) {
+            tag = PassFrameBuffer.DEF_TAG;
+        }
+        for (PassFrameBuffer fb : frameBuffers) {
+            if (fb.qualifies(tag, width, height, samples)) {
+                return fb.use();
+            }
+        }
+        PassFrameBuffer fb = new PassFrameBuffer(tag, width, height, samples);
+        frameBuffers.add(fb);
+        if (cap != null) cap.createFrameBuffer(fb.frameBuffer);
+        return fb.use();
+    }
+    /**
+     * 
+     * @param cap
      * @param width
      * @param height
      * @param samples
      * @return 
      */
     protected FrameBuffer getFrameBuffer(GraphEventCapture cap, int width, int height, int samples) {
-        for (PassFrameBuffer fb : frameBuffers) {
-            if (fb.qualifies(width, height, samples)) {
-                return fb.use();
-            }
-        }
-        PassFrameBuffer fb = new PassFrameBuffer(width, height, samples);
-        frameBuffers.add(fb);
-        if (cap != null) cap.createFrameBuffer(fb.frameBuffer);
-        return fb.use();
+        return getFrameBuffer(cap, null, width, height, samples);
     }
     /**
-     * Gets an existing framebuffer that matches the given properties.
-     * <p>
-     * In no existing framebuffer matches, a new framebuffer will be created
-     * and returned.
      * 
      * @param width
      * @param height
@@ -667,13 +735,20 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @return 
      */
     protected FrameBuffer getFrameBuffer(int width, int height, int samples) {
-        return getFrameBuffer(null, width, height, samples);
+        return getFrameBuffer(null, null, width, height, samples);
     }
     /**
-     * Gets an existing framebuffer that matches the context.
-     * <p>
-     * If no existing framebuffer matches, a new framebuffer will be created
-     * and returned. Uses event capturing if available.
+     * 
+     * @param tag
+     * @param width
+     * @param height
+     * @param samples
+     * @return 
+     */
+    protected FrameBuffer getFrameBuffer(String tag, int width, int height, int samples) {
+        return getFrameBuffer(null, tag, width, height, samples);
+    }
+    /**
      * 
      * @param context
      * @param samples
@@ -681,6 +756,16 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      */
     protected FrameBuffer getFrameBuffer(FGRenderContext context, int samples) {
         return getFrameBuffer(context.getGraphCapture(), context.getWidth(), context.getHeight(), samples);
+    }
+    /**
+     * 
+     * @param context
+     * @param tag
+     * @param samples
+     * @return 
+     */
+    protected FrameBuffer getFrameBuffer(FGRenderContext context, String tag, int samples) {
+        return getFrameBuffer(context.getGraphCapture(), tag, context.getWidth(), context.getHeight(), samples);
     }
     
     /**
@@ -865,10 +950,17 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     
     private static class PassFrameBuffer {
         
+        public static final String DEF_TAG = "#DefaultTag";
+        
+        public final String tag;
         public final FrameBuffer frameBuffer;
         public boolean used = false;
         
         public PassFrameBuffer(int width, int height, int samples) {
+            this(DEF_TAG, width, height, samples);
+        }
+        public PassFrameBuffer(String tag, int width, int height, int samples) {
+            this.tag = tag;
             frameBuffer = new FrameBuffer(width, height, samples);
         }
         
@@ -877,10 +969,11 @@ public abstract class RenderPass implements ResourceProducer, Savable {
             return frameBuffer;
         }
         
-        public boolean qualifies(int width, int height, int samples) {
+        public boolean qualifies(String tag, int width, int height, int samples) {
             return frameBuffer.getWidth()   == width
                 && frameBuffer.getHeight()  == height
-                && frameBuffer.getSamples() == samples;
+                && frameBuffer.getSamples() == samples
+                && this.tag.equals(tag);
         }
         
         public void dispose() {
@@ -905,21 +998,23 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         }
         
         public ResourceTicket<T> create(int i) {
-            return new ResourceTicket<>(groupTicketName(name, i), name);
-        }
-        private ResourceTicket<T> create() {
-            return new ResourceTicket<>(listTicketName(name), name);
+            String tName;
+            if (!list) {
+                tName = groupTicketName(name, i);
+            } else {
+                tName = listTicketName(name);
+            }
+            return new ResourceTicket<>(tName, name);
         }
         
         public ResourceTicket<T> add() {
-            requireAsList();
             ResourceTicket[] temp = new ResourceTicket[array.length+1];
             System.arraycopy(array, 0, temp, 0, array.length);
             array = temp;
-            return (array[array.length-1] = create());
+            return (array[array.length-1] = create(array.length-1));
         }
         public int remove(ResourceTicket t) {
-            requireAsList();
+            requireAs(true);
             int i = array.length-1;
             for (; i >= 0; i--) {
                 if (array[i] == t) break;
@@ -937,9 +1032,9 @@ public abstract class RenderPass implements ResourceProducer, Savable {
             return i;
         }
         
-        private void requireAsList() {
-            if (!list) {
-                throw new IllegalStateException("Group must be a list to alter ticket array.");
+        public void requireAs(boolean asList) {
+            if (list != asList) {
+                throw new IllegalStateException("Group must be "+(asList ? "a list" : "an array")+" in this context.");
             }
         }
         

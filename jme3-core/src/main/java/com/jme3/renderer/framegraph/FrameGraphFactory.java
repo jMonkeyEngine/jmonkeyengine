@@ -32,7 +32,7 @@
 package com.jme3.renderer.framegraph;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.material.logic.TiledRenderGrid;
+import com.jme3.renderer.framegraph.light.TiledRenderGrid;
 import com.jme3.renderer.framegraph.client.GraphSetting;
 import com.jme3.renderer.framegraph.passes.Attribute;
 import com.jme3.renderer.framegraph.passes.DeferredPass;
@@ -63,12 +63,18 @@ public class FrameGraphFactory {
         FrameGraph fg = new FrameGraph(assetManager);
         fg.setName("Forward");
         
-        fg.add(new OutputRenderPass(RenderQueue.Bucket.Opaque));
-        fg.add(new OutputRenderPass(RenderQueue.Bucket.Sky, DepthRange.REAR));
-        fg.add(new OutputRenderPass(RenderQueue.Bucket.Transparent));
-        fg.add(new OutputRenderPass(RenderQueue.Bucket.Gui, DepthRange.FRONT));
-        fg.add(new PostProcessingRenderPass());
-        fg.add(new OutputRenderPass(RenderQueue.Bucket.Translucent));
+        SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass());
+        OutputRenderPass opaque = fg.add(new OutputRenderPass());
+        OutputRenderPass sky = fg.add(new OutputRenderPass(DepthRange.REAR));
+        OutputRenderPass transparent = fg.add(new OutputRenderPass());
+        OutputRenderPass gui = fg.add(new OutputRenderPass(DepthRange.FRONT, false));
+        OutputRenderPass translucent = fg.add(new OutputRenderPass());
+        
+        opaque.makeInput(enqueue, "Opaque", "Geometry");
+        sky.makeInput(enqueue, "Sky", "Geometry");
+        transparent.makeInput(enqueue, "Transparent", "Geometry");
+        gui.makeInput(enqueue, "Gui", "Geometry");
+        translucent.makeInput(enqueue, "Translucent", "Geometry");
         
         return fg;
         
@@ -98,7 +104,6 @@ public class FrameGraphFactory {
         OutputRenderPass sky = fg.add(new OutputRenderPass(DepthRange.REAR));
         OutputRenderPass transparent = fg.add(new OutputRenderPass());
         OutputRenderPass gui = fg.add(new OutputRenderPass(DepthRange.FRONT, false));
-        fg.add(new PostProcessingRenderPass());
         OutputRenderPass translucent = fg.add(new OutputRenderPass());
         
         gbuf.makeInput(enqueue, "Opaque", "Geometry");

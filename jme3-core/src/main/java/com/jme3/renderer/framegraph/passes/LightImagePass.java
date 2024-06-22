@@ -10,7 +10,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.light.LightList;
 import com.jme3.light.LightProbe;
-import com.jme3.material.logic.TiledRenderGrid;
+import com.jme3.renderer.framegraph.light.TiledRenderGrid;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.framegraph.FGRenderContext;
@@ -42,8 +42,8 @@ public class LightImagePass extends RenderPass {
     private ResourceTicket<ColorRGBA> ambientColor;
     private ResourceTicket<List<LightProbe>> probes;
     private final LightTextureDef lightTexDef = new LightTextureDef(512);
-    private final TextureDef<Texture2D> tileDef = TextureDef.texture2D();
-    private final TextureDef<Texture2D> indexDef = TextureDef.texture2D();
+    private final TileTextureDef tileDef = new TileTextureDef();
+    private final TileTextureDef indexDef = new TileTextureDef();
     private final ColorRGBA ambient = new ColorRGBA();
     private final LinkedList<LightProbe> probeList = new LinkedList<>();
     
@@ -60,11 +60,11 @@ public class LightImagePass extends RenderPass {
         lightTexDef.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
         lightTexDef.setMagFilter(Texture.MagFilter.Nearest);
         lightTexDef.setWrap(Texture.WrapMode.EdgeClamp);
-        tileDef.setFormat(Image.Format.RGBA32I);
+        tileDef.setFormat(Image.Format.RGBA32F);
         tileDef.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
         tileDef.setMagFilter(Texture.MagFilter.Nearest);
         tileDef.setWrap(Texture.WrapMode.EdgeClamp);
-        indexDef.setFormat(Image.Format.RGBA32I);
+        indexDef.setFormat(Image.Format.RGBA32F);
         indexDef.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
         indexDef.setMagFilter(Texture.MagFilter.Nearest);
         indexDef.setWrap(Texture.WrapMode.EdgeClamp);
@@ -151,15 +151,31 @@ public class LightImagePass extends RenderPass {
         public Texture2D createResource() {
             Image.Format format = getFormat();
             int width = getWidth();
-            ByteBuffer data = BufferUtils.createByteBuffer((int)Math.ceil(format.getBitsPerPixel()/8)*width);
+            ByteBuffer data = BufferUtils.createByteBuffer((int)(format.getBitsPerPixel()/8)*width);
             Image img = new Image(format, width, 1, data, null, getColorSpace());
-            //img.setMipmapsGenerated(false);
             return createTexture(img);
         }
         @Override
         public void setHeight(int height) {}
         @Override
         public void setDepth(int depth) {}
+        
+    }
+    private static class TileTextureDef extends TextureDef<Texture2D> {
+        
+        public TileTextureDef() {
+            super(Texture2D.class, img -> new Texture2D(img));
+        }
+        
+        @Override
+        public Texture2D createResource() {
+            Image.Format format = getFormat();
+            int width = getWidth();
+            int height = getHeight();
+            ByteBuffer data = BufferUtils.createByteBuffer((int)(format.getBitsPerPixel()/8)*width*height);
+            Image img = new Image(format, width, height, data, null, getColorSpace());
+            return createTexture(img);
+        }
         
     }
     

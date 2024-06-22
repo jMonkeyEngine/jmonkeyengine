@@ -11,7 +11,7 @@
 
 varying vec2 texCoord;
 #ifdef SEPARATE_TEXCOORD
-    varying vec2 texCoord2;
+  varying vec2 texCoord2;
 #endif
 
 varying vec4 Color;
@@ -25,23 +25,23 @@ varying vec3 wPosition;
 
 
 #if NB_PROBES >= 1
-    uniform samplerCube g_PrefEnvMap;
-    uniform vec3 g_ShCoeffs[9];
-    uniform mat4 g_LightProbeData;
+  uniform samplerCube g_PrefEnvMap;
+  uniform vec3 g_ShCoeffs[9];
+  uniform mat4 g_LightProbeData;
 #endif
 #if NB_PROBES >= 2
-    uniform samplerCube g_PrefEnvMap2;
-    uniform vec3 g_ShCoeffs2[9];
-    uniform mat4 g_LightProbeData2;
+  uniform samplerCube g_PrefEnvMap2;
+  uniform vec3 g_ShCoeffs2[9];
+  uniform mat4 g_LightProbeData2;
 #endif
 #if NB_PROBES == 3
-    uniform samplerCube g_PrefEnvMap3;
-    uniform vec3 g_ShCoeffs3[9];
-    uniform mat4 g_LightProbeData3;
+  uniform samplerCube g_PrefEnvMap3;
+  uniform vec3 g_ShCoeffs3[9];
+  uniform mat4 g_LightProbeData3;
 #endif
 
 #ifdef BASECOLORMAP
-    uniform sampler2D m_BaseColorMap;
+  uniform sampler2D m_BaseColorMap;
 #endif
 
 #ifdef USE_PACKED_MR
@@ -59,7 +59,7 @@ varying vec3 wPosition;
   uniform vec4 m_Emissive;
 #endif
 #ifdef EMISSIVEMAP
-    uniform sampler2D m_EmissiveMap;
+  uniform sampler2D m_EmissiveMap;
 #endif
 #if defined(EMISSIVE) || defined(EMISSIVEMAP)
     uniform float m_EmissivePower;
@@ -67,39 +67,39 @@ varying vec3 wPosition;
 #endif 
 
 #ifdef SPECGLOSSPIPELINE
-    uniform vec4 m_Specular;
-    uniform float m_Glossiness;
-    #ifdef USE_PACKED_SG
-        uniform sampler2D m_SpecularGlossinessMap;
-    #else
-        uniform sampler2D m_SpecularMap;
-        uniform sampler2D m_GlossinessMap;
-    #endif
+
+  uniform vec4 m_Specular;
+  uniform float m_Glossiness;
+  #ifdef USE_PACKED_SG
+    uniform sampler2D m_SpecularGlossinessMap;
+  #else
+    uniform sampler2D m_SpecularMap;
+    uniform sampler2D m_GlossinessMap;
+  #endif
 #endif
 
 #ifdef PARALLAXMAP
-    uniform sampler2D m_ParallaxMap;  
+  uniform sampler2D m_ParallaxMap;  
 #endif
 #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
     uniform float m_ParallaxHeight;
 #endif
 
 #ifdef LIGHTMAP
-    uniform sampler2D m_LightMap;
+  uniform sampler2D m_LightMap;
 #endif
   
 #if defined(NORMALMAP) || defined(PARALLAXMAP)
-    uniform sampler2D m_NormalMap;   
-    varying vec4 wTangent;
+  uniform sampler2D m_NormalMap;   
+  varying vec4 wTangent;
 #endif
 varying vec3 wNormal;
 
 #ifdef DISCARD_ALPHA
-    uniform float m_AlphaDiscardThreshold;
+  uniform float m_AlphaDiscardThreshold;
 #endif
 
-void main() {
-    
+void main(){
     vec2 newTexCoord;
     vec3 viewDir = normalize(g_CameraPosition - wPosition);
 
@@ -160,7 +160,7 @@ void main() {
     float alpha = albedo.a;
 
     #ifdef DISCARD_ALPHA
-        if (alpha < m_AlphaDiscardThreshold) {
+        if(alpha < m_AlphaDiscardThreshold){
             discard;
         }
     #endif
@@ -169,11 +169,16 @@ void main() {
     // Read from textures
     // ***********************
     #if defined(NORMALMAP)
-        vec4 normalHeight = texture2D(m_NormalMap, newTexCoord);
-        vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
-        normal = normalize(tbnMat * normal);
+      vec4 normalHeight = texture2D(m_NormalMap, newTexCoord);
+      //Note the -2.0 and -1.0. We invert the green channel of the normal map, 
+      //as it's compliant with normal maps generated with blender.
+      //see http://hub.jmonkeyengine.org/forum/topic/parallax-mapping-fundamental-bug/#post-256898
+      //for more explanation.
+      vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
+      normal = normalize(tbnMat * normal);
+      //normal = normalize(normal * inverse(tbnMat));
     #else
-        vec3 normal = norm;
+      vec3 normal = norm;
     #endif
 
     #ifdef SPECGLOSSPIPELINE
@@ -230,7 +235,7 @@ void main() {
 
     //float ndotv = max( dot( normal, viewDir ),0.0);
 
-    #if defined(EMISSIVE) || defined(EMISSIVEMAP)
+    #if defined(EMISSIVE) || defined (EMISSIVEMAP)
         #ifdef EMISSIVEMAP
             vec4 emissive = texture2D(m_EmissiveMap, newTexCoord);
         #else
@@ -249,5 +254,5 @@ void main() {
     outGBuffer0.a = alpha;
 
     // shading model id
-    outGBuffer2.a = PBR_LIGHTING + 0.01;
+    outGBuffer2.a = PBR_LIGHTING + 0.01f;
 }

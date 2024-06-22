@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.material.logic;
+package com.jme3.renderer.framegraph.light;
 
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -46,7 +46,7 @@ import java.io.IOException;
 public class TiledRenderGrid implements Savable {
     
     private int divisions = 4;
-    private int forcedTileSize = 64;
+    private int forcedTileSize = 128; //64
     private int tileSize = 0;
     private int gridWidth = 0;
     private int gridHeight = 0;

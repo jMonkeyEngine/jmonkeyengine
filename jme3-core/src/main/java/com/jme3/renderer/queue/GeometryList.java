@@ -37,6 +37,7 @@ import java.util.NoSuchElementException;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.util.ListSort;
+import java.util.ArrayList;
 
 /**
  * This class is a special purpose list of {@link Geometry} objects for render
@@ -56,6 +57,7 @@ public class GeometryList implements Iterable<Geometry>{
     private GeometryComparator comparator;
     private Camera cam;
     private boolean updateFlag = true;
+    private ArrayList<GeometryList> lists = new ArrayList<>();
 
     /**
      * Initializes the GeometryList to use the given {@link GeometryComparator}
@@ -106,6 +108,9 @@ public class GeometryList implements Iterable<Geometry>{
             comparator.setCamera(this.cam);
             updateFlag = true;
         }
+        for (GeometryList l : lists) {
+            l.setCamera(cam);
+        }
     }
 
     /**
@@ -154,6 +159,15 @@ public class GeometryList implements Iterable<Geometry>{
         geometries[size++] = g;
         updateFlag = true;
     }
+    
+    /**
+     * 
+     * 
+     * @param l 
+     */
+    public void addList(GeometryList l) {
+        lists.add(l);
+    }
 
     /**
      * Resets list size to 0.
@@ -162,6 +176,7 @@ public class GeometryList implements Iterable<Geometry>{
         for (int i = 0; i < size; i++) {
             geometries[i] = null;
         }
+        lists.clear();
         updateFlag = true;
         size = 0;
     }
@@ -179,28 +194,50 @@ public class GeometryList implements Iterable<Geometry>{
             listSort.sort(geometries, comparator);
             updateFlag = false;
         }
+        for (GeometryList l : lists) {
+            l.sort();
+        }
     }
 
     @Override
     public Iterator<Geometry> iterator() {
-        return new Iterator<Geometry>() {
-            int index = 0;
-            @Override
-            public boolean hasNext() {
-                return index < size();
+        return new ListIterator();
+    }
+    
+    private class ListIterator implements Iterator<Geometry> {
+        
+        private int arrayIndex = 0;
+        private int listIndex = 0;
+        private Iterator<Geometry> it = null;
+        
+        @Override
+        public boolean hasNext() {
+            if (arrayIndex < size) {
+                return true;
             }
-            @Override
-            public Geometry next() {
-                if (index >= size()) {
-                    throw new NoSuchElementException("Geometry list has only " + size() + " elements");
+            // iterate until a populated list is found
+            while (it == null || !it.hasNext()) {
+                if (listIndex >= lists.size()) {
+                    return false;
                 }
-                return get(index++);
+                GeometryList l = lists.get(listIndex++);
+                if (l.size > 0) {
+                    it = l.iterator();
+                }
             }
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException("Geometry list doesn't support iterator removal");
+            return true;
+        }
+        @Override
+        public Geometry next() {
+            if (it != null) {
+                return it.next();
             }
-        };
+            return get(arrayIndex++);
+        }
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Geometry list doesn't support iterator removal");
+        }
     }
     
 }

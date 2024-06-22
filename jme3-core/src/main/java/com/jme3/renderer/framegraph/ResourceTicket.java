@@ -238,7 +238,7 @@ public class ResourceTicket <T> {
     
     @Override
     public String toString() {
-        return "Ticket[name="+name+", index="+localIndex+"]";
+        return "Ticket[name="+name+", worldIndex="+getWorldIndex()+"]";
     }
     
 }

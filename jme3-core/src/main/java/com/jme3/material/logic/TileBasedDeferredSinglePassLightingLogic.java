@@ -31,6 +31,7 @@
  */
 package com.jme3.material.logic;
 
+import com.jme3.renderer.framegraph.light.TiledRenderGrid;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.*;
 import com.jme3.material.Material.BindUnits;

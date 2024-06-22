@@ -10,7 +10,6 @@ import com.jme3.light.LightList;
 import com.jme3.light.LightProbe;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
-import com.jme3.material.logic.TiledRenderGrid;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -146,14 +145,14 @@ public class LightImagePacker {
         final int tileWidth = textures[3].getImage().getWidth();
         final int tileHeight = textures[3].getImage().getHeight();
         final ColorRGBA tileInfoColor = new ColorRGBA();
+        tempColor.set(0, 0, 0, 0);
         for (LinkedList<Integer> l : tileIndices) {
             // raster tile info to texture
             tileInfoColor.r = xIndex;
             tileInfoColor.g = yIndex;
             tileInfoColor.b = componentIndex;
             tileInfoColor.a = l.size();
-            // flip Y index, because tiles are computed from bottom to top
-            rasters[3].setPixel(tileX, tileHeight-tileY, tileInfoColor);
+            rasters[3].setPixel(tileX, tileY, tileInfoColor);
             if (++tileX >= tileWidth) {
                 tileX = 0;
                 tileY++;
@@ -161,13 +160,13 @@ public class LightImagePacker {
             // raster light indices to texture
             for (int index : l) {
                 // pack 4 indices per pixel
-                switch (componentIndex++) {
+                switch (componentIndex) {
                     case 0: tempColor.r = index; break;
                     case 1: tempColor.g = index; break;
                     case 2: tempColor.b = index; break;
                     case 3: tempColor.a = index; break;
                 }
-                if (componentIndex > 3) {
+                if (++componentIndex > 3) {
                     componentIndex = 0;
                     rasters[4].setPixel(xIndex, yIndex, tempColor);
                     if (++xIndex >= indexWidth) {
@@ -178,6 +177,7 @@ public class LightImagePacker {
             }
             l.clear();
         }
+        // if the index color is incomplete, raster it to the texture
         if (componentIndex != 0) {
             rasters[4].setPixel(xIndex, yIndex, tempColor);
         }

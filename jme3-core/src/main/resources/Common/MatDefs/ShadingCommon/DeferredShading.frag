@@ -11,11 +11,11 @@
 // skyLight and reflectionProbe
 uniform vec4 g_AmbientLightColor;
 #import "Common/ShaderLib/SkyLightReflectionProbe.glsllib"
-#ifdef USE_LIGHT_TEXTURES
-    uniform vec2 g_ResolutionInverse;
-#else
+//#ifdef USE_LIGHT_TEXTURES
+//    uniform vec2 g_ResolutionInverse;
+//#else
     varying vec2 texCoord;
-#endif
+//#endif
 
 varying mat4 viewProjectionMatrixInverse;
 uniform mat4 g_ViewMatrix;
@@ -39,11 +39,11 @@ uniform int m_NBLights;
 
 
 void main(){
-    #ifdef USE_LIGHT_TEXTURES
-        vec2 innerTexCoord = gl_FragCoord.xy * g_ResolutionInverse;
-    #else
+    //#ifdef USE_LIGHT_TEXTURES
+    //    vec2 innerTexCoord = gl_FragCoord.xy * g_ResolutionInverse;
+    //#else
         vec2 innerTexCoord = texCoord;
-    #endif
+    //#endif
     // unpack m_GBuffer
     vec4 shadingInfo = texture2D(m_GBuffer2, innerTexCoord);
     int shadingModelId = int(floor(shadingInfo.a));
@@ -52,6 +52,7 @@ void main(){
     // Due to GPU architecture, each shading mode is performed for each pixel, which is very inefficient.
     // TODO: Remove these if statements if possible.
     if (shadingModelId == PHONG_LIGHTING) {
+        
         // phong shading
         vec3 vPos = getPosition(innerTexCoord, depth, viewProjectionMatrixInverse);
         vec4 buff1 = texture2D(m_GBuffer1, innerTexCoord);
@@ -64,7 +65,6 @@ void main(){
         vec3 viewDir = normalize(g_CameraPosition - vPos);
         gl_FragColor.rgb = AmbientSum * diffuseColor.rgb;
         gl_FragColor.a = alpha;
-        //int lightNum = 0;
         #ifdef TILES
         // fetch index info from tile this fragment is contained by
         vec4 tileInfo = texture2D(m_Tiles, innerTexCoord);
@@ -82,10 +82,6 @@ void main(){
                     if (componentIndex == 0 || lightIndex.x < 0) {
                         // get indices from next pixel
                         lightIndex = texture2D(m_LightIndex, vec2(x, y) * m_LightIndexSize.yz);
-                        if (componentIndex == 0 && ++x >= m_LightIndexSize.x) {
-                            x = 0;
-                            y++;
-                        }
                     }
                     // apply index from each component in order
                     vec2 pixel = vec2(m_LightTexInv, 0);
@@ -95,8 +91,15 @@ void main(){
                         case 2: pixel.x *= lightIndex.z; break;
                         case 3: pixel.x *= lightIndex.w; break;
                     }
-                    if (++componentIndex > 3) {
+                    // increment indices
+                    componentIndex++;
+                    if (componentIndex > 3) {
                         componentIndex = 0;
+                        x++;
+                        if (x >= m_LightIndexSize.x) {
+                            x = 0;
+                            y++;
+                        }
                     }
                 #else
                     vec2 pixel = vec2(m_LightTexInv * i, 0);
@@ -145,12 +148,11 @@ void main(){
                 i += 3;
             #endif
         }
-        //if (NB_LIGHTS == 1) {
-        //    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        //}
+        
     } else if (shadingModelId == PBR_LIGHTING) {
+        
         // PBR shading
-        vec3 vPos = getPosition(innerTexCoord, depth, viewProjectionMatrixInverse);
+        vec3 vPos = getPosition(innerTexCoord, viewProjectionMatrixInverse);
         vec4 buff0 = texture2D(m_GBuffer0, innerTexCoord);
         vec4 buff1 = texture2D(m_GBuffer1, innerTexCoord);
         vec3 emissive = shadingInfo.rgb;
@@ -164,60 +166,104 @@ void main(){
         vec4 n1n2 = texture2D(m_GBuffer3, innerTexCoord);
         vec3 normal = octDecode(n1n2.xy);
         vec3 norm = octDecode(n1n2.zw);
-        vec3 viewDir = normalize(g_CameraPosition - vPos);
+        vec3 viewDir  = normalize(g_CameraPosition - vPos);
+
         float ndotv = max( dot( normal, viewDir ),0.0);
-        int lightNum = 0;
         gl_FragColor.rgb = vec3(0.0);
+        #ifdef TILES
+        // fetch index info from tile this fragment is contained by
+        vec4 tileInfo = texture2D(m_Tiles, innerTexCoord);
+        int x = int(tileInfo.x);
+        int y = int(tileInfo.y);
+        int componentIndex = int(tileInfo.z);
+        int lightCount = int(tileInfo.w);
+        vec4 lightIndex = vec4(-1.0);
+        for (int i = 0; i < lightCount;) {
+        #else
         for (int i = 0; i < NB_LIGHTS;) {
+        #endif
             #ifdef USE_LIGHT_TEXTURES
-                vec2 pixel = vec2(m_LightTexInv * i, 0);
+                #ifdef TILED_LIGHTS
+                    if (componentIndex == 0 || lightIndex.x < 0) {
+                        // get indices from next pixel
+                        lightIndex = texture2D(m_LightIndex, vec2(x, y) * m_LightIndexSize.yz);
+                    }
+                    // apply index from each component in order
+                    vec2 pixel = vec2(m_LightTexInv, 0);
+                    switch (componentIndex) {
+                        case 0: pixel.x *= lightIndex.x; break;
+                        case 1: pixel.x *= lightIndex.y; break;
+                        case 2: pixel.x *= lightIndex.z; break;
+                        case 3: pixel.x *= lightIndex.w; break;
+                    }
+                    // increment indices
+                    componentIndex++;
+                    if (componentIndex > 3) {
+                        componentIndex = 0;
+                        x++;
+                        if (x >= m_LightIndexSize.x) {
+                            x = 0;
+                            y++;
+                        }
+                    }
+                #else
+                    vec2 pixel = vec2(m_LightTexInv * i, 0);
+                #endif
                 vec4 lightColor = texture2D(m_LightTex1, pixel);
                 vec4 lightData1 = texture2D(m_LightTex2, pixel);
             #else
                 vec4 lightColor = g_LightData[i];
                 vec4 lightData1 = g_LightData[i+1];
             #endif
+            
             vec4 lightDir;
             vec3 lightVec;
-            lightComputeDir(vPos, lightColor.w, lightData1, lightDir,lightVec);
+            lightComputeDir(vPos, lightColor.w, lightData1, lightDir, lightVec);
 
             float spotFallOff = 1.0;
             #if __VERSION__ >= 110
-                // allow use of control flow
-                if(lightColor.w > 1.0){
+            // allow use of control flow
+            if (lightColor.w > 1.0) {
             #endif
-                    #ifdef USE_LIGHT_TEXTURES
-                        spotFallOff = computeSpotFalloff(texture2D(m_LightTex3, pixel), lightVec);
-                    #else
-                        spotFallOff = computeSpotFalloff(g_LightData[i+2], lightVec);
-                    #endif
+                #if USE_LIGHT_TEXTURES
+                spotFallOff = computeSpotFalloff(texture2D(m_LightTex3, pixel), lightVec);
+                #else
+                spotFallOff = computeSpotFalloff(g_LightData[i+2], lightVec);
+                #endif
             #if __VERSION__ >= 110
-                }
+            }
             #endif
             spotFallOff *= lightDir.w;
+            
+            float radius = 1.0 / lightData1.w;
+            if (distance(vPos, lightData1.xyz) < radius) {
+                //gl_FragColor.rgb += lightColor.rgb * spotFallOff;
+            }
 
             #ifdef NORMALMAP
-                //Normal map -> lighting is computed in tangent space
-                lightDir.xyz = normalize(lightDir.xyz * tbnMat);
+            //Normal map -> lighting is computed in tangent space
+            lightDir.xyz = normalize(lightDir.xyz * tbnMat);
             #else
-                //no Normal map -> lighting is computed in view space
-                lightDir.xyz = normalize(lightDir.xyz);
+            //no Normal map -> lighting is computed in view space
+            lightDir.xyz = normalize(lightDir.xyz);
             #endif
 
             vec3 directDiffuse;
             vec3 directSpecular;
 
             float hdotv = PBR_ComputeDirectLight(normal, lightDir.xyz, viewDir,
-                    lightColor.rgb, fZero, Roughness, ndotv,
-                    directDiffuse,  directSpecular);
+            lightColor.rgb, fZero, Roughness, ndotv,
+            directDiffuse,  directSpecular);
 
             vec3 directLighting = diffuseColor.rgb * directDiffuse + directSpecular;
-
             gl_FragColor.rgb += directLighting * spotFallOff;
-            #ifdef USE_LIGHT_TEXTURES
-                i++;
+            
+            //gl_FragColor.rgb += directSpecular;
+            
+            #if USE_LIGHT_TEXTURES
+            i++;
             #else
-                i += 3;
+            i += 3;
             #endif
         }
         // skyLight and reflectionProbe
@@ -227,14 +273,15 @@ void main(){
         gl_FragColor.rgb += skyLight;
         gl_FragColor.rgb += emissive;
         gl_FragColor.a = alpha;
-        gl_FragColor.rgb = vec3(1-lightNum);
-        gl_FragColor.a = 1.0;
+        
     } /*else if (shadingModelId == SUBSURFACE_SCATTERING) {
         // TODO: implement subsurface scattering
     }*/ else if (shadingModelId == UNLIT) {
+        
         // unlit shading
         gl_FragColor.rgb = shadingInfo.rgb;
         gl_FragColor.a = min(fract(shadingInfo.a) * 10.0f, 0.0f);
+        
     } else {
         discard;
     }

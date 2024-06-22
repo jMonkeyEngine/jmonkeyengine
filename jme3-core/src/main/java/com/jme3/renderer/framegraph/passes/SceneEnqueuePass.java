@@ -64,7 +64,7 @@ public class SceneEnqueuePass extends RenderPass {
     protected void execute(FGRenderContext context) {
         ViewPort vp = context.getViewPort();
         List<Spatial> scenes = vp.getScenes();
-        for (int i = scenes.size(); i >= 0; i--) {
+        for (int i = scenes.size()-1; i >= 0; i--) {
             vp.getCamera().setPlaneState(0);
             queueSubScene(context, scenes.get(i), null);
         }
@@ -73,7 +73,11 @@ public class SceneEnqueuePass extends RenderPass {
         }
     }
     @Override
-    protected void reset(FGRenderContext context) {}
+    protected void reset(FGRenderContext context) {
+        for (Bucket b : buckets) {
+            b.queue.clear();
+        }
+    }
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
     @Override

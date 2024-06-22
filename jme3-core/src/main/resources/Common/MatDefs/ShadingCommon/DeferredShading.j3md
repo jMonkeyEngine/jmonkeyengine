@@ -16,6 +16,10 @@ MaterialDef DeferredShading {
         Int LightTexSize
         Vector2 LightTexInv
         
+        // Tiles
+        Texture2D Tiles
+        Texture2D LightIndex
+        
     }
 
     Technique DeferredPass {

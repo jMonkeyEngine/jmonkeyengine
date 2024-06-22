@@ -56,6 +56,7 @@ public class CartoonEdgePass extends RenderPass {
     @Override
     protected void prepare(FGRenderContext context) {
         declare(texDef, result);
+        reserve(result);
         reference(color, depth, normals);
         texDef.setSize(context.getWidth(), context.getHeight());
     }

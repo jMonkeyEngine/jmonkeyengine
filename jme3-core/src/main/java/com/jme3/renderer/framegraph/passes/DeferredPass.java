@@ -47,7 +47,6 @@ import com.jme3.material.TechniqueDef;
 import com.jme3.material.logic.SkyLightAndReflectionProbeRender;
 import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
@@ -63,7 +62,6 @@ import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.image.ImageRaster;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.LinkedList;
@@ -78,6 +76,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     
     private static Defines defs;
     private static final List<LightProbe> localProbeList = new LinkedList<>();
+    public static final int MAX_BUFFER_LIGHTS = 341;
     
     private boolean tiled = false;
     private AssetManager assetManager;
@@ -133,6 +132,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         reference(getGroupArray("GBufferData"));
         referenceOptional(lights, numLights, ambient, probes);
         referenceOptional(getGroupArray("LightTextures"));
+        referenceOptional(getGroupArray("TileTextures"));
     }
     @Override
     protected void execute(FGRenderContext context) {
@@ -156,10 +156,8 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
             }
             // get textures used for screenspace light tiling
             acquireArrayOrElse("TileTextures", tileTextures, null);
-            if (tileTextures[0] != null) {
-                material.setTexture("m_Tiles", tileTextures[0]);
-                material.setTexture("m_LightIndex", tileTextures[1]);
-            }
+            material.setTexture("Tiles", tileTextures[0]);
+            material.setTexture("LightIndex", tileTextures[1]);
             context.renderFullscreen(material);
         }
         material.getActiveTechnique().getDef().setLogic(null);
@@ -196,6 +194,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
             }
         }
         //defines.set(defs.numLights, 1);
+        defines.set(defs.useAmbientLight, true);
         defines.set(defs.numProbes, Math.min(probeList.size(), 3));
         return material.getActiveTechnique().getDef().getShader(assetManager, rendererCaps, defines);
     }
@@ -251,10 +250,13 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     private void injectLightBuffers(Shader shader, LightList lights) {
         // ambient lights and probes should already have been extracted at this point
         Uniform data = shader.getUniform("g_LightData");
-        int n = lights.size()*3;
+        int n = Math.min(lights.size(), MAX_BUFFER_LIGHTS)*3;
         data.setVector4Length(n);
-        int i = 0;
+        int i = 0, lightCount = 0;
         for (Light l : lights) {
+            if (lightCount++ > MAX_BUFFER_LIGHTS) {
+                break;
+            }
             Light.Type type = l.getType();
             writeColorToUniform(data, l.getColor(), type.getId(), i++);
             switch (type) {
@@ -291,7 +293,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         if (tileTextures[0] != null) {
             w = tileTextures[1].getImage().getWidth();
             int h = tileTextures[1].getImage().getHeight();
-            shader.getUniform("m_LightIndexSize").setValue(VarType.Vector3, new Vector3f(w, 1f/w, 1f/h));
+            shader.getUniform("m_LightIndexSize").setValue(VarType.Vector3, new Vector3f(w-0.5f, 1f/w, 1f/h));
         }
     }
     
