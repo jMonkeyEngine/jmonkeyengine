@@ -46,7 +46,7 @@ import java.io.IOException;
 public class TiledRenderGrid implements Savable {
     
     private int divisions = 4;
-    private int forcedTileSize = 128; //64
+    private int forcedTileSize = 64; //64
     private int tileSize = 0;
     private int gridWidth = 0;
     private int gridHeight = 0;
@@ -54,6 +54,10 @@ public class TiledRenderGrid implements Savable {
     public TiledRenderGrid() {}
     public TiledRenderGrid(int divisions) {
         this.divisions = divisions;
+    }
+    public TiledRenderGrid(int divisions, int forcedTileSize) {
+        this.divisions = divisions;
+        this.forcedTileSize = forcedTileSize;
     }
     
     public void update(Camera cam) {

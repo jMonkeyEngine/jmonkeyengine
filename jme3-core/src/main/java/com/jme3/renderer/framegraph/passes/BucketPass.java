@@ -35,13 +35,13 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.TextureDef;
+import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
@@ -55,32 +55,28 @@ import java.io.IOException;
  */
 public class BucketPass extends RenderPass {
     
-    private Bucket bucket;
     private final DepthRange depth = new DepthRange();
-    private int samples = 1;
-    private boolean flush = true;
     private ResourceTicket<Texture2D> inColor, inDepth, outColor, outDepth;
+    private ResourceTicket<GeometryList> geometry;
     private TextureDef<Texture2D> colorDef, depthDef;
-    private Texture2D depthTex;
+    private boolean perspective;
     
     public BucketPass() {
-        this(Bucket.Opaque, DepthRange.IDENTITY);
+        this(DepthRange.IDENTITY, true);
     }
-    public BucketPass(Bucket bucket) {
-        this(bucket, DepthRange.IDENTITY);
+    public BucketPass(DepthRange depth) {
+        this(depth, true);
     }
-    public BucketPass(Bucket bucket, DepthRange depth) {
-        this.bucket = bucket;
+    public BucketPass(DepthRange depth, boolean perspective) {
         this.depth.set(depth);
-        if (this.bucket == Bucket.Inherit) {
-            throw new IllegalArgumentException("Rendered bucket cannot be Inherit.");
-        }
+        this.perspective = perspective;
     }
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
         inColor = addInput("Color");
         inDepth = addInput("Depth");
+        geometry = addInput("Geometry");
         outColor = addOutput("Color");
         outDepth = addOutput("Depth");
         colorDef = new TextureDef<>(Texture2D.class, img -> new Texture2D(img));
@@ -97,24 +93,24 @@ public class BucketPass extends RenderPass {
         declare(colorDef, outColor);
         declare(depthDef, outDepth);
         reserve(outColor, outDepth);
+        reference(geometry);
         referenceOptional(inColor, inDepth);
     }
     @Override
     protected void execute(FGRenderContext context) {
         FrameBuffer fb = getFrameBuffer(context, 1);
-        resources.acquireColorTargets(fb, outColor);
-        depthTex = resources.acquireDepthTarget(fb, outDepth);
-        System.out.println(fb.getDepthTarget());
+        resources.acquireColorTarget(fb, outColor);
+        resources.acquireDepthTarget(fb, outDepth);
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         context.renderTextures(resources.acquireOrElse(inColor, null), resources.acquireOrElse(inDepth, null));
         context.getRenderer().setDepthRange(depth);
-        if (bucket == Bucket.Gui) {
+        if (!perspective) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), true);
         }
-        context.renderViewPortQueue(bucket, flush);
-        if (bucket == Bucket.Gui) {
+        context.renderGeometryList(resources.acquire(geometry), null, null);
+        if (!perspective) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), false);
         }
     }
@@ -123,29 +119,18 @@ public class BucketPass extends RenderPass {
     @Override
     protected void cleanup(FrameGraph frameGraph) {}
     @Override
-    public String getProfilerName() {
-        return super.getProfilerName()+"["+bucket+"]";
-    }
-    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule out = ex.getCapsule(this);
-        out.write(bucket, "bucket", Bucket.Opaque);
         out.write(depth, "depth", DepthRange.IDENTITY);
-        out.write(samples, "samples", 1);
-        out.write(flush, "flush", true);
+        out.write(perspective, "perspective", true);
     }
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
-        bucket = in.readEnum("bucket", Bucket.class, Bucket.Opaque);
         depth.set(in.readSavable("depth", DepthRange.class, DepthRange.IDENTITY));
-        samples = in.readInt("samples", 1);
-        flush = in.readBoolean("flush", true);
-        if (samples <= 0) {
-            throw new IllegalArgumentException("Samples must be greater than zero.");
-        }
+        perspective = in.readBoolean("perspective", true);
     }
     
     /**
@@ -166,9 +151,20 @@ public class BucketPass extends RenderPass {
         return depth;
     }
     
-    @Override
-    public String toString() {
-        return "BucketPass["+bucket+"]";
+    /**
+     * 
+     * @param perspective 
+     */
+    public void setPerspective(boolean perspective) {
+        this.perspective = perspective;
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    public boolean isPerspective() {
+        return perspective;
     }
     
 }

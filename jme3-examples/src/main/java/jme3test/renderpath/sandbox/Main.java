@@ -4,20 +4,20 @@
  */
 package jme3test.renderpath.sandbox;
 
+import com.jme3.app.DetailedProfilerState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.environment.EnvironmentProbeControl;
-import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.post.framegraph.CartoonEdgePass;
+import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.FrameGraphFactory;
+import com.jme3.renderer.framegraph.passes.BucketPass;
+import com.jme3.renderer.framegraph.passes.OutputPass;
+import com.jme3.renderer.framegraph.passes.SceneEnqueuePass;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.RectangleMesh;
 import com.jme3.system.AppSettings;
 
 /**
@@ -25,9 +25,7 @@ import com.jme3.system.AppSettings;
  * @author codex
  */
 public class Main extends SimpleApplication {
-    
-    private final boolean pbr = true;
-    
+
     public static void main(String[] args) {
         Main app = new Main();
         AppSettings settings = new AppSettings(true);
@@ -40,66 +38,71 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
-        //stateManager.attach(new DetailedProfilerState());
+        FrameGraph frameGraph = new FrameGraph(assetManager);
         
-        FrameGraph deferred = FrameGraphFactory.deferred(assetManager, false);
-        deferred.setJunctionSetting("LightPackMethod", true);
-        //viewPort.setFrameGraph(deferred);
+        SceneEnqueuePass enqueue = frameGraph.add(new SceneEnqueuePass());
+        BucketPass opaque = frameGraph.add(new BucketPass());
+        BucketPass sky = frameGraph.add(new BucketPass(DepthRange.REAR));
+        BucketPass transparent = frameGraph.add(new BucketPass());
+        BucketPass gui = frameGraph.add(new BucketPass(DepthRange.FRONT, false));
+        BucketPass translucent = frameGraph.add(new BucketPass());
+        OutputPass output = frameGraph.add(new OutputPass());
         
-        // set camera move speed
-        flyCam.setMoveSpeed(30);
+        opaque.makeInput(enqueue, "Opaque", "Geometry");
+        
+        sky.makeInput(opaque, "Color", "Color");
+        sky.makeInput(opaque, "Depth", "Depth");
+        sky.makeInput(enqueue, "Sky", "Geometry");
+        
+        transparent.makeInput(sky, "Color", "Color");
+        transparent.makeInput(sky, "Depth", "Depth");
+        transparent.makeInput(enqueue, "Transparent", "Geometry");
+        
+        gui.makeInput(transparent, "Color", "Color");
+        gui.makeInput(transparent, "Depth", "Depth");
+        gui.makeInput(enqueue, "Gui", "Geometry");
+        
+        translucent.makeInput(gui, "Color", "Color");
+        translucent.makeInput(gui, "Depth", "Depth");
+        translucent.makeInput(enqueue, "Translucent", "Geometry");
+        
+        output.makeInput(translucent, "Color", "Color");
+        output.makeInput(translucent, "Depth", "Depth");
+        
+        viewPort.setFrameGraph(frameGraph);
+        
+        // setup camera
         flyCam.setDragToRotate(true);
-        viewPort.setBackgroundColor(ColorRGBA.White.mult(0.05f));
-                
-        // add a large floor to the scene
-        RectangleMesh floorMesh = new RectangleMesh(
-                new Vector3f(-100, 0, -100), new Vector3f(100, 0, -100), new Vector3f(-100, 0, 100));
-        floorMesh.flip();
-        Geometry floor = new Geometry("Floor", floorMesh);
-        floor.setLocalTranslation(0, -5, 0);
-        Material mat = createMaterial(ColorRGBA.White);
-        floor.setMaterial(mat);
-        rootNode.attachChild(floor);
+        flyCam.setMoveSpeed(20);
         
-        DirectionalLight dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(1, -1, 1));
-        //rootNode.addLight(dl);
+        // setup background
+        viewPort.setBackgroundColor(ColorRGBA.White.mult(0.02f));
         
-        // add a lot of boxes to the scene
-        for (int i = 0; i < 500; i++) {
-            Geometry box = new Geometry("Box", new Box(1, 1, 1));
-            box.setLocalTranslation(FastMath.rand.nextFloat(-100, 100), 0, FastMath.rand.nextFloat(-100, 100));
-            box.setMaterial(createMaterial(ColorRGBA.White));
-            rootNode.attachChild(box);
-            EnvironmentProbeControl.tagGlobal(box);
-        }
+        // add a cube to the scene
+        Geometry cube = new Geometry("cube", new Box(1, 1, 1));
+        Material mat = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
+        mat.setColor("BaseColor", ColorRGBA.White);
+        mat.setFloat("Metallic", 0.5f);
+        cube.setMaterial(mat);
+        rootNode.attachChild(cube);
         
-        // add some lights to the scene
-        for (int i = 0; i < 100; i++) {
-            PointLight pl = new PointLight();
-            pl.setPosition(new Vector3f(FastMath.rand.nextFloat(-100, 100), 5, FastMath.rand.nextFloat(-100, 100)));
-            pl.setRadius(100);
-            pl.setColor(ColorRGBA.randomColor());
-            rootNode.addLight(pl);
-        }
+        // add a light to the scene
+        PointLight pl = new PointLight();
+        pl.setColor(ColorRGBA.White);
+        pl.setPosition(new Vector3f(2, 3, 3));
+        pl.setRadius(20);
+        rootNode.addLight(pl);
         
-        //rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
-        //rootNode.addLight(new AmbientLight(ColorRGBA.White.mult(0f)));
+        // profiler
+        DetailedProfilerState profiler = new DetailedProfilerState();
+        profiler.setEnabled(false);
+        stateManager.attach(profiler);
         
     }
     
-    private Material createMaterial(ColorRGBA color) {
-        if (pbr) {
-            Material mat = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
-            mat.setColor("BaseColor", color);
-            mat.setFloat("Metallic", 1.0f);
-            return mat;
-        } else {
-            Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-            mat.setBoolean("UseMaterialColors", true);
-            mat.setColor("Diffuse", color);
-            return mat;
-        }
+    @Override
+    public void simpleUpdate(float tpf) {
+        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
     }
     
 }

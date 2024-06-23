@@ -455,15 +455,21 @@ public class ResourceList {
         return replaceColorTarget(fbo, ticket, 0);
     }
     private <T extends Texture> T replaceColorTarget(FrameBuffer fbo, ResourceTicket<T> ticket, int i) {
-        Texture existing = fbo.getColorTarget(i).getTexture();
-        T acquired = acquire(ticket);
-        if (acquired != existing) {
-            fbo.setColorTarget(i, FrameBuffer.target(acquired));
-            fbo.setUpdateNeeded();
-            if (cap != null) cap.bindTexture(ticket.getWorldIndex(), ticket.getName());
-            textureBinds++;
+        if (i < fbo.getNumColorTargets()) {
+            Texture existing = fbo.getColorTarget(i).getTexture();
+            T acquired = acquire(ticket);
+            if (acquired != existing) {
+                fbo.setColorTarget(i, FrameBuffer.target(acquired));
+                fbo.setUpdateNeeded();
+                if (cap != null) cap.bindTexture(ticket.getWorldIndex(), ticket.getName());
+                textureBinds++;
+            }
+            return acquired;
+        } else {
+            T acquired = acquire(ticket);
+            fbo.addColorTarget(FrameBuffer.target(acquired));
+            return acquired;
         }
-        return acquired;
     }
     /**
      * Acquires and assigns a texture as the depth target to the framebuffer.

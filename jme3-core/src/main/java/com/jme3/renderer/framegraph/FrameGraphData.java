@@ -69,7 +69,7 @@ public class FrameGraphData implements Savable {
     }
     public FrameGraphData(FrameGraph fg, Collection<RenderPass> passes, Map<String, Object> settings) {
         this.name = fg.getName();
-        this.passes = passes.toArray(RenderPass[]::new);
+        this.passes = passes.toArray(new RenderPass[0]);
         this.settings = new HashMap<>();
         for (String key : settings.keySet()) {
             this.settings.put(key, new SavableObject(settings.get(key)));
@@ -103,7 +103,7 @@ public class FrameGraphData implements Savable {
         OutputCapsule out = ex.getCapsule(this);
         out.write(name, "name", DEF_NAME);
         out.write(passes, "passes", DEF_PASSES);
-        out.write(list.toArray(SavablePassConnection[]::new), "connections", DEF_CONNECTIONS);
+        out.write(list.toArray(new SavablePassConnection[0]), "connections", DEF_CONNECTIONS);
         out.writeStringSavableMap(settings, "settings", DEF_SETTINGS);
         // reset export ids
         for (RenderPass p : passes) {

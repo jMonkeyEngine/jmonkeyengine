@@ -274,9 +274,9 @@ void main(){
         gl_FragColor.rgb += emissive;
         gl_FragColor.a = alpha;
         
-    } /*else if (shadingModelId == SUBSURFACE_SCATTERING) {
+    } else if (shadingModelId == SUBSURFACE_SCATTERING) {
         // TODO: implement subsurface scattering
-    }*/ else if (shadingModelId == UNLIT) {
+    } else if (shadingModelId == UNLIT) {
         
         // unlit shading
         gl_FragColor.rgb = shadingInfo.rgb;
