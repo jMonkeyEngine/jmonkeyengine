@@ -941,7 +941,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     /**
      * 
      * @param group
-     * @param i
      * @return 
      */
     public static String listTicketName(String group) {

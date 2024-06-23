@@ -56,15 +56,15 @@ public class StructStd140BufferObject extends BufferObject {
     private final Std140Layout std140 = new Std140Layout();
 
     /**
-     * Create an empty Struct buffer
-     * 
-     * @param str
+     * Create an empty Struct buffer.
      */
     public StructStd140BufferObject() {
     }
 
     /**
-     * Internal only
+     * Internal only.
+     * 
+     * @param id
      */
     public StructStd140BufferObject(int id) {
         super(id);
