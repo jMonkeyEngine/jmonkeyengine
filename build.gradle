@@ -74,23 +74,23 @@ task libDist(dependsOn: subprojects.build, description: 'Builds and copies the e
         subprojects.each {project ->
             if(!project.hasProperty('mainClassName')){
                 project.tasks.withType(Jar).each {archiveTask ->
-                    if(archiveTask.classifier == "sources"){
+                    if(archiveTask.archiveClassifier == "sources"){
                         copy {
                             from archiveTask.archivePath
                                 into sourceFolder
-                                rename {project.name + '-' + archiveTask.classifier +'.'+ archiveTask.extension}
+                                rename {project.name + '-' + archiveTask.archiveClassifier +'.'+ archiveTask.archiveExtension}
                         }
-                    } else if(archiveTask.classifier == "javadoc"){
+                    } else if(archiveTask.archiveClassifier == "javadoc"){
                         copy {
                             from archiveTask.archivePath
                                 into javadocFolder
-                                rename {project.name + '-' + archiveTask.classifier +'.'+ archiveTask.extension}
+                                rename {project.name + '-' + archiveTask.archiveClassifier +'.'+ archiveTask.archiveExtension}
                         }
                     } else{
                         copy {
                             from archiveTask.archivePath
                                 into libFolder
-                                rename {project.name + '.' + archiveTask.extension}
+                                rename {project.name + '.' + archiveTask.archiveExtension}
                         }
                     }
                 }
@@ -114,7 +114,7 @@ task createZipDistribution(type:Zip,dependsOn:["dist","libDist"], description:"P
 task copyLibs(type: Copy){
 //    description 'Copies the engine dependencies to build/libDist'
     from {
-        subprojects*.configurations*.compile*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
+        subprojects*.configurations*.implementation*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
     }
 
     into "$buildDir/libDist/lib-ext" //buildDir.path + '/' + libsDirName + '/lib'
