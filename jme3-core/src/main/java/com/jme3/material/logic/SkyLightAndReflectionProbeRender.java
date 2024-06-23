@@ -46,7 +46,8 @@ import com.jme3.texture.TextureCubeMap;
 import java.util.List;
 
 /**
- * Rendering logic for handling SkyLight and ReflectionProbe.<br/>
+ * Rendering logic for handling SkyLight and ReflectionProbe.
+ * <p>
  * todo:The functionality of this tool class is not yet complete, because LightProbe has not yet been split into SkyLight and ReflectionProbe. So the code here is just to be compatible with the extraction of LightProbe and lay the groundwork for subsequent work.
  * @author JohnKkk
  */

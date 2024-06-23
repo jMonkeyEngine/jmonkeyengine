@@ -55,7 +55,6 @@ import java.util.List;
  * //run the action within this layer
  * animComposer.setCurrentAction("basicAction", ActionState.class.getSimpleName());
  * </pre>
- * </p>
  * Created by Nehon.
  */
 public class BaseAction extends Action {

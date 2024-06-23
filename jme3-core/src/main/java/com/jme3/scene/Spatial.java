@@ -436,7 +436,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     }
 
     /**
-     * set Current filterLight.<br/>
+     * Set Current filterLight.
      * @param filterLight
      */
     public void setFilterLight(LightList filterLight){
