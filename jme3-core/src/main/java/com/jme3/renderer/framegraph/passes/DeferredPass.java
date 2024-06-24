@@ -77,6 +77,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     private static Defines defs;
     private static final List<LightProbe> localProbeList = new LinkedList<>();
     public static final int MAX_BUFFER_LIGHTS = 341;
+    public static final int MAX_PROBES = 3;
     
     private boolean tiled = false;
     private AssetManager assetManager;
@@ -189,13 +190,16 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
             probeList = resources.acquire(probes);
             defines.set(defs.useTextures, true);
             defines.set(defs.numLights, resources.acquire(numLights));
+            if (!ambientColor.equals(ColorRGBA.BlackNoAlpha)) {
+                defines.set(defs.useAmbientLight, true);
+            }
             if (tileTextures[0] != null) {
                 defines.set(defs.useTiles, true);
             }
         }
         //defines.set(defs.numLights, 1);
         defines.set(defs.useAmbientLight, true);
-        defines.set(defs.numProbes, Math.min(probeList.size(), 3));
+        defines.set(defs.numProbes, getNumReadyProbes(probeList));
         return material.getActiveTechnique().getDef().getShader(assetManager, rendererCaps, defines);
     }
     @Override
@@ -227,20 +231,35 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         tiled = in.readBoolean("tiled", false);
     }
     
+    private int getNumReadyProbes(List<LightProbe> probes) {
+        int n = 0;
+        if (probes == null) {
+            return n;
+        }
+        for (LightProbe p : probes) {
+            if (p.isEnabled() && p.isReady() && ++n == MAX_PROBES) {
+                break;
+            }
+        }
+        return n;
+    }
+    
     private void injectShaderGlobals(RenderManager rm, Shader shader, int lastTexUnit) {
         shader.getUniform("g_AmbientLightColor").setValue(VarType.Vector4, ambientColor);
         if (probeList != null && !probeList.isEmpty()) {
             int i = 0;
             // inject light probes
             for (LightProbe p : probeList) {
+                if (!p.isEnabled() || !p.isReady()) {
+                    continue;
+                }
                 String num = (++i > 1 ? String.valueOf(i) : "");
                 Uniform sky = shader.getUniform("g_SkyLightData"+num);
                 Uniform coeffs = shader.getUniform("g_ShCoeffs"+num);
                 Uniform env = shader.getUniform("g_ReflectionEnvMap"+num);
                 lastTexUnit = SkyLightAndReflectionProbeRender.setSkyLightAndReflectionProbeData(
                         rm, lastTexUnit, sky, coeffs, env, p);
-                // shaders only support up to 3 probes at once
-                if (i == 3) break;
+                if (i == MAX_PROBES) break;
             }
         } else {
             // disable light probes

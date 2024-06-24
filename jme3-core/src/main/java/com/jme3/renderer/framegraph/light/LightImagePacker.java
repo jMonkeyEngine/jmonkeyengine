@@ -53,7 +53,7 @@ public class LightImagePacker {
     
     public int packLights(LightList lights, ColorRGBA ambient,
             List<LightProbe> probes, Camera cam, TiledRenderGrid tileInfo) {
-        ambient.set(0, 0, 0, 1);
+        ambient.set(0, 0, 0, 0);
         probes.clear();
         if (lights.size() == 0) {
             return 0;

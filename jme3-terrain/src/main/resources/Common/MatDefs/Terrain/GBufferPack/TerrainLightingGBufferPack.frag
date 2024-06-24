@@ -618,10 +618,10 @@ void main(){
     //-------------------------------
     // pack phongLighting parameters
     //-------------------------------
-    Context_OutGBuff3.xyz = normal;
-    Context_OutGBuff0 = diffuseColor * DiffuseSum;
-    Context_OutGBuff1.rgb = SpecularSum.rgb * 100.0f + AmbientSum.rgb * 0.01f;
-    Context_OutGBuff1.a = m_Shininess;
+    outGBuffer3.xyz = normal;
+    outGBuffer0 = diffuseColor * DiffuseSum;
+    outGBuffer1.rgb = SpecularSum.rgb * 100.0f + AmbientSum.rgb * 0.01f;
+    outGBuffer1.a = m_Shininess;
     // shading model id
-    Context_OutGBuff2.a = LEGACY_LIGHTING;
+    outGBuffer2.a = PHONG_LIGHTING;
 }

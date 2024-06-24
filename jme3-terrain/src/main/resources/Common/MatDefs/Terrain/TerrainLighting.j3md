@@ -243,9 +243,7 @@ MaterialDef Terrain Lighting {
         }
     }
 
-    Technique GBufferPass{
-
-        Pipeline Deferred
+    Technique GBufferPass {
 
         VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/GBufferPack/TerrainLightingGBufferPack.vert
         FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/GBufferPack/TerrainLightingGBufferPack.frag

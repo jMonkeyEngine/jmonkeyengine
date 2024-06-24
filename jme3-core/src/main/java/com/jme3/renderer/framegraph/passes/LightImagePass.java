@@ -44,7 +44,7 @@ public class LightImagePass extends RenderPass {
     private final LightTextureDef lightTexDef = new LightTextureDef(512);
     private final TileTextureDef tileDef = new TileTextureDef();
     private final TileTextureDef indexDef = new TileTextureDef();
-    private final ColorRGBA ambient = new ColorRGBA();
+    private final ColorRGBA ambient = new ColorRGBA(0, 0, 0, 0);
     private final LinkedList<LightProbe> probeList = new LinkedList<>();
     
     @Override

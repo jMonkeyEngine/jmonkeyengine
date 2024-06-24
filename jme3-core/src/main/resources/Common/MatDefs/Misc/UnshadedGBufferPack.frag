@@ -58,8 +58,8 @@ void main(){
         color.rgb = vec3(mix(color.rgb, gray, m_DesaturationValue));       
     #endif
 
-    Context_OutGBuff2.rgb = color.rgb;
+    outGBuffer2.rgb = color.rgb;
 
     // shading model id
-    Context_OutGBuff2.a = UNLIT + color.a * 0.1f;
+    outGBuffer2.a = UNLIT + color.a * 0.1f;
 }

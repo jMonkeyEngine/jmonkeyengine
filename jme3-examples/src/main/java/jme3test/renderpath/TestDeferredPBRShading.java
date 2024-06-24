@@ -1,17 +1,14 @@
 package jme3test.renderpath;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.environment.EnvironmentCamera;
-import com.jme3.environment.LightProbeFactory;
-import com.jme3.environment.generation.JobProgressAdapter;
-import com.jme3.environment.util.EnvMapUtils;
+import com.jme3.environment.EnvironmentProbeControl;
 import com.jme3.environment.util.LightsDebugState;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.LightProbe;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -55,6 +52,8 @@ public class TestDeferredPBRShading extends SimpleApplication {
         rootNode.addLight(dl);
         dl.setColor(ColorRGBA.White);
         rootNode.attachChild(modelNode);
+        
+        rootNode.addLight(new AmbientLight(ColorRGBA.DarkGray));
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         int numSamples = context.getSettings().getSamples();
@@ -72,13 +71,12 @@ public class TestDeferredPBRShading extends SimpleApplication {
         //Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", SkyFactory.EnvMapType.CubeMap);
         //Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/road.hdr", SkyFactory.EnvMapType.EquirectMap);
         rootNode.attachChild(sky);
+        EnvironmentProbeControl.tagGlobal(sky);
 
         pbrMat = assetManager.loadMaterial("Models/Tank/tank.j3m");
         model.setMaterial(pbrMat);
 
-
-        final EnvironmentCamera envCam = new EnvironmentCamera(256, new Vector3f(0, 3f, 0));
-        stateManager.attach(envCam);
+        rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
 
         LightsDebugState debugState = new LightsDebugState();
         stateManager.attach(debugState);
@@ -152,20 +150,6 @@ public class TestDeferredPBRShading extends SimpleApplication {
         frame++;
 
         if (frame == 2) {
-            modelNode.removeFromParent();
-            final LightProbe probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, new JobProgressAdapter<LightProbe>() {
-
-                @Override
-                public void done(LightProbe result) {
-                    System.err.println("Done rendering env maps");
-                    tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
-                    // Now, switching to the Deferred rendering path.
-                    //renderManager.setRenderPath(RenderManager.RenderPath.Deferred);
-                }
-            });
-            probe.getArea().setRadius(100);
-            rootNode.addLight(probe);
-            //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
 
         }
         if (frame > 10 && modelNode.getParent() == null) {
