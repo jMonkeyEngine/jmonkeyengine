@@ -43,8 +43,8 @@ import com.jme3.light.LightProbe;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.framegraph.FrameGraphFactory;
 import com.jme3.shader.VarType;
+import com.jme3.system.AppSettings;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
@@ -153,7 +153,10 @@ public class TestPBRTerrainAdvancedRenderPath extends SimpleApplication {
 
     public static void main(String[] args) {
         TestPBRTerrainAdvancedRenderPath app = new TestPBRTerrainAdvancedRenderPath();
-        app.setShowSettings(true);
+        AppSettings settings = new AppSettings(true);
+        settings.setWidth(768);
+        settings.setHeight(768);
+        app.setSettings(settings);
         app.start();
     }
 
@@ -195,14 +198,17 @@ public class TestPBRTerrainAdvancedRenderPath extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, true));
-        //renderManager.setFrameGraph(RenderPipelineFactory.create(this, RenderManager.RenderPath.Deferred));
-        //renderManager.setRenderPath(RenderManager.RenderPath.TiledDeferred);
+        
+        //viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, false));
+        flyCam.setDragToRotate(true);
+        flyCam.setMoveSpeed(50);
+        
         setupKeys();
         setUpTerrain();
-        setUpTerrainMaterial(); // <- This method contains the important info about using 'AdvancedPBRTerrain.j3md'
+        setUpTerrainMaterial();
         setUpLights();
         setUpCamera();
+        
     }
 
     private void setUpTerrainMaterial() {

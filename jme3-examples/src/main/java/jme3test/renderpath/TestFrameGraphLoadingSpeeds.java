@@ -37,7 +37,7 @@ import com.jme3.renderer.framegraph.FrameGraph;
 /**
  * Tests framegraph loading speeds.
  * <p>
- * The test loads a total of 9 framegraphs (3 forward, 3 deferred, and 3 tiled deferred)
+ * The test loads a total of 6 framegraphs (3 forward and 3 deferred)
  * after a delay of 100 frames, with 10 frames seperating each load. After all loading
  * is complete, the application quits. Results are printed to the console as milliseconds
  * each load took to complete.
@@ -63,26 +63,26 @@ public class TestFrameGraphLoadingSpeeds extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         if (--frameDelay <= 0) {
             switch (loadIndex++) {
-                case 6:
+                case 0:
+                case 2:
+                case 4: load(loadIndex, "forward", "Common/FrameGraphs/Forward.j3g");
+                    break;
+                case 1:
                 case 3:
-                case 0: load(loadIndex, "forward", "Common/FrameGraphs/Forward.j3g"); break;
-                case 7:
-                case 4:
-                case 1: load(loadIndex, "deferred", "Common/FrameGraphs/Deferred.j3g"); break;
-                case 8:
-                case 5:
-                case 2: load(loadIndex, "tiled deferred", "Common/FrameGraphs/TiledDeferred.j3g"); break;
+                case 5: load(loadIndex, "deferred", "Common/FrameGraphs/Deferred.j3g");
+                    break;
                 default: stop();
             }
             frameDelay = 10;
         }
     }
     
-    private void load(int index, String name, String path) {
+    private FrameGraph load(int index, String name, String path) {
         long timeBefore = System.currentTimeMillis();
         FrameGraph fg = new FrameGraph(assetManager, path);
         long timeAfter = System.currentTimeMillis();
         System.out.println(index+": "+name+": "+(timeAfter-timeBefore)+"ms");
+        return fg;
     }
     
 }

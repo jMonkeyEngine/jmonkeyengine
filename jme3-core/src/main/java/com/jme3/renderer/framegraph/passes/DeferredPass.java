@@ -75,13 +75,22 @@ import java.util.List;
 public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     
     /**
-     * Indicates the maximum number of lights that can be handled using buffers.
+     * Indicates the maximum number of directional, point, and spot lights
+     * that can be handled using buffers.
      * <p>
-     * Development Note: if more uniforms are added to the shader, this value may need to
-     * be decreased.
+     * Excess lights will be discarded.
+     * <p>
+     * <strong>Development Note:</strong> if more uniforms are added to the
+     * shader, this value may need to be decreased.
      */
     public static final int MAX_BUFFER_LIGHTS = 338;
+    /**
+     * Indicates the maximum number of light probes that can be handled.
+     * <p>
+     * Excess light probes will be discarded.
+     */
     public static final int MAX_PROBES = 3;
+    
     private static Defines defs;
     private static final List<LightProbe> localProbeList = new LinkedList<>();
     
@@ -196,15 +205,11 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
             probeList = resources.acquire(probes);
             defines.set(defs.useTextures, true);
             defines.set(defs.numLights, resources.acquire(numLights));
-            
             if (tileTextures[0] != null) {
                 defines.set(defs.useTiles, true);
             }
         }
-        //if (!ambientColor.equals(ColorRGBA.BlackNoAlpha)) {
-        //    defines.set(defs.useAmbientLight, true);
-        //}
-        //defines.set(defs.numLights, 1);
+        // this may need to be changed to only be enabled when there is an ambient light present
         defines.set(defs.useAmbientLight, true);
         defines.set(defs.numProbes, getNumReadyProbes(probeList));
         return material.getActiveTechnique().getDef().getShader(assetManager, rendererCaps, defines);
