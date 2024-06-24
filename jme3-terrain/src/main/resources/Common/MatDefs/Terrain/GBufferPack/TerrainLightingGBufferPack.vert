@@ -44,7 +44,8 @@ void main(){
       wBinormal = cross(wNormal, wTangent)* inTangent.w;
     #endif 
 
-    AmbientSum  = g_AmbientLightColor;
+    //AmbientSum = g_AmbientLightColor;
+    AmbientSum = vec4(1.0);
     DiffuseSum  = vec4(1.0);
     SpecularSum = vec4(0.0);
 

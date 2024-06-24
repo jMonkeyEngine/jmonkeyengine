@@ -74,10 +74,16 @@ import java.util.List;
  */
 public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     
+    /**
+     * Indicates the maximum number of lights that can be handled using buffers.
+     * <p>
+     * Development Note: if more uniforms are added to the shader, this value may need to
+     * be decreased.
+     */
+    public static final int MAX_BUFFER_LIGHTS = 338;
+    public static final int MAX_PROBES = 3;
     private static Defines defs;
     private static final List<LightProbe> localProbeList = new LinkedList<>();
-    public static final int MAX_BUFFER_LIGHTS = 341;
-    public static final int MAX_PROBES = 3;
     
     private boolean tiled = false;
     private AssetManager assetManager;
@@ -183,20 +189,21 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
                 ambientColor.set(amb);
                 probeList = resources.acquire(probes);
             }
-            defines.set(defs.numLights, lights.size()*3);
+            defines.set(defs.numLights, Math.min(lights.size(), MAX_BUFFER_LIGHTS)*3);
         } else {
             // get resources for lighting with textures
             ambientColor.set(resources.acquire(ambient));
             probeList = resources.acquire(probes);
             defines.set(defs.useTextures, true);
             defines.set(defs.numLights, resources.acquire(numLights));
-            if (!ambientColor.equals(ColorRGBA.BlackNoAlpha)) {
-                defines.set(defs.useAmbientLight, true);
-            }
+            
             if (tileTextures[0] != null) {
                 defines.set(defs.useTiles, true);
             }
         }
+        //if (!ambientColor.equals(ColorRGBA.BlackNoAlpha)) {
+        //    defines.set(defs.useAmbientLight, true);
+        //}
         //defines.set(defs.numLights, 1);
         defines.set(defs.useAmbientLight, true);
         defines.set(defs.numProbes, getNumReadyProbes(probeList));
@@ -273,7 +280,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         data.setVector4Length(n);
         int i = 0, lightCount = 0;
         for (Light l : lights) {
-            if (lightCount++ > MAX_BUFFER_LIGHTS) {
+            if (lightCount++ >= MAX_BUFFER_LIGHTS) {
                 break;
             }
             Light.Type type = l.getType();
@@ -294,9 +301,6 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
                     writeVectorToUniform(data, sl.getPosition(), sl.getInvSpotRange(), i++);
                     writeVectorToUniform(data, sl.getDirection(), sl.getPackedAngleCos(), i++);
                     break;
-                case Ambient:
-                case Probe:
-                    throw new IllegalStateException("Internal: ambient and probe lights should not be present.");
                 default:
                     throw new UnsupportedOperationException("Light "+type+" not supported.");
             }

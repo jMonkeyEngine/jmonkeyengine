@@ -316,7 +316,7 @@ public class TerrainTestAdvancedRenderPath extends SimpleApplication {
         rootNode.attachChild(sky);
         
         rootNode.addControl(new EnvironmentProbeControl(assetManager, 256));
-        rootNode.addLight(new AmbientLight(ColorRGBA.White));
+        rootNode.addLight(new AmbientLight(ColorRGBA.White.mult(0.05f)));
         
     }
     

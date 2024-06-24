@@ -6,6 +6,7 @@
 #import "Common/ShaderLib/ShadingModel.glsllib"
 
 uniform float m_Shininess;
+uniform vec4 g_AmbientLightColor;
 
 varying vec4 AmbientSum;
 varying vec4 DiffuseSum;
@@ -621,6 +622,7 @@ void main(){
     outGBuffer3.xyz = normal;
     outGBuffer0 = diffuseColor * DiffuseSum;
     outGBuffer1.rgb = SpecularSum.rgb * 100.0f + AmbientSum.rgb * 0.01f;
+    //outGBuffer1.rgb = SpecularSum.rgb * 100.0f + g_AmbientLightColor.rgb * 0.01f;
     outGBuffer1.a = m_Shininess;
     // shading model id
     outGBuffer2.a = PHONG_LIGHTING;

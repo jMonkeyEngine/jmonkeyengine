@@ -675,8 +675,10 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         //renderManager.setFrameGraph(deferred);
         //renderManager.setFrameGraph(forward);
         
+        rootNode.addLight(new AmbientLight(ColorRGBA.White));
+        
         Junction lightingMethod = deferred.get(Junction.class, "LightPackMethod");
-        lightingMethod.setIndexSource((fg, vp) -> 0);
+        //lightingMethod.setIndexSource((fg, vp) -> 0);
         
         File capTarget = new File(System.getProperty("user.home")+"/earlyFrameCapture.txt");
         GraphEventCapture cap = new GraphEventCapture(capTarget);

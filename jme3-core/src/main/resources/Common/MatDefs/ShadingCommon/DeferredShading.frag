@@ -154,6 +154,8 @@ void main(){
             }
         #endif
         
+        //gl_FragColor.rgb = AmbientSum;
+        
     } else if (shadingModelId == PBR_LIGHTING) {
         
         // PBR shading
