@@ -404,12 +404,12 @@ vec3 fZero = vec3(specular);
     // pack
     vec2 n1 = octEncode(normal);
     vec2 n2 = octEncode(norm);
-    Context_OutGBuff3.xy = n1;
-    Context_OutGBuff3.zw = n2;
-    Context_OutGBuff0.rgb = floor(diffuseColor.rgb * 100.0f) + ao * 0.1f;
-    Context_OutGBuff1.rgb = floor(specularColor.rgb * 100.0f) + fZero * 0.1f;
-    Context_OutGBuff1.a = Roughness;
-    Context_OutGBuff0.a = alpha;
+    outGBuffer3.xy = n1;
+    outGBuffer3.zw = n2;
+    outGBuffer0.rgb = floor(diffuseColor.rgb * 100.0f) + ao * 0.1f;
+    outGBuffer1.rgb = floor(specularColor.rgb * 100.0f) + fZero * 0.1f;
+    outGBuffer1.a = Roughness;
+    outGBuffer0.a = alpha;
 
 
 
@@ -426,10 +426,10 @@ vec3 fZero = vec3(specular);
     indoorSunLightExposure = max(indoorSunLightExposure, minVertLighting);       //scale the indoorSunLightExposure back up to account for the brightest point light nearby before scaling light probes by this value below
 
     // shading model id
-    Context_OutGBuff2.a = STANDARD_LIGHTING + indoorSunLightExposure * 0.01f;
+    outGBuffer2.a = PBR_LIGHTING + indoorSunLightExposure * 0.01f;
 
     if(emissive.a > 0){
         emissive = emissive * pow(emissive.a * 5, emissiveIntensity) * emissiveIntensity * 20 * emissive.a;
     }
-    Context_OutGBuff2.rgb = emissive.rgb;
+    outGBuffer2.rgb = emissive.rgb;
 }

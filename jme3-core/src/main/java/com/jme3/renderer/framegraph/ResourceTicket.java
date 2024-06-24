@@ -241,4 +241,17 @@ public class ResourceTicket <T> {
         return "Ticket[name="+name+", worldIndex="+getWorldIndex()+"]";
     }
     
+    /**
+     * Returns true if the ticket is valid for locating a resource.
+     * <p>
+     * A ticket is only valid if it is not null and its world index
+     * is greater than or equal to zero.
+     * 
+     * @param ticket
+     * @return true if ticket is valid
+     */
+    public static boolean validate(ResourceTicket ticket) {
+        return ticket != null && ticket.getWorldIndex() >= 0;
+    }
+    
 }

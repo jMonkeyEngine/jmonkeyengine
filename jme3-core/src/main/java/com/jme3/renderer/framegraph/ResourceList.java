@@ -73,6 +73,7 @@ public class ResourceList {
         res.getTicket().setLocalIndex(add(res));
         return res;
     }
+    
     /**
      * Locates the resource associated with the ticket.
      * 
@@ -101,15 +102,19 @@ public class ResourceList {
         }
         throw new IndexOutOfBoundsException(ticket+" is out of bounds for size "+resources.size());
     }
+    
     /**
      * Returns true if the ticket can be used to locate a resource.
+     * <p>
+     * <em>Use {@link ResourceTicket#validate(com.jme3.renderer.framegraph.ResourceTicket)} instead.</em>
      * 
      * @param ticket
      * @return 
      */
     public boolean validate(ResourceTicket ticket) {
-        return ticket != null && ticket.getWorldIndex() >= 0;
+        return ResourceTicket.validate(ticket);
     }
+    
     /**
      * Adds the resource to the first available slot.
      * 
@@ -137,6 +142,7 @@ public class ResourceList {
             return i;
         }
     }
+    
     /**
      * Removes the resource at the index.
      * 
@@ -183,6 +189,7 @@ public class ResourceList {
             ticket.copyObjectTo(locate(ticket).getTicket());
         }
     }
+    
     /**
      * Makes reservations for each given ticket.
      * 
@@ -210,6 +217,7 @@ public class ResourceList {
         resource.reference(passIndex);
         if (cap != null) cap.referenceResource(resource.getIndex(), ticket.getName());
     }
+    
     /**
      * References the resource associated with the ticket if the ticket
      * is not null and does not have a negative world index.
@@ -225,6 +233,7 @@ public class ResourceList {
         }
         return false;
     }
+    
     /**
      * References resources associated with the tickets.
      * 
@@ -236,6 +245,7 @@ public class ResourceList {
             reference(passIndex, t);
         }
     }
+    
     /**
      * Optionally references resources associated with the tickets.
      * 
@@ -294,6 +304,7 @@ public class ResourceList {
             if (cap != null) cap.setObjectConstant(obj.getId());
         }
     }
+    
     /**
      * Marks the resource associated with the ticket if the ticket is not
      * null and does not have a negative world index.
@@ -333,6 +344,19 @@ public class ResourceList {
         return true;
     }
     
+    /**
+     * Acquires the object held by the given resource.
+     * <p>
+     * If the object does have an object associated with it (virtual), one will either
+     * be created or reallocated by the {@link RenderObjectMap}.
+     * <p>
+     * The object's id is written to the ticket.
+     * 
+     * @param <T>
+     * @param resource
+     * @param ticket
+     * @return 
+     */
     protected <T> T acquire(RenderResource<T> resource, ResourceTicket<T> ticket) {
         if (!resource.isUsed()) {
             throw new IllegalStateException(resource+" was unexpectedly acquired.");
@@ -344,6 +368,7 @@ public class ResourceList {
         resource.getTicket().copyObjectTo(ticket);
         return resource.getResource();
     }
+    
     /**
      * Acquires and returns the value associated with the resource at the ticket.
      * <p>
@@ -361,6 +386,7 @@ public class ResourceList {
         }
         return acquire(resource, ticket);
     }
+    
     /**
      * If the ticket is not null and has a positive or zero world index, an object
      * will be acquired for the resource and returned.
@@ -381,6 +407,7 @@ public class ResourceList {
         }
         return value;
     }
+    
     /**
      * Acquires and assigns textures as color targets to the framebuffer.
      * <p>
@@ -395,6 +422,7 @@ public class ResourceList {
     public void acquireColorTargets(FrameBuffer fbo, ResourceTicket<? extends Texture>... tickets) {
         acquireColorTargets(fbo, null, tickets);
     }
+    
     /**
      * Acquires and assigns textures as color targets to the framebuffer.
      * 
@@ -432,6 +460,7 @@ public class ResourceList {
         }
         return texArray;
     }
+    
     /**
      * Acquires the texture associated with the ticket and assigns it to the framebuffer.
      * 
@@ -454,6 +483,7 @@ public class ResourceList {
         }
         return replaceColorTarget(fbo, ticket, 0);
     }
+    
     private <T extends Texture> T replaceColorTarget(FrameBuffer fbo, ResourceTicket<T> ticket, int i) {
         if (i < fbo.getNumColorTargets()) {
             Texture existing = fbo.getColorTarget(i).getTexture();
@@ -468,9 +498,11 @@ public class ResourceList {
         } else {
             T acquired = acquire(ticket);
             fbo.addColorTarget(FrameBuffer.target(acquired));
+            fbo.setUpdateNeeded();
             return acquired;
         }
     }
+    
     /**
      * Acquires and assigns a texture as the depth target to the framebuffer.
      * <p>
@@ -518,6 +550,7 @@ public class ResourceList {
         resource.getTicket().copyObjectTo(ticket);
         return map.extract(resource);
     }
+    
     /**
      * Permanently extracts the object from the object manager.
      * <p>
@@ -536,6 +569,7 @@ public class ResourceList {
         }
         return object;
     }
+    
     /**
      * If the ticket is not null and has a positive or zero world index, an object
      * will be extracted by the resource and returned.
@@ -582,6 +616,7 @@ public class ResourceList {
             }
         }
     }
+    
     /**
      * Releases the ticket if the ticket is not null and contains a non-negative
      * world index.
@@ -596,6 +631,7 @@ public class ResourceList {
         }
         return false;
     }
+    
     /**
      * Releases the resources obtained by the tickets from use.
      * 
@@ -606,6 +642,7 @@ public class ResourceList {
             release(t);
         }
     }
+    
     /**
      * Optionally releases the resources obtained by the tickets from use.
      * 

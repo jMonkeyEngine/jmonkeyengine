@@ -83,12 +83,6 @@ public class TestShadingModel extends SimpleApplication {
         app.setSettings(settings);
         app.start();
     }
-    
-    @Override
-    public void simpleUpdate(float tpf) {
-        //cam.lookAt(new Vector3f(), Vector3f.UNIT_Y);
-        RenderObjectMap objects = renderManager.getRenderObjectMap();
-    }
 
     @Override
     public void simpleInitApp() {

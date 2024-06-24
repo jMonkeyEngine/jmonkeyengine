@@ -33,7 +33,9 @@ package jme3test.renderpath;
  */
 import com.jme3.app.DetailedProfilerState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.asset.ModelKey;
 import com.jme3.asset.TextureKey;
+import com.jme3.asset.cache.AssetCache;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -48,7 +50,10 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
+import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.FrameGraphFactory;
+import com.jme3.renderer.framegraph.light.TiledRenderGrid;
+import com.jme3.renderer.framegraph.passes.LightImagePass;
 import com.jme3.system.AppSettings;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
@@ -114,7 +119,7 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
     private AmbientLight ambientLight;
     private DirectionalLight directionalLight;
     private PointLight[] pointLights;
-    private int currentPointLightNum = 1000;
+    private int currentPointLightNum = 700;
     private boolean isNight = true;
 
     private final float dayLightIntensity = 1.0f;
@@ -196,7 +201,10 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
-        viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, true));
+        FrameGraph fg = FrameGraphFactory.deferred(assetManager, true);
+        fg.get(LightImagePass.class).setMaxLights(1024);
+        fg.setSetting("TileInfo", new TiledRenderGrid(7, -1));
+        //viewPort.setFrameGraph(fg);
         flyCam.setDragToRotate(true);
         
         // For this scene, use a tileSize=64 configuration (at 1600*900 resolution)

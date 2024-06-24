@@ -83,7 +83,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
      * <strong>Development Note:</strong> if more uniforms are added to the
      * shader, this value may need to be decreased.
      */
-    public static final int MAX_BUFFER_LIGHTS = 338;
+    public static final int MAX_BUFFER_LIGHTS = 320;
     /**
      * Indicates the maximum number of light probes that can be handled.
      * <p>
