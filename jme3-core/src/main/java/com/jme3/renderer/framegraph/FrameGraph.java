@@ -44,6 +44,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.client.GraphSetting;
 import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.passes.Attribute;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -88,10 +89,15 @@ import java.util.LinkedList;
  */
 public class FrameGraph {
     
+    /**
+     * Index for the main render thread pass queue.
+     */
+    public static final int RENDER_THREAD = 0;
+    
     private final AssetManager assetManager;
     private final ResourceList resources;
     private final FGRenderContext context;
-    private final LinkedList<RenderPass> passes = new LinkedList<>();
+    private final ArrayList<PassQueueExecutor> queues = new ArrayList<>(1);
     private final HashMap<String, Object> settings = new HashMap<>();
     private String name = "FrameGraph";
     private boolean rendered = false;
@@ -105,6 +111,7 @@ public class FrameGraph {
         this.assetManager = assetManager;
         this.resources = new ResourceList();
         this.context = new FGRenderContext(this);
+        this.queues.add(new PassQueueExecutor(this, RENDER_THREAD));
     }
     /**
      * Creates a new framegraph from the given data.
@@ -148,22 +155,6 @@ public class FrameGraph {
         context.target(rm, vp, prof, tpf);
     }
     /**
-     * Pre-frame operations.
-     */
-    public void preFrame() {
-        for (RenderPass p : passes) {
-            p.preFrame(context);
-        }
-    }
-    /**
-     * Post-queue operations.
-     */
-    public void postQueue() {
-        for (RenderPass p : passes) {
-            p.postQueue(context);
-        }
-    }
-    /**
      * Executes this framegraph.
      * <p>
      * The overall execution step occurs in 4 stages:
@@ -188,51 +179,50 @@ public class FrameGraph {
         if (!rendered) {
             resources.beginRenderingSession();
         }
-        for (RenderPass p : passes) {
-            if (prof != null) prof.fgStep(FgStep.Prepare, p.getProfilerName());
-            if (cap != null) cap.prepareRenderPass(p.getIndex(), p.getProfilerName());
-            p.prepareRender(context);
+        for (PassQueueExecutor queue : queues) {
+            for (RenderPass p : queue) {
+                if (prof != null) prof.fgStep(FgStep.Prepare, p.getProfilerName());
+                if (cap != null) cap.prepareRenderPass(p.getIndex(), p.getProfilerName());
+                p.prepareRender(context);
+            }
         }
         // cull passes and resources
         if (prof != null) prof.vpStep(VpStep.FrameGraphCull, vp, null);
-        for (RenderPass p : passes) {
-            p.countReferences();
+        for (PassQueueExecutor queue : queues) {
+            for (RenderPass p : queue) {
+                p.countReferences();
+            }
         }
         resources.cullUnreferenced();
         // execute
         if (prof != null) prof.vpStep(VpStep.FrameGraphExecute, vp, null);
         context.pushRenderSettings();
-        for (RenderPass p : passes) {
-            if (p.isUsed()) {
-                if (prof != null) prof.fgStep(FgStep.Execute, p.getProfilerName());
-                if (cap != null) cap.executeRenderPass(p.getIndex(), p.getProfilerName());
-                p.executeRender(context);
-                context.popRenderSettings();
-            }
+        for (PassQueueExecutor p : queues) {
+            p.execute(context);
         }
         context.popFrameBuffer();
         // reset
         if (prof != null) prof.vpStep(VpStep.FrameGraphReset, vp, null);
-        for (RenderPass p : passes) {
-            if (prof != null) prof.fgStep(FgStep.Reset, p.getProfilerName());
-            p.resetRender(context);
+        for (PassQueueExecutor queue : queues) {
+            for (RenderPass p : queue) {
+                if (prof != null) prof.fgStep(FgStep.Reset, p.getProfilerName());
+                p.resetRender(context);
+            }
         }
         // cleanup resources
         resources.clear();
-        if (rendered) {
-            return false;
-        } else {
-            rendered = true;
-            return true;
-        }
+        if (rendered) return false;
+        else return (rendered = true);
     }
     /**
      * Should be called only when all rendering for the frame is complete.
      */
     public void renderingComplete() {
         // notify passes
-        for (RenderPass p : passes) {
-            p.renderingComplete();
+        for (PassQueueExecutor queue : queues) {
+            for (RenderPass p : queue) {
+                p.renderingComplete();
+            }
         }
         // reset flags
         rendered = false;
@@ -246,9 +236,7 @@ public class FrameGraph {
      * @return given pass
      */
     public <T extends RenderPass> T add(T pass) {
-        passes.addLast(pass);
-        pass.initializePass(this, passes.size()-1);
-        return pass;
+        return queues.get(RENDER_THREAD).add(pass);
     }
     /**
      * Adds the pass at the index in the pass queue.
@@ -263,18 +251,7 @@ public class FrameGraph {
      * @return 
      */
     public <T extends RenderPass> T add(T pass, int index) {
-        if (index < 0) {
-            throw new IndexOutOfBoundsException("Index cannot be negative.");
-        }
-        if (index >= passes.size()) {
-            return add(pass);
-        }
-        passes.add(index, pass);
-        pass.initializePass(this, index);
-        for (RenderPass p : passes) {
-            p.shiftExecutionIndex(index, true);
-        }
-        return pass;
+        return queues.get(RENDER_THREAD).add(pass, index);
     }
     /**
      * Creates and adds an Attribute pass and links it to the given ticket.
@@ -286,9 +263,7 @@ public class FrameGraph {
      * @return created Attribute
      */
     public <T> Attribute<T> addAttribute(ResourceTicket<T> ticket) {
-        Attribute<T> attr = add(new Attribute<>());
-        attr.getInput(Attribute.INPUT).setSource(ticket);
-        return attr;
+        return queues.get(RENDER_THREAD).addAttribute(ticket);
     }
     
     /**
@@ -299,9 +274,10 @@ public class FrameGraph {
      * @return first qualifying pass, or null
      */
     public <T extends RenderPass> T get(Class<T> type) {
-        for (RenderPass p : passes) {
-            if (type.isAssignableFrom(p.getClass())) {
-                return (T)p;
+        for (PassQueueExecutor q : queues) {
+            T p = q.get(type);
+            if (p != null) {
+                return p;
             }
         }
         return null;
@@ -315,9 +291,10 @@ public class FrameGraph {
      * @return first qualifying pass, or null
      */
     public <T extends RenderPass> T get(Class<T> type, String name) {
-        for (RenderPass p : passes) {
-            if (name.equals(p.getName()) && type.isAssignableFrom(p.getClass())) {
-                return (T)p;
+        for (PassQueueExecutor q : queues) {
+            T p = q.get(type, name);
+            if (p != null) {
+                return p;
             }
         }
         return null;
@@ -331,9 +308,10 @@ public class FrameGraph {
      * @return pass of the id, or null
      */
     public <T extends RenderPass> T get(Class<T> type, int id) {
-        for (RenderPass p : passes) {
-            if (id == p.getId() && type.isAssignableFrom(p.getClass())) {
-                return (T)p;
+        for (PassQueueExecutor q : queues) {
+            T p = q.get(type, id);
+            if (p != null) {
+                return p;
             }
         }
         return null;
@@ -349,25 +327,7 @@ public class FrameGraph {
      * @throws IndexOutOfBoundsException if the index is less than zero or &gt;= the queue size
      */
     public RenderPass remove(int i) {
-        if (i < 0 || i >= passes.size()) {
-            throw new IndexOutOfBoundsException("Index "+i+" is out of bounds for size "+passes.size());
-        }
-        int j = 0;
-        RenderPass removed = null;
-        for (Iterator<RenderPass> it = passes.iterator(); it.hasNext();) {
-            RenderPass p = it.next();
-            if (removed != null) {
-                p.disconnectInputsFrom(removed);
-                p.shiftExecutionIndex(i, false);
-            } else if (j++ == i) {
-                removed = p;
-                it.remove();
-            }
-        }
-        if (removed != null) {
-            removed.cleanupPass(this);
-        }
-        return removed;
+        return queues.get(RENDER_THREAD).remove(i);
     }
     /**
      * Removes the given pass from the queue.
@@ -378,25 +338,10 @@ public class FrameGraph {
      * @return true if the pass was removed from the queue
      */
     public boolean remove(RenderPass pass) {
-        int i = 0;
-        boolean found = false;
-        for (Iterator<RenderPass> it = passes.iterator(); it.hasNext();) {
-            RenderPass p = it.next();
-            if (found) {
-                // shift execution indices down
-                p.disconnectInputsFrom(pass);
-                p.shiftExecutionIndex(i, false);
-                continue;
+        for (PassQueueExecutor queue : queues) {
+            if (queue.remove(pass)) {
+                return true;
             }
-            if (p == pass) {
-                it.remove();
-                found = true;
-            }
-            i++;
-        }
-        if (found) {
-            pass.cleanupPass(this);
-            return true;
         }
         return false;
     }
@@ -404,10 +349,9 @@ public class FrameGraph {
      * Clears all passes from the pass queue.
      */
     public void clear() {
-        for (RenderPass p : passes) {
-            p.cleanupPass(this);
+        for (PassQueueExecutor queue : queues) {
+            queue.clear();
         }
-        passes.clear();
     }
     
     /**
@@ -568,6 +512,14 @@ public class FrameGraph {
     public String getName() {
         return name;
     }
+    /**
+     * Returns true if this framegraph is running asynchronous passes.
+     * 
+     * @return 
+     */
+    public boolean isAsync() {
+        return queues.size() > 1;
+    }
     
     /**
      * Applies the framegraph data to this framegraph.
@@ -622,7 +574,7 @@ public class FrameGraph {
      * @return 
      */
     public FrameGraphData createData() {
-        return new FrameGraphData(this, passes, settings);
+        return new FrameGraphData(this, queues, settings);
     }
     
     @Override

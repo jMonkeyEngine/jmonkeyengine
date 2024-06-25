@@ -33,7 +33,8 @@ package com.jme3.renderer.framegraph;
 
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.util.NativeObject;
-import java.util.BitSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.function.Consumer;
 
 /**
@@ -51,11 +52,13 @@ public class RenderObject <T> {
     
     private final long id;
     private final T object;
-    private final BitSet reservations = new BitSet();
+    private final LinkedList<PassIndex> reservations = new LinkedList<>();
     private int timeoutDuration;
     private int timeout = 0;
     private boolean acquired = false;
     private boolean constant = false;
+    private boolean inspect = false;
+    private boolean prioritized = false;
     private Consumer disposer;
     
     /**
@@ -83,6 +86,23 @@ public class RenderObject <T> {
         }
     }
     
+    public void startInspect() {
+        inspect = true;
+    }
+    public void endInspect() {
+        inspect = false;
+    }
+    public boolean isInspect() {
+        return inspect;
+    }
+    
+    public void setPrioritized(boolean prioritized) {
+        this.prioritized = prioritized;
+    }
+    public boolean isPrioritized() {
+        return prioritized;
+    }
+    
     /**
      * Acquires this render object for use.
      */
@@ -107,22 +127,40 @@ public class RenderObject <T> {
      * 
      * @param index 
      */
-    public void reserve(int index) {
-        reservations.set(index);
+    public void reserve(PassIndex index) {
+        reservations.add(index);
     }
     /**
      * Disposes the internal object.
      */
     public void dispose() {
+        // ensure this cannot be acquired
+        acquired = true;
         disposer.accept(object);
     }
     
+    /**
+     * Returns true if
+     * 
+     * @param index
+     * @return 
+     */
+    public boolean claimReservation(PassIndex index) {
+        for (Iterator<PassIndex> it = reservations.iterator(); it.hasNext();) {
+            if (it.next().equals(index)) {
+                it.remove();
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      * Clears all reservations.
      */
     public void clearReservations() {
         reservations.clear();
     }
+    
     /**
      * Ticks down the timer tracking frames since last use.
      * 
@@ -172,8 +210,8 @@ public class RenderObject <T> {
      * @param index
      * @return 
      */
-    public boolean isReservedAt(int index) {
-        return reservations.get(index);
+    public boolean isReservedAt(PassIndex index) {
+        return reservations.contains(index);
     }
     /**
      * Returns true if this render object is reserved within the time frame.
@@ -182,11 +220,11 @@ public class RenderObject <T> {
      * @return 
      */
     public boolean isReservedWithin(TimeFrame frame) {
-        if (frame.getStartIndex() >= reservations.size()) {
+        if (frame.getStartQueueIndex() >= reservations.size()) {
             return false;
         }
-        int n = Math.min(reservations.size()-1, frame.getEndIndex());
-        for (int i = frame.getStartIndex(); i <= n; i++) {
+        int n = Math.min(reservations.size()-1, frame.getEndQueueIndex());
+        for (int i = frame.getStartQueueIndex(); i <= n; i++) {
             if (reservations.get(i)) {
                 return true;
             }

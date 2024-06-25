@@ -36,6 +36,9 @@ import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages creation, reallocation, and disposal of {@link RenderObject}s.
@@ -45,7 +48,8 @@ import java.util.Iterator;
 public class RenderObjectMap {
     
     private final RenderManager renderManager;
-    private final HashMap<Long, RenderObject> objectMap = new HashMap<>();
+    private final Map<Long, RenderObject> objectMap;
+    private final boolean async;
     private int staticTimeout = 1;
     
     // statistics
@@ -58,8 +62,14 @@ public class RenderObjectMap {
     private int totalObjects = 0;
     private int flushedObjects = 0;
     
-    public RenderObjectMap(RenderManager renderManager) {
+    public RenderObjectMap(RenderManager renderManager, boolean async) {
         this.renderManager = renderManager;
+        this.async = async;
+        if (this.async) {
+            objectMap = new ConcurrentHashMap<>();
+        } else {
+            objectMap = new HashMap<>();
+        }
     }
     
     /**
@@ -99,14 +109,24 @@ public class RenderObjectMap {
      * Allocates a render object to the resource.
      * <p>
      * First, if this resource holds an object id, the corresponding render object,
-     * if it still exists, will be tried for reallocation. Then, each render object
-     * will be tried for reallocation. Finally, if all else fails, a new render object
+     * if it still exists, will be tried for reallocation. If that fails, each render object
+     * will be tried for reallocation. Finally, if that fails, a new render object
      * will be created and allocated to the resource.
+     * <p>
+     * If this RenderObjectMap is asynchronous, this method is threadsafe.
      * 
      * @param <T>
      * @param resource 
      */
     public <T> void allocate(RenderResource<T> resource) {
+        if (async) {
+            allocateAsync(resource);
+        } else {
+            allocateSync(resource);
+        }
+    }
+    
+    private <T> void allocateSync(RenderResource<T> resource) {
         if (resource.isUndefined()) {
             throw new IllegalArgumentException("Cannot allocate object to an undefined resource.");
         }
@@ -114,7 +134,8 @@ public class RenderObjectMap {
         totalAllocations++;
         ResourceDef<T> def = resource.getDefinition();
         if (def.isUseExisting()) {
-            if (allocateSpecific(resource)) {
+            // first try allocating a specific object, which is much faster
+            if (allocateSpecificSync(resource)) {
                 return;
             }
             // find object to allocate
@@ -122,15 +143,18 @@ public class RenderObjectMap {
             RenderObject indirectObj = null;
             for (RenderObject obj : objectMap.values()) {
                 if (isAvailable(obj) && !obj.isReservedWithin(resource.getLifeTime())) {
+                    // try applying a direct resource
                     T r = def.applyDirectResource(obj.getObject());
                     if (r != null) {
                         resource.setObject(obj, r);
                         if (cap != null) cap.reallocateObject(obj.getId(), resource.getIndex(),
                                 resource.getResource().getClass().getSimpleName());
                         objectsReallocated++;
+                        obj.endInspect();
                         return;
                     }
-                    if (indirectObj == null) {
+                    // then try applying an indirect resource, which is not as desirable
+                    if (!obj.isPrioritized() && indirectObj == null) {
                         indirectRes = def.applyIndirectResource(obj.getObject());
                         if (indirectRes != null) {
                             indirectObj = obj;
@@ -138,12 +162,14 @@ public class RenderObjectMap {
                     }
                 }
             }
+            // allocate indirect object
             if (indirectObj != null) {
-                // allocate indirect object
+                indirectObj.startInspect();
                 resource.setObject(indirectObj, indirectRes);
                 if (cap != null) cap.reallocateObject(indirectObj.getId(), resource.getIndex(),
                         resource.getResource().getClass().getSimpleName());
                 objectsReallocated++;
+                indirectObj.endInspect();
                 return;
             }
         }
@@ -153,62 +179,164 @@ public class RenderObjectMap {
                 resource.getIndex(), resource.getResource().getClass().getSimpleName());
         objectsCreated++;
     }
-    /**
-     * Allocates the specific render object directly referenced by the resource,
-     * if one is referenced.
-     * 
-     * @param <T>
-     * @param resource 
-     * @return true if the specific render object was allocated
-     */
-    public <T> boolean allocateSpecific(RenderResource<T> resource) {
+    private <T> boolean allocateSpecificSync(RenderResource<T> resource) {
         GraphEventCapture cap = renderManager.getGraphCapture();
         ResourceDef<T> def = resource.getDefinition();
         long id = resource.getTicket().getObjectId();
         if (id < 0) return false;
         // allocate reserved object
-        RenderObject obj = objectMap.get(id);
-        if (cap != null) cap.attemptReallocation(id, resource.getIndex());
-        if (obj != null && isAvailable(obj)
-                && (obj.isReservedAt(resource.getLifeTime().getStartIndex())
-                || !obj.isReservedWithin(resource.getLifeTime()))) {
-            // reserved object is only applied if it is accepted by the definition
-            T r = def.applyDirectResource(obj.getObject());
-            if (r == null) {
-                r = def.applyIndirectResource(obj.getObject());
+        RenderObject obj = objectMap.get(id);        
+        if (obj != null) {
+            if (cap != null) cap.attemptReallocation(id, resource.getIndex());
+            if (isAvailable(obj) && (obj.isReservedAt(resource.getLifeTime().getStartQueueIndex())
+                    || !obj.isReservedWithin(resource.getLifeTime()))) {
+                // reserved object is only applied if it is accepted by the definition
+                T r = def.applyDirectResource(obj.getObject());
+                if (r == null) {
+                    r = def.applyIndirectResource(obj.getObject());
+                }
+                if (r != null) {
+                    resource.setObject(obj, r);
+                    if (cap != null) cap.reallocateObject(id, resource.getIndex(),
+                            resource.getResource().getClass().getSimpleName());
+                    completedReservations++;
+                    objectsReallocated++;
+                    return true;
+                }
             }
-            if (r != null) {
-                resource.setObject(obj, r);
-                if (cap != null) cap.reallocateObject(id, resource.getIndex(),
-                        resource.getResource().getClass().getSimpleName());
-                completedReservations++;
-                objectsReallocated++;
-                return true;
-            }
+            if (cap != null) cap.allocateSpecificFailed(obj, resource);
         }
         failedReservations++;
-        if (cap != null) cap.allocateSpecificFailed(obj, resource);
         return false;
     }
-    /**
-     * Directly creates a new render object containing the value for the render
-     * resource.
-     * <p>
-     * The object is still subject to the resource's definition, although the definition
-     * may not have created the internal value.
-     * 
-     * @param <T>
-     * @param resource
-     * @param value 
-     */
-    public <T> void allocateDirect(RenderResource<T> resource, T value) {
-        RenderObject<T> object = create(resource.getDefinition(), value);
-        resource.setObject(object, value);
-        if (renderManager.getGraphCapture() != null) {
-            renderManager.getGraphCapture().setObjectDirect(
-                    object.getId(), resource.getIndex(), value.getClass().getSimpleName());
+    private <T> void allocateAsync(RenderResource<T> resource) {
+        if (resource.isUndefined()) {
+            throw new IllegalArgumentException("Cannot allocate object to an undefined resource.");
         }
+        GraphEventCapture cap = renderManager.getGraphCapture();
+        totalAllocations++;
+        ResourceDef<T> def = resource.getDefinition();
+        if (def.isUseExisting()) {
+            // first try allocating a specific object, which is much faster
+            if (allocateSpecificAsync(resource)) {
+                return;
+            }
+            // find object to allocate
+            T indirectRes = null;
+            RenderObject indirectObj = null;
+            LinkedList<RenderObject> skipped = new LinkedList<>();
+            Iterator<RenderObject> it = objectMap.values().iterator();
+            boolean next;
+            while ((next = it.hasNext()) || !skipped.isEmpty()) {
+                RenderObject obj;
+                if (next) obj = it.next();
+                else obj = skipped.removeFirst();
+                if (isAvailable(obj)) {
+                    if ((next || !skipped.isEmpty()) && obj.isInspect()) {
+                        // Inspect this object later, because something else is inspecting it.
+                        // This makes this thread try other objects first, instead of waiting
+                        // for a synchronized block to be available.
+                        skipped.addLast(obj);
+                        continue;
+                    }
+                    // If multiple threads do happen to be here at the same time, ensure only one
+                    // will inspect at a time.
+                    synchronized (obj) {
+                        // The thread we were waiting on may have claimed to object, so check again
+                        // if it is available.
+                        if (!isAvailable(obj)) {
+                            continue;
+                        }
+                        obj.startInspect();
+                        if (!obj.isReservedWithin(resource.getLifeTime())) {
+                            // try applying a direct resource
+                            T r = def.applyDirectResource(obj.getObject());
+                            if (r != null) {
+                                resource.setObject(obj, r);
+                                if (cap != null) cap.reallocateObject(obj.getId(), resource.getIndex(),
+                                        resource.getResource().getClass().getSimpleName());
+                                objectsReallocated++;
+                                obj.endInspect();
+                                return;
+                            }
+                            // then try applying an indirect resource, which is not as desirable
+                            if (!obj.isPrioritized() && indirectObj == null) {
+                                indirectRes = def.applyIndirectResource(obj.getObject());
+                                if (indirectRes != null) {
+                                    indirectObj = obj;
+                                    // make sure no other thread attempts to apply this indirectly at the same time
+                                    obj.setPrioritized(true);
+                                    obj.endInspect();
+                                    continue;
+                                }
+                            }
+                        }
+                        obj.endInspect();
+                    }
+                }
+            }
+            // allocate indirect object
+            if (indirectObj != null) synchronized (indirectObj) {
+                // disable priority flag
+                indirectObj.setPrioritized(false);
+                // check again if object is available
+                if (isAvailable(indirectObj)) {
+                    indirectObj.startInspect();
+                    resource.setObject(indirectObj, indirectRes);
+                    if (cap != null) cap.reallocateObject(indirectObj.getId(), resource.getIndex(),
+                            resource.getResource().getClass().getSimpleName());
+                    objectsReallocated++;
+                    indirectObj.endInspect();
+                } else {
+                    // In the unlikely event that another thread "steals" this object
+                    // from this thread, try allocating again.
+                    allocateAsync(resource);
+                }
+                return;
+            }
+        }
+        // create new object
+        resource.setObject(create(def));
+        if (cap != null) cap.createObject(resource.getObject().getId(),
+                resource.getIndex(), resource.getResource().getClass().getSimpleName());
+        objectsCreated++;
     }
+    private <T> boolean allocateSpecificAsync(RenderResource<T> resource) {
+        GraphEventCapture cap = renderManager.getGraphCapture();
+        ResourceDef<T> def = resource.getDefinition();
+        long id = resource.getTicket().getObjectId();
+        if (id < 0) return false;
+        // allocate reserved object
+        RenderObject obj = objectMap.get(id);        
+        if (obj != null) {
+            if (cap != null) cap.attemptReallocation(id, resource.getIndex());
+            if (isAvailable(obj)) synchronized (obj) {
+                obj.startInspect();
+                if ((obj.isReservedAt(resource.getLifeTime().getStartQueueIndex())
+                        || !obj.isReservedWithin(resource.getLifeTime()))) {
+                    // reserved object is only applied if it is accepted by the definition
+                    T r = def.applyDirectResource(obj.getObject());
+                    if (r == null) {
+                        r = def.applyIndirectResource(obj.getObject());
+                    }
+                    if (r != null) {
+                        resource.setObject(obj, r);
+                        if (cap != null) cap.reallocateObject(id, resource.getIndex(),
+                                resource.getResource().getClass().getSimpleName());
+                        completedReservations++;
+                        objectsReallocated++;
+                        obj.endInspect();
+                        return true;
+                    }
+                }
+                obj.endInspect();
+            }
+            if (cap != null) cap.allocateSpecificFailed(obj, resource);
+        }
+        failedReservations++;
+        return false;
+    }
+    
     /**
      * Makes a reservation of render object holding the specified id at the render
      * pass index so that no other resource may (without a reservation) use that 
@@ -218,7 +346,7 @@ public class RenderObjectMap {
      * @param index
      * @return 
      */
-    public boolean reserve(long objectId, int index) {
+    public boolean reserve(long objectId, PassIndex index) {
         RenderObject obj = objectMap.get(objectId);
         if (obj != null) {
             obj.reserve(index);
@@ -231,39 +359,6 @@ public class RenderObjectMap {
         return false;
     }
     /**
-     * Untracks the render object held by the resource.
-     * <p>
-     * If the resource is virtual, a new resource will be allocated then
-     * immediately untracked.
-     * 
-     * @param <T>
-     * @param resource
-     * @return 
-     */
-    public <T> T extract(RenderResource<T> resource) {
-        if (resource.isUndefined()) {
-            return null;
-        }
-        if (resource.isVirtual()) {
-            allocate(resource);
-        }
-        RenderObject<T> obj = objectMap.remove(resource.getTicket().getObjectId());
-        return (obj != null ? obj.getObject() : null);
-    }
-    /**
-     * Removes the render object holding the given value from the map.
-     * 
-     * @param value 
-     */
-    public void remove(Object value) {
-        for (Iterator<RenderObject> it = objectMap.values().iterator(); it.hasNext();) {
-            RenderObject object = it.next();
-            if (object.getObject() == value) {
-                it.remove();
-            }
-        }
-    }
-    /**
      * Disposes the render object pointed to by the resource.
      * 
      * @param resource 
@@ -273,10 +368,10 @@ public class RenderObjectMap {
         if (id >= 0) {
             RenderObject obj = objectMap.remove(id);
             if (obj != null) {
+                obj.dispose();
                 if (renderManager.getGraphCapture() != null) {
                     renderManager.getGraphCapture().disposeObject(id);
                 }
-                obj.dispose();
             }
         }
     }

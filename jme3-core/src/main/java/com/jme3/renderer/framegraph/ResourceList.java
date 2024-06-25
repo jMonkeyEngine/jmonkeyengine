@@ -52,6 +52,7 @@ public class ResourceList {
     private RenderObjectMap map;
     private GraphEventCapture cap;
     private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
+    private LinkedList<ResourceTicket> references = new LinkedList<>();
     private int nextSlot = 0;
     private int textureBinds = 0;
 
@@ -183,7 +184,7 @@ public class ResourceList {
      * @param passIndex
      * @param ticket 
      */
-    public void reserve(int passIndex, ResourceTicket ticket) {
+    public void reserve(PassIndex passIndex, ResourceTicket ticket) {
         if (ticket.getObjectId() >= 0) {
             map.reserve(ticket.getObjectId(), passIndex);
             ticket.copyObjectTo(locate(ticket).getTicket());
@@ -196,7 +197,7 @@ public class ResourceList {
      * @param passIndex
      * @param tickets 
      */
-    public void reserve(int passIndex, ResourceTicket... tickets) {
+    public void reserve(PassIndex passIndex, ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
             reserve(passIndex, t);
         }
@@ -212,7 +213,7 @@ public class ResourceList {
      * @param passIndex render pass index
      * @param ticket 
      */
-    public void reference(int passIndex, ResourceTicket ticket) {
+    public void reference(PassIndex passIndex, ResourceTicket ticket) {
         RenderResource resource = locate(ticket);
         resource.reference(passIndex);
         if (cap != null) cap.referenceResource(resource.getIndex(), ticket.getName());
@@ -226,7 +227,7 @@ public class ResourceList {
      * @param ticket
      * @return 
      */
-    public boolean referenceOptional(int passIndex, ResourceTicket ticket) {
+    public boolean referenceOptional(PassIndex passIndex, ResourceTicket ticket) {
         if (validate(ticket)) {
             reference(passIndex, ticket);
             return true;
@@ -240,7 +241,7 @@ public class ResourceList {
      * @param passIndex render pass index
      * @param tickets 
      */
-    public void reference(int passIndex, ResourceTicket... tickets) {
+    public void reference(PassIndex passIndex, ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
             reference(passIndex, t);
         }
@@ -252,7 +253,7 @@ public class ResourceList {
      * @param passIndex render pass index
      * @param tickets 
      */
-    public void referenceOptional(int passIndex, ResourceTicket... tickets) {
+    public void referenceOptional(PassIndex passIndex, ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
             referenceOptional(passIndex, t);
         }
@@ -541,52 +542,6 @@ public class ResourceList {
      */
     public <T> void setPrimitive(ResourceTicket<T> ticket, T value) {
         locate(ticket).setPrimitive(value);
-    }
-    
-    protected <T> T extract(RenderResource<T> resource, ResourceTicket<T> ticket) {
-        if (!resource.isUsed()) {
-            throw new IllegalStateException(resource+" was unexpectedly extracted.");
-        }
-        resource.getTicket().copyObjectTo(ticket);
-        return map.extract(resource);
-    }
-    
-    /**
-     * Permanently extracts the object from the object manager.
-     * <p>
-     * Extracted objects are no longer tracked by the object manager,
-     * and can therefore not be reallocated for any task.
-     * 
-     * @param <T>
-     * @param ticket
-     * @return 
-     */
-    public <T> T extract(ResourceTicket<T> ticket) {
-        RenderResource<T> resource = locate(ticket);
-        T object = extract(resource, ticket);
-        if (object == null) {
-            throw new NullPointerException("Failed to extract resource.");
-        }
-        return object;
-    }
-    
-    /**
-     * If the ticket is not null and has a positive or zero world index, an object
-     * will be extracted by the resource and returned.
-     * <p>
-     * Otherwise, the given default value will be returned.
-     * 
-     * @param <T>
-     * @param ticket
-     * @param value
-     * @return 
-     */
-    public <T> T extractOrElse(ResourceTicket<T> ticket, T value) {
-        if (ticket != null && ticket.getWorldIndex() >= 0) {
-            T object = extract(locate(ticket), ticket);
-            if (object != null) return object;
-        }
-        return value;
     }
     
     /**

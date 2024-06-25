@@ -45,7 +45,7 @@ public interface ResourceProducer {
      * 
      * @return 
      */
-    public int getExecutionIndex();
+    public PassIndex getExecutionIndex();
     
     /**
      * Dereferences this producer.

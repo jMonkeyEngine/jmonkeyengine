@@ -42,10 +42,10 @@ import java.util.Objects;
  */
 public class RenderResource <T> {
     
-    private final ResourceProducer producer;
-    private final ResourceDef<T> def;
-    private final ResourceTicket<T> ticket;
-    private final TimeFrame lifetime;
+    private ResourceProducer producer;
+    private ResourceDef<T> def;
+    private ResourceTicket<T> ticket;
+    private TimeFrame lifetime;
     private RenderObject object;
     private T resource;
     private int refs = 0;
@@ -70,7 +70,7 @@ public class RenderResource <T> {
      * 
      * @param index 
      */
-    public void reference(int index) {
+    public void reference(PassIndex index) {
         lifetime.extendTo(index);
         refs++;
     }

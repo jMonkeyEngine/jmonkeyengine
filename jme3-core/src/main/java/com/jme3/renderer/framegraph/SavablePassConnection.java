@@ -39,7 +39,7 @@ import com.jme3.export.Savable;
 import java.io.IOException;
 
 /**
- * Represents an abstract connection between render passes.
+ * Represents an abstract connection between render passes that can be saved.
  * 
  * @author codex
  */

@@ -38,6 +38,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.PassIndex;
 import com.jme3.renderer.framegraph.ResourceList;
 import com.jme3.renderer.framegraph.ResourceProducer;
 import com.jme3.renderer.framegraph.ResourceTicket;
@@ -66,7 +67,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     private int exportId = -1;
     private String name;
     protected FrameGraph frameGraph;
-    private int index = -1;
+    private PassIndex index;
     private int refs = 0;
     private final LinkedList<ResourceTicket> inputs = new LinkedList<>();
     private final LinkedList<ResourceTicket> outputs = new LinkedList<>();
@@ -81,7 +82,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param frameGraph
      * @param index execution index
      */
-    public void initializePass(FrameGraph frameGraph, int index) {
+    public void initializePass(FrameGraph frameGraph, PassIndex index) {
         this.frameGraph = frameGraph;
         this.index = index;
         this.resources = frameGraph.getResources();
@@ -100,6 +101,14 @@ public abstract class RenderPass implements ResourceProducer, Savable {
             throw new IllegalStateException("Pass is not properly initialized for rendering.");
         }
         prepare(context);
+    }
+    /**
+     * 
+     * @param context 
+     * @return  
+     */
+    public boolean asyncWait(FGRenderContext context) {
+        
     }
     /**
      * Executes the pass.
@@ -883,7 +892,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     }
     
     @Override
-    public int getExecutionIndex() {
+    public PassIndex getExecutionIndex() {
         return index;
     }
     @Override

@@ -34,12 +34,16 @@ package com.jme3.renderer.framegraph;
 /**
  * Represents a period of time starting at the start of the indexed pass, and
  * lasting for the duration of a number of following passes.
+ * <p>
+ * An asynchronous timeframe indicates that the end is unpredictable.
  * 
  * @author codex
  */
 public class TimeFrame {
     
-    private int index, length;
+    private int thread;
+    private int queue, length;
+    private boolean async = false;
     
     /**
      * 
@@ -47,13 +51,14 @@ public class TimeFrame {
     private TimeFrame() {}
     /**
      * 
-     * @param passIndex
+     * @param index
      * @param length 
      */
-    public TimeFrame(int passIndex, int length) {
-        this.index = passIndex;
+    public TimeFrame(PassIndex index, int length) {
+        this.thread = index.getThreadIndex();
+        this.queue = index.getQueueIndex();
         this.length = length;
-        if (this.index < 0) {
+        if (this.queue < 0) {
             throw new IllegalArgumentException("Pass index cannot be negative.");
         }
         if (this.length < 0) {
@@ -62,13 +67,16 @@ public class TimeFrame {
     }
     
     /**
-     * Extends, but does not retract, the length so that this time frame
-     * includes the given index.
+     * Extends the length so that this time frame includes the given index.
      * 
      * @param passIndex 
      */
-    public void extendTo(int passIndex) {
-        length = Math.max(length, passIndex-this.index);
+    public void extendTo(PassIndex passIndex) {
+        if (passIndex.getThreadIndex() != thread) {
+            async = true;
+        } else {
+            length = Math.max(length, passIndex.getQueueIndex()-this.queue);
+        }
     }
     /**
      * Copies this to the target time frame.
@@ -80,18 +88,28 @@ public class TimeFrame {
         if (target == null) {
             target = new TimeFrame();
         }
-        target.index = index;
+        target.thread = thread;
+        target.queue = queue;
         target.length = length;
+        target.async = async;
         return target;
     }
     
+    /**
+     * Gets the index of the thread this timeframe is based from.
+     * 
+     * @return 
+     */
+    public int getThreadIndex() {
+        return thread;
+    }
     /**
      * Gets index of the first pass this time frame includes.
      * 
      * @return 
      */
-    public int getStartIndex() {
-        return index;
+    public int getStartQueueIndex() {
+        return queue;
     }
     /**
      * Gets the length.
@@ -106,8 +124,18 @@ public class TimeFrame {
      * 
      * @return 
      */
-    public int getEndIndex() {
-        return index+length;
+    public int getEndQueueIndex() {
+        return queue+length;
+    }
+    /**
+     * Returns true if this timeframe is asynchronous.
+     * <p>
+     * An asynchronous timeframe's end index is unreliable.
+     * 
+     * @return 
+     */
+    public boolean isAsync() {
+        return async;
     }
     
     /**
@@ -117,7 +145,7 @@ public class TimeFrame {
      * @return 
      */
     public boolean overlaps(TimeFrame time) {
-        return index <= time.index+time.length && index+length >= time.index;
+        return queue <= time.queue+time.length && queue+length >= time.queue;
     }
     /**
      * Returns true if this time frame includes the given index.
@@ -126,7 +154,7 @@ public class TimeFrame {
      * @return 
      */
     public boolean includes(int index) {
-        return index <= index && index+length >= index;
+        return queue <= index && queue+length >= index;
     }
     
 }

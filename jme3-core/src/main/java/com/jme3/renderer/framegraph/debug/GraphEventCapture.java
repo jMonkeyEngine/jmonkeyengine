@@ -103,7 +103,7 @@ public class GraphEventCapture {
             new Check("nullObject", () -> object != null, true),
             new Check("acquired", () -> !object.isAcquired()),
             new Check("constant", () -> !object.isConstant()),
-            new Check("conflicting", () -> object.isReservedAt(resource.getLifeTime().getStartIndex())
+            new Check("conflicting", () -> object.isReservedAt(resource.getLifeTime().getStartQueueIndex())
                     || !object.isReservedWithin(resource.getLifeTime()))
         ));
     }
