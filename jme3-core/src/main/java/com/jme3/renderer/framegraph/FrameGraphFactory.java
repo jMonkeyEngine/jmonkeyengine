@@ -41,9 +41,7 @@ import com.jme3.renderer.framegraph.passes.Junction;
 import com.jme3.renderer.framegraph.passes.LightImagePass;
 import com.jme3.renderer.framegraph.passes.OutputRenderPass;
 import com.jme3.renderer.framegraph.passes.OutputPass;
-import com.jme3.renderer.framegraph.passes.PostProcessingRenderPass;
 import com.jme3.renderer.framegraph.passes.SceneEnqueuePass;
-import com.jme3.renderer.queue.RenderQueue;
 
 /**
  * Utility class for constructing common framegraphs.
@@ -96,7 +94,7 @@ public class FrameGraphFactory {
         GBufferPass gbuf = fg.add(new GBufferPass());
         Attribute tileInfoAttr = fg.add(new Attribute());
         Junction tileJunct1 = fg.add(new Junction(1, 1));
-        LightImagePass lightImg = fg.add(new LightImagePass());
+        LightImagePass lightImg = fg.add(new LightImagePass(), 1);
         Junction lightJunct = fg.add(new Junction(1, 6));
         Junction tileJunct2 = fg.add(new Junction(1, 2));
         DeferredPass deferred = fg.add(new DeferredPass());
@@ -116,8 +114,8 @@ public class FrameGraphFactory {
         tileJunct1.makeInput(tileInfoAttr, Attribute.OUTPUT, Junction.getInput(0));
         tileJunct1.setIndexSource(tileToggle);
         
-        lightImg.makeInput(gbuf, "Lights", "Lights");
-        lightImg.makeInput(tileInfoAttr, Attribute.OUTPUT, "TileInfo");
+        lightImg.makeInput(enqueue, "OpaqueLights", "Lights");
+        lightImg.makeInput(tileJunct1, Junction.getOutput(), "TileInfo");
         
         GraphSetting<Integer> lightPackMethod = fg.setSetting("LightPackMethod", tiled ? 0 : -1, true);
         lightJunct.setName("LightPackMethod");
@@ -131,7 +129,7 @@ public class FrameGraphFactory {
         tileJunct2.setIndexSource(tileToggle);
         
         deferred.makeGroupInput(gbuf, "GBufferData", "GBufferData");
-        deferred.makeInput(gbuf, "Lights", "Lights");
+        deferred.makeInput(enqueue, "OpaqueLights", "Lights");
         deferred.makeGroupInput(lightJunct, Junction.getOutput(), "LightTextures", 0, 0, 3);
         deferred.makeInput(lightJunct, Junction.getOutput(3), "NumLights");
         deferred.makeInput(lightJunct, Junction.getOutput(4), "Ambient");

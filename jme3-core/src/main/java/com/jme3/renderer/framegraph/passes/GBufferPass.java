@@ -66,9 +66,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     
     private ResourceTicket<GeometryList> geometry;
     private ResourceTicket<Texture2D>[] gbuffers;
-    private ResourceTicket<LightList> lights;
     private ResourceTicket<Integer> numRendersTicket;
-    private ValueDef<LightList> lightDef;
     private final TextureDef<Texture2D>[] texDefs = new TextureDef[5];
     private int numRenders = 0;
     
@@ -76,7 +74,6 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     protected void initialize(FrameGraph frameGraph) {
         geometry = addInput("Geometry");
         gbuffers = addOutputGroup("GBufferData", 5);
-        lights = addOutput("Lights");
         numRendersTicket = addOutput("NumRenders");
         Function<Image, Texture2D> tex = img -> new Texture2D(img);
         texDefs[0] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
@@ -84,8 +81,6 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         texDefs[2] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA16F);
         texDefs[3] = new TextureDef<>(Texture2D.class, tex, Image.Format.RGBA32F);
         texDefs[4] = new TextureDef<>(Texture2D.class, tex, Image.Format.Depth);
-        lightDef = new ValueDef(LightList.class, n -> new LightList(null));
-        lightDef.setReviser(list -> list.clear());
     }
     @Override
     protected void prepare(FGRenderContext context) {
@@ -94,7 +89,6 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
             texDefs[i].setSize(w, h);
             declare(texDefs[i], gbuffers[i]);
         }
-        declare(lightDef, lights);
         declare(null, numRendersTicket);
         reserve(gbuffers);
         reference(geometry);
@@ -110,18 +104,11 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         resources.acquireDepthTarget(fb, gbuffers[4]);
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
-        LightList lightList = resources.acquire(lights);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         context.getRenderManager().setForcedTechnique(GBUFFER_PASS);
         context.getRenderManager().setGeometryRenderHandler(this);
         GeometryList bucket = resources.acquire(geometry);
         context.renderGeometryList(bucket, null, this);
-        // get lights for all rendered geometries
-        for (Spatial s : new ParentIterator(bucket)) {
-            for (Light l : s.getLocalLightList()) {
-                lightList.add(l);
-            }
-        }
         resources.setPrimitive(numRendersTicket, numRenders);
     }
     @Override

@@ -326,7 +326,7 @@ public class FGRenderContext {
      * 
      * @return 
      */
-    public boolean isFrameCaptureActive() {
+    public boolean isGraphCaptureActive() {
         return renderManager.getGraphCapture() != null;
     }
     

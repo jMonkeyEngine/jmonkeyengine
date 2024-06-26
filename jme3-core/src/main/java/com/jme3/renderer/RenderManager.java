@@ -127,7 +127,7 @@ public class RenderManager {
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
-        this.renderObjects = new RenderObjectMap(this);
+        this.renderObjects = new RenderObjectMap(this, true);
     }
     
     /**

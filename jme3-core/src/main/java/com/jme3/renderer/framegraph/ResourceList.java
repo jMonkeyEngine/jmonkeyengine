@@ -48,45 +48,24 @@ public class ResourceList {
 
     private static final int INITIAL_SIZE = 20;
     
+    private final FrameGraph frameGraph;
     private RenderManager renderManager;
     private RenderObjectMap map;
     private GraphEventCapture cap;
     private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
-    private LinkedList<ResourceTicket> references = new LinkedList<>();
     private int nextSlot = 0;
     private int textureBinds = 0;
 
-    public ResourceList() {}
-    public ResourceList(RenderObjectMap map) {
-        this.map = map;
+    public ResourceList(FrameGraph frameGraph) {
+        this.frameGraph = frameGraph;
     }
     
-    /**
-     * Creates and adds a new render resource.
-     * 
-     * @param <T>
-     * @param producer
-     * @param def
-     * @return new render resource
-     */
-    protected <T> RenderResource<T> create(ResourceProducer producer, ResourceDef<T> def) {
+    private <T> RenderResource<T> create(ResourceProducer producer, ResourceDef<T> def) {
         RenderResource res = new RenderResource<>(producer, def, new ResourceTicket<>());
         res.getTicket().setLocalIndex(add(res));
         return res;
     }
-    
-    /**
-     * Locates the resource associated with the ticket.
-     * 
-     * @param <T>
-     * @param ticket ticket to locate with (not null)
-     * @return located resource
-     * @throws NullPointerException if ticket is null
-     * @throws NullPointerException if ticket's world index is negative
-     * @throws NullPointerException if ticket points to a null resource
-     * @throws IndexOutOfBoundsException if ticket's world index is &gt;= size
-     */
-    protected <T> RenderResource<T> locate(ResourceTicket<T> ticket) {
+    private <T> RenderResource<T> locate(ResourceTicket<T> ticket) {
         if (ticket == null) {
             throw new NullPointerException("Ticket cannot be null.");
         }
@@ -103,26 +82,7 @@ public class ResourceList {
         }
         throw new IndexOutOfBoundsException(ticket+" is out of bounds for size "+resources.size());
     }
-    
-    /**
-     * Returns true if the ticket can be used to locate a resource.
-     * <p>
-     * <em>Use {@link ResourceTicket#validate(com.jme3.renderer.framegraph.ResourceTicket)} instead.</em>
-     * 
-     * @param ticket
-     * @return 
-     */
-    public boolean validate(ResourceTicket ticket) {
-        return ResourceTicket.validate(ticket);
-    }
-    
-    /**
-     * Adds the resource to the first available slot.
-     * 
-     * @param res
-     * @return 
-     */
-    protected int add(RenderResource res) {
+    private int add(RenderResource res) {
         assert res != null;
         if (nextSlot >= resources.size()) {
             // addUserEvent resource to end of list
@@ -143,20 +103,25 @@ public class ResourceList {
             return i;
         }
     }
-    
-    /**
-     * Removes the resource at the index.
-     * 
-     * @param index
-     * @return 
-     */
-    protected RenderResource remove(int index) {
+    private RenderResource remove(int index) {
         RenderResource prev = resources.set(index, null);
         if (prev != null && prev.isReferenced()) {
             throw new IllegalStateException("Cannot remove "+prev+" because it is referenced.");
         }
         nextSlot = Math.min(nextSlot, index);
         return prev;
+    }
+    
+    /**
+     * Returns true if the ticket can be used to locate a resource.
+     * <p>
+     * <em>Use {@link ResourceTicket#validate(com.jme3.renderer.framegraph.ResourceTicket)} instead.</em>
+     * 
+     * @param ticket
+     * @return 
+     */
+    public boolean validate(ResourceTicket ticket) {
+        return ResourceTicket.validate(ticket);
     }
     
     /**
@@ -343,6 +308,34 @@ public class ResourceList {
             return locate(ticket).isVirtual();
         }
         return true;
+    }
+    
+    /**
+     * Returns true if the resource at the ticket is available for use.
+     * <p>
+     * This is used for asynchronous situations.
+     * 
+     * @param ticket
+     * @return 
+     */
+    public boolean isAvailable(ResourceTicket ticket) {
+        if (ResourceTicket.validate(ticket)) {
+            return locate(ticket).isAvailable();
+        }
+        return true;
+    }
+    
+    /**
+     * Returns true if the resource at the ticket is asynchronous.
+     * 
+     * @param ticket
+     * @return 
+     */
+    public boolean isAsync(ResourceTicket ticket) {
+        if (ResourceTicket.validate(ticket)) {
+            return locate(ticket).getLifeTime().isAsync();
+        }
+        return false;
     }
     
     /**
@@ -551,9 +544,8 @@ public class ResourceList {
      */
     public void release(ResourceTicket ticket) {
         RenderResource resource = locate(ticket);
-        resource.release();
         if (cap != null) cap.releaseResource(resource.getIndex(), ticket.getName());
-        if (!resource.isUsed()) {
+        if (!resource.release()) {
             if (cap != null && resource.getObject() != null) {
                 cap.releaseObject(resource.getObject().getId());
             }

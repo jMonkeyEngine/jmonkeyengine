@@ -52,7 +52,7 @@ public class RenderObject <T> {
     
     private final long id;
     private final T object;
-    private final LinkedList<PassIndex> reservations = new LinkedList<>();
+    private final LinkedList<Reservation> reservations = new LinkedList<>();
     private int timeoutDuration;
     private int timeout = 0;
     private boolean acquired = false;
@@ -128,7 +128,7 @@ public class RenderObject <T> {
      * @param index 
      */
     public void reserve(PassIndex index) {
-        reservations.add(index);
+        reservations.add(new Reservation(index));
     }
     /**
      * Disposes the internal object.
@@ -146,11 +146,20 @@ public class RenderObject <T> {
      * @return 
      */
     public boolean claimReservation(PassIndex index) {
-        for (Iterator<PassIndex> it = reservations.iterator(); it.hasNext();) {
-            if (it.next().equals(index)) {
-                it.remove();
-                return true;
-            }
+        for (Reservation r : reservations) {
+            if (r.claim(index)) return true;
+        }
+        return false;
+    }
+    /**
+     * Returns true if this render object is reserved within the time frame.
+     * 
+     * @param frame
+     * @return 
+     */
+    public boolean isReservedWithin(TimeFrame frame) {
+        for (Reservation r : reservations) {
+            if (r.violates(frame)) return true;
         }
         return false;
     }
@@ -204,34 +213,6 @@ public class RenderObject <T> {
         return acquired;
     }
     /**
-     * Returns true if this render object is reserved at the given
-     * render pass index.
-     * 
-     * @param index
-     * @return 
-     */
-    public boolean isReservedAt(PassIndex index) {
-        return reservations.contains(index);
-    }
-    /**
-     * Returns true if this render object is reserved within the time frame.
-     * 
-     * @param frame
-     * @return 
-     */
-    public boolean isReservedWithin(TimeFrame frame) {
-        if (frame.getStartQueueIndex() >= reservations.size()) {
-            return false;
-        }
-        int n = Math.min(reservations.size()-1, frame.getEndQueueIndex());
-        for (int i = frame.getStartQueueIndex(); i <= n; i++) {
-            if (reservations.get(i)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    /**
      * Returns true if this render object is constant.
      * 
      * @return 
@@ -247,6 +228,28 @@ public class RenderObject <T> {
      */
     public static long getNextId() {
         return nextId;
+    }
+    
+    private static class Reservation {
+        
+        private final PassIndex index;
+        private boolean claimed = false;
+        
+        public Reservation(PassIndex index) {
+            this.index = index;
+        }
+        
+        public boolean claim(PassIndex index) {
+            if (this.index.equals(index)) {
+                claimed = true;
+                return true;
+            }
+            return false;
+        }
+        public boolean violates(TimeFrame frame) {
+            return !claimed && (frame.isAsync() || frame.getThreadIndex() != index.getThreadIndex());
+        }
+        
     }
     
 }

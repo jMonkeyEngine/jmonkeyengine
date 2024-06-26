@@ -39,7 +39,7 @@ import com.jme3.export.Savable;
 import com.jme3.export.SavableObject;
 import com.jme3.renderer.framegraph.passes.RenderPass;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -54,22 +54,22 @@ import java.util.Map;
 public class FrameGraphData implements Savable {
     
     private static final String DEF_NAME = "FrameGraph";
-    private static final RenderPass[] DEF_PASSES = new RenderPass[0];
+    private static final ArrayList<PassQueueExecutor> DEF_QUEUES = new ArrayList<>(0);
     private static final SavablePassConnection[] DEF_CONNECTIONS = new SavablePassConnection[0];
     private static final HashMap<String, Savable> DEF_SETTINGS = new HashMap<>();
     
     private final boolean export;
     private String name;
-    private RenderPass[] passes;
+    private ArrayList<PassQueueExecutor> queues;
     private SavablePassConnection[] connections;
     private Map<String, SavableObject> settings;
     
     public FrameGraphData() {
         export = false;
     }
-    public FrameGraphData(FrameGraph fg, Collection<RenderPass> passes, Map<String, Object> settings) {
+    public FrameGraphData(FrameGraph fg, ArrayList<PassQueueExecutor> queues, Map<String, Object> settings) {
         this.name = fg.getName();
-        this.passes = passes.toArray(new RenderPass[0]);
+        this.queues = queues;
         this.settings = new HashMap<>();
         for (String key : settings.keySet()) {
             this.settings.put(key, new SavableObject(settings.get(key)));
@@ -82,36 +82,42 @@ public class FrameGraphData implements Savable {
         if (!export) {
             throw new IllegalStateException("Data is import only.");
         }
-        if (passes == null) {
+        if (queues == null) {
             throw new IllegalStateException("Data is already consumed.");
         }
         final HashMap<Integer, Integer> idMap = new HashMap<>();
         final LinkedList<SavablePassConnection> list = new LinkedList<>();
         int nextId = 0;
         // remap ids
-        for (RenderPass p : passes) {
-            p.setExportId(nextId++);
-            idMap.put(p.getId(), p.getExportId());
+        for (PassQueueExecutor q : queues) {
+            for (RenderPass p : q) {
+                p.setExportId(nextId++);
+                idMap.put(p.getId(), p.getExportId());
+            }
         }
         // extract connections
-        for (RenderPass p : passes) for (ResourceTicket t : p.getInputTickets()) {
-            if (t.hasSource()) {
-                int outId = idMap.get(t.getSource().getPassId());
-                list.add(new SavablePassConnection(p.getExportId(), outId, t.getName(), t.getSource().getName()));
+        for (PassQueueExecutor q : queues) {
+            for (RenderPass p : q) for (ResourceTicket t : p.getInputTickets()) {
+                if (t.hasSource()) {
+                    int outId = idMap.get(t.getSource().getPassId());
+                    list.add(new SavablePassConnection(p.getExportId(), outId, t.getName(), t.getSource().getName()));
+                }
             }
         }
         OutputCapsule out = ex.getCapsule(this);
         out.write(name, "name", DEF_NAME);
-        out.write(passes, "passes", DEF_PASSES);
+        out.writeSavableArrayList(queues, "passes", DEF_QUEUES);
         out.write(list.toArray(new SavablePassConnection[0]), "connections", DEF_CONNECTIONS);
         out.writeStringSavableMap(settings, "settings", DEF_SETTINGS);
         // reset export ids
-        for (RenderPass p : passes) {
-            p.setExportId(-1);
+        for (PassQueueExecutor q : queues) {
+            for (RenderPass p : q) {
+                p.setExportId(-1);
+            }
         }
         idMap.clear();
         list.clear();
-        passes = null;
+        queues = null;
         settings.clear();
     }
     @Override
@@ -122,13 +128,13 @@ public class FrameGraphData implements Savable {
         InputCapsule in = im.getCapsule(this);
         name = in.readString("name", "FrameGraph");
         int baseId = RenderPass.getNextId();
-        Savable[] array = in.readSavableArray("passes", new RenderPass[0]);
-        passes = new RenderPass[array.length];
-        for (int i = 0; i < array.length; i++) {
-            RenderPass p = passes[i] = (RenderPass)array[i];
-            p.shiftId(baseId);
+        queues = in.readSavableArrayList("passes", DEF_QUEUES);
+        for (PassQueueExecutor q : queues) {
+            for (RenderPass p : q) {
+                p.shiftId(baseId);
+            }
         }
-        array = in.readSavableArray("connections", new SavablePassConnection[0]);
+        Savable[] array = in.readSavableArray("connections", new SavablePassConnection[0]);
         connections = new SavablePassConnection[array.length];
         for (int i = 0; i < array.length; i++) {
             SavablePassConnection c = connections[i] = (SavablePassConnection)array[i];
@@ -148,17 +154,17 @@ public class FrameGraphData implements Savable {
         if (export) {
             throw new IllegalStateException("Data is export only.");
         }
-        if (passes == null) {
+        if (queues == null) {
             throw new IllegalStateException("Data has already been consumed.");
         }
         fg.setName(name);
-        for (RenderPass p : passes) {
-            fg.add(p);
-        }
         // cache passes by id
         HashMap<Integer, RenderPass> cache = new HashMap<>();
-        for (RenderPass p : passes) {
-            cache.put(p.getId(), p);
+        for (PassQueueExecutor q : queues) {
+            for (RenderPass p : q) {
+                fg.add(p, q.getIndex());
+                cache.put(p.getId(), p);
+            }
         }
         // read connections
         for (SavablePassConnection c : connections) {
@@ -171,7 +177,7 @@ public class FrameGraphData implements Savable {
             fg.setSetting(key, settings.get(key).getObject());
         }
         cache.clear();
-        passes = null;
+        queues = null;
         connections = null;
     }
     
@@ -183,13 +189,14 @@ public class FrameGraphData implements Savable {
     public boolean isExportOnly() {
         return export;
     }
+    
     /**
      * Returns true if this data has been consumed.
      * 
      * @return 
      */
     public boolean isConsumed() {
-        return passes == null;
+        return queues == null;
     }
     
 }

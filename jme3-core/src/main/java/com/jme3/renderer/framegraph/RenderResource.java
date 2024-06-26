@@ -42,21 +42,23 @@ import java.util.Objects;
  */
 public class RenderResource <T> {
     
-    private ResourceProducer producer;
-    private ResourceDef<T> def;
-    private ResourceTicket<T> ticket;
-    private TimeFrame lifetime;
+    private final ResourceProducer producer;
+    private final ResourceDef<T> def;
+    private final ResourceTicket<T> ticket;
+    private final TimeFrame lifetime;
     private RenderObject object;
     private T resource;
     private int refs = 0;
     private boolean survivesRefCull = false;
     private boolean undefined = false;
+    private boolean written = false;
     
     /**
      * 
      * @param producer
      * @param def
      * @param ticket 
+     * @param async 
      */
     public RenderResource(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
         this.producer = producer;
@@ -75,10 +77,20 @@ public class RenderResource <T> {
         refs++;
     }
     /**
-     * Releases this resource from one user.
+     * 
+     * @return 
      */
-    public void release() {
-        refs--;
+    public boolean isAvailable() {
+        return (!lifetime.isAsync() || !written) && !isVirtual();
+    }
+    /**
+     * Releases this resource from one user.
+     * 
+     * @return true if this resource is used after the release
+     */
+    public boolean release() {
+        written = false;
+        return --refs >= 0;
     }
     
     /**

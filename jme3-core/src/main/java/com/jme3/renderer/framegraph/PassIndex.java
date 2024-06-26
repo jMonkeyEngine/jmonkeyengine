@@ -27,28 +27,30 @@ public class PassIndex {
     }
     
     /**
-     * Shifts the thread index down one if the thread index is greater
+     * Shifts the thread index up or down one if the thread index is greater
      * than the given index.
      * 
      * @param i
+     * @param pos
      * @return new thread index
      */
-    public int shiftThread(int i) {
+    public int shiftThread(int i, boolean pos) {
         if (threadIndex > i) {
-            threadIndex--;
+            threadIndex += pos ? 1 : -1;
         }
         return threadIndex;
     }
     /**
-     * Shifts the queue index down one if the thread index is greater than
+     * Shifts the queue index up or down one if the thread index is greater than
      * the given index.
      * 
      * @param i
+     * @param pos
      * @return new queue index
      */
-    public int shiftQueue(int i) {
+    public int shiftQueue(int i, boolean pos) {
         if (queueIndex > i) {
-            queueIndex--;
+            queueIndex += pos ? 1 : -1;
         }
         return queueIndex;
     }

@@ -72,36 +72,15 @@ public class RenderObjectMap {
         }
     }
     
-    /**
-     * Creates a new render object with a new internal object.
-     * 
-     * @param <T>
-     * @param def
-     * @return 
-     */
-    protected <T> RenderObject<T> create(ResourceDef<T> def) {
+    private <T> RenderObject<T> create(ResourceDef<T> def) {
         return create(def, def.createResource());
     }
-    /**
-     * Creates a new render object with the given internal object.
-     * 
-     * @param <T>
-     * @param def
-     * @param value internal object
-     * @return 
-     */
-    protected <T> RenderObject<T> create(ResourceDef<T> def, T value) {
+    private <T> RenderObject<T> create(ResourceDef<T> def, T value) {
         RenderObject obj = new RenderObject(def, value, staticTimeout);
         objectMap.put(obj.getId(), obj);
         return obj;
     }
-    /**
-     * Returns true if the render object is available for reallocation.
-     * 
-     * @param object
-     * @return 
-     */
-    protected boolean isAvailable(RenderObject object) {
+    private boolean isAvailable(RenderObject object) {
         return !object.isAcquired() && !object.isConstant();
     }
     
@@ -188,7 +167,7 @@ public class RenderObjectMap {
         RenderObject obj = objectMap.get(id);        
         if (obj != null) {
             if (cap != null) cap.attemptReallocation(id, resource.getIndex());
-            if (isAvailable(obj) && (obj.isReservedAt(resource.getLifeTime().getStartQueueIndex())
+            if (isAvailable(obj) && (obj.claimReservation(resource.getProducer().getExecutionIndex())
                     || !obj.isReservedWithin(resource.getLifeTime()))) {
                 // reserved object is only applied if it is accepted by the definition
                 T r = def.applyDirectResource(obj.getObject());
@@ -204,7 +183,6 @@ public class RenderObjectMap {
                     return true;
                 }
             }
-            if (cap != null) cap.allocateSpecificFailed(obj, resource);
         }
         failedReservations++;
         return false;
@@ -312,8 +290,8 @@ public class RenderObjectMap {
             if (cap != null) cap.attemptReallocation(id, resource.getIndex());
             if (isAvailable(obj)) synchronized (obj) {
                 obj.startInspect();
-                if ((obj.isReservedAt(resource.getLifeTime().getStartQueueIndex())
-                        || !obj.isReservedWithin(resource.getLifeTime()))) {
+                if (obj.claimReservation(resource.getProducer().getExecutionIndex())
+                        || !obj.isReservedWithin(resource.getLifeTime())) {
                     // reserved object is only applied if it is accepted by the definition
                     T r = def.applyDirectResource(obj.getObject());
                     if (r == null) {
@@ -331,7 +309,6 @@ public class RenderObjectMap {
                 }
                 obj.endInspect();
             }
-            if (cap != null) cap.allocateSpecificFailed(obj, resource);
         }
         failedReservations++;
         return false;

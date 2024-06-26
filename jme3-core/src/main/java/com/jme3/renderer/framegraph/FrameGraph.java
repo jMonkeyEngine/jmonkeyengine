@@ -40,14 +40,13 @@ import com.jme3.profile.AppProfiler;
 import com.jme3.profile.FgStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.RendererException;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.client.GraphSetting;
 import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.passes.Attribute;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 /**
  * Manages render passes, dependencies, and resources in a node-based parameter system.
@@ -101,6 +100,7 @@ public class FrameGraph {
     private final HashMap<String, Object> settings = new HashMap<>();
     private String name = "FrameGraph";
     private boolean rendered = false;
+    private Exception renderException;
     
     /**
      * Creates a new blank framegraph.
@@ -109,7 +109,7 @@ public class FrameGraph {
      */
     public FrameGraph(AssetManager assetManager) {
         this.assetManager = assetManager;
-        this.resources = new ResourceList();
+        this.resources = new ResourceList(this);
         this.context = new FGRenderContext(this);
         this.queues.add(new PassQueueExecutor(this, RENDER_THREAD));
     }
@@ -197,8 +197,13 @@ public class FrameGraph {
         // execute
         if (prof != null) prof.vpStep(VpStep.FrameGraphExecute, vp, null);
         context.pushRenderSettings();
+        renderException = null;
         for (PassQueueExecutor p : queues) {
             p.execute(context);
+        }
+        if (renderException != null) {
+            renderException.printStackTrace(System.err);
+            throw new RendererException("An uncaught rendering exception occured, forcing the application to shut down.");
         }
         context.popFrameBuffer();
         // reset
@@ -228,6 +233,16 @@ public class FrameGraph {
         rendered = false;
     }
     
+    private PassQueueExecutor getQueue(int i) {
+        if (i >= queues.size()) {
+            PassQueueExecutor queue = new PassQueueExecutor(this, i);
+            queues.add(queue);
+            return queue;
+        } else {
+            return queues.get(i);
+        }
+    }
+    
     /**
      * Adds the pass to end of the pass queue.
      * 
@@ -236,7 +251,18 @@ public class FrameGraph {
      * @return given pass
      */
     public <T extends RenderPass> T add(T pass) {
-        return queues.get(RENDER_THREAD).add(pass);
+        return getQueue(RENDER_THREAD).add(pass);
+    }
+    /**
+     * 
+     * 
+     * @param <T>
+     * @param pass
+     * @param threadIndex
+     * @return 
+     */
+    public <T extends RenderPass> T add(T pass, int threadIndex) {
+        return getQueue(threadIndex).add(pass);
     }
     /**
      * Adds the pass at the index in the pass queue.
@@ -247,11 +273,12 @@ public class FrameGraph {
      * 
      * @param <T>
      * @param pass
-     * @param index
+     * @param threadIndex
+     * @param queueIndex
      * @return 
      */
-    public <T extends RenderPass> T add(T pass, int index) {
-        return queues.get(RENDER_THREAD).add(pass, index);
+    public <T extends RenderPass> T add(T pass, int threadIndex, int queueIndex) {
+        return getQueue(threadIndex).add(pass, queueIndex);
     }
     /**
      * Creates and adds an Attribute pass and links it to the given ticket.
@@ -263,7 +290,7 @@ public class FrameGraph {
      * @return created Attribute
      */
     public <T> Attribute<T> addAttribute(ResourceTicket<T> ticket) {
-        return queues.get(RENDER_THREAD).addAttribute(ticket);
+        return getQueue(RENDER_THREAD).addAttribute(ticket);
     }
     
     /**
@@ -464,6 +491,19 @@ public class FrameGraph {
      */
     public void setCLQueue(CommandQueue clQueue) {
         context.setCLQueue(clQueue);
+    }
+    
+    /**
+     * Called internally when a rendering exception occurs.
+     * 
+     * @param ex
+     */
+    public void interruptRendering(Exception ex) {
+        assert ex != null : "Interrupting exception cannot be null.";
+        renderException = ex;
+        for (PassQueueExecutor q : queues) {
+            q.interrupt();
+        }
     }
     
     /**

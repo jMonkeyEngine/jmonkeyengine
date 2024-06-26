@@ -6,6 +6,7 @@ package com.jme3.renderer.framegraph.debug;
 
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.framegraph.PassIndex;
 import com.jme3.renderer.framegraph.RenderObject;
 import com.jme3.renderer.framegraph.RenderResource;
 import com.jme3.texture.FrameBuffer;
@@ -51,10 +52,10 @@ public class GraphEventCapture {
         Camera cam = vp.getCamera();
         add(new Event("SUPEREVENT", "StartViewPort", vp.getName(), cam.getWidth(), cam.getHeight()));
     }
-    public void prepareRenderPass(int index, String name) {
+    public void prepareRenderPass(PassIndex index, String name) {
         events.add(new Event("PrepareRenderPass", index, name));
     }
-    public void executeRenderPass(int index, String name) {
+    public void executeRenderPass(PassIndex index, String name) {
         add(new Event("ExecuteRenderPass", index, name));
     }
     public void createFrameBuffer(FrameBuffer fb) {
@@ -83,7 +84,7 @@ public class GraphEventCapture {
         add(new Event("BindTexture", index, ticket));
     }
     
-    public void reserveObject(long id, int index) {
+    public void reserveObject(long id, PassIndex index) {
         add(new Event("ReserveObject", id, index));
     }
     public void createObject(long id, int index, String type) {
@@ -97,15 +98,6 @@ public class GraphEventCapture {
     }
     public void attemptReallocation(long id, int index) {
         add(new Event("AttemptSpecificReallocation", id, index));
-    }
-    public void allocateSpecificFailed(RenderObject object, RenderResource resource) {
-        add(new Failure("AllocateSpecific",
-            new Check("nullObject", () -> object != null, true),
-            new Check("acquired", () -> !object.isAcquired()),
-            new Check("constant", () -> !object.isConstant()),
-            new Check("conflicting", () -> object.isReservedAt(resource.getLifeTime().getStartQueueIndex())
-                    || !object.isReservedWithin(resource.getLifeTime()))
-        ));
     }
     public void setObjectConstant(long id) {
         add(new Event("SetObjectConstant", id));

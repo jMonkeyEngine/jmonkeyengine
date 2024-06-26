@@ -8,6 +8,8 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.light.Light;
+import com.jme3.light.LightList;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.FGRenderContext;
@@ -51,13 +53,15 @@ public class SceneEnqueuePass extends RenderPass {
     @Override
     protected void initialize(FrameGraph frameGraph) {
         for (Bucket b : buckets) {
-            b.ticket = addOutput(b.name);
+            b.geometry = addOutput(b.name);
+            b.lights = addOutput(b.name+"Lights");
         }
     }
     @Override
     protected void prepare(FGRenderContext context) {
         for (Bucket b : buckets) {
-            declare(null, b.ticket);
+            declare(null, b.geometry);
+            declare(null, b.lights);
         }
     }
     @Override
@@ -69,13 +73,15 @@ public class SceneEnqueuePass extends RenderPass {
             queueSubScene(context, scenes.get(i), null);
         }
         for (Bucket b : buckets) {
-            resources.setPrimitive(b.ticket, b.queue);
+            resources.setPrimitive(b.geometry, b.queue);
+            resources.setPrimitive(b.lights, b.lightList);
         }
     }
     @Override
     protected void reset(FGRenderContext context) {
         for (Bucket b : buckets) {
             b.queue.clear();
+            b.lightList.clear();
         }
     }
     @Override
@@ -111,6 +117,12 @@ public class SceneEnqueuePass extends RenderPass {
                 b = scene.getQueueBucket();
             }
         }
+        // accumulate lights
+        Bucket bucket = getBucket(b);
+        for (Light l : scene.getLocalLightList()) {
+            bucket.lightList.add(l);
+        }
+        // add to bucket
         if (scene instanceof Node) {
             Node n = (Node)scene;
             int camState = cam.getPlaneState();
@@ -125,7 +137,7 @@ public class SceneEnqueuePass extends RenderPass {
             if (g.getMaterial() == null) {
                 throw new IllegalStateException("No material is set for Geometry: " + g.getName());
             }
-            getBucket(b).queue.add(g);
+            bucket.queue.add(g);
         }
     }
     private Bucket getBucket(RenderQueue.Bucket bucket) {
@@ -143,11 +155,14 @@ public class SceneEnqueuePass extends RenderPass {
         
         public final String name;
         public final GeometryList queue;
-        public ResourceTicket<GeometryList> ticket;
+        public final LightList lightList;
+        public ResourceTicket<GeometryList> geometry;
+        public ResourceTicket<LightList> lights;
         
         public Bucket(String name, GeometryComparator comparator) {
             this.name = name;
             this.queue = new GeometryList(comparator);
+            this.lightList = new LightList(null);
         }
         
     }

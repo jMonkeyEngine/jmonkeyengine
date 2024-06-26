@@ -97,18 +97,24 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param context 
      */
     public void prepareRender(FGRenderContext context) {
-        if (index < 0) {
+        if (index == null) {
             throw new IllegalStateException("Pass is not properly initialized for rendering.");
         }
         prepare(context);
+        // set the flag for checking if resources are available
     }
     /**
      * 
      * @param context 
      * @return  
      */
-    public boolean asyncWait(FGRenderContext context) {
-        
+    public boolean allInputsAvailable(FGRenderContext context) {
+        for (ResourceTicket t : inputs) {
+            if (!resources.isAvailable(t)) {
+                return false;
+            }
+        }
+        return true;
     }
     /**
      * Executes the pass.
@@ -147,7 +153,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         inputs.clear();
         outputs.clear();
         groups.clear();
-        index = -1;
+        index = null;
         this.frameGraph = null;
     }
     
@@ -795,9 +801,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param positive 
      */
     public void shiftExecutionIndex(int threshold, boolean positive) {
-        if (index > threshold) {
-            index += (positive ? 1 : -1);
-        }
+        index.shiftQueue(threshold, positive);
     }
     /**
      * Shifts the id of this pass.
@@ -871,7 +875,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * 
      * @return 
      */
-    public int getIndex() {
+    public PassIndex getIndex() {
         return index;
     }
     /**
@@ -880,7 +884,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @return 
      */
     public boolean isAssigned() {
-        return index >= 0;
+        return index != null;
     }
     /**
      * Gets the number of ticket groups.
