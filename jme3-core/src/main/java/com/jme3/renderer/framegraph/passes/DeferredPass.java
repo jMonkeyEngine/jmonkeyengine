@@ -107,6 +107,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     private final Texture2D[] tileTextures = new Texture2D[2];
     private final ColorRGBA ambientColor = new ColorRGBA();
     private List<LightProbe> probeList;
+    private TechniqueDef active;
     
     public DeferredPass() {}
     public DeferredPass(boolean tiled) {
@@ -134,9 +135,9 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         material = new Material(assetManager, "Common/MatDefs/ShadingCommon/DeferredShading.j3md");
         if (defs == null) {
             defs = new Defines();
-            for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("DeferredPass")) {
-                defs.config(t);
-            }
+//            for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("DeferredPass")) {
+//                defs.config(t);
+//            }
         }
     }
     @Override
@@ -163,12 +164,14 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         }
         material.selectTechnique("DeferredPass", context.getRenderManager());
         material.getActiveTechnique().getDef().setLogic(this);
+        active = material.getActiveTechnique().getDef();
+        if (active.getDefineNames().length == 0) {
+            defs.config(active);
+        }
         acquireArrayOrElse("LightTextures", lightTextures, null);
         if (lightTextures[0] == null) {
-            System.out.println("use light buffers");
             context.getScreen().render(context.getRenderManager(), material, resources.acquire(lights));
         } else {
-            System.out.println("use light textures");
             for (int i = 1; i <= lightTextures.length; i++) {
                 material.setTexture("LightTex"+i, lightTextures[i-1]);
             }
@@ -188,9 +191,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
             EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
         // if the technique def somehow wasn't configured, configure it
-        if (defines.size() == 0) {
-            defs.config(material.getActiveTechnique().getDef());
-        }
+        System.out.println("using "+(active == material.getActiveTechnique().getDef()));
         if (lightTextures[0] == null) {
             ColorRGBA amb = resources.acquireOrElse(ambient, null);
             if (amb == null) {

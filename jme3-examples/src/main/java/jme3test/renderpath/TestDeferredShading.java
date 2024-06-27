@@ -33,6 +33,8 @@ public class TestDeferredShading extends SimpleApplication {
         AppSettings settings = new AppSettings(true);
         settings.setWidth(768);
         settings.setHeight(768);
+        settings.setVSync(false);
+        settings.setFrameRate(-1);
         app.setSettings(settings);
         app.start();
     }
@@ -83,7 +85,7 @@ public class TestDeferredShading extends SimpleApplication {
         };
 
         InstancedNode instancedNode = new InstancedNode("sp");
-        for (int i = 0;i < 2000;i++) {
+        for(int i = 0;i < 2000;i++){
             PointLight pl = new PointLight();
             pl.setColor(colors[i % colors.length]);
             pl.setPosition(new Vector3f(FastMath.nextRandomFloat(-5.0f, 5.0f), 0.1f, FastMath.nextRandomFloat(-5.0f, 5.0f)));

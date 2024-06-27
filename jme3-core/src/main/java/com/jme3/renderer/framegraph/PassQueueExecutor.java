@@ -88,7 +88,6 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
                     continue;
                 }
                 long start = System.currentTimeMillis();
-                System.out.println(p+" started at "+start+"ms");
                 if (index == FrameGraph.RENDER_THREAD) {
                     if (context.isProfilerAvailable()) {
                         context.getProfiler().fgStep(FgStep.Execute, p.getProfilerName());
@@ -99,19 +98,10 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
                 }
                 if (frameGraph.isAsync()) {
                     // wait until all input resources are available for use before executing
-                    long startMillis = System.currentTimeMillis();
-                    while (!p.allInputsAvailable(context)) {
-                        if (interrupted) {
-                            return;
-                        }
-                        if (System.currentTimeMillis()-startMillis >= threadTimeoutMillis) {
-                            throw new TimeoutException("Execution thread "+index+" timed out on pass "+p);
-                        }
-                    }
+                    p.waitForInputs();
                 }
                 p.executeRender(context);
                 long end = System.currentTimeMillis();
-                System.out.println(p+" ended at "+end+" and took "+(end-start)+"ms");
                 if (index == FrameGraph.RENDER_THREAD) {
                     context.popRenderSettings();
                 }

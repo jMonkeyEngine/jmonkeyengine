@@ -33,6 +33,8 @@ package com.jme3.renderer.framegraph;
 
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Represents an existing or future resource used for rendering.
@@ -51,7 +53,7 @@ public class RenderResource <T> {
     private int refs = 0;
     private boolean survivesRefCull = false;
     private boolean undefined = false;
-    private boolean written = false;
+    private final AtomicBoolean released = new AtomicBoolean(false);
     
     /**
      * 
@@ -77,19 +79,12 @@ public class RenderResource <T> {
         refs++;
     }
     /**
-     * 
-     * @return 
-     */
-    public boolean isAvailable() {
-        return (!lifetime.isAsync() || !written) && !isVirtual();
-    }
-    /**
      * Releases this resource from one user.
      * 
      * @return true if this resource is used after the release
      */
     public boolean release() {
-        written = false;
+        released.compareAndExchange(false, true);
         return --refs >= 0;
     }
     
@@ -149,6 +144,14 @@ public class RenderResource <T> {
             throw new IllegalStateException("Resource is already defined.");
         }
         undefined = true;
+    }
+    /**
+     * Returns true if this resource always survives cull by reference.
+     * 
+     * @param survivesRefCull 
+     */
+    public void setSurvivesRefCull(boolean survivesRefCull) {
+        this.survivesRefCull = survivesRefCull;
     }
     
     /**
@@ -215,14 +218,6 @@ public class RenderResource <T> {
     public int getNumReferences() {
         return refs;
     }
-    /**
-     * Returns true if this resource always survives cull by reference.
-     * 
-     * @param survivesRefCull 
-     */
-    public void setSurvivesRefCull(boolean survivesRefCull) {
-        this.survivesRefCull = survivesRefCull;
-    }
     
     /**
      * Returns true if this resource is virtual.
@@ -278,6 +273,13 @@ public class RenderResource <T> {
      */
     public boolean isSurvivesRefCull() {
         return survivesRefCull;
+    }
+    /**
+     * 
+     * @return 
+     */
+    public boolean isAvailable() {
+        return released.get();
     }
     
     @Override

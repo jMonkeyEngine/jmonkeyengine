@@ -104,19 +104,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         // set the flag for checking if resources are available
     }
     /**
-     * 
-     * @param context 
-     * @return  
-     */
-    public boolean allInputsAvailable(FGRenderContext context) {
-        for (ResourceTicket t : inputs) {
-            if (!resources.isAvailable(t)) {
-                return false;
-            }
-        }
-        return true;
-    }
-    /**
      * Executes the pass.
      * 
      * @param context 
@@ -297,6 +284,19 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         for (ResourceTicket t : tickets) {
             referenceOptional(t);
         }
+    }
+    
+    /**
+     * Forces this thread to wait until all inputs are available for this pass.
+     * 
+     * @param context 
+     * @return  
+     */
+    public boolean waitForInputs() {
+        for (ResourceTicket t : inputs) {
+            resources.wait(t);
+        }
+        return true;
     }
     
     /**

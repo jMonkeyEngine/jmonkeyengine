@@ -51,8 +51,6 @@ import com.jme3.util.blockparser.BlockLanguageParser;
 import com.jme3.util.blockparser.Statement;
 import com.jme3.util.clone.Cloner;
 import jme3tools.shader.Preprocessor;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;

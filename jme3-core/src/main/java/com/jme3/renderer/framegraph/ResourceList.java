@@ -36,9 +36,9 @@ import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
-import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Manages render resource declarations, references, and releases for a framegraph.
@@ -331,18 +331,20 @@ public class ResourceList {
     }
     
     /**
-     * Returns true if the resource at the ticket is available for use.
+     * Forces the current thread to wait until the resource at the ticket is
+     * available.
      * <p>
-     * This is used for asynchronous situations.
+     * A resource becomes available after being released by the declaring pass.
      * 
      * @param ticket
-     * @return 
      */
-    public boolean isAvailable(ResourceTicket ticket) {
+    public void wait(ResourceTicket ticket) {
         if (ResourceTicket.validate(ticket)) {
-            return locate(ticket).isAvailable();
+            RenderResource res = locate(ticket);
+            while (!res.isAvailable()) {
+                Thread.onSpinWait();
+            }
         }
-        return true;
     }
     
     /**
