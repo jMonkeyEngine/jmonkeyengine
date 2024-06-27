@@ -42,7 +42,7 @@ public class TestDeferredShading extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
-        FrameGraph fg = FrameGraphFactory.deferred(assetManager, true, false);
+        FrameGraph fg = FrameGraphFactory.deferred(assetManager, true, true);
         fg.setJunctionSetting("LightPackMethod", true);
         fg.get(LightImagePass.class).setMaxLights(4096);
         fg.setSetting("TileInfo", new TiledRenderGrid(4, -1));
