@@ -341,9 +341,8 @@ public class ResourceList {
     public void wait(ResourceTicket ticket) {
         if (ResourceTicket.validate(ticket)) {
             RenderResource res = locate(ticket);
-            while (!res.isAvailable()) {
-                Thread.onSpinWait();
-            }
+            // wait for resource to become available to this context
+            while (!res.isAvailable()) {}
         }
     }
     
