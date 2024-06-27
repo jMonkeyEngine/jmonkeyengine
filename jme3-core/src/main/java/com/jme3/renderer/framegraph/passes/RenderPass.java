@@ -284,10 +284,9 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * null and contains a non-negative world index.
      * 
      * @param ticket
-     * @return 
      */
-    protected boolean referenceOptional(ResourceTicket ticket) {
-        return resources.referenceOptional(index, ticket);
+    protected void referenceOptional(ResourceTicket ticket) {
+        resources.referenceOptional(index, ticket);
     }
     /**
      * Optionally references each resource associated with the tickets.

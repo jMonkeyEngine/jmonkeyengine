@@ -47,6 +47,8 @@ import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.passes.Attribute;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * Manages render passes, dependencies, and resources in a node-based parameter system.
@@ -98,6 +100,7 @@ public class FrameGraph {
     private final FGRenderContext context;
     private final ArrayList<PassQueueExecutor> queues = new ArrayList<>(1);
     private final HashMap<String, Object> settings = new HashMap<>();
+    private final LinkedList<RenderPass> sync = new LinkedList<>();
     private String name = "FrameGraph";
     private boolean rendered = false;
     private Exception renderException;
@@ -186,6 +189,7 @@ public class FrameGraph {
                 p.prepareRender(context);
             }
         }
+        resources.applyFutureReferences();
         // cull passes and resources
         if (prof != null) prof.vpStep(VpStep.FrameGraphCull, vp, null);
         for (PassQueueExecutor queue : queues) {
@@ -198,8 +202,8 @@ public class FrameGraph {
         if (prof != null) prof.vpStep(VpStep.FrameGraphExecute, vp, null);
         context.pushRenderSettings();
         renderException = null;
-        for (PassQueueExecutor p : queues) {
-            p.execute(context);
+        for (int i = queues.size()-1; i >= 0; i--) {
+            queues.get(i).execute(context);
         }
         if (renderException != null) {
             renderException.printStackTrace(System.err);
@@ -493,6 +497,16 @@ public class FrameGraph {
         context.setCLQueue(clQueue);
     }
     
+    /**
+     * Called internally to 
+     * 
+     * @param pass 
+     */
+    public void registerSynchronized(RenderPass pass) {
+        synchronized (sync) {
+            sync.add(pass);
+        }
+    }
     /**
      * Called internally when a rendering exception occurs.
      * 

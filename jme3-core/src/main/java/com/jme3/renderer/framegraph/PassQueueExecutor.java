@@ -77,7 +77,6 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
             thread.start();
         }
     }
-    
     @SuppressWarnings("UseSpecificCatch")
     private void execute() {
         try {
@@ -88,6 +87,8 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
                 if (!p.isUsed()) {
                     continue;
                 }
+                long start = System.currentTimeMillis();
+                System.out.println(p+" started at "+start+"ms");
                 if (index == FrameGraph.RENDER_THREAD) {
                     if (context.isProfilerAvailable()) {
                         context.getProfiler().fgStep(FgStep.Execute, p.getProfilerName());
@@ -109,6 +110,8 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
                     }
                 }
                 p.executeRender(context);
+                long end = System.currentTimeMillis();
+                System.out.println(p+" ended at "+end+" and took "+(end-start)+"ms");
                 if (index == FrameGraph.RENDER_THREAD) {
                     context.popRenderSettings();
                 }

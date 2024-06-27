@@ -49,7 +49,6 @@ public class RenderObjectMap {
     
     private final RenderManager renderManager;
     private final Map<Long, RenderObject> objectMap;
-    private final boolean async;
     private int staticTimeout = 1;
     
     // statistics
@@ -64,12 +63,7 @@ public class RenderObjectMap {
     
     public RenderObjectMap(RenderManager renderManager, boolean async) {
         this.renderManager = renderManager;
-        this.async = async;
-        if (this.async) {
-            objectMap = new ConcurrentHashMap<>();
-        } else {
-            objectMap = new HashMap<>();
-        }
+        objectMap = new ConcurrentHashMap<>();
     }
     
     private <T> RenderObject<T> create(ResourceDef<T> def) {
@@ -96,8 +90,9 @@ public class RenderObjectMap {
      * 
      * @param <T>
      * @param resource 
+     * @param async true to execute asynchronous methods
      */
-    public <T> void allocate(RenderResource<T> resource) {
+    public <T> void allocate(RenderResource<T> resource, boolean async) {
         if (async) {
             allocateAsync(resource);
         } else {

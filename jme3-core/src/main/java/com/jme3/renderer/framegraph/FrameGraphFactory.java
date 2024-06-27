@@ -82,19 +82,31 @@ public class FrameGraphFactory {
      * Constructs a deferred or tiled deferred framegraph.
      * 
      * @param assetManager
-     * @param tiled true to construct advanced tiled deferred
+     * @param tiled true to enable tiled lighting
      * @return deferred framegraph
      */
     public static FrameGraph deferred(AssetManager assetManager, boolean tiled) {
+        return deferred(assetManager, tiled, false);
+    }
+    
+    /**
+     * Constructs a deferred framegraph.
+     * 
+     * @param assetManager
+     * @param tiled true to enable tiled lighting
+     * @param async true to enable multithreading optimizations
+     * @return deferred framegraph
+     */
+    public static FrameGraph deferred(AssetManager assetManager, boolean tiled, boolean async) {
         
         FrameGraph fg = new FrameGraph(assetManager);
         fg.setName(tiled ? "TiledDeferred" : "Deferred");
         
         SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass());
-        GBufferPass gbuf = fg.add(new GBufferPass());
         Attribute tileInfoAttr = fg.add(new Attribute());
         Junction tileJunct1 = fg.add(new Junction(1, 1));
-        LightImagePass lightImg = fg.add(new LightImagePass(), 1);
+        GBufferPass gbuf = fg.add(new GBufferPass());
+        LightImagePass lightImg = fg.add(new LightImagePass(), (async ? 1 : FrameGraph.RENDER_THREAD));
         Junction lightJunct = fg.add(new Junction(1, 6));
         Junction tileJunct2 = fg.add(new Junction(1, 2));
         DeferredPass deferred = fg.add(new DeferredPass());

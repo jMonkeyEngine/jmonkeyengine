@@ -36,6 +36,7 @@ import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
+import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -53,6 +54,7 @@ public class ResourceList {
     private RenderObjectMap map;
     private GraphEventCapture cap;
     private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
+    private LinkedList<FutureReference> futureRefs = new LinkedList<>();
     private int nextSlot = 0;
     private int textureBinds = 0;
 
@@ -66,21 +68,35 @@ public class ResourceList {
         return res;
     }
     private <T> RenderResource<T> locate(ResourceTicket<T> ticket) {
+        return locate(ticket, true);
+    }
+    private <T> RenderResource<T> locate(ResourceTicket<T> ticket, boolean failOnMiss) {
         if (ticket == null) {
-            throw new NullPointerException("Ticket cannot be null.");
+            if (failOnMiss) {
+                throw new NullPointerException("Ticket cannot be null.");
+            }
+            return null;
         }
         final int i = ticket.getWorldIndex();
         if (i < 0) {
-            throw new NullPointerException(ticket+" does not point to any resource (negative index).");
+            if (failOnMiss) {
+                throw new NullPointerException(ticket+" does not point to any resource (negative index).");
+            }
+            return null;
         }
         if (i < resources.size()) {
             RenderResource<T> res = resources.get(i);
             if (res != null) {
                 return res;
             }
-            throw new NullPointerException(ticket+" points to null resource.");
+            if (failOnMiss) {
+                throw new NullPointerException(ticket+" points to null resource.");
+            }
         }
-        throw new IndexOutOfBoundsException(ticket+" is out of bounds for size "+resources.size());
+        if (failOnMiss) {
+            throw new IndexOutOfBoundsException(ticket+" is out of bounds for size "+resources.size());
+        }
+        return null;
     }
     private int add(RenderResource res) {
         assert res != null;
@@ -168,6 +184,17 @@ public class ResourceList {
         }
     }
     
+    private void reference(PassIndex passIndex, ResourceTicket ticket, boolean optional) {
+        RenderResource resource = locate(ticket, false);
+        if (resource != null) {
+            resource.reference(passIndex);
+            if (cap != null) cap.referenceResource(resource.getIndex(), ticket.getName());
+        } else {
+            // save for later, since the resource hasn't been declared yet
+            futureRefs.add(new FutureReference(passIndex, ticket, optional));
+        }
+    }
+    
     /**
      * References the resource associated with the ticket.
      * <p>
@@ -179,9 +206,7 @@ public class ResourceList {
      * @param ticket 
      */
     public void reference(PassIndex passIndex, ResourceTicket ticket) {
-        RenderResource resource = locate(ticket);
-        resource.reference(passIndex);
-        if (cap != null) cap.referenceResource(resource.getIndex(), ticket.getName());
+        reference(passIndex, ticket, false);
     }
     
     /**
@@ -190,14 +215,9 @@ public class ResourceList {
      * 
      * @param passIndex render pass index
      * @param ticket
-     * @return 
      */
-    public boolean referenceOptional(PassIndex passIndex, ResourceTicket ticket) {
-        if (validate(ticket)) {
-            reference(passIndex, ticket);
-            return true;
-        }
-        return false;
+    public void referenceOptional(PassIndex passIndex, ResourceTicket ticket) {
+        reference(passIndex, ticket, true);
     }
     
     /**
@@ -208,7 +228,7 @@ public class ResourceList {
      */
     public void reference(PassIndex passIndex, ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
-            reference(passIndex, t);
+            reference(passIndex, t, false);
         }
     }
     
@@ -220,7 +240,7 @@ public class ResourceList {
      */
     public void referenceOptional(PassIndex passIndex, ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
-            referenceOptional(passIndex, t);
+            reference(passIndex, t, true);
         }
     }
     
@@ -356,7 +376,7 @@ public class ResourceList {
             throw new IllegalStateException(resource+" was unexpectedly acquired.");
         }
         if (resource.isVirtual()) {
-            map.allocate(resource);
+            map.allocate(resource, frameGraph.isAsync());
         }
         if (cap != null) cap.acquireResource(resource.getIndex(), ticket.getName());
         resource.getTicket().copyObjectTo(ticket);
@@ -572,7 +592,7 @@ public class ResourceList {
      * @return 
      */
     public boolean releaseOptional(ResourceTicket ticket) {
-        if (ticket != null && ticket.getWorldIndex() >= 0) {
+        if (ResourceTicket.validate(ticket)) {
             release(ticket);
             return true;
         }
@@ -608,6 +628,18 @@ public class ResourceList {
      */
     public void beginRenderingSession() {
         textureBinds = 0;
+    }
+    
+    /**
+     * Applies all missed references.
+     */
+    public void applyFutureReferences() {
+        for (FutureReference ref : futureRefs) {
+            if (!ref.optional || ResourceTicket.validate(ref.ticket)) {
+                locate(ref.ticket).reference(ref.index);
+            }
+        }
+        futureRefs.clear();
     }
     
     /**
@@ -684,6 +716,20 @@ public class ResourceList {
         this.renderManager = renderManager;
         this.map = this.renderManager.getRenderObjectMap();
         this.cap = this.renderManager.getGraphCapture();
+    }
+    
+    private static class FutureReference {
+        
+        public final PassIndex index;
+        public final ResourceTicket ticket;
+        public final boolean optional;
+
+        public FutureReference(PassIndex index, ResourceTicket ticket, boolean optional) {
+            this.index = index;
+            this.ticket = ticket;
+            this.optional = optional;
+        }
+        
     }
     
 }

@@ -165,8 +165,10 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         material.getActiveTechnique().getDef().setLogic(this);
         acquireArrayOrElse("LightTextures", lightTextures, null);
         if (lightTextures[0] == null) {
+            System.out.println("use light buffers");
             context.getScreen().render(context.getRenderManager(), material, resources.acquire(lights));
         } else {
+            System.out.println("use light textures");
             for (int i = 1; i <= lightTextures.length; i++) {
                 material.setTexture("LightTex"+i, lightTextures[i-1]);
             }
@@ -185,7 +187,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
             EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
-        // defines should only be set in this method
+        // if the technique def somehow wasn't configured, configure it
         if (defines.size() == 0) {
             defs.config(material.getActiveTechnique().getDef());
         }
