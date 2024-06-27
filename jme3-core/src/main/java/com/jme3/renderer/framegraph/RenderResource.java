@@ -34,7 +34,6 @@ package com.jme3.renderer.framegraph;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Represents an existing or future resource used for rendering.
@@ -53,7 +52,7 @@ public class RenderResource <T> {
     private int refs = 0;
     private boolean survivesRefCull = false;
     private boolean undefined = false;
-    private final AtomicBoolean released = new AtomicBoolean(false);
+    private boolean released = false;
     
     /**
      * 
@@ -84,8 +83,9 @@ public class RenderResource <T> {
      * @return true if this resource is used after the release
      */
     public boolean release() {
-        released.compareAndExchange(false, true);
-        return --refs >= 0;
+        refs--;
+        released = true;
+        return refs >= 0;
     }
     
     /**
@@ -279,7 +279,7 @@ public class RenderResource <T> {
      * @return 
      */
     public boolean isAvailable() {
-        return released.get();
+        return released;
     }
     
     @Override
