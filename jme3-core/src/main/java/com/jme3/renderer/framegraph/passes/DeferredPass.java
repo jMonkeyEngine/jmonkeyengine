@@ -191,7 +191,6 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
             EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
         // if the technique def somehow wasn't configured, configure it
-        System.out.println("using "+(active == material.getActiveTechnique().getDef()));
         if (lightTextures[0] == null) {
             ColorRGBA amb = resources.acquireOrElse(ambient, null);
             if (amb == null) {

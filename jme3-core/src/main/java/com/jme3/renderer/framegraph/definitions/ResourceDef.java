@@ -110,6 +110,15 @@ public interface ResourceDef <T> {
     }
     
     /**
+     * Returns true if the resource can be read concurrently.
+     * 
+     * @return 
+     */
+    public default boolean isReadConcurrent() {
+        return true;
+    }
+    
+    /**
      * Disposes the resource using the disposal method, if not null.
      * 
      * @param resource 

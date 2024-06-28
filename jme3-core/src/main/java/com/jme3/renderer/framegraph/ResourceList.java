@@ -38,7 +38,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Manages render resource declarations, references, and releases for a framegraph.
@@ -54,7 +54,7 @@ public class ResourceList {
     private RenderObjectMap map;
     private GraphEventCapture cap;
     private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
-    private LinkedList<FutureReference> futureRefs = new LinkedList<>();
+    private final LinkedList<FutureReference> futureRefs = new LinkedList<>();
     private int nextSlot = 0;
     private int textureBinds = 0;
 
@@ -97,6 +97,9 @@ public class ResourceList {
             throw new IndexOutOfBoundsException(ticket+" is out of bounds for size "+resources.size());
         }
         return null;
+    }
+    private RenderResource fastLocate(ResourceTicket ticket) {
+        return resources.get(ticket.getWorldIndex());
     }
     private int add(RenderResource res) {
         assert res != null;
@@ -332,17 +335,40 @@ public class ResourceList {
     
     /**
      * Forces the current thread to wait until the resource at the ticket is
-     * available.
+     * available for reading or a timeout occurs.
      * <p>
-     * A resource becomes available after being released by the declaring pass.
+     * A resource becomes available for reading after being released by the declaring pass.
+     * Then all waiting passes may access it for reading only.
+     * <p>
+     * The operation is skipped if the ticket is invalid.
      * 
-     * @param ticket
+     * @param ticket ticket to locate resource with
+     * @param thread current thread
+     * @param attempts
+     * @param timeoutMillis maximum wait time (in milliseconds) before throwing a timeout exception
+     * @throws java.util.concurrent.TimeoutException if wait times out
      */
-    public void wait(ResourceTicket ticket) {
+    public void wait(ResourceTicket ticket, int thread, long timeoutMillis, int attempts) throws TimeoutException {
         if (ResourceTicket.validate(ticket)) {
-            RenderResource res = locate(ticket);
+            if (attempts <= 0) {
+                throw new TimeoutException("Thread "+thread+": Resource at "+ticket+" was assumed "
+                        + "unreachable after a number of unsuccessful attempts.");
+            }
             // wait for resource to become available to this context
-            while (!res.isAvailable()) {}
+            long start = System.currentTimeMillis();
+            RenderResource res;
+            // TODO: determine why not locating the resource on each try results in timeouts.
+            while (!(res = fastLocate(ticket)).isReadAvailable()) {
+                if (System.currentTimeMillis()-start >= timeoutMillis) {
+                    throw new TimeoutException("Thread "+thread+": Resource at "+ticket+" was assumed "
+                            + "unreachable after "+timeoutMillis+" milliseconds.");
+                }
+            }
+            // claim read permisions
+            // for resources that are read concurrent, this won't matter
+            if (!res.claimReadPermissions()) {
+                wait(ticket, thread, timeoutMillis, --attempts);
+            }
         }
     }
     

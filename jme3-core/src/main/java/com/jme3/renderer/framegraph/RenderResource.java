@@ -52,7 +52,7 @@ public class RenderResource <T> {
     private int refs = 0;
     private boolean survivesRefCull = false;
     private boolean undefined = false;
-    private boolean released = false;
+    private final AtomicBoolean released = new AtomicBoolean(false);
     
     /**
      * 
@@ -84,8 +84,16 @@ public class RenderResource <T> {
      */
     public boolean release() {
         refs--;
-        released = true;
+        released.set(true);
         return refs >= 0;
+    }
+    /**
+     * Claims the resource for reading.
+     * 
+     * @return 
+     */
+    public boolean claimReadPermissions() {
+        return (def.isReadConcurrent() && released.get()) || released.getAndSet(false);
     }
     
     /**
@@ -275,16 +283,19 @@ public class RenderResource <T> {
         return survivesRefCull;
     }
     /**
+     * Return true if this resource is available for reading.
+     * <p>
+     * This is true typically after the first release occurs.
      * 
      * @return 
      */
-    public boolean isAvailable() {
-        return released;
+    public boolean isReadAvailable() {
+        return released.get();
     }
     
-    @Override
-    public String toString() {
-        return "RenderResource[index="+ticket.getWorldIndex()+"]";
-    }
+//    @Override
+//    public String toString() {
+//        return "RenderResource[index="+ticket.getWorldIndex()+"]";
+//    }
     
 }

@@ -25,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savable {
     
     private static long threadTimeoutMillis = 5000;
+    private static int threadTimeoutAttempts = 100;
     private static final ArrayList<RenderPass> DEF_QUEUE = new ArrayList<>(0);
     
     private final FrameGraph frameGraph;
@@ -32,7 +33,7 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
     private int index;
     private Thread thread;
     private FGRenderContext context;
-    private boolean complete = false;
+    private boolean async = false;
     private boolean interrupted = false;
 
     public PassQueueExecutor(FrameGraph frameGraph, int index) {
@@ -67,19 +68,24 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
         index = in.readInt("index", 0);
     }
     
+    /**
+     * Executes this queue with the context.
+     * 
+     * @param context 
+     */
     public void execute(FGRenderContext context) {
-        complete = false;
+        async = frameGraph.isAsync();
         this.context = context;
-        if (index == FrameGraph.RENDER_THREAD) {
+        if (isMainThread()) {
             execute();
         } else {
             thread = new Thread(this);
             thread.start();
         }
     }
-    @SuppressWarnings("UseSpecificCatch")
     private void execute() {
         try {
+            boolean main = isMainThread();
             for (RenderPass p : queue) {
                 if (interrupted) {
                     return;
@@ -87,8 +93,7 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
                 if (!p.isUsed()) {
                     continue;
                 }
-                long start = System.currentTimeMillis();
-                if (index == FrameGraph.RENDER_THREAD) {
+                if (main) {
                     if (context.isProfilerAvailable()) {
                         context.getProfiler().fgStep(FgStep.Execute, p.getProfilerName());
                     }
@@ -96,22 +101,32 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
                         context.getGraphCapture().executeRenderPass(p.getIndex(), p.getProfilerName());
                     }
                 }
-                if (frameGraph.isAsync()) {
+                if (async) {
                     // wait until all input resources are available for use before executing
-                    p.waitForInputs();
+                    p.waitForInputs(threadTimeoutMillis, threadTimeoutAttempts);
                 }
                 p.executeRender(context);
-                long end = System.currentTimeMillis();
-                if (index == FrameGraph.RENDER_THREAD) {
+                if (main) {
                     context.popRenderSettings();
                 }
             }
-            complete = true;
+            frameGraph.notifyComplete(this);
         } catch (Exception ex) {
-            frameGraph.interruptRendering(ex);
+            if (!interrupted) {
+                frameGraph.interruptRendering(ex);
+            }
         }
     }
     
+    /**
+     * Notifies the queue that all other queues have completed execution.
+     */
+    public void notifyLast() {
+        async = false;
+    }
+    /**
+     * Interrupts this queue from executing the next pass.
+     */
     public void interrupt() {
         interrupted = true;
     }
@@ -288,24 +303,46 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
         queue.clear();
     }
     
-    public int shiftIndex(int i, boolean pos) {
+    /**
+     * Shifts the thread index if the thread index is above {@code i}.
+     * 
+     * @param i
+     * @param pos
+     * @return 
+     */
+    public int shiftThreadIndex(int i, boolean pos) {
         if (index > i) {
             index += pos ? 1 : -1;
+        }
+        for (RenderPass p : queue) {
+            p.getIndex().shiftThread(i, pos);
         }
         return index;
     }
     
+    /**
+     * Gets the number of passes in this queue.
+     * 
+     * @return 
+     */
     public int size() {
         return queue.size();
     }
+    /**
+     * Gets the thread index of this queue.
+     * 
+     * @return 
+     */
     public int getIndex() {
         return index;
     }
-    public boolean isAsync() {
-        return index != FrameGraph.RENDER_THREAD;
-    }
-    public boolean isComplete() {
-        return complete;
+    /**
+     * Returns true if this queue is running on the main render thread.
+     * 
+     * @return 
+     */
+    public boolean isMainThread() {
+        return index == FrameGraph.RENDER_THREAD;
     }
     
     /**
@@ -321,8 +358,31 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
     public static void setThreadTimeoutMillis(long threadTimeoutMillis) {
         PassQueueExecutor.threadTimeoutMillis = threadTimeoutMillis;
     }
+    /**
+     * Sets the maximum number of attempts executors will make
+     * for pass inputs to be available before aboring execution.
+     * <p>
+     * default=100
+     * 
+     * @param threadTimeoutAttempts 
+     */
+    public static void setThreadTimeoutAttempts(int threadTimeoutAttempts) {
+        PassQueueExecutor.threadTimeoutAttempts = threadTimeoutAttempts;
+    }
+    
+    /**
+     * 
+     * @return 
+     */
     public static long getThreadTimeoutMillis() {
         return threadTimeoutMillis;
+    }
+    /**
+     * 
+     * @return 
+     */
+    public static int getThreadTimeoutAttempts() {
+        return threadTimeoutAttempts;
     }
     
 }

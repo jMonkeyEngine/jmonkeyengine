@@ -5,48 +5,44 @@
 package com.jme3.renderer.framegraph;
 
 /**
- *
+ * Defines when a resource can be accessed for reading or writing.
+ * 
  * @author codex
  */
 public enum Access {
     
     /**
-     * Indicates that the resource is accessed for reading only.
+     * Indicates no concurrency.
      */
-    Read(true, false),
+    NoConcurrency(false, false),
     
     /**
-     * Indicates that the resource is accessed for writing only.
+     * Indicates concurrency for reading only.
      */
-    Write(false, true),
+    ConcurrentRead(true, false),
     
     /**
-     * Indicates that the resource is accessed for both reading and writing.
+     * Indicates concurrency for writing only.
      */
-    ReadAndWrite(true, true);
+    ConcurrentWrite(false, true),
+    
+    /**
+     * Indicates concurrency for reading and writing.
+     */
+    Concurrent(true, true);
     
     private final boolean read, write;
-    
+
     private Access(boolean read, boolean write) {
         this.read = read;
         this.write = write;
     }
 
-    /**
-     * Returns true if the access is for reading.
-     * 
-     * @return 
-     */
-    public boolean isRead() {
+    public boolean isReadConcurrent() {
         return read;
     }
 
-    /**
-     * Returns true if the access is for writing.
-     * 
-     * @return 
-     */
-    public boolean isWrite() {
+    public boolean isWriteConcurrent() {
         return write;
     }
     

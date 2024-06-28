@@ -51,6 +51,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 /**
@@ -289,14 +290,14 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     /**
      * Forces this thread to wait until all inputs are available for this pass.
      * 
-     * @param context 
-     * @return  
+     * @param timeout maximum wait time for each ticket before a timeout exception is thrown
+     * @param attempts maximum attempts for each ticket before a timeout exception is thrown
+     * @throws java.util.concurrent.TimeoutException if wait times out
      */
-    public boolean waitForInputs() {
+    public void waitForInputs(long timeout, int attempts) throws TimeoutException {
         for (ResourceTicket t : inputs) {
-            resources.wait(t);
+            resources.wait(t, index.getThreadIndex(), timeout, attempts);
         }
-        return true;
     }
     
     /**

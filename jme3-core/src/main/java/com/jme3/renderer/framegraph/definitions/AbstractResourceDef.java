@@ -44,22 +44,31 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
     private int staticTimeout = -1;
     private boolean useExisting = true;
     private boolean disposeOnRelease = false;
+    private boolean readConcurrent = true;
     
     @Override
     public int getStaticTimeout() {
         return staticTimeout;
     }
+    
     @Override
     public Consumer<T> getDisposalMethod() {
         return disposalMethod;
     }
+    
     @Override
     public boolean isUseExisting() {
         return useExisting;
     }
+    
     @Override
     public boolean isDisposeOnRelease() {
         return disposeOnRelease;
+    }
+    
+    @Override
+    public boolean isReadConcurrent() {
+        return readConcurrent;
     }
     
     /**
@@ -72,6 +81,7 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
     public void setDisposalMethod(Consumer<T> disposalMethod) {
         this.disposalMethod = disposalMethod;
     }
+    
     /**
      * Sets the number of frames the resource can be static before being
      * disposed.
@@ -83,6 +93,7 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
     public void setStaticTimeout(int staticTimout) {
         this.staticTimeout = staticTimout;
     }
+    
     /**
      * Sets this definition to allow for use of reallocated objects.
      * <p>
@@ -93,6 +104,7 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
     public void setUseExisting(boolean useExisting) {
         this.useExisting = useExisting;
     }
+    
     /**
      * Sets the resource to be disposed when it is unused.
      * <p>
@@ -102,6 +114,15 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
      */
     public void setDisposeOnRelease(boolean disposeOnRelease) {
         this.disposeOnRelease = disposeOnRelease;
+    }
+    
+    /**
+     * Sets the resource as able to be read concurrently.
+     * 
+     * @param readConcurrent 
+     */
+    public void setReadConcurrent(boolean readConcurrent) {
+        this.readConcurrent = readConcurrent;
     }
     
 }
