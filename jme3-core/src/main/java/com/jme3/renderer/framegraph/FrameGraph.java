@@ -47,8 +47,8 @@ import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.passes.Attribute;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 /**
  * Manages render passes, dependencies, and resources in a node-based parameter system.
@@ -296,6 +296,51 @@ public class FrameGraph {
      */
     public <T> Attribute<T> addAttribute(ResourceTicket<T> ticket) {
         return getQueue(RENDER_THREAD).addAttribute(ticket);
+    }
+    /**
+     * 
+     * @param <T>
+     * @param array
+     * @param supplier
+     * @param inTicket
+     * @param outTicket
+     * @return 
+     * @see PassQueueExecutor#addLoop(T[], int, java.util.function.Supplier, java.lang.String, java.lang.String)
+     */
+    public <T extends RenderPass> T[] addLoop(T[] array, Supplier<T> supplier,
+            String inTicket, String outTicket) {
+        return queues.get(RENDER_THREAD).addLoop(array, -1, supplier, inTicket, outTicket);
+    }
+    /**
+     * 
+     * @param <T>
+     * @param array
+     * @param threadIndex
+     * @param supplier
+     * @param inTicket
+     * @param outTicket
+     * @return 
+     * @see PassQueueExecutor#addLoop(T[], int, java.util.function.Supplier, java.lang.String, java.lang.String)
+     */
+    public <T extends RenderPass> T[] addLoop(T[] array, int threadIndex,
+            Supplier<T> supplier, String inTicket, String outTicket) {
+        return queues.get(threadIndex).addLoop(array, -1, supplier, inTicket, outTicket);
+    }
+    /**
+     * 
+     * @param <T>
+     * @param array
+     * @param threadIndex
+     * @param passIndex
+     * @param supplier
+     * @param inTicket
+     * @param outTicket
+     * @return 
+     * @see PassQueueExecutor#addLoop(T[], int, java.util.function.Supplier, java.lang.String, java.lang.String)
+     */
+    public <T extends RenderPass> T[] addLoop(T[] array, int threadIndex, int passIndex,
+            Supplier<T> supplier, String inTicket, String outTicket) {
+        return queues.get(threadIndex).addLoop(array, passIndex, supplier, inTicket, outTicket);
     }
     
     /**

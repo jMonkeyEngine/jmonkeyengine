@@ -9,6 +9,11 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.passes.BucketPass;
+import com.jme3.renderer.framegraph.passes.OutputPass;
+import com.jme3.renderer.framegraph.passes.SceneEnqueuePass;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
@@ -31,7 +36,20 @@ public class HelloCustomFrameGraph extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
+        FrameGraph fg = new FrameGraph(assetManager);
         
+        SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass());
+        BucketPass opaque = fg.add(new BucketPass());
+        DownsamplingPass[] downsamples = fg.addLoop(new DownsamplingPass[2],
+                () -> new DownsamplingPass(), "Input", "Output");
+        OutputPass out = fg.add(new OutputPass());
+        
+        opaque.makeInput(enqueue, "Opaque", "Geometry");
+        downsamples[0].makeInput(opaque, "Color", "Input");
+        out.makeInput(downsamples[downsamples.length-1], "Output", "Color");
+        
+        viewPort.setFrameGraph(fg);
+        viewPort.setBackgroundColor(ColorRGBA.White.mult(0.05f));
         
         Geometry box = new Geometry("box", new Box(1, 1, 1));
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");

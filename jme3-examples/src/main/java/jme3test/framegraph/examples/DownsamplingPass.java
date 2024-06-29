@@ -4,7 +4,6 @@
  */
 package jme3test.framegraph.examples;
 
-import com.jme3.renderer.Camera;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
@@ -29,8 +28,8 @@ public class DownsamplingPass extends RenderPass {
     protected void initialize(FrameGraph frameGraph) {
         in = addInput("Input");
         out = addOutput("Output");
-        texDef.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
         texDef.setMagFilter(Texture.MagFilter.Nearest);
+        texDef.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
     }
     @Override
     protected void prepare(FGRenderContext context) {

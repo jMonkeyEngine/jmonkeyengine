@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.function.Supplier;
 
 /**
  *
@@ -35,7 +36,7 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
     private boolean async = false;
     private boolean interrupted = false;
     
-    private PassQueueExecutor() {}
+    public PassQueueExecutor() {}
     public PassQueueExecutor(FrameGraph frameGraph, int index) {
         this.frameGraph = frameGraph;
         this.index = index;
@@ -182,6 +183,40 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
         Attribute<T> attr = add(new Attribute<>());
         attr.getInput(Attribute.INPUT).setSource(ticket);
         return attr;
+    }
+    /**
+     * Adds a series (loop) of passes at the index.
+     * <p>
+     * Passes in the loop are connecting the next and previous pass in the loop
+     * if they exist using the ticket names given.
+     * 
+     * @param <T>
+     * @param array
+     * @param index index to start adding passes at
+     * @param supplier creates render passes, or null to use what is already
+     * in the array.
+     * @param inTicket the input ticket for each pass to connect with the
+     * previous pass in the loop
+     * @param outTicket the output ticket for each pass to connect with
+     * the next pass in the loop
+     * @return pass array
+     */
+    public <T extends RenderPass> T[] addLoop(T[] array, int index,
+            Supplier<T> supplier, String inTicket, String outTicket) {
+        for (int i = 0; i < array.length; i++) {
+            if (supplier != null) {
+                array[i] = supplier.get();
+            }
+            if (index < 0) {
+                add(array[i]);
+            } else {
+                add(array[i], index++);
+            }
+        }
+        for (int i = 1; i < array.length; i++) {
+            array[i].makeInput(array[i-1], outTicket, inTicket);
+        }
+        return array;
     }
     
     /**
