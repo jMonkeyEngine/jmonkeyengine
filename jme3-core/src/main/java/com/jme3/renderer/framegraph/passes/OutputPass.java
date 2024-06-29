@@ -35,7 +35,6 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.ResourceTicket;
@@ -77,6 +76,9 @@ public class OutputPass extends RenderPass {
         if (alphaDiscard != null) {
             context.getScreen().setAlphaDiscard(alphaDiscard);
         }
+        //System.out.println("camera: "+context.getWidth()+" "+context.getHeight());
+        //System.out.println("texture: "+colorTex.getImage().getWidth()+" "+colorTex.getImage().getHeight());
+        //context.resizeCamera(context.getWidth(), context.getHeight(), true, false, true);
         context.renderTextures(colorTex, depthTex);
     }
     @Override

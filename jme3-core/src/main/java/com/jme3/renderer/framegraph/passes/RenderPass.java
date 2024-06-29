@@ -102,7 +102,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
             throw new IllegalStateException("Pass is not properly initialized for rendering.");
         }
         prepare(context);
-        // set the flag for checking if resources are available
     }
     /**
      * Executes the pass.
@@ -624,9 +623,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         ResourceTicket source = Objects.requireNonNull(sourcePass.getOutput(sourceTicket), "Source ticket cannot be null.");
         if (targetTicket.startsWith(LIST_PREFIX)) {
             TicketGroup g = Objects.requireNonNull(groups.get(targetTicket.substring(LIST_PREFIX.length())), "List group cannot be null.");
-            if (!g.list) {
-                throw new IllegalStateException("Group must be a list.");
-            }
+            g.requireAsList(true);
             g.add().setSource(source);
         } else {
             ResourceTicket target = Objects.requireNonNull(getInput(targetTicket), "Target ticket cannot be null.");
@@ -643,9 +640,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     public void makeInputToList(RenderPass sourcePass, String sourceTicket, String targetGroup) {
         ResourceTicket source = Objects.requireNonNull(sourcePass.getOutput(sourceTicket), "Source ticket cannot be null.");
         TicketGroup target = Objects.requireNonNull(groups.get(targetGroup), "Target group cannot be null.");
-        if (!target.list) {
-            throw new IllegalStateException("Target group must be indefinite.");
-        }
+        target.requireAsList(true);
         target.add().setSource(source);
     }
     /**
@@ -662,7 +657,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         if (g == null) {
             throw new NullPointerException("Ticket group cannot be null.");
         }
-        g.requireAs(false);
+        g.requireAsList(false);
         return g.add();
     }
     
@@ -1026,7 +1021,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
             return (array[array.length-1] = create(array.length-1));
         }
         public int remove(ResourceTicket t) {
-            requireAs(true);
+            requireAsList(true);
             int i = array.length-1;
             for (; i >= 0; i--) {
                 if (array[i] == t) break;
@@ -1044,7 +1039,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
             return i;
         }
         
-        public void requireAs(boolean asList) {
+        public void requireAsList(boolean asList) {
             if (list != asList) {
                 throw new IllegalStateException("Group must be "+(asList ? "a list" : "an array")+" in this context.");
             }

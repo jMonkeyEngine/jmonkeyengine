@@ -54,7 +54,8 @@ public interface ResourceDef <T> {
      * a certain type.
      * <p>
      * For reallocation, direct resources are preferred over indirect
-     * resources. Usually because direct resources are more performant.
+     * resources. Usually because direct resources require fewer changes
+     * to be usable.
      * 
      * @param resource
      * @return 

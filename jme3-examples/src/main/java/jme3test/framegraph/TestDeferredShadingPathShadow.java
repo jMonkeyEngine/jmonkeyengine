@@ -1,4 +1,4 @@
-package jme3test.renderpath;
+package jme3test.framegraph;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;

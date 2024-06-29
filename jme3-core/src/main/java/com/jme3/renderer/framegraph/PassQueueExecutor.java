@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.concurrent.TimeoutException;
 
 /**
  *
@@ -28,14 +27,15 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
     private static int threadTimeoutAttempts = 100;
     private static final ArrayList<RenderPass> DEF_QUEUE = new ArrayList<>(0);
     
-    private final FrameGraph frameGraph;
+    private FrameGraph frameGraph;
     private final LinkedList<RenderPass> queue = new LinkedList<>();
     private int index;
     private Thread thread;
     private FGRenderContext context;
     private boolean async = false;
     private boolean interrupted = false;
-
+    
+    private PassQueueExecutor() {}
     public PassQueueExecutor(FrameGraph frameGraph, int index) {
         this.frameGraph = frameGraph;
         this.index = index;

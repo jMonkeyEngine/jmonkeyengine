@@ -1,5 +1,3 @@
-package jme3test.renderpath;
-
 /*
  * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
@@ -31,11 +29,10 @@ package jme3test.renderpath;
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import com.jme3.app.DetailedProfilerState;
+package jme3test.framegraph;
+
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.ModelKey;
 import com.jme3.asset.TextureKey;
-import com.jme3.asset.cache.AssetCache;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -43,28 +40,27 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.LightProbe;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.ToneMapFilter;
-import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.FrameGraphFactory;
-import com.jme3.renderer.framegraph.light.TiledRenderGrid;
-import com.jme3.renderer.framegraph.passes.LightImagePass;
+import com.jme3.shader.VarType;
 import com.jme3.system.AppSettings;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
+import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.TextureArray;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * This test uses 'PBRTerrain.j3md' to create a terrain Material for PBR.
+ * This test uses 'AdvancedPBRTerrain.j3md' to create a terrain Material with
+ * more textures than 'PBRTerrain.j3md' can handle.
  *
  * Upon running the app, the user should see a mountainous, terrain-based
  * landscape with some grassy areas, some snowy areas, and some tiled roads and
@@ -81,7 +77,23 @@ import com.jme3.texture.Texture.WrapMode;
  *
  * Press 'n' to toggle between night and day. Pressing 'n' will cause the light
  * to gradually fade darker/brighter until the min/max lighting levels are
- * reached. At night the scene should be noticeably darker.
+ * reached. At night the scene should be noticeably darker, and the marble and
+ * tiled-road texture should be noticeably glowing from the emissiveColors and
+ * the emissiveIntensity map that is packed into the alpha channel of the
+ * MetallicRoughness maps.
+ *
+ * The MetallicRoughness map stores:
+ * <ul>
+ * <li> AmbientOcclusion in the Red channel </li>
+ * <li> Roughness in the Green channel </li>
+ * <li> Metallic in the Blue channel </li>
+ * <li> EmissiveIntensity in the Alpha channel </li>
+ * </ul>
+ *
+ * The shaders are still subject to the GLSL max limit of 16 textures, however
+ * each TextureArray counts as a single texture, and each TextureArray can store
+ * multiple images. For more information on texture arrays see:
+ * https://www.khronos.org/opengl/wiki/Array_Texture
  *
  * Uses assets from CC0Textures.com, licensed under CC0 1.0 Universal. For more
  * information on the textures this test case uses, view the license.txt file
@@ -92,15 +104,24 @@ import com.jme3.texture.Texture.WrapMode;
  * Notes: (as of 12 April 2021)
  * <ol>
  * <li>
- * This shader is subject to the GLSL max limit of 16 textures, and users should
- * consider using "AdvancedPBRTerrain.j3md" instead if they need additional
- * texture slots.
+ * The results look better with anti-aliasing, especially from a distance. This
+ * may be due to the way that the terrain is generated from a heightmap, as
+ * these same textures do not have this issue in my other project.
+ * </li>
+ * <li>
+ * The number of images per texture array may still be limited by
+ * GL_MAX_ARRAY_TEXTURE_LAYERS, however this value should be high enough that
+ * users will likely run into issues with extremely low FPS from too many
+ * texture-reads long before you surpass the limit of texture-layers per
+ * textureArray. If this ever becomes an issue, a secondary set of
+ * Albedo/Normal/MetallicRoughness texture arrays could be added to the shader
+ * to store any textures that surpass the limit of the primary textureArrays.
  * </li>
  * </ol>
  *
  * @author yaRnMcDonuts,johnKkk
  */
-public class TestPBRTerrainRenderPath extends SimpleApplication {
+public class TestPBRTerrainAdvancedRenderPath extends SimpleApplication {
 
     private TerrainQuad terrain;
     private Material matTerrain;
@@ -116,31 +137,26 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
     private final float marbleScale = 64;
     private final float gravelScale = 64;
 
+    private final ColorRGBA tilesEmissiveColor = new ColorRGBA(0.12f, 0.02f, 0.23f, 0.85f); //dim magenta emission
+    private final ColorRGBA marbleEmissiveColor = new ColorRGBA(0.0f, 0.0f, 1.0f, 1.0f); //fully saturated blue emission
+
     private AmbientLight ambientLight;
     private DirectionalLight directionalLight;
-    private PointLight[] pointLights;
-    private int currentPointLightNum = 700;
-    private boolean isNight = true;
+    private boolean isNight = false;
 
     private final float dayLightIntensity = 1.0f;
     private final float nightLightIntensity = 0.03f;
 
     private BitmapText keybindingsText;
-    private BitmapText currentPointLightsText;
 
     private final float camMoveSpeed = 50f;
 
     public static void main(String[] args) {
-        TestPBRTerrainRenderPath app = new TestPBRTerrainRenderPath();
-        AppSettings appSettings = new AppSettings(true);
-        // For this scene, use a tileSize=64 configuration (at 1600*900 resolution)
-        // TileSize 64
-        appSettings.setWidth(768);
-        appSettings.setHeight(768);
-        appSettings.setVSync(false);
-        app.setSettings(appSettings);
-        app.showSettings = false;
-//        appSettings.setRenderer(AppSettings.LWJGL_OPENGL33);
+        TestPBRTerrainAdvancedRenderPath app = new TestPBRTerrainAdvancedRenderPath();
+        AppSettings settings = new AppSettings(true);
+        settings.setWidth(768);
+        settings.setHeight(768);
+        app.setSettings(settings);
         app.start();
     }
 
@@ -177,179 +193,195 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
                 isNight = !isNight;
                 // Ambient and directional light are faded smoothly in update loop below.
             }
-            if (name.equals("delPointLight") && !pressed) {
-                if(currentPointLightNum > 0){
-                    for(int i = 0;i < 10;i++){
-                        pointLights[currentPointLightNum - i - 1].setEnabled(false);
-                    }
-                    currentPointLightNum-=10;
-                    currentPointLightsText.setText("Current PointLights[" + currentPointLightNum + "],Press '1' addPointLight,Press '2' delPointLight");
-                }
-            }
-            else if(name.equals("addPointLight") && !pressed){
-                if(currentPointLightNum < 1000){
-                    for(int i = 0;i < 10;i++){
-                        pointLights[currentPointLightNum + i].setEnabled(true);
-                    }
-                    currentPointLightNum+=10;
-                    currentPointLightsText.setText("Current PointLights[" + currentPointLightNum + "],Press '1' addPointLight,Press '2' delPointLight");
-                }
-            }
         }
     };
 
     @Override
     public void simpleInitApp() {
         
-        FrameGraph fg = FrameGraphFactory.deferred(assetManager, true);
-        fg.get(LightImagePass.class).setMaxLights(1024);
-        fg.setSetting("TileInfo", new TiledRenderGrid(7, -1));
-        //viewPort.setFrameGraph(fg);
+        //viewPort.setFrameGraph(FrameGraphFactory.deferred(assetManager, false));
         flyCam.setDragToRotate(true);
+        flyCam.setMoveSpeed(50);
         
-        // For this scene, use a tileSize=64 configuration (at 1600*900 resolution)
-        //renderManager.setForceTileSize(64);// 1600 * 900 resolution config
         setupKeys();
         setUpTerrain();
         setUpTerrainMaterial();
         setUpLights();
         setUpCamera();
-        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-        int numSamples = context.getSettings().getSamples();
-        if (numSamples > 0) {
-            fpp.setNumSamples(numSamples);
-        }
-
-//        fpp.addFilter(new FXAAFilter());
-        fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(1.0f)));
-//        fpp.addFilter(new SSAOFilter(0.5f, 3, 0.2f, 0.2f));
-        viewPort.addProcessor(fpp);
+        
     }
 
     private void setUpTerrainMaterial() {
-        // PBR terrain matdef
-        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/PBRTerrain.j3md");
+        // advanced PBR terrain matdef
+        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/AdvancedPBRTerrain.j3md");
 
         matTerrain.setBoolean("useTriPlanarMapping", false);
 
         // ALPHA map (for splat textures)
         matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alpha1.png"));
         matTerrain.setTexture("AlphaMap_1", assetManager.loadTexture("Textures/Terrain/splat/alpha2.png"));
-        // this material also supports 'AlphaMap_2', so you can get up to 12 diffuse textures
+        // this material also supports 'AlphaMap_2', so you can get up to 12 texture slots
 
-        // DIRT texture, Diffuse textures 0 to 3 use the first AlphaMap
+        // load textures for texture arrays
+        // These MUST all have the same dimensions and format in order to be put into a texture array.
+        //ALBEDO MAPS
         Texture dirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
-        dirt.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("AlbedoMap_0", dirt);
+        Texture darkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Color.png");
+        Texture snow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Color.png");
+        Texture tileRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Color.png");
+        Texture grass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
+        Texture marble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Color.png");
+        Texture gravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Color.png");
+
+        // NORMAL MAPS
+        Texture normalMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_1K_Normal.png");
+        Texture normalMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Normal.png");
+        Texture normalMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Normal.png");
+        Texture normalMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Normal.png");
+        Texture normalMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Normal.png");
+        Texture normalMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Normal.png");
+        Texture normalMapRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Normal.png");
+
+        //PACKED METALLIC/ROUGHNESS / AMBIENT OCCLUSION / EMISSIVE INTENSITY MAPS
+        Texture metallicRoughnessAoEiMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_PackedMetallicRoughnessMap.png");
+        Texture metallicRoughnessAoEiMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_PackedMetallicRoughnessMap.png");
+        Texture metallicRoughnessAoEiMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_PackedMetallicRoughnessMap.png");
+        Texture metallicRoughnessAoEiMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel_015_PackedMetallicRoughnessMap.png");
+        Texture metallicRoughnessAoEiMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_PackedMetallicRoughnessMap.png");
+        Texture metallicRoughnessAoEiMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_PackedMetallicRoughnessMap.png");
+        Texture metallicRoughnessAoEiMapRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_PackedMetallicRoughnessMap.png");
+
+        // put all images into lists to create texture arrays.
+        //
+        // The index of each image in its list will be
+        // sent to the material to tell the shader to choose that texture from
+        // the textureArray when setting up a texture slot's mat params.
+        //
+        List<Image> albedoImages = new ArrayList<>();
+        List<Image> normalMapImages = new ArrayList<>();
+        List<Image> metallicRoughnessAoEiMapImages = new ArrayList<>();
+
+        albedoImages.add(dirt.getImage());  //0
+        albedoImages.add(darkRock.getImage()); //1
+        albedoImages.add(snow.getImage()); //2
+        albedoImages.add(tileRoad.getImage()); //3
+        albedoImages.add(grass.getImage()); //4
+        albedoImages.add(marble.getImage()); //5
+        albedoImages.add(gravel.getImage()); //6
+
+        normalMapImages.add(normalMapDirt.getImage());  //0
+        normalMapImages.add(normalMapDarkRock.getImage());  //1
+        normalMapImages.add(normalMapSnow.getImage());  //2
+        normalMapImages.add(normalMapRoad.getImage());   //3
+        normalMapImages.add(normalMapGrass.getImage());   //4
+        normalMapImages.add(normalMapMarble.getImage());   //5
+        normalMapImages.add(normalMapGravel.getImage());   //6
+
+        metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapDirt.getImage());  //0
+        metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapDarkRock.getImage());  //1
+        metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapSnow.getImage());  //2
+        metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapRoad.getImage());   //3
+        metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapGrass.getImage());   //4
+        metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapMarble.getImage());   //5
+        metallicRoughnessAoEiMapImages.add(metallicRoughnessAoEiMapGravel.getImage());   //6
+
+        //initiate texture arrays
+        TextureArray albedoTextureArray = new TextureArray(albedoImages);
+        TextureArray normalParallaxTextureArray = new TextureArray(normalMapImages); // parallax is not used currently
+        TextureArray metallicRoughnessAoEiTextureArray = new TextureArray(metallicRoughnessAoEiMapImages);
+
+        //apply wrapMode to the whole texture array, rather than each individual texture in the array
+        albedoTextureArray.setWrap(WrapMode.Repeat);
+        normalParallaxTextureArray.setWrap(WrapMode.Repeat);
+        metallicRoughnessAoEiTextureArray.setWrap(WrapMode.Repeat);
+
+        //assign texture array to materials
+        matTerrain.setParam("AlbedoTextureArray", VarType.TextureArray, albedoTextureArray);
+        matTerrain.setParam("NormalParallaxTextureArray", VarType.TextureArray, normalParallaxTextureArray);
+        matTerrain.setParam("MetallicRoughnessAoEiTextureArray", VarType.TextureArray, metallicRoughnessAoEiTextureArray);
+
+        //set up texture slots:
+        matTerrain.setInt("AlbedoMap_0", 0); // dirt is index 0 in the albedo image list
         matTerrain.setFloat("AlbedoMap_0_scale", dirtScale);
         matTerrain.setFloat("Roughness_0", 1);
-        matTerrain.setFloat("Metallic_0", 0);
-        //matTerrain.setInt("AfflictionMode_0", 0);
+        matTerrain.setFloat("Metallic_0", 0.02f);
 
-        // DARK ROCK texture
-        Texture darkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Color.png");
-        darkRock.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("AlbedoMap_1", darkRock);
+        matTerrain.setInt("AlbedoMap_1", 1);   // darkRock is index 1 in the albedo image list
         matTerrain.setFloat("AlbedoMap_1_scale", darkRockScale);
-        matTerrain.setFloat("Roughness_1", 0.92f);
-        matTerrain.setFloat("Metallic_1", 0.02f);
-        //matTerrain.setInt("AfflictionMode_1", 0);
+        matTerrain.setFloat("Roughness_1", 1);
+        matTerrain.setFloat("Metallic_1", 0.04f);
 
-        // SNOW texture
-        Texture snow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Color.png");
-        snow.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("AlbedoMap_2", snow);
+        matTerrain.setInt("AlbedoMap_2", 2);
         matTerrain.setFloat("AlbedoMap_2_scale", snowScale);
-        matTerrain.setFloat("Roughness_2", 0.55f);
+        matTerrain.setFloat("Roughness_2", 0.72f);
         matTerrain.setFloat("Metallic_2", 0.12f);
 
-        Texture tiles = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Color.png");
-        tiles.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("AlbedoMap_3", tiles);
+        matTerrain.setInt("AlbedoMap_3", 3);
         matTerrain.setFloat("AlbedoMap_3_scale", tileRoadScale);
-        matTerrain.setFloat("Roughness_3", 0.87f);
-        matTerrain.setFloat("Metallic_3", 0.08f);
+        matTerrain.setFloat("Roughness_3", 1);
+        matTerrain.setFloat("Metallic_3", 0.04f);
 
-        // GRASS texture
-        Texture grass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
-        grass.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("AlbedoMap_4", grass);
+        matTerrain.setInt("AlbedoMap_4", 4);
         matTerrain.setFloat("AlbedoMap_4_scale", grassScale);
         matTerrain.setFloat("Roughness_4", 1);
         matTerrain.setFloat("Metallic_4", 0);
 
-        // MARBLE texture
-        Texture marble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Color.png");
-        marble.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("AlbedoMap_5", marble);
+        matTerrain.setInt("AlbedoMap_5", 5);
         matTerrain.setFloat("AlbedoMap_5_scale", marbleScale);
-        matTerrain.setFloat("Roughness_5", 0.06f);
-        matTerrain.setFloat("Metallic_5", 0.8f);
+        matTerrain.setFloat("Roughness_5", 1);
+        matTerrain.setFloat("Metallic_5", 0.2f);
 
-        // Gravel texture
-        Texture gravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Color.png");
-        gravel.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("AlbedoMap_6", gravel);
+        matTerrain.setInt("AlbedoMap_6", 6);
         matTerrain.setFloat("AlbedoMap_6_scale", gravelScale);
-        matTerrain.setFloat("Roughness_6", 0.9f);
-        matTerrain.setFloat("Metallic_6", 0.07f);
+        matTerrain.setFloat("Roughness_6", 1);
+        matTerrain.setFloat("Metallic_6", 0.01f);
+
         // NORMAL MAPS
-        Texture normalMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_1K_Normal.png");
-        normalMapDirt.setWrap(WrapMode.Repeat);
+        // int being passed to shader corresponds to the index of the texture's
+        // image in the List of images used to create its texture array
+        matTerrain.setInt("NormalMap_0", 0);
+        matTerrain.setInt("NormalMap_1", 1);
+        matTerrain.setInt("NormalMap_2", 2);
+        matTerrain.setInt("NormalMap_3", 3);
+        matTerrain.setInt("NormalMap_4", 4);
+        matTerrain.setInt("NormalMap_5", 5);
+        matTerrain.setInt("NormalMap_6", 6);
 
-        Texture normalMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Normal.png");
-        normalMapDarkRock.setWrap(WrapMode.Repeat);
+        //METALLIC/ROUGHNESS/AO/EI MAPS
+        matTerrain.setInt("MetallicRoughnessMap_0", 0);
+        matTerrain.setInt("MetallicRoughnessMap_1", 1);
+        matTerrain.setInt("MetallicRoughnessMap_2", 2);
+        matTerrain.setInt("MetallicRoughnessMap_3", 3);
+        matTerrain.setInt("MetallicRoughnessMap_4", 4);
+        matTerrain.setInt("MetallicRoughnessMap_5", 5);
+        matTerrain.setInt("MetallicRoughnessMap_6", 6);
 
-        Texture normalMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Normal.png");
-        normalMapSnow.setWrap(WrapMode.Repeat);
+        //EMISSIVE
+        matTerrain.setColor("EmissiveColor_5", marbleEmissiveColor);
+        matTerrain.setColor("EmissiveColor_3", tilesEmissiveColor);
+        //these two texture slots (marble & tiledRoad, indexed in each texture array at 5 and 3 respectively) both
+        // have packed MRAoEi maps with an emissiveTexture packed into the alpha channel
 
-        Texture normalMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Normal.png");
-        normalMapGravel.setWrap(WrapMode.Repeat);
-
-        Texture normalMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Normal.png");
-        normalMapGrass.setWrap(WrapMode.Repeat);
-
-//        Texture normalMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Normal.png");
-//        normalMapMarble.setWrap(WrapMode.Repeat);
-
-        Texture normalMapTiles = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Normal.png");
-        normalMapTiles.setWrap(WrapMode.Repeat);
-
-        matTerrain.setTexture("NormalMap_0", normalMapDirt);
-        matTerrain.setTexture("NormalMap_1", normalMapDarkRock);
-        matTerrain.setTexture("NormalMap_2", normalMapSnow);
-        matTerrain.setTexture("NormalMap_3", normalMapTiles);
-        matTerrain.setTexture("NormalMap_4", normalMapGrass);
-//        matTerrain.setTexture("NormalMap_5", normalMapMarble);  // Adding this texture would exceed the 16 texture limit.
-        matTerrain.setTexture("NormalMap_6", normalMapGravel);
+//        matTerrain.setColor("EmissiveColor_1", new ColorRGBA(0.08f, 0.01f, 0.1f, 0.4f));
+//this texture slot does not have a unique emissiveIntensityMap packed into its MRAoEi map,
+        // so setting an emissiveColor will apply equal intensity to every pixel
 
         terrain.setMaterial(matTerrain);
-        //new RenderPathHelper(this, new Vector3f(0, cam.getHeight() / 2, 0), KeyInput.KEY_K, "K");
-        getStateManager().attach(new DetailedProfilerState());
     }
 
     private void setupKeys() {
         flyCam.setMoveSpeed(50);
         inputManager.addMapping("triPlanar", new KeyTrigger(KeyInput.KEY_P));
         inputManager.addMapping("toggleNight", new KeyTrigger(KeyInput.KEY_N));
-        inputManager.addMapping("addPointLight", new KeyTrigger(KeyInput.KEY_1));
-        inputManager.addMapping("delPointLight", new KeyTrigger(KeyInput.KEY_2));
 
         inputManager.addListener(actionListener, "triPlanar");
         inputManager.addListener(actionListener, "toggleNight");
-        inputManager.addListener(actionListener, "addPointLight");
-        inputManager.addListener(actionListener, "delPointLight");
 
         keybindingsText = new BitmapText(assetManager.loadFont("Interface/Fonts/Default.fnt"));
         keybindingsText.setText("Press 'N' to toggle day/night fade (takes a moment) \nPress 'P' to toggle tri-planar mode");
 
         getGuiNode().attachChild(keybindingsText);
         keybindingsText.move(new Vector3f(200, 120, 0));
-
-        currentPointLightsText = new BitmapText(assetManager.loadFont("Interface/Fonts/Default.fnt"));
-        currentPointLightsText.setText("Current PointLights[" + currentPointLightNum + "],Press '1' addPointLight,Press '2' delPointLight");
-        getGuiNode().attachChild(currentPointLightsText);
-        currentPointLightsText.move(new Vector3f(200, 200, 0));
     }
 
     @Override
@@ -422,47 +454,20 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
         directionalLight.setDirection((new Vector3f(-0.3f, -0.5f, -0.3f)).normalize());
         directionalLight.setColor(ColorRGBA.White);
         rootNode.addLight(directionalLight);
+        
+//        for (int i = 0; i < 30; i++) {
+//            for (int j = 0; j < 30; j++) {
+//                PointLight p = new PointLight();
+//                p.setPosition(new Vector3f(-50+i*10, -60, -50+j*10));
+//                p.setRadius(50);
+//                p.setColor(ColorRGBA.randomColor());
+//                rootNode.addLight(p);
+//            }
+//        }
 
         ambientLight = new AmbientLight();
         directionalLight.setColor(ColorRGBA.White);
         rootNode.addLight(ambientLight);
-
-
-        // pointLights
-        currentPointLightNum = 1000;
-        ColorRGBA colors[] = new ColorRGBA[]{
-                ColorRGBA.White,
-                ColorRGBA.Red,
-                ColorRGBA.Blue,
-                ColorRGBA.Green,
-                ColorRGBA.Yellow,
-                ColorRGBA.Orange,
-                ColorRGBA.Brown,
-        };
-        pointLights = new PointLight[currentPointLightNum];
-//        InstancedNode debugSpheres = new InstancedNode("debugSpheres");
-//        Sphere sphereMesh = new Sphere(16, 16, 1);
-//        Geometry sphere = new Geometry("Sphere");
-//        sphere.setMesh(sphereMesh);
-//        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//        mat.getAdditionalRenderState().setWireframe(true);
-//        mat.setColor("Color", ColorRGBA.Green);
-//        mat.setBoolean("UseInstancing", true);
-//        sphere.setMaterial(mat);
-        float xHalf = 200, yHalf = 100, zHalf = 200;
-        for(int i = 0;i < currentPointLightNum;i++){
-            pointLights[i] = new PointLight();
-            pointLights[i].setColor(colors[FastMath.nextRandomInt(0, colors.length - 1)]);
-            pointLights[i].setRadius(FastMath.nextRandomFloat(10.0f, 20.0f));
-            pointLights[i].setPosition(new Vector3f(FastMath.nextRandomFloat(-xHalf, xHalf), FastMath.nextRandomFloat(-yHalf, -60.0f), FastMath.nextRandomFloat(-zHalf, zHalf)));
-            rootNode.addLight(pointLights[i]);
-//            Geometry sp = sphere.clone(false);
-//            sp.setLocalTranslation(new Vector3f(FastMath.nextRandomFloat(-xHalf, xHalf), FastMath.nextRandomFloat(-yHalf, -60.0f), FastMath.nextRandomFloat(-zHalf, zHalf)));
-//            sp.setLocalScale(FastMath.nextRandomFloat(10.0f, 20.0f));
-//            debugSpheres.attachChild(sp);
-        }
-//        debugSpheres.instance();
-//        rootNode.attachChild(debugSpheres);
     }
 
     private void setUpCamera() {
@@ -470,5 +475,7 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
         cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
 
         getFlyByCamera().setMoveSpeed(camMoveSpeed);
+        //flyCam.setEnabled(false);
+        //inputManager.setCursorVisible(true);
     }
 }

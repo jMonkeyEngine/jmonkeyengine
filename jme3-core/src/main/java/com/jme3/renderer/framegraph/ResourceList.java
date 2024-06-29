@@ -114,8 +114,7 @@ public class ResourceList {
             resources.set(i, res);
             // find next available slot
             while (++nextSlot < resources.size()) {
-                RenderResource r = resources.get(nextSlot);
-                if (r == null) {
+                if (resources.get(nextSlot) == null) {
                     break;
                 }
             }
@@ -735,7 +734,7 @@ public class ResourceList {
     }
     
     /**
-     * Sets the render object map.
+     * Sets the render manager.
      * 
      * @param renderManager
      */
@@ -745,6 +744,11 @@ public class ResourceList {
         this.cap = this.renderManager.getGraphCapture();
     }
     
+    /**
+     * Represents a reference that is made in the future.
+     * <p>
+     * Used primarily with asynchronous framegraphs.
+     */
     private static class FutureReference {
         
         public final PassIndex index;

@@ -30,7 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package jme3test.renderpath;
+package jme3test.framegraph;
 
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.DetailedProfilerState;

@@ -73,6 +73,7 @@ public class FGRenderContext {
     private GeometryRenderHandler geomRender;
     private Predicate<Geometry> geomFilter;
     private RenderState renderState;
+    private int camWidth, camHeight;
     
     public FGRenderContext(FrameGraph frameGraph) {
         this(frameGraph, null);
@@ -119,6 +120,8 @@ public class FGRenderContext {
         geomRender = renderManager.getGeometryRenderHandler();
         geomFilter = renderManager.getRenderFilter();
         renderState = renderManager.getForcedRenderState();
+        camWidth = viewPort.getCamera().getWidth();
+        camHeight = viewPort.getCamera().getHeight();
     }
     /**
      * Applies saved render settings, except the framebuffer.
@@ -131,6 +134,7 @@ public class FGRenderContext {
         renderManager.setRenderFilter(geomFilter);
         renderManager.setForcedRenderState(renderState);
         renderManager.getRenderer().setDepthRange(0, 1);
+        resizeCamera(camWidth, camHeight, true, false, false);
         if (viewPort.isClearColor()) {
             renderManager.getRenderer().setBackgroundColor(viewPort.getBackgroundColor());
         }
@@ -192,7 +196,28 @@ public class FGRenderContext {
      * @param depth depth texture, or null
      */
     public void renderTextures(Texture2D color, Texture2D depth) {
+        if (color != null) {
+            //resizeCamera(color.getImage().getWidth(), color.getImage().getHeight(), false, false);
+        } else if (depth != null) {
+            //resizeCamera(depth.getImage().getWidth(), depth.getImage().getHeight(), false, false);
+        }
         screen.render(renderManager, color, depth);
+    }
+    
+    /**
+     * Resizes the camera to the width and height.
+     * 
+     * @param w new camera width
+     * @param h new camera height
+     * @param fixAspect true to fix camera aspect
+     * @param ortho true to use parallel projection
+     * @param force true to force setting the width and height
+     */
+    public void resizeCamera(int w, int h, boolean fixAspect, boolean ortho, boolean force) {
+        Camera cam = viewPort.getCamera();
+        if (cam.resize(w, h, fixAspect, force)) {
+            renderManager.setCamera(cam, ortho);
+        }
     }
     
     /**

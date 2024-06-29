@@ -3,6 +3,7 @@ MaterialDef TextureTransfer {
     MaterialParameters {
         Texture2D ColorMap
         Texture2D DepthMap
+        Vector2 Scale : 1.0 1.0
         Float AlphaDiscard
         Boolean Debug
     }

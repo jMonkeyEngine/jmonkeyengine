@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package jme3test.renderpath;
+package jme3test.framegraph;
 
 import com.jme3.app.DetailedProfilerState;
 import com.jme3.app.SimpleApplication;
@@ -80,7 +80,7 @@ public class TestFrameGraphImportExport extends SimpleApplication {
         final File file = new File(path+"."+(xml ? "xml" : "j3g"));
         
         if (export) {
-            FrameGraph graph = FrameGraphFactory.deferred(assetManager, true);
+            FrameGraph graph = FrameGraphFactory.forward(assetManager);
             try {
                 if (xml) {
                     XMLExporter.getInstance().save(graph.createData(), file);
