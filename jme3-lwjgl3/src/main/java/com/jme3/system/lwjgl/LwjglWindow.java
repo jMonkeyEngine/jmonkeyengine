@@ -298,8 +298,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             requestWidth = videoMode.width();
             requestHeight = videoMode.height();
         }
-        oldFramebufferHeight = requestHeight;
-        oldFramebufferWidth = requestWidth;
         window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
