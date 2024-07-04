@@ -28,8 +28,8 @@ public class DownsamplingPass extends RenderPass {
     protected void initialize(FrameGraph frameGraph) {
         in = addInput("Input");
         out = addOutput("Output");
-        texDef.setMagFilter(Texture.MagFilter.Nearest);
         texDef.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+        texDef.setMagFilter(Texture.MagFilter.Nearest);
     }
     @Override
     protected void prepare(FGRenderContext context) {
@@ -49,7 +49,7 @@ public class DownsamplingPass extends RenderPass {
         
         texDef.setFormat(img.getFormat());
         
-        FrameBuffer fb = getFrameBuffer(context, 1);
+        FrameBuffer fb = getFrameBuffer(w, h, 1);
         resources.acquireColorTarget(fb, out);
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);

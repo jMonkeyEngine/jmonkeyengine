@@ -16,19 +16,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.function.Supplier;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  *
  * @author codex
  */
-public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savable {
+public class PassThread implements Runnable, Iterable<RenderPass>, Savable {
     
     private static long threadTimeoutMillis = 5000;
     private static int threadTimeoutAttempts = 100;
     private static final ArrayList<RenderPass> DEF_QUEUE = new ArrayList<>(0);
     
-    private FrameGraph frameGraph;
+    private final FrameGraph frameGraph;
     private final LinkedList<RenderPass> queue = new LinkedList<>();
     private int index;
     private Thread thread;
@@ -36,55 +37,16 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
     private boolean async = false;
     private boolean interrupted = false;
     
-    public PassQueueExecutor() {}
-    public PassQueueExecutor(FrameGraph frameGraph, int index) {
+    public PassThread() {
+        frameGraph = null;
+    }
+    public PassThread(FrameGraph frameGraph, int index) {
         this.frameGraph = frameGraph;
         this.index = index;
     }
     
     @Override
     public void run() {
-        try {
-            execute();
-        } catch (Exception ex) {
-            frameGraph.interruptRendering(ex);
-        }
-    }
-    @Override
-    public Iterator<RenderPass> iterator() {
-        return queue.iterator();
-    }
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule out = ex.getCapsule(this);
-        ArrayList<RenderPass> list = new ArrayList<>(queue.size());
-        list.addAll(queue);
-        out.writeSavableArrayList(list, "queue", DEF_QUEUE);
-        out.write(index, "index", 0);
-    }
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule in = im.getCapsule(this);
-        queue.addAll(in.readSavableArrayList("queue", DEF_QUEUE));
-        index = in.readInt("index", 0);
-    }
-    
-    /**
-     * Executes this queue with the context.
-     * 
-     * @param context 
-     */
-    public void execute(FGRenderContext context) {
-        async = frameGraph.isAsync();
-        this.context = context;
-        if (isMainThread()) {
-            execute();
-        } else {
-            thread = new Thread(this);
-            thread.start();
-        }
-    }
-    private void execute() {
         try {
             boolean main = isMainThread();
             for (RenderPass p : queue) {
@@ -118,6 +80,40 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
             }
         }
     }
+    @Override
+    public Iterator<RenderPass> iterator() {
+        return queue.iterator();
+    }
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        ArrayList<RenderPass> list = new ArrayList<>(queue.size());
+        list.addAll(queue);
+        out.writeSavableArrayList(list, "queue", DEF_QUEUE);
+        out.write(index, "index", 0);
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        queue.addAll(in.readSavableArrayList("queue", DEF_QUEUE));
+        index = in.readInt("index", 0);
+    }
+    
+    /**
+     * Executes this queue with the context.
+     * 
+     * @param context 
+     */
+    public void execute(FGRenderContext context) {
+        async = frameGraph.isAsync();
+        this.context = context;
+        if (isMainThread()) {
+            run();
+        } else {
+            thread = new Thread(this);
+            thread.start();
+        }
+    }
     
     /**
      * Notifies the queue that all other queues have completed execution.
@@ -140,6 +136,7 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
      * @return given pass
      */
     public <T extends RenderPass> T add(T pass) {
+        Objects.requireNonNull(pass, "Pass to add cannot be null.");
         queue.addLast(pass);
         pass.initializePass(frameGraph, new PassIndex(index, queue.size()-1));
         return pass;
@@ -147,26 +144,25 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
     /**
      * Adds the pass at the index in the pass queue.
      * <p>
-     * If the index is &gt;= the current queue size, the pass will
+     * If the queue index is &gt;= the current queue size, the pass will
      * be added to the end of the queue. Passes above the added pass
-     * will have their indexes shifted.
+     * will have their queue indices shifted.
      * 
      * @param <T>
      * @param pass
      * @param index
      * @return 
      */
-    public <T extends RenderPass> T add(T pass, int index) {
-        if (index < 0) {
-            throw new IndexOutOfBoundsException("Index cannot be negative.");
-        }
-        if (index >= queue.size()) {
+    public <T extends RenderPass> T add(T pass, PassIndex index) {
+        Objects.requireNonNull(pass, "Pass to add cannot be null.");
+        int i = index.getQueueIndex();
+        if (i < 0 || i >= queue.size()) {
             return add(pass);
         }
-        queue.add(index, pass);
-        pass.initializePass(frameGraph, new PassIndex(this.index, index));
+        queue.add(i, pass);
+        pass.initializePass(frameGraph, new PassIndex(this.index, i));
         for (RenderPass p : queue) {
-            p.shiftExecutionIndex(index, true);
+            p.shiftExecutionIndex(i, true);
         }
         return pass;
     }
@@ -192,8 +188,8 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
      * 
      * @param <T>
      * @param array
-     * @param index index to start adding passes at
-     * @param supplier creates render passes, or null to use what is already
+     * @param index index to start adding passes at (unaffected)
+     * @param function creates render passes, or null to use what is already
      * in the array.
      * @param inTicket the input ticket for each pass to connect with the
      * previous pass in the loop
@@ -201,67 +197,38 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
      * the next pass in the loop
      * @return pass array
      */
-    public <T extends RenderPass> T[] addLoop(T[] array, int index,
-            Supplier<T> supplier, String inTicket, String outTicket) {
+    public <T extends RenderPass> T[] addLoop(T[] array, PassIndex index,
+            Function<Integer, T> function, String inTicket, String outTicket) {
+        PassIndex ind = new PassIndex(index);
         for (int i = 0; i < array.length; i++) {
-            if (supplier != null) {
-                array[i] = supplier.get();
+            if (function != null && array[i] == null) {
+                array[i] = function.apply(i);
             }
-            if (index < 0) {
+            if (index.queueIndex < 0) {
                 add(array[i]);
             } else {
-                add(array[i], index++);
+                add(array[i], ind);
+                ind.queueIndex++;
             }
-        }
-        for (int i = 1; i < array.length; i++) {
-            array[i].makeInput(array[i-1], outTicket, inTicket);
+            if (i > 0) {
+                array[i].makeInput(array[i-1], outTicket, inTicket);
+            }
         }
         return array;
     }
     
     /**
-     * Gets the first pass that is of or a subclass of the given class.
+     * Gets the first pass that qualifies.
      * 
      * @param <T>
-     * @param type
+     * @param by
      * @return first qualifying pass, or null
      */
-    public <T extends RenderPass> T get(Class<T> type) {
+    public <T extends RenderPass> T get(PassLocator<T> by) {
         for (RenderPass p : queue) {
-            if (type.isAssignableFrom(p.getClass())) {
-                return (T)p;
-            }
-        }
-        return null;
-    }
-    /**
-     * Gets the first pass of the given class that is named as given.
-     * 
-     * @param <T>
-     * @param type
-     * @param name
-     * @return first qualifying pass, or null
-     */
-    public <T extends RenderPass> T get(Class<T> type, String name) {
-        for (RenderPass p : queue) {
-            if (name.equals(p.getName()) && type.isAssignableFrom(p.getClass())) {
-                return (T)p;
-            }
-        }
-        return null;
-    }
-    /**
-     * Gets the pass that holds the given id number.
-     * 
-     * @param <T>
-     * @param type
-     * @param id
-     * @return pass of the id, or null
-     */
-    public <T extends RenderPass> T get(Class<T> type, int id) {
-        for (RenderPass p : queue) {
-            if (id == p.getId() && type.isAssignableFrom(p.getClass())) {
-                return (T)p;
+            T a = by.accept(p);
+            if (a != null) {
+                return a;
             }
         }
         return null;
@@ -391,7 +358,7 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
      * @param threadTimeoutMillis 
      */
     public static void setThreadTimeoutMillis(long threadTimeoutMillis) {
-        PassQueueExecutor.threadTimeoutMillis = threadTimeoutMillis;
+        PassThread.threadTimeoutMillis = threadTimeoutMillis;
     }
     /**
      * Sets the maximum number of attempts executors will make
@@ -402,7 +369,7 @@ public class PassQueueExecutor implements Runnable, Iterable<RenderPass>, Savabl
      * @param threadTimeoutAttempts 
      */
     public static void setThreadTimeoutAttempts(int threadTimeoutAttempts) {
-        PassQueueExecutor.threadTimeoutAttempts = threadTimeoutAttempts;
+        PassThread.threadTimeoutAttempts = threadTimeoutAttempts;
     }
     
     /**

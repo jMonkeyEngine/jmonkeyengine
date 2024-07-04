@@ -31,9 +31,6 @@
  */
 package com.jme3.renderer.framegraph.passes;
 
-import com.jme3.renderer.framegraph.definitions.ValueDef;
-import com.jme3.light.Light;
-import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
@@ -45,12 +42,10 @@ import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
-import java.util.LinkedList;
 import java.util.function.Function;
 import com.jme3.renderer.GeometryRenderHandler;
+import com.jme3.renderer.framegraph.GeometryQueue;
 import com.jme3.renderer.queue.GeometryList;
-import com.jme3.scene.ParentIterator;
-import com.jme3.scene.Spatial;
 
 /**
  * Renders diffuse, specular, emissive, normal, and depth information to a set of
@@ -64,7 +59,7 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
     
     private final static String GBUFFER_PASS = "GBufferPass";
     
-    private ResourceTicket<GeometryList> geometry;
+    private ResourceTicket<GeometryQueue> geometry;
     private ResourceTicket<Texture2D>[] gbuffers;
     private ResourceTicket<Integer> numRendersTicket;
     private final TextureDef<Texture2D>[] texDefs = new TextureDef[5];
@@ -107,8 +102,8 @@ public class GBufferPass extends RenderPass implements GeometryRenderHandler {
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         context.getRenderManager().setForcedTechnique(GBUFFER_PASS);
         context.getRenderManager().setGeometryRenderHandler(this);
-        GeometryList bucket = resources.acquire(geometry);
-        context.renderGeometryList(bucket, null, this);
+        GeometryQueue bucket = resources.acquire(geometry);
+        context.renderGeometry(bucket, null, this);
         resources.setPrimitive(numRendersTicket, numRenders);
     }
     @Override

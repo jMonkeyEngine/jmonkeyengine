@@ -32,9 +32,9 @@
 package com.jme3.renderer.queue;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.util.ListSort;
 import java.util.ArrayList;
@@ -184,7 +184,6 @@ public class GeometryList implements Iterable<Geometry>{
     /**
      * Sorts the elements in the list according to their Comparator.
      */
-    @SuppressWarnings("unchecked")
     public void sort() {
         if (updateFlag && size > 1) {
             // sort the spatial list using the comparator
@@ -196,6 +195,20 @@ public class GeometryList implements Iterable<Geometry>{
         }
         for (GeometryList l : lists) {
             l.sort();
+        }
+    }
+    
+    /**
+     * Renders the geometries in this list and in internal lists.
+     * 
+     * @param rm 
+     */
+    public void render(RenderManager rm) {
+        for (Geometry g : geometries) {
+            rm.renderGeometry(g);
+        }
+        for (GeometryList l : lists) {
+            l.render(rm);
         }
     }
 

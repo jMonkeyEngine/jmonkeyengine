@@ -13,10 +13,10 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.GeometryQueue;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.TextureDef;
 import com.jme3.renderer.framegraph.passes.RenderPass;
-import com.jme3.renderer.queue.GeometryList;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.io.IOException;
 public class BloomPass extends RenderPass {
     
     private ResourceTicket<Texture2D> inColor;
-    private ResourceTicket<GeometryList> objects;
+    private ResourceTicket<GeometryQueue> objects;
     private ResourceTicket<Texture2D> midTex;
     private ResourceTicket<Texture2D> result;
     private final TextureDef<Texture2D> texDef = TextureDef.texture2D();
@@ -68,7 +68,7 @@ public class BloomPass extends RenderPass {
         FrameBuffer midFb = getFrameBuffer("mid", w, h, 1);
         declare(texDef, midTex);
         Texture2D midTarget = resources.acquireColorTarget(midFb, midTex);
-        GeometryList geometry = resources.acquireOrElse(objects, null);
+        GeometryQueue geometry = resources.acquireOrElse(objects, null);
         Texture2D scene = resources.acquireOrElse(inColor, null);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         // geometry render
@@ -76,7 +76,7 @@ public class BloomPass extends RenderPass {
             context.getRenderer().setFrameBuffer(outFb);
             context.getRenderer().clearBuffers(true, true, true);
             context.getRenderManager().setForcedTechnique("Glow");
-            context.renderGeometryList(geometry, null, null);
+            context.renderGeometry(geometry, null, null);
             context.getRenderManager().setForcedTechnique(null);
             extractMat.setTexture("GlowMap", outTarget);
         } else {

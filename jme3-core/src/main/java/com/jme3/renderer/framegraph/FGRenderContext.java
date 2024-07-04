@@ -147,35 +147,19 @@ public class FGRenderContext {
     }
     
     /**
-     * Renders the specified queue bucket.
-     * 
-     * @param bucket queue bucket to render (not null and not {@link RenderQueue.Bucket#Inherit})
-     * @param clear true to flush the bucket
-     */
-    public void renderViewPortQueue(RenderQueue.Bucket bucket, boolean clear) {
-        viewPort.getQueue().renderQueue(bucket, renderManager, viewPort.getCamera(), clear);
-    }
-    /**
      * Renders the given geometry list with the camera and render handler.
      * 
-     * @param list list of geometry to render (not null)
+     * @param queue queue of geometry to render (not null)
      * @param cam camera to render with (or null to render with the current viewport camera)
      * @param handler handler to render with (or null to render with {@link GeometryRenderHandler#DEFAULT})
      */
-    public void renderGeometryList(GeometryList list, Camera cam, GeometryRenderHandler handler) {
+    public void renderGeometry(GeometryQueue queue, Camera cam, GeometryRenderHandler handler) {
         if (cam == null) {
             cam = viewPort.getCamera();
         }
-        if (handler == null) {
-            handler = GeometryRenderHandler.DEFAULT;
-        }
-        list.setCamera(cam);
-        list.sort();
-        for (Geometry g : list) {
-            assert g != null;
-            handler.renderGeometry(renderManager, g);
-            g.queueDistance = Float.NEGATIVE_INFINITY;
-        }
+        queue.setCamera(cam);
+        queue.sort();
+        queue.render(renderManager, handler);
     }
     /**
      * Renders the material on a fullscreen quad.

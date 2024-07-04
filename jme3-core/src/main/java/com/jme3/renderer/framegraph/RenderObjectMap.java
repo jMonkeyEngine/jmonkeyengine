@@ -124,11 +124,10 @@ public class RenderObjectMap {
                         if (cap != null) cap.reallocateObject(obj.getId(), resource.getIndex(),
                                 resource.getResource().getClass().getSimpleName());
                         objectsReallocated++;
-                        obj.endInspect();
                         return;
                     }
                     // then try applying an indirect resource, which is not as desirable
-                    if (!obj.isPrioritized() && indirectObj == null) {
+                    if (indirectObj == null) {
                         indirectRes = def.applyIndirectResource(obj.getObject());
                         if (indirectRes != null) {
                             indirectObj = obj;
@@ -138,12 +137,10 @@ public class RenderObjectMap {
             }
             // allocate indirect object
             if (indirectObj != null) {
-                indirectObj.startInspect();
                 resource.setObject(indirectObj, indirectRes);
                 if (cap != null) cap.reallocateObject(indirectObj.getId(), resource.getIndex(),
                         resource.getResource().getClass().getSimpleName());
                 objectsReallocated++;
-                indirectObj.endInspect();
                 return;
             }
         }

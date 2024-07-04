@@ -61,7 +61,7 @@ public class FrameGraphFactory {
         FrameGraph fg = new FrameGraph(assetManager);
         fg.setName("Forward");
         
-        SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass());
+        SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass(true, true));
         OutputRenderPass opaque = fg.add(new OutputRenderPass());
         OutputRenderPass sky = fg.add(new OutputRenderPass(DepthRange.REAR));
         OutputRenderPass transparent = fg.add(new OutputRenderPass());
@@ -102,11 +102,12 @@ public class FrameGraphFactory {
         FrameGraph fg = new FrameGraph(assetManager);
         fg.setName(tiled ? "TiledDeferred" : "Deferred");
         
-        SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass());
+        SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass(true, true));
         Attribute tileInfoAttr = fg.add(new Attribute());
         Junction tileJunct1 = fg.add(new Junction(1, 1));
         GBufferPass gbuf = fg.add(new GBufferPass());
-        LightImagePass lightImg = fg.add(new LightImagePass(), (async ? 1 : FrameGraph.RENDER_THREAD));
+        LightImagePass lightImg = fg.add(new LightImagePass(),
+                new PassIndex().setThreadIndex(async ? 1 : FrameGraph.RENDER_THREAD));
         Junction lightJunct = fg.add(new Junction(1, 6));
         Junction tileJunct2 = fg.add(new Junction(1, 2));
         DeferredPass deferred = fg.add(new DeferredPass());

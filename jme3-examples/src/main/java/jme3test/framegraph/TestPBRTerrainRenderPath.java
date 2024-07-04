@@ -33,9 +33,7 @@ package jme3test.framegraph;
  */
 import com.jme3.app.DetailedProfilerState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.ModelKey;
 import com.jme3.asset.TextureKey;
-import com.jme3.asset.cache.AssetCache;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -52,6 +50,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.FrameGraphFactory;
+import com.jme3.renderer.framegraph.PassLocator;
 import com.jme3.renderer.framegraph.light.TiledRenderGrid;
 import com.jme3.renderer.framegraph.passes.LightImagePass;
 import com.jme3.system.AppSettings;
@@ -202,7 +201,7 @@ public class TestPBRTerrainRenderPath extends SimpleApplication {
     public void simpleInitApp() {
         
         FrameGraph fg = FrameGraphFactory.deferred(assetManager, true);
-        fg.get(LightImagePass.class).setMaxLights(1024);
+        fg.get(PassLocator.by(LightImagePass.class)).setMaxLights(1024);
         fg.setSetting("TileInfo", new TiledRenderGrid(7, -1));
         //viewPort.setFrameGraph(fg);
         flyCam.setDragToRotate(true);

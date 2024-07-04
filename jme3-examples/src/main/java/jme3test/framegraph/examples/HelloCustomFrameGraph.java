@@ -10,10 +10,10 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.passes.QueueMergePass;
 import com.jme3.renderer.framegraph.passes.BucketPass;
 import com.jme3.renderer.framegraph.passes.OutputPass;
 import com.jme3.renderer.framegraph.passes.SceneEnqueuePass;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
@@ -37,19 +37,27 @@ public class HelloCustomFrameGraph extends SimpleApplication {
     public void simpleInitApp() {
         
         FrameGraph fg = new FrameGraph(assetManager);
+        viewPort.setFrameGraph(fg);
         
-        SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass());
-        BucketPass opaque = fg.add(new BucketPass());
-        DownsamplingPass[] downsamples = fg.addLoop(new DownsamplingPass[2],
-                () -> new DownsamplingPass(), "Input", "Output");
+        SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass(true, true));
+        QueueMergePass merge = fg.add(new QueueMergePass(5));
+        BucketPass bucket = fg.add(new BucketPass());
+        DownsamplingPass[] downsamples = fg.addLoop(new DownsamplingPass[4],
+                (i) -> new DownsamplingPass(), "Input", "Output");
         OutputPass out = fg.add(new OutputPass());
         
-        opaque.makeInput(enqueue, "Opaque", "Geometry");
-        downsamples[0].makeInput(opaque, "Color", "Input");
-        out.makeInput(downsamples[downsamples.length-1], "Output", "Color");
+        merge.makeInput(enqueue, "Opaque", "Queues[0]");
+        merge.makeInput(enqueue, "Sky", "Queues[1]");
+        merge.makeInput(enqueue, "Transparent", "Queues[2]");
+        merge.makeInput(enqueue, "Gui", "Queues[3]");
+        merge.makeInput(enqueue, "Translucent", "Queues[4]");
         
-        viewPort.setFrameGraph(fg);
-        viewPort.setBackgroundColor(ColorRGBA.White.mult(0.05f));
+        bucket.makeInput(merge, "Result", "Geometry");
+        
+        downsamples[0].makeInput(bucket, "Color", "Input");
+        
+        out.makeInput(downsamples[downsamples.length-1], "Output", "Color");
+        out.makeInput(bucket, "Depth", "Depth");
         
         Geometry box = new Geometry("box", new Box(1, 1, 1));
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -65,6 +73,7 @@ public class HelloCustomFrameGraph extends SimpleApplication {
         
         flyCam.setMoveSpeed(15);
         flyCam.setDragToRotate(true);
+        viewPort.setBackgroundColor(ColorRGBA.White.mult(0.05f));
         
     }
     

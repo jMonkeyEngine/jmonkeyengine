@@ -54,20 +54,20 @@ import java.util.Map;
 public class FrameGraphData implements Savable {
     
     private static final String DEF_NAME = "FrameGraph";
-    private static final ArrayList<PassQueueExecutor> DEF_QUEUES = new ArrayList<>(0);
+    private static final ArrayList<PassThread> DEF_QUEUES = new ArrayList<>(0);
     private static final SavablePassConnection[] DEF_CONNECTIONS = new SavablePassConnection[0];
     private static final HashMap<String, Savable> DEF_SETTINGS = new HashMap<>();
     
     private final boolean export;
     private String name;
-    private ArrayList<PassQueueExecutor> queues;
+    private ArrayList<PassThread> queues;
     private SavablePassConnection[] connections;
     private Map<String, SavableObject> settings;
     
     public FrameGraphData() {
         export = false;
     }
-    public FrameGraphData(FrameGraph fg, ArrayList<PassQueueExecutor> queues, Map<String, Object> settings) {
+    public FrameGraphData(FrameGraph fg, ArrayList<PassThread> queues, Map<String, Object> settings) {
         this.name = fg.getName();
         this.queues = queues;
         this.settings = new HashMap<>();
@@ -89,14 +89,14 @@ public class FrameGraphData implements Savable {
         final LinkedList<SavablePassConnection> list = new LinkedList<>();
         int nextId = 0;
         // remap ids
-        for (PassQueueExecutor q : queues) {
+        for (PassThread q : queues) {
             for (RenderPass p : q) {
                 p.setExportId(nextId++);
                 idMap.put(p.getId(), p.getExportId());
             }
         }
         // extract connections
-        for (PassQueueExecutor q : queues) {
+        for (PassThread q : queues) {
             for (RenderPass p : q) for (ResourceTicket t : p.getInputTickets()) {
                 if (t.hasSource()) {
                     int outId = idMap.get(t.getSource().getPassId());
@@ -110,7 +110,7 @@ public class FrameGraphData implements Savable {
         out.write(list.toArray(new SavablePassConnection[0]), "connections", DEF_CONNECTIONS);
         out.writeStringSavableMap(settings, "settings", DEF_SETTINGS);
         // reset export ids
-        for (PassQueueExecutor q : queues) {
+        for (PassThread q : queues) {
             for (RenderPass p : q) {
                 p.setExportId(-1);
             }
@@ -129,7 +129,7 @@ public class FrameGraphData implements Savable {
         name = in.readString("name", "FrameGraph");
         int baseId = RenderPass.getNextId();
         queues = in.readSavableArrayList("passes", DEF_QUEUES);
-        for (PassQueueExecutor q : queues) {
+        for (PassThread q : queues) {
             for (RenderPass p : q) {
                 p.shiftId(baseId);
             }
@@ -160,9 +160,9 @@ public class FrameGraphData implements Savable {
         fg.setName(name);
         // cache passes by id
         HashMap<Integer, RenderPass> cache = new HashMap<>();
-        for (PassQueueExecutor q : queues) {
+        for (PassThread q : queues) {
             for (RenderPass p : q) {
-                fg.add(p, q.getIndex());
+                fg.add(p, new PassIndex().setThreadIndex(q.getIndex()));
                 cache.put(p.getId(), p);
             }
         }

@@ -35,13 +35,11 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.GeometryQueue;
 import com.jme3.renderer.framegraph.ResourceTicket;
-import com.jme3.renderer.queue.GeometryList;
-import com.jme3.renderer.queue.RenderQueue.Bucket;
 import java.io.IOException;
 
 /**
@@ -51,7 +49,7 @@ import java.io.IOException;
  */
 public class OutputRenderPass extends RenderPass {
     
-    private ResourceTicket<GeometryList> geometry;
+    private ResourceTicket<GeometryQueue> geometry;
     private DepthRange depth;
     private boolean perspective = true;
 
@@ -83,7 +81,7 @@ public class OutputRenderPass extends RenderPass {
         }
         context.getRenderer().setDepthRange(depth);
         //context.renderViewPortQueue(bucket, true);
-        context.renderGeometryList(resources.acquire(geometry), null, null);
+        context.renderGeometry(resources.acquire(geometry), null, null);
         if (!perspective) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), false);
         }

@@ -39,10 +39,9 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.GeometryQueue;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.framegraph.definitions.TextureDef;
-import com.jme3.renderer.queue.GeometryList;
-import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -57,7 +56,7 @@ public class BucketPass extends RenderPass {
     
     private final DepthRange depth = new DepthRange();
     private ResourceTicket<Texture2D> inColor, inDepth, outColor, outDepth;
-    private ResourceTicket<GeometryList> geometry;
+    private ResourceTicket<GeometryQueue> geometry;
     private TextureDef<Texture2D> colorDef, depthDef;
     private boolean perspective;
     
@@ -109,7 +108,7 @@ public class BucketPass extends RenderPass {
         if (!perspective) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), true);
         }
-        context.renderGeometryList(resources.acquire(geometry), null, null);
+        context.renderGeometry(resources.acquire(geometry), null, null);
         if (!perspective) {
             context.getRenderManager().setCamera(context.getViewPort().getCamera(), false);
         }

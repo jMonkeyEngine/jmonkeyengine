@@ -48,6 +48,7 @@ import com.jme3.renderer.framegraph.passes.Attribute;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -98,7 +99,7 @@ public class FrameGraph {
     private final AssetManager assetManager;
     private final ResourceList resources;
     private final FGRenderContext context;
-    private final ArrayList<PassQueueExecutor> queues = new ArrayList<>(1);
+    private final ArrayList<PassThread> threads = new ArrayList<>(1);
     private final HashMap<String, Object> settings = new HashMap<>();
     private final AtomicInteger incompleteQueues = new AtomicInteger(0);
     private String name = "FrameGraph";
@@ -114,7 +115,7 @@ public class FrameGraph {
         this.assetManager = assetManager;
         this.resources = new ResourceList(this);
         this.context = new FGRenderContext(this);
-        this.queues.add(new PassQueueExecutor(this, RENDER_THREAD));
+        this.threads.add(new PassThread(this, RENDER_THREAD));
     }
     /**
      * Creates a new framegraph from the given data.
@@ -146,7 +147,7 @@ public class FrameGraph {
     }
     
     /**
-     * Configures the framegraph rendering context.
+     * Configures the rendering context.
      * 
      * @param rm
      * @param vp viewport to render (not null)
@@ -182,7 +183,7 @@ public class FrameGraph {
         if (!rendered) {
             resources.beginRenderingSession();
         }
-        for (PassQueueExecutor queue : queues) {
+        for (PassThread queue : threads) {
             for (RenderPass p : queue) {
                 if (prof != null) prof.fgStep(FgStep.Prepare, p.getProfilerName());
                 if (cap != null) cap.prepareRenderPass(p.getIndex(), p.getProfilerName());
@@ -192,7 +193,7 @@ public class FrameGraph {
         resources.applyFutureReferences();
         // cull passes and resources
         if (prof != null) prof.vpStep(VpStep.FrameGraphCull, vp, null);
-        for (PassQueueExecutor queue : queues) {
+        for (PassThread queue : threads) {
             for (RenderPass p : queue) {
                 p.countReferences();
             }
@@ -202,9 +203,9 @@ public class FrameGraph {
         if (prof != null) prof.vpStep(VpStep.FrameGraphExecute, vp, null);
         context.pushRenderSettings();
         renderException = null;
-        incompleteQueues.set(queues.size());
-        for (int i = queues.size()-1; i >= 0; i--) {
-            queues.get(i).execute(context);
+        incompleteQueues.set(threads.size());
+        for (int i = threads.size()-1; i >= 0; i--) {
+            threads.get(i).execute(context);
         }
         if (renderException != null) {
             renderException.printStackTrace(System.err);
@@ -213,7 +214,7 @@ public class FrameGraph {
         context.popFrameBuffer();
         // reset
         if (prof != null) prof.vpStep(VpStep.FrameGraphReset, vp, null);
-        for (PassQueueExecutor queue : queues) {
+        for (PassThread queue : threads) {
             for (RenderPass p : queue) {
                 if (prof != null) prof.fgStep(FgStep.Reset, p.getProfilerName());
                 p.resetRender(context);
@@ -229,7 +230,7 @@ public class FrameGraph {
      */
     public void renderingComplete() {
         // notify passes
-        for (PassQueueExecutor queue : queues) {
+        for (PassThread queue : threads) {
             for (RenderPass p : queue) {
                 p.renderingComplete();
             }
@@ -238,13 +239,15 @@ public class FrameGraph {
         rendered = false;
     }
     
-    private PassQueueExecutor getQueue(int i) {
-        if (i >= queues.size()) {
-            PassQueueExecutor queue = new PassQueueExecutor(this, i);
-            queues.add(queue);
+    private PassThread getQueue(int i) {
+        if (i >= threads.size()) {
+            PassThread queue = new PassThread(this, i);
+            threads.add(queue);
             return queue;
+        } else if (i >= 0) {
+            return threads.get(i);
         } else {
-            return queues.get(i);
+            return threads.get(RENDER_THREAD);
         }
     }
     
@@ -259,17 +262,6 @@ public class FrameGraph {
         return getQueue(RENDER_THREAD).add(pass);
     }
     /**
-     * 
-     * 
-     * @param <T>
-     * @param pass
-     * @param threadIndex
-     * @return 
-     */
-    public <T extends RenderPass> T add(T pass, int threadIndex) {
-        return getQueue(threadIndex).add(pass);
-    }
-    /**
      * Adds the pass at the index in the pass queue.
      * <p>
      * If the index is &gt;= the current queue size, the pass will
@@ -278,12 +270,11 @@ public class FrameGraph {
      * 
      * @param <T>
      * @param pass
-     * @param threadIndex
-     * @param queueIndex
+     * @param index
      * @return 
      */
-    public <T extends RenderPass> T add(T pass, int threadIndex, int queueIndex) {
-        return getQueue(threadIndex).add(pass, queueIndex);
+    public <T extends RenderPass> T add(T pass, PassIndex index) {
+        return getQueue(index.getThreadIndex()).add(pass, index);
     }
     /**
      * Creates and adds an Attribute pass and links it to the given ticket.
@@ -297,98 +288,81 @@ public class FrameGraph {
     public <T> Attribute<T> addAttribute(ResourceTicket<T> ticket) {
         return getQueue(RENDER_THREAD).addAttribute(ticket);
     }
+    
     /**
+     * Adds an array of passes connected in series to the framegraph.
+     * <p>
+     * The named input ticket on each pass (except the first) is connected to
+     * the named output ticket on the previous pass.
      * 
      * @param <T>
-     * @param array
-     * @param supplier
-     * @param inTicket
-     * @param outTicket
-     * @return 
-     * @see PassQueueExecutor#addLoop(T[], int, java.util.function.Supplier, java.lang.String, java.lang.String)
+     * @param array array of passes (elements may be null)
+     * @param function creates passes where array elements are null (may be null)
+     * @param inTicket name of the input ticket on each pass
+     * @param outTicket name of the output ticket on each pass
+     * @return array of passes
+     * @see PassThread#addLoop(T[], int, java.util.function.Supplier, java.lang.String, java.lang.String)
      */
-    public <T extends RenderPass> T[] addLoop(T[] array, Supplier<T> supplier,
+    public <T extends RenderPass> T[] addLoop(T[] array, Function<Integer, T> function,
             String inTicket, String outTicket) {
-        return queues.get(RENDER_THREAD).addLoop(array, -1, supplier, inTicket, outTicket);
+        return threads.get(RENDER_THREAD).addLoop(array, PassIndex.PASSIVE, function, inTicket, outTicket);
     }
     /**
+     * Adds an array of passes connected in series to the framegraph.
+     * <p>
+     * The named input ticket on each pass (except the first) is connected to
+     * the named output ticket on the previous pass.
      * 
      * @param <T>
-     * @param array
-     * @param threadIndex
-     * @param supplier
-     * @param inTicket
-     * @param outTicket
-     * @return 
-     * @see PassQueueExecutor#addLoop(T[], int, java.util.function.Supplier, java.lang.String, java.lang.String)
+     * @param array array of passes (elements may be null)
+     * @param index index that passes are added to
+     * @param function creates passes where array elements are null (may be null)
+     * @param inTicket name of the input ticket on each pass
+     * @param outTicket name of the output ticket on each pass
+     * @return array of passes
+     * @see PassThread#addLoop(T[], int, java.util.function.Supplier, java.lang.String, java.lang.String)
      */
-    public <T extends RenderPass> T[] addLoop(T[] array, int threadIndex,
-            Supplier<T> supplier, String inTicket, String outTicket) {
-        return queues.get(threadIndex).addLoop(array, -1, supplier, inTicket, outTicket);
-    }
-    /**
-     * 
-     * @param <T>
-     * @param array
-     * @param threadIndex
-     * @param passIndex
-     * @param supplier
-     * @param inTicket
-     * @param outTicket
-     * @return 
-     * @see PassQueueExecutor#addLoop(T[], int, java.util.function.Supplier, java.lang.String, java.lang.String)
-     */
-    public <T extends RenderPass> T[] addLoop(T[] array, int threadIndex, int passIndex,
-            Supplier<T> supplier, String inTicket, String outTicket) {
-        return queues.get(threadIndex).addLoop(array, passIndex, supplier, inTicket, outTicket);
+    public <T extends RenderPass> T[] addLoop(T[] array, PassIndex index,
+            Function<Integer, T> function, String inTicket, String outTicket) {
+        return threads.get(index.queueIndex).addLoop(array, index, function, inTicket, outTicket);
     }
     
     /**
-     * Gets the first pass that is of or a subclass of the given class.
+     * Adds the passes from the given framegraph to this framegraph.
+     * <p>
+     * The retargeting array determines where each pass thread in the given
+     * framegraph is added.
      * 
-     * @param <T>
-     * @param type
-     * @return first qualifying pass, or null
+     * @param frameGraph
+     * @param retarget indices to retarget threads to (not null, elements unaffected)
      */
-    public <T extends RenderPass> T get(Class<T> type) {
-        for (PassQueueExecutor q : queues) {
-            T p = q.get(type);
-            if (p != null) {
-                return p;
+    public void add(FrameGraph frameGraph, PassIndex... retarget) {
+        final PassIndex index = new PassIndex();
+        for (int i = 0; i < frameGraph.threads.size(); i++) {
+            PassThread source = frameGraph.threads.get(i);
+            index.set(retarget[i]);
+            PassThread target = getQueue(index.threadIndex);
+            for (RenderPass p : source) {
+                target.add(p, index);
+                if (!index.useDefaultThread()) {
+                    index.queueIndex++;
+                }
             }
         }
-        return null;
     }
+    
     /**
-     * Gets the first pass of the given class that is named as given.
+     * Gets the first pass that qualifies.
      * 
      * @param <T>
-     * @param type
-     * @param name
+     * @param by
      * @return first qualifying pass, or null
      */
-    public <T extends RenderPass> T get(Class<T> type, String name) {
-        for (PassQueueExecutor q : queues) {
-            T p = q.get(type, name);
-            if (p != null) {
-                return p;
-            }
-        }
-        return null;
-    }
-    /**
-     * Gets the pass that holds the given id number.
-     * 
-     * @param <T>
-     * @param type
-     * @param id
-     * @return pass of the id, or null
-     */
-    public <T extends RenderPass> T get(Class<T> type, int id) {
-        for (PassQueueExecutor q : queues) {
-            T p = q.get(type, id);
-            if (p != null) {
-                return p;
+    public <T extends RenderPass> T get(PassLocator<T> by) {
+        for (PassThread q : threads) {
+            T a = q.get(by);
+            if (a != null) {
+                return a;
             }
         }
         return null;
@@ -404,7 +378,7 @@ public class FrameGraph {
      * @throws IndexOutOfBoundsException if the index is less than zero or &gt;= the queue size
      */
     public RenderPass remove(int i) {
-        return queues.get(RENDER_THREAD).remove(i);
+        return threads.get(RENDER_THREAD).remove(i);
     }
     /**
      * Removes the given pass from the queue.
@@ -415,7 +389,7 @@ public class FrameGraph {
      * @return true if the pass was removed from the queue
      */
     public boolean remove(RenderPass pass) {
-        for (PassQueueExecutor queue : queues) {
+        for (PassThread queue : threads) {
             if (queue.remove(pass)) {
                 return true;
             }
@@ -426,7 +400,7 @@ public class FrameGraph {
      * Clears all passes from the pass queue.
      */
     public void clear() {
-        for (PassQueueExecutor queue : queues) {
+        for (PassThread queue : threads) {
             queue.clear();
         }
     }
@@ -548,9 +522,9 @@ public class FrameGraph {
      * 
      * @param queue
      */
-    public void notifyComplete(PassQueueExecutor queue) {
+    public void notifyComplete(PassThread queue) {
         if (incompleteQueues.decrementAndGet() == 1) {
-            for (PassQueueExecutor q : queues) {
+            for (PassThread q : threads) {
                 q.notifyLast();
             }
         }
@@ -563,7 +537,7 @@ public class FrameGraph {
     public void interruptRendering(Exception ex) {
         assert ex != null : "Interrupting exception cannot be null.";
         renderException = ex;
-        for (PassQueueExecutor q : queues) {
+        for (PassThread q : threads) {
             q.interrupt();
         }
     }
@@ -620,7 +594,7 @@ public class FrameGraph {
      * @return 
      */
     public boolean isAsync() {
-        return queues.size() > 1;
+        return threads.size() > 1;
     }
     
     /**
@@ -676,7 +650,7 @@ public class FrameGraph {
      * @return 
      */
     public FrameGraphData createData() {
-        return new FrameGraphData(this, queues, settings);
+        return new FrameGraphData(this, threads, settings);
     }
     
     @Override
