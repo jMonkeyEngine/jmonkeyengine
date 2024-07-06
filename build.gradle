@@ -245,43 +245,6 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
     }
 }
 
-
-//class IncrementalReverseTask extends DefaultTask {
-//    @InputDirectory
-//    def File inputDir
-//
-//    @OutputDirectory
-//    def File outputDir
-//
-//    @Input
-//    def inputProperty
-//
-//    @TaskAction
-//    void execute(IncrementalTaskInputs inputs) {
-//        println inputs.incremental ? "CHANGED inputs considered out of date" : "ALL inputs considered out of date"
-//        inputs.outOfDate { change ->
-//            println "out of date: ${change.file.name}"
-//            def targetFile = new File(outputDir, change.file.name)
-//            targetFile.text = change.file.text.reverse()
-//        }
-//
-//        inputs.removed { change ->
-//            println "removed: ${change.file.name}"
-//            def targetFile = new File(outputDir, change.file.name)
-//            targetFile.delete()
-//        }
-//    }
-//}
-
-//allprojects {
-//    tasks.withType(JavaExec) {
-//        enableAssertions = true // false by default
-//    }
-//    tasks.withType(Test) {
-//        enableAssertions = true // true by default
-//    }
-//}
-
 retrolambda {
   javaVersion JavaVersion.VERSION_1_7
   incremental true

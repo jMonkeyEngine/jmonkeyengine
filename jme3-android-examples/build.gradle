@@ -54,5 +54,4 @@ dependencies {
     implementation project(':jme3-plugins')
     implementation project(':jme3-terrain')
     implementation fileTree(dir: '../jme3-examples/build/libs', include: ['*.jar'], exclude: ['*sources*.*'])
-//    compile project(':jme3-examples')
 }
