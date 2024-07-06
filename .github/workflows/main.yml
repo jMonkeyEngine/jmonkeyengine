@@ -90,13 +90,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest,windows-2019,macOS-latest]
+        os: [ubuntu-latest,windows-latest,macOS-latest]
         jdk: [11, 17]
         include:
           - os: ubuntu-latest
             osName: linux
             deploy: true
-          - os: windows-2019
+          - os: windows-latest
             osName: windows
             deploy: false
           - os: macOS-latest
