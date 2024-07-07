@@ -12,7 +12,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.0'
         classpath 'me.tatarka:gradle-retrolambda:3.7.1'
-        classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.5.1"
+        classpath "com.github.spotbugs.snom:spotbugs-gradle-plugin:6.0.18"
     }
 }
 
