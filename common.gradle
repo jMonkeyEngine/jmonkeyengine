@@ -15,8 +15,10 @@ eclipse.jdt.file.withProperties { props ->
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 tasks.withType(JavaCompile) { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
