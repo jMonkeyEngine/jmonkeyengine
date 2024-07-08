@@ -48,7 +48,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestShadowsPerf extends SimpleApplication {
 
@@ -84,7 +84,7 @@ public class TestShadowsPerf extends SimpleApplication {
         Sphere sphMesh = new Sphere(32, 32, 1);
         sphMesh.setTextureMode(Sphere.TextureMode.Projected);
         sphMesh.updateGeometry(32, 32, 1, false, false);
-        TangentBinormalGenerator.generate(sphMesh);
+        MikktspaceTangentGenerator.generate(sphMesh);
 
         sphere = new Geometry("Rock Ball", sphMesh);
         sphere.setLocalTranslation(0, 5, 0);

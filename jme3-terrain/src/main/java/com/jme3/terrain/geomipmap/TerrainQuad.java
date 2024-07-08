@@ -56,7 +56,7 @@ import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
 import com.jme3.terrain.geomipmap.picking.BresenhamTerrainPicker;
 import com.jme3.terrain.geomipmap.picking.TerrainPickData;
 import com.jme3.terrain.geomipmap.picking.TerrainPicker;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.TangentUtils;
 import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -677,7 +677,7 @@ public class TerrainQuad extends Node implements Terrain {
                 ((TerrainQuad)child).generateDebugTangents(mat);
             } else if (child instanceof TerrainPatch) {
                 Geometry debug = new Geometry( "Debug " + name,
-                    TangentBinormalGenerator.genTbnLines( ((TerrainPatch)child).getMesh(), 0.8f));
+                        TangentUtils.genTbnLines(((TerrainPatch) child).getMesh(), 0.8f));
                 attachChild(debug);
                 debug.setLocalTranslation(child.getLocalTranslation());
                 debug.setCullHint(CullHint.Never);
