@@ -41,36 +41,44 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Manages render resource declarations, references, and releases for a framegraph.
+ * Manages {@link ResourceView} declarations, references, and
+ * releases for a single framegraph.
  * 
  * @author codex
  */
 public class ResourceList {
-
+    
+    /**
+     * Initial size of the resource ArrayList.
+     */
     private static final int INITIAL_SIZE = 20;
     
     private final FrameGraph frameGraph;
     private RenderManager renderManager;
     private RenderObjectMap map;
     private GraphEventCapture cap;
-    private ArrayList<RenderResource> resources = new ArrayList<>(INITIAL_SIZE);
+    private ArrayList<ResourceView> resources = new ArrayList<>(INITIAL_SIZE);
     private final LinkedList<FutureReference> futureRefs = new LinkedList<>();
     private int nextSlot = 0;
     private int textureBinds = 0;
-
+    
+    /**
+     * 
+     * @param frameGraph 
+     */
     public ResourceList(FrameGraph frameGraph) {
         this.frameGraph = frameGraph;
     }
     
-    private <T> RenderResource<T> create(ResourceProducer producer, ResourceDef<T> def) {
-        RenderResource res = new RenderResource<>(producer, def, new ResourceTicket<>());
+    private <T> ResourceView<T> create(ResourceProducer producer, ResourceDef<T> def) {
+        ResourceView res = new ResourceView<>(producer, def, new ResourceTicket<>());
         res.getTicket().setLocalIndex(add(res));
         return res;
     }
-    private <T> RenderResource<T> locate(ResourceTicket<T> ticket) {
+    private <T> ResourceView<T> locate(ResourceTicket<T> ticket) {
         return locate(ticket, true);
     }
-    private <T> RenderResource<T> locate(ResourceTicket<T> ticket, boolean failOnMiss) {
+    private <T> ResourceView<T> locate(ResourceTicket<T> ticket, boolean failOnMiss) {
         if (ticket == null) {
             if (failOnMiss) {
                 throw new NullPointerException("Ticket cannot be null.");
@@ -85,7 +93,7 @@ public class ResourceList {
             return null;
         }
         if (i < resources.size()) {
-            RenderResource<T> res = resources.get(i);
+            ResourceView<T> res = resources.get(i);
             if (res != null) {
                 return res;
             }
@@ -98,10 +106,10 @@ public class ResourceList {
         }
         return null;
     }
-    private RenderResource fastLocate(ResourceTicket ticket) {
+    private ResourceView fastLocate(ResourceTicket ticket) {
         return resources.get(ticket.getWorldIndex());
     }
-    private int add(RenderResource res) {
+    private int add(ResourceView res) {
         assert res != null;
         if (nextSlot >= resources.size()) {
             // addUserEvent resource to end of list
@@ -121,8 +129,8 @@ public class ResourceList {
             return i;
         }
     }
-    private RenderResource remove(int index) {
-        RenderResource prev = resources.set(index, null);
+    private ResourceView remove(int index) {
+        ResourceView prev = resources.set(index, null);
         if (prev != null && prev.isReferenced()) {
             throw new IllegalStateException("Cannot remove "+prev+" because it is referenced.");
         }
@@ -152,7 +160,7 @@ public class ResourceList {
      * @return 
      */
     public <T> ResourceTicket<T> declare(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> store) {
-        RenderResource<T> resource = create(producer, def);
+        ResourceView<T> resource = create(producer, def);
         if (cap != null) cap.declareResource(resource.getIndex(), (store != null ? store.getName() : ""));
         return resource.getTicket().copyIndexTo(store);
     }
@@ -175,10 +183,11 @@ public class ResourceList {
     }
     
     /**
-     * Makes reservations for each given ticket.
+     * Makes reservations at the index for each {@link RenderObject} referenced by the tickets.
      * 
      * @param passIndex
      * @param tickets 
+     * @see RenderObjectMap#reserve(long, com.jme3.renderer.framegraph.PassIndex)
      */
     public void reserve(PassIndex passIndex, ResourceTicket... tickets) {
         for (ResourceTicket t : tickets) {
@@ -187,7 +196,7 @@ public class ResourceList {
     }
     
     private void reference(PassIndex passIndex, ResourceTicket ticket, boolean optional) {
-        RenderResource resource = locate(ticket, false);
+        ResourceView resource = locate(ticket, false);
         if (resource != null) {
             resource.reference(passIndex);
             if (cap != null) cap.referenceResource(resource.getIndex(), ticket.getName());
@@ -273,7 +282,7 @@ public class ResourceList {
      * @param ticket 
      */
     public void setUndefined(ResourceTicket ticket) {
-        RenderResource resource = locate(ticket);
+        ResourceView resource = locate(ticket);
         resource.setUndefined();
         if (cap != null) cap.setResourceUndefined(resource.getIndex(), ticket.getName());
     }
@@ -355,7 +364,7 @@ public class ResourceList {
             }
             // wait for resource to become available to this context
             long start = System.currentTimeMillis();
-            RenderResource res;
+            ResourceView res;
             // TODO: determine why not locating the resource on each try results in timeouts.
             while (!(res = fastLocate(ticket)).isReadAvailable()) {
                 if (System.currentTimeMillis()-start >= timeoutMillis) {
@@ -397,7 +406,7 @@ public class ResourceList {
      * @param ticket
      * @return 
      */
-    protected <T> T acquire(RenderResource<T> resource, ResourceTicket<T> ticket) {
+    protected <T> T acquire(ResourceView<T> resource, ResourceTicket<T> ticket) {
         if (!resource.isUsed()) {
             throw new IllegalStateException(resource+" was unexpectedly acquired.");
         }
@@ -420,7 +429,7 @@ public class ResourceList {
      * @return 
      */
     public <T> T acquire(ResourceTicket<T> ticket) {
-        RenderResource<T> resource = locate(ticket);
+        ResourceView<T> resource = locate(ticket);
         if (resource.isUndefined()) {
             throw new NullPointerException("Cannot acquire undefined resource.");
         }
@@ -435,12 +444,12 @@ public class ResourceList {
      * 
      * @param <T>
      * @param ticket
-     * @param value default value
+     * @param value default value (may be null)
      * @return 
      */
     public <T> T acquireOrElse(ResourceTicket<T> ticket, T value) {
         if (validate(ticket)) {
-            RenderResource<T> resource = locate(ticket);
+            ResourceView<T> resource = locate(ticket);
             if (!resource.isUndefined()) {
                 return acquire(resource, ticket);
             }
@@ -589,7 +598,7 @@ public class ResourceList {
      * @param ticket 
      */
     public void release(ResourceTicket ticket) {
-        RenderResource resource = locate(ticket);
+        ResourceView resource = locate(ticket);
         if (cap != null) cap.releaseResource(resource.getIndex(), ticket.getName());
         if (!resource.release()) {
             if (cap != null && resource.getObject() != null) {
@@ -675,13 +684,13 @@ public class ResourceList {
      * references, and prior to execution.
      */
     public void cullUnreferenced() {
-        LinkedList<RenderResource> cull = new LinkedList<>();
-        for (RenderResource r : resources) {
+        LinkedList<ResourceView> cull = new LinkedList<>();
+        for (ResourceView r : resources) {
             if (r != null && !r.isReferenced() && !r.isSurvivesRefCull()) {
                 cull.add(r);
             }
         }
-        RenderResource resource;
+        ResourceView resource;
         while ((resource = cull.pollFirst()) != null) {
             // dereference producer of resource
             ResourceProducer producer = resource.getProducer();
@@ -695,7 +704,7 @@ public class ResourceList {
                     if (!validate(t)) {
                         continue;
                     }
-                    RenderResource r = locate(t);
+                    ResourceView r = locate(t);
                     r.release();
                     if (!r.isReferenced()) {
                         cull.addLast(r);
@@ -745,9 +754,7 @@ public class ResourceList {
     }
     
     /**
-     * Represents a reference that is made in the future.
-     * <p>
-     * Used primarily with asynchronous framegraphs.
+     * Represents a reference to a resource that will exist in the future.
      */
     private static class FutureReference {
         

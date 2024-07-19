@@ -53,6 +53,15 @@ import java.util.LinkedList;
  * <p>
  * Objects handled by this pass are automatically marked as constant, so that future changes
  * do not taint the game logic's resource view.
+ * <p>
+ * Inputs:
+ * <ul>
+ *   <li>{@link #INPUT} ({@link Object}): the value to share with game logic via registered GraphTargets (optional).</li>
+ * </ul>
+ * Outputs:
+ * <ul>
+ *   <li>{@link #OUTPUT} ({@link Object}): the value to share with the FrameGraph from game logic using the registered GraphSource</li>
+ * </ul>
  * 
  * @author codex
  * @param <T>
@@ -68,6 +77,7 @@ public class Attribute <T> extends RenderPass {
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
+        this.
         in = addInput(INPUT);
         out = addOutput(OUTPUT);
     }

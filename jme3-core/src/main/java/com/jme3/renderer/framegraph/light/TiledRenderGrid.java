@@ -40,8 +40,10 @@ import com.jme3.renderer.Camera;
 import java.io.IOException;
 
 /**
- *
- * @author codex
+ * Calculates screenspace tile demensions for rendering
+ * techniques such as tiled deferred.
+ * 
+ * @author johnkkk, codex
  */
 public class TiledRenderGrid implements Savable {
     
@@ -50,7 +52,7 @@ public class TiledRenderGrid implements Savable {
     private int tileSize = 0;
     private int gridWidth = 0;
     private int gridHeight = 0;
-
+    
     public TiledRenderGrid() {}
     public TiledRenderGrid(int divisions) {
         this.divisions = divisions;

@@ -45,13 +45,20 @@ import com.jme3.texture.Texture2D;
 import java.util.function.Function;
 import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.framegraph.GeometryQueue;
-import com.jme3.renderer.queue.GeometryList;
 
 /**
- * Renders diffuse, specular, emissive, normal, and depth information to a set of
- * textures.
+ * Renders information about a queue of geometries to a set of textures.
  * <p>
- * Lights from rendered geometries are accumulated and exported.
+ * Inputs:
+ * <ul>
+ *   <li>Geometry ({@link GeometryQueue}: queue of geometries to extract information from.</li>
+ * </ul>
+ * Outputs:
+ * <ul>
+ *   <li>GBufferData[5] ({@link Texture2D}): textures containing geometry information.</li>
+ *   <li>NumRenders (int): number of geometries rendered, since not all geometries are guaranteed to be rendered.</li>
+ * </ul>
+ * Geometries that do not have a material with a "GBuffer" technique are not rendered.
  * 
  * @author codex
  */

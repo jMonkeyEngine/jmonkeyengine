@@ -34,7 +34,6 @@ package com.jme3.renderer.framegraph;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
 import com.jme3.material.Material;
-import com.jme3.math.Vector2f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -43,7 +42,9 @@ import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
 
 /**
- * A quad specifically for rendering fullscreen.
+ * Renders materials and textures on a static fullscreen quad geometry.
+ * <p>
+ * Compatible with Filter shaders.
  * 
  * @author codex
  */
@@ -120,14 +121,17 @@ public class FullScreenQuad {
             transferMat.getAdditionalRenderState().setDepthTest(writeDepth);
             transferMat.getAdditionalRenderState().setDepthWrite(writeDepth);
             render(rm, transferMat);
-            setQuadScale(Vector2f.UNIT_XY);
             setAlphaDiscard(null);
         }
     }
     
-    public void setQuadScale(Vector2f scale) {
-        transferMat.setVector2("Scale", scale);
-    }
+    /**
+     * Sets the alpha discard threshold for next texture render.
+     * <p>
+     * Fragments with alpha values below or equal to the threshold will be discarded.
+     * 
+     * @param alphaDiscard 
+     */
     public void setAlphaDiscard(Float alphaDiscard) {
         if (alphaDiscard == null) {
             transferMat.clearParam("AlphaDiscard");

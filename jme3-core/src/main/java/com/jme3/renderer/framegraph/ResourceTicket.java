@@ -34,11 +34,10 @@ package com.jme3.renderer.framegraph;
 /**
  * References a {@link RenderResource} by index.
  * <p>
- * A ticket can be set as another tickets source, in which case the former inherits
- * the resource index of the latter.
- * <p>
- * Tickets can also vaguely point to the last known render object, which is used
- * to prioritize that render object, especially for reservations.
+ * Can reference another ticket as a source, which makes this point to the same
+ * resource as the source ticket. This mechanism allows RenderPasses to share
+ * resources. Also vaguely tracks the last seen render object, which is used to
+ * prioritize that render object, especially for reservations.
  * 
  * @author codex
  * @param <T>

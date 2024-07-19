@@ -47,12 +47,25 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;
 import java.util.function.Predicate;
 import com.jme3.renderer.GeometryRenderHandler;
-import com.jme3.renderer.queue.GeometryList;
 
 /**
- * Contains necessary context for framegraph rendering.
+ * Context for FrameGraph rendering.
  * <p>
- * Also manages renderer states, to ensure settings do no leak between passes.
+ * Provides RenderPasses with access to important objects such as the RenderManager,
+ * ViewPort, profiler, and fullscreen quad. Utility methods are provided for
+ * fullscreen quad rendering and camera management.
+ * <p>
+ * Additionally, the following render settings are handled to ensure settings
+ * do not leak between renders.
+ * <ul>
+ *   <li>Forced technique</li>
+ *   <li>Forced material</li>
+ *   <li>Geometry render handler</li>
+ *   <li>Geometry filter</li>
+ *   <li>Forced render state</li>
+ * </ul>
+ * After each pass execution on the main render thread, {@link #popRenderSettings()} is
+ * called to reset these settings to what they were before rendering began.
  * 
  * @author codex
  */

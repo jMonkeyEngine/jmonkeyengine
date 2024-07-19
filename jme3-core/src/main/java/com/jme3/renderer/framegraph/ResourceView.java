@@ -37,11 +37,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents an existing or future resource used for rendering.
+ * <p>
+ * Unlike {@link RenderObject}, this is only loosely connected to a raw
+ * rendering resource. In fact, the creation of a ResourceView does not
+ * necessarily predict the creation of a raw resource, due to culling.
  * 
  * @author codex
  * @param <T>
  */
-public class RenderResource <T> {
+public class ResourceView <T> {
     
     private final ResourceProducer producer;
     private final ResourceDef<T> def;
@@ -59,9 +63,8 @@ public class RenderResource <T> {
      * @param producer
      * @param def
      * @param ticket 
-     * @param async 
      */
-    public RenderResource(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
+    public ResourceView(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
         this.producer = producer;
         this.def = def;
         this.ticket = ticket;
@@ -133,7 +136,7 @@ public class RenderResource <T> {
         ticket.setObjectId(this.object.getId());
     }
     /**
-     * Directly sets the concrete resource held by this render resource.
+     * Directly sets the raw resource held by this render resource.
      * 
      * @param resource 
      */

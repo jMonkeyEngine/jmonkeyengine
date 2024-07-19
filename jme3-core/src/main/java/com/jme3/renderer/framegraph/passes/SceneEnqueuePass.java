@@ -1,6 +1,33 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Copyright (c) 2024 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.renderer.framegraph.passes;
 
@@ -19,7 +46,6 @@ import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.GeometryQueue;
 import com.jme3.renderer.framegraph.ResourceTicket;
 import com.jme3.renderer.queue.GeometryComparator;
-import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.GuiComparator;
 import com.jme3.renderer.queue.NullComparator;
 import com.jme3.renderer.queue.OpaqueComparator;
@@ -34,18 +60,30 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- *
+ * Enqueues geometries into different {@link GeometryQueue}s based on world
+ * render bucket value.
+ * <p>
+ * Outputs vary based on what GeometryQueues are added. If default queues are
+ * added (via {@link #SceneEnqueuePass(boolean, boolean)}), then the outputs
+ * include: "Opaque", "Sky", "Transparent", "Gui", and "Translucent". All outputs
+ * are GeometryQueues.
+ * <p>
+ * A geometry is placed in queues according to the userdata found at
+ * {@link #QUEUE} (expected as String) according to ancestor inheritance, or the
+ * value returned by {@link Geometry#getQueueBucket()} (converted to String).
+ * Userdata value (if found) trumps queue bucket value.
+ * 
  * @author codex
  */
 public class SceneEnqueuePass extends RenderPass {
     
     /**
-     * Userdata key for denoting the bucket the spatial should be sorted into.
+     * Userdata key for denoting the queue the spatial should be sorted into.
      */
-    public static final String BUCKET = "RenderQueue.Bucket";
+    public static final String QUEUE = "SceneEnqueuePass.RenderQueue";
     
     /**
-     * Userdata value for inheriting the bucket of the spatial's parent.
+     * Userdata value for inheriting the queue of the spatial's parent.
      */
     public static final String INHERIT = RenderQueue.Bucket.Inherit.name();
     
@@ -60,14 +98,24 @@ public class SceneEnqueuePass extends RenderPass {
     private final HashMap<String, Queue> buckets = new HashMap<>();
     private String defaultBucket = OPAQUE;
 
+    /**
+     * Initialize an instance with default settings.
+     * <p>
+     * Default queues are not added.
+     */
     public SceneEnqueuePass() {}
+    /**
+     * 
+     * @param runControlRender true to have this pass run {@link com.jme3.scene.control.Control} renders
+     * @param useDefaultBuckets true to have default queues registered
+     */
     public SceneEnqueuePass(boolean runControlRender, boolean useDefaultBuckets) {
         this.runControlRender = runControlRender;
         if (useDefaultBuckets) {
             add(OPAQUE, new OpaqueComparator());
-            add(SKY, null);
+            add(SKY, null, DepthRange.REAR, true);
             add(TRANSPARENT, new TransparentComparator());
-            add(GUI, new GuiComparator());
+            add(GUI, new GuiComparator(), DepthRange.FRONT, false);
             add(TRANSLUCENT, new TransparentComparator());
         }
     }
@@ -94,6 +142,7 @@ public class SceneEnqueuePass extends RenderPass {
             vp.getCamera().setPlaneState(0);
             queueSubScene(context, scenes.get(i), null);
         }
+        System.out.println("set queue resources");
         for (Queue b : buckets.values()) {
             resources.setPrimitive(b.geometry, b.queue);
             resources.setPrimitive(b.lights, b.lightList);
@@ -165,7 +214,7 @@ public class SceneEnqueuePass extends RenderPass {
         }
     }
     private String getSpatialBucket(Spatial spatial, String parentValue) {
-        String value = spatial.getUserData(BUCKET);
+        String value = spatial.getUserData(QUEUE);
         if (value == null) {
             value = spatial.getLocalQueueBucket().name();
         }
@@ -182,26 +231,27 @@ public class SceneEnqueuePass extends RenderPass {
     }
     
     /**
-     * Adds a bucket with the name and comparator.
+     * Adds a queue with the name and comparator.
      * <p>
      * If a bucket already exists under the name, it will be replaced.
      * 
-     * @param name
-     * @param comparator
-     * @return 
+     * @param name name of the queue corresponding to the output name
+     * @param comparator sorts geometries within the queue
+     * @return this instance
      * @throws IllegalStateException if called while assigned to a framegraph
      */
-    public SceneEnqueuePass add(String name, GeometryComparator comparator) {
+    public final SceneEnqueuePass add(String name, GeometryComparator comparator) {
         return add(name, comparator, DepthRange.IDENTITY, true);
     }
     /**
-     * Adds a bucket with the name and comparator.
+     * Adds a queue with the name, comparator, depth range, and perspective mode.
      * 
-     * @param name
-     * @param comparator
+     * @param name name of the queue corresponding to the output name.
+     * @param comparator sorts geometries within the queue
      * @param depth range in which geometries in the bucket will be rendered within
      * @param perspective true to render geometries in the bucket in perspective mode (versus orthogonal)
-     * @return this
+     * @return this instance
+     * @throws IllegalStateException if called while assigned to a framegraph
      */
     public final SceneEnqueuePass add(String name, GeometryComparator comparator, DepthRange depth, boolean perspective) {
         if (isAssigned()) {

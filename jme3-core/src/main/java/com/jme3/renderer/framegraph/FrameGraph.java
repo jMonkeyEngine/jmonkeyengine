@@ -49,7 +49,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Manages render passes, dependencies, and resources in a node-based parameter system.
@@ -92,7 +91,7 @@ import java.util.function.Supplier;
 public class FrameGraph {
     
     /**
-     * Index for the main render thread pass queue.
+     * Index of the {@link PassThread} running on the main render thread.
      */
     public static final int RENDER_THREAD = 0;
     
@@ -148,6 +147,8 @@ public class FrameGraph {
     
     /**
      * Configures the rendering context.
+     * <p>
+     * Called automatically by the RenderManager before calling {@link #execute()}.
      * 
      * @param rm
      * @param vp viewport to render (not null)
@@ -169,7 +170,7 @@ public class FrameGraph {
      *   <li>Clean (reset).</li>
      * </ol>
      * 
-     * @return true if this is the first execution this frame
+     * @return true if this is the first execution of this FrameGraph this frame
      */
     public boolean execute() {
         // prepare
@@ -226,7 +227,8 @@ public class FrameGraph {
         else return (rendered = true);
     }
     /**
-     * Should be called only when all rendering for the frame is complete.
+     * Called automatically by the RenderManager after all rendering operations are
+     * complete and this FrameGraph executed at least once this frame.
      */
     public void renderingComplete() {
         // notify passes
@@ -252,7 +254,7 @@ public class FrameGraph {
     }
     
     /**
-     * Adds the pass to end of the pass queue.
+     * Adds the pass to end of the {@link PassThread} running on the main render thread.
      * 
      * @param <T>
      * @param pass
@@ -262,9 +264,12 @@ public class FrameGraph {
         return getQueue(RENDER_THREAD).add(pass);
     }
     /**
-     * Adds the pass at the index in the pass queue.
+     * Adds the pass at the index.
      * <p>
-     * If the index is &gt;= the current queue size, the pass will
+     * If the thread index is &gt;= the total number of {@link PassThreads}s,
+     * a new PassThread will be created for this to be added to.
+     * <p>
+     * If the queue index is &gt;= the current queue size, the pass will
      * be added to the end of the queue. Passes above the added pass
      * will have their indexes shifted.
      * 
@@ -276,24 +281,16 @@ public class FrameGraph {
     public <T extends RenderPass> T add(T pass, PassIndex index) {
         return getQueue(index.getThreadIndex()).add(pass, index);
     }
-    /**
-     * Creates and adds an Attribute pass and links it to the given ticket.
-     * <p>
-     * This is handy for quickly debugging various resources in the graph.
-     * 
-     * @param <T>
-     * @param ticket ticket to reference from
-     * @return created Attribute
-     */
-    public <T> Attribute<T> addAttribute(ResourceTicket<T> ticket) {
-        return getQueue(RENDER_THREAD).addAttribute(ticket);
-    }
     
     /**
      * Adds an array of passes connected in series to the framegraph.
      * <p>
      * The named input ticket on each pass (except the first) is connected to
-     * the named output ticket on the previous pass.
+     * the named output ticket on the previous pass, creating a series of connected
+     * passes. The array length determines the number of passes that will be added
+     * and connected.
+     * <p>
+     * Null elements of the array are replaced using the Function.
      * 
      * @param <T>
      * @param array array of passes (elements may be null)
@@ -324,7 +321,7 @@ public class FrameGraph {
      */
     public <T extends RenderPass> T[] addLoop(T[] array, PassIndex index,
             Function<Integer, T> function, String inTicket, String outTicket) {
-        return threads.get(index.queueIndex).addLoop(array, index, function, inTicket, outTicket);
+        return threads.get(index.getThreadIndex()).addLoop(array, index, function, inTicket, outTicket);
     }
     
     /**
@@ -369,7 +366,7 @@ public class FrameGraph {
     }
     
     /**
-     * Removes the pass at the index in the queue.
+     * Removes the pass at the index in the main {@link PassThread} (running on the main render thread).
      * <p>
      * Passes above the removed pass will have their indexes shifted.
      * 
@@ -381,9 +378,10 @@ public class FrameGraph {
         return threads.get(RENDER_THREAD).remove(i);
     }
     /**
-     * Removes the given pass from the queue.
+     * Removes the given pass from this FrameGraph.
      * <p>
-     * Passes above the removed pass will have their indexes shifted.
+     * Passes above the removed pass will have their indices shifted to
+     * accomodate.
      * 
      * @param pass
      * @return true if the pass was removed from the queue
@@ -397,7 +395,7 @@ public class FrameGraph {
         return false;
     }
     /**
-     * Clears all passes from the pass queue.
+     * Clears all passes from this FrameGraph.
      */
     public void clear() {
         for (PassThread queue : threads) {
@@ -406,7 +404,10 @@ public class FrameGraph {
     }
     
     /**
-     * Sets the setting under the name.
+     * Registers the object under the name in the settings map.
+     * <p>
+     * Registered objects can be referenced by passes by name. Any existing
+     * object already registered under the name will be replaced.
      * 
      * @param <T>
      * @param name
@@ -418,14 +419,15 @@ public class FrameGraph {
         return object;
     }
     /**
-     * Sets the setting under the name and creates a GraphSetting
-     * of the same name.
+     * Registers the object under the name in the settings map, and creates
+     * a {@link GraphSetting} with the same name.
      * 
      * @param <T>
      * @param name
      * @param object
-     * @param create
+     * @param create true to create a GraphSetting, otherwise one will not be created and null returned
      * @return created graph setting
+     * @see #setSetting(java.lang.String, java.lang.Object)
      */
     public <T> GraphSetting<T> setSetting(String name, T object, boolean create) {
         setSetting(name, object);
@@ -436,7 +438,7 @@ public class FrameGraph {
         }
     }
     /**
-     * Sets an integer setting based on a boolean value.
+     * Sets an integer in the settings map based on a boolean value.
      * <p>
      * If the boolean is true, 0 is written, otherwise -1 is written. This is
      * used primarily for Junction sources: 0 points to the first input, and -1
@@ -445,16 +447,18 @@ public class FrameGraph {
      * @param name
      * @param value
      * @return 
+     * @see #setSetting(java.lang.String, java.lang.Object)
      */
     public int setJunctionSetting(String name, boolean value) {
         return setSetting(name, value ? 0 : -1);
     }
     /**
-     * Gets the setting under the name, or null.
+     * Gets the object registered under the name in the settings map,
+     * or null if none is registered.
      * 
      * @param <T>
      * @param name
-     * @return 
+     * @return registered object, or null
      */
     public <T> T getSetting(String name) {
         Object obj = settings.get(name);
@@ -465,11 +469,11 @@ public class FrameGraph {
         }
     }
     /**
-     * Removes the setting under the name.
+     * Removes the object registered under the name in the settings map.
      * 
      * @param <T>
      * @param name
-     * @return removed setting, or null
+     * @return removed object, or null
      */
     public <T> T removeSetting(String name) {
         Object obj = settings.remove(name);
@@ -491,7 +495,7 @@ public class FrameGraph {
     }
     
     /**
-     * Sets the name of this framegraph.
+     * Sets the name of this FrameGraph.
      * 
      * @param name 
      */
@@ -499,7 +503,7 @@ public class FrameGraph {
         this.name = name;
     }
     /**
-     * Sets the OpenCL context for compute shading.
+     * Sets the OpenCL context used for compute shading.
      * 
      * @param clContext 
      */
@@ -518,7 +522,7 @@ public class FrameGraph {
     }
     
     /**
-     * Called internally to notify the framegraph that a queue has completed execution.
+     * Called automatically to notify the FrameGraph that a {@link PassThread} has completed execution.
      * 
      * @param queue
      */
@@ -530,7 +534,7 @@ public class FrameGraph {
         }
     }
     /**
-     * Called internally when a rendering exception occurs.
+     * Called automatically when a rendering exception occurs.
      * 
      * @param ex
      */
@@ -543,6 +547,7 @@ public class FrameGraph {
     }
     
     /**
+     * Gets the {@link AssetManager} assigned to this FrameGraph.
      * 
      * @return 
      */
@@ -550,7 +555,7 @@ public class FrameGraph {
         return assetManager;
     }
     /**
-     * Gets the ResourceList that manages resources for this framegraph.
+     * Gets the {@link ResourceList} that manages resources for this FrameGraph.
      * 
      * @return 
      */
@@ -558,7 +563,7 @@ public class FrameGraph {
         return resources;
     }
     /**
-     * Gets the framegraph rendering context.
+     * Gets the rendering context.
      * 
      * @return 
      */
@@ -566,6 +571,7 @@ public class FrameGraph {
         return context;
     }
     /**
+     * Gets the RenderManager.
      * 
      * @return 
      */
@@ -573,7 +579,7 @@ public class FrameGraph {
         return context.getRenderManager();
     }
     /**
-     * Gets the OpenCL context for compute shading.
+     * Gets the OpenCL context used for compute shading, or null if not set.
      * 
      * @return 
      */
@@ -589,7 +595,7 @@ public class FrameGraph {
         return name;
     }
     /**
-     * Returns true if this framegraph is running asynchronous passes.
+     * Returns true if this framegraph is running asynchronous {@link PassThread}s.
      * 
      * @return 
      */
@@ -598,7 +604,7 @@ public class FrameGraph {
     }
     
     /**
-     * Applies the framegraph data to this framegraph.
+     * Applies the {@link FrameGraphData} to this FrameGraph.
      * 
      * @param data
      * @return this instance
@@ -608,7 +614,7 @@ public class FrameGraph {
         return this;
     }
     /**
-     * Applies the framegraph data to this framegraph.
+     * Applies the {@link FrameGraphData} to this FrameGraph.
      * 
      * @param data
      * @return this instance
@@ -627,7 +633,7 @@ public class FrameGraph {
         }
     }
     /**
-     * Loads and applies framegraph data from the key.
+     * Loads and applies {@link FrameGraphData} from the key.
      * 
      * @param key
      * @return 
@@ -636,7 +642,7 @@ public class FrameGraph {
         return applyData(assetManager.loadFrameGraph(key));
     }
     /**
-     * Loads and applies framegraph data at the specified asset path.
+     * Loads and applies {@link FrameGraphData} at the specified asset path.
      * 
      * @param assetPath
      * @return 
@@ -645,7 +651,7 @@ public class FrameGraph {
         return applyData(assetManager.loadFrameGraph(assetPath));
     }
     /**
-     * Creates exportable framegraph data.
+     * Creates exportable snapshot of this FrameGraph as {@link FrameGraphData}.
      * 
      * @return 
      */

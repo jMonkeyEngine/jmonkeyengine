@@ -39,8 +39,7 @@ import com.jme3.export.Savable;
 import java.io.IOException;
 
 /**
- * Defines the range between 0 and 1 at values written to depth buffers
- * are clamped to.
+ * Defines a range within 0 and 1 that render depth values are clamped to.
  * 
  * @author codex
  */

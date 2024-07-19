@@ -43,12 +43,13 @@ import com.jme3.renderer.framegraph.FrameGraph;
 public interface GraphTarget <T> {
     
     /**
-     * Sets the value recieved from the framegraph.
+     * Recieves a value from the FrameGraph.
      * 
-     * @param frameGraph framegraph currently rendering
+     * @param frameGraph FrameGraph currently rendering
      * @param viewPort viewport currently being rendered
      * @param value value from framegraph
-     * @return true if value is used
+     * @return true if value is used, which may affect how resources are
+     * handled by the FrameGraph internally
      */
     public boolean setGraphValue(FrameGraph frameGraph, ViewPort viewPort, T value);
     

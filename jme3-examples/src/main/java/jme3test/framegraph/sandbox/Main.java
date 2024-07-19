@@ -13,7 +13,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.framegraph.CartoonEdgePass;
 import com.jme3.renderer.framegraph.DepthRange;
 import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.passes.BucketPass;
+import com.jme3.renderer.framegraph.passes.GeometryPass;
 import com.jme3.renderer.framegraph.passes.OutputPass;
 import com.jme3.renderer.framegraph.passes.SceneEnqueuePass;
 import com.jme3.scene.Geometry;
@@ -41,11 +41,11 @@ public class Main extends SimpleApplication {
         FrameGraph frameGraph = new FrameGraph(assetManager);
         
         SceneEnqueuePass enqueue = frameGraph.add(new SceneEnqueuePass());
-        BucketPass opaque = frameGraph.add(new BucketPass());
-        BucketPass sky = frameGraph.add(new BucketPass(DepthRange.REAR));
-        BucketPass transparent = frameGraph.add(new BucketPass());
-        BucketPass gui = frameGraph.add(new BucketPass(DepthRange.FRONT, false));
-        BucketPass translucent = frameGraph.add(new BucketPass());
+        GeometryPass opaque = frameGraph.add(new GeometryPass());
+        GeometryPass sky = frameGraph.add(new GeometryPass(DepthRange.REAR));
+        GeometryPass transparent = frameGraph.add(new GeometryPass());
+        GeometryPass gui = frameGraph.add(new GeometryPass(DepthRange.FRONT, false));
+        GeometryPass translucent = frameGraph.add(new GeometryPass());
         OutputPass output = frameGraph.add(new OutputPass());
         
         opaque.makeInput(enqueue, "Opaque", "Geometry");

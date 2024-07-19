@@ -29,59 +29,48 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.passes;
 
-import com.jme3.renderer.framegraph.passes.RenderPass;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.renderer.framegraph.DepthRange;
+import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.renderer.framegraph.FrameGraph;
+import com.jme3.renderer.framegraph.GeometryQueue;
+import com.jme3.renderer.framegraph.ResourceTicket;
+import java.io.IOException;
 
 /**
- * Locates a pass.
+ * Renders a queue bucket to the viewport's output framebuffer.
  * 
  * @author codex
- * @param <T>
  */
-public interface PassLocator <T extends RenderPass> {
+public class OutputGeometryPass extends RenderPass {
     
-    /**
-     * Determines if the pass qualifies for this locator.
-     * 
-     * @param pass
-     * @return pass, or null if not accepted
-     */
-    public T accept(RenderPass pass);
+    private ResourceTicket<GeometryQueue> geometry;
     
-    /**
-     * Locates a pass by its type.
-     * 
-     * @param <R>
-     * @param type
-     * @return 
-     */
-    public static <R extends RenderPass> PassLocator<R> by(Class<R> type) {
-        return pass -> {
-            if (type.isAssignableFrom(pass.getClass())) {
-                return (R)pass;
-            } else {
-                return null;
-            }
-        };
+    @Override
+    protected void initialize(FrameGraph frameGraph) {
+        geometry = addInput("Geometry");
     }
-    
-    /**
-     * Locates a pass by its type and name.
-     * 
-     * @param <R>
-     * @param type
-     * @param name
-     * @return 
-     */
-    public static <R extends RenderPass> PassLocator<R> by(Class<R> type, String name) {
-        return pass -> {
-            if (name.equals(pass.getName()) && type.isAssignableFrom(pass.getClass())) {
-                return (R)pass;
-            } else {
-                return null;
-            }
-        };
+    @Override
+    protected void prepare(FGRenderContext context) {
+        reference(geometry);
+    }
+    @Override
+    protected void execute(FGRenderContext context) {
+        context.popFrameBuffer();
+        context.renderGeometry(resources.acquire(geometry), null, null);
+    }
+    @Override
+    protected void reset(FGRenderContext context) {}
+    @Override
+    protected void cleanup(FrameGraph frameGraph) {}
+    @Override
+    public boolean isUsed() {
+        return geometry.hasSource();
     }
     
 }

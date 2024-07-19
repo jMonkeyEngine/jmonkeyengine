@@ -39,7 +39,7 @@ import com.jme3.export.Savable;
 import java.io.IOException;
 
 /**
- * Represents an abstract connection between render passes that can be saved.
+ * Represents a connection of tickets between render passes.
  * 
  * @author codex
  */
@@ -49,7 +49,7 @@ public class SavablePassConnection implements Savable {
     private String inputTicket, outputTicket;
     
     /**
-     * 
+     * Serialization only.
      */
     public SavablePassConnection() {}
     /**
@@ -67,6 +67,7 @@ public class SavablePassConnection implements Savable {
     }
     
     /**
+     * Shifts the input and output pass ids.
      * 
      * @param shift 
      */

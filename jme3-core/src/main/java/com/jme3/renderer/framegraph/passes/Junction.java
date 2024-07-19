@@ -47,7 +47,10 @@ import java.io.IOException;
  * Merges several inputs into one output by choosing one input to connect to
  * the output using a controllable index.
  * <p>
- * This pass does no rendering and cannot be culled.
+ * Junction can either function as a set of individual inputs (group size is 1), or as a set of
+ * group inputs (group size is greater than 1).
+ * <p>
+ * Static methods should be used to correctly reference inputs and outputs.
  * 
  * @author codex
  * @param <T>
@@ -208,15 +211,43 @@ public class Junction <T> extends RenderPass {
         return defaultIndex;
     }
     
+    /**
+     * Returns a string referencing an individual input (groupSize = 1) or 
+     * an input group (groupSize &gt; 1).
+     * 
+     * @param i index of input or input group
+     * @return 
+     */
     public static String getInput(int i) {
         return "Input["+i+"]";
     }
+    /**
+     * Returns a string referencing an individual input that is part of
+     * a group (groupSize &gt; 1 only).
+     * 
+     * @param i index of group
+     * @param j index of input in group
+     * @return 
+     */
     public static String getInput(int i, int j) {
         return "Input["+i+"]["+j+"]";
     }
+    /**
+     * Returns a string referencing the individual output (groupSize = 1)
+     * or the output group (groupSize &gt; 1).
+     * 
+     * @return 
+     */
     public static String getOutput() {
         return "Value";
     }
+    /**
+     * Returns a string referencing an individual output in the output group
+     * (groupSize &gt; 1 only).
+     * 
+     * @param i index of output in group
+     * @return 
+     */
     public static String getOutput(int i) {
         return "Value["+i+"]";
     }

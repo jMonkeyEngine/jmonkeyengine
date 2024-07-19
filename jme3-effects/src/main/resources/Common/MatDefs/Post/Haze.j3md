@@ -1,0 +1,17 @@
+MaterialDef Haze {
+
+    MaterialParameters {
+        Texture2D ColorMap
+        Texture2D DepthMap
+        Color HazeColor
+        Vector2 Range : 0.5 1.0
+    }
+
+    Technique {
+        
+        VertexShader   GLSL300 GLSL150 GLSL100 : Common/MatDefs/ShadingCommon/Screen.vert
+        FragmentShader GLSL300 GLSL150 GLSL100 : Common/MatDefs/Post/Haze.frag
+        
+    }
+
+}

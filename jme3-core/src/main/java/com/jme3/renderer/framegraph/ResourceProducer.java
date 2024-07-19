@@ -53,6 +53,7 @@ public interface ResourceProducer {
      * @return 
      */
     public boolean dereference();
+    
     /**
      * Returns true if this producer is used.
      * 
@@ -66,6 +67,7 @@ public interface ResourceProducer {
      * @return 
      */
     public Collection<ResourceTicket> getInputTickets();
+    
     /**
      * Gets a collection of all output tickets.
      * 

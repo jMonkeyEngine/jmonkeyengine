@@ -39,19 +39,20 @@ import com.jme3.renderer.framegraph.passes.DeferredPass;
 import com.jme3.renderer.framegraph.passes.GBufferPass;
 import com.jme3.renderer.framegraph.passes.Junction;
 import com.jme3.renderer.framegraph.passes.LightImagePass;
-import com.jme3.renderer.framegraph.passes.OutputRenderPass;
+import com.jme3.renderer.framegraph.passes.OutputGeometryPass;
 import com.jme3.renderer.framegraph.passes.OutputPass;
+import com.jme3.renderer.framegraph.passes.QueueMergePass;
 import com.jme3.renderer.framegraph.passes.SceneEnqueuePass;
 
 /**
- * Utility class for constructing common framegraphs.
+ * Utility class for constructing common {@link FrameGraph}s in code.
  * 
  * @author codex
  */
 public class FrameGraphFactory {
     
     /**
-     * Constructs a standard forward framegraph, with no controllable features.
+     * Constructs a standard forward FrameGraph, with no controllable settings.
      * 
      * @param assetManager
      * @return forward framegraph
@@ -62,24 +63,23 @@ public class FrameGraphFactory {
         fg.setName("Forward");
         
         SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass(true, true));
-        OutputRenderPass opaque = fg.add(new OutputRenderPass());
-        OutputRenderPass sky = fg.add(new OutputRenderPass(DepthRange.REAR));
-        OutputRenderPass transparent = fg.add(new OutputRenderPass());
-        OutputRenderPass gui = fg.add(new OutputRenderPass(DepthRange.FRONT, false));
-        OutputRenderPass translucent = fg.add(new OutputRenderPass());
+        QueueMergePass merge = fg.add(new QueueMergePass(5));
+        OutputGeometryPass out = fg.add(new OutputGeometryPass());
         
-        opaque.makeInput(enqueue, "Opaque", "Geometry");
-        sky.makeInput(enqueue, "Sky", "Geometry");
-        transparent.makeInput(enqueue, "Transparent", "Geometry");
-        gui.makeInput(enqueue, "Gui", "Geometry");
-        translucent.makeInput(enqueue, "Translucent", "Geometry");
+        merge.makeInput(enqueue, "Opaque", "Queues[0]");
+        merge.makeInput(enqueue, "Sky", "Queues[1]");
+        merge.makeInput(enqueue, "Transparent", "Queues[2]");
+        merge.makeInput(enqueue, "Gui", "Queues[3]");
+        merge.makeInput(enqueue, "Translucent", "Queues[4]");
+        
+        out.makeInput(merge, "Result", "Geometry");
         
         return fg;
         
     }
     
     /**
-     * Constructs a deferred or tiled deferred framegraph.
+     * Constructs a deferred FrameGraph.
      * 
      * @param assetManager
      * @param tiled true to enable tiled lighting
@@ -90,7 +90,7 @@ public class FrameGraphFactory {
     }
     
     /**
-     * Constructs a deferred framegraph.
+     * Constructs a deferred FrameGraph.
      * 
      * @param assetManager
      * @param tiled true to enable tiled lighting
@@ -102,20 +102,19 @@ public class FrameGraphFactory {
         FrameGraph fg = new FrameGraph(assetManager);
         fg.setName(tiled ? "TiledDeferred" : "Deferred");
         
+        int asyncThread = async ? 1 : FrameGraph.RENDER_THREAD;
+        
         SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass(true, true));
         Attribute tileInfoAttr = fg.add(new Attribute());
         Junction tileJunct1 = fg.add(new Junction(1, 1));
         GBufferPass gbuf = fg.add(new GBufferPass());
-        LightImagePass lightImg = fg.add(new LightImagePass(),
-                new PassIndex().setThreadIndex(async ? 1 : FrameGraph.RENDER_THREAD));
+        LightImagePass lightImg = fg.add(new LightImagePass(), new PassIndex(asyncThread, -1));
         Junction lightJunct = fg.add(new Junction(1, 6));
         Junction tileJunct2 = fg.add(new Junction(1, 2));
         DeferredPass deferred = fg.add(new DeferredPass());
         OutputPass defOut = fg.add(new OutputPass(0f));
-        OutputRenderPass sky = fg.add(new OutputRenderPass(DepthRange.REAR));
-        OutputRenderPass transparent = fg.add(new OutputRenderPass());
-        OutputRenderPass gui = fg.add(new OutputRenderPass(DepthRange.FRONT, false));
-        OutputRenderPass translucent = fg.add(new OutputRenderPass());
+        QueueMergePass merge = fg.add(new QueueMergePass(4), new PassIndex(asyncThread, -1));
+        OutputGeometryPass geometry = fg.add(new OutputGeometryPass());
         
         gbuf.makeInput(enqueue, "Opaque", "Geometry");
         
@@ -152,10 +151,12 @@ public class FrameGraphFactory {
         defOut.makeInput(deferred, "Color", "Color");
         defOut.makeInput(gbuf, "GBufferData[4]", "Depth");
         
-        sky.makeInput(enqueue, "Sky", "Geometry");
-        transparent.makeInput(enqueue, "Transparent", "Geometry");
-        gui.makeInput(enqueue, "Gui", "Geometry");
-        translucent.makeInput(enqueue, "Translucent", "Geometry");
+        merge.makeInput(enqueue, "Sky", "Queues[0]");
+        merge.makeInput(enqueue, "Transparent", "Queues[1]");
+        merge.makeInput(enqueue, "Gui", "Queues[2]");
+        merge.makeInput(enqueue, "Translucent", "Queues[3]");
+        
+        geometry.makeInput(merge, "Result", "Geometry");
         
         return fg;
         

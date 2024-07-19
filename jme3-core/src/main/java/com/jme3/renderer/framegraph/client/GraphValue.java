@@ -29,84 +29,71 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.renderer.framegraph.passes;
+package com.jme3.renderer.framegraph.client;
 
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.renderer.framegraph.DepthRange;
-import com.jme3.renderer.framegraph.FGRenderContext;
+import com.jme3.export.Savable;
+import com.jme3.export.SavableObject;
+import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.GeometryQueue;
-import com.jme3.renderer.framegraph.ResourceTicket;
 import java.io.IOException;
 
 /**
- * Renders a queue bucket to the viewport's output framebuffer.
+ * Implementation of GraphSource and GraphTarget that manages a value.
  * 
  * @author codex
+ * @param <T>
  */
-public class OutputRenderPass extends RenderPass {
+public class GraphValue <T> implements GraphSource<T>, GraphTarget<T>, Savable {
     
-    private ResourceTicket<GeometryQueue> geometry;
-    private DepthRange depth;
-    private boolean perspective = true;
-
-    public OutputRenderPass() {
-        this(DepthRange.IDENTITY, true);
-    }
-    public OutputRenderPass(DepthRange range) {
-        this(range, true);
-    }
-    public OutputRenderPass(DepthRange depth, boolean perspective) {
-        this.depth = depth;
-        this.perspective = perspective;
+    private T value;
+    
+    public GraphValue() {}
+    public GraphValue(T value) {
+        this.value = value;
     }
     
-    
     @Override
-    protected void initialize(FrameGraph frameGraph) {
-        geometry = addInput("Geometry");
+    public T getGraphValue(FrameGraph frameGraph, ViewPort viewPort) {
+        return value;
     }
     @Override
-    protected void prepare(FGRenderContext context) {
-        reference(geometry);
-    }
-    @Override
-    protected void execute(FGRenderContext context) {
-        context.popFrameBuffer();
-        if (!perspective) {
-            context.getRenderManager().setCamera(context.getViewPort().getCamera(), true);
-        }
-        context.getRenderer().setDepthRange(depth);
-        //context.renderViewPortQueue(bucket, true);
-        context.renderGeometry(resources.acquire(geometry), null, null);
-        if (!perspective) {
-            context.getRenderManager().setCamera(context.getViewPort().getCamera(), false);
-        }
-    }
-    @Override
-    protected void reset(FGRenderContext context) {}
-    @Override
-    protected void cleanup(FrameGraph frameGraph) {}
-    @Override
-    public boolean isUsed() {
-        return geometry.hasSource();
+    public boolean setGraphValue(FrameGraph frameGraph, ViewPort viewPort, T value) {
+        this.value = value;
+        return true;
     }
     @Override
     public void write(JmeExporter ex) throws IOException {
-        super.write(ex);
         OutputCapsule out = ex.getCapsule(this);
-        out.write(depth, "depth", DepthRange.IDENTITY);
-        out.write(perspective, "perspective", true);
+        out.write(new SavableObject(value), "value", SavableObject.NULL);
     }
     @Override
     public void read(JmeImporter im) throws IOException {
-        super.read(im);
         InputCapsule in = im.getCapsule(this);
-        depth = in.readSavable("depth", DepthRange.class, DepthRange.IDENTITY);
-        perspective = in.readBoolean("perspective", true);
+        value = (T)in.readSavableObject("value", SavableObject.NULL).getObject();
+    }
+    
+    /**
+     * Sets the held value.
+     * <p>
+     * Subject to change if values are being recieved from the FrameGraph.
+     * 
+     * @param value 
+     */
+    public void setValue(T value) {
+        this.value = value;
+    }
+    
+    /**
+     * Gets the held value.
+     * 
+     * @return 
+     */
+    public T getValue() {
+        return value;
     }
     
 }

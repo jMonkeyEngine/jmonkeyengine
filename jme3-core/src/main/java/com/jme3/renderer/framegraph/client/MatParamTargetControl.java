@@ -42,7 +42,10 @@ import com.jme3.scene.control.AbstractControl;
 import com.jme3.shader.VarType;
 
 /**
- * Controls a material parameter based on values provided by a framegraph.
+ * Applies values from a FrameGraph to a material parameter.
+ * <p>
+ * The target material is the first located material in the controlled spatial's
+ * hierarchy, however, this is mainly intended to control geometries.
  * 
  * @author codex
  * @param <T>
@@ -103,13 +106,36 @@ public class MatParamTargetControl <T> extends AbstractControl implements GraphT
         return false;
     }
     
+    /**
+     * Registers the ViewPorts that are able to affect the internal value.
+     * <p>
+     * ViewPorts not included in the array cannot affect the internal value.
+     * 
+     * @param viewPorts 
+     */
     public void setViewPorts(ViewPort... viewPorts) {
         this.viewPorts = viewPorts;
     }
+    /**
+     * Sets the ViewPort filter to allow ViewPorts to affect the internal value.
+     */
+    public void includeAllViewPorts() {
+        viewPorts = null;
+    }
     
+    /**
+     * Gets the internal value.
+     * 
+     * @return 
+     */
     public T getValue() {
         return value;
     }
+    /**
+     * Gets the array of ViewPorts that are able to affect the internal value.
+     * 
+     * @return array of ViewPorts, or null if all ViewPorts are accepted
+     */
     public ViewPort[] getViewPorts() {
         return viewPorts;
     }

@@ -34,7 +34,8 @@ package com.jme3.renderer.framegraph.definitions;
 import java.util.function.Consumer;
 
 /**
- *
+ * Abstract implementation of ResourceDef.
+ * 
  * @author codex
  * @param <T>
  */
@@ -72,7 +73,7 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
     }
     
     /**
-     * Sets the consumer responsible for disposing the resource.
+     * Sets the Consumer responsible for disposing the resource.
      * <p>
      * default=null
      * 
@@ -86,7 +87,9 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
      * Sets the number of frames the resource can be static before being
      * disposed.
      * <p>
-     * If less than zero, the default value will be used instead.
+     * If less than zero, the default value provided by
+     * {@link com.jme3.renderer.framegraph.RenderObjectMap RenderObjectMap} will
+     * be used instead.
      * 
      * @param staticTimout 
      */
@@ -95,7 +98,7 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
     }
     
     /**
-     * Sets this definition to allow for use of reallocated objects.
+     * Allows for reallocation of existing resources.
      * <p>
      * default=true
      * 
@@ -106,7 +109,7 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
     }
     
     /**
-     * Sets the resource to be disposed when it is unused.
+     * Sets the resource to be disposed when it is first unused.
      * <p>
      * default=false
      * 
@@ -118,6 +121,8 @@ public abstract class AbstractResourceDef <T> implements ResourceDef<T> {
     
     /**
      * Sets the resource as able to be read concurrently.
+     * <p>
+     * default=true
      * 
      * @param readConcurrent 
      */

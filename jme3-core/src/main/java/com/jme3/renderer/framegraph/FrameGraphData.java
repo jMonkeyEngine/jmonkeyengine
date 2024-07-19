@@ -45,9 +45,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 /**
- * Holds framegraph data ready for import or export.
- * <p>
- * Each individual data instance should only be affiliated with one framegraph.
+ * Holds FrameGraph snapshot data ready for import or export.
  * 
  * @author codex
  */
@@ -144,7 +142,7 @@ public class FrameGraphData implements Savable {
     }
     
     /**
-     * Applies internal data to the framegraph.
+     * Applies internal data to the FrameGraph.
      * <p>
      * This operation consumes the data.
      * 
@@ -191,7 +189,10 @@ public class FrameGraphData implements Savable {
     }
     
     /**
-     * Returns true if this data has been consumed.
+     * Returns true if this data has been consumed by completing an import
+     * or export.
+     * <p>
+     * Attempting to import or export consumed data will result in an exception.
      * 
      * @return 
      */

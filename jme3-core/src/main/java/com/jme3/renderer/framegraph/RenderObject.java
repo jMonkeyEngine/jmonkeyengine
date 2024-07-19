@@ -33,12 +33,11 @@ package com.jme3.renderer.framegraph;
 
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.util.NativeObject;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
 /**
- * Stores an object used for rendering.
+ * Handles a raw object used for rendering processes within a FrameGraph.
  * 
  * @author codex
  * @param <T>
@@ -86,19 +85,54 @@ public class RenderObject <T> {
         }
     }
     
+    /**
+     * Starts an inspection of this object.
+     * <p>
+     * This blocks other threads from inspecting this object at the same time.
+     * Often, other threads will save this object for later, and continue inspecting
+     * other objects in the meantime.
+     * <p>
+     * Note that this is not a threadsafe operation, meaning some threads may "escape"
+     * this check. A synchronized block should be used to catch these exceptions.
+     * 
+     * @see #endInspect()
+     */
     public void startInspect() {
         inspect = true;
     }
+    /**
+     * Ends an inspection of this object.
+     * 
+     * @see #startInspect()
+     */
     public void endInspect() {
         inspect = false;
     }
+    /**
+     * Returns true if this object is currently being inspected.
+     * 
+     * @return 
+     */
     public boolean isInspect() {
         return inspect;
     }
     
+    /**
+     * Marks this RenderObject as priorized, but not officially claimed, by a thread.
+     * <p>
+     * This will block threads from attempting to reallocate this as an indirect
+     * resource.
+     * 
+     * @param prioritized 
+     */
     public void setPrioritized(boolean prioritized) {
         this.prioritized = prioritized;
     }
+    /**
+     * Returns true if this RenderObject is prioritized.
+     * 
+     * @return 
+     */
     public boolean isPrioritized() {
         return prioritized;
     }
@@ -140,10 +174,10 @@ public class RenderObject <T> {
     }
     
     /**
-     * Returns true if
+     * Claims the reservation pertaining to the index.
      * 
      * @param index
-     * @return 
+     * @return true if a reservation was claimed.
      */
     public boolean claimReservation(PassIndex index) {
         for (Reservation r : reservations) {
@@ -152,10 +186,11 @@ public class RenderObject <T> {
         return false;
     }
     /**
-     * Returns true if this render object is reserved within the time frame.
+     * Determine if reallocating this object with the context would
+     * result in a violation of a reservation.
      * 
      * @param frame
-     * @return 
+     * @return true if this object is reserved within the timeframe
      */
     public boolean isReservedWithin(TimeFrame frame) {
         for (Reservation r : reservations) {
@@ -171,16 +206,19 @@ public class RenderObject <T> {
     }
     
     /**
-     * Ticks down the timer tracking frames since last use.
+     * Decrements the integer tracking frames until the object is deemed
+     * abandoned.
+     * <p>
+     * Abandoned objects are removed and disposed.
      * 
-     * @return true if the timer has not expired
+     * @return true if the object is not considered abandoned
      */
     public boolean tickTimeout() {
         return timeout-- > 0;
     }
     
     /**
-     * Sets this render object as constant, so that this cannot be reallocated.
+     * Sets this as constant, which blocks reallocations until the rendering ends.
      * 
      * @param constant 
      */
@@ -222,7 +260,7 @@ public class RenderObject <T> {
     }
     
     /**
-     * Gets the next id.
+     * Gets the next unique id of RenderObjects.
      * 
      * @return 
      */

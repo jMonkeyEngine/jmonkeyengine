@@ -35,7 +35,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.FrameGraph;
 
 /**
- * Provides values to a framegraph from game logic.
+ * Provides values to a FrameGraph from game logic.
  * 
  * @author codex
  * @param <T>
@@ -50,5 +50,35 @@ public interface GraphSource <T> {
      * @return value (may be null in some circumstances)
      */
     public T getGraphValue(FrameGraph frameGraph, ViewPort viewPort);
+    
+    /**
+     * Returns the value from provided by the GraphSource.
+     * <p>
+     * If the source is null, the default value will be returned instead.
+     * 
+     * @param <T>
+     * @param source graph source
+     * @param defValue default value (used if graph source is null)
+     * @param frameGraph framegraph
+     * @param viewPort viewport
+     * @return value from source (or default value if source is null)
+     */
+    public static <T> T get(GraphSource<T> source, T defValue, FrameGraph frameGraph, ViewPort viewPort) {
+        if (source != null) {
+            return source.getGraphValue(frameGraph, viewPort);
+        }
+        return defValue;
+    }
+    
+    /**
+     * Returns a source that returns the given value.
+     * 
+     * @param <T>
+     * @param value
+     * @return 
+     */
+    public static <T> GraphValue<T> value(T value) {
+        return new GraphValue<>(value);
+    }
     
 }

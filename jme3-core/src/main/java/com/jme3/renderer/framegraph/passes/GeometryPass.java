@@ -49,10 +49,22 @@ import java.io.IOException;
 
 /**
  * Renders a queue bucket to a set of color and depth textures.
+ * <p>
+ * Inputs:
+ * <ul>
+ *   <li>Geometry ({@link GeometryQueue}): queue of geometries to render.</li>
+ *   <li>Color ({@link Texture2D}): Color texture to combine (by depth comparison) with the result of this render (optional).</li>
+ *   <li>Depth ({@link Texture2D}): Depth texture to combine (by depth comparison) with the result of this render (optional).</li>
+ * </ul>
+ * Outputs:
+ * <ul>
+ *   <li>Color ({@link Texture2D}): Resulting color texture.</li>
+ *   <li>Depth ({@link Texture2D}): Resulting depth texture.</li>
+ * </ul>
  * 
  * @author codex
  */
-public class BucketPass extends RenderPass {
+public class GeometryPass extends RenderPass {
     
     private final DepthRange depth = new DepthRange();
     private ResourceTicket<Texture2D> inColor, inDepth, outColor, outDepth;
@@ -60,13 +72,13 @@ public class BucketPass extends RenderPass {
     private TextureDef<Texture2D> colorDef, depthDef;
     private boolean perspective;
     
-    public BucketPass() {
+    public GeometryPass() {
         this(DepthRange.IDENTITY, true);
     }
-    public BucketPass(DepthRange depth) {
+    public GeometryPass(DepthRange depth) {
         this(depth, true);
     }
-    public BucketPass(DepthRange depth, boolean perspective) {
+    public GeometryPass(DepthRange depth, boolean perspective) {
         this.depth.set(depth);
         this.perspective = perspective;
     }
@@ -104,14 +116,14 @@ public class BucketPass extends RenderPass {
         context.getRenderer().clearBuffers(true, true, true);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         context.renderTextures(resources.acquireOrElse(inColor, null), resources.acquireOrElse(inDepth, null));
-        context.getRenderer().setDepthRange(depth);
-        if (!perspective) {
-            context.getRenderManager().setCamera(context.getViewPort().getCamera(), true);
-        }
+        //context.getRenderer().setDepthRange(depth);
+        //if (!perspective) {
+        //    context.getRenderManager().setCamera(context.getViewPort().getCamera(), true);
+        //}
         context.renderGeometry(resources.acquire(geometry), null, null);
-        if (!perspective) {
-            context.getRenderManager().setCamera(context.getViewPort().getCamera(), false);
-        }
+        //if (!perspective) {
+        //    context.getRenderManager().setCamera(context.getViewPort().getCamera(), false);
+        //}
     }
     @Override
     protected void reset(FGRenderContext context) {}

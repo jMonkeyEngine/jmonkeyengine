@@ -35,7 +35,6 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.Texture3D;
-import com.jme3.texture.TextureArray;
 import com.jme3.texture.image.ColorSpace;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -45,8 +44,8 @@ import java.util.function.Function;
 /**
  * General resource definition for textures.
  * <p>
- * Other textures and objects only apply for reallocation if a contained
- * image meets the parameters of this definition.
+ * Able to indirectly reallocate any object that contains a locatable {@link Image} that
+ * matches the properties given in this definition.
  * 
  * @author codex
  * @param <T>
@@ -200,7 +199,7 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
         this.textureBuilder = textureBuilder;
     }
     /**
-     * Sets the function that extracts an Image from and object.
+     * Sets the function that extracts an Image from an object.
      * 
      * @param imageExtractor 
      */
@@ -327,8 +326,8 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
         this.format = format;
     }
     /**
-     * Sets reallocation so that the target image does not need the exact
-     * format of the definition.
+     * Sets reallocation so that the target image only needs to have the same
+     * format type (color versus depth) as this definition.
      * <p>
      * default=false
      * 
@@ -362,8 +361,8 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
         this.minFilter = minFilter;
     }
     /**
-     * Sets reallocation so that the target image does not need the exact
-     * format of the definition.
+     * Sets reallocation so that the target image does not need the same
+     * color space as this definition.
      * 
      * @param colorSpaceFlexible 
      */
@@ -508,9 +507,19 @@ public class TextureDef <T extends Texture> extends AbstractResourceDef<T> imple
         }
     }
     
+    /**
+     * Creates a general-purpose definition for {@link Texture2D}s.
+     * 
+     * @return 
+     */
     public static TextureDef<Texture2D> texture2D() {
         return new TextureDef<>(Texture2D.class, TEXTURE_2D);
     }
+    /**
+     * Creates a general-purpose definition for {@link Texture3D}s.
+     * 
+     * @return 
+     */
     public static TextureDef<Texture3D> texture3D() {
         return new TextureDef<>(Texture3D.class, TEXTURE_3D);
     }

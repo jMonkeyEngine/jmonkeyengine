@@ -1,6 +1,33 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Copyright (c) 2024 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.post.framegraph;
 
@@ -22,7 +49,20 @@ import com.jme3.texture.Texture2D;
 import java.io.IOException;
 
 /**
- *
+ * Port of {@link com.jme3.post.filters.BloomFilter} as a RenderPass.
+ * <p>
+ * Inputs:
+ * <ul>
+ *   <li>Color ({@link Texture2D}): color texture to apply bloom effect to (optional).</li>
+ *   <li>Objects ({@link GeometryQueue}): specific geometries to apply bloom effect to (optional).</li>
+ * </ul>
+ * Outputs:
+ * <ul>
+ *   <li>Color ({@link Texture2D}): resulting color texture.</li>
+ * </ul>
+ * If "Objects" is undefined, the texture from "Color" (input) will be used. Otherwise, the
+ * queue from "Objects" will be rendered with the Glow technique and the result used.
+ * 
  * @author codex
  */
 public class BloomPass extends RenderPass {
@@ -53,24 +93,27 @@ public class BloomPass extends RenderPass {
     @Override
     protected void prepare(FGRenderContext context) {
         declare(texDef, result);
-        reserve(result);
+        declare(texDef, midTex);
+        reserve(result, midTex);
         referenceOptional(inColor, objects);
     }
     @Override
     protected void execute(FGRenderContext context) {
+        
         // configure definitions
         int w = (int)Math.max(1f, context.getWidth()/downSamplingFactor);
         int h = (int)Math.max(1f, context.getHeight()/downSamplingFactor);
         texDef.setSize(w, h);
-        // get resources
+        
+        // get framebuffers and resources
         FrameBuffer outFb = getFrameBuffer(w, h, 1);
         Texture2D outTarget = resources.acquireColorTarget(outFb, result);
         FrameBuffer midFb = getFrameBuffer("mid", w, h, 1);
-        declare(texDef, midTex);
         Texture2D midTarget = resources.acquireColorTarget(midFb, midTex);
         GeometryQueue geometry = resources.acquireOrElse(objects, null);
         Texture2D scene = resources.acquireOrElse(inColor, null);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
+        
         // geometry render
         if (geometry != null) {
             context.getRenderer().setFrameBuffer(outFb);
@@ -82,6 +125,7 @@ public class BloomPass extends RenderPass {
         } else {
             extractMat.clearParam("GlowMap");
         }
+        
         // extraction
         extractMat.setFloat("ExposurePow", exposurePower);
         extractMat.setFloat("ExposureCutoff", exposureCutOff);
@@ -92,21 +136,27 @@ public class BloomPass extends RenderPass {
             extractMat.clearParam("Texture");
         }
         render(context, midFb, extractMat);
+        
         // horizontal blur
         hBlurMat.setTexture("Texture", midTarget);
-        hBlurMat.setFloat("Size", context.getWidth());
+        hBlurMat.setFloat("Size", w);
         hBlurMat.setFloat("Scale", blurScale);
         render(context, outFb, hBlurMat);
+        
         // vertical blur
         vBlurMat.setTexture("Texture", outTarget);
-        vBlurMat.setFloat("Size", context.getHeight());
+        vBlurMat.setFloat("Size", h);
         vBlurMat.setFloat("Scale", blurScale);
         render(context, midFb, vBlurMat);
+        
         // final output
         outMat.setTexture("Texture", scene);
         outMat.setTexture("BloomTex", midTarget);
         render(context, outFb, outMat);
+        
+        // manual release required for unregistered tickets
         resources.release(midTex);
+        
     }
     @Override
     protected void reset(FGRenderContext context) {}

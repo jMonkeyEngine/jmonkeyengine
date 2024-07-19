@@ -15,13 +15,18 @@ import java.util.BitSet;
 import java.util.Map;
 
 /**
- *
+ * Saves the internal object if it is savable.
+ * 
  * @author codex
  */
 public class SavableObject implements Savable {
 
+    public static final SavableObject NULL = new SavableObject();
+    private static final String OBJECT = "object";
+    private static final String TYPE = "type";
+    private static final String NULL_TYPE = "Null";
+    
     private Object object;
-    private final String name = "object";
     
     public SavableObject() {}
     public SavableObject(Object object) {
@@ -30,115 +35,116 @@ public class SavableObject implements Savable {
     
     @Override
     public void write(JmeExporter ex) throws IOException {
+        if (object == null) return;
         OutputCapsule out = ex.getCapsule(this);
         if (object instanceof Savable) {
-            out.write((Savable)object, name, (Savable)object);
-            out.write("Savable", "type", "");
+            out.write((Savable)object, OBJECT, null);
+            out.write("Savable", TYPE, NULL_TYPE);
         } else if (object instanceof Integer) {
-            out.write((int)object, name, (int)object);
-            out.write("Integer", "type", "");
+            out.write((int)object, OBJECT, 0);
+            out.write("Integer", TYPE, NULL_TYPE);
         } else if (object instanceof Float) {
-            out.write((float)object, name, (float)object);
-            out.write("Float", "type", "");
+            out.write((float)object, OBJECT, 0);
+            out.write("Float", TYPE, NULL_TYPE);
         } else if (object instanceof Double) {
-            out.write((double)object, name, (double)object);
-            out.write("Double", "type", "");
+            out.write((double)object, OBJECT, 0);
+            out.write("Double", TYPE, NULL_TYPE);
         } else if (object instanceof Boolean) {
-            out.write((boolean)object, name, (boolean)object);
-            out.write("Boolean", "type", "");
+            out.write((boolean)object, OBJECT, false);
+            out.write("Boolean", TYPE, NULL_TYPE);
         } else if (object instanceof Byte) {
-            out.write((byte)object, name, (byte)object);
-            out.write("Byte", "type", "");
+            out.write((byte)object, OBJECT, (byte)0);
+            out.write("Byte", TYPE, NULL_TYPE);
         } else if (object instanceof String) {
-            out.write((String)object, name, (String)object);
-            out.write("String", "type", "");
+            out.write((String)object, OBJECT, null);
+            out.write("String", TYPE, NULL_TYPE);
         } else if (object instanceof Long) {
-            out.write((Long)object, name, (Long)object);
-            out.write("Long", "type", "");
+            out.write((Long)object, OBJECT, 0);
+            out.write("Long", TYPE, NULL_TYPE);
         } else if (object instanceof Short) {
-            out.write((short)object, name, (short)object);
-            out.write("Short", "type", "");
+            out.write((short)object, OBJECT, (short)0);
+            out.write("Short", TYPE, NULL_TYPE);
         } else if (object instanceof BitSet) {
-            out.write((BitSet)object, name, (BitSet)object);
-            out.write("BitSet", "type", "");
+            out.write((BitSet)object, OBJECT, null);
+            out.write("BitSet", TYPE, NULL_TYPE);
         } else if (object instanceof FloatBuffer) {
-            out.write((FloatBuffer)object, name, (FloatBuffer)object);
-            out.write("FloatBuffer", "type", "");
+            out.write((FloatBuffer)object, OBJECT, null);
+            out.write("FloatBuffer", TYPE, NULL_TYPE);
         } else if (object instanceof IntBuffer) {
-            out.write((IntBuffer)object, name, (IntBuffer)object);
-            out.write("IntBuffer", "type", "");
+            out.write((IntBuffer)object, OBJECT, null);
+            out.write("IntBuffer", TYPE, NULL_TYPE);
         } else if (object instanceof ByteBuffer) {
-            out.write((ByteBuffer)object, name, (ByteBuffer)object);
-            out.write("ByteBuffer", "type", "");
+            out.write((ByteBuffer)object, OBJECT, null);
+            out.write("ByteBuffer", TYPE, NULL_TYPE);
         } else if (object instanceof ShortBuffer) {
-            out.write((ShortBuffer)object, name, (ShortBuffer)object);
-            out.write("ShortBuffer", "type", "");
+            out.write((ShortBuffer)object, OBJECT, null);
+            out.write("ShortBuffer", TYPE, NULL_TYPE);
         } else if (object instanceof ArrayList) {
-            out.writeSavableArrayList((ArrayList)object, name, (ArrayList)object);
-            out.write("ArrayList", "type", "");
+            out.writeSavableArrayList((ArrayList)object, OBJECT, null);
+            out.write("ArrayList", TYPE, NULL_TYPE);
         } else if (object instanceof Map) {
-            out.writeStringSavableMap((Map<String, ? extends Savable>)object, name, (Map<String, ? extends Savable>)object);
-            out.write("StringMap", "type", "");
+            out.writeStringSavableMap((Map<String, ? extends Savable>)object, OBJECT, null);
+            out.write("StringMap", TYPE, NULL_TYPE);
         } else if (object instanceof IntMap) {
-            out.writeIntSavableMap((IntMap)object, name, (IntMap)object);
-            out.write("IntMap", "type", "");
+            out.writeIntSavableMap((IntMap)object, OBJECT, null);
+            out.write("IntMap", TYPE, NULL_TYPE);
         }
     }
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
-        String type = in.readString("type", "");
+        String type = in.readString(TYPE, NULL_TYPE);
         switch (type) {
             case "Savable":
-                object = in.readSavable(name, null);
+                object = in.readSavable(OBJECT, null);
                 break;
             case "Integer":
-                object = in.readInt(name, 0);
+                object = in.readInt(OBJECT, 0);
                 break;
             case "Float":
-                object = in.readFloat(name, 0);
+                object = in.readFloat(OBJECT, 0);
                 break;
             case "Double":
-                object = in.readDouble(name, 0);
+                object = in.readDouble(OBJECT, 0);
                 break;
             case "Boolean":
-                object = in.readBoolean(name, false);
+                object = in.readBoolean(OBJECT, false);
                 break;
             case "Byte":
-                object = in.readByte(name, (byte)0);
+                object = in.readByte(OBJECT, (byte)0);
                 break;
             case "String":
-                object = in.readString(name, null);
+                object = in.readString(OBJECT, null);
                 break;
             case "Long":
-                object = in.readLong(name, 0);
+                object = in.readLong(OBJECT, 0);
                 break;
             case "Short":
-                object = in.readShort(name, (short)0);
+                object = in.readShort(OBJECT, (short)0);
                 break;
             case "BitSet":
-                object = in.readBitSet(name, null);
+                object = in.readBitSet(OBJECT, null);
                 break;
             case "FloatBuffer":
-                object = in.readFloatBuffer(name, null);
+                object = in.readFloatBuffer(OBJECT, null);
                 break;
             case "IntBuffer":
-                object = in.readIntBuffer(name, null);
+                object = in.readIntBuffer(OBJECT, null);
                 break;
             case "ByteBuffer":
-                object = in.readByteBuffer(name, null);
+                object = in.readByteBuffer(OBJECT, null);
                 break;
             case "ShortBuffer":
-                object = in.readShortBuffer(name, null);
+                object = in.readShortBuffer(OBJECT, null);
                 break;
             case "ArrayList":
-                object = in.readSavableArrayList(name, null);
+                object = in.readSavableArrayList(OBJECT, null);
                 break;
             case "StringMap":
-                object = in.readStringSavableMap(name, null);
+                object = in.readStringSavableMap(OBJECT, null);
                 break;
             case "IntMap":
-                object = in.readIntSavableMap(name, null);
+                object = in.readIntSavableMap(OBJECT, null);
                 break;
         }
     }

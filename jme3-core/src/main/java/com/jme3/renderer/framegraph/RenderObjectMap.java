@@ -34,7 +34,6 @@ package com.jme3.renderer.framegraph;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -61,6 +60,11 @@ public class RenderObjectMap {
     private int totalObjects = 0;
     private int flushedObjects = 0;
     
+    /**
+     * 
+     * @param renderManager
+     * @param async 
+     */
     public RenderObjectMap(RenderManager renderManager, boolean async) {
         this.renderManager = renderManager;
         objectMap = new ConcurrentHashMap<>();
@@ -79,20 +83,19 @@ public class RenderObjectMap {
     }
     
     /**
-     * Allocates a render object to the resource.
+     * Allocates a render object to the ResourceView.
      * <p>
-     * First, if this resource holds an object id, the corresponding render object,
+     * First, if this resource holds an object id, then corresponding render object,
      * if it still exists, will be tried for reallocation. If that fails, each render object
      * will be tried for reallocation. Finally, if that fails, a new render object
      * will be created and allocated to the resource.
-     * <p>
-     * If this RenderObjectMap is asynchronous, this method is threadsafe.
      * 
      * @param <T>
      * @param resource 
-     * @param async true to execute asynchronous methods
+     * @param async true to execute asynchronous methods, otherwise synchronous methods will
+     * be used in the interest of efficiency
      */
-    public <T> void allocate(RenderResource<T> resource, boolean async) {
+    public <T> void allocate(ResourceView<T> resource, boolean async) {
         if (async) {
             allocateAsync(resource);
         } else {
@@ -100,7 +103,7 @@ public class RenderObjectMap {
         }
     }
     
-    private <T> void allocateSync(RenderResource<T> resource) {
+    private <T> void allocateSync(ResourceView<T> resource) {
         if (resource.isUndefined()) {
             throw new IllegalArgumentException("Cannot allocate object to an undefined resource.");
         }
@@ -150,7 +153,7 @@ public class RenderObjectMap {
                 resource.getIndex(), resource.getResource().getClass().getSimpleName());
         objectsCreated++;
     }
-    private <T> boolean allocateSpecificSync(RenderResource<T> resource) {
+    private <T> boolean allocateSpecificSync(ResourceView<T> resource) {
         GraphEventCapture cap = renderManager.getGraphCapture();
         ResourceDef<T> def = resource.getDefinition();
         long id = resource.getTicket().getObjectId();
@@ -179,7 +182,7 @@ public class RenderObjectMap {
         failedReservations++;
         return false;
     }
-    private <T> void allocateAsync(RenderResource<T> resource) {
+    private <T> void allocateAsync(ResourceView<T> resource) {
         if (resource.isUndefined()) {
             throw new IllegalArgumentException("Cannot allocate object to an undefined resource.");
         }
@@ -271,7 +274,7 @@ public class RenderObjectMap {
                 resource.getIndex(), resource.getResource().getClass().getSimpleName());
         objectsCreated++;
     }
-    private <T> boolean allocateSpecificAsync(RenderResource<T> resource) {
+    private <T> boolean allocateSpecificAsync(ResourceView<T> resource) {
         GraphEventCapture cap = renderManager.getGraphCapture();
         ResourceDef<T> def = resource.getDefinition();
         long id = resource.getTicket().getObjectId();
@@ -308,12 +311,15 @@ public class RenderObjectMap {
     
     /**
      * Makes a reservation of render object holding the specified id at the render
-     * pass index so that no other resource may (without a reservation) use that 
-     * render object at that time.
+     * pass index.
+     * <p>
+     * A reservation blocks other reallocation requests for the remainder of the frame.
+     * It is not strictly guaranteed to block all other requests, so it is not considered
+     * good practice to rely on a reservation blocking all such requests.
      * 
-     * @param objectId
-     * @param index
-     * @return 
+     * @param objectId id of the object to reserve
+     * @param index index to reserve the object at
+     * @return true if the referenced object exists
      */
     public boolean reserve(long objectId, PassIndex index) {
         RenderObject obj = objectMap.get(objectId);
@@ -328,11 +334,11 @@ public class RenderObjectMap {
         return false;
     }
     /**
-     * Disposes the render object pointed to by the resource.
+     * Disposes the render object pointed to by the ResourceView's internal ticket.
      * 
      * @param resource 
      */
-    public void dispose(RenderResource resource) {
+    public void dispose(ResourceView resource) {
         long id = resource.getTicket().getObjectId();
         if (id >= 0) {
             RenderObject obj = objectMap.remove(id);

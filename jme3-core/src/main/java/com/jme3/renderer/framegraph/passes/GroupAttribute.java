@@ -1,15 +1,40 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Copyright (c) 2024 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.renderer.framegraph.passes;
 
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.NullSavable;
 import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
@@ -20,7 +45,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- *
+ * Accepts and produces and group of inputs and outputs to/from game logic.
+ * <p>
+ * The size of each group is determine by the specified group size. Each given
+ * {@link GraphSource} and {@link GraphTarget} map index-to-index to an individual
+ * output or input. Surplus sources and targets are not used.
+ * <p>
+ * Inputs:
+ * <ul>
+ *   <li>{@link #INPUT}[n] ({@link Object}): input group of a specified size (optional).
+ * </ul>
+ * Outputs:
+ * <ul>
+ *   <li>{@link #OUTPUT}[n] ({@link Object)}: output group of a specified size.
+ * </ul>
+ * 
  * @author codex
  */
 public class GroupAttribute extends RenderPass {
@@ -96,19 +135,39 @@ public class GroupAttribute extends RenderPass {
         in.readToCollection("sources", sources);
         in.readToCollection("targets", targets);
     }
-       
+    
+    /**
+     * Sets the size of the input and output groups.
+     * 
+     * @param groupSize 
+     * @throws IllegalStateException if called while pass is assigned to a framegraph
+     */
     public void setGroupSize(int groupSize) {
         if (isAssigned()) {
             throw new IllegalStateException("Cannot alter group size while assigned to a framegraph.");
         }
         this.groupSize = groupSize;
     }
+    /**
+     * Sets the source that provides values for the output at the index
+     * within the output group.
+     * 
+     * @param i
+     * @param source 
+     */
     public void setSource(int i, GraphSource source) {
         while (sources.size() <= i) {
             sources.add(null);
         }
         sources.set(i, source);
     }
+    /**
+     * Sets the target that recieves values from the input at the index
+     * within the input group.
+     * 
+     * @param i
+     * @param target 
+     */
     public void setTarget(int i, GraphTarget target) {
         while (targets.size() <= i) {
             targets.add(null);
@@ -116,9 +175,19 @@ public class GroupAttribute extends RenderPass {
         targets.set(i, target);
     }
     
+    /**
+     * 
+     * @return 
+     */
     public int getGroupSize() {
         return groupSize;
     }
+    /**
+     * Gets the source at the index.
+     * 
+     * @param i
+     * @return source at the index, or null if no source is assigned at the index
+     */
     public GraphSource getSource(int i) {
         if (i < sources.size()) {
             return sources.get(i);
@@ -126,6 +195,12 @@ public class GroupAttribute extends RenderPass {
             return null;
         }
     }
+    /**
+     * Gets the target at the index.
+     * 
+     * @param i
+     * @return target at the index, or null if no target is assigned at the index.
+     */
     public GraphTarget getTarget(int i) {
         if (i < targets.size()) {
             return targets.get(i);
@@ -134,9 +209,21 @@ public class GroupAttribute extends RenderPass {
         }
     }
     
+    /**
+     * Gets the name of the input at the index.
+     * 
+     * @param i
+     * @return 
+     */
     public static String getInput(int i) {
         return INPUT+'['+i+']';
     }
+    /**
+     * Gets the name of the output at the index.
+     * 
+     * @param i
+     * @return 
+     */
     public static String getOutput(int i) {
         return OUTPUT+'['+i+']';
     }

@@ -11,7 +11,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.passes.QueueMergePass;
-import com.jme3.renderer.framegraph.passes.BucketPass;
+import com.jme3.renderer.framegraph.passes.GeometryPass;
 import com.jme3.renderer.framegraph.passes.OutputPass;
 import com.jme3.renderer.framegraph.passes.SceneEnqueuePass;
 import com.jme3.scene.Geometry;
@@ -41,7 +41,7 @@ public class HelloCustomFrameGraph extends SimpleApplication {
         
         SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass(true, true));
         QueueMergePass merge = fg.add(new QueueMergePass(5));
-        BucketPass bucket = fg.add(new BucketPass());
+        GeometryPass bucket = fg.add(new GeometryPass());
         DownsamplingPass[] downsamples = fg.addLoop(new DownsamplingPass[4],
                 (i) -> new DownsamplingPass(), "Input", "Output");
         OutputPass out = fg.add(new OutputPass());

@@ -35,7 +35,11 @@ package com.jme3.renderer.framegraph;
  * Represents a period of time starting at the start of the indexed pass, and
  * lasting for the duration of a number of following passes.
  * <p>
- * An asynchronous timeframe indicates that the end is unpredictable.
+ * Used primarily to track the lifetime of ResourceViews, which is then used
+ * to determine if a ResourceView violates any reservations.
+ * <p>
+ * This would rather overestimate that underestimate, so asynchronous resources
+ * are tracked as surviving from first inception to frame end.
  * 
  * @author codex
  */

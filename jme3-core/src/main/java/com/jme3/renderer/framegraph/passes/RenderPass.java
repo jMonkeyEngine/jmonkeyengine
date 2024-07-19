@@ -55,7 +55,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 /**
- * Performs rendering operations for a framegraph.
+ * Modular rendering process for a {@link FrameGraph}.
  * 
  * @author codex
  */
@@ -197,24 +197,12 @@ public abstract class RenderPass implements ResourceProducer, Savable {
             }
         }
     }
-    /**
-     * Called on the pre-rendering step.
-     * 
-     * @param context 
-     */
-    public void preFrame(FGRenderContext context) {}
-    /**
-     * Called after render queues have been assembled.
-     * 
-     * @param context 
-     */
-    public void postQueue(FGRenderContext context) {}
     
     /**
      * Declares a new resource.
      * 
      * @param <T>
-     * @param def
+     * @param def definition for new resource
      * @param ticket ticket to store resulting index
      * @return given ticket
      */
@@ -222,20 +210,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return resources.declare(this, def, ticket);
     }
     /**
-     * Declares a new resource that is locally used only.
-     * 
-     * @param <T>
-     * @param def
-     * @param ticket
-     * @return 
-     */
-    protected <T> ResourceTicket<T> declareLocal(ResourceDef<T> def, ResourceTicket<T> ticket) {
-        ticket = resources.declare(this, def, ticket);
-        resources.setSurvivesReferenceCull(ticket);
-        return ticket;
-    }
-    /**
-     * Reserves the resource associated with the ticket.
+     * Reserves the {@link com.jme3.renderer.framegraph.RenderObject RenderObject} associated with the ticket.
      * 
      * @param ticket 
      */
@@ -243,7 +218,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         resources.reserve(index, ticket);
     }
     /**
-     * Reserves each resource associated with the tickets.
+     * Reserves each RenderObject associated with the tickets.
      * 
      * @param tickets 
      */
@@ -288,6 +263,9 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     
     /**
      * Forces this thread to wait until all inputs are available for this pass.
+     * <p>
+     * An incoming resource is deemed ready when {@link com.jme3.renderer.framegraph.ResourceView#claimReadPermissions() read
+     * permissions are claimed}.
      * 
      * @param timeout maximum wait time for each ticket before a timeout exception is thrown
      * @param attempts maximum attempts for each ticket before a timeout exception is thrown
@@ -300,8 +278,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     }
     
     /**
-     * Acquires a set of resources from a ticket group and stores them in
-     * the array.
+     * Acquires a set of resources from a ticket group and stores them in the array.
      * 
      * @param <T>
      * @param name
@@ -437,7 +414,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * Creates and registers a new ticket as input.
      * 
      * @param <T>
-     * @param name
+     * @param name name assigned to the new ticket
      * @return created ticket
      */
     protected <T> ResourceTicket<T> addInput(String name) {
@@ -448,7 +425,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * Creates and registers a new ticket as output.
      * 
      * @param <T>
-     * @param name
+     * @param name name assigned to the new ticket
      * @return created ticket
      */
     protected <T> ResourceTicket<T> addOutput(String name) {
@@ -458,7 +435,9 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     /**
      * Creates and adds a ticket array as a group input of the specified length under the given name.
      * <p>
-     * Each ticket's name is formatted as the {@code groupName+"["+index+"]"}.
+     * A group bundles several tickets together so that they can easily be used together.
+     * Each individual ticket is handled just like any other, it is just registered with the group as well.
+     * Names are formatted as {@code groupName+"["+index+"]"}.
      * 
      * @param <T>
      * @param name
@@ -477,7 +456,9 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     /**
      * Creates and adds a ticket array as a group output of the specified length under the given name.
      * <p>
-     * Each ticket's name is formatted as the {@code groupName+"["+index+"]"}.
+     * A group bundles several tickets together so that they can easily be used together.
+     * Each individual ticket is handled just like any other, it is just registered with the group as well.
+     * Names are formatted as {@code groupName+"["+index+"]"}.
      * 
      * @param <T>
      * @param name
@@ -494,7 +475,14 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return group.array;
     }
     /**
-     * Creates an input group of indefinite size.
+     * Creates an input ticket list.
+     * <p>
+     * A ticket list is an extension of a ticket group where the size is indefinite, meaning connections
+     * can be added or removed at will. The order of connections is not guaranteed, especially
+     * when a ticket list is loaded from a save file.
+     * <p>
+     * Each addition or removal from a ticket list requires an array resize, so it a ticket
+     * list should remain static where possible.
      * 
      * @param name 
      */
@@ -700,17 +688,20 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     }
     
     /**
-     * Gets an existing framebuffer that matches the given properties.
+     * Gets an existing {@link FrameBuffer} that matches the given properties.
      * <p>
-     * If no existing framebuffer matches, a new framebuffer will be created
-     * and returned.
+     * If no existing FrameBuffer matches, a new framebuffer will be created
+     * and returned. FrameBuffers that are not used during pass execution
+     * are disposed.
+     * <p>
+     * If the event capturer is not null, an event will be logged for debugging.
      * 
-     * @param cap graph event capturer, for debugging, may be null.
-     * @param tag 
-     * @param width
-     * @param height
-     * @param samples
-     * @return 
+     * @param cap graph event capturer for debugging (may be null)
+     * @param tag tag (name) requirement for returned FrameBuffer (may be null)
+     * @param width width requirement for returned FrameBuffer
+     * @param height height requirement for returned FrameBuffer
+     * @param samples samples requirement for returned FrameBuffer
+     * @return FrameBuffer matching given width, height, and samples
      */
     protected FrameBuffer getFrameBuffer(GraphEventCapture cap, String tag, int width, int height, int samples) {
         if (tag == null) {
@@ -733,6 +724,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param height
      * @param samples
      * @return 
+     * @see #getFrameBuffer(com.jme3.renderer.framegraph.debug.GraphEventCapture, java.lang.String, int, int, int) 
      */
     protected FrameBuffer getFrameBuffer(GraphEventCapture cap, int width, int height, int samples) {
         return getFrameBuffer(cap, null, width, height, samples);
@@ -743,6 +735,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param height
      * @param samples
      * @return 
+     * @see #getFrameBuffer(com.jme3.renderer.framegraph.debug.GraphEventCapture, java.lang.String, int, int, int) 
      */
     protected FrameBuffer getFrameBuffer(int width, int height, int samples) {
         return getFrameBuffer(null, null, width, height, samples);
@@ -754,25 +747,30 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @param height
      * @param samples
      * @return 
+     * @see #getFrameBuffer(com.jme3.renderer.framegraph.debug.GraphEventCapture, java.lang.String, int, int, int) 
      */
     protected FrameBuffer getFrameBuffer(String tag, int width, int height, int samples) {
         return getFrameBuffer(null, tag, width, height, samples);
     }
     /**
+     * Creates a FrameBuffer matching the width and height presented by the {@link FGRenderContext}.
      * 
      * @param context
      * @param samples
      * @return 
+     * @see #getFrameBuffer(com.jme3.renderer.framegraph.debug.GraphEventCapture, java.lang.String, int, int, int) 
      */
     protected FrameBuffer getFrameBuffer(FGRenderContext context, int samples) {
         return getFrameBuffer(context.getGraphCapture(), context.getWidth(), context.getHeight(), samples);
     }
     /**
+     * Creates a FrameBuffer matching the width and height presented by the {@link FGRenderContext}.
      * 
      * @param context
      * @param tag
      * @param samples
      * @return 
+     * @see #getFrameBuffer(com.jme3.renderer.framegraph.debug.GraphEventCapture, java.lang.String, int, int, int) 
      */
     protected FrameBuffer getFrameBuffer(FGRenderContext context, String tag, int samples) {
         return getFrameBuffer(context.getGraphCapture(), tag, context.getWidth(), context.getHeight(), samples);
@@ -781,14 +779,19 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     /**
      * Counts the number of potential references to this pass.
      * <p>
+     * Used for determining if this pass should be culled.
+     * <p>
      * Called automatically. Do not use.
      */
-    public void countReferences() {
+    public final void countReferences() {
         refs = outputs.size();
     }
     /**
      * Shifts the execution index if this pass's index is greater than the
      * specified threshold.
+     * <p>
+     * Used to alter the index if another pass was inserted below this in the same
+     * {@link com.jme3.renderer.framegraph.PassThread PassThread}.
      * <p>
      * Called automatically. Do not use.
      * 
@@ -800,6 +803,8 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     }
     /**
      * Shifts the id of this pass.
+     * <p>
+     * Used to ensure that all RenderPass ids are unique after loading from a save file.
      * <p>
      * Called automatically. Do not use.
      * 
@@ -817,7 +822,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         this.name = name;
     }
     /**
-     * Sets the id of this pass.
+     * Sets the unique id of this pass.
      * <p>
      * Called automatically. Do not use.
      * 
@@ -829,6 +834,10 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     /**
      * Sets the id used when exporting.
      * <p>
+     * Export id counted from zero for each pass in the FrameGraph, which will not
+     * necessarily be globally unique or match the normal id. Only in use during
+     * export operations.
+     * <p>
      * Called automatically. Do not use.
      * 
      * @param id 
@@ -838,6 +847,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     }
     
     /**
+     * Gets the name assigned to this RenderPass.
      * 
      * @return 
      */
@@ -845,7 +855,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return name;
     }
     /**
-     * Gets the name used for profiling.
+     * Gets the name given to a profiler, which may be more compact or informative.
      * 
      * @return 
      */
@@ -853,6 +863,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return getName();
     }
     /**
+     * Gets the unique id of this pass.
      * 
      * @return 
      */
@@ -860,6 +871,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return id;
     }
     /**
+     * Gets the export id of this pass used only during export operations.
      * 
      * @return 
      */
@@ -867,6 +879,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return exportId;
     }
     /**
+     * Gets the index of this pass.
      * 
      * @return 
      */
@@ -882,7 +895,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         return index != null;
     }
     /**
-     * Gets the number of ticket groups.
+     * Gets the number of active ticket groups in this pass.
      * 
      * @return 
      */
@@ -920,13 +933,30 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         OutputCapsule out = ex.getCapsule(this);
         out.write((exportId >= 0 ? exportId : id), "id", -1);
         out.write(name, "name", "RenderPass");
+        write(out);
     }
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         id = in.readInt("id", -1);
         name = in.readString("name", "RenderPass");
+        read(in);
     }
+    
+    /**
+     * Convenience method for writing pass properties to the output capsule.
+     * 
+     * @param out
+     * @throws IOException 
+     */
+    protected void write(OutputCapsule out) throws IOException {}
+    /**
+     * Convenience method for reading pass properties from the input capsule.
+     * 
+     * @param in
+     * @throws IOException 
+     */
+    protected void read(InputCapsule in) throws IOException {}
     
     /**
      * Gets the next generated id.

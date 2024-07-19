@@ -64,11 +64,35 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Renders GBuffer information using deferred lighting to a color texture.
+ * Renders GBuffer information using the deferred lighting technique to a color texture.
+ * <p>
+ * Inputs:
+ * <ul>
+ *   <li>GBufferData[5] ({@link Texture2D}): Textures containing the necessary geometry information.</li>
+ *   <li>Lights ({@link LightList}): List of lights in the scene (optional).</li>
+ *   <li>LightTextures[3] ({@link Texture2D}): Textures containing light data (optional).</li>
+ *   <li>TileTextures[2] ({@link Texture2D}): Textures sorting lights by screenspace tile (optional).</li>
+ *   <li>NumLights (int): Number of lights stored in LightTextures (optional).</li>
+ *   <li>Ambient ({@link ColorRGBA}): Accumulated color of ambient lights (optional).</li>
+ *   <li>Probes (List&lt;{@link LightProbe}&gt;): List of light probes in the scene (optional)</li>
+ * </ul>
+ * Outputs:
+ * <ul>
+ *   <li>Color ({@link Texture2D}): Result of deferred rendering.</li>
+ * </ul>
+ * There are three different ways to inject lighting information:
+ * <ol>
+ *   <li>Provide raw light list ("Lights"). Requires "LightTextures" and "Ambient" be undefined.</li>
+ *   <li>Provide preprocessed light list ("Lights"), with "Ambient" and "Probes" defined, and "LightTextures" undefined.</li>
+ *   <li>Provide lights packed into "LightTextures", with "NumLights", "Ambient", and "Probes" defined.</li>
+ * </ol>
+ * With light textures, "TileTextures" can also be defined to use tiled lighting techniques,
+ * which generally makes the process more efficient, especially with a large number of lights.
  * 
  * @author codex
  */
@@ -78,12 +102,13 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
      * Indicates the maximum number of directional, point, and spot lights
      * that can be handled using buffers.
      * <p>
-     * Excess lights will be discarded.
+     * Excess lights will be discarded if using buffers (instead of textures).
      * <p>
      * <strong>Development Note:</strong> if more uniforms are added to the
      * shader, this value may need to be decreased.
      */
     public static final int MAX_BUFFER_LIGHTS = 320;
+    
     /**
      * Indicates the maximum number of light probes that can be handled.
      * <p>
@@ -91,7 +116,6 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
      */
     public static final int MAX_PROBES = 3;
     
-    private static Defines defs;
     private static final List<LightProbe> localProbeList = new LinkedList<>();
     
     private boolean tiled = false;
@@ -107,7 +131,6 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     private final Texture2D[] tileTextures = new Texture2D[2];
     private final ColorRGBA ambientColor = new ColorRGBA();
     private List<LightProbe> probeList;
-    private TechniqueDef active;
     
     public DeferredPass() {}
     public DeferredPass(boolean tiled) {
@@ -116,11 +139,6 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        // Lighting Arguments:
-        // IF LightTextures = undefined
-        //     EITHER provide raw light list
-        //     OR provide processed light list (without ambient or probes), ambient color, and probe list.
-        // ELSE provide 3 light textures, number of lights, ambient color, and probe list.
         addInputGroup("GBufferData", 5);
         lights = addInput("Lights");
         addInputGroup("LightTextures", 3);
@@ -133,11 +151,8 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         colorDef.setFormatFlexible(true);
         assetManager = frameGraph.getAssetManager();
         material = new Material(assetManager, "Common/MatDefs/ShadingCommon/DeferredShading.j3md");
-        if (defs == null) {
-            defs = new Defines();
-//            for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("DeferredPass")) {
-//                defs.config(t);
-//            }
+        for (TechniqueDef t : material.getMaterialDef().getTechniqueDefs("DeferredPass")) {
+            Defines.config(t);
         }
     }
     @Override
@@ -153,21 +168,27 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     }
     @Override
     protected void execute(FGRenderContext context) {
+        
+        // setup framebuffer
         FrameBuffer fb = getFrameBuffer(context, 1);
         resources.acquireColorTargets(fb, outColor);
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
+        
+        // apply gbuffer textures
         ResourceTicket<Texture2D>[] gbuffers = getGroupArray("GBufferData");
         for (int i = 0; i < gbuffers.length; i++) {
             material.setTexture("GBuffer"+i, resources.acquire(gbuffers[i]));
         }
+        
+        // setup technique
         material.selectTechnique("DeferredPass", context.getRenderManager());
-        material.getActiveTechnique().getDef().setLogic(this);
-        active = material.getActiveTechnique().getDef();
-        if (active.getDefineNames().length == 0) {
-            defs.config(active);
-        }
+        TechniqueDef active = material.getActiveTechnique().getDef();
+        active.setLogic(this);
+        Defines.config(active);
+        
+        // render
         acquireArrayOrElse("LightTextures", lightTextures, null);
         if (lightTextures[0] == null) {
             context.getScreen().render(context.getRenderManager(), material, resources.acquire(lights));
@@ -181,7 +202,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
             material.setTexture("LightIndex", tileTextures[1]);
             context.renderFullscreen(material);
         }
-        material.getActiveTechnique().getDef().setLogic(null);
+        active.setLogic(null);
     }
     @Override
     protected void reset(FGRenderContext context) {}
@@ -190,7 +211,8 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
             EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
-        // if the technique def somehow wasn't configured, configure it
+        TechniqueDef active = material.getActiveTechnique().getDef();
+        Defines defs = Defines.get(active);
         if (lightTextures[0] == null) {
             ColorRGBA amb = resources.acquireOrElse(ambient, null);
             if (amb == null) {
@@ -217,7 +239,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         // this may need to be changed to only be enabled when there is an ambient light present
         defines.set(defs.useAmbientLight, true);
         defines.set(defs.numProbes, getNumReadyProbes(probeList));
-        return material.getActiveTechnique().getDef().getShader(assetManager, rendererCaps, defines);
+        return active.getShader(assetManager, rendererCaps, defines);
     }
     @Override
     public void render(RenderManager rm, Shader shader, Geometry geometry,
@@ -225,10 +247,8 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         Renderer renderer = rm.getRenderer();
         injectShaderGlobals(rm, shader, lastBindUnits.textureUnit);
         if (lightTextures[0] == null) {
-            // pass light data by uniforms
             injectLightBuffers(shader, lights);
         } else {
-            // pass light data by textures
             injectLightTextures(shader);
         }
         renderer.setShader(shader);
@@ -250,10 +270,7 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
     
     private int getNumReadyProbes(List<LightProbe> probes) {
         int n = 0;
-        if (probes == null) {
-            return n;
-        }
-        for (LightProbe p : probes) {
+        if (probes != null) for (LightProbe p : probes) {
             if (p.isEnabled() && p.isReady() && ++n == MAX_PROBES) {
                 break;
             }
@@ -348,16 +365,32 @@ public class DeferredPass extends RenderPass implements TechniqueDefLogic {
         private static final String DEFINE_USE_AMBIENT_LIGHT = "USE_AMBIENT_LIGHT";
         private static final String DEFINE_TILED_LIGHTS = "TILED_LIGHTS";
         
-        public int numLights, useTextures, numProbes, useAmbientLight, useTiles;
+        private static final HashMap<TechniqueDef, Defines> defMap = new HashMap<>();
+        public final int numLights, useTextures, numProbes, useAmbientLight, useTiles;
         
-        public Defines() {}
-        
-        public void config(TechniqueDef def) {
+        public Defines(TechniqueDef def) {
             numLights = def.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
             numProbes = def.addShaderUnmappedDefine(DEFINE_NB_PROBES, VarType.Int);
             useTextures = def.addShaderUnmappedDefine(DEFINE_USE_LIGHT_TEXTURES, VarType.Boolean);
             useAmbientLight = def.addShaderUnmappedDefine(DEFINE_USE_AMBIENT_LIGHT, VarType.Boolean);
             useTiles = def.addShaderUnmappedDefine(DEFINE_TILED_LIGHTS, VarType.Boolean);
+        }
+        
+        public static Defines config(TechniqueDef technique) {
+            Defines defs = defMap.get(technique);
+            if (defs == null) {
+                defs = new Defines(technique);
+                defMap.put(technique, defs);
+            }
+            return defs;
+        }
+        
+        public static Defines get(TechniqueDef technique) {
+            Defines defs = defMap.get(technique);
+            if (defs == null) {
+                throw new NullPointerException("Attempted to use unconfigured TechniqueDef.");
+            }
+            return defs;
         }
         
     }

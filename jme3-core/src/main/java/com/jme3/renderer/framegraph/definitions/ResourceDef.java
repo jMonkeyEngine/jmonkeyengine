@@ -32,10 +32,11 @@
 package com.jme3.renderer.framegraph.definitions;
 
 import java.util.function.Consumer;
+import com.jme3.renderer.framegraph.ResourceView;
 
 /**
- * Creates and reallocates objects for a resource and defines how that resource
- * will behaves.
+ * Manages the behavior of a {@link ResourceView}, especially for creation,
+ * reallocation, and disposal of related raw resources.
  * 
  * @author codex
  * @param <T>
@@ -50,20 +51,24 @@ public interface ResourceDef <T> {
     public T createResource();
     
     /**
-     * Repurposes the given resource only if the resource is of
-     * a certain type.
+     * Checks if the resource can be directly allocated to this definition's
+     * {@link ResourceView} as is.
      * <p>
-     * For reallocation, direct resources are preferred over indirect
-     * resources. Usually because direct resources require fewer changes
-     * to be usable.
+     * For reallocation, direct "as is" resources are preferred over indirect
+     * resources. Usually because direct resources are specifically designed
+     * for whatever task.
      * 
      * @param resource
-     * @return 
+     * @return the resource if approved, otherwise null
      */
     public T applyDirectResource(Object resource);
     
     /**
-     * Repurposes the given resource.
+     * Repurposes the given resource for allocation to this definition's
+     * {@link ResourceView}.
+     * <p>
+     * An indirect resource usually does not exactly match the type of this
+     * definition, but does contain the necessary components.
      * 
      * @param resource
      * @return repurposed resource, or null if the given resource is not usable.

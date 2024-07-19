@@ -1,6 +1,33 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Copyright (c) 2024 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.renderer.framegraph.light;
 
@@ -17,7 +44,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
- *
+ * A screenspace rectangle that contains a light's influence.
+ * 
  * @author codex
  */
 public class LightFrustum {
@@ -42,6 +70,12 @@ public class LightFrustum {
     private final Vector4f lightCenter = new Vector4f();
     private boolean fullscreen = false;
     
+    /**
+     * Calculates important values from the camera.
+     * 
+     * @param cam
+     * @return 
+     */
     public LightFrustum calculateCamera(Camera cam) {
         viewPortWidth = cam.getWidth() * 0.5f;
         viewPortHeight = cam.getHeight() * 0.5f;
@@ -57,6 +91,12 @@ public class LightFrustum {
         return this;
     }
     
+    /**
+     * Calculates the frustum from the light.
+     * 
+     * @param l
+     * @return 
+     */
     public LightFrustum fromLight(Light l) {
         switch (l.getType()) {
             case Directional:
@@ -71,9 +111,21 @@ public class LightFrustum {
                 throw new UnsupportedOperationException("Light type "+l.getType()+" is not supported.");
         }
     }
+    /**
+     * Calculates the frustum from the DirectionalLight.
+     * 
+     * @param dl
+     * @return 
+     */
     public LightFrustum fromDirectional(DirectionalLight dl) {
         return fullscreen();
     }
+    /**
+     * Calculates the frustum from the point light.
+     * 
+     * @param pl
+     * @return 
+     */
     public LightFrustum fromPoint(PointLight pl) {
         
         //return fullscreen();
@@ -140,12 +192,29 @@ public class LightFrustum {
         return this;
         
     }
+    /**
+     * Calculates the frustum from the SpotLight.
+     * 
+     * @param sl
+     * @return 
+     */
     public LightFrustum fromSpot(SpotLight sl) {
         return fullscreen();
     }
+    /**
+     * Calculates the frustum from the AmbientLight.
+     * 
+     * @param al
+     * @return 
+     */
     public LightFrustum fromAmbient(AmbientLight al) {
         return fullscreen();
     }
+    /**
+     * Calculates a fullscreen frustum.
+     * 
+     * @return 
+     */
     public LightFrustum fullscreen() {
         fullscreen = true;
         left = bottom = 0;
@@ -154,6 +223,13 @@ public class LightFrustum {
         return this;
     }
     
+    /**
+     * Writes the calculated frustum of the indexed light to a set of screenspace tiles.
+     * 
+     * @param tileIndices 2D lists containing light indices for each tile
+     * @param tileInfo information about tile demensions
+     * @param lightIndex index of light
+     */
     public void write(ArrayList<LinkedList<Integer>> tileIndices, TiledRenderGrid tileInfo, int lightIndex) {
         if (!fullscreen) {
             int width = tileInfo.getGridWidth();
