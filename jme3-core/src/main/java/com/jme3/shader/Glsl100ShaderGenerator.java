@@ -50,7 +50,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * the indentation characters 1à tabulation characters
      */
-    private final static String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+    private static final String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 
     protected ShaderNodeVariable inPosTmp;
 

@@ -93,7 +93,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     private Node scene;
     protected TimeLine timeLine = new TimeLine();
     private int lastFetchedKeyFrame = -1;
-    final private List<CinematicEvent> cinematicEvents = new ArrayList<>();
+    private final List<CinematicEvent> cinematicEvents = new ArrayList<>();
     private Map<String, CameraNode> cameras = new HashMap<>();
     private CameraNode currentCam;
     private boolean initialized = false;

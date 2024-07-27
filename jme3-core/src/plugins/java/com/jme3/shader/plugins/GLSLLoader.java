@@ -43,7 +43,7 @@ import java.util.*;
 public class GLSLLoader implements AssetLoader {
 
     private AssetManager assetManager;
-    final private Map<String, ShaderDependencyNode> dependCache = new HashMap<>();
+    private final Map<String, ShaderDependencyNode> dependCache = new HashMap<>();
 
     /**
      * Used to load {@link ShaderDependencyNode}s.

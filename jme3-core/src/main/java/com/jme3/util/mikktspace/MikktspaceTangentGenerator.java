@@ -61,11 +61,11 @@ import java.util.logging.Logger;
  */
 public class MikktspaceTangentGenerator {
 
-    private final static int MARK_DEGENERATE = 1;
-    private final static int QUAD_ONE_DEGEN_TRI = 2;
-    private final static int GROUP_WITH_ANY = 4;
-    private final static int ORIENT_PRESERVING = 8;
-    private final static long INTERNAL_RND_SORT_SEED = 39871946 & 0xffffffffL;
+    private static final int MARK_DEGENERATE = 1;
+    private static final int QUAD_ONE_DEGEN_TRI = 2;
+    private static final int GROUP_WITH_ANY = 4;
+    private static final int ORIENT_PRESERVING = 8;
+    private static final long INTERNAL_RND_SORT_SEED = 39871946 & 0xffffffffL;
     static final int CELLS = 2048;
     
     private final static Logger logger = Logger.getLogger(MikktspaceTangentGenerator.class.getName());

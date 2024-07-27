@@ -53,7 +53,7 @@ import java.util.logging.Logger;
  */
 public class AnimEvent extends AbstractCinematicEvent {
 
-    final public static Logger logger
+    public static final Logger logger
             = Logger.getLogger(AnimEvent.class.getName());
 
     /*

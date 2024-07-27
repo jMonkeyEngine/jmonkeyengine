@@ -51,36 +51,36 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * shared instance of the all-zero vector (0,0,0,0) - Do not modify!
      */
-    public final static Vector4f ZERO = new Vector4f(0, 0, 0, 0);
+    public static final Vector4f ZERO = new Vector4f(0, 0, 0, 0);
     /**
      * shared instance of the all-NaN vector (NaN,NaN,NaN,NaN) - Do not modify!
      */
-    public final static Vector4f NAN = new Vector4f(Float.NaN, Float.NaN, Float.NaN, Float.NaN);
+    public static final Vector4f NAN = new Vector4f(Float.NaN, Float.NaN, Float.NaN, Float.NaN);
     /**
      * shared instance of the +X direction (1,0,0,0) - Do not modify!
      */
-    public final static Vector4f UNIT_X = new Vector4f(1, 0, 0, 0);
+    public static final Vector4f UNIT_X = new Vector4f(1, 0, 0, 0);
     /**
      * shared instance of the +Y direction (0,1,0,0) - Do not modify!
      */
-    public final static Vector4f UNIT_Y = new Vector4f(0, 1, 0, 0);
+    public static final Vector4f UNIT_Y = new Vector4f(0, 1, 0, 0);
     /**
      * shared instance of the +Z direction (0,0,1,0) - Do not modify!
      */
-    public final static Vector4f UNIT_Z = new Vector4f(0, 0, 1, 0);
+    public static final Vector4f UNIT_Z = new Vector4f(0, 0, 1, 0);
     /**
      * shared instance of the +W direction (0,0,0,1) - Do not modify!
      */
-    public final static Vector4f UNIT_W = new Vector4f(0, 0, 0, 1);
+    public static final Vector4f UNIT_W = new Vector4f(0, 0, 0, 1);
     /**
      * shared instance of the all-ones vector (1,1,1,1) - Do not modify!
      */
-    public final static Vector4f UNIT_XYZW = new Vector4f(1, 1, 1, 1);
+    public static final Vector4f UNIT_XYZW = new Vector4f(1, 1, 1, 1);
     /**
      * shared instance of the all-plus-infinity vector (+Inf,+Inf,+Inf,+Inf)
      * - Do not modify!
      */
-    public final static Vector4f POSITIVE_INFINITY = new Vector4f(
+    public static final Vector4f POSITIVE_INFINITY = new Vector4f(
             Float.POSITIVE_INFINITY,
             Float.POSITIVE_INFINITY,
             Float.POSITIVE_INFINITY,
@@ -89,7 +89,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * shared instance of the all-negative-infinity vector (-Inf,-Inf,-Inf,-Inf)
      * - Do not modify!
      */
-    public final static Vector4f NEGATIVE_INFINITY = new Vector4f(
+    public static final Vector4f NEGATIVE_INFINITY = new Vector4f(
             Float.NEGATIVE_INFINITY,
             Float.NEGATIVE_INFINITY,
             Float.NEGATIVE_INFINITY,

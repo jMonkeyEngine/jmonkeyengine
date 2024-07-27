@@ -45,11 +45,11 @@ import java.util.logging.LogRecord;
  */
 public class JmeFormatter extends Formatter {
 
-    final private Date calendar = new Date();
-    final private String lineSeparator;
-    final private MessageFormat format;
-    final private Object args[] = new Object[1];
-    final private StringBuffer store = new StringBuffer();
+    private final Date calendar = new Date();
+    private final String lineSeparator;
+    private final MessageFormat format;
+    private final Object args[] = new Object[1];
+    private final StringBuffer store = new StringBuffer();
 
     public JmeFormatter(){
         lineSeparator = System.getProperty("line.separator");
@@ -80,7 +80,7 @@ public class JmeFormatter extends Formatter {
             try {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
-                record.getThrown().printStackTrace(pw);
+                    record.getThrown().printStackTrace(pw);
                 pw.close();
                 sb.append(sw.toString());
             } catch (Exception ex) {

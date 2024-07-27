@@ -47,7 +47,7 @@ import java.net.URLConnection;
  */
 public class UrlAssetInfo extends AssetInfo {
     
-    final private URL url;
+    private final URL url;
     private InputStream in;
     
     public static UrlAssetInfo create(AssetManager assetManager, AssetKey key, URL url) throws IOException {

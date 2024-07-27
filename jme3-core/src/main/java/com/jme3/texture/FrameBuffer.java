@@ -80,7 +80,7 @@ public class FrameBuffer extends NativeObject {
     private int width = 0;
     private int height = 0;
     private int samples = 1;
-    final private ArrayList<RenderBuffer> colorBufs = new ArrayList<>();
+    private final ArrayList<RenderBuffer> colorBufs = new ArrayList<>();
     private RenderBuffer depthBuf = null;
     private int colorBufIndex = 0;
     private boolean srgb;

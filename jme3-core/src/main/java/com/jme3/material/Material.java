@@ -83,7 +83,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private Technique technique;
     private HashMap<String, Technique> techniques = new HashMap<>();
     private RenderState additionalState = null;
-    final private RenderState mergedRenderState = new RenderState();
+    private final RenderState mergedRenderState = new RenderState();
     private boolean transparent = false;
     private boolean receivesShadows = false;
     private int sortingId = -1;
