@@ -109,10 +109,12 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
         brtf.getImage().setColorSpace(ColorSpace.Linear);
     }
 
+    @Override
     public TextureCubeMap getSpecularIBL() {
         return specular;
     }
 
+    @Override
     public TextureCubeMap getIrradiance() {
         return irradiance;
     }

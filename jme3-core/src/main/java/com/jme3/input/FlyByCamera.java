@@ -56,7 +56,7 @@ import com.jme3.renderer.Camera;
  */
 public class FlyByCamera implements AnalogListener, ActionListener {
 
-    final private static String[] mappings = new String[]{
+    private static final String[] mappings = new String[]{
         CameraInput.FLYCAM_LEFT,
         CameraInput.FLYCAM_RIGHT,
         CameraInput.FLYCAM_UP,

@@ -39,7 +39,9 @@ import com.jme3.util.TempVars;
  * SimpleBatchNode  comes with some restrictions, but can yield better performances.
  * Geometries to be batched has to be attached directly to the BatchNode
  * You can't attach a Node to a SimpleBatchNode
- * SimpleBatchNode is recommended when you have a large number of geometries using the same material that does not require a complex scene graph structure.
+ * SimpleBatchNode is recommended when you have a large number of geometries using the 
+ * same material that does not require a complex scene graph structure.
+ * 
  * @see BatchNode
  * @author Nehon
  */
@@ -55,9 +57,9 @@ public class SimpleBatchNode extends BatchNode {
 
     @Override
     public int attachChild(Spatial child) {
-
         if (!(child instanceof Geometry)) {
-            throw new UnsupportedOperationException("BatchNode is BatchMode.Simple only support child of type Geometry, use BatchMode.Complex to use a complex structure");
+            throw new UnsupportedOperationException("BatchNode is BatchMode.Simple only support child "
+                                    + "of type Geometry, use BatchMode.Complex to use a complex structure");
         }
 
         return super.attachChild(child);
@@ -71,7 +73,8 @@ public class SimpleBatchNode extends BatchNode {
             batch.geometry.setTransformRefresh();
         }
     }
-    final private Matrix4f cachedLocalMat = new Matrix4f();
+    
+    private final Matrix4f cachedLocalMat = new Matrix4f();
 
     @Override
     protected Matrix4f getTransformMatrix(Geometry g){
@@ -89,7 +92,6 @@ public class SimpleBatchNode extends BatchNode {
         return cachedLocalMat;
     }
     
-
     @Override
     public void batch() {
         doBatch();

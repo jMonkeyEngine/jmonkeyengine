@@ -54,19 +54,19 @@ public class ArmatureNode extends Node {
     /**
      * The armature to be displayed.
      */
-    final private Armature armature;
+    private final Armature armature;
     /**
      * The map between the bone index and its length.
      */
-    final private Map<Joint, Geometry[]> jointToGeoms = new HashMap<>();
-    final private Map<Geometry, Joint> geomToJoint = new HashMap<>();
+    private final Map<Joint, Geometry[]> jointToGeoms = new HashMap<>();
+    private final Map<Geometry, Joint> geomToJoint = new HashMap<>();
     private Joint selectedJoint = null;
-    final private Vector3f tmp = new Vector3f();
-    final private Vector2f tmpv2 = new Vector2f();
-    private final static ColorRGBA selectedColor = ColorRGBA.Orange;
-    private final static ColorRGBA selectedColorJ = ColorRGBA.Yellow;
-    private final static ColorRGBA outlineColor = ColorRGBA.LightGray;
-    private final static ColorRGBA baseColor = new ColorRGBA(0.05f, 0.05f, 0.05f, 1f);
+    private final Vector3f tmp = new Vector3f();
+    private final Vector2f tmpv2 = new Vector2f();
+    private static final ColorRGBA selectedColor = ColorRGBA.Orange;
+    private static final ColorRGBA selectedColorJ = ColorRGBA.Yellow;
+    private static final ColorRGBA outlineColor = ColorRGBA.LightGray;
+    private static final ColorRGBA baseColor = new ColorRGBA(0.05f, 0.05f, 0.05f, 1f);
 
     private Camera camera;
 

@@ -95,7 +95,7 @@ public class HDRRenderer implements SceneProcessor {
 
     private MinFilter fbMinFilter = MinFilter.BilinearNoMipMaps;
     private MagFilter fbMagFilter = MagFilter.Bilinear;
-    final private AssetManager manager;
+    private final AssetManager manager;
 
     private boolean enabled = true;
 

@@ -47,7 +47,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
 
     private Vector3f center, up;
     private float innerRadius, outerRadius;
-    private transient static Vector3f b1 = new Vector3f(), b2 = new Vector3f();
+    private static transient Vector3f b1 = new Vector3f(), b2 = new Vector3f();
 
     /**
      * Constructor creates a new <code>Ring</code> lying on the XZ plane,

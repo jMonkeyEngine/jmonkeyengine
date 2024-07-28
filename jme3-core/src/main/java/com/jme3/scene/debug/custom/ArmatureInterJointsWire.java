@@ -46,7 +46,7 @@ import java.nio.FloatBuffer;
  * @author Marcin Roguski (Kaelthas)
  */
 public class ArmatureInterJointsWire extends Mesh {
-    final private Vector3f tmp = new Vector3f();
+    private final Vector3f tmp = new Vector3f();
 
 
     public ArmatureInterJointsWire(Vector3f start, Vector3f[] ends) {

@@ -40,11 +40,11 @@ import com.jme3.input.controls.JoyButtonTrigger;
  */
 public class DefaultJoystickButton implements JoystickButton {
 
-    final private InputManager inputManager;
-    final private Joystick parent;
-    final private int buttonIndex;
-    final private String name;
-    final private String logicalId;
+    private final InputManager inputManager;
+    private final Joystick parent;
+    private final int buttonIndex;
+    private final String name;
+    private final String logicalId;
 
     public DefaultJoystickButton(InputManager inputManager, Joystick parent, int buttonIndex,
             String name, String logicalId) {

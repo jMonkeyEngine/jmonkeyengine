@@ -43,7 +43,7 @@ import com.jme3.scene.VertexBuffer.Format;
  */
 public class IndexIntBuffer extends IndexBuffer {
 
-    final private IntBuffer buf;
+    private final IntBuffer buf;
 
     public IndexIntBuffer(IntBuffer buffer) {
         buf = buffer;
