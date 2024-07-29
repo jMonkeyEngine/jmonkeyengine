@@ -34,15 +34,7 @@ package com.jme3.renderer.framegraph;
 import com.jme3.asset.AssetManager;
 import com.jme3.renderer.framegraph.light.TiledRenderGrid;
 import com.jme3.renderer.framegraph.client.GraphSetting;
-import com.jme3.renderer.framegraph.passes.Attribute;
-import com.jme3.renderer.framegraph.passes.DeferredPass;
-import com.jme3.renderer.framegraph.passes.GBufferPass;
-import com.jme3.renderer.framegraph.passes.Junction;
-import com.jme3.renderer.framegraph.passes.LightImagePass;
-import com.jme3.renderer.framegraph.passes.OutputGeometryPass;
-import com.jme3.renderer.framegraph.passes.OutputPass;
-import com.jme3.renderer.framegraph.passes.QueueMergePass;
-import com.jme3.renderer.framegraph.passes.SceneEnqueuePass;
+import com.jme3.renderer.framegraph.passes.*;
 
 /**
  * Utility class for constructing common {@link FrameGraph}s in code.
@@ -102,7 +94,7 @@ public class FrameGraphFactory {
         FrameGraph fg = new FrameGraph(assetManager);
         fg.setName(tiled ? "TiledDeferred" : "Deferred");
         
-        int asyncThread = async ? 1 : FrameGraph.RENDER_THREAD;
+        int asyncThread = async ? 1 : PassIndex.MAIN_THREAD;
         
         SceneEnqueuePass enqueue = fg.add(new SceneEnqueuePass(true, true));
         Attribute tileInfoAttr = fg.add(new Attribute());
@@ -118,18 +110,18 @@ public class FrameGraphFactory {
         
         gbuf.makeInput(enqueue, "Opaque", "Geometry");
         
-        GraphSetting<TiledRenderGrid> tileInfo = fg.setSetting("TileInfo", new TiledRenderGrid(), true);
+        GraphSetting<TiledRenderGrid> tileInfo = new GraphSetting<>("TileInfo", new TiledRenderGrid());
         tileInfoAttr.setName("TileInfo");
         tileInfoAttr.setSource(tileInfo);
         
-        GraphSetting<Integer> tileToggle = fg.setSetting("TileToggle", tiled ? 0 : -1, true);
+        GraphSetting<Integer> tileToggle = fg.setSetting("EnableLightTiles", tiled ? 0 : -1, -1);
         tileJunct1.makeInput(tileInfoAttr, Attribute.OUTPUT, Junction.getInput(0));
         tileJunct1.setIndexSource(tileToggle);
         
         lightImg.makeInput(enqueue, "OpaqueLights", "Lights");
         lightImg.makeInput(tileJunct1, Junction.getOutput(), "TileInfo");
         
-        GraphSetting<Integer> lightPackMethod = fg.setSetting("LightPackMethod", tiled ? 0 : -1, true);
+        GraphSetting<Integer> lightPackMethod = fg.setSetting("EnableLightTextures", tiled ? 0 : -1, -1);
         lightJunct.setName("LightPackMethod");
         lightJunct.makeGroupInput(lightImg, "Textures", Junction.getInput(0), 0, 0, 3);
         lightJunct.makeInput(lightImg, "NumLights", Junction.getInput(0, 3));

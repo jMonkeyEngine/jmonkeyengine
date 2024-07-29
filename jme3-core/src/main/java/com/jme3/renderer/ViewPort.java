@@ -111,7 +111,6 @@ public class ViewPort {
      */
     protected boolean clearStencil = false;
     private boolean enabled = true;
-    private boolean useFrameGraphs = true;
 
     /**
      * Creates a new viewport. User code should generally use these methods instead:<br>
@@ -453,29 +452,6 @@ public class ViewPort {
      */
     public FrameGraph getFrameGraph() {
         return framegraph;
-    }
-    
-    /**
-     * Enables this viewport to use framegraphs when rendering.
-     * <p>
-     * If false, the default forward renderer will always be used to
-     * render this viewport.
-     * <p>
-     * default=true
-     * 
-     * @param useFrameGraphs 
-     */
-    public void setUseFrameGraphs(boolean useFrameGraphs) {
-        this.useFrameGraphs = useFrameGraphs;
-    }
-    
-    /**
-     * Returns true if framegraphs can be used to render this viewport.
-     * 
-     * @return 
-     */
-    public boolean isUseFrameGraphs() {
-        return useFrameGraphs;
     }
 
 }

@@ -31,6 +31,9 @@
  */
 package com.jme3.renderer.framegraph;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 /**
  * References a {@link RenderResource} by index.
  * <p>
@@ -44,14 +47,17 @@ package com.jme3.renderer.framegraph;
  */
 public class ResourceTicket <T> {
     
-    private String name, groupName;
-    private int passId = -1;
+    public static final String RESERVED = "#";
+    
+    private String name;
     private int localIndex;
     private long objectId = -1;
     private ResourceTicket<T> source;
+    private final LinkedList<ResourceTicket<T>> targets = new LinkedList<>();
+    private int exportGroupId = -1;
     
     /**
-     * Creates a blank ticket with a negative local index.
+     * 
      */
     public ResourceTicket() {
         this(null, -1);
@@ -65,25 +71,6 @@ public class ResourceTicket <T> {
         this(name, -1);
     }
     /**
-     * Creates a ticket with the name, belonging to the named group,
-     * and with a negative local index.
-     * 
-     * @param name
-     * @param groupName 
-     */
-    public ResourceTicket(String name, String groupName) {
-        this(name, -1);
-        this.groupName = groupName;
-    }
-    /**
-     * Creates a ticket with the local index.
-     * 
-     * @param index 
-     */
-    public ResourceTicket(int index) {
-        this(null, index);
-    }
-    /**
      * Creates a ticket with the name and local index.
      * 
      * @param name
@@ -92,6 +79,16 @@ public class ResourceTicket <T> {
     public ResourceTicket(String name, int index) {
         this.name = name;
         this.localIndex = index;
+    }
+    
+    /**
+     * Clears all target tickets.
+     */
+    public void clearAllTargets() {
+        for (ResourceTicket<T> t : targets) {
+            t.source = null;
+        }
+        targets.clear();
     }
     
     /**
@@ -126,7 +123,13 @@ public class ResourceTicket <T> {
      * @param source 
      */
     public void setSource(ResourceTicket<T> source) {
+        if (this.source != null) {
+            this.source.targets.remove(this);
+        }
         this.source = source;
+        if (this.source != null) {
+            this.source.targets.add(this);
+        }
     }
     /**
      * Sets the name of this ticket.
@@ -137,14 +140,6 @@ public class ResourceTicket <T> {
     public ResourceTicket<T> setName(String name) {
         this.name = name;
         return this;
-    }
-    /**
-     * Sets the id of this pass this ticket belongs to.
-     * 
-     * @param passId 
-     */
-    public void setPassId(int passId) {
-        this.passId = passId;
     }
     /**
      * Sets the local index.
@@ -167,6 +162,16 @@ public class ResourceTicket <T> {
     public void setObjectId(long objectId) {
         this.objectId = objectId;
     }
+    /**
+     * Sets the id of the group this ticket is exported with.
+     * <p>
+     * Called internally. Do not use.
+     * 
+     * @param exportGroupId 
+     */
+    public void setExportGroupId(int exportGroupId) {
+        this.exportGroupId = exportGroupId;
+    }
     
     /**
      * 
@@ -174,21 +179,6 @@ public class ResourceTicket <T> {
      */
     public String getName() {
         return name;
-    }
-    /**
-     * Gets the name of the group this ticket is a member of, if any.
-     * 
-     * @return group name, or null
-     */
-    public String getGroupName() {
-        return groupName;
-    }
-    /**
-     * 
-     * @return 
-     */
-    public int getPassId() {
-        return passId;
     }
     /**
      * Gets the world index.
@@ -234,11 +224,23 @@ public class ResourceTicket <T> {
     public boolean hasSource() {
         return source != null;
     }
+    /**
+     * Gets all tickets depending on this ticket.
+     * 
+     * @return 
+     */
+    public Collection<ResourceTicket<T>> getTargets() {
+        return targets;
+    }
+    public int getExportGroupId() {
+        return exportGroupId;
+    }
     
     @Override
     public String toString() {
         return "Ticket[name="+name+", worldIndex="+getWorldIndex()+"]";
     }
+    
     
     /**
      * Returns true if the ticket is valid for locating a resource.
@@ -251,6 +253,12 @@ public class ResourceTicket <T> {
      */
     public static boolean validate(ResourceTicket ticket) {
         return ticket != null && ticket.getWorldIndex() >= 0;
+    }
+    
+    public static void validateUserTicketName(String name) {
+        if (name.startsWith(RESERVED)) {
+            throw new IllegalArgumentException("Cannot start ticket name with reserved \""+RESERVED+"\".");
+        }
     }
     
 }

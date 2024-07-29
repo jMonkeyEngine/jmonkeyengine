@@ -53,7 +53,7 @@ public class GraphEventCapture {
     
     private final File target;
     private final LinkedList<Event> events = new LinkedList<>();
-    private int frame = 0;
+    private int frame = 0, targetFrames = 10;
     private boolean includeNanos = true;
     private long userNanos = 0;
     
@@ -93,8 +93,8 @@ public class GraphEventCapture {
     /**
      * Logs a render frame start event.
      */
-    public void startRenderFrame() {
-        add(new Event("SUPEREVENT", "StartRenderFrame", frame));
+    public void beginRenderFrame() {
+        add(new Event("SUPEREVENT", "BeginRenderFrame", frame));
     }
     /**
      * Logs a render frame end event.
@@ -334,6 +334,13 @@ public class GraphEventCapture {
     }
     
     /**
+     * 
+     * @param targetFrames 
+     */
+    public void setTargetFrames(int targetFrames) {
+        this.targetFrames = targetFrames;
+    }
+    /**
      * Set the export file to include nanos with each event.
      * 
      * @param includeNanos 
@@ -342,12 +349,23 @@ public class GraphEventCapture {
         this.includeNanos = includeNanos;
     }
     
+    public int getTargetFrames() {
+        return targetFrames;
+    }
     /**
      * 
      * @return 
      */
     public boolean isIncludeNanos() {
         return includeNanos;
+    }
+    
+    public boolean isComplete() {
+        return frame >= targetFrames;
+    }
+    
+    public void resetFrameCount() {
+        frame = 0;
     }
     
     private static class Event {
@@ -413,30 +431,6 @@ public class GraphEventCapture {
         @Override
         public String getEventType() {
             return "VALUE";
-        }
-        
-    }
-    private static class Failure extends Event {
-        
-        public Failure(String operation, Check... checks) {
-            super(operation, new Object[checks.length]);
-            int i = 0;
-            for (; i < checks.length; i++) {
-                if (!checks[i].run()) {
-                    arguments[i] = checks[i].name;
-                    if (checks[i].terminal) break;
-                } else {
-                    arguments[i] = '-';
-                }
-            }
-            for (; i < checks.length; i++) {
-                arguments[i] = '?';
-            }
-        }
-        
-        @Override
-        public String getEventType() {
-            return "FAILURE";
         }
         
     }

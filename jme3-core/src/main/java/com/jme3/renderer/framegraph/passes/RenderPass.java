@@ -36,22 +36,20 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.renderer.framegraph.modules.RenderModule;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.PassIndex;
 import com.jme3.renderer.framegraph.ResourceList;
-import com.jme3.renderer.framegraph.ResourceProducer;
 import com.jme3.renderer.framegraph.ResourceTicket;
+import com.jme3.renderer.framegraph.TicketGroup;
 import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.definitions.ResourceDef;
 import com.jme3.texture.FrameBuffer;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -59,88 +57,63 @@ import java.util.function.Function;
  * 
  * @author codex
  */
-public abstract class RenderPass implements ResourceProducer, Savable {
+public abstract class RenderPass extends RenderModule implements Savable {
     
-    private static final String LIST_PREFIX = "#ElementOfList:";
-    private static int nextId = 0;
-    
-    private int id = nextId++;
-    private int exportId = -1;
-    private String name;
-    protected FrameGraph frameGraph;
-    private PassIndex index;
-    private int refs = 0;
-    private final LinkedList<ResourceTicket> inputs = new LinkedList<>();
-    private final LinkedList<ResourceTicket> outputs = new LinkedList<>();
     private final LinkedList<PassFrameBuffer> frameBuffers = new LinkedList<>();
-    private final HashMap<String, TicketGroup> groups = new HashMap<>();
     protected ResourceList resources;
     protected boolean autoTicketRelease = true;
     
-    /**
-     * Initializes the pass to the framegraph.
-     * 
-     * @param frameGraph
-     * @param index execution index
-     */
-    public void initializePass(FrameGraph frameGraph, PassIndex index) {
-        this.frameGraph = frameGraph;
-        this.index = index;
-        this.resources = frameGraph.getResources();
-        if (name == null) {
-            name = getClass().getSimpleName();
-        }
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        write(ex.getCapsule(this));
+    }
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        read(im.getCapsule(this));
+    }
+    @Override
+    public void traverse(Consumer<RenderModule> traverser) {
+        traverser.accept(this);
+    }
+    
+    @Override
+    public void initModule(FrameGraph frameGraph) {
         initialize(frameGraph);
     }
-    /**
-     * Prepares the pass for rendering.
-     * 
-     * @param context 
-     */
+    @Override
     public void prepareRender(FGRenderContext context) {
-        if (index == null) {
-            throw new IllegalStateException("Pass is not properly initialized for rendering.");
-        }
+        resources = context.getResources();
         prepare(context);
     }
-    /**
-     * Executes the pass.
-     * 
-     * @param context 
-     */
+    @Override
     public void executeRender(FGRenderContext context) {
+        if (context.isAsync()) {
+            waitToExecute();
+        }
         execute(context);
         if (autoTicketRelease) {
             releaseAll();
         }
+        if (index.isMainThread()) {
+            context.popRenderSettings();
+        }
     }
-    /**
-     * Resets the pass from rendering.
-     * 
-     * @param context 
-     */
+    @Override
     public void resetRender(FGRenderContext context) {
         reset(context);
     }
-    /**
-     * Cleans up the pass's participation in the framegraph.
-     * 
-     * @param frameGraph 
-     */
-    public void cleanupPass(FrameGraph frameGraph) {
+    @Override
+    public void cleanupModule(FrameGraph frameGraph) {
         cleanup(frameGraph);
-        for (ResourceTicket t : inputs) {
-            t.setSource(null);
-            t.setPassId(-1);
-        }
-        for (ResourceTicket t : outputs) {
-            t.setSource(null);
-            t.setPassId(-1);
-        }
         inputs.clear();
         outputs.clear();
         groups.clear();
-        index = null;
         this.frameGraph = null;
     }
     
@@ -186,6 +159,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * Called when all rendering is complete in a rendering frame this pass
      * participated in.
      */
+    @Override
     public void renderingComplete() {
         for (Iterator<PassFrameBuffer> it = frameBuffers.iterator(); it.hasNext();) {
             PassFrameBuffer fb = it.next();
@@ -199,15 +173,28 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     }
     
     /**
-     * Declares a new resource.
+     * Declares a new resource using a registered ticket.
      * 
      * @param <T>
      * @param def definition for new resource
      * @param ticket ticket to store resulting index
      * @return given ticket
+     * @see #declareTemporary(com.jme3.renderer.framegraph.definitions.ResourceDef, com.jme3.renderer.framegraph.ResourceTicket)
      */
     protected <T> ResourceTicket<T> declare(ResourceDef<T> def, ResourceTicket<T> ticket) {
         return resources.declare(this, def, ticket);
+    }
+    /**
+     * Declares a resource using an unregistered ticket.
+     * 
+     * @param <T>
+     * @param def
+     * @param ticket
+     * @return 
+     * @see #declare(com.jme3.renderer.framegraph.definitions.ResourceDef, com.jme3.renderer.framegraph.ResourceTicket)
+     */
+    protected <T> ResourceTicket<T> declareTemporary(ResourceDef<T> def, ResourceTicket<T> ticket) {
+        return resources.declareTemporary(this, def, ticket);
     }
     /**
      * Reserves the {@link com.jme3.renderer.framegraph.RenderObject RenderObject} associated with the ticket.
@@ -266,14 +253,10 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * <p>
      * An incoming resource is deemed ready when {@link com.jme3.renderer.framegraph.ResourceView#claimReadPermissions() read
      * permissions are claimed}.
-     * 
-     * @param timeout maximum wait time for each ticket before a timeout exception is thrown
-     * @param attempts maximum attempts for each ticket before a timeout exception is thrown
-     * @throws java.util.concurrent.TimeoutException if wait times out
      */
-    public void waitForInputs(long timeout, int attempts) throws TimeoutException {
+    public void waitToExecute() {
         for (ResourceTicket t : inputs) {
-            resources.wait(t, index.getThreadIndex(), timeout, attempts);
+            resources.waitForResource(t, index.threadIndex);
         }
     }
     
@@ -286,7 +269,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @return 
      */
     protected <T> T[] acquireArray(String name, T[] array) {
-        ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroupArray(name), "Ticket group cannot be null.");
+        ResourceTicket<T>[] tickets = getGroup(name).getArray();
         int n = Math.min(array.length, tickets.length);
         for (int i = 0; i < n; i++) {
             array[i] = resources.acquire(tickets[i]);
@@ -303,7 +286,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @return 
      */
     protected <T> T[] acquireArray(String name, Function<Integer, T[]> func) {
-        ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroupArray(name), "Ticket group cannot be null.");
+        ResourceTicket<T>[] tickets = getGroup(name).getArray();
         T[] array = func.apply(tickets.length);
         int n = Math.min(array.length, tickets.length);
         for (int i = 0; i < n; i++) {
@@ -324,7 +307,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @return 
      */
     protected <T> T[] acquireArrayOrElse(String name, T[] array, T val) {
-        ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroupArray(name), "Ticket group cannot be null.");
+        ResourceTicket<T>[] tickets = getGroup(name).getArray();
         int n = Math.min(array.length, tickets.length);
         for (int i = 0; i < n; i++) {
             array[i] = resources.acquireOrElse(tickets[i], val);
@@ -344,7 +327,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @return 
      */
     protected <T> T[] acquireArrayOrElse(String name, Function<Integer, T[]> func, T val) {
-        ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroupArray(name), "Ticket group cannot be null.");
+        ResourceTicket<T>[] tickets = getGroup(name).getArray();
         T[] array = func.apply(tickets.length);
         int n = Math.min(array.length, tickets.length);
         for (int i = 0; i < n; i++) {
@@ -364,7 +347,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         if (list == null) {
             list = new LinkedList<>();
         }
-        ResourceTicket<T>[] tickets = Objects.requireNonNull(getGroupArray(name), "Ticket group cannot be null.");
+        ResourceTicket<T>[] tickets = getGroup(name).getArray();
         for (ResourceTicket<T> t : tickets) {
             T res = resources.acquireOrElse(t, null);
             if (res != null) list.add(res);
@@ -387,117 +370,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     }
     
     /**
-     * Adds the ticket as input.
-     * 
-     * @param <T>
-     * @param input
-     * @return given ticket
-     */
-    private <T> ResourceTicket<T> addInput(ResourceTicket<T> input) {
-        inputs.add(input);
-        input.setPassId(id);
-        return input;
-    }
-    /**
-     * Adds the ticket as output.
-     * 
-     * @param <T>
-     * @param output
-     * @return given ticket
-     */
-    private <T> ResourceTicket<T> addOutput(ResourceTicket<T> output) {
-        outputs.add(output);
-        output.setPassId(id);
-        return output;
-    }
-    /**
-     * Creates and registers a new ticket as input.
-     * 
-     * @param <T>
-     * @param name name assigned to the new ticket
-     * @return created ticket
-     */
-    protected <T> ResourceTicket<T> addInput(String name) {
-        validateUserTicketName(name);
-        return addInput(new ResourceTicket<>(name));
-    }
-    /**
-     * Creates and registers a new ticket as output.
-     * 
-     * @param <T>
-     * @param name name assigned to the new ticket
-     * @return created ticket
-     */
-    protected <T> ResourceTicket<T> addOutput(String name) {
-        validateUserTicketName(name);
-        return addOutput(new ResourceTicket<>(name));
-    }
-    /**
-     * Creates and adds a ticket array as a group input of the specified length under the given name.
-     * <p>
-     * A group bundles several tickets together so that they can easily be used together.
-     * Each individual ticket is handled just like any other, it is just registered with the group as well.
-     * Names are formatted as {@code groupName+"["+index+"]"}.
-     * 
-     * @param <T>
-     * @param name
-     * @param length
-     * @return created ticket array
-     */
-    protected <T> ResourceTicket<T>[] addInputGroup(String name, int length) {
-        validateUserTicketName(name);
-        TicketGroup group = new TicketGroup(name, length);
-        for (int i = 0; i < length; i++) {
-            group.array[i] = addInput(group.create(i));
-        }
-        groups.put(name, group);
-        return group.array;
-    }
-    /**
-     * Creates and adds a ticket array as a group output of the specified length under the given name.
-     * <p>
-     * A group bundles several tickets together so that they can easily be used together.
-     * Each individual ticket is handled just like any other, it is just registered with the group as well.
-     * Names are formatted as {@code groupName+"["+index+"]"}.
-     * 
-     * @param <T>
-     * @param name
-     * @param length
-     * @return create ticket array
-     */
-    protected <T> ResourceTicket<T>[] addOutputGroup(String name, int length) {
-        validateUserTicketName(name);
-        TicketGroup group = new TicketGroup(name, length);
-        for (int i = 0; i < length; i++) {
-            group.array[i] = addOutput(group.create(i));
-        }
-        groups.put(name, group);
-        return group.array;
-    }
-    /**
-     * Creates an input ticket list.
-     * <p>
-     * A ticket list is an extension of a ticket group where the size is indefinite, meaning connections
-     * can be added or removed at will. The order of connections is not guaranteed, especially
-     * when a ticket list is loaded from a save file.
-     * <p>
-     * Each addition or removal from a ticket list requires an array resize, so it a ticket
-     * list should remain static where possible.
-     * 
-     * @param name 
-     */
-    protected void addInputList(String name) {
-        validateUserTicketName(name);
-        groups.put(name, new TicketGroup(name));
-    }
-    
-    private void validateUserTicketName(String name) {
-        if (name.startsWith("#")) {
-            throw new IllegalArgumentException("Cannot start ticket name with reserved '#' symbol.");
-        }
-    }
-    
-    /**
      * Removes all members of the named group from the input and output lists.
      * 
      * @param <T>
@@ -512,8 +384,8 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         // Once we determine which list group members were added to, we only
         // need to remove from that list for future members.
         byte state = 0;
-        if (group.list) state = 1;
-        for (ResourceTicket<T> t : group.array) {
+        if (group.isList()) state = 1;
+        for (ResourceTicket<T> t : group.getArray()) {
             if (state >= 0 && inputs.remove(t)) {
                 state = 1;
             }
@@ -521,170 +393,7 @@ public abstract class RenderPass implements ResourceProducer, Savable {
                 state = -1;
             }
         }
-        return group.array;
-    }
-    
-    /**
-     * Gets the named input ticket, or null if none exists.
-     * 
-     * @param name
-     * @return 
-     */
-    public ResourceTicket getInput(String name) {
-        for (ResourceTicket t : inputs) {
-            if (name.equals(t.getName())) {
-                return t;
-            }
-        }
-        return null;
-    }
-    /**
-     * Gets the named output ticket, or null if none exists.
-     * 
-     * @param name
-     * @return 
-     */
-    public ResourceTicket getOutput(String name) {
-        for (ResourceTicket t : outputs) {
-            if (name.equals(t.getName())) {
-                return t;
-            }
-        }
-        return null;
-    }
-    /**
-     * Gets the ticket array registered under the name.
-     * 
-     * @param name
-     * @return 
-     */
-    public ResourceTicket[] getGroupArray(String name) {
-        TicketGroup group = groups.get(name);
-        if (group != null) {
-            return group.array;
-        } else {
-            return null;
-        }
-    }
-    
-    /**
-     * Makes the named source (output) group belonging to the given pass the source of
-     * the named target (input) group belonging to this pass.
-     * 
-     * @param sourcePass
-     * @param sourceGroup
-     * @param targetGroup 
-     * @param sourceStart start index (inclusive) for the source group
-     * @param targetStart start index (inclusive) for the target group
-     * @param length number of tickets to connect (clamped to group lengths)
-     */
-    public void makeGroupInput(RenderPass sourcePass, String sourceGroup, String targetGroup, int sourceStart, int targetStart, int length) {
-        ResourceTicket[] sourceArray = Objects.requireNonNull(sourcePass.getGroupArray(sourceGroup), "Source group cannot be null.");
-        ResourceTicket[] targetArray = Objects.requireNonNull(getGroupArray(targetGroup), "Target group cannot be null.");
-        int n = Math.min(sourceStart+length, sourceArray.length);
-        int m = Math.min(targetStart+length, targetArray.length);
-        for (int i = sourceStart, j = targetStart; i < n && j < m; i++, j++) {
-            targetArray[j].setSource(sourceArray[i]);
-        }
-    }
-    /**
-     * 
-     * @param sourcePass
-     * @param sourceGroup
-     * @param targetGroup 
-     */
-    public void makeGroupInput(RenderPass sourcePass, String sourceGroup, String targetGroup) {
-        makeGroupInput(sourcePass, sourceGroup, targetGroup, 0, 0, Integer.MAX_VALUE);
-    }
-    /**
-     * Makes the named source (output) ticket belonging to the given pass the source of
-     * the named target (input) ticket belonging to this pass.
-     * <p>
-     * If both the source name and target name correspond to ticket groups, the
-     * groups will be connected.
-     * 
-     * @param sourcePass
-     * @param sourceTicket
-     * @param targetTicket 
-     */
-    public void makeInput(RenderPass sourcePass, String sourceTicket, String targetTicket) {
-        ResourceTicket source = Objects.requireNonNull(sourcePass.getOutput(sourceTicket), "Source ticket cannot be null.");
-        if (targetTicket.startsWith(LIST_PREFIX)) {
-            TicketGroup g = Objects.requireNonNull(groups.get(targetTicket.substring(LIST_PREFIX.length())), "List group cannot be null.");
-            g.requireAsList(true);
-            g.add().setSource(source);
-        } else {
-            ResourceTicket target = Objects.requireNonNull(getInput(targetTicket), "Target ticket cannot be null.");
-            target.setSource(source);
-        }
-    }
-    /**
-     * Adds the indicated source ticket as an input to the target indefinite group.
-     * 
-     * @param sourcePass
-     * @param sourceTicket
-     * @param targetGroup 
-     */
-    public void makeInputToList(RenderPass sourcePass, String sourceTicket, String targetGroup) {
-        ResourceTicket source = Objects.requireNonNull(sourcePass.getOutput(sourceTicket), "Source ticket cannot be null.");
-        TicketGroup target = Objects.requireNonNull(groups.get(targetGroup), "Target group cannot be null.");
-        target.requireAsList(true);
-        target.add().setSource(source);
-    }
-    /**
-     * Adds a ticket to the end of a group.
-     * <p>
-     * The group cannot be a list.
-     * 
-     * @param <T>
-     * @param group
-     * @return added ticket
-     */
-    public <T> ResourceTicket<T> addTicketSlot(String group) {
-        TicketGroup g = groups.get(group);
-        if (g == null) {
-            throw new NullPointerException("Ticket group cannot be null.");
-        }
-        g.requireAsList(false);
-        return g.add();
-    }
-    
-    /**
-     * Disconnects all input tickets in this pass that have the given ticket as
-     * their source.
-     * 
-     * @param ticket 
-     */
-    public void disconnectInputsFrom(ResourceTicket ticket) {
-        for (ResourceTicket in : inputs) {
-            if (in.getSource() == ticket) {
-                in.setSource(null);
-                if (in.getGroupName() != null) {
-                    TicketGroup g = groups.get(in.getGroupName());
-                    if (g != null && g.list) {
-                        g.remove(in);
-                    }
-                }
-            }
-        }
-    }
-    /**
-     * Nullifies all sources belonging to the given pass.
-     * 
-     * @param pass 
-     */
-    public void disconnectInputsFrom(RenderPass pass) {
-        for (ResourceTicket in : inputs) {
-            if (pass.getOutputTickets().contains(in.getSource())) {
-                in.setSource(null);
-                if (in.getGroupName() != null) {
-                    TicketGroup g = groups.get(in.getGroupName());
-                    if (g != null && g.list) {
-                        g.remove(in);
-                    }
-                }
-            }
-        }
+        return group.getArray();
     }
     
     /**
@@ -777,170 +486,12 @@ public abstract class RenderPass implements ResourceProducer, Savable {
     }
     
     /**
-     * Counts the number of potential references to this pass.
-     * <p>
-     * Used for determining if this pass should be culled.
-     * <p>
-     * Called automatically. Do not use.
-     */
-    public final void countReferences() {
-        refs = outputs.size();
-    }
-    /**
-     * Shifts the execution index if this pass's index is greater than the
-     * specified threshold.
-     * <p>
-     * Used to alter the index if another pass was inserted below this in the same
-     * {@link com.jme3.renderer.framegraph.PassThread PassThread}.
-     * <p>
-     * Called automatically. Do not use.
-     * 
-     * @param threshold
-     * @param positive 
-     */
-    public void shiftExecutionIndex(int threshold, boolean positive) {
-        index.shiftQueue(threshold, positive);
-    }
-    /**
-     * Shifts the id of this pass.
-     * <p>
-     * Used to ensure that all RenderPass ids are unique after loading from a save file.
-     * <p>
-     * Called automatically. Do not use.
-     * 
-     * @param shift 
-     */
-    public void shiftId(int shift) {
-        id += shift;
-    }
-    /**
-     * Sets the name of this pass.
-     * 
-     * @param name 
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-    /**
-     * Sets the unique id of this pass.
-     * <p>
-     * Called automatically. Do not use.
-     * 
-     * @param id 
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
-    /**
-     * Sets the id used when exporting.
-     * <p>
-     * Export id counted from zero for each pass in the FrameGraph, which will not
-     * necessarily be globally unique or match the normal id. Only in use during
-     * export operations.
-     * <p>
-     * Called automatically. Do not use.
-     * 
-     * @param id 
-     */
-    public void setExportId(int id) {
-        this.exportId = id;
-    }
-    
-    /**
-     * Gets the name assigned to this RenderPass.
-     * 
-     * @return 
-     */
-    public String getName() {
-        return name;
-    }
-    /**
      * Gets the name given to a profiler, which may be more compact or informative.
      * 
      * @return 
      */
     public String getProfilerName() {
         return getName();
-    }
-    /**
-     * Gets the unique id of this pass.
-     * 
-     * @return 
-     */
-    public int getId() {
-        return id;
-    }
-    /**
-     * Gets the export id of this pass used only during export operations.
-     * 
-     * @return 
-     */
-    public int getExportId() {
-        return exportId;
-    }
-    /**
-     * Gets the index of this pass.
-     * 
-     * @return 
-     */
-    public PassIndex getIndex() {
-        return index;
-    }
-    /**
-     * Returns true if this pass is assigned to a framegraph.
-     * 
-     * @return 
-     */
-    public boolean isAssigned() {
-        return index != null;
-    }
-    /**
-     * Gets the number of active ticket groups in this pass.
-     * 
-     * @return 
-     */
-    public int getNumGroups() {
-        return groups.size();
-    }
-    
-    @Override
-    public PassIndex getExecutionIndex() {
-        return index;
-    }
-    @Override
-    public boolean dereference() {
-        refs--;
-        return isUsed();
-    }
-    @Override
-    public boolean isUsed() {
-        return refs > 0;
-    }
-    @Override
-    public LinkedList<ResourceTicket> getInputTickets() {
-        return inputs;
-    }
-    @Override
-    public LinkedList<ResourceTicket> getOutputTickets() {
-        return outputs;
-    }
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule out = ex.getCapsule(this);
-        out.write((exportId >= 0 ? exportId : id), "id", -1);
-        out.write(name, "name", "RenderPass");
-        write(out);
-    }
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule in = im.getCapsule(this);
-        id = in.readInt("id", -1);
-        name = in.readString("name", "RenderPass");
-        read(in);
     }
     
     /**
@@ -957,33 +508,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
      * @throws IOException 
      */
     protected void read(InputCapsule in) throws IOException {}
-    
-    /**
-     * Gets the next generated id.
-     * 
-     * @return 
-     */
-    public static int getNextId() {
-        return nextId;
-    }
-    
-    /**
-     * 
-     * @param group
-     * @param i
-     * @return 
-     */
-    public static String groupTicketName(String group, int i) {
-        return group+'['+i+']';
-    }
-    /**
-     * 
-     * @param group
-     * @return 
-     */
-    public static String listTicketName(String group) {
-        return LIST_PREFIX+group;
-    }
     
     private static class PassFrameBuffer {
         
@@ -1015,64 +539,6 @@ public abstract class RenderPass implements ResourceProducer, Savable {
         
         public void dispose() {
             frameBuffer.dispose();
-        }
-        
-    }
-    private static class TicketGroup <T> {
-        
-        public final String name;
-        public ResourceTicket<T>[] array;
-        public boolean list = false;
-        
-        public TicketGroup(String name) {
-            this.name = name;
-            this.array = new ResourceTicket[0];
-            this.list = true;
-        }
-        public TicketGroup(String name, int length) {
-            this.name = name;
-            this.array = new ResourceTicket[length];
-        }
-        
-        public ResourceTicket<T> create(int i) {
-            String tName;
-            if (!list) {
-                tName = groupTicketName(name, i);
-            } else {
-                tName = listTicketName(name);
-            }
-            return new ResourceTicket<>(tName, name);
-        }
-        
-        public ResourceTicket<T> add() {
-            ResourceTicket[] temp = new ResourceTicket[array.length+1];
-            System.arraycopy(array, 0, temp, 0, array.length);
-            array = temp;
-            return (array[array.length-1] = create(array.length-1));
-        }
-        public int remove(ResourceTicket t) {
-            requireAsList(true);
-            int i = array.length-1;
-            for (; i >= 0; i--) {
-                if (array[i] == t) break;
-            }
-            if (i >= 0) {
-                ResourceTicket[] temp = new ResourceTicket[array.length-1];
-                if (i > 0) {
-                    System.arraycopy(array, 0, temp, 0, i);
-                }
-                if (i < array.length-1) {
-                    System.arraycopy(array, i+1, temp, i, array.length-i-1);
-                }
-                array = temp;
-            }
-            return i;
-        }
-        
-        public void requireAsList(boolean asList) {
-            if (list != asList) {
-                throw new IllegalStateException("Group must be "+(asList ? "a list" : "an array")+" in this context.");
-            }
         }
         
     }

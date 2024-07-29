@@ -44,9 +44,14 @@ package com.jme3.renderer.framegraph;
 public final class PassIndex {
     
     /**
+     * Index of the main render thread.
+     */
+    public static final int MAIN_THREAD = 0;
+    
+    /**
      * Index that conforms to defaults only.
      */
-    public static final PassIndex PASSIVE = new PassIndex(-1, -1);
+    public static final PassIndex DEFAULT = new PassIndex();
     
     /**
      * Index of the thread the pass is executed on.
@@ -61,14 +66,14 @@ public final class PassIndex {
      * Creates a pass index with all defaults (negative indices).
      */
     public PassIndex() {
-        this(-1, -1);
+        this(MAIN_THREAD, -1);
     }
     /**
      * 
      * @param queueIndex 
      */
     public PassIndex(int queueIndex) {
-        this(FrameGraph.RENDER_THREAD, queueIndex);
+        this(MAIN_THREAD, queueIndex);
     }
     /**
      * 
@@ -174,12 +179,12 @@ public final class PassIndex {
     }
     
     /**
-     * Returns true if the default thread index is used (thread index is negative).
+     * Returns true if this thread index matches the main thread index
      * 
      * @return 
      */
-    public boolean useDefaultThread() {
-        return threadIndex < 0;
+    public boolean isMainThread() {
+        return threadIndex == MAIN_THREAD;
     }
     /**
      * Returns true if the default queue index is used (queue index is negative).

@@ -40,7 +40,7 @@ import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.framegraph.DepthRange;
+import com.jme3.renderer.DepthRange;
 import com.jme3.renderer.framegraph.FGRenderContext;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.GeometryQueue;
@@ -95,7 +95,7 @@ public class SceneEnqueuePass extends RenderPass {
             TRANSLUCENT = "Translucent";
     
     private boolean runControlRender = true;
-    private final HashMap<String, Queue> buckets = new HashMap<>();
+    private final HashMap<String, Queue> queues = new HashMap<>();
     private String defaultBucket = OPAQUE;
 
     /**
@@ -122,14 +122,14 @@ public class SceneEnqueuePass extends RenderPass {
     
     @Override
     protected void initialize(FrameGraph frameGraph) {
-        for (Queue b : buckets.values()) {
+        for (Queue b : queues.values()) {
             b.geometry = addOutput(b.name);
             b.lights = addOutput(b.name+"Lights");
         }
     }
     @Override
     protected void prepare(FGRenderContext context) {
-        for (Queue b : buckets.values()) {
+        for (Queue b : queues.values()) {
             declare(null, b.geometry);
             declare(null, b.lights);
         }
@@ -142,15 +142,14 @@ public class SceneEnqueuePass extends RenderPass {
             vp.getCamera().setPlaneState(0);
             queueSubScene(context, scenes.get(i), null);
         }
-        System.out.println("set queue resources");
-        for (Queue b : buckets.values()) {
+        for (Queue b : queues.values()) {
             resources.setPrimitive(b.geometry, b.queue);
             resources.setPrimitive(b.lights, b.lightList);
         }
     }
     @Override
     protected void reset(FGRenderContext context) {
-        for (Queue b : buckets.values()) {
+        for (Queue b : queues.values()) {
             b.queue.clear();
             b.lightList.clear();
         }
@@ -163,7 +162,7 @@ public class SceneEnqueuePass extends RenderPass {
         OutputCapsule out = ex.getCapsule(this);
         out.write(runControlRender, "runControlRender", true);
         ArrayList<Queue> list = new ArrayList<>();
-        list.addAll(buckets.values());
+        list.addAll(queues.values());
         out.writeSavableArrayList(list, "buckets", new ArrayList<>());
         out.write(defaultBucket, "defaultBucket", OPAQUE);
     }
@@ -175,7 +174,7 @@ public class SceneEnqueuePass extends RenderPass {
         ArrayList<Savable> list = in.readSavableArrayList("buckets", new ArrayList<>());
         for (Savable s : list) {
             Queue b = (Queue)s;
-            buckets.put(b.name, b);
+            queues.put(b.name, b);
         }
         defaultBucket = in.readString("defaultBucket", OPAQUE);
     }
@@ -192,10 +191,10 @@ public class SceneEnqueuePass extends RenderPass {
         }
         // get target bucket
         String value = getSpatialBucket(spatial, parentBucket);
-        Queue bucket = (value != null ? buckets.get(value) : null);
+        Queue queue = (value != null ? queues.get(value) : null);
         // accumulate lights
-        if (bucket != null) for (Light l : spatial.getLocalLightList()) {
-            bucket.lightList.add(l);
+        if (queue != null) for (Light l : spatial.getLocalLightList()) {
+            queue.lightList.add(l);
         }
         if (spatial instanceof Node) {
             int camState = cam.getPlaneState();
@@ -204,13 +203,13 @@ public class SceneEnqueuePass extends RenderPass {
                 cam.setPlaneState(camState);
                 queueSubScene(context, s, value);
             }
-        } else if (bucket != null && spatial instanceof Geometry) {
+        } else if (queue != null && spatial instanceof Geometry) {
             // add to the render queue
             Geometry g = (Geometry)spatial;
             if (g.getMaterial() == null) {
                 throw new IllegalStateException("No material is set for Geometry: " + g.getName());
             }
-            bucket.queue.add(g);
+            queue.queue.add(g);
         }
     }
     private String getSpatialBucket(Spatial spatial, String parentValue) {
@@ -257,7 +256,7 @@ public class SceneEnqueuePass extends RenderPass {
         if (isAssigned()) {
             throw new IllegalStateException("Cannot add buckets while assigned to a framegraph.");
         }
-        buckets.put(name, new Queue(name, comparator, depth, perspective));
+        queues.put(name, new Queue(name, comparator, depth, perspective));
         return this;
     }
     

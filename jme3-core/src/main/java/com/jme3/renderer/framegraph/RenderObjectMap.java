@@ -46,7 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RenderObjectMap {
     
-    private final RenderManager renderManager;
+    private final FGPipelineContext context;
     private final Map<Long, RenderObject> objectMap;
     private int staticTimeout = 1;
     
@@ -62,11 +62,11 @@ public class RenderObjectMap {
     
     /**
      * 
-     * @param renderManager
+     * @param context
      * @param async 
      */
-    public RenderObjectMap(RenderManager renderManager, boolean async) {
-        this.renderManager = renderManager;
+    public RenderObjectMap(FGPipelineContext context, boolean async) {
+        this.context = context;
         objectMap = new ConcurrentHashMap<>();
     }
     
@@ -107,7 +107,7 @@ public class RenderObjectMap {
         if (resource.isUndefined()) {
             throw new IllegalArgumentException("Cannot allocate object to an undefined resource.");
         }
-        GraphEventCapture cap = renderManager.getGraphCapture();
+        GraphEventCapture cap = context.getEventCapture();
         totalAllocations++;
         ResourceDef<T> def = resource.getDefinition();
         if (def.isUseExisting()) {
@@ -154,7 +154,7 @@ public class RenderObjectMap {
         objectsCreated++;
     }
     private <T> boolean allocateSpecificSync(ResourceView<T> resource) {
-        GraphEventCapture cap = renderManager.getGraphCapture();
+        GraphEventCapture cap = context.getEventCapture();
         ResourceDef<T> def = resource.getDefinition();
         long id = resource.getTicket().getObjectId();
         if (id < 0) return false;
@@ -162,7 +162,7 @@ public class RenderObjectMap {
         RenderObject obj = objectMap.get(id);        
         if (obj != null) {
             if (cap != null) cap.attemptReallocation(id, resource.getIndex());
-            if (isAvailable(obj) && (obj.claimReservation(resource.getProducer().getExecutionIndex())
+            if (isAvailable(obj) && (obj.claimReservation(resource.getProducer().getIndex())
                     || !obj.isReservedWithin(resource.getLifeTime()))) {
                 // reserved object is only applied if it is accepted by the definition
                 T r = def.applyDirectResource(obj.getObject());
@@ -186,7 +186,7 @@ public class RenderObjectMap {
         if (resource.isUndefined()) {
             throw new IllegalArgumentException("Cannot allocate object to an undefined resource.");
         }
-        GraphEventCapture cap = renderManager.getGraphCapture();
+        GraphEventCapture cap = context.getEventCapture();
         totalAllocations++;
         ResourceDef<T> def = resource.getDefinition();
         if (def.isUseExisting()) {
@@ -275,7 +275,7 @@ public class RenderObjectMap {
         objectsCreated++;
     }
     private <T> boolean allocateSpecificAsync(ResourceView<T> resource) {
-        GraphEventCapture cap = renderManager.getGraphCapture();
+        GraphEventCapture cap = context.getEventCapture();
         ResourceDef<T> def = resource.getDefinition();
         long id = resource.getTicket().getObjectId();
         if (id < 0) return false;
@@ -285,7 +285,7 @@ public class RenderObjectMap {
             if (cap != null) cap.attemptReallocation(id, resource.getIndex());
             if (isAvailable(obj)) synchronized (obj) {
                 obj.startInspect();
-                if (obj.claimReservation(resource.getProducer().getExecutionIndex())
+                if (obj.claimReservation(resource.getProducer().getIndex())
                         || !obj.isReservedWithin(resource.getLifeTime())) {
                     // reserved object is only applied if it is accepted by the definition
                     T r = def.applyDirectResource(obj.getObject());
@@ -326,8 +326,8 @@ public class RenderObjectMap {
         if (obj != null) {
             obj.reserve(index);
             officialReservations++;
-            if (renderManager.getGraphCapture() != null) {
-                renderManager.getGraphCapture().reserveObject(objectId, index);
+            if (context.getEventCapture() != null) {
+                context.getEventCapture().reserveObject(objectId, index);
             }
             return true;
         }
@@ -344,8 +344,8 @@ public class RenderObjectMap {
             RenderObject obj = objectMap.remove(id);
             if (obj != null) {
                 obj.dispose();
-                if (renderManager.getGraphCapture() != null) {
-                    renderManager.getGraphCapture().disposeObject(id);
+                if (context.getEventCapture() != null) {
+                    context.getEventCapture().disposeObject(id);
                 }
             }
         }
@@ -378,7 +378,7 @@ public class RenderObjectMap {
      */
     public void flushMap() {
         totalObjects = objectMap.size();
-        GraphEventCapture cap = renderManager.getGraphCapture();
+        GraphEventCapture cap = context.getEventCapture();
         if (cap != null) cap.flushObjects(totalObjects);
         for (Iterator<RenderObject> it = objectMap.values().iterator(); it.hasNext();) {
             RenderObject obj = it.next();
@@ -407,7 +407,7 @@ public class RenderObjectMap {
      * All tracked render objects are disposed.
      */
     public void clearMap() {
-        GraphEventCapture cap = renderManager.getGraphCapture();
+        GraphEventCapture cap = context.getEventCapture();
         for (RenderObject obj : objectMap.values()) {
             if (cap != null) cap.disposeObject(obj.getId());
             obj.dispose();

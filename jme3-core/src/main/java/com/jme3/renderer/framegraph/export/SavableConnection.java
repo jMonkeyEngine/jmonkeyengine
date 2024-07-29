@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.export;
 
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -43,112 +43,102 @@ import java.io.IOException;
  * 
  * @author codex
  */
-public class SavablePassConnection implements Savable {
+public class SavableConnection implements Savable {
     
-    private int inputId, outputId;
-    private String inputTicket, outputTicket;
+    private int targetId, sourceId;
+    private String targetTicket, sourceTicket;
     
     /**
      * Serialization only.
      */
-    public SavablePassConnection() {}
+    public SavableConnection() {}
     /**
      * 
-     * @param inputId
-     * @param outputId
-     * @param inputTicket
-     * @param outputTicket 
+     * @param targetId
+     * @param sourceId
+     * @param targetTicket
+     * @param sourceTicket 
      */
-    public SavablePassConnection(int inputId, int outputId, String inputTicket, String outputTicket) {
-        this.inputId = inputId;
-        this.outputId = outputId;
-        this.inputTicket = inputTicket;
-        this.outputTicket = outputTicket;
-    }
-    
-    /**
-     * Shifts the input and output pass ids.
-     * 
-     * @param shift 
-     */
-    public void shiftIds(long shift) {
-        inputId += shift;
-        outputId += shift;
+    public SavableConnection(int targetId, int sourceId, String targetTicket, String sourceTicket) {
+        this.targetId = targetId;
+        this.sourceId = sourceId;
+        this.targetTicket = targetTicket;
+        this.sourceTicket = sourceTicket;
     }
     
     /**
      * 
-     * @param inputId 
+     * @param targetId 
      */
-    public void setInputId(int inputId) {
-        this.inputId = inputId;
+    public void setTargetId(int targetId) {
+        this.targetId = targetId;
     }
     /**
      * 
-     * @param outputId 
+     * @param sourceId 
      */
-    public void setOutputId(int outputId) {
-        this.outputId = outputId;
+    public void setSourceId(int sourceId) {
+        this.sourceId = sourceId;
     }
     /**
      * 
-     * @param inputTicket 
+     * @param targetTicket 
      */
-    public void setInputTicket(String inputTicket) {
-        this.inputTicket = inputTicket;
+    public void setTargetTicket(String targetTicket) {
+        this.targetTicket = targetTicket;
     }
     /**
      * 
-     * @param outputTicket 
+     * @param sourceTicket 
      */
-    public void setOutputTicket(String outputTicket) {
-        this.outputTicket = outputTicket;
+    public void setSourceTicket(String sourceTicket) {
+        this.sourceTicket = sourceTicket;
     }
     
     /**
      * 
      * @return 
      */
-    public int getInputId() {
-        return inputId;
+    public int getTargetId() {
+        return targetId;
     }
     /**
      * 
      * @return 
      */
-    public int getOutputId() {
-        return outputId;
+    public int getSourceId() {
+        return sourceId;
     }
     /**
      * 
      * @return 
      */
-    public String getInputTicket() {
-        return inputTicket;
+    public String getTargetTicket() {
+        return targetTicket;
     }
     /**
      * 
      * @return 
      */
-    public String getOutputTicket() {
-        return outputTicket;
+    public String getSourceTicket() {
+        return sourceTicket;
     }
     
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
-        out.write(inputId, "inputId", -1);
-        out.write(outputId, "outputId", -1);
-        out.write(inputTicket, "inputTicket", "");
-        out.write(outputTicket, "outputTicket", "");
+        out.write(targetId, "inputId", -1);
+        out.write(sourceId, "outputId", -1);
+        out.write(targetTicket, "inputTicket", "");
+        out.write(sourceTicket, "outputTicket", "");
     }
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
-        inputId = in.readInt("inputId", -1);
-        outputId = in.readInt("outputId", -1);
-        inputTicket = in.readString("inputTicket", "");
-        outputTicket = in.readString("outputTicket", "");
+        targetId = in.readInt("inputId", -1);
+        sourceId = in.readInt("outputId", -1);
+        targetTicket = in.readString("inputTicket", "");
+        sourceTicket = in.readString("outputTicket", "");
     }
     
 }

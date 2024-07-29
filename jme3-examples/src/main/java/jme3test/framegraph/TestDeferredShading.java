@@ -12,7 +12,6 @@ import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.FrameGraphFactory;
-import com.jme3.renderer.framegraph.PassLocator;
 import com.jme3.renderer.framegraph.light.TiledRenderGrid;
 import com.jme3.renderer.framegraph.passes.LightImagePass;
 import com.jme3.scene.Geometry;
@@ -20,6 +19,7 @@ import com.jme3.scene.instancing.InstancedNode;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
+import com.jme3.renderer.framegraph.modules.ModuleLocator;
 
 /**
  * <a href="https://en.wikipedia.org/wiki/Deferred_shading/">https://en.wikipedia.org/wiki/Deferred_shading/</a>
@@ -44,8 +44,8 @@ public class TestDeferredShading extends SimpleApplication {
     public void simpleInitApp() {
         
         FrameGraph fg = FrameGraphFactory.deferred(assetManager, true, true);
-        fg.setJunctionSetting("LightPackMethod", true);
-        fg.get(PassLocator.by(LightImagePass.class)).setMaxLights(4096);
+        fg.enableFeature("LightPackMethod", true);
+        fg.get(ModuleLocator.by(LightImagePass.class)).setMaxLights(4096);
         fg.setSetting("TileInfo", new TiledRenderGrid(4, -1));
         viewPort.setFrameGraph(fg);
         

@@ -36,6 +36,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.export.SavableObject;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.FrameGraph;
 import java.io.IOException;
@@ -50,31 +51,51 @@ public class GraphSetting <T> implements GraphSource<T>, GraphTarget<T>, Savable
     
     private String name;
     private ViewPortFilter filter;
+    private T defValue;
     
     /**
      * Serialization only.
      */
     public GraphSetting() {
-        this("");
+        this("", null);
     }
     /**
-     * Graph setting that interacts with the named setting.
+     * Graph setting that interacts with the named setting
+     * stored in the FrameGraph.
      * 
      * @param name 
      */
     public GraphSetting(String name) {
+        this(name, null);
+    }
+    /**
+     * Graph setting that interacts with the named setting
+     * stored in the FrameGraph.
+     * 
+     * @param name
+     * @param defValue 
+     */
+    public GraphSetting(String name, T defValue) {
         this.name = name;
+        this.defValue = defValue;
     }
     
     @Override
     public T getGraphValue(FrameGraph frameGraph, ViewPort viewPort) {
+        assert name != null : "Setting name cannot be null.";
         if (filter == null || filter.accept(viewPort)) {
-            return frameGraph.getSetting(name);
+            T value = frameGraph.getSetting(name);
+            if (value != null) {
+                return value;
+            } else {
+                return defValue;
+            }
         }
         return null;
     }
     @Override
     public boolean setGraphValue(FrameGraph frameGraph, ViewPort viewPort, T value) {
+        assert name != null : "Setting name cannot be null.";
         if (filter == null || filter.accept(viewPort)) {
             frameGraph.setSetting(name, value);
             return true;
@@ -84,16 +105,18 @@ public class GraphSetting <T> implements GraphSource<T>, GraphTarget<T>, Savable
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
-        out.write(name, "name", "");
+        out.write(name, "name", null);
         if (filter != null && filter instanceof Savable) {
             out.write((Savable)filter, "filter", new DefaultSavableFilter());
         }
+        out.write(new SavableObject(defValue), "defValue", SavableObject.NULL);
     }
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
-        name = in.readString("name", "");
+        name = in.readString("name", null);
         filter = (ViewPortFilter)in.readSavable("filter", new DefaultSavableFilter());
+        defValue = (T)in.readSavableObject("defValue", SavableObject.NULL).getObject();
     }
     
     /**
@@ -106,6 +129,18 @@ public class GraphSetting <T> implements GraphSource<T>, GraphTarget<T>, Savable
      */
     public void setFilter(ViewPortFilter filter) {
         this.filter = filter;
+    }
+    
+    /**
+     * Sets the default value used if no value is available in
+     * the FrameGraph settings.
+     * <p>
+     * default=null
+     * 
+     * @param defValue
+     */
+    public void setDefaultValue(T defValue) {
+        this.defValue = defValue;
     }
     
     /**
@@ -124,6 +159,14 @@ public class GraphSetting <T> implements GraphSource<T>, GraphTarget<T>, Savable
      */
     public ViewPortFilter getFilter() {
         return filter;
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    public T getDefaultValue() {
+        return defValue;
     }
     
     public static class DefaultSavableFilter implements ViewPortFilter, Savable {

@@ -54,7 +54,6 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.FrameGraphFactory;
-import com.jme3.renderer.framegraph.PassLocator;
 import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.framegraph.passes.Junction;
 import com.jme3.renderer.queue.RenderQueue;
@@ -74,6 +73,7 @@ import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import java.io.File;
+import com.jme3.renderer.framegraph.modules.ModuleLocator;
 
 public class TestSimpleDeferredLighting extends SimpleApplication implements ActionListener {
     
@@ -677,7 +677,7 @@ public class TestSimpleDeferredLighting extends SimpleApplication implements Act
         
         rootNode.addLight(new AmbientLight(ColorRGBA.White));
         
-        Junction lightingMethod = deferred.get(PassLocator.by(Junction.class, "LightPackMethod"));
+        Junction lightingMethod = deferred.get(ModuleLocator.by(Junction.class, "LightPackMethod"));
         //lightingMethod.setIndexSource((fg, vp) -> 0);
         
         File capTarget = new File(System.getProperty("user.home")+"/earlyFrameCapture.txt");

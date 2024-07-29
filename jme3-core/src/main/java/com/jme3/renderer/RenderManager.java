@@ -69,9 +69,11 @@ import com.jme3.util.SafeArrayList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,10 +94,9 @@ public class RenderManager {
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
-    private final RenderObjectMap renderObjects;
-    private final LinkedList<FrameGraph> executedFrameGraphs = new LinkedList<>();
-    private FrameGraph frameGraph;
-    private GraphEventCapture graphCapture;
+    private final HashMap<Class, PipelineContext> contexts = new HashMap<>();
+    private final LinkedList<PipelineContext> usedContexts = new LinkedList<>();
+    private RenderPipeline defaultPipeline = new ForwardPipeline();
     private Camera prevCam = null;
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
@@ -116,7 +117,6 @@ public class RenderManager {
     private int singlePassLightBatchSize = 1;
     private MatParamOverride boundDrawBufferId = new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
     private Predicate<Geometry> renderFilter;
-    private int captureLifetime = 0;
 
     /**
      * Creates a high-level rendering interface over the
@@ -127,62 +127,88 @@ public class RenderManager {
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
-        this.renderObjects = new RenderObjectMap(this, true);
+        contexts.put(PipelineContext.class, new DefaultPipelineContext());
     }
     
     /**
-     * Gets the default FrameGraph used when a ViewPort does not have a
-     * FrameGraph already assigned to it.
+     * Gets the default pipeline used when a ViewPort does not have a
+     * pipeline already assigned to it.
      * 
      * @return 
      */
-    public FrameGraph getFrameGraph() {
-        return frameGraph;
+    public RenderPipeline getPipeline() {
+        return defaultPipeline;
     }
     
     /**
-     * Sets the default FrameGraph used when a ViewPort does not have a
-     * FrameGraph already assigned to it.
+     * Sets the default pipeline used when a ViewPort does not have a
+     * pipeline already assigned to it.
      * <p>
-     * If null, ViewPorts without FrameGraphs will be rendered using the standard
-     * forward renderer.
+     * default={@link ForwardPipeline}
      * 
-     * @param frameGraph default FrameGraph, or null
+     * @param pipeline default pipeline (not null)
      */
-    public void setFrameGraph(FrameGraph frameGraph) {
-        this.frameGraph = frameGraph;
+    public void setPipeline(RenderPipeline pipeline) {
+        this.defaultPipeline = pipeline;
     }
     
     /**
-     * Gets the map that stores and manages rendering objects used by FrameGraphs.
+     * Gets the default pipeline context registered under
+     * {@link PipelineContext#getClass()}.
      * 
      * @return 
      */
-    public RenderObjectMap getRenderObjectMap() {
-        return renderObjects;
+    public PipelineContext getDefaultContext() {
+        return getContext(PipelineContext.class);
     }
     
     /**
-     * Sets the frame capture that captures relevant framegraph rendering events.
+     * Gets the pipeline context registered under the class.
      * 
-     * @param frameCapture 
-     * @param frames 
+     * @param <T>
+     * @param type
+     * @return 
      */
-    public void setGraphCapture(GraphEventCapture frameCapture, int frames) {
-        this.graphCapture = frameCapture;
-        this.captureLifetime = frames;
-        if (this.captureLifetime <= 0) {
-            this.graphCapture = null;
+    public <T extends PipelineContext> T getContext(Class<T> type) {
+        return (T)contexts.get(type);
+    }
+    
+    /**
+     * Gets the pipeline context registered under the class or creates
+     * and registers a new context supplied by the supplier.
+     * 
+     * @param <T>
+     * @param type
+     * @param supplier
+     * @return 
+     */
+    public <T extends PipelineContext> T getOrCreateContext(Class<T> type, Supplier<T> supplier) {
+        T c = getContext(type);
+        if (c == null) {
+            c = supplier.get();
+            contexts.put(type, c);
         }
+        return c;
     }
     
     /**
-     * Gets the frame capture that captures relevant framegraph rendering events.
+     * Registers the pipeline context under the class.
+     * 
+     * @param <T>
+     * @param type
+     * @param context 
+     */
+    public <T extends PipelineContext> void registerContext(Class<T> type, T context) {
+        contexts.put(type, context);
+    }
+    
+    /**
+     * Gets the application profiler.
      * 
      * @return 
      */
-    public GraphEventCapture getGraphCapture() {
-        return graphCapture;
+    public AppProfiler getProfiler() {
+        return prof;
     }
     
     /**
@@ -1234,6 +1260,23 @@ public class RenderManager {
     }
 
     /**
+     * Applies the ViewPort's Camera and FrameBuffer in preparation
+     * for rendering.
+     * 
+     * @param vp 
+     */
+    public void applyViewPort(ViewPort vp) {
+        renderer.setFrameBuffer(vp.getOutputFrameBuffer());
+        setCamera(vp.getCamera(), false);
+        if (vp.isClearDepth() || vp.isClearColor() || vp.isClearStencil()) {
+            if (vp.isClearColor()) {
+                renderer.setBackgroundColor(vp.getBackgroundColor());
+            }
+            renderer.clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
+        }
+    }
+    
+    /**
      * Renders the {@link ViewPort}.
      *
      * <p>If the ViewPort is {@link ViewPort#isEnabled() disabled}, this method
@@ -1279,123 +1322,16 @@ public class RenderManager {
     public void renderViewPort(ViewPort vp, float tpf) {
         if (!vp.isEnabled()) {
             return;
+        }        
+        RenderPipeline pipeline = vp.getFrameGraph();
+        if (pipeline == null) {
+            pipeline = defaultPipeline;
         }
-        
-        if (prof != null) {
-            prof.vpStep(VpStep.BeginRender, vp, null);
+        PipelineContext context = pipeline.fetchPipelineContext(this);
+        if (context.addPipeline(this, pipeline)) {
+            usedContexts.add(context);
         }
-
-        SafeArrayList<SceneProcessor> processors = vp.getProcessors();
-        if (processors.isEmpty()) {
-            processors = null;
-        }
-        
-        FrameGraph fg = null;
-        if (vp.isUseFrameGraphs()) {
-            fg = vp.getFrameGraph();
-            if (fg == null) {
-                fg = frameGraph;
-            }
-        }
-        
-        if (prof != null && (fg != null || processors != null)) {
-            prof.vpStep(VpStep.PreFrame, vp, null);
-        }
-        if (fg != null) {
-            fg.configure(this, vp, prof, tpf);
-            //fg.preFrame();
-        } else if (processors != null) {
-            for (SceneProcessor p : processors.getArray()) {
-                if (!p.isInitialized()) {
-                    p.initialize(this, vp);
-                }
-                p.setProfiler(this.prof);
-                if (prof != null) {
-                    prof.spStep(SpStep.ProcPreFrame, p.getClass().getSimpleName());
-                }
-                p.preFrame(tpf);
-            }
-        }
-
-        renderer.setFrameBuffer(vp.getOutputFrameBuffer());
-        setCamera(vp.getCamera(), false);
-        if (vp.isClearDepth() || vp.isClearColor() || vp.isClearStencil()) {
-            if (vp.isClearColor()) {
-                renderer.setBackgroundColor(vp.getBackgroundColor());
-            }
-            renderer.clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
-        }
-        
-        if (fg != null) {
-            // returns true on first execution this frame
-            if (fg.execute()) {
-                executedFrameGraphs.add(fg);
-            }
-        } else {
-
-            if (prof != null) {
-                prof.vpStep(VpStep.RenderScene, vp, null);
-            }
-            // flatten scenes into render queue
-            List<Spatial> scenes = vp.getScenes();
-            for (int i = scenes.size() - 1; i >= 0; i--) {
-                renderScene(scenes.get(i), vp);
-            }
-            if (processors != null) {
-                if (prof != null) {
-                    prof.vpStep(VpStep.PostQueue, vp, null);
-                }
-                for (SceneProcessor p : processors.getArray()) {
-                    if (prof != null) {
-                        prof.spStep(SpStep.ProcPostQueue, p.getClass().getSimpleName());
-                    }
-                    p.postQueue(vp.getQueue());
-                }
-            }
-            
-            if (prof != null) {
-                prof.vpStep(VpStep.FlushQueue, vp, null);
-            }
-            flushQueue(vp);
-
-            if (processors != null) {
-                if (prof != null) {
-                    prof.vpStep(VpStep.PostFrame, vp, null);
-                }
-                for (SceneProcessor proc : processors.getArray()) {
-                    if (prof != null) {
-                        prof.spStep(SpStep.ProcPostFrame, proc.getClass().getSimpleName());
-                    }
-                    proc.postFrame(vp.getOutputFrameBuffer());
-                }
-                if (prof != null) {
-                    prof.vpStep(VpStep.ProcEndRender, vp, null);
-                }
-            }
-            
-            // render the translucent objects queue after processors have been rendered
-            renderTranslucentQueue(vp);
-        
-            // clear any remaining spatials that were not rendered.
-            clearQueue(vp);
-            
-        }
-        
-        // clear all reservations made
-        if (fg != null) {
-            renderObjects.clearReservations();
-        }
-
-        /*
-         * the call to setCamera will indirectly cause a clipRect to be set, must be cleared to avoid surprising results
-         * if renderer#copyFrameBuffer is used later
-         */
-        renderer.clearClipRect();
-
-        if (prof != null) {
-            prof.vpStep(VpStep.EndRender, vp, null);
-        }
-        
+        pipeline.pipelineRender(this, context, vp, tpf);
     }
 
     /**
@@ -1418,12 +1354,7 @@ public class RenderManager {
             return;
         }
         
-        if (graphCapture != null) {
-            graphCapture.startRenderFrame();
-        }
-        
         uniformBindingManager.newFrame();
-        renderObjects.newFrame();
 
         if (prof != null) {
             prof.appStep(AppStep.RenderPreviewViewPorts);
@@ -1455,28 +1386,13 @@ public class RenderManager {
             }
         }
         
-        if (graphCapture != null) {
-            graphCapture.endRenderFrame();
+        // cleanup for used pipeline contexts only
+        System.out.println("flush pipelines");
+        for (PipelineContext c : usedContexts) {
+            System.out.println("flush pipeline stack for "+c);
+            c.flushPipelineStack(this);
         }
-        
-        // cleanup for executed framegraphs only
-        for (FrameGraph fg : executedFrameGraphs) {
-            fg.renderingComplete();
-        }
-        executedFrameGraphs.clear();
-        
-        // flush object map
-        renderObjects.flushMap();
-        
-        // tick frame capture
-        if (graphCapture != null && --captureLifetime <= 0) {
-            try {
-                graphCapture.export();
-            } catch (IOException ex) {
-                Logger.getLogger(RenderManager.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            graphCapture = null;
-        }
+        usedContexts.clear();
         
     }
 
@@ -1506,6 +1422,7 @@ public class RenderManager {
             this.forcedOverrides.remove(boundDrawBufferId);
         }
     }
+    
     /**
      * Set a render filter. Every geometry will be tested against this filter
      * before rendering and will only be rendered if the filter returns true.

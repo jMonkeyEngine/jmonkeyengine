@@ -125,7 +125,6 @@ public interface InputCapsule {
     public default SavableObject readSavableObject(String name, SavableObject defVal) throws IOException {
         return readSavable(name, SavableObject.class, defVal);
     }
-    
 
     // ArrayLists
 

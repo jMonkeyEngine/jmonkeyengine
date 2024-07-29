@@ -83,9 +83,9 @@ public class TestFrameGraphImportExport extends SimpleApplication {
             FrameGraph graph = FrameGraphFactory.forward(assetManager);
             try {
                 if (xml) {
-                    XMLExporter.getInstance().save(graph.createData(), file);
+                    XMLExporter.getInstance().save(graph.createModuleData(), file);
                 } else {
-                    BinaryExporter.getInstance().save(graph.createData(), file);
+                    BinaryExporter.getInstance().save(graph.createModuleData(), file);
                 }
             } catch (IOException ex) {
                 Logger.getLogger(TestFrameGraphImportExport.class.getName()).log(Level.SEVERE, null, ex);

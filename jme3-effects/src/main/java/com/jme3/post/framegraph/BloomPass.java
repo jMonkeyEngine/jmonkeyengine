@@ -53,7 +53,7 @@ import java.io.IOException;
  * <p>
  * Inputs:
  * <ul>
- *   <li>Color ({@link Texture2D}): color texture to apply bloom effect to (optional).</li>
+ *   <li>Color ({@link Texture2D}): color texture to apply bloom effect to.</li>
  *   <li>Objects ({@link GeometryQueue}): specific geometries to apply bloom effect to (optional).</li>
  * </ul>
  * Outputs:
@@ -84,6 +84,7 @@ public class BloomPass extends RenderPass {
         inColor = addInput("Color");
         objects = addInput("Objects");
         result = addOutput("Color");
+        midTex = new ResourceTicket("MiddleTex");
         AssetManager assets = frameGraph.getAssetManager();
         extractMat = new Material(assets, "Common/MatDefs/Post/BloomExtract.j3md");
         hBlurMat = new Material(assets, "Common/MatDefs/Blur/HGaussianBlur.j3md");
@@ -93,7 +94,7 @@ public class BloomPass extends RenderPass {
     @Override
     protected void prepare(FGRenderContext context) {
         declare(texDef, result);
-        declare(texDef, midTex);
+        declareTemporary(texDef, midTex);
         reserve(result, midTex);
         referenceOptional(inColor, objects);
     }
@@ -111,7 +112,7 @@ public class BloomPass extends RenderPass {
         FrameBuffer midFb = getFrameBuffer("mid", w, h, 1);
         Texture2D midTarget = resources.acquireColorTarget(midFb, midTex);
         GeometryQueue geometry = resources.acquireOrElse(objects, null);
-        Texture2D scene = resources.acquireOrElse(inColor, null);
+        Texture2D scene = resources.acquire(inColor);
         context.getRenderer().setBackgroundColor(ColorRGBA.BlackNoAlpha);
         
         // geometry render
@@ -141,13 +142,13 @@ public class BloomPass extends RenderPass {
         hBlurMat.setTexture("Texture", midTarget);
         hBlurMat.setFloat("Size", w);
         hBlurMat.setFloat("Scale", blurScale);
-        render(context, outFb, hBlurMat);
+        //render(context, outFb, hBlurMat);
         
         // vertical blur
         vBlurMat.setTexture("Texture", outTarget);
         vBlurMat.setFloat("Size", h);
         vBlurMat.setFloat("Scale", blurScale);
-        render(context, midFb, vBlurMat);
+        //render(context, midFb, vBlurMat);
         
         // final output
         outMat.setTexture("Texture", scene);
@@ -186,6 +187,7 @@ public class BloomPass extends RenderPass {
     private void render(FGRenderContext context, FrameBuffer fb, Material mat) {
         context.getRenderer().setFrameBuffer(fb);
         context.getRenderer().clearBuffers(true, true, true);
+        context.resizeCamera(fb.getWidth(), fb.getHeight(), false, false, false);
         context.renderFullscreen(mat);
     }
     

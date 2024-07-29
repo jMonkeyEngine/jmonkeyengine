@@ -47,6 +47,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture2D;
 import java.util.function.Predicate;
 import com.jme3.renderer.GeometryRenderHandler;
+import com.jme3.renderer.RendererException;
 
 /**
  * Context for FrameGraph rendering.
@@ -73,6 +74,7 @@ public class FGRenderContext {
     
     private final FrameGraph frameGraph;
     private RenderManager renderManager;
+    private FGPipelineContext context;
     private ViewPort viewPort;
     private AppProfiler profiler;
     private float tpf;
@@ -101,12 +103,14 @@ public class FGRenderContext {
      * Targets this context to the viewport.
      * 
      * @param rm
+     * @param context
      * @param vp
      * @param profiler
      * @param tpf 
      */
-    public void target(RenderManager rm, ViewPort vp, AppProfiler profiler, float tpf) {
+    public void target(RenderManager rm, FGPipelineContext context, ViewPort vp, AppProfiler profiler, float tpf) {
         this.renderManager = rm;
+        this.context = context;
         this.viewPort = vp;
         this.profiler = profiler;
         this.tpf = tpf;
@@ -235,12 +239,28 @@ public class FGRenderContext {
     }
     
     /**
+     * Gets the resource list belonging to the framegraph.
+     * 
+     * @return 
+     */
+    public ResourceList getResources() {
+        return frameGraph.getResources();
+    }
+    /**
      * Gets the render manager.
      * 
      * @return 
      */
     public RenderManager getRenderManager() {
         return renderManager;
+    }
+    /**
+     * Gets the context for the FrameGraph pipeline.
+     * 
+     * @return 
+     */
+    public FGPipelineContext getPipelineContext() {
+        return context;
     }
     /**
      * Gets the viewport currently being rendered.
@@ -292,7 +312,7 @@ public class FGRenderContext {
      * @return 
      */
     public GraphEventCapture getGraphCapture() {
-        return renderManager.getGraphCapture();
+        return context.getEventCapture();
     }
     /**
      * Gets the OpenCL context for compute shading.
@@ -334,6 +354,14 @@ public class FGRenderContext {
     public int getHeight() {
         return viewPort.getCamera().getHeight();
     }
+    /**
+     * Returns true if the FrameGraph is asynchronous.
+     * 
+     * @return 
+     */
+    public boolean isAsync() {
+        return frameGraph.isAsync();
+    }
     
     /**
      * Returns true if the app profiler is not null.
@@ -349,7 +377,7 @@ public class FGRenderContext {
      * @return 
      */
     public boolean isGraphCaptureActive() {
-        return renderManager.getGraphCapture() != null;
+        return context.getEventCapture() != null;
     }
     
 }

@@ -31,24 +31,28 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.framegraph.modules.ModuleLocator;
+import com.jme3.renderer.framegraph.modules.RenderThread;
+import com.jme3.renderer.framegraph.modules.ThreadLauncher;
+import com.jme3.renderer.framegraph.modules.RenderModule;
+import com.jme3.renderer.framegraph.export.ModuleGraphData;
 import com.jme3.renderer.framegraph.passes.RenderPass;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.FrameGraphKey;
+import com.jme3.export.SavableObject;
 import com.jme3.opencl.CommandQueue;
 import com.jme3.opencl.Context;
 import com.jme3.profile.AppProfiler;
-import com.jme3.profile.FgStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.RendererException;
+import com.jme3.renderer.RenderPipeline;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.framegraph.client.GraphSetting;
 import com.jme3.renderer.framegraph.debug.GraphEventCapture;
-import com.jme3.renderer.framegraph.passes.Attribute;
-import java.util.ArrayList;
+import com.jme3.renderer.framegraph.export.FrameGraphData;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 /**
  * Manages render passes, dependencies, and resources in a node-based parameter system.
@@ -88,22 +92,21 @@ import java.util.function.Function;
  * 
  * @author codex
  */
-public class FrameGraph {
+public class FrameGraph implements RenderPipeline<FGPipelineContext> {
     
-    /**
-     * Index of the {@link PassThread} running on the main render thread.
-     */
-    public static final int RENDER_THREAD = 0;
+    private static final Logger LOG = Logger.getLogger(FrameGraph.class.getName());
     
     private final AssetManager assetManager;
     private final ResourceList resources;
     private final FGRenderContext context;
-    private final ArrayList<PassThread> threads = new ArrayList<>(1);
     private final HashMap<String, Object> settings = new HashMap<>();
-    private final AtomicInteger incompleteQueues = new AtomicInteger(0);
+    private ThreadLauncher launcher = new ThreadLauncher();
     private String name = "FrameGraph";
+    private String docAsset = null;
     private boolean rendered = false;
-    private Exception renderException;
+    private boolean debugPrint = false;
+    private boolean interrupted = false;
+    private int nextModuleId = 0;
     
     /**
      * Creates a new blank framegraph.
@@ -114,7 +117,8 @@ public class FrameGraph {
         this.assetManager = assetManager;
         this.resources = new ResourceList(this);
         this.context = new FGRenderContext(this);
-        this.threads.add(new PassThread(this, RENDER_THREAD));
+        launcher.initializeModule(this);
+        launcher.getOrCreate(PassIndex.MAIN_THREAD);
     }
     /**
      * Creates a new framegraph from the given data.
@@ -145,123 +149,91 @@ public class FrameGraph {
         this(assetManager, assetManager.loadFrameGraph(dataAsset));
     }
     
-    /**
-     * Configures the rendering context.
-     * <p>
-     * Called automatically by the RenderManager before calling {@link #execute()}.
-     * 
-     * @param rm
-     * @param vp viewport to render (not null)
-     * @param prof profiler (may be null)
-     * @param tpf time per frame
-     */
-    public void configure(RenderManager rm, ViewPort vp, AppProfiler prof, float tpf) {
-        resources.setRenderManager(rm);
-        context.target(rm, vp, prof, tpf);
+    @Override
+    public FGPipelineContext fetchPipelineContext(RenderManager rm) {
+        return rm.getOrCreateContext(FGPipelineContext.class, () -> new FGPipelineContext(rm));
     }
-    /**
-     * Executes this framegraph.
-     * <p>
-     * The overall execution step occurs in 4 stages:
-     * <ol>
-     *   <li>Preparation.</li>
-     *   <li>Culling.</li>
-     *   <li>Rendering (execution).</li>
-     *   <li>Clean (reset).</li>
-     * </ol>
-     * 
-     * @return true if this is the first execution of this FrameGraph this frame
-     */
-    public boolean execute() {
+    @Override
+    public void beginRenderFrame(RenderManager rm) {}
+    @Override
+    public void pipelineRender(RenderManager rm, FGPipelineContext pContext, ViewPort vp, float tpf) {
+        
+        if (interrupted) {
+            throw new IllegalStateException("Cannot render because FrameGraph crashed.");
+        }
+        
+        AppProfiler prof = rm.getProfiler();
+        if (prof != null) {
+            prof.vpStep(VpStep.BeginRender, vp, null);
+        }
+        
         // prepare
-        ViewPort vp = context.getViewPort();
-        AppProfiler prof = context.getProfiler();
+        rm.applyViewPort(vp);
+        context.target(rm, pContext, vp, prof, tpf);
         GraphEventCapture cap = context.getGraphCapture();
         if (cap != null) {
             cap.renderViewPort(context.getViewPort());
         }
         if (prof != null) prof.vpStep(VpStep.FrameGraphSetup, vp, null);
         if (!rendered) {
-            resources.beginRenderingSession();
+            resources.beginRenderFrame(
+                    pContext.getRenderObjects(), pContext.getEventCapture());
         }
-        for (PassThread queue : threads) {
-            for (RenderPass p : queue) {
-                if (prof != null) prof.fgStep(FgStep.Prepare, p.getProfilerName());
-                if (cap != null) cap.prepareRenderPass(p.getIndex(), p.getProfilerName());
-                p.prepareRender(context);
-            }
-        }
+        launcher.prepareModuleRender(context, new PassIndex(0, 0));
         resources.applyFutureReferences();
-        // cull passes and resources
+        
+        // cull modules and resources
         if (prof != null) prof.vpStep(VpStep.FrameGraphCull, vp, null);
-        for (PassThread queue : threads) {
-            for (RenderPass p : queue) {
-                p.countReferences();
-            }
-        }
+        launcher.countReferences();
         resources.cullUnreferenced();
+        
         // execute
         if (prof != null) prof.vpStep(VpStep.FrameGraphExecute, vp, null);
         context.pushRenderSettings();
-        renderException = null;
-        incompleteQueues.set(threads.size());
-        for (int i = threads.size()-1; i >= 0; i--) {
-            threads.get(i).execute(context);
-        }
-        if (renderException != null) {
-            renderException.printStackTrace(System.err);
-            throw new RendererException("An uncaught rendering exception occured, forcing the application to shut down.");
+        // execute threads in reverse order so that the 0th thread is executed
+        // last on JME's main thread.
+        launcher.executeModuleRender(context);
+        if (interrupted) {
+            throw new RuntimeException("FrameGraph execution was interrupted.");
         }
         context.popFrameBuffer();
+        
         // reset
         if (prof != null) prof.vpStep(VpStep.FrameGraphReset, vp, null);
-        for (PassThread queue : threads) {
-            for (RenderPass p : queue) {
-                if (prof != null) prof.fgStep(FgStep.Reset, p.getProfilerName());
-                p.resetRender(context);
-            }
-        }
-        // cleanup resources
+        launcher.resetRender(context);
+        pContext.getRenderObjects().clearReservations();
         resources.clear();
-        if (rendered) return false;
-        else return (rendered = true);
-    }
-    /**
-     * Called automatically by the RenderManager after all rendering operations are
-     * complete and this FrameGraph executed at least once this frame.
-     */
-    public void renderingComplete() {
-        // notify passes
-        for (PassThread queue : threads) {
-            for (RenderPass p : queue) {
-                p.renderingComplete();
-            }
+        rm.getRenderer().clearClipRect();
+        rendered = true;
+        
+        if (prof != null) {
+            prof.vpStep(VpStep.EndRender, vp, null);
         }
-        // reset flags
+        
+    }
+    @Override
+    public boolean hasRenderedThisFrame() {
+        return rendered;
+    }
+    @Override
+    public void endRenderFrame(RenderManager rm) {
+        launcher.renderingComplete();
         rendered = false;
     }
-    
-    private PassThread getQueue(int i) {
-        if (i >= threads.size()) {
-            PassThread queue = new PassThread(this, i);
-            threads.add(queue);
-            return queue;
-        } else if (i >= 0) {
-            return threads.get(i);
-        } else {
-            return threads.get(RENDER_THREAD);
-        }
+    @Override
+    public String toString() {
+        return "FrameGraph ("+name+")";
     }
     
     /**
      * Adds the pass to end of the {@link PassThread} running on the main render thread.
      * 
      * @param <T>
-     * @param pass
+     * @param module
      * @return given pass
      */
-    public <T extends RenderPass> T add(T pass) {
-        return getQueue(RENDER_THREAD).add(pass);
+    public <T extends RenderModule> T add(T module) {
+        return launcher.getOrCreate(PassIndex.MAIN_THREAD).add(module);
     }
     /**
      * Adds the pass at the index.
@@ -278,8 +250,8 @@ public class FrameGraph {
      * @param index
      * @return 
      */
-    public <T extends RenderPass> T add(T pass, PassIndex index) {
-        return getQueue(index.getThreadIndex()).add(pass, index);
+    public <T extends RenderModule> T add(T pass, PassIndex index) {
+        return launcher.getOrCreate(index.getThreadIndex()).add(pass, index.queueIndex);
     }
     
     /**
@@ -294,15 +266,15 @@ public class FrameGraph {
      * 
      * @param <T>
      * @param array array of passes (elements may be null)
-     * @param function creates passes where array elements are null (may be null)
+     * @param factory creates passes where array elements are null (may be null)
      * @param inTicket name of the input ticket on each pass
      * @param outTicket name of the output ticket on each pass
      * @return array of passes
      * @see PassThread#addLoop(T[], int, java.util.function.Supplier, java.lang.String, java.lang.String)
      */
-    public <T extends RenderPass> T[] addLoop(T[] array, Function<Integer, T> function,
+    public <T extends RenderPass> T[] addLoop(T[] array, Function<Integer, T> factory,
             String inTicket, String outTicket) {
-        return threads.get(RENDER_THREAD).addLoop(array, PassIndex.PASSIVE, function, inTicket, outTicket);
+        return launcher.getOrCreate(PassIndex.MAIN_THREAD).addLoop(array, -1, factory, inTicket, outTicket);
     }
     /**
      * Adds an array of passes connected in series to the framegraph.
@@ -321,31 +293,8 @@ public class FrameGraph {
      */
     public <T extends RenderPass> T[] addLoop(T[] array, PassIndex index,
             Function<Integer, T> function, String inTicket, String outTicket) {
-        return threads.get(index.getThreadIndex()).addLoop(array, index, function, inTicket, outTicket);
-    }
-    
-    /**
-     * Adds the passes from the given framegraph to this framegraph.
-     * <p>
-     * The retargeting array determines where each pass thread in the given
-     * framegraph is added.
-     * 
-     * @param frameGraph
-     * @param retarget indices to retarget threads to (not null, elements unaffected)
-     */
-    public void add(FrameGraph frameGraph, PassIndex... retarget) {
-        final PassIndex index = new PassIndex();
-        for (int i = 0; i < frameGraph.threads.size(); i++) {
-            PassThread source = frameGraph.threads.get(i);
-            index.set(retarget[i]);
-            PassThread target = getQueue(index.threadIndex);
-            for (RenderPass p : source) {
-                target.add(p, index);
-                if (!index.useDefaultThread()) {
-                    index.queueIndex++;
-                }
-            }
-        }
+        return launcher.getOrCreate(index.getThreadIndex()).addLoop(
+                array, index.queueIndex, function, inTicket, outTicket);
     }
     
     /**
@@ -355,52 +304,8 @@ public class FrameGraph {
      * @param by
      * @return first qualifying pass, or null
      */
-    public <T extends RenderPass> T get(PassLocator<T> by) {
-        for (PassThread q : threads) {
-            T a = q.get(by);
-            if (a != null) {
-                return a;
-            }
-        }
-        return null;
-    }
-    
-    /**
-     * Removes the pass at the index in the main {@link PassThread} (running on the main render thread).
-     * <p>
-     * Passes above the removed pass will have their indexes shifted.
-     * 
-     * @param i
-     * @return removed pass
-     * @throws IndexOutOfBoundsException if the index is less than zero or &gt;= the queue size
-     */
-    public RenderPass remove(int i) {
-        return threads.get(RENDER_THREAD).remove(i);
-    }
-    /**
-     * Removes the given pass from this FrameGraph.
-     * <p>
-     * Passes above the removed pass will have their indices shifted to
-     * accomodate.
-     * 
-     * @param pass
-     * @return true if the pass was removed from the queue
-     */
-    public boolean remove(RenderPass pass) {
-        for (PassThread queue : threads) {
-            if (queue.remove(pass)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    /**
-     * Clears all passes from this FrameGraph.
-     */
-    public void clear() {
-        for (PassThread queue : threads) {
-            queue.clear();
-        }
+    public <T extends RenderModule> T get(ModuleLocator<T> by) {
+        return launcher.get(by);
     }
     
     /**
@@ -425,32 +330,28 @@ public class FrameGraph {
      * @param <T>
      * @param name
      * @param object
+     * @param defaultValue
      * @param create true to create a GraphSetting, otherwise one will not be created and null returned
      * @return created graph setting
      * @see #setSetting(java.lang.String, java.lang.Object)
      */
-    public <T> GraphSetting<T> setSetting(String name, T object, boolean create) {
+    public <T> GraphSetting<T> setSetting(String name, T object, T defaultValue) {
         setSetting(name, object);
-        if (create) {
-            return new GraphSetting<>(name);
-        } else {
-            return null;
-        }
+        return new GraphSetting<>(name, defaultValue);
     }
     /**
      * Sets an integer in the settings map based on a boolean value.
      * <p>
-     * If the boolean is true, 0 is written, otherwise -1 is written. This is
-     * used primarily for Junction sources: 0 points to the first input, and -1
-     * points to no input.
+     * If the boolean is true, 0 is written, otherwise -1 is written. Commonly
+     * used to enable/disable features by switching a Junction to 0 or -1.
      * 
      * @param name
-     * @param value
+     * @param enable
      * @return 
      * @see #setSetting(java.lang.String, java.lang.Object)
      */
-    public int setJunctionSetting(String name, boolean value) {
-        return setSetting(name, value ? 0 : -1);
+    public int enableFeature(String name, boolean enable) {
+        return setSetting(name, enable ? 0 : -1);
     }
     /**
      * Gets the object registered under the name in the settings map,
@@ -503,6 +404,15 @@ public class FrameGraph {
         this.name = name;
     }
     /**
+     * Sets the asset path corresponding to a documentation file for
+     * this FrameGraph.
+     * 
+     * @param docs asset path, or null for no documentation
+     */
+    public void setDocumentationAsset(String docs) {
+        this.docAsset = docs;
+    }
+    /**
      * Sets the OpenCL context used for compute shading.
      * 
      * @param clContext 
@@ -520,29 +430,34 @@ public class FrameGraph {
     public void setCLQueue(CommandQueue clQueue) {
         context.setCLQueue(clQueue);
     }
+    /**
+     * Enables printing of information useful for debugging.
+     * <p>
+     * default=false
+     * 
+     * @param debugPrint 
+     */
+    public void enableDebugPrint(boolean debugPrint) {
+        this.debugPrint = debugPrint;
+    }
     
     /**
-     * Called automatically to notify the FrameGraph that a {@link PassThread} has completed execution.
+     * Called automatically to notify the FrameGraph that a {@link RenderThread} has completed execution.
      * 
-     * @param queue
+     * @param thread
      */
-    public void notifyComplete(PassThread queue) {
-        if (incompleteQueues.decrementAndGet() == 1) {
-            for (PassThread q : threads) {
-                q.notifyLast();
-            }
-        }
+    public void notifyThreadComplete(RenderThread thread) {
+        launcher.notifyThreadComplete(thread);
     }
     /**
      * Called automatically when a rendering exception occurs.
      * 
      * @param ex
      */
-    public void interruptRendering(Exception ex) {
-        assert ex != null : "Interrupting exception cannot be null.";
-        renderException = ex;
-        for (PassThread q : threads) {
-            q.interrupt();
+    public void interruptRendering() {
+        if (!interrupted) {
+            interrupted = true;
+            launcher.interrupt();
         }
     }
     
@@ -595,45 +510,82 @@ public class FrameGraph {
         return name;
     }
     /**
+     * Returns an asset path corresponding to a documentation file for
+     * this FrameGraph.
+     * 
+     * @return asset path, or null if no documentation is available
+     */
+    public String getDocumantationAsset() {
+        return docAsset;
+    }
+    /**
      * Returns true if this framegraph is running asynchronous {@link PassThread}s.
      * 
      * @return 
      */
     public boolean isAsync() {
-        return threads.size() > 1;
+        return launcher.isAsync();
+    }
+    /**
+     * 
+     * @return 
+     */
+    public boolean isDebugPrintEnabled() {
+        return debugPrint;
     }
     
     /**
      * Applies the {@link FrameGraphData} to this FrameGraph.
      * 
      * @param data
-     * @return this instance
+     * @return 
      */
     public final FrameGraph applyData(FrameGraphData data) {
-        data.apply(this);
-        return this;
+        name = data.getName();
+        for (SavableObject obj : data.getSettings()) {
+            setSetting(obj.getName(), obj.getObject());
+        }
+        return applyData(data.getModules());
     }
     /**
-     * Applies the {@link FrameGraphData} to this FrameGraph.
+     * Applies the {@link ModuleGraphData} to this FrameGraph.
      * 
      * @param data
      * @return this instance
-     * @throws ClassCastException if the object is not an instance of {@link FrameGraphData}.
+     * @throws IllegalStateException if the tree root is already a member of a FrameGraph
+     */
+    public final FrameGraph applyData(ModuleGraphData data) {
+        launcher.cleanupModule();
+        launcher = data.getRootModule(ThreadLauncher.class);
+        if (launcher.isAssigned()) {
+            throw new IllegalStateException("Cannot apply tree root that is already a member of a FrameGraph.");
+        }
+        launcher.initializeModule(this);
+        return this;
+    }
+    /**
+     * Applies the {@link ModuleGraphData} to this FrameGraph.
+     * 
+     * @param data
+     * @return this instance
+     * @throws ClassCastException if the object is not an instance of {@link ModuleGraphData}.
      * @throws NullPointerException if the object is null
      */
     public FrameGraph applyData(Object data) {
         if (data != null) {
             if (data instanceof FrameGraphData) {
                 return applyData((FrameGraphData)data);
+            } else if (data instanceof ModuleGraphData) {
+                return applyData((ModuleGraphData)data);
             } else {
-                throw new ClassCastException(data.getClass()+" cannot be cast to "+FrameGraphData.class);
+                throw new ClassCastException(data.getClass()+" cannot be accepted as usable data.");
             }
         } else {
-            throw new NullPointerException("Proxy cannot be null");
+            throw new NullPointerException("Data cannot be null.");
         }
     }
     /**
-     * Loads and applies {@link FrameGraphData} from the key.
+     * Loads and applies {@link ModuleGraphData} from the key.
      * 
      * @param key
      * @return 
@@ -642,7 +594,7 @@ public class FrameGraph {
         return applyData(assetManager.loadFrameGraph(key));
     }
     /**
-     * Loads and applies {@link FrameGraphData} at the specified asset path.
+     * Loads and applies {@link ModuleGraphData} at the specified asset path.
      * 
      * @param assetPath
      * @return 
@@ -651,17 +603,21 @@ public class FrameGraph {
         return applyData(assetManager.loadFrameGraph(assetPath));
     }
     /**
-     * Creates exportable snapshot of this FrameGraph as {@link FrameGraphData}.
+     * Creates exportable snapshot of this FrameGraph as {@link ModuleGraphData}.
      * 
      * @return 
      */
-    public FrameGraphData createData() {
-        return new FrameGraphData(this, threads, settings);
+    public ModuleGraphData createModuleData() {
+        return new ModuleGraphData(launcher);
     }
     
-    @Override
-    public String toString() {
-        return "FrameGraph ("+name+")";
+    /**
+     * Returns the next unique module id for this FrameGraph.
+     * 
+     * @return 
+     */
+    public final int getNextId() {
+        return nextModuleId++;
     }
     
 }

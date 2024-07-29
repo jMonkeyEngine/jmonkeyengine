@@ -29,9 +29,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.renderer.framegraph;
+package com.jme3.renderer.framegraph.modules;
 
-import com.jme3.renderer.framegraph.passes.RenderPass;
+import com.jme3.renderer.framegraph.modules.RenderModule;
 
 /**
  * Locates a pass.
@@ -39,15 +39,15 @@ import com.jme3.renderer.framegraph.passes.RenderPass;
  * @author codex
  * @param <T>
  */
-public interface PassLocator <T extends RenderPass> {
+public interface ModuleLocator <T extends RenderModule> {
     
     /**
-     * Determines if the pass qualifies for this locator.
+     * Determines if the module qualifies for this locator.
      * 
-     * @param pass
+     * @param module
      * @return pass, or null if not accepted
      */
-    public T accept(RenderPass pass);
+    public T accept(RenderModule module);
     
     /**
      * Locates a pass by its type.
@@ -56,7 +56,7 @@ public interface PassLocator <T extends RenderPass> {
      * @param type
      * @return 
      */
-    public static <R extends RenderPass> PassLocator<R> by(Class<R> type) {
+    public static <R extends RenderModule> ModuleLocator<R> by(Class<R> type) {
         return pass -> {
             if (type.isAssignableFrom(pass.getClass())) {
                 return (R)pass;
@@ -74,7 +74,7 @@ public interface PassLocator <T extends RenderPass> {
      * @param name
      * @return 
      */
-    public static <R extends RenderPass> PassLocator<R> by(Class<R> type, String name) {
+    public static <R extends RenderModule> ModuleLocator<R> by(Class<R> type, String name) {
         return pass -> {
             if (name.equals(pass.getName()) && type.isAssignableFrom(pass.getClass())) {
                 return (R)pass;

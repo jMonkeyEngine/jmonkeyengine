@@ -31,6 +31,7 @@
  */
 package com.jme3.renderer.framegraph;
 
+import com.jme3.renderer.DepthRange;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;

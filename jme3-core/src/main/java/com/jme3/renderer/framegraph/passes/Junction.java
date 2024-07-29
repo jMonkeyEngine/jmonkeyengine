@@ -80,43 +80,43 @@ public class Junction <T> extends RenderPass {
     protected void initialize(FrameGraph frameGraph) {
         for (int i = 0; i < length; i++) {
             if (groupSize > 1) {
-                addInputGroup(Junction.getInput(i), groupSize);
+                addInputGroup(getInput(i), groupSize);
             } else {
-                addInput(Junction.getInput(i));
+                addInput(getInput(i));
             }
         }
         if (groupSize > 1) {
-            addOutputGroup(Junction.getOutput(), groupSize);
+            addOutputGroup(getOutput(), groupSize);
         } else {
-            output = addOutput(Junction.getOutput());
+            output = addOutput(getOutput());
         }
     }
     @Override
     protected void prepare(FGRenderContext context) {
         int size;
         if (groupSize > 1) {
-            size = getNumGroups()-1;
+            size = groups.size()-1;
         } else {
-            size = getInputTickets().size()-EXTRA_INPUTS;
+            size = inputs.size()-EXTRA_INPUTS;
         }
         // remove excess tickets
         while (size > length) {
             size--;
             if (groupSize > 1) {
-                ResourceTicket[] array = removeGroup(Junction.getInput(size));
+                ResourceTicket[] array = removeGroup(getInput(size));
                 for (ResourceTicket t : array) {
                     t.setSource(null);
                 }
             } else {
-                getInputTickets().removeLast().setSource(null);
+                inputs.removeLast().setSource(null);
             }
         }
         // add deficit tickets
         while (size < length) {
             if (groupSize > 1) {
-                addInputGroup(Junction.getInput(size), groupSize);
+                addInputGroup(getInput(size), groupSize);
             } else {
-                addInput(Junction.getInput(size));
+                addInput(getInput(size));
             }
             size++;
         }
@@ -158,21 +158,21 @@ public class Junction <T> extends RenderPass {
         defaultIndex = in.readInt("defaultIndex", 0);
         source = (GraphSource<Integer>)in.readSavable("source", null);
     }
-    @Override
-    public <T> ResourceTicket<T> addTicketSlot(String group) {
-        throw new UnsupportedOperationException("Cannot resize group.");
-    }
     
     private void connect(int i) {
         boolean assignNull = i < 0 || i >= length;
         if (groupSize > 1) {
-            ResourceTicket[] inArray = getGroupArray(Junction.getInput(i));
-            ResourceTicket[] outArray = getGroupArray(Junction.getOutput());
-            for (int j = 0; j < groupSize; j++) {
-                outArray[j].setSource(assignNull ? null : inArray[j]);
+            ResourceTicket[] outArray = getGroupArray(getOutput());
+            if (!assignNull) {
+                ResourceTicket[] inArray = getGroupArray(getInput(i));
+                for (int j = 0; j < groupSize; j++) {
+                    outArray[j].setSource(inArray[j]);
+                }
+            } else for (ResourceTicket t : outArray) {
+                t.setSource(null);
             }
         } else {
-            output.setSource(assignNull ? null : getInputTickets().get(i));
+            output.setSource(assignNull ? null : inputs.get(i));
         }
     }
     

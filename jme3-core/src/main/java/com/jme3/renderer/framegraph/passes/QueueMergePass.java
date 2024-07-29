@@ -78,7 +78,6 @@ public class QueueMergePass extends RenderPass {
     }
     @Override
     protected void execute(FGRenderContext context) {
-        System.out.println("acquire queues to merge");
         GeometryQueue[] queues = acquireArray("Queues", n -> new GeometryQueue[n]);
         for (GeometryQueue q : queues) {
             target.add(q);

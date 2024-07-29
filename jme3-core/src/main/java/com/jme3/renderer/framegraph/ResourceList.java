@@ -38,7 +38,6 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Manages {@link ResourceView} declarations, references, and
@@ -52,6 +51,11 @@ public class ResourceList {
      * Initial size of the resource ArrayList.
      */
     private static final int INITIAL_SIZE = 20;
+    
+    /**
+     * Maximum time to wait in milliseconds before throwing an exception.
+     */
+    public static final long WAIT_TIMEOUT = 5000;
     
     private final FrameGraph frameGraph;
     private RenderManager renderManager;
@@ -70,8 +74,8 @@ public class ResourceList {
         this.frameGraph = frameGraph;
     }
     
-    private <T> ResourceView<T> create(ResourceProducer producer, ResourceDef<T> def) {
-        ResourceView res = new ResourceView<>(producer, def, new ResourceTicket<>());
+    private <T> ResourceView<T> create(ResourceUser producer, ResourceDef<T> def, String name) {
+        ResourceView res = new ResourceView<>(producer, def, new ResourceTicket<>(name));
         res.getTicket().setLocalIndex(add(res));
         return res;
     }
@@ -159,10 +163,28 @@ public class ResourceList {
      * @param store
      * @return 
      */
-    public <T> ResourceTicket<T> declare(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> store) {
-        ResourceView<T> resource = create(producer, def);
-        if (cap != null) cap.declareResource(resource.getIndex(), (store != null ? store.getName() : ""));
+    public <T> ResourceTicket<T> declare(ResourceUser producer, ResourceDef<T> def, ResourceTicket<T> store) {
+        String name = (store != null ? store.getName() : null);
+        ResourceView<T> resource = create(producer, def, name);
+        if (cap != null) cap.declareResource(resource.getIndex(), name);
         return resource.getTicket().copyIndexTo(store);
+    }
+    
+    /**
+     * Declares a temporary resource with an unregistered ticket.
+     * <p>
+     * Temporary resources do not participate in culling.
+     * 
+     * @param <T>
+     * @param producer
+     * @param def
+     * @param store
+     * @return 
+     */
+    public <T> ResourceTicket<T> declareTemporary(ResourceUser producer, ResourceDef<T> def, ResourceTicket<T> store) {
+        store = declare(producer, def, store);
+        locate(store).setTemporary(true);
+        return store;
     }
     
     /**
@@ -195,14 +217,18 @@ public class ResourceList {
         }
     }
     
-    private void reference(PassIndex passIndex, ResourceTicket ticket, boolean optional) {
-        ResourceView resource = locate(ticket, false);
+    private void reference(PassIndex index, ResourceTicket ticket, boolean optional) {
+        boolean sync = !frameGraph.isAsync();
+        if (optional && sync && !ResourceTicket.validate(ticket)) {
+            return;
+        }
+        ResourceView resource = locate(ticket, sync);
         if (resource != null) {
-            resource.reference(passIndex);
+            resource.reference(index);
             if (cap != null) cap.referenceResource(resource.getIndex(), ticket.getName());
         } else {
             // save for later, since the resource hasn't been declared yet
-            futureRefs.add(new FutureReference(passIndex, ticket, optional));
+            futureRefs.add(new FutureReference(index, ticket, optional));
         }
     }
     
@@ -315,16 +341,6 @@ public class ResourceList {
     }
     
     /**
-     * Sets the resource at the ticket so that it cannot be culled
-     * by number of references.
-     * 
-     * @param ticket 
-     */
-    public void setSurvivesReferenceCull(ResourceTicket ticket) {
-        locate(ticket).setSurvivesRefCull(true);
-    }
-    
-    /**
      * Returns true if the resource associated with the ticket is virtual.
      * <p>
      * A resource is virtual if it does not contain a concrete object and is
@@ -352,30 +368,23 @@ public class ResourceList {
      * 
      * @param ticket ticket to locate resource with
      * @param thread current thread
-     * @param attempts
-     * @param timeoutMillis maximum wait time (in milliseconds) before throwing a timeout exception
-     * @throws java.util.concurrent.TimeoutException if wait times out
      */
-    public void wait(ResourceTicket ticket, int thread, long timeoutMillis, int attempts) throws TimeoutException {
+    public void waitForResource(ResourceTicket ticket, int thread) {
         if (ResourceTicket.validate(ticket)) {
-            if (attempts <= 0) {
-                throw new TimeoutException("Thread "+thread+": Resource at "+ticket+" was assumed "
-                        + "unreachable after a number of unsuccessful attempts.");
-            }
             // wait for resource to become available to this context
             long start = System.currentTimeMillis();
             ResourceView res;
             // TODO: determine why not locating the resource on each try results in timeouts.
             while (!(res = fastLocate(ticket)).isReadAvailable()) {
-                if (System.currentTimeMillis()-start >= timeoutMillis) {
-                    throw new TimeoutException("Thread "+thread+": Resource at "+ticket+" was assumed "
-                            + "unreachable after "+timeoutMillis+" milliseconds.");
+                if (System.currentTimeMillis()-start >= WAIT_TIMEOUT) {
+                    throw new IllegalStateException("Thread "+thread+": Resource at "+ticket+" was assumed "
+                            + "unreachable after "+WAIT_TIMEOUT+" milliseconds.");
                 }
             }
             // claim read permisions
             // for resources that are read concurrent, this won't matter
             if (!res.claimReadPermissions()) {
-                wait(ticket, thread, timeoutMillis, --attempts);
+                waitForResource(ticket, thread);
             }
         }
     }
@@ -660,8 +669,12 @@ public class ResourceList {
      * Prepares this for rendering.
      * <p>
      * This should only be called once per frame.
+     * @param map
+     * @param cap
      */
-    public void beginRenderingSession() {
+    public void beginRenderFrame(RenderObjectMap map, GraphEventCapture cap) {
+        this.map = map;
+        this.cap = cap;
         textureBinds = 0;
     }
     
@@ -686,20 +699,23 @@ public class ResourceList {
     public void cullUnreferenced() {
         LinkedList<ResourceView> cull = new LinkedList<>();
         for (ResourceView r : resources) {
-            if (r != null && !r.isReferenced() && !r.isSurvivesRefCull()) {
+            if (r != null && !r.isReferenced() && !r.isTemporary()) {
                 cull.add(r);
             }
         }
         ResourceView resource;
         while ((resource = cull.pollFirst()) != null) {
             // dereference producer of resource
-            ResourceProducer producer = resource.getProducer();
+            ResourceUser producer = resource.getProducer();
             if (producer == null) {
                 remove(resource.getIndex());
                 continue;
             }
-            if (!producer.dereference()) {
-                // if producer is not referenced, dereference all input resources
+            if (!producer.isUsed()) {
+                continue;
+            }
+            producer.dereference();
+            if (!producer.isUsed()) {
                 for (ResourceTicket t : producer.getInputTickets()) {
                     if (!validate(t)) {
                         continue;
@@ -710,9 +726,10 @@ public class ResourceList {
                         cull.addLast(r);
                     }
                 }
-                // remove all output resources
                 for (ResourceTicket t : producer.getOutputTickets()) {
-                    remove(t.getLocalIndex());
+                    if (!t.hasSource()) {
+                        remove(t.getLocalIndex());
+                    }
                 }
             }
         }
@@ -740,17 +757,6 @@ public class ResourceList {
      */
     public int getTextureBinds() {
         return textureBinds;
-    }
-    
-    /**
-     * Sets the render manager.
-     * 
-     * @param renderManager
-     */
-    public void setRenderManager(RenderManager renderManager) {
-        this.renderManager = renderManager;
-        this.map = this.renderManager.getRenderObjectMap();
-        this.cap = this.renderManager.getGraphCapture();
     }
     
     /**

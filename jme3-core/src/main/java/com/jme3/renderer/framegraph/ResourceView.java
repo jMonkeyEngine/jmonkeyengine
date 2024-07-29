@@ -47,14 +47,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class ResourceView <T> {
     
-    private final ResourceProducer producer;
+    private final ResourceUser producer;
     private final ResourceDef<T> def;
     private final ResourceTicket<T> ticket;
     private final TimeFrame lifetime;
     private RenderObject object;
     private T resource;
     private int refs = 0;
-    private boolean survivesRefCull = false;
+    private boolean temporary = false;
     private boolean undefined = false;
     private final AtomicBoolean released = new AtomicBoolean(false);
     
@@ -64,11 +64,11 @@ public class ResourceView <T> {
      * @param def
      * @param ticket 
      */
-    public ResourceView(ResourceProducer producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
+    public ResourceView(ResourceUser producer, ResourceDef<T> def, ResourceTicket<T> ticket) {
         this.producer = producer;
         this.def = def;
         this.ticket = ticket;
-        this.lifetime = new TimeFrame(this.producer.getExecutionIndex(), 0);
+        this.lifetime = new TimeFrame(this.producer.getIndex(), 0);
     }
     
     /**
@@ -159,10 +159,10 @@ public class ResourceView <T> {
     /**
      * Returns true if this resource always survives cull by reference.
      * 
-     * @param survivesRefCull 
+     * @param temporary 
      */
-    public void setSurvivesRefCull(boolean survivesRefCull) {
-        this.survivesRefCull = survivesRefCull;
+    public void setTemporary(boolean temporary) {
+        this.temporary = temporary;
     }
     
     /**
@@ -170,7 +170,7 @@ public class ResourceView <T> {
      * 
      * @return 
      */
-    public ResourceProducer getProducer() {
+    public ResourceUser getProducer() {
         return producer;
     }
     /**
@@ -282,8 +282,8 @@ public class ResourceView <T> {
      * 
      * @return 
      */
-    public boolean isSurvivesRefCull() {
-        return survivesRefCull;
+    public boolean isTemporary() {
+        return temporary;
     }
     /**
      * Return true if this resource is available for reading.
@@ -296,9 +296,9 @@ public class ResourceView <T> {
         return released.get();
     }
     
-//    @Override
-//    public String toString() {
-//        return "RenderResource[index="+ticket.getWorldIndex()+"]";
-//    }
+    @Override
+    public String toString() {
+        return "RenderResource["+producer+", "+ticket+"]";
+    }
     
 }
