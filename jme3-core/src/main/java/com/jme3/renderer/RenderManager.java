@@ -46,9 +46,6 @@ import com.jme3.profile.AppProfiler;
 import com.jme3.profile.AppStep;
 import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
-import com.jme3.renderer.framegraph.FrameGraph;
-import com.jme3.renderer.framegraph.RenderObjectMap;
-import com.jme3.renderer.framegraph.debug.GraphEventCapture;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -66,7 +63,6 @@ import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,8 +70,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A high-level rendering interface that is above the Renderer implementation.
