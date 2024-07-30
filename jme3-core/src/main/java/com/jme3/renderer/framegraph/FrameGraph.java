@@ -603,7 +603,15 @@ public class FrameGraph implements RenderPipeline<FGPipelineContext> {
         return applyData(assetManager.loadFrameGraph(assetPath));
     }
     /**
-     * Creates exportable snapshot of this FrameGraph as {@link ModuleGraphData}.
+     * Creates an exportable version of this FrameGraph as {@link FrameGraphData}.
+     * 
+     * @return 
+     */
+    public FrameGraphData createData() {
+        return new FrameGraphData(this);
+    }
+    /**
+     * Creates exportable version of this FrameGraph as {@link ModuleGraphData}.
      * 
      * @return 
      */

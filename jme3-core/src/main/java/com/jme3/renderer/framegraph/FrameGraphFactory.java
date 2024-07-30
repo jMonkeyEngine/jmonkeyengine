@@ -114,14 +114,14 @@ public class FrameGraphFactory {
         tileInfoAttr.setName("TileInfo");
         tileInfoAttr.setSource(tileInfo);
         
-        GraphSetting<Integer> tileToggle = fg.setSetting("EnableLightTiles", tiled ? 0 : -1, -1);
+        GraphSetting<Integer> tileToggle = fg.setSetting("EnableLightTiling", tiled ? 0 : -1, -1);
         tileJunct1.makeInput(tileInfoAttr, Attribute.OUTPUT, Junction.getInput(0));
         tileJunct1.setIndexSource(tileToggle);
         
         lightImg.makeInput(enqueue, "OpaqueLights", "Lights");
         lightImg.makeInput(tileJunct1, Junction.getOutput(), "TileInfo");
         
-        GraphSetting<Integer> lightPackMethod = fg.setSetting("EnableLightTextures", tiled ? 0 : -1, -1);
+        GraphSetting<Integer> lightPackMethod = fg.setSetting("UseLightTextures", tiled ? 0 : -1, -1);
         lightJunct.setName("LightPackMethod");
         lightJunct.makeGroupInput(lightImg, "Textures", Junction.getInput(0), 0, 0, 3);
         lightJunct.makeInput(lightImg, "NumLights", Junction.getInput(0, 3));
