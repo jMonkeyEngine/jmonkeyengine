@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,22 @@
 package jme3test.scene;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.export.binary.BinaryExporter;
+import com.jme3.export.binary.BinaryImporter;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
-public class TestUserData extends SimpleApplication {
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class TestUserData extends SimpleApplication {    
+    public static final String HOME_PATH = System.getProperty("user.home");
+    
+    public static enum TestEnum {
+        OPTION1, OPTION2, OPTION3;
+    }
 
     public static void main(String[] args) {
         TestUserData app = new TestUserData();
@@ -49,10 +61,48 @@ public class TestUserData extends SimpleApplication {
         System.out.println("Scene: " + scene);
 
         Spatial testNode = scene.getChild("TestNode");
-        System.out.println("TestNode: "+ testNode);
-
-        for (String key : testNode.getUserDataKeys()){
-            System.out.println("Property " + key + " = " + testNode.getUserData(key));
+        debugDataUser(testNode);
+       
+        otherUserData();
+    }
+    
+    private void debugDataUser(Spatial spatial) {
+        System.out.println("[ UserData ] :Object user data >> " + spatial);
+        for (String key : spatial.getUserDataKeys()){
+            System.out.println("  * Property " + key + " = " + spatial.getUserData(key));
+        }
+    }
+    
+    private void otherUserData() {
+        Node emptyNode = new Node("Empty");
+        
+        emptyNode.setUserData("Options", TestEnum.OPTION1);
+        
+        List<Object> data = new ArrayList<>();
+        data.add(TestEnum.OPTION2);
+        data.add(TestEnum.OPTION3);
+        
+        emptyNode.setUserData("List<?>", data);
+        exportAndImport(emptyNode);
+    }
+    
+    public void exportAndImport(Spatial spatial) {
+        try {
+            BinaryExporter exporter = BinaryExporter.getInstance();
+            exporter.save(spatial, new File(HOME_PATH, "UserData.j3o"));
+            
+            System.out.println("\n");
+            System.out.println("[ ok ] Export '" + spatial + "' > " + HOME_PATH + File.separator + "UserData.j3o");
+            debugDataUser(spatial);
+            
+            BinaryImporter importer = BinaryImporter.getInstance();
+            Spatial s = (Spatial) importer.load(new File(HOME_PATH, "UserData.j3o"));
+            
+            System.out.println();
+            System.out.println("[ ok ] Import '" + spatial + "' > " + HOME_PATH + File.separatorChar + "UserData.j3o");
+            debugDataUser(s);
+        } catch (IOException e) {
+            System.err.println("[ err ] " + e.getMessage());
         }
     }
 }

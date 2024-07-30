@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,10 +120,10 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      * Refresh flag types
      */
     protected static final int
-            RF_TRANSFORM = 0x01, // need light resort + combine transforms
-            RF_BOUND = 0x02,
-            RF_LIGHTLIST = 0x04, // changes in light lists
-            RF_CHILD_LIGHTLIST = 0x08, // some child need geometry update
+            RF_TRANSFORM         = 0x01, // need light resort + combine transforms
+            RF_BOUND             = 0x02,
+            RF_LIGHTLIST         = 0x04, // changes in light lists
+            RF_CHILD_LIGHTLIST   = 0x08, // some child need geometry update
             RF_MATPARAM_OVERRIDE = 0x10;
 
     protected CullHint cullHint = CullHint.Inherit;
@@ -1535,6 +1535,37 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         }
     }
 
+    /**
+     * Establishes the value of a certain user data, if said data does not exist
+     * it will be created at that time.
+     * <p>
+     * User data is limited by the data that JME3 can support, some of them are:
+     * <ul>
+     * <li><b>Integer|int</b></li>
+     * <li><b>Float|float</b></li>
+     * <li><b>Boolean|boolean</b></li>
+     * <li><b>String</b></li>
+     * <li><b>Long|long</b></li>
+     * <li><b>Savable</b></li>
+     * <li><b>List&#60;&#63;&#62;</b></li>
+     * <li><b>Map&#60;&#63;,&#63;&#62;</b></li>
+     * <li><b>Array|[...]</b></li>
+     * <li><b>Double|double</b></li>
+     * <li><b>Short|short</b></li>
+     * <li><b>Byte|byte</b></li>
+     * <li><b>Enum&#60;&#63;&#62;|enum</b></li>
+     * <li><b>BigDecimal</b></li>
+     * <li><b>BigInteger</b></li>
+     * </ul>
+     * <p>
+     * <b>NOTE:</b> Please note that if you want to add an object that is not supported,
+     * an exception will be thrown. If you want to add it anyway, it is recommended 
+     * that you implement the {@link com.jme3.export.Savable} interface or encapsulate 
+     * it with an object that has such an interface.
+     * 
+     * @param key user data key name
+     * @param data the new value of the user data
+     */
     public void setUserData(String key, Object data) {
         if (data == null) {
             if (userData != null) {
@@ -1550,11 +1581,18 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             if (data instanceof Savable) {
                 userData.put(key, (Savable) data);
             } else {
-                userData.put(key, new UserData(UserData.getObjectType(data), data));
+                userData.put(key, new UserData(data));
             }
         }
     }
 
+    /**
+     * Returns an object that belongs to the user's data based on the provided key (if it exists)
+     * @param <T> object type
+     * @param key user data key name
+     * @return The recovered object, if the data does not exist the returned value
+     * is <code>null</code> (applies if the user data does not exist)
+     */
     @SuppressWarnings("unchecked")
     public <T> T getUserData(String key) {
         if (userData == null) {
@@ -1569,12 +1607,15 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         }
     }
 
+    /**
+     * Returns a collection with all user data names.
+     * @return key collection (user data)
+     */
     @SuppressWarnings("unchecked")
     public Collection<String> getUserDataKeys() {
         if (userData != null) {
             return userData.keySet();
         }
-
         return Collections.EMPTY_SET;
     }
 
@@ -1607,6 +1648,10 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         return true;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.jme3.export.Savable#write(com.jme3.export.JmeExporter) 
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {
@@ -1626,6 +1671,10 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         capsule.writeStringSavableMap(userData, "user_data", null);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.jme3.export.Savable#read(com.jme3.export.JmeImporter) 
+     */
     @Override
     @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
