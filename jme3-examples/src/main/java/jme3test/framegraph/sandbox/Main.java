@@ -10,7 +10,7 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.post.framegraph.CartoonEdgePass;
+import codex.framegraph.effects.CartoonEdgePass;
 import com.jme3.renderer.DepthRange;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.passes.GeometryPass;

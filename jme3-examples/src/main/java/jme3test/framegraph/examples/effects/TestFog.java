@@ -9,7 +9,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
-import com.jme3.post.framegraph.HazePass;
+import codex.framegraph.effects.HazePass;
 import com.jme3.renderer.framegraph.FrameGraph;
 import com.jme3.renderer.framegraph.PassIndex;
 import com.jme3.renderer.framegraph.passes.GeometryPass;
