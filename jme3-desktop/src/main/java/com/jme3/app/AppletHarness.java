@@ -68,7 +68,7 @@ public class AppletHarness extends Applet {
         return appToApplet.get(app);
     }
 
-    @SuppressWarnings("unchecked")
+    
     private void createCanvas(){
         AppSettings settings = new AppSettings(true);
 
@@ -107,7 +107,7 @@ public class AppletHarness extends Applet {
         JmeSystem.setLowPermissions(true);
 
         try{
-            Class clazz = Class.forName(appClass);
+            Class<?> clazz = Class.forName(appClass);
             app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException
                 | InstantiationException
