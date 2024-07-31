@@ -243,67 +243,6 @@ MaterialDef Terrain Lighting {
         }
     }
 
-    Technique GBufferPass {
-
-        VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/GBufferPack/TerrainLightingGBufferPack.vert
-        FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/GBufferPack/TerrainLightingGBufferPack.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldNormalMatrix
-        }
-
-        Defines {
-            BOUND_DRAW_BUFFER: BoundDrawBuffer
-            TRI_PLANAR_MAPPING : useTriPlanarMapping
-            TERRAIN_GRID : isTerrainGrid
-            WARDISO   : WardIso
-
-            DIFFUSEMAP : DiffuseMap
-            DIFFUSEMAP_1 : DiffuseMap_1
-            DIFFUSEMAP_2 : DiffuseMap_2
-            DIFFUSEMAP_3 : DiffuseMap_3
-            DIFFUSEMAP_4 : DiffuseMap_4
-            DIFFUSEMAP_5 : DiffuseMap_5
-            DIFFUSEMAP_6 : DiffuseMap_6
-            DIFFUSEMAP_7 : DiffuseMap_7
-            DIFFUSEMAP_8 : DiffuseMap_8
-            DIFFUSEMAP_9 : DiffuseMap_9
-            DIFFUSEMAP_10 : DiffuseMap_10
-            DIFFUSEMAP_11 : DiffuseMap_11
-            NORMALMAP : NormalMap
-            NORMALMAP_1 : NormalMap_1
-            NORMALMAP_2 : NormalMap_2
-            NORMALMAP_3 : NormalMap_3
-            NORMALMAP_4 : NormalMap_4
-            NORMALMAP_5 : NormalMap_5
-            NORMALMAP_6 : NormalMap_6
-            NORMALMAP_7 : NormalMap_7
-            NORMALMAP_8 : NormalMap_8
-            NORMALMAP_9 : NormalMap_9
-            NORMALMAP_10 : NormalMap_10
-            NORMALMAP_11 : NormalMap_11
-            SPECULARMAP : SpecularMap
-            ALPHAMAP : AlphaMap
-            ALPHAMAP_1 : AlphaMap_1
-            ALPHAMAP_2 : AlphaMap_2
-            DIFFUSEMAP_0_SCALE : DiffuseMap_0_scale
-            DIFFUSEMAP_1_SCALE : DiffuseMap_1_scale
-            DIFFUSEMAP_2_SCALE : DiffuseMap_2_scale
-            DIFFUSEMAP_3_SCALE : DiffuseMap_3_scale
-            DIFFUSEMAP_4_SCALE : DiffuseMap_4_scale
-            DIFFUSEMAP_5_SCALE : DiffuseMap_5_scale
-            DIFFUSEMAP_6_SCALE : DiffuseMap_6_scale
-            DIFFUSEMAP_7_SCALE : DiffuseMap_7_scale
-            DIFFUSEMAP_8_SCALE : DiffuseMap_8_scale
-            DIFFUSEMAP_9_SCALE : DiffuseMap_9_scale
-            DIFFUSEMAP_10_SCALE : DiffuseMap_10_scale
-            DIFFUSEMAP_11_SCALE : DiffuseMap_11_scale
-
-            USE_ALPHA : useDiffuseAlpha
-        }
-    }
-
     Technique PreShadow {
 
         VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.vert

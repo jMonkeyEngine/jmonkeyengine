@@ -47,22 +47,6 @@ MaterialDef Terrain {
         }
 	}
 
-	Technique GBufferPass{
-	    Pipeline Deferred
-        VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/HeightBasedTerrain.vert
-        FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/GBufferPack/HeightBasedTerrainGBufferPack.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldMatrix
-            NormalMatrix
-        }
-
-        Defines {
-            BOUND_DRAW_BUFFER: BoundDrawBuffer
-        }
-    }
-
     Technique {
     }
 }

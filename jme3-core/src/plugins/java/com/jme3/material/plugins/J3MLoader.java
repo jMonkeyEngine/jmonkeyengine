@@ -113,7 +113,7 @@ public class J3MLoader implements AssetLoader {
         langSize = languages.length;
         for (int i = 0; i < languages.length; i++) {
             if (i >= shaderLanguages.size()) {
-                shaderLanguages.add(new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class));
+                shaderLanguages.add(new EnumMap<>(Shader.ShaderType.class));
             }
             shaderLanguages.get(i).put(shaderType, languages[i]);
         }
@@ -610,7 +610,7 @@ public class J3MLoader implements AssetLoader {
         material.setTransparent(parseBoolean(split[1]));
     }
 
-    private static String createShaderPrologue(List<String> presetDefines) {
+    public static String createShaderPrologue(List<String> presetDefines) {
         DefineList dl = new DefineList(presetDefines.size());
         for (int i = 0; i < presetDefines.size(); i++) {
             dl.set(i, 1);
@@ -620,7 +620,7 @@ public class J3MLoader implements AssetLoader {
         return sb.toString();
     }
 
-    private void readTechnique(Statement techStat) throws IOException{
+    private void readTechnique(Statement techStat) throws IOException {
         isUseNodes = false;
         String[] split = techStat.getLine().split(whitespacePattern);
         Cloner cloner = new Cloner();
@@ -643,25 +643,7 @@ public class J3MLoader implements AssetLoader {
 
         technique.setShaderPrologue(createShaderPrologue(presetDefines));
 
-        switch (technique.getLightMode()) {
-            case Disable:
-                technique.setLogic(new DefaultTechniqueDefLogic(technique));
-                break;
-            case MultiPass:
-                technique.setLogic(new MultiPassLightingLogic(technique));
-                break;
-            case SinglePass:
-                technique.setLogic(new SinglePassLightingLogic(technique));
-                break;
-            case StaticPass:
-                technique.setLogic(new StaticPassLightingLogic(technique));
-                break;
-            case SinglePassAndImageBased:
-                technique.setLogic(new SinglePassAndImageBasedLightingLogic(technique));
-                break;
-            default:
-                throw new IOException("Light mode not supported:" + technique.getLightMode());
-        }
+        technique.createLogicFromLightMode();
 
         List<TechniqueDef> techniqueDefs = new ArrayList<>();
 
@@ -673,7 +655,8 @@ public class J3MLoader implements AssetLoader {
             // is now done by TechniqueDef.
             technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "", "GLSL100", "GLSL100");
             techniqueDefs.add(technique);
-        }else if (shaderNames.containsKey(Shader.ShaderType.Vertex) && shaderNames.containsKey(Shader.ShaderType.Fragment)) {
+        } else if (shaderNames.containsKey(Shader.ShaderType.Vertex)
+                && shaderNames.containsKey(Shader.ShaderType.Fragment)) {
             if (shaderLanguages.size() > 1) {
                 for (int i = 1; i < shaderLanguages.size(); i++) {
                     cloner.clearIndex();
@@ -708,7 +691,7 @@ public class J3MLoader implements AssetLoader {
         presetDefines.clear();
     }
 
-    private void loadFromRoot(List<Statement> roots) throws IOException{
+    private void loadFromRoot(List<Statement> roots) throws IOException {
         if (roots.size() == 2){
             Statement exception = roots.get(0);
             String line = exception.getLine();
