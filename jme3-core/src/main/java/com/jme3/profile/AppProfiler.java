@@ -82,19 +82,6 @@ public interface AppProfiler {
      */
     public void spStep(SpStep step, String... additionalInfo);
     
-    /**
-     * Called at the beginning of the specified FgStep (FrameGraph step).
-     * <p>
-     * For more detailed steps it is possible to provide additional information as strings,
-     * such as the name of the pass.
-     * 
-     * @param step
-     * @param additionalInfo 
-     */
-    public default void fgStep(FgStep step, String... additionalInfo) {
-        // implementation is optional
-    }
-    
 }
 
 

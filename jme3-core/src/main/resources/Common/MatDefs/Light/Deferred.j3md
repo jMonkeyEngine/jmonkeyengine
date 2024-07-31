@@ -1,0 +1,64 @@
+//Don't use this
+MaterialDef Phong Lighting Deferred {
+
+    MaterialParameters {
+        Int BoundDrawBuffer
+
+        // Use more efficient algorithms to improve performance
+        Boolean LowQuality
+
+        // Improve quality at the cost of performance
+        Boolean HighQuality
+
+        // Activate shading along the tangent, instead of the normal
+        // Requires tangent data to be available on the model.
+        Boolean VTangent
+
+        // Use minnaert diffuse instead of lambert
+        Boolean Minnaert
+
+        // Use ward specular instead of phong
+        Boolean WardIso
+
+        Texture2D DiffuseData
+        Texture2D SpecularData
+        Texture2D NormalData
+        Texture2D DepthData
+
+        Vector3 FrustumCorner
+        Vector2 FrustumNearFar
+        Matrix4 ViewProjectionMatrixInverse
+
+        // Color ramp, will map diffuse and specular values through it.
+        Texture2D ColorRamp
+    }
+
+    Technique {
+        LightMode MultiPass
+
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Light/Deferred.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Light/Deferred.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            ViewMatrix
+            CameraPosition
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            ATTENUATION : Attenuation
+            V_TANGENT : VTangent
+            MINNAERT  : Minnaert
+            WARDISO   : WardIso
+            LOW_QUALITY : LowQuality
+            HQ_ATTENUATION : HighQuality
+            COLORRAMP : ColorRamp
+        }
+    }
+
+    Technique {
+    }
+
+}

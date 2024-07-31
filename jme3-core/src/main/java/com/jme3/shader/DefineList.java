@@ -43,7 +43,7 @@ import java.util.List;
 public final class DefineList {
 
     private final BitSet isSet;
-    private int[] values;
+    private final int[] values;
 
     public DefineList(int numValues) {
         if (numValues < 0) {
@@ -60,13 +60,7 @@ public final class DefineList {
     }
 
     private void rangeCheck(int id) {
-        //assert 0 <= id && id < values.length;
-        assert id >= 0 : "Define id cannot be less than zero.";
-        if (id > values.length) {
-            int[] temp = new int[id+1];
-            System.arraycopy(values, 0, temp, 0, values.length);
-            values = temp;
-        }
+        assert 0 <= id && id < values.length;
     }
 
     public boolean isSet(int id) {

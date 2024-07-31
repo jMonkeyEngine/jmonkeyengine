@@ -185,24 +185,6 @@ public class MaterialDef {
     public List<TechniqueDef> getTechniqueDefs(String name) {
         return techniques.get(name);
     }
-    
-    /**
-     * Gets the first TechniqueDef under the name of the given light mode.
-     * 
-     * @param name
-     * @param mode
-     * @return first matching TechniqueDef, or null
-     */
-    public TechniqueDef getTechniqueDef(String name, TechniqueDef.LightMode mode) {
-        List<TechniqueDef> list = techniques.get(name);
-        if (list == null) return null;
-        for (TechniqueDef d : list) {
-            if (d.getLightMode() == mode) {
-                return d;
-            }
-        }
-        return null;
-    }
 
     /**
      *

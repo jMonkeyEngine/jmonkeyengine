@@ -85,7 +85,7 @@ public class ViewPort {
      */
     protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
     /**
-     * Dedicated framegraph.
+     * Dedicated pipeline.
      */
     protected RenderPipeline pipeline;
     /**
@@ -440,7 +440,7 @@ public class ViewPort {
      * 
      * @param framegraph framegraph, or null
      */
-    public void setFrameGraph(RenderPipeline framegraph) {
+    public void setPipeline(RenderPipeline framegraph) {
         this.pipeline = framegraph;
     }
     
@@ -449,7 +449,7 @@ public class ViewPort {
      * 
      * @return 
      */
-    public RenderPipeline getFrameGraph() {
+    public RenderPipeline getPipeline() {
         return pipeline;
     }
 

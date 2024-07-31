@@ -97,7 +97,7 @@ public class RenderManager {
     private RenderState forcedRenderState = null;
     private final SafeArrayList<MatParamOverride> forcedOverrides
             = new SafeArrayList<>(MatParamOverride.class);
-    private GeometryRenderHandler renderGeometry;
+    private GeometryRenderHandler renderGeometry = GeometryRenderHandler.DEFAULT;
     private int viewX;
     private int viewY;
     private int viewWidth;
@@ -213,7 +213,8 @@ public class RenderManager {
      * @param renderGeometry geometry render handler, or null to not use one for rendering
      * @see GeometryRenderHandler
      */
-    public void setGeometryRenderHandler(GeometryRenderHandler renderGeometry){
+    public void setGeometryRenderHandler(GeometryRenderHandler renderGeometry) {
+        assert renderGeometry != null : "Geometry render handler cannot be null.";
         this.renderGeometry = renderGeometry;
     }
     
@@ -1317,7 +1318,7 @@ public class RenderManager {
         if (!vp.isEnabled()) {
             return;
         }        
-        RenderPipeline pipeline = vp.getFrameGraph();
+        RenderPipeline pipeline = vp.getPipeline();
         if (pipeline == null) {
             pipeline = defaultPipeline;
         }

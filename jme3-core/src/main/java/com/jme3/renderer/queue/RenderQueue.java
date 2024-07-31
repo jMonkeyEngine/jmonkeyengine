@@ -265,35 +265,23 @@ public class RenderQueue {
         }
     }
 
-    private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
+    private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean flush) {
         GeometryRenderHandler handler = rm.getGeometryRenderHandler();
+        assert handler != null : "Geometry render handler cannot be null.";
         list.setCamera(cam); // select camera for sorting
         list.sort();
-        if (handler != null && clear) {
-            LinkedList<Geometry> saved = new LinkedList<>();
-            for (Geometry g : list) {
-                assert g != null;
-                if (!handler.renderGeometry(rm, g)) {
-                    saved.add(g);
-                }
-                g.queueDistance = Float.NEGATIVE_INFINITY;
+        LinkedList<Geometry> saved = new LinkedList<>();
+        for (Geometry g : list) {
+            assert g != null;
+            if (!handler.renderGeometry(rm, g) && flush) {
+                saved.add(g);
             }
+            g.queueDistance = Float.NEGATIVE_INFINITY;
+        }
+        if (flush) {
             list.clear();
             for (Geometry g : saved) {
                 list.add(g);
-            }
-        } else {
-            for (Geometry g : list) {
-                assert g != null;
-                if (handler != null) {
-                    handler.renderGeometry(rm, g);
-                } else {
-                    rm.renderGeometry(g);
-                }
-                g.queueDistance = Float.NEGATIVE_INFINITY;
-            }
-            if (clear) {
-                list.clear();
             }
         }
     }
