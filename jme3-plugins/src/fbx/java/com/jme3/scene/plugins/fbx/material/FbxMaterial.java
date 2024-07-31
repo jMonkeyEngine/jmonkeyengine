@@ -57,14 +57,14 @@ public class FbxMaterial extends FbxObject<Material> {
     @Override
     public void fromElement(FbxElement element) {
         super.fromElement(element);
-        if(!getSubclassName().equals("")) {
+        if(!getSubclassName().isEmpty()) {
             return;
         }
         
         FbxElement shadingModelEl = element.getChildById("ShadingModel");
         if (shadingModelEl != null) { 
             shadingModel = (String) shadingModelEl.properties.get(0);
-            if (!shadingModel.equals("")) {
+            if (!shadingModel.isEmpty()) {
                 if (!shadingModel.equalsIgnoreCase("phong") &&
                     !shadingModel.equalsIgnoreCase("lambert")) {
                     logger.log(Level.WARNING, "FBX material uses unknown shading model: {0}. "

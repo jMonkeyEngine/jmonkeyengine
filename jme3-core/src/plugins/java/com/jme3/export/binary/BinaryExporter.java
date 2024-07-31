@@ -320,8 +320,8 @@ public class BinaryExporter implements JmeExporter {
     protected byte[] fixClassAlias(byte[] bytes, int width) {
         if (bytes.length != width) {
             byte[] newAlias = new byte[width];
-            for (int x = width - bytes.length; x < width; x++)
-                newAlias[x] = bytes[x - bytes.length];
+            if (bytes.length >= 0)
+                System.arraycopy(bytes, width - 2 * bytes.length, newAlias, width - bytes.length, bytes.length);
             return newAlias;
         }
         return bytes;

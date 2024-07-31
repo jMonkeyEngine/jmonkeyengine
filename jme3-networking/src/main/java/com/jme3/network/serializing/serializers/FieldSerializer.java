@@ -129,7 +129,7 @@ public class FieldSerializer extends Serializer {
                     return o1.field.getName().compareTo(o2.field.getName());
             }
         });
-        savedFields.put(clazz, cachedFields.toArray(new SavedField[cachedFields.size()]));
+        savedFields.put(clazz, cachedFields.toArray(new SavedField[0]));
 
         
     }

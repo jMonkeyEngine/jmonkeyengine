@@ -309,7 +309,7 @@ public class TestCloner {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append("intArray=" + intArray);
+            sb.append("intArray=").append(intArray);
             for( int i = 0; i < intArray.length; i++ ) {
                 if( i == 0 ) {
                     sb.append("[");
@@ -320,14 +320,14 @@ public class TestCloner {
             }
             sb.append("], ");
             
-            sb.append("intArray2D=" + intArray2D);
+            sb.append("intArray2D=").append(intArray2D);
             for( int i = 0; i < intArray2D.length; i++ ) {
                 if( i == 0 ) {
                     sb.append("[");
                 } else {
                     sb.append(", ");
                 }
-                sb.append("intArray2D[" + i + "]=" + intArray2D[i]);
+                sb.append("intArray2D[").append(i).append("]=").append(intArray2D[i]);
                 for( int j = 0; j < 2; j++ ) {
                     if( j == 0 ) {
                         sb.append("[");
@@ -340,7 +340,7 @@ public class TestCloner {
             }
             sb.append("], ");
             
-            sb.append("objectArray=" + objects);
+            sb.append("objectArray=").append(objects);
             for( int i = 0; i < objects.length; i++ ) {
                 if( i == 0 ) {
                     sb.append("[");
@@ -351,7 +351,7 @@ public class TestCloner {
             }
             sb.append("], ");
             
-            sb.append("objectArray=" + regularObjects);
+            sb.append("objectArray=").append(regularObjects);
             for( int i = 0; i < regularObjects.length; i++ ) {
                 if( i == 0 ) {
                     sb.append("[");
@@ -362,7 +362,7 @@ public class TestCloner {
             }
             sb.append("], ");
             
-            sb.append("stringArray=" + strings);
+            sb.append("stringArray=").append(strings);
             for( int i = 0; i < strings.length; i++ ) {
                 if( i == 0 ) {
                     sb.append("[");

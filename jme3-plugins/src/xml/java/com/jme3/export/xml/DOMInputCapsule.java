@@ -74,7 +74,7 @@ public class DOMInputCapsule implements InputCapsule {
         
         // file version is always unprefixed for backwards compatibility
         String version = currentElem.getAttribute("format_version");
-        importer.formatVersion = version.equals("") ? 0 : Integer.parseInt(version);
+        importer.formatVersion = version.isEmpty() ? 0 : Integer.parseInt(version);
     }
 
     @Override
@@ -873,7 +873,7 @@ public class DOMInputCapsule implements InputCapsule {
     @Override
     public Savable readSavable(String name, Savable defVal) throws IOException {
         Savable ret = defVal;
-        if (name != null && name.equals(""))
+        if (name != null && name.isEmpty())
             logger.warning("Reading Savable String with name \"\"?");
         try {
             Element tmpEl = null;
@@ -928,7 +928,7 @@ public class DOMInputCapsule implements InputCapsule {
             tmp = SavableClassUtil.fromName(className);
             
             String versionsStr = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, "savable_versions");
-            if (versionsStr != null && !versionsStr.equals("")){
+            if (versionsStr != null && !versionsStr.isEmpty()){
                 String[] versionStr = versionsStr.split(",");
                 classHierarchyVersions = new int[versionStr.length];
                 for (int i = 0; i < classHierarchyVersions.length; i++){

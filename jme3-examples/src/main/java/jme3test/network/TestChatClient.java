@@ -166,8 +166,8 @@ public class TestChatClient extends JFrame {
 
             // One of the least efficient ways to add text to a
             // JEditorPane
-            chatMessages.append("<font color='#00a000'>" + (m.isReliable() ? "TCP" : "UDP") + "</font>");
-            chatMessages.append(" -- <font color='#000080'><b>" + chat.getName() + "</b></font> : ");
+            chatMessages.append("<font color='#00a000'>").append(m.isReliable() ? "TCP" : "UDP").append("</font>");
+            chatMessages.append(" -- <font color='#000080'><b>").append(chat.getName()).append("</b></font> : ");
             chatMessages.append(chat.getMessage());
             chatMessages.append("<br />");
             String s = "<html><body>" + chatMessages + "</body></html>";

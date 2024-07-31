@@ -322,6 +322,7 @@ public class KTXLoader implements AssetLoader {
         for (int i = 0; i < 12; i++) {
             if (b[i] != fileIdentifier[i]) {
                 check = false;
+                break;
             }
         }
         return check;

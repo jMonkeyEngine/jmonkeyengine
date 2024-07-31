@@ -105,7 +105,7 @@ public final class SAXUtil {
     }
 
     public static boolean parseBool(String bool, boolean def) throws SAXException {
-        if (bool == null || bool.equals(""))
+        if (bool == null || bool.isEmpty())
             return def;
         else
             return Boolean.valueOf(bool);

@@ -161,8 +161,7 @@ public class DetailedProfiler implements AppProfiler {
                 curVpPath = vpPath.toString();
             } else {
                 if (bucket != null) {
-                    path.append(curAppPath).append("/").append(curVpPath).append("/")
-                        .append(bucket.name() + " Bucket");
+                    path.append(curAppPath).append("/").append(curVpPath).append("/").append(bucket.name()).append(" Bucket");
                 } else {
                     path.append(curAppPath).append("/").append(vpPath);
                     curVpPath = vpPath.toString();

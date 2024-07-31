@@ -134,7 +134,7 @@ public final class FbxDump {
                 ps.print(bytes.length);
                 ps.print(") [");
                 for (int j = 0; j < numToPrint; j++) {
-                    ps.print(String.format("%02X", bytes[j] & 0xff));
+                    ps.printf("%02X", bytes[j] & 0xff);
                     if (j != bytes.length - 1) {
                         ps.print(" ");
                     }

@@ -167,11 +167,11 @@ public class ShaderNodeLoaderDelegate {
                     shaderNodeDefinition.getShadersPath().add(shaderName);
                 } else if (line.startsWith("Documentation")) {
                     if (isLoadDoc) {
-                        String doc = "";
+                        StringBuilder doc = new StringBuilder();
                         for (Statement statement1 : statement.getContents()) {
-                            doc += "\n" + statement1.getLine();
+                            doc.append("\n").append(statement1.getLine());
                         }
-                        shaderNodeDefinition.setDocumentation(doc);
+                        shaderNodeDefinition.setDocumentation(doc.toString());
                     }
                 } else if (line.startsWith("Input")) {
                     varNames.clear();

@@ -309,7 +309,7 @@ public class TestChooser extends JFrame {
                                 Thread.sleep(100);
                             }
                         } else {
-                            final Method mainMethod = clazz.getMethod("main", (new String[0]).getClass());
+                            final Method mainMethod = clazz.getMethod("main", String[].class);
                             mainMethod.invoke(clazz, new Object[] { new String[0] });
                         }
                         // wait for destroy

@@ -52,7 +52,7 @@ public class JmeFormatter extends Formatter {
     private final StringBuffer store = new StringBuffer();
 
     public JmeFormatter(){
-        lineSeparator = System.getProperty("line.separator");
+        lineSeparator = System.lineSeparator();
         format = new MessageFormat("{0,time}");
     }
 
