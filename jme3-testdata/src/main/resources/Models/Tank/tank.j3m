@@ -1,4 +1,4 @@
-Material Tank : Common/MatDefs/Light/PBRLighting.j3md {
+Material Tank : Common/MatDefs/Light/modular/PBRLighting.j3md {
      MaterialParameters {
         
         MetallicRoughnessMap : Flip Models/Tank/Tank_Occ_Rough_Metal.png         
