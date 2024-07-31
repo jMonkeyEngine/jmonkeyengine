@@ -1,4 +1,0 @@
-#define PHONG_LIGHTING        1
-#define PBR_LIGHTING          2
-#define UNLIT                 3
-#define SUBSURFACE_SCATTERING 4

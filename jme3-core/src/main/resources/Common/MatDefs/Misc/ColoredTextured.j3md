@@ -5,13 +5,6 @@ MaterialDef Colored Textured {
         Int BoundDrawBuffer
         Texture2D ColorMap
         Color Color (Color)
-
-        // Context GBuffer Data
-        Texture2D Context_InGBuff0
-        Texture2D Context_InGBuff1
-        Texture2D Context_InGBuff2
-        Texture2D Context_InGBuff3
-        Texture2D Context_InGBuff4
     }
 
     Technique {
@@ -25,18 +18,5 @@ MaterialDef Colored Textured {
             BOUND_DRAW_BUFFER: BoundDrawBuffer
         }
     }
-
-    Technique GBufferPass{
-        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Misc/ColoredTextured.vert
-        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Misc/ColoredTexturedGBufferPack.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-        }
-        Defines {
-            BOUND_DRAW_BUFFER: BoundDrawBuffer
-        }
-    }
-
  
 }
