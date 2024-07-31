@@ -35,7 +35,6 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
-import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.font.BitmapText;
@@ -53,7 +52,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
 import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import jme3test.TestScene;
 
 /**
  *
@@ -61,12 +60,12 @@ import com.jme3.texture.Texture.WrapMode;
  */
 public class TestBrickWall extends SimpleApplication {
 
-    final private static float bLength = 0.48f;
-    final private static float bWidth = 0.24f;
-    final private static float bHeight = 0.12f;
+    final private static float bLength = 0.96f;
+    final private static float bWidth = 0.48f;
+    final private static float bHeight = 0.24f;
+    private TestScene scene;
     private Material mat;
     private Material mat2;
-    private Material mat3;
     private static Sphere bullet;
     private static Box brick;
 
@@ -83,19 +82,26 @@ public class TestBrickWall extends SimpleApplication {
         bulletAppState = new BulletAppState();
         bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
         stateManager.attach(bulletAppState);
+        
+        scene = new TestScene(assetManager, viewPort);
+        scene.setPhysicsSpace(bulletAppState.getPhysicsSpace());
+        scene.configureBackgroundColor();
+        scene.configureCameraPosition(cam);
+        scene.configureFlyCamSpeed(flyCam);
+        scene.setLocalTranslation(0, -0.1f, 0);
+        rootNode.attachChild(scene.load());
 
         bullet = new Sphere(32, 32, 0.4f, true, false);
         bullet.setTextureMode(TextureMode.Projected);
         brick = new Box(bLength, bHeight, bWidth);
-        brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
+        brick.scaleTextureCoordinates(new Vector2f(1f, .2f));
 
         initMaterial();
         initWall();
-        initFloor();
         initCrossHairs();
         this.cam.setLocation(new Vector3f(0, 6f, 6f));
         cam.lookAt(Vector3f.ZERO, new Vector3f(0, 1, 0));
-        cam.setFrustumFar(15);
+        //cam.setFrustumFar(15);
         inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addListener(actionListener, "shoot");
         inputManager.addMapping("gc", new KeyTrigger(KeyInput.KEY_X));
@@ -122,7 +128,7 @@ public class TestBrickWall extends SimpleApplication {
 //                RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
                 bulletNode.setLinearVelocity(cam.getDirection().mult(25));
                 bulletGeometry.addControl(bulletNode);
-                rootNode.attachChild(bulletGeometry);
+                scene.attachChild(bulletGeometry);
                 getPhysicsSpace().add(bulletNode);
             }
             if (name.equals("gc") && !keyPressed) {
@@ -144,38 +150,20 @@ public class TestBrickWall extends SimpleApplication {
         }
     }
 
-    public void initFloor() {
-        Box floorBox = new Box(10f, 0.1f, 5f);
-        floorBox.scaleTextureCoordinates(new Vector2f(3, 6));
-
-        Geometry floor = new Geometry("floor", floorBox);
-        floor.setMaterial(mat3);
-        floor.setShadowMode(ShadowMode.Receive);
-        floor.setLocalTranslation(0, -0.1f, 0);
-        floor.addControl(new RigidBodyControl(new BoxCollisionShape(new Vector3f(10f, 0.1f, 5f)), 0));
-        this.rootNode.attachChild(floor);
-        this.getPhysicsSpace().add(floor);
-    }
-
     public void initMaterial() {
-        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         TextureKey key = new TextureKey("Textures/Terrain/BrickWall/BrickWall.jpg");
         key.setGenerateMips(true);
         Texture tex = assetManager.loadTexture(key);
-        mat.setTexture("ColorMap", tex);
+        mat.setTexture("BaseColorMap", tex);
+        mat.setFloat("Metallic", .5f);
 
-        mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat2 = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
         key2.setGenerateMips(true);
         Texture tex2 = assetManager.loadTexture(key2);
-        mat2.setTexture("ColorMap", tex2);
-
-        mat3 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        TextureKey key3 = new TextureKey("Textures/Terrain/Pond/Pond.jpg");
-        key3.setGenerateMips(true);
-        Texture tex3 = assetManager.loadTexture(key3);
-        tex3.setWrap(WrapMode.Repeat);
-        mat3.setTexture("ColorMap", tex3);
+        mat2.setTexture("BaseColorMap", tex2);
+        mat2.setFloat("Metallic", .5f);
     }
 
     public void addBrick(Vector3f ori) {
@@ -187,7 +175,7 @@ public class TestBrickWall extends SimpleApplication {
         brickGeometry.addControl(new RigidBodyControl(1.5f));
         brickGeometry.setShadowMode(ShadowMode.CastAndReceive);
         brickGeometry.getControl(RigidBodyControl.class).setFriction(0.6f);
-        this.rootNode.attachChild(brickGeometry);
+        this.scene.attachChild(brickGeometry);
         this.getPhysicsSpace().add(brickGeometry);
     }
 
