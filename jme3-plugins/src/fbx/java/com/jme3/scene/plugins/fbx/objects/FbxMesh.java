@@ -332,8 +332,8 @@ public class FbxMesh extends FbxObject {
             indexMap = new ArrayList<>(vCount);
             reverseVertexMap = new ArrayList<>(vCount);
             for(int i = 0; i < vCount; ++i) {
-                vertexMap.set(i, i);
-                indexMap.set(i, i);
+                vertexMap.add(i, i);
+                indexMap.add(i, i);
                 List<Integer> l = new ArrayList<>(1);
                 l.add(i);
                 reverseVertexMap.add(l);
