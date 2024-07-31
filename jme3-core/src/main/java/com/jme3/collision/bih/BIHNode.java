@@ -411,15 +411,20 @@ public final class BIHNode implements Savable {
                         t = t_world;
                     }
 
-                    Vector3f contactNormal = Triangle.computeTriangleNormal(v1, v2, v3, null);
-                    Vector3f contactPoint = new Vector3f(d).multLocal(t).addLocal(o);
-                    float worldSpaceDist = o.distance(contactPoint);
+                    // this second isInfinite test is unlikely to fail but due to numeric precision it might
+                    // be the case that in local coordinates it just hits and in world coordinates it just misses
+                    // this filters those cases out (treating them as misses).
+                    if (!Float.isInfinite(t)){
+                        Vector3f contactNormal = Triangle.computeTriangleNormal(v1, v2, v3, null);
+                        Vector3f contactPoint = new Vector3f(d).multLocal(t).addLocal(o);
+                        float worldSpaceDist = o.distance(contactPoint);
 
-                    CollisionResult cr = new CollisionResult(contactPoint, worldSpaceDist);
-                    cr.setContactNormal(contactNormal);
-                    cr.setTriangleIndex(tree.getTriangleIndex(i));
-                    results.addCollision(cr);
-                    cols++;
+                        CollisionResult cr = new CollisionResult(contactPoint, worldSpaceDist);
+                        cr.setContactNormal(contactNormal);
+                        cr.setTriangleIndex(tree.getTriangleIndex(i));
+                        results.addCollision(cr);
+                        cols++;
+                    }
                 }
             }
         }
