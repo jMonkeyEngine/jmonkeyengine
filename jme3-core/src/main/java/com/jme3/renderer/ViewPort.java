@@ -31,6 +31,7 @@
  */
 package com.jme3.renderer;
 
+import com.jme3.renderer.pipeline.RenderPipeline;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.queue.RenderQueue;
@@ -430,18 +431,17 @@ public class ViewPort {
     }
     
     /**
-     * Sets the framegraph used by this viewport for rendering.
+     * Sets the pipeline used by this viewport for rendering.
      * <p>
-     * If null, the render manager's default framegraph, if not null, will be
-     * used to render this viewport. If all else fails, the default forward
-     * renderer will be used.
+     * If null, the render manager's default pipeline will be used
+     * to render this viewport.
      * <p>
      * default=null
      * 
-     * @param framegraph framegraph, or null
+     * @param pipeline pipeline, or null to use render manager's pipeline
      */
-    public void setPipeline(RenderPipeline framegraph) {
-        this.pipeline = framegraph;
+    public void setPipeline(RenderPipeline pipeline) {
+        this.pipeline = pipeline;
     }
     
     /**

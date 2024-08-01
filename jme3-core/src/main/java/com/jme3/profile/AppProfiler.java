@@ -73,15 +73,12 @@ public interface AppProfiler {
 
     /**
      * Called at the beginning of the specified SpStep (SceneProcessor step).
-     * <p>
-     * For more detailed steps it is possible to provide additional information as strings,
-     * like the name of the processor.
+     * For more detailed steps it is possible to provide additional information as strings, like the name of the processor.
      *
      * @param step the SceneProcessor step that's about to begin
      * @param additionalInfo information about the SceneProcessor step
      */
     public void spStep(SpStep step, String... additionalInfo);
-    
 }
 
 

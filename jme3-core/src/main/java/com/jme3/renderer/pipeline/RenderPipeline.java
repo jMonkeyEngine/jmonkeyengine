@@ -2,10 +2,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.jme3.renderer;
+package com.jme3.renderer.pipeline;
+
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
 
 /**
- * Renders a ViewPort.
+ * Pipeline for rendering a ViewPort.
  * 
  * @author codex
  * @param <T>
@@ -35,7 +38,7 @@ public interface RenderPipeline <T extends PipelineContext> {
      * 
      * @param rm 
      */
-    public void beginRenderFrame(RenderManager rm);
+    public void startRenderFrame(RenderManager rm);
     
     /**
      * Renders the pipeline.

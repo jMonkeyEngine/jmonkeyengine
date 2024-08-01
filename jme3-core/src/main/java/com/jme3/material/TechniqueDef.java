@@ -123,12 +123,7 @@ public class TechniqueDef implements Savable, Cloneable {
          * shaders used balloons because of the variations in the number of
          * lights used by objects.
          */
-        StaticPass,
-        
-        /**
-         * 
-         */
-        Custom,
+        StaticPass
         
     }
 

@@ -103,13 +103,7 @@ MaterialDef Terrain Lighting {
 
         // The glow color of the object
         Color GlowColor
-
-        // Context GBuffer Data
-        Texture2D Context_InGBuff0
-        Texture2D Context_InGBuff1
-        Texture2D Context_InGBuff2
-        Texture2D Context_InGBuff3
-        Texture2D Context_InGBuff4
+        
     }
 
     Technique {

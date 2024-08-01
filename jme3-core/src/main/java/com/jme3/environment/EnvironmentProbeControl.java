@@ -65,7 +65,7 @@ import com.jme3.texture.Image.Format;
  *    ec1.setPosition(new Vector3f(0,0,0));
  *    // ec2.setPosition(new Vector3f(0,0,10));
  * 3. Tag the spatials that are part of the environment
- *    scene.deepFirstTraversal(s -&gt; {
+ *    scene.deepFirstTraversal(s->{
  *        if(s.getUserData("isEnvNode")!=null){
  *          EnvironmentProbeControl.tagGlobal(s);
  *          // or ec1.tag(s); 

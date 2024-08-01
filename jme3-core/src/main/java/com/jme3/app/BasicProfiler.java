@@ -204,5 +204,4 @@ public class BasicProfiler implements AppProfiler {
     @Override
     public void spStep(SpStep step, String... additionalInfo) {
     }
-    
 }

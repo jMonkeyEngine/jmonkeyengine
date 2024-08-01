@@ -326,7 +326,7 @@ public abstract class Filter implements Savable {
      */
     protected void preFrame(float tpf) {
     }
-    
+
     /**
      * Override this method if you want to make a pass just after the frame has been rendered and just before the filter rendering
      *
@@ -492,5 +492,4 @@ public abstract class Filter implements Savable {
      */
     protected void postFilter(Renderer r, FrameBuffer buffer){        
     }
-    
 }

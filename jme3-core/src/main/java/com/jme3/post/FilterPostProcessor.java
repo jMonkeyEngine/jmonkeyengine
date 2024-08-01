@@ -658,5 +658,4 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             viewPort.setOutputFrameBuffer(renderFrameBuffer);
         }
     }
-    
-}
+    }

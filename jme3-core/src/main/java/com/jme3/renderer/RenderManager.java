@@ -31,6 +31,10 @@
  */
 package com.jme3.renderer;
 
+import com.jme3.renderer.pipeline.ForwardPipeline;
+import com.jme3.renderer.pipeline.DefaultPipelineContext;
+import com.jme3.renderer.pipeline.RenderPipeline;
+import com.jme3.renderer.pipeline.PipelineContext;
 import com.jme3.light.DefaultLightFilter;
 import com.jme3.light.LightFilter;
 import com.jme3.light.LightList;
@@ -44,7 +48,6 @@ import com.jme3.math.Matrix4f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.AppStep;
-import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
@@ -1323,7 +1326,7 @@ public class RenderManager {
             pipeline = defaultPipeline;
         }
         PipelineContext context = pipeline.fetchPipelineContext(this);
-        if (context.addPipeline(this, pipeline)) {
+        if (context.registerClientPipeline(this, pipeline)) {
             usedContexts.add(context);
         }
         pipeline.pipelineRender(this, context, vp, tpf);
@@ -1382,10 +1385,8 @@ public class RenderManager {
         }
         
         // cleanup for used pipeline contexts only
-        System.out.println("flush pipelines");
         for (PipelineContext c : usedContexts) {
-            System.out.println("flush pipeline stack for "+c);
-            c.flushPipelineStack(this);
+            c.endContextRenderFrame(this);
         }
         usedContexts.clear();
         
