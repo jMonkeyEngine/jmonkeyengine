@@ -737,7 +737,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      */
     public Image() {
         super();
-        data = new ArrayList<>(1);
+        data = new ArrayList<ByteBuffer>(1);
     }
 
     protected Image(int id){
@@ -837,7 +837,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         this.width = width;
         this.height = height;
         if (data != null){
-            this.data = new ArrayList<>(1);
+            this.data = new ArrayList<ByteBuffer>(1);
             this.data.add(data);
         }
         this.mipMapSizes = mipMapSizes;

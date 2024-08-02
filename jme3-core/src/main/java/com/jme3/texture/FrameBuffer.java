@@ -179,7 +179,6 @@ public class FrameBuffer extends NativeObject {
             return this.layer;
         }
     }
-
     
     public static class FrameBufferTextureTarget extends RenderBuffer {
         private FrameBufferTextureTarget(){}
@@ -250,12 +249,36 @@ public class FrameBuffer extends NativeObject {
         }
     }
     
+    /**
+     * Quick access method for creating a texture target.
+     * 
+     * @param tx
+     * @return 
+     * @see FrameBufferTarget#newTarget(com.jme3.texture.Texture)
+     */
     public static FrameBufferTextureTarget target(Texture tx) {
         return FrameBufferTarget.newTarget(tx);
     }
+    
+    /**
+     * Quick access method for creating a buffer target of the specified format.
+     * 
+     * @param format
+     * @return 
+     * @see FrameBufferTarget#newTarget(com.jme3.texture.Image.Format)
+     */
     public static FrameBufferBufferTarget target(Format format) {
         return FrameBufferTarget.newTarget(format);
     }
+    
+    /**
+     * Quick access method for creating a texture target on the specified cubemap face.
+     * 
+     * @param tx
+     * @param face
+     * @return 
+     * @see FrameBufferTarget#newTarget(com.jme3.texture.Texture, com.jme3.texture.TextureCubeMap.Face) 
+     */
     public static FrameBufferTextureTarget target(Texture tx, TextureCubeMap.Face face) {
         return FrameBufferTarget.newTarget(tx, face);
     }

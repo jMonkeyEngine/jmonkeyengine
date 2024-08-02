@@ -85,7 +85,7 @@ public abstract class  BufferLayout {
     /**
      * Register a serializer
      * 
-     * @param serializer
+     * @param type
      */
     protected void registerSerializer(ObjectSerializer<?> serializer) {
         serializers.add(serializer);

@@ -306,7 +306,7 @@ public class BufferObject extends NativeObject implements Savable {
     /**
      * Set AccessHint to hint the renderer on how to access this data. 
      * 
-     * @param accessHint
+     * @param natureHint
      */
     public void setAccessHint(AccessHint accessHint) {
         this.accessHint = accessHint;
