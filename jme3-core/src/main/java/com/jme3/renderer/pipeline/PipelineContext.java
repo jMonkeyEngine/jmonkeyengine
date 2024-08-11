@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,19 +29,32 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.export;
+package com.jme3.renderer.pipeline;
 
-import java.io.IOException;
+import com.jme3.renderer.RenderManager;
 
 /**
- * <code>Savable</code> is an interface for objects that can be serialized
- * using jME's serialization system. 
+ * Handles objects globally for a single type of RenderPipeline.
  * 
- * @author Kirill Vainer
+ * @author codex
  */
-public interface Savable {
+public interface PipelineContext {
     
-    void write(JmeExporter ex) throws IOException;
-    void read(JmeImporter im) throws IOException;
+    /**
+     * Registers the pipeline with this context if it hasn't been
+     * rendered this frame.
+     * 
+     * @param rm
+     * @param pipeline pipeline to register
+     * @return true if this context has not be used before this frame
+     */
+    public boolean registerClientPipeline(RenderManager rm, RenderPipeline pipeline);
+    
+    /**
+     * Calls frame completion methods for pipelines registered with this context.
+     * 
+     * @param rm 
+     */
+    public void endContextRenderFrame(RenderManager rm);
     
 }

@@ -32,11 +32,12 @@
 package com.jme3.renderer.queue;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.util.ListSort;
+import java.util.ArrayList;
 
 /**
  * This class is a special purpose list of {@link Geometry} objects for render
@@ -49,11 +50,13 @@ import com.jme3.util.ListSort;
 public class GeometryList implements Iterable<Geometry>{
 
     private static final int DEFAULT_SIZE = 32;
-
+    
     private Geometry[] geometries;
     final private ListSort listSort;
     private int size;
     private GeometryComparator comparator;
+    private Camera cam;
+    private boolean updateFlag = true;
 
     /**
      * Initializes the GeometryList to use the given {@link GeometryComparator}
@@ -68,8 +71,18 @@ public class GeometryList implements Iterable<Geometry>{
         listSort = new ListSort<Geometry>();
     }
 
+    /**
+     * Marks this list as requiring sorting.
+     */
+    public void setUpdateNeeded() {
+        updateFlag = true;
+    }
+    
     public void setComparator(GeometryComparator comparator) {
-        this.comparator = comparator;
+        if (this.comparator != comparator) {
+            this.comparator = comparator;
+            updateFlag = true;
+        }
     }
 
     /**
@@ -89,7 +102,11 @@ public class GeometryList implements Iterable<Geometry>{
      * @param cam Camera to use for sorting.
      */
     public void setCamera(Camera cam) {
-        this.comparator.setCamera(cam);
+        if (this.cam != cam) {
+            this.cam = cam;
+            comparator.setCamera(this.cam);
+            updateFlag = true;
+        }
     }
 
     /**
@@ -97,7 +114,7 @@ public class GeometryList implements Iterable<Geometry>{
      *
      * @return Number of elements in the list
      */
-    public int size(){
+    public int size() {
         return size;
     }
 
@@ -109,6 +126,7 @@ public class GeometryList implements Iterable<Geometry>{
      */
     public void set(int index, Geometry value) {
         geometries[index] = value;
+        updateFlag = true;
     }
 
     /**
@@ -135,6 +153,7 @@ public class GeometryList implements Iterable<Geometry>{
             geometries = temp; // original list replaced by double-size list
         }
         geometries[size++] = g;
+        updateFlag = true;
     }
 
     /**
@@ -144,47 +163,52 @@ public class GeometryList implements Iterable<Geometry>{
         for (int i = 0; i < size; i++) {
             geometries[i] = null;
         }
-
+        updateFlag = true;
         size = 0;
     }
 
     /**
      * Sorts the elements in the list according to their Comparator.
      */
-    @SuppressWarnings("unchecked")
     public void sort() {
-        if (size > 1) {
+        if (updateFlag && size > 1) {
             // sort the spatial list using the comparator
             if (listSort.getLength() != size) {
                 listSort.allocateStack(size);
             }
-            listSort.sort(geometries,comparator);
+            listSort.sort(geometries, comparator);
+            updateFlag = false;
+        }
+    }
+    
+    /**
+     * Renders the geometries in this list and in internal lists.
+     * 
+     * @param rm 
+     */
+    public void render(RenderManager rm) {
+        for (Geometry g : geometries) {
+            rm.renderGeometry(g);
         }
     }
 
     @Override
     public Iterator<Geometry> iterator() {
         return new Iterator<Geometry>() {
+            
             int index = 0;
-
+            
             @Override
             public boolean hasNext() {
                 return index < size();
             }
-
-
+            
             @Override
             public Geometry next() {
-                if (index >= size()) {
-                    throw new NoSuchElementException("Geometry list has only " + size() + " elements");
-                }
                 return get(index++);
             }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException("Geometry list doesn't support iterator removal");
-            }
+            
         };
     }
+    
 }

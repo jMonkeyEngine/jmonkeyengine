@@ -217,7 +217,6 @@ MaterialDef PBR Lighting {
 
     }
 
-
     Technique PostShadow {
         VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
         FragmentShader GLSL310 GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PostShadowPBR.frag

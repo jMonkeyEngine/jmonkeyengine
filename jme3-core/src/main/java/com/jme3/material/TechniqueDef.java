@@ -33,6 +33,11 @@ package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
+import com.jme3.material.logic.DefaultTechniqueDefLogic;
+import com.jme3.material.logic.MultiPassLightingLogic;
+import com.jme3.material.logic.SinglePassAndImageBasedLightingLogic;
+import com.jme3.material.logic.SinglePassLightingLogic;
+import com.jme3.material.logic.StaticPassLightingLogic;
 import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.renderer.Caps;
 import com.jme3.shader.*;
@@ -41,6 +46,7 @@ import com.jme3.shader.Shader.ShaderType;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Describes a technique definition.
@@ -66,6 +72,7 @@ public class TechniqueDef implements Savable, Cloneable {
      * Describes light rendering mode.
      */
     public enum LightMode {
+        
         /**
          * Disable light-based rendering
          */
@@ -105,6 +112,7 @@ public class TechniqueDef implements Savable, Cloneable {
          */
         @Deprecated
         FixedPipeline,
+        
         /**
          * Similar to {@link #SinglePass} except the type of each light is known
          * at shader compile time.
@@ -116,6 +124,7 @@ public class TechniqueDef implements Savable, Cloneable {
          * lights used by objects.
          */
         StaticPass
+        
     }
 
     public enum ShadowMode {
@@ -242,11 +251,33 @@ public class TechniqueDef implements Savable, Cloneable {
     public void setLogic(TechniqueDefLogic logic) {
         this.logic = logic;
     }
-
+    
+    public void createLogicFromLightMode() {
+        switch (getLightMode()) {
+            case Disable:
+                setLogic(new DefaultTechniqueDefLogic(this));
+                break;
+            case MultiPass:
+                setLogic(new MultiPassLightingLogic(this));
+                break;
+            case SinglePass:
+                setLogic(new SinglePassLightingLogic(this));
+                break;
+            case StaticPass:
+                setLogic(new StaticPassLightingLogic(this));
+                break;
+            case SinglePassAndImageBased:
+                setLogic(new SinglePassAndImageBasedLightingLogic(this));
+                break;
+            default:
+                throw new UnsupportedOperationException("Light mode not supported:" + getLightMode());
+        }
+    }
+    
     public TechniqueDefLogic getLogic() {
         return logic;
     }
-
+    
     /**
      * Returns the shadow mode.
      * @return the shadow mode.
@@ -439,7 +470,6 @@ public class TechniqueDef implements Savable, Cloneable {
      */
     public int addShaderUnmappedDefine(String defineName, VarType defineType) {
         int defineId = defineNames.size();
-
         defineNames.add(defineName);
         defineTypes.add(defineType);
         return defineId;
@@ -514,13 +544,13 @@ public class TechniqueDef implements Savable, Cloneable {
     }
 
     public Shader getShader(AssetManager assetManager, EnumSet<Caps> rendererCaps, DefineList defines) {
-          Shader shader = definesToShaderMap.get(defines);
-          if (shader == null) {
-              shader = loadShader(assetManager, rendererCaps, defines);
-              definesToShaderMap.put(defines.deepClone(), shader);
-          }
-          return shader;
-     }
+        Shader shader = definesToShaderMap.get(defines);
+        if (shader == null) {
+            shader = loadShader(assetManager, rendererCaps, defines);
+            definesToShaderMap.put(defines.deepClone(), shader);
+        }
+        return shader;
+    }
 
     /**
      * Sets the shaders that this technique definition will use.
@@ -529,26 +559,27 @@ public class TechniqueDef implements Savable, Cloneable {
      * @param shaderLanguages EnumMap containing all shader languages for this stage
      */
     public void setShaderFile(EnumMap<Shader.ShaderType, String> shaderNames,
-            EnumMap<Shader.ShaderType, String> shaderLanguages) {
+                              EnumMap<Shader.ShaderType, String> shaderLanguages) {
         requiredCaps.clear();
 
         weight = 0;
         for (Shader.ShaderType shaderType : shaderNames.keySet()) {
             String language = shaderLanguages.get(shaderType);
             String shaderFile = shaderNames.get(shaderType);
-
-            this.shaderLanguages.put(shaderType, language);
-            this.shaderNames.put(shaderType, shaderFile);
-
-            Caps cap = Caps.valueOf(language);
-            requiredCaps.add(cap);
-            weight = Math.max(weight, cap.ordinal());
-
-            if (shaderType.equals(Shader.ShaderType.Geometry)) {
-                requiredCaps.add(Caps.GeometryShader);
-            } else if (shaderType.equals(Shader.ShaderType.TessellationControl)) {
-                requiredCaps.add(Caps.TesselationShader);
-            }
+            addShaderFile(shaderType, shaderFile, language);
+        }
+    }
+    
+    public void addShaderFile(Shader.ShaderType shaderType, String fileName, String language) {
+        this.shaderLanguages.put(shaderType, language);
+        this.shaderNames.put(shaderType, fileName);
+        Caps cap = Caps.valueOf(language);
+        requiredCaps.add(cap);
+        weight = Math.max(weight, cap.ordinal());
+        if (shaderType.equals(Shader.ShaderType.Geometry)) {
+            requiredCaps.add(Caps.GeometryShader);
+        } else if (shaderType.equals(Shader.ShaderType.TessellationControl)) {
+            requiredCaps.add(Caps.TesselationShader);
         }
     }
 
@@ -815,7 +846,7 @@ public class TechniqueDef implements Savable, Cloneable {
         try {
             clone.logic = logic.getClass().getConstructor(TechniqueDef.class).newInstance(clone);
         } catch (InstantiationException | IllegalAccessException
-                | NoSuchMethodException | InvocationTargetException e) {
+                 | NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
         }
 

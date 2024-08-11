@@ -45,7 +45,7 @@ import com.jme3.texture.Texture;
  * 
  * @author Kirill Vainer
  */
-public class MaterialDef{
+public class MaterialDef {
 
     private static final Logger logger = Logger.getLogger(MaterialDef.class.getName());
 

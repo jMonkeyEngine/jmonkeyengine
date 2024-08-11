@@ -31,8 +31,12 @@
  */
 package com.jme3.renderer.queue;
 
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.Savable;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
+import java.io.IOException;
 import java.util.Comparator;
 
 /**
@@ -41,7 +45,7 @@ import java.util.Comparator;
  * 
  * @author Kirill Vainer
  */
-public interface GeometryComparator extends Comparator<Geometry> {
+public interface GeometryComparator extends Comparator<Geometry>, Savable {
     
     /**
      * Set the camera to use for sorting.
@@ -49,4 +53,11 @@ public interface GeometryComparator extends Comparator<Geometry> {
      * @param cam The camera to use for sorting
      */
     public void setCamera(Camera cam);
+    
+    @Override
+    public default void write(JmeExporter ex) throws IOException {}
+    
+    @Override
+    public default void read(JmeImporter im) throws IOException {}
+    
 }

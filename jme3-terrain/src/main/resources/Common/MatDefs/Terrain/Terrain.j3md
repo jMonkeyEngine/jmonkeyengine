@@ -13,12 +13,13 @@ MaterialDef Terrain {
 		Float Tex1Scale
 		Float Tex2Scale
 		Float Tex3Scale
+		
 	}
 
 	Technique {
 		VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/Terrain.vert
 		FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/Terrain.frag
-		
+
 		WorldParameters {
 			WorldViewProjectionMatrix
 		}

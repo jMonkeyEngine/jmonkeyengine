@@ -164,8 +164,7 @@ public final class Technique {
      * @param lastTexUnit the index of the most recently used texture unit
      */
     void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits) {
-        TechniqueDefLogic logic = def.getLogic();
-        logic.render(renderManager, shader, geometry, lights, lastBindUnits);
+        def.getLogic().render(renderManager, shader, geometry, lights, lastBindUnits);
     }
     
     /**

@@ -36,11 +36,13 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
+import java.util.LinkedList;
+import com.jme3.renderer.GeometryRenderHandler;
 
 /**
- * <code>RenderQueue</code> is used to queue up and sort 
+ * <code>RenderQueue</code> is used to queue up and sort
  * {@link Geometry geometries} for rendering.
- * 
+ *
  * @author Kirill Vainer
  */
 public class RenderQueue {
@@ -64,50 +66,50 @@ public class RenderQueue {
     }
 
     /**
-     * The render queue <code>Bucket</code> specifies the bucket
-     * to which the spatial will be placed when rendered. 
+     * The renderGeometry queue <code>Bucket</code> specifies the bucket
+     * to which the spatial will be placed when rendered.
      * <p>
-     * The behavior of the rendering will differ depending on which 
+     * The behavior of the rendering will differ depending on which
      * bucket the spatial is placed. A spatial's queue bucket can be set
      * via {@link Spatial#setQueueBucket(com.jme3.renderer.queue.RenderQueue.Bucket) }.
      */
     public enum Bucket {
         /**
-         * The renderer will try to find the optimal order for rendering all 
+         * The renderer will try to find the optimal order for rendering all
          * objects using this mode.
          * You should use this mode for most normal objects, except transparent
          * ones, as it could give a nice performance boost to your application.
          */
         Opaque,
-        
+
         /**
          * This is the mode you should use for object with
          * transparency in them. It will ensure the objects furthest away are
          * rendered first. That ensures when another transparent object is drawn on
          * top of previously drawn objects, you can see those (and the object drawn
          * using Opaque) through the transparent parts of the newly drawn
-         * object. 
+         * object.
          */
         Transparent,
-        
+
         /**
-         * A special mode used for rendering really far away, flat objects - 
-         * e.g. skies. In this mode, the depth is set to infinity so 
+         * A special mode used for rendering really far away, flat objects -
+         * e.g. skies. In this mode, the depth is set to infinity so
          * spatials in this bucket will appear behind everything, the downside
          * to this bucket is that 3D objects will not be rendered correctly
          * due to lack of depth testing.
          */
         Sky,
-        
+
         /**
          * A special mode used for rendering transparent objects that
-         * should not be affected by {@link SceneProcessor}. 
+         * should not be affected by {@link SceneProcessor}.
          * Generally this would contain translucent objects, and
          * also objects that do not write to the depth buffer such as
          * particle emitters.
          */
         Translucent,
-        
+
         /**
          * This is a special mode, for drawing 2D object
          * without perspective (such as GUI or HUD parts).
@@ -117,7 +119,7 @@ public class RenderQueue {
          * outside of that range are culled.
          */
         Gui,
-        
+
         /**
          * A special mode, that will ensure that this spatial uses the same
          * mode as the parent Node does.
@@ -135,22 +137,22 @@ public class RenderQueue {
          * Generally used for special effects like particle emitters.
          */
         Off,
-        
+
         /**
-         * Enable casting of shadows but not receiving them. 
+         * Enable casting of shadows but not receiving them.
          */
         Cast,
-        
+
         /**
          * Enable receiving of shadows but not casting them.
          */
         Receive,
-        
+
         /**
          * Enable both receiving and casting of shadows.
          */
         CastAndReceive,
-        
+
         /**
          * Inherit the <code>ShadowMode</code> from the parent node.
          */
@@ -236,11 +238,10 @@ public class RenderQueue {
      * Adds a geometry to the given bucket.
      * The {@link RenderManager} automatically handles this task
      * when flattening the scene graph. The bucket to add
-     * the geometry is determined by {@link Geometry#getQueueBucket() }.
-     * 
+     * the geometry is determined by {@link Geometry#getQueueBucket()}.
+     *
      * @param g  The geometry to add
-     * @param bucket The bucket to add to, usually 
-     * {@link Geometry#getQueueBucket() }.
+     * @param bucket The bucket to add to, usually {@link Geometry#getQueueBucket()}.
      */
     public void addToQueue(Geometry g, Bucket bucket) {
         switch (bucket) {
@@ -264,17 +265,24 @@ public class RenderQueue {
         }
     }
 
-    private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
+    private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean flush) {
+        GeometryRenderHandler handler = rm.getGeometryRenderHandler();
+        assert handler != null : "Geometry render handler cannot be null.";
         list.setCamera(cam); // select camera for sorting
         list.sort();
-        for (int i = 0; i < list.size(); i++) {
-            Geometry obj = list.get(i);
-            assert obj != null;
-            rm.renderGeometry(obj);
-            obj.queueDistance = Float.NEGATIVE_INFINITY;
+        LinkedList<Geometry> saved = new LinkedList<>();
+        for (Geometry g : list) {
+            assert g != null;
+            if (!handler.renderGeometry(rm, g) && flush) {
+                saved.add(g);
+            }
+            g.queueDistance = Float.NEGATIVE_INFINITY;
         }
-        if (clear) {
+        if (flush) {
             list.clear();
+            for (Geometry g : saved) {
+                list.add(g);
+            }
         }
     }
 

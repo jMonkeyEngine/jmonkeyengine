@@ -179,7 +179,6 @@ public class FrameBuffer extends NativeObject {
             return this.layer;
         }
     }
-
     
     public static class FrameBufferTextureTarget extends RenderBuffer {
         private FrameBufferTextureTarget(){}
@@ -249,6 +248,40 @@ public class FrameBuffer extends NativeObject {
             return t;
         }
     }
+    
+    /**
+     * Quick access method for creating a texture target.
+     * 
+     * @param tx
+     * @return 
+     * @see FrameBufferTarget#newTarget(com.jme3.texture.Texture)
+     */
+    public static FrameBufferTextureTarget target(Texture tx) {
+        return FrameBufferTarget.newTarget(tx);
+    }
+    
+    /**
+     * Quick access method for creating a buffer target of the specified format.
+     * 
+     * @param format
+     * @return 
+     * @see FrameBufferTarget#newTarget(com.jme3.texture.Image.Format)
+     */
+    public static FrameBufferBufferTarget target(Format format) {
+        return FrameBufferTarget.newTarget(format);
+    }
+    
+    /**
+     * Quick access method for creating a texture target on the specified cubemap face.
+     * 
+     * @param tx
+     * @param face
+     * @return 
+     * @see FrameBufferTarget#newTarget(com.jme3.texture.Texture, com.jme3.texture.TextureCubeMap.Face) 
+     */
+    public static FrameBufferTextureTarget target(Texture tx, TextureCubeMap.Face face) {
+        return FrameBufferTarget.newTarget(tx, face);
+    }
 
     /**
      * A private constructor to inhibit instantiation of this class.
@@ -260,11 +293,31 @@ public class FrameBuffer extends NativeObject {
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
     }
-
+    
     public void addColorTarget(FrameBufferTextureTarget colorBuf){
         // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
+    }
+    
+    /**
+     * Sets the color target at the index.
+     * 
+     * @param i
+     * @param colorBuf 
+     */
+    public void setColorTarget(int i, FrameBufferTextureTarget colorBuf) {
+        colorBuf.slot = i;
+        colorBufs.set(i, colorBuf);
+    }
+    
+    /**
+     * Removes all color targets stored at indices above the specified index.
+     * 
+     * @param i 
+     */
+    public void trimColorTargetsTo(int i) {
+        colorBufs.removeIf(rb -> rb.slot > i);
     }
 
     /**

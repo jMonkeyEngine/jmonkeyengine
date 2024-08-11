@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,19 +29,29 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.export;
+package com.jme3.renderer;
 
-import java.io.IOException;
+import com.jme3.scene.Geometry;
 
 /**
- * <code>Savable</code> is an interface for objects that can be serialized
- * using jME's serialization system. 
+ * Handles rendering of individual geometries.
  * 
- * @author Kirill Vainer
+ * @author codex
  */
-public interface Savable {
+public interface GeometryRenderHandler {
     
-    void write(JmeExporter ex) throws IOException;
-    void read(JmeImporter im) throws IOException;
+    public static final GeometryRenderHandler DEFAULT = (rm, geom) -> {
+        rm.renderGeometry(geom);
+        return true;
+    };
+    
+    /**
+     * Renders the given geometry, or returns false.
+     * 
+     * @param rm renderGeometry manager
+     * @param geom geometry to renderGeometry
+     * @return true if the geometry was rendered
+     */
+    public boolean renderGeometry(RenderManager rm, Geometry geom);
     
 }

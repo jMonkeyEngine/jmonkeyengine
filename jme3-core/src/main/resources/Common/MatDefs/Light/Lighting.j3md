@@ -131,7 +131,6 @@ MaterialDef Phong Lighting {
         Vector2 LinearFog
         Float ExpFog
         Float ExpSqFog
-
     }
 
     Technique {
@@ -261,7 +260,6 @@ MaterialDef Phong Lighting {
         }
 
     }
-
 
     Technique PostShadow {
         VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert

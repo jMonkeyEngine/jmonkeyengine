@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
  */
 package com.jme3.renderer;
 
+import com.jme3.renderer.pipeline.RenderPipeline;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.queue.RenderQueue;
@@ -84,6 +85,10 @@ public class ViewPort {
      * Scene processors currently applied.
      */
     protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
+    /**
+     * Dedicated pipeline.
+     */
+    protected RenderPipeline pipeline;
     /**
      * FrameBuffer for output.
      */
@@ -423,6 +428,29 @@ public class ViewPort {
      */
     public boolean isEnabled() {
         return enabled;
+    }
+    
+    /**
+     * Sets the pipeline used by this viewport for rendering.
+     * <p>
+     * If null, the render manager's default pipeline will be used
+     * to render this viewport.
+     * <p>
+     * default=null
+     * 
+     * @param pipeline pipeline, or null to use render manager's pipeline
+     */
+    public void setPipeline(RenderPipeline pipeline) {
+        this.pipeline = pipeline;
+    }
+    
+    /**
+     * Gets the framegraph used by this viewport for rendering.
+     * 
+     * @return 
+     */
+    public RenderPipeline getPipeline() {
+        return pipeline;
     }
 
 }

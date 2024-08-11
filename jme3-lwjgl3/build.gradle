@@ -1,4 +1,6 @@
+
 dependencies {
+        
     api project(':jme3-core')
     api project(':jme3-desktop')
     
