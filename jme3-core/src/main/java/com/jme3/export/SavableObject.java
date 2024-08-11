@@ -62,17 +62,28 @@ public class SavableObject implements Savable {
     
     private String name;
     private Object object;
+    private boolean savableOnly;
     
     public SavableObject() {}
     public SavableObject(String name) {
-        this(name, null);
+        this(name, null, false);
     }
     public SavableObject(Object object) {
-        this(null, object);
+        this(null, object, false);
     }
     public SavableObject(String name, Object object) {
+        this(name, object, false);
+    }
+    public SavableObject(String name, boolean savableOnly) {
+        this(name, null, savableOnly);
+    }
+    public SavableObject(Object object, boolean savableOnly) {
+        this(null, object, savableOnly);
+    }
+    public SavableObject(String name, Object object, boolean savableOnly) {
         this.name = name;
         this.object = object;
+        this.savableOnly = savableOnly;
     }
     
     @Override
@@ -85,6 +96,8 @@ public class SavableObject implements Savable {
         if (object instanceof Savable) {
             out.write((Savable)object, OBJECT, null);
             out.write("Savable", TYPE, NULL_TYPE);
+        } else if (savableOnly) {
+            saveNull(out, "Attempted to save {0} in savable only mode.");
         } else if (object instanceof Savable[]) {
             out.write((Savable[])object, OBJECT, new Savable[0]);
             out.write("Savable[]", TYPE, NULL_TYPE);
@@ -194,9 +207,7 @@ public class SavableObject implements Savable {
             out.writeIntSavableMap((IntMap)object, OBJECT, null);
             out.write("IntMap", TYPE, NULL_TYPE);
         } else {
-            String type = object.getClass().getName();
-            LOG.log(Level.WARNING, "Attempted to save unsupported type {0}", type);
-            out.write(type, TYPE, NULL_TYPE);
+            saveNull(out, "Attempted to save unsupported type {0}");
         }
     }
     @Override
@@ -325,11 +336,20 @@ public class SavableObject implements Savable {
         }
     }
     
+    private void saveNull(OutputCapsule out, String msg) throws IOException {
+        String type = object.getClass().getName();
+        LOG.log(Level.WARNING, msg, type);
+        out.write(type, TYPE, NULL_TYPE);
+    }
+    
     public void setName(String name) {
         this.name = name;
     }
     public void setObject(Object object) {
         this.object = object;
+    }
+    public void setSavableOnly(boolean savableOnly) {
+        this.savableOnly = savableOnly;
     }
     
     public String getName() {
@@ -340,6 +360,9 @@ public class SavableObject implements Savable {
     }
     public <T> T getObject(Class<T> type) {
         return (T)object;
+    }
+    public boolean isSavableOnly() {
+        return savableOnly;
     }
     
 }
