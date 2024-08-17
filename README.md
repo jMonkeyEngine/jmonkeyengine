@@ -34,6 +34,7 @@ The engine is used by several commercial game studios and computer-science cours
  - [Stranded (on Itch)](https://tgiant.itch.io/stranded)
  - [The Afflicted Forests (Coming Soon to Steam)](https://www.indiedb.com/games/the-afflicted-forests)
  - [Star Colony: Beyond Horizons (on Google Play)](https://play.google.com/store/apps/details?id=game.colony.ColonyBuilder)
+ - [High Impact (on Steam)](https://store.steampowered.com/app/3059050/High_Impact/)
 
 ## Getting Started
 
