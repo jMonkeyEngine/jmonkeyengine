@@ -1,9 +1,5 @@
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import org.apache.tools.ant.util.Base64Converter;
-import java.net.Proxy;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 
 buildscript {
     repositories {
@@ -213,11 +209,12 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
         String nativesZipFile = "${rootPath}" + File.separator + "build" + File.separator + nativesSnapshot + "-natives.zip"
         String nativesPath = "${rootPath}" + File.separator + "build" + File.separator + "native"
 
-    
+
         task getNativesZipFile {
             outputs.file nativesZipFile
             doFirst {
                 File target = file(nativesZipFile);
+                println("Download natives from " + nativesUrl + " to " + nativesZipFile);
                 target.getParentFile().mkdirs();
                 ant.get(src: nativesUrl, dest: target);
             }
