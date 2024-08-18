@@ -1180,6 +1180,21 @@ public class Camera implements Savable, Cloneable {
 
         return rVal;
     }
+    
+    /**
+     * Tests if the point is within the camera frustum.
+     * 
+     * @param point
+     * @return 
+     */
+    public boolean contains(Vector3f point) {
+        for (int i = 0; i < FRUSTUM_PLANES; i++) {
+            if (worldPlane[i].whichSide(point) == Plane.Side.Negative) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Provides access to one of the planes used for culling.
