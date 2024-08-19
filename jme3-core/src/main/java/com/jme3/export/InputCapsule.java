@@ -114,36 +114,9 @@ public interface InputCapsule {
     public Savable readSavable(String name, Savable defVal) throws IOException;
     public Savable[] readSavableArray(String name, Savable[] defVal) throws IOException;
     public Savable[][] readSavableArray2D(String name, Savable[][] defVal) throws IOException;
-    public default <T extends Savable> T readSavable(String name, Class<T> type, T defVal) throws IOException {
-        Savable s = readSavable(name, defVal);
-        if (s != defVal && type.isAssignableFrom(s.getClass())) {
-            return (T)s;
-        } else {
-            return defVal;
-        }
-    }
-    public default SavableObject readSavableObject(String name, SavableObject defVal) throws IOException {
-        return readSavable(name, SavableObject.class, defVal);
-    }
-    public default SavableObject readSavableObject(String name) throws IOException {
-        return readSavable(name, SavableObject.class, SavableObject.NULL);
-    }
-    public default <T> T readSavableObject(String name, SavableObject defVal, Class<T> type) throws IOException {
-        return readSavable(name, SavableObject.class, defVal).getObject(type);
-    }
-    public default <T> T readSavableObject(String name, Class<T> type) throws IOException {
-        return readSavable(name, SavableObject.class, SavableObject.NULL).getObject(type);
-    }
+    
 
     // ArrayLists
-
-    public default Collection readToCollection(String name, Collection target) throws IOException {
-        ArrayList list = readSavableArrayList(name, new ArrayList());
-        for (Object obj : list) {
-            target.add(obj);
-        }
-        return target;
-    }
     
     public ArrayList readSavableArrayList(String name, ArrayList defVal) throws IOException;
     public ArrayList[] readSavableArrayListArray(String name, ArrayList[] defVal) throws IOException;

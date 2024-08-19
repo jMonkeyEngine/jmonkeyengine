@@ -117,16 +117,6 @@ public interface OutputCapsule {
 
     // ArrayLists
     
-    public default void writeFromCollection(Collection collection, String name, boolean checkSavable) throws IOException {
-        ArrayList list = new ArrayList(collection.size());
-        for (Object obj : collection) {
-            if (!checkSavable || obj instanceof Savable) {
-                list.add(obj);
-            }
-        }
-        writeSavableArrayList(list, name, new ArrayList());
-    }
-    
     public void writeSavableArrayList(ArrayList array, String name, ArrayList defVal) throws IOException;
     public void writeSavableArrayListArray(ArrayList[] array, String name, ArrayList[] defVal) throws IOException;
     public void writeSavableArrayListArray2D(ArrayList[][] array, String name, ArrayList[][] defVal) throws IOException;
