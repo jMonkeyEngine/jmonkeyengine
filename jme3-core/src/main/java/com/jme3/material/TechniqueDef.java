@@ -33,11 +33,6 @@ package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
-import com.jme3.material.logic.DefaultTechniqueDefLogic;
-import com.jme3.material.logic.MultiPassLightingLogic;
-import com.jme3.material.logic.SinglePassAndImageBasedLightingLogic;
-import com.jme3.material.logic.SinglePassLightingLogic;
-import com.jme3.material.logic.StaticPassLightingLogic;
 import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.renderer.Caps;
 import com.jme3.shader.*;
@@ -46,7 +41,6 @@ import com.jme3.shader.Shader.ShaderType;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * Describes a technique definition.
@@ -250,28 +244,6 @@ public class TechniqueDef implements Savable, Cloneable {
 
     public void setLogic(TechniqueDefLogic logic) {
         this.logic = logic;
-    }
-    
-    public void createLogicFromLightMode() {
-        switch (getLightMode()) {
-            case Disable:
-                setLogic(new DefaultTechniqueDefLogic(this));
-                break;
-            case MultiPass:
-                setLogic(new MultiPassLightingLogic(this));
-                break;
-            case SinglePass:
-                setLogic(new SinglePassLightingLogic(this));
-                break;
-            case StaticPass:
-                setLogic(new StaticPassLightingLogic(this));
-                break;
-            case SinglePassAndImageBased:
-                setLogic(new SinglePassAndImageBasedLightingLogic(this));
-                break;
-            default:
-                throw new UnsupportedOperationException("Light mode not supported:" + getLightMode());
-        }
     }
     
     public TechniqueDefLogic getLogic() {
@@ -566,22 +538,19 @@ public class TechniqueDef implements Savable, Cloneable {
         for (Shader.ShaderType shaderType : shaderNames.keySet()) {
             String language = shaderLanguages.get(shaderType);
             String shaderFile = shaderNames.get(shaderType);
-            addShaderFile(shaderType, shaderFile, language);
+            this.shaderLanguages.put(shaderType, language);
+            this.shaderNames.put(shaderType, shaderFile);
+            Caps cap = Caps.valueOf(language);
+            requiredCaps.add(cap);
+            weight = Math.max(weight, cap.ordinal());
+            if (shaderType.equals(Shader.ShaderType.Geometry)) {
+                requiredCaps.add(Caps.GeometryShader);
+            } else if (shaderType.equals(Shader.ShaderType.TessellationControl)) {
+                requiredCaps.add(Caps.TesselationShader);
+            }
         }
     }
     
-    public void addShaderFile(Shader.ShaderType shaderType, String fileName, String language) {
-        this.shaderLanguages.put(shaderType, language);
-        this.shaderNames.put(shaderType, fileName);
-        Caps cap = Caps.valueOf(language);
-        requiredCaps.add(cap);
-        weight = Math.max(weight, cap.ordinal());
-        if (shaderType.equals(Shader.ShaderType.Geometry)) {
-            requiredCaps.add(Caps.GeometryShader);
-        } else if (shaderType.equals(Shader.ShaderType.TessellationControl)) {
-            requiredCaps.add(Caps.TesselationShader);
-        }
-    }
 
     /**
      * Returns the name of the fragment shader used by the technique, or null

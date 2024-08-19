@@ -37,7 +37,17 @@ import com.jme3.material.RenderState.BlendEquation;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
+import static com.jme3.material.TechniqueDef.LightMode.Disable;
+import static com.jme3.material.TechniqueDef.LightMode.MultiPass;
+import static com.jme3.material.TechniqueDef.LightMode.SinglePass;
+import static com.jme3.material.TechniqueDef.LightMode.SinglePassAndImageBased;
+import static com.jme3.material.TechniqueDef.LightMode.StaticPass;
 import com.jme3.material.TechniqueDef.ShadowMode;
+import com.jme3.material.logic.DefaultTechniqueDefLogic;
+import com.jme3.material.logic.MultiPassLightingLogic;
+import com.jme3.material.logic.SinglePassAndImageBasedLightingLogic;
+import com.jme3.material.logic.SinglePassLightingLogic;
+import com.jme3.material.logic.StaticPassLightingLogic;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -642,7 +652,25 @@ public class J3MLoader implements AssetLoader {
 
         technique.setShaderPrologue(createShaderPrologue(presetDefines));
 
-        technique.createLogicFromLightMode();
+        switch (technique.getLightMode()) {
+            case Disable:
+                technique.setLogic(new DefaultTechniqueDefLogic(technique));
+                break;
+            case MultiPass:
+                technique.setLogic(new MultiPassLightingLogic(technique));
+                break;
+            case SinglePass:
+                technique.setLogic(new SinglePassLightingLogic(technique));
+                break;
+            case StaticPass:
+                technique.setLogic(new StaticPassLightingLogic(technique));
+                break;
+            case SinglePassAndImageBased:
+                technique.setLogic(new SinglePassAndImageBasedLightingLogic(technique));
+                break;
+            default:
+                throw new UnsupportedOperationException("Light mode not supported:" + technique.getLightMode());
+        }
 
         List<TechniqueDef> techniqueDefs = new ArrayList<>();
 
