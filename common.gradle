@@ -31,7 +31,8 @@ tasks.withType(JavaCompile) { // compile-time options:
 
 ext {
     lwjgl3Version = '3.3.3' // used in both the jme3-lwjgl3 and jme3-vr build scripts
-    niftyVersion = '1.4.3' // used in both the jme3-niftygui and jme3-examples build scripts
+    niftyVersion = '1.4.3'  // used in both the jme3-niftygui and jme3-examples build scripts
+    gsonVersion = '2.9.1'   // used in both the jme3-plugins and jme3-plugins-json-gson build scripts
 }
 
 repositories {
