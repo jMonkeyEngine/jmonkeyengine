@@ -13,7 +13,6 @@ MaterialDef Terrain {
 		Float Tex1Scale
 		Float Tex2Scale
 		Float Tex3Scale
-		
 	}
 
 	Technique {
