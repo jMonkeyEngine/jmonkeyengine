@@ -59,7 +59,7 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
             EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
         return techniqueDef.getShader(assetManager, rendererCaps, defines);
     }
-    
+
     public static void renderMeshFromGeometry(Renderer renderer, Geometry geom) {
         Mesh mesh = geom.getMesh();
         int lodLevel = geom.getLodLevel();
