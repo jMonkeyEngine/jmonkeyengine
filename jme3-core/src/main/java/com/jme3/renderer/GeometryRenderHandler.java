@@ -40,6 +40,9 @@ import com.jme3.scene.Geometry;
  */
 public interface GeometryRenderHandler {
     
+    /**
+     * Default implementation that renders the geometry and returns true.
+     */
     public static final GeometryRenderHandler DEFAULT = (rm, geom) -> {
         rm.renderGeometry(geom);
         return true;

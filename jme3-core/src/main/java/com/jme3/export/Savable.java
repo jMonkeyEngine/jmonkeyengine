@@ -40,8 +40,6 @@ import java.io.IOException;
  * @author Kirill Vainer
  */
 public interface Savable {
-    
     void write(JmeExporter ex) throws IOException;
     void read(JmeImporter im) throws IOException;
-    
 }

@@ -312,12 +312,15 @@ public class FrameBuffer extends NativeObject {
     }
     
     /**
-     * Removes all color targets stored at indices above the specified index.
+     * Removes the color target at the index.
      * 
      * @param i 
      */
-    public void trimColorTargetsTo(int i) {
-        colorBufs.removeIf(rb -> rb.slot > i);
+    public void removeColorTarget(int i) {
+        colorBufs.remove(i);
+        for (; i < colorBufs.size(); i++) {
+            colorBufs.get(i).slot = i;
+        }
     }
 
     /**

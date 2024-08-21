@@ -39,14 +39,13 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.Collection;
 import java.util.Map;
 
 /**
  * @author Joshua Slack
  */
 public interface OutputCapsule {
-    
+
     // byte primitive
 
     public void write(byte value, String name, byte defVal) throws IOException;
@@ -116,7 +115,7 @@ public interface OutputCapsule {
 
 
     // ArrayLists
-    
+
     public void writeSavableArrayList(ArrayList array, String name, ArrayList defVal) throws IOException;
     public void writeSavableArrayListArray(ArrayList[] array, String name, ArrayList[] defVal) throws IOException;
     public void writeSavableArrayListArray2D(ArrayList[][] array, String name, ArrayList[][] defVal) throws IOException;

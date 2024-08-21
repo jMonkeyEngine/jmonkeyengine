@@ -45,8 +45,10 @@ public class NullSavable implements Savable {
     public static final NullSavable INSTANCE = new NullSavable();
     
     @Override
-    public void write(JmeExporter ex) throws IOException {}
+    public void write(JmeExporter ex) throws IOException {
+    }
     @Override
-    public void read(JmeImporter im) throws IOException {}
+    public void read(JmeImporter im) throws IOException {
+    }
     
 }

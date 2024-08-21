@@ -139,10 +139,6 @@ public final class DefineList {
     public int getInt(int id) {
         return values[id];
     }
-    
-    public int size() {
-        return values.length;
-    }
 
     @Override
     public int hashCode() {

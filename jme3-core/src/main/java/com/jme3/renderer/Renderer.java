@@ -128,16 +128,6 @@ public interface Renderer {
      * @param end The range end
      */
     public void setDepthRange(float start, float end);
-    
-    /**
-     * Sets the range of depth values for objects.
-     * 
-     * @param range 
-     * @see #setDepthRange(float, float)
-     */
-    public default void setDepthRange(DepthRange range) {
-        setDepthRange(range.getStart(), range.getEnd());
-    }
 
     /**
      * Called when a new frame has been rendered.

@@ -137,7 +137,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      */
     protected LightList localLights;
     protected transient LightList worldLights;
-    protected transient LightList filterWorldLights;
 
     protected SafeArrayList<MatParamOverride> localOverrides;
     protected SafeArrayList<MatParamOverride> worldOverrides;
@@ -248,7 +247,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      * call setRequiresUpdate(false) in their constructors to receive
      * optimal behavior if they don't require updateLogicalState() to be
      * called even if there are no controls.
-     *
+     * 
      * @param f true&rarr;require updates, false&rarr;don't require updates
      */
     protected void setRequiresUpdates(boolean f) {
@@ -433,18 +432,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      */
     public LightList getWorldLightList() {
         return worldLights;
-    }
-
-    /**
-     * Set Current filterLight.
-     * @param filterLight
-     */
-    public void setFilterLight(LightList filterLight){
-        filterWorldLights = filterLight;
-    }
-
-    public LightList getFilterWorldLights() {
-        return filterWorldLights;
     }
 
     /**
@@ -1608,7 +1595,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      * @see java.util.regex.Pattern
      */
     public boolean matches(Class<? extends Spatial> spatialSubclass,
-                           String nameRegex) {
+            String nameRegex) {
         if (spatialSubclass != null && !spatialSubclass.isInstance(this)) {
             return false;
         }

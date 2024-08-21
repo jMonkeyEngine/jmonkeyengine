@@ -96,28 +96,6 @@ public class DepthOfFieldFilter extends Filter {
         material.setFloat("YScale", blurScale * yScale);
     }
     
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        super.write(ex);
-        OutputCapsule out = ex.getCapsule(this);
-        out.write(focusDistance, "focusDistance", 50f);
-        out.write(focusRange, "focusRange", 10f);
-        out.write(blurScale, "blurScale", 1f);
-        out.write(blurThreshold, "blurThreshold", 0.2f);
-        out.write(debugUnfocus, "debugUnfocus", false);
-    }
-
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        super.read(im);
-        InputCapsule in = im.getCapsule(this);
-        focusDistance = in.readFloat("focusDistance", 50f);
-        focusRange = in.readFloat("focusRange", 10f);
-        blurScale = in.readFloat("blurScale", 1f);
-        blurThreshold = in.readFloat("blurThreshold", 0.2f);
-        debugUnfocus = in.readBoolean("debugUnfocus", false);
-    }
-    
     /**
      *  Sets the distance at which objects are purely in focus.
      *
@@ -242,5 +220,27 @@ public class DepthOfFieldFilter extends Filter {
  
     public boolean getDebugUnfocus() {
         return debugUnfocus;
-    }    
+    }   
+    
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(focusDistance, "focusDistance", 50f);
+        out.write(focusRange, "focusRange", 10f);
+        out.write(blurScale, "blurScale", 1f);
+        out.write(blurThreshold, "blurThreshold", 0.2f);
+        out.write(debugUnfocus, "debugUnfocus", false);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule in = im.getCapsule(this);
+        focusDistance = in.readFloat("focusDistance", 50f);
+        focusRange = in.readFloat("focusRange", 10f);
+        blurScale = in.readFloat("blurScale", 1f);
+        blurThreshold = in.readFloat("blurThreshold", 0.2f);
+        debugUnfocus = in.readBoolean("debugUnfocus", false);
+    } 
 }

@@ -131,6 +131,7 @@ MaterialDef Phong Lighting {
         Vector2 LinearFog
         Float ExpFog
         Float ExpSqFog
+
     }
 
     Technique {

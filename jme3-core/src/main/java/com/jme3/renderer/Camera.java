@@ -518,25 +518,6 @@ public class Camera implements Savable, Cloneable {
             onFrustumChange();
         }
     }
-    
-    /**
-     * Resizes the camera's view to the width and height only if the
-     * that would change the camera's view size.
-     * 
-     * @param width
-     * @param height
-     * @param fixAspect
-     * @param force 
-     * @return true if camera was resized (or forced)
-     * @see #resize(int, int, boolean)
-     */
-    public boolean resize(int width, int height, boolean fixAspect, boolean force) {
-        if (force || this.width != width || this.height != height) {
-            resize(width, height, fixAspect);
-            return true;
-        }
-        return false;
-    }
 
     /**
      * Returns the value of the bottom frustum
@@ -1179,21 +1160,6 @@ public class Camera implements Savable, Cloneable {
         }
 
         return rVal;
-    }
-    
-    /**
-     * Tests if the point is within the camera frustum.
-     * 
-     * @param point
-     * @return 
-     */
-    public boolean contains(Vector3f point) {
-        for (int i = 0; i < FRUSTUM_PLANES; i++) {
-            if (worldPlane[i].whichSide(point) == Plane.Side.Negative) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**

@@ -60,14 +60,6 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
         return techniqueDef.getShader(assetManager, rendererCaps, defines);
     }
     
-    /**
-     * Renders mesh from geometry.
-     * 
-     * @param renderer
-     * @param geom
-     * @deprecated use {@link com.jme3.renderer.TechniqueDefLogic#renderMeshFromGeometry(com.jme3.renderer.Renderer, com.jme3.scene.Geometry)} instead.
-     */
-    @Deprecated
     public static void renderMeshFromGeometry(Renderer renderer, Geometry geom) {
         Mesh mesh = geom.getMesh();
         int lodLevel = geom.getLodLevel();
@@ -103,6 +95,6 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
     public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits) {
         Renderer renderer = renderManager.getRenderer();
         renderer.setShader(shader);
-        TechniqueDefLogic.renderMeshFromGeometry(renderer, geometry);
+        renderMeshFromGeometry(renderer, geometry);
     }
 }

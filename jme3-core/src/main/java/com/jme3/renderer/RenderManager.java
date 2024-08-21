@@ -73,12 +73,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 /**
- * A high-level rendering interface that is above the Renderer implementation.
- * <p>
- * RenderManager takes care of rendering the scene graphs attached to each
- * viewport and handling SceneProcessors.
+ * A high-level rendering interface that is
+ * above the Renderer implementation. RenderManager takes care
+ * of rendering the scene graphs attached to each viewport and
+ * handling SceneProcessors.
  *
  * @see SceneProcessor
  * @see ViewPort
@@ -86,6 +87,7 @@ import java.util.function.Supplier;
  */
 public class RenderManager {
 
+    private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
     private final Renderer renderer;
     private final UniformBindingManager uniformBindingManager = new UniformBindingManager();
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
@@ -113,8 +115,9 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
-    private MatParamOverride boundDrawBufferId = new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
+    private MatParamOverride boundDrawBufferId=new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
     private Predicate<Geometry> renderFilter;
+
 
     /**
      * Creates a high-level rendering interface over the
@@ -125,6 +128,7 @@ public class RenderManager {
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
+        // register default pipeline context
         contexts.put(PipelineContext.class, new DefaultPipelineContext());
     }
     
@@ -514,7 +518,7 @@ public class RenderManager {
         for (ViewPort vp : preViewPorts) {
             notifyRescale(vp, x, y);
         }
-        for (ViewPort vp : viewPorts) {
+        for (ViewPort vp : viewPorts) {      
             notifyRescale(vp, x, y);
         }
         for (ViewPort vp : postViewPorts) {
@@ -624,7 +628,7 @@ public class RenderManager {
      * material or any overrides that exist in the scene graph that have the
      * same name.
      *
-     * @param override The override to addUserEvent
+     * @param override The override to add
      * @see MatParamOverride
      * @see #removeForcedMatParam(com.jme3.material.MatParamOverride)
      */
@@ -789,9 +793,6 @@ public class RenderManager {
         if (currentFb != null && !currentFb.isMultiTarget()) {
             this.boundDrawBufferId.setValue(currentFb.getTargetIndex());
         }
-        
-        // updateFilterLight
-        geom.setFilterLight(lightList);
 
         Material material = geom.getMaterial();
 

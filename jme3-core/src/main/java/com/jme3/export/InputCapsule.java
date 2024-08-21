@@ -39,7 +39,6 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -110,14 +109,14 @@ public interface InputCapsule {
 
 
     // BinarySavable
-    
+
     public Savable readSavable(String name, Savable defVal) throws IOException;
     public Savable[] readSavableArray(String name, Savable[] defVal) throws IOException;
     public Savable[][] readSavableArray2D(String name, Savable[][] defVal) throws IOException;
-    
+
 
     // ArrayLists
-    
+
     public ArrayList readSavableArrayList(String name, ArrayList defVal) throws IOException;
     public ArrayList[] readSavableArrayListArray(String name, ArrayList[] defVal) throws IOException;
     public ArrayList[][] readSavableArrayListArray2D(String name, ArrayList[][] defVal) throws IOException;

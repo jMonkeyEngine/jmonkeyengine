@@ -43,6 +43,7 @@ import com.jme3.util.clone.JmeCloneable;
  * Notes :
  * <li> The sequence of tweens is determined by {@link com.jme3.anim.tween.Tweens} utility class and the {@link BaseAction} interpolates that sequence. </li>
  * <li> This implementation mimics the {@link com.jme3.anim.tween.AbstractTween}, but it delegates the interpolation method {@link Tween#interpolate(double)}
+ * to the {@link BlendableAction} class. </li>
  * </p>
  * 
  * Created by Nehon.
@@ -68,7 +69,7 @@ public abstract class Action implements JmeCloneable, Tween {
      * <li> If intentions are to wrap some tween actions, then subclasses have to call this constructor, examples : {@link BlendableAction} and {@link BlendAction}. </li>
      * <li> If intentions are to make an implementation of {@link Action} that shouldn't wrap tweens of actions, then subclasses shouldn't call this
      * constructor, examples : {@link ClipAction} and {@link BaseAction}. </li>
-     * </p>
+     * </p> 
      *
      * @param tweens the tween actions to be wrapped (not null).
      */    

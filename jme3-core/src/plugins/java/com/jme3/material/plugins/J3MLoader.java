@@ -37,17 +37,8 @@ import com.jme3.material.RenderState.BlendEquation;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
-import static com.jme3.material.TechniqueDef.LightMode.Disable;
-import static com.jme3.material.TechniqueDef.LightMode.MultiPass;
-import static com.jme3.material.TechniqueDef.LightMode.SinglePass;
-import static com.jme3.material.TechniqueDef.LightMode.SinglePassAndImageBased;
-import static com.jme3.material.TechniqueDef.LightMode.StaticPass;
 import com.jme3.material.TechniqueDef.ShadowMode;
-import com.jme3.material.logic.DefaultTechniqueDefLogic;
-import com.jme3.material.logic.MultiPassLightingLogic;
-import com.jme3.material.logic.SinglePassAndImageBasedLightingLogic;
-import com.jme3.material.logic.SinglePassLightingLogic;
-import com.jme3.material.logic.StaticPassLightingLogic;
+import com.jme3.material.logic.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -71,7 +62,7 @@ import java.util.regex.Pattern;
 public class J3MLoader implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(J3MLoader.class.getName());
-    // private ErrorLogger errors;
+   // private ErrorLogger errors;
     private ShaderNodeLoaderDelegate nodesLoaderDelegate;
     boolean isUseNodes = false;
     int langSize = 0;
@@ -83,10 +74,10 @@ public class J3MLoader implements AssetLoader {
     private Material material;
     private TechniqueDef technique;
     private RenderState renderState;
-    final private ArrayList<String> presetDefines = new ArrayList<>();
+    private final ArrayList<String> presetDefines = new ArrayList<>();
 
-    final private List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
-    final private EnumMap<Shader.ShaderType, String> shaderNames;
+    private final List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
+    private final EnumMap<Shader.ShaderType, String> shaderNames;
 
     private static final String whitespacePattern = "\\p{javaWhitespace}+";
 
@@ -122,7 +113,7 @@ public class J3MLoader implements AssetLoader {
         langSize = languages.length;
         for (int i = 0; i < languages.length; i++) {
             if (i >= shaderLanguages.size()) {
-                shaderLanguages.add(new EnumMap<>(Shader.ShaderType.class));
+                shaderLanguages.add(new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class));
             }
             shaderLanguages.get(i).put(shaderType, languages[i]);
         }
@@ -138,15 +129,15 @@ public class J3MLoader implements AssetLoader {
         LightMode lm = LightMode.valueOf(split[1]);
         technique.setLightMode(lm);
     }
-
-
+    
+    
     // LightMode <SPACE>
     private void readLightSpace(String statement) throws IOException{
         String[] split = statement.split(whitespacePattern);
         if (split.length != 2){
             throw new IOException("LightSpace statement syntax incorrect");
         }
-        TechniqueDef.LightSpace ls = TechniqueDef.LightSpace.valueOf(split[1]);
+        TechniqueDef.LightSpace ls = TechniqueDef.LightSpace.valueOf(split[1]);        
         technique.setLightSpace(ls);
     }
 
@@ -306,7 +297,7 @@ public class J3MLoader implements AssetLoader {
             for (final TextureOptionValue textureOptionValue : textureOptionValues) {
                 textureOptionValue.applyToTexture(texture);
             }
-        }
+        }        
         return texture;
     }
 
@@ -320,28 +311,28 @@ public class J3MLoader implements AssetLoader {
                     if (split.length != 1){
                         throw new IOException("Float value parameter must have 1 entry: " + value);
                     }
-                    return Float.parseFloat(split[0]);
+                     return Float.parseFloat(split[0]);
                 case Vector2:
                     if (split.length != 2){
                         throw new IOException("Vector2 value parameter must have 2 entries: " + value);
                     }
                     return new Vector2f(Float.parseFloat(split[0]),
-                            Float.parseFloat(split[1]));
+                                                               Float.parseFloat(split[1]));
                 case Vector3:
                     if (split.length != 3){
                         throw new IOException("Vector3 value parameter must have 3 entries: " + value);
                     }
                     return new Vector3f(Float.parseFloat(split[0]),
-                            Float.parseFloat(split[1]),
-                            Float.parseFloat(split[2]));
+                                                               Float.parseFloat(split[1]),
+                                                               Float.parseFloat(split[2]));
                 case Vector4:
                     if (split.length != 4){
                         throw new IOException("Vector4 value parameter must have 4 entries: " + value);
                     }
                     return new ColorRGBA(Float.parseFloat(split[0]),
-                            Float.parseFloat(split[1]),
-                            Float.parseFloat(split[2]),
-                            Float.parseFloat(split[3]));
+                                                                Float.parseFloat(split[1]),
+                                                                Float.parseFloat(split[2]),
+                                                                Float.parseFloat(split[3]));
                 case Int:
                     if (split.length != 1){
                         throw new IOException("Int value parameter must have 1 entry: " + value);
@@ -545,12 +536,12 @@ public class J3MLoader implements AssetLoader {
             MatParam param = materialDef.getMaterialParam(paramName);
             if (param == null) {
                 logger.log(Level.WARNING, "In technique ''{0}'':\n"
-                                + "Define ''{1}'' mapped to non-existent"
-                                + " material parameter ''{2}'', ignoring.",
+                        + "Define ''{1}'' mapped to non-existent"
+                        + " material parameter ''{2}'', ignoring.",
                         new Object[]{technique.getName(), defineName, paramName});
                 return;
             }
-
+            
             VarType paramType = param.getVarType();
             technique.addShaderParamDefine(paramName, paramType, defineName);
         }else{
@@ -573,8 +564,6 @@ public class J3MLoader implements AssetLoader {
                 split[0].equals("TessellationControlShader") ||
                 split[0].equals("TessellationEvaluationShader")) {
             readShaderStatement(statement.getLine());
-        }else if(split[0].equals("Pipeline")){
-            throw new UnsupportedOperationException("Pipeline statement is not supported.");
         }else if (split[0].equals("LightMode")){
             readLightMode(statement.getLine());
         }else if (split[0].equals("LightSpace")){
@@ -618,8 +607,8 @@ public class J3MLoader implements AssetLoader {
         }
         material.setTransparent(parseBoolean(split[1]));
     }
-
-    public static String createShaderPrologue(List<String> presetDefines) {
+    
+    private static String createShaderPrologue(List<String> presetDefines) {
         DefineList dl = new DefineList(presetDefines.size());
         for (int i = 0; i < presetDefines.size(); i++) {
             dl.set(i, 1);
@@ -629,7 +618,7 @@ public class J3MLoader implements AssetLoader {
         return sb.toString();
     }
 
-    private void readTechnique(Statement techStat) throws IOException {
+    private void readTechnique(Statement techStat) throws IOException{
         isUseNodes = false;
         String[] split = techStat.getLine().split(whitespacePattern);
         Cloner cloner = new Cloner();
@@ -669,21 +658,20 @@ public class J3MLoader implements AssetLoader {
                 technique.setLogic(new SinglePassAndImageBasedLightingLogic(technique));
                 break;
             default:
-                throw new UnsupportedOperationException("Light mode not supported:" + technique.getLightMode());
+                throw new IOException("Light mode not supported:" + technique.getLightMode());
         }
 
         List<TechniqueDef> techniqueDefs = new ArrayList<>();
 
         if(isUseNodes){
             //used for caching later, the shader here is not a file.
-
+            
             // KIRILL 9/19/2015
             // Not sure if this is needed anymore, since shader caching
             // is now done by TechniqueDef.
             technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "", "GLSL100", "GLSL100");
             techniqueDefs.add(technique);
-        } else if (shaderNames.containsKey(Shader.ShaderType.Vertex)
-                && shaderNames.containsKey(Shader.ShaderType.Fragment)) {
+        }else if (shaderNames.containsKey(Shader.ShaderType.Vertex) && shaderNames.containsKey(Shader.ShaderType.Fragment)) {
             if (shaderLanguages.size() > 1) {
                 for (int i = 1; i < shaderLanguages.size(); i++) {
                     cloner.clearIndex();
@@ -718,7 +706,7 @@ public class J3MLoader implements AssetLoader {
         presetDefines.clear();
     }
 
-    private void loadFromRoot(List<Statement> roots) throws IOException {
+    private void loadFromRoot(List<Statement> roots) throws IOException{
         if (roots.size() == 2){
             Statement exception = roots.get(0);
             String line = exception.getLine();
