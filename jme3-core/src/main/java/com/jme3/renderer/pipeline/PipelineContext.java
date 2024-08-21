@@ -41,17 +41,24 @@ import com.jme3.renderer.RenderManager;
 public interface PipelineContext {
     
     /**
-     * Registers the pipeline with this context if it hasn't been
-     * rendered this frame.
+     * Called when a ViewPort rendering session starts that this context
+     * is participating in.
      * 
      * @param rm
-     * @param pipeline pipeline to register
-     * @return true if this context has not be used before this frame
+     * @return true if this context has rendered this frame before
      */
-    public boolean registerClientPipeline(RenderManager rm, RenderPipeline pipeline);
+    public boolean startViewPortRender(RenderManager rm);
     
     /**
-     * Calls frame completion methods for pipelines registered with this context.
+     * Called when viewport rendering session ends that this context
+     * is participating in.
+     * 
+     * @param rm 
+     */
+    public void endViewPortRender(RenderManager rm);
+    
+    /**
+     * Called at the end of a render frame this context participated in.
      * 
      * @param rm 
      */

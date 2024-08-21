@@ -93,6 +93,7 @@ public class RenderManager {
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
     private final HashMap<Class, PipelineContext> contexts = new HashMap<>();
     private final LinkedList<PipelineContext> usedContexts = new LinkedList<>();
+    private final LinkedList<RenderPipeline> usedPipelines = new LinkedList<>();
     private RenderPipeline defaultPipeline = new ForwardPipeline();
     private Camera prevCam = null;
     private Material forcedMaterial = null;
@@ -1326,10 +1327,14 @@ public class RenderManager {
             pipeline = defaultPipeline;
         }
         PipelineContext context = pipeline.fetchPipelineContext(this);
-        if (context.registerClientPipeline(this, pipeline)) {
+        if (!pipeline.hasRenderedThisFrame()) {
+            usedPipelines.add(pipeline);
+        }
+        if (context.startViewPortRender(this)) {
             usedContexts.add(context);
         }
         pipeline.pipelineRender(this, context, vp, tpf);
+        context.endViewPortRender(this);
     }
 
     /**
@@ -1388,7 +1393,11 @@ public class RenderManager {
         for (PipelineContext c : usedContexts) {
             c.endContextRenderFrame(this);
         }
+        for (RenderPipeline p : usedPipelines) {
+            p.endRenderFrame(this);
+        }
         usedContexts.clear();
+        usedPipelines.clear();
         
     }
 

@@ -32,6 +32,7 @@
 package com.jme3.renderer.pipeline;
 
 import com.jme3.renderer.RenderManager;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Default implementation of AbstractPipelineContext that
@@ -39,11 +40,20 @@ import com.jme3.renderer.RenderManager;
  * 
  * @author codex
  */
-public class DefaultPipelineContext extends AbstractPipelineContext {
+public class DefaultPipelineContext implements PipelineContext {
 
+    // decided to use an atomic boolean, since it is less hassle
+    private final AtomicBoolean rendered = new AtomicBoolean(false);
+    
     @Override
-    protected void startRenderFrame(RenderManager rm) {}
+    public boolean startViewPortRender(RenderManager rm) {
+        return rendered.getAndSet(true);
+    }
     @Override
-    protected void endRenderFrame(RenderManager rm) {}
+    public void endViewPortRender(RenderManager rm) {}
+    @Override
+    public void endContextRenderFrame(RenderManager rm) {
+        rendered.set(false);
+    }
     
 }
