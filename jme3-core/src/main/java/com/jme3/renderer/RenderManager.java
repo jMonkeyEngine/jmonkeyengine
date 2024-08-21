@@ -1330,11 +1330,11 @@ public class RenderManager {
         if (!pipeline.hasRenderedThisFrame()) {
             usedPipelines.add(pipeline);
         }
-        if (context.startViewPortRender(this)) {
+        if (!context.startViewPortRender(this, vp)) {
             usedContexts.add(context);
         }
         pipeline.pipelineRender(this, context, vp, tpf);
-        context.endViewPortRender(this);
+        context.endViewPortRender(this, vp);
     }
 
     /**

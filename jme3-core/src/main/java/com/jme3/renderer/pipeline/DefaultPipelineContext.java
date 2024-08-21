@@ -32,6 +32,7 @@
 package com.jme3.renderer.pipeline;
 
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -46,11 +47,11 @@ public class DefaultPipelineContext implements PipelineContext {
     private final AtomicBoolean rendered = new AtomicBoolean(false);
     
     @Override
-    public boolean startViewPortRender(RenderManager rm) {
+    public boolean startViewPortRender(RenderManager rm, ViewPort vp) {
         return rendered.getAndSet(true);
     }
     @Override
-    public void endViewPortRender(RenderManager rm) {}
+    public void endViewPortRender(RenderManager rm, ViewPort vp) {}
     @Override
     public void endContextRenderFrame(RenderManager rm) {
         rendered.set(false);
