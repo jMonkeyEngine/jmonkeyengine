@@ -3,6 +3,10 @@
 #import "Common/ShaderLib/Lighting.glsllib"
 
 uniform float m_Shininess;
+#ifdef SPECULARMAP
+  uniform sampler2D m_SpecularMap;
+#endif
+
 uniform vec4 g_LightDirection;
 
 varying vec4 AmbientSum;
@@ -634,6 +638,15 @@ void main(){
       vec3 normal = vNormal;
     #endif
 
+    //-----------------------
+    // read shininess from specularMap    (possibly want to create a new texture called ShininessMap insetad, since this isn't really what specular is for. but specularMap isn't used elsewhere in this shader anyways, so this doesn't break anything doing it like this)
+    //-----------------------
+    #ifdef SPECULARMAP
+      vec4 specularColor = texture2D(m_SpecularMap, texCoord);
+      float finalShininessValue = specularColor.r; //assumes that specularMap is a gray-scale reflectivity/shininess map)
+    #else
+      float finalShininessValue = m_Shininess;
+    #endif
 
     //-----------------------
     // lighting calculations
@@ -641,7 +654,7 @@ void main(){
     vec4 lightDir = vLightDir;
     lightDir.xyz = normalize(lightDir.xyz);
 
-    vec2 light = computeLighting(normal, vViewDir.xyz, lightDir.xyz,lightDir.w*spotFallOff,m_Shininess);
+    vec2 light = computeLighting(normal, vViewDir.xyz, lightDir.xyz,lightDir.w*spotFallOff,finalShininessValue);
 
     vec4 specularColor = vec4(1.0);
 
