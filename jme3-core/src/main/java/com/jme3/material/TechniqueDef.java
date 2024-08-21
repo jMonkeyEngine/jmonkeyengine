@@ -439,7 +439,7 @@ public class TechniqueDef implements Savable, Cloneable {
      */
     public int addShaderUnmappedDefine(String defineName, VarType defineType) {
         int defineId = defineNames.size();
-        
+
         defineNames.add(defineName);
         defineTypes.add(defineType);
         return defineId;
@@ -529,21 +529,21 @@ public class TechniqueDef implements Savable, Cloneable {
      * @param shaderLanguages EnumMap containing all shader languages for this stage
      */
     public void setShaderFile(EnumMap<Shader.ShaderType, String> shaderNames,
-           EnumMap<Shader.ShaderType, String> shaderLanguages) {
+            EnumMap<Shader.ShaderType, String> shaderLanguages) {
         requiredCaps.clear();
 
         weight = 0;
         for (Shader.ShaderType shaderType : shaderNames.keySet()) {
             String language = shaderLanguages.get(shaderType);
             String shaderFile = shaderNames.get(shaderType);
-            
+
             this.shaderLanguages.put(shaderType, language);
             this.shaderNames.put(shaderType, shaderFile);
-            
+
             Caps cap = Caps.valueOf(language);
             requiredCaps.add(cap);
             weight = Math.max(weight, cap.ordinal());
-            
+
             if (shaderType.equals(Shader.ShaderType.Geometry)) {
                 requiredCaps.add(Caps.GeometryShader);
             } else if (shaderType.equals(Shader.ShaderType.TessellationControl)) {

@@ -95,7 +95,7 @@ public class DepthOfFieldFilter extends Filter {
         material.setFloat("XScale", blurScale * xScale);
         material.setFloat("YScale", blurScale * yScale);
     }
-    
+
     /**
      *  Sets the distance at which objects are purely in focus.
      *
@@ -220,27 +220,27 @@ public class DepthOfFieldFilter extends Filter {
  
     public boolean getDebugUnfocus() {
         return debugUnfocus;
-    }   
+    }    
     
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
-        OutputCapsule out = ex.getCapsule(this);
-        out.write(focusDistance, "focusDistance", 50f);
-        out.write(focusRange, "focusRange", 10f);
-        out.write(blurScale, "blurScale", 1f);
-        out.write(blurThreshold, "blurThreshold", 0.2f);
-        out.write(debugUnfocus, "debugUnfocus", false);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(blurScale, "blurScale", 1f);
+        oc.write(blurThreshold, "blurThreshold", 0.2f);
+        oc.write(focusDistance, "focusDistance", 50f);
+        oc.write(focusRange, "focusRange", 10f);
+        oc.write(debugUnfocus, "debugUnfocus", false); // strange to write this I guess
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
-        InputCapsule in = im.getCapsule(this);
-        focusDistance = in.readFloat("focusDistance", 50f);
-        focusRange = in.readFloat("focusRange", 10f);
-        blurScale = in.readFloat("blurScale", 1f);
-        blurThreshold = in.readFloat("blurThreshold", 0.2f);
-        debugUnfocus = in.readBoolean("debugUnfocus", false);
-    } 
+        InputCapsule ic = im.getCapsule(this);
+        blurScale = ic.readFloat("blurScale", 1f);
+        blurThreshold = ic.readFloat("blurThreshold", 0.2f);
+        focusDistance = ic.readFloat("focusDistance", 50f);
+        focusRange = ic.readFloat("focusRange", 10f);
+        debugUnfocus = ic.readBoolean("debugUnfocus", false);
+    }
 }

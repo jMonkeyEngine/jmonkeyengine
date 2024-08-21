@@ -103,7 +103,6 @@ MaterialDef Terrain Lighting {
 
         // The glow color of the object
         Color GlowColor
-        
     }
 
     Technique {
