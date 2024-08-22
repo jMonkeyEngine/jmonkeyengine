@@ -1328,12 +1328,12 @@ public class RenderManager {
             pipeline = defaultPipeline;
         }
         PipelineContext context = pipeline.fetchPipelineContext(this);
+        if (!context.startViewPortRender(this, vp)) {
+            usedContexts.add(context);
+        }
         if (!pipeline.hasRenderedThisFrame()) {
             usedPipelines.add(pipeline);
             pipeline.startRenderFrame(this);
-        }
-        if (!context.startViewPortRender(this, vp)) {
-            usedContexts.add(context);
         }
         pipeline.pipelineRender(this, context, vp, tpf);
         context.endViewPortRender(this, vp);
