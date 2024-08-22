@@ -646,7 +646,7 @@ void main(){
     #ifdef SPECULARMAP
       vec4 specularMapColor = texture2D(m_SpecularMap, texCoord);
       #ifdef USE_SPECULARMAP_AS_SHININESS
-        finalShininessValue = specularColor.r; //assumes that specularMap is a gray-scale reflectivity/shininess map)
+        finalShininessValue = specularMapColor.r; //assumes that specularMap is a gray-scale reflectivity/shininess map)
       #else
         specularColor = specularMapColor;
       #endif      
