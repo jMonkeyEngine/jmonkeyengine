@@ -639,13 +639,17 @@ void main(){
     #endif
 
     //-----------------------
-    // read shininess from specularMap    (possibly want to create a new texture called ShininessMap insetad, since this isn't really what specular is for. but specularMap isn't used elsewhere in this shader anyways, so this doesn't break anything doing it like this)
-    //-----------------------
+    // read shininess or specularColor from specularMap    (possibly want to create a new texture called ShininessMap if there is ever a need to have both a specularMap and reflectivityMap)
+    //-----------------------    
+    vec4 specularColor = vec4(1.0);
+    float finalShininessValue = m_Shininess;
     #ifdef SPECULARMAP
-      vec4 specularColor = texture2D(m_SpecularMap, texCoord);
-      float finalShininessValue = specularColor.r; //assumes that specularMap is a gray-scale reflectivity/shininess map)
-    #else
-      float finalShininessValue = m_Shininess;
+      vec4 specularMapColor = texture2D(m_SpecularMap, texCoord);
+      #ifdef USE_SPECULARMAP_AS_SHININESS
+        finalShininessValue = specularColor.r; //assumes that specularMap is a gray-scale reflectivity/shininess map)
+      #else
+        specularColor = specularMapColor;
+      #endif      
     #endif
 
     //-----------------------
@@ -655,8 +659,6 @@ void main(){
     lightDir.xyz = normalize(lightDir.xyz);
 
     vec2 light = computeLighting(normal, vViewDir.xyz, lightDir.xyz,lightDir.w*spotFallOff,finalShininessValue);
-
-    vec4 specularColor = vec4(1.0);
 
     //--------------------------
     // final color calculations
