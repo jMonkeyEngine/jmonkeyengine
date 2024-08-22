@@ -31,12 +31,14 @@
  */
 package com.jme3.anim;
 
+import com.jme3.export.Savable;
+
 /**
  * Created by Nehon
  * An AnimationMask is defining a subset of elements on which an animation will be applied.
  * Most used implementation is the ArmatureMask that defines a subset of joints in an Armature.
  */
-public interface AnimationMask {
+public interface AnimationMask extends Savable {
 
     /**
      * Test whether the animation should be applied to the specified element.
