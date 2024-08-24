@@ -32,8 +32,6 @@
 package com.jme3.anim;
 
 import com.jme3.anim.tween.action.Action;
-import com.jme3.anim.tween.action.ClipAction;
-import com.jme3.export.JmeExporter;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Assert;
