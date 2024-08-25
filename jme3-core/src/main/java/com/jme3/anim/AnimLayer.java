@@ -313,8 +313,8 @@ public class AnimLayer implements JmeCloneable, Savable {
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", null);
-        if(mask instanceof ArmatureMask) {
-            oc.write((ArmatureMask) mask, "mask", null);
+        if(mask instanceof Savable) {
+            oc.write((Savable) mask, "mask", null);
         }
     }
 

@@ -66,9 +66,7 @@ public class AnimComposer extends AbstractControl {
      * Instantiate a composer with a single layer, no actions, and no clips.
      */
     public AnimComposer() {
-        if(layers.isEmpty()) {
-            layers.put(DEFAULT_LAYER, new AnimLayer(DEFAULT_LAYER, null));
-        }
+        layers.put(DEFAULT_LAYER, new AnimLayer(DEFAULT_LAYER, null));
     }
 
     /**
