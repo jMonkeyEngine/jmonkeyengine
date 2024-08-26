@@ -85,6 +85,9 @@ public class AnimLayer implements JmeCloneable, Savable {
 
     private boolean loop = true;
     
+    /**
+    * For serialization only. Do not use.
+    */
     protected AnimLayer() {
         
     }
@@ -93,7 +96,6 @@ public class AnimLayer implements JmeCloneable, Savable {
      * Instantiates a layer without a manager or a current Action, owned by the
      * specified composer.
      *
-     * @param composer the owner (not null, alias created)
      * @param name the layer name (not null)
      * @param mask the AnimationMask (alias created) or null to allow this layer
      *     to animate the entire model
@@ -251,14 +253,15 @@ public class AnimLayer implements JmeCloneable, Savable {
      *
      * @param appDeltaTimeInSeconds the amount application time to advance the
      *     current Action, in seconds
+     * @param globalSpeed the global speed applied to all layers.
      */
-    void update(float appDeltaTimeInSeconds, float speed) {
+    void update(float appDeltaTimeInSeconds, float globalSpeed) {
         Action action = currentAction;
         if (action == null) {
             return;
         }
 
-        double speedup = action.getSpeed() * speed;
+        double speedup = action.getSpeed() * globalSpeed;
         double scaledDeltaTime = speedup * appDeltaTimeInSeconds;
         time += scaledDeltaTime;
 
@@ -313,7 +316,7 @@ public class AnimLayer implements JmeCloneable, Savable {
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", null);
-        if(mask instanceof Savable) {
+        if (mask instanceof Savable) {
             oc.write((Savable) mask, "mask", null);
         }
     }
