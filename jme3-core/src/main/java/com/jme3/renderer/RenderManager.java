@@ -103,7 +103,6 @@ public class RenderManager {
     private RenderState forcedRenderState = null;
     private final SafeArrayList<MatParamOverride> forcedOverrides
             = new SafeArrayList<>(MatParamOverride.class);
-    private GeometryRenderHandler renderGeometry = GeometryRenderHandler.DEFAULT;
     private int viewX;
     private int viewY;
     private int viewWidth;
@@ -211,28 +210,6 @@ public class RenderManager {
      */
     public AppProfiler getProfiler() {
         return prof;
-    }
-    
-    /**
-     * Sets the GeometryRenderHandler used to render geometry.
-     * <p>
-     * default=null
-     * 
-     * @param renderGeometry geometry render handler, or null to not use one for rendering
-     * @see GeometryRenderHandler
-     */
-    public void setGeometryRenderHandler(GeometryRenderHandler renderGeometry) {
-        assert renderGeometry != null : "Geometry render handler cannot be null.";
-        this.renderGeometry = renderGeometry;
-    }
-    
-    /**
-     * Gest the GeometryRenderHandler used to render geometry.
-     * 
-     * @return geometry render handler, or null of none is used for rendering
-     */
-    public GeometryRenderHandler getGeometryRenderHandler() {
-        return renderGeometry;
     }
 
     /**

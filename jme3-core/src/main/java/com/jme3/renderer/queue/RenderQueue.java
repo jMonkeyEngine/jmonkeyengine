@@ -35,6 +35,7 @@ import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.RenderUtils;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import java.util.LinkedList;
@@ -267,24 +268,7 @@ public class RenderQueue {
     }
 
     private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean flush) {
-        GeometryRenderHandler handler = rm.getGeometryRenderHandler();
-        assert handler != null : "Geometry render handler cannot be null.";
-        list.setCamera(cam); // select camera for sorting
-        list.sort();
-        LinkedList<Geometry> saved = new LinkedList<>();
-        for (Geometry g : list) {
-            assert g != null;
-            if (!handler.renderGeometry(rm, g) && flush) {
-                saved.add(g);
-            }
-            g.queueDistance = Float.NEGATIVE_INFINITY;
-        }
-        if (flush) {
-            list.clear();
-            for (Geometry g : saved) {
-                list.add(g);
-            }
-        }
+        RenderUtils.renderGeometryList(rm, cam, list, null, flush);
     }
 
     public void renderShadowQueue(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
@@ -337,6 +321,18 @@ public class RenderQueue {
                 throw new UnsupportedOperationException("Unsupported bucket type: " + bucket);
         }
         rm.getRenderer().popDebugGroup();
+    }
+    
+    public GeometryList getList(Bucket bucket) {
+        switch (bucket) {
+            case Opaque: return opaqueList;
+            case Gui: return guiList;
+            case Transparent: return transparentList;
+            case Translucent: return translucentList;
+            case Sky: return skyList;
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
     public void clear() {
