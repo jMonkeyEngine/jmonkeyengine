@@ -50,18 +50,19 @@ class GsonElement implements JsonElement {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.element);
-        return hash;
+        return Objects.hashCode(this.element);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof GsonElement) {
-            GsonElement other = (GsonElement) obj;
-            return element.equals(other.element);
+        if (this == obj) {
+            return true;
         }
-        return false;
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final GsonElement other = (GsonElement) obj;
+        return Objects.equals(this.element, other.element);
     }
     
     protected boolean isNull(com.google.gson.JsonElement element) {

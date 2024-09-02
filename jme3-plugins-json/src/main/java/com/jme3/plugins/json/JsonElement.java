@@ -98,16 +98,4 @@ public interface JsonElement {
      * @return the casted JsonElement
      */
     public <T extends JsonElement> T autoCast();
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object) 
-     */
-    @Override
-    public boolean equals(Object obj);
-
-    /*(non-Javadoc)
-     * @see java.lang.Object#hashCode() 
-     */
-    @Override
-    public int hashCode();
 }
