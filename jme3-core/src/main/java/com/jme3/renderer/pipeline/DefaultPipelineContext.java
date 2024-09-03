@@ -50,8 +50,10 @@ public class DefaultPipelineContext implements PipelineContext {
     public boolean startViewPortRender(RenderManager rm, ViewPort vp) {
         return rendered.getAndSet(true);
     }
+    
     @Override
     public void endViewPortRender(RenderManager rm, ViewPort vp) {}
+    
     @Override
     public void endContextRenderFrame(RenderManager rm) {
         rendered.set(false);

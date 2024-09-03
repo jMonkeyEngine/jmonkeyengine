@@ -54,12 +54,15 @@ public class ForwardPipeline implements RenderPipeline {
     public PipelineContext fetchPipelineContext(RenderManager rm) {
         return rm.getDefaultContext();
     }
+    
     @Override
     public boolean hasRenderedThisFrame() {
         return rendered;
     }
+    
     @Override
     public void startRenderFrame(RenderManager rm) {}
+    
     @Override
     public void pipelineRender(RenderManager rm, PipelineContext context, ViewPort vp, float tpf) {
         
@@ -147,6 +150,7 @@ public class ForwardPipeline implements RenderPipeline {
         }
         
     }
+    
     @Override
     public void endRenderFrame(RenderManager rm) {
         rendered = false;
