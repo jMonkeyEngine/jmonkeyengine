@@ -32,7 +32,7 @@
 package com.jme3.scene.plugins.gltf;
 
 import com.jme3.asset.AssetKey;
-import com.google.gson.JsonElement;
+import com.jme3.plugins.json.JsonElement;
 import java.io.IOException;
 
 /**
