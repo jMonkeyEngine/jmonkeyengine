@@ -36,6 +36,7 @@ import com.jme3.texture.Image.Format;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.logging.Logger;
 
 /**
  * DXTFlipper is a utility class used to flip along Y axis DXT compressed textures.
@@ -43,6 +44,7 @@ import java.nio.ByteOrder;
  * @author Kirill Vainer
  */
 public class DXTFlipper {
+    private static final Logger logger = Logger.getLogger(DXTFlipper.class.getName());
 
     private static final ByteBuffer bb = ByteBuffer.allocate(8);
 
@@ -202,7 +204,11 @@ public class DXTFlipper {
         }
     }
 
-    public static ByteBuffer flipDXT(ByteBuffer img, int w, int h, Format format){
+    public static ByteBuffer flipDXT(ByteBuffer img, int w, int h, Format format) {
+        if (format == Format.ETC1 || format == Format.ETC2 || format == Format.ETC2_ALPHA1) {
+            logger.warning("This is not a DXT format, but ETC. Use flipETC instead.");
+            return ETCFlipper.flipETC(img, w, h, format);
+        }
         int originalLimit = img.limit();
         int blocksX = (int) FastMath.ceil(w / 4f);
         int blocksY = (int) FastMath.ceil(h / 4f);

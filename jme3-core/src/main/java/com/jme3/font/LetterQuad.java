@@ -66,7 +66,7 @@ class LetterQuad {
     private LetterQuad next;
     private int colorInt = 0xFFFFFFFF;
 
-    final private boolean rightToLeft;
+    private final boolean rightToLeft;
     private float alignX;
     private float alignY;
     private float sizeScale = 1;

@@ -15,8 +15,10 @@ eclipse.jdt.file.withProperties { props ->
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 tasks.withType(JavaCompile) { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
@@ -43,7 +45,7 @@ dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.mockito:mockito-core:3.12.4'
-    testImplementation 'org.codehaus.groovy:groovy-test:3.0.19'
+    testImplementation 'org.codehaus.groovy:groovy-test:3.0.21'
 }
 
 // Uncomment if you want to see the status of every test that is run and
@@ -85,12 +87,12 @@ test {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates a jar from the source files.') {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets*.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc, description: 'Creates a jar from the javadoc files.') {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
 }
 
@@ -218,8 +220,8 @@ checkstyleTest {
 
 tasks.withType(Checkstyle) {
     reports {
-        xml.enabled false
-        html.enabled true
+        xml.required.set(false)
+        html.required.set(true)
     }
     include("**/com/jme3/renderer/**/*.java")
 }

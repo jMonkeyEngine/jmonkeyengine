@@ -10,7 +10,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 public class MorphTarget implements Savable {
-    final private EnumMap<VertexBuffer.Type, FloatBuffer> buffers = new EnumMap<>(VertexBuffer.Type.class);
+    private final EnumMap<VertexBuffer.Type, FloatBuffer> buffers = new EnumMap<>(VertexBuffer.Type.class);
     private String name = null;
     
     public MorphTarget() {

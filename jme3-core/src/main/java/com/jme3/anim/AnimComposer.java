@@ -66,7 +66,7 @@ public class AnimComposer extends AbstractControl {
      * Instantiate a composer with a single layer, no actions, and no clips.
      */
     public AnimComposer() {
-        layers.put(DEFAULT_LAYER, new AnimLayer(this, DEFAULT_LAYER, null));
+        layers.put(DEFAULT_LAYER, new AnimLayer(DEFAULT_LAYER, null));
     }
 
     /**
@@ -314,7 +314,7 @@ public class AnimComposer extends AbstractControl {
      * @param mask the desired mask for the new layer (alias created)
      */
     public void makeLayer(String name, AnimationMask mask) {
-        AnimLayer l = new AnimLayer(this, name, mask);
+        AnimLayer l = new AnimLayer(name, mask);
         layers.put(name, l);
     }
 
@@ -399,7 +399,7 @@ public class AnimComposer extends AbstractControl {
     @Override
     protected void controlUpdate(float tpf) {
         for (AnimLayer layer : layers.values()) {
-            layer.update(tpf);
+            layer.update(tpf, globalSpeed);
         }
     }
 
@@ -542,6 +542,7 @@ public class AnimComposer extends AbstractControl {
         InputCapsule ic = im.getCapsule(this);
         animClipMap = (Map<String, AnimClip>) ic.readStringSavableMap("animClipMap", new HashMap<String, AnimClip>());
         globalSpeed = ic.readFloat("globalSpeed", 1f);
+        layers = (Map<String, AnimLayer>) ic.readStringSavableMap("layers", new HashMap<String, AnimLayer>());
     }
 
     /**
@@ -557,5 +558,6 @@ public class AnimComposer extends AbstractControl {
         OutputCapsule oc = ex.getCapsule(this);
         oc.writeStringSavableMap(animClipMap, "animClipMap", new HashMap<String, AnimClip>());
         oc.write(globalSpeed, "globalSpeed", 1f);
+        oc.writeStringSavableMap(layers, "layers", new HashMap<String, AnimLayer>());
     }
 }

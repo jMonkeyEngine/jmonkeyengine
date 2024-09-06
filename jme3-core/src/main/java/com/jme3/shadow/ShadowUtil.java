@@ -569,8 +569,10 @@ public class ShadowUtil {
         float scaleX, scaleY, scaleZ;
         float offsetX, offsetY, offsetZ;
 
-        scaleX = (2.0f) / (cropMax.x - cropMin.x);
-        scaleY = (2.0f) / (cropMax.y - cropMin.y);
+        float deltaCropX = cropMax.x - cropMin.x;
+        float deltaCropY = cropMax.y - cropMin.y;
+        scaleX = deltaCropX == 0 ? 0 : 2.0f / deltaCropX;
+        scaleY = deltaCropY == 0 ? 0 : 2.0f / deltaCropY;
 
         //Shadow map stabilization approximation from shaderX 7
         //from Practical Cascaded Shadow maps adapted to PSSM
@@ -595,7 +597,8 @@ public class ShadowUtil {
             offsetY = FastMath.ceil(offsetY * halfTextureSize) / halfTextureSize;
         }
 
-        scaleZ = 1.0f / (cropMax.z - cropMin.z);
+        float deltaCropZ = cropMax.z - cropMin.z;
+        scaleZ = deltaCropZ == 0 ? 0 : 1.0f / deltaCropZ;
         offsetZ = -cropMin.z * scaleZ;
 
 

@@ -44,6 +44,9 @@ task copyPreCompiledLibsBufferAllocator(type: Copy) {
     from file(bufferAllocatorPreCompiledLibsDir)
     into file(bufferAllocatorBuildLibsDir)
 }
+if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
+    copyPreCompiledLibsBufferAllocator.dependsOn(rootProject.extractPrebuiltNatives)
+}
 
 // ndkExists is a boolean from the build.gradle in the root project
 // buildNativeProjects is a string set to "true"

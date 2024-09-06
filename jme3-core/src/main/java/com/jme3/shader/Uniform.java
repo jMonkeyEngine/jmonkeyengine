@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
  */
 package com.jme3.shader;
 
+import com.jme3.material.Material.BindUnits;
 import com.jme3.math.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
@@ -197,7 +198,8 @@ public class Uniform extends ShaderVariable {
         }
     }
 
-    public void setValue(VarType type, Object value){
+    public void setValue(VarType type, Object value) {
+        assert !(value instanceof BindUnits);
         if (location == LOC_NOT_DEFINED) {
             return;
         }

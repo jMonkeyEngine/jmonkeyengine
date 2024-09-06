@@ -40,10 +40,10 @@ import com.jme3.input.KeyInput;
  */
 public class KeyInputEvent extends InputEvent {
 
-    final private int keyCode;
-    final private char keyChar;
-    final private boolean pressed;
-    final private boolean repeating;
+    private final int keyCode;
+    private final char keyChar;
+    private final boolean pressed;
+    private final boolean repeating;
 
     public KeyInputEvent(int keyCode, char keyChar, boolean pressed, boolean repeating) {
         this.keyCode = keyCode;

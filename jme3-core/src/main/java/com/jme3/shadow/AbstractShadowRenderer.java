@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -145,12 +145,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      * maps the more quality, the fewer fps).
      */
     protected AbstractShadowRenderer(AssetManager assetManager, int shadowMapSize, int nbShadowMaps) {
-
         this.assetManager = assetManager;
         this.nbShadowMaps = nbShadowMaps;
         this.shadowMapSize = shadowMapSize;
         init(assetManager, nbShadowMaps, shadowMapSize);
-
     }
 
     private void init(AssetManager assetManager, int nbShadowMaps, int shadowMapSize) {
@@ -430,7 +428,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         renderManager.setForcedMaterial(null);
         renderManager.setForcedTechnique(null);
         renderManager.setCamera(viewPort.getCamera(), false);
-
     }
 
     protected void renderShadowMap(int shadowMapIndex) {
@@ -806,12 +803,12 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      *
      * @param renderBackFacesShadows true or false.
      */
-    public void setRenderBackFacesShadows(Boolean renderBackFacesShadows) {
+    public void setRenderBackFacesShadows(boolean renderBackFacesShadows) {
         this.renderBackFacesShadows = renderBackFacesShadows;
-        if(renderBackFacesShadows) {
+        if (renderBackFacesShadows) {
             getPreShadowForcedRenderState().setPolyOffset(5, 3);
             getPreShadowForcedRenderState().setFaceCullMode(RenderState.FaceCullMode.Back);
-        }else{
+        } else {
             getPreShadowForcedRenderState().setPolyOffset(0, 0);
             getPreShadowForcedRenderState().setFaceCullMode(RenderState.FaceCullMode.Front);
         }
@@ -864,7 +861,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         init(assetManager, nbShadowMaps, (int) shadowMapSize);
         edgesThickness = ic.readFloat("edgesThickness", 1.0f);
         postshadowMat.setFloat("PCFEdge", edgesThickness);
-
     }
 
     /**

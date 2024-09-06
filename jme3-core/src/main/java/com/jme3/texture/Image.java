@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -330,6 +330,23 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Requires {@link Caps#TextureCompressionETC1}.
          */
         ETC1(4, false, true, false),
+
+        /**
+         * Ericsson Texture Compression 2. Typically used on Android.
+         * Same as {@link #ETC1} but with alpha.
+         * 
+         * Requires {@link Caps#TextureCompressionETC2}.
+         */
+        ETC2(8, false, true, false),
+
+        /**
+         * Ericsson Texture Compression 2. Typically used on Android.
+         * Same as {@link #ETC2} but alpha can be either 1 or 0.
+         * 
+         * Requires {@link Caps#TextureCompressionETC2}.
+         */
+        ETC2_ALPHA1(4, false, true, false),
+
          
         /**
          * 8-bit signed int red.
@@ -925,14 +942,19 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * into a multisample texture (on OpenGL3.1 and higher).
      */
     public void setMultiSamples(int multiSamples) {
-        if (multiSamples <= 0)
+        if (multiSamples <= 0) {
             throw new IllegalArgumentException("multiSamples must be > 0");
+        }
 
-        if (getData(0) != null)
-            throw new IllegalArgumentException("Cannot upload data as multisample texture");
+        if (multiSamples > 1) {
+            if (getData(0) != null) {
+                throw new IllegalArgumentException("Cannot upload data as multisample texture");
+            }
 
-        if (hasMipmaps())
-            throw new IllegalArgumentException("Multisample textures do not support mipmaps");
+            if (hasMipmaps()) {
+                throw new IllegalArgumentException("Multisample textures do not support mipmaps");
+            }
+        }
 
         this.multiSamples = multiSamples;
     }

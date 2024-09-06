@@ -40,10 +40,10 @@ import com.jme3.input.MouseInput;
  */
 public class MouseButtonEvent extends InputEvent {
 
-    final private int x;
-    final private int y;
-    final private int btnIndex;
-    final private boolean pressed;
+    private final int x;
+    private final int y;
+    private final int btnIndex;
+    private final boolean pressed;
 
     public MouseButtonEvent(int btnIndex, boolean pressed, int x, int y) {
         this.btnIndex = btnIndex;
