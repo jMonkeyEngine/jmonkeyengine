@@ -267,18 +267,27 @@ public class FrameBuffer extends NativeObject {
     }
     
     /**
-     * Sets the color target at the index.
+     * Replaces the color target at the index.
+     * <p>
+     * A color target must already exist at the index, otherwise
+     * an exception will be thrown.
      * 
-     * @param i
-     * @param colorBuf 
+     * @param i index of color target to replace
+     * @param colorBuf color target to replace with
      */
-    public void setColorTarget(int i, FrameBufferTextureTarget colorBuf) {
+    public void replaceColorTarget(int i, FrameBufferTextureTarget colorBuf) {
+        if (i < 0 || i >= colorBufs.size()) {
+            throw new IndexOutOfBoundsException("No color target exists to replace at index=" + i);
+        }
         colorBuf.slot = i;
         colorBufs.set(i, colorBuf);
     }
     
     /**
      * Removes the color target at the index.
+     * <p>
+     * Color targets above the removed target will have their
+     * slot indices shifted accordingly.
      * 
      * @param i 
      */

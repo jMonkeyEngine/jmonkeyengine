@@ -187,7 +187,7 @@ public class RenderManager {
         T c = getContext(type);
         if (c == null) {
             c = supplier.get();
-            contexts.put(type, c);
+            registerContext(type, c);
         }
         return c;
     }
