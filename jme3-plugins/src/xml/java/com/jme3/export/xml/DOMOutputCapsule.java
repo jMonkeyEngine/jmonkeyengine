@@ -488,10 +488,10 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == null || value.equals(defVal)) {
             return;
         }
+
         StringBuilder buf = new StringBuilder();
-        for (int i = value.nextSetBit(0); i >= 0; i = value.nextSetBit(i + 1)) {
-            buf.append(i);
-            buf.append(" ");
+        for (int i = 0; i < value.size(); i++) {
+            buf.append(value.get(i) ? "1 " : "0 ");
         }
         
         if (buf.length() > 0) {
@@ -499,8 +499,12 @@ public class DOMOutputCapsule implements OutputCapsule {
             buf.setLength(buf.length() - 1);
         }
         
-        XMLUtils.setAttribute(currentElement, name, buf.toString());
-
+        try {
+            XMLUtils.setAttribute(currentElement, name, buf.toString());
+        } catch (DOMException ex) {
+            IOException io = new IOException(ex.toString());
+            throw io;
+        }
     }
 
     @Override

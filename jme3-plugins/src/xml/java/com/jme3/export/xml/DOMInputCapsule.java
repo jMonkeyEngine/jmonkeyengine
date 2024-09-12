@@ -851,23 +851,26 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public BitSet readBitSet(String name, BitSet defVal) throws IOException {
-        String tmpString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
-        if (tmpString == null || tmpString.length() < 1) return defVal;
+        String attribute = null;
         try {
-            BitSet set = new BitSet();
-            String[] strings = parseTokens(tmpString);
-            for (int i = 0; i < strings.length; i++) {
-                int isSet = Integer.parseInt(strings[i]);
-                if (isSet == 1) {
-                        set.set(i);
-                }
-            }
-            return set;
-        } catch (NumberFormatException | DOMException nfe) {
-            IOException io = new IOException(nfe.toString());
-            io.initCause(nfe);
-            throw io;
+            attribute = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
+        } catch (DOMException ex) {
+            throw new IOException(ex.toString(), ex);
         }
+
+        if (attribute == null || attribute.isEmpty()) {
+            return defVal;
+        }
+    
+        String[] strings = parseTokens(attribute);
+        BitSet bitSet = new BitSet();
+        for (int i = 0; i < strings.length; i++) {
+            if (strings[i].equals("1")) {
+                bitSet.set(i);
+            }
+        }
+
+        return bitSet;
     }
 
     @Override
@@ -1443,5 +1446,4 @@ public class DOMInputCapsule implements InputCapsule {
                ? zeroStrings
                : outStrings;
     }
-    
 }
