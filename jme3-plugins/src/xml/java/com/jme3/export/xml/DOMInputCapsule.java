@@ -755,15 +755,24 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public String readString(String name, String defVal) throws IOException {
-        String tmpString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
-        if (tmpString == null || tmpString.length() < 1) return defVal;
+        String attribute = null;
         try {
-            return decodeString(tmpString);
+            // Element.getAttribute() returns an empty string if the specified attribute does not exist.
+            // see https://www.w3.org/2003/01/dom2-javadoc/org/w3c/dom/Element.html#getAttribute_java.lang.String_
+            // somewhat confusing since the w3c JS api equivalent returns null as one would expect.
+            // https://www.w3schools.com/jsref/met_element_getattribute.asp
+            if (XMLUtils.hasAttribute(importer.getFormatVersion(), currentElem, name)) {
+                attribute = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
+            }
         } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
-            throw io;
+            throw new IOException(de.toString(), de);
         }
+
+        if (attribute == null) {
+            return defVal;
+        }
+
+        return decodeString(attribute);
     }
 
     @Override
