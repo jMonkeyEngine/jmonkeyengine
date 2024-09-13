@@ -90,16 +90,6 @@ public class DOMOutputCapsule implements OutputCapsule {
         return ret;
     }
 
-    private static String encodeString(String s) {
-        if (s == null) {
-            return null;
-        }
-        s =     s.replaceAll("\\&", "&amp;")
-                 .replaceAll("\\\"", "&quot;")
-                 .replaceAll("\\<", "&lt;");
-        return s;
-    }
-
     @Override
     public void write(byte value, String name, byte defVal) throws IOException {
         if (value == defVal) {
@@ -445,7 +435,8 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == null || value.equals(defVal)) {
             return;
         }
-        XMLUtils.setAttribute(currentElement, name, encodeString(value));
+
+        XMLUtils.setAttribute(currentElement, name, value);
     }
 
     @Override
@@ -461,7 +452,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         for (int i=0; i<value.length; i++) {
                 String b = value[i];
                 appendElement("String_"+i);
-            String val = encodeString(b);
+            String val = b;
             XMLUtils.setAttribute(currentElement, "value", val);
             currentElement = el;
         }

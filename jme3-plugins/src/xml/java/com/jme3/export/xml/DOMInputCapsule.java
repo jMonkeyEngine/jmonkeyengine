@@ -86,14 +86,6 @@ public class DOMInputCapsule implements InputCapsule {
             return 0;
         }
     }
-    
-    private static String decodeString(String s) {
-        if (s == null) {
-            return null;
-        }
-        s = s.replaceAll("\\&quot;", "\"").replaceAll("\\&lt;", "<").replaceAll("\\&amp;", "&");
-        return s;
-    }
 
     private Element findFirstChildElement(Element parent) {
         Node ret = parent.getFirstChild();
@@ -772,7 +764,7 @@ public class DOMInputCapsule implements InputCapsule {
             return defVal;
         }
 
-        return decodeString(attribute);
+        return attribute;
     }
 
     @Override

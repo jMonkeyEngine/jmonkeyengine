@@ -78,7 +78,7 @@ public class InputOutputCapsuleTest {
         exporters.add(new BinaryExporter());
         importers.add(new BinaryImporter());
 
-        //currently failing testStrings() testBitSets() testArrays() testLists()
+        //currently failing testArrays() testLists()
         exporters.add(new XMLExporter());
         importers.add(new XMLImporter());
 
@@ -195,12 +195,13 @@ public class InputOutputCapsuleTest {
         null,
         "",
         " ",   // blank string (whitespace)
+        "mind    the gap",   // multiple consecutive spaces
         new String(new char[10_000_000]).replace('\0', 'a'),    // long string
         "\t",
         "\n",
         "\r",
         "hello  こんにちは 你好  Здравствуйте  안녕하세요  🙋",
-        "&apos &quot &lt &gt &amp", // xml entities
+        "&apos; &quot; &lt; &gt; &amp;", // xml entities
         // xml metacharacters
         "\'",
         "\"",
@@ -342,8 +343,8 @@ public class InputOutputCapsuleTest {
 
     // the rest of this file is inner classes that implement Savable.
     // these classes write the test data, then verify that it's the same data in their read() methods.
-    public static class TestPrimitives implements Savable {
-        public TestPrimitives() {
+    private static class TestPrimitives implements Savable {
+        TestPrimitives() {
 
         }
 
