@@ -969,131 +969,48 @@ public class DOMInputCapsule implements InputCapsule {
         return ret;
     }
 
-    /**
-     * reads from currentElement if name is null
-     */
-    @Override
-    public FloatBuffer readFloatBuffer(String name, FloatBuffer defVal) throws IOException {
-        try {
-            Element tmpEl;
-            if (name != null) {
-                tmpEl = findChildElement(name);
-            } else {
-                tmpEl = currentElement;
-            }
-            if (tmpEl == null) {
-                return defVal;
-            }
-            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
-            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
-            if (sizeString.length() > 0) {
-                int requiredSize = Integer.parseInt(sizeString);
-                if (strings.length != requiredSize)
-                    throw new IOException("Wrong number of float buffers for '"
-                            + name + "'.  size says " + requiredSize
-                            + ", data contains " + strings.length);
-            }
-            FloatBuffer tmp = BufferUtils.createFloatBuffer(strings.length);
-            for (String s : strings) tmp.put(Float.parseFloat(s));
-            tmp.flip();
-            return tmp;
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (NumberFormatException | DOMException nfe) {
-            IOException io = new IOException(nfe.toString());
-            io.initCause(nfe);
-            throw io;
-        }
-    }
-
-    @Override
-    public IntBuffer readIntBuffer(String name, IntBuffer defVal) throws IOException {
-        try {
-            Element tmpEl = findChildElement(name);
-            if (tmpEl == null) {
-                return defVal;
-            }
-
-            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
-            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
-            if (sizeString.length() > 0) {
-                int requiredSize = Integer.parseInt(sizeString);
-                if (strings.length != requiredSize)
-                    throw new IOException("Wrong number of int buffers for '"
-                            + name + "'.  size says " + requiredSize
-                            + ", data contains " + strings.length);
-            }
-            IntBuffer tmp = BufferUtils.createIntBuffer(strings.length);
-            for (String s : strings) tmp.put(Integer.parseInt(s));
-            tmp.flip();
-            return tmp;
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (NumberFormatException | DOMException nfe) {
-            IOException io = new IOException(nfe.toString());
-            io.initCause(nfe);
-            throw io;
-        }
-    }
-
     @Override
     public ByteBuffer readByteBuffer(String name, ByteBuffer defVal) throws IOException {
-        try {
-            Element tmpEl = findChildElement(name);
-            if (tmpEl == null) {
-                return defVal;
-            }
+        byte[] array = readByteArray(name, null);
 
-            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
-            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
-            if (sizeString.length() > 0) {
-                int requiredSize = Integer.parseInt(sizeString);
-                if (strings.length != requiredSize)
-                    throw new IOException("Wrong number of byte buffers for '"
-                            + name + "'.  size says " + requiredSize
-                            + ", data contains " + strings.length);
-            }
-            ByteBuffer tmp = BufferUtils.createByteBuffer(strings.length);
-            for (String s : strings) tmp.put(Byte.valueOf(s));
-            tmp.flip();
-            return tmp;
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (NumberFormatException | DOMException nfe) {
-            IOException io = new IOException(nfe.toString());
-            io.initCause(nfe);
-            throw io;
+        if (array == null) {
+            return defVal;
         }
+
+        return (ByteBuffer) BufferUtils.createByteBuffer(array.length).put(array).rewind();
     }
 
     @Override
     public ShortBuffer readShortBuffer(String name, ShortBuffer defVal) throws IOException {
-        try {
-            Element tmpEl = findChildElement(name);
-            if (tmpEl == null) {
-                return defVal;
-            }
+        short[] array = readShortArray(name, null);
 
-            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
-            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
-            if (sizeString.length() > 0) {
-                int requiredSize = Integer.parseInt(sizeString);
-                if (strings.length != requiredSize)
-                    throw new IOException("Wrong number of short buffers for '"
-                            + name + "'.  size says " + requiredSize
-                            + ", data contains " + strings.length);
-            }
-            ShortBuffer tmp = BufferUtils.createShortBuffer(strings.length);
-            for (String s : strings) tmp.put(Short.valueOf(s));
-            tmp.flip();
-            return tmp;
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (NumberFormatException | DOMException nfe) {
-            IOException io = new IOException(nfe.toString());
-            io.initCause(nfe);
-            throw io;
+        if (array == null) {
+            return defVal;
         }
+
+        return (ShortBuffer) BufferUtils.createShortBuffer(array.length).put(array).rewind();
+    }
+
+    @Override
+    public IntBuffer readIntBuffer(String name, IntBuffer defVal) throws IOException {
+        int[] array = readIntArray(name, null);
+
+        if (array == null) {
+            return defVal;
+        }
+
+        return (IntBuffer) BufferUtils.createIntBuffer(array.length).put(array).rewind();
+    }
+
+    @Override
+    public FloatBuffer readFloatBuffer(String name, FloatBuffer defVal) throws IOException {
+        float[] array = readFloatArray(name, null);
+
+        if (array == null) {
+            return defVal;
+        }
+
+        return (FloatBuffer) BufferUtils.createFloatBuffer(array.length).put(array).rewind();
     }
 
     @Override

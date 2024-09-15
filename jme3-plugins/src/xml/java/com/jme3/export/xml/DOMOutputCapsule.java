@@ -609,143 +609,60 @@ public class DOMOutputCapsule implements OutputCapsule {
     }
 
     @Override
-    public void write(FloatBuffer value, String name, FloatBuffer defVal) throws IOException {
-        if (value == null) {
-            return;
-        }
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.limit()));
-        StringBuilder buf = new StringBuilder();
-        int pos = value.position();
-        value.rewind();
-        int ctr = 0;
-        while (value.hasRemaining()) {
-            ctr++;
-            buf.append(value.get());
-            buf.append(" ");
-        }
-        if (ctr != value.limit()) {
-            throw new IOException("'" + name
-                + "' buffer contention resulted in write data consistency.  "
-                + ctr + " values written when should have written "
-                + value.limit());
-        }
-        
-        if (buf.length() > 0) {
-            //remove last space
-            buf.setLength(buf.length() - 1);
-        }
-        
-        value.position(pos);
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) el.getParentNode();
-    }
-
-    @Override
-    public void write(IntBuffer value, String name, IntBuffer defVal) throws IOException {
-        if (value == null) {
-            return;
-        }
-        if (value.equals(defVal)) {
-            return;
-        }
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.limit()));
-        StringBuilder buf = new StringBuilder();
-        int pos = value.position();
-        value.rewind();
-        int ctr = 0;
-        while (value.hasRemaining()) {
-            ctr++;
-            buf.append(value.get());
-            buf.append(" ");
-        }
-        if (ctr != value.limit()) {
-            throw new IOException("'" + name
-                + "' buffer contention resulted in write data consistency.  "
-                + ctr + " values written when should have written "
-                + value.limit());
-        }
-        
-        if (buf.length() > 0) {
-            //remove last space
-            buf.setLength(buf.length() - 1);
-        }
-        value.position(pos);
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) el.getParentNode();
-    }
-
-    @Override
     public void write(ByteBuffer value, String name, ByteBuffer defVal) throws IOException {
-        if (value == null) return;
-        if (value.equals(defVal)) return;
+        if (value == null || value.equals(defVal)) {
+            return;
+        }
 
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.limit()));
-        StringBuilder buf = new StringBuilder();
-        int pos = value.position();
+        // BinaryOutputCapsule just clobbers the buffer's position, so that's what we'll do here too.
         value.rewind();
-        int ctr = 0;
-        while (value.hasRemaining()) {
-            ctr++;
-            buf.append(value.get());
-            buf.append(" ");
-        }
-        if (ctr != value.limit()) {
-            throw new IOException("'" + name
-                + "' buffer contention resulted in write data consistency.  "
-                + ctr + " values written when should have written "
-                + value.limit());
-        }
-        
-        if (buf.length() > 0) {
-            //remove last space
-            buf.setLength(buf.length() - 1);
-        }
-        
-        value.position(pos);
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) el.getParentNode();
+        byte[] array = new byte[value.remaining()];
+        value.get(array);
+        value.rewind();
+
+        write(array, name, null);
     }
 
     @Override
     public void write(ShortBuffer value, String name, ShortBuffer defVal) throws IOException {
-        if (value == null) {
-            return;
-        }
-        if (value.equals(defVal)) {
+        if (value == null || value.equals(defVal)) {
             return;
         }
 
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.limit()));
-        StringBuilder buf = new StringBuilder();
-        int pos = value.position();
         value.rewind();
-        int ctr = 0;
-        while (value.hasRemaining()) {
-            ctr++;
-            buf.append(value.get());
-            buf.append(" ");
+        short[] array = new short[value.remaining()];
+        value.get(array);
+        value.rewind();
+
+        write(array, name, null);
+    }
+
+    @Override
+    public void write(IntBuffer value, String name, IntBuffer defVal) throws IOException {
+        if (value == null || value.equals(defVal)) {
+            return;
         }
-        if (ctr != value.limit()) {
-            throw new IOException("'" + name
-                + "' buffer contention resulted in write data consistency.  "
-                + ctr + " values written when should have written "
-                + value.limit());
+
+        value.rewind();
+        int[] array = new int[value.remaining()];
+        value.get(array);
+        value.rewind();
+
+        write(array, name, null);
+    }
+
+    @Override
+    public void write(FloatBuffer value, String name, FloatBuffer defVal) throws IOException {
+        if (value == null || value.equals(defVal)) {
+            return;
         }
-        
-        if (buf.length() > 0) {
-            //remove last space
-            buf.setLength(buf.length() - 1);
-        }
-        
-        value.position(pos);
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) el.getParentNode();
+
+        value.rewind();
+        float[] array = new float[value.remaining()];
+        value.get(array);
+        value.rewind();
+
+        write(array, name, null);
     }
 
     @Override
