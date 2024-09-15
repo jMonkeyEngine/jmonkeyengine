@@ -127,7 +127,9 @@ public class XMLExporter implements JmeExporter {
     }
 
     /**
-     * Sets the number of spaces used to indent nested tags
+     * Sets the number of spaces used to indent nested tags.
+     * @param indentSpaces The number of spaces to indent for each level of nesting.  Default is 4.
+     * Pass 0 to disable pretty printing and write document without adding any whitespace.
      */
     public void setIndentSpaces(int indentSpaces) {
         this.indentSpaces = indentSpaces;

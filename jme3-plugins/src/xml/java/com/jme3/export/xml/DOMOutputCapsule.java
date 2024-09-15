@@ -39,6 +39,7 @@ import com.jme3.export.Savable;
 import com.jme3.export.SavableClassUtil;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
+import java.lang.reflect.Array;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -90,388 +91,251 @@ public class DOMOutputCapsule implements OutputCapsule {
         return ret;
     }
 
+    // helper function to reduce duplicate code.  uses reflection to write an array of any primitive type.
+    private void writePrimitiveArrayHelper(Object value, String name) {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < Array.getLength(value); i++) {
+            sb.append(Array.get(value, i));
+            sb.append(" ");
+        }
+
+        // remove last space
+        sb.setLength(Math.max(0, sb.length() - 1));
+
+        appendElement(name);
+        XMLUtils.setAttribute(currentElement, "size", String.valueOf(Array.getLength(value)));
+        XMLUtils.setAttribute(currentElement, dataAttributeName, sb.toString());
+        currentElement = (Element) currentElement.getParentNode();
+    }
+
+    // helper function to reduce duplicate code.  uses the above helper to write a 2d array of any primitive type.
+    private void writePrimitiveArray2DHelper(Object[] value, String name) {
+        appendElement(name);
+
+        XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
+
+        for (int i = 0; i < value.length; i++) {
+            String childName = "array_" + i;
+
+            if (value[i] != null) {
+                writePrimitiveArrayHelper(value[i], childName);
+            } else {
+                // empty tag
+                appendElement(childName);
+                currentElement = (Element) currentElement.getParentNode();
+            }
+        }
+
+        currentElement = (Element) currentElement.getParentNode();
+    }
+
     @Override
     public void write(byte value, String name, byte defVal) throws IOException {
-        if (value == defVal) {
-            return;
+        if (value != defVal) {
+            XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
         }
-        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
     }
 
     @Override
     public void write(byte[] value, String name, byte[] defVal) throws IOException {
-        StringBuilder buf = new StringBuilder();
-        if (value == null) {
-            value = defVal;
+        if (!Arrays.equals(value, defVal)) {
+            writePrimitiveArrayHelper(value, name);
         }
-        for (byte b : value) {
-            buf.append(b);
-            buf.append(" ");
-        }
-        
-        if (buf.length() > 0) {
-            //remove last space
-            buf.setLength(buf.length() - 1);
-        }
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) currentElement.getParentNode();
     }
 
     @Override
     public void write(byte[][] value, String name, byte[][] defVal) throws IOException {
-        StringBuilder buf = new StringBuilder();
-        if (value == null) {
-            value = defVal;
+        if (!Arrays.deepEquals(value, defVal)) {
+            writePrimitiveArray2DHelper(value, name);
         }
-        for (byte[] bs : value) {
-            for (byte b : bs) {
-                buf.append(b);
-                buf.append(" ");
-            }
-            buf.append(" ");
-        }
-        
-        if (buf.length() > 1) {
-            //remove last spaces
-            buf.setLength(buf.length() - 2);
-        } else if (buf.length() > 0) {
-            buf.setLength(buf.length() - 1);
-        }
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size_outer", String.valueOf(value.length));
-        XMLUtils.setAttribute(el, "size_inner", String.valueOf(value[0].length));
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) currentElement.getParentNode();
-    }
-
-    @Override
-    public void write(int value, String name, int defVal) throws IOException {
-        if (value == defVal) {
-            return;
-        }
-        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
-    }
-
-    @Override
-    public void write(int[] value, String name, int[] defVal) throws IOException {
-        StringBuilder buf = new StringBuilder();
-        if (value == null) { return; }
-        if (Arrays.equals(value, defVal)) { return; }
-
-        for (int b : value) {
-            buf.append(b);
-            buf.append(" ");
-        }
-        
-        if (buf.length() > 0) {
-            //remove last space
-            buf.setLength(buf.length() - 1);
-        }
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) currentElement.getParentNode();
-    }
-
-    @Override
-    public void write(int[][] value, String name, int[][] defVal) throws IOException {
-        if (value == null) return;
-        if(Arrays.deepEquals(value, defVal)) return;
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-
-        for (int i=0; i<value.length; i++) {
-                int[] array = value[i];
-                write(array, "array_"+i, defVal==null?null:defVal[i]);
-        }
-        currentElement = (Element) el.getParentNode();
-    }
-
-    @Override
-    public void write(float value, String name, float defVal) throws IOException {
-        if (value == defVal) {
-            return;
-        }
-        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
-    }
-
-    @Override
-    public void write(float[] value, String name, float[] defVal) throws IOException {
-        StringBuilder buf = new StringBuilder();
-        if (value == null) {
-            value = defVal;
-        }
-        if (value != null) {
-            for (float b : value) {
-                buf.append(b);
-                buf.append(" ");
-            }
-            
-            if (buf.length() > 0) {
-                //remove last space
-                buf.setLength(buf.length() - 1);
-            }
-        }
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", value == null ? "0" : String.valueOf(value.length));
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) currentElement.getParentNode();
-    }
-
-    @Override
-    public void write(float[][] value, String name, float[][] defVal) throws IOException {
-        StringBuilder buf = new StringBuilder();
-        if (value == null) return;
-        if(Arrays.deepEquals(value, defVal)) return;
-
-        for (float[] bs : value) {
-            for(float b : bs){
-                buf.append(b);
-                buf.append(" ");
-            }
-        }
-        
-        if (buf.length() > 0) {
-            //remove last space
-            buf.setLength(buf.length() - 1);
-        }
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size_outer", String.valueOf(value.length));
-        XMLUtils.setAttribute(el, "size_inner", String.valueOf(value[0].length));
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) currentElement.getParentNode();
-    }
-
-    @Override
-    public void write(double value, String name, double defVal) throws IOException {
-        if (value == defVal) {
-            return;
-        }
-        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
-    }
-
-    @Override
-    public void write(double[] value, String name, double[] defVal) throws IOException {
-        StringBuilder buf = new StringBuilder();
-        if (value == null) {
-            value = defVal;
-        }
-        for (double b : value) {
-            buf.append(b);
-            buf.append(" ");
-        }
-        
-        if (buf.length() > 0) {
-            //remove last space
-            buf.setLength(buf.length() - 1);
-        }
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) currentElement.getParentNode();
-    }
-
-    @Override
-    public void write(double[][] value, String name, double[][] defVal) throws IOException {
-            if (value == null) return;
-            if(Arrays.deepEquals(value, defVal)) return;
-
-            Element el = appendElement(name);
-            XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-
-            for (int i=0; i<value.length; i++) {
-                double[] array = value[i];
-                write(array, "array_"+i, defVal==null?null:defVal[i]);
-            }
-            currentElement = (Element) el.getParentNode();
-    }
-
-    @Override
-    public void write(long value, String name, long defVal) throws IOException {
-        if (value == defVal) {
-            return;
-        }
-        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
-    }
-
-    @Override
-    public void write(long[] value, String name, long[] defVal) throws IOException {
-        StringBuilder buf = new StringBuilder();
-        if (value == null) {
-            value = defVal;
-        }
-        for (long b : value) {
-            buf.append(b);
-            buf.append(" ");
-        }
-        
-        if (buf.length() > 0) {
-            //remove last space
-            buf.setLength(buf.length() - 1);
-        }
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) currentElement.getParentNode();
-    }
-
-    @Override
-    public void write(long[][] value, String name, long[][] defVal) throws IOException {
-        if (value == null) return;
-        if(Arrays.deepEquals(value, defVal)) return;
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-
-        for (int i=0; i<value.length; i++) {
-                long[] array = value[i];
-                write(array, "array_"+i, defVal==null?null:defVal[i]);
-        }
-        currentElement = (Element) el.getParentNode();
     }
 
     @Override
     public void write(short value, String name, short defVal) throws IOException {
-        if (value == defVal) {
-            return;
+        if (value != defVal) {
+            XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
         }
-        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
     }
 
     @Override
     public void write(short[] value, String name, short[] defVal) throws IOException {
-        StringBuilder buf = new StringBuilder();
-        if (value == null) {
-            value = defVal;
+        if (!Arrays.equals(value, defVal)) {
+            writePrimitiveArrayHelper(value, name);
         }
-        for (short b : value) {
-            buf.append(b);
-            buf.append(" ");
-        }
-        
-        if (buf.length() > 0) {
-            //remove last space
-            buf.setLength(buf.length() - 1);
-        }
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) currentElement.getParentNode();
     }
 
     @Override
     public void write(short[][] value, String name, short[][] defVal) throws IOException {
-        if (value == null) return;
-        if(Arrays.deepEquals(value, defVal)) return;
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-
-        for (int i=0; i<value.length; i++) {
-                short[] array = value[i];
-                write(array, "array_"+i, defVal==null?null:defVal[i]);
+        if (!Arrays.deepEquals(value, defVal)) {
+            writePrimitiveArray2DHelper(value, name);
         }
-        currentElement = (Element) el.getParentNode();
+    }
+
+    @Override
+    public void write(int value, String name, int defVal) throws IOException {
+        if (value != defVal) {
+            XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
+        }
+    }
+
+    @Override
+    public void write(int[] value, String name, int[] defVal) throws IOException {
+        if (!Arrays.equals(value, defVal)) {
+            writePrimitiveArrayHelper(value, name);
+        }
+    }
+
+    @Override
+    public void write(int[][] value, String name, int[][] defVal) throws IOException {
+        if (!Arrays.deepEquals(value, defVal)) {
+            writePrimitiveArray2DHelper(value, name);
+        }
+    }
+
+    @Override
+    public void write(long value, String name, long defVal) throws IOException {
+        if (value != defVal) {
+            XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
+        }
+    }
+
+    @Override
+    public void write(long[] value, String name, long[] defVal) throws IOException {
+        if (!Arrays.equals(value, defVal)) {
+            writePrimitiveArrayHelper(value, name);
+        }
+    }
+
+    @Override
+    public void write(long[][] value, String name, long[][] defVal) throws IOException {
+        if (!Arrays.deepEquals(value, defVal)) {
+            writePrimitiveArray2DHelper(value, name);
+        }
+    }
+
+    @Override
+    public void write(float value, String name, float defVal) throws IOException {
+        if (value != defVal) {
+            XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
+        }
+    }
+
+    @Override
+    public void write(float[] value, String name, float[] defVal) throws IOException {
+        if (!Arrays.equals(value, defVal)) {
+            writePrimitiveArrayHelper(value, name);
+        }
+    }
+
+    @Override
+    public void write(float[][] value, String name, float[][] defVal) throws IOException {
+        if (!Arrays.deepEquals(value, defVal)) {
+            writePrimitiveArray2DHelper(value, name);
+        }
+    }
+
+    @Override
+    public void write(double value, String name, double defVal) throws IOException {
+        if (value != defVal) {
+            XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
+        }
+    }
+
+    @Override
+    public void write(double[] value, String name, double[] defVal) throws IOException {
+        if (!Arrays.equals(value, defVal)) {
+            writePrimitiveArrayHelper(value, name);
+        }
+    }
+
+    @Override
+    public void write(double[][] value, String name, double[][] defVal) throws IOException {
+        if (!Arrays.deepEquals(value, defVal)) {
+            writePrimitiveArray2DHelper(value, name);
+        }
     }
 
     @Override
     public void write(boolean value, String name, boolean defVal) throws IOException {
-        if (value == defVal) {
-            return;
+        if (value != defVal) {
+            XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
         }
-        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
     }
 
     @Override
     public void write(boolean[] value, String name, boolean[] defVal) throws IOException {
-        StringBuilder buf = new StringBuilder();
-        if (value == null) {
-            value = defVal;
+        if (!Arrays.equals(value, defVal)) {
+            writePrimitiveArrayHelper(value, name);
         }
-        for (boolean b : value) {
-            buf.append(b);
-            buf.append(" ");
-        }
-        
-        if (buf.length() > 0) {
-            //remove last space
-            buf.setLength(buf.length() - 1);
-        }
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
-        currentElement = (Element) currentElement.getParentNode();
     }
 
     @Override
     public void write(boolean[][] value, String name, boolean[][] defVal) throws IOException {
-        if (value == null) return;
-        if(Arrays.deepEquals(value, defVal)) return;
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-
-        for (int i=0; i<value.length; i++) {
-                boolean[] array = value[i];
-                write(array, "array_"+i, defVal==null?null:defVal[i]);
+        if (!Arrays.deepEquals(value, defVal)) {
+            writePrimitiveArray2DHelper(value, name);
         }
-        currentElement = (Element) el.getParentNode();
     }
 
     @Override
     public void write(String value, String name, String defVal) throws IOException {
-        if (value == null || value.equals(defVal)) {
-            return;
+        if (value != null && !value.equals(defVal)) {
+            XMLUtils.setAttribute(currentElement, name, value);
         }
-
-        XMLUtils.setAttribute(currentElement, name, value);
     }
 
     @Override
     public void write(String[] value, String name, String[] defVal) throws IOException {
-        Element el = appendElement(name);
-
-        if (value == null) {
-            value = defVal;
+        if (value == null || Arrays.equals(value, defVal)) {
+            return;
         }
 
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
+        appendElement(name);
 
-        for (int i=0; i<value.length; i++) {
-                String b = value[i];
-                appendElement("String_"+i);
-            String val = b;
-            XMLUtils.setAttribute(currentElement, "value", val);
-            currentElement = el;
+        XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
+
+        for (int i = 0; i < value.length; i++) {
+            appendElement("String_" + i);
+
+            if (value[i] != null) {
+                XMLUtils.setAttribute(currentElement, "value", value[i]);
+            }
+            
+            currentElement = (Element) currentElement.getParentNode();
         }
+
         currentElement = (Element) currentElement.getParentNode();
     }
 
     @Override
     public void write(String[][] value, String name, String[][] defVal) throws IOException {
-        if (value == null) return;
-        if(Arrays.deepEquals(value, defVal)) return;
-
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
-
-        for (int i=0; i<value.length; i++) {
-                String[] array = value[i];
-                write(array, "array_"+i, defVal==null?null:defVal[i]);
+        if (value == null || Arrays.deepEquals(value, defVal)) {
+            return;
         }
-        currentElement = (Element) el.getParentNode();
+
+        appendElement(name);
+
+        XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
+
+        for (int i = 0; i < value.length; i++) {
+            String childName = "array_" + i;
+
+            if (value[i] != null) {
+                write(value[i], childName, defVal != null ? defVal[i] : null);
+            } else {
+                // empty tag
+                appendElement(childName);
+                currentElement = (Element) currentElement.getParentNode();
+            }
+        }
+
+        currentElement = (Element) currentElement.getParentNode();
+    }
+
+    @Override
+    public void write(Enum value, String name, Enum defVal) throws IOException {
+        if (value != null && !value.equals(defVal)) {
+            XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
+        }
     }
 
     @Override
@@ -500,10 +364,7 @@ public class DOMOutputCapsule implements OutputCapsule {
 
     @Override
     public void write(Savable object, String name, Savable defVal) throws IOException {
-        if (object == null) {
-            return;
-        }
-        if (object.equals(defVal)) {
+        if (object == null || object.equals(defVal)) {
             return;
         }
 
@@ -559,10 +420,7 @@ public class DOMOutputCapsule implements OutputCapsule {
 
     @Override
     public void write(Savable[] objects, String name, Savable[] defVal) throws IOException {
-        if (objects == null) {
-            return;
-        }
-        if (Arrays.equals(objects, defVal)) {
+        if (objects == null || Arrays.equals(objects, defVal)) {
             return;
         }
 
@@ -891,15 +749,6 @@ public class DOMOutputCapsule implements OutputCapsule {
     }
 
     @Override
-        public void write(Enum value, String name, Enum defVal) throws IOException {
-        if (value == defVal) {
-            return;
-        }
-        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
-
-        }
-
-    @Override
         public void writeByteBufferArrayList(ArrayList<ByteBuffer> array,
                         String name, ArrayList<ByteBuffer> defVal) throws IOException {
         if (array == null) {
@@ -916,5 +765,4 @@ public class DOMOutputCapsule implements OutputCapsule {
         currentElement = (Element) el.getParentNode();
 
         }
-    
 }
