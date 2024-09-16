@@ -41,8 +41,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation 'junit:junit:4.13.2'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    testImplementation libs.junit4
+    implementation libs.android.support.appcompat
 
     implementation project(':jme3-core')
     implementation project(':jme3-android')

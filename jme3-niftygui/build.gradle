@@ -1,6 +1,6 @@
 dependencies {
     api project(':jme3-core')
-    api "com.github.nifty-gui:nifty:${niftyVersion}"
-    api "com.github.nifty-gui:nifty-default-controls:${niftyVersion}"
-    runtimeOnly "com.github.nifty-gui:nifty-style-black:${niftyVersion}"
+    api libs.nifty
+    api libs.nifty.default.controls
+    runtimeOnly libs.nifty.style.black
 }
