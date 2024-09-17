@@ -664,13 +664,13 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public Savable[] readSavableArray(String name, Savable[] defVal) throws IOException {
-        Element child = findChildElement(name);
+        Element arrayElement = findChildElement(name);
 
-        if (child == null) {
+        if (arrayElement == null || !arrayElement.hasAttributes()) {
             return defVal;
         }
 
-        List<Element> arrayElements = getObjectArrayElements(child);
+        List<Element> arrayElements = getObjectArrayElements(arrayElement);
 
         Savable[] savableArray = new Savable[arrayElements.size()];
 
@@ -690,7 +690,7 @@ public class DOMInputCapsule implements InputCapsule {
     public Savable[][] readSavableArray2D(String name, Savable[][] defVal) throws IOException {
         Element outerArrayElement = findChildElement(name);
 
-        if (outerArrayElement == null) {
+        if (outerArrayElement == null || !outerArrayElement.hasAttributes()) {
             return defVal;
         }
 
@@ -717,119 +717,6 @@ public class DOMInputCapsule implements InputCapsule {
         currentElement = old;
 
         return savableArray2D;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public ArrayList<Savable> readSavableArrayList(String name, ArrayList defVal) throws IOException {
-        try {
-            Element tmpEl = findChildElement(name);
-            if (tmpEl == null) {
-                return defVal;
-            }
-
-            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
-            ArrayList<Savable> savables = new ArrayList<>();
-            for (currentElement = findFirstChildElement(tmpEl);
-                    currentElement != null;
-                    currentElement = findNextSiblingElement(currentElement)) {
-                savables.add(readSavableFromCurrentElement(null));
-            }
-            if (sizeString.length() > 0) {
-                int requiredSize = Integer.parseInt(sizeString);
-                if (savables.size() != requiredSize)
-                    throw new IOException(
-                            "Wrong number of Savable arrays for '" + name
-                            + "'.  size says " + requiredSize
-                            + ", data contains " + savables.size());
-            }
-            currentElement = (Element) tmpEl.getParentNode();
-            return savables;
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (Exception e) {
-            IOException io = new IOException(e.toString());
-            io.initCause(e);
-            throw io;
-        }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public ArrayList<Savable>[] readSavableArrayListArray(
-            String name, ArrayList[] defVal) throws IOException {
-        try {
-            Element tmpEl = findChildElement(name);
-            if (tmpEl == null) {
-                return defVal;
-            }
-            currentElement = tmpEl;
-
-            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
-            int requiredSize = (sizeString.length() > 0)
-                             ? Integer.parseInt(sizeString)
-                             : -1;
-
-            ArrayList<Savable> sal;
-            List<ArrayList<Savable>> savableArrayLists =
-                    new ArrayList<>();
-            int i = -1;
-            while (true) {
-                sal = readSavableArrayList("SavableArrayList_" + ++i, null);
-                if (sal == null && savableArrayLists.size() >= requiredSize)
-                    break;
-                savableArrayLists.add(sal);
-            }
-
-            if (requiredSize > -1 && savableArrayLists.size() != requiredSize)
-                throw new IOException(
-                        "String array contains wrong element count.  "
-                        + "Specified size " + requiredSize
-                        + ", data contains " + savableArrayLists.size());
-            currentElement = (Element) tmpEl.getParentNode();
-            return savableArrayLists.toArray(new ArrayList[0]);
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (NumberFormatException | DOMException nfe) {
-            IOException io = new IOException(nfe.toString());
-            io.initCause(nfe);
-            throw io;
-        }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public ArrayList<Savable>[][] readSavableArrayListArray2D(String name, ArrayList[][] defVal) throws IOException {
-        try {
-            Element tmpEl = findChildElement(name);
-            if (tmpEl == null) {
-                return defVal;
-            }
-            currentElement = tmpEl;
-            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
-
-            ArrayList<Savable>[] arr;
-            List<ArrayList<Savable>[]> sall = new ArrayList<>();
-            int i = -1;
-            while ((arr = readSavableArrayListArray(
-                    "SavableArrayListArray_" + ++i, null)) != null) sall.add(arr);
-            if (sizeString.length() > 0) {
-                int requiredSize = Integer.parseInt(sizeString);
-                if (sall.size() != requiredSize)
-                    throw new IOException(
-                            "String array contains wrong element count.  "
-                            + "Specified size " + requiredSize
-                            + ", data contains " + sall.size());
-            }
-            currentElement = (Element) tmpEl.getParentNode();
-            return sall.toArray(new ArrayList[0][]);
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (Exception e) {
-            IOException io = new IOException(e.toString());
-            io.initCause(e);
-            throw io;
-        }
     }
 
     @Override
@@ -877,38 +764,102 @@ public class DOMInputCapsule implements InputCapsule {
     }
 
     @Override
-    public ArrayList<FloatBuffer> readFloatBufferArrayList(
-            String name, ArrayList<FloatBuffer> defVal) throws IOException {
-        try {
-            Element tmpEl = findChildElement(name);
-            if (tmpEl == null) {
-                return defVal;
-            }
+    public ArrayList<ByteBuffer> readByteBufferArrayList(String name, ArrayList<ByteBuffer> defVal) throws IOException {
+        byte[][] byteArray2D = readByteArray2D(name, null);
 
-            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
-            ArrayList<FloatBuffer> tmp = new ArrayList<>();
-            for (currentElement = findFirstChildElement(tmpEl);
-                    currentElement != null;
-                    currentElement = findNextSiblingElement(currentElement)) {
-                tmp.add(readFloatBuffer(null, null));
-            }
-            if (sizeString.length() > 0) {
-                int requiredSize = Integer.parseInt(sizeString);
-                if (tmp.size() != requiredSize)
-                    throw new IOException(
-                            "String array contains wrong element count.  "
-                            + "Specified size " + requiredSize
-                            + ", data contains " + tmp.size());
-            }
-            currentElement = (Element) tmpEl.getParentNode();
-            return tmp;
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (NumberFormatException | DOMException nfe) {
-            IOException io = new IOException(nfe.toString());
-            io.initCause(nfe);
-            throw io;
+        if (byteArray2D == null) {
+            return defVal;
         }
+
+        ArrayList<ByteBuffer> byteBufferList = new ArrayList<>(byteArray2D.length);
+        for (byte[] byteArray : byteArray2D) {
+            if (byteArray == null) {
+                byteBufferList.add(null);
+            } else {
+                byteBufferList.add((ByteBuffer) BufferUtils.createByteBuffer(byteArray.length).put(byteArray).rewind());
+            }
+        }
+
+        return byteBufferList;
+    }
+
+    @Override
+    public ArrayList<FloatBuffer> readFloatBufferArrayList(String name, ArrayList<FloatBuffer> defVal) throws IOException {
+        float[][] floatArray2D = readFloatArray2D(name, null);
+
+        if (floatArray2D == null) {
+            return defVal;
+        }
+
+        ArrayList<FloatBuffer> floatBufferList = new ArrayList<>(floatArray2D.length);
+        for (float[] floatArray : floatArray2D) {
+            if (floatArray == null) {
+                floatBufferList.add(null);
+            } else {
+                floatBufferList.add((FloatBuffer) BufferUtils.createFloatBuffer(floatArray.length).put(floatArray).rewind());
+            }
+        }
+
+        return floatBufferList;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public ArrayList<Savable> readSavableArrayList(String name, ArrayList defVal) throws IOException {
+        Savable[] savableArray = readSavableArray(name, null);
+
+        if (savableArray == null) {
+            return defVal;
+        }
+
+        return new ArrayList(Arrays.asList(savableArray));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public ArrayList<Savable>[] readSavableArrayListArray(String name, ArrayList[] defVal) throws IOException {
+        Savable[][] savableArray2D = readSavableArray2D(name, null);
+
+        if (savableArray2D == null) {
+            return defVal;
+        }
+
+        ArrayList<Savable>[] savableArrayListArray = new ArrayList[savableArray2D.length];
+        for (int i = 0; i < savableArray2D.length; i++) {
+            if (savableArray2D[i] != null) {
+                savableArrayListArray[i] = new ArrayList(Arrays.asList(savableArray2D[i]));
+            }
+        }
+
+        return savableArrayListArray;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public ArrayList<Savable>[][] readSavableArrayListArray2D(String name, ArrayList[][] defVal) throws IOException {
+        Element outerArrayElement = findChildElement(name);
+
+        if (outerArrayElement == null) {
+            return defVal;
+        }
+
+        List<Element> innerArrayElements = getObjectArrayElements(outerArrayElement);
+
+        ArrayList<Savable>[][] savableArrayListArray2D = new ArrayList[innerArrayElements.size()][];
+
+        Element old = currentElement;
+        currentElement = outerArrayElement;
+
+        for (int i = 0; i < innerArrayElements.size(); i++) {
+            if (innerArrayElements.get(i) != null) {
+
+                savableArrayListArray2D[i] = readSavableArrayListArray(innerArrayElements.get(i).getTagName(), null);
+            }
+        }
+
+        currentElement = old;
+
+        return savableArrayListArray2D;
     }
 
     @Override
@@ -999,39 +950,6 @@ public class DOMInputCapsule implements InputCapsule {
         currentElement = (Element) tempEl.getParentNode();
         return ret;
     }
-
-    @Override
-        public ArrayList<ByteBuffer> readByteBufferArrayList(String name, ArrayList<ByteBuffer> defVal) throws IOException {
-        try {
-            Element tmpEl = findChildElement(name);
-            if (tmpEl == null) {
-                return defVal;
-            }
-
-            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
-            ArrayList<ByteBuffer> tmp = new ArrayList<>();
-            for (currentElement = findFirstChildElement(tmpEl);
-                    currentElement != null;
-                    currentElement = findNextSiblingElement(currentElement)) {
-                tmp.add(readByteBuffer(null, null));
-            }
-            if (sizeString.length() > 0) {
-                int requiredSize = Integer.parseInt(sizeString);
-                if (tmp.size() != requiredSize)
-                    throw new IOException("Wrong number of short buffers for '"
-                            + name + "'.  size says " + requiredSize
-                            + ", data contains " + tmp.size());
-            }
-            currentElement = (Element) tmpEl.getParentNode();
-            return tmp;
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (NumberFormatException | DOMException nfe) {
-            IOException io = new IOException(nfe.toString());
-            io.initCause(nfe);
-            throw io;
-        }
-        }
 
     private static final String[] zeroStrings = new String[0];
 

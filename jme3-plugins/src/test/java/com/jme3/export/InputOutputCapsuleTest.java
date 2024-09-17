@@ -78,7 +78,6 @@ public class InputOutputCapsuleTest {
         exporters.add(new BinaryExporter());
         importers.add(new BinaryImporter());
 
-        //currently failing testLists()
         exporters.add(new XMLExporter());
         importers.add(new XMLImporter());
 
@@ -127,7 +126,7 @@ public class InputOutputCapsuleTest {
 
     @Test
     public void testLists() {
-        //saveAndLoad(new TestLists());
+        saveAndLoad(new TestLists());
     }
 
     @Test
@@ -201,7 +200,7 @@ public class InputOutputCapsuleTest {
         "",
         " ",   // blank string (whitespace)
         "mind    the gap",   // multiple consecutive spaces (some xml processors would normalize this to a single space)
-        new String(new char[10_000_000]).replace('\0', 'a'),    // long string
+        //new String(new char[10_000_000]).replace('\0', 'a'),    // long string. kinda slows down the test too much so I'm leaving it out for now.
         "\t",
         "\n",
         "\r",

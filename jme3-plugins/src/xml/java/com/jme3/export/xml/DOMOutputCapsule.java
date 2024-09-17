@@ -321,7 +321,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
 
         for (int i = 0; i < value.length; i++) {
-            String childName = "array_" + i;
+            String childName = "string_array_" + i;
 
             if (value[i] != null) {
                 write(value[i], childName, defVal != null ? defVal[i] : null);
@@ -367,8 +367,8 @@ public class DOMOutputCapsule implements OutputCapsule {
     }
 
     @Override
-    public void write(Savable object, String name, Savable defVal) throws IOException {
-        if (object == null || object.equals(defVal)) {
+    public void write(Savable value, String name, Savable defVal) throws IOException {
+        if (value == null || value.equals(defVal)) {
             return;
         }
 
@@ -376,14 +376,14 @@ public class DOMOutputCapsule implements OutputCapsule {
 
         // no longer tries to use class name as element name.  that makes things unnecessarily complicated.
 
-        Element refElement = writtenSavables.get(object);
+        Element refElement = writtenSavables.get(value);
         // this object has already been written, so make an element that refers to the existing one.
         if (refElement != null) {
             String refID = XMLUtils.getAttribute(FormatVersion.VERSION, refElement, "reference_ID");
 
             // add the reference_ID to the referenced element if it didn't already have it
             if (refID.isEmpty()) {
-                refID = object.getClass().getName() + "@" + object.hashCode();
+                refID = value.getClass().getName() + "@" + value.hashCode();
                 XMLUtils.setAttribute(refElement, "reference_ID", refID);
             }
 
@@ -395,10 +395,10 @@ public class DOMOutputCapsule implements OutputCapsule {
             // this now always writes the class attribute even if the class name is also the element name.
             // for backwards compatibility, DOMInputCapsule will still try to get the class name from the element name if the
             // attribute isn't found.
-            XMLUtils.setAttribute(currentElement, "class", object.getClass().getName());
+            XMLUtils.setAttribute(currentElement, "class", value.getClass().getName());
             
             // jME3 NEW: Append version number(s)
-            int[] versions = SavableClassUtil.getSavableVersions(object.getClass());
+            int[] versions = SavableClassUtil.getSavableVersions(value.getClass());
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < versions.length; i++){
                 sb.append(versions[i]);
@@ -408,17 +408,17 @@ public class DOMOutputCapsule implements OutputCapsule {
             }
             XMLUtils.setAttribute(currentElement, "savable_versions", sb.toString());
             
-            object.write(exporter);
+            value.write(exporter);
 
-            writtenSavables.put(object, currentElement);
+            writtenSavables.put(value, currentElement);
         }
 
         currentElement = old;
     }
 
     @Override
-    public void write(Savable[] objects, String name, Savable[] defVal) throws IOException {
-        if (objects == null || Arrays.equals(objects, defVal)) {
+    public void write(Savable[] value, String name, Savable[] defVal) throws IOException {
+        if (value == null || Arrays.equals(value, defVal)) {
             return;
         }
 
@@ -426,9 +426,9 @@ public class DOMOutputCapsule implements OutputCapsule {
         
         appendElement(name);
 
-        XMLUtils.setAttribute(currentElement, "size", String.valueOf(objects.length));
-        for (int i = 0; i < objects.length; i++) {
-            Savable o = objects[i];
+        XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
+        for (int i = 0; i < value.length; i++) {
+            Savable o = value[i];
             String elementName = "savable_" + i;
             if(o == null){
                 // renderStateList has special loading code, so we can leave out the null values
@@ -527,84 +527,114 @@ public class DOMOutputCapsule implements OutputCapsule {
     }
 
     @Override
-    public void writeSavableArrayList(ArrayList array, String name, ArrayList defVal) throws IOException {
-        if (array == null) {
+    public void writeByteBufferArrayList(ArrayList<ByteBuffer> value, String name, ArrayList<ByteBuffer> defVal) throws IOException {
+        if (value == null || value.equals(defVal)) {
             return;
         }
-        if (array.equals(defVal)) {
-            return;
-        }
-        Element old = currentElement;
-        Element el = appendElement(name);
-        currentElement = el;
-        XMLUtils.setAttribute(el, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(array.size()));
-        for (Object o : array) {
-                if(o == null) {
-                        continue;
-                }
-                else if (o instanceof Savable) {
-                Savable s = (Savable) o;
-                write(s, s.getClass().getName(), null);
+
+        appendElement(name);
+
+        XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(value.size()));
+        for (int i = 0; i < value.size(); i++) {
+            String childName = "byte_buffer_" + i;
+            if (value.get(i) != null) {
+                write(value.get(i), childName, null);
             } else {
-                throw new ClassCastException("Not a Savable instance: " + o);
+                appendElement(childName);
+                currentElement = (Element) currentElement.getParentNode();
             }
         }
-        currentElement = old;
+
+        currentElement = (Element) currentElement.getParentNode();
     }
 
     @Override
-    public void writeSavableArrayListArray(ArrayList[] objects, String name, ArrayList[] defVal) throws IOException {
-        if (objects == null) {return;}
-        if (Arrays.equals(objects, defVal)) {return;}
+    public void writeFloatBufferArrayList(ArrayList<FloatBuffer> value, String name, ArrayList<FloatBuffer> defVal) throws IOException {
+        if (value == null || value.equals(defVal)) {
+            return;
+        }
 
-        Element old = currentElement;
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(objects.length));
-        for (int i = 0; i < objects.length; i++) {
-            ArrayList o = objects[i];
-            if(o == null){
-                Element before = currentElement;
-                appendElement("null");
-                currentElement = before;
-            }else{
-                StringBuilder buf = new StringBuilder("SavableArrayList_");
-                buf.append(i);
-                writeSavableArrayList(o, buf.toString(), null);
+        appendElement(name);
+
+        XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(value.size()));
+        for (int i = 0; i < value.size(); i++) {
+            String childName = "float_buffer_" + i;
+            if (value.get(i) != null) {
+                write(value.get(i), childName, null);
+            } else {
+                appendElement(childName);
+                currentElement = (Element) currentElement.getParentNode();
             }
         }
+
+        currentElement = (Element) currentElement.getParentNode();
+    }
+
+    @Override
+    public void writeSavableArrayList(ArrayList value, String name, ArrayList defVal) throws IOException {
+        if (value == null || value.equals(defVal)) {
+            return;
+        }
+
+        Savable[] savableArray = new Savable[value.size()];
+        for (int i = 0; i < value.size(); i++) {
+            Object o = value.get(i);
+
+            if (o != null && !(o instanceof Savable)) {
+                throw new IOException(new ClassCastException("Not a Savable instance: " + o));
+            }
+
+            savableArray[i] = (Savable) o;
+        }
+
+        write(savableArray, name, null);
+    }
+
+    @Override
+    public void writeSavableArrayListArray(ArrayList[] value, String name, ArrayList[] defVal) throws IOException {
+        if (value == null || Arrays.equals(value, defVal)) {
+            return;
+        }
+
+        Element old = currentElement;
+
+        appendElement(name);
+        XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(value.length));
+        for (int i = 0; i < value.length; i++) {
+            String childName = "savable_list_" + i;
+            if(value[i] != null){
+                writeSavableArrayList(value[i], childName, null);
+            }else{
+                appendElement(childName);
+                currentElement = (Element) currentElement.getParentNode();
+            }
+        }
+
         currentElement = old;
     }
 
     @Override
     public void writeSavableArrayListArray2D(ArrayList[][] value, String name, ArrayList[][] defVal) throws IOException {
-        if (value == null) return;
-        if(Arrays.deepEquals(value, defVal)) return;
-
-        Element el = appendElement(name);
-        int size = value.length;
-        XMLUtils.setAttribute(el, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(size));
-
-        for (int i=0; i< size; i++) {
-            ArrayList[] vi = value[i];
-            writeSavableArrayListArray(vi, "SavableArrayListArray_"+i, null);
-        }
-        currentElement = (Element) el.getParentNode();
-    }
-
-    @Override
-    public void writeFloatBufferArrayList(ArrayList<FloatBuffer> array, String name, ArrayList<FloatBuffer> defVal) throws IOException {
-        if (array == null) {
+        if (value == null || Arrays.equals(value, defVal)) {
             return;
         }
-        if (array.equals(defVal)) {
-            return;
+
+        Element old = currentElement;
+
+        appendElement(name);
+
+        XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(value.length));
+        for (int i = 0; i < value.length; i++) {
+            String childName = "savable_list_array_" + i;
+            if(value[i] != null){
+                writeSavableArrayListArray(value[i], childName, null);
+            }else{
+                appendElement(childName);
+                currentElement = (Element) currentElement.getParentNode();
+            }
         }
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(array.size()));
-        for (FloatBuffer o : array) {
-            write(o, XMLExporter.ELEMENT_FLOATBUFFER, null);
-        }
-        currentElement = (Element) el.getParentNode();
+
+        currentElement = old;
     }
 
     @Override
@@ -674,22 +704,4 @@ public class DOMOutputCapsule implements OutputCapsule {
 
                 currentElement = (Element) stringMap.getParentNode();
     }
-
-    @Override
-        public void writeByteBufferArrayList(ArrayList<ByteBuffer> array,
-                        String name, ArrayList<ByteBuffer> defVal) throws IOException {
-        if (array == null) {
-            return;
-        }
-        if (array.equals(defVal)) {
-            return;
-        }
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(array.size()));
-        for (ByteBuffer o : array) {
-            write(o, "ByteBuffer", null);
-        }
-        currentElement = (Element) el.getParentNode();
-
-        }
 }
