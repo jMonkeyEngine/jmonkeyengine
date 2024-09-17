@@ -114,8 +114,12 @@ public class DOMOutputCapsule implements OutputCapsule {
 
         XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
 
+        // tag names are not used for anything by DOMInputCapsule, but for the sake of readability, it's nice to know what type of array this is.
+        String childNamePrefix = value.getClass().getComponentType().getSimpleName().toLowerCase();
+        childNamePrefix = childNamePrefix.replace("[]", "_array_");
+
         for (int i = 0; i < value.length; i++) {
-            String childName = "array_" + i;
+            String childName = childNamePrefix + i;
 
             if (value[i] != null) {
                 writePrimitiveArrayHelper(value[i], childName);
@@ -294,7 +298,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
 
         for (int i = 0; i < value.length; i++) {
-            appendElement("String_" + i);
+            appendElement("string_" + i);
 
             if (value[i] != null) {
                 XMLUtils.setAttribute(currentElement, "value", value[i]);
@@ -369,33 +373,29 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element old = currentElement;
-        Element el = writtenSavables.get(object);
 
-        String className = null;
-        if(!object.getClass().getName().equals(name)){
-            className = object.getClass().getName();
-        }
-        try {
-            doc.createElement(name);
-        } catch (DOMException e) {
-            // Ridiculous fallback behavior.
-            // Would be far better to throw than to totally disregard the
-            // specified "name" and write a class name instead!
-            // (Besides the fact we are clobbering the managed .getClassTag()).
-            name = "Object";
-            className = object.getClass().getName();
-        }
+        // no longer tries to use class name as element name.  that makes things unnecessarily complicated.
 
-        if (el != null) {
-            String refID = el.getAttribute("reference_ID");
-            if (refID.length() == 0) {
+        Element refElement = writtenSavables.get(object);
+        // this object has already been written, so make an element that refers to the existing one.
+        if (refElement != null) {
+            String refID = XMLUtils.getAttribute(FormatVersion.VERSION, refElement, "reference_ID");
+
+            // add the reference_ID to the referenced element if it didn't already have it
+            if (refID.isEmpty()) {
                 refID = object.getClass().getName() + "@" + object.hashCode();
-                XMLUtils.setAttribute(el, "reference_ID", refID);
+                XMLUtils.setAttribute(refElement, "reference_ID", refID);
             }
-            el = appendElement(name);
-            XMLUtils.setAttribute(el, "ref", refID);
+
+            appendElement(name);
+            XMLUtils.setAttribute(currentElement, "ref", refID);
         } else {
-            el = appendElement(name);
+            appendElement(name);
+
+            // this now always writes the class attribute even if the class name is also the element name.
+            // for backwards compatibility, DOMInputCapsule will still try to get the class name from the element name if the
+            // attribute isn't found.
+            XMLUtils.setAttribute(currentElement, "class", object.getClass().getName());
             
             // jME3 NEW: Append version number(s)
             int[] versions = SavableClassUtil.getSavableVersions(object.getClass());
@@ -406,13 +406,11 @@ public class DOMOutputCapsule implements OutputCapsule {
                     sb.append(", ");
                 }
             }
-            XMLUtils.setAttribute(el, "savable_versions", sb.toString());
+            XMLUtils.setAttribute(currentElement, "savable_versions", sb.toString());
             
-            writtenSavables.put(object, el);
             object.write(exporter);
-        }
-        if(className != null){
-            XMLUtils.setAttribute(el, "class", className);
+
+            writtenSavables.put(object, currentElement);
         }
 
         currentElement = old;
@@ -425,38 +423,107 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element old = currentElement;
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size", String.valueOf(objects.length));
+        
+        appendElement(name);
+
+        XMLUtils.setAttribute(currentElement, "size", String.valueOf(objects.length));
         for (int i = 0; i < objects.length; i++) {
             Savable o = objects[i];
+            String elementName = "savable_" + i;
             if(o == null){
-                //renderStateList has special loading code, so we can leave out the null values
+                // renderStateList has special loading code, so we can leave out the null values
                 if(!name.equals("renderStateList")){
-                Element before = currentElement;
-                appendElement("null");
-                currentElement = before;
+                    Element before = currentElement;
+                    appendElement(elementName);
+                    currentElement = before;
                 }
             }else{
-                write(o, o.getClass().getName(), null);
+                write(o, elementName, null);
             }
         }
+
         currentElement = old;
     }
 
     @Override
     public void write(Savable[][] value, String name, Savable[][] defVal) throws IOException {
-        if (value == null) return;
-        if(Arrays.deepEquals(value, defVal)) return;
+        if (value == null || Arrays.deepEquals(value, defVal)) {
+            return;
+        }
 
-        Element el = appendElement(name);
-        XMLUtils.setAttribute(el, "size_outer", String.valueOf(value.length));
-        XMLUtils.setAttribute(el, "size_inner", String.valueOf(value[0].length));
-        for (Savable[] bs : value) {
-            for(Savable b : bs){
-                write(b, b.getClass().getSimpleName(), null);
+        Element old = currentElement;
+
+        appendElement(name);
+
+        XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
+        for (int i = 0; i < value.length; i++) {
+            String childName = "savable_array_" + i;
+            if (value[i] != null) {
+                write(value[i], childName, null);
+            } else {
+                appendElement(childName);
+                currentElement = (Element) currentElement.getParentNode();
             }
         }
-        currentElement = (Element) currentElement.getParentNode();
+
+        currentElement = old;
+    }
+
+    @Override
+    public void write(ByteBuffer value, String name, ByteBuffer defVal) throws IOException {
+        if (value == null || value.equals(defVal)) {
+            return;
+        }
+
+        // BinaryOutputCapsule just clobbers the buffer's position, so that's what we'll do here too.
+        value.rewind();
+        byte[] array = new byte[value.remaining()];
+        value.get(array);
+        value.rewind();
+
+        write(array, name, null);
+    }
+
+    @Override
+    public void write(ShortBuffer value, String name, ShortBuffer defVal) throws IOException {
+        if (value == null || value.equals(defVal)) {
+            return;
+        }
+
+        value.rewind();
+        short[] array = new short[value.remaining()];
+        value.get(array);
+        value.rewind();
+
+        write(array, name, null);
+    }
+
+    @Override
+    public void write(IntBuffer value, String name, IntBuffer defVal) throws IOException {
+        if (value == null || value.equals(defVal)) {
+            return;
+        }
+
+        value.rewind();
+        int[] array = new int[value.remaining()];
+        value.get(array);
+        value.rewind();
+
+        write(array, name, null);
+    }
+
+    @Override
+    public void write(FloatBuffer value, String name, FloatBuffer defVal) throws IOException {
+        if (value == null || value.equals(defVal)) {
+            return;
+        }
+
+        value.rewind();
+        float[] array = new float[value.remaining()];
+        value.get(array);
+        value.rewind();
+
+        write(array, name, null);
     }
 
     @Override
@@ -606,63 +673,6 @@ public class DOMOutputCapsule implements OutputCapsule {
                 }
 
                 currentElement = (Element) stringMap.getParentNode();
-    }
-
-    @Override
-    public void write(ByteBuffer value, String name, ByteBuffer defVal) throws IOException {
-        if (value == null || value.equals(defVal)) {
-            return;
-        }
-
-        // BinaryOutputCapsule just clobbers the buffer's position, so that's what we'll do here too.
-        value.rewind();
-        byte[] array = new byte[value.remaining()];
-        value.get(array);
-        value.rewind();
-
-        write(array, name, null);
-    }
-
-    @Override
-    public void write(ShortBuffer value, String name, ShortBuffer defVal) throws IOException {
-        if (value == null || value.equals(defVal)) {
-            return;
-        }
-
-        value.rewind();
-        short[] array = new short[value.remaining()];
-        value.get(array);
-        value.rewind();
-
-        write(array, name, null);
-    }
-
-    @Override
-    public void write(IntBuffer value, String name, IntBuffer defVal) throws IOException {
-        if (value == null || value.equals(defVal)) {
-            return;
-        }
-
-        value.rewind();
-        int[] array = new int[value.remaining()];
-        value.get(array);
-        value.rewind();
-
-        write(array, name, null);
-    }
-
-    @Override
-    public void write(FloatBuffer value, String name, FloatBuffer defVal) throws IOException {
-        if (value == null || value.equals(defVal)) {
-            return;
-        }
-
-        value.rewind();
-        float[] array = new float[value.remaining()];
-        value.get(array);
-        value.rewind();
-
-        write(array, name, null);
     }
 
     @Override

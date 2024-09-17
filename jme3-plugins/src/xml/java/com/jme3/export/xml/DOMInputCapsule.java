@@ -581,155 +581,142 @@ public class DOMInputCapsule implements InputCapsule {
         return bitSet;
     }
 
-    @Override
-    public Savable readSavable(String name, Savable defVal) throws IOException {
-        Savable ret = defVal;
-        if (name != null && name.equals(""))
-            logger.warning("Reading Savable String with name \"\"?");
-        try {
-            Element tmpEl = null;
-            if (name != null) {
-                tmpEl = findChildElement(name);
-                if (tmpEl == null) {
-                    return defVal;
-                }
-            } else if (isAtRoot) {
-                tmpEl = doc.getDocumentElement();
-                isAtRoot = false;
-            } else {
-                tmpEl = findFirstChildElement(currentElement);
-            }
-            currentElement = tmpEl;
-            ret = readSavableFromcurrentElement(defVal);
-            if (currentElement.getParentNode() instanceof Element) {
-                currentElement = (Element) currentElement.getParentNode();
-            } else {
-                currentElement = null;
-            }
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (Exception e) {
-            IOException io = new IOException(e.toString());
-            io.initCause(e);
-            throw io;
+    private Savable readSavableFromCurrentElement(Savable defVal) throws IOException {
+        if (currentElement == null || !currentElement.hasAttributes()) {
+            return defVal;
         }
-        return ret;
-    }
 
-    private Savable readSavableFromcurrentElement(Savable defVal) throws
-            InstantiationException, ClassNotFoundException,
-            NoSuchMethodException, InvocationTargetException,
-            IOException, IllegalAccessException {
-        Savable ret = defVal;
-        Savable tmp = null;
-
-        if (currentElement == null || currentElement.getNodeName().equals("null")) {
-            return null;
-        }
         String reference = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "ref");
-        if (reference.length() > 0) {
-            ret = referencedSavables.get(reference);
+        if (!reference.isEmpty()) {
+            return referencedSavables.get(reference);
         } else {
+            // for backwards compatibility with old XML files.  previous version of DOMOutputCapsule would only write the class attribute
+            // if the element name wasn't the class name.
             String className = currentElement.getNodeName();
             if (XMLUtils.hasAttribute(importer.getFormatVersion(), currentElement, "class")) {
                 className = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "class");
             } else if (defVal != null) {
                 className = defVal.getClass().getName();
             }
-            tmp = SavableClassUtil.fromName(className);
+
+            Savable tmp = null;
+            try {
+                tmp = SavableClassUtil.fromName(className);
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                throw new IOException(e);
+            }
             
             String versionsStr = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "savable_versions");
             if (versionsStr != null && !versionsStr.equals("")){
                 String[] versionStr = versionsStr.split(",");
                 classHierarchyVersions = new int[versionStr.length];
-                for (int i = 0; i < classHierarchyVersions.length; i++){
-                    classHierarchyVersions[i] = Integer.parseInt(versionStr[i].trim());
+                try {
+                    for (int i = 0; i < classHierarchyVersions.length; i++) {
+                        classHierarchyVersions[i] = Integer.parseInt(versionStr[i].trim());
+                    }
+                } catch (NumberFormatException nfe) {
+                    throw new IOException(nfe);
                 }
             }else{
                 classHierarchyVersions = null;
             }
             
             String refID = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "reference_ID");
-            if (refID.length() < 1) refID = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "id");
-            if (refID.length() > 0) referencedSavables.put(refID, tmp);
+            if (refID.isEmpty()) refID = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "id");
+
+            if (!refID.isEmpty()) referencedSavables.put(refID, tmp);
+            
             if (tmp != null) {
                 // Allows reading versions from this savable
                 savable = tmp;
+
                 tmp.read(importer);
-                ret = tmp;
+
+                return tmp;
+            } else {
+                return defVal;
             }
         }
+    }
+
+    @Override
+    public Savable readSavable(String name, Savable defVal) throws IOException {
+        Savable ret = defVal;
+
+        if (name != null && name.equals(""))
+            logger.warning("Reading Savable String with name \"\"?");
+
+        Element old = currentElement;
+
+        if (isAtRoot) {
+            currentElement = doc.getDocumentElement();
+            isAtRoot = false;
+        } else {
+            currentElement = findChildElement(name);
+        }
+
+        ret = readSavableFromCurrentElement(defVal);
+
+        currentElement = old;
+
         return ret;
     }
 
     @Override
     public Savable[] readSavableArray(String name, Savable[] defVal) throws IOException {
-        Savable[] ret = defVal;
-        try {
-            Element tmpEl = findChildElement(name);
-            if (tmpEl == null) {
-                return defVal;
-            }
+        Element child = findChildElement(name);
 
-            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
-            List<Savable> savables = new ArrayList<>();
-            for (currentElement = findFirstChildElement(tmpEl);
-                    currentElement != null;
-                    currentElement = findNextSiblingElement(currentElement)) {
-                savables.add(readSavableFromcurrentElement(null));
-            }
-            if (sizeString.length() > 0) {
-                int requiredSize = Integer.parseInt(sizeString);
-                if (savables.size() != requiredSize)
-                    throw new IOException("Wrong number of Savables for '"
-                            + name + "'.  size says " + requiredSize
-                            + ", data contains " + savables.size());
-            }
-            ret = savables.toArray(new Savable[0]);
-            currentElement = (Element) tmpEl.getParentNode();
-            return ret;
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (Exception e) {
-            IOException io = new IOException(e.toString());
-            io.initCause(e);
-            throw io;
+        if (child == null) {
+            return defVal;
         }
+
+        List<Element> arrayElements = getObjectArrayElements(child);
+
+        Savable[] savableArray = new Savable[arrayElements.size()];
+
+        Element old = currentElement;
+
+        for (int i = 0; i < arrayElements.size(); i++) {
+            currentElement = arrayElements.get(i);
+            savableArray[i] = readSavableFromCurrentElement(null);
+        }
+
+        currentElement = old;
+
+        return savableArray;
     }
 
     @Override
     public Savable[][] readSavableArray2D(String name, Savable[][] defVal) throws IOException {
-        Savable[][] ret = defVal;
-        try {
-            Element tmpEl = findChildElement(name);
-            if (tmpEl == null) {
-                return defVal;
-            }
+        Element outerArrayElement = findChildElement(name);
 
-            int size_outer = Integer.parseInt(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size_outer"));
-            int size_inner = Integer.parseInt(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size_outer"));
-
-            Savable[][] tmp = new Savable[size_outer][size_inner];
-            currentElement = findFirstChildElement(tmpEl);
-            for (int i = 0; i < size_outer; i++) {
-                for (int j = 0; j < size_inner; j++) {
-                    tmp[i][j] = (readSavableFromcurrentElement(null));
-                    if (i == size_outer - 1 && j == size_inner - 1) {
-                        break;
-                    }
-                    currentElement = findNextSiblingElement(currentElement);
-                }
-            }
-            ret = tmp;
-            currentElement = (Element) tmpEl.getParentNode();
-            return ret;
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (Exception e) {
-            IOException io = new IOException(e.toString());
-            io.initCause(e);
-            throw io;
+        if (outerArrayElement == null) {
+            return defVal;
         }
+
+        List<Element> innerArrayElements = getObjectArrayElements(outerArrayElement);
+
+        Savable[][] savableArray2D = new Savable[innerArrayElements.size()][];
+
+        Element old = currentElement;
+
+        for (int i = 0; i < innerArrayElements.size(); i++) {
+            List<Element> savableElements = getObjectArrayElements(innerArrayElements.get(i));
+
+            if (savableElements == null) {
+                continue;
+            }
+
+            savableArray2D[i] = new Savable[savableElements.size()];
+            for (int j = 0; j < savableElements.size(); j++) {
+                currentElement = savableElements.get(j);
+                savableArray2D[i][j] = readSavableFromCurrentElement(null);
+            }
+        }
+
+        currentElement = old;
+
+        return savableArray2D;
     }
 
     @Override
@@ -746,7 +733,7 @@ public class DOMInputCapsule implements InputCapsule {
             for (currentElement = findFirstChildElement(tmpEl);
                     currentElement != null;
                     currentElement = findNextSiblingElement(currentElement)) {
-                savables.add(readSavableFromcurrentElement(null));
+                savables.add(readSavableFromCurrentElement(null));
             }
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
@@ -843,6 +830,50 @@ public class DOMInputCapsule implements InputCapsule {
             io.initCause(e);
             throw io;
         }
+    }
+
+    @Override
+    public ByteBuffer readByteBuffer(String name, ByteBuffer defVal) throws IOException {
+        byte[] array = readByteArray(name, null);
+
+        if (array == null) {
+            return defVal;
+        }
+
+        return (ByteBuffer) BufferUtils.createByteBuffer(array.length).put(array).rewind();
+    }
+
+    @Override
+    public ShortBuffer readShortBuffer(String name, ShortBuffer defVal) throws IOException {
+        short[] array = readShortArray(name, null);
+
+        if (array == null) {
+            return defVal;
+        }
+
+        return (ShortBuffer) BufferUtils.createShortBuffer(array.length).put(array).rewind();
+    }
+
+    @Override
+    public IntBuffer readIntBuffer(String name, IntBuffer defVal) throws IOException {
+        int[] array = readIntArray(name, null);
+
+        if (array == null) {
+            return defVal;
+        }
+
+        return (IntBuffer) BufferUtils.createIntBuffer(array.length).put(array).rewind();
+    }
+
+    @Override
+    public FloatBuffer readFloatBuffer(String name, FloatBuffer defVal) throws IOException {
+        float[] array = readFloatArray(name, null);
+
+        if (array == null) {
+            return defVal;
+        }
+
+        return (FloatBuffer) BufferUtils.createFloatBuffer(array.length).put(array).rewind();
     }
 
     @Override
@@ -967,50 +998,6 @@ public class DOMInputCapsule implements InputCapsule {
             }
         currentElement = (Element) tempEl.getParentNode();
         return ret;
-    }
-
-    @Override
-    public ByteBuffer readByteBuffer(String name, ByteBuffer defVal) throws IOException {
-        byte[] array = readByteArray(name, null);
-
-        if (array == null) {
-            return defVal;
-        }
-
-        return (ByteBuffer) BufferUtils.createByteBuffer(array.length).put(array).rewind();
-    }
-
-    @Override
-    public ShortBuffer readShortBuffer(String name, ShortBuffer defVal) throws IOException {
-        short[] array = readShortArray(name, null);
-
-        if (array == null) {
-            return defVal;
-        }
-
-        return (ShortBuffer) BufferUtils.createShortBuffer(array.length).put(array).rewind();
-    }
-
-    @Override
-    public IntBuffer readIntBuffer(String name, IntBuffer defVal) throws IOException {
-        int[] array = readIntArray(name, null);
-
-        if (array == null) {
-            return defVal;
-        }
-
-        return (IntBuffer) BufferUtils.createIntBuffer(array.length).put(array).rewind();
-    }
-
-    @Override
-    public FloatBuffer readFloatBuffer(String name, FloatBuffer defVal) throws IOException {
-        float[] array = readFloatArray(name, null);
-
-        if (array == null) {
-            return defVal;
-        }
-
-        return (FloatBuffer) BufferUtils.createFloatBuffer(array.length).put(array).rewind();
     }
 
     @Override

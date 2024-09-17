@@ -84,7 +84,7 @@ public class XMLExporter implements JmeExporter {
         // Initialize the DOMOutputCapsule when saving, so we don't retain state of previous exports.
         domOut = new DOMOutputCapsule(document, this);
 
-        domOut.write(object, object.getClass().getName(), null);
+        domOut.write(object, "savable", null);
 
         DOMSource source = new DOMSource(domOut.getDoc());
         StreamResult result = new StreamResult(outputStream);
