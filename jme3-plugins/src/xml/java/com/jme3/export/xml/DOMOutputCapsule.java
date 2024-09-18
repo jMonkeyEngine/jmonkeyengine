@@ -57,8 +57,6 @@ import org.w3c.dom.Element;
  * @author Doug Daniels (dougnukem) - adjustments for jME 2.0 and Java 1.5
  */
 public class DOMOutputCapsule implements OutputCapsule {
-    
-    private static final String dataAttributeName = "data";
     private Document doc;
     private Element currentElement;
     private JmeExporter exporter;
@@ -92,8 +90,10 @@ public class DOMOutputCapsule implements OutputCapsule {
     }
 
     // helper function to reduce duplicate code.  uses reflection to write an array of any primitive type.
-    private void writePrimitiveArrayHelper(Object value, String name) {
+    // also has optional position argument for writing buffers.
+    private void writePrimitiveArrayHelper(Object value, String name, int position) {
         StringBuilder sb = new StringBuilder();
+
         for(int i = 0; i < Array.getLength(value); i++) {
             sb.append(Array.get(value, i));
             sb.append(" ");
@@ -103,8 +103,11 @@ public class DOMOutputCapsule implements OutputCapsule {
         sb.setLength(Math.max(0, sb.length() - 1));
 
         appendElement(name);
-        XMLUtils.setAttribute(currentElement, "size", String.valueOf(Array.getLength(value)));
-        XMLUtils.setAttribute(currentElement, dataAttributeName, sb.toString());
+        XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(Array.getLength(value)));
+        XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_DATA, sb.toString());
+        if (position >= 0) {
+            XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_POSITION, String.valueOf(position));
+        }
         currentElement = (Element) currentElement.getParentNode();
     }
 
@@ -112,7 +115,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     private void writePrimitiveArray2DHelper(Object[] value, String name) {
         appendElement(name);
 
-        XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
+        XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(value.length));
 
         // tag names are not used for anything by DOMInputCapsule, but for the sake of readability, it's nice to know what type of array this is.
         String childNamePrefix = value.getClass().getComponentType().getSimpleName().toLowerCase();
@@ -122,7 +125,7 @@ public class DOMOutputCapsule implements OutputCapsule {
             String childName = childNamePrefix + i;
 
             if (value[i] != null) {
-                writePrimitiveArrayHelper(value[i], childName);
+                writePrimitiveArrayHelper(value[i], childName, -1);
             } else {
                 // empty tag
                 appendElement(childName);
@@ -143,7 +146,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(byte[] value, String name, byte[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name);
+            writePrimitiveArrayHelper(value, name, -1);
         }
     }
 
@@ -164,7 +167,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(short[] value, String name, short[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name);
+            writePrimitiveArrayHelper(value, name, -1);
         }
     }
 
@@ -185,7 +188,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(int[] value, String name, int[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name);
+            writePrimitiveArrayHelper(value, name, -1);
         }
     }
 
@@ -206,7 +209,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(long[] value, String name, long[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name);
+            writePrimitiveArrayHelper(value, name, -1);
         }
     }
 
@@ -227,7 +230,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(float[] value, String name, float[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name);
+            writePrimitiveArrayHelper(value, name, -1);
         }
     }
 
@@ -248,7 +251,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(double[] value, String name, double[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name);
+            writePrimitiveArrayHelper(value, name, -1);
         }
     }
 
@@ -269,7 +272,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(boolean[] value, String name, boolean[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name);
+            writePrimitiveArrayHelper(value, name, -1);
         }
     }
 
@@ -295,7 +298,7 @@ public class DOMOutputCapsule implements OutputCapsule {
 
         appendElement(name);
 
-        XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
+        XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(value.length));
 
         for (int i = 0; i < value.length; i++) {
             appendElement("string_" + i);
@@ -318,7 +321,7 @@ public class DOMOutputCapsule implements OutputCapsule {
 
         appendElement(name);
 
-        XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
+        XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(value.length));
 
         for (int i = 0; i < value.length; i++) {
             String childName = "string_array_" + i;
@@ -379,23 +382,23 @@ public class DOMOutputCapsule implements OutputCapsule {
         Element refElement = writtenSavables.get(value);
         // this object has already been written, so make an element that refers to the existing one.
         if (refElement != null) {
-            String refID = XMLUtils.getAttribute(FormatVersion.VERSION, refElement, "reference_ID");
+            String refID = XMLUtils.getAttribute(FormatVersion.VERSION, refElement, XMLExporter.ATTRIBUTE_REFERENCE_ID);
 
             // add the reference_ID to the referenced element if it didn't already have it
             if (refID.isEmpty()) {
                 refID = value.getClass().getName() + "@" + value.hashCode();
-                XMLUtils.setAttribute(refElement, "reference_ID", refID);
+                XMLUtils.setAttribute(refElement, XMLExporter.ATTRIBUTE_REFERENCE_ID, refID);
             }
 
             appendElement(name);
-            XMLUtils.setAttribute(currentElement, "ref", refID);
+            XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_REFERENCE, refID);
         } else {
             appendElement(name);
 
             // this now always writes the class attribute even if the class name is also the element name.
             // for backwards compatibility, DOMInputCapsule will still try to get the class name from the element name if the
             // attribute isn't found.
-            XMLUtils.setAttribute(currentElement, "class", value.getClass().getName());
+            XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_CLASS, value.getClass().getName());
             
             // jME3 NEW: Append version number(s)
             int[] versions = SavableClassUtil.getSavableVersions(value.getClass());
@@ -406,7 +409,7 @@ public class DOMOutputCapsule implements OutputCapsule {
                     sb.append(", ");
                 }
             }
-            XMLUtils.setAttribute(currentElement, "savable_versions", sb.toString());
+            XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SAVABLE_VERSIONS, sb.toString());
             
             value.write(exporter);
 
@@ -426,7 +429,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         
         appendElement(name);
 
-        XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
+        XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(value.length));
         for (int i = 0; i < value.length; i++) {
             Savable o = value[i];
             String elementName = "savable_" + i;
@@ -455,7 +458,7 @@ public class DOMOutputCapsule implements OutputCapsule {
 
         appendElement(name);
 
-        XMLUtils.setAttribute(currentElement, "size", String.valueOf(value.length));
+        XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(value.length));
         for (int i = 0; i < value.length; i++) {
             String childName = "savable_array_" + i;
             if (value[i] != null) {
@@ -474,14 +477,14 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == null || value.equals(defVal)) {
             return;
         }
-
-        // BinaryOutputCapsule just clobbers the buffer's position, so that's what we'll do here too.
+        
+        int position = value.position();
         value.rewind();
         byte[] array = new byte[value.remaining()];
         value.get(array);
-        value.rewind();
+        value.position(position);
 
-        write(array, name, null);
+        writePrimitiveArrayHelper(array, name, value.position());
     }
 
     @Override
@@ -490,12 +493,13 @@ public class DOMOutputCapsule implements OutputCapsule {
             return;
         }
 
+        int position = value.position();
         value.rewind();
         short[] array = new short[value.remaining()];
         value.get(array);
-        value.rewind();
+        value.position(position);
 
-        write(array, name, null);
+        writePrimitiveArrayHelper(array, name, value.position());
     }
 
     @Override
@@ -504,12 +508,13 @@ public class DOMOutputCapsule implements OutputCapsule {
             return;
         }
 
+        int position = value.position();
         value.rewind();
         int[] array = new int[value.remaining()];
         value.get(array);
-        value.rewind();
+        value.position(position);
 
-        write(array, name, null);
+        writePrimitiveArrayHelper(array, name, value.position());
     }
 
     @Override
@@ -518,12 +523,13 @@ public class DOMOutputCapsule implements OutputCapsule {
             return;
         }
 
+        int position = value.position();
         value.rewind();
         float[] array = new float[value.remaining()];
         value.get(array);
-        value.rewind();
+        value.position(position);
 
-        write(array, name, null);
+        writePrimitiveArrayHelper(array, name, value.position());
     }
 
     @Override

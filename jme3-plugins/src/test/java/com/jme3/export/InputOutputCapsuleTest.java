@@ -292,10 +292,11 @@ public class InputOutputCapsuleTest {
         new Savable[0]
     };
 
-    private static final ByteBuffer testByteBuffer = BufferUtils.createByteBuffer(testByteArray);
-    private static final ShortBuffer testShortBuffer = BufferUtils.createShortBuffer(testShortArray);
-    private static final IntBuffer testIntBuffer = BufferUtils.createIntBuffer(testIntArray);
-    private static final FloatBuffer testFloatBuffer = BufferUtils.createFloatBuffer(testFloatArray);
+    // rewind these because there's a separate test for buffer position.
+    private static final ByteBuffer testByteBuffer = (ByteBuffer) BufferUtils.createByteBuffer(testByteArray).rewind();
+    private static final ShortBuffer testShortBuffer = (ShortBuffer) BufferUtils.createShortBuffer(testShortArray).rewind();
+    private static final IntBuffer testIntBuffer = (IntBuffer) BufferUtils.createIntBuffer(testIntArray).rewind();
+    private static final FloatBuffer testFloatBuffer = (FloatBuffer) BufferUtils.createFloatBuffer(testFloatArray).rewind();
 
     private static final ArrayList<ByteBuffer> testByteBufferArrayList = new ArrayList<>(Arrays.asList(
         BufferUtils.createByteBuffer(testByteArray2D[0]),
@@ -607,7 +608,6 @@ public class InputOutputCapsuleTest {
 
     private static class TestBuffers implements Savable {
         TestBuffers() {
-
         }
 
         @Override
@@ -618,6 +618,9 @@ public class InputOutputCapsuleTest {
             capsule.write(testIntBuffer, "testIntBuffer", null);
             capsule.write(testShortBuffer, "testShortBuffer", null);
             capsule.write(testFloatBuffer, "testFloatBuffer", null);
+
+            capsule.write((ByteBuffer) BufferUtils.createByteBuffer(4).position(2), "testBufferPosition", null);
+            capsule.write((ByteBuffer) BufferUtils.createByteBuffer(4).limit(2), "testBufferLimit", null);
 
             capsule.write(BufferUtils.createByteBuffer(0), "emptyByteBuffer", null);
             capsule.write(BufferUtils.createShortBuffer(0), "emptyShortBuffer", null);
@@ -633,6 +636,9 @@ public class InputOutputCapsuleTest {
             Assert.assertEquals("readShortBuffer()", testShortBuffer, capsule.readShortBuffer("testShortBuffer", null));
             Assert.assertEquals("readIntBuffer()", testIntBuffer, capsule.readIntBuffer("testIntBuffer", null));
             Assert.assertEquals("readFloatBuffer()", testFloatBuffer, capsule.readFloatBuffer("testFloatBuffer", null));
+
+            Assert.assertEquals("buffer position", 2, capsule.readByteBuffer("testBufferPosition", null).position());
+            Assert.assertEquals("buffer limit", 2, capsule.readByteBuffer("testBufferLimit", null).limit());
 
             Assert.assertEquals("readByteBuffer()", BufferUtils.createByteBuffer(0), capsule.readByteBuffer("emptyByteBuffer", null));
             Assert.assertEquals("readShortBuffer()", BufferUtils.createShortBuffer(0), capsule.readShortBuffer("emptyShortBuffer", null));

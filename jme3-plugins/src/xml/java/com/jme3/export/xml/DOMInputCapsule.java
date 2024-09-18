@@ -124,13 +124,13 @@ public class DOMInputCapsule implements InputCapsule {
             return null;
         }
 
-        String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), element, "size");
+        String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), element, XMLExporter.ATTRIBUTE_SIZE);
 
         if (sizeString.isEmpty()) {
             return null;
         }
 
-        String[] tokens = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), element, "data"));
+        String[] tokens = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), element, XMLExporter.ATTRIBUTE_DATA));
 
         if(!sizeString.isEmpty()) {
             try {
@@ -191,7 +191,7 @@ public class DOMInputCapsule implements InputCapsule {
             return null;
         }
 
-        String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), element, "size");
+        String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), element, XMLExporter.ATTRIBUTE_SIZE);
 
         if (sizeString.isEmpty()) {
             return null;
@@ -586,15 +586,15 @@ public class DOMInputCapsule implements InputCapsule {
             return defVal;
         }
 
-        String reference = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "ref");
+        String reference = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, XMLExporter.ATTRIBUTE_REFERENCE);
         if (!reference.isEmpty()) {
             return referencedSavables.get(reference);
         } else {
             // for backwards compatibility with old XML files.  previous version of DOMOutputCapsule would only write the class attribute
             // if the element name wasn't the class name.
             String className = currentElement.getNodeName();
-            if (XMLUtils.hasAttribute(importer.getFormatVersion(), currentElement, "class")) {
-                className = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "class");
+            if (XMLUtils.hasAttribute(importer.getFormatVersion(), currentElement, XMLExporter.ATTRIBUTE_CLASS)) {
+                className = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, XMLExporter.ATTRIBUTE_CLASS);
             } else if (defVal != null) {
                 className = defVal.getClass().getName();
             }
@@ -606,7 +606,7 @@ public class DOMInputCapsule implements InputCapsule {
                 throw new IOException(e);
             }
             
-            String versionsStr = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "savable_versions");
+            String versionsStr = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, XMLExporter.ATTRIBUTE_SAVABLE_VERSIONS);
             if (versionsStr != null && !versionsStr.equals("")){
                 String[] versionStr = versionsStr.split(",");
                 classHierarchyVersions = new int[versionStr.length];
@@ -621,7 +621,9 @@ public class DOMInputCapsule implements InputCapsule {
                 classHierarchyVersions = null;
             }
             
-            String refID = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "reference_ID");
+            String refID = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, XMLExporter.ATTRIBUTE_REFERENCE_ID);
+
+            // what does this line do?  guessing backwards compatibility?
             if (refID.isEmpty()) refID = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "id");
 
             if (!refID.isEmpty()) referencedSavables.put(refID, tmp);
@@ -721,46 +723,94 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public ByteBuffer readByteBuffer(String name, ByteBuffer defVal) throws IOException {
-        byte[] array = readByteArray(name, null);
+        Element element = findChildElement(name);
+
+        byte[] array = (byte[]) readPrimitiveArrayHelper(element, "byte");
 
         if (array == null) {
             return defVal;
         }
 
-        return (ByteBuffer) BufferUtils.createByteBuffer(array.length).put(array).rewind();
+        int position = 0;
+        String positionString = XMLUtils.getAttribute(importer.getFormatVersion(), element, XMLExporter.ATTRIBUTE_POSITION);
+        if (!positionString.isEmpty()) {
+            try {
+                position = Integer.parseInt(positionString);
+            } catch (NumberFormatException nfe) {
+                throw new IOException(nfe);
+            }
+        }
+
+        return (ByteBuffer) BufferUtils.createByteBuffer(array.length).put(array).position(position);
     }
 
     @Override
     public ShortBuffer readShortBuffer(String name, ShortBuffer defVal) throws IOException {
-        short[] array = readShortArray(name, null);
+        Element element = findChildElement(name);
+
+        short[] array = (short[]) readPrimitiveArrayHelper(element, "short");
 
         if (array == null) {
             return defVal;
         }
 
-        return (ShortBuffer) BufferUtils.createShortBuffer(array.length).put(array).rewind();
+        int position = 0;
+        String positionString = XMLUtils.getAttribute(importer.getFormatVersion(), element, XMLExporter.ATTRIBUTE_POSITION);
+        if (!positionString.isEmpty()) {
+            try {
+                position = Integer.parseInt(positionString);
+            } catch (NumberFormatException nfe) {
+                throw new IOException(nfe);
+            }
+        }
+
+        return (ShortBuffer) BufferUtils.createShortBuffer(array.length).put(array).position(position);
     }
 
     @Override
     public IntBuffer readIntBuffer(String name, IntBuffer defVal) throws IOException {
-        int[] array = readIntArray(name, null);
+        Element element = findChildElement(name);
+
+        int[] array = (int[]) readPrimitiveArrayHelper(element, "int");
 
         if (array == null) {
             return defVal;
         }
 
-        return (IntBuffer) BufferUtils.createIntBuffer(array.length).put(array).rewind();
+        int position = 0;
+        String positionString = XMLUtils.getAttribute(importer.getFormatVersion(), element, XMLExporter.ATTRIBUTE_POSITION);
+        if (!positionString.isEmpty()) {
+            try {
+                position = Integer.parseInt(positionString);
+            } catch (NumberFormatException nfe) {
+                throw new IOException(nfe);
+            }
+        }
+
+        return (IntBuffer) BufferUtils.createIntBuffer(array.length).put(array).position(position);
     }
 
     @Override
     public FloatBuffer readFloatBuffer(String name, FloatBuffer defVal) throws IOException {
-        float[] array = readFloatArray(name, null);
+        Element element = findChildElement(name);
+
+        float[] array = (float[]) readPrimitiveArrayHelper(element, "float");
 
         if (array == null) {
             return defVal;
         }
 
-        return (FloatBuffer) BufferUtils.createFloatBuffer(array.length).put(array).rewind();
+        int position = 0;
+        String positionString = XMLUtils.getAttribute(importer.getFormatVersion(), element, XMLExporter.ATTRIBUTE_POSITION);
+        if (!positionString.isEmpty()) {
+            try {
+                position = Integer.parseInt(positionString);
+            } catch (NumberFormatException nfe) {
+                throw new IOException(nfe);
+            }
+        }
+
+        return (FloatBuffer) BufferUtils.createFloatBuffer(array.length).put(array).position(position);
     }
 
     @Override
