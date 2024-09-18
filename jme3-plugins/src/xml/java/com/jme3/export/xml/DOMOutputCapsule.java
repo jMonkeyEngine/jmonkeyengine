@@ -46,7 +46,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.*;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -91,7 +90,7 @@ public class DOMOutputCapsule implements OutputCapsule {
 
     // helper function to reduce duplicate code.  uses reflection to write an array of any primitive type.
     // also has optional position argument for writing buffers.
-    private void writePrimitiveArrayHelper(Object value, String name, int position) {
+    private void writePrimitiveArrayHelper(Object value, String name, int position) throws IOException {
         StringBuilder sb = new StringBuilder();
 
         for(int i = 0; i < Array.getLength(value); i++) {
@@ -112,7 +111,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     }
 
     // helper function to reduce duplicate code.  uses the above helper to write a 2d array of any primitive type.
-    private void writePrimitiveArray2DHelper(Object[] value, String name) {
+    private void writePrimitiveArray2DHelper(Object[] value, String name) throws IOException {
         appendElement(name);
 
         XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(value.length));
@@ -361,12 +360,7 @@ public class DOMOutputCapsule implements OutputCapsule {
             buf.setLength(buf.length() - 1);
         }
         
-        try {
-            XMLUtils.setAttribute(currentElement, name, buf.toString());
-        } catch (DOMException ex) {
-            IOException io = new IOException(ex.toString());
-            throw io;
-        }
+        XMLUtils.setAttribute(currentElement, name, buf.toString());
     }
 
     @Override
@@ -645,69 +639,63 @@ public class DOMOutputCapsule implements OutputCapsule {
 
     @Override
     public void writeSavableMap(Map<? extends Savable, ? extends Savable> map, String name, Map<? extends Savable, ? extends Savable> defVal) throws IOException {
-        if (map == null) {
+        if (map == null || map.equals(defVal)) {
             return;
         }
-        if (map.equals(defVal)) {
-            return;
+
+        Element stringMap = appendElement(name);
+
+        Iterator<? extends Savable> keyIterator = map.keySet().iterator();
+        while(keyIterator.hasNext()) {
+            Savable key = keyIterator.next();
+            Element mapEntry = appendElement(XMLExporter.ELEMENT_MAPENTRY);
+            write(key, XMLExporter.ELEMENT_KEY, null);
+            Savable value = map.get(key);
+            write(value, XMLExporter.ELEMENT_VALUE, null);
+            currentElement = stringMap;
         }
-                Element stringMap = appendElement(name);
 
-                Iterator<? extends Savable> keyIterator = map.keySet().iterator();
-                while(keyIterator.hasNext()) {
-                        Savable key = keyIterator.next();
-                        Element mapEntry = appendElement(XMLExporter.ELEMENT_MAPENTRY);
-                        write(key, XMLExporter.ELEMENT_KEY, null);
-                        Savable value = map.get(key);
-                        write(value, XMLExporter.ELEMENT_VALUE, null);
-                        currentElement = stringMap;
-                }
-
-                currentElement = (Element) stringMap.getParentNode();
+        currentElement = (Element) stringMap.getParentNode();
     }
 
     @Override
     public void writeStringSavableMap(Map<String, ? extends Savable> map, String name, Map<String, ? extends Savable> defVal) throws IOException {
-        if (map == null) {
+        if (map == null || map.equals(defVal)) {
             return;
         }
-        if (map.equals(defVal)) {
-            return;
+
+        Element stringMap = appendElement(name);
+
+        Iterator<String> keyIterator = map.keySet().iterator();
+        while(keyIterator.hasNext()) {
+            String key = keyIterator.next();
+            Element mapEntry = appendElement("MapEntry");
+            XMLUtils.setAttribute(mapEntry, "key", key);
+            Savable s = map.get(key);
+            write(s, "Savable", null);
+            currentElement = stringMap;
         }
-                Element stringMap = appendElement(name);
 
-                Iterator<String> keyIterator = map.keySet().iterator();
-                while(keyIterator.hasNext()) {
-                        String key = keyIterator.next();
-                        Element mapEntry = appendElement("MapEntry");
-                        XMLUtils.setAttribute(mapEntry, "key", key);
-                        Savable s = map.get(key);
-                        write(s, "Savable", null);
-                        currentElement = stringMap;
-                }
-
-                currentElement = (Element) stringMap.getParentNode();
+        currentElement = (Element) stringMap.getParentNode();
     }
 
     @Override
     public void writeIntSavableMap(IntMap<? extends Savable> map, String name, IntMap<? extends Savable> defVal) throws IOException {
-        if (map == null) {
+        if (map == null || map.equals(defVal)) {
             return;
         }
-        if (map.equals(defVal)) {
-            return;
+
+        Element stringMap = appendElement(name);
+
+        for(Entry<? extends Savable> entry : map) {
+            int key = entry.getKey();
+            Element mapEntry = appendElement("MapEntry");
+            XMLUtils.setAttribute(mapEntry, "key", Integer.toString(key));
+            Savable s = entry.getValue();
+            write(s, "Savable", null);
+            currentElement = stringMap;
         }
-                Element stringMap = appendElement(name);
 
-                for(Entry<? extends Savable> entry : map) {
-                        int key = entry.getKey();
-                        Element mapEntry = appendElement("MapEntry");
-                        XMLUtils.setAttribute(mapEntry, "key", Integer.toString(key));
-                        Savable s = entry.getValue();
-                        write(s, "Savable", null);
-                        currentElement = stringMap;
-                }
-
-                currentElement = (Element) stringMap.getParentNode();
+        currentElement = (Element) stringMap.getParentNode();
     }
 }

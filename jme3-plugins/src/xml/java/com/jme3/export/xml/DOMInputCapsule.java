@@ -55,8 +55,7 @@ import org.w3c.dom.*;
  * @author blaine
  */
 public class DOMInputCapsule implements InputCapsule {
-    private static final Logger logger =
-        Logger.getLogger(DOMInputCapsule.class .getName());
+    private static final Logger logger = Logger.getLogger(DOMInputCapsule.class .getName());
 
     private Document doc;
     private Element currentElement;
@@ -80,19 +79,10 @@ public class DOMInputCapsule implements InputCapsule {
     @Override
     public int getSavableVersion(Class<? extends Savable> desiredClass) {
         if (classHierarchyVersions != null){
-            return SavableClassUtil.getSavedSavableVersion(savable, desiredClass, 
-                                                        classHierarchyVersions, importer.getFormatVersion());
+            return SavableClassUtil.getSavedSavableVersion(savable, desiredClass, classHierarchyVersions, importer.getFormatVersion());
         }else{
             return 0;
         }
-    }
-
-    private Element findFirstChildElement(Element parent) {
-        Node ret = parent.getFirstChild();
-        while (ret != null && (!(ret instanceof Element))) {
-            ret = ret.getNextSibling();
-        }
-        return (Element) ret;
     }
 
     private Element findChildElement(String name) {
@@ -104,17 +94,6 @@ public class DOMInputCapsule implements InputCapsule {
             ret = ret.getNextSibling();
         }
         return (Element) ret;
-    }
-
-    private Element findNextSiblingElement(Element current) {
-        Node ret = current.getNextSibling();
-        while (ret != null) {
-            if (ret instanceof Element) {
-                return (Element) ret;
-            }
-            ret = ret.getNextSibling();
-        }
-        return null;
     }
 
     // helper method to reduce duplicate code.  checks that number of tokens in the "data" attribute matches the "size" attribute
@@ -481,16 +460,13 @@ public class DOMInputCapsule implements InputCapsule {
     @Override
     public String readString(String name, String defVal) throws IOException {
         String attribute = null;
-        try {
-            // Element.getAttribute() returns an empty string if the specified attribute does not exist.
-            // see https://www.w3.org/2003/01/dom2-javadoc/org/w3c/dom/Element.html#getAttribute_java.lang.String_
-            // somewhat confusing since the w3c JS api equivalent returns null as one would expect.
-            // https://www.w3schools.com/jsref/met_element_getattribute.asp
-            if (XMLUtils.hasAttribute(importer.getFormatVersion(), currentElement, name)) {
-                attribute = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, name);
-            }
-        } catch (DOMException de) {
-            throw new IOException(de.toString(), de);
+
+        // Element.getAttribute() returns an empty string if the specified attribute does not exist.
+        // see https://www.w3.org/2003/01/dom2-javadoc/org/w3c/dom/Element.html#getAttribute_java.lang.String_
+        // somewhat confusing since the w3c JS api equivalent returns null as one would expect.
+        // https://www.w3schools.com/jsref/met_element_getattribute.asp
+        if (XMLUtils.hasAttribute(importer.getFormatVersion(), currentElement, name)) {
+            attribute = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, name);
         }
 
         if (attribute == null) {
@@ -560,11 +536,8 @@ public class DOMInputCapsule implements InputCapsule {
     @Override
     public BitSet readBitSet(String name, BitSet defVal) throws IOException {
         String attribute = null;
-        try {
-            attribute = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, name);
-        } catch (DOMException ex) {
-            throw new IOException(ex.toString(), ex);
-        }
+        
+        attribute = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, name);
 
         if (attribute == null || attribute.isEmpty()) {
             return defVal;
@@ -914,90 +887,82 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public Map<? extends Savable, ? extends Savable> readSavableMap(String name, Map<? extends Savable, ? extends Savable> defVal) throws IOException {
-        Map<Savable, Savable> ret;
-        Element tempEl;
+        Element mapElement = findChildElement(name);
 
-        if (name != null) {
-                tempEl = findChildElement(name);
-        } else {
-                tempEl = currentElement;
+        if (mapElement == null) {
+            return defVal;
         }
-        ret = new HashMap<Savable, Savable>();
 
-        NodeList nodes = tempEl.getChildNodes();
+        Map<Savable, Savable> ret = new HashMap<Savable, Savable>();
+
+        NodeList nodes = mapElement.getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
-                Node n = nodes.item(i);
+            Node n = nodes.item(i);
             if (n instanceof Element && n.getNodeName().equals("MapEntry")) {
                 Element elem = (Element) n;
-                        currentElement = elem;
-                        Savable key = readSavable(XMLExporter.ELEMENT_KEY, null);
-                        Savable val = readSavable(XMLExporter.ELEMENT_VALUE, null);
-                        ret.put(key, val);
-                }
+                currentElement = elem;
+                Savable key = readSavable(XMLExporter.ELEMENT_KEY, null);
+                Savable val = readSavable(XMLExporter.ELEMENT_VALUE, null);
+                ret.put(key, val);
+            }
         }
-        currentElement = (Element) tempEl.getParentNode();
+
+        currentElement = (Element) mapElement.getParentNode();
+
         return ret;
     }
 
     @Override
     public Map<String, ? extends Savable> readStringSavableMap(String name, Map<String, ? extends Savable> defVal) throws IOException {
-        Map<String, Savable> ret = null;
-        Element tempEl;
+        Element mapElement = findChildElement(name);
 
-        if (name != null) {
-                tempEl = findChildElement(name);
-        } else {
-                tempEl = currentElement;
+        if (mapElement == null) {
+            return defVal;
         }
-        if (tempEl != null) {
-                ret = new HashMap<String, Savable>();
 
-                NodeList nodes = tempEl.getChildNodes();
-                    for (int i = 0; i < nodes.getLength(); i++) {
-                                Node n = nodes.item(i);
-                                if (n instanceof Element && n.getNodeName().equals("MapEntry")) {
-                                        Element elem = (Element) n;
-                                        currentElement = elem;
-                                        String key = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "key");
-                                        Savable val = readSavable("Savable", null);
-                                        ret.put(key, val);
-                                }
-                        }
-        } else {
-                return defVal;
+        Map<String, Savable> ret = new HashMap<String, Savable>();
+
+        NodeList nodes = mapElement.getChildNodes();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node n = nodes.item(i);
+            if (n instanceof Element && n.getNodeName().equals("MapEntry")) {
+                Element elem = (Element) n;
+                currentElement = elem;
+                String key = XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "key");
+                Savable val = readSavable("Savable", null);
+                ret.put(key, val);
             }
-        currentElement = (Element) tempEl.getParentNode();
+        }
+
+        currentElement = (Element) mapElement.getParentNode();
+
         return ret;
     }
 
     @Override
     public IntMap<? extends Savable> readIntSavableMap(String name, IntMap<? extends Savable> defVal) throws IOException {
-        IntMap<Savable> ret = null;
-        Element tempEl;
+        Element mapElement = findChildElement(name);
 
-        if (name != null) {
-                tempEl = findChildElement(name);
-        } else {
-                tempEl = currentElement;
+        if (mapElement == null) {
+            return defVal;
         }
-        if (tempEl != null) {
-                ret = new IntMap<Savable>();
 
-                NodeList nodes = tempEl.getChildNodes();
-                    for (int i = 0; i < nodes.getLength(); i++) {
-                                Node n = nodes.item(i);
-                                if (n instanceof Element && n.getNodeName().equals("MapEntry")) {
-                                        Element elem = (Element) n;
-                                        currentElement = elem;
-                                        int key = Integer.parseInt(XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "key"));
-                                        Savable val = readSavable("Savable", null);
-                                        ret.put(key, val);
-                                }
-                        }
-        } else {
-                return defVal;
+        IntMap<Savable> ret = new IntMap<Savable>();
+
+        NodeList nodes = mapElement.getChildNodes();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node n = nodes.item(i);
+            if (n instanceof Element && n.getNodeName().equals("MapEntry")) {
+                Element elem = (Element) n;
+                currentElement = elem;
+                int key = Integer.parseInt(XMLUtils.getAttribute(importer.getFormatVersion(), currentElement, "key"));
+                Savable val = readSavable("Savable", null);
+                ret.put(key, val);
             }
-        currentElement = (Element) tempEl.getParentNode();
+        }
+
+        currentElement = (Element) mapElement.getParentNode();
+
         return ret;
     }
 
