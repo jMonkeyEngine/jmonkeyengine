@@ -1,0 +1,50 @@
+## catalog of libraries and plugins used to build the jmonkeyengine project
+
+[versions]
+
+checkstyle = "9.3"
+lwjgl3 = "3.3.3"
+nifty = "1.4.3"
+
+[libraries]
+
+android-build-gradle = "com.android.tools.build:gradle:4.2.0"
+android-support-appcompat = "com.android.support:appcompat-v7:28.0.0"
+androidx-annotation = "androidx.annotation:annotation:1.3.0"
+androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.4.0"
+gradle-git = "org.ajoberstar:gradle-git:1.2.0"
+gradle-retrolambda = "me.tatarka:gradle-retrolambda:3.7.1"
+groovy-test = "org.codehaus.groovy:groovy-test:3.0.21"
+gson = "com.google.code.gson:gson:2.9.1"
+j-ogg-vorbis = "com.github.stephengold:j-ogg-vorbis:1.0.4"
+jbullet = "com.github.stephengold:jbullet:1.0.3"
+jinput = "net.java.jinput:jinput:2.0.9"
+jna = "net.java.dev.jna:jna:5.10.0"
+jnaerator-runtime = "com.nativelibs4java:jnaerator-runtime:0.12"
+junit4 = "junit:junit:4.13.2"
+lwjgl2 = "org.jmonkeyengine:lwjgl:2.9.5"
+lwjgl3-awt = "org.lwjglx:lwjgl3-awt:0.1.8"
+
+lwjgl3-base     = { module = "org.lwjgl:lwjgl",          version.ref = "lwjgl3" }
+lwjgl3-glfw     = { module = "org.lwjgl:lwjgl-glfw",     version.ref = "lwjgl3" }
+lwjgl3-jawt     = { module = "org.lwjgl:lwjgl-jawt",     version.ref = "lwjgl3" }
+lwjgl3-jemalloc = { module = "org.lwjgl:lwjgl-jemalloc", version.ref = "lwjgl3" }
+lwjgl3-openal   = { module = "org.lwjgl:lwjgl-openal",   version.ref = "lwjgl3" }
+lwjgl3-opencl   = { module = "org.lwjgl:lwjgl-opencl",   version.ref = "lwjgl3" }
+lwjgl3-opengl   = { module = "org.lwjgl:lwjgl-opengl",   version.ref = "lwjgl3" }
+lwjgl3-openvr   = { module = "org.lwjgl:lwjgl-openvr",   version.ref = "lwjgl3" }
+lwjgl3-ovr      = { module = "org.lwjgl:lwjgl-ovr",      version.ref = "lwjgl3" }
+
+mokito-core = "org.mockito:mockito-core:3.12.4"
+
+nifty                  = { module = "com.github.nifty-gui:nifty",                  version.ref = "nifty" }
+nifty-default-controls = { module = "com.github.nifty-gui:nifty-default-controls", version.ref = "nifty" }
+nifty-examples         = { module = "com.github.nifty-gui:nifty-examples",         version.ref = "nifty" }
+nifty-style-black      = { module = "com.github.nifty-gui:nifty-style-black",      version.ref = "nifty" }
+
+spotbugs-gradle-plugin = "com.github.spotbugs.snom:spotbugs-gradle-plugin:6.0.18"
+vecmath = "javax.vecmath:vecmath:1.5.2"
+
+[bundles]
+
+[plugins]
