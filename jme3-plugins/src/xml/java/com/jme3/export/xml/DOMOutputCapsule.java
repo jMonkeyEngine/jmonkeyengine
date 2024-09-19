@@ -90,7 +90,7 @@ public class DOMOutputCapsule implements OutputCapsule {
 
     // helper function to reduce duplicate code.  uses reflection to write an array of any primitive type.
     // also has optional position argument for writing buffers.
-    private void writePrimitiveArrayHelper(Object value, String name, int position) throws IOException {
+    private void writePrimitiveArrayHelper(Object value, String name) throws IOException {
         StringBuilder sb = new StringBuilder();
 
         for(int i = 0; i < Array.getLength(value); i++) {
@@ -104,9 +104,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         appendElement(name);
         XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(Array.getLength(value)));
         XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_DATA, sb.toString());
-        if (position >= 0) {
-            XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_POSITION, String.valueOf(position));
-        }
+
         currentElement = (Element) currentElement.getParentNode();
     }
 
@@ -124,7 +122,7 @@ public class DOMOutputCapsule implements OutputCapsule {
             String childName = childNamePrefix + i;
 
             if (value[i] != null) {
-                writePrimitiveArrayHelper(value[i], childName, -1);
+                writePrimitiveArrayHelper(value[i], childName);
             } else {
                 // empty tag
                 appendElement(childName);
@@ -145,7 +143,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(byte[] value, String name, byte[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name, -1);
+            writePrimitiveArrayHelper(value, name);
         }
     }
 
@@ -166,7 +164,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(short[] value, String name, short[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name, -1);
+            writePrimitiveArrayHelper(value, name);
         }
     }
 
@@ -187,7 +185,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(int[] value, String name, int[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name, -1);
+            writePrimitiveArrayHelper(value, name);
         }
     }
 
@@ -208,7 +206,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(long[] value, String name, long[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name, -1);
+            writePrimitiveArrayHelper(value, name);
         }
     }
 
@@ -229,7 +227,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(float[] value, String name, float[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name, -1);
+            writePrimitiveArrayHelper(value, name);
         }
     }
 
@@ -250,7 +248,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(double[] value, String name, double[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name, -1);
+            writePrimitiveArrayHelper(value, name);
         }
     }
 
@@ -271,7 +269,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     @Override
     public void write(boolean[] value, String name, boolean[] defVal) throws IOException {
         if (!Arrays.equals(value, defVal)) {
-            writePrimitiveArrayHelper(value, name, -1);
+            writePrimitiveArrayHelper(value, name);
         }
     }
 
@@ -478,7 +476,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         value.get(array);
         value.position(position);
 
-        writePrimitiveArrayHelper(array, name, value.position());
+        writePrimitiveArrayHelper(array, name);
     }
 
     @Override
@@ -493,7 +491,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         value.get(array);
         value.position(position);
 
-        writePrimitiveArrayHelper(array, name, value.position());
+        writePrimitiveArrayHelper(array, name);
     }
 
     @Override
@@ -508,7 +506,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         value.get(array);
         value.position(position);
 
-        writePrimitiveArrayHelper(array, name, value.position());
+        writePrimitiveArrayHelper(array, name);
     }
 
     @Override
@@ -523,7 +521,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         value.get(array);
         value.position(position);
 
-        writePrimitiveArrayHelper(array, name, value.position());
+        writePrimitiveArrayHelper(array, name);
     }
 
     @Override

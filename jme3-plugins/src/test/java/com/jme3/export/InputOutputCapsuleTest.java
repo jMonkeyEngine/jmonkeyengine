@@ -292,7 +292,6 @@ public class InputOutputCapsuleTest {
         new Savable[0]
     };
 
-    // rewind these because there's a separate test for buffer position.
     private static final ByteBuffer testByteBuffer = (ByteBuffer) BufferUtils.createByteBuffer(testByteArray).rewind();
     private static final ShortBuffer testShortBuffer = (ShortBuffer) BufferUtils.createShortBuffer(testShortArray).rewind();
     private static final IntBuffer testIntBuffer = (IntBuffer) BufferUtils.createIntBuffer(testIntArray).rewind();
@@ -619,9 +618,6 @@ public class InputOutputCapsuleTest {
             capsule.write(testIntBuffer, "testIntBuffer", null);
             capsule.write(testFloatBuffer, "testFloatBuffer", null);
 
-            capsule.write((ByteBuffer) BufferUtils.createByteBuffer(4).position(2), "testBufferPosition", null);
-            capsule.write((ByteBuffer) BufferUtils.createByteBuffer(4).limit(2), "testBufferLimit", null);
-
             capsule.write(BufferUtils.createByteBuffer(0), "emptyByteBuffer", null);
             capsule.write(BufferUtils.createShortBuffer(0), "emptyShortBuffer", null);
             capsule.write(BufferUtils.createIntBuffer(0), "emptyIntBuffer", null);
@@ -636,10 +632,6 @@ public class InputOutputCapsuleTest {
             Assert.assertEquals("readShortBuffer()", testShortBuffer, capsule.readShortBuffer("testShortBuffer", null));
             Assert.assertEquals("readIntBuffer()", testIntBuffer, capsule.readIntBuffer("testIntBuffer", null));
             Assert.assertEquals("readFloatBuffer()", testFloatBuffer, capsule.readFloatBuffer("testFloatBuffer", null));
-
-            // BinaryExporter actually fails this one, so commenting it out for now
-            //Assert.assertEquals("buffer position", 2, capsule.readByteBuffer("testBufferPosition", null).position());
-            Assert.assertEquals("buffer limit", 2, capsule.readByteBuffer("testBufferLimit", null).limit());
 
             Assert.assertEquals("readByteBuffer()", BufferUtils.createByteBuffer(0), capsule.readByteBuffer("emptyByteBuffer", null));
             Assert.assertEquals("readShortBuffer()", BufferUtils.createShortBuffer(0), capsule.readShortBuffer("emptyShortBuffer", null));

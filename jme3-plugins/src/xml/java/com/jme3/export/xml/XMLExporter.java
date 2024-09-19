@@ -62,7 +62,6 @@ public class XMLExporter implements JmeExporter {
     public static final String ELEMENT_VALUE = "Value";
     public static final String ATTRIBUTE_SIZE = "size";
     public static final String ATTRIBUTE_DATA = "data";
-    public static final String ATTRIBUTE_POSITION = "position"; // for buffers only
     public static final String ATTRIBUTE_CLASS = "class";
     public static final String ATTRIBUTE_REFERENCE_ID = "reference_ID";
     public static final String ATTRIBUTE_REFERENCE = "ref";

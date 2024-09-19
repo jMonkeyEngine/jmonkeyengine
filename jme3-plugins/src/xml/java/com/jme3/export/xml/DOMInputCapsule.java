@@ -704,17 +704,7 @@ public class DOMInputCapsule implements InputCapsule {
             return defVal;
         }
 
-        int position = 0;
-        String positionString = XMLUtils.getAttribute(importer.getFormatVersion(), element, XMLExporter.ATTRIBUTE_POSITION);
-        if (!positionString.isEmpty()) {
-            try {
-                position = Integer.parseInt(positionString);
-            } catch (NumberFormatException nfe) {
-                throw new IOException(nfe);
-            }
-        }
-
-        return (ByteBuffer) BufferUtils.createByteBuffer(array.length).put(array).position(position);
+        return (ByteBuffer) BufferUtils.createByteBuffer(array.length).put(array).rewind();
     }
 
     @Override
@@ -727,17 +717,7 @@ public class DOMInputCapsule implements InputCapsule {
             return defVal;
         }
 
-        int position = 0;
-        String positionString = XMLUtils.getAttribute(importer.getFormatVersion(), element, XMLExporter.ATTRIBUTE_POSITION);
-        if (!positionString.isEmpty()) {
-            try {
-                position = Integer.parseInt(positionString);
-            } catch (NumberFormatException nfe) {
-                throw new IOException(nfe);
-            }
-        }
-
-        return (ShortBuffer) BufferUtils.createShortBuffer(array.length).put(array).position(position);
+        return (ShortBuffer) BufferUtils.createShortBuffer(array.length).put(array).rewind();
     }
 
     @Override
@@ -750,17 +730,7 @@ public class DOMInputCapsule implements InputCapsule {
             return defVal;
         }
 
-        int position = 0;
-        String positionString = XMLUtils.getAttribute(importer.getFormatVersion(), element, XMLExporter.ATTRIBUTE_POSITION);
-        if (!positionString.isEmpty()) {
-            try {
-                position = Integer.parseInt(positionString);
-            } catch (NumberFormatException nfe) {
-                throw new IOException(nfe);
-            }
-        }
-
-        return (IntBuffer) BufferUtils.createIntBuffer(array.length).put(array).position(position);
+        return (IntBuffer) BufferUtils.createIntBuffer(array.length).put(array).rewind();
     }
 
     @Override
@@ -773,17 +743,7 @@ public class DOMInputCapsule implements InputCapsule {
             return defVal;
         }
 
-        int position = 0;
-        String positionString = XMLUtils.getAttribute(importer.getFormatVersion(), element, XMLExporter.ATTRIBUTE_POSITION);
-        if (!positionString.isEmpty()) {
-            try {
-                position = Integer.parseInt(positionString);
-            } catch (NumberFormatException nfe) {
-                throw new IOException(nfe);
-            }
-        }
-
-        return (FloatBuffer) BufferUtils.createFloatBuffer(array.length).put(array).position(position);
+        return (FloatBuffer) BufferUtils.createFloatBuffer(array.length).put(array).rewind();
     }
 
     @Override
