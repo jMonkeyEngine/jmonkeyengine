@@ -31,7 +31,9 @@
  */
 package com.jme3.export.xml;
 
+import java.io.IOException;
 import org.w3c.dom.Element;
+import org.w3c.dom.DOMException;
 
 /**
  * Utilities for reading and writing XML files.
@@ -58,9 +60,16 @@ public class XMLUtils {
      * @param element element to set the attribute in
      * @param name name of the attribute (without prefix)
      * @param attribute attribute to save
+     * 
+     * @throws java.io.IOException wraps DOMException in IOException for convenience since everywhere this method
+     * is used is expected to throw only IOException.
      */
-    public static void setAttribute(Element element, String name, String attribute) {
-        element.setAttribute(PREFIX+name, attribute);
+    public static void setAttribute(Element element, String name, String attribute) throws IOException {
+        try {
+            element.setAttribute(PREFIX+name, attribute);
+        } catch (DOMException domEx) {
+            throw new IOException(domEx);
+        }
     }
     
     /**
@@ -106,5 +115,4 @@ public class XMLUtils {
      */
     private XMLUtils() {
     }
-    
 }
