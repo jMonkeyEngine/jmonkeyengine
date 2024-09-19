@@ -1,4 +1,17 @@
+#ifndef __MATH_GLSLLIB__
+#define __MATH_GLSLLIB__
+
 /// Multiplies the vector by the quaternion, then returns the resultant vector.
 vec3 Math_QuaternionMult(in vec4 quat, in vec3 vec){
 	return vec + 2.0 * cross(quat.xyz, cross(quat.xyz, vec) + quat.w * vec);
 }
+
+void Math_lengthAndNormalize(in vec3 vec,out float outLength,out vec3 outNormal){
+    float dotv=dot(vec,vec);
+    float invl=inversesqrt(dotv);
+    outNormal=vec*invl;
+    outLength=invl*dotv;
+}
+
+
+#endif
