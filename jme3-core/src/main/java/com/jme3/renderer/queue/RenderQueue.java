@@ -33,9 +33,12 @@ package com.jme3.renderer.queue;
 
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.GeometryRenderHandler;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.RenderUtils;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
+import java.util.LinkedList;
 
 /**
  * <code>RenderQueue</code> is used to queue up and sort 
@@ -264,18 +267,8 @@ public class RenderQueue {
         }
     }
 
-    private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
-        list.setCamera(cam); // select camera for sorting
-        list.sort();
-        for (int i = 0; i < list.size(); i++) {
-            Geometry obj = list.get(i);
-            assert obj != null;
-            rm.renderGeometry(obj);
-            obj.queueDistance = Float.NEGATIVE_INFINITY;
-        }
-        if (clear) {
-            list.clear();
-        }
+    private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean flush) {
+        RenderUtils.renderGeometryList(rm, cam, list, null, flush);
     }
 
     public void renderShadowQueue(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
@@ -328,6 +321,18 @@ public class RenderQueue {
                 throw new UnsupportedOperationException("Unsupported bucket type: " + bucket);
         }
         rm.getRenderer().popDebugGroup();
+    }
+    
+    public GeometryList getList(Bucket bucket) {
+        switch (bucket) {
+            case Opaque: return opaqueList;
+            case Gui: return guiList;
+            case Transparent: return transparentList;
+            case Translucent: return translucentList;
+            case Sky: return skyList;
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
     public void clear() {
