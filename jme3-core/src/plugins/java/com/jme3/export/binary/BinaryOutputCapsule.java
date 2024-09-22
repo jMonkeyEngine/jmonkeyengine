@@ -744,7 +744,7 @@ final class BinaryOutputCapsule implements OutputCapsule {
 
         byte[] rVal = new byte[1 + size];
         rVal[0] = (byte) size;
-        System.arraycopy(bytes, bytes.length - size - 1 + 1, rVal, 1, rVal.length - 1);
+        System.arraycopy(bytes, bytes.length - size, rVal, 1, rVal.length - 1);
 
         return rVal;
     }

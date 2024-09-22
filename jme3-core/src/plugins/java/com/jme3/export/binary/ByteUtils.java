@@ -480,7 +480,7 @@ public class ByteUtils {
         if (bytes.length != width) {
             byte[] rVal = new byte[width];
             if (width - (width - bytes.length) >= 0)
-                System.arraycopy(bytes, width - bytes.length - (width - bytes.length), rVal, width - bytes.length, width - (width - bytes.length));
+                System.arraycopy(bytes, 0, rVal, width - bytes.length, bytes.length);
             return rVal;
         }
             

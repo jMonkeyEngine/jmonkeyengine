@@ -211,7 +211,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
 
         // put the normalized heightmap into the range [0...255] and into the heightmap
         for (int y = 0; y < size; y++) {
-            System.arraycopy(tempBuffer[curBuf], 0 + y * size, heightData, 0 + y * size, size);
+            System.arraycopy(tempBuffer[curBuf], y * size, heightData, y * size, size);
         }
         normalizeTerrain(NORMALIZE_RANGE);
 

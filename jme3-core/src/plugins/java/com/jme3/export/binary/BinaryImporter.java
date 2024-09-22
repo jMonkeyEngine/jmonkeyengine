@@ -300,7 +300,7 @@ public final class BinaryImporter implements JmeImporter {
 
     protected String readString(int length, int offset) throws IOException {
         byte[] data = new byte[length];
-        System.arraycopy(dataArray, 0 + offset, data, 0, length);
+        System.arraycopy(dataArray, offset, data, 0, length);
 
         return new String(data);
     }
