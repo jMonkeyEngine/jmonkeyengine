@@ -39,6 +39,7 @@ import com.jme3.export.Savable;
 import com.jme3.export.SavableClassUtil;
 import com.jme3.math.FastMath;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -334,8 +335,8 @@ public class BinaryExporter implements JmeExporter {
             parentDirectory.mkdirs();
         }
 
-        try (FileOutputStream fos = new FileOutputStream(f);
-                BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+        try (OutputStream os = Files.newOutputStream(f.toPath());
+                BufferedOutputStream bos = new BufferedOutputStream(os)) {
             save(object, bos);
         }
     }
