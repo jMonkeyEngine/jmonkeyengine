@@ -31,21 +31,17 @@
  */
 package com.jme3.shader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
+import com.jme3.system.TestUtil;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
-import com.jme3.system.TestUtil;
-
-import org.junit.Test;
-
 import jme3tools.shader.Preprocessor;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
 
 
 public class GLSLPreprocessorTest {
@@ -56,7 +52,9 @@ public class GLSLPreprocessorTest {
         while (true) {
             String l = reader.readLine();
             if (l == null) break;
-            if (output.toString() != "") output.append("\n");
+            if (output.length() > 0) {
+                output.append("\n");
+            }
             output.append(l);
         }
         reader.close();
