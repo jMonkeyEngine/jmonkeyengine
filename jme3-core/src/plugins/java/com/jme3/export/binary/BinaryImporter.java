@@ -293,7 +293,7 @@ public final class BinaryImporter implements JmeImporter {
         byte[] data = new byte[length];
         f.read(data, 0, length);
 
-        return new String(f.readNBytes(length));
+        return new String(data);
     }
 
     protected String readString(int length, int offset) throws IOException {
