@@ -290,6 +290,9 @@ public final class BinaryImporter implements JmeImporter {
     }
 
     protected String readString(InputStream f, int length) throws IOException {
+        byte[] data = new byte[length];
+        f.read(data, 0, length);
+
         return new String(f.readNBytes(length));
     }
 
