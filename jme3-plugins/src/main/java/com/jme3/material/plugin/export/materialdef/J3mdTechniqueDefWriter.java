@@ -234,7 +234,7 @@ public class J3mdTechniqueDefWriter {
 
         out.write(leftVar.getName());
 
-        if (!mapping.getLeftSwizzling().equals("")) {
+        if (!mapping.getLeftSwizzling().isEmpty()) {
             out.write(".");
             out.write(mapping.getLeftSwizzling());
         }
@@ -255,7 +255,7 @@ public class J3mdTechniqueDefWriter {
 
             out.write(rightVarName);
 
-            if (!mapping.getRightSwizzling().equals("")) {
+            if (!mapping.getRightSwizzling().isEmpty()) {
                 out.write(".");
                 out.write(mapping.getRightSwizzling());
             }

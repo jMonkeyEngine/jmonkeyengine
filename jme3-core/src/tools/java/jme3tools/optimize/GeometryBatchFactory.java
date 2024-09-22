@@ -415,17 +415,17 @@ public class GeometryBatchFactory {
 
             System.out.println(outBuf.getBufferType() + ": ");
             for (int vert = 0; vert < outBuf.getNumElements(); vert++) {
-                String str = "[";
+                StringBuilder str = new StringBuilder("[");
                 for (int comp = 0; comp < outBuf.getNumComponents(); comp++) {
                     Object val = outBuf.getElementComponent(vert, comp);
                     outBuf.setElementComponent(vert, comp, val);
                     val = outBuf.getElementComponent(vert, comp);
-                    str += val;
+                    str.append(val);
                     if (comp != outBuf.getNumComponents() - 1) {
-                        str += ", ";
+                        str.append(", ");
                     }
                 }
-                str += "]";
+                str.append("]");
                 System.out.println(str);
             }
             System.out.println("------");

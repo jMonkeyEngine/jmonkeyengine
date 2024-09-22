@@ -94,7 +94,7 @@ public class DefineListTest {
         for (int id = 0; id < NUM_DEFINES; ++id) {
             assert !dl.isSet(id);
         }
-        assert generateSource(dl).equals("");
+        assert generateSource(dl).isEmpty();
     }
 
     @Test
@@ -112,7 +112,7 @@ public class DefineListTest {
         for (int id = 0; id < NUM_DEFINES; ++id) {
             assert !dl.isSet(id);
         }
-        assert generateSource(dl).equals("");
+        assert generateSource(dl).isEmpty();
 
         dl.set(BOOL_VAR, true);
         for (int id = 0; id < NUM_DEFINES; ++id) {
@@ -125,7 +125,7 @@ public class DefineListTest {
         for (int id = 0; id < NUM_DEFINES; ++id) {
             assert !dl.isSet(id);
         }
-        assert generateSource(dl).equals("");
+        assert generateSource(dl).isEmpty();
     }
 
     @Test
@@ -164,7 +164,7 @@ public class DefineListTest {
         for (int id = 0; id < NUM_DEFINES; ++id) {
             assert !dl.isSet(id);
         }
-        assert generateSource(dl).equals("");
+        assert generateSource(dl).isEmpty();
     }
 
     @Test

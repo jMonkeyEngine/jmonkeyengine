@@ -2,6 +2,7 @@ package com.jme3.system.jopenvr;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 /**
  * <i>native declaration : headers\openvr_capi.h:1183</i><br>
@@ -20,7 +21,7 @@ public class HmdMatrix33_t extends Structure {
 	}
         @Override
 	protected List<String> getFieldOrder() {
-		return Arrays.asList("m");
+		return Collections.singletonList("m");
 	}
 	/**
 	 * @param m float[3][3]<br>

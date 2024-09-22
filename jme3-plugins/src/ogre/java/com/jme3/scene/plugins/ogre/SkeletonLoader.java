@@ -178,7 +178,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             for (Joint j : unusedJoints) {
                 AnimMigrationUtils.padJointTracks(tracks, j);
             }
-            TransformTrack[] trackList = tracks.toArray(new TransformTrack[tracks.size()]);
+            TransformTrack[] trackList = tracks.toArray(new TransformTrack[0]);
             animClip.setTracks(trackList);
             tracks.clear();
         } else if (qName.equals("keyframe")) {
@@ -205,9 +205,9 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
                     timesArray[i] = times.get(i);
                 }
 
-                Vector3f[] transArray = translations.toArray(new Vector3f[translations.size()]);
-                Quaternion[] rotArray = rotations.toArray(new Quaternion[rotations.size()]);
-                Vector3f[] scalesArray = scales.toArray(new Vector3f[scales.size()]);
+                Vector3f[] transArray = translations.toArray(new Vector3f[0]);
+                Quaternion[] rotArray = rotations.toArray(new Quaternion[0]);
+                Vector3f[] scalesArray = scales.toArray(new Vector3f[0]);
                 
                 track.setKeyframes(timesArray, transArray, rotArray, scalesArray);
             } else {

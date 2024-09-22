@@ -267,9 +267,7 @@ public class TestGltfLoading extends SimpleApplication {
         AnimComposer control = s.getControl(AnimComposer.class);
         if (control != null) {
             anims.clear();
-            for (String name : control.getAnimClipsNames()) {
-                anims.add(name);
-            }
+            anims.addAll(control.getAnimClipsNames());
             if (anims.isEmpty()) {
                 return;
             }

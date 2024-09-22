@@ -39,6 +39,7 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
+import java.util.Collections;
 
 /**
  * The animation class updates the animation target with the tracks of a given type.
@@ -139,9 +140,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
      * @param tracksArray The tracks to set.
      */
     public void setTracks(Track[] tracksArray) {
-        for (Track track : tracksArray) {
-            tracks.add(track);
-        }
+        Collections.addAll(tracks, tracksArray);
     }
 
     /**

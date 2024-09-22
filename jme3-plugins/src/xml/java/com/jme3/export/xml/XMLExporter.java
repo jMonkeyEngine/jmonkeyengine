@@ -36,9 +36,9 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -83,11 +83,8 @@ public class XMLExporter implements JmeExporter {
             parentDirectory.mkdirs();
         }
 
-        FileOutputStream fos = new FileOutputStream(f);
-        try {
-            save(object, fos);
-        } finally {
-            fos.close();
+        try(OutputStream os = Files.newOutputStream(f.toPath())) {
+            save(object, os);
         }
     }
 

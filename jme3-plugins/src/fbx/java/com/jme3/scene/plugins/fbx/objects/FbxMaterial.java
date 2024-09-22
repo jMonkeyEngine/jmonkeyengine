@@ -22,7 +22,7 @@ public class FbxMaterial extends FbxObject {
 
     public FbxMaterial(SceneLoader scene, FbxElement element) {
         super(scene, element);
-        if(type.equals("")) {
+        if(type.isEmpty()) {
             for(FbxElement e : element.children) {
                 if(e.id.equals("ShadingModel")) {
                     shadingModel = (String) e.properties.get(0);

@@ -420,7 +420,7 @@ public class InstancedGeometry extends Geometry {
         if (globalInstanceData != null) {
             allData.addAll(Arrays.asList(globalInstanceData));
         }
-        allInstanceData = allData.toArray(new VertexBuffer[allData.size()]);
+        allInstanceData = allData.toArray(new VertexBuffer[0]);
     }
 
     @Override

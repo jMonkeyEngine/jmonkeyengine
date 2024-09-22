@@ -334,10 +334,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         OutputCapsule oc = ex.getCapsule(this);
 //        oc.write(owner, "owner", null);
 
-        ArrayList<Light> lights = new ArrayList<>();
-        for (int i = 0; i < listSize; i++) {
-            lights.add(list[i]);
-        }
+        ArrayList<Light> lights = new ArrayList<>(Arrays.asList(list).subList(0, listSize));
         oc.writeSavableArrayList(lights, "lights", null);
     }
 

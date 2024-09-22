@@ -224,12 +224,12 @@ public class LodGenerator {
         
         @Override
         public String toString() {
-            String out = "Triangle{\n";
+            StringBuilder out = new StringBuilder("Triangle{\n");
             for (int i = 0; i < 3; i++) {
-                out += vertexId[i] + " : " + vertex[i].toString() + "\n";
+                out.append(vertexId[i]).append(" : ").append(vertex[i].toString()).append("\n");
             }
-            out += '}';
-            return out;
+            out.append('}');
+            return out.toString();
         }
     }
     /**

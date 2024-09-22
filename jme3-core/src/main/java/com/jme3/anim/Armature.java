@@ -83,7 +83,7 @@ public class Armature implements JmeCloneable, Savable {
                 rootJointList.add(joint);
             }
         }
-        rootJoints = rootJointList.toArray(new Joint[rootJointList.size()]);
+        rootJoints = rootJointList.toArray(new Joint[0]);
 
         createSkinningMatrices();
 

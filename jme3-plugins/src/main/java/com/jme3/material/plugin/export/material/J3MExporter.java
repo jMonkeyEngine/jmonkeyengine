@@ -7,11 +7,11 @@ import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 /**
  * Saves a Material to a j3m file with proper formatting.
@@ -61,8 +61,8 @@ public class J3MExporter implements JmeExporter {
             parentDirectory.mkdirs();
         }
 
-        try (FileOutputStream fos = new FileOutputStream(f);
-                BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+        try (OutputStream os = Files.newOutputStream(f.toPath());
+                BufferedOutputStream bos = new BufferedOutputStream(os)) {
             save(object, bos);
         }
     }

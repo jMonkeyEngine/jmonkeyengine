@@ -1281,8 +1281,8 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(boneList.toArray(new String[boneList.size()]), "boneList", new String[0]);
-        oc.write(boneLinks.values().toArray(new PhysicsBoneLink[boneLinks.size()]), "boneLinks", new PhysicsBoneLink[0]);
+        oc.write(boneList.toArray(new String[0]), "boneList", new String[0]);
+        oc.write(boneLinks.values().toArray(new PhysicsBoneLink[0]), "boneLinks", new PhysicsBoneLink[0]);
         oc.write(modelPosition, "modelPosition", new Vector3f());
         oc.write(modelRotation, "modelRotation", new Quaternion());
         oc.write(targetModel, "targetModel", null);

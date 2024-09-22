@@ -123,7 +123,7 @@ public class GlfwJoystickInput implements JoyInput {
             }
         }
 
-        return joysticks.values().toArray(new GlfwJoystick[joysticks.size()]);
+        return joysticks.values().toArray(new GlfwJoystick[0]);
     }
 
     private String convertAxisIndex(final int index) {

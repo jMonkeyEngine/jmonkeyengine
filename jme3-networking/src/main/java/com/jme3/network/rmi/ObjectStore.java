@@ -170,7 +170,7 @@ public class ObjectStore {
                 methodList.add(method);
             }
         }
-        localObj.methods = methodList.toArray(new Method[methodList.size()]);  
+        localObj.methods = methodList.toArray(new Method[0]);
         
         // Put it in the store
         localObjects.put(localObj.objectId, localObj);
