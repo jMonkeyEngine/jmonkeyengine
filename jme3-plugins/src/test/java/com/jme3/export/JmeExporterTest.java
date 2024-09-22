@@ -53,9 +53,9 @@ import org.junit.runners.Parameterized;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -117,7 +117,7 @@ public class JmeExporterTest {
         Assert.assertTrue(file.exists());
     }
 
-    @Test(expected = FileNotFoundException.class)
+    @Test(expected = NoSuchFileException.class)
     public void testSaveWhenPathDoesntExistWithoutCreateDirs() throws IOException {
         File file = fileWithMissingParent();
         exporter.save(material, file, false);
