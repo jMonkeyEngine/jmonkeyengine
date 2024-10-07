@@ -72,11 +72,8 @@ jobs:
           distribution: 'temurin'
           java-version: 11
 
-      - name: Check jni
-        run: find / -name jni.h
-
-      - name: Manually run export shell script
-        run: cd jme3-ios-native && ./export.sh
+      # - name: Check jni
+      #   run: find / -name jni.h
 
       - name: Clone the repo
         uses: actions/checkout@v4
@@ -84,6 +81,9 @@ jobs:
           fetch-depth: 1
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
+
+      - name: Manually run export shell script
+        run: cd jme3-ios-native && ./export.sh
 
 
 
