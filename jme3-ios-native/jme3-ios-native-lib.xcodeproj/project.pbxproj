@@ -325,6 +325,7 @@
 				HEADER_SEARCH_PATHS = (
 					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/JavaVM.framework/Headers/,
 					"/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home/include/**",
+					"/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/11.0.24-8/arm64/Contents/Home/include/**",
 				);
 				INFOPLIST_FILE = "jme3-ios-native-lib/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -340,7 +341,8 @@
 				SUPPORTS_MACCATALYST = YES;
 				USER_HEADER_SEARCH_PATHS = (
 					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/JavaVM.framework/Headers/,
-					"/Applications/jmonkeyplatform-3.2.4.app/Contents/Resources/jmonkeyplatform/jdk/include",
+					"/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home/include/**",
+					"/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/11.0.24-8/arm64/Contents/Home/include/**",
 				);
 			};
 			name = Debug;
@@ -357,6 +359,7 @@
 				HEADER_SEARCH_PATHS = (
 					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/JavaVM.framework/Headers/,
 					"/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home/include/**",
+					"/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/11.0.24-8/arm64/Contents/Home/include/**",
 				);
 				INFOPLIST_FILE = "jme3-ios-native-lib/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -372,7 +375,8 @@
 				SUPPORTS_MACCATALYST = YES;
 				USER_HEADER_SEARCH_PATHS = (
 					/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/JavaVM.framework/Headers/,
-					"/Applications/jmonkeyplatform-3.2.4.app/Contents/Resources/jmonkeyplatform/jdk/include",
+					"/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home/include/**",
+					"/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/11.0.24-8/arm64/Contents/Home/include/**",
 				);
 			};
 			name = Release;
