@@ -51,11 +51,35 @@ on:
       - v3.5
       - v3.4
       - v3.3
+      - ios-2024
   pull_request:
   release:
     types: [published]
 
 jobs:
+  # Build iOS natives
+  BuildIosNatives:
+    name: Build natives for iOS
+    runs-on: macOS-latest
+
+    steps:
+      - name: Setup the java environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 11
+
+      - name: Check jni
+        run: find /Library/ -name jni.h
+
+      - name: Clone the repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+
 
   # Build the natives on android
   BuildAndroidNatives:
