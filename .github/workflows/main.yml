@@ -63,6 +63,9 @@ jobs:
     runs-on: macOS-latest
 
     steps:
+      - name: Check default JAVAs 
+        run: echo $JAVA_HOME --- $JAVA_HOME_8_X64 --- $JAVA_HOME_11_X64 --- $JAVA_HOME_17_X64 --- $JAVA_HOME_21_X64 ---
+
       - name: Setup the java environment
         uses: actions/setup-java@v4
         with:
@@ -70,7 +73,7 @@ jobs:
           java-version: 11
 
       - name: Check jni
-        run: find /Library/ -name jni.h
+        run: find / -name jni.h
 
       - name: Clone the repo
         uses: actions/checkout@v4
