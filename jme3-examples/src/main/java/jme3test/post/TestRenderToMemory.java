@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,8 +49,8 @@ import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
 import java.awt.Color;
@@ -67,7 +67,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * This test renders a scene to an offscreen framebuffer, then copies
- * the contents to a Swing JFrame. Note that some parts are done inefficently,
+ * the contents to a Swing JFrame. Note that some parts are done inefficiently,
  * this is done to make the code more readable.
  */
 public class TestRenderToMemory extends SimpleApplication implements SceneProcessor {
@@ -76,15 +76,11 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
     private float angle = 0;
 
     private FrameBuffer offBuffer;
-    private ViewPort offView;
-    private Texture2D offTex;
-    private Camera offCamera;
     private ImageDisplay display;
 
     private static final int width = 800, height = 600;
 
     private final ByteBuffer cpuBuf = BufferUtils.createByteBuffer(width * height * 4);
-    private final byte[] cpuArray = new byte[width * height * 4];
     private final BufferedImage image = new BufferedImage(width, height,
                                             BufferedImage.TYPE_INT_BGR);
 
@@ -172,10 +168,11 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
     }
 
     public void setupOffscreenView(){
-        offCamera = new Camera(width, height);
+        Camera offCamera = new Camera(width, height);
 
         // create a pre-view. a view that is rendered before the main view
-        offView = renderManager.createPreView("Offscreen View", offCamera);
+        ViewPort offView
+                = renderManager.createPreView("Offscreen View", offCamera);
         offView.setBackgroundColor(ColorRGBA.DarkGray);
         offView.setClearFlags(true, true, true);
         
@@ -196,9 +193,8 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
 
         //setup framebuffer to use renderbuffer
         // this is faster for gpu -> cpu copies
-        offBuffer.setDepthBuffer(Format.Depth);
-        offBuffer.setColorBuffer(Format.RGBA8);
-//        offBuffer.setColorTexture(offTex);
+        offBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
+        offBuffer.addColorTarget(FrameBufferTarget.newTarget(Format.RGBA8));
         
         //set viewport to render to offscreen framebuffer
         offView.setOutputFrameBuffer(offBuffer);
@@ -267,7 +263,7 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-
+        // not implemented
     }
 
 

@@ -81,12 +81,12 @@ public class CompactFloatArray extends CompactArray<Float> implements Savable {
         index = in.readIntArray("index", null);
     }
 
-    public void fill(int startIndex, float[] store ){
+    public void fill(int startIndex, float[] store) {
         for (int i = 0; i < store.length; i++) {
             store[i] = get(startIndex + i, null);
         }
     }
-    
+
     @Override
     protected void serialize(int i, Float data) {
         array[i] = data;

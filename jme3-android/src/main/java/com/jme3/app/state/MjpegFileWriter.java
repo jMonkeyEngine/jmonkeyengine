@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -126,10 +126,12 @@ public class MjpegFileWriter {
         int fileSize = (int)aviFile.length();
         logger.log(Level.INFO, "fileSize: {0}", fileSize);
         int listSize = (int) (fileSize - 8 - aviMovieOffset - indexlistBytes.length);
-        logger.log(Level.INFO, "listSize: {0}", listSize);
-        logger.log(Level.INFO, "aviFile canWrite: {0}", aviFile.canWrite());
-        logger.log(Level.INFO, "aviFile AbsolutePath: {0}", aviFile.getAbsolutePath());
-        logger.log(Level.INFO, "aviFile numFrames: {0}", numFrames);
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "listSize: {0}", listSize);
+            logger.log(Level.INFO, "aviFile canWrite: {0}", aviFile.canWrite());
+            logger.log(Level.INFO, "aviFile AbsolutePath: {0}", aviFile.getAbsolutePath());
+            logger.log(Level.INFO, "aviFile numFrames: {0}", numFrames);
+        }
 
         RandomAccessFile raf = new RandomAccessFile(aviFile, "rw");
 
@@ -457,7 +459,7 @@ public class MjpegFileWriter {
 
         public byte[] fcc = new byte[]{'i', 'd', 'x', '1'};
         public int cb = 0;
-        public List<AVIIndex> ind = new ArrayList<AVIIndex>();
+        public List<AVIIndex> ind = new ArrayList<>();
 
         public AVIIndexList() {
         }

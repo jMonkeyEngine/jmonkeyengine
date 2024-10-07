@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,7 +67,7 @@ public class BoundingSphere extends BoundingVolume {
     private static final float RADIUS_EPSILON = 1f + 0.00001f;
 
     /**
-     * Default contstructor instantiates a new <code>BoundingSphere</code>
+     * Default constructor instantiates a new <code>BoundingSphere</code>
      * object.
      */
     public BoundingSphere() {
@@ -126,9 +127,9 @@ public class BoundingSphere extends BoundingVolume {
      * <code>computeFromTris</code> creates a new Bounding Box from a given
      * set of triangles. It is used in OBBTree calculations.
      *
-     * @param tris
-     * @param start
-     * @param end
+     * @param tris triangle data (unaffected)
+     * @param start the index of the first triangle to be used
+     * @param end the index of the triangle after the last one to be used
      */
     public void computeFromTris(Triangle[] tris, int start, int end) {
         if (end - start <= 0) {
@@ -177,9 +178,9 @@ public class BoundingSphere extends BoundingVolume {
      * Calculates a minimum bounding sphere for the set of points. The algorithm
      * was originally found in C++ at <br>
      * <a href="http://flipcode.com/archives/Smallest_Enclosing_Spheres.shtml">
-     * http://flipcode.com/archives/Smallest_Enclosing_Spheres.shtml</a> <br> 
+     * http://flipcode.com/archives/Smallest_Enclosing_Spheres.shtml</a> <br>
      * and translated to java by Cep21
-     *  
+     *
      * @param points
      *            The points to calculate the minimum bounds from.
      */
@@ -206,7 +207,7 @@ public class BoundingSphere extends BoundingVolume {
      *            The number of points currently considering to include with the
      *            sphere.
      * @param ap
-     *            A variable simulating pointer arithmatic from C++, and offset
+     *            A variable simulating pointer arithmetic from C++, and offset
      *            in <code>points</code>.
      */
     private void recurseMini(FloatBuffer points, int p, int b, int ap) {
@@ -382,8 +383,7 @@ public class BoundingSphere extends BoundingVolume {
      *            the transform to apply
      * @param store
      *            sphere to store result in
-     * @return BoundingVolume
-     * @return ref
+     * @return either store or a new BoundingSphere
      */
     @Override
     public BoundingVolume transform(Transform trans, BoundingVolume store) {
@@ -653,8 +653,70 @@ public class BoundingSphere extends BoundingVolume {
     }
 
     /**
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code other} is null, false is returned. Either way, the current
+     * instance is unaffected.
+     *
+     * @param other the object to compare (may be null, unaffected)
+     * @return true if {@code this} and {@code other} have identical values,
+     *     otherwise false
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof BoundingSphere)) {
+            return false;
+        }
+
+        if (this == other) {
+            return true;
+        }
+
+        BoundingSphere otherBoundingSphere = (BoundingSphere) other;
+        if (Float.compare(radius, otherBoundingSphere.getRadius()) != 0) {
+            return false;
+        } else {
+            return super.equals(otherBoundingSphere);
+        }
+    }
+
+    /**
+     * Returns a hash code. If two bounding boxes have identical values, they
+     * will have the same hash code. The current instance is unaffected.
+     *
+     * @return a 32-bit value for use in hashing
+     */
+    @Override
+    public int hashCode() {
+        int hash = Objects.hash(radius);
+        hash = 59 * hash + super.hashCode();
+
+        return hash;
+    }
+
+    /**
+     * Tests for approximate equality with the specified bounding sphere, using
+     * the specified tolerance. If {@code other} is null, false is returned.
+     * Either way, the current instance is unaffected.
+     *
+     * @param sphere the bounding sphere to compare (unaffected) or null for none
+     * @param epsilon the tolerance for each component
+     * @return true if all components are within tolerance, otherwise false
+     */
+    public boolean isSimilar(BoundingSphere sphere, float epsilon) {
+        if (sphere == null) {
+            return false;
+        } else if (Float.compare(Math.abs(sphere.getRadius() - radius), epsilon) > 0) {
+            return false;
+        } else if (!center.isSimilar(sphere.getCenter(), epsilon)) {
+            return false;
+        }
+        // The checkPlane field is ignored.
+        return true;
+    }
+
+    /**
      * <code>toString</code> returns the string representation of this object.
-     * The form is: "Radius: RRR.SSSS Center: <Vector>".
+     * The form is: "Radius: RRR.SSSS Center: vector".
      *
      * @return the string representation of this.
      */
@@ -813,39 +875,39 @@ public class BoundingSphere extends BoundingVolume {
         }
         return 1;
     }
-    
+
     private int collideWithTri(Triangle tri, CollisionResults results) {
         TempVars tvars = TempVars.get();
         try {
-        
+
             // Much of this is based on adaptation from this algorithm:
             // http://realtimecollisiondetection.net/blog/?p=103
             // ...mostly the stuff about eliminating sqrts wherever
             // possible.
-    
+
             // Math is done in center-relative space.
             Vector3f a = tri.get1().subtract(center, tvars.vect1);
             Vector3f b = tri.get2().subtract(center, tvars.vect2);
             Vector3f c = tri.get3().subtract(center, tvars.vect3);
-            
+
             Vector3f ab = b.subtract(a, tvars.vect4);
             Vector3f ac = c.subtract(a, tvars.vect5);
-            
+
             // Check the plane... if it doesn't intersect the plane
             // then it doesn't intersect the triangle.
             Vector3f n = ab.cross(ac, tvars.vect6);
             float d = a.dot(n);
-            float e = n.dot(n);                        
-            if( d * d > radius * radius * e ) {
+            float e = n.dot(n);
+            if (d * d > radius * radius * e) {
                 // Can't possibly intersect
                 return 0;
             }
-                
+
             // We intersect the verts, or the edges, or the face...
-    
+
             // First check against the face since it's the most
             // specific.
-    
+
             // Calculate the barycentric coordinates of the
             // sphere center
             Vector3f v0 = ac;
@@ -853,163 +915,163 @@ public class BoundingSphere extends BoundingVolume {
             // a was P relative, so p.subtract(a) is just -a
             // instead of wasting a vector we'll just negate the
             // dot products below... it's all v2 is used for.
-            Vector3f v2 = a; 
-            
+            Vector3f v2 = a;
+
             float dot00 = v0.dot(v0);
             float dot01 = v0.dot(v1);
             float dot02 = -v0.dot(v2);
             float dot11 = v1.dot(v1);
             float dot12 = -v1.dot(v2);
-            
+
             float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
             float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
             float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-            
-            if( u >= 0 && v >= 0 && (u + v) <= 1 ) {
+
+            if (u >= 0 && v >= 0 && (u + v) <= 1) {
                 // We intersect... and we even know where
                 Vector3f part1 = ac;
                 Vector3f part2 = ab;
-                Vector3f p = center.add(a.add(part1.mult(u)).addLocal(part2.mult(v))); 
-    
+                Vector3f p = center.add(a.add(part1.mult(u)).addLocal(part2.mult(v)));
+
                 CollisionResult r = new CollisionResult();
-                Vector3f normal = n.normalize();                                               
+                Vector3f normal = n.normalize();
                 float dist = -normal.dot(a);  // a is center relative, so -a points to center
                 dist = dist - radius;
-                
+
                 r.setDistance(dist);
                 r.setContactNormal(normal);
                 r.setContactPoint(p);
                 results.addCollision(r);
                 return 1;
             }
-    
+
             // Check the edges looking for the nearest point
             // that is also less than the radius.  We don't care
             // about points that are farther away than that.
             Vector3f nearestPt = null;
-            float nearestDist = radius * radius; 
-            
+            float nearestDist = radius * radius;
+
             Vector3f base;
             Vector3f edge;
             float t;
-            
+
             // Edge AB
             base = a;
-            edge = ab;        
-    
+            edge = ab;
+
             t = -edge.dot(base) / edge.dot(edge);
-            if( t >= 0 && t <= 1 ) {
+            if (t >= 0 && t <= 1) {
                 Vector3f Q = base.add(edge.mult(t, tvars.vect7), tvars.vect8);
                 float distSq = Q.dot(Q); // distance squared to origin
-                if( distSq < nearestDist ) {
+                if (distSq < nearestDist) {
                     nearestPt = Q;
                     nearestDist = distSq;
                 }
             }
-            
+
             // Edge AC
             base = a;
             edge = ac;
-    
+
             t = -edge.dot(base) / edge.dot(edge);
-            if( t >= 0 && t <= 1 ) {
+            if (t >= 0 && t <= 1) {
                 Vector3f Q = base.add(edge.mult(t, tvars.vect7), tvars.vect9);
                 float distSq = Q.dot(Q); // distance squared to origin
-                if( distSq < nearestDist ) {
+                if (distSq < nearestDist) {
                     nearestPt = Q;
                     nearestDist = distSq;
                 }
             }
-            
+
             // Edge BC
             base = b;
-            Vector3f bc = c.subtract(b); 
-            edge = bc; 
-    
+            Vector3f bc = c.subtract(b);
+            edge = bc;
+
             t = -edge.dot(base) / edge.dot(edge);
-            if( t >= 0 && t <= 1 ) {
+            if (t >= 0 && t <= 1) {
                 Vector3f Q = base.add(edge.mult(t, tvars.vect7), tvars.vect10);
                 float distSq = Q.dot(Q); // distance squared to origin
-                if( distSq < nearestDist ) {
+                if (distSq < nearestDist) {
                     nearestPt = Q;
                     nearestDist = distSq;
                 }
             }
-    
+
             // If we have a point at all then it is going to be
             // closer than any vertex to center distance... so we're
-            // done.       
-            if( nearestPt != null ) {
+            // done.
+            if (nearestPt != null) {
                 // We have a hit
                 float dist = FastMath.sqrt(nearestDist);
                 Vector3f cn = nearestPt.divide(-dist);
-                
-                CollisionResult r = new CollisionResult();                                
+
+                CollisionResult r = new CollisionResult();
                 r.setDistance(dist - radius);
                 r.setContactNormal(cn);
                 r.setContactPoint(nearestPt.add(center));
                 results.addCollision(r);
-                
-                return 1;              
+
+                return 1;
             }
- 
-            // Finally check each of the triangle corners
-            
+
+            // Finally, check each of the triangle corners.
+
             // Vert A
             base = a;
             t = base.dot(base); // distance squared to origin
-            if( t < nearestDist ) {
+            if (t < nearestDist) {
                 nearestDist = t;
                 nearestPt = base;
             }
-            
+
             // Vert B
             base = b;
             t = base.dot(base); // distance squared to origin
-            if( t < nearestDist ) {
+            if (t < nearestDist) {
                 nearestDist = t;
                 nearestPt = base;
             }
-    
+
             // Vert C
             base = c;
             t = base.dot(base); // distance squared to origin
-            if( t < nearestDist ) {
+            if (t < nearestDist) {
                 nearestDist = t;
                 nearestPt = base;
             }
-    
-            if( nearestPt != null ) {
+
+            if (nearestPt != null) {
                 // We have a hit
                 float dist = FastMath.sqrt(nearestDist);
                 Vector3f cn = nearestPt.divide(-dist);
-                
-                CollisionResult r = new CollisionResult();                                
+
+                CollisionResult r = new CollisionResult();
                 r.setDistance(dist - radius);
                 r.setContactNormal(cn);
                 r.setContactPoint(nearestPt.add(center));
                 results.addCollision(r);
-                
-                return 1;              
+
+                return 1;
             }
-            
-            // Nothing hit... oh, well 
+
+            // Nothing hit... oh, well
             return 0;
         } finally {
             tvars.release();
         }
     }
-    
+
     @Override
     public int collideWith(Collidable other, CollisionResults results) {
         if (other instanceof Ray) {
             Ray ray = (Ray) other;
             return collideWithRay(ray, results);
-        } else if (other instanceof Triangle){
+        } else if (other instanceof Triangle) {
             Triangle t = (Triangle) other;
             return collideWithTri(t, results);
         } else if (other instanceof BoundingVolume) {
-            if (intersects((BoundingVolume)other)) {
+            if (intersects((BoundingVolume) other)) {
                 CollisionResult result = new CollisionResult();
                 results.addCollision(result);
                 return 1;
@@ -1027,16 +1089,15 @@ public class BoundingSphere extends BoundingVolume {
         if (other instanceof Ray) {
             Ray ray = (Ray) other;
             return collideWithRay(ray);
-        } else if (other instanceof Triangle){
+        } else if (other instanceof Triangle) {
             return super.collideWith(other);
         } else if (other instanceof BoundingVolume) {
-            return intersects((BoundingVolume)other) ? 1 : 0;
+            return intersects((BoundingVolume) other) ? 1 : 0;
         } else {
             throw new UnsupportedCollisionException();
         }
     }
 
-    
     @Override
     public boolean contains(Vector3f point) {
         return center.distanceSquared(point) < (getRadius() * getRadius());
@@ -1063,10 +1124,10 @@ public class BoundingSphere extends BoundingVolume {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
         try {
-            radius = e.getCapsule(this).readFloat("radius", 0);
+            radius = importer.getCapsule(this).readFloat("radius", 0);
         } catch (IOException ex) {
             logger.logp(Level.SEVERE, this.getClass().toString(), "read(JMEImporter)", "Exception", ex);
         }

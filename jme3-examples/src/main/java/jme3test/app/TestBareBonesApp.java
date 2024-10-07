@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ public class TestBareBonesApp extends LegacyApplication {
         float tpf = timer.getTimePerFrame();
         boxGeom.rotate(tpf * 2, tpf * 4, tpf * 3);
 
-        // dont forget to update the scenes
+        // don't forget to update the scenes
         boxGeom.updateLogicalState(tpf);
         boxGeom.updateGeometricState();
 

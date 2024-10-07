@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ import java.util.logging.Logger;
  */
 public class KernelAdapter extends Thread
 {
-    static Logger log = Logger.getLogger(KernelAdapter.class.getName());
+    private static final Logger log = Logger.getLogger(KernelAdapter.class.getName());
     
     private DefaultServer server; // this is unfortunate
     private Kernel kernel;
@@ -139,7 +139,7 @@ public class KernelAdapter extends Thread
     protected void connectionClosed( Endpoint p )
     {
         // Remove any message buffer we've been accumulating 
-        // on behalf of this endpoing
+        // on behalf of this endpoint
         messageBuffers.remove(p);
 
         log.log( Level.FINE, "Buffers size:{0}", messageBuffers.size() );
@@ -196,9 +196,9 @@ public class KernelAdapter extends Thread
     protected MessageBuffer getMessageBuffer( Endpoint p )
     {
         if( !reliable ) {
-            // Since UDP comes in packets and they aren't split
+            // Since UDP comes in packets, and they aren't split
             // up, there is no reason to buffer.  In fact, there would
-            // be a down side because there is no way for us to reliably
+            // be a downside because there is no way for us to reliably
             // clean these up later since we'd create another one for 
             // any random UDP packet that comes to the port.
             return protocol.createBuffer();
@@ -231,12 +231,12 @@ public class KernelAdapter extends Thread
                 for( int i = 0; i < len; i++ ) {
                     sb.append( "[" + Integer.toHexString(data[i]) + "]" ); 
                 }
-                log.log( Level.FINE, "First 10 bytes of incomplete nessage:" + sb );         
+                log.log( Level.FINE, "First 10 bytes of incomplete message:" + sb );
                 throw new RuntimeException( "Envelope contained incomplete data:" + env );
             }                
         }            
         
-        // Should be complete... and maybe we should check but we don't
+        // Should be complete... and maybe we should check, but we don't.
         Message m = null;
         while( (m = protocol.pollMessage()) != null ) {
             m.setReliable(reliable);

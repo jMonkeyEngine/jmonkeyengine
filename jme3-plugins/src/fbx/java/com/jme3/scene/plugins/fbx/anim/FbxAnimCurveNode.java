@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,9 +48,9 @@ public class FbxAnimCurveNode extends FbxObject {
 
     private static final Logger logger = Logger.getLogger(FbxAnimCurveNode.class.getName());
     
-    private final Map<FbxNode, String> influencedNodePropertiesMap = new HashMap<FbxNode, String>();
-    private final Map<String, FbxAnimCurve> propertyToCurveMap = new HashMap<String, FbxAnimCurve>();
-    private final Map<String, Float> propertyToDefaultMap = new HashMap<String, Float>();
+    private final Map<FbxNode, String> influencedNodePropertiesMap = new HashMap<>();
+    private final Map<String, FbxAnimCurve> propertyToCurveMap = new HashMap<>();
+    private final Map<String, Float> propertyToDefaultMap = new HashMap<>();
     
     public FbxAnimCurveNode(AssetManager assetManager, String sceneFolderName) {
         super(assetManager, sceneFolderName);
@@ -103,9 +103,9 @@ public class FbxAnimCurveNode extends FbxObject {
      */
     public Quaternion getQuaternionValue(long time) {
         Vector3f eulerAngles = getVector3Value(time);
-        System.out.println("\tT: " + time + ". Rotation: " + 
-                                eulerAngles.x + ", " + 
-                                eulerAngles.y + ", " + eulerAngles.z);
+//        System.out.println("\tT: " + time + ". Rotation: " +
+//                                eulerAngles.x + ", " +
+//                                eulerAngles.y + ", " + eulerAngles.z);
         Quaternion q = new Quaternion();
         q.fromAngles(eulerAngles.x * FastMath.DEG_TO_RAD, 
                      eulerAngles.y * FastMath.DEG_TO_RAD, 

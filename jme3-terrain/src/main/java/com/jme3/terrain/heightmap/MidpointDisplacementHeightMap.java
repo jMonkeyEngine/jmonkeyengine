@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,8 +50,8 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
 
     /**
      * The constructor generates the heightmap. After the first 4 corners are
-     * randomly given a height, the center will be heighted to the average of
-     * the 4 corners to which a random value is added. Then other passes fill
+     * randomly given a height, the center height will be set to the average of
+     * the 4 corners plus a random value. Then other passes fill
      * the heightmap by the same principle.
      * The random value is generated between the values <code>-range</code>
      * and <code>range</code>. The <code>range</code> parameter is multiplied by
@@ -87,8 +87,8 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
 
     /**
      * The constructor generates the heightmap. After the first 4 corners are
-     * randomly given a height, the center will be heighted to the average of
-     * the 4 corners to which a random value is added. Then other passes fill
+     * randomly given a height, the center height will be set to the average of
+     * the 4 corners plus a random value. Then other passes fill
      * the heightmap by the same principle.
      * The random value is generated between the values <code>-range</code>
      * and <code>range</code>. The <code>range</code> parameter is multiplied by
@@ -102,7 +102,7 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
      *          The factor by which the range will evolve at each iteration.
      *          A value of 0.5f will halve the range at each iteration and is
      *          typically a good choice
-     * @throws JMException if size is not a power of two plus one.
+     * @throws IllegalArgumentException if size is not a power of two plus one.
      */
     public MidpointDisplacementHeightMap(int size, float range, float persistence) throws Exception {
         this(size, range, persistence, new Random().nextLong());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,6 +93,8 @@ public abstract class NativeObject implements Cloneable {
     /**
      * Protected constructor that doesn't allocate handle ref.
      * This is used in subclasses for the createDestructableClone().
+     *
+     * @param id the desired ID
      */
     protected NativeObject(int id){
         this.id = id;
@@ -140,6 +142,8 @@ public abstract class NativeObject implements Cloneable {
 
     /**
      * Internal use only. Check if {@link #setUpdateNeeded()} was called before.
+     *
+     * @return true if an update is needed, otherwise false
      */
     public boolean isUpdateNeeded(){
         return updateNeeded;
@@ -207,6 +211,8 @@ public abstract class NativeObject implements Cloneable {
     /**
      * Creates a shallow clone of this GL Object. The deleteObject method
      * should be functional for this object.
+     *
+     * @return a new instance
      */
     public abstract NativeObject createDestructableClone();
     

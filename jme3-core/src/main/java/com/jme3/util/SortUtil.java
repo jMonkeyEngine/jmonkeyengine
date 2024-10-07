@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,47 +40,14 @@ import java.util.Comparator;
  */
 public class SortUtil {
 
-    /** 
-     * The size at or below which we will use insertion sort because it's
-     * probably faster. 
-     */
-    private static final int INSERTION_SORT_THRESHOLD = 7;
-    
-    
-    /*
- procedure optimizedGnomeSort(a[])
-    pos := 1
-    last := 0
-    while pos < length(a)
-        if (a[pos] >= a[pos-1])
-            if (last != 0)
-                pos := last
-                last := 0
-            end if
-            pos := pos + 1
-        else
-            swap a[pos] and a[pos-1]
-            if (pos > 1)
-                if (last == 0)
-                    last := pos
-                end if
-                pos := pos - 1
-            else
-                pos := pos + 1
-            end if
-        end if
-    end while
-end procedure
-     */
-    
     @SuppressWarnings("unchecked")
     public static void gsort(Object[] a, Comparator comp) {
         int pos = 1;
         int last = 0;
         int length = a.length;
-        
+
         while (pos < length){
-            if ( comp.compare(a[pos], a[pos-1]) >= 0 ){
+            if (comp.compare(a[pos], a[pos-1]) >= 0){
                 if (last != 0){
                     pos = last;
                     last = 0;
@@ -90,18 +57,18 @@ end procedure
                 Object tmp = a[pos];
                 a[pos] = a[pos-1];
                 a[pos-1] = tmp;
-                
+
                 if (pos > 1){
                     if (last == 0){
                         last = pos;
                     }
                     pos --;
-                }else{
+                } else {
                     pos ++;
                 }
             }
         }
-        
+
 //        int p = 0;
 //        int l = a.length;
 //        while (p < l) {
@@ -119,7 +86,7 @@ end procedure
 
     private static void test(Float[] original, Float[] sorted, Comparator<Float> ic) {
         long time, dt;
-        
+
         time = System.nanoTime();
         for (int i = 0; i < 1000000; i++) {
             System.arraycopy(original, 0, sorted, 0, original.length);
@@ -173,6 +140,9 @@ end procedure
 
     /**
      * Quick sorts the supplied array using the specified comparator.
+     *
+     * @param a the array to sort (not null, modified)
+     * @param comp the Comparator to use (not null)
      */
     public static void qsort(Object[] a, Comparator comp) {
         qsort(a, 0, a.length - 1, comp);
@@ -181,8 +151,10 @@ end procedure
     /**
      * Quick sorts the supplied array using the specified comparator.
      *
+     * @param a the array to sort (modified)
      * @param lo0 the index of the lowest element to include in the sort.
      * @param hi0 the index of the highest element to include in the sort.
+     * @param comp the Comparator to use (not null)
      */
     @SuppressWarnings("unchecked")
     public static void qsort(Object[] a, int lo0, int hi0, Comparator comp) {
@@ -299,17 +271,21 @@ end procedure
             qsort(a, hi + 1, hi0, comp);
         }
     }
-    
+
     /**
      * Merge sort
+     *
+     * @param src the source array (not null)
+     * @param dest the destination array (not null)
+     * @param comp the Comparator to use
      */
     public static void msort(Object[] src, Object[] dest, Comparator comp){
         msort(src, dest, 0, src.length - 1, comp);
     }
-    
+
     /**
      * Merge sort
-     * 
+     *
      * @param src Source array
      * @param dest Destination array
      * @param low Index of beginning element
@@ -325,7 +301,7 @@ end procedure
             merge(src, dest, low, center + 1, high, comp);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private static void merge(Object[] src, Object[] dest,
             int low, int middle, int high, Comparator comp) {

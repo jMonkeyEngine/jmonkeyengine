@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,10 +80,12 @@ public class FrameBuffer extends NativeObject {
     private int width = 0;
     private int height = 0;
     private int samples = 1;
-    private ArrayList<RenderBuffer> colorBufs = new ArrayList<RenderBuffer>();
+    private final ArrayList<RenderBuffer> colorBufs = new ArrayList<>();
     private RenderBuffer depthBuf = null;
     private int colorBufIndex = 0;
     private boolean srgb;
+    private String name;
+    private Boolean mipMapsGenerationHint = null;
 
     /**
      * <code>RenderBuffer</code> represents either a texture or a
@@ -122,6 +124,7 @@ public class FrameBuffer extends NativeObject {
 
         /**
          * Do not use.
+         * @return the buffer's ID
          */
         public int getId() {
             return id;
@@ -129,6 +132,8 @@ public class FrameBuffer extends NativeObject {
 
         /**
          * Do not use.
+         *
+         * @param id the desired ID
          */
         public void setId(int id) {
             this.id = id;
@@ -136,6 +141,8 @@ public class FrameBuffer extends NativeObject {
 
         /**
          * Do not use.
+         *
+         * @return the slot code, such as SLOT_DEPTH_STENCIL
          */
         public int getSlot() {
             return slot;
@@ -214,6 +221,7 @@ public class FrameBuffer extends NativeObject {
     }
 
     public static class FrameBufferTarget {
+        private FrameBufferTarget(){}
         public static FrameBufferTextureTarget newTarget(Texture tx){
             FrameBufferTextureTarget t=new FrameBufferTextureTarget();
             t.setTexture(tx);
@@ -225,8 +233,28 @@ public class FrameBuffer extends NativeObject {
             t.setFormat(format);
             return t;
         }
+
+        /**
+         * Creates a frame buffer texture and sets the face position by using the face parameter. It uses
+         * {@link TextureCubeMap} ordinal number for the face position.
+         *
+         * @param tx texture to add to the frame buffer
+         * @param face face to add to the color buffer to
+         * @return FrameBufferTexture Target
+         */
+        public static FrameBufferTextureTarget newTarget(Texture tx, TextureCubeMap.Face face) {
+            FrameBufferTextureTarget t = new FrameBufferTextureTarget();
+            t.face = face.ordinal();
+            t.setTexture(tx);
+            return t;
+        }
     }
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private FrameBuffer() {
+    }
 
     public void addColorTarget(FrameBufferBufferTarget colorBuf){
         colorBuf.slot=colorBufs.size();
@@ -236,6 +264,20 @@ public class FrameBuffer extends NativeObject {
     public void addColorTarget(FrameBufferTextureTarget colorBuf){
         // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
         colorBuf.slot=colorBufs.size();
+        colorBufs.add(colorBuf);
+    }
+
+    /**
+     * Adds a texture to one of the color Buffers Array. It uses {@link TextureCubeMap} ordinal number for the
+     * position in the color buffer ArrayList.
+     *
+     * @param colorBuf texture to add to the color Buffer
+     * @param face position to add to the color buffer
+     */
+    public void addColorTarget(FrameBufferTextureTarget colorBuf, TextureCubeMap.Face face) {
+        // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
+        colorBuf.slot = colorBufs.size();
+        colorBuf.face = face.ordinal();
         colorBufs.add(colorBuf);
     }
 
@@ -264,8 +306,8 @@ public class FrameBuffer extends NativeObject {
         if (colorBufs.isEmpty())
             return null;
         if (colorBufIndex<0 || colorBufIndex>=colorBufs.size()) {
-			return colorBufs.get(0);
-		}
+            return colorBufs.get(0);
+        }
         return colorBufs.get(colorBufIndex);
     }
 
@@ -288,7 +330,7 @@ public class FrameBuffer extends NativeObject {
      * @param width The width to use
      * @param height The height to use
      * @param samples The number of samples to use for a multisampled
-     * framebuffer, or 1 if the framebuffer should be singlesampled.
+     * framebuffer, or 1 if the framebuffer should be single-sampled.
      *
      * @throws IllegalArgumentException If width or height are not positive.
      */
@@ -321,7 +363,8 @@ public class FrameBuffer extends NativeObject {
      *
      * @param format The format to use for the depth buffer.
      * @throws IllegalArgumentException If <code>format</code> is not a depth format.
-     * @deprecated Use setDepthTarget
+     * @deprecated Use
+     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferBufferTarget)}
      */
     @Deprecated
     public void setDepthBuffer(Image.Format format) {
@@ -464,6 +507,7 @@ public class FrameBuffer extends NativeObject {
      * only target.
      *
      * @param tex The color texture array to set.
+     * @param layer (default=-1)
      * @deprecated Use addColorTarget
      */
     @Deprecated
@@ -559,6 +603,7 @@ public class FrameBuffer extends NativeObject {
      * is rendered to by the shader.
      *
      * @param tex The texture array to add.
+     * @param layer (default=-1)
      * @deprecated Use addColorTarget
      */
     @Deprecated
@@ -612,7 +657,8 @@ public class FrameBuffer extends NativeObject {
      * Set the depth texture to use for this framebuffer.
      *
      * @param tex The color texture to set.
-     * @deprecated Use setDepthTarget
+     * @deprecated Use
+     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferTextureTarget)}
      */
     @Deprecated
     public void setDepthTexture(Texture2D tex) {
@@ -631,9 +677,10 @@ public class FrameBuffer extends NativeObject {
 
     /**
      * 
-     * @param tex
-     * @param layer
-     * @deprecated Use setDepthTarget
+     * @param tex the TextureArray to apply
+     * @param layer (default=-1)
+     * @deprecated Use
+     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferTextureTarget)}
      */
     @Deprecated
     public void setDepthTexture(TextureArray tex, int layer) {
@@ -661,7 +708,7 @@ public class FrameBuffer extends NativeObject {
     }
 
     /**
-     * @param index
+     * @param index the zero-base index (&ge;0)
      * @return The color buffer at the given index.
      * @deprecated Use getColorTarget(int)
      */
@@ -713,7 +760,7 @@ public class FrameBuffer extends NativeObject {
 
     /**
      * @return The number of samples when using a multisample framebuffer, or
-     * 1 if this is a singlesampled framebuffer.
+     * 1 if this is a single-sampled framebuffer.
      */
     public int getSamples() {
         return samples;
@@ -762,7 +809,7 @@ public class FrameBuffer extends NativeObject {
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_FRAMEBUFFER << 32) | ((long) id);
+        return ((long) OBJTYPE_FRAMEBUFFER << 32) | (0xffffffffL & (long) id);
     }
 
     /**
@@ -799,5 +846,25 @@ public class FrameBuffer extends NativeObject {
      */
     public boolean isSrgb() {
         return srgb;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Hints the renderer to generate mipmaps for this framebuffer if necessary
+     * @param v true to enable, null to use the default value for the renderer (default to null)
+     */
+    public void setMipMapsGenerationHint(Boolean v) {
+        mipMapsGenerationHint = v;
+    }
+
+    public Boolean getMipMapsGenerationHint() {
+        return mipMapsGenerationHint;
     }
 }

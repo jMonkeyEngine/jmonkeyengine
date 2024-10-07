@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine, Java Game Networking
+ * Copyright (c) 2009-2021 jMonkeyEngine, Java Game Networking
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import java.util.logging.Logger;
  */
 public class FieldSerializer extends Serializer {
     
-    static final Logger log = Logger.getLogger(FieldSerializer.class.getName());
+    private static final Logger log = Logger.getLogger(FieldSerializer.class.getName());
 
     private static Map<Class, SavedField[]> savedFields = new HashMap<Class, SavedField[]>();
     private static Map<Class, Constructor> savedCtors = new HashMap<Class, Constructor>();
@@ -86,7 +86,7 @@ public class FieldSerializer extends Serializer {
 
         checkClass(clazz);   
     
-        List<Field> fields = new ArrayList<Field>();
+        List<Field> fields = new ArrayList<>();
 
         Class processingClass = clazz;
         while (processingClass != Object.class ) {
@@ -94,11 +94,10 @@ public class FieldSerializer extends Serializer {
             processingClass = processingClass.getSuperclass();
         }
 
-        List<SavedField> cachedFields = new ArrayList<SavedField>(fields.size());
+        List<SavedField> cachedFields = new ArrayList<>(fields.size());
         for (Field field : fields) {
             int modifiers = field.getModifiers();
             if (Modifier.isTransient(modifiers)) continue;
-            if (Modifier.isFinal(modifiers)) continue;
             if (Modifier.isStatic(modifiers)) continue;
             if (field.isSynthetic()) continue;
             field.setAccessible(true);
@@ -110,7 +109,7 @@ public class FieldSerializer extends Serializer {
                 // The type of this field is implicit in the outer class
                 // definition and because the type is final, it can confidently
                 // be determined on the other end.
-                // Note: passing false to this method has the side-effect that field.getType()
+                // Note: passing false to this method has the side effect that field.getType()
                 // will be registered as a real class that can then be read/written
                 // directly as any other registered class.  It should be safe to take
                 // an ID like this because Serializer.initialize() is only called 

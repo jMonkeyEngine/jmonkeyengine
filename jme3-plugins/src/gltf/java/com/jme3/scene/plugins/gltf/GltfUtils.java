@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,17 @@
  */
 package com.jme3.scene.plugins.gltf;
 
-import com.google.gson.*;
+import com.jme3.plugins.json.JsonArray;
+import com.jme3.plugins.json.JsonElement;
+import com.jme3.plugins.json.JsonObject;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.*;
+import com.jme3.plugins.json.Json;
+import com.jme3.plugins.json.JsonParser;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import com.jme3.util.*;
-
 import java.io.*;
 import java.nio.*;
 import java.util.*;
@@ -51,6 +54,22 @@ import java.util.logging.Logger;
 public class GltfUtils {
 
     private static final Logger logger = Logger.getLogger(GltfUtils.class.getName());
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private GltfUtils() {
+    }
+    
+    /**
+     * Parse a json input stream and returns a {@link JsonObject}
+     * @param stream the stream to parse
+     * @return the JsonObject
+     */
+    public static JsonObject parse(InputStream stream) {
+        JsonParser parser = Json.create();
+        return parser.parse(stream);
+    }
 
     public static Mesh.Mode getMeshMode(Integer mode) {
         if (mode == null) {
@@ -372,25 +391,25 @@ public class GltfUtils {
     public static float readAsFloat(LittleEndien stream, VertexBuffer.Format format) throws IOException {
         //We may have packed data so depending on the format, we need to read data differently and unpack it
         // Implementations must use following equations to get corresponding floating-point value f from a normalized integer c and vise-versa:
-        // accessor.componentType	int-to-float	            float-to-int
-        // 5120 (BYTE)	            f = max(c / 127.0, -1.0)	c = round(f * 127.0)
-        // 5121 (UNSIGNED_BYTE)	    f = c / 255.0	            c = round(f * 255.0)
-        // 5122 (SHORT)	            f = max(c / 32767.0, -1.0)	c = round(f * 32767.0)
-        // 5123 (UNSIGNED_SHORT)	f = c / 65535.0	            c = round(f * 65535.0)
-        byte b;
+        // accessor.componentType    int-to-float                float-to-int
+        // 5120 (BYTE)               f = max(c / 127.0, -1.0)    c = round(f * 127.0)
+        // 5121 (UNSIGNED_BYTE)      f = c / 255.0               c = round(f * 255.0)
+        // 5122 (SHORT)              f = max(c / 32767.0, -1.0)  c = round(f * 32767.0)
+        // 5123 (UNSIGNED_SHORT)     f = c / 65535.0             c = round(f * 65535.0)
+        int c;
         switch (format) {
             case Byte:
-                b = stream.readByte();
-                return Math.max(b / 127f, -1f);
+                c = stream.readByte();
+                return Math.max(c / 127f, -1f);
             case UnsignedByte:
-                b = stream.readByte();
-                return b / 255f;
+                c = stream.readUnsignedByte();
+                return c / 255f;
             case Short:
-                b = stream.readByte();
-                return Math.max(b / 32767f, -1f);
+                c = stream.readShort();
+                return Math.max(c / 32767f, -1f);
             case UnsignedShort:
-                b = stream.readByte();
-                return b / 65535f;
+                c = stream.readUnsignedShort();
+                return c / 65535f;
             default:
                 //we have a regular float
                 return stream.readFloat();
@@ -405,16 +424,34 @@ public class GltfUtils {
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
         stream.skipBytes(byteOffset);
+
+        if (dataLength == stride) {
+            read(stream, array, end - index);
+
+            return;
+        }
+
         int arrayIndex = 0;
+        byte[] buffer = new byte[numComponents];
         while (index < end) {
-            for (int i = 0; i < numComponents; i++) {
-                array[arrayIndex] = stream.readByte();
-                arrayIndex++;
-            }
+            read(stream, buffer, numComponents);
+            System.arraycopy(buffer, 0, array, arrayIndex, numComponents);
+            arrayIndex += numComponents;
             if (dataLength < stride) {
                 stream.skipBytes(stride - dataLength);
             }
             index += stride;
+        }
+    }
+
+    private static void read(LittleEndien stream, byte[] buffer, int length) throws IOException {
+        int n = 0;
+        while (n < length) {
+            int cnt = stream.read(buffer, n, length - n);
+            if (cnt < 0) {
+                throw new AssetLoadException("Data ended prematurely");
+            }
+            n += cnt;
         }
     }
 
@@ -496,7 +533,7 @@ public class GltfUtils {
                 }
 
                 if (sum != 1f) {
-                    // compute new vals based on sum
+                    // compute new values based on sum
                     float sumToB = sum == 0 ? 0 : 1f / sum;
                     weightsArray[i] *= sumToB;
                     weightsArray[i + 1] *= sumToB;
@@ -717,30 +754,24 @@ public class GltfUtils {
         }
     }
 
-//    public static boolean equalBindAndLocalTransforms(Joint b) {
-//        return equalsEpsilon(b.getBindPosition(), b.getLocalPosition())
-//                && equalsEpsilon(b.getBindRotation(), b.getLocalRotation())
-//                && equalsEpsilon(b.getBindScale(), b.getLocalScale());
-//    }
-
-    private static float epsilon = 0.0001f;
+    private static final float EPSILON = 0.0001f;
 
     public static boolean equalsEpsilon(Vector3f v1, Vector3f v2) {
-        return FastMath.abs(v1.x - v2.x) < epsilon
-                && FastMath.abs(v1.y - v2.y) < epsilon
-                && FastMath.abs(v1.z - v2.z) < epsilon;
+        return FastMath.abs(v1.x - v2.x) < EPSILON
+                && FastMath.abs(v1.y - v2.y) < EPSILON
+                && FastMath.abs(v1.z - v2.z) < EPSILON;
     }
 
     public static boolean equalsEpsilon(Quaternion q1, Quaternion q2) {
-        return (FastMath.abs(q1.getX() - q2.getX()) < epsilon
-                && FastMath.abs(q1.getY() - q2.getY()) < epsilon
-                && FastMath.abs(q1.getZ() - q2.getZ()) < epsilon
-                && FastMath.abs(q1.getW() - q2.getW()) < epsilon)
+        return (FastMath.abs(q1.getX() - q2.getX()) < EPSILON
+                && FastMath.abs(q1.getY() - q2.getY()) < EPSILON
+                && FastMath.abs(q1.getZ() - q2.getZ()) < EPSILON
+                && FastMath.abs(q1.getW() - q2.getW()) < EPSILON)
                 ||
-                (FastMath.abs(q1.getX() + q2.getX()) < epsilon
-                        && FastMath.abs(q1.getY() + q2.getY()) < epsilon
-                        && FastMath.abs(q1.getZ() + q2.getZ()) < epsilon
-                        && FastMath.abs(q1.getW() + q2.getW()) < epsilon);
+ (FastMath.abs(q1.getX() + q2.getX()) < EPSILON
+                && FastMath.abs(q1.getY() + q2.getY()) < EPSILON
+                && FastMath.abs(q1.getZ() + q2.getZ()) < EPSILON
+                && FastMath.abs(q1.getW() + q2.getW()) < EPSILON);
     }
 
 

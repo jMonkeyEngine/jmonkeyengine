@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,19 @@
 package com.jme3.post.filters;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import java.io.IOException;
 
 /**
- * <a href="http://www.geeks3d.com/20110405/fxaa-fast-approximate-anti-aliasing-demo-glsl-opengl-test-radeon-geforce/3/" rel="nofollow">http://www.geeks3d.com/20110405/fxaa-fast-approximate-anti-aliasing-demo-glsl-<span class="domtooltips" title="OpenGL (Open Graphics Library) is a standard specification defining a cross-language, cross-platform API for writing applications that produce 2D and 3D computer graphics." id="domtooltipsspan11">opengl</span>-test-radeon-geforce/3/</a>
- * <a href="http://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf" rel="nofollow">http://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf</a>
+ * <a href="http://www.geeks3d.com/20110405/fxaa-fast-approximate-anti-aliasing-demo-glsl-opengl-test-radeon-geforce/3/">demo</a>
+ * <a href="http://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf">whitepaper</a>
  *
  * @author Phate666 (adapted to jme3)
  *
@@ -86,7 +91,7 @@ public class FXAAFilter extends Filter {
     /**
      * set to 0.0f for higher quality
      *
-     * @param subPixelShift
+     * @param subPixelShift the desired shift (default=0.25)
      */
     public void setSubPixelShift(float subPixelShift) {
         this.subPixelShift = subPixelShift;
@@ -98,7 +103,7 @@ public class FXAAFilter extends Filter {
     /**
      * set to 0.0f for higher quality
      *
-     * @param reduceMul
+     * @param reduceMul the desired value (default=0.125)
      */
     public void setReduceMul(float reduceMul) {
         this.reduceMul = reduceMul;
@@ -128,5 +133,41 @@ public class FXAAFilter extends Filter {
 
     public float getVxOffset() {
         return vxOffset;
+    }
+
+    /**
+     * Load properties when the filter is de-serialized, for example when
+     * loading from a J3O file.
+     *
+     * @param importer the importer to use (not null)
+     * @throws IOException from the importer
+     */
+    @Override
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
+
+        this.reduceMul = capsule.readFloat("reduceMul", 0.125f);
+        this.spanMax = capsule.readFloat("spanMax", 8f);
+        this.subPixelShift = capsule.readFloat("subPixelShift", 0.25f);
+        this.vxOffset = capsule.readFloat("vxOffset", 0f);
+    }
+
+    /**
+     * Save properties when the filter is serialized, for example when saving to
+     * a J3O file.
+     *
+     * @param exporter the exporter to use (not null)
+     * @throws IOException from the exporter
+     */
+    @Override
+    public void write(JmeExporter exporter) throws IOException {
+        super.write(exporter);
+        OutputCapsule capsule = exporter.getCapsule(this);
+
+        capsule.write(reduceMul, "reduceMul", 0.125f);
+        capsule.write(spanMax, "spanMax", 8f);
+        capsule.write(subPixelShift, "subPixelShift", 0.25f);
+        capsule.write(vxOffset, "vxOffset", 0f);
     }
 }

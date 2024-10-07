@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,9 +37,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * <code>CollisionResults</code> is a collection returned as a result of a 
+ * <code>CollisionResults</code> is a collection returned as a result of a
  * collision detection operation done by {@link Collidable}.
- * 
+ *
  * @author Kirill Vainer
  */
 public class CollisionResults implements Iterable<CollisionResult> {
@@ -50,7 +50,7 @@ public class CollisionResults implements Iterable<CollisionResult> {
     /**
      * Clears all collision results added to this list
      */
-    public void clear(){
+    public void clear() {
         if (results != null) {
             results.clear();
         }
@@ -58,17 +58,17 @@ public class CollisionResults implements Iterable<CollisionResult> {
 
     /**
      * Iterator for iterating over the collision results.
-     * 
+     *
      * @return the iterator
      */
     @Override
     public Iterator<CollisionResult> iterator() {
         if (results == null) {
-            List<CollisionResult> dumbCompiler = Collections.emptyList();            
+            List<CollisionResult> dumbCompiler = Collections.emptyList();
             return dumbCompiler.iterator();
         }
-        
-        if (!sorted){
+
+        if (!sorted) {
             Collections.sort(results);
             sorted = true;
         }
@@ -76,7 +76,7 @@ public class CollisionResults implements Iterable<CollisionResult> {
         return results.iterator();
     }
 
-    public void addCollision(CollisionResult result){
+    public void addCollision(CollisionResult result) {
         if (results == null) {
             results = new ArrayList<CollisionResult>();
         }
@@ -84,18 +84,18 @@ public class CollisionResults implements Iterable<CollisionResult> {
         sorted = false;
     }
 
-    public int size(){
+    public int size() {
         if (results == null) {
             return 0;
         }
         return results.size();
     }
 
-    public CollisionResult getClosestCollision(){
+    public CollisionResult getClosestCollision() {
         if (results == null || size() == 0)
             return null;
 
-        if (!sorted){
+        if (!sorted) {
             Collections.sort(results);
             sorted = true;
         }
@@ -103,24 +103,24 @@ public class CollisionResults implements Iterable<CollisionResult> {
         return results.get(0);
     }
 
-    public CollisionResult getFarthestCollision(){
+    public CollisionResult getFarthestCollision() {
         if (results == null || size() == 0)
             return null;
 
-        if (!sorted){
+        if (!sorted) {
             Collections.sort(results);
             sorted = true;
         }
 
-        return results.get(size()-1);
+        return results.get(size() - 1);
     }
 
-    public CollisionResult getCollision(int index){
+    public CollisionResult getCollision(int index) {
         if (results == null) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: 0");
         }
-        
-        if (!sorted){
+
+        if (!sorted) {
             Collections.sort(results);
             sorted = true;
         }
@@ -130,10 +130,11 @@ public class CollisionResults implements Iterable<CollisionResult> {
 
     /**
      * Internal use only.
-     * @param index
+     *
+     * @param index the zero-based index of the desired result
      * @return the pre-existing instance
      */
-    public CollisionResult getCollisionDirect(int index){
+    public CollisionResult getCollisionDirect(int index) {
         if (results == null) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: 0");
         }
@@ -141,19 +142,18 @@ public class CollisionResults implements Iterable<CollisionResult> {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("CollisionResults[");
         if (results != null) {
-            for (CollisionResult result : results){
+            for (CollisionResult result : results) {
                 sb.append(result).append(", ");
             }
             if (results.size() > 0)
-                sb.setLength(sb.length()-2);
-        }                
+                sb.setLength(sb.length() - 2);
+        }
 
         sb.append("]");
         return sb.toString();
     }
-
 }

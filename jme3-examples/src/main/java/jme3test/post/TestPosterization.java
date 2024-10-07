@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,8 +51,7 @@ import com.jme3.util.SkyFactory;
 
 public class TestPosterization extends SimpleApplication {
 
-    Spatial teapot;
-    PosterizationFilter pf;
+    private PosterizationFilter pf;
     
     public static void main(String[] args){
         TestPosterization app = new TestPosterization();
@@ -79,7 +78,7 @@ public class TestPosterization extends SimpleApplication {
         matSoil.setColor("Diffuse", ColorRGBA.Black);
         matSoil.setColor("Specular", ColorRGBA.Gray);
 
-        teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
+        Spatial teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
         teapot.setLocalTranslation(0,0,10);
 
         teapot.setMaterial(mat);

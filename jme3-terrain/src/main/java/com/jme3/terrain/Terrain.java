@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import com.jme3.math.Vector3f;
 import java.util.List;
 
 /**
- * Terrain can be one or many meshes comprising of a, probably large, piece of land.
+ * Terrain can be one or many meshes comprising a (probably large) piece of land.
  * Terrain is Y-up in the grid axis, meaning gravity acts in the -Y direction.
  * Level of Detail (LOD) is supported and expected as terrains can get very large. LOD can
  * also be disabled if you so desire, however some terrain implementations can choose to ignore
@@ -49,7 +49,7 @@ import java.util.List;
 public interface Terrain {
 
     /**
-     * Get the real-world height of the terrain at the specified X-Z coorindate.
+     * Get the real-world height of the terrain at the specified X-Z coordinate.
      * @param xz the X-Z world coordinate
      * @return the height at the given point
      */
@@ -166,7 +166,7 @@ public interface Terrain {
     /**
      * Used for painting to get the number of vertices along the edge of the
      * terrain.
-     * This is an un-scaled size, and should represent the vertex count (ie. the
+     * This is an un-scaled size, and should represent the vertex count (i.e. the
      * texture coord count) along an edge of a square terrain.
      * 
      * In the standard TerrainQuad default implementation, this will return
@@ -174,7 +174,7 @@ public interface Terrain {
      */
     public int getTerrainSize();
 
-    /**
+    /*
      * Get the scale of the texture coordinates. Normally if the texture is
      * laid on the terrain and not scaled so that the texture does not repeat,
      * then each texture coordinate (on a vertex) will be 1/(terrain size).

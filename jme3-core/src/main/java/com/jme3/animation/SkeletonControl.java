@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,45 +71,44 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     /**
      * List of geometries affected by this control.
      */
-    private SafeArrayList<Geometry> targets = new SafeArrayList<Geometry>(Geometry.class);
+    private SafeArrayList<Geometry> targets = new SafeArrayList<>(Geometry.class);
 
     /**
      * Used to track when a mesh was updated. Meshes are only updated if they
      * are visible in at least one camera.
      */
     private boolean wasMeshUpdated = false;
-    
+
     /**
      * User wishes to use hardware skinning if available.
      */
     private transient boolean hwSkinningDesired = true;
-    
+
     /**
      * Hardware skinning is currently being used.
      */
     private transient boolean hwSkinningEnabled = false;
-    
+
     /**
      * Hardware skinning was tested on this GPU, results
      * are stored in {@link #hwSkinningSupported} variable.
      */
     private transient boolean hwSkinningTested = false;
-    
+
     /**
      * If hardware skinning was {@link #hwSkinningTested tested}, then
      * this variable will be set to true if supported, and false if otherwise.
      */
     private transient boolean hwSkinningSupported = false;
-    
+
     /**
      * Bone offset matrices, recreated each frame
      */
     private transient Matrix4f[] offsetMatrices;
 
-    
     private MatParamOverride numberOfBonesParam;
     private MatParamOverride boneMatricesParam;
-    
+
     /**
      * Serialization only. Do not use.
      */
@@ -119,11 +118,11 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     private void switchToHardware() {
         numberOfBonesParam.setEnabled(true);
         boneMatricesParam.setEnabled(true);
-        
+
         // Next full 10 bones (e.g. 30 on 24 bones)
         int numBones = ((skeleton.getBoneCount() / 10) + 1) * 10;
         numberOfBonesParam.setValue(numBones);
-        
+
         for (Geometry geometry : targets) {
             Mesh mesh = geometry.getMesh();
             if (mesh != null && mesh.isAnimated()) {
@@ -135,7 +134,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     private void switchToSoftware() {
         numberOfBonesParam.setEnabled(false);
         boneMatricesParam.setEnabled(false);
-        
+
         for (Geometry geometry : targets) {
             Mesh mesh = geometry.getMesh();
             if (mesh != null && mesh.isAnimated()) {
@@ -152,7 +151,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         }
 
         switchToHardware();
-        
+
         try {
             rm.preloadScene(spatial);
             return true;
@@ -166,31 +165,32 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * Specifies if hardware skinning is preferred. If it is preferred and
      * supported by GPU, it shall be enabled, if it's not preferred, or not
      * supported by GPU, then it shall be disabled.
-     * 
-     * @param preferred
-     * @see #isHardwareSkinningUsed() 
+     *
+     * @param preferred true to prefer hardware skinning, false to prefer
+     * software skinning (default=true)
+     * @see #isHardwareSkinningUsed()
      */
     public void setHardwareSkinningPreferred(boolean preferred) {
         hwSkinningDesired = preferred;
     }
-    
+
     /**
      * @return True if hardware skinning is preferable to software skinning.
      * Set to false by default.
-     * 
-     * @see #setHardwareSkinningPreferred(boolean) 
+     *
+     * @see #setHardwareSkinningPreferred(boolean)
      */
     public boolean isHardwareSkinningPreferred() {
         return hwSkinningDesired;
     }
-    
+
     /**
      * @return True is hardware skinning is activated and is currently used, false otherwise.
      */
     public boolean isHardwareSkinningUsed() {
         return hwSkinningEnabled;
     }
-    
+
     /**
      * Creates a skeleton control. The list of targets will be acquired
      * automatically when the control is attached to a node.
@@ -215,7 +215,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         if (mesh != null && mesh.isAnimated()) {
             targets.add(geometry);
         }
-        
     }
 
     private void findTargets(Node node) {
@@ -233,12 +232,12 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         Spatial oldSpatial = this.spatial;
         super.setSpatial(spatial);
         updateTargetsAndMaterials(spatial);
-        
+
         if (oldSpatial != null) {
             oldSpatial.removeMatParamOverride(numberOfBonesParam);
             oldSpatial.removeMatParamOverride(boneMatricesParam);
         }
-        
+
         if (spatial != null) {
             spatial.removeMatParamOverride(numberOfBonesParam);
             spatial.removeMatParamOverride(boneMatricesParam);
@@ -258,19 +257,19 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
             // already ensured this mesh is animated.
             // Otherwise a crash will happen in skin update.
             softwareSkinUpdate(mesh, offsetMatrices);
-        }     
+        }
     }
-    
+
     private void controlRenderHardware() {
         offsetMatrices = skeleton.computeSkinningMatrices();
         boneMatricesParam.setValue(offsetMatrices);
     }
-    
+
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
         if (!wasMeshUpdated) {
             updateTargetsAndMaterials(spatial);
-            
+
             // Prevent illegal cases. These should never happen.
             assert hwSkinningTested || (!hwSkinningTested && !hwSkinningSupported && !hwSkinningEnabled);
             assert !hwSkinningEnabled || (hwSkinningEnabled && hwSkinningTested && hwSkinningSupported);
@@ -281,7 +280,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
                 if (hwSkinningSupported) {
                     hwSkinningEnabled = true;
-                    
+
                     Logger.getLogger(SkeletonControl.class.getName()).log(Level.INFO, "Hardware skinning engaged for {0}", spatial);
                 } else {
                     switchToSoftware();
@@ -307,7 +306,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     @Override
     protected void controlUpdate(float tpf) {
         wasMeshUpdated = false;
-     }
+    }
 
     //only do this for software updates
     void resetToBind() {
@@ -322,15 +321,20 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                 VertexBuffer bindPos = mesh.getBuffer(Type.BindPosePosition);
                 VertexBuffer bindNorm = mesh.getBuffer(Type.BindPoseNormal);
                 VertexBuffer pos = mesh.getBuffer(Type.Position);
-                VertexBuffer norm = mesh.getBuffer(Type.Normal);
                 FloatBuffer pb = (FloatBuffer) pos.getData();
-                FloatBuffer nb = (FloatBuffer) norm.getData();
                 FloatBuffer bpb = (FloatBuffer) bindPos.getData();
-                FloatBuffer bnb = (FloatBuffer) bindNorm.getData();
                 pb.clear();
-                nb.clear();
                 bpb.clear();
-                bnb.clear();
+
+                // reset bind normals if there is a BindPoseNormal buffer
+                if (bindNorm != null) {
+                    VertexBuffer norm = mesh.getBuffer(Type.Normal);
+                    FloatBuffer nb = (FloatBuffer) norm.getData();
+                    FloatBuffer bnb = (FloatBuffer) bindNorm.getData();
+                    nb.clear();
+                    bnb.clear();
+                    nb.put(bnb).clear();
+                }
 
                 //reset bind tangents if there is a bind tangent buffer
                 VertexBuffer bindTangents = mesh.getBuffer(Type.BindPoseTangent);
@@ -343,32 +347,30 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                     tb.put(btb).clear();
                 }
 
-
                 pb.put(bpb).clear();
-                nb.put(bnb).clear();
             }
         }
     }
 
-    @Override   
+    @Override
     public Object jmeClone() {
         return super.jmeClone();
-    }     
+    }
 
-    @Override   
-    public void cloneFields( Cloner cloner, Object original ) {
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
-         
+
         this.skeleton = cloner.clone(skeleton);
-        
+
         // If the targets were cloned then this will clone them.  If the targets
         // were shared then this will share them.
         this.targets = cloner.clone(targets);
-        
+
         this.numberOfBonesParam = cloner.clone(numberOfBonesParam);
         this.boneMatricesParam = cloner.clone(boneMatricesParam);
     }
-         
+
     /**
      * Access the attachments node of the named bone. If the bone doesn't
      * already have an attachments node, create one and attach it to the scene
@@ -444,15 +446,13 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
             //if there are tangents use the skinning with tangents
             applySkinningTangents(mesh, offsetMatrices, tb);
         }
-
-
     }
 
     /**
      * Method to apply skinning transforms to a mesh's buffers
      *
      * @param mesh the mesh
-     * @param offsetMatrices the offset matices to apply
+     * @param offsetMatrices the offset matrices to apply
      */
     private void applySkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
@@ -557,9 +557,8 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * has additional indexes since tangent has 4 components instead of 3 for
      * pos and norm
      *
-     * @param maxWeightsPerVert maximum number of weights per vertex
      * @param mesh the mesh
-     * @param offsetMatrices the offsetMaytrices to apply
+     * @param offsetMatrices the offset matrices to apply
      * @param tb the tangent vertexBuffer
      */
     private void applySkinningTangents(Mesh mesh, Matrix4f[] offsetMatrices, VertexBuffer tb) {
@@ -579,13 +578,13 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
         VertexBuffer nb = mesh.getBuffer(Type.Normal);
 
-        FloatBuffer fnb = (FloatBuffer) nb.getData();
-        fnb.rewind();
-
+        FloatBuffer fnb = (nb == null) ? null : (FloatBuffer) nb.getData();
+        if (fnb != null) {
+            fnb.rewind();
+        }
 
         FloatBuffer ftb = (FloatBuffer) tb.getData();
         ftb.rewind();
-
 
         // get boneIndexes and weights for mesh
         IndexBuffer ib = IndexBuffer.wrapIndexBuffer(mesh.getBuffer(Type.BoneIndex).getData());
@@ -597,7 +596,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         int idxWeights = 0;
 
         TempVars vars = TempVars.get();
-
 
         float[] posBuf = vars.skinPositions;
         float[] normBuf = vars.skinNormals;
@@ -611,11 +609,13 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
             bufLength = Math.min(posBuf.length, fvb.remaining());
             tanLength = Math.min(tanBuf.length, ftb.remaining());
             fvb.get(posBuf, 0, bufLength);
-            fnb.get(normBuf, 0, bufLength);
+            if (fnb != null) {
+                fnb.get(normBuf, 0, bufLength);
+            }
             ftb.get(tanBuf, 0, tanLength);
             int verts = bufLength / 3;
             int idxPositions = 0;
-            //tangents has their own index because of the 4 components
+            // Tangents have their own index because they have 4 components.
             int idxTangents = 0;
 
             // iterate vertices and apply skinning transform for each effecting bone
@@ -684,8 +684,10 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
             fvb.position(fvb.position() - bufLength);
             fvb.put(posBuf, 0, bufLength);
-            fnb.position(fnb.position() - bufLength);
-            fnb.put(normBuf, 0, bufLength);
+            if (fnb != null) {
+                fnb.position(fnb.position() - bufLength);
+                fnb.put(normBuf, 0, bufLength);
+            }
             ftb.position(ftb.position() - tanLength);
             ftb.put(tanBuf, 0, tanLength);
         }
@@ -693,10 +695,10 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         vars.release();
 
         vb.updateData(fvb);
-        nb.updateData(fnb);
+        if (nb != null) {
+            nb.updateData(fnb);
+        }
         tb.updateData(ftb);
-
-
     }
 
     @Override
@@ -704,7 +706,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(skeleton, "skeleton", null);
-        
+
         oc.write(numberOfBonesParam, "numberOfBonesParam", null);
         oc.write(boneMatricesParam, "boneMatricesParam", null);
     }
@@ -714,10 +716,10 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         super.read(im);
         InputCapsule in = im.getCapsule(this);
         skeleton = (Skeleton) in.readSavable("skeleton", null);
-        
+
         numberOfBonesParam = (MatParamOverride) in.readSavable("numberOfBonesParam", null);
         boneMatricesParam = (MatParamOverride) in.readSavable("boneMatricesParam", null);
-        
+
         if (numberOfBonesParam == null) {
             numberOfBonesParam = new MatParamOverride(VarType.Int, "NumberOfBones", null);
             boneMatricesParam = new MatParamOverride(VarType.Matrix4Array, "BoneMatrices", null);

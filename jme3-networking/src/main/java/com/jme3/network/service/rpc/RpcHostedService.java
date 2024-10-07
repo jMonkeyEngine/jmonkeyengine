@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public class RpcHostedService extends AbstractHostedConnectionService {
 
     private static final String ATTRIBUTE_NAME = "rpcSession";
 
-    static final Logger log = Logger.getLogger(RpcHostedService.class.getName());
+    private static final Logger log = Logger.getLogger(RpcHostedService.class.getName());
 
     private SessionDataDelegator delegator;
 
@@ -94,7 +94,7 @@ public class RpcHostedService extends AbstractHostedConnectionService {
     }
 
     /**
-     *  Used internally to setup the message delegator that will
+     *  Used internally to set up the message delegator that will
      *  handle HostedConnection specific messages and forward them
      *  to that connection's RpcConnection.
      */

@@ -1,0 +1,32 @@
+//Used by com.jme3.post.filters.ColorAdjustmentFilter.java
+//supports both OGL and OGLES glsl
+
+MaterialDef ColorAdjustmentFilter {
+
+    MaterialParameters {
+        Int BoundDrawBuffer
+        Int NumSamples
+        Texture2D Texture
+        Float redChannelExponent
+        Float greenChannelExponent
+        Float blueChannelExponent
+        Float lowerLimit
+        Float upperLimit
+        Float redChannelScale
+        Float greenChannelScale
+        Float blueChannelScale
+    }
+ 
+
+    Technique {
+        VertexShader    GLSL300 GLSL150 GLSL100:    Common/MatDefs/Post/Post.vert
+        FragmentShader  GLSL300 GLSL150 GLSL100:  Common/MatDefs/Post/ContrastAdjustment.frag
+        WorldParameters {
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            NUM_SAMPLES : NumSamples
+        }
+    }
+}

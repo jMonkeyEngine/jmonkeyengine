@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,13 +41,16 @@ import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.*;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class AwtPanelsContext implements JmeContext {
+
+    private static final Logger logger = Logger.getLogger(AwtPanelsContext.class.getName());
 
     protected JmeContext actualContext;
     protected AppSettings settings = new AppSettings(true);
     protected SystemListener listener;
-    protected ArrayList<AwtPanel> panels = new ArrayList<AwtPanel>();
+    protected ArrayList<AwtPanel> panels = new ArrayList<>();
     protected AwtPanel inputSource;
 
     protected AwtMouseInput mouseInput = new AwtMouseInput();
@@ -64,7 +67,12 @@ public class AwtPanelsContext implements JmeContext {
 
         @Override
         public void reshape(int width, int height) {
-            throw new IllegalStateException();
+            logger.severe("reshape is not supported.");
+        }
+
+        @Override
+        public void rescale(float x, float y) {
+            logger.severe("rescale is not supported.");
         }
 
         @Override
@@ -113,6 +121,16 @@ public class AwtPanelsContext implements JmeContext {
     @Override
     public Type getType() {
         return Type.OffscreenSurface;
+    }
+
+    /**
+     * Accesses the listener that receives events related to this context.
+     *
+     * @return the pre-existing instance
+     */
+    @Override
+    public SystemListener getSystemListener() {
+        return listener;
     }
 
     @Override
@@ -271,4 +289,43 @@ public class AwtPanelsContext implements JmeContext {
         // only relevant if changing pixel format.
     }
 
+    /**
+     * Returns the height of the input panel.
+     *
+     * @return the height (in pixels)
+     */
+    @Override
+    public int getFramebufferHeight() {
+        return inputSource.getHeight();
+    }
+
+    /**
+     * Returns the width of the input panel.
+     *
+     * @return the width (in pixels)
+     */
+    @Override
+    public int getFramebufferWidth() {
+        return inputSource.getWidth();
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the input panel.
+     *
+     * @return the screen X coordinate
+     */
+    @Override
+    public int getWindowXPosition() {
+        return inputSource.getX();
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the input panel.
+     *
+     * @return the screen Y coordinate
+     */
+    @Override
+    public int getWindowYPosition() {
+        return inputSource.getY();
+    }
 }

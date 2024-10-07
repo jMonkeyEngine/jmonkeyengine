@@ -1,7 +1,6 @@
 package com.jme3.util;
 
 import com.jme3.system.Annotations.Internal;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,12 +16,18 @@ public class BufferAllocatorFactory {
 
     private static final Logger LOGGER = Logger.getLogger(BufferAllocatorFactory.class.getName());
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private BufferAllocatorFactory() {
+    }
+
     @Internal
     protected static BufferAllocator create() {
 
         final String className = System.getProperty(PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION, ReflectionAllocator.class.getName());
         try {
-            return (BufferAllocator) Class.forName(className).newInstance();
+            return (BufferAllocator) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (final Throwable e) {
             LOGGER.log(Level.WARNING, "Unable to access {0}", className);
             return new PrimitiveAllocator();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import java.util.logging.Logger;
 /**
  *
  * A KTX file loader
- * KTX file format is an image container defined by the Kronos group
+ * KTX file format is an image container defined by the Khronos group
  * See specs here https://www.khronos.org/opengles/sdk/tools/KTX/file_format_spec/
  * 
  * This loader doesn't support compressed files yet.
@@ -141,7 +141,7 @@ public class KTXLoader implements AssetLoader {
                 pixelReader = new SrTuRoPixelReader(); 
             }
             
-            //some of the values may be 0 we need them at least to be 1
+            // Some of the values may be 0. We need them to be at least 1.
             pixelDepth = Math.max(1, pixelDepth);
             numberOfArrayElements = Math.max(1, numberOfArrayElements);
             numberOfFaces = Math.max(1, numberOfFaces);
@@ -166,9 +166,9 @@ public class KTXLoader implements AssetLoader {
             int offset = 0;
             //iterate over data
             for (int mipLevel = 0; mipLevel < numberOfMipmapLevels; mipLevel++) {
-                //size of the image in bytes.
-                //this value is bogus in many example, when using mipmaps.
-                //instead we compute the theoretical size and display a warning when it does not match.
+                // Size of the image in bytes.
+                // This value is bogus in many examples when using mipmaps.
+                // We compute the theoretical size and display a warning if it does not match.
                 int fileImageSize = in.readInt();
                 
                 int width = Math.max(1, pixelWidth >> mipLevel);
@@ -259,7 +259,7 @@ public class KTXLoader implements AssetLoader {
      * @return 
      */
     private Image createImage(int nbSlices, int byteBuffersSize, Image.Format imgFormat, int pixelWidth, int pixelHeight, int depth) {
-        ArrayList<ByteBuffer> imageData = new ArrayList<ByteBuffer>(nbSlices);
+        ArrayList<ByteBuffer> imageData = new ArrayList<>(nbSlices);
         for (int i = 0; i < nbSlices; i++) {
             imageData.add(BufferUtils.createByteBuffer(byteBuffersSize));
         }
@@ -270,10 +270,11 @@ public class KTXLoader implements AssetLoader {
     /**
      * Parse the file metaData to select the PixelReader that suits the file 
      * coordinates orientation
-     * @param bytesOfKeyValueData
-     * @param in
-     * @return
-     * @throws IOException 
+     *
+     * @param bytesOfKeyValueData number of bytes to read
+     * @param in the input stream (not null)
+     * @return a new instance or null
+     * @throws IOException from the input stream
      */
     private PixelReader parseMetaData(int bytesOfKeyValueData, DataInput in) throws IOException {
         PixelReader pixelReader = null;

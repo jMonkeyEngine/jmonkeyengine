@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,4 +42,9 @@ public class Materials {
     public static final String LIGHTING = "Common/MatDefs/Light/Lighting.j3md";
     public static final String PBR = "Common/MatDefs/Light/PBRLighting.j3md";
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Materials() {
+    }
 }

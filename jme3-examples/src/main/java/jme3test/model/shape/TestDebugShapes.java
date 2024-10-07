@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,32 +50,31 @@ public class TestDebugShapes extends SimpleApplication {
         app.start();
     }
 
-    public Geometry putShape(Mesh shape, ColorRGBA color, float lineWidth){
+    private Geometry putShape(Mesh shape, ColorRGBA color) {
         Geometry g = new Geometry("shape", shape);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
-        mat.getAdditionalRenderState().setLineWidth(lineWidth);
         mat.setColor("Color", color);
         g.setMaterial(mat);
         rootNode.attachChild(g);
         return g;
     }
 
-    public void putArrow(Vector3f pos, Vector3f dir, ColorRGBA color){
+    private void putArrow(Vector3f pos, Vector3f dir, ColorRGBA color){
         Arrow arrow = new Arrow(dir);
-        putShape(arrow, color, 4).setLocalTranslation(pos);
+        putShape(arrow, color).setLocalTranslation(pos);
     }
 
-    public void putBox(Vector3f pos, float size, ColorRGBA color){
-        putShape(new WireBox(size, size, size), color, 1).setLocalTranslation(pos);
+    private void putBox(Vector3f pos, float size, ColorRGBA color) {
+        putShape(new WireBox(size, size, size), color).setLocalTranslation(pos);
     }
 
-    public void putGrid(Vector3f pos, ColorRGBA color){
-        putShape(new Grid(6, 6, 0.2f), color, 1).center().move(pos);
+    private void putGrid(Vector3f pos, ColorRGBA color) {
+        putShape(new Grid(6, 6, 0.2f), color).center().move(pos);
     }
 
-    public void putSphere(Vector3f pos, ColorRGBA color){
-        putShape(new WireSphere(1), color, 1).setLocalTranslation(pos);
+    private void putSphere(Vector3f pos, ColorRGBA color) {
+        putShape(new WireSphere(1), color).setLocalTranslation(pos);
     }
 
     @Override

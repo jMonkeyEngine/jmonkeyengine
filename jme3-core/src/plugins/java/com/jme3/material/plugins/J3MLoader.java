@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@ import com.jme3.util.PlaceholderAssets;
 import com.jme3.util.blockparser.BlockLanguageParser;
 import com.jme3.util.blockparser.Statement;
 import com.jme3.util.clone.Cloner;
+import jme3tools.shader.Preprocessor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -73,10 +74,10 @@ public class J3MLoader implements AssetLoader {
     private Material material;
     private TechniqueDef technique;
     private RenderState renderState;
-    private ArrayList<String> presetDefines = new ArrayList<String>();
+    private final ArrayList<String> presetDefines = new ArrayList<>();
 
-    private List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
-    private EnumMap<Shader.ShaderType, String> shaderNames;
+    private final List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
+    private final EnumMap<Shader.ShaderType, String> shaderNames;
 
     private static final String whitespacePattern = "\\p{javaWhitespace}+";
 
@@ -151,7 +152,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     private List<String> tokenizeTextureValue(final String value) {
-        final List<String> matchList = new ArrayList<String>();
+        final List<String> matchList = new ArrayList<>();
         final Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
         final Matcher regexMatcher = regex.matcher(value.trim());
 
@@ -169,7 +170,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     private List<TextureOptionValue> parseTextureOptions(final List<String> values) {
-        final List<TextureOptionValue> matchList = new ArrayList<TextureOptionValue>();
+        final List<TextureOptionValue> matchList = new ArrayList<>();
 
         if (values.isEmpty() || values.size() == 1) {
             return matchList;
@@ -219,6 +220,7 @@ public class J3MLoader implements AssetLoader {
         // If there is only one token on the value, it must be the path to the texture.
         if (textureValues.size() == 1) {
             textureKey = new TextureKey(textureValues.get(0), false);
+            textureKey.setGenerateMips(true);
         } else {
             String texturePath = value.trim();
 
@@ -253,6 +255,8 @@ public class J3MLoader implements AssetLoader {
                 textureKey = new TextureKey(textureValues.get(textureValues.size() - 1), false);
             }
 
+            textureKey.setGenerateMips(true);
+
             // Apply texture options to the texture key
             if (!textureOptionValues.isEmpty()) {
                 for (final TextureOptionValue textureOptionValue : textureOptionValues) {
@@ -272,8 +276,6 @@ public class J3MLoader implements AssetLoader {
                 textureKey.setTextureTypeHint(Texture.Type.CubeMap);
                 break;
         }
-
-        textureKey.setGenerateMips(true);
 
         Texture texture;
 
@@ -409,7 +411,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     private void readValueParam(String statement) throws IOException{
-        // Use limit=1 incase filename contains colons
+        // Use limit=1 in case the filename contains colons.
         String[] split = statement.split(":", 2);
         if (split.length != 2){
             throw new IOException("Value parameter statement syntax incorrect");
@@ -476,7 +478,7 @@ public class J3MLoader implements AssetLoader {
         }else if (split[0].equals("BlendEquationAlpha")){
             renderState.setBlendEquationAlpha(RenderState.BlendEquationAlpha.valueOf(split[1]));
         }else if (split[0].equals("AlphaTestFalloff")){
-            // Ignore for backwards compatbility
+            // ignore for backwards compatibility
         }else if (split[0].equals("PolyOffset")){
             float factor = Float.parseFloat(split[1]);
             float units = Float.parseFloat(split[2]);
@@ -484,11 +486,11 @@ public class J3MLoader implements AssetLoader {
         }else if (split[0].equals("ColorWrite")){
             renderState.setColorWrite(parseBoolean(split[1]));
         }else if (split[0].equals("PointSprite")){
-            // Ignore for backwards compatbility
+            // ignore for backwards compatibility
         }else if (split[0].equals("DepthFunc")){
             renderState.setDepthFunc(RenderState.TestFunction.valueOf(split[1]));
         }else if (split[0].equals("AlphaFunc")){
-            renderState.setAlphaFunc(RenderState.TestFunction.valueOf(split[1]));
+            // ignore for backwards compatibility
         }else if (split[0].equals("LineWidth")){
             renderState.setLineWidth(Float.parseFloat(split[1]));
         } else {
@@ -757,7 +759,7 @@ public class J3MLoader implements AssetLoader {
                 throw new MatParseException("Expected ':', got '{'", materialStat);
             }
             materialDef = new MaterialDef(assetManager, materialName);
-            // NOTE: pass file name for defs so they can be loaded later
+            // NOTE: pass the filename for defs, so they can be loaded later
             materialDef.setAssetName(key.getName());
         }else{
             throw new MatParseException("Cannot use colon in material name/path", materialStat);
@@ -798,6 +800,7 @@ public class J3MLoader implements AssetLoader {
             } else if (key.getExtension().equals("j3md") && key instanceof MaterialKey) {
                 throw new IOException("Material definitions must be loaded via AssetKey");
             }
+            in = Preprocessor.apply(in);
             loadFromRoot(BlockLanguageParser.parse(in));
         } finally {
             if (in != null){
@@ -842,11 +845,11 @@ public class J3MLoader implements AssetLoader {
      * the path to the texture in the .j3m file.
      * <p>
      *     <b>Example:</b>
-     *     <pre>
-     *     DiffuseMap: MinTrilinear MagBilinear WrapRepeat_S "some/path/to a/texture.png"
-     *     </pre>
-     *     This would apply a minification filter of "Trilinear", a magnification filter of "Bilinear" and set the wrap mode to "Repeat".
      * </p>
+     * <pre>
+     * DiffuseMap: MinTrilinear MagBilinear WrapRepeat_S "some/path/to a/texture.png"
+     * </pre>
+     * This would apply a minification filter of "Trilinear", a magnification filter of "Bilinear" and set the wrap mode to "Repeat".
      * <p>
      *     <b>Note:</b> If several filters of the same type are added, eg. MinTrilinear MinNearestLinearMipMap, the last one will win.
      * </p>
@@ -857,6 +860,13 @@ public class J3MLoader implements AssetLoader {
          * Applies a {@link com.jme3.texture.Texture.MinFilter} to the texture.
          */
         Min {
+
+            @Override
+            public void applyToTextureKey(final String option, final TextureKey textureKey) {
+                Texture.MinFilter minFilter = Texture.MinFilter.valueOf(option);
+                textureKey.setGenerateMips(minFilter.usesMipMapLevels());
+            }
+
             @Override
             public void applyToTexture(final String option, final Texture texture) {
                 texture.setMinFilter(Texture.MinFilter.valueOf(option));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,6 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.BatchNode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
 import com.jme3.scene.shape.Box;
@@ -80,10 +79,10 @@ public class TestBatchNode extends SimpleApplication {
 
         /*
          * A cube with a color "bleeding" through transparent texture. Uses
-         * Texture from jme3-test-data library!
+         * Texture from jme3-testdata library!
          */
-        Box boxshape4 = new Box(1f, 1f, 1f);
-        Geometry cube = new Geometry("cube1", boxshape4);
+        Box boxShape4 = new Box(1f, 1f, 1f);
+        Geometry cube = new Geometry("cube1", boxShape4);
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
         cube.setMaterial(mat);
         //Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -91,7 +90,7 @@ public class TestBatchNode extends SimpleApplication {
         //mat.setBoolean("UseMaterialColors", true);
         /*
          * A cube with a color "bleeding" through transparent texture. Uses
-         * Texture from jme3-test-data library!
+         * Texture from jme3-testdata library!
          */
         Box box = new Box(1f, 1f, 1f);
         cube2 = new Geometry("cube2", box);

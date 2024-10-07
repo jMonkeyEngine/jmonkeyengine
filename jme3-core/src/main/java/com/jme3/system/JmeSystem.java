@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,15 +34,22 @@ package com.jme3.system;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.SoftTextDialogInput;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Utility class to access platform-dependant features.
+ */
 public class JmeSystem {
 
     private static final Logger logger = Logger.getLogger(JmeSystem.class.getName());
@@ -52,6 +59,12 @@ public class JmeSystem {
     }
 
     private static JmeSystemDelegate systemDelegate;
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private JmeSystem() {
+    }
 
     public static void setSystemDelegate(JmeSystemDelegate systemDelegate) {
         JmeSystem.systemDelegate = systemDelegate;
@@ -144,11 +157,14 @@ public class JmeSystem {
         return systemDelegate.newAssetManager();
     }
 
-    public static boolean showSettingsDialog(AppSettings sourceSettings, final boolean loadFromRegistry) {
-        checkDelegate();
-        return systemDelegate.showSettingsDialog(sourceSettings, loadFromRegistry);
-    }
+   
 
+    /**
+     * Determine which Platform (operating system and architecture) the
+     * application is running on.
+     *
+     * @return an enum value (not null)
+     */
     public static Platform getPlatform() {
         checkDelegate();
         return systemDelegate.getPlatform();
@@ -174,22 +190,52 @@ public class JmeSystem {
      * feels is appropriate. If this is a headless or an offscreen surface
      * context, this method should do nothing.
      *
+     * @deprecated Use JmeSystem.handleErrorMessage(String) instead
      * @param message The error message to display. May contain new line
      * characters.
      */
+    @Deprecated
     public static void showErrorDialog(String message){
-        checkDelegate();
-        systemDelegate.showErrorDialog(message);
+        handleErrorMessage(message);
     }
+
+    public static void handleErrorMessage(String message){
+        checkDelegate();
+        systemDelegate.handleErrorMessage(message);
+    }
+
+    public static void setErrorMessageHandler(Consumer<String> handler){
+        checkDelegate();
+        systemDelegate.setErrorMessageHandler(handler);
+    }
+
+
+    public static void handleSettings(AppSettings sourceSettings, boolean loadFromRegistry){
+        checkDelegate();
+        systemDelegate.handleSettings(sourceSettings, loadFromRegistry);
+    }
+
+    public static void setSettingsHandler(BiFunction<AppSettings,Boolean,Boolean> handler){
+        checkDelegate();
+        systemDelegate.setSettingsHandler(handler);
+    }
+
+
+    @Deprecated
+    public static boolean showSettingsDialog(AppSettings sourceSettings, final boolean loadFromRegistry) {
+        checkDelegate();
+        return systemDelegate.showSettingsDialog(sourceSettings, loadFromRegistry);
+    }
+
 
     public static void initialize(AppSettings settings) {
         checkDelegate();
         systemDelegate.initialize(settings);
     }
 
-    private static JmeSystemDelegate tryLoadDelegate(String className) throws InstantiationException, IllegalAccessException {
+    private static JmeSystemDelegate tryLoadDelegate(String className) throws InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
         try {
-            return (JmeSystemDelegate) Class.forName(className).newInstance();
+            return (JmeSystemDelegate) Class.forName(className).getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException ex) {
             return null;
         }
@@ -205,16 +251,14 @@ public class JmeSystem {
                     if (systemDelegate == null) {
                         systemDelegate = tryLoadDelegate("com.jme3.system.ios.JmeIosSystem");
                         if (systemDelegate == null) {
-                            // None of the system delegates were found ..
+                            // None of the system delegates were found.
                             Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE,
                                     "Failed to find a JmeSystem delegate!\n"
                                     + "Ensure either desktop or android jME3 jar is in the classpath.");
                         }
                     }
                 }
-            } catch (InstantiationException ex) {
-                Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE, "Failed to create JmeSystem delegate:\n{0}", ex);
-            } catch (IllegalAccessException ex) {
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE, "Failed to create JmeSystem delegate:\n{0}", ex);
             }
         }

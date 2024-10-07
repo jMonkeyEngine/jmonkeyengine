@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,10 @@ public class JoyAxisTrigger implements Trigger {
     /**
      * Use {@link Joystick#assignAxis(java.lang.String, java.lang.String, int) }
      * instead.
+     *
+     * @param joyId which joystick
+     * @param axisId which joystick axis
+     * @param negative true to negate input values, false to leave unchanged
      */
     public JoyAxisTrigger(int joyId, int axisId, boolean negative) {
         this.joyId = joyId;
@@ -48,7 +52,7 @@ public class JoyAxisTrigger implements Trigger {
         this.negative = negative;
     }
 
-    public static int joyAxisHash(int joyId, int joyAxis, boolean negative){
+    public static int joyAxisHash(int joyId, int joyAxis, boolean negative) {
         assert joyAxis >= 0 && joyAxis <= 255;
         return (2048 * joyId) | (negative ? 1280 : 1024) | (joyAxis & 0xff);
     }
@@ -74,5 +78,5 @@ public class JoyAxisTrigger implements Trigger {
     public int triggerHashCode() {
         return joyAxisHash(joyId, axisId, negative);
     }
-    
+
 }

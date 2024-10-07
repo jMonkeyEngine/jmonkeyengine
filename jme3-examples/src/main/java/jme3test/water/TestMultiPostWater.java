@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2009-2021 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package jme3test.water;
 
 import com.jme3.app.SimpleApplication;
@@ -32,11 +63,8 @@ import java.util.List;
  */
 public class TestMultiPostWater extends SimpleApplication {
 
-    private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
-    private WaterFilter water;
-    private TerrainQuad terrain;
-    private Material matRock;    
-    private static float WATER_HEIGHT = 90;
+    final private Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
+    final private static float WATER_HEIGHT = 90;
 
     public static void main(String[] args) {
         TestMultiPostWater app = new TestMultiPostWater();
@@ -82,7 +110,7 @@ public class TestMultiPostWater extends SimpleApplication {
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
 
-        water = new WaterFilter(rootNode, lightDir);
+        WaterFilter water = new WaterFilter(rootNode, lightDir);
         water.setCenter(new Vector3f(9.628218f, -15.830074f, 199.23595f));
         water.setRadius(260);
         water.setWaveScale(0.003f);
@@ -133,7 +161,8 @@ public class TestMultiPostWater extends SimpleApplication {
     }
 
     private void createTerrain(Node rootNode) {
-        matRock = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matRock = new Material(assetManager,
+                "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
@@ -167,8 +196,9 @@ public class TestMultiPostWater extends SimpleApplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
-        List<Camera> cameras = new ArrayList<Camera>();
+        TerrainQuad terrain
+                = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
+        List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         terrain.setMaterial(matRock);
         terrain.setLocalScale(new Vector3f(5, 5, 5));

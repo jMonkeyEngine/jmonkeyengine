@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,8 @@ public class ColorOverlayFilter extends Filter {
 
     /**
      * creates a colorOverlayFilter with the given color
-     * @param color 
+     *
+     * @param color the desired color (default=(1,1,1,1), alias created)
      */
     public ColorOverlayFilter(ColorRGBA color) {
         this();
@@ -82,8 +83,9 @@ public class ColorOverlayFilter extends Filter {
     }
 
     /**
-     * sets the color 
-     * @param color 
+     * sets the color
+     *
+     * @param color the desired color (default=(1,1,1,1), alias created)
      */
     public void setColor(final ColorRGBA color) {
         this.color = color;

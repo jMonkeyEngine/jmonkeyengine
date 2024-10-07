@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,15 +47,15 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestSpotLight extends SimpleApplication {
 
-    private Vector3f lightTarget = new Vector3f(12, 3.5f, 30);
+    final private Vector3f lightTarget = new Vector3f(12, 3.5f, 30);
 
     public static void main(String[] args){
         TestSpotLight app = new TestSpotLight();
         app.start();
     }
 
- SpotLight spot;
-    Geometry lightMdl;
+    private SpotLight spot;
+    private Geometry lightMdl;
     public void setupLighting(){
       AmbientLight al=new AmbientLight();
       al.setColor(ColorRGBA.White.mult(0.02f));
@@ -137,7 +137,7 @@ public class TestSpotLight extends SimpleApplication {
         
     }
     
-    float angle;    
+    private float angle;    
 
     @Override
     public void simpleUpdate(float tpf) {

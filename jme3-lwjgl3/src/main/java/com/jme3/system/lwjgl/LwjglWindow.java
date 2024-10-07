@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,23 +39,33 @@ import com.jme3.input.TouchInput;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
+import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
-import java.awt.*;
+import com.jme3.util.SafeArrayList;
+
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowFocusCallback;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.system.Platform;
+
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.Version;
-import org.lwjgl.glfw.*;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -78,10 +88,16 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     static {
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL30, () -> {
+            // Based on GLFW docs for OpenGL version below 3.2,
+            // GLFW_OPENGL_ANY_PROFILE must be used.
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL31, () -> {
+            // Based on GLFW docs for OpenGL version below 3.2,
+            // GLFW_OPENGL_ANY_PROFILE must be used.
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
         });
@@ -123,6 +139,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected final AtomicBoolean needRestart = new AtomicBoolean(false);
 
     private final JmeContext.Type type;
+    private final SafeArrayList<WindowSizeListener> windowSizeListeners = new SafeArrayList<>(WindowSizeListener.class);
 
     private GLFWErrorCallback errorCallback;
     private GLFWWindowSizeCallback windowSizeCallback;
@@ -131,13 +148,21 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private Thread mainThread;
 
-    private double frameSleepTime;
     private long window = NULL;
     private int frameRateLimit = -1;
 
     protected boolean wasActive = false;
     protected boolean autoFlush = true;
     protected boolean allowSwapBuffers = false;
+
+    // temp variables used for glfw calls
+    private final int width[] = new int[1];
+    private final int height[] = new int[1];
+
+    // state maintained by updateSizes()
+    private int oldFramebufferWidth;
+    private int oldFramebufferHeight;
+    private final Vector2f oldScale = new Vector2f(1, 1);
 
     public LwjglWindow(final JmeContext.Type type) {
 
@@ -146,6 +171,24 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         this.type = type;
+    }
+
+    /**
+     * Registers the specified listener to get notified when window size changes.
+     *
+     * @param listener The WindowSizeListener to register.
+     */
+    public void registerWindowSizeListener(WindowSizeListener listener) {
+        windowSizeListeners.add(listener);
+    }
+
+    /**
+     * Removes the specified listener from the listeners list.
+     *
+     * @param listener The WindowSizeListener to remove.
+     */
+    public void removeWindowSizeListener(WindowSizeListener listener) {
+        windowSizeListeners.remove(listener);
     }
 
     /**
@@ -226,7 +269,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glfwWindowHint(GLFW_STENCIL_BITS, settings.getStencilBits());
         glfwWindowHint(GLFW_SAMPLES, settings.getSamples());
         glfwWindowHint(GLFW_STEREO, settings.useStereo3D() ? GLFW_TRUE : GLFW_FALSE);
-        glfwWindowHint(GLFW_REFRESH_RATE, settings.getFrequency());
+        glfwWindowHint(GLFW_REFRESH_RATE, settings.getFrequency()<=0?GLFW_DONT_CARE:settings.getFrequency());
+        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, settings.isUseRetinaFrameBuffer() ? GLFW_TRUE : GLFW_FALSE);
 
         if (settings.getBitsPerPixel() == 24) {
             glfwWindowHint(GLFW_RED_BITS, 8);
@@ -248,13 +292,13 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         final GLFWVidMode videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-        if (settings.getWidth() <= 0 || settings.getHeight() <= 0) {
-            settings.setResolution(videoMode.width(), videoMode.height());
+        int requestWidth = settings.getWindowWidth();
+        int requestHeight = settings.getWindowHeight();
+        if (requestWidth <= 0 || requestHeight <= 0) {
+            requestWidth = videoMode.width();
+            requestHeight = videoMode.height();
         }
-
-        window = glfwCreateWindow(settings.getWidth(), settings.getHeight(), settings.getTitle(), monitor, NULL);
-
+        window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
@@ -275,11 +319,17 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
         });
 
-        // Center the window
         if (!settings.isFullscreen()) {
-            glfwSetWindowPos(window,
-                    (videoMode.width() - settings.getWidth()) / 2,
-                    (videoMode.height() - settings.getHeight()) / 2);
+            if (settings.getCenterWindow()) {
+                // Center the window
+                glfwSetWindowPos(window,
+                        (videoMode.width() - requestWidth) / 2,
+                        (videoMode.height() - requestHeight) / 2);
+            } else {
+                glfwSetWindowPos(window,
+                        settings.getWindowXPosition(),
+                        settings.getWindowYPosition());
+            }
         }
 
         // Make the OpenGL context current
@@ -295,15 +345,16 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         setWindowIcon(settings);
         showWindow();
 
+        // HACK: the framebuffer seems to be initialized with the wrong size
+        // on some HiDPI platforms until glfwPollEvents is called 2 or 3 times
+        for (int i = 0; i < 4; i++) glfwPollEvents();
+        
         // Windows resize callback
         glfwSetWindowSizeCallback(window, windowSizeCallback = new GLFWWindowSizeCallback() {
 
             @Override
             public void invoke(final long window, final int width, final int height) {
-
-                // This is the window size, never to passed to any pixel based stuff!
-                // https://www.glfw.org/docs/latest/window_guide.html#window_size
-                onWindowSizeChanged(width, height);
+                updateSizes();
             }
         });
 
@@ -312,16 +363,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             @Override
             public void invoke(final long window, final int width, final int height) {
-
-                // The window size might be also changed, but the window size callback might not trigger
-                // Maybe a bug in graphics drivers or LWJGL 3...? So make sure we emulate the original JME behavior here
-                IntBuffer windowWidth = BufferUtils.createIntBuffer(1);
-                IntBuffer windowHeight = BufferUtils.createIntBuffer(1);
-                glfwGetWindowSize(window, windowWidth, windowHeight);
-                onWindowSizeChanged(windowWidth.get(), windowHeight.get());
-
-                // https://www.glfw.org/docs/latest/window_guide.html#window_fbsize
-                listener.reshape(width, height);
+                updateSizes();
             }
         });
 
@@ -331,10 +373,43 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (settings.isOpenCLSupport()) {
             initOpenCL(window);
         }
+
+        updateSizes();
     }
 
-    private void onWindowSizeChanged(final int width, final int height) {
-        settings.setResolution(width, height);
+    private void updateSizes() {
+        // framebuffer size (resolution) may differ from window size (e.g. HiDPI)
+
+        glfwGetWindowSize(window, width, height);
+        int windowWidth = width[0] < 1 ? 1 : width[0];
+        int windowHeight = height[0] < 1 ? 1 : height[0];
+        if (settings.getWindowWidth() != windowWidth
+                || settings.getWindowHeight() != windowHeight) {
+            settings.setWindowSize(windowWidth, windowHeight);
+            for (WindowSizeListener wsListener : windowSizeListeners.getArray()) {
+                wsListener.onWindowSizeChanged(windowWidth, windowHeight);
+            }
+        }
+
+        glfwGetFramebufferSize(window, width, height);
+        int framebufferWidth = width[0];
+        int framebufferHeight = height[0];
+        if (framebufferWidth != oldFramebufferWidth
+                || framebufferHeight != oldFramebufferHeight) {
+            settings.setResolution(framebufferWidth, framebufferHeight);
+            listener.reshape(framebufferWidth, framebufferHeight);
+
+            oldFramebufferWidth = framebufferWidth;
+            oldFramebufferHeight = framebufferHeight;
+        }
+
+        float xScale = framebufferWidth / windowWidth;
+        float yScale = framebufferHeight / windowHeight;
+        if (oldScale.x != xScale || oldScale.y != yScale) {
+            listener.rescale(xScale, yScale);
+
+            oldScale.set(xScale, yScale);
+        }
     }
 
     protected void showWindow() {
@@ -468,9 +543,22 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return;
         }
 
-        // NOTE: this is required for Mac OS X!
-        mainThread = Thread.currentThread();
-        run();
+        if (Platform.get() == Platform.MACOSX) {
+            // NOTE: this is required for Mac OS X!
+            mainThread = Thread.currentThread();
+            mainThread.setName("jME3 Main");
+            if (waitFor) {
+                LOGGER.warning("create(true) is not supported for macOS!");
+            }
+            run();
+        } else {
+            mainThread = new Thread(this, "jME3 Main");
+            mainThread.start();
+            if (waitFor) {
+                waitFor(true);
+            }
+        }
+
     }
 
     /**
@@ -494,7 +582,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             timer = new NanoTimer();
 
-            // For canvas, this will create a pbuffer,
+            // For canvas, this will create a PBuffer,
             // allowing us to query information.
             // When the canvas context becomes available, it will
             // be replaced seamlessly.
@@ -518,8 +606,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         listener.initialize();
+        updateSizes();
+
         return true;
     }
+
 
     /**
      * execute one iteration of the render loop in the OpenGL thread
@@ -534,15 +625,17 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             throw new IllegalStateException();
         }
 
+
         listener.update();
 
-        // All this does is call swap buffers
+        // All this does is call glfwSwapBuffers().
         // If the canvas is not active, there's no need to waste time
-        // doing that ..
+        // doing that.
         if (renderable.get()) {
-            // calls swap buffers, etc.
             try {
-                if (allowSwapBuffers && autoFlush) {
+                // If type is 'Canvas'; lwjgl-awt takes care of swap buffers.
+                if ((type != Type.Canvas) && allowSwapBuffers && autoFlush) {
+                    // calls swap buffers, etc.
                     glfwSwapBuffers(window);
                 }
             } catch (Throwable ex) {
@@ -550,8 +643,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
         }
 
-        // Subclasses just call GLObjectManager clean up objects here
-        // it is safe .. for now.
+        // Subclasses just call GLObjectManager. Clean up objects here.
+        // It is safe ... for now.
         if (renderer != null) {
             renderer.postFrame();
         }
@@ -564,21 +657,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             setFrameRateLimit(20);
         }
 
-        // If software frame rate limiting has been asked for, lets calculate sleep time based on a base value calculated
-        // from 1000 / frameRateLimit in milliseconds subtracting the time it has taken to render last frame.
-        // This gives an approximate limit within 3 fps of the given frame rate limit.
-        if (frameRateLimit > 0) {
-            final double sleep = frameSleepTime - (timer.getTimePerFrame() / 1000.0);
-            final long sleepMillis = (long) sleep;
-            final int additionalNanos = (int) ((sleep - sleepMillis) * 1000000.0);
-
-            if (sleepMillis >= 0 && additionalNanos >= 0) {
-                try {
-                    Thread.sleep(sleepMillis, additionalNanos);
-                } catch (InterruptedException ignored) {
-                }
-            }
-        }
+        Sync.sync(frameRateLimit);
 
         glfwPollEvents();
     }
@@ -590,6 +669,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Failed to set display settings!", ex);
         }
+        // Reinitialize context flags and such
+        reinitContext();
 
         // We need to reinit the mouse and keyboard input as they are tied to a window handle
         if (keyInput != null && keyInput.isInitialized()) {
@@ -604,7 +685,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private void setFrameRateLimit(int frameRateLimit) {
         this.frameRateLimit = frameRateLimit;
-        frameSleepTime = 1000.0 / this.frameRateLimit;
     }
 
     /**
@@ -700,5 +780,79 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     public long getWindowHandle() {
         return window;
+    }
+
+    /**
+     * Get the window content scale, for HiDPI support.
+     *
+     * The content scale is the ratio between the current DPI and the platform's default DPI.
+     * This is especially important for text and any UI elements. If the pixel dimensions of
+     * your UI scaled by this look appropriate on your machine then it should appear at a
+     * reasonable size on other machines regardless of their DPI and scaling settings. This
+     * relies on the system DPI and scaling settings being somewhat correct.
+     *
+     * @param store A vector2f to store the result
+     * @return The window content scale
+     * @see <a href="https://www.glfw.org/docs/latest/window_guide.html#window_scale">Window content scale</a>
+     */
+    public Vector2f getWindowContentScale(Vector2f store) {
+        if (store == null) store = new Vector2f();
+
+        glfwGetFramebufferSize(window, width, height);
+        store.set(width[0], height[0]);
+
+        glfwGetWindowSize(window, width, height);
+        store.x /= width[0];
+        store.y /= height[0];
+
+        return store;
+    }
+
+    /**
+     * Returns the height of the framebuffer.
+     *
+     * @return the height (in pixels)
+     */
+    @Override
+    public int getFramebufferHeight() {
+        glfwGetFramebufferSize(window, width, height);
+        int result = height[0];
+        return result;
+    }
+
+    /**
+     * Returns the width of the framebuffer.
+     *
+     * @return the width (in pixels)
+     */
+    @Override
+    public int getFramebufferWidth() {
+        glfwGetFramebufferSize(window, width, height);
+        int result = width[0];
+        return result;
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @return the screen X coordinate
+     */
+    @Override
+    public int getWindowXPosition() {
+        glfwGetWindowPos(window, width, height);
+        int result = width[0];
+        return result;
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @return the screen Y coordinate
+     */
+    @Override
+    public int getWindowYPosition() {
+        glfwGetWindowPos(window, width, height);
+        int result = height[0];
+        return result;
     }
 }

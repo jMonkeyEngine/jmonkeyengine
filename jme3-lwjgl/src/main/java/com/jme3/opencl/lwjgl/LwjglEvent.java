@@ -59,7 +59,7 @@ public class LwjglEvent extends Event {
             return;
         }
         CL10.clWaitForEvents(event);
-        release(); //short cut to save resources
+        release(); // shortcut to save resources
     }
 
     @Override
@@ -69,7 +69,7 @@ public class LwjglEvent extends Event {
         }
         int status = event.getInfoInt(CL10.CL_EVENT_COMMAND_EXECUTION_STATUS);
         if (status == CL10.CL_SUCCESS) {
-            release(); //short cut to save resources
+            release(); // shortcut to save resources
             return true;
         } else if (status < 0) {
             Utils.checkError(status, "EventStatus");

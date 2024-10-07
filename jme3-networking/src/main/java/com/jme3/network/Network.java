@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,12 @@ public class Network
     public static final int DEFAULT_VERSION = 42;
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Network() {
+    }
+
+    /**
      *  Creates a Server that will utilize both reliable and fast
      *  transports to communicate with clients.  The specified port
      *  will be used for both TCP and UDP communication.
@@ -80,7 +86,7 @@ public class Network
      *
      *  @param gameName This is the name that identifies the game.  Connecting clients
      *                  must use this name or be turned away.
-     *  @param version  This is a game-specific verison that helps detect when out-of-date
+     *  @param version  This is a game-specific version that helps detect when out-of-date
      *                  clients have connected to an incompatible server.
      *  @param tcpPort  The port upon which the TCP hosting will listen for new connections.
      *  @param udpPort  The port upon which the UDP hosting will listen for new 'fast' UDP 
@@ -142,12 +148,12 @@ public class Network
     }
 
     /**
-     *  Creates a Client that communicates with the specified host and and separate TCP and UDP ports
+     *  Creates a Client that communicates with the specified host and separate TCP and UDP ports
      *  using both reliable and fast transports.  
      *  
      *  @param gameName This is the name that identifies the game.  This must match
      *                  the target server's name or this client will be turned away.
-     *  @param version  This is a game-specific verison that helps detect when out-of-date
+     *  @param version  This is a game-specific version that helps detect when out-of-date
      *                  clients have connected to an incompatible server.  This must match
      *                  the server's version of this client will be turned away.
      *  @param hostPort  The remote TCP port on the server to which this client should

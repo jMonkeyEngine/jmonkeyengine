@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,12 @@ import com.jme3.network.HostedConnection;
 public class RmiContext {
     private static final ThreadLocal<HostedConnection> connection = new ThreadLocal<HostedConnection>();
  
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private RmiContext() {
+    }
+
     /**
      *  Returns the HostedConnection that is responsible for any
      *  RMI-related calls on this thread.

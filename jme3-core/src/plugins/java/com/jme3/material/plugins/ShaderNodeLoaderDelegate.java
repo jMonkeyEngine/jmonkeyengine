@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,9 +49,9 @@ import java.util.*;
  * This class is here to be able to load shaderNodeDefinition from both the
  * J3MLoader and ShaderNodeDefinitionLoader.
  *
- * Also it allows to load the ShaderNodes from a j3md file and build the
+ * It also allows loading shader nodes from a j3md file and building the
  * ShaderNodes list of each technique and the ShaderGenerationInfo needed to
- * generate shaders
+ * generate shaders.
  *
  * @author Nehon
  */
@@ -75,12 +75,12 @@ public class ShaderNodeLoaderDelegate {
     protected Set<String> varNames = new HashSet<>();
     protected AssetManager assetManager;
     protected ConditionParser conditionParser = new ConditionParser();
-    protected List<String> nulledConditions = new ArrayList<String>();
+    protected List<String> nulledConditions = new ArrayList<>();
 
     protected class DeclaredVariable {
 
         ShaderNodeVariable var;
-        List<ShaderNode> nodes = new ArrayList<ShaderNode>();
+        List<ShaderNode> nodes = new ArrayList<>();
 
         public DeclaredVariable(ShaderNodeVariable var) {
             this.var = var;
@@ -101,7 +101,7 @@ public class ShaderNodeLoaderDelegate {
      * @param statements the list statements to parse
      * @param key the ShaderNodeDefinitionKey
      * @return a list of ShaderNodesDefinition
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     public List<ShaderNodeDefinition> readNodesDefinitions(List<Statement> statements, ShaderNodeDefinitionKey key) throws IOException {
 
@@ -132,13 +132,13 @@ public class ShaderNodeLoaderDelegate {
      * ShaderNodesDefinition This method is used by the j3m loader.
      *
      * When loaded in a material, the definitions are not stored as a list, but
-     * they are stores in Shadernodes based on this definition.
+     * they are stored in shader nodes based on this definition.
      *
      * The map is here to map the definition to the nodes, and ovoid reloading
      * already loaded definitions
      *
      * @param statements the list of statements to parse
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     public void readNodesDefinitions(List<Statement> statements) throws IOException {
         readNodesDefinitions(statements, new ShaderNodeDefinitionKey());
@@ -149,7 +149,7 @@ public class ShaderNodeLoaderDelegate {
      *
      * @param statements the list of statements to parse
      * @param key the ShaderNodeDefinitionKey
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     protected void readShaderNodeDefinition(List<Statement> statements, ShaderNodeDefinitionKey key) throws IOException {
         boolean isLoadDoc = key instanceof ShaderNodeDefinitionKey && key.isLoadDocumentation();
@@ -209,7 +209,7 @@ public class ShaderNodeLoaderDelegate {
      *
      * @param statement the statement to parse
      * @return a ShaderNodeVariable extracted from the statement
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     protected ShaderNodeVariable readVariable(Statement statement) throws IOException {
 
@@ -248,7 +248,7 @@ public class ShaderNodeLoaderDelegate {
      * reads the VertexShaderNodes{} block
      *
      * @param statements the list of statements to parse
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     public void readVertexShaderNodes(List<Statement> statements) throws IOException {
         attributes.clear();
@@ -259,7 +259,7 @@ public class ShaderNodeLoaderDelegate {
      * reads a list of ShaderNode{} blocks
      *
      * @param statements the list of statements to parse
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     protected void readShaderNode(List<Statement> statements) throws IOException {
 
@@ -315,6 +315,7 @@ public class ShaderNodeLoaderDelegate {
      * </pre>
      *
      * @param statement the statement to read.
+     * @param hasNameSpace indicate which vars have namespaces
      * @return the read mapping.
      * @throws MatParseException if the statement isn't valid.
      */
@@ -381,17 +382,17 @@ public class ShaderNodeLoaderDelegate {
      * reads the FragmentShaderNodes{} block
      *
      * @param statements the list of statements to parse
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     public void readFragmentShaderNodes(List<Statement> statements) throws IOException {
         readNodes(statements);
     }
 
     /**
-     * Reads a Shader statement of this form <TYPE> <LANG> : <SOURCE>
+     * Reads a Shader statement of the form TYPE LANG : SOURCE
      *
-     * @param statement
-     * @throws IOException
+     * @param statement the shader statement (not null)
+     * @throws IOException if an I/O error occurs
      */
     protected void readShaderStatement(Statement statement) throws IOException {
         String[] split = statement.getLine().split(":");
@@ -418,7 +419,7 @@ public class ShaderNodeLoaderDelegate {
     /**
      * sets the material def currently being loaded
      *
-     * @param materialDef
+     * @param materialDef (alias created)
      */
     public void setMaterialDef(MaterialDef materialDef) {
         this.materialDef = materialDef;
@@ -546,7 +547,9 @@ public class ShaderNodeLoaderDelegate {
      * @param param   the mat param.
      * @param mapping the mapping.
      * @param map     the map of uniforms to search into.
+     * @param statement the statement being read
      * @return true if the param was added to the map.
+     * @throws MatParseException in case of a syntax error
      */
     public boolean updateRightFromUniforms(MatParam param, VariableMapping mapping, Map<String, DeclaredVariable> map,
                                            Statement statement) throws MatParseException {
@@ -626,7 +629,8 @@ public class ShaderNodeLoaderDelegate {
     /**
      * Adds a define to the technique def
      *
-     * @param paramName
+     * @param paramName the name of the material parameter
+     * @param paramType the type of the material parameter
      */
     public void addDefine(String paramName, VarType paramType) {
         if (techniqueDef.getShaderParamDefine(paramName) == null) {
@@ -850,7 +854,7 @@ public class ShaderNodeLoaderDelegate {
      * Reads a list of ShaderNodes
      *
      * @param statements the list of statements to read
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     public void readNodes(List<Statement> statements) throws IOException {
         if (techniqueDef.getShaderNodes() == null) {
@@ -963,7 +967,7 @@ public class ShaderNodeLoaderDelegate {
     /**
      * sets the assetManager
      *
-     * @param assetManager
+     * @param assetManager for loading assets (alias created)
      */
     public void setAssetManager(AssetManager assetManager) {
         this.assetManager = assetManager;
@@ -974,7 +978,7 @@ public class ShaderNodeLoaderDelegate {
      *
      * @param statement the statement being read
      * @return the definition
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     public ShaderNodeDefinition findDefinition(Statement statement) throws IOException {
 
@@ -1047,8 +1051,8 @@ public class ShaderNodeLoaderDelegate {
 
         declaredVar.addNode(shaderNode);
 
-        // if a variable is declared with the same name as an input and an output and is a varying,
-        // set it as a shader output so it's declared as a varying only once.
+        // If a variable is declared with the same name as an input and an output and is a varying,
+        // set it as a shader output, so it's declared as a varying only once.
         for (final VariableMapping variableMapping : node.getInputMapping()) {
             final ShaderNodeVariable leftVariable = variableMapping.getLeftVariable();
             if (leftVariable.getName().equals(variable.getName())) {
@@ -1100,7 +1104,7 @@ public class ShaderNodeLoaderDelegate {
      *
      * @param mapping the mapping
      * @param statement1 the statement being read
-     * @throws MatParseException
+     * @throws MatParseException in case of a syntax error
      */
     protected void checkTypes(VariableMapping mapping, Statement statement1) throws MatParseException {
         if (!ShaderUtils.typesMatch(mapping)) {

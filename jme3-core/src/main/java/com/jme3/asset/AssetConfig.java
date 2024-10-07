@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,14 +39,16 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.util.res.Resources;
+
 /**
  * <code>AssetConfig</code> loads a config file to configure the asset manager.
- * <br/><br/>
+ *
  * The config file is specified with the following format:
  * <code>
- * "INCLUDE" <path>
- * "LOADER" <class> : (<extension> ",")* <extension>
- * "LOCATOR" <path> <class>
+ * "INCLUDE" path
+ * "LOADER" class : (extension ",")* extension
+ * "LOCATOR" path class
  * </code>
  *
  * @author Kirill Vainer
@@ -54,9 +56,9 @@ import java.util.logging.Logger;
 public final class AssetConfig {
 
     private static final Logger logger = Logger.getLogger(AssetConfig.class.getName());
-    
+
     private AssetConfig() { }
-    
+
     private static Class acquireClass(String name) {
         try {
             return Class.forName(name);
@@ -64,24 +66,24 @@ public final class AssetConfig {
             return null;
         }
     }
-    
+
     @SuppressWarnings("unchecked")
-    public static void loadText(AssetManager assetManager, URL configUrl) throws IOException{
+    public static void loadText(AssetManager assetManager, URL configUrl) throws IOException {
         InputStream in = configUrl.openStream();
         try {
             Scanner scan = new Scanner(in, "UTF-8");
             scan.useLocale(Locale.US); // Fix commas / periods ??
-            while (scan.hasNext()){
+            while (scan.hasNext()) {
                 String cmd = scan.next();
-                if (cmd.equals("LOADER")){
+                if (cmd.equals("LOADER")) {
                     String loaderClass = scan.next();
                     String colon = scan.next();
-                    if (!colon.equals(":")){
-                        throw new IOException("Expected ':', got '"+colon+"'");
+                    if (!colon.equals(":")) {
+                        throw new IOException("Expected ':', got '" + colon + "'");
                     }
                     String extensionsList = scan.nextLine();
                     String[] extensions = extensionsList.split(",");
-                    for (int i = 0; i < extensions.length; i++){
+                    for (int i = 0; i < extensions.length; i++) {
                         extensions[i] = extensions[i].trim();
                     }
                     Class clazz = acquireClass(loaderClass);
@@ -101,7 +103,7 @@ public final class AssetConfig {
                     }
                 } else if (cmd.equals("INCLUDE")) {
                     String includedCfg = scan.nextLine().trim();
-                    URL includedCfgUrl = Thread.currentThread().getContextClassLoader().getResource(includedCfg);
+                    URL includedCfgUrl = Resources.getResource(includedCfg);
                     if (includedCfgUrl != null) {
                         loadText(assetManager, includedCfgUrl);
                     } else {
@@ -115,7 +117,8 @@ public final class AssetConfig {
                 }
             }
         } finally {
-            if (in != null) in.close();
+            if (in != null)
+                in.close();
         }
     }
 }

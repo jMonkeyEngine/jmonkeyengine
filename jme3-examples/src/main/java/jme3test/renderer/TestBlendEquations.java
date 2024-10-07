@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 
 /**
- * This test demonstrates the usage of customized blend equations and factors on a material.<br/>
+ * This test demonstrates the usage of customized blend equations and factors on a material.<br>
  * Customized blend equations and factors always requires {@link com.jme3.material.RenderState.BlendMode#Custom}.
  *
  * @author the_Minka
@@ -107,7 +107,7 @@ public class TestBlendEquations extends SimpleApplication {
     }
 
     /**
-     * Adds a "transparent" quad to the scene, that limits the color values of the scene behind the object.<br/>
+     * Adds a "transparent" quad to the scene, that limits the color values of the scene behind the object.<br>
      * This effect can be good seen on bright areas of the scene (e.g. areas with specular lighting effects).
      */
     private void createRightQuad() {

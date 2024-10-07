@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public final class IrUtils {
         IrVertex v2 = quad.vertices[2];
         IrVertex v3 = quad.vertices[3];
         
-        // find the pair of verticies that is closest to each over
+        // find the pair of vertices that is closest to each over
         // v0 and v2
         // OR
         // v1 and v3
@@ -102,7 +102,10 @@ public final class IrUtils {
     }
     
     /**
-     * Applies smoothing groups to vertex normals.
+     * Applies smoothing groups to vertex normals. XXX not implemented!
+     * 
+     * @param mesh ignored
+     * @return null
      */
     public static IrMesh applySmoothingGroups(IrMesh mesh) {
         return null;
@@ -125,6 +128,11 @@ public final class IrUtils {
         }
     }
     
+    /**
+     * Removes low bone weights from mesh, leaving only 4 bone weights at max.
+     * 
+     * @param vertex the IrVertex to modify (not null)
+     */
     private static void trimBoneWeights(IrVertex vertex) {
         if (vertex.boneWeightsIndices == null) {
             return;
@@ -163,6 +171,8 @@ public final class IrUtils {
     
     /**
      * Removes low bone weights from mesh, leaving only 4 bone weights at max.
+     * 
+     * @param mesh the IrMesh to modify (not null)
      */
     public static void trimBoneWeights(IrMesh mesh) {
         for (IrPolygon polygon : mesh.polygons) {
@@ -174,9 +184,11 @@ public final class IrUtils {
     
     /**
      * Convert mesh from quads / triangles to triangles only.
+     * 
+     * @param mesh the input IrMesh (not null)
      */
     public static void triangulate(IrMesh mesh) {
-        List<IrPolygon> newPolygons = new ArrayList<IrPolygon>(mesh.polygons.length);
+        List<IrPolygon> newPolygons = new ArrayList<>(mesh.polygons.length);
         for (IrPolygon inputPoly : mesh.polygons) {
             if (inputPoly.vertices.length == 4) {
                 IrPolygon[] tris = quadToTri(inputPoly);
@@ -185,7 +197,7 @@ public final class IrUtils {
             } else if (inputPoly.vertices.length == 3) {
                 newPolygons.add(inputPoly);
             } else {
-                // N-gon. We have to ignore it..
+                // N-gon. We have to ignore it.
                 logger.log(Level.WARNING, "N-gon encountered, ignoring. "
                                         + "The mesh may not appear correctly. "
                                         + "Triangulate your model prior to export.");
@@ -200,9 +212,12 @@ public final class IrUtils {
      * one material each.
      * 
      * Polygons without a material will be added to key = -1.
+     * 
+     * @param mesh the input IrMesh (not null)
+     * @return a new IntMap containing the resulting meshes
      */
     public static IntMap<IrMesh> splitByMaterial(IrMesh mesh) {
-        IntMap<List<IrPolygon>> materialToPolyList = new IntMap<List<IrPolygon>>();
+        IntMap<List<IrPolygon>> materialToPolyList = new IntMap<>();
         for (IrPolygon polygon : mesh.polygons) {
             int materialIndex = -1;
             for (IrVertex vertex : polygon.vertices) {
@@ -223,7 +238,7 @@ public final class IrUtils {
             }
             polyList.add(polygon);
         }
-        IntMap<IrMesh> materialToMesh = new IntMap<IrMesh>();
+        IntMap<IrMesh> materialToMesh = new IntMap<>();
         for (IntMap.Entry<List<IrPolygon>> entry : materialToPolyList) {
             int key = entry.getKey();
             List<IrPolygon> polygons = entry.getValue();
@@ -239,11 +254,14 @@ public final class IrUtils {
      
     /**
      * Convert IrMesh to jME3 mesh.
+     *
+     * @param mesh the input IrMesh (not null)
+     * @return a new Mesh
      */
     public static Mesh convertIrMeshToJmeMesh(IrMesh mesh) {
-        Map<IrVertex, Integer> vertexToVertexIndex = new HashMap<IrVertex, Integer>();
-        List<IrVertex> vertices = new ArrayList<IrVertex>();
-        List<Integer> indexes = new ArrayList<Integer>();
+        Map<IrVertex, Integer> vertexToVertexIndex = new HashMap<>();
+        List<IrVertex> vertices = new ArrayList<>();
+        List<Integer> indexes = new ArrayList<>();
         
         int vertexIndex = 0;
         for (IrPolygon polygon : mesh.polygons) {
@@ -326,7 +344,7 @@ public final class IrUtils {
             jmeMesh.setBuffer(indicesHW);
         }
         if (vertices.size() >= 65536) {
-            // too many verticies: use intbuffer instead of shortbuffer
+            // too many vertices: use IntBuffer instead of ShortBuffer
             IntBuffer ib = BufferUtils.createIntBuffer(indexes.size());
             jmeMesh.setBuffer(VertexBuffer.Type.Index, 3, ib);
             indexBuf = new IndexIntBuffer(ib);
@@ -363,7 +381,7 @@ public final class IrUtils {
                 if (vertex.boneWeightsIndices != null) {
                     if (vertex.boneWeightsIndices.length > 4) {
                         throw new UnsupportedOperationException("Mesh uses more than 4 weights per bone. " +
-                                                                "Call trimBoneWeights() to allieviate this");
+                                                                "Call trimBoneWeights() to alleviate this");
                     }
                     for (int i = 0; i < vertex.boneWeightsIndices.length; i++) {
                         boneIndices.put((byte) (vertex.boneWeightsIndices[i].boneIndex & 0xFF));

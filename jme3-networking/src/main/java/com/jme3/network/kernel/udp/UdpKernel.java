@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import java.util.logging.Logger;
  */
 public class UdpKernel extends AbstractKernel
 {
-    static Logger log = Logger.getLogger(UdpKernel.class.getName());
+    private static final Logger log = Logger.getLogger(UdpKernel.class.getName());
 
     private InetSocketAddress address;
     private HostThread thread;
@@ -62,7 +62,7 @@ public class UdpKernel extends AbstractKernel
     // The nature of UDP means that even through a firewall,
     // a user would have to have a unique address+port since UDP
     // can't really be NAT'ed.
-    private Map<SocketAddress,UdpEndpoint> socketEndpoints = new ConcurrentHashMap<SocketAddress,UdpEndpoint>();
+    private Map<SocketAddress,UdpEndpoint> socketEndpoints = new ConcurrentHashMap<>();
 
     public UdpKernel( InetAddress host, int port )
     {
@@ -183,8 +183,8 @@ public class UdpKernel extends AbstractKernel
     {
         // So the tricky part here is figuring out the endpoint and
         // whether it's new or not.  In these UDP schemes, firewalls have
-        // to be ported back to a specific machine so we will consider
-        // the address + port (ie: SocketAddress) the defacto unique
+        // to be ported back to a specific machine, so we will consider
+        // the address + port (ie: SocketAddress) the de facto unique
         // ID.
         Endpoint p = getEndpoint( packet.getSocketAddress(), true );
 
@@ -272,11 +272,11 @@ public class UdpKernel extends AbstractKernel
         {
             log.log( Level.FINE, "Kernel started for connection:{0}.", address );
 
-            // An atomic is safest and costs almost nothing
+            // An atomic is safest and costs almost nothing.
             while( go.get() ) {
                 try {
-                    // Could reuse the packet but I don't see the
-                    // point and it may lead to subtle bugs if not properly
+                    // Could reuse the packet, but I don't see the
+                    // point, and it may lead to subtle bugs if not properly
                     // reset.
                     DatagramPacket packet = new DatagramPacket( buffer, buffer.length );
                     socket.receive(packet);

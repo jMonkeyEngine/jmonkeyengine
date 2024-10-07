@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,11 +38,6 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
 import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext;
-import com.jme3.system.JmeSystem;
-import com.jme3.system.SystemListener;
-import com.jme3.system.Timer;
 
 /**
  * A JMonkey {@link JmeContext context} that is dedicated to AWT component rendering.
@@ -149,6 +144,16 @@ public class AWTContext implements JmeContext {
       this.backgroundContext.setSettings(settings);
   }
 
+    /**
+     * Accesses the listener that receives events related to this context.
+    *
+     * @return the pre-existing instance
+     */
+    @Override
+    public SystemListener getSystemListener() {
+        return backgroundContext.getSystemListener();
+    }
+
   @Override
   public void setSystemListener(final SystemListener listener) {
       backgroundContext.setSystemListener(listener);
@@ -231,4 +236,43 @@ public class AWTContext implements JmeContext {
       backgroundContext.destroy(waitFor);
 }
 
+    /**
+     * Returns the height of the framebuffer.
+     *
+     * @return the height (in pixels)
+     */
+    @Override
+    public int getFramebufferHeight() {
+        return height;
+    }
+
+    /**
+     * Returns the width of the framebuffer.
+     *
+     * @return the width (in pixels)
+     */
+    @Override
+    public int getFramebufferWidth() {
+        return width;
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowXPosition() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowYPosition() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
 }

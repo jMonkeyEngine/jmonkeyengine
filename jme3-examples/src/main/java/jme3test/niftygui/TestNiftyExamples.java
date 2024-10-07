@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,11 +34,10 @@ package jme3test.niftygui;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.niftygui.NiftyJmeDisplay;
+import com.jme3.texture.image.ColorSpace;
 import de.lessvoid.nifty.Nifty;
 
 public class TestNiftyExamples extends SimpleApplication {
-
-    private Nifty nifty;
 
     public static void main(String[] args){
         TestNiftyExamples app = new TestNiftyExamples();
@@ -48,12 +47,14 @@ public class TestNiftyExamples extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        ColorSpace colorSpace = renderer.isMainFrameBufferSrgb()
+                ? ColorSpace.sRGB : ColorSpace.Linear;
         NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(assetManager,
                                                           inputManager,
                                                           audioRenderer,
-                                                          guiViewPort);
-        nifty = niftyDisplay.getNifty();
-
+                                                          guiViewPort,
+                                                          colorSpace);
+        Nifty nifty = niftyDisplay.getNifty();
         nifty.fromXml("all/intro.xml", "start");
 
         // attach the nifty display to the gui view port as a processor

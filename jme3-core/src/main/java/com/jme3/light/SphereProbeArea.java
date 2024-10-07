@@ -13,7 +13,7 @@ public class SphereProbeArea implements ProbeArea {
 
     private Vector3f center = new Vector3f();
     private float radius = 1;
-    private Matrix4f uniformMatrix = new Matrix4f();
+    private final Matrix4f uniformMatrix = new Matrix4f();
 
     public SphereProbeArea() {
     }

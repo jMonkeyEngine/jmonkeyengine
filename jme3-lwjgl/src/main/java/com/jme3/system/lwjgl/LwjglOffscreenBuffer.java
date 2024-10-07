@@ -119,7 +119,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
                 // Context MUST be reset here to avoid invalid objects!
                 renderer.invalidateState();
             } catch (LWJGLException ex) {
-                listener.handleError("Failed to restore pbuffer content", ex);
+                listener.handleError("Failed to restore PBuffer content", ex);
             }
         }
 
@@ -152,7 +152,9 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     @Override
     public void run(){
         loadNatives();
-        logger.log(Level.FINE, "Using LWJGL {0}", Sys.getVersion());
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Using LWJGL {0}", Sys.getVersion());
+        }
         initInThread();
         while (!needClose.get()){
             runLoop();

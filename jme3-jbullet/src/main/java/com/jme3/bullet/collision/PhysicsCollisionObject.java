@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -105,7 +105,8 @@ public abstract class PhysicsCollisionObject implements Savable {
      * Add a group that this object will collide with.<br>
      * Two object will collide when <b>one</b> of the parties has the
      * collisionGroup of the other in its collideWithGroups set.<br>
-     * @param collisionGroup
+     *
+     * @param collisionGroup the groups to add, ORed together (bitmask)
      */
     public void addCollideWithGroup(int collisionGroup) {
         this.collisionGroupsMask = this.collisionGroupsMask | collisionGroup;
@@ -113,7 +114,8 @@ public abstract class PhysicsCollisionObject implements Savable {
 
     /**
      * Remove a group from the list this object collides with.
-     * @param collisionGroup
+     *
+     * @param collisionGroup the groups to remove, ORed together (bitmask)
      */
     public void removeCollideWithGroup(int collisionGroup) {
         this.collisionGroupsMask = this.collisionGroupsMask & ~collisionGroup;
@@ -121,7 +123,9 @@ public abstract class PhysicsCollisionObject implements Savable {
 
     /**
      * Directly set the bitmask for collision groups that this object collides with.
-     * @param collisionGroups
+     *
+     * @param collisionGroups the desired groups, ORed together (bitmask,
+     * default=COLLISION_GROUP_01)
      */
     public void setCollideWithGroups(int collisionGroups) {
         this.collisionGroupsMask = collisionGroups;
@@ -158,8 +162,8 @@ public abstract class PhysicsCollisionObject implements Savable {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         collisionGroup = capsule.readInt("collisionGroup", 0x00000001);
         collisionGroupsMask = capsule.readInt("collisionGroupsMask", 0x00000001);
         CollisionShape shape = (CollisionShape) capsule.readSavable("collisionShape", null);

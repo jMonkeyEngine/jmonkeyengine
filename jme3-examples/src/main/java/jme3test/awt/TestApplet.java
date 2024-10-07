@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ import com.jme3.system.JmeSystem;
 import java.applet.Applet;
 import java.awt.Canvas;
 import java.awt.Graphics;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 import javax.swing.SwingUtilities;
 
@@ -53,6 +54,7 @@ public class TestApplet extends Applet {
     public TestApplet(){
     }
 
+    @SuppressWarnings("unchecked")
     public static void createCanvas(String appClass){
         AppSettings settings = new AppSettings(true);
         settings.setWidth(640);
@@ -63,12 +65,14 @@ public class TestApplet extends Applet {
 
         try{
             Class clazz = Class.forName(appClass);
-            app = (LegacyApplication) clazz.newInstance();
-        }catch (ClassNotFoundException ex){
-            ex.printStackTrace();
-        }catch (InstantiationException ex){
-            ex.printStackTrace();
-        }catch (IllegalAccessException ex){
+            app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
+        } catch (ClassNotFoundException
+                | InstantiationException
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | SecurityException ex) {
             ex.printStackTrace();
         }
 

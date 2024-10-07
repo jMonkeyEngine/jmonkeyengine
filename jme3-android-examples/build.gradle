@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    buildToolsVersion "30.0.2"
 
     lintOptions {
         // Fix nifty gui referencing "java.awt" package.
@@ -25,11 +25,6 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
     sourceSets {
         main {
             java {
@@ -45,19 +40,18 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:28.0.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation libs.junit4
+    implementation libs.android.support.appcompat
 
-    compile project(':jme3-core')
-    compile project(':jme3-android')
-    compile project(':jme3-android-native')
-    compile project(':jme3-effects')
-    compile project(':jme3-jbullet')
-    compile project(':jme3-networking')
-    compile project(':jme3-niftygui')
-    compile project(':jme3-plugins')
-    compile project(':jme3-terrain')
-    compile fileTree(dir: '../jme3-examples/build/libs', include: ['*.jar'], exclude: ['*sources*.*'])
-//    compile project(':jme3-examples')
+    implementation project(':jme3-core')
+    implementation project(':jme3-android')
+    implementation project(':jme3-android-native')
+    implementation project(':jme3-effects')
+    implementation project(':jme3-jbullet')
+    implementation project(':jme3-networking')
+    implementation project(':jme3-niftygui')
+    implementation project(':jme3-plugins')
+    implementation project(':jme3-terrain')
+    implementation fileTree(dir: '../jme3-examples/build/libs', include: ['*.jar'], exclude: ['*sources*.*'])
 }

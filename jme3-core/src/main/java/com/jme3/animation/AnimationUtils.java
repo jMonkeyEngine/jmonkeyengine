@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,21 +36,21 @@ package com.jme3.animation;
  * @author Nehon
  */
 public class AnimationUtils {
-    
-    private AnimationUtils(){
-        
+    private AnimationUtils() {
     }
+
     /**
      * Clamps the time according to duration and loopMode
-     * @param time
-     * @param duration
-     * @param loopMode
+     *
+     * @param time the unclamped time value (in seconds)
+     * @param duration the animation's duration (in seconds)
+     * @param loopMode the animation's looping behavior (not null)
      * @return the clamped time (in seconds)
      */
-     public static float clampWrapTime(float time, float duration, LoopMode loopMode){
-         if (time == 0 || duration == 0) {
+    public static float clampWrapTime(float time, float duration, LoopMode loopMode) {
+        if (time == 0 || duration == 0) {
             return 0; // prevent division by 0 errors
-        }        
+        }
         switch (loopMode) {
             case Cycle:
                 boolean sign = ((int) (time / duration) % 2) != 0;
@@ -61,5 +61,5 @@ public class AnimationUtils {
                 return time % duration;
         }
         return time;
-     }
+    }
 }

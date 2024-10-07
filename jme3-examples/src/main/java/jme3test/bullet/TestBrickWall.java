@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,15 +61,14 @@ import com.jme3.texture.Texture.WrapMode;
  */
 public class TestBrickWall extends SimpleApplication {
 
-    static float bLength = 0.48f;
-    static float bWidth = 0.24f;
-    static float bHeight = 0.12f;
-    Material mat;
-    Material mat2;
-    Material mat3;
+    final private static float bLength = 0.48f;
+    final private static float bWidth = 0.24f;
+    final private static float bHeight = 0.12f;
+    private Material mat;
+    private Material mat2;
+    private Material mat3;
     private static Sphere bullet;
     private static Box brick;
-    private static SphereCollisionShape bulletCollisionShape;
 
     private BulletAppState bulletAppState;
 
@@ -87,7 +86,6 @@ public class TestBrickWall extends SimpleApplication {
 
         bullet = new Sphere(32, 32, 0.4f, true, false);
         bullet.setTextureMode(TextureMode.Projected);
-        bulletCollisionShape = new SphereCollisionShape(0.4f);
         brick = new Box(bLength, bHeight, bWidth);
         brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
 
@@ -109,22 +107,22 @@ public class TestBrickWall extends SimpleApplication {
     private PhysicsSpace getPhysicsSpace() {
         return bulletAppState.getPhysicsSpace();
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("shoot") && !keyPressed) {
-                Geometry bulletg = new Geometry("bullet", bullet);
-                bulletg.setMaterial(mat2);
-                bulletg.setShadowMode(ShadowMode.CastAndReceive);
-                bulletg.setLocalTranslation(cam.getLocation());
+                Geometry bulletGeometry = new Geometry("bullet", bullet);
+                bulletGeometry.setMaterial(mat2);
+                bulletGeometry.setShadowMode(ShadowMode.CastAndReceive);
+                bulletGeometry.setLocalTranslation(cam.getLocation());
                 
                 SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(0.4f);
                 RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
 //                RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
                 bulletNode.setLinearVelocity(cam.getDirection().mult(25));
-                bulletg.addControl(bulletNode);
-                rootNode.attachChild(bulletg);
+                bulletGeometry.addControl(bulletNode);
+                rootNode.attachChild(bulletGeometry);
                 getPhysicsSpace().add(bulletNode);
             }
             if (name.equals("gc") && !keyPressed) {
@@ -134,14 +132,14 @@ public class TestBrickWall extends SimpleApplication {
     };
 
     public void initWall() {
-        float startpt = bLength / 4;
+        float startX = bLength / 4;
         float height = 0;
         for (int j = 0; j < 15; j++) {
             for (int i = 0; i < 4; i++) {
-                Vector3f vt = new Vector3f(i * bLength * 2 + startpt, bHeight + height, 0);
+                Vector3f vt = new Vector3f(i * bLength * 2 + startX, bHeight + height, 0);
                 addBrick(vt);
             }
-            startpt = -startpt;
+            startX = -startX;
             height += 2 * bHeight;
         }
     }
@@ -182,20 +180,20 @@ public class TestBrickWall extends SimpleApplication {
 
     public void addBrick(Vector3f ori) {
 
-        Geometry reBoxg = new Geometry("brick", brick);
-        reBoxg.setMaterial(mat);
-        reBoxg.setLocalTranslation(ori);
+        Geometry brickGeometry = new Geometry("brick", brick);
+        brickGeometry.setMaterial(mat);
+        brickGeometry.setLocalTranslation(ori);
         //for geometry with sphere mesh the physics system automatically uses a sphere collision shape
-        reBoxg.addControl(new RigidBodyControl(1.5f));
-        reBoxg.setShadowMode(ShadowMode.CastAndReceive);
-        reBoxg.getControl(RigidBodyControl.class).setFriction(0.6f);
-        this.rootNode.attachChild(reBoxg);
-        this.getPhysicsSpace().add(reBoxg);
+        brickGeometry.addControl(new RigidBodyControl(1.5f));
+        brickGeometry.setShadowMode(ShadowMode.CastAndReceive);
+        brickGeometry.getControl(RigidBodyControl.class).setFriction(0.6f);
+        this.rootNode.attachChild(brickGeometry);
+        this.getPhysicsSpace().add(brickGeometry);
     }
 
     protected void initCrossHairs() {
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        BitmapText ch = new BitmapText(guiFont, false);
+        BitmapText ch = new BitmapText(guiFont);
         ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
         ch.setText("+"); // crosshairs
         ch.setLocalTranslation( // center

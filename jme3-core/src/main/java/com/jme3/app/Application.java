@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,9 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.system.*;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeContext;
+import com.jme3.system.Timer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -59,11 +61,11 @@ public interface Application {
     public LostFocusBehavior getLostFocusBehavior();
 
     /**
-     * Change the application's behavior when unfocused.
+     * Changes the application's behavior when unfocused.
      *
      * By default, the application will
      * {@link LostFocusBehavior#ThrottleOnLostFocus throttle the update loop}
-     * so as to not take 100% CPU usage when it is not in focus, e.g.
+     * so as not to use 100% of the CPU when it is out of focus, e.g.
      * alt-tabbed, minimized, or obstructed by another window.
      *
      * @param lostFocusBehavior The new lost focus behavior to use.
@@ -82,15 +84,15 @@ public interface Application {
     public boolean isPauseOnLostFocus();
 
     /**
-     * Enable or disable pause on lost focus.
+     * Enables or disables pause on lost focus.
      * <p>
      * By default, pause on lost focus is enabled.
      * If enabled, the application will stop updating
      * when it loses focus or becomes inactive (e.g. alt-tab).
      * For online or real-time applications, this might not be preferable,
-     * so this feature should be set to disabled. For other applications,
-     * it is best to keep it on so that CPU usage is not used when
-     * not necessary.
+     * so this feature should be disabled. For other applications,
+     * it is best to keep it enabled so that CPU is not used
+     * unnecessarily.
      *
      * @param pauseOnLostFocus True to enable pause on lost focus, false
      * otherwise.
@@ -115,6 +117,8 @@ public interface Application {
      * Sets the Timer implementation that will be used for calculating
      * frame times.  By default, Application will use the Timer as returned
      * by the current JmeContext implementation.
+     * 
+     * @param timer the desired timer (alias created)
      */
     public void setTimer(Timer timer);
 
@@ -167,13 +171,18 @@ public interface Application {
 
     /**
      * Starts the application.
-     * A bug occuring when using LWJGL3 prevents this method from returning until after the application is stopped.
+     * A bug occurring when using LWJGL3 prevents this method from
+     * returning until after the application is stopped on macOS.
      */
     public void start();
 
     /**
      * Starts the application.
-     * A bug occuring when using LWJGL3 prevents this method from returning until after the application is stopped.
+     * A bug occurring when using LWJGL3 prevents this method from
+     * returning until after the application is stopped on macOS.
+     *
+     * @param waitFor true&rarr;wait for the context to be initialized,
+     * false&rarr;don't wait
      */
     public void start(boolean waitFor);
 
@@ -181,11 +190,16 @@ public interface Application {
      * Sets an AppProfiler hook that will be called back for
      * specific steps within a single update frame.  Value defaults
      * to null.
+     * 
+     * @param prof the profiler to use (alias created) or null for none
+     * (default=null)
      */
     public void setAppProfiler(AppProfiler prof);
 
     /**
      * Returns the current AppProfiler hook, or null if none is set.
+     *
+     * @return the pre-existing instance, or null if none
      */
     public AppProfiler getAppProfiler();
 
@@ -212,6 +226,9 @@ public interface Application {
      * Requests the context to close, shutting down the main loop
      * and making necessary cleanup operations.
      * After the application has stopped, it cannot be used anymore.
+     * 
+     @param waitFor true&rarr;wait for the context to be fully destroyed,
+     * false&rarr;don't wait
      */
     public void stop(boolean waitFor);
 
@@ -223,7 +240,9 @@ public interface Application {
      * They are executed even if the application is currently paused
      * or out of focus.
      *
+     * @param <V> type of result returned by the Callable
      * @param callable The callable to run in the main jME3 thread
+     * @return a new instance
      */
     public <V> Future<V> enqueue(Callable<V> callable);
 

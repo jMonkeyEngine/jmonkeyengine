@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,49 +40,43 @@ import com.jme3.light.DirectionalLight;
 import java.io.IOException;
 
 /**
- *
  * This Filter does basically the same as a DirectionalLightShadowRenderer
  * except it renders the post shadow pass as a fullscreen quad pass instead of a
  * geometry pass. It's mostly faster than PssmShadowRenderer as long as you have
- * more than a about ten shadow receiving objects. The expense is the draw back
+ * more than about ten shadow receiving objects. The expense is the drawback
  * that the shadow Receive mode set on spatial is ignored. So basically all and
- * only objects that render depth in the scene receive shadows. See this post
- * for more details
- * http://jmonkeyengine.org/groups/general-2/forum/topic/silly-question-about-shadow-rendering/#post-191599
+ * only objects that render depth in the scene receive shadows.
  *
- * API is basically the same as the PssmShadowRenderer;
+ * API is basically the same as the PssmShadowRenderer.
  *
  * @author Rémy Bouquet aka Nehon
  */
 public class DirectionalLightShadowFilter extends AbstractShadowFilter<DirectionalLightShadowRenderer> {
 
     /**
-     * Used for serialzation.
-     * Use DirectionalLightShadowFilter#DirectionalLightShadowFilter
-     * (AssetManager assetManager, int shadowMapSize, int nbSplits)
-     * instead.
+     * For serialization only. Do not use.
+     * 
+     * @see #DirectionalLightShadowFilter(AssetManager assetManager, int shadowMapSize, int nbSplits)
      */
     public DirectionalLightShadowFilter() {
         super();
     }
     
     /**
-     * Creates a DirectionalLightShadowFilter Shadow Filter More info on the
-     * technique at <a
-     * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
-     *
-     * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
-     * etc...)
-     * @param nbSplits the number of shadow maps rendered (the more shadow maps
-     * the more quality, the less fps).
+     * Creates a DirectionalLightShadowFilter.
+     * 
+     * @param assetManager  the application's asset manager
+     * @param shadowMapSize the size of the rendered shadow maps (512, 1024, 2048, etc...)
+     * @param nbSplits      the number of shadow maps rendered (more shadow maps = better quality, but slower)
+     * 
+     * @throws IllegalArgumentException if the provided 'nbSplits' is not within the valid range of 1 to 4.
      */
     public DirectionalLightShadowFilter(AssetManager assetManager, int shadowMapSize, int nbSplits) {
         super(assetManager, shadowMapSize, new DirectionalLightShadowRenderer(assetManager, shadowMapSize, nbSplits));
     }
 
     /**
-     * return the light used to cast shadows
+     * Returns the light used to cast shadows.
      *
      * @return the DirectionalLight
      */
@@ -91,7 +85,7 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     }
 
     /**
-     * Sets the light to use to cast shadows
+     * Sets the light to use to cast shadows.
      *
      * @param light a DirectionalLight
      */
@@ -100,7 +94,7 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     }
 
     /**
-     * returns the lambda parameter
+     * Returns the lambda parameter.
      *
      * @see #setLambda(float lambda)
      * @return lambda
@@ -110,22 +104,25 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     }
 
     /**
-     * Adjust the repartition of the different shadow maps in the shadow extend
-     * usually goes from 0.0 to 1.0 a low value give a more linear repartition
-     * resulting in a constant quality in the shadow over the extends, but near
-     * shadows could look very jagged a high value give a more logarithmic
-     * repartition resulting in a high quality for near shadows, but the quality
-     * quickly decrease over the extend. the default value is set to 0.65f
-     * (theoretic optimal value).
+     * Adjusts the partition of the shadow extend into shadow maps. Lambda is
+     * usually between 0 and 1.
+     * <p>
+     * A low value gives a more linear partition, resulting in consistent shadow
+     * quality over the extend, but near shadows could look very jagged. A high
+     * value gives a more logarithmic partition, resulting in high quality for near
+     * shadows, but quality decreases rapidly with distance.
+     * <p>
+     * The default value is 0.65 (the theoretical optimum).
      *
-     * @param lambda the lambda value.
+     * @param lambda the lambda value
      */
     public void setLambda(float lambda) {
         shadowRenderer.setLambda(lambda);
     }
 
     /**
-     * returns true if stabilization is enabled
+     * Returns true if stabilization is enabled.
+     * 
      * @return true if stabilization is enabled
      */
     public boolean isEnabledStabilization() {
@@ -135,8 +132,9 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     /**
      * Enables the stabilization of the shadow's edges. (default is true)
      * This prevents shadow edges from flickering when the camera moves.
-     * However it can lead to some shadow quality loss in some particular scenes.
-     * @param stabilize 
+     * However, it can lead to some loss of shadow quality in particular scenes.
+     *
+     * @param stabilize true to stabilize, false to disable stabilization
      */
     public void setEnabledStabilization(boolean stabilize) {
         shadowRenderer.setEnabledStabilization(stabilize);        
@@ -147,7 +145,6 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(shadowRenderer, "shadowRenderer", null);
-
     }
 
     @Override
@@ -156,4 +153,5 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
         InputCapsule ic = im.getCapsule(this);
         shadowRenderer = (DirectionalLightShadowRenderer) ic.readSavable("shadowRenderer", null);
     }
+    
 }

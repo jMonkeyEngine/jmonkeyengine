@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -308,7 +308,7 @@ public abstract class AbstractHeightMap implements HeightMap {
         currentMin = heightData[0];
         currentMax = heightData[0];
 
-        //find the min/max values of the height fTemptemptempBuffer
+        //find the min/max values of the height data
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (heightData[i + j * size] > currentMax) {
@@ -326,7 +326,7 @@ public abstract class AbstractHeightMap implements HeightMap {
 
         height = currentMax - currentMin;
 
-        //scale the values to a range of 0-255
+        //scale the values to a range of 0-value
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 heightData[i + j * size] = ((heightData[i + j * size] - currentMin) / height) * value;
@@ -436,21 +436,21 @@ public abstract class AbstractHeightMap implements HeightMap {
             }
         }
 
-        // re-normalize back to its oraginal height range
+        // re-normalize back to its original height range
         float height = minmax[1] - minmax[0];
         normalizeTerrain(height);
     }
 
     /**
-     * Smooth the terrain. For each node, its 8 neighbors heights
-     * are averaged and will participate in the  node new height
-     * by a factor <code>np</code> between 0 and 1
+     * Smooth the terrain. For each node, its 8 neighbors' heights
+     * are averaged and will influence node's new height
+     * to the extent specified by <code>np</code>.
      * 
      * You must first load() the heightmap data before this will have any effect.
      * 
      * @param np
-     *          The factor to what extend the neighbors average has an influence.
-     *          Value of 0 will ignore neighbors (no smoothing)
+     *          To what extent neighbors influence the new height:
+     *          Value of 0 will ignore neighbors (no smoothing).
      *          Value of 1 will ignore the node old height.
      */
     public void smooth(float np) {
@@ -458,15 +458,15 @@ public abstract class AbstractHeightMap implements HeightMap {
     }
     
     /**
-     * Smooth the terrain. For each node, its X(determined by radius) neighbors heights
-     * are averaged and will participate in the  node new height
-     * by a factor <code>np</code> between 0 and 1
+     * Smooth the terrain. For each node, its X (determined by radius) neighbors' heights
+     * are averaged and will influence node's new height
+     * to the extent specified by <code>np</code>.
      *
      * You must first load() the heightmap data before this will have any effect.
      * 
      * @param np
-     *          The factor to what extend the neighbors average has an influence.
-     *          Value of 0 will ignore neighbors (no smoothing)
+     *          To what extent neighbors influence the new height:
+     *          Value of 0 will ignore neighbors (no smoothing).
      *          Value of 1 will ignore the node old height.
      */
     public void smooth(float np, int radius) {

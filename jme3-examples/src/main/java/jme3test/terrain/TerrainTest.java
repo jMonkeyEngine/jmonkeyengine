@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,12 +37,10 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
@@ -56,9 +54,9 @@ import com.jme3.texture.Texture.WrapMode;
  * The base terrain class it uses is TerrainQuad, which is a quad tree of actual
  * meshes called TerrainPatches.
  * There are a couple options for the terrain in this test:
- * The first is wireframe mode. Here you can see the underlying trianglestrip structure.
+ * The first is wireframe mode. Here you can see the underlying triangle strip structure.
  * You will notice some off lines; these are degenerate triangles and are part of the
- * trianglestrip. They are only noticeable in wireframe mode.
+ * triangle strip. They are only noticeable in wireframe mode.
  * Second is Tri-Planar texture mode. Here the textures are rendered on all 3 axes and
  * then blended together to reduce distortion and stretching.
  * Third, which you have to modify the code to see, is Entropy LOD calculations.
@@ -73,13 +71,10 @@ import com.jme3.texture.Texture.WrapMode;
 public class TerrainTest extends SimpleApplication {
 
     private TerrainQuad terrain;
-    Material matRock;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
+    private Material matRock;
+    private Material matWire;
+    private boolean wireframe = false;
+    private boolean triPlanar = false;
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
@@ -151,9 +146,9 @@ public class TerrainTest extends SimpleApplication {
          * Here we create the actual terrain. The tiles will be 65x65, and the total size of the
          * terrain will be 513x513. It uses the heightmap we created to generate the height values.
          */
-        /**
+        /*
          * Optimal terrain patch size is 65 (64x64).
-         * The total size is up to you. At 1025 it ran fine for me (200+FPS), however at
+         * The total size is up to you. At 1025, it ran fine for me (200+FPS), however at
          * size=2049, it got really slow. But that is a jump from 2 million to 8 million triangles...
          */
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
@@ -174,7 +169,7 @@ public class TerrainTest extends SimpleApplication {
     }
 
     public void loadHintText() {
-        hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe,  P to toggle tri-planar texturing");
@@ -188,7 +183,7 @@ public class TerrainTest extends SimpleApplication {
         inputManager.addMapping("triPlanar", new KeyTrigger(KeyInput.KEY_P));
         inputManager.addListener(actionListener, "triPlanar");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {
@@ -203,9 +198,9 @@ public class TerrainTest extends SimpleApplication {
                 triPlanar = !triPlanar;
                 if (triPlanar) {
                     matRock.setBoolean("useTriPlanarMapping", true);
-                    // planar textures don't use the mesh's texture coordinates but real world coordinates,
-                    // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tri-planar mode
+                    // Planar textures don't use the mesh's texture coordinates but real-world coordinates,
+                    // so we need to convert these texture coordinate scales into real-world scales, so it looks
+                    // the same when we switch to/from tri-planar mode.
                     matRock.setFloat("Tex1Scale", 1f / (512f / grassScale));
                     matRock.setFloat("Tex2Scale", 1f / (512f / dirtScale));
                     matRock.setFloat("Tex3Scale", 1f / (512f / rockScale));

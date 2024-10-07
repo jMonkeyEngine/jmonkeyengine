@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,12 +43,12 @@ import com.jme3.scene.shape.Sphere;
 
 public class TestOgreLoading extends SimpleApplication {
 
-    float angle1;
-    float angle2;
-    PointLight pl;
-    PointLight p2;
-    Spatial lightMdl;
-    Spatial lightMd2;
+    private float angle1;
+    private float angle2;
+    private PointLight pl;
+    private PointLight p2;
+    private Spatial lightMdl;
+    private Spatial lightMd2;
 
     public static void main(String[] args) {
         TestOgreLoading app = new TestOgreLoading();

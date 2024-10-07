@@ -1,7 +1,7 @@
 package com.jme3.shadow;
 
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,6 @@ import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.shadow.CompareMode;
-import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.texture.FrameBuffer;
 
 import java.io.IOException;
@@ -57,7 +55,12 @@ import java.io.IOException;
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  * @param <T> the type of the underlying renderer (subclass of {@link AbstractShadowRendererVR}).
+ * @deprecated The jme3-vr module is deprecated and will be removed in a future version (as it only supports OpenVR).
+ *             For new Virtual Reality projects, use user libraries that provide OpenXR support.
+ *             See <a href = "https://wiki.jmonkeyengine.org/docs/3.4/core/vr/virtualreality.html">Virtual Reality JME wiki section</a>
+ *             for more information.
  */
+@Deprecated
 public abstract class AbstractShadowFilterVR<T extends AbstractShadowRendererVR> extends Filter {
 
     protected T shadowRenderer;
@@ -215,8 +218,8 @@ public abstract class AbstractShadowFilterVR<T extends AbstractShadowRendererVR>
     }
 
     /**
-     * Sets the shadow edges thickness. default is 1, setting it to lower values
-     * can help to reduce the jagged effect of the shadow edges
+     * Sets the shadow edge thickness. Default is 1. Setting it to lower values
+     * can help to reduce the jagged effect of the shadow edges.
      * @param edgesThickness the edge thickness.
      */
     public void setEdgesThickness(int edgesThickness) {
@@ -232,14 +235,6 @@ public abstract class AbstractShadowFilterVR<T extends AbstractShadowRendererVR>
     public boolean isFlushQueues() {
         return shadowRenderer.isFlushQueues();
     }
-
-    /**
-     * setFlushQueues does nothing now and is kept only for backward compatibility.
-     * @param flushQueues can be <code>true</code> or <code>false</code>.
-     * @deprecated does nothing now and is kept only for backward compatibility.
-     */
-    @Deprecated
-    public void setFlushQueues(boolean flushQueues) {}
 
     /**
      * Sets the shadow compare mode (see {@link CompareMode} for more info).

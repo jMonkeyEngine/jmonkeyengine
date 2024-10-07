@@ -1,54 +1,61 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
-def lwjglVersion = '3.2.3'
-
-sourceCompatibility = '1.8'
-
 dependencies {
-    compile project(':jme3-core')
-    compile project(':jme3-desktop')
+    api project(':jme3-core')
+    api project(':jme3-desktop')
+    api libs.lwjgl3.awt
 
-    compile "org.lwjgl:lwjgl:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-openal:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-opencl:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
+    api libs.lwjgl3.base
+    api libs.lwjgl3.glfw
+    api libs.lwjgl3.jawt
+    api libs.lwjgl3.jemalloc
+    api libs.lwjgl3.openal
+    api libs.lwjgl3.opencl
+    api libs.lwjgl3.opengl
 
-    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
-    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows-x86"
-    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux"
-    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux-arm32"
-    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux-arm64"
-    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-macos"
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-macos-arm64') })
 
-    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows"
-    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows-x86"
-    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux"
-    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux-arm32"
-    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux-arm64"
-    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-macos"
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-macos-arm64') })
 
-    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows"
-    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows-x86"
-    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux"
-    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux-arm32"
-    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux-arm64"
-    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-macos"
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-macos-arm64') })
 
-    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows"
-    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows-x86"
-    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux"
-    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux-arm32"
-    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux-arm64"
-    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-macos"
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-macos-arm64') })
 
-    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows"
-    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows-x86"
-    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux"
-    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux-arm32"
-    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux-arm64"
-    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos-arm64') })
 }
+
+javadoc {
+    // Disable doclint for JDK8+.
+    if (JavaVersion.current().isJava8Compatible()){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+

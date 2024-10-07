@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -114,5 +114,9 @@ public class LwjglKeyInput implements KeyInput {
     public long getInputTimeNanos() {
         return Sys.getTime() * LwjglTimer.LWJGL_TIME_TO_NANOS;
     }
-
+    
+    @Override
+    public String getKeyName(int key){
+        throw new UnsupportedOperationException("getKeyName not implemented for lwjgl input");    
+    }
 }

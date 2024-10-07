@@ -17,6 +17,8 @@ import com.jme3.audio.openal.EFX;
 import com.jme3.system.*;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.util.AndroidScreenshots;
+import com.jme3.util.res.Resources;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,10 +37,22 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         } catch (UnsatisfiedLinkError e) {
         }
     }
+
+    public JmeAndroidSystem(){
+        setErrorMessageHandler((message) -> {
+            String finalMsg = message;
+            String finalTitle = "Error in application";
+            Context context = JmeAndroidSystem.getView().getContext();
+            view.getHandler().post(() -> {
+                AlertDialog dialog = new AlertDialog.Builder(context).setTitle(finalTitle).setMessage(finalMsg).create();
+                dialog.show();
+            });
+        });
+    }
     
     @Override
     public URL getPlatformAssetConfigURL() {
-        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/Android.cfg");
+        return Resources.getResource("com/jme3/asset/Android.cfg");
     }
 
     @Override
@@ -57,26 +71,8 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         bitmapImage.recycle();
     }
 
-    @Override
-    public void showErrorDialog(String message) {
-        final String finalMsg = message;
-        final String finalTitle = "Error in application";
-        final Context context = JmeAndroidSystem.getView().getContext();
 
-        view.getHandler().post(new Runnable() {
-            @Override
-            public void run() {
-                AlertDialog dialog = new AlertDialog.Builder(context)
-                        .setTitle(finalTitle).setMessage(finalMsg).create();
-                dialog.show();
-            }
-        });
-    }
 
-    @Override
-    public boolean showSettingsDialog(AppSettings sourceSettings, boolean loadFromRegistry) {
-        return true;
-    }
 
     @Override
     public JmeContext newContext(AppSettings settings, Type contextType) {
@@ -166,7 +162,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
                 // When created this way, the directory is automatically removed by the Android
                 //   system when the app is uninstalled.
                 // The directory is also accessible by a PC connected to the device
-                //   so the files can be copied to the PC (ie. screenshots)
+                //   so the files can be copied to the PC (i.e. screenshots)
                 storageFolder = storageFolders.get(type);
                 if (storageFolder == null) {
                     String state = Environment.getExternalStorageState();
@@ -180,10 +176,12 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
             default:
                 break;
         }
-        if (storageFolder != null) {
-            logger.log(Level.FINE, "Base Storage Folder Path: {0}", storageFolder.getAbsolutePath());
-        } else {
-            logger.log(Level.FINE, "Base Storage Folder not found!");
+        if (logger.isLoggable(Level.FINE)) {
+            if (storageFolder != null) {
+                logger.log(Level.FINE, "Base Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+            } else {
+                logger.log(Level.FINE, "Base Storage Folder not found!");
+            }
         }
         return storageFolder;
     }

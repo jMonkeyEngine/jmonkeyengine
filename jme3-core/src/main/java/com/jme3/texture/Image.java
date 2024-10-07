@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -116,7 +116,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         /**
          * 8-bit blue, green, and red.
          */
-        BGR8(24), // BGR and ABGR formats are often used on windows systems
+        BGR8(24), // BGR and ABGR formats are often used on Windows systems
         
         /**
          * 8-bit red, green, and blue.
@@ -193,6 +193,26 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         RGTC1(4,false,true, false),
         
         SIGNED_RGTC1(4,false,true, false),
+        
+        /**
+         * BPTC compression BC6 signed float RGB
+         */
+        BC6H_SF16(8, false, true, true), 
+        
+        /**
+         * BPTC compression BC6 unsigned float RGB
+         */
+        BC6H_UF16(8, false, true, true),
+        
+        /**
+         * BPTC compression BC7 RGBA
+         */
+        BC7_UNORM(8, false, true, false),
+        
+        /**
+         * BPTC compression BC7 SRGB Alpha
+         */
+        BC7_UNORM_SRGB(8, false, true, false),
         
         /**
          * Luminance-Alpha Texture Compression. 
@@ -310,39 +330,56 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Requires {@link Caps#TextureCompressionETC1}.
          */
         ETC1(4, false, true, false),
+
+        /**
+         * Ericsson Texture Compression 2. Typically used on Android.
+         * Same as {@link #ETC1} but with alpha.
+         * 
+         * Requires {@link Caps#TextureCompressionETC2}.
+         */
+        ETC2(8, false, true, false),
+
+        /**
+         * Ericsson Texture Compression 2. Typically used on Android.
+         * Same as {@link #ETC2} but alpha can be either 1 or 0.
+         * 
+         * Requires {@link Caps#TextureCompressionETC2}.
+         */
+        ETC2_ALPHA1(4, false, true, false),
+
          
         /**
-         * 8 bit signed int red.
+         * 8-bit signed int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         R8I(8),
         /**
-         * 8 bit unsigned int red.
+         * 8-bit unsigned int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         R8UI(8),
         /**
-         * 16 bit signed int red.
+         * 16-bit signed int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         R16I(16),
         /**
-         * 16 bit unsigned int red.
+         * 16-bit unsigned int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */        
         R16UI(16),      
         /**
-         * 32 bit signed int red.
+         * 32-bit signed int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */        
         R32I(32),
         /**
-         * 32 bit unsigned int red.
+         * 32-bit unsigned int red.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
@@ -350,44 +387,44 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         
         
         /**
-         * 8 bit signed int red and green.
+         * 8-bit signed int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RG8I(16), 
         /**
-         * 8 bit unsigned int red and green.
+         * 8-bit unsigned int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RG8UI(16),     
         /**
-         * 16 bit signed int red and green.
+         * 16-bit signed int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RG16I(32), 
         /**
-         * 16 bit unsigned int red and green.
+         * 16-bit unsigned int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RG16UI(32), 
         /**
-         * 32 bit signed int red and green.
+         * 32-bit signed int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */        
         RG32I(64),
         /**
-         * 32 bit unsigned int red and green.
+         * 32-bit unsigned int red and green.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RG32UI(64), 
 
         /**
-         * 8 bit signed int red, green and blue.
+         * 8-bit signed int red, green and blue.
          * 
          * Requires {@link Caps#IntegerTexture} to be supported for textures. 
          * May be supported for renderbuffers, but the OpenGL specification does not require it.
@@ -401,28 +438,28 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          */
         RGB8UI(24),
         /**
-         * 16 bit signed int red, green and blue.
+         * 16-bit signed int red, green and blue.
          * 
          * Requires {@link Caps#IntegerTexture} to be supported for textures. 
          * May be supported for renderbuffers, but the OpenGL specification does not require it.
          */
         RGB16I(48),
         /**
-         * 16 bit unsigned int red, green and blue.
+         * 16-bit unsigned int red, green and blue.
          * 
          * Requires {@link Caps#IntegerTexture} to be supported for textures. 
          * May be supported for renderbuffers, but the OpenGL specification does not require it.
          */
         RGB16UI(48),
         /**
-         * 32 bit signed int red, green and blue.
+         * 32-bit signed int red, green and blue.
          * 
          * Requires {@link Caps#IntegerTexture} to be supported for textures. 
          * May be supported for renderbuffers, but the OpenGL specification does not require it.
          */
         RGB32I(96),
         /**
-         * 32 bit unsigned int red, green and blue.
+         * 32-bit unsigned int red, green and blue.
          * 
          * Requires {@link Caps#IntegerTexture} to be supported for textures. 
          * May be supported for renderbuffers, but the OpenGL specification does not require it.
@@ -431,37 +468,37 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
 
         /**
-         * 8 bit signed int red, green, blue and alpha.
+         * 8-bit signed int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA8I(32), 
         /**
-         * 8 bit unsigned int red, green, blue and alpha.
+         * 8-bit unsigned int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA8UI(32),
         /**
-         * 16 bit signed int red, green, blue and alpha.
+         * 16-bit signed int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA16I(64),
         /**
-         * 16 bit unsigned int red, green, blue and alpha.
+         * 16-bit unsigned int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA16UI(64),
         /**
-         * 32 bit signed int red, green, blue and alpha.
+         * 32-bit signed int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
         RGBA32I(128),
         /**
-         * 32 bit unsigned int red, green, blue and alpha.
+         * 32-bit unsigned int red, green, blue and alpha.
          * 
          * Requires {@link Caps#IntegerTexture}.
          */
@@ -578,7 +615,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
     /**
      * Internal use only.
-     * The renderer stores the texture state set from the last texture
+     * The renderer stores the texture state set from the last texture,
      * so it doesn't have to change it unless necessary. 
      * 
      * @return The image parameter state.
@@ -678,7 +715,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
     @Override
     public long getUniqueId() {
-        return ((long)OBJTYPE_TEXTURE << 32) | ((long)id);
+        return ((long)OBJTYPE_TEXTURE << 32) | (0xffffffffL & (long)id);
     }
     
     /**
@@ -717,12 +754,14 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *            the width of the image.
      * @param height
      *            the height of the image.
+     * @param depth
+     *            the desired image depth
      * @param data
      *            the image data.
      * @param mipMapSizes
      *            the array of mipmap sizes, or null for no mipmaps.
      * @param colorSpace 
-     *            @see ColorSpace the colorSpace of the image      
+     *            the colorSpace of the image      
      */
     public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data,
             int[] mipMapSizes, ColorSpace colorSpace) {
@@ -749,12 +788,12 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
     /**
      * @see #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, int[], com.jme3.texture.image.ColorSpace)
-     * @param format
-     * @param width
-     * @param height
-     * @param depth
-     * @param data
-     * @param mipMapSizes 
+     * @param format the desired data format
+     * @param width the desired width (in pixels)
+     * @param height the desired height (in pixels)
+     * @param depth the desired image depth
+     * @param data the image data to use
+     * @param mipMapSizes the desired mipmap sizes, or null for no mipmaps
      * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, int[], com.jme3.texture.image.ColorSpace)}
      */
      @Deprecated
@@ -778,18 +817,20 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * @param mipMapSizes
      *            the array of mipmap sizes, or null for no mipmaps.
      * @param colorSpace 
-     *            @see ColorSpace the colorSpace of the image    
+     *            the colorSpace of the image    
      */
     public Image(Format format, int width, int height, ByteBuffer data,
             int[] mipMapSizes, ColorSpace colorSpace) {
 
         this();
 
-        if (mipMapSizes != null && mipMapSizes.length <= 1) {
-            mipMapSizes = null;
-        } else {
-            needGeneratedMips = false;
-            mipsWereGenerated = true;
+        if (mipMapSizes != null) {
+            if (mipMapSizes.length <= 1) {
+                mipMapSizes = null;
+            } else {
+                needGeneratedMips = false;
+                mipsWereGenerated = true;
+            }
         }
 
         setFormat(format);
@@ -805,11 +846,11 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     
     /**
      * @see #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, int[], com.jme3.texture.image.ColorSpace)
-     * @param format
-     * @param width
-     * @param height
-     * @param data
-     * @param mipMapSizes
+     * @param format the desired data format
+     * @param width the desired width (in pixels)
+     * @param height the desired height (in pixels)
+     * @param data the image data to use
+     * @param mipMapSizes the desired mipmap sizes, or null for no mipmaps
      * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, int[], com.jme3.texture.image.ColorSpace)}
      */
     @Deprecated
@@ -828,10 +869,12 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *            the width of the image.
      * @param height
      *            the height of the image.
+     * @param depth
+     *            the desired image depth
      * @param data
      *            the image data.
      * @param colorSpace 
-     *            @see ColorSpace the colorSpace of the image  
+     *            the colorSpace of the image  
      */
     public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data, ColorSpace colorSpace) {
         this(format, width, height, depth, data, null, colorSpace);
@@ -839,11 +882,11 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     
     /**
      * @see #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, com.jme3.texture.image.ColorSpace)
-     * @param format
-     * @param width
-     * @param height
-     * @param depth
-     * @param data
+     * @param format the desired data format
+     * @param width the desired width (in pixels)
+     * @param height the desired height (in pixels)
+     * @param depth the desired image depth
+     * @param data the image data to use
      * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, com.jme3.texture.image.ColorSpace)}
      */
     @Deprecated
@@ -864,7 +907,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * @param data
      *            the image data.
      * @param colorSpace 
-     *            @see ColorSpace the colorSpace of the image  
+     *            the colorSpace of the image  
      */
     public Image(Format format, int width, int height, ByteBuffer data, ColorSpace colorSpace) {
         this(format, width, height, data, null, colorSpace);
@@ -873,10 +916,10 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     
     /**
      * @see #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, com.jme3.texture.image.ColorSpace)
-     * @param format
-     * @param width
-     * @param height
-     * @param data
+     * @param format the desired data format
+     * @param width the desired width (in pixels)
+     * @param height the desired height (in pixels)
+     * @param data the image data
      * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, com.jme3.texture.image.ColorSpace)}
      */
     @Deprecated
@@ -899,14 +942,19 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * into a multisample texture (on OpenGL3.1 and higher).
      */
     public void setMultiSamples(int multiSamples) {
-        if (multiSamples <= 0)
+        if (multiSamples <= 0) {
             throw new IllegalArgumentException("multiSamples must be > 0");
+        }
 
-        if (getData(0) != null)
-            throw new IllegalArgumentException("Cannot upload data as multisample texture");
+        if (multiSamples > 1) {
+            if (getData(0) != null) {
+                throw new IllegalArgumentException("Cannot upload data as multisample texture");
+            }
 
-        if (hasMipmaps())
-            throw new IllegalArgumentException("Multisample textures do not support mipmaps");
+            if (hasMipmaps()) {
+                throw new IllegalArgumentException("Multisample textures do not support mipmaps");
+            }
+        }
 
         this.multiSamples = multiSamples;
     }
@@ -956,13 +1004,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
 
     /**
-     * @deprecated This feature is no longer used by the engine
-     */
-    @Deprecated
-    public void setEfficentData(Object efficientData){
-    }
-
-    /**
+     * @return null
      * @deprecated This feature is no longer used by the engine
      */
     @Deprecated
@@ -1037,14 +1079,14 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * <code>setFormat</code> sets the image format for this image.
      *
      * @param format
-     *            the image format.
-     * @throws NullPointerException
+     *            the image format (not null)
+     * @throws IllegalArgumentException
      *             if format is null
      * @see Format
      */
     public void setFormat(Format format) {
         if (format == null) {
-            throw new NullPointerException("format may not be null.");
+            throw new IllegalArgumentException("format may not be null.");
         }
 
         this.format = format;
@@ -1102,6 +1144,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * <code>getData</code> returns the data for this image. If the data is
      * undefined, null will be returned.
      *
+     * @param index index of the data buffer to access
      * @return the data for this image.
      */
     public ByteBuffer getData(int index) {
@@ -1136,11 +1179,11 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * contain any color space information and the most frequently used colors 
      * space is sRGB
      *
-     * The material loader may override this attribute to Lineat if it determines that
+     * The material loader may override this attribute to Linear if it determines that
      * such conversion must not be performed, for example, when loading normal
      * maps.
      *
-     * @param colorSpace @see ColorSpace. Set to sRGB to enable srgb -&gt; linear 
+     * @param colorSpace Set to sRGB to enable srgb -&gt; linear 
      * conversion, Linear otherwise.
      *
      * @see Renderer#setLinearizeSrgbImages(boolean)
@@ -1246,8 +1289,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         format = capsule.readEnum("format", Format.class, Format.RGBA8);
         width = capsule.readInt("width", 0);
         height = capsule.readInt("height", 0);

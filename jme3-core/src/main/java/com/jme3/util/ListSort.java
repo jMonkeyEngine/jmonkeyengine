@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,12 +39,12 @@ import java.util.Comparator;
  * It's adapted from Tim Peters's work on list sorting for Python. More details
  * here http://svn.python.org/projects/python/trunk/Objects/listsort.txt
  * 
- * here is the C code from which this class is based 
+ * Here is the C code on which this class is based:
  * http://svn.python.org/projects/python/trunk/Objects/listobject.c
  *
- * This class was also greatly inspired from java 7 TimSort by Josh Blosh with the
- * difference that the temporary necessary memory space are allocated as the
- * geometry list grows and reused all along the application execution.
+ * This class was also greatly inspired by the Java7 TimSort by Josh Blosh, with the
+ * difference that temporary memory is allocated as the
+ * geometry list grows and reused throughout the execution of the application.
  *
  * Usage : ListSort has to be instantiated and kept with the geometry list ( or
  * w/e it may have to sort) Then the allocate method has to be called to
@@ -53,11 +53,11 @@ import java.util.Comparator;
  * list changes
  *
  * {@code
- * Disclaimer : I was intrigued by the use of val >>> 1 in java 7 Timsort class
- * instead of val / 2 (integer division). Micro benching revealed that val >>> 1
- * is twice faster than val / 2 in java 6 and has similar perf in java 7. The
- * following code uses val >>> 1 when ever a value needs to be divided by 2 and
- * rounded to its floor
+ * Disclaimer : I was intrigued by the use of val >>> 1 in the Java7 Timsort
+ * in place of val / 2 (integer division). Micro benching revealed that val >>> 1
+ * is twice as fast as val / 2 in Java6 and has similar perf in Java7. The
+ * following code uses val >>> 1 whenever a value needs to be divided by 2 and
+ * rounded to its floor.
  * }
  *
  * @author Nehon
@@ -65,8 +65,8 @@ import java.util.Comparator;
 public class ListSort<T> {
 
     /**
-     * Threshold for binary sort vs merge. Original algorithm use 64, java7
-     * TimSort uses 32 and I used 128, see this post for explanations :
+     * Threshold for binary sort vs merge. Original algorithm used 64, Java7
+     * TimSort used 32, and I used 128. See this post for explanations:
      * https://hub.jmonkeyengine.org/t/i-got-that-sorted-out-huhuhu/24478
      */
     private static final int MIN_SIZE = 128;
@@ -75,30 +75,30 @@ public class ListSort<T> {
     private Comparator<T> comparator;
     
     /**
-     * attribute temp vars for merging. This was used to unroll the merge_lo &
+     * Attribute temp vars for merging. This was used to unroll the merge_lo &
      * merge_hi function of original implementations that used massive labeled
-     * goto branching and was almost unreadable
+     * goto branching and was almost unreadable.
      */
     int iterA, iterB, dest, lengthA, lengthB;
     
     /**
-     * Number of runs to merge
+     * Number of runs to merge.
      */
     private int nbRuns = 0;
 
-    /* Try to used a kind of structure like in the original implementation.
-     * Ended up using 2 arrays as done in the java 7 Timsort. 
-     * Original implementation use a struct, but instanciation of this inner 
+    /* Tried to use a struct, as in the original implementation, but
+     * ended up using 2 arrays, like the Java7 Timsort.
+     * Original implementation used a struct, but instantiation of this inner
      * class + array was a convoluted pain.
      */
     /**
-     * array of start indices in the original array for runs : run i starting
-     * index is at runIndices[i]
+     * Array of run start indices in the original array: starting
+     * index of run 'i' is at runIndices[i].
      */
     private int[] runsIndices = null;
     /**
-     * array of runs length in the original array : run i length is at
-     * runLength[i]
+     * Array of run lengths in the original array: length of run 'i' is at
+     * runLength[i].
      */
     private int[] runsLength = null;
     /**
@@ -109,12 +109,12 @@ public class ListSort<T> {
     /**
      * MIN_GALLOP set to 7 constant as described in listsort.txt. this magic
      * number indicates how many wins should trigger the switch from binary
-     * search to galloping mode
+     * search to galloping mode.
      */
     private static final int MIN_GALLOP = 7;
     /**
-     * This variable allows to adjust when switching to galloping mode. lowered
-     * when the data are "naturally" structured, raised when data are random.
+     * Controls switching to galloping mode. It is lowered
+     * when the data are "naturally" ordered and raised when they are random.
      */
     private int minGallop = MIN_GALLOP;
 
@@ -129,7 +129,7 @@ public class ListSort<T> {
      * at least once, but only if the length of the list to sort changed before
      * sorting
      *
-     * @param len
+     * @param len the size of the array to sort
      */
     @SuppressWarnings("unchecked")
     public final void allocateStack(int len) {
@@ -138,13 +138,13 @@ public class ListSort<T> {
         /*
          * We allocate a temp array of half the size of the array to sort.
          * the original implementation had a 256 maximum size for this and made 
-         * the temp array grow on demand
+         * the temp array grow on demand.
          * 
          * Timsort consumes half the size of the original array to merge at WORST.
-         * But considering we use the same temp array over and over across frames
-         * There is a good chance we stumble upon the worst case scenario one 
-         * moment or another.
-         * So we just always take half of the original array size.
+         * But considering we use the same temp array over and over across frames,
+         * there is a good chance we will stumble upon the worst-case scenario at one
+         * time or another.
+         * So we use half of the original array size.
          */        
         int tmpLen = len >>> 1;
      
@@ -155,9 +155,9 @@ public class ListSort<T> {
         }
 
         /*
-         * this part was taken from java 7 TimSort.
+         * This part was taken from the Java7 TimSort.
          * The original implementation use a stack of length 85, but this seems 
-         * to boost up performance for mid sized arrays.
+         * to boost performance for mid-sized arrays.
          * I changed the numbers so they fit our MIN_SIZE parameter.
          * 
          * Those numbers can be computed using this formula : 
@@ -200,9 +200,9 @@ public class ListSort<T> {
         int remaining = high - low;
 
         /*
-         * If array's size is bellow min_size we perform a binary insertion sort 
+         * If array's size is below min_size, we perform a binary insertion sort,
          * but first we check if some existing ordered pattern exists to reduce 
-         * the size of data to be sorted
+         * the size of data to be sorted.
          */
         if (remaining < MIN_SIZE) {
             int runLength = getRunLength(array, low, high, comparator);
@@ -211,7 +211,7 @@ public class ListSort<T> {
         }
 
         /*
-         * main iteration : compute minrun length, then iterate through the 
+         * Main iteration: compute minimum run length, then iterate through the
          * array to find runs and merge them until they can be binary sorted 
          * if their length < minLength
          */
@@ -219,8 +219,8 @@ public class ListSort<T> {
         while (remaining != 0) {
             int runLength = getRunLength(array, low, high, comparator);
 
-            /* if runlength is bellow the threshold we binary sort the remaining 
-             * elements
+            /* If the run length is below the threshold, binary sort the remaining
+             * elements.
              */
             if (runLength < minLength) {
                 int newLength = remaining <= minLength ? remaining : minLength;
@@ -281,8 +281,8 @@ public class ListSort<T> {
                     runEnd++;
                 }
                 // the run's order is descending, it has to be reversed
-                // original algorithmm return a descending = 1 value and the 
-                //reverse is done in the sort method. Looks good to have it here though
+                // original algorithm returned a descending = 1 value and the
+                // reverse was done in the sort method. Looks good to have it here though
                 reverseArray(array, firstId, runEnd);
             }
 
@@ -293,7 +293,7 @@ public class ListSort<T> {
     }
 
     /**
-     * binarysort is the best method for sorting small arrays: it does few
+     * Binary sort is the best method for sorting small arrays: it does few
      * compares, but can do data movement quadratic in the number of elements.
      * [firstId, lastId] is a contiguous slice of a list, and is sorted via
      * binary insertion. This sort is stable. On entry, must have firstId <=
@@ -303,8 +303,8 @@ public class ListSort<T> {
      * @param array the array to sort
      * @param firstId the index of the first element to sort
      * @param lastId the index+ of the last element to sort
-     * @param start the index of the element to start sorting range
-     * [firstId,satrt]is assumed to be already sorted
+     * @param start the index of the element to start sorting range.
+     * [firstId,start] is assumed to be already sorted.
      * @param comparator the comparator
      */
     private void binaryInsertionSort(T[] array, int firstId, int lastId, int start,
@@ -344,8 +344,8 @@ public class ListSort<T> {
              */
             int nbElems = start - left;
             /*
-             * grabbed from java7 TimSort, the switch is an optimization to 
-             * arraycopy in case there are 1 or 2 elements only to copy
+             * Grabbed from the Java7 TimSort, this switch optimizes
+             * arraycopy() in case there are only 1 or 2 elements to copy.
              */
             switch (nbElems) {
                 case 2:
@@ -514,9 +514,9 @@ public class ListSort<T> {
             while (offset < maxOffset && comparator.compare(key, array[idx + hint + offset]) > 0) {
                 lastOffset = offset;
                 offset = (offset << 1) + 1;
-                /* int overflow. 
-                 * Note : not sure if that can happen but it's here in both 
-                 * original and java 7 TimSort implementation
+                /* int overflow.
+                 * Note: not sure if this can happen, but it's included in both the
+                 * original and Java7 TimSort implementations.
                  */
                 if (offset <= 0) {
                     offset = maxOffset;
@@ -526,7 +526,7 @@ public class ListSort<T> {
                 offset = maxOffset;
             }
 
-            // Translate back to offsets relative to idx. 
+            // Translate back into offsets relative to idx.
             lastOffset += hint;
             offset += hint;
         } else {
@@ -537,9 +537,9 @@ public class ListSort<T> {
             while (offset < maxOffset && comparator.compare(key, array[idx + hint - offset]) <= 0) {
                 lastOffset = offset;
                 offset = (offset << 1) + 1;
-                /* int overflow. 
-                 * Note : not sure if that can happen but it's here in both 
-                 * original and java 7 TimSort implementation
+                /* int overflow.
+                 * Note: not sure if this can happen, but it's included in both the
+                 * original and Java7 TimSort implementations.
                  */
                 if (offset <= 0) {
                     offset = maxOffset;
@@ -606,8 +606,8 @@ public class ListSort<T> {
                 lastOffset = offset;
                 offset = (offset << 1) + 1;
                 /* int overflow. 
-                 * Note : not sure if that can happen but it's here in both 
-                 * original and java 7 TimSort implementation
+                 * Note: not sure if this can happen, but it's included in both
+                 * the original and Java7 TimSort implementations.
                  */
                 if (offset <= 0) {
                     offset = maxOffset;
@@ -670,9 +670,9 @@ public class ListSort<T> {
      * lenA <= lenB. See listsort.txt for more info.
      *
      * @param idxA index of first element in run A
-     * @param lengthA length of run A
+     * @param lenA length of run A
      * @param idxB index of first element in run B
-     * @param lengthB length of run B
+     * @param lenB length of run B
      */
     private void mergeLow(int idxA, int lenA, int idxB, int lenB) {
         
@@ -822,9 +822,9 @@ public class ListSort<T> {
      * lenA >= lenB. See listsort.txt for more info.
      *
      * @param idxA index of first element in run A
-     * @param lengthA length of run A
+     * @param lenA length of run A
      * @param idxB index of first element in run B
-     * @param lengthB length of run B
+     * @param lenB length of run B
      */
     private void mergeHigh(int idxA, int lenA, int idxB, int lenB) {
         
@@ -995,6 +995,8 @@ public class ListSort<T> {
     
     /**
      * test case
+     *
+     * @param argv ignored
      */
     @SuppressWarnings("unchecked")
     public static void main(String[] argv) {

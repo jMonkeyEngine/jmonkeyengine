@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ import jme3test.bullet.PhysicsTestHelper;
  * eventually, generally a larger scales for this test.
  * </li>
  * <li>
- * Some shapes such as PQTorus & signpost never go inactive at larger scales for both Native and JBullet (test
+ * Some shapes such as PQTorus and signpost never go inactive at larger scales for both Native and JBullet (test
  * at 1.5 and 1.9 scale)
  * </li>
  * </ol>
@@ -92,8 +92,6 @@ public class TestGimpactShape extends SimpleApplication {
     private static TestGimpactShape test;
     private BulletAppState bulletAppState;
     private int solverNumIterations = 10;
-    private BitmapFont font;
-    private final BitmapText[] testInfo = new BitmapText[2];
     private BitmapText timeElapsedTxt;
     private BitmapText solverNumIterationsTxt;
     private BitmapText testScale;
@@ -129,7 +127,8 @@ public class TestGimpactShape extends SimpleApplication {
 
         //Setup test instructions
         guiNode = getGuiNode();
-        font = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        BitmapText[] testInfo = new BitmapText[2];
         testInfo[0] = new BitmapText(font);
         testInfo[1] = new BitmapText(font);
         timeElapsedTxt = new BitmapText(font);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,6 @@
 
 package com.jme3.system.lwjgl;
 
-import static com.jme3.util.LWJGLBufferAllocator.PROPERTY_CONCURRENT_BUFFER_ALLOCATOR;
-import static java.util.stream.Collectors.toSet;
-import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
-import static org.lwjgl.opengl.GL.createCapabilities;
-import static org.lwjgl.opengl.GL11.glGetInteger;
-
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
@@ -63,25 +57,29 @@ import com.jme3.system.Timer;
 import com.jme3.util.BufferAllocatorFactory;
 import com.jme3.util.LWJGLBufferAllocator;
 import com.jme3.util.LWJGLBufferAllocator.ConcurrentLWJGLBufferAllocator;
+import static com.jme3.util.LWJGLBufferAllocator.PROPERTY_CONCURRENT_BUFFER_ALLOCATOR;
+import java.nio.IntBuffer;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import static java.util.stream.Collectors.toSet;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWJoystickCallback;
 import org.lwjgl.opencl.APPLEGLSharing;
 import org.lwjgl.opencl.CL10;
+import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
 import org.lwjgl.opencl.KHRGLSharing;
 import org.lwjgl.opengl.ARBDebugOutput;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
+import static org.lwjgl.opengl.GL.createCapabilities;
+import static org.lwjgl.opengl.GL11.glGetInteger;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Platform;
-
-import java.nio.IntBuffer;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A LWJGL implementation of a graphics context.
@@ -135,14 +133,26 @@ public abstract class LwjglContext implements JmeContext {
     
     protected com.jme3.opencl.lwjgl.LwjglContext clContext;
 
+    /**
+     * Accesses the listener that receives events related to this context.
+     *
+     * @return the pre-existing instance
+     */
+    @Override
+    public SystemListener getSystemListener() {
+        return listener;
+    }
+
     @Override
     public void setSystemListener(final SystemListener listener) {
         this.listener = listener;
     }
 
     protected void printContextInitInfo() {
-        logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n * Graphics Adapter: GLFW {2}",
-                APIUtil.toArray(Version.getVersion(), Thread.currentThread().getName(), GLFW.glfwGetVersionString()));
+        if (logger.isLoggable(Level.INFO)) {
+            logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n * Graphics Adapter: GLFW {2}",
+                    APIUtil.toArray(Version.getVersion(), Thread.currentThread().getName(), GLFW.glfwGetVersionString()));
+        }
     }
 
     protected int determineMaxSamples() {
@@ -174,7 +184,28 @@ public abstract class LwjglContext implements JmeContext {
         return samples;
     }
 
+    /**
+     * Reinitializes the relevant details of the context. For internal use only.
+     */
+    protected void reinitContext() {
+        initContext(false);
+    }
+
+    /**
+     * Initializes the LWJGL renderer and input for the first time. For internal
+     * use only.
+     */
     protected void initContextFirstTime() {
+        initContext(true);
+    }
+
+    /**
+     * Initializes the LWJGL renderer and input.
+     * @param first - Whether this is the first time we are initializing and we
+     * need to create the renderer or not. Otherwise, we'll just reset the
+     * renderer as needed.
+     */
+    private void initContext(boolean first) {
 
         final String renderer = settings.getRenderer();
         final GLCapabilities capabilities = createCapabilities(!renderer.equals(AppSettings.LWJGL_OPENGL2));
@@ -185,75 +216,80 @@ public abstract class LwjglContext implements JmeContext {
             throw new UnsupportedOperationException("Unsupported renderer: " + renderer);
         }
 
-        GL gl = new LwjglGL();
-        GLExt glext = new LwjglGLExt();
-        GLFbo glfbo;
+        if (first) {
+            GL gl = new LwjglGL();
+            GLExt glext = new LwjglGLExt();
+            GLFbo glfbo;
 
-        if (capabilities.OpenGL30) {
-            glfbo = new LwjglGLFboGL3();
-        } else {
-            glfbo = new LwjglGLFboEXT();
+            if (capabilities.OpenGL30) {
+                glfbo = new LwjglGLFboGL3();
+            } else {
+                glfbo = new LwjglGLFboEXT();
+            }
+
+            if (settings.isGraphicsDebug()) {
+                gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
+                glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
+            }
+
+            if (settings.isGraphicsTiming()) {
+                GLTimingState timingState = new GLTimingState();
+                gl = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
+                glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
+            }
+
+            if (settings.isGraphicsTrace()) {
+                gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
+                glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
+            }
+
+            this.renderer = new GLRenderer(gl, glext, glfbo);
+            if (this.settings.isGraphicsDebug()) ((GLRenderer)this.renderer).setDebugEnabled(true);
         }
-
-        if (settings.getBoolean("GraphicsDebug")) {
-            gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
-            glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
-            glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
-        }
-
-        if (settings.getBoolean("GraphicsTiming")) {
-            GLTimingState timingState = new GLTimingState();
-            gl = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
-            glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
-            glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
-        }
-
-        if (settings.getBoolean("GraphicsTrace")) {
-            gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
-            glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
-            glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
-        }
-
-        this.renderer = new GLRenderer(gl, glext, glfbo);
         this.renderer.initialize();
 
-        if (capabilities.GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
+        if (capabilities.GL_ARB_debug_output && settings.isGraphicsDebug()) {
             ARBDebugOutput.glDebugMessageCallbackARB(new LwjglGLDebugOutputHandler(), 0);
         }
 
         this.renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
         this.renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
-        // Init input
-        if (keyInput != null) {
-            keyInput.initialize();
-        }
-
-        if (mouseInput != null) {
-            mouseInput.initialize();
-        }
-
-        if (joyInput != null) {
-            joyInput.initialize();
-        }
-
-        GLFW.glfwSetJoystickCallback(new GLFWJoystickCallback() {
-            @Override
-            public void invoke(int jid, int event) {
-
-                // Invoke the disconnected event before we reload the joysticks or we lose the reference to it.
-                // Invoke the connected event after we reload the joysticks to obtain the reference to it.
-
-                if ( event == GLFW.GLFW_CONNECTED ) {
-                    joyInput.reloadJoysticks();
-                    joyInput.fireJoystickConnectedEvent(jid);
-                }
-                else {
-                    joyInput.fireJoystickDisconnectedEvent(jid);
-                    joyInput.reloadJoysticks();
-                }
+        if (first) {
+            // Init input
+            if (keyInput != null) {
+                keyInput.initialize();
             }
-        });
+
+            if (mouseInput != null) {
+                mouseInput.initialize();
+            }
+
+            if (joyInput != null) {
+                joyInput.initialize();
+            }
+
+            GLFW.glfwSetJoystickCallback(new GLFWJoystickCallback() {
+                @Override
+                public void invoke(int jid, int event) {
+
+                    // Invoke the disconnected event before we reload the joysticks or lose the reference to it.
+                    // Invoke the connected event after we reload the joysticks to obtain the reference to it.
+
+                    if ( event == GLFW.GLFW_CONNECTED ) {
+                        joyInput.reloadJoysticks();
+                        joyInput.fireJoystickConnectedEvent(jid);
+                    }
+                    else {
+                        joyInput.fireJoystickDisconnectedEvent(jid);
+                        joyInput.reloadJoysticks();
+                    }
+                }
+            });
+        }
 
         renderable.set(true);
     }
@@ -345,7 +381,7 @@ public abstract class LwjglContext implements JmeContext {
         PlatformChooser chooser = null;
         if (settings.getOpenCLPlatformChooser() != null) {
             try {
-                chooser = (PlatformChooser) Class.forName(settings.getOpenCLPlatformChooser()).newInstance();
+                chooser = (PlatformChooser) Class.forName(settings.getOpenCLPlatformChooser()).getDeclaredConstructor().newInstance();
             } catch (Exception ex) {
                 logger.log(Level.WARNING, "Unable to instantiate custom PlatformChooser", ex);
             }
@@ -355,8 +391,8 @@ public abstract class LwjglContext implements JmeContext {
             chooser = new DefaultPlatformChooser();
         }
 
-        final List<? extends Device> choosenDevices = chooser.chooseDevices(platforms);
-        final Optional<? extends Device> unsupportedDevice = choosenDevices.stream()
+        final List<? extends Device> chosenDevices = chooser.chooseDevices(platforms);
+        final Optional<? extends Device> unsupportedDevice = chosenDevices.stream()
                 .filter(dev -> !(dev instanceof LwjglDevice))
                 .findAny();
 
@@ -366,7 +402,7 @@ public abstract class LwjglContext implements JmeContext {
             return;
         }
 
-        final Set<LwjglPlatform> lwjglPlatforms = choosenDevices.stream()
+        final Set<LwjglPlatform> lwjglPlatforms = chosenDevices.stream()
                 .map(LwjglDevice.class::cast)
                 .map(LwjglDevice::getPlatform)
                 .collect(toSet());
@@ -376,7 +412,7 @@ public abstract class LwjglContext implements JmeContext {
             return;
         }
 
-        final long[] deviceIds = choosenDevices.stream()
+        final long[] deviceIds = chosenDevices.stream()
                 .map(LwjglDevice.class::cast)
                 .mapToLong(LwjglDevice::getDevice)
                 .toArray();
@@ -391,12 +427,12 @@ public abstract class LwjglContext implements JmeContext {
                 .orElseThrow(() -> new RuntimeException("not found a platform"));
 
         logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
-        logger.log(Level.INFO, "chosen devices: {0}", choosenDevices);
+        logger.log(Level.INFO, "chosen devices: {0}", chosenDevices);
         
         // create context
         try {
             long context = createContext(platform.getPlatform(), deviceIds, window);
-            clContext = new com.jme3.opencl.lwjgl.LwjglContext(context, (List<LwjglDevice>) choosenDevices);
+            clContext = new com.jme3.opencl.lwjgl.LwjglContext(context, (List<LwjglDevice>) chosenDevices);
         } catch (final Exception ex) {
             logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
             return;

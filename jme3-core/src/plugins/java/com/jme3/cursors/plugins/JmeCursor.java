@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -138,7 +138,8 @@ public class JmeCursor {
     /**
      * Sets the cursor image delay for each frame of an animated cursor. If the
      * cursor has no animation and consist of only 1 image, null is expected.
-     * @param imagesDelay
+     *
+     * @param imagesDelay the desired delay amount for each frame
      */
     public void setImagesDelay(IntBuffer imagesDelay) {
         this.imagesDelay = imagesDelay;

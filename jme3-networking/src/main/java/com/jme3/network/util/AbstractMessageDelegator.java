@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,10 +57,10 @@ import java.util.logging.Logger;
 public abstract class AbstractMessageDelegator<S extends MessageConnection> 
                                 implements MessageListener<S> {
                                 
-    static final Logger log = Logger.getLogger(AbstractMessageDelegator.class.getName());                                
+    private static final Logger log = Logger.getLogger(AbstractMessageDelegator.class.getName());                                
                                 
     private Class delegateType;
-    private Map<Class, Method> methods = new HashMap<Class, Method>();
+    private Map<Class, Method> methods = new HashMap<>();
     private Class[] messageTypes;
  
     /**
@@ -133,7 +133,7 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      *  only works with methods that actually have arguments.
      *  This implementation returns the last element of the method's
      *  getParameterTypes() array, thus supporting both 
-     *  method(connection, messageType) as well as just method(messageType)
+     *  method(connection, messageType) and method(messageType)
      *  calling forms.
      */
     protected Class getMessageType( Method m ) {
@@ -148,7 +148,7 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      */   
     protected Method findDelegate( String name, Class messageType ) {
         // We do an exhaustive search because it's easier to 
-        // check for a variety of parameter types and it's all
+        // check for a variety of parameter types, and it's all
         // that Class would be doing in getMethod() anyway.
         for( Method m : delegateType.getDeclaredMethods() ) {
                     
@@ -190,7 +190,7 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      *  the parameters.
      */
     public AbstractMessageDelegator<S> map( String... methodNames ) {
-        Set<String> names = new HashSet<String>( Arrays.asList(methodNames) );
+        Set<String> names = new HashSet<>( Arrays.asList(methodNames) );
         map(names);
         return this;
     }

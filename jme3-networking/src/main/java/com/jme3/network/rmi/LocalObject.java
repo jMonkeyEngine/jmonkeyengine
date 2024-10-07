@@ -34,7 +34,7 @@ package com.jme3.network.rmi;
 import java.lang.reflect.Method;
 
 /**
- * Describes a RMI interface on the local machine.
+ * Describes an RMI interface on the local machine.
  *
  * @author Kirill Vainer
  */

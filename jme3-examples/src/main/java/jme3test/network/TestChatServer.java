@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 jMonkeyEngine
+ * Copyright (c) 2011-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -129,7 +129,7 @@ public class TestChatServer {
 
     public static void main(String... args) throws Exception {
  
-        // Increate the logging level for networking...
+        // Increase the logging level for networking...
         System.out.println("Setting logging to max");
         Logger networkLog = Logger.getLogger("com.jme3.network"); 
         networkLog.setLevel(Level.FINEST);
@@ -163,8 +163,8 @@ public class TestChatServer {
         public void messageReceived(HostedConnection source, Message m) {
             if (m instanceof ChatMessage) {
                 // Keep track of the name just in case we 
-                // want to know it for some other reason later and it's
-                // a good example of session data
+                // want to know it for some other reason later, and it's
+                // a good example of session data.
                 ChatMessage cm = (ChatMessage)m;
                 source.setAttribute("name", cm.getName());
 

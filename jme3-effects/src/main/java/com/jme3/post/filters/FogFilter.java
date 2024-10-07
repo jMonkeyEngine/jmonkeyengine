@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,7 +103,8 @@ public class FogFilter extends Filter {
 
     /**
      * Sets the color of the fog
-     * @param fogColor
+     *
+     * @param fogColor the desired color (alias created, default=(1,1,1,1))
      */
     public void setFogColor(ColorRGBA fogColor) {
         if (material != null) {
@@ -122,7 +123,8 @@ public class FogFilter extends Filter {
 
     /**
      * Sets the density of the fog, a high value gives a thick fog
-     * @param fogDensity
+     *
+     * @param fogDensity the desired density (default=0.7)
      */
     public void setFogDensity(float fogDensity) {
         if (material != null) {
@@ -140,8 +142,9 @@ public class FogFilter extends Filter {
     }
 
     /**
-     * the distance of the fog. the higer the value the distant the fog looks
-     * @param fogDistance
+     * the distance of the fog. the higher the value the distant the fog looks
+     *
+     * @param fogDistance the desired distance (in world units, default=1000)
      */
     public void setFogDistance(float fogDistance) {
         if (material != null) {

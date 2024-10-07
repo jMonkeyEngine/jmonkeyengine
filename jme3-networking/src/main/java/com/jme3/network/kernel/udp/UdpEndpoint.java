@@ -113,7 +113,7 @@ public class UdpEndpoint implements Endpoint
     @Override
     public boolean isConnected()
     {
-        // The socket is always unconnected anyway so we track our
+        // The socket is always unconnected anyway, so we track our
         // own logical state for the kernel's benefit.
         return connected;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,18 +65,15 @@ import java.util.List;
  */
 public class TestIssue1120 extends SimpleApplication {
 
-    private static TestIssue1120 test;
     private BulletAppState bulletAppState;
     private final boolean physicsDebug = true;
-    protected BitmapFont font;
-    private final BitmapText[] testInfo = new BitmapText[2];
     private BitmapText speedText;
     private final List<Spatial> testObjects = new ArrayList<>();
     private static final boolean SKIP_SETTINGS = false;//Used for repeated runs of this test during dev
     private float bulletSpeed = 0.5f;
 
     public static void main(String[] args) {
-        test = new TestIssue1120();
+        TestIssue1120 test = new TestIssue1120();
         test.setSettings(new AppSettings(true));
         test.settings.setFrameRate(60);
         if (SKIP_SETTINGS) {
@@ -133,17 +130,18 @@ public class TestIssue1120 extends SimpleApplication {
         }, "pause", "restart", "+", "-");
 
         guiNode = getGuiNode();
-        font = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        BitmapText[] testInfo = new BitmapText[2];
         testInfo[0] = new BitmapText(font);
         testInfo[1] = new BitmapText(font);
         speedText = new BitmapText(font);
 
         float lineHeight = testInfo[0].getLineHeight();
         testInfo[0].setText("Camera move: W/A/S/D/Q/Z     +/-: Increase/Decrease Speed");
-        testInfo[0].setLocalTranslation(5, test.settings.getHeight(), 0);
+        testInfo[0].setLocalTranslation(5, settings.getHeight(), 0);
         guiNode.attachChild(testInfo[0]);
         testInfo[1].setText("Left Click: Toggle pause            Space: Restart test");
-        testInfo[1].setLocalTranslation(5, test.settings.getHeight() - lineHeight, 0);
+        testInfo[1].setLocalTranslation(5, settings.getHeight() - lineHeight, 0);
         guiNode.attachChild(testInfo[1]);
 
         speedText.setLocalTranslation(202, lineHeight * 1, 0);

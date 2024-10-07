@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2017-2021 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.app;
 
 import com.jme3.profile.*;
@@ -12,7 +43,7 @@ import java.util.*;
  */
 public class DetailedProfiler implements AppProfiler {
 
-    private final static int MAX_FRAMES = 100;
+    private static final int MAX_FRAMES = 100;
     private Map<String, StatLine> data;
     private Map<String, StatLine> pool;
     private long startFrame;
@@ -28,10 +59,10 @@ public class DetailedProfiler implements AppProfiler {
     private String curSpPath = null;
     private VpStep lastVpStep = null;
 
-    private StringBuilder path = new StringBuilder(256);
-    private StringBuilder vpPath = new StringBuilder(256);
+    private final StringBuilder path = new StringBuilder(256);
+    private final StringBuilder vpPath = new StringBuilder(256);
 
-    private Deque<Integer> idsPool = new ArrayDeque<>(100);
+    private final Deque<Integer> idsPool = new ArrayDeque<>(100);
 
     StatLine frameTime;
 
@@ -121,14 +152,17 @@ public class DetailedProfiler implements AppProfiler {
 
         if (data != null) {
             vpPath.setLength(0);
-            vpPath.append(vp.getName()).append("/").append((bucket == null ? step.name() : bucket.name() + " Bucket"));
+            vpPath.append(vp.getName()).append("/")
+                    .append((bucket == null ? step.name() : bucket.name() + " Bucket"));
             path.setLength(0);
             if ((lastVpStep == VpStep.PostQueue || lastVpStep == VpStep.PostFrame) && bucket != null) {
-                path.append(curAppPath).append("/").append(curVpPath).append(curSpPath).append("/").append(vpPath);
+                path.append(curAppPath).append("/").append(curVpPath).append(curSpPath).append("/")
+                    .append(vpPath);
                 curVpPath = vpPath.toString();
             } else {
                 if (bucket != null) {
-                    path.append(curAppPath).append("/").append(curVpPath).append("/").append(bucket.name() + " Bucket");
+                    path.append(curAppPath).append("/").append(curVpPath).append("/")
+                        .append(bucket.name() + " Bucket");
                 } else {
                     path.append(curAppPath).append("/").append(vpPath);
                     curVpPath = vpPath.toString();
@@ -154,7 +188,7 @@ public class DetailedProfiler implements AppProfiler {
 
     public Map<String, StatLine> getStats() {
         if (data != null) {
-            return data;//new LinkedHashMap<>(data);
+            return data; //new LinkedHashMap<>(data);
         }
         return null;
     }
@@ -225,8 +259,8 @@ public class DetailedProfiler implements AppProfiler {
     }
 
     public static class StatLine {
-        private long[] cpuTimes = new long[MAX_FRAMES];
-        private long[] gpuTimes = new long[MAX_FRAMES];
+        private final long[] cpuTimes = new long[MAX_FRAMES];
+        private final long[] gpuTimes = new long[MAX_FRAMES];
         private int startCursor = 0;
         private int cpuCursor = 0;
         private int gpuCursor = 0;

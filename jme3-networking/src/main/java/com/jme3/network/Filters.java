@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,12 @@ import java.util.HashSet;
  */
 public class Filters 
 {
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Filters() {
+    }
+
     /**
      *  Creates a filter that returns true for any value in the specified
      *  list of values and false for all other cases.

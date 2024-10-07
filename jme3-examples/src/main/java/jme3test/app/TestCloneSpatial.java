@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 jMonkeyEngine
+ * Copyright (c) 2016-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ public class TestCloneSpatial {
 
     public static void main( String... args ) throws Exception {
 
-        // Setup a test node with some children, controls, etc.
+        // Set up a test node with some children, controls, etc.
         Node root = new Node("rootNode");
 
         // A root light
@@ -117,7 +117,7 @@ public class TestCloneSpatial {
     /**
      *  Debug dump to check structure and identity
      */
-    public static void dump( String indent, Spatial s ) {
+    private static void dump( String indent, Spatial s ) {
         if( s instanceof Node ) {
             dump(indent, (Node)s);
         } else if( s instanceof Geometry ) {

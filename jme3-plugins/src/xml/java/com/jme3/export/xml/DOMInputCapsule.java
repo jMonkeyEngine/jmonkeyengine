@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import java.util.logging.Logger;
 import org.w3c.dom.*;
 
 /**
- * Part of the jME XML IO system as introduced in the google code jmexml project.
+ * Part of the jME XML IO system as introduced in the Google Code jmexml project.
  *
  * @author Kai Rabien (hevee) - original author of the code.google.com jmexml project
  * @author Doug Daniels (dougnukem) - adjustments for jME 2.0 and Java 1.5
@@ -62,7 +62,7 @@ public class DOMInputCapsule implements InputCapsule {
     private Element currentElem;
     private XMLImporter importer;
     private boolean isAtRoot = true;
-    private Map<String, Savable> referencedSavables = new HashMap<String, Savable>();
+    private Map<String, Savable> referencedSavables = new HashMap<>();
     
     private int[] classHierarchyVersions;
     private Savable savable;
@@ -72,6 +72,7 @@ public class DOMInputCapsule implements InputCapsule {
         this.importer = importer;
         currentElem = doc.getDocumentElement();
         
+        // file version is always unprefixed for backwards compatibility
         String version = currentElem.getAttribute("format_version");
         importer.formatVersion = version.equals("") ? 0 : Integer.parseInt(version);
     }
@@ -126,17 +127,13 @@ public class DOMInputCapsule implements InputCapsule {
 
     @Override
     public byte readByte(String name, byte defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Byte.parseByte(tmpString);
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -153,8 +150,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -170,13 +167,9 @@ public class DOMInputCapsule implements InputCapsule {
             return tmp;
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -194,9 +187,9 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
-            List<byte[]> byteArrays = new ArrayList<byte[]>();
+            List<byte[]> byteArrays = new ArrayList<>();
 
             for (int i = 0; i < nodes.getLength(); i++) {
                         Node n = nodes.item(i);
@@ -217,30 +210,22 @@ public class DOMInputCapsule implements InputCapsule {
             return byteArrays.toArray(new byte[0][]);
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
 
     @Override
     public int readInt(String name, int defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Integer.parseInt(tmpString);
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -257,8 +242,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -273,13 +258,9 @@ public class DOMInputCapsule implements InputCapsule {
             return tmp;
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -296,13 +277,13 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
 
 
 
 
             NodeList nodes = currentElem.getChildNodes();
-            List<int[]> intArrays = new ArrayList<int[]>();
+            List<int[]> intArrays = new ArrayList<>();
 
             for (int i = 0; i < nodes.getLength(); i++) {
                         Node n = nodes.item(i);
@@ -323,30 +304,22 @@ public class DOMInputCapsule implements InputCapsule {
             return intArrays.toArray(new int[0][]);
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
 
     @Override
     public float readFloat(String name, float defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Float.parseFloat(tmpString);
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -363,8 +336,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -399,12 +372,12 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            int size_outer = Integer.parseInt(tmpEl.getAttribute("size_outer"));
-            int size_inner = Integer.parseInt(tmpEl.getAttribute("size_outer"));
+            int size_outer = Integer.parseInt(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size_outer"));
+            int size_inner = Integer.parseInt(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size_outer"));
 
             float[][] tmp = new float[size_outer][size_inner];
 
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             for (int i = 0; i < size_outer; i++) {
                 tmp[i] = new float[size_inner];
                 for (int k = 0; k < size_inner; k++) {
@@ -412,30 +385,22 @@ public class DOMInputCapsule implements InputCapsule {
                 }
             }
             return tmp;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
 
     @Override
     public double readDouble(String name, double defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Double.parseDouble(tmpString);
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -452,8 +417,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -468,13 +433,9 @@ public class DOMInputCapsule implements InputCapsule {
             return tmp;
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -491,9 +452,9 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
-            List<double[]> doubleArrays = new ArrayList<double[]>();
+            List<double[]> doubleArrays = new ArrayList<>();
 
             for (int i = 0; i < nodes.getLength(); i++) {
                         Node n = nodes.item(i);
@@ -514,30 +475,22 @@ public class DOMInputCapsule implements InputCapsule {
             return doubleArrays.toArray(new double[0][]);
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
 
     @Override
     public long readLong(String name, long defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Long.parseLong(tmpString);
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -554,8 +507,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -570,13 +523,9 @@ public class DOMInputCapsule implements InputCapsule {
             return tmp;
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -593,9 +542,9 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
-            List<long[]> longArrays = new ArrayList<long[]>();
+            List<long[]> longArrays = new ArrayList<>();
 
             for (int i = 0; i < nodes.getLength(); i++) {
                         Node n = nodes.item(i);
@@ -616,30 +565,22 @@ public class DOMInputCapsule implements InputCapsule {
             return longArrays.toArray(new long[0][]);
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
 
     @Override
     public short readShort(String name, short defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Short.parseShort(tmpString);
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -656,8 +597,8 @@ public class DOMInputCapsule implements InputCapsule {
              if (tmpEl == null) {
                  return defVal;
              }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -672,13 +613,9 @@ public class DOMInputCapsule implements InputCapsule {
             return tmp;
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -696,9 +633,9 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
-            List<short[]> shortArrays = new ArrayList<short[]>();
+            List<short[]> shortArrays = new ArrayList<>();
 
             for (int i = 0; i < nodes.getLength(); i++) {
                         Node n = nodes.item(i);
@@ -719,20 +656,16 @@ public class DOMInputCapsule implements InputCapsule {
             return shortArrays.toArray(new short[0][]);
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
 
     @Override
     public boolean readBoolean(String name, boolean defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return Boolean.parseBoolean(tmpString);
@@ -755,8 +688,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -790,9 +723,9 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
-            List<boolean[]> booleanArrays = new ArrayList<boolean[]>();
+            List<boolean[]> booleanArrays = new ArrayList<>();
 
             for (int i = 0; i < nodes.getLength(); i++) {
                         Node n = nodes.item(i);
@@ -813,20 +746,16 @@ public class DOMInputCapsule implements InputCapsule {
             return booleanArrays.toArray(new boolean[0][]);
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
 
     @Override
     public String readString(String name, String defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             return decodeString(tmpString);
@@ -849,9 +778,9 @@ public class DOMInputCapsule implements InputCapsule {
              if (tmpEl == null) {
                  return defVal;
              }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
             NodeList nodes = tmpEl.getChildNodes();
-            List<String> strings = new ArrayList<String>();
+            List<String> strings = new ArrayList<>();
 
             for (int i = 0; i < nodes.getLength(); i++) {
                         Node n = nodes.item(i);
@@ -871,13 +800,9 @@ public class DOMInputCapsule implements InputCapsule {
             return strings.toArray(new String[0]);
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -894,9 +819,9 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
             NodeList nodes = currentElem.getChildNodes();
-            List<String[]> stringArrays = new ArrayList<String[]>();
+            List<String[]> stringArrays = new ArrayList<>();
 
             for (int i = 0; i < nodes.getLength(); i++) {
                         Node n = nodes.item(i);
@@ -917,20 +842,16 @@ public class DOMInputCapsule implements InputCapsule {
             return stringArrays.toArray(new String[0][]);
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
 
     @Override
     public BitSet readBitSet(String name, BitSet defVal) throws IOException {
-        String tmpString = currentElem.getAttribute(name);
+        String tmpString = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
         if (tmpString == null || tmpString.length() < 1) return defVal;
         try {
             BitSet set = new BitSet();
@@ -942,13 +863,9 @@ public class DOMInputCapsule implements InputCapsule {
                 }
             }
             return set;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -998,19 +915,19 @@ public class DOMInputCapsule implements InputCapsule {
         if (currentElem == null || currentElem.getNodeName().equals("null")) {
             return null;
         }
-        String reference = currentElem.getAttribute("ref");
+        String reference = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, "ref");
         if (reference.length() > 0) {
             ret = referencedSavables.get(reference);
         } else {
             String className = currentElem.getNodeName();
-            if (currentElem.hasAttribute("class")) {
-                className = currentElem.getAttribute("class");
+            if (XMLUtils.hasAttribute(importer.getFormatVersion(), currentElem, "class")) {
+                className = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, "class");
             } else if (defVal != null) {
                 className = defVal.getClass().getName();
             }
-            tmp = SavableClassUtil.fromName(className, null);
+            tmp = SavableClassUtil.fromName(className);
             
-            String versionsStr = currentElem.getAttribute("savable_versions");
+            String versionsStr = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, "savable_versions");
             if (versionsStr != null && !versionsStr.equals("")){
                 String[] versionStr = versionsStr.split(",");
                 classHierarchyVersions = new int[versionStr.length];
@@ -1021,8 +938,8 @@ public class DOMInputCapsule implements InputCapsule {
                 classHierarchyVersions = null;
             }
             
-            String refID = currentElem.getAttribute("reference_ID");
-            if (refID.length() < 1) refID = currentElem.getAttribute("id");
+            String refID = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, "reference_ID");
+            if (refID.length() < 1) refID = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, "id");
             if (refID.length() > 0) referencedSavables.put(refID, tmp);
             if (tmp != null) {
                 // Allows reading versions from this savable
@@ -1043,8 +960,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
-            List<Savable> savables = new ArrayList<Savable>();
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            List<Savable> savables = new ArrayList<>();
             for (currentElem = findFirstChildElement(tmpEl);
                     currentElem != null;
                     currentElem = findNextSiblingElement(currentElem)) {
@@ -1078,8 +995,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            int size_outer = Integer.parseInt(tmpEl.getAttribute("size_outer"));
-            int size_inner = Integer.parseInt(tmpEl.getAttribute("size_outer"));
+            int size_outer = Integer.parseInt(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size_outer"));
+            int size_inner = Integer.parseInt(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size_outer"));
 
             Savable[][] tmp = new Savable[size_outer][size_inner];
             currentElem = findFirstChildElement(tmpEl);
@@ -1113,8 +1030,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
-            ArrayList<Savable> savables = new ArrayList<Savable>();
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            ArrayList<Savable> savables = new ArrayList<>();
             for (currentElem = findFirstChildElement(tmpEl);
                     currentElem != null;
                     currentElem = findNextSiblingElement(currentElem)) {
@@ -1150,14 +1067,14 @@ public class DOMInputCapsule implements InputCapsule {
             }
             currentElem = tmpEl;
 
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
             int requiredSize = (sizeString.length() > 0)
                              ? Integer.parseInt(sizeString)
                              : -1;
 
             ArrayList<Savable> sal;
             List<ArrayList<Savable>> savableArrayLists =
-                    new ArrayList<ArrayList<Savable>>();
+                    new ArrayList<>();
             int i = -1;
             while (true) {
                 sal = readSavableArrayList("SavableArrayList_" + ++i, null);
@@ -1175,13 +1092,9 @@ public class DOMInputCapsule implements InputCapsule {
             return savableArrayLists.toArray(new ArrayList[0]);
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -1195,10 +1108,10 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
             currentElem = tmpEl;
-            String sizeString = tmpEl.getAttribute("size");
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
 
             ArrayList<Savable>[] arr;
-            List<ArrayList<Savable>[]> sall = new ArrayList<ArrayList<Savable>[]>();
+            List<ArrayList<Savable>[]> sall = new ArrayList<>();
             int i = -1;
             while ((arr = readSavableArrayListArray(
                     "SavableArrayListArray_" + ++i, null)) != null) sall.add(arr);
@@ -1230,8 +1143,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
-            ArrayList<FloatBuffer> tmp = new ArrayList<FloatBuffer>();
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            ArrayList<FloatBuffer> tmp = new ArrayList<>();
             for (currentElem = findFirstChildElement(tmpEl);
                     currentElem != null;
                     currentElem = findNextSiblingElement(currentElem)) {
@@ -1249,13 +1162,9 @@ public class DOMInputCapsule implements InputCapsule {
             return tmp;
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -1306,7 +1215,7 @@ public class DOMInputCapsule implements InputCapsule {
                                 if (n instanceof Element && n.getNodeName().equals("MapEntry")) {
                                         Element elem = (Element) n;
                                         currentElem = elem;
-                                        String key = currentElem.getAttribute("key");
+                                        String key = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, "key");
                                         Savable val = readSavable("Savable", null);
                                         ret.put(key, val);
                                 }
@@ -1337,7 +1246,7 @@ public class DOMInputCapsule implements InputCapsule {
                                 if (n instanceof Element && n.getNodeName().equals("MapEntry")) {
                                         Element elem = (Element) n;
                                         currentElem = elem;
-                                        int key = Integer.parseInt(currentElem.getAttribute("key"));
+                                        int key = Integer.parseInt(XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, "key"));
                                         Savable val = readSavable("Savable", null);
                                         ret.put(key, val);
                                 }
@@ -1364,8 +1273,8 @@ public class DOMInputCapsule implements InputCapsule {
             if (tmpEl == null) {
                 return defVal;
             }
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -1379,13 +1288,9 @@ public class DOMInputCapsule implements InputCapsule {
             return tmp;
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -1398,8 +1303,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -1413,13 +1318,9 @@ public class DOMInputCapsule implements InputCapsule {
             return tmp;
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -1432,8 +1333,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -1447,13 +1348,9 @@ public class DOMInputCapsule implements InputCapsule {
             return tmp;
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -1466,8 +1363,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
-            String[] strings = parseTokens(tmpEl.getAttribute("data"));
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            String[] strings = parseTokens(XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "data"));
             if (sizeString.length() > 0) {
                 int requiredSize = Integer.parseInt(sizeString);
                 if (strings.length != requiredSize)
@@ -1481,13 +1378,9 @@ public class DOMInputCapsule implements InputCapsule {
             return tmp;
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
     }
@@ -1500,8 +1393,8 @@ public class DOMInputCapsule implements InputCapsule {
                 return defVal;
             }
 
-            String sizeString = tmpEl.getAttribute("size");
-            ArrayList<ByteBuffer> tmp = new ArrayList<ByteBuffer>();
+            String sizeString = XMLUtils.getAttribute(importer.getFormatVersion(), tmpEl, "size");
+            ArrayList<ByteBuffer> tmp = new ArrayList<>();
             for (currentElem = findFirstChildElement(tmpEl);
                     currentElem != null;
                     currentElem = findNextSiblingElement(currentElem)) {
@@ -1518,13 +1411,9 @@ public class DOMInputCapsule implements InputCapsule {
             return tmp;
         } catch (IOException ioe) {
             throw ioe;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException | DOMException nfe) {
             IOException io = new IOException(nfe.toString());
             io.initCause(nfe);
-            throw io;
-        } catch (DOMException de) {
-            IOException io = new IOException(de.toString());
-            io.initCause(de);
             throw io;
         }
         }
@@ -1534,7 +1423,7 @@ public class DOMInputCapsule implements InputCapsule {
                         T defVal) throws IOException {
         T ret = defVal;
         try {
-            String eVal = currentElem.getAttribute(name);
+            String eVal = XMLUtils.getAttribute(importer.getFormatVersion(), currentElem, name);
             if (eVal != null && eVal.length() > 0) {
                 ret = Enum.valueOf(enumType, eVal);
             }
@@ -1554,4 +1443,5 @@ public class DOMInputCapsule implements InputCapsule {
                ? zeroStrings
                : outStrings;
     }
+    
 }

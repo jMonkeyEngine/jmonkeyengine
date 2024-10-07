@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 jMonkeyEngine
+ * Copyright (c) 2017-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -116,7 +116,7 @@ public class TestSkyRotation extends SimpleApplication implements ActionListener
      *
      * @param name the name of the action
      * @param ongoing true&rarr;depress key, false&rarr;release key
-     * @param ignored
+     * @param ignored ignored
      */
     @Override
     public void onAction(String name, boolean ongoing, float ignored) {

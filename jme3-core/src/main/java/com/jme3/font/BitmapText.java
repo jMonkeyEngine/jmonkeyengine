@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@ package com.jme3.font;
 
 import com.jme3.font.BitmapFont.Align;
 import com.jme3.font.BitmapFont.VAlign;
-import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
@@ -54,9 +53,18 @@ public class BitmapText extends Node {
     private Letters letters;
 
     public BitmapText(BitmapFont font) {
-        this(font, false, false);
+        this(font, font.isRightToLeft(), false);
     }
 
+    /**
+     * @deprecated The "rightToLeft" flag should be specified in the font.
+     * Use {@link BitmapText#BitmapText(com.jme3.font.BitmapFont)}
+     *
+     * @param font the font to use (not null, alias created)
+     * @param rightToLeft true &rarr; right-to-left, false &rarr; left-to-right
+     *     (default=false)
+     */
+    @Deprecated
     public BitmapText(BitmapFont font, boolean rightToLeft) {
         this(font, rightToLeft, false);
     }
@@ -83,14 +91,14 @@ public class BitmapText extends Node {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         textPages = textPages.clone();
-        for( int i = 0; i < textPages.length; i++ ) {
+        for (int i = 0; i < textPages.length; i++) {
             textPages[i] = cloner.clone(textPages[i]);
         }
-        
+
         // Cannot use the cloner to clone the StringBlock because it
         // is package private... so we'll forgo the (probably unnecessary)
         // reference fixup in this case and just clone it directly.
@@ -139,7 +147,6 @@ public class BitmapText extends Node {
      */
     public void setText(String text) {
         text = text == null ? "" : text;
-
         if (text == block.getText() || block.getText().equals(text)) {
             return;
         }
@@ -214,6 +221,8 @@ public class BitmapText extends Node {
      *  to default... which will be 1 for anything unspecified
      *  and color tags will be reset to 1 or their encoded
      *  alpha.
+     *
+     * @param alpha the desired alpha, or -1 to revert to the default
      */
     public void setAlpha(float alpha) {
         letters.setBaseAlpha(alpha);
@@ -225,7 +234,7 @@ public class BitmapText extends Node {
     }
 
     /**
-     * Define area where bitmaptext will be rendered
+     * Define the area where the BitmapText will be rendered.
      * @param rect position and size box where text is rendered
      */
     public void setBox(Rectangle rect) {
@@ -242,7 +251,7 @@ public class BitmapText extends Node {
     }
 
     /**
-     * @return height of whole textblock
+     * @return height of whole text block
      */
     public float getHeight() {
         if (needRefresh) {
@@ -267,6 +276,8 @@ public class BitmapText extends Node {
         if (textBox != null) {
             return Math.max(letters.getTotalWidth(), textBox.width);
         }
+        //  Please note that BitMaptext.getLineWidth() might differ from Font.getLineWidth()
+        // -->   scale it with Font.getPreferredSize()/BitMaptext.getSize()
         return letters.getTotalWidth();
     }
 
@@ -286,7 +297,8 @@ public class BitmapText extends Node {
 
     /**
      * Set horizontal alignment. Applicable only when text bound is set.
-     * @param align
+     *
+     * @param align the desired alignment (such as Align.Left)
      */
     public void setAlignment(BitmapFont.Align align) {
         if (block.getTextBox() == null && align != Align.Left) {
@@ -299,7 +311,8 @@ public class BitmapText extends Node {
 
     /**
      * Set vertical alignment. Applicable only when text bound is set.
-     * @param align
+     *
+     * @param align the desired alignment (such as Align.Top)
      */
     public void setVerticalAlignment(BitmapFont.VAlign align) {
         if (block.getTextBox() == null && align != VAlign.Top) {
@@ -322,7 +335,7 @@ public class BitmapText extends Node {
      * Set the font style of substring. If font doesn't contain style, default style is used
      * @param start start index to set style. inclusive.
      * @param end   end index to set style. EXCLUSIVE.
-     * @param style
+     * @param style the style to apply
      */
     public void setStyle(int start, int end, int style) {
         letters.setStyle(start, end, style);
@@ -331,7 +344,7 @@ public class BitmapText extends Node {
     /**
      * Set the font style of substring. If font doesn't contain style, default style is applied
      * @param regexp regular expression
-     * @param style
+     * @param style  the style to apply
      */
     public void setStyle(String regexp, int style) {
         Pattern p = Pattern.compile(regexp);
@@ -345,7 +358,7 @@ public class BitmapText extends Node {
      * Set the color of substring.
      * @param start start index to set style. inclusive.
      * @param end   end index to set style. EXCLUSIVE.
-     * @param color
+     * @param color the desired color
      */
     public void setColor(int start, int end, ColorRGBA color) {
         letters.setColor(start, end, color);
@@ -356,7 +369,7 @@ public class BitmapText extends Node {
     /**
      * Set the color of substring.
      * @param regexp regular expression
-     * @param color
+     * @param color  the desired color
      */
     public void setColor(String regexp, ColorRGBA color) {
         Pattern p = Pattern.compile(regexp);
@@ -390,7 +403,8 @@ public class BitmapText extends Node {
     /**
      * for setLineWrapType(LineWrapType.NoWrap),
      * set the last character when the text exceeds the bound.
-     * @param c
+     *
+     * @param c the character to indicate truncated text
      */
     public void setEllipsisChar(char c) {
         block.setEllipsisChar(c);
@@ -423,20 +437,12 @@ public class BitmapText extends Node {
     }
 
     private void assemble() {
-        // first generate quadlist
+        // first generate quad list
         letters.update();
         for (int i = 0; i < textPages.length; i++) {
             textPages[i].assemble(letters);
         }
         needRefresh = false;
-    }
-
-    private ColorRGBA getColor( Material mat, String name ) {
-        MatParam mp = mat.getParam(name);
-        if( mp == null ) {
-            return null;
-        }
-        return (ColorRGBA)mp.getValue();
     }
 
     public void render(RenderManager rm, ColorRGBA color) {

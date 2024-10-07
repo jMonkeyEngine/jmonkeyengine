@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ public class RawHeightMap extends AbstractHeightMap {
      */
     public static final int FORMAT_16BITBE = 2;
     private int format;
-    private boolean swapxy;
+    private boolean swapXy;
     private InputStream stream;
 
     /**
@@ -88,14 +88,14 @@ public class RawHeightMap extends AbstractHeightMap {
         this.format = FORMAT_8BIT;
     }
 
-    public RawHeightMap(String filename, int size, int format, boolean swapxy) throws Exception {
-        // varify that filename and size are valid.
+    public RawHeightMap(String filename, int size, int format, boolean swapXy) throws Exception {
+        // Verify that filename and size are valid.
         if (null == filename || size <= 0) {
             throw new Exception("Must supply valid filename and "
                     + "size (> 0)");
         }
         try {
-            setup(new FileInputStream(filename), size, format, swapxy);
+            setup(new FileInputStream(filename), size, format, swapXy);
         } catch (FileNotFoundException e) {
             throw new Exception("height file not found: " + filename);
         }
@@ -106,7 +106,7 @@ public class RawHeightMap extends AbstractHeightMap {
     }
 
     public RawHeightMap(URL resource, int size, int format, boolean swapxy) throws Exception {
-        // varify that resource and size are valid.
+        // Verify that resource and size are valid.
         if (null == resource || size <= 0) {
             throw new Exception("Must supply valid resource and "
                     + "size (> 0)");
@@ -121,7 +121,7 @@ public class RawHeightMap extends AbstractHeightMap {
     }
 
     private void setup(InputStream stream, int size, int format, boolean swapxy) throws Exception {
-        // varify that filename and size are valid.
+        // Verify that filename and size are valid.
         if (null == stream || size <= 0) {
             throw new Exception("Must supply valid stream and "
                     + "size (> 0)");
@@ -131,7 +131,7 @@ public class RawHeightMap extends AbstractHeightMap {
         this.stream = stream;
         this.size = size;
         this.format = format;
-        this.swapxy = swapxy;
+        this.swapXy = swapxy;
         load();
     }
 
@@ -139,7 +139,7 @@ public class RawHeightMap extends AbstractHeightMap {
      * <code>load</code> fills the height data array with the appropriate data
      * from the set RAW image.
      *
-     * @return true if the load is successfull, false otherwise.
+     * @return true if the load is successful, false otherwise.
      * @throws RuntimeException if the RAW image has not been set
      */
     @Override
@@ -173,7 +173,7 @@ public class RawHeightMap extends AbstractHeightMap {
                 // read the raw file
                 for (int i = 0; i < size; i++) {
                     for (int j = 0; j < size; j++) {
-                        if (swapxy) {
+                        if (swapXy) {
                             index = i + j * size;
                         } else {
                             index = (i * size) + j;
@@ -188,7 +188,7 @@ public class RawHeightMap extends AbstractHeightMap {
                 for (int i = 0; i < size; i++) {
                     for (int j = 0; j < size; j++) {
                         int index;
-                        if (swapxy) {
+                        if (swapXy) {
                             index = i + j * size;
                         } else {
                             index = (i * size) + j;

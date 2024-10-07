@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ public class HelloPicking extends SimpleApplication {
     initKeys();       // load custom key mappings
     initMark();       // a red sphere to mark the hit
 
-    /** create four colored boxes and a floor to shoot at: */
+    /* Create four colored boxes and a floor to shoot at: */
     shootables = new Node("Shootables");
     rootNode.attachChild(shootables);
     shootables.attachChild(makeCube("a Dragon", -2f, 0f, 1f));
@@ -88,7 +88,7 @@ public class HelloPicking extends SimpleApplication {
     inputManager.addListener(actionListener, "Shoot");
   }
   /** Defining the "Shoot" action: Determine what was hit and how to respond. */
-  private ActionListener actionListener = new ActionListener() {
+  final private ActionListener actionListener = new ActionListener() {
 
     @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
@@ -125,7 +125,7 @@ public class HelloPicking extends SimpleApplication {
   };
 
   /** A cube object for target practice */
-  protected Geometry makeCube(String name, float x, float y, float z) {
+  private Geometry makeCube(String name, float x, float y, float z) {
     Box box = new Box(1, 1, 1);
     Geometry cube = new Geometry(name, box);
     cube.setLocalTranslation(x, y, z);
@@ -136,7 +136,7 @@ public class HelloPicking extends SimpleApplication {
   }
 
   /** A floor to show that the "shot" can go through several objects. */
-  protected Geometry makeFloor() {
+  private Geometry makeFloor() {
     Box box = new Box(15, .2f, 15);
     Geometry floor = new Geometry("the Floor", box);
     floor.setLocalTranslation(0, -4, -5);
@@ -147,7 +147,7 @@ public class HelloPicking extends SimpleApplication {
   }
 
   /** A red ball that marks the last spot that was "hit" by the "shot". */
-  protected void initMark() {
+  private void initMark() {
     Sphere sphere = new Sphere(30, 30, 0.2f);
     mark = new Geometry("BOOM!", sphere);
     Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -156,10 +156,10 @@ public class HelloPicking extends SimpleApplication {
   }
 
   /** A centred plus sign to help the player aim. */
-  protected void initCrossHairs() {
+  private void initCrossHairs() {
     setDisplayStatView(false);
     guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-    BitmapText ch = new BitmapText(guiFont, false);
+    BitmapText ch = new BitmapText(guiFont);
     ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
     ch.setText("+"); // crosshairs
     ch.setLocalTranslation( // center
@@ -167,8 +167,8 @@ public class HelloPicking extends SimpleApplication {
     guiNode.attachChild(ch);
   }
 
-  protected Spatial makeCharacter() {
-    // load a character from jme3test-test-data
+  private Spatial makeCharacter() {
+    // load a character from jme3-testdata
     Spatial golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
     golem.scale(0.5f);
     golem.setLocalTranslation(-1.0f, -1.5f, -0.6f);

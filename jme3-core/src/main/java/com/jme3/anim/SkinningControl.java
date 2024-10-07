@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -119,7 +119,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     /**
-     * Creates a armature control. The list of targets will be acquired
+     * Creates an armature control. The list of targets will be acquired
      * automatically when the control is attached to a node.
      *
      * @param armature the armature
@@ -182,10 +182,11 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
 
     /**
      * Specifies if hardware skinning is preferred. If it is preferred and
-     * supported by GPU, it shall be enabled, if its not preferred, or not
+     * supported by GPU, it shall be enabled.  If it's not preferred, or not
      * supported by GPU, then it shall be disabled.
      *
-     * @param preferred
+     * @param preferred true to prefer hardware skinning, false to prefer 
+     * software skinning (default=true)
      * @see #isHardwareSkinningUsed()
      */
     public void setHardwareSkinningPreferred(boolean preferred) {
@@ -326,17 +327,22 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
                 VertexBuffer bindPos = mesh.getBuffer(Type.BindPosePosition);
                 VertexBuffer bindNorm = mesh.getBuffer(Type.BindPoseNormal);
                 VertexBuffer pos = mesh.getBuffer(Type.Position);
-                VertexBuffer norm = mesh.getBuffer(Type.Normal);
                 FloatBuffer pb = (FloatBuffer) pos.getData();
-                FloatBuffer nb = (FloatBuffer) norm.getData();
                 FloatBuffer bpb = (FloatBuffer) bindPos.getData();
-                FloatBuffer bnb = (FloatBuffer) bindNorm.getData();
                 pb.clear();
-                nb.clear();
                 bpb.clear();
-                bnb.clear();
 
-                //reseting bind tangents if there is a bind tangent buffer
+                // reset bind normals if there is a BindPoseNormal buffer
+                if (bindNorm != null) {
+                    VertexBuffer norm = mesh.getBuffer(Type.Normal);
+                    FloatBuffer nb = (FloatBuffer) norm.getData();
+                    FloatBuffer bnb = (FloatBuffer) bindNorm.getData();
+                    nb.clear();
+                    bnb.clear();
+                    nb.put(bnb).clear();
+                }
+
+                //resetting bind tangents if there is a bind tangent buffer
                 VertexBuffer bindTangents = mesh.getBuffer(Type.BindPoseTangent);
                 if (bindTangents != null) {
                     VertexBuffer tangents = mesh.getBuffer(Type.Tangent);
@@ -347,9 +353,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
                     tb.put(btb).clear();
                 }
 
-
                 pb.put(bpb).clear();
-                nb.put(bnb).clear();
             }
         }
     }
@@ -456,7 +460,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      * Method to apply skinning transforms to a mesh's buffers
      *
      * @param mesh           the mesh
-     * @param offsetMatrices the offset matices to apply
+     * @param offsetMatrices the offset matrices to apply
      */
     private void applySkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
@@ -582,9 +586,10 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
 
         VertexBuffer nb = mesh.getBuffer(Type.Normal);
 
-        FloatBuffer fnb = (FloatBuffer) nb.getData();
-        fnb.rewind();
-
+        FloatBuffer fnb = (nb == null) ? null : (FloatBuffer) nb.getData();
+        if (fnb != null) {
+            fnb.rewind();
+        }
 
         FloatBuffer ftb = (FloatBuffer) tb.getData();
         ftb.rewind();
@@ -614,11 +619,13 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
             bufLength = Math.min(posBuf.length, fvb.remaining());
             tanLength = Math.min(tanBuf.length, ftb.remaining());
             fvb.get(posBuf, 0, bufLength);
-            fnb.get(normBuf, 0, bufLength);
+            if (fnb != null) {
+                fnb.get(normBuf, 0, bufLength);
+            }
             ftb.get(tanBuf, 0, tanLength);
             int verts = bufLength / 3;
             int idxPositions = 0;
-            //tangents has their own index because of the 4 components
+            // Tangents have their own index because they have 4 components.
             int idxTangents = 0;
 
             // iterate vertices and apply skinning transform for each effecting bone
@@ -687,8 +694,10 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
 
             fvb.position(fvb.position() - bufLength);
             fvb.put(posBuf, 0, bufLength);
-            fnb.position(fnb.position() - bufLength);
-            fnb.put(normBuf, 0, bufLength);
+            if (fnb != null) {
+                fnb.position(fnb.position() - bufLength);
+                fnb.put(normBuf, 0, bufLength);
+            }
             ftb.position(ftb.position() - tanLength);
             ftb.put(tanBuf, 0, tanLength);
         }
@@ -696,10 +705,19 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         vars.release();
 
         vb.updateData(fvb);
-        nb.updateData(fnb);
+        if (nb != null) {
+            nb.updateData(fnb);
+        }
         tb.updateData(ftb);
     }
 
+    /**
+     * Serialize this Control to the specified exporter, for example when saving
+     * to a J3O file.
+     *
+     * @param ex the exporter to write to (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -710,6 +728,13 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         oc.write(jointMatricesParam, "boneMatricesParam", null);
     }
 
+    /**
+     * De-serialize this Control from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param im the importer to read from (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);

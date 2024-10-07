@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@ package com.jme3.terrain.geomipmap.picking;
 
 import com.jme3.collision.CollisionResults;
 import com.jme3.math.Ray;
-import com.jme3.math.Vector3f;
 
 /**
  * Pick the location on the terrain from a given ray.

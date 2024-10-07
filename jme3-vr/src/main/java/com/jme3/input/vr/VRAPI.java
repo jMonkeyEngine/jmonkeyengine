@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr;
 
 import com.jme3.math.Matrix4f;
@@ -17,50 +12,49 @@ import com.jme3.renderer.Camera;
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public interface VRAPI {
-    
-	/**
-	 * Initialize this object from a VR system. All the native bindings to underlying VR system should be done within this method.
-	 * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
-	 */
+    /**
+     * Initialize this object from a VR system. All the native bindings to underlying VR system should be done within this method.
+     * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
+     */
     public boolean initialize();
-    
+
     /**
      * Initialize the VR compositor that will be used for rendering.
      * @param allowed <code>true</code> if the use of VR compositor is allowed and <code>false</code> otherwise.
      * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
      */
     public boolean initVRCompositor(boolean allowed);
-       
+
     /**
      * Get the object that wraps natively the VR system.
      * @return the object that wraps natively the VR system.
      */
     public Object getVRSystem();
-    
+
     /**
      * Get the object that wraps natively the VR compositor.
      * @return the object that wraps natively the VR system.
      */
     public Object getCompositor();
-    
+
     /**
      * Get the name of the underlying VR system.
      * @return the name of the underlying VR system.
      */
     public String getName();
-    
+
     /**
      * Get the input provided by the underlying VR system.
      * @return the input provided by the underlying VR system.
      */
     public VRInputAPI getVRinput();
-    
+
     /**
-     * Flip the left and right eye..
+     * Flip the left and right eye.
      * @param set <code>true</code> if the eyes has to be flipped and <code>false</code> otherwise.
      */
     public void setFlipEyes(boolean set);
-    
+
     /**
      * Set if latency information has to be logged.
      * @param set <code>true</code> if latency information has to be logged and <code>false</code> otherwise.
@@ -69,10 +63,10 @@ public interface VRAPI {
 
     /**
      * Get the Head Mounted Device (HMD) display frequency.
-     * @return the Head Mounted DEvice (HMD) display frequency.
+     * @return the Head Mounted Device (HMD) display frequency.
      */
     public int getDisplayFrequency();
-    
+
     /**
      * Close the link with underlying VR system and free all attached resources.
      */
@@ -96,7 +90,7 @@ public interface VRAPI {
      * @param store the size of a Head Mounted Device (HMD) rendering area in pixels (modified).
      */
     public void getRenderSize(Vector2f store);
-    
+
     //public float getFOV(int dir);
 
     /**
@@ -104,7 +98,7 @@ public interface VRAPI {
      * @return the Head Mounted Device (HMD) interpupilar distance in meters.
      */
     public float getInterpupillaryDistance();
-    
+
     /**
      * Get the Head Mounted Device (HMD) orientation.
      * @return the Head Mounted Device (HMD) orientation.
@@ -116,14 +110,14 @@ public interface VRAPI {
      * @return the Head Mounted Device (HMD) orientation.
      */
     public Vector3f getPosition();
-    
+
     /**
      * Get the Head Mounted Device (HMD) position and orientation.
      * @param storePos the Head Mounted Device (HMD) position (modified).
      * @param storeRot the Head Mounted Device (HMD) rotation (modified).
      */
     public void getPositionAndOrientation(Vector3f storePos, Quaternion storeRot);
-    
+
     /**
      * Update Head Mounted Device (HMD) pose internal storage. This method should be called before other calls to HMD position/orientation access.
      */
@@ -135,56 +129,55 @@ public interface VRAPI {
      * @return the Head Mounted Device (HMD) left eye projection matrix.
      */
     public Matrix4f getHMDMatrixProjectionLeftEye(Camera cam);
-        
+
     /**
      * Get the Head Mounted Device (HMD) right eye projection matrix.
      * @param cam the camera attached to the right eye.
      * @return the Head Mounted Device (HMD) right eye projection matrix.
      */
     public Matrix4f getHMDMatrixProjectionRightEye(Camera cam);
-    
+
     /**
      * Get the Head Mounted Device (HMD) left eye pose (position of the eye from the head) as a {@link Vector3f vector}.
      * @return the Head Mounted Device (HMD) left eye pose as a {@link Vector3f vector}.
      */
     public Vector3f getHMDVectorPoseLeftEye();
-    
+
     /**
      * Get the Head Mounted Device (HMD) right eye pose (position of the eye from the head) as a {@link Vector3f vector}.
      * @return the Head Mounted Device (HMD) right eye pose as a {@link Vector3f vector}.
      */
     public Vector3f getHMDVectorPoseRightEye();
-    
+
     /**
-     * Returns the transform between the view space and left eye space. 
-     * Eye space is the per-eye flavor of view space that provides stereo disparity. 
-     * Instead of Model * View * Projection the model is Model * View * Eye * Projection. 
+     * Returns the transform between the view space and left eye space.
+     * Eye space is the per-eye flavor of view space that provides stereo disparity.
+     * Instead of Model * View * Projection the model is Model * View * Eye * Projection.
      * Normally View and Eye will be multiplied together and treated as View.
      * This matrix incorporates the user's interpupillary distance (IPD).
-     * @return the transform between the view space and eye space. 
+     * @return the transform between the view space and eye space.
      */
     public Matrix4f getHMDMatrixPoseLeftEye();
-    
+
     /**
-     * Returns the transform between the view space and right eye space. 
-     * Eye space is the per-eye flavor of view space that provides stereo disparity. 
-     * Instead of Model * View * Projection the model is Model * View * Eye * Projection. 
+     * Returns the transform between the view space and right eye space.
+     * Eye space is the per-eye flavor of view space that provides stereo disparity.
+     * Instead of Model * View * Projection the model is Model * View * Eye * Projection.
      * Normally View and Eye will be multiplied together and treated as View.
      * This matrix incorporates the user's interpupillary distance (IPD).
-     * @return the transform between the view space and eye space. 
+     * @return the transform between the view space and eye space.
      */
     public Matrix4f getHMDMatrixPoseRightEye();
-    
+
     /**
      * Get the Head Mounted Device (HMD) type.
      * @return the Head Mounted Device (HMD) type.
      */
     public HmdType getType();
-    
+
     /**
      * Get the seated to absolute position.
      * @return the seated to absolute position.
      */
     public Vector3f getSeatedToAbsolutePosition();
-    
 }

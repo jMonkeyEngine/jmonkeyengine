@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -75,9 +76,8 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * Inner class Pass
-     * Pass are like filters in filters.
-     * Some filters will need multiple passes before the final render
+     * Passes are like filters within filters.
+     * Some filters will need multiple passes before the final render.
      */
     public class Pass {
 
@@ -96,45 +96,48 @@ public abstract class Filter implements Savable {
 
         /**
          * init the pass called internally
-         * @param renderer
-         * @param width
-         * @param height
-         * @param textureFormat
-         * @param depthBufferFormat
-         * @param numSamples
+         *
+         * @param renderer (not null)
+         * @param width the width (in pixels, &ge;0)
+         * @param height the height (in pixels, &ge;0)
+         * @param textureFormat format of the rendered texture
+         * @param depthBufferFormat format of the depth buffer
+         * @param numSamples the number of samples per pixel (for multisampling)
+         * @param renderDepth true to create a depth texture, false for none
          */
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat, int numSamples, boolean renderDepth) {
             Collection<Caps> caps = renderer.getCaps();
             if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample) && caps.contains(Caps.OpenGL31)) {
-                renderFrameBuffer = new FrameBuffer(width, height, numSamples);                
+                renderFrameBuffer = new FrameBuffer(width, height, numSamples);
                 renderedTexture = new Texture2D(width, height, numSamples, textureFormat);
-                renderFrameBuffer.setDepthBuffer(depthBufferFormat);
+                renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthBufferFormat));
                 if (renderDepth) {
                     depthTexture = new Texture2D(width, height, numSamples, depthBufferFormat);
-                    renderFrameBuffer.setDepthTexture(depthTexture);
+                    renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthTexture));
                 }
             } else {
                 renderFrameBuffer = new FrameBuffer(width, height, 1);
                 renderedTexture = new Texture2D(width, height, textureFormat);
-                renderFrameBuffer.setDepthBuffer(depthBufferFormat);
+                renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthBufferFormat));
                 if (renderDepth) {
                     depthTexture = new Texture2D(width, height, depthBufferFormat);
-                    renderFrameBuffer.setDepthTexture(depthTexture);
+                    renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthTexture));
                 }
             }
 
-            renderFrameBuffer.setColorTexture(renderedTexture);
-
+            renderFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(renderedTexture));
+            renderFrameBuffer.setName(getClass().getSimpleName());      
 
         }
 
         /**
          *  init the pass called internally
-         * @param renderer
-         * @param width
-         * @param height
-         * @param textureFormat
-         * @param depthBufferFormat
+         *
+         * @param renderer (not null)
+         * @param width the image width (in pixels, &ge;0)
+         * @param height the image height (in pixels, &ge;0)
+         * @param textureFormat the format of the rendered texture
+         * @param depthBufferFormat the format of the depth buffer
          */
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat) {
             init(renderer, width, height, textureFormat, depthBufferFormat, 1);
@@ -146,13 +149,14 @@ public abstract class Filter implements Savable {
 
         /**
          *  init the pass called internally
-         * @param renderer
-         * @param width
-         * @param height
-         * @param textureFormat
-         * @param depthBufferFormat
-         * @param numSample
-         * @param material
+         *
+         * @param renderer (not null)
+         * @param width the image width (in pixels, &ge;0)
+         * @param height the image height (in pixels, &ge;0)
+         * @param textureFormat the format of the rendered texture
+         * @param depthBufferFormat the format of the depth buffer
+         * @param numSample the number of samples per pixel (for multisampling)
+         * @param material the Material for this pass
          */
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat, int numSample, Material material) {
             init(renderer, width, height, textureFormat, depthBufferFormat, numSample);
@@ -213,7 +217,7 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * returns the default pass texture format.
+     * @return the default pass texture format
      */
     protected Format getDefaultPassTextureFormat() {
         return processor.getDefaultPassTextureFormat();
@@ -253,7 +257,8 @@ public abstract class Filter implements Savable {
 
     /**
      * cleanup this filter
-     * @param r
+     *
+     * @param r the Renderer
      */
     protected final void cleanup(Renderer r) {   
         processor = null;
@@ -270,7 +275,7 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * Initialization of sub classes filters
+     * Initialization of filter subclasses.
      * This method is called once when the filter is added to the FilterPostProcessor
      * It should contain Material initializations and extra passes initialization
      * @param manager the assetManager
@@ -298,7 +303,8 @@ public abstract class Filter implements Savable {
     
     /**
      * Override if you want to do something special with the depth texture;
-     * @param depthTexture 
+     *
+     * @param depthTexture the desired Texture
      */
     protected void setDepthTexture(Texture depthTexture){
         getMaterial().setTexture("DepthTexture", depthTexture);
@@ -306,7 +312,8 @@ public abstract class Filter implements Savable {
 
     /**
      * Override this method if you want to make a pre pass, before the actual rendering of the frame
-     * @param queue
+     *
+     * @param queue the RenderQueue
      */
     protected void postQueue(RenderQueue queue) {
     }
@@ -322,10 +329,11 @@ public abstract class Filter implements Savable {
 
     /**
      * Override this method if you want to make a pass just after the frame has been rendered and just before the filter rendering
-     * @param renderManager
-     * @param viewPort
-     * @param prevFilterBuffer
-     * @param sceneBuffer
+     *
+     * @param renderManager for rendering
+     * @param viewPort for rendering
+     * @param prevFilterBuffer the FrameBuffer of the previous filter
+     * @param sceneBuffer the FrameBuffer of the scene
      */
     protected void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
     }
@@ -333,8 +341,9 @@ public abstract class Filter implements Savable {
     /**
      * Override this method if you want to save extra properties when the filter is saved else only basic properties of the filter will be saved
      * This method should always begin by super.write(ex);
-     * @param ex
-     * @throws IOException
+     *
+     * @param ex the exporter (not null)
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -365,7 +374,8 @@ public abstract class Filter implements Savable {
 
     /**
      * Sets the name of the filter
-     * @param name
+     *
+     * @param name the desired name (alias created)
      */
     public void setName(String name) {
         this.name = name;
@@ -381,7 +391,8 @@ public abstract class Filter implements Savable {
 
     /**
      * sets the default pass frame buffer
-     * @param renderFrameBuffer
+     *
+     * @param renderFrameBuffer the buffer to use (alias created)
      */
     protected void setRenderFrameBuffer(FrameBuffer renderFrameBuffer) {
         this.defaultPass.renderFrameBuffer = renderFrameBuffer;
@@ -397,7 +408,7 @@ public abstract class Filter implements Savable {
 
     /**
      * sets the rendered texture of this filter
-     * @param renderedTexture
+     * @param renderedTexture the desired Texture (alias created)
      */
     protected void setRenderedTexture(Texture2D renderedTexture) {
         this.defaultPass.renderedTexture = renderedTexture;
@@ -425,8 +436,8 @@ public abstract class Filter implements Savable {
      * Override this method and return true if you want the scene (input) texture
      * to use bilinear filtering or false to use nearest filtering.
      * 
-     * Typically filters that perform samples <em>in between</em> pixels 
-     * should enable filtering.
+     * Typically, filters that perform samples <em>in between</em> pixels
+     * should enable bilinear filtering.
      * 
      * @return true to use linear filtering, false to use nearest filtering.
      */
@@ -463,8 +474,9 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * sets a reference to the FilterPostProcessor ti which this filter is attached
-     * @param proc
+     * sets a reference to the FilterPostProcessor to which this filter is attached
+     *
+     * @param proc the desired FPP (alias created)
      */
     protected void setProcessor(FilterPostProcessor proc) {
         processor = proc;

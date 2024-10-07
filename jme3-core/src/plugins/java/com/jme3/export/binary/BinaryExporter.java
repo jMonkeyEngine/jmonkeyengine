@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package com.jme3.export.binary;
 import com.jme3.asset.AssetManager;
 import com.jme3.export.FormatVersion;
 import com.jme3.export.JmeExporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.export.SavableClassUtil;
 import com.jme3.math.FastMath;
@@ -45,97 +46,73 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Exports to the jME Binary Format. Format descriptor: (each numbered item
- * denotes a series of bytes that follows sequentially one after the next.)
- * <p>
- * 1. "number of classes" - four bytes - int value representing the number of
- * entries in the class lookup table.
- * </p>
- * <p>
- * CLASS TABLE: There will be X blocks each consisting of numbers 2 thru 9,
- * where X = the number read in 1.
- * </p>
- * <p>
- * 2. "class alias" - 1...X bytes, where X = ((int) FastMath.log(aliasCount,
- * 256) + 1) - an alias used when writing object data to match an object to its
- * appropriate object class type.
- * </p>
- * <p>
- * 3. "full class name size" - four bytes - int value representing number of
- * bytes to read in for next field.
- * </p>
- * <p>
- * 4. "full class name" - 1...X bytes representing a String value, where X = the
- * number read in 3. The String is the fully qualified class name of the Savable
- * class, eg "<code>com.jme.math.Vector3f</code>"
- * </p>
- * <p>
- * 5. "number of fields" - four bytes - int value representing number of blocks
- * to read in next (numbers 6 - 9), where each block represents a field in this
- * class.
- * </p>
- * <p>
- * 6. "field alias" - 1 byte - the alias used when writing out fields in a
- * class. Because it is a single byte, a single class can not save out more than
- * a total of 256 fields.
- * </p>
- * <p>
- * 7. "field type" - 1 byte - a value representing the type of data a field
- * contains. This value is taken from the static fields of
+ * Exports savable objects in jMonkeyEngine's native binary format.
+ *
+ * <p>Format description: (Each numbered item
+ * describes a series of bytes that follow sequentially, one after the other.)
+ *
+ * <p>1. "signature" - 4 bytes - 0x4A4D4533
+ *
+ * <p>2. "version" - 4 bytes - 0x00000002
+ *
+ * <p>3. "number of classes" - 4 bytes - number of entries in the class table
+ *
+ * <p>CLASS TABLE: X blocks, each consisting of items 4 thru 11,
+ * where X = the number of Savable classes from item 3
+ *
+ * <p>4. "class alias" - X bytes, where X = ((int) FastMath.log(aliasCount,
+ * 256) + 1)
+ * - a numeric ID used to refer to a Savable class when reading or writing
+ *
+ * <p>5. "full class-name size" - 4 bytes - the number of bytes in item 6
+ *
+ * <p>6. "full class name" - X bytes of text, where X = the size from item 5
+ * - the fully qualified class name of the Savable class,
+ * e.g. <code>"com.jme.math.Vector3f"</code>
+ *
+ * <p>7. "number of fields" - 4 bytes
+ * - the number of saved fields in the Savable class
+ *
+ * <p>8. "field alias" - 1 byte
+ * - a numeric ID used to refer to a saved field when reading or writing.
+ * Because field aliases are only a single byte,
+ * no Savable class can save more than 256 fields.
+ *
+ * <p>9. "field type" - 1 byte
+ * - the type of data in the saved field. Values are defined in
  * <code>com.jme.util.export.binary.BinaryClassField</code>.
- * </p>
- * <p>
- * 8. "field name size" - 4 bytes - int value representing the size of the next
- * field.
- * </p>
- * <p>
- * 9. "field name" - 1...X bytes representing a String value, where X = the
- * number read in 8. The String is the full String value used when writing the
- * current field.
- * </p>
- * <p>
- * 10. "number of unique objects" - four bytes - int value representing the
- * number of data entries in this file.
- * </p>
- * <p>
- * DATA LOOKUP TABLE: There will be X blocks each consisting of numbers 11 and
- * 12, where X = the number read in 10.
- * </p>
- * <p>
- * 11. "data id" - four bytes - int value identifying a single unique object
- * that was saved in this data file.
- * </p>
- * <p>
- * 12. "data location" - four bytes - int value representing the offset in the
- * object data portion of this file where the object identified in 11 is
- * located.
- * </p>
- * <p>
- * 13. "future use" - four bytes - hardcoded int value 1.
- * </p>
- * <p>
- * 14. "root id" - four bytes - int value identifying the top level object.
- * </p>
- * <p>
- * OBJECT DATA SECTION: There will be X blocks each consisting of numbers 15
- * thru 19, where X = the number of unique location values named in 12.
- * <p>
- * 15. "class alias" - see 2.
- * </p>
- * <p>
- * 16. "data length" - four bytes - int value representing the length in bytes
- * of data stored in fields 17 and 18 for this object.
- * </p>
- * <p>
- * FIELD ENTRY: There will be X blocks each consisting of numbers 18 and 19
- * </p>
- * <p>
- * 17. "field alias" - see 6.
- * </p>
- * <p>
- * 18. "field data" - 1...X bytes representing the field data. The data length
- * is dependent on the field type and contents.
- * </p>
+ *
+ * <p>10. "field-name size" - 4 bytes - the number of bytes in item 11
+ *
+ * <p>11. "field name" - X bytes of text, where X = the size from item 10
+ * - the tag specified when reading or writing the saved field
+ *
+ * <p>12. "number of capsules" - 4 bytes
+ * - the number of capsules in this stream
+ *
+ * <p>LOCATION TABLE: X blocks, each consisting of items 13 and 14,
+ * where X = the number of capsules from item 12
+ *
+ * <p>13. "data id" - 4 bytes
+ * - numeric ID of an object that was saved to this stream
+ *
+ * <p>14. "data location" - 4 bytes
+ * - the offset in the capsule-data section where the savable object identified
+ * in item 13 is stored
+ *
+ * <p>15. "future use" - 4 bytes - 0x00000001
+ *
+ * <p>16. "root id" - 4 bytes - numeric ID of the top-level savable object
+ *
+ * CAPSULE-DATA SECTION: X blocks, each consisting of items 17
+ * thru 19, where X = the number of capsules from item 12
+ *
+ * <p>17. "class alias" - 4 bytes - see item 4
+ *
+ * <p>18. "capsule length" - 4 bytes - the length in bytes of item 19
+ *
+ * <p>19. "capsule data" - X bytes of data, where X = the number of bytes from
+ * item 18
  *
  * @author Joshua Slack
  */
@@ -147,17 +124,17 @@ public class BinaryExporter implements JmeExporter {
     protected int aliasCount = 1;
     protected int idCount = 1;
 
-    protected IdentityHashMap<Savable, BinaryIdContentPair> contentTable
-             = new IdentityHashMap<Savable, BinaryIdContentPair>();
+    private final IdentityHashMap<Savable, BinaryIdContentPair> contentTable
+             = new IdentityHashMap<>();
 
     protected HashMap<Integer, Integer> locationTable
-             = new HashMap<Integer, Integer>();
+             = new HashMap<>();
 
     // key - class name, value = bco
-    private HashMap<String, BinaryClassObject> classes
-             = new HashMap<String, BinaryClassObject>();
+    private final HashMap<String, BinaryClassObject> classes
+             = new HashMap<>();
 
-    private ArrayList<Savable> contentKeys = new ArrayList<Savable>();
+    private final ArrayList<Savable> contentKeys = new ArrayList<>();
 
     public static boolean debug = false;
     public static boolean useFastBufs = true;
@@ -180,6 +157,7 @@ public class BinaryExporter implements JmeExporter {
      * @return A new instance that has been saved and loaded from the
      * original object.
      */
+    @SuppressWarnings("unchecked")
     public static <T extends Savable> T saveAndLoad(AssetManager assetManager, T object) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
@@ -205,8 +183,8 @@ public class BinaryExporter implements JmeExporter {
         contentKeys.clear();
 
         // write signature and version
-        os.write(ByteUtils.convertToBytes(FormatVersion.SIGNATURE));
-        os.write(ByteUtils.convertToBytes(FormatVersion.VERSION));
+        os.write(ByteUtils.convertToBytes(FormatVersion.SIGNATURE)); // 1. "signature"
+        os.write(ByteUtils.convertToBytes(FormatVersion.VERSION));   // 2. "version"
 
         int id = processBinarySavable(object);
 
@@ -217,14 +195,14 @@ public class BinaryExporter implements JmeExporter {
                                                                   // aliases a
                                                                   // fixed width
 
-        os.write(ByteUtils.convertToBytes(classNum));
+        os.write(ByteUtils.convertToBytes(classNum)); // 3. "number of classes"
         for (String key : classes.keySet()) {
             BinaryClassObject bco = classes.get(key);
 
             // write alias
             byte[] aliasBytes = fixClassAlias(bco.alias,
                     aliasSize);
-            os.write(aliasBytes);
+            os.write(aliasBytes);                     // 4. "class alias"
             classTableSize += aliasSize;
 
             // jME3 NEW: Write class hierarchy version numbers
@@ -236,21 +214,20 @@ public class BinaryExporter implements JmeExporter {
 
             // write classname size & classname
             byte[] classBytes = key.getBytes();
-            os.write(ByteUtils.convertToBytes(classBytes.length));
-            os.write(classBytes);
+            os.write(ByteUtils.convertToBytes(classBytes.length)); // 5. "full class-name size"
+            os.write(classBytes);                                  // 6. "full class name"
             classTableSize += 4 + classBytes.length;
 
             // for each field, write alias, type, and name
-            os.write(ByteUtils.convertToBytes(bco.nameFields.size()));
+            os.write(ByteUtils.convertToBytes(bco.nameFields.size())); // 7. "number of fields"
             for (String fieldName : bco.nameFields.keySet()) {
                 BinaryClassField bcf = bco.nameFields.get(fieldName);
-                os.write(bcf.alias);
-                os.write(bcf.type);
+                os.write(bcf.alias);                                   // 8. "field alias"
+                os.write(bcf.type);                                    // 9. "field type"
 
-                // write classname size & classname
                 byte[] fNameBytes = fieldName.getBytes();
-                os.write(ByteUtils.convertToBytes(fNameBytes.length));
-                os.write(fNameBytes);
+                os.write(ByteUtils.convertToBytes(fNameBytes.length)); // 10. "field-name size"
+                os.write(fNameBytes);                                  // 11. "field name"
                 classTableSize += 2 + 4 + fNameBytes.length;
             }
         }
@@ -259,7 +236,7 @@ public class BinaryExporter implements JmeExporter {
         // write out data to a separate stream
         int location = 0;
         // keep track of location for each piece
-        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<String, ArrayList<BinaryIdContentPair>>(
+        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<>(
                 contentTable.size());
         for (Savable savable : contentKeys) {
             // look back at previous written data for matches
@@ -280,31 +257,31 @@ public class BinaryExporter implements JmeExporter {
             }
             bucket.add(pair);
             byte[] aliasBytes = fixClassAlias(classes.get(savableName).alias, aliasSize);
-            out.write(aliasBytes);
+            out.write(aliasBytes);            // 17. "class alias"
             location += aliasSize;
             BinaryOutputCapsule cap = contentTable.get(savable).getContent();
-            out.write(ByteUtils.convertToBytes(cap.bytes.length));
+            out.write(ByteUtils.convertToBytes(cap.bytes.length)); // 18. "capsule length"
             location += 4; // length of bytes
-            out.write(cap.bytes);
+            out.write(cap.bytes);             // 19. "capsule data"
             location += cap.bytes.length;
         }
 
         // write out location table
         // tag/location
         int numLocations = locationTable.keySet().size();
-        os.write(ByteUtils.convertToBytes(numLocations));
+        os.write(ByteUtils.convertToBytes(numLocations)); // 12. "number of capsules"
         int locationTableSize = 0;
         for (Integer key : locationTable.keySet()) {
-            os.write(ByteUtils.convertToBytes(key));
-            os.write(ByteUtils.convertToBytes(locationTable.get(key)));
+            os.write(ByteUtils.convertToBytes(key));                    // 13. "data id"
+            os.write(ByteUtils.convertToBytes(locationTable.get(key))); // 14. "data location"
             locationTableSize += 8;
         }
 
         // write out number of root ids - hardcoded 1 for now
-        os.write(ByteUtils.convertToBytes(1));
+        os.write(ByteUtils.convertToBytes(1));  // 15. "future use"
 
         // write out root id
-        os.write(ByteUtils.convertToBytes(id));
+        os.write(ByteUtils.convertToBytes(id)); // 16. "root id"
 
         // append stream to the output stream
         out.writeTo(os);
@@ -323,12 +300,12 @@ public class BinaryExporter implements JmeExporter {
         }
     }
 
-    protected String getChunk(BinaryIdContentPair pair) {
+    private String getChunk(BinaryIdContentPair pair) {
         return new String(pair.getContent().bytes, 0, Math.min(64, pair
                 .getContent().bytes.length));
     }
 
-    protected int findPrevMatch(BinaryIdContentPair oldPair,
+    private int findPrevMatch(BinaryIdContentPair oldPair,
             ArrayList<BinaryIdContentPair> bucket) {
         if (bucket == null)
             return -1;
@@ -351,9 +328,9 @@ public class BinaryExporter implements JmeExporter {
     }
 
     @Override
-    public void save(Savable object, File f) throws IOException {
+    public void save(Savable object, File f, boolean createDirectories) throws IOException {
         File parentDirectory = f.getParentFile();
-        if (parentDirectory != null && !parentDirectory.exists()) {
+        if (parentDirectory != null && !parentDirectory.exists() && createDirectories) {
             parentDirectory.mkdirs();
         }
 
@@ -364,7 +341,7 @@ public class BinaryExporter implements JmeExporter {
     }
 
     @Override
-    public BinaryOutputCapsule getCapsule(Savable object) {
+    public OutputCapsule getCapsule(Savable object) {
         return contentTable.get(object).getContent();
     }
 
@@ -419,7 +396,7 @@ public class BinaryExporter implements JmeExporter {
         return bytes;
     }
 
-    protected BinaryIdContentPair generateIdContentPair(BinaryClassObject bco) {
+    private BinaryIdContentPair generateIdContentPair(BinaryClassObject bco) {
         BinaryIdContentPair pair = new BinaryIdContentPair(idCount++,
                 new BinaryOutputCapsule(this, bco));
         return pair;

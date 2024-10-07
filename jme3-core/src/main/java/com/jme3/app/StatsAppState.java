@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,12 +43,11 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.shape.Quad;
 
-
 /**
  *  Displays stats in SimpleApplication's GUI node or
  *  using the node and font parameters provided.
  *
- *  @author    Paul Speed
+ * @author Paul Speed
  */
 public class StatsAppState extends AbstractAppState {
 
@@ -70,7 +69,7 @@ public class StatsAppState extends AbstractAppState {
     public StatsAppState() {
     }
 
-    public StatsAppState( Node guiNode, BitmapFont guiFont ) {
+    public StatsAppState(Node guiNode, BitmapFont guiFont) {
         this.guiNode = guiNode;
         this.guiFont = guiFont;
     }
@@ -80,10 +79,12 @@ public class StatsAppState extends AbstractAppState {
      *  so that the fpsText can be created before init.  This
      *  is because several applications expect to directly access
      *  fpsText... unfortunately.
+     *
+     * @param guiFont the desired font (not null, alias created)
      */
-    public void setFont( BitmapFont guiFont ) {
+    public void setFont(BitmapFont guiFont) {
         this.guiFont = guiFont;
-        this.fpsText = new BitmapText(guiFont, false);
+        this.fpsText = new BitmapText(guiFont);
     }
 
     public BitmapText getFpsText() {
@@ -99,8 +100,8 @@ public class StatsAppState extends AbstractAppState {
     }
 
     public void toggleStats() {
-        setDisplayFps( !showFps );
-        setDisplayStatView( !showStats );
+        setDisplayFps(!showFps);
+        setDisplayStatView(!showStats);
     }
 
     public void setDisplayFps(boolean show) {
@@ -116,7 +117,7 @@ public class StatsAppState extends AbstractAppState {
 
     public void setDisplayStatView(boolean show) {
         showStats = show;
-        if (statsView != null ) {
+        if (statsView != null) {
             statsView.setEnabled(show);
             statsView.setCullHint(show ? CullHint.Never : CullHint.Always);
             if (darkenStats != null) {
@@ -140,17 +141,17 @@ public class StatsAppState extends AbstractAppState {
         this.app = app;
 
         if (app instanceof SimpleApplication) {
-            SimpleApplication simpleApp = (SimpleApplication)app;
+            SimpleApplication simpleApp = (SimpleApplication) app;
             if (guiNode == null) {
                 guiNode = simpleApp.guiNode;
             }
-            if (guiFont == null ) {
+            if (guiFont == null) {
                 guiFont = simpleApp.guiFont;
             }
         }
 
         if (guiNode == null) {
-            throw new RuntimeException( "No guiNode specific and cannot be automatically determined." );
+            throw new RuntimeException("No guiNode specific and cannot be automatically determined.");
         }
 
         if (guiFont == null) {
@@ -168,7 +169,7 @@ public class StatsAppState extends AbstractAppState {
      */
     public void loadFpsText() {
         if (fpsText == null) {
-            fpsText = new BitmapText(guiFont, false);
+            fpsText = new BitmapText(guiFont);
         }
 
         fpsText.setLocalTranslation(0, fpsText.getLineHeight(), 0);
@@ -185,8 +186,8 @@ public class StatsAppState extends AbstractAppState {
      */
     public void loadStatsView() {
         statsView = new StatsView("Statistics View",
-                                  app.getAssetManager(),
-                                  app.getRenderer().getStatistics());
+                app.getAssetManager(),
+                app.getRenderer().getStatistics());
         // move it up so it appears above fps text
         statsView.setLocalTranslation(0, fpsText.getLineHeight(), 0);
         statsView.setEnabled(showStats);
@@ -196,7 +197,7 @@ public class StatsAppState extends AbstractAppState {
 
     public void loadDarken() {
         Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", new ColorRGBA(0,0,0,0.5f));
+        mat.setColor("Color", new ColorRGBA(0, 0, 0, 0.5f));
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
 
         darkenFps = new Geometry("StatsDarken", new Quad(200, fpsText.getLineHeight()));
@@ -235,7 +236,7 @@ public class StatsAppState extends AbstractAppState {
     public void update(float tpf) {
         if (showFps) {
             secondCounter += app.getTimer().getTimePerFrame();
-            frameCounter ++;
+            frameCounter++;
             if (secondCounter >= 1.0f) {
                 int fps = (int) (frameCounter / secondCounter);
                 fpsText.setText("Frames per second: " + fps);
@@ -254,6 +255,4 @@ public class StatsAppState extends AbstractAppState {
         guiNode.detachChild(darkenFps);
         guiNode.detachChild(darkenStats);
     }
-
-
 }

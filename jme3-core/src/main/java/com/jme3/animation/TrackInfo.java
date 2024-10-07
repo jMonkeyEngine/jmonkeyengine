@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import java.util.ArrayList;
  * This class is intended as a UserData added to a Spatial that is referenced by a Track.
  * (ParticleEmitter for EffectTrack and AudioNode for AudioTrack)
  * It holds the list of tracks that are directly referencing the Spatial.
- * 
+ *
  * This is used when loading a Track to find the cloned reference of a Spatial in the cloned model returned by the assetManager.
  *
  * @author Nehon
@@ -50,7 +50,7 @@ import java.util.ArrayList;
 @Deprecated
 public class TrackInfo implements Savable, JmeCloneable {
 
-    ArrayList<Track> tracks = new ArrayList<Track>();
+    ArrayList<Track> tracks = new ArrayList<>();
 
     public TrackInfo() {
     }
@@ -75,18 +75,18 @@ public class TrackInfo implements Savable, JmeCloneable {
     public void addTrack(Track track) {
         tracks.add(track);
     }
-    
-    @Override   
+
+    @Override
     public Object jmeClone() {
         try {
             return super.clone();
-        } catch( CloneNotSupportedException e ) {
+        } catch (CloneNotSupportedException e) {
             throw new RuntimeException("Error cloning", e);
         }
-    }     
+    }
 
-    @Override   
-    public void cloneFields( Cloner cloner, Object original ) {
-        this.tracks = cloner.clone(tracks); 
-    }             
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        this.tracks = cloner.clone(tracks);
+    }
 }

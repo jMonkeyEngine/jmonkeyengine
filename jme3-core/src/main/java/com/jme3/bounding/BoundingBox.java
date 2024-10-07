@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 //import com.jme.scene.TriMesh;
+import java.util.Objects;
 
 /**
  * <code>BoundingBox</code> describes a bounding volume as an axis-aligned box.
@@ -102,6 +103,14 @@ public class BoundingBox extends BoundingVolume {
         this.zExtent = source.zExtent;
     }
 
+    /**
+     * Instantiate a BoundingBox with the specified extremes.
+     *
+     * @param min the desired minimum coordinate value for each axis (not null,
+     * not altered)
+     * @param max the desired maximum coordinate value for each axis (not null,
+     * not altered)
+     */
     public BoundingBox(Vector3f min, Vector3f max) {
         setMinMax(min, max);
     }
@@ -127,9 +136,9 @@ public class BoundingBox extends BoundingVolume {
      * <code>computeFromTris</code> creates a new Bounding Box from a given
      * set of triangles. It is used in OBBTree calculations.
      *
-     * @param tris
-     * @param start
-     * @param end
+     * @param tris triangle data (unaffected)
+     * @param start the index of the first triangle to be used
+     * @param end the index of the triangle after the last one to be used
      */
     public void computeFromTris(Triangle[] tris, int start, int end) {
         if (end - start <= 0) {
@@ -580,8 +589,78 @@ public class BoundingBox extends BoundingVolume {
     }
 
     /**
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code other} is null, false is returned. Either way, the current
+     * instance is unaffected.
+     *
+     * @param other the object to compare (may be null, unaffected)
+     * @return true if {@code this} and {@code other} have identical values,
+     *     otherwise false
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof BoundingBox)) {
+            return false;
+        }
+
+        if (this == other) {
+            return true;
+        }
+
+        BoundingBox otherBoundingBox = (BoundingBox) other;
+        if (Float.compare(xExtent, otherBoundingBox.xExtent) != 0) {
+            return false;
+        } else if (Float.compare(yExtent, otherBoundingBox.yExtent) != 0) {
+            return false;
+        } else if (Float.compare(zExtent, otherBoundingBox.zExtent) != 0) {
+            return false;
+        } else {
+            return super.equals(otherBoundingBox);
+        }
+    }
+
+    /**
+     * Returns a hash code. If two bounding boxes have identical values, they
+     * will have the same hash code. The current instance is unaffected.
+     *
+     * @return a 32-bit value for use in hashing
+     */
+    @Override
+    public int hashCode() {
+        int hash = Objects.hash(xExtent, yExtent, zExtent);
+        hash = 59 * hash + super.hashCode();
+
+        return hash;
+    }
+
+    /**
+     * Tests for approximate equality with the specified bounding box, using the
+     * specified tolerance. If {@code other} is null, false is returned. Either
+     * way, the current instance is unaffected.
+     *
+     * @param aabb the bounding box to compare (unaffected) or null for none
+     * @param epsilon the tolerance for each component
+     * @return true if all components are within tolerance, otherwise false
+     */
+    public boolean isSimilar(BoundingBox aabb, float epsilon) {
+        if (aabb == null) {
+            return false;
+        } else if (Float.compare(Math.abs(aabb.xExtent - xExtent), epsilon) > 0) {
+            return false;
+        } else if (Float.compare(Math.abs(aabb.yExtent - yExtent), epsilon) > 0) {
+            return false;
+        } else if (Float.compare(Math.abs(aabb.zExtent - zExtent), epsilon) > 0) {
+            return false;
+        } else if (!center.isSimilar(aabb.getCenter(), epsilon)) {
+            return false;
+        }
+        // The checkPlane field is ignored.
+        return true;
+    }
+
+    /**
      * <code>toString</code> returns the string representation of this object.
-     * The form is: "[Center: <Vector> xExtent: X.XX yExtent: Y.YY zExtent:
+     * The form is: "[Center: vector xExtent: X.XX yExtent: Y.YY zExtent:
      * Z.ZZ]".
      *
      * @return the string representation of this.
@@ -725,7 +804,7 @@ public class BoundingBox extends BoundingVolume {
     }
 
     /**
-     * @see com.jme.bounding.BoundingVolume#intersectsWhere(com.jme.math.Ray)
+     * @see com.jme3.bounding.BoundingVolume#intersects(com.jme3.math.Ray)
      */
     private int collideWithRay(Ray ray, CollisionResults results) {
         TempVars vars = TempVars.get();
@@ -927,22 +1006,22 @@ public class BoundingBox extends BoundingVolume {
      *
      * @param denom
      *            the denominator of the line segment.
-     * @param numer
+     * @param numerator
      *            the numerator of the line segment.
      * @param t
      *            test values of the plane.
      * @return true if the line segment intersects the plane, false otherwise.
      */
-    private boolean clip(float denom, float numer, float[] t) {
+    private boolean clip(float denom, float numerator, float[] t) {
         // Return value is 'true' if line segment intersects the current test
-        // plane. Otherwise 'false' is returned in which case the line segment
+        // plane. Otherwise, 'false' is returned, in which case the line segment
         // is entirely clipped.
         if (denom > 0.0f) {
             // This is the old if statement...
-            // if (numer > denom * t[1]) {
+            // if (numerator > denom * t[1]) {
             //
             // The problem is that what is actually stored is
-            // numer/denom.  In non-floating point, this math should
+            // numerator/denom.  In non-floating point, this math should
             // work out the same but in floating point there can
             // be subtle math errors.  The multiply will exaggerate
             // errors that may have been introduced when the value
@@ -966,7 +1045,7 @@ public class BoundingBox extends BoundingVolume {
             // angles and distances because they fail the bounding box test.
             // Many Bothans died bring you this fix.
             //    -pspeed
-            float newT = numer / denom;
+            float newT = numerator / denom;
             if (newT > t[1]) {
                 return false;
             }
@@ -976,12 +1055,12 @@ public class BoundingBox extends BoundingVolume {
             return true;
         } else if (denom < 0.0f) {
             // Old if statement... see above
-            // if (numer > denom * t[0]) {
+            // if (numerator > denom * t[0]) {
             //
             // Note though that denom is always negative in this block.
             // When we move it over to the other side we have to flip
             // the comparison.  Algebra for the win.
-            float newT = numer / denom;
+            float newT = numerator / denom;
             if (newT < t[0]) {
                 return false;
             }
@@ -990,7 +1069,7 @@ public class BoundingBox extends BoundingVolume {
             }
             return true;
         } else {
-            return numer <= 0.0;
+            return numerator <= 0.0;
         }
     }
 
@@ -1009,18 +1088,38 @@ public class BoundingBox extends BoundingVolume {
         return store;
     }
 
+    /**
+     * Determine the X-axis distance between the center and the boundary.
+     *
+     * @return the distance
+     */
     public float getXExtent() {
         return xExtent;
     }
 
+    /**
+     * Determine the Y-axis distance between the center and the boundary.
+     *
+     * @return the distance
+     */
     public float getYExtent() {
         return yExtent;
     }
 
+    /**
+     * Determine the Z-axis distance between the center and the boundary.
+     *
+     * @return the distance
+     */
     public float getZExtent() {
         return zExtent;
     }
 
+    /**
+     * Alter the X-axis distance between the center and the boundary.
+     *
+     * @param xExtent the desired distance (&ge;0)
+     */
     public void setXExtent(float xExtent) {
         if (xExtent < 0) {
             throw new IllegalArgumentException();
@@ -1029,6 +1128,11 @@ public class BoundingBox extends BoundingVolume {
         this.xExtent = xExtent;
     }
 
+    /**
+     * Alter the Y-axis distance between the center and the boundary.
+     *
+     * @param yExtent the desired distance (&ge;0)
+     */
     public void setYExtent(float yExtent) {
         if (yExtent < 0) {
             throw new IllegalArgumentException();
@@ -1037,6 +1141,11 @@ public class BoundingBox extends BoundingVolume {
         this.yExtent = yExtent;
     }
 
+    /**
+     * Alter the Z-axis distance between the center and the boundary.
+     *
+     * @param zExtent the desired distance (&ge;0)
+     */
     public void setZExtent(float zExtent) {
         if (zExtent < 0) {
             throw new IllegalArgumentException();
@@ -1045,6 +1154,12 @@ public class BoundingBox extends BoundingVolume {
         this.zExtent = zExtent;
     }
 
+    /**
+     * Determine the minimum coordinate value for each axis.
+     *
+     * @param store storage for the result (modified if not null)
+     * @return either storeResult or a new vector
+     */
     public Vector3f getMin(Vector3f store) {
         if (store == null) {
             store = new Vector3f();
@@ -1053,6 +1168,12 @@ public class BoundingBox extends BoundingVolume {
         return store;
     }
 
+    /**
+     * Determine the maximum coordinate value for each axis.
+     *
+     * @param store storage for the result (modified if not null)
+     * @return either storeResult or a new vector
+     */
     public Vector3f getMax(Vector3f store) {
         if (store == null) {
             store = new Vector3f();
@@ -1061,6 +1182,14 @@ public class BoundingBox extends BoundingVolume {
         return store;
     }
 
+    /**
+     * Reconfigure with the specified extremes.
+     *
+     * @param min the desired minimum coordinate value for each axis (not null,
+     * not altered)
+     * @param max the desired maximum coordinate value for each axis (not null,
+     * not altered)
+     */
     public void setMinMax(Vector3f min, Vector3f max) {
         this.center.set(max).addLocal(min).multLocal(0.5f);
         xExtent = FastMath.abs(max.x - center.x);
@@ -1078,9 +1207,9 @@ public class BoundingBox extends BoundingVolume {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         xExtent = capsule.readFloat("xExtent", 0);
         yExtent = capsule.readFloat("yExtent", 0);
         zExtent = capsule.readFloat("zExtent", 0);

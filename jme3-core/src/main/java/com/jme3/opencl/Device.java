@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -118,7 +118,7 @@ public interface Device {
     boolean hasOpenGLInterop();
 
     /**
-     * Explictly tests for the availability of the specified extension
+     * Explicitly tests for the availability of the specified extension
      *
      * @param extension the name of the extension
      * @return {@code true} iff this extension is supported
@@ -151,8 +151,8 @@ public interface Device {
     /**
      * Returns the default compute device address space
      * size specified as an unsigned integer value
-     * in bits. Currently supported values are 32
-     * or 64 bits.
+     * in bits. The values currently supported are 32
+     * and 64.
      *
      * @return the size of an address
      */
@@ -251,7 +251,7 @@ public interface Device {
      */
     int getMaximumConstantArguments();
 
-    //TODO: cache, prefered sizes properties
+    //TODO: cache, preferred sizes properties
     /**
      * OpenCL profile string. Returns the profile name supported by the device.
      * The profile name returned can be one of the following strings:<br>

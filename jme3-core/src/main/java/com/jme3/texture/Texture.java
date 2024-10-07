@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,14 +64,14 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * Two dimensional texture (default). A rectangle.
          */
         TwoDimensional,
-        
+
         /**
-         * An array of two dimensional textures. 
+         * An array of two-dimensional textures.
          */
         TwoDimensionalArray,
 
         /**
-         * Three dimensional texture. (A cube)
+         * Three-dimensional texture. (A cube)
          */
         ThreeDimensional,
 
@@ -180,17 +180,17 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * Only the fractional portion of the coordinate is considered.
          */
         Repeat,
-        
+
         /**
          * Only the fractional portion of the coordinate is considered, but if
          * the integer portion is odd, we'll use 1 - the fractional portion.
          * (Introduced around OpenGL1.4) Falls back on Repeat if not supported.
          */
         MirroredRepeat,
-        
+
         /**
          * coordinate will be clamped to [0,1]
-         * 
+         *
          * @deprecated Not supported by OpenGL 3
          */
         @Deprecated
@@ -203,19 +203,19 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * is the size of the one-, two-, or three-dimensional texture image in
          * the direction of wrapping. (Introduced after OpenGL1.4) Falls back on
          * Clamp if not supported.
-         * 
+         *
          * @deprecated Not supported by OpenGL 3
          */
         @Deprecated
         MirrorClamp,
-        
+
         /**
          * coordinate will be clamped to the range [-1/(2N), 1 + 1/(2N)] where N
          * is the size of the texture in the direction of clamping. Falls back
          * on Clamp if not supported.
-         * 
+         *
          * @deprecated Not supported by OpenGL 3 or OpenGL ES 2
-         */ 
+         */
         @Deprecated
         BorderClamp,
         /**
@@ -224,9 +224,9 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * computes:
          * <code>mirrorClampToBorder(f) = min(1+1/(2*N), max(1/(2*N), abs(f)))</code>
          * where N is the size of the one-, two-, or three-dimensional texture
-         * image in the direction of wrapping." (Introduced after OpenGL1.4)
+         * image in the direction of wrapping. (Introduced after OpenGL1.4)
          * Falls back on BorderClamp if not supported.
-         * 
+         *
          * @deprecated Not supported by OpenGL 3
          */
         @Deprecated
@@ -237,7 +237,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * on Clamp if not supported.
          */
         EdgeClamp,
-        
+
         /**
          * mirrors and clamps to edge the texture coordinate, where mirroring
          * and clamping to edge a value f computes:
@@ -245,7 +245,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * where N is the size of the one-, two-, or three-dimensional texture
          * image in the direction of wrapping. (Introduced after OpenGL1.4)
          * Falls back on EdgeClamp if not supported.
-         * 
+         *
          * @deprecated Not supported by OpenGL 3
          */
         @Deprecated
@@ -270,7 +270,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     /**
      * If this texture is a depth texture (the format is Depth*) then
      * this value may be used to compare the texture depth to the R texture
-     * coordinate. 
+     * coordinate.
      */
     public enum ShadowCompareMode {
         /**
@@ -279,7 +279,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          */
         Off,
 
-        /** 
+        /**
          * {@code
          * Compares the 3rd texture coordinate R to the value
          * in this depth texture. If R <= texture value then result is 1.0,
@@ -416,7 +416,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
      */
     public void setImage(Image image) {
         this.image = image;
-        
+
         // Test if mipmap generation required.
         setMinFilter(getMinFilter());
     }
@@ -449,7 +449,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
      * particular axis.
      *
      * @param axis
-     *            the texture axis to define a wrapmode on.
+     *            the texture axis to apply the wrap mode to.
      * @param mode
      *            the wrap mode for the given axis of the texture.
      * @throws IllegalArgumentException
@@ -491,7 +491,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
 
     /**
      * @return the anisotropic filtering level for this texture. Default value
-     * is 0 (use value from config), 
+     * is 0 (use value from config),
      * 1 means 1x (no anisotropy), 2 means x2, 4 is x4, etc.
      */
     public int getAnisotropicFilter() {
@@ -528,7 +528,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
             return false;
         }
         final Texture other = (Texture) obj;
-        
+
         // NOTE: Since images are generally considered unique assets in jME3,
         // using the image's equals() implementation is not necessary here
         // (would be too slow)
@@ -567,8 +567,9 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
    /** Retrieve a basic clone of this Texture (ie, clone everything but the
      * image data, which is shared)
      *
+     * @param rVal storage for the clone (not null, modified)
      * @return Texture
-     * 
+     *
      * @deprecated Use {@link Texture#clone()} instead.
      */
     @Deprecated
@@ -584,6 +585,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     }
 
     /**
+     * @return a new Texture
      * @deprecated Use {@link Texture#clone()} instead.
      */
     @Deprecated
@@ -593,14 +595,14 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(name, "name", null);
-        
+
         if (key == null){
             // no texture key is set, try to save image instead then
             capsule.write(image, "image", null);
         }else{
             capsule.write(key, "key", null);
         }
-        
+
         capsule.write(anisotropicFilter, "anisotropicFilter", 1);
         capsule.write(minificationFilter, "minificationFilter",
                 MinFilter.BilinearNoMipMaps);
@@ -609,36 +611,37 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         name = capsule.readString("name", null);
         key = (TextureKey) capsule.readSavable("key", null);
-        
+
         // load texture from key, if available
         if (key != null) {
             // key is available, so try the texture from there.
             try {
-                Texture loadedTex = e.getAssetManager().loadTexture(key);
+                Texture loadedTex = importer.getAssetManager().loadTexture(key);
                 image = loadedTex.getImage();
             } catch (AssetNotFoundException ex){
                 Logger.getLogger(Texture.class.getName()).log(Level.SEVERE, "Cannot locate texture {0}", key);
-                image = PlaceholderAssets.getPlaceholderImage(e.getAssetManager());
+                image = PlaceholderAssets.getPlaceholderImage(importer.getAssetManager());
             }
         }else{
             // no key is set on the texture. Attempt to load an embedded image
             image = (Image) capsule.readSavable("image", null);
             if (image == null){
-                // TODO: what to print out here? the texture has no key or data, there's no useful information .. 
+                // TODO: what to print out here? the texture has no key or data, there's no useful information ..
                 // assume texture.name is set even though the key is null
-                Logger.getLogger(Texture.class.getName()).log(Level.SEVERE, "Cannot load embedded image {0}", toString() );
+                Logger.getLogger(Texture.class.getName())
+                        .log(Level.SEVERE, "Cannot load embedded image {0}", toString());
             }
         }
 
-        anisotropicFilter = capsule.readInt("anisotropicFilter", 1);
-        minificationFilter = capsule.readEnum("minificationFilter",
+        setAnisotropicFilter(capsule.readInt("anisotropicFilter", 1));
+        setMinFilter(capsule.readEnum("minificationFilter",
                 MinFilter.class,
-                MinFilter.BilinearNoMipMaps);
-        magnificationFilter = capsule.readEnum("magnificationFilter",
-                MagFilter.class, MagFilter.Bilinear);
+                MinFilter.BilinearNoMipMaps));
+        setMagFilter(capsule.readEnum("magnificationFilter",
+                MagFilter.class, MagFilter.Bilinear));
     }
 }

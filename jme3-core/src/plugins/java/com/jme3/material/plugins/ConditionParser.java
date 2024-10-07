@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * An utility class that allows to parse a define condition in a glsl language
+ * A utility class that parses a define condition in a GLSL language
  * style.
  *
  * extractDefines is able to get a list of defines in an expression and update
@@ -75,9 +75,9 @@ public class ConditionParser {
     }
 
     /**
-     * parse a condition and returns the list of defines of this condition.
-     * additionally this methods updates the formattedExpression with uppercased
-     * defines names
+     * Parses a condition and returns the list of defines of this condition.
+     * Additionally, this method updates the formattedExpression with uppercased
+     * defines names.
      *
      * supported expression syntax example:<br><br>
      * {@code "(LightMap && SeparateTexCoord) || !ColorMap"}<br><br>
@@ -89,7 +89,7 @@ public class ConditionParser {
      * @return the list of defines
      */
     public List<String> extractDefines(String expression) {
-        List<String> defines = new ArrayList<String>();
+        List<String> defines = new ArrayList<>();
         expression = expression.replaceAll("#ifdef", "").replaceAll("#if", "").replaceAll("defined", "");
         Pattern pattern = Pattern.compile("(\\w+)");
         formattedExpression = expression;

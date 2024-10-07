@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,16 +33,13 @@ package jme3test.light;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
-import com.jme3.font.BitmapText;
 import com.jme3.light.AmbientLight;
-import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
@@ -60,20 +57,10 @@ import com.jme3.util.SkyFactory;
  */
 public class TestSpotLightTerrain extends SimpleApplication {
 
-    private TerrainQuad terrain;
-    Material matTerrain;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    boolean wardiso = false;
-    boolean minnaert = false;
-    protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
-    SpotLight sl;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
+    private SpotLight sl;
 
     public static void main(String[] args) {
         TestSpotLightTerrain app = new TestSpotLightTerrain();
@@ -115,7 +102,8 @@ public class TestSpotLightTerrain extends SimpleApplication {
 
     private void makeTerrain() {
         // TERRAIN TEXTURE material
-        matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
+        Material matTerrain = new Material(assetManager,
+                "Common/MatDefs/Terrain/TerrainLighting.j3md");
         matTerrain.setBoolean("useTriPlanarMapping", false);
         matTerrain.setBoolean("WardIso", true);
 
@@ -170,7 +158,8 @@ public class TestSpotLightTerrain extends SimpleApplication {
         matTerrain.setTexture("NormalMap_4", normalMap2);
 
         // WIREFRAME material
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material matWire = new Material(assetManager,
+                "Common/MatDefs/Misc/Unshaded.j3md");
         matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
 
@@ -188,7 +177,8 @@ public class TestSpotLightTerrain extends SimpleApplication {
             e.printStackTrace();
         }
 
-        terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
+        TerrainQuad terrain
+                = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
         TerrainLodControl control = new TerrainLodControl(terrain, getCamera());
         control.setLodCalculator( new DistanceLodCalculator(65, 2.7f) );
         terrain.addControl(control);

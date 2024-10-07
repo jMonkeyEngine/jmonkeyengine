@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ import com.jme3.texture.Image.Format;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.logging.Logger;
 
 /**
  * DXTFlipper is a utility class used to flip along Y axis DXT compressed textures.
@@ -43,11 +44,18 @@ import java.nio.ByteOrder;
  * @author Kirill Vainer
  */
 public class DXTFlipper {
+    private static final Logger logger = Logger.getLogger(DXTFlipper.class.getName());
 
     private static final ByteBuffer bb = ByteBuffer.allocate(8);
 
     static {
         bb.order(ByteOrder.LITTLE_ENDIAN);
+    }
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private DXTFlipper() {
     }
 
     private static long readCode5(long data, int x, int y){
@@ -196,7 +204,11 @@ public class DXTFlipper {
         }
     }
 
-    public static ByteBuffer flipDXT(ByteBuffer img, int w, int h, Format format){
+    public static ByteBuffer flipDXT(ByteBuffer img, int w, int h, Format format) {
+        if (format == Format.ETC1 || format == Format.ETC2 || format == Format.ETC2_ALPHA1) {
+            logger.warning("This is not a DXT format, but ETC. Use flipETC instead.");
+            return ETCFlipper.flipETC(img, w, h, format);
+        }
         int originalLimit = img.limit();
         int blocksX = (int) FastMath.ceil(w / 4f);
         int blocksY = (int) FastMath.ceil(h / 4f);
@@ -214,13 +226,15 @@ public class DXTFlipper {
                 type = 3;
                 break;
             case RGTC2:
+            case SIGNED_RGTC2:
                 type = 4;
                 break;                
             case RGTC1:
+            case SIGNED_RGTC1:
                 type = 5;
                 break;
             default:
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("No flip support for texture format " + format);
         }
 
         // DXT1 uses 8 bytes per block,
@@ -235,7 +249,7 @@ public class DXTFlipper {
             byte[] colorBlock = new byte[8];
             byte[] alphaBlock = type != 1 && type != 5 ? new byte[8] : null;
             for (int x = 0; x < blocksX; x++){
-                // prepeare for block reading
+                // prepare for block reading
                 int blockByteOffset = x * bpb;
                 img.position(blockByteOffset);
                 img.limit(blockByteOffset + bpb);
@@ -270,7 +284,7 @@ public class DXTFlipper {
             byte[] alphaBlock = type != 1 && type != 5 ? new byte[8] : null;
             for (int y = 0; y < blocksY; y++){
                 for (int x = 0; x < blocksX; x++){
-                    // prepeare for block reading
+                    // prepare for block reading
                     int blockIdx = y * blocksX + x;
                     int blockByteOffset = blockIdx * bpb;
 

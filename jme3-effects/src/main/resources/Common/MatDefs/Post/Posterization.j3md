@@ -1,6 +1,7 @@
 MaterialDef Posterization {
  
     MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Int NumSamplesDepth
         Texture2D Texture;
@@ -10,14 +11,15 @@ MaterialDef Posterization {
     }
  
     Technique {
-        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/Posterization.frag
+        VertexShader   GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL300 GLSL150 GLSL100 : Common/MatDefs/Post/Posterization.frag
  
         WorldParameters {
         }
 
         Defines {
-           RESOLVE_MS : NumSamples
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            RESOLVE_MS : NumSamples
         }
 
     }

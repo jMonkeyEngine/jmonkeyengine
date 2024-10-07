@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 /**
- * Part of the jME XML IO system as introduced in the google code jmexml project.
+ * Part of the jME XML IO system as introduced in the Google Code jmexml project.
  * @author Kai Rabien (hevee) - original author of the code.google.com jmexml project
  * @author Doug Daniels (dougnukem) - adjustments for jME 2.0 and Java 1.5
  */
@@ -100,11 +100,7 @@ public class XMLImporter implements JmeImporter {
         try {
             domIn = new DOMInputCapsule(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(f), this);
             return domIn.readSavable(null, null);
-        } catch (SAXException e) {
-            IOException ex = new IOException();
-            ex.initCause(e);
-            throw ex;
-        } catch (ParserConfigurationException e) {
+        } catch (SAXException | ParserConfigurationException e) {
             IOException ex = new IOException();
             ex.initCause(e);
             throw ex;

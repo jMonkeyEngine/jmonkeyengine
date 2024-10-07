@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,33 +37,43 @@ import com.jme3.export.Savable;
 import java.io.IOException;
 
 /**
- * <code>Triangle</code> defines a triangle in terms of its vertex locations,
- * with auxiliary storage for its centroid, normal vector, projection, and
- * index.
+ * Describes a triangle in terms of its vertex locations, with auxiliary storage
+ * for its centroid, normal vector, projection, and index.
  *
  * @author Mark Powell
  * @author Joshua Slack
  */
 public class Triangle extends AbstractTriangle implements Savable, Cloneable, java.io.Serializable {
     static final long serialVersionUID = 1;
-
-    private Vector3f pointa = new Vector3f();
-    private Vector3f pointb = new Vector3f();
-    private Vector3f pointc = new Vector3f();
+    /**
+     * The location of the first vertex in winding order.
+     */
+    private Vector3f pointA = new Vector3f();
+    /**
+     * The location of the 2nd vertex in winding order.
+     */
+    private Vector3f pointB = new Vector3f();
+    /**
+     * The location of the 3rd vertex in winding order.
+     */
+    private Vector3f pointC = new Vector3f();
     private transient Vector3f center;
     private transient Vector3f normal;
     private float projection;
+    /**
+     * The index of the triangle, used to identify it in an OBBTree.
+     */
     private int index;
 
     /**
-     * Instantiate a zero-size Triangle at the origin.
+     * Instantiate a zero-size triangle at the origin.
      */
     public Triangle() {
     }
 
     /**
-     * Instantiate a <Code>Triangle</code> with the specified vertex locations.
-     * Vertices should be listed in the desired winding order, typically
+     * Instantiates a triangle with the specified vertex locations. Vertices
+     * should be listed in the desired winding order, typically
      * counter-clockwise.
      *
      * @param p1 the location of the first vertex (not null, unaffected)
@@ -71,13 +81,13 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      * @param p3 the location of the 3rd vertex (not null, unaffected)
      */
     public Triangle(Vector3f p1, Vector3f p2, Vector3f p3) {
-        pointa.set(p1);
-        pointb.set(p2);
-        pointc.set(p3);
+        pointA.set(p1);
+        pointB.set(p2);
+        pointC.set(p3);
     }
 
     /**
-     * Access the location of the indexed vertex.
+     * Accesses the location of the indexed vertex.
      *
      * @param i the index of the vertex to access (0, 1, or 2)
      * @return a pre-existing location vector, or null if the index is invalid
@@ -85,48 +95,48 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     public Vector3f get(int i) {
         switch (i) {
             case 0:
-                return pointa;
+                return pointA;
             case 1:
-                return pointb;
+                return pointB;
             case 2:
-                return pointc;
+                return pointC;
             default:
                 return null;
         }
     }
 
     /**
-     * Access the location of the first vertex.
+     * Accesses the location of the first vertex.
      *
      * @return the pre-existing location vector (not null)
      */
     @Override
     public Vector3f get1() {
-        return pointa;
+        return pointA;
     }
 
     /**
-     * Access the location of the 2nd vertex.
+     * Accesses the location of the 2nd vertex.
      *
      * @return the pre-existing location vector (not null)
      */
     @Override
     public Vector3f get2() {
-        return pointb;
+        return pointB;
     }
 
     /**
-     * Access the location of the 3rd vertex.
+     * Accesses the location of the 3rd vertex.
      *
      * @return the pre-existing location vector (not null)
      */
     @Override
     public Vector3f get3() {
-        return pointc;
+        return pointC;
     }
 
     /**
-     * Alter the location of the indexed vertex and delete the stored centroid
+     * Alters the location of the indexed vertex and deletes the stored centroid
      * and normal.
      *
      * @param i the index of the vertex to alter (0, 1, or 2)
@@ -138,19 +148,19 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
 
         switch (i) {
             case 0:
-                pointa.set(point);
+                pointA.set(point);
                 break;
             case 1:
-                pointb.set(point);
+                pointB.set(point);
                 break;
             case 2:
-                pointc.set(point);
+                pointC.set(point);
                 break;
         }
     }
 
     /**
-     * Alter the location of the indexed vertex and delete the stored centroid
+     * Alters the location of the indexed vertex and deletes the stored centroid
      * and normal.
      *
      * @param i the index of the vertex to alter (0, 1, or 2)
@@ -164,20 +174,20 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
 
         switch (i) {
             case 0:
-                pointa.set(x, y, z);
+                pointA.set(x, y, z);
                 break;
             case 1:
-                pointb.set(x, y, z);
+                pointB.set(x, y, z);
                 break;
             case 2:
-                pointc.set(x, y, z);
+                pointC.set(x, y, z);
                 break;
         }
     }
 
     /**
-     * Alter the location of the first vertex and delete the stored centroid and
-     * normal.
+     * Alters the location of the first vertex and deletes the stored centroid
+     * and normal.
      *
      * @param v the desired location (not null, unaffected)
      */
@@ -185,11 +195,11 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         center = null;
         normal = null;
 
-        pointa.set(v);
+        pointA.set(v);
     }
 
     /**
-     * Alter the location of the 2nd vertex and delete the stored centroid and
+     * Alters the location of the 2nd vertex and deletes the stored centroid and
      * normal.
      *
      * @param v the desired location (not null, unaffected)
@@ -198,11 +208,11 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         center = null;
         normal = null;
 
-        pointb.set(v);
+        pointB.set(v);
     }
 
     /**
-     * Alter the location of the 3rd vertex and delete the stored centroid and
+     * Alters the location of the 3rd vertex and deletes the stored centroid and
      * normal.
      *
      * @param v the desired location (not null, unaffected)
@@ -211,12 +221,12 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         center = null;
         normal = null;
 
-        pointc.set(v);
+        pointC.set(v);
     }
 
     /**
-     * Alter the locations of all 3 vertices and delete the stored centroid and
-     * normal.
+     * Alters the locations of all 3 vertices and deletes the stored centroid
+     * and normal.
      *
      * @param v1 the desired location of the first vertex (not null, unaffected)
      * @param v2 the desired location of the 2nd vertex (not null, unaffected)
@@ -227,38 +237,38 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         center = null;
         normal = null;
 
-        pointa.set(v1);
-        pointb.set(v2);
-        pointc.set(v3);
+        pointA.set(v1);
+        pointB.set(v2);
+        pointC.set(v3);
     }
 
     /**
-     * Recalculate the stored centroid based on the current vertex locations.
+     * Recalculates the stored centroid based on the current vertex locations.
      */
     public void calculateCenter() {
         if (center == null) {
-            center = new Vector3f(pointa);
+            center = new Vector3f(pointA);
         } else {
-            center.set(pointa);
+            center.set(pointA);
         }
-        center.addLocal(pointb).addLocal(pointc).multLocal(FastMath.ONE_THIRD);
+        center.addLocal(pointB).addLocal(pointC).multLocal(FastMath.ONE_THIRD);
     }
 
     /**
-     * Recalculate the stored normal based on the current vertex locations.
+     * Recalculates the stored normal based on the current vertex locations.
      */
     public void calculateNormal() {
         if (normal == null) {
-            normal = new Vector3f(pointb);
+            normal = new Vector3f(pointB);
         } else {
-            normal.set(pointb);
+            normal.set(pointB);
         }
-        normal.subtractLocal(pointa).crossLocal(pointc.x - pointa.x, pointc.y - pointa.y, pointc.z - pointa.z);
+        normal.subtractLocal(pointA).crossLocal(pointC.x - pointA.x, pointC.y - pointA.y, pointC.z - pointA.z);
         normal.normalizeLocal();
     }
 
     /**
-     * Access the stored centroid (the average of the 3 vertex locations)
+     * Accesses the stored centroid (the average of the 3 vertex locations)
      * calculating it if it is null.
      *
      * @return the coordinates of the center (an internal vector subject to
@@ -272,7 +282,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the stored centroid without affecting the stored normal or any
+     * Alters the stored centroid without affecting the stored normal or any
      * vertex locations.
      *
      * @param center the desired value (alias created if not null)
@@ -282,7 +292,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Access the stored normal, updating it if it is null.
+     * Accesses the stored normal, updating it if it is null.
      *
      * @return unit normal vector (an internal vector subject to re-use)
      */
@@ -294,7 +304,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the stored normal without affecting the stored centroid or any
+     * Alters the stored normal without affecting the stored centroid or any
      * vertex locations.
      *
      * @param normal the desired value (alias created if not null)
@@ -304,7 +314,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Read the projection of the vertices relative to the line origin.
+     * Returns the projection of the vertices relative to the line origin.
      *
      * @return the stored projection value
      */
@@ -313,7 +323,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the projection of the vertices relative to the line origin.
+     * Alters the projection of the vertices relative to the line origin.
      *
      * @param projection the desired projection value
      */
@@ -322,7 +332,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Read the index of this triangle, used to identify it in an OBBTree.
+     * Returns the index of this triangle, used to identify it in an OBBTree.
      *
      * @return the stored index
      */
@@ -331,7 +341,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Alter the index of this triangle, used to identify it in an OBBTree.
+     * Alters the index of this triangle, used to identify it in an OBBTree.
      *
      * @param index the desired index
      */
@@ -351,7 +361,7 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     * Serialize this triangle to the specified exporter, for example when
+     * Serializes this triangle to the specified exporter, for example when
      * saving to a J3O file.
      *
      * @param e (not null)
@@ -359,27 +369,27 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
      */
     @Override
     public void write(JmeExporter e) throws IOException {
-        e.getCapsule(this).write(pointa, "pointa", Vector3f.ZERO);
-        e.getCapsule(this).write(pointb, "pointb", Vector3f.ZERO);
-        e.getCapsule(this).write(pointc, "pointc", Vector3f.ZERO);
+        e.getCapsule(this).write(pointA, "pointa", Vector3f.ZERO);
+        e.getCapsule(this).write(pointB, "pointb", Vector3f.ZERO);
+        e.getCapsule(this).write(pointC, "pointc", Vector3f.ZERO);
     }
 
     /**
-     * De-serialize this triangle from the specified importer, for example when
+     * De-serializes this triangle from the specified importer, for example when
      * loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        pointa = (Vector3f) e.getCapsule(this).readSavable("pointa", Vector3f.ZERO.clone());
-        pointb = (Vector3f) e.getCapsule(this).readSavable("pointb", Vector3f.ZERO.clone());
-        pointc = (Vector3f) e.getCapsule(this).readSavable("pointc", Vector3f.ZERO.clone());
+    public void read(JmeImporter importer) throws IOException {
+        pointA = (Vector3f) importer.getCapsule(this).readSavable("pointa", Vector3f.ZERO.clone());
+        pointB = (Vector3f) importer.getCapsule(this).readSavable("pointb", Vector3f.ZERO.clone());
+        pointC = (Vector3f) importer.getCapsule(this).readSavable("pointc", Vector3f.ZERO.clone());
     }
 
     /**
-     * Create a copy of this triangle.
+     * Creates a copy of this triangle.
      *
      * @return a new instance, equivalent to this one
      */
@@ -387,9 +397,9 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     public Triangle clone() {
         try {
             Triangle t = (Triangle) super.clone();
-            t.pointa = pointa.clone();
-            t.pointb = pointb.clone();
-            t.pointc = pointc.clone();
+            t.pointA = pointA.clone();
+            t.pointB = pointB.clone();
+            t.pointC = pointC.clone();
             // XXX: the center and normal are not cloned!
             return t;
         } catch (CloneNotSupportedException e) {

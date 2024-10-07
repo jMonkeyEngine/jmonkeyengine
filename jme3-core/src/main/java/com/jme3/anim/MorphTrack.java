@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,11 @@ public class MorphTrack implements AnimTrack<float[]> {
      * Weights and times for track.
      */
     private float[] weights;
-    private FrameInterpolator interpolator = FrameInterpolator.DEFAULT;
+    /**
+     * The interpolator to use, or null to always use the default interpolator
+     * of the current thread.
+     */
+    private FrameInterpolator interpolator = null;
     private float[] times;
     private int nbMorphTargets;
 
@@ -65,10 +69,13 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * Creates a morph track with the given Geometry as a target
      *
+     * @param target   the desired target (alias created)
      * @param times    a float array with the time of each frame (alias created
      *                 -- do not modify after passing it to this constructor)
      * @param weights  the morphs for each frames (alias created -- do not
      *                 modify after passing it to this constructor)
+     * @param nbMorphTargets
+     *                 the desired number of morph targets
      */
     public MorphTrack(Geometry target, float[] times, float[] weights, int nbMorphTargets) {
         this.target = target;
@@ -86,6 +93,31 @@ public class MorphTrack implements AnimTrack<float[]> {
     }
 
     /**
+     * Set the weights for this morph track. Note that the number of weights
+     * must equal the number of frames times the number of morph targets.
+     *
+     * @param weights  the weights of the morphs for each frame (alias created
+     *                 -- do not modify after passing it to this setter)
+     *
+     * @throws IllegalStateException if this track does not have times set
+     * @throws IllegalArgumentException if weights is an empty array or if
+     *         the number of weights violates the frame count constraint
+     */
+    public void setKeyframesWeight(float[] weights) {
+        if (times == null) {
+            throw new IllegalStateException("MorphTrack doesn't have any time for key frames, please call setTimes first");
+        }
+        if (weights.length == 0) {
+            throw new IllegalArgumentException("MorphTrack with no weight keyframes!");
+        }
+        if (times.length * nbMorphTargets != weights.length) {
+            throw new IllegalArgumentException("weights.length must equal nbMorphTargets * times.length");
+        }
+
+        this.weights = weights;
+    }
+
+    /**
      * returns the arrays of time for this track
      *
      * @return the pre-existing array -- do not modify
@@ -99,10 +131,11 @@ public class MorphTrack implements AnimTrack<float[]> {
      *
      * @param times  the keyframes times (alias created -- do not modify after
      *               passing it to this setter)
+     * @throws IllegalArgumentException if times is empty
      */
     public void setTimes(float[] times) {
         if (times.length == 0) {
-            throw new RuntimeException("TransformTrack with no keyframes!");
+            throw new IllegalArgumentException("TransformTrack with no keyframes!");
         }
         this.times = times;
         length = times[times.length - 1] - times[0];
@@ -110,7 +143,8 @@ public class MorphTrack implements AnimTrack<float[]> {
 
 
     /**
-     * Set the weight for this morph track
+     * Sets the times and weights for this morph track. Note that the number of weights
+     * must equal the number of frames times the number of morph targets.
      *
      * @param times    a float array with the time of each frame (alias created
      *                 -- do not modify after passing it to this setter)
@@ -118,16 +152,37 @@ public class MorphTrack implements AnimTrack<float[]> {
      *                 -- do not modify after passing it to this setter)
      */
     public void setKeyframes(float[] times, float[] weights) {
-        setTimes(times);
-        if (weights != null) {
-            if (times == null) {
-                throw new RuntimeException("MorphTrack doesn't have any time for key frames, please call setTimes first");
-            }
-
-            this.weights = weights;
-
-            assert times.length == weights.length;
+        if (times != null) {
+            setTimes(times);
         }
+        if (weights != null) {
+            setKeyframesWeight(weights);
+        }
+    }
+
+    /**
+     * @return the number of morph targets
+     */
+    public int getNbMorphTargets() {
+        return nbMorphTargets;
+    }
+
+    /**
+     * Sets the number of morph targets and the corresponding weights.
+     * Note that the number of weights must equal the number of frames times the number of morph targets.
+     *
+     * @param weights        the weights for each frame (alias created
+     *                       -- do not modify after passing it to this setter)
+     * @param nbMorphTargets the desired number of morph targets
+     * @throws IllegalArgumentException if the number of weights and the new
+     *         number of morph targets violate the frame count constraint
+     */
+    public void setNbMorphTargets(float[] weights, int nbMorphTargets) {
+        if (times.length * nbMorphTargets != weights.length) {
+            throw new IllegalArgumentException("weights.length must equal nbMorphTargets * times.length");
+        }
+        this.nbMorphTargets = nbMorphTargets;
+        setKeyframesWeight(weights);
     }
 
     @Override
@@ -168,21 +223,54 @@ public class MorphTrack implements AnimTrack<float[]> {
                     / (times[endFrame] - times[startFrame]);
         }
 
-        interpolator.interpolateWeights(blend, startFrame, weights, nbMorphTargets, store);
+        FrameInterpolator fi = (interpolator == null)
+                ? FrameInterpolator.getThreadDefault() : interpolator;
+        fi.interpolateWeights(blend, startFrame, weights, nbMorphTargets, store);
     }
 
+    /**
+     * Access the FrameInterpolator.
+     *
+     * @return the pre-existing instance or null
+     */
+    public FrameInterpolator getFrameInterpolator() {
+        return interpolator;
+    }
+
+    /**
+     * Replace the FrameInterpolator.
+     *
+     * @param interpolator the interpolator to use (alias created)
+     */
     public void setFrameInterpolator(FrameInterpolator interpolator) {
         this.interpolator = interpolator;
     }
 
+    /**
+     * Access the target geometry.
+     *
+     * @return the pre-existing instance
+     */
     public Geometry getTarget() {
         return target;
     }
 
+    /**
+     * Replace the target geometry.
+     *
+     * @param target the Geometry to use as the target (alias created)
+     */
     public void setTarget(Geometry target) {
         this.target = target;
     }
 
+    /**
+     * Serialize this track to the specified exporter, for example when saving
+     * to a J3O file.
+     *
+     * @param ex the exporter to write to (not null)
+     * @throws IOException from the exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
@@ -192,6 +280,13 @@ public class MorphTrack implements AnimTrack<float[]> {
         oc.write(nbMorphTargets, "nbMorphTargets", 0);
     }
 
+    /**
+     * De-serialize this track from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param im the importer to use (not null)
+     * @throws IOException from the importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
@@ -217,6 +312,5 @@ public class MorphTrack implements AnimTrack<float[]> {
         this.target = cloner.clone(target);
         // Note: interpolator, times, and weights are not cloned
     }
-
 
 }

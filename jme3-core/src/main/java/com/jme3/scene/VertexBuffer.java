@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,7 +91,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         Binormal,
         /**
          * Specifies the source data for various vertex buffers
-         * when interleaving is used. By default the format is
+         * when interleaving is used. By default, the format is
          * byte.
          */
         InterleavedData,
@@ -198,7 +198,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          * So we can support up to
          * 14 simultaneous POSITION targets
          * 7 simultaneous POSITION and NORMAL targets
-         * 4 simultaneous POSTION, NORMAL and TANGENT targets.
+         * 4 simultaneous POSITION, NORMAL and TANGENT targets.
          * <p>
          * Note that the MorphControl will find how many buffers
          * can be supported for each mesh/material combination.
@@ -332,10 +332,13 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     protected boolean normalized = false;
     protected int instanceSpan = 0;
     protected transient boolean dataSizeChanged = false;
+    protected String name;
 
     /**
      * Creates an empty, uninitialized buffer.
      * Must call setupData() to initialize.
+     * 
+     * @param type the type of VertexBuffer, such as Position or Binormal
      */
     public VertexBuffer(Type type) {
         super();
@@ -544,6 +547,8 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * Sets the instanceSpan to 1 or 0 depending on
      * the value of instanced and the existing value of
      * instanceSpan.
+     * 
+     * @param instanced true for instanced, false for not instanced
      */
     public void setInstanced(boolean instanced) {
         if (instanced && instanceSpan == 0) {
@@ -554,8 +559,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     }
 
     /**
-     * Returns true if instanceSpan is more than 0 indicating
-     * that this vertex buffer contains per-instance data.
+     * @return true if buffer contains per-instance data, otherwise false
      */
     public boolean isInstanced() {
         return instanceSpan > 0;
@@ -567,6 +571,8 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * per vertex.  If set to 1 then each element goes with one
      * instance.  If set to 2 then each element goes with two
      * instances and so on.
+     * 
+     * @param i the desired number of instances per element
      */
     public void setInstanceSpan(int i) {
         this.instanceSpan = i;
@@ -618,6 +624,8 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      *  is 0 then 'instances' is 1.  Otherwise, instances is elements *
      *  instanceSpan.  It is possible to render a mesh with more instances
      *  but the instance data begins to repeat.
+     * 
+     * @return the number of instances
      */
     public int getBaseInstanceCount() {
         if (instanceSpan == 0) {
@@ -925,7 +933,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         int outPos = outIndex * components;
         int elementSz = components;
         if (format == Format.Half) {
-            // because half is stored as bytebuf but its 2 bytes long
+            // because half is stored as ByteBuffer, but it's 2 bytes long
             inPos *= 2;
             outPos *= 2;
             elementSz *= 2;
@@ -984,6 +992,11 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * of the parameters. The buffer will be of the type specified by
      * {@link Format format} and would be able to contain the given number
      * of elements with the given number of components in each element.
+     * 
+     * @param format the desired format of components, such as Float or Half
+     * @param components the number of components per element (&ge;1, &le;4)
+     * @param numElements the desired capacity (number of elements)
+     * @return a new Buffer
      */
     public static Buffer createBuffer(Format format, int components, int numElements) {
         if (components < 1 || components > 4) {
@@ -1009,7 +1022,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             case Double:
                 return BufferUtils.createDoubleBuffer(total);
             default:
-                throw new UnsupportedOperationException("Unrecoginized buffer format: " + format);
+                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
         }
     }
 
@@ -1021,7 +1034,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     @Override
     public VertexBuffer clone() {
         // NOTE: Superclass GLObject automatically creates shallow clone
-        // e.g re-use ID.
+        // e.g. re-use ID.
         VertexBuffer vb = (VertexBuffer) super.clone();
         vb.handleRef = new Object();
         vb.id = -1;
@@ -1103,7 +1116,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
 
     @Override
     public long getUniqueId() {
-        return ((long) OBJTYPE_VERTEXBUFFER << 32) | ((long) id);
+        return ((long) OBJTYPE_VERTEXBUFFER << 32) | (0xffffffffL & (long) id);
     }
 
     @Override
@@ -1176,5 +1189,16 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
             default:
                 throw new IOException("Unsupported import buffer format: " + format);
         }
+    }
+
+    public String getName() {
+        if (name == null) {
+            name = getClass().getSimpleName() + "(" + getBufferType().name() + ")";
+        }
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

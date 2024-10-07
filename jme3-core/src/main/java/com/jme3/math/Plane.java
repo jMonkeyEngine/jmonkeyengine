@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -171,9 +171,9 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
     /**
      * Find the point in this plane that's nearest to the specified point.
      *
-     * @param point location vector of the input point (not null, unaffected)
-     * @param store storage for the result (not null, modififed)
-     * @return a location in this plane (store)
+     * @param point the location of the input point (not null, unaffected)
+     * @param store storage for the result (not null, modified)
+     * @return the location of the nearest point (store)
      */
     public Vector3f getClosestPoint(Vector3f point, Vector3f store) {
 //        float t = constant - normal.dot(point);
@@ -196,7 +196,7 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
      * Reflect the specified point in this plane.
      *
      * @param point location vector of the input point (not null, unaffected)
-     * @param store storage for the result (modififed if not null)
+     * @param store storage for the result (modified if not null)
      * @return a location vector for the reflected point (either store or a new
      * vector)
      */
@@ -266,8 +266,8 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
     /**
      * Initialize this plane using a point of origin and a normal.
      *
-     * @param origin
-     * @param normal
+     * @param origin the desired origin location (not null, unaffected)
+     * @param normal the desired normal vector (not null, unaffected)
      */
     public void setOriginNormal(Vector3f origin, Vector3f normal) {
         this.normal.set(normal);
@@ -323,12 +323,12 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
      * De-serialize this plane from the specified importer, for example when
      * loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         normal = (Vector3f) capsule.readSavable("normal", Vector3f.ZERO.clone());
         constant = capsule.readFloat("constant", 0);
     }

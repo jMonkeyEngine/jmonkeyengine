@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
  */
 package jme3test.model;
 
+import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
 import com.jme3.app.*;
@@ -50,19 +51,15 @@ import java.util.*;
 
 public class TestGltfLoading extends SimpleApplication {
 
-    Node autoRotate = new Node("autoRotate");
-    List<Spatial> assets = new ArrayList<>();
-    Node probeNode;
-    float time = 0;
-    int assetIndex = 0;
-    boolean useAutoRotate = false;
+    final private Node autoRotate = new Node("autoRotate");
+    final private List<Spatial> assets = new ArrayList<>();
+    private Node probeNode;
+    private float time = 0;
+    private int assetIndex = 0;
+    private boolean useAutoRotate = false;
     private final static String indentString = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-    int duration = 1;
-    boolean playAnim = true;
-
-    Geometry g;
-    int morphIndex = 0;
-
+    final private int duration = 1;
+    private boolean playAnim = true;
 
     public static void main(String[] args) {
         TestGltfLoading app = new TestGltfLoading();
@@ -74,7 +71,7 @@ public class TestGltfLoading extends SimpleApplication {
     you can find them here :
     https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0
     https://sketchfab.com/features/gltf
-    You have to copy them in Model/gltf folder in the test-data project.
+    You have to copy them in Model/gltf folder in the jme3-testdata project.
      */
     @Override
     public void simpleInitApp() {
@@ -116,13 +113,13 @@ public class TestGltfLoading extends SimpleApplication {
 //        rootNode.addLight(pl1);
 
         //loadModel("Models/gltf/polly/project_polly.gltf", new Vector3f(0, 0, 0), 0.5f);
-        //loadModel("Models/gltf/zophrac/scene.gltf", new Vector3f(0, 0, 0), 0.1f);
+        //loadModel("Models/gltf/zophrac/scene.gltf", new Vector3f(0, 0, 0), 0.01f);
     //    loadModel("Models/gltf/scifigirl/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
         //loadModel("Models/gltf/man/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
        //loadModel("Models/gltf/torus/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
         //loadModel("Models/gltf/morph/scene.gltf", new Vector3f(0, 0, 0), 0.2f);
-        //loadModel("Models/gltf/morphCube/AnimatedMorphCube.gltf", new Vector3f(0, 0, 0), 1f);
-     //   loadModel("Models/gltf/morph/SimpleMorph.gltf", new Vector3f(0, 0, 0), 0.1f);
+//        loadModel("Models/gltf/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf", new Vector3f(0, 0, 0), 1f);
+//        loadModel("Models/gltf/SimpleMorph/glTF/SimpleMorph.gltf", new Vector3f(0, 0, 0), 0.1f);
         //loadModel("Models/gltf/nier/scene.gltf", new Vector3f(0, -1.5f, 0), 0.01f);
         //loadModel("Models/gltf/izzy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/darth/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
@@ -137,31 +134,26 @@ public class TestGltfLoading extends SimpleApplication {
         //loadModel("Models/gltf/manta/scene.gltf", Vector3f.ZERO, 0.2f);
         //loadModel("Models/gltf/bone/scene.gltf", Vector3f.ZERO, 0.1f);
 //        loadModel("Models/gltf/box/box.gltf", Vector3f.ZERO, 1);
-        loadModel("Models/gltf/duck/Duck.gltf", new Vector3f(0, -1, 0), 1);
-//        loadModel("Models/gltf/damagedHelmet/damagedHelmet.gltf", Vector3f.ZERO, 1);
+        loadModel("Models/gltf/duck/Duck.gltf", new Vector3f(0, 1, 0), 1);
+//        loadModel("Models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf", Vector3f.ZERO, 1);
 //        loadModel("Models/gltf/hornet/scene.gltf", new Vector3f(0, -0.5f, 0), 0.4f);
 ////        loadModel("Models/gltf/adamHead/adamHead.gltf", Vector3f.ZERO, 0.6f);
         //loadModel("Models/gltf/busterDrone/busterDrone.gltf", new Vector3f(0, 0f, 0), 0.8f);
-//        loadModel("Models/gltf/animatedCube/AnimatedCube.gltf", Vector3f.ZERO, 0.5f);
-//
-        //loadModel("Models/gltf/BoxAnimated/BoxAnimated.gltf", new Vector3f(0, 0f, 0), 0.8f);
-//
-        //loadModel("Models/gltf/RiggedFigure/RiggedSimple.gltf", new Vector3f(0, -0.3f, 0), 0.2f);
-        //loadModel("Models/gltf/RiggedFigure/RiggedFigure.gltf", new Vector3f(0, -1f, 0), 1f);
-        //loadModel("Models/gltf/CesiumMan/CesiumMan.gltf", new Vector3f(0, -1, 0), 1f);
-        //loadModel("Models/gltf/BrainStem/BrainStem.gltf", new Vector3f(0, -1, 0), 1f);
+//        loadModel("Models/gltf/AnimatedCube/glTF/AnimatedCube.gltf", Vector3f.ZERO, 0.5f);
+//        loadModel("Models/gltf/BoxAnimated/glTF/BoxAnimated.gltf", new Vector3f(0, 0f, 0), 0.8f);
+//        loadModel("Models/gltf/RiggedSimple/glTF/RiggedSimple.gltf", new Vector3f(0, -0.3f, 0), 0.2f);
+//        loadModel("Models/gltf/RiggedFigure/glTF/RiggedFigure.gltf", new Vector3f(0, -1f, 0), 1f);
+//        loadModel("Models/gltf/CesiumMan/glTF/CesiumMan.gltf", new Vector3f(0, -1, 0), 1f);
+//        loadModel("Models/gltf/BrainStem/glTF/BrainStem.gltf", new Vector3f(0, -1, 0), 1f);
         //loadModel("Models/gltf/Jaime/Jaime.gltf", new Vector3f(0, -1, 0), 1f);
         // loadModel("Models/gltf/GiantWorm/GiantWorm.gltf", new Vector3f(0, -1, 0), 1f);
         //loadModel("Models/gltf/RiggedFigure/WalkingLady.gltf", new Vector3f(0, -0.f, 0), 1f);
         //loadModel("Models/gltf/Monster/Monster.gltf", Vector3f.ZERO, 0.03f);
 
-//        loadModel("Models/gltf/corset/Corset.gltf", new Vector3f(0, -1, 0), 20f);
-        //    loadModel("Models/gltf/boxInter/BoxInterleaved.gltf", new Vector3f(0, 0, 0), 1f);
-
-
+//        loadModel("Models/gltf/Corset/glTF/Corset.gltf", new Vector3f(0, -1, 0), 20f);
+//        loadModel("Models/gltf/BoxInterleaved/glTF/BoxInterleaved.gltf", new Vector3f(0, 0, 0), 1f);
+        
         probeNode.attachChild(assets.get(0));
-
-        // setMorphTarget(morphIndex);
 
         ChaseCameraAppState chaseCam = new ChaseCameraAppState();
         chaseCam.setTarget(probeNode);
@@ -234,10 +226,13 @@ public class TestGltfLoading extends SimpleApplication {
     }
 
     private void loadModel(String path, Vector3f offset, float scale) {
+        loadModel(path, offset, new Vector3f(scale, scale, scale));
+    }
+    private void loadModel(String path, Vector3f offset, Vector3f scale) {
         GltfModelKey k = new GltfModelKey(path);
         //k.setKeepSkeletonPose(true);
         Spatial s = assetManager.loadModel(k);
-        s.scale(scale);
+        s.scale(scale.x, scale.y, scale.z);
         s.move(offset);
         assets.add(s);
         if (playAnim) {
@@ -264,8 +259,8 @@ public class TestGltfLoading extends SimpleApplication {
 
     }
 
-    Queue<String> anims = new LinkedList<>();
-    AnimComposer composer;
+    final private Queue<String> anims = new LinkedList<>();
+    private AnimComposer composer;
 
     private void playFirstAnim(Spatial s) {
 

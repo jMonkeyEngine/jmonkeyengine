@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2011, Novyon Events
  * 
  * All rights reserved.
@@ -36,64 +36,64 @@ import java.util.List;
 
 public abstract class AbstractFilter implements Filter {
 
-	protected List<Filter> preFilters = new ArrayList<Filter>();
-	protected List<Filter> postFilters = new ArrayList<Filter>();
+    protected List<Filter> preFilters = new ArrayList<>();
+    protected List<Filter> postFilters = new ArrayList<>();
 
-	private boolean enabled = true;
+    private boolean enabled = true;
 
-	@Override
-	public Filter addPreFilter(Filter filter) {
-		this.preFilters.add(filter);
-		return this;
-	}
+    @Override
+    public Filter addPreFilter(Filter filter) {
+        this.preFilters.add(filter);
+        return this;
+    }
 
-	@Override
-	public Filter addPostFilter(Filter filter) {
-		this.postFilters.add(filter);
-		return this;
-	}
+    @Override
+    public Filter addPostFilter(Filter filter) {
+        this.postFilters.add(filter);
+        return this;
+    }
 
-	@Override
-	public FloatBuffer doFilter(float sx, float sy, float base, FloatBuffer data, int size) {
-		if (!this.isEnabled()) {
-			return data;
-		}
-		FloatBuffer retval = data;
-		for (Filter f : this.preFilters) {
-			retval = f.doFilter(sx, sy, base, retval, size);
-		}
-		retval = this.filter(sx, sy, base, retval, size);
-		for (Filter f : this.postFilters) {
-			retval = f.doFilter(sx, sy, base, retval, size);
-		}
-		return retval;
-	}
+    @Override
+    public FloatBuffer doFilter(float sx, float sy, float base, FloatBuffer data, int size) {
+        if (!this.isEnabled()) {
+            return data;
+        }
+        FloatBuffer retval = data;
+        for (Filter f : this.preFilters) {
+            retval = f.doFilter(sx, sy, base, retval, size);
+        }
+        retval = this.filter(sx, sy, base, retval, size);
+        for (Filter f : this.postFilters) {
+            retval = f.doFilter(sx, sy, base, retval, size);
+        }
+        return retval;
+    }
 
-	public abstract FloatBuffer filter(float sx, float sy, float base, FloatBuffer buffer, int size);
+    public abstract FloatBuffer filter(float sx, float sy, float base, FloatBuffer buffer, int size);
 
-	@Override
-	public int getMargin(int size, int margin) {
-		// TODO sums up all the margins from filters... maybe there's a more
-		// efficient algorithm
-		if (!this.isEnabled()) {
-			return margin;
-		}
-		for (Filter f : this.preFilters) {
-			margin = f.getMargin(size, margin);
-		}
-		for (Filter f : this.postFilters) {
-			margin = f.getMargin(size, margin);
-		}
-		return margin;
-	}
+    @Override
+    public int getMargin(int size, int margin) {
+        // TODO sums up all the margins from filters... maybe there's a more
+        // efficient algorithm
+        if (!this.isEnabled()) {
+            return margin;
+        }
+        for (Filter f : this.preFilters) {
+            margin = f.getMargin(size, margin);
+        }
+        for (Filter f : this.postFilters) {
+            margin = f.getMargin(size, margin);
+        }
+        return margin;
+    }
 
-	@Override
-	public boolean isEnabled() {
-		return this.enabled;
-	}
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
+    }
 
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
 }

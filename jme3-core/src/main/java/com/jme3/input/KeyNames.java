@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,15 @@ package com.jme3.input;
 
 import static com.jme3.input.KeyInput.*;
 
+/**
+ * Translate key codes (from {@link KeyInput}) to descriptive names.
+ *
+ * This class has only static methods, yet it can be instantiated. Here's why:
+ *
+ * It used to be that there was no static getName() method, so the only way to
+ * get names was to instantiate a KeyNames. As a consequence, we have
+ * applications and libraries that rely on being able to instantiate this class.
+ */
 public class KeyNames {
 
     private static final String[] KEY_NAMES = new String[0xFF];
@@ -180,6 +189,13 @@ public class KeyNames {
         KEY_NAMES[KEY_UNLABELED] = "Unlabeled";
     }
 
+    /**
+     * Obtain a descriptive name for the specified key code. Key codes are
+     * defined in {@link KeyInput}.
+     *
+     * @param keyId a key code (&ge;0, &le;255)
+     * @return the corresponding name, or null if not named
+     */
     public static String getName(int keyId) {
         return KEY_NAMES[keyId];
     }

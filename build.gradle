@@ -3,29 +3,31 @@ import java.nio.file.StandardCopyOption;
 
 buildscript {
     repositories {
+        mavenCentral()
         google()
-        jcenter()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        classpath 'me.tatarka:gradle-retrolambda:3.7.1'
-        classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.5.1"
+        classpath libs.android.build.gradle
+        classpath libs.gradle.retrolambda
+        classpath libs.spotbugs.gradle.plugin
     }
 }
 
 allprojects {
     repositories {
+        mavenCentral()
         google()
-        jcenter()
+    }
+    tasks.withType(Jar) {
+        duplicatesStrategy = 'include'
     }
 }
 
 // Set the license for IDEs that understand this
-ext.license = file("$rootDir/license.txt")
+ext.license = file("$rootDir/source-file-header-template.txt")
 
 apply plugin: 'base'
 apply plugin: 'com.github.spotbugs'
@@ -37,9 +39,6 @@ apply plugin: 'me.tatarka.retrolambda'
 subprojects {
     if(!project.name.equals('jme3-android-examples')) {
         apply from: rootProject.file('common.gradle')
-        if (!project.name.equals('jme3-testdata')) {
-            apply from: rootProject.file('bintray.gradle')
-        }
     } else {
         apply from: rootProject.file('common-android-app.gradle')
     }
@@ -50,6 +49,7 @@ subprojects {
         // Currently we only warn about issues and try to fix them as we go, but those aren't mission critical.
         spotbugs {
             ignoreFailures = true
+            toolVersion = '4.8.6'
         }
 
         tasks.withType(com.github.spotbugs.snom.SpotBugsTask ) {
@@ -73,25 +73,25 @@ task libDist(dependsOn: subprojects.build, description: 'Builds and copies the e
         File sourceFolder = mkdir("$buildDir/libDist/sources")
         File javadocFolder = mkdir("$buildDir/libDist/javadoc")
         subprojects.each {project ->
-            if(project.ext.mainClass == ''){
+            if(!project.hasProperty('mainClassName')){
                 project.tasks.withType(Jar).each {archiveTask ->
-                    if(archiveTask.classifier == "sources"){
+                    if(archiveTask.archiveClassifier == "sources"){
                         copy {
                             from archiveTask.archivePath
                                 into sourceFolder
-                                rename {project.name + '-' + archiveTask.classifier +'.'+ archiveTask.extension}
+                                rename {project.name + '-' + archiveTask.archiveClassifier +'.'+ archiveTask.archiveExtension}
                         }
-                    } else if(archiveTask.classifier == "javadoc"){
+                    } else if(archiveTask.archiveClassifier == "javadoc"){
                         copy {
                             from archiveTask.archivePath
                                 into javadocFolder
-                                rename {project.name + '-' + archiveTask.classifier +'.'+ archiveTask.extension}
+                                rename {project.name + '-' + archiveTask.archiveClassifier +'.'+ archiveTask.archiveExtension}
                         }
                     } else{
                         copy {
                             from archiveTask.archivePath
                                 into libFolder
-                                rename {project.name + '.' + archiveTask.extension}
+                                rename {project.name + '.' + archiveTask.archiveExtension}
                         }
                     }
                 }
@@ -101,7 +101,9 @@ task libDist(dependsOn: subprojects.build, description: 'Builds and copies the e
 }
 
 task createZipDistribution(type:Zip,dependsOn:["dist","libDist"], description:"Package the nightly zip distribution"){
-    archiveName "jME" + jmeFullVersion + ".zip"
+    archiveFileName = provider {
+        "jME" + jmeFullVersion + ".zip"
+    }
     into("/") {
          from {"./dist"}
     }
@@ -113,7 +115,7 @@ task createZipDistribution(type:Zip,dependsOn:["dist","libDist"], description:"P
 task copyLibs(type: Copy){
 //    description 'Copies the engine dependencies to build/libDist'
     from {
-        subprojects*.configurations*.compile*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
+        subprojects*.configurations*.implementation*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
     }
 
     into "$buildDir/libDist/lib-ext" //buildDir.path + '/' + libsDirName + '/lib'
@@ -123,6 +125,22 @@ task dist(dependsOn: [':jme3-examples:dist', 'mergedJavadoc']){
     description 'Creates a jME3 examples distribution with all jme3 binaries, sources, javadoc and external libraries under ./dist'
 }
 
+def mergedJavadocSubprojects = [
+        ":jme3-android",
+        ":jme3-core",
+        ":jme3-desktop",
+        ":jme3-effects",
+        ":jme3-ios",
+        ":jme3-jbullet",
+        ":jme3-jogg",
+        ":jme3-lwjgl",
+        ":jme3-lwjgl3",
+        ":jme3-networking",
+        ":jme3-niftygui",
+        ":jme3-plugins",
+        ":jme3-terrain",
+        ":jme3-vr"
+]
 task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the projects.') {
     title = 'jMonkeyEngine3'
     destinationDir = mkdir("dist/javadoc")
@@ -135,15 +153,8 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
     }
 
     options.overview = file("javadoc-overview.html")
-    // Note: The closures below are executed lazily.
-    source subprojects.collect {project ->
-        project.sourceSets.main.allJava // main only, exclude tests
-    }
-    classpath = files(subprojects.collect {project ->
-            project.sourceSets*.compileClasspath})
-    classpath.from {
-        subprojects*.configurations*.compile*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
-    }
+    source = mergedJavadocSubprojects.collect { project(it).sourceSets.main.allJava }
+    classpath = files(mergedJavadocSubprojects.collect { project(it).sourceSets.main.compileClasspath })
 }
 
 clean.dependsOn('cleanMergedJavadoc')
@@ -185,18 +196,18 @@ gradle.rootProject.ext.set("usePrebuildNatives", buildNativeProjects!="true");
 if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
     String rootPath = rootProject.projectDir.absolutePath
 
-    Properties nativesSnasphotProp = new Properties()
-    File nativesSnasphotPropF = new File("${rootPath}/natives-snapshot.properties");
+    Properties nativesSnapshotProp = new Properties()
+    File nativesSnapshotPropF = new File("${rootPath}/natives-snapshot.properties");
 
-    if (nativesSnasphotPropF.exists()) {
+    if (nativesSnapshotPropF.exists()) {
 
-        nativesSnasphotPropF.withInputStream { nativesSnasphotProp.load(it) }
+        nativesSnapshotPropF.withInputStream { nativesSnapshotProp.load(it) }
 
-        String nativesSnasphot = nativesSnasphotProp.getProperty("natives.snapshot");
-        String nativesUrl = PREBUILD_NATIVES_URL.replace('${natives.snapshot}', nativesSnasphot)
+        String nativesSnapshot = nativesSnapshotProp.getProperty("natives.snapshot");
+        String nativesUrl = PREBUILD_NATIVES_URL.replace('${natives.snapshot}', nativesSnapshot)
         println "Use natives snapshot: " + nativesUrl
 
-        String nativesZipFile = "${rootPath}" + File.separator + "build" + File.separator + nativesSnasphot + "-natives.zip"
+        String nativesZipFile = "${rootPath}" + File.separator + "build" + File.separator + nativesSnapshot + "-natives.zip"
         String nativesPath = "${rootPath}" + File.separator + "build" + File.separator + "native"
 
 
@@ -234,48 +245,6 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
         assemble.dependsOn extractPrebuiltNatives
     }
 }
-
-
-//class IncrementalReverseTask extends DefaultTask {
-//    @InputDirectory
-//    def File inputDir
-//
-//    @OutputDirectory
-//    def File outputDir
-//
-//    @Input
-//    def inputProperty
-//
-//    @TaskAction
-//    void execute(IncrementalTaskInputs inputs) {
-//        println inputs.incremental ? "CHANGED inputs considered out of date" : "ALL inputs considered out of date"
-//        inputs.outOfDate { change ->
-//            println "out of date: ${change.file.name}"
-//            def targetFile = new File(outputDir, change.file.name)
-//            targetFile.text = change.file.text.reverse()
-//        }
-//
-//        inputs.removed { change ->
-//            println "removed: ${change.file.name}"
-//            def targetFile = new File(outputDir, change.file.name)
-//            targetFile.delete()
-//        }
-//    }
-//}
-
-//allprojects {
-//    tasks.withType(JavaExec) {
-//        enableAssertions = true // false by default
-//    }
-//    tasks.withType(Test) {
-//        enableAssertions = true // true by default
-//    }
-//}
-
-wrapper {
-    gradleVersion = '5.6.4'
-}
-
 
 retrolambda {
   javaVersion JavaVersion.VERSION_1_7

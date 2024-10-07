@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 import com.jme3.util.SafeArrayList;
 import java.io.IOException;
@@ -67,7 +68,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private Texture2D filterTexture;
     private Texture2D depthTexture;
     private SafeArrayList<Filter> filters = new SafeArrayList<>(Filter.class);
-    private AssetManager assetManager;        
+    private AssetManager assetManager;
     private Picture fsQuad;
     private boolean computeDepth = false;
     private FrameBuffer outputBuffer;
@@ -86,9 +87,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     private Format fbFormat = Format.RGB111110F;
     private Format depthFormat = Format.Depth;
-    
+
     /**
-     * Create a FilterProcessor 
+     * Create a FilterProcessor
      * @param assetManager the assetManager
      */
     public FilterPostProcessor(AssetManager assetManager) {
@@ -122,7 +123,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     /**
      * removes this filters from the filters list
-     * @param filter 
+     *
+     * @param filter the Filter to remove (not null)
      */
     public void removeFilter(Filter filter) {
         if (filter == null) {
@@ -147,16 +149,18 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         fsQuad.setHeight(1);
 
         if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
-            if (!renderer.getCaps().contains(Caps.FloatTexture)) {
-                fbFormat = Format.RGB8;
-            } else {
+            if(renderer.getCaps().contains(Caps.FloatColorBufferRGB)){
                 fbFormat = Format.RGB16F;
+            } else if(renderer.getCaps().contains(Caps.FloatColorBufferRGBA)){
+                fbFormat = Format.RGBA16F;
+            } else {
+                fbFormat = Format.RGB8;
             }
         }
-        
+
         Camera cam = vp.getCamera();
 
-        //save view port diensions
+        //save view port dimensions
         left = cam.getViewPortLeft();
         right = cam.getViewPortRight();
         top = cam.getViewPortTop();
@@ -170,18 +174,18 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     public Format getDefaultPassTextureFormat() {
         return fbFormat;
     }
-    
+
     /**
      * init the given filter
      * @param filter
-     * @param vp 
+     * @param vp
      */
     private void initFilter(Filter filter, ViewPort vp) {
         filter.setProcessor(this);
         if (filter.isRequiresDepthTexture()) {
             if (!computeDepth && renderFrameBuffer != null) {
                 depthTexture = new Texture2D(width, height, depthFormat);
-                renderFrameBuffer.setDepthTexture(depthTexture);
+                renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthTexture));
             }
             computeDepth = true;
             filter.init(assetManager, renderManager, vp, width, height);
@@ -195,7 +199,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * renders a filter on a fullscreen quad
      * @param r
      * @param buff
-     * @param mat 
+     * @param mat
      */
     private void renderProcessing(Renderer r, FrameBuffer buff, Material mat) {
         if (buff == outputBuffer) {
@@ -205,32 +209,32 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             // run the appropriate (and same) onXXXChange methods.
             // Also, update() updates some things that don't need to be updated.
             //viewPort.getCamera().update();
-            renderManager.setCamera( viewPort.getCamera(), false);        
+            renderManager.setCamera( viewPort.getCamera(), false);
             if (mat.getAdditionalRenderState().isDepthWrite()) {
                 mat.getAdditionalRenderState().setDepthTest(false);
                 mat.getAdditionalRenderState().setDepthWrite(false);
             }
-        }else{
+        } else {
             viewPort.getCamera().resize(buff.getWidth(), buff.getHeight(), false);
             viewPort.getCamera().setViewPort(0, 1, 0, 1);
             // update is redundant because resize and setViewPort will both
             // run the appropriate (and same) onXXXChange methods.
             // Also, update() updates some things that don't need to be updated.
             //viewPort.getCamera().update();
-            renderManager.setCamera( viewPort.getCamera(), false);            
+            renderManager.setCamera( viewPort.getCamera(), false);
             mat.getAdditionalRenderState().setDepthTest(true);
             mat.getAdditionalRenderState().setDepthWrite(true);
         }
-     
-        
+
+
         fsQuad.setMaterial(mat);
         fsQuad.updateGeometricState();
-      
-        r.setFrameBuffer(buff);        
+
+        r.setFrameBuffer(buff);
         r.clearBuffers(true, true, true);
         renderManager.renderGeometry(fsQuad);
     }
-    
+
     @Override
     public boolean isInitialized() {
         return viewPort != null;
@@ -244,12 +248,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 filter.postQueue(rq);
             }
         }
-    }   
+    }
 
     /**
      * iterate through the filter list and renders filters
      * @param r
-     * @param sceneFb 
+     * @param sceneFb
      */
     private void renderFilterChain(Renderer r, FrameBuffer sceneFb) {
         Texture2D tex = filterTexture;
@@ -291,7 +295,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 if (msDepth && filter.isRequiresDepthTexture()) {
                     mat.setInt("NumSamplesDepth", depthTexture.getImage().getMultiSamples());
                 }
-
+                
                 if (filter.isRequiresSceneTexture()) {
                     mat.setTexture("Texture", tex);
                     if (tex.getImage().getMultiSamples() > 1) {
@@ -300,7 +304,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                         mat.clearParam("NumSamples");
                     }
                 }
-                
+
                 boolean wantsBilinear = filter.isRequiresBilinear();
                 if (wantsBilinear) {
                     tex.setMagFilter(Texture.MagFilter.Bilinear);
@@ -317,7 +321,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 renderProcessing(r, buff, mat);
                 if (prof != null) prof.spStep(SpStep.ProcPostFrame, FPP, filter.getName(), "postFilter");
                 filter.postFilter(r, buff);
-                
+
                 if (wantsBilinear) {
                     tex.setMagFilter(Texture.MagFilter.Nearest);
                     tex.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
@@ -337,7 +341,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
         renderFilterChain(renderer, sceneBuffer);
         renderer.setFrameBuffer(outputBuffer);
-        
+
         //viewport can be null if no filters are enabled
         if (viewPort != null) {
             renderManager.setCamera(viewPort.getCamera(), false);
@@ -357,8 +361,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
         } else {
            setupViewPortFrameBuffer();
-           //if we are ina multiview situation we need to resize the camera 
-           //to the viewportsize so that the backbuffer is rendered correctly
+           //if we are in a multiview situation we need to resize the camera
+           //to the viewport size so that the back buffer is rendered correctly
            if (multiView) {
                 viewPort.getCamera().resize(width, height, false);
                 viewPort.getCamera().setViewPort(0, 1, 0, 1);
@@ -378,8 +382,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     /**
      * sets the filter to enabled or disabled
-     * @param filter
-     * @param enabled 
+     *
+     * @param filter the Filter to modify (not null)
+     * @param enabled true to enable, false to disable
      */
     protected void setFilterState(Filter filter, boolean enabled) {
         if (filters.contains(filter)) {
@@ -396,10 +401,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         for (int i = filters.size() - 1; i >= 0 && lastFilterIndex == -1; i--) {
             if (filters.get(i).isEnabled()) {
                 lastFilterIndex = i;
-                //the Fpp is initialized, but the viwport framebuffer is the 
-                //original out framebuffer so we must recover from a situation 
-                //where no filter was enabled. So we set the correct framebuffer 
-                //on the viewport
+                // The FPP is initialized, but the viewport framebuffer is the
+                // original out framebuffer, so we must recover from a situation
+                // where no filter was enabled. So we set the correct framebuffer
+                // on the viewport.
                 if(isInitialized() && viewPort.getOutputFrameBuffer()==outputBuffer){
                     setupViewPortFrameBuffer();
                 }
@@ -407,7 +412,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             }
         }
         if (isInitialized() && lastFilterIndex == -1) {
-            //There is no enabled filter, we restore the original framebuffer 
+            //There is no enabled filter, we restore the original framebuffer
             //to the viewport to bypass the fpp.
             viewPort.setOutputFrameBuffer(outputBuffer);
         }
@@ -450,7 +455,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         //this has no effect at first init but is useful when resizing the canvas with multi views
         cam.setViewPort(left, right, bottom, top);
         //resizing the camera to fit the new viewport and saving original dimensions
-        cam.resize(w, h, false);
+        cam.resize(w, h, true);
         left = cam.getViewPortLeft();
         right = cam.getViewPortRight();
         top = cam.getViewPortTop();
@@ -458,14 +463,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         originalWidth = w;
         originalHeight = h;
 
-        //computing real dimension of the viewport and resizing the camera 
+        //computing real dimension of the viewport and resizing the camera
         width = (int) (w * (Math.abs(right - left)));
         height = (int) (h * (Math.abs(bottom - top)));
         width = Math.max(1, width);
         height = Math.max(1, height);
-        
+
         //Testing original versus actual viewport dimension.
-        //If they are different we are in a multiview situation and 
+        //If they are different we are in a multiview situation and
         //camera must be handled differently
         if(originalWidth!=width || originalHeight!=height){
             multiView = true;
@@ -486,21 +491,29 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             if (caps.contains(Caps.OpenGL32)) {
                 Texture2D msColor = new Texture2D(width, height, numSamples, fbFormat);
                 Texture2D msDepth = new Texture2D(width, height, numSamples, depthFormat);
-                renderFrameBufferMS.setDepthTexture(msDepth);
-                renderFrameBufferMS.setColorTexture(msColor);
+                renderFrameBufferMS.setDepthTarget(FrameBufferTarget.newTarget(msDepth));
+                renderFrameBufferMS.addColorTarget(FrameBufferTarget.newTarget(msColor));
                 filterTexture = msColor;
                 depthTexture = msDepth;
             } else {
-                renderFrameBufferMS.setDepthBuffer(depthFormat);
-                renderFrameBufferMS.setColorBuffer(fbFormat);
+                renderFrameBufferMS.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
+                renderFrameBufferMS.addColorTarget(FrameBufferTarget.newTarget(fbFormat));
             }
         }
 
         if (numSamples <= 1 || !caps.contains(Caps.OpenGL32)) {
             renderFrameBuffer = new FrameBuffer(width, height, 1);
-            renderFrameBuffer.setDepthBuffer(depthFormat);
+            renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
             filterTexture = new Texture2D(width, height, fbFormat);
-            renderFrameBuffer.setColorTexture(filterTexture);
+            renderFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(filterTexture));
+        }
+
+        if (renderFrameBufferMS != null) {
+            renderFrameBufferMS.setName("FilterPostProcessor MS");
+        }
+
+        if (renderFrameBuffer != null) {
+            renderFrameBuffer.setName("FilterPostProcessor");
         }
 
         for (Filter filter : filters.getArray()) {
@@ -540,14 +553,38 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     /**
      * Sets the asset manager for this processor
-     * @param assetManager
+     *
+     * @param assetManager to load assets
      */
     public void setAssetManager(AssetManager assetManager) {
         this.assetManager = assetManager;
     }
 
+    /**
+     * Sets the format to be used for the internal frame buffer's color buffer
+     *
+     * @param fbFormat the format
+     */
     public void setFrameBufferFormat(Format fbFormat) {
         this.fbFormat = fbFormat;
+    }
+
+    /**
+     * Sets the format to be used for the internal frame buffer's depth buffer
+     *
+     * @param depthFormat the format
+     */
+    public void setFrameBufferDepthFormat(Format depthFormat) {
+        this.depthFormat = depthFormat;
+    }
+
+    /**
+     * Returns the depth format currently used for the internal frame buffer's depth buffer
+     * 
+     * @return the depth format
+     */
+    public Format getFrameBufferDepthFormat() {
+        return depthFormat;
     }
 
     @Override
@@ -563,7 +600,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
-        filters = new SafeArrayList<Filter>(Filter.class, ic.readSavableArrayList("filters", null));
+        filters = new SafeArrayList<>(Filter.class, ic.readSavableArrayList("filters", null));
         for (Filter filter : filters.getArray()) {
             filter.setProcessor(this);
             setFilterState(filter, filter.isEnabled());
@@ -588,12 +625,13 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     public Texture2D getFilterTexture() {
         return filterTexture;
     }
-    
+
     /**
-     * returns the first filter in the list assignable form the given type 
-     * @param <T> 
+     * returns the first filter in the list assignable from the given type
+     *
+     * @param <T> the filter type
      * @param filterType the filter type
-     * @return a filter assignable form the given type 
+     * @return a filter assignable from the given type
      */
     @SuppressWarnings("unchecked")
     public <T extends Filter> T getFilter(Class<T> filterType) {
@@ -604,7 +642,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
         return null;
     }
-    
+
     /**
      * returns an unmodifiable version of the filter list.
      * @return the filters list

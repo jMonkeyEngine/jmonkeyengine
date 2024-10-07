@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public class Node extends Spatial {
     /**
      * This node's children.
      */
-    protected SafeArrayList<Spatial> children = new SafeArrayList<Spatial>(Spatial.class);
+    protected SafeArrayList<Spatial> children = new SafeArrayList<>(Spatial.class);
     /**
      * If this node is a root, this list will contain the current
      * set of children (and children of children) that require
@@ -212,7 +212,7 @@ public class Node extends Spatial {
             return updateList;
         }
         if (updateList == null) {
-            updateList = new SafeArrayList<Spatial>(Spatial.class);
+            updateList = new SafeArrayList<>(Spatial.class);
         } else {
             updateList.clear();
         }
@@ -228,7 +228,7 @@ public class Node extends Spatial {
         super.updateLogicalState(tpf);
 
         // Only perform updates on children if we are the
-        // root and then only peform updates on children we
+        // root and then only perform updates on children we
         // know to require updates.
         // So if this isn't the root, abort.
         if (parent != null) {
@@ -338,8 +338,10 @@ public class Node extends Spatial {
      *
      * @param child
      *            the child to attach to this node.
+     * @param index
+     *            the position where the child should be attached
      * @return the number of children maintained by this node.
-     * @throws NullPointerException if child is null.
+     * @throws IllegalArgumentException if child is null or this
      */
     public int attachChildAt(Spatial child, int index) {
         if (child == null) {
@@ -374,12 +376,12 @@ public class Node extends Spatial {
      * This child will no longer be maintained.
      *
      * @param child
-     *            the child to remove.
+     *            the child to remove (not null)
      * @return the index the child was at. -1 if the child was not in the list.
      */
     public int detachChild(Spatial child) {
         if (child == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("child cannot be null");
         }
 
         if (child.getParent() == this) {
@@ -395,16 +397,16 @@ public class Node extends Spatial {
 
     /**
      * <code>detachChild</code> removes a given child from the node's list.
-     * This child will no longe be maintained. Only the first child with a
+     * This child will no longer be maintained. Only the first child with a
      * matching name is removed.
      *
      * @param childName
-     *            the child to remove.
+     *            the child to remove (not null)
      * @return the index the child was at. -1 if the child was not in the list.
      */
     public int detachChildNamed(String childName) {
         if (childName == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("childName cannot be null");
         }
 
         for (int x = 0, max = children.size(); x < max; x++) {
@@ -429,7 +431,7 @@ public class Node extends Spatial {
         Spatial child = children.remove(index);
         if (child != null) {
             child.setParent(null);
-            logger.log(Level.FINE, "{0}: Child removed.", this.toString());
+            logger.log(Level.FINE, "{0}: Child removed.", this);
 
             // since a child with a bound was detached;
             // our own bound will probably change.
@@ -459,7 +461,7 @@ public class Node extends Spatial {
         for (int i = children.size() - 1; i >= 0; i--) {
             detachChildAt(i);
         }
-        logger.log(Level.FINE, "{0}: All children removed.", this.toString());
+        logger.log(Level.FINE, "{0}: All children removed.", this);
     }
 
     /**
@@ -475,7 +477,7 @@ public class Node extends Spatial {
     }
 
     /**
-     * More efficient than e.g detaching and attaching as no updates are needed.
+     * More efficient than e.g. detaching and attaching, as no updates are needed.
      *
      * @param index1 The index of the first child to swap
      * @param index2 The index of the second child to swap
@@ -500,7 +502,7 @@ public class Node extends Spatial {
 
     /**
      * <code>getChild</code> returns the first child found with exactly the
-     * given name (case sensitive.) This method does a depth first recursive
+     * given name (case-sensitive). This method does a depth-first recursive
      * search of all descendants of this node, it will return the first spatial
      * found with a matching name.
      *
@@ -582,7 +584,7 @@ public class Node extends Spatial {
         // The idea is when there are few children,
         // it can be too expensive to test boundingVolume first.
         /*
-        I'm removing this change until some issues can be addressed and I really
+        I'm removing this change until some issues can be addressed, and I really
         think it needs to be implemented a better way anyway.
         First, it causes issues for anyone doing collideWith() with BoundingVolumes
         and expecting it to trickle down to the children.  For example, children
@@ -598,10 +600,10 @@ public class Node extends Spatial {
         all of that calculation.  For example, if 'other' is also a BoundingVolume (ie: 99.9%
         of all non-Ray cases) then a direct BV to BV intersects() test can be done.  So much
         faster.  And if 'other' _is_ a Ray then the BV.intersects(Ray) call can be done.
-        I don't have time to do it right now but I'll at least un-break a bunch of peoples'
+        I don't have time to do it right now, but I'll at least un-break a bunch of people's
         code until it can be 'optimized' properly.  Hopefully it's not too late to back out
         the other dodgy ripples this caused.  -pspeed (hindsight-expert ;))
-        Note: the code itself is relatively simple to implement but I don't have time to
+        Note: the code itself is relatively simple to implement, but I don't have time to
         a) test it, and b) see if '> 4' is still a decent check for it.  Could be it's fast
         enough to do all the time for > 1.
         if (children.size() > 4)
@@ -623,23 +625,24 @@ public class Node extends Spatial {
      /**
      * Returns flat list of Spatials implementing the specified class AND
      * with name matching the specified pattern.
-     * </P> <P>
+     * <P>
      * Note that we are <i>matching</i> the pattern, therefore the pattern
      * must match the entire pattern (i.e. it behaves as if it is sandwiched
      * between "^" and "$").
      * You can set regex modes, like case insensitivity, by using the (?X)
      * or (?X:Y) constructs.
      * </P> <P>
-     * By design, it is always safe to code loops like:<CODE><PRE>
+     * By design, it is always safe to code loops like:<PRE>
      *     for (Spatial spatial : node.descendantMatches(AClass.class, "regex"))
-     * </PRE></CODE>
-     * </P> <P>
+     * </PRE>
+     * <P>
      * "Descendants" does not include self, per the definition of the word.
      * To test for descendants AND self, you must do a
      * <code>node.matches(aClass, aRegex)</code> +
      * <code>node.descendantMatches(aClass, aRegex)</code>.
      * <P>
      *
+     * @param <T> the type of Spatial returned
      * @param spatialSubclass Subclass which matching Spatials must implement.
      *                        Null causes all Spatials to qualify.
      * @param nameRegex  Regular expression to match Spatial name against.
@@ -653,7 +656,7 @@ public class Node extends Spatial {
     @SuppressWarnings("unchecked")
     public <T extends Spatial> List<T> descendantMatches(
             Class<T> spatialSubclass, String nameRegex) {
-        List<T> newList = new ArrayList<T>();
+        List<T> newList = new ArrayList<>();
         if (getQuantity() < 1) {
             return newList;
         }
@@ -672,6 +675,10 @@ public class Node extends Spatial {
     /**
      * Convenience wrapper.
      *
+     * @param <T> the type of Spatial returned
+     * @param spatialSubclass the type of Spatial returned, or null for all
+     * spatials
+     * @return a new list of pre-existing spatials (may be empty)
      * @see #descendantMatches(java.lang.Class, java.lang.String)
      */
     public <T extends Spatial> List<T> descendantMatches(
@@ -682,6 +689,9 @@ public class Node extends Spatial {
     /**
      * Convenience wrapper.
      *
+     * @param <T> the type of Spatial returned
+     * @param nameRegex regular expression to match Spatial names against, or null for all spatials
+     * @return a new list of pre-existing spatials (may be empty)
      * @see #descendantMatches(java.lang.Class, java.lang.String)
      */
     public <T extends Spatial> List<T> descendantMatches(String nameRegex) {
@@ -717,7 +727,7 @@ public class Node extends Spatial {
 
     public Spatial oldDeepClone() {
         Node nodeClone = (Node) super.clone();
-        nodeClone.children = new SafeArrayList<Spatial>(Spatial.class);
+        nodeClone.children = new SafeArrayList<>(Spatial.class);
         for (Spatial child : children) {
             Spatial childClone = child.deepClone();
             childClone.parent = nodeClone;
@@ -750,12 +760,12 @@ public class Node extends Spatial {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void read(JmeImporter e) throws IOException {
+    public void read(JmeImporter importer) throws IOException {
         // XXX: Load children before loading itself!!
         // This prevents empty children list if controls query
         // it in Control.setSpatial().
         children = new SafeArrayList(Spatial.class,
-                e.getCapsule(this).readSavableArrayList("children", null));
+                importer.getCapsule(this).readSavableArrayList("children", null));
 
         // go through children and set parent to this node
         if (children != null) {
@@ -763,7 +773,7 @@ public class Node extends Spatial {
                 child.parent = this;
             }
         }
-        super.read(e);
+        super.read(importer);
     }
 
     @Override

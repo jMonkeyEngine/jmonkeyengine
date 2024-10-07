@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,68 +42,73 @@ import org.xml.sax.SAXException;
 public final class SAXUtil {
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private SAXUtil() {
+    }
+
+    /**
      * Parses an integer from a string, if the string is null returns
      * def.
-     * 
+     *
      * @param i The string to parse
      * @param def The default value if the string is null
      * @return the parsed value or def
-     * @throws SAXException 
+     * @throws SAXException in case of a syntax error
      */
-    public static int parseInt(String i, int def) throws SAXException{
+    public static int parseInt(String i, int def) throws SAXException {
         if (i == null)
             return def;
         else{
             try {
                 return Integer.parseInt(i);
             } catch (NumberFormatException ex){
-                throw new SAXException("Expected an integer, got '"+i+"'");
+                throw new SAXException("Expected an integer, got '" + i + "'");
             }
         }
     }
 
-    public static int parseInt(String i) throws SAXException{
+    public static int parseInt(String i) throws SAXException {
         if (i == null)
             throw new SAXException("Expected an integer");
         else{
             try {
                 return Integer.parseInt(i);
             } catch (NumberFormatException ex){
-                throw new SAXException("Expected an integer, got '"+i+"'");
+                throw new SAXException("Expected an integer, got '" + i + "'");
             }
         }
     }
 
-    public static float parseFloat(String f, float def) throws SAXException{
+    public static float parseFloat(String f, float def) throws SAXException {
         if (f == null)
             return def;
         else{
             try {
                 return Float.parseFloat(f);
             } catch (NumberFormatException ex){
-                throw new SAXException("Expected a decimal, got '"+f+"'");
+                throw new SAXException("Expected a decimal, got '" + f + "'");
             }
         }
     }
 
-    public static float parseFloat(String f) throws SAXException{
+    public static float parseFloat(String f) throws SAXException {
         if (f == null)
             throw new SAXException("Expected a decimal");
         else{
             try {
                 return Float.parseFloat(f);
             } catch (NumberFormatException ex){
-                throw new SAXException("Expected a decimal, got '"+f+"'");
+                throw new SAXException("Expected a decimal, got '" + f + "'");
             }
         }
     }
 
-    public static boolean parseBool(String bool, boolean def) throws SAXException{
+    public static boolean parseBool(String bool, boolean def) throws SAXException {
         if (bool == null || bool.equals(""))
             return def;
         else
-            return Boolean.valueOf(bool); 
-        //else
+            return Boolean.valueOf(bool);
         //else
         //    throw new SAXException("Expected a boolean, got'"+bool+"'");
     }
@@ -115,25 +120,24 @@ public final class SAXUtil {
             return str;
     }
 
-    public static String parseString(String str) throws SAXException{
+    public static String parseString(String str) throws SAXException {
         if (str == null)
             throw new SAXException("Expected a string");
         else
             return str;
     }
 
-    public static Vector3f parseVector3(Attributes attribs) throws SAXException{
+    public static Vector3f parseVector3(Attributes attribs) throws SAXException {
         float x = parseFloat(attribs.getValue("x"));
         float y = parseFloat(attribs.getValue("y"));
         float z = parseFloat(attribs.getValue("z"));
         return new Vector3f(x,y,z);
     }
 
-    public static ColorRGBA parseColor(Attributes attribs) throws SAXException{
+    public static ColorRGBA parseColor(Attributes attribs) throws SAXException {
         float r = parseFloat(attribs.getValue("r"));
         float g = parseFloat(attribs.getValue("g"));
         float b = parseFloat(attribs.getValue("b"));
         return new ColorRGBA(r, g, b, 1f);
     }
-
 }

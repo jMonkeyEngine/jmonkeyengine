@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,6 @@ import com.jme3.scene.plugins.fbx.anim.FbxAnimLayer;
 import com.jme3.scene.plugins.fbx.anim.FbxAnimStack;
 import com.jme3.scene.plugins.fbx.anim.FbxBindPose;
 import com.jme3.scene.plugins.fbx.anim.FbxLimbNode;
-import com.jme3.scene.plugins.fbx.file.FbxDump;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.plugins.fbx.file.FbxFile;
 import com.jme3.scene.plugins.fbx.file.FbxReader;
@@ -81,10 +80,10 @@ public class FbxLoader implements AssetLoader {
     private String sceneFilename;
     private String sceneFolderName;
     private FbxGlobalSettings globalSettings;
-    private final Map<FbxId, FbxObject> objectMap = new HashMap<FbxId, FbxObject>();
+    private final Map<FbxId, FbxObject> objectMap = new HashMap<>();
     
-    private final List<FbxAnimStack> animStacks = new ArrayList<FbxAnimStack>();
-    private final List<FbxBindPose> bindPoses = new ArrayList<FbxBindPose>();
+    private final List<FbxAnimStack> animStacks = new ArrayList<>();
+    private final List<FbxBindPose> bindPoses = new ArrayList<>();
     
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
@@ -116,7 +115,7 @@ public class FbxLoader implements AssetLoader {
             // Need world transforms for skeleton creation.
             updateWorldTransforms();
             
-            // Need skeletons for meshs to be created in scene graph construction.
+            // Need skeletons for meshes to be created in scene graph construction.
             // Mesh bone indices require skeletons to determine bone index.
             constructSkeletons();
             
@@ -218,15 +217,6 @@ public class FbxLoader implements AssetLoader {
         }
     }
     
-    private void removeUnconnectedObjects() {
-        for (FbxObject object : new ArrayList<FbxObject>(objectMap.values())) {
-            if (!object.isJmeObjectCreated()) {
-                logger.log(Level.WARNING, "Purging orphan FBX object: {0}", object);
-                objectMap.remove(object.getId());
-            }
-        }
-    }
-    
     private void connectObjects(FbxElement element) {
         if (objectMap.isEmpty()) {
             logger.log(Level.WARNING, "FBX file is missing object information");
@@ -267,8 +257,23 @@ public class FbxLoader implements AssetLoader {
                 parentId = FbxId.create(el.properties.get(2));
                 String propName = (String) el.properties.get(3);
                 FbxObject child = objectMap.get(childId);
+                if (child == null) {
+                    logger.log(Level.WARNING,
+                            "Missing child object with ID {0}. Skipping object-"
+                                    + "property connection for property \"{1}\"",
+                            new Object[]{childId, propName});
+                }
                 FbxObject parent = objectMap.get(parentId);
-                parent.connectObjectProperty(child, propName);
+                if (parent == null) {
+                    logger.log(Level.WARNING,
+                            "Missing parent object with ID {0}. Skipping object-"
+                                    + "property connection for property \"{1}\"",
+                            new Object[]{parentId, propName});
+                }
+                if (parent != null && child != null) {
+                    parent.connectObjectProperty(child, propName);
+                }
+
             } else {
                 logger.log(Level.WARNING, "Unknown connection type: {0}. Ignoring.", type);
             }
@@ -282,7 +287,9 @@ public class FbxLoader implements AssetLoader {
     private void applyBindPoses() {
         for (FbxBindPose bindPose : bindPoses) {
             Map<FbxId, Matrix4f> bindPoseData = bindPose.getJmeObject();
-            logger.log(Level.INFO, "Applying {0} bind poses", bindPoseData.size());
+            if (logger.isLoggable(Level.INFO)) {
+                logger.log(Level.INFO, "Applying {0} bind poses", bindPoseData.size());
+            }
             for (Map.Entry<FbxId, Matrix4f> entry : bindPoseData.entrySet()) {
                 FbxObject obj = objectMap.get(entry.getKey());
                 if (obj instanceof FbxNode) {
@@ -309,7 +316,7 @@ public class FbxLoader implements AssetLoader {
         // So, we need to use heuristics to find which node(s) 
         // an animation is associated with, so we can create the AnimControl
         // in the appropriate location in the scene.
-        Map<FbxToJmeTrack, FbxToJmeTrack> pairs = new HashMap<FbxToJmeTrack, FbxToJmeTrack>();
+        Map<FbxToJmeTrack, FbxToJmeTrack> pairs = new HashMap<>();
         for (FbxAnimStack stack : animStacks) {
             for (FbxAnimLayer layer : stack.getLayers()) {
                 for (FbxAnimCurveNode curveNode : layer.getAnimationCurveNodes()) {
@@ -336,6 +343,9 @@ public class FbxLoader implements AssetLoader {
         
         // At this point we can construct the animation for all pairs ...
         for (FbxToJmeTrack pair : pairs.values()) {
+            if (pair.countKeyframes() == 0) {
+                continue;
+            }
             String animName = pair.animStack.getName();
             float duration    = pair.animStack.getDuration();
             

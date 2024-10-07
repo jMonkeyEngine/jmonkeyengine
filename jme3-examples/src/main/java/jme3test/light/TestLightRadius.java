@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,9 +45,9 @@ import com.jme3.scene.shape.Torus;
 
 public class TestLightRadius extends SimpleApplication {
 
-    float pos, vel=1;
-    PointLight pl;
-    Geometry lightMdl;
+    private float pos, vel=1;
+    private PointLight pl;
+    private Geometry lightMdl;
 
     public static void main(String[] args){
         TestLightRadius app = new TestLightRadius();

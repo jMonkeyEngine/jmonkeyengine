@@ -1,8 +1,4 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
 dependencies {
-    compile project(':jme3-core')
-    compile 'de.jarnbjo:j-ogg-all:1.0.0'
+    api project(':jme3-core')
+    api libs.j.ogg.vorbis
 }

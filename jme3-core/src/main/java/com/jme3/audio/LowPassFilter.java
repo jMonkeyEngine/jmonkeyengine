@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,8 @@ public class LowPassFilter extends Filter {
         setVolume(volume);
         setHighFreqVolume(highFreqVolume);
     }
-    
-    protected LowPassFilter(int id){
+
+    protected LowPassFilter(int id) {
         super(id);
     }
 
@@ -71,13 +71,13 @@ public class LowPassFilter extends Filter {
     public void setVolume(float volume) {
         if (volume < 0 || volume > 1)
             throw new IllegalArgumentException("Volume must be between 0 and 1");
-        
+
         this.volume = volume;
         this.updateNeeded = true;
     }
 
     @Override
-    public void write(JmeExporter ex) throws IOException{
+    public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(volume, "volume", 0);
@@ -85,7 +85,7 @@ public class LowPassFilter extends Filter {
     }
 
     @Override
-    public void read(JmeImporter im) throws IOException{
+    public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         volume = ic.readFloat("volume", 0);
@@ -99,6 +99,6 @@ public class LowPassFilter extends Filter {
 
     @Override
     public long getUniqueId() {
-        return ((long)OBJTYPE_FILTER << 32) | ((long)id);
+        return ((long) OBJTYPE_FILTER << 32) | (0xffffffffL & (long) id);
     }
 }

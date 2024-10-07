@@ -196,7 +196,7 @@ public class OsvrDisplayLibrary implements Library {
 	public static native byte osvrClientCheckDisplayStartup(OsvrDisplayLibrary.OSVR_DisplayConfig disp);
 	/**
 	 * A display config can have one or more display inputs to pass pixels<br>
-	 * over (HDMI/DVI connections, etc): retrieve the number of display inputs in<br>
+	 * over (HDMI/DVI connections, etcetera): retrieve the number of display inputs in<br>
 	 * the current configuration.<br>
 	 * @param disp Display config object.<br>
 	 * @param numDisplayInputs Number of display inputs in the logical display<br>
@@ -213,7 +213,7 @@ public class OsvrDisplayLibrary implements Library {
 	public static native byte osvrClientGetNumDisplayInputs(Pointer disp, Pointer numDisplayInputs);
 	/**
 	 * A display config can have one or more display inputs to pass pixels<br>
-	 * over (HDMI/DVI connections, etc): retrieve the number of display inputs in<br>
+	 * over (HDMI/DVI connections, etcetera): retrieve the number of display inputs in<br>
 	 * the current configuration.<br>
 	 * @param disp Display config object.<br>
 	 * @param numDisplayInputs Number of display inputs in the logical display<br>
@@ -534,7 +534,7 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
 	 * @param displayInput Zero-based index of the display input pixels for<br>
-	 * this surface are tranmitted over.<br>
+	 * this surface are transmitted over.<br>
 	 * This association is **constant** throughout the active, valid lifetime of a<br>
 	 * display config object.<br>
          * @see #osvrClientGetNumDisplayInputs(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, java.nio.ByteBuffer) 
@@ -560,7 +560,7 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
 	 * @param displayInput Zero-based index of the display input pixels for<br>
-	 * this surface are tranmitted over.<br>
+	 * this surface are transmitted over.<br>
 	 * This association is **constant** throughout the active, valid lifetime of a<br>
 	 * display config object.<br>
          * @see #osvrClientGetNumDisplayInputs(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, java.nio.ByteBuffer) 

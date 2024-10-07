@@ -42,7 +42,7 @@ import java.util.Objects;
  * format and buffer structure.
  * <br>
  * The image is specified by the {@link ImageDescriptor}, specifying
- * the extend and dimension of the image, and {@link ImageFormat}, specifying
+ * the type and dimensions of the image, and {@link ImageFormat}, specifying
  * the type of each pixel.
  * <br>
  * An image is created from scratch using
@@ -197,7 +197,7 @@ public abstract class Image extends AbstractOpenCLObject {
         }
 
         /**
-         * Used to specify an image with the provided ByteBuffer as soruce
+         * Used to specify an image with the provided ByteBuffer as source
          *
          * @param type the image type
          * @param width the width
@@ -389,7 +389,7 @@ public abstract class Image extends AbstractOpenCLObject {
     /**
      * Maps the image into host memory.
      * The returned structure contains the mapped byte buffer and row and slice pitch.
-     * The event object is set to {@code null}, it is needed for the asnyc
+     * The event object is set to {@code null}, it is needed for the async
      * version {@link #mapAsync(com.jme3.opencl.CommandQueue, long[], long[], com.jme3.opencl.MappingAccess) }.
      *
      * @param queue the command queue
@@ -502,7 +502,7 @@ public abstract class Image extends AbstractOpenCLObject {
     public abstract Event copyToBufferAsync(CommandQueue queue, Buffer dest, long[] srcOrigin, long[] srcRegion, long destOffset);
 
     /**
-     * Aquires this image object for using. Only call this method if this image
+     * Acquires this image object for using. Only call this method if this image
      * represents a shared object from OpenGL, created with e.g.
      * {@link Context#bindImage(com.jme3.texture.Image, com.jme3.texture.Texture.Type, int, com.jme3.opencl.MemoryAccess) }
      * or variations.
@@ -517,7 +517,7 @@ public abstract class Image extends AbstractOpenCLObject {
     public abstract Event acquireImageForSharingAsync(CommandQueue queue);
 
     /**
-     * Aquires this image object for using. Only call this method if this image
+     * Acquires this image object for using. Only call this method if this image
      * represents a shared object from OpenGL, created with e.g.
      * {@link Context#bindImage(com.jme3.texture.Image, com.jme3.texture.Texture.Type, int, com.jme3.opencl.MemoryAccess) }
      * or variations.

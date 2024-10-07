@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,16 @@ public class NullContext implements JmeContext, Runnable {
         return Type.Headless;
     }
 
+    /**
+     * Accesses the listener that receives events related to this context.
+     *
+     * @return the pre-existing instance
+     */
+    @Override
+    public SystemListener getSystemListener() {
+        return listener;
+    }
+
     @Override
     public void setSystemListener(SystemListener listener){
         this.listener = listener;
@@ -71,7 +81,9 @@ public class NullContext implements JmeContext, Runnable {
 
     protected void initInThread(){
         logger.fine("NullContext created.");
-        logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
+        }
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
@@ -253,5 +265,45 @@ public class NullContext implements JmeContext, Runnable {
     @Override
     public Context getOpenCLContext() {
         return null;
+    }
+
+    /**
+     * Returns the height of the framebuffer.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getFramebufferHeight() {
+        throw new UnsupportedOperationException("null context");
+    }
+
+    /**
+     * Returns the width of the framebuffer.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getFramebufferWidth() {
+        throw new UnsupportedOperationException("null context");
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowXPosition() {
+        throw new UnsupportedOperationException("null context");
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowYPosition() {
+        throw new UnsupportedOperationException("null context");
     }
 }

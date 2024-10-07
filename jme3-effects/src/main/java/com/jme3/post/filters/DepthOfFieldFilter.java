@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,6 +98,8 @@ public class DepthOfFieldFilter extends Filter {
 
     /**
      *  Sets the distance at which objects are purely in focus.
+     *
+     * @param f the desired distance (in world units, default=50)
      */
     public void setFocusDistance(float f) {
 
@@ -120,6 +122,8 @@ public class DepthOfFieldFilter extends Filter {
      *  Sets the range to either side of focusDistance where the
      *  objects go gradually out of focus.  Less than focusDistance - focusRange
      *  and greater than focusDistance + focusRange, objects are maximally "blurred".
+     *
+     * @param f the desired half extent (in world units, default=10)
      */
     public void setFocusRange(float f) {
         this.focusRange = f;
@@ -148,6 +152,8 @@ public class DepthOfFieldFilter extends Filter {
      *%MINIFYHTMLc3d0cd9fab65de6875a381fd3f83e1b338%*
      *  Where 'x' is the texel being modified.  Setting blur scale higher
      *  than 1 spaces the samples out.
+     *
+     * @param f the desired filter scale (default=1)
      */
     public void setBlurScale(float f) {
         this.blurScale = f;
@@ -178,6 +184,8 @@ public class DepthOfFieldFilter extends Filter {
      *  the near-camera blurring and should be set smaller than the default
      *  or to 0 to disable completely.  Sometimes that cut-off is desired if
      *  mid-to-far field unfocusing is all that is desired.</p>
+     *
+     * @param f the desired blur factor (default=0.2)
      */
     public void setBlurThreshold( float f ) {
         this.blurThreshold = f;
@@ -199,7 +207,9 @@ public class DepthOfFieldFilter extends Filter {
      *  mix the convolution filter.  When this is on, the 'unfocus' value
      *  is rendered as gray scale.  This can be used to more easily visualize
      *  where in your view the focus is centered and how steep the gradient/cutoff
-     *  is, etc..
+     *  is, etcetera.
+     *
+     * @param b true to enable debugging, false to disable it (default=false)
      */
     public void setDebugUnfocus( boolean b ) {
         this.debugUnfocus = b;
@@ -217,7 +227,7 @@ public class DepthOfFieldFilter extends Filter {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(blurScale, "blurScale", 1f);
-        oc.write(blurScale, "blurThreshold", 0.2f);
+        oc.write(blurThreshold, "blurThreshold", 0.2f);
         oc.write(focusDistance, "focusDistance", 50f);
         oc.write(focusRange, "focusRange", 10f);
         oc.write(debugUnfocus, "debugUnfocus", false); // strange to write this I guess

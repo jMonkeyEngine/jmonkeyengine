@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,8 @@
 package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.light.LightFilter;
+import com.jme3.light.NullLightFilter;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
@@ -59,24 +61,23 @@ import com.jme3.ui.Picture;
  */
 @Deprecated
 public class BasicShadowRenderer implements SceneProcessor {
-
+    private static final LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     private RenderManager renderManager;
     private ViewPort viewPort;
-    private FrameBuffer shadowFB;
-    private Texture2D shadowMap;
-    private Camera shadowCam;
-    private Material preshadowMat;
-    private Material postshadowMat;
-    private Picture dispPic = new Picture("Picture");
+    private final FrameBuffer shadowFB;
+    private final Texture2D shadowMap;
+    private final Camera shadowCam;
+    private final Material preshadowMat;
+    private final Material postshadowMat;
+    private final Picture dispPic = new Picture("Picture");
     private boolean noOccluders = false;
-    private Vector3f[] points = new Vector3f[8];
-    private Vector3f direction = new Vector3f();
+    private final Vector3f[] points = new Vector3f[8];
+    private final Vector3f direction = new Vector3f();
     protected Texture2D dummyTex;
-    private float shadowMapSize;
+    private final float shadowMapSize;
 
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowOccluders = new GeometryList(new OpaqueComparator());
-    private AppProfiler prof;
 
     /**
      * Creates a BasicShadowRenderer
@@ -89,7 +90,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         shadowFB.setDepthTexture(shadowMap);
         shadowCam = new Camera(size, size);
         
-         //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
+         //DO NOT COMMENT THIS (It prevents the OSX incomplete read buffer crash.)
         dummyTex = new Texture2D(size, size, Format.RGBA8);        
         shadowFB.setColorTexture(dummyTex);
         shadowMapSize = size;
@@ -126,8 +127,9 @@ public class BasicShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * sets the light direction to use to computs shadows
-     * @param direction 
+     * sets the light direction to use to compute shadows
+     *
+     * @param direction a direction vector (not null, unaffected)
      */
     public void setDirection(Vector3f direction) {
         this.direction.set(direction).normalizeLocal();
@@ -196,7 +198,11 @@ public class BasicShadowRenderer implements SceneProcessor {
 
         r.setFrameBuffer(shadowFB);
         r.clearBuffers(true, true, true);
+        // render shadow casters to shadow map and disables the lightfilter
+        LightFilter tmpLightFilter = renderManager.getLightFilter();
+        renderManager.setLightFilter(NULL_LIGHT_FILTER);
         viewPort.getQueue().renderShadowQueue(shadowOccluders, renderManager, shadowCam, true);
+        renderManager.setLightFilter(tmpLightFilter);
         r.setFrameBuffer(viewPort.getOutputFrameBuffer());
 
         renderManager.setForcedMaterial(null);
@@ -231,7 +237,7 @@ public class BasicShadowRenderer implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
     @Override

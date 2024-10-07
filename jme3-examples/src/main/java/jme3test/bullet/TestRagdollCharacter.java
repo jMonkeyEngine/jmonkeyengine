@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,6 @@ public class TestRagdollCharacter
     private AnimComposer composer;
     private boolean forward = false, backward = false,
             leftRotate = false, rightRotate = false;
-    private DynamicAnimControl ragdoll;
     private Node model;
     private PhysicsSpace physicsSpace;
 
@@ -173,7 +172,7 @@ public class TestRagdollCharacter
         composer.actionSequence("SliceOnce",
                 slice, Tweens.callMethod(this, "onSliceDone"));
 
-        ragdoll = new DynamicAnimControl();
+        DynamicAnimControl ragdoll = new DynamicAnimControl();
         setupSinbad(ragdoll);
         model.addControl(ragdoll);
         physicsSpace.add(ragdoll);
@@ -206,15 +205,15 @@ public class TestRagdollCharacter
         for (int j = 0; j < 15; j++) {
             for (int i = 0; i < 4; i++) {
                 Vector3f ori = new Vector3f(i * bLength * 2f + startpt, bHeight + height, -10f);
-                Geometry reBoxg = new Geometry("brick", brick);
-                reBoxg.setMaterial(mat2);
-                reBoxg.setLocalTranslation(ori);
-                //for geometry with sphere mesh the physics system automatically uses a sphere collision shape
-                reBoxg.addControl(new RigidBodyControl(1.5f));
-                reBoxg.setShadowMode(ShadowMode.CastAndReceive);
-                reBoxg.getControl(RigidBodyControl.class).setFriction(0.6f);
-                this.rootNode.attachChild(reBoxg);
-                physicsSpace.add(reBoxg);
+                Geometry brickGeometry = new Geometry("brick", brick);
+                brickGeometry.setMaterial(mat2);
+                brickGeometry.setLocalTranslation(ori);
+                // for geometry with sphere mesh the physics system automatically uses a sphere collision shape
+                brickGeometry.addControl(new RigidBodyControl(1.5f));
+                brickGeometry.setShadowMode(ShadowMode.CastAndReceive);
+                brickGeometry.getControl(RigidBodyControl.class).setFriction(0.6f);
+                this.rootNode.attachChild(brickGeometry);
+                physicsSpace.add(brickGeometry);
             }
             startpt = -startpt;
             height += 2f * bHeight;

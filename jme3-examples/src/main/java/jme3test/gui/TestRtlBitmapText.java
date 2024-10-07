@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,18 +32,17 @@
 package jme3test.gui;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.font.BitmapFont;
-import com.jme3.font.BitmapText;
-import com.jme3.font.LineWrapMode;
-import com.jme3.font.Rectangle;
+import com.jme3.app.StatsAppState;
+import com.jme3.font.*;
 
 /**
  * Test case for JME issue #1158: BitmapText right to left line wrapping not work
  */
 public class TestRtlBitmapText extends SimpleApplication {
 
-    // A right to left text.
-    private String text = ".text left to right test a is This";
+    private String text = "This is a test right to left text.";
+    private BitmapFont fnt;
+    private BitmapText txt;
 
     public static void main(String[] args) {
         TestRtlBitmapText app = new TestRtlBitmapText();
@@ -52,14 +51,20 @@ public class TestRtlBitmapText extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        BitmapFont fnt = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        float x = 400;
+        float y = 500;
+        getStateManager().detach(stateManager.getState(StatsAppState.class));
+        fnt = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        fnt.setRightToLeft(true);
+
         // A right to left BitmapText
-        BitmapText txt = new BitmapText(fnt, true);
+        txt = new BitmapText(fnt);
         txt.setBox(new Rectangle(0, 0, 150, 0));
         txt.setLineWrapMode(LineWrapMode.Word);
         txt.setAlignment(BitmapFont.Align.Right);
         txt.setText(text);
-        txt.setLocalTranslation(cam.getWidth() / 2, cam.getHeight() / 2, 0);
+
+        txt.setLocalTranslation(x, y, 0);
         guiNode.attachChild(txt);
     }
 }

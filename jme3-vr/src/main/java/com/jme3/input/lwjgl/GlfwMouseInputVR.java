@@ -1,7 +1,7 @@
 package com.jme3.input.lwjgl;
 
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ import org.lwjgl.system.MemoryUtil;
 
 /**
  * Captures mouse input using GLFW callbacks. It then temporarily stores these in event queues which are processed in the
- * {@link #update()} method. Due to some of the GLFW button id's there is a conversion method in this class which will
+ * {@link #update()} method. Due to some of the GLFW button IDs, there is a conversion method in this class which will
  * convert the GLFW left, middle and right mouse button to JME3 left, middle and right button codes.<br><br>
  * This class support modifications dedicated to VR rendering.
  * @author Daniel Johansson (dannyjo)
@@ -81,10 +81,10 @@ public class GlfwMouseInputVR implements MouseInput {
     private GLFWCursorPosCallback cursorPosCallback;
     private GLFWScrollCallback scrollCallback;
     private GLFWMouseButtonCallback mouseButtonCallback;
-    private Queue<MouseMotionEvent> mouseMotionEvents = new LinkedList<MouseMotionEvent>();
-    private Queue<MouseButtonEvent> mouseButtonEvents = new LinkedList<MouseButtonEvent>();
+    private Queue<MouseMotionEvent> mouseMotionEvents = new LinkedList<>();
+    private Queue<MouseButtonEvent> mouseButtonEvents = new LinkedList<>();
 
-    private Map<JmeCursor, Long> jmeToGlfwCursorMap = new HashMap<JmeCursor, Long>();
+    private Map<JmeCursor, Long> jmeToGlfwCursorMap = new HashMap<>();
 
     /**
      * Create a new mouse input attached to the given {@link LwjglWindowVR context}.
@@ -168,10 +168,10 @@ public class GlfwMouseInputVR implements MouseInput {
         if (!context.isRenderable()) {
             return;
         }
-        
-        glfwSetCursorPos(context.getWindowHandle(), x, y);	
+
+        glfwSetCursorPos(context.getWindowHandle(), x, y);
     }
-    
+
     /**
      * Hide the active cursor within the display.
      */
@@ -181,10 +181,10 @@ public class GlfwMouseInputVR implements MouseInput {
         }
 
         if (cursorVisible) {
-            glfwSetInputMode(context.getWindowHandle(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);            
+            glfwSetInputMode(context.getWindowHandle(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         }
     }
-    
+
     /**
      * Get the last delta in x (pixel).
      * @return the last delta in x (pixel).
@@ -193,7 +193,7 @@ public class GlfwMouseInputVR implements MouseInput {
     public int getLastDeltaX() {
         return xDelta;
     }
-    
+
     /**
      * Get the last delta in y (pixel).
      * @return the last delta in y (pixel).
@@ -202,7 +202,7 @@ public class GlfwMouseInputVR implements MouseInput {
     public int getLastDeltaY() {
         return yDelta;
     }
-    
+
     /**
      * Clear the last x and y deltas.
      * @see #getLastDeltaX()
@@ -212,7 +212,7 @@ public class GlfwMouseInputVR implements MouseInput {
         xDelta = 0;
         yDelta = 0;
     }
-    
+
     /**
      * Check if the input is initialized.
      * @return <code>true</code> if the input is initialized and <code>false</code> otherwise.
@@ -243,11 +243,11 @@ public class GlfwMouseInputVR implements MouseInput {
         if (!context.isRenderable()) {
             return;
         }
-        
+
         cursorPosCallback.free();
         scrollCallback.free();
         mouseButtonCallback.free();
-        
+
         for (long glfwCursor : jmeToGlfwCursorMap.values()) {
             glfwDestroyCursor(glfwCursor);
         }

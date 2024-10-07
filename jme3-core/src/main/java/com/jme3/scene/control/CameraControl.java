@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,6 +82,7 @@ public class CameraControl extends AbstractControl {
 
     /**
      * @param camera The Camera to be synced.
+     * @param controlDir SpatialToCamera or CameraToSpatial
      */
     public CameraControl(Camera camera, ControlDirection controlDir) {
         this.camera = camera;
@@ -104,7 +105,7 @@ public class CameraControl extends AbstractControl {
         this.controlDir = controlDir;
     }
 
-    // fields used, when inversing ControlDirection:
+    // fields used, when inverting ControlDirection:
     @Override
     protected void controlUpdate(float tpf) {
         if (spatial != null && camera != null) {
@@ -114,7 +115,7 @@ public class CameraControl extends AbstractControl {
                     camera.setRotation(spatial.getWorldRotation());
                     break;
                 case CameraToSpatial:
-                    // set the localtransform, so that the worldtransform would be equal to the camera's transform.
+                    // Set the local transform so that the world transform would be equal to the camera's transform.
                     // Location:
                     TempVars vars = TempVars.get();
 

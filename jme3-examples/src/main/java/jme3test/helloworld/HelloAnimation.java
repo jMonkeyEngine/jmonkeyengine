@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,12 @@
 
 package jme3test.helloworld;
 
-import com.jme3.animation.*;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.tween.Tween;
+import com.jme3.anim.tween.Tweens;
+import com.jme3.anim.tween.action.Action;
+import com.jme3.anim.tween.action.BlendSpace;
+import com.jme3.anim.tween.action.LinearBlendSpace;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -42,14 +47,13 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 
-/** Sample 7 - how to load an OgreXML model and play an animation, 
- * using channels, a controller, and an AnimEventListener. */
-public class HelloAnimation extends SimpleApplication
-                         implements AnimEventListener {
+/**
+ * Sample 7 - Load an OgreXML model and play some of its animations.
+ */
+public class HelloAnimation extends SimpleApplication {
 
-  Node player;
-  private AnimChannel channel;
-  private AnimControl control;
+  private Action advance;
+  private AnimComposer control;
 
   public static void main(String[] args) {
     HelloAnimation app = new HelloAnimation();
@@ -61,58 +65,59 @@ public class HelloAnimation extends SimpleApplication
     viewPort.setBackgroundColor(ColorRGBA.LightGray);
     initKeys();
 
-    /** Add a light source so we can see the model */
+    /* Add a light source so we can see the model */
     DirectionalLight dl = new DirectionalLight();
     dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
     rootNode.addLight(dl);
 
-    /** Load a model that contains animation */
-    player = (Node) assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
+    /* Load a model that contains animation */
+    Node player = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
     player.setLocalScale(0.5f);
     rootNode.attachChild(player);
 
-    /** Create a controller and channels. */
-    control = player.getControl(AnimControl.class);
-    control.addListener(this);
-    channel = control.createChannel();
-    channel.setAnim("stand");
+    /* Use the model's AnimComposer to play its "stand" animation clip. */
+    control = player.getControl(AnimComposer.class);
+    control.setCurrentAction("stand");
+
+    /* Compose an animation action named "halt"
+       that transitions from "Walk" to "stand" in half a second. */
+    BlendSpace quickBlend = new LinearBlendSpace(0f, 0.5f);
+    Action halt = control.actionBlended("halt", quickBlend, "stand", "Walk");
+    halt.setLength(0.5);
+
+    /* Compose an animation action named "advance"
+       that walks for one cycle, then halts, then invokes onAdvanceDone(). */
+    Action walk = control.action("Walk");
+    Tween doneTween = Tweens.callMethod(this, "onAdvanceDone");
+    advance = control.actionSequence("advance", walk, halt, doneTween);
   }
 
-  /** Use this listener to trigger something after an animation is done. */
-  @Override
-  public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
-    if (animName.equals("Walk")) {
-      /** After "walk", reset to "stand". */
-      channel.setAnim("stand", 0.50f);
-      channel.setLoopMode(LoopMode.DontLoop);
-      channel.setSpeed(1f);
-    }
+  /**
+   * Callback to indicate that the "advance" animation action has completed.
+   */
+  void onAdvanceDone() {
+    /*
+     * Play the "stand" animation action.
+     */
+    control.setCurrentAction("stand");
   }
 
-  /** Use this listener to trigger something between two animations. */
-  @Override
-  public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
-    // unused
-  }
-
-  /** Custom Keybindings: Mapping a named action to a key input. */
+  /**
+   * Map the spacebar to the "Walk" input action, and add a listener to initiate
+   * the "advance" animation action each time it's pressed.
+   */
   private void initKeys() {
     inputManager.addMapping("Walk", new KeyTrigger(KeyInput.KEY_SPACE));
-    inputManager.addListener(actionListener, "Walk");
-  }
 
-  /** Definining the named action that can be triggered by key inputs. */
-  private ActionListener actionListener = new ActionListener() {
-    @Override
-    public void onAction(String name, boolean keyPressed, float tpf) {
-      if (name.equals("Walk") && !keyPressed) {
-        if (!channel.getAnimationName().equals("Walk")) {
-          /** Play the "walk" animation! */
-          channel.setAnim("Walk", 0.50f);
-          channel.setLoopMode(LoopMode.Loop);
+    ActionListener handler = new ActionListener() {
+      @Override
+      public void onAction(String name, boolean keyPressed, float tpf) {
+        if (keyPressed && control.getCurrentAction() != advance) {
+          control.setCurrentAction("advance");
         }
       }
-    }
-  };
+    };
+    inputManager.addListener(handler, "Walk");
+  }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,9 +41,9 @@ import com.jme3.util.BufferUtils;
 import static com.jme3.math.FastMath.pow;
 
 /**
- * Wraps a Cube map and allows to read from or write pixels into it.
+ * Wraps a cube map and allows reading or writing pixels.
  * 
- * It uses the ImageRaster class to tailor the read write operations.
+ * It uses the ImageRaster class to tailor the read/write operations.
  * 
  * @author Nehon
  */
@@ -201,7 +201,7 @@ public class CubeMapWrapper {
     }
 
     /**
-     * Writes a pixel given the 2D cordinates and the color
+     * Writes a pixel given the 2-D coordinates and the color
      * @param x the x tex coord (from 0 to width)
      * @param y the y tex coord (from 0 to height)
      * @param face the face to write to
@@ -213,7 +213,7 @@ public class CubeMapWrapper {
     }
 
     /**
-     * Writes a pixel given the 2D cordinates, the mip level and the color
+     * Writes a pixel given the 2-D coordinates, the mip level and the color
      * @param x the x tex coord (from 0 to width)
      * @param y the y tex coord (from 0 to height)
      * @param face the face to write to

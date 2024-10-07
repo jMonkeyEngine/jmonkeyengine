@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,8 +67,8 @@ public class EmitterMeshFaceShape extends EmitterMeshVertexShape {
         for (Mesh mesh : meshes) {
             Vector3f[] vertexTable = BufferUtils.getVector3Array(mesh.getFloatBuffer(Type.Position));
             int[] indices = new int[3];
-            List<Vector3f> vertices = new ArrayList<Vector3f>(mesh.getTriangleCount() * 3);
-            List<Vector3f> normals = new ArrayList<Vector3f>(mesh.getTriangleCount());
+            List<Vector3f> vertices = new ArrayList<>(mesh.getTriangleCount() * 3);
+            List<Vector3f> normals = new ArrayList<>(mesh.getTriangleCount());
             for (int i = 0; i < mesh.getTriangleCount(); ++i) {
                 mesh.getTriangle(i, indices);
                 vertices.add(vertexTable[indices[0]]);
@@ -82,9 +82,10 @@ public class EmitterMeshFaceShape extends EmitterMeshVertexShape {
     }
 
     /**
-     * This method fills the point with coordinates of randomly selected point on a random face.
+     * Randomly selects a point on a random face.
+     *
      * @param store
-     *        the variable to store with coordinates of randomly selected selected point on a random face
+     *        storage for the coordinates of the selected point
      */
     @Override
     public void getRandomPoint(Vector3f store) {
@@ -102,12 +103,13 @@ public class EmitterMeshFaceShape extends EmitterMeshVertexShape {
     }
 
     /**
-     * This method fills the point with coordinates of randomly selected point on a random face.
-     * The normal param is filled with selected face's normal.
+     * Randomly selects a point on a random face.
+     * The {@code normal} argument is set to the normal of the selected face.
+     *
      * @param store
-     *        the variable to store with coordinates of randomly selected selected point on a random face
+     *        storage for the coordinates of the selected point
      * @param normal
-     *        filled with selected face's normal
+     *        storage for the normal of the selected face
      */
     @Override
     public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {

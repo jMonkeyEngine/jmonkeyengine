@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,11 @@ import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioContext;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.Listener;
-import com.jme3.input.*;
+import com.jme3.input.InputManager;
+import com.jme3.input.JoyInput;
+import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
+import com.jme3.input.TouchInput;
 import com.jme3.math.Vector3f;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.AppStep;
@@ -45,8 +49,14 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.system.*;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeContext;
 import com.jme3.system.JmeContext.Type;
+import com.jme3.util.res.Resources;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.NanoTimer;
+import com.jme3.system.SystemListener;
+import com.jme3.system.Timer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
@@ -96,20 +106,22 @@ public class LegacyApplication implements Application, SystemListener {
 
     protected AppProfiler prof;
 
-    private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<AppTask<?>>();
+    private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<>();
 
     /**
      * Create a new instance of <code>LegacyApplication</code>.
      */
     public LegacyApplication() {
-        this((AppState[])null);
+        this((AppState[]) null);
     }
 
     /**
      * Create a new instance of <code>LegacyApplication</code>, preinitialized
      * with the specified set of app states.
+     *
+     * @param initialStates app states to pre-attach, or null for none
      */
-    public LegacyApplication( AppState... initialStates ) {
+    public LegacyApplication(AppState... initialStates) {
         initStateManager();
 
         if (initialStates != null) {
@@ -132,12 +144,12 @@ public class LegacyApplication implements Application, SystemListener {
     }
 
     /**
-     * Change the application's behavior when unfocused.
+     * Changes the application's behavior when unfocused.
      *
      * By default, the application will
      * {@link LostFocusBehavior#ThrottleOnLostFocus throttle the update loop}
-     * so as to not take 100% CPU usage when it is not in focus, e.g.
-     * alt-tabbed, minimized, or obstructed by another window.
+     * so as not to use 100% of the CPU when out of focus, e.g.
+     * alt-tabbed, minimized, or hidden by another window.
      *
      * @param lostFocusBehavior The new lost focus behavior to use.
      *
@@ -166,10 +178,9 @@ public class LegacyApplication implements Application, SystemListener {
      * By default, pause on lost focus is enabled.
      * If enabled, the application will stop updating
      * when it loses focus or becomes inactive (e.g. alt-tab).
-     * For online or real-time applications, this might not be preferable,
-     * so this feature should be set to disabled. For other applications,
-     * it is best to keep it on so that CPU usage is not used when
-     * not necessary.
+     * For online or real-time applications, this might be undesirable,
+     * so this feature should be disabled. For other applications,
+     * it is best to keep it enabled so the CPU is not used unnecessarily.
      *
      * @param pauseOnLostFocus True to enable pause on lost focus, false
      * otherwise.
@@ -186,37 +197,40 @@ public class LegacyApplication implements Application, SystemListener {
     }
 
     @Deprecated
-    public void setAssetManager(AssetManager assetManager){
-        if (this.assetManager != null)
+    public void setAssetManager(AssetManager assetManager) {
+        if (this.assetManager != null) {
             throw new IllegalStateException("Can only set asset manager"
-                                          + " before initialization.");
+                    + " before initialization.");
+        }
 
         this.assetManager = assetManager;
     }
 
-    private void initAssetManager(){
+    private void initAssetManager() {
         URL assetCfgUrl = null;
 
-        if (settings != null){
+        if (settings != null) {
             String assetCfg = settings.getString("AssetConfigURL");
-            if (assetCfg != null){
+            if (assetCfg != null) {
                 try {
                     assetCfgUrl = new URL(assetCfg);
                 } catch (MalformedURLException ex) {
+                    //do nothing, we check assetCfgUrl
                 }
                 if (assetCfgUrl == null) {
-                    assetCfgUrl = LegacyApplication.class.getClassLoader().getResource(assetCfg);
+                    assetCfgUrl = Resources.getResource(assetCfg);
                     if (assetCfgUrl == null) {
-                        logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", assetCfg);
+                        logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", 
+                                assetCfg);
                         return;
                     }
                 }
             }
-        }
+        }      
         if (assetCfgUrl == null) {
             assetCfgUrl = JmeSystem.getPlatformAssetConfigURL();
         }
-        if (assetManager == null){
+        if (assetManager == null) {
             assetManager = JmeSystem.newAssetManager(assetCfgUrl);
         }
     }
@@ -232,18 +246,18 @@ public class LegacyApplication implements Application, SystemListener {
      * @param settings The settings to set.
      */
     @Override
-    public void setSettings(AppSettings settings){
+    public void setSettings(AppSettings settings) {
         this.settings = settings;
-        if (context != null && settings.useInput() != inputEnabled){
+        if (context != null && settings.useInput() != inputEnabled) {
             // may need to create or destroy input based
             // on settings change
             inputEnabled = !inputEnabled;
-            if (inputEnabled){
+            if (inputEnabled) {
                 initInput();
-            }else{
+            } else {
                 destroyInput();
             }
-        }else{
+        } else {
             inputEnabled = settings.useInput();
         }
     }
@@ -254,7 +268,7 @@ public class LegacyApplication implements Application, SystemListener {
      * by the current JmeContext implementation.
      */
     @Override
-    public void setTimer(Timer timer){
+    public void setTimer(Timer timer) {
         this.timer = timer;
 
         if (timer != null) {
@@ -267,12 +281,12 @@ public class LegacyApplication implements Application, SystemListener {
     }
 
     @Override
-    public Timer getTimer(){
+    public Timer getTimer() {
         return timer;
     }
 
-    private void initDisplay(){
-        // aquire important objects
+    private void initDisplay() {
+        // acquire important objects
         // from the context
         settings = context.getSettings();
 
@@ -284,8 +298,8 @@ public class LegacyApplication implements Application, SystemListener {
         renderer = context.getRenderer();
     }
 
-    private void initAudio(){
-        if (settings.getAudioRenderer() != null && context.getType() != Type.Headless){
+    private void initAudio() {
+        if (settings.getAudioRenderer() != null && context.getType() != Type.Headless) {
             audioRenderer = JmeSystem.newAudioRenderer(settings);
             audioRenderer.initialize();
             AudioContext.setAudioRenderer(audioRenderer);
@@ -300,15 +314,15 @@ public class LegacyApplication implements Application, SystemListener {
      * projection with 45° field of view, with near and far values 1 and 1000
      * units respectively.
      */
-    private void initCamera(){
+    private void initCamera() {
         cam = new Camera(settings.getWidth(), settings.getHeight());
 
-        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
+        cam.setFrustumPerspective(45f, (float) cam.getWidth() / cam.getHeight(), 1f, 1000f);
         cam.setLocation(new Vector3f(0f, 0f, 10f));
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
 
         renderManager = new RenderManager(renderer);
-        //Remy - 09/14/2010 setted the timer in the renderManager
+        //Remy - 09/14/2010 set the timer in the renderManager
         renderManager.setTimer(timer);
 
         if (prof != null) {
@@ -329,29 +343,33 @@ public class LegacyApplication implements Application, SystemListener {
      * initializes joystick input if joysticks are enabled in the
      * AppSettings.
      */
-    private void initInput(){
+    private void initInput() {
         mouseInput = context.getMouseInput();
-        if (mouseInput != null)
+        if (mouseInput != null) {
             mouseInput.initialize();
+        }
 
         keyInput = context.getKeyInput();
-        if (keyInput != null)
+        if (keyInput != null) {
             keyInput.initialize();
+        }
 
         touchInput = context.getTouchInput();
-        if (touchInput != null)
+        if (touchInput != null) {
             touchInput.initialize();
+        }
 
-        if (!settings.getBoolean("DisableJoysticks")){
+        if (settings.useJoysticks()) {
             joyInput = context.getJoyInput();
-            if (joyInput != null)
+            if (joyInput != null) {
                 joyInput.initialize();
+            }
         }
 
         inputManager = new InputManager(mouseInput, keyInput, joyInput, touchInput);
     }
 
-    private void initStateManager(){
+    private void initStateManager() {
         stateManager = new AppStateManager(this);
 
         // Always register a ResetStatsState to make sure
@@ -363,7 +381,7 @@ public class LegacyApplication implements Application, SystemListener {
      * @return The {@link AssetManager asset manager} for this application.
      */
     @Override
-    public AssetManager getAssetManager(){
+    public AssetManager getAssetManager() {
         return assetManager;
     }
 
@@ -371,7 +389,7 @@ public class LegacyApplication implements Application, SystemListener {
      * @return the {@link InputManager input manager}.
      */
     @Override
-    public InputManager getInputManager(){
+    public InputManager getInputManager() {
         return inputManager;
     }
 
@@ -395,7 +413,7 @@ public class LegacyApplication implements Application, SystemListener {
      * @return The {@link Renderer renderer} for the application
      */
     @Override
-    public Renderer getRenderer(){
+    public Renderer getRenderer() {
         return renderer;
     }
 
@@ -419,7 +437,7 @@ public class LegacyApplication implements Application, SystemListener {
      * @return The {@link JmeContext display context} for the application
      */
     @Override
-    public JmeContext getContext(){
+    public JmeContext getContext() {
         return context;
     }
 
@@ -427,7 +445,7 @@ public class LegacyApplication implements Application, SystemListener {
      * @return The {@link Camera camera} for the application
      */
     @Override
-    public Camera getCamera(){
+    public Camera getCamera() {
         return cam;
     }
 
@@ -437,17 +455,19 @@ public class LegacyApplication implements Application, SystemListener {
      * @see #start(com.jme3.system.JmeContext.Type)
      */
     @Override
-    public void start(){
+    public void start() {
         start(JmeContext.Type.Display, false);
     }
 
     /**
      * Starts the application in {@link Type#Display display} mode.
      *
+     * @param waitFor true&rarr;wait for the context to be initialized,
+     * false&rarr;don't wait
      * @see #start(com.jme3.system.JmeContext.Type)
      */
     @Override
-    public void start(boolean waitFor){
+    public void start(boolean waitFor) {
         start(JmeContext.Type.Display, waitFor);
     }
 
@@ -455,6 +475,8 @@ public class LegacyApplication implements Application, SystemListener {
      * Starts the application.
      * Creating a rendering context and executing
      * the main loop in a separate thread.
+     *
+     * @param contextType the type of context to create
      */
     public void start(JmeContext.Type contextType) {
         start(contextType, false);
@@ -464,14 +486,18 @@ public class LegacyApplication implements Application, SystemListener {
      * Starts the application.
      * Creating a rendering context and executing
      * the main loop in a separate thread.
+     *
+     * @param contextType the type of context to create
+     * @param waitFor true&rarr;wait for the context to be initialized,
+     * false&rarr;don't wait
      */
-    public void start(JmeContext.Type contextType, boolean waitFor){
-        if (context != null && context.isCreated()){
+    public void start(JmeContext.Type contextType, boolean waitFor) {
+        if (context != null && context.isCreated()) {
             logger.warning("start() called when application already created!");
             return;
         }
 
-        if (settings == null){
+        if (settings == null) {
             settings = new AppSettings(true);
         }
 
@@ -485,6 +511,8 @@ public class LegacyApplication implements Application, SystemListener {
      * Sets an AppProfiler hook that will be called back for
      * specific steps within a single update frame.  Value defaults
      * to null.
+     *
+     * @param prof the profiler to use (alias created) or null for none
      */
     @Override
     public void setAppProfiler(AppProfiler prof) {
@@ -516,17 +544,19 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @see Type#Canvas
      */
-    public void createCanvas(){
-        if (context != null && context.isCreated()){
+    public void createCanvas() {
+        if (context != null && context.isCreated()) {
             logger.warning("createCanvas() called when application already created!");
             return;
         }
 
-        if (settings == null){
+        if (settings == null) {
             settings = new AppSettings(true);
         }
 
-        logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        }
         context = JmeSystem.newContext(settings, JmeContext.Type.Canvas);
         context.setSystemListener(this);
     }
@@ -538,7 +568,7 @@ public class LegacyApplication implements Application, SystemListener {
      *
      * @see #startCanvas(boolean)
      */
-    public void startCanvas(){
+    public void startCanvas() {
         startCanvas(false);
     }
 
@@ -551,7 +581,7 @@ public class LegacyApplication implements Application, SystemListener {
      * @param waitFor If true, the current thread will block until the
      * rendering thread is running
      */
-    public void startCanvas(boolean waitFor){
+    public void startCanvas(boolean waitFor) {
         context.create(waitFor);
     }
 
@@ -559,9 +589,17 @@ public class LegacyApplication implements Application, SystemListener {
      * Internal use only.
      */
     @Override
-    public void reshape(int w, int h){
+    public void reshape(int w, int h) {
         if (renderManager != null) {
             renderManager.notifyReshape(w, h);
+        }
+    }
+
+
+    @Override
+    public void rescale(float x, float y) {
+        if (renderManager != null) {
+            renderManager.notifyRescale(x, y);
         }
     }
 
@@ -573,7 +611,7 @@ public class LegacyApplication implements Application, SystemListener {
      * to restart, applying the new settings.
      */
     @Override
-    public void restart(){
+    public void restart() {
         context.setSettings(settings);
         context.restart();
     }
@@ -587,7 +625,7 @@ public class LegacyApplication implements Application, SystemListener {
      * @see #stop(boolean)
      */
     @Override
-    public void stop(){
+    public void stop() {
         stop(false);
     }
 
@@ -595,9 +633,12 @@ public class LegacyApplication implements Application, SystemListener {
      * Requests the context to close, shutting down the main loop
      * and making necessary cleanup operations.
      * After the application has stopped, it cannot be used anymore.
+     *
+     * @param waitFor true&rarr;wait for the context to be fully destroyed,
+     * false&rarr;don't wait
      */
     @Override
-    public void stop(boolean waitFor){
+    public void stop(boolean waitFor) {
         logger.log(Level.FINE, "Closing application: {0}", getClass().getName());
         context.destroy(waitFor);
     }
@@ -613,15 +654,15 @@ public class LegacyApplication implements Application, SystemListener {
      * and far values 1 and 1000 units respectively.
      */
     @Override
-    public void initialize(){
-        if (assetManager == null){
+    public void initialize() {
+        if (assetManager == null) {
             initAssetManager();
         }
 
         initDisplay();
         initCamera();
 
-        if (inputEnabled){
+        if (inputEnabled) {
             initInput();
         }
         initAudio();
@@ -630,23 +671,23 @@ public class LegacyApplication implements Application, SystemListener {
 //        timer.update();
         timer.reset();
 
-        // user code here..
+        // user code here
     }
 
     /**
      * Internal use only.
      */
     @Override
-    public void handleError(String errMsg, Throwable t){
+    public void handleError(String errMsg, Throwable t) {
         // Print error to log.
         logger.log(Level.SEVERE, errMsg, t);
         // Display error message on screen if not in headless mode
         if (context.getType() != JmeContext.Type.Headless) {
             if (t != null) {
-                JmeSystem.showErrorDialog(errMsg + "\n" + t.getClass().getSimpleName() +
-                        (t.getMessage() != null ? ": " +  t.getMessage() : ""));
+                JmeSystem.handleErrorMessage(errMsg + "\n" + t.getClass().getSimpleName()
+                        + (t.getMessage() != null ? ": " + t.getMessage() : ""));
             } else {
-                JmeSystem.showErrorDialog(errMsg);
+                JmeSystem.handleErrorMessage(errMsg);
             }
         }
 
@@ -657,7 +698,7 @@ public class LegacyApplication implements Application, SystemListener {
      * Internal use only.
      */
     @Override
-    public void gainFocus(){
+    public void gainFocus() {
         if (lostFocusBehavior != LostFocusBehavior.Disabled) {
             if (lostFocusBehavior == LostFocusBehavior.PauseOnLostFocus) {
                 paused = false;
@@ -673,8 +714,8 @@ public class LegacyApplication implements Application, SystemListener {
      * Internal use only.
      */
     @Override
-    public void loseFocus(){
-        if (lostFocusBehavior != LostFocusBehavior.Disabled){
+    public void loseFocus() {
+        if (lostFocusBehavior != LostFocusBehavior.Disabled) {
             if (lostFocusBehavior == LostFocusBehavior.PauseOnLostFocus) {
                 paused = true;
             }
@@ -686,7 +727,7 @@ public class LegacyApplication implements Application, SystemListener {
      * Internal use only.
      */
     @Override
-    public void requestClose(boolean esc){
+    public void requestClose(boolean esc) {
         context.destroy(false);
     }
 
@@ -698,11 +739,13 @@ public class LegacyApplication implements Application, SystemListener {
      * They are executed even if the application is currently paused
      * or out of focus.
      *
+     * @param <V> type of result returned by the Callable
      * @param callable The callable to run in the main jME3 thread
+     * @return a new instance
      */
     @Override
     public <V> Future<V> enqueue(Callable<V> callable) {
-        AppTask<V> task = new AppTask<V>(callable);
+        AppTask<V> task = new AppTask<>(callable);
         taskQueue.add(task);
         return task;
     }
@@ -719,7 +762,7 @@ public class LegacyApplication implements Application, SystemListener {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public void enqueue(Runnable runnable){
+    public void enqueue(Runnable runnable) {
         enqueue(new RunnableWrapper(runnable));
     }
 
@@ -728,7 +771,7 @@ public class LegacyApplication implements Application, SystemListener {
      */
     protected void runQueuedTasks() {
         AppTask<?> task;
-        while( (task = taskQueue.poll()) != null ) {
+        while ((task = taskQueue.poll()) != null) {
             if (!task.isCancelled()) {
                 task.invoke();
             }
@@ -740,43 +783,54 @@ public class LegacyApplication implements Application, SystemListener {
      * Callback from ContextListener.
      */
     @Override
-    public void update(){
+    public void update() {
         // Make sure the audio renderer is available to callables
         AudioContext.setAudioRenderer(audioRenderer);
 
-        if (prof!=null) prof.appStep(AppStep.QueuedTasks);
+        if (prof != null) {
+            prof.appStep(AppStep.QueuedTasks);
+        }
         runQueuedTasks();
 
-        if (speed == 0 || paused)
+        if (speed == 0 || paused) {
             return;
+        }
 
         timer.update();
 
-        if (inputEnabled){
-            if (prof!=null) prof.appStep(AppStep.ProcessInput);
+        if (inputEnabled) {
+            if (prof != null) {
+                prof.appStep(AppStep.ProcessInput);
+            }
             inputManager.update(timer.getTimePerFrame());
         }
 
-        if (audioRenderer != null){
-            if (prof!=null) prof.appStep(AppStep.ProcessAudio);
+        if (audioRenderer != null) {
+            if (prof != null) {
+                prof.appStep(AppStep.ProcessAudio);
+            }
             audioRenderer.update(timer.getTimePerFrame());
         }
 
-        // user code here..
+        // user code here
     }
 
-    protected void destroyInput(){
-        if (mouseInput != null)
+    protected void destroyInput() {
+        if (mouseInput != null) {
             mouseInput.destroy();
+        }
 
-        if (keyInput != null)
+        if (keyInput != null) {
             keyInput.destroy();
+        }
 
-        if (joyInput != null)
+        if (joyInput != null) {
             joyInput.destroy();
+        }
 
-        if (touchInput != null)
+        if (touchInput != null) {
             touchInput.destroy();
+        }
 
         inputManager = null;
     }
@@ -786,12 +840,13 @@ public class LegacyApplication implements Application, SystemListener {
      * Callback from ContextListener.
      */
     @Override
-    public void destroy(){
+    public void destroy() {
         stateManager.cleanup();
 
         destroyInput();
-        if (audioRenderer != null)
+        if (audioRenderer != null) {
             audioRenderer.cleanup();
+        }
 
         timer.reset();
     }
@@ -810,19 +865,17 @@ public class LegacyApplication implements Application, SystemListener {
         return viewPort;
     }
 
-    private class RunnableWrapper implements Callable{
+    private class RunnableWrapper implements Callable {
         private final Runnable runnable;
 
-        public RunnableWrapper(Runnable runnable){
+        public RunnableWrapper(Runnable runnable) {
             this.runnable = runnable;
         }
 
         @Override
-        public Object call(){
+        public Object call() {
             runnable.run();
             return null;
         }
-
     }
-
 }

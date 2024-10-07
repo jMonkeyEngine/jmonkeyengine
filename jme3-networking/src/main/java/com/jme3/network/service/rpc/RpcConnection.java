@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import java.util.logging.Logger;
  */
 public class RpcConnection {
 
-    static final Logger log = Logger.getLogger(RpcConnection.class.getName());
+    private static final Logger log = Logger.getLogger(RpcConnection.class.getName());
  
     /**
      *  The underlying connection upon which RPC call messages are sent
@@ -64,7 +64,7 @@ public class RpcConnection {
      *  The objectId index of RpcHandler objects that are used to perform the
      *  RPC calls for a particular object.
      */
-    private Map<Short, RpcHandler> handlers = new ConcurrentHashMap<Short, RpcHandler>();
+    private Map<Short, RpcHandler> handlers = new ConcurrentHashMap<>();
     
     /**
      *  Provides unique messages IDs for outbound synchronous call
@@ -78,7 +78,7 @@ public class RpcConnection {
      *  response is received, the appropriate handler is found here and the
      *  response or error set, thus releasing the waiting caller.
      */ 
-    private Map<Long, ResponseHolder> responses = new ConcurrentHashMap<Long, ResponseHolder>(); 
+    private Map<Long, ResponseHolder> responses = new ConcurrentHashMap<>(); 
  
     /**
      *  Creates a new RpcConnection for the specified network connection.
@@ -117,8 +117,8 @@ public class RpcConnection {
             log.log(Level.FINEST, "Sending:{0}  on channel:{1}", new Object[]{msg, channel});
         }
         
-        // Prevent non-async messages from being send as UDP
-        // because there is a high probabilty that this would block
+        // Prevent non-async messages from being sent as UDP
+        // because there is a high probability that this would block
         // forever waiting for a response.  For async calls it's ok
         // so it doesn't do the check.
         if( channel >= 0 ) {        
@@ -247,7 +247,7 @@ public class RpcConnection {
                     wait();                
                 }
             } catch( InterruptedException e ) {
-                throw new RuntimeException("Interrupted waiting for respone to:" + msg, e);
+                throw new RuntimeException("Interrupted waiting for response to:" + msg, e);
             }
             if( error != null ) {
                 throw new RuntimeException("Error calling remote procedure:" + msg + "\n" + error);

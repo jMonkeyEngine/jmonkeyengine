@@ -174,7 +174,7 @@ public class LwjglContext extends Context {
     }
 
     @Override
-    public Image bindImage(com.jme3.texture.Image image, Texture.Type textureType, int miplevel, MemoryAccess access) {
+    public Image bindImage(com.jme3.texture.Image image, Texture.Type textureType, int mipLevel, MemoryAccess access) {
         Utils.assertSharingPossible();
         int imageID = image.getId();
         if (imageID == -1) {
@@ -183,7 +183,7 @@ public class LwjglContext extends Context {
         long memFlags = Utils.getMemoryAccessFlags(access);
         int textureTarget = convertTextureType(textureType);
         Utils.errorBuffer.rewind();
-        long mem = CL12GL.clCreateFromGLTexture(context, memFlags, textureTarget, miplevel, imageID, Utils.errorBuffer);
+        long mem = CL12GL.clCreateFromGLTexture(context, memFlags, textureTarget, mipLevel, imageID, Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateFromGLTexture");
         return new LwjglImage(mem);
     }

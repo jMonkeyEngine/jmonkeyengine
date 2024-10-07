@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,6 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private String shotName;
     private long shotIndex = 0;
     private int width, height;
-    private AppProfiler prof;
     /**
      * InputManager to which the ActionListener and the mapping are added
      */
@@ -116,8 +115,8 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * Use an empty string to use the application folder. Use NULL to use the system
      * default storage folder.
      * @param filePath The screenshot file path to use. Include the separator at the end of the path.
-     * @param shotIndex The base index for screen shots.  The first screen shot will have
-     *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
+     * @param shotIndex The base index for screenshots.  The first screenshot will have
+     *     shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
     public ScreenshotAppState(String filePath, long shotIndex) {
         this.filePath = filePath;
@@ -132,15 +131,15 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * default storage folder.
      * @param filePath The screenshot file path to use. Include the separator at the end of the path.
      * @param fileName The name of the file to save the screenshot as.
-     * @param shotIndex The base index for screen shots.  The first screen shot will have
-     *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
+     * @param shotIndex The base index for screenshots.  The first screenshot will have
+     *     shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
     public ScreenshotAppState(String filePath, String fileName, long shotIndex) {
         this.filePath = filePath;
         this.shotName = fileName;
         this.shotIndex = shotIndex;
     }
-    
+
     /**
      * Set the file path to store the screenshot.
      * Include the separator at the end of the path.
@@ -161,14 +160,16 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     }
 
     /**
-     * Sets the base index that will used for subsequent screen shots. 
+     * Sets the base index that will used for subsequent screenshots.
+     *
+     * @param index the desired base index
      */
     public void setShotIndex(long index) {
         this.shotIndex = index;
     }
 
     /**
-     * Sets if the filename should be appended with a number representing the 
+     * Sets if the filename should be appended with a number representing the
      * current sequence.
      * @param numberedWanted If numbering is wanted.
      */
@@ -233,7 +234,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     @Override
     public void onAction(String name, boolean value, float tpf) {
-        if (value){
+        if (value) {
             capture = true;
         }
     }
@@ -273,7 +274,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     @Override
     public void postFrame(FrameBuffer out) {
-        if (capture){
+        if (capture) {
             capture = false;
 
             Camera curCamera = rm.getCurrentCamera();
@@ -300,30 +301,36 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             } else {
                 file = new File(filePath + filename + ".png").getAbsoluteFile();
             }
-            logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
+
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
+            }
 
             try {
                 writeImageFile(file);
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, "Error while saving screenshot", ex);
-            }                
+            }
         }
     }
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
     /**
-     *  Called by postFrame() once the screen has been captured to outBuf.
+     * Called by postFrame() once the screen has been captured to outBuf.
+     *
+     * @param file the output file
+     * @throws IOException if an I/O error occurs
      */
-    protected void writeImageFile( File file ) throws IOException {
+    protected void writeImageFile(File file) throws IOException {
         OutputStream outStream = new FileOutputStream(file);
         try {
             JmeSystem.writeImageFile(outStream, "png", outBuf, width, height);
         } finally {
             outStream.close();
         }
-    } 
+    }
 }

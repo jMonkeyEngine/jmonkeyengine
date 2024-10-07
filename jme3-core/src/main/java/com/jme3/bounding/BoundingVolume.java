@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ import com.jme3.math.*;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.Objects;
 
 /**
  * <code>BoundingVolume</code> defines an interface for dealing with
@@ -78,7 +79,9 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     }
 
     /**
-     * Grabs the checkplane we should check first.
+     * Grabs the plane we should check first.
+     *
+     * @return the index of the plane to be checked first
      */
     public int getCheckPlane() {
         return checkPlane;
@@ -87,7 +90,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     /**
      * Sets the index of the plane that should be first checked during rendering.
      *
-     * @param value
+     * @param value the index of the plane to be checked first
      */
     public final void setCheckPlane(int value) {
         checkPlane = value;
@@ -95,6 +98,8 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
 
     /**
      * getType returns the type of bounding volume this is.
+     * 
+     * @return an enum value
      */
     public abstract Type getType();
 
@@ -175,6 +180,48 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
      * @return the new BoundingVolume
      */
     public abstract BoundingVolume clone(BoundingVolume store);
+
+    /**
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code other} is null, false is returned. Either way, the current
+     * instance is unaffected.
+     *
+     * @param other the object to compare (may be null, unaffected)
+     * @return true if {@code this} and {@code other} have identical values,
+     *     otherwise false
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof BoundingVolume)) {
+            return false;
+        }
+
+        if (this == other) {
+            return true;
+        }
+
+        BoundingVolume otherBoundingVolume = (BoundingVolume) other;
+        if (!center.equals(otherBoundingVolume.getCenter())) {
+            return false;
+        }
+        // The checkPlane field is ignored.
+
+        return true;
+    }
+
+    /**
+     * Returns a hash code. If two bounding volumes have identical values, they
+     * will have the same hash code. The current instance is unaffected.
+     *
+     * @return a 32-bit value for use in hashing
+     */
+    @Override
+    public int hashCode() {
+        int hash = Objects.hash(center);
+        // The checkPlane field is ignored.
+
+        return hash;
+    }
 
     public final Vector3f getCenter() {
         return center;
@@ -314,8 +361,8 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        center = (Vector3f) e.getCapsule(this).readSavable("center", Vector3f.ZERO.clone());
+    public void read(JmeImporter importer) throws IOException {
+        center = (Vector3f) importer.getCapsule(this).readSavable("center", Vector3f.ZERO.clone());
     }
 
     public int collideWith(Collidable other) {

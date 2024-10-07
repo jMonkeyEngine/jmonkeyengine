@@ -1,5 +1,6 @@
 MaterialDef Light Scattering {
- MaterialParameters {
+    MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Int NumSamplesDepth
         Texture2D Texture
@@ -14,13 +15,14 @@ MaterialDef Light Scattering {
     }
 
     Technique {
-        VertexShader GLSL300 GLSL150 GLSL120:   Common/MatDefs/Post/Post.vert
+        VertexShader   GLSL300 GLSL150 GLSL120:   Common/MatDefs/Post/Post.vert
         FragmentShader GLSL300 GLSL150 GLSL120: Common/MatDefs/Post/LightScattering.frag
 
         WorldParameters {          
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             RESOLVE_MS : NumSamples
             RESOLVE_DEPTH_MS : NumSamplesDepth
             DISPLAY: Display

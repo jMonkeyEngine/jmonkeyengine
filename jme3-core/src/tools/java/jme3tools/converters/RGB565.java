@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,12 @@ package jme3tools.converters;
  * @author Kirill
  */
 public class RGB565 {
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private RGB565() {
+    }
 
     public static short ARGB8_to_RGB565(int argb){
         int a = (argb & 0xFF000000) >> 24;

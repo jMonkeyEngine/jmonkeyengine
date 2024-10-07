@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ public class Picture extends Geometry {
     /**
      * Create a named picture. 
      * 
-     * By default a picture's width and height are 1
+     * By default, a picture's width and height are 1,
      * and its position is 0, 0.
      * 
      * @param name the name of the picture in the scene graph
@@ -70,7 +70,7 @@ public class Picture extends Geometry {
 
     /**
      * Creates a named picture.
-     * By default a picture's width and height are 1
+     * By default, a picture's width and height are 1,
      * and its position is 0, 0.
      * The image texture coordinates will not be flipped.
      * 
@@ -84,6 +84,24 @@ public class Picture extends Geometry {
      * Serialization only. Do not use.
      */
     protected Picture(){
+    }
+
+    /**
+     * Return the height of the picture.
+     *
+     * @return the height (in pixels)
+     */
+    public float getHeight() {
+        return height;
+    }
+
+    /**
+     * Return the width of the picture.
+     *
+     * @return the width (in pixels)
+     */
+    public float getWidth() {
+        return width;
     }
 
     /**

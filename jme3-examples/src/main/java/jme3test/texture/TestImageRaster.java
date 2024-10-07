@@ -17,7 +17,6 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.ImageRaster;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
@@ -66,28 +65,6 @@ public class TestImageRaster extends SimpleApplication {
         rootNode.attachChild(txt);
     }
     
-    private Image createTestImage() {
-        Image testImage = new Image(Format.BGR8, 4, 3, BufferUtils.createByteBuffer(4 * 4 * 3), null, ColorSpace.Linear);
-        
-        ImageRaster io = ImageRaster.create(testImage);
-        io.setPixel(0, 0, ColorRGBA.Black);
-        io.setPixel(1, 0, ColorRGBA.Gray);
-        io.setPixel(2, 0, ColorRGBA.White);
-        io.setPixel(3, 0, ColorRGBA.White.mult(4)); // HDR color
-
-        io.setPixel(0, 1, ColorRGBA.Red);
-        io.setPixel(1, 1, ColorRGBA.Green);
-        io.setPixel(2, 1, ColorRGBA.Blue);
-        io.setPixel(3, 1, new ColorRGBA(0, 0, 0, 0));
-
-        io.setPixel(0, 2, ColorRGBA.Yellow);
-        io.setPixel(1, 2, ColorRGBA.Magenta);
-        io.setPixel(2, 2, ColorRGBA.Cyan);
-        io.setPixel(3, 2, new ColorRGBA(1, 1, 1, 0));
-        
-        return testImage;
-    }
-   
     @Override
     public void simpleInitApp() {
         cam.setLocation(new Vector3f(16, 6, 36));

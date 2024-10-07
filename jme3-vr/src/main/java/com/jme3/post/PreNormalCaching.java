@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.post;
 
 import com.jme3.post.Filter.Pass;
@@ -16,12 +11,23 @@ import com.jme3.texture.FrameBuffer;
  * Pre normal caching class.
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
+ * @deprecated The jme3-vr module is deprecated and will be removed in a future version (as it only supports OpenVR).
+ *             For new Virtual Reality projects, use user libraries that provide OpenXR support.
+ *             See <a href = "https://wiki.jmonkeyengine.org/docs/3.4/core/vr/virtualreality.html">Virtual Reality JME wiki section</a>
+ *             for more information.
  */
+@Deprecated
 public class PreNormalCaching {
     
     private static FrameBuffer cachedPreNormals;
     private static int lastNormalPassesCount, curCount;
     
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private PreNormalCaching() {
+    }
+
     /**
      * Get pre-normals from the given rendering.
      * @param renderManager the render manager.
@@ -35,7 +41,7 @@ public class PreNormalCaching {
         if( cachedPreNormals != null ) {
             r.copyFrameBuffer(cachedPreNormals, normalPass.getRenderFrameBuffer(),true,  false);
         } else {
-            // lets make the prenormals
+            // let's make the prenormals
             r.setFrameBuffer(normalPass.getRenderFrameBuffer());
             renderManager.getRenderer().clearBuffers(true, true, true);
             if( renderManager.getRenderer().getCaps().contains(Caps.GLSL150) ) {

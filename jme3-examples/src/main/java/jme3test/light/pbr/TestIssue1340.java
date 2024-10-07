@@ -16,8 +16,8 @@ import com.jme3.system.AppSettings;
 
 /**
  * This test case validates a shader compilation fix with a model using a PBR material in combination with a
- * SkinningControl. When you run this application and you don't see a RenderException, the test is successful.
- * For a detailed explanation consult the github issue: https://github.com/jMonkeyEngine/jmonkeyengine/issues/1340
+ * SkinningControl. When you run this application and don't see a RenderException, the test is successful.
+ * For a detailed explanation consult the GitHub issue: https://github.com/jMonkeyEngine/jmonkeyengine/issues/1340
  * -rvandoosselaer
  */
 public class TestIssue1340 extends SimpleApplication {

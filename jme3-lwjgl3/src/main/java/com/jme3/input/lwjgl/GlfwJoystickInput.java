@@ -100,7 +100,7 @@ public class GlfwJoystickInput implements JoyInput {
                 while (floatBuffer.hasRemaining()) {
                     floatBuffer.get();
 
-                    final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(), convertAxisIndex(axisIndex));
+                    final String logicalId = JoystickCompatibilityMappings.remapAxis(joystick.getName(), convertAxisIndex(axisIndex));
                     final JoystickAxis joystickAxis = new DefaultJoystickAxis(inputManager, joystick, axisIndex, convertAxisIndex(axisIndex), logicalId, true, false, 0.0f);
                     joystick.addAxis(axisIndex, joystickAxis);
                     axisIndex++;
@@ -108,15 +108,17 @@ public class GlfwJoystickInput implements JoyInput {
 
                 final ByteBuffer byteBuffer = glfwGetJoystickButtons(i);
 
-                int buttonIndex = 0;
-                while (byteBuffer.hasRemaining()) {
-                    byteBuffer.get();
+                if (byteBuffer != null) {
+                    int buttonIndex = 0;
+                    while (byteBuffer.hasRemaining()) {
+                        byteBuffer.get();
 
-                    final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(), String.valueOf(buttonIndex));
-                    final JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex, String.valueOf(buttonIndex), logicalId);
-                    joystick.addButton(button);
-                    joyButtonPressed.put(button, false); 
-                    buttonIndex++;
+                        final String logicalId = JoystickCompatibilityMappings.remapButton(joystick.getName(), String.valueOf(buttonIndex));
+                        final JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex, String.valueOf(buttonIndex), logicalId);
+                        joystick.addButton(button);
+                        joyButtonPressed.put(button, false);
+                        buttonIndex++;
+                    }
                 }
             }
         }
@@ -145,6 +147,7 @@ public class GlfwJoystickInput implements JoyInput {
 
     @Override
     public void update() {
+        float rawValue, value;
         for (final Map.Entry<Integer, GlfwJoystick> entry : joysticks.entrySet()) {
 
             // Axes
@@ -157,8 +160,9 @@ public class GlfwJoystickInput implements JoyInput {
 
             if (axisValues != null) {
                 for (final JoystickAxis axis : entry.getValue().getAxes()) {
-                    final float value = axisValues.get(axis.getAxisId());
-                    listener.onJoyAxisEvent(new JoyAxisEvent(axis, value));
+                    rawValue = axisValues.get(axis.getAxisId());
+                    value = JoystickCompatibilityMappings.remapAxisRange(axis, rawValue);
+                    listener.onJoyAxisEvent(new JoyAxisEvent(axis, value, rawValue));
                 }
             }
 

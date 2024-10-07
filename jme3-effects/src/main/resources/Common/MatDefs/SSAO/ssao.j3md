@@ -1,6 +1,7 @@
 MaterialDef SSAO {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Int NumSamples
         Int NumSamplesDepth
         Texture2D Texture
@@ -18,7 +19,7 @@ MaterialDef SSAO {
     }
 
     Technique {
-        VertexShader GLSL300 GLSL150 GLSL120:   Common/MatDefs/Post/Post.vert
+        VertexShader   GLSL300 GLSL150 GLSL120:   Common/MatDefs/Post/Post.vert
         FragmentShader GLSL300 GLSL150 GLSL120: Common/MatDefs/SSAO/ssao.frag
 
         WorldParameters {
@@ -28,6 +29,7 @@ MaterialDef SSAO {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             RESOLVE_MS : NumSamples
             RESOLVE_DEPTH_MS : NumSamplesDepth
             APPROXIMATE_NORMALS : ApproximateNormals

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,11 +44,11 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.image.ColorSpace;
 import de.lessvoid.nifty.Nifty;
 
 public class TestNiftyToMesh extends SimpleApplication{
-
-    private Nifty nifty;
 
     public static void main(String[] args){
         TestNiftyToMesh app = new TestNiftyToMesh();
@@ -59,23 +59,27 @@ public class TestNiftyToMesh extends SimpleApplication{
     public void simpleInitApp() {
        ViewPort niftyView = renderManager.createPreView("NiftyView", new Camera(1024, 768));
        niftyView.setClearFlags(true, true, true);
+
+        ColorSpace colorSpace = renderer.isMainFrameBufferSrgb()
+                ? ColorSpace.sRGB : ColorSpace.Linear;
         NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay(assetManager,
                                                           inputManager,
                                                           audioRenderer,
-                                                          niftyView);
-        nifty = niftyDisplay.getNifty();
+                                                          niftyView,
+                                                          colorSpace);
+        Nifty nifty = niftyDisplay.getNifty();
         nifty.fromXml("all/intro.xml", "start");
         niftyView.addProcessor(niftyDisplay);
 
         Texture2D depthTex = new Texture2D(1024, 768, Format.Depth);
         FrameBuffer fb = new FrameBuffer(1024, 768, 1);
-        fb.setDepthTexture(depthTex);
+        fb.setDepthTarget(FrameBufferTarget.newTarget(depthTex));
 
         Texture2D tex = new Texture2D(1024, 768, Format.RGBA8);
         tex.setMinFilter(MinFilter.Trilinear);
         tex.setMagFilter(MagFilter.Bilinear);
 
-        fb.setColorTexture(tex);
+        fb.addColorTarget(FrameBufferTarget.newTarget(tex));
         niftyView.setClearFlags(true, true, true);
         niftyView.setOutputFrameBuffer(fb);
 

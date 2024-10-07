@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.opencl;
 /**
  * This package contains an API for using OpenCL together with jME3.
  * <p>
@@ -64,7 +63,7 @@ package com.jme3.opencl;
  * On the programming side, a {@link com.jme3.opencl.Kernel} instance is obtained
  * by calling {@link com.jme3.opencl.Program#createKernel(java.lang.String) }.
  * To execute the kernel, the method
- * {@link Kernel#Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...)}
+ * {@link com.jme3.opencl.Kernel#Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...)}
  * is provided. You first pass the command queue and the work size (i.e. the number of parallel executed threads)
  * followed by the kernel arguments.
  * <br>
@@ -76,9 +75,9 @@ package com.jme3.opencl;
  * the argument. A buffer on its own is typeless. In the kernel, you then specify
  * the type of the buffer by argument declarations like {@code __global float* buffer}.
  * Note that OpenCL does not check buffer boundaries. If you read or write outside
- * of the buffer, the behavior is completely undefined and may often result in
+ * the buffer, the behavior is completely undefined and may often result in
  * a program cache later on.
- * {@link com.jme3.opencl.Image} objects are structured one, two or three dimensional
+ * {@link com.jme3.opencl.Image} objects are structured one-, two-, or three-dimensional
  * memory chunks of a fixed type. They are created by Context.createImage().
  * They need special functions in the kernel code to write to or read from images.
  * Both buffer and image objects provide methods for copying between buffers and images,
@@ -93,7 +92,7 @@ package com.jme3.opencl;
  * <br>
  * Some methods have the suffix {@code -NoEvent}. This means that these methods
  * don't return an event object even if the OpenCL function would return an event.
- * There exists always an alternative version that does return an event.
+ * There's always an alternative version that does return an event.
  * These methods exist to increase the performance: since all actions (like multiple kernel calls)
  * that are sent to the same command queue are executed in order, there is no
  * need for intermediate events. (These intermediate events would be released
@@ -103,7 +102,7 @@ package com.jme3.opencl;
  * 
  * <p>
  * <b>Interoperability between OpenCL and jME3:</b><br>
- * This Wrapper allows to share jME3 Images and VertexBuffers with OpenCL.<br>
+ * This Wrapper allows sharing jME3 Images and VertexBuffers with OpenCL.<br>
  * {@link com.jme3.scene.VertexBuffer} objects can be shared with OpenCL
  * by calling {@link com.jme3.opencl.Context#bindVertexBuffer(com.jme3.scene.VertexBuffer, com.jme3.opencl.MemoryAccess) }
  * resulting in a {@link com.jme3.opencl.Buffer} object. This buffer object
@@ -113,10 +112,10 @@ package com.jme3.opencl;
  * or variations of this method. The same holds for {@link com.jme3.texture.FrameBuffer.RenderBuffer} objects
  * using {@link com.jme3.opencl.Context#bindRenderBuffer(com.jme3.texture.FrameBuffer.RenderBuffer, com.jme3.opencl.MemoryAccess) }.
  * These methods result in an OpenCL-Image. Usages are e.g. animated textures,
- * terrain based on height maps, post processing effects and so forth.
+ * terrain based on height maps, post-processing effects, and so forth.
  * <br>
  * <i>Important:</i> Before shared objects can be used by any OpenCL function
- * like kernel calls or read/write/copy methods, they must be aquired explicitly
+ * like kernel calls or read/write/copy methods, they must be acquired explicitly
  * by {@link com.jme3.opencl.Buffer#acquireBufferForSharingAsync(com.jme3.opencl.CommandQueue) }
  * or {@link com.jme3.opencl.Image#acquireImageForSharingAsync(com.jme3.opencl.CommandQueue) }.
  * After the work is done, release the resource with
@@ -155,5 +154,6 @@ package com.jme3.opencl;
  * OpenCL specification for the meanings of these errors for that particular function.</li>
  * </ul>
  */
+package com.jme3.opencl;
 
 //TODO: add profiling to Kernel, CommandQueue

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,17 +54,17 @@ public final class BinaryImporter implements JmeImporter {
     private AssetManager assetManager;
 
     //Key - alias, object - bco
-    private HashMap<String, BinaryClassObject> classes
-             = new HashMap<String, BinaryClassObject>();
+    private final HashMap<String, BinaryClassObject> classes
+             = new HashMap<>();
     //Key - id, object - the savable
-    private HashMap<Integer, Savable> contentTable
-            = new HashMap<Integer, Savable>();
+    private final HashMap<Integer, Savable> contentTable
+            = new HashMap<>();
     //Key - savable, object - capsule
-    private IdentityHashMap<Savable, BinaryInputCapsule> capsuleTable
-             = new IdentityHashMap<Savable, BinaryInputCapsule>();
-    //Key - id, opject - location in the file
-    private HashMap<Integer, Integer> locationTable
-             = new HashMap<Integer, Integer>();
+    private final IdentityHashMap<Savable, BinaryInputCapsule> capsuleTable
+             = new IdentityHashMap<>();
+    //Key - id, object - location in the file
+    private final HashMap<Integer, Integer> locationTable
+             = new HashMap<>();
 
     public static boolean debug = false;
 
@@ -329,12 +329,7 @@ public final class BinaryImporter implements JmeImporter {
             int dataLength = ByteUtils.convertIntFromBytes(dataArray, loc);
             loc+=4;
 
-            Savable out = null;
-            if (assetManager != null) {
-                out = SavableClassUtil.fromName(bco.className, assetManager.getClassLoaders());
-            } else {
-                out = SavableClassUtil.fromName(bco.className);
-            }
+            Savable  out = SavableClassUtil.fromName(bco.className);
 
             BinaryInputCapsule cap = new BinaryInputCapsule(this, out, bco);
             cap.setContent(dataArray, loc, loc+dataLength);

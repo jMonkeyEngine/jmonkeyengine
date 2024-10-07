@@ -101,7 +101,7 @@ public class ConnectorAdapter extends Thread
         // if a TCP outbound queue fills to capacity and a client sends
         // in such a way that they block TCP message handling then if the HostedConnection
         // on the server is similarly blocked then the TCP network buffers may
-        // all get full and no outbound messages move and we forever block
+        // all get full, and no outbound messages move, and we forever block
         // on the queue.
         // However, in practice this can't really happen... or at least it's
         // the sign of other really bad things.

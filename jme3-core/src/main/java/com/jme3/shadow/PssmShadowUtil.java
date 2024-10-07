@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,19 @@ import static java.lang.Math.min;
 public final class PssmShadowUtil {
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private PssmShadowUtil() {
+    }
+
+    /**
      * Updates the frustum splits stores in <code>splits</code> using PSSM.
+     *
+     * @param splits the array of splits (modified)
+     * @param near the distance to the camera's near plane
+     * @param far the distance to the camera's far plane
+     * @param lambda the mixing parameter (0&rarr;purely linear,
+     * 1&rarr;purely logarithmic) 
      */
     public static void updateFrustumSplits(float[] splits, float near, float far, float lambda) {
         for (int i = 0; i < splits.length; i++) {
@@ -62,14 +74,19 @@ public final class PssmShadowUtil {
             splits[i] = log * lambda + uniform * (1.0f - lambda);
         }
 
-        // This is used to improve the correctness of the calculations. Our main near- and farplane
+        // This is used to improve the correctness of the calculations. The near and far planes
         // of the camera always stay the same, no matter what happens.
         splits[0] = near;
         splits[splits.length - 1] = far;
     }
 
     /**
-     * Compute the Zfar in the model vieuw to adjust the Zfar distance for the splits calculation
+     * Compute the Zfar in the model view to adjust the Zfar distance for the splits calculation
+     *
+     * @param occ a list of occluders
+     * @param recv a list of receivers
+     * @param cam the Camera (not null, unaffected)
+     * @return the Z-far distance
      */
     public static float computeZFar(GeometryList occ, GeometryList recv, Camera cam) {
         Matrix4f mat = cam.getViewMatrix();

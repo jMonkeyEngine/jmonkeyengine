@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,9 +56,15 @@ import java.util.zip.GZIPOutputStream;
 public class SaveGame {
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private SaveGame() {
+    }
+
+    /**
      * Saves a savable in a system-dependent way.
      * @param gamePath A unique path for this game, e.g. com/mycompany/mygame
-     * @param dataName A unique name for this savegame, e.g. "save_001"
+     * @param dataName A unique name for this SaveGame, e.g. "save_001"
      * @param data The Savable to save
      */
     public static void saveGame(String gamePath, String dataName, Savable data) {
@@ -68,7 +74,7 @@ public class SaveGame {
     /**
      * Saves a savable in a system-dependent way.
      * @param gamePath A unique path for this game, e.g. com/mycompany/mygame
-     * @param dataName A unique name for this savegame, e.g. "save_001"
+     * @param dataName A unique name for this SaveGame, e.g. "save_001"
      * @param data The Savable to save
      * @param storageType The specific type of folder to use to save the data
      */
@@ -121,7 +127,7 @@ public class SaveGame {
     /**
      * Loads a savable that has been saved on this system with saveGame() before.
      * @param gamePath A unique path for this game, e.g. com/mycompany/mygame
-     * @param dataName A unique name for this savegame, e.g. "save_001"
+     * @param dataName A unique name for this SaveGame, e.g. "save_001"
      * @return The savable that was saved
      */
     public static Savable loadGame(String gamePath, String dataName) {
@@ -131,7 +137,7 @@ public class SaveGame {
     /**
      * Loads a savable that has been saved on this system with saveGame() before.
      * @param gamePath A unique path for this game, e.g. com/mycompany/mygame
-     * @param dataName A unique name for this savegame, e.g. "save_001"
+     * @param dataName A unique name for this SaveGame, e.g. "save_001"
      * @param storageType The specific type of folder to use to save the data
      * @return The savable that was saved
      */
@@ -142,7 +148,7 @@ public class SaveGame {
     /**
      * Loads a savable that has been saved on this system with saveGame() before.
      * @param gamePath A unique path for this game, e.g. com/mycompany/mygame
-     * @param dataName A unique name for this savegame, e.g. "save_001"
+     * @param dataName A unique name for this SaveGame, e.g. "save_001"
      * @param manager Link to an AssetManager if required for loading the data (e.g. models with textures)
      * @return The savable that was saved or null if none was found
      */
@@ -153,7 +159,7 @@ public class SaveGame {
     /**
      * Loads a savable that has been saved on this system with saveGame() before.
      * @param gamePath A unique path for this game, e.g. com/mycompany/mygame
-     * @param dataName A unique name for this savegame, e.g. "save_001"
+     * @param dataName A unique name for this SaveGame, e.g. "save_001"
      * @param manager Link to an AssetManager if required for loading the data (e.g. models with textures)
      * @param storageType The specific type of folder to use to save the data
      * @return The savable that was saved or null if none was found

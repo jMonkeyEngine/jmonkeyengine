@@ -35,70 +35,70 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         EGLConfig[] configs = getConfigs(egl, display);
 
         // First try to find an exact match, but allowing a higher stencil
-        EGLConfig choosenConfig = chooseConfig(egl, display, configs, requestedConfig, false, false, false, true);
-        if (choosenConfig == null && requestedConfig.d > 16) {
+        EGLConfig chosenConfig = chooseConfig(egl, display, configs, requestedConfig, false, false, false, true);
+        if (chosenConfig == null && requestedConfig.d > 16) {
             logger.log(Level.INFO, "EGL configuration not found, reducing depth");
             requestedConfig.d = 16;
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, false, false, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, false, false, false, true);
         }
 
-        if (choosenConfig == null) {
+        if (chosenConfig == null) {
             logger.log(Level.INFO, "EGL configuration not found, allowing higher RGB");
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
         }
 
-        if (choosenConfig == null && requestedConfig.a > 0) {
+        if (chosenConfig == null && requestedConfig.a > 0) {
             logger.log(Level.INFO, "EGL configuration not found, allowing higher alpha");
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
         }
 
-        if (choosenConfig == null && requestedConfig.s > 0) {
+        if (chosenConfig == null && requestedConfig.s > 0) {
             logger.log(Level.INFO, "EGL configuration not found, allowing higher samples");
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, true, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, true, true);
         }
 
-        if (choosenConfig == null && requestedConfig.a > 0) {
+        if (chosenConfig == null && requestedConfig.a > 0) {
             logger.log(Level.INFO, "EGL configuration not found, reducing alpha");
             requestedConfig.a = 1;
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
         }
 
-        if (choosenConfig == null && requestedConfig.s > 0) {
+        if (chosenConfig == null && requestedConfig.s > 0) {
             logger.log(Level.INFO, "EGL configuration not found, reducing samples");
             requestedConfig.s = 1;
             if (requestedConfig.a > 0) {
-                choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, true, true);
+                chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, true, true);
             } else {
-                choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, true, true);
+                chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, true, true);
             }
         }
 
-        if (choosenConfig == null && requestedConfig.getBitsPerPixel() > 16) {
+        if (chosenConfig == null && requestedConfig.getBitsPerPixel() > 16) {
             logger.log(Level.INFO, "EGL configuration not found, setting to RGB565");
             requestedConfig.r = 5;
             requestedConfig.g = 6;
             requestedConfig.b = 5;
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
 
-            if (choosenConfig == null) {
+            if (chosenConfig == null) {
                 logger.log(Level.INFO, "EGL configuration not found, allowing higher alpha");
-                choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
+                chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
             }
         }
 
-        if (choosenConfig == null) {
+        if (chosenConfig == null) {
             logger.log(Level.INFO, "EGL configuration not found, looking for best config with >= 16 bit Depth");
-            //failsafe, should pick best config with at least 16 depth
+            // failsafe: pick the best config with depth >= 16
             requestedConfig = new Config(0, 0, 0, 0, 16, 0, 0);
-            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
+            chosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
         }
 
-        if (choosenConfig != null) {
+        if (chosenConfig != null) {
             logger.fine("GLSurfaceView asks for egl config, returning: ");
-            logEGLConfig(choosenConfig, display, egl, Level.FINE);
+            logEGLConfig(chosenConfig, display, egl, Level.FINE);
 
-            storeSelectedConfig(egl, display, choosenConfig);
-            return choosenConfig;
+            storeSelectedConfig(egl, display, chosenConfig);
+            return chosenConfig;
         } else {
             logger.severe("No EGL Config found");
             return null;
@@ -118,11 +118,15 @@ public class AndroidConfigChooser implements EGLConfigChooser {
             g = 6;
             b = 5;
         }
-        logger.log(Level.FINE, "Requested Display Config:");
-        logger.log(Level.FINE, "RGB: {0}, alpha: {1}, depth: {2}, samples: {3}, stencil: {4}",
-                new Object[]{settings.getBitsPerPixel(),
-                    settings.getAlphaBits(), settings.getDepthBits(),
-                    settings.getSamples(), settings.getStencilBits()});
+
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Requested Display Config:");
+            logger.log(Level.FINE, "RGB: {0}, alpha: {1}, depth: {2}, samples: {3}, stencil: {4}",
+                    new Object[]{settings.getBitsPerPixel(),
+                            settings.getAlphaBits(), settings.getDepthBits(),
+                            settings.getSamples(), settings.getStencilBits()});
+        }
+
         return new Config(
                 r, g, b,
                 settings.getAlphaBits(),
@@ -214,8 +218,10 @@ public class AndroidConfigChooser implements EGLConfigChooser {
             int st = eglGetConfigAttribSafe(egl, display, config,
                     EGL10.EGL_STENCIL_SIZE);
 
-            logger.log(Level.FINE, "Checking Config r: {0}, g: {1}, b: {2}, alpha: {3}, depth: {4}, samples: {5}, stencil: {6}",
-                    new Object[]{r, g, b, a, d, s, st});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Checking Config r: {0}, g: {1}, b: {2}, alpha: {3}, depth: {4}, samples: {5}, stencil: {6}",
+                        new Object[]{r, g, b, a, d, s, st});
+            }
 
             if (higherRGB && r < requestedConfig.r) { continue; }
             if (!higherRGB && r != requestedConfig.r) { continue; }
@@ -243,8 +249,10 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                 kr = r; kg = g; kb = b; ka = a;
                 kd = d; ks = s; kst = st;
                 keptConfig = config;
-                logger.log(Level.FINE, "Keeping Config r: {0}, g: {1}, b: {2}, alpha: {3}, depth: {4}, samples: {5}, stencil: {6}",
-                        new Object[]{r, g, b, a, d, s, st});
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Keeping Config r: {0}, g: {1}, b: {2}, alpha: {3}, depth: {4}, samples: {5}, stencil: {6}",
+                            new Object[]{r, g, b, a, d, s, st});
+                }
             }
 
         }

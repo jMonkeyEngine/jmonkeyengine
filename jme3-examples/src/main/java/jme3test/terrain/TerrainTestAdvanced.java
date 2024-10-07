@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,6 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -64,15 +63,10 @@ import com.jme3.util.SkyFactory;
 public class TerrainTestAdvanced extends SimpleApplication {
 
     private TerrainQuad terrain;
-    Material matTerrain;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    boolean wardiso = false;
-    boolean minnaert = false;
-    protected BitmapText hintText;
-    PointLight pl;
-    Geometry lightMdl;
+    private Material matTerrain;
+    private Material matWire;
+    private boolean wireframe = false;
+    private boolean triPlanar = false;
     private float dirtScale = 16;
     private float darkRockScale = 32;
     private float pinkRockScale = 32;
@@ -200,9 +194,9 @@ public class TerrainTestAdvanced extends SimpleApplication {
          * Here we create the actual terrain. The tiles will be 65x65, and the total size of the
          * terrain will be 513x513. It uses the heightmap we created to generate the height values.
          */
-        /**
+        /*
          * Optimal terrain patch size is 65 (64x64).
-         * The total size is up to you. At 1025 it ran fine for me (200+FPS), however at
+         * The total size is up to you. At 1025, it ran fine for me (200+FPS), however at
          * size=2049 it got really slow. But that is a jump from 2 million to 8 million triangles...
          */
         terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());//, new LodPerspectiveCalculatorFactory(getCamera(), 4)); // add this in to see it use entropy for LOD calculations
@@ -231,7 +225,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
     }
 
     public void loadHintText() {
-        hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe,  P to toggle tri-planar texturing");
@@ -249,7 +243,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
         inputManager.addMapping("DetachControl", new KeyTrigger(KeyInput.KEY_0));
         inputManager.addListener(actionListener, "DetachControl");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {
@@ -264,9 +258,9 @@ public class TerrainTestAdvanced extends SimpleApplication {
                 triPlanar = !triPlanar;
                 if (triPlanar) {
                     matTerrain.setBoolean("useTriPlanarMapping", true);
-                    // planar textures don't use the mesh's texture coordinates but real world coordinates,
-                    // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tr-planar mode (1024f is the alphamap size)
+                    // Planar textures don't use the mesh's texture coordinates but real-world coordinates,
+                    // so we need to convert these texture coordinate scales into real-world scales, so it looks
+                    // the same when we switch to/from tri-planar mode. (1024 is the alphamap size.)
                     matTerrain.setFloat("DiffuseMap_0_scale", 1f / (1024f / dirtScale));
                     matTerrain.setFloat("DiffuseMap_1_scale", 1f / (1024f / darkRockScale));
                     matTerrain.setFloat("DiffuseMap_2_scale", 1f / (1024f / pinkRockScale));

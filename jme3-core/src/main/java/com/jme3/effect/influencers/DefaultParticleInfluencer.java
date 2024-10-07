@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,13 +44,13 @@ import java.io.IOException;
 
 /**
  * This emitter influences the particles so that they move all in the same direction.
- * The direction may vary a little if the velocity variation is non zero.
+ * The direction may vary a little if the velocity variation is non-zero.
  * This influencer is default for the particle emitter.
  * @author Marcin Roguski (Kaelthas)
  */
 public class DefaultParticleInfluencer implements ParticleInfluencer {
 
-    //Version #1 : changed startVelocity to initialvelocity for consistency with accessors
+    //Version #1 : changed startVelocity to initialVelocity for consistency with accessors
     //and also changed it in serialization
     public static final int SAVABLE_VERSION = 1;
     /** Temporary variable used to help with calculations. */
@@ -91,16 +91,16 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         // NOTE: In previous versions of jME3, initialVelocity was called startVelocity
-        if (ic.getSavableVersion(DefaultParticleInfluencer.class) == 0){
+        if (ic.getSavableVersion(DefaultParticleInfluencer.class) == 0) {
             initialVelocity = (Vector3f) ic.readSavable("startVelocity", Vector3f.ZERO.clone());
-        }else{
+        } else {
             initialVelocity = (Vector3f) ic.readSavable("initialVelocity", Vector3f.ZERO.clone());
         }
         velocityVariation = ic.readFloat("variation", 0.2f);
     }
 
     @Override
-    public ParticleInfluencer clone() {
+    public DefaultParticleInfluencer clone() {
         try {
             DefaultParticleInfluencer clone = (DefaultParticleInfluencer) super.clone();
             clone.initialVelocity = initialVelocity.clone();
@@ -126,7 +126,7 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         this.initialVelocity = cloner.clone(initialVelocity);
 
         // Change in behavior: I'm cloning 'for real' the 'temp' field because

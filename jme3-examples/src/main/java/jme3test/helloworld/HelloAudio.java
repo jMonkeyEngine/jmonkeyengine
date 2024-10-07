@@ -15,8 +15,6 @@ import com.jme3.scene.shape.Box;
 public class HelloAudio extends SimpleApplication {
 
   private AudioNode audio_gun;
-  private AudioNode audio_nature;
-  private Geometry player;
 
   public static void main(String[] args) {
     HelloAudio app = new HelloAudio();
@@ -27,15 +25,15 @@ public class HelloAudio extends SimpleApplication {
   public void simpleInitApp() {
     flyCam.setMoveSpeed(40);
     
-    /** just a blue box floating in space */
+    /* just a blue box floating in space */
     Box box1 = new Box(1, 1, 1);
-    player = new Geometry("Player", box1);
+    Geometry player = new Geometry("Player", box1);
     Material mat1 = new Material(assetManager,"Common/MatDefs/Misc/Unshaded.j3md");
     mat1.setColor("Color", ColorRGBA.Blue);
     player.setMaterial(mat1);
     rootNode.attachChild(player);
 
-    /** custom init methods, see below */
+    /* custom init methods, see below */
     initKeys();
     initAudio();
   }
@@ -51,7 +49,7 @@ public class HelloAudio extends SimpleApplication {
     rootNode.attachChild(audio_gun);
 
     /* nature sound - keeps playing in a loop. */
-    audio_nature = new AudioNode(assetManager, 
+    AudioNode audio_nature = new AudioNode(assetManager, 
             "Sound/Environment/Ocean Waves.ogg", DataType.Stream);
     audio_nature.setLooping(true);  // activate continuous playing
     audio_nature.setPositional(true);   
@@ -67,7 +65,7 @@ public class HelloAudio extends SimpleApplication {
   }
 
   /** Defining the "Shoot" action: Play a gun sound. */
-  private ActionListener actionListener = new ActionListener() {
+  final private ActionListener actionListener = new ActionListener() {
     @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("Shoot") && !keyPressed) {
@@ -76,7 +74,7 @@ public class HelloAudio extends SimpleApplication {
     }
   };
 
-  /** Move the listener with the a camera - for 3D audio. */
+  /** Move the listener with the camera - for 3-D audio. */
   @Override
   public void simpleUpdate(float tpf) {
     listener.setLocation(cam.getLocation());

@@ -84,12 +84,27 @@ varying vec3 wPosition;
 #ifdef LIGHTMAP
   uniform sampler2D m_LightMap;
 #endif
+
+#ifdef AO_STRENGTH
+  uniform float m_AoStrength;
+#endif
   
 #if defined(NORMALMAP) || defined(PARALLAXMAP)
   uniform sampler2D m_NormalMap;   
   varying vec4 wTangent;
 #endif
+#ifdef NORMALSCALE
+  uniform float m_NormalScale;
+#endif
 varying vec3 wNormal;
+
+// Specular-AA
+#ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
+  uniform float m_SpecularAASigma;
+#endif
+#ifdef SPECULAR_AA_THRESHOLD
+  uniform float m_SpecularAAKappa;
+#endif
 
 #ifdef DISCARD_ALPHA
   uniform float m_AlphaDiscardThreshold;
@@ -166,11 +181,13 @@ void main(){
     // ***********************
     #if defined(NORMALMAP)
       vec4 normalHeight = texture2D(m_NormalMap, newTexCoord);
-      //Note the -2.0 and -1.0. We invert the green channel of the normal map, 
-      //as it's complient with normal maps generated with blender.
-      //see http://hub.jmonkeyengine.org/forum/topic/parallax-mapping-fundamental-bug/#post-256898
-      //for more explanation.
-      vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
+      // Note we invert directx style normal maps to opengl style
+
+      #ifdef NORMALSCALE
+        vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)) * vec3(m_NormalScale, m_NormalScale, 1.0));
+      #else
+        vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
+      #endif
       normal = normalize(tbnMat * normal);
       //normal = normalize(normal * inverse(tbnMat));
     #else
@@ -230,6 +247,22 @@ void main(){
        ao = aoRoughnessMetallicValue.rrr;
     #endif
 
+    #ifdef AO_STRENGTH
+       ao = 1.0 + m_AoStrength * (ao - 1.0);
+       // sanity check
+       ao = clamp(ao, 0.0, 1.0);
+    #endif
+
+    #ifdef SPECULAR_AA
+        float sigma = 1.0;
+        float kappa = 0.18;
+        #ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
+            sigma = m_SpecularAASigma;
+        #endif
+        #ifdef SPECULAR_AA_THRESHOLD
+            kappa = m_SpecularAAKappa;
+        #endif
+    #endif
     float ndotv = max( dot( normal, viewDir ),0.0);
     for( int i = 0;i < NB_LIGHTS; i+=3){
         vec4 lightColor = g_LightData[i];
@@ -253,10 +286,18 @@ void main(){
         lightDir.xyz = normalize(lightDir.xyz);            
         vec3 directDiffuse;
         vec3 directSpecular;
-        
-        float hdotv = PBR_ComputeDirectLight(normal, lightDir.xyz, viewDir,
-                            lightColor.rgb, fZero, Roughness, ndotv,
-                            directDiffuse,  directSpecular);
+
+        #ifdef SPECULAR_AA
+            float hdotv = PBR_ComputeDirectLightWithSpecularAA(
+                                normal, lightDir.xyz, viewDir,
+                                lightColor.rgb, fZero, Roughness, sigma, kappa, ndotv,
+                                directDiffuse,  directSpecular);
+        #else
+            float hdotv = PBR_ComputeDirectLight(
+                                normal, lightDir.xyz, viewDir,
+                                lightColor.rgb, fZero, Roughness, ndotv,
+                                directDiffuse,  directSpecular);
+        #endif
 
         vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
         
@@ -313,6 +354,9 @@ void main(){
     #if defined(EMISSIVE) || defined (EMISSIVEMAP)
         #ifdef EMISSIVEMAP
             vec4 emissive = texture2D(m_EmissiveMap, newTexCoord);
+            #ifdef EMISSIVE
+                emissive *= m_Emissive;
+            #endif
         #else
             vec4 emissive = m_Emissive;
         #endif

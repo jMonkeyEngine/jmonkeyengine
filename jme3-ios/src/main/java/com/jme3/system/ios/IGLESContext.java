@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,6 +83,17 @@ public class IGLESContext implements JmeContext {
         }
     }
 
+    /**
+     * Accesses the listener that receives events related to this context.
+     *
+     * @return the pre-existing instance
+     */
+    @Override
+    public SystemListener getSystemListener() {
+        logger.log(Level.FINE, "IGLESContext getSystemListener");
+        return listener;
+    }
+
     @Override
     public void setSystemListener(SystemListener listener) {
         logger.log(Level.FINE, "IGLESContext setSystemListener");
@@ -138,7 +149,7 @@ public class IGLESContext implements JmeContext {
     @Override
     public boolean isCreated() {
         logger.log(Level.FINE, "IGLESContext isCreated");
-		return created.get();
+        return created.get();
     }
 
     @Override
@@ -191,8 +202,8 @@ public class IGLESContext implements JmeContext {
     @Override
     public void destroy(boolean waitFor) {
         logger.log(Level.FINE, "IGLESContext destroy");
-		listener.destroy();
-		needClose.set(true);
+        listener.destroy();
+        needClose.set(true);
         if (waitFor) {
             //waitFor(false);
         }
@@ -215,5 +226,45 @@ public class IGLESContext implements JmeContext {
     public Context getOpenCLContext() {
         logger.warning("OpenCL not yet supported on this platform");
         return null;
+    }
+
+    /**
+     * Returns the height of the framebuffer.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getFramebufferHeight() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    /**
+     * Returns the width of the framebuffer.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getFramebufferWidth() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowXPosition() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowYPosition() {
+        throw new UnsupportedOperationException("not implemented yet");
     }
 }

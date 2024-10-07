@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,8 @@ public interface Input {
      * Sets the input listener to receive events from this device. The
      * appropriate events should be dispatched through the callbacks
      * in RawInputListener.
-     * @param listener
+     *
+     * @param listener the desired listener
      */
     public void setInputListener(RawInputListener listener);
 

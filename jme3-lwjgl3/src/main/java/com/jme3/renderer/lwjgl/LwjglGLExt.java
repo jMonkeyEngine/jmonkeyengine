@@ -102,4 +102,20 @@ public class LwjglGLExt extends LwjglRender implements GLExt {
     public void glDeleteSync(final Object sync) {
         ARBSync.glDeleteSync((Long) sync);
     }
+
+    @Override
+    public void glPushDebugGroup(int source, int id, String message) {
+        KHRDebug.glPushDebugGroup(source, id, message);
+    }
+
+    @Override
+    public void glPopDebugGroup() {
+        KHRDebug.glPopDebugGroup();
+    }
+
+    @Override
+    public void glObjectLabel(int identifier, int id, String label) {
+        assert label != null;
+        KHRDebug.glObjectLabel(identifier, id, label);
+    }
 }

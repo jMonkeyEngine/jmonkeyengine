@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 jMonkeyEngine
+ * Copyright (c) 2016-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,17 +99,17 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Cloner {
 
-    static Logger log = Logger.getLogger(Cloner.class.getName());
+    private static final Logger log = Logger.getLogger(Cloner.class.getName());
 
     /**
      *  Keeps track of the objects that have been cloned so far.
      */
-    private IdentityHashMap<Object, Object> index = new IdentityHashMap<Object, Object>();
+    private final IdentityHashMap<Object, Object> index = new IdentityHashMap<>();
 
     /**
      *  Custom functions for cloning objects.
      */
-    private Map<Class, CloneFunction> functions = new HashMap<Class, CloneFunction>();
+    private final Map<Class, CloneFunction> functions = new HashMap<>();
 
     /**
      *  Cache the clone methods once for all cloners.
@@ -134,8 +134,12 @@ public class Cloner {
     /**
      *  Convenience utility function that creates a new Cloner, uses it to
      *  deep clone the object, and then returns the result.
+     *
+     * @param <T> the type of object to be cloned
+     * @param object the object to be cloned (may be null)
+     * @return a new instance, or a cached value, or null
      */
-    public static <T> T deepClone( T object ) {
+    public static <T> T deepClone(T object) {
         return new Cloner().clone(object);
     }
 
@@ -155,8 +159,12 @@ public class Cloner {
      *
      *  Note: objects returned by this method may not have yet had their cloneField()
      *  method called.
+     *
+     * @param <T> the type of object to be cloned
+     * @param object the object to be cloned (may be null)
+     * @return a new instance, or a cached value, or null
      */
-    public <T> T clone( T object ) {
+    public <T> T clone(T object) {
         return clone(object, true);
     }
 
@@ -165,7 +173,7 @@ public class Cloner {
      *  isolating the 'bad' case into a method with suppressed warnings.
      */
     @SuppressWarnings("unchecked")
-    private <T> Class<T> objectClass( T object ) {
+    private <T> Class<T> objectClass(T object) {
         // This should be 100% allowed without a cast but Java generics
         // is not that smart sometimes.
         // Wrapping it in a method at least isolates the warning suppression
@@ -192,14 +200,20 @@ public class Cloner {
      *
      *  Note: objects returned by this method may not have yet had their cloneField()
      *  method called.
+     *
+     * @param <T> the type of object to be cloned
+     * @param object the object to be cloned (may be null)
+     * @param useFunctions true&rarr;use custom clone functions,
+     * false&rarr;don't use
+     * @return a new instance, or a cached value, or null
      */
-    public <T> T clone( T object, boolean useFunctions ) {
+    public <T> T clone(T object, boolean useFunctions) {
 
-        if( object == null ) {
+        if (object == null) {
             return null;
         }
 
-        if( log.isLoggable(Level.FINER) ) {
+        if (log.isLoggable(Level.FINER)) {
             log.finer("cloning:" + object.getClass() + "@" + System.identityHashCode(object));
         }
 
@@ -207,8 +221,8 @@ public class Cloner {
 
         // Check the index to see if we already have it
         Object clone = index.get(object);
-        if( clone != null || index.containsKey(object) ) {
-            if( log.isLoggable(Level.FINER) ) {
+        if (clone != null || index.containsKey(object)) {
+            if (log.isLoggable(Level.FINER)) {
                 log.finer("cloned:" + object.getClass() + "@" + System.identityHashCode(object)
                             + " as cached:" + (clone == null ? "null" : (clone.getClass() + "@" + System.identityHashCode(clone))));
             }
@@ -217,7 +231,7 @@ public class Cloner {
 
         // See if there is a custom function... that trumps everything.
         CloneFunction<T> f = getCloneFunction(type);
-        if( f != null ) {
+        if (f != null) {
             T result = f.cloneObject(this, object);
 
             // Store the object in the identity map so that any circular references
@@ -227,8 +241,8 @@ public class Cloner {
             // Now call the function again to deep clone the fields
             f.cloneFields(this, result, object);
 
-            if( log.isLoggable(Level.FINER) ) {
-                if( result == null ) {
+            if (log.isLoggable(Level.FINER)) {
+                if (result == null) {
                     log.finer("cloned:" + object.getClass() + "@" + System.identityHashCode(object)
                                 + " as transformed:null");
                 } else {
@@ -239,12 +253,12 @@ public class Cloner {
             return result;
         }
 
-        if( object.getClass().isArray() ) {
+        if (object.getClass().isArray()) {
             // Perform an array clone
             clone = arrayClone(object);
 
             // Array clone already indexes the clone
-        } else if( object instanceof JmeCloneable ) {
+        } else if (object instanceof JmeCloneable) {
             // Use the two-step cloning semantics
             clone = ((JmeCloneable)object).jmeClone();
 
@@ -252,13 +266,13 @@ public class Cloner {
             // are resolvable
             index.put(object, clone);
 
-            ((JmeCloneable)clone).cloneFields(this, object);
-        } else if( object instanceof Cloneable ) {
+            ((JmeCloneable) clone).cloneFields(this, object);
+        } else if (object instanceof Cloneable) {
 
             // Perform a regular Java shallow clone
             try {
                 clone = javaClone(object);
-            } catch( CloneNotSupportedException e ) {
+            } catch (CloneNotSupportedException e) {
                 throw new IllegalArgumentException("Object is not cloneable, type:" + type, e);
             }
 
@@ -269,7 +283,7 @@ public class Cloner {
             throw new IllegalArgumentException("Object is not cloneable, type:" + type);
         }
 
-        if( log.isLoggable(Level.FINER) ) {
+        if(log.isLoggable(Level.FINER)) {
             log.finer("cloned:" + object.getClass() + "@" + System.identityHashCode(object)
                         + " as " + clone.getClass() + "@" + System.identityHashCode(clone));
         }
@@ -283,9 +297,14 @@ public class Cloner {
      *  not super-classes or super-interfaces unless you know specifically that they are cloneable.</p>
      *  <p>By default ListCloneFunction is registered for ArrayList, LinkedList, CopyOnWriteArrayList,
      *  Vector, Stack, and JME's SafeArrayList.</p>
+     *
+     * @param <T> the type of object to be cloned
+     * @param type the type of object to be cloned
+     * @param function the function to set, or null to cancel any previous
+     * setting
      */
-    public <T> void setCloneFunction( Class<T> type, CloneFunction<T> function ) {
-        if( function == null ) {
+    public <T> void setCloneFunction(Class<T> type, CloneFunction<T> function) {
+        if (function == null) {
             functions.remove(type);
         } else {
             functions.put(type, function);
@@ -295,19 +314,23 @@ public class Cloner {
     /**
      *  Returns a previously registered clone function for the specified type or null
      *  if there is no custom clone function for the type.
+     *
+     * @param <T> the type of object to be cloned
+     * @param type the type of object to be cloned
+     * @return the registered function, or null if none
      */
     @SuppressWarnings("unchecked")
-    public <T> CloneFunction<T> getCloneFunction( Class<T> type ) {
+    public <T> CloneFunction<T> getCloneFunction(Class<T> type) {
         CloneFunction<T> result = functions.get(type);
-        if( result == null ) {
+        if (result == null) {
             // Do a more exhaustive search
-            for( Map.Entry<Class, CloneFunction> e : functions.entrySet() ) {
-                if( e.getKey().isAssignableFrom(type) ) {
+            for (Map.Entry<Class, CloneFunction> e : functions.entrySet()) {
+                if (e.getKey().isAssignableFrom(type)) {
                     result = e.getValue();
                     break;
                 }
             }
-            if( result != null ) {
+            if (result != null) {
                 // Cache it for later
                 functions.put(type, result);
             }
@@ -321,23 +344,30 @@ public class Cloner {
      *  This can be used to stub out specific values from being cloned or to
      *  force global shared instances to be used even if the object is cloneable
      *  normally.
+     *
+     * @param <T> the type of object to be detected and returned
+     * @param original the instance to be detected (alias created)
+     * @param clone the instance to be returned (alias created)
      */
-    public <T> void setClonedValue( T original, T clone ) {
+    public <T> void setClonedValue(T original, T clone) {
         index.put(original, clone);
     }
 
     /**
      *  Returns true if the specified object has already been cloned
      *  by this cloner during this session.  Cloned objects are cached
-     *  for later use and it's sometimes convenient to know if some
+     *  for later use, and it's sometimes convenient to know if some
      *  objects have already been cloned.
+     *
+     * @param o the object to be tested
+     * @return true if the object has been cloned, otherwise false
      */
-    public boolean isCloned( Object o ) {
+    public boolean isCloned(Object o) {
         return index.containsKey(o);
     }
 
     /**
-     *  Clears the object index allowing the cloner to be reused for a brand new
+     *  Clears the object index allowing the cloner to be reused for a brand-new
      *  cloning operation.
      */
     public void clearIndex() {
@@ -352,17 +382,22 @@ public class Cloner {
      *
      *  <p>This method is provided as a convenient way for CloneFunctions to call
      *  clone() and objects without necessarily knowing their real type.</p>
+     *
+     * @param <T> the type of object to be cloned
+     * @param object the object to be cloned (may be null)
+     * @return a new instance or null
+     * @throws CloneNotSupportedException if the object has no public clone method
      */
-    public <T> T javaClone( T object ) throws CloneNotSupportedException {
-        if( object == null ) {
+    public <T> T javaClone(T object) throws CloneNotSupportedException {
+        if (object == null) {
             return null;
         }
         Method m = methodCache.get(object.getClass());
-        if( m == null ) {
+        if (m == null) {
             try {
                 // Lookup the method and cache it
                 m = object.getClass().getMethod("clone");
-            } catch( NoSuchMethodException e ) {
+            } catch (NoSuchMethodException e) {
                 throw new CloneNotSupportedException("No public clone method found for:" + object.getClass());
             }
             methodCache.put(object.getClass(), m);
@@ -373,7 +408,7 @@ public class Cloner {
         try {
             Class<? extends T> type = objectClass(object);
             return type.cast(m.invoke(object));
-        } catch( IllegalAccessException | InvocationTargetException e ) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException("Error cloning object of type:" + object.getClass(), e);
         }
     }
@@ -382,9 +417,12 @@ public class Cloner {
      *  Clones a primitive array by coping it and clones an object
      *  array by coping it and then running each of its values through
      *  Cloner.clone().
+     *
+     * @param <T> the type of array to be cloned
+     * @param object the array to be cloned
+     * @return a new array
      */
-    protected <T> T arrayClone( T object ) {
-
+    protected <T> T arrayClone(T object) {
         // Java doesn't support the cloning of arrays through reflection unless
         // you open access to Object's protected clone array... which requires
         // elevated privileges.  So we will do a work-around that is slightly less
@@ -399,12 +437,12 @@ public class Cloner {
         // Store the clone for later lookups
         index.put(object, clone);
 
-        if( elementType.isPrimitive() ) {
+        if (elementType.isPrimitive()) {
             // Then our job is a bit easier
             System.arraycopy(object, 0, clone, 0, size);
         } else {
-            // Else it's an object array so we'll clone it and its children
-            for( int i = 0; i < size; i++ ) {
+            // Else it's an object array, so we'll clone it and its children.
+            for (int i = 0; i < size; i++) {
                 Object element = clone(Array.get(object, i));
                 Array.set(clone, i, element);
             }

@@ -2,7 +2,6 @@ package jme3test.terrain;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
-import com.jme3.bullet.control.CharacterControl;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -25,22 +24,14 @@ import com.jme3.texture.Texture.WrapMode;
 
 public class TerrainFractalGridTest extends SimpleApplication {
 
-    private Material mat_terrain;
-    private TerrainGrid terrain;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
 
     public static void main(final String[] args) {
         TerrainFractalGridTest app = new TerrainFractalGridTest();
         app.start();
     }
-    private CharacterControl player3;
-    private FractalSum base;
-    private PerturbFilter perturb;
-    private OptimizedErode therm;
-    private SmoothFilter smooth;
-    private IterativeFilter iterate;
 
     @Override
     public void simpleInitApp() {
@@ -49,10 +40,11 @@ public class TerrainFractalGridTest extends SimpleApplication {
         this.stateManager.attach(state);
 
         // TERRAIN TEXTURE material
-        this.mat_terrain = new Material(this.assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
+        Material mat_terrain = new Material(this.assetManager,
+                "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
 
         // Parameters to material:
-        // regionXColorMap: X = 1..4 the texture that should be appliad to state X
+        // regionXColorMap: X = 1..4 the texture that should be applied to state X
         // regionX: a Vector3f containing the following information:
         //      regionX.x: the start height of the region
         //      regionX.y: the end height of the region
@@ -64,37 +56,37 @@ public class TerrainFractalGridTest extends SimpleApplication {
         // GRASS texture
         Texture grass = this.assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
-        this.mat_terrain.setTexture("region1ColorMap", grass);
-        this.mat_terrain.setVector3("region1", new Vector3f(15, 200, this.grassScale));
+        mat_terrain.setTexture("region1ColorMap", grass);
+        mat_terrain.setVector3("region1", new Vector3f(15, 200, this.grassScale));
 
         // DIRT texture
         Texture dirt = this.assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
-        this.mat_terrain.setTexture("region2ColorMap", dirt);
-        this.mat_terrain.setVector3("region2", new Vector3f(0, 20, this.dirtScale));
+        mat_terrain.setTexture("region2ColorMap", dirt);
+        mat_terrain.setVector3("region2", new Vector3f(0, 20, this.dirtScale));
 
         // ROCK texture
         Texture rock = this.assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
         rock.setWrap(WrapMode.Repeat);
-        this.mat_terrain.setTexture("region3ColorMap", rock);
-        this.mat_terrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
+        mat_terrain.setTexture("region3ColorMap", rock);
+        mat_terrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
 
-        this.mat_terrain.setTexture("region4ColorMap", rock);
-        this.mat_terrain.setVector3("region4", new Vector3f(198, 260, this.rockScale));
+        mat_terrain.setTexture("region4ColorMap", rock);
+        mat_terrain.setVector3("region4", new Vector3f(198, 260, this.rockScale));
 
-        this.mat_terrain.setTexture("slopeColorMap", rock);
-        this.mat_terrain.setFloat("slopeTileFactor", 32);
+        mat_terrain.setTexture("slopeColorMap", rock);
+        mat_terrain.setFloat("slopeTileFactor", 32);
 
-        this.mat_terrain.setFloat("terrainSize", 513);
+        mat_terrain.setFloat("terrainSize", 513);
 
-        this.base = new FractalSum();
-        this.base.setRoughness(0.7f);
-        this.base.setFrequency(1.0f);
-        this.base.setAmplitude(1.0f);
-        this.base.setLacunarity(2.12f);
-        this.base.setOctaves(8);
-        this.base.setScale(0.02125f);
-        this.base.addModulator(new NoiseModulator() {
+        FractalSum base = new FractalSum();
+        base.setRoughness(0.7f);
+        base.setFrequency(1.0f);
+        base.setAmplitude(1.0f);
+        base.setLacunarity(2.12f);
+        base.setOctaves(8);
+        base.setScale(0.02125f);
+        base.addModulator(new NoiseModulator() {
 
             @Override
             public float value(float... in) {
@@ -102,39 +94,38 @@ public class TerrainFractalGridTest extends SimpleApplication {
             }
         });
 
-        FilteredBasis ground = new FilteredBasis(this.base);
+        FilteredBasis ground = new FilteredBasis(base);
 
-        this.perturb = new PerturbFilter();
-        this.perturb.setMagnitude(0.119f);
+        PerturbFilter perturb = new PerturbFilter();
+        perturb.setMagnitude(0.119f);
 
-        this.therm = new OptimizedErode();
-        this.therm.setRadius(5);
-        this.therm.setTalus(0.011f);
+        OptimizedErode therm = new OptimizedErode();
+        therm.setRadius(5);
+        therm.setTalus(0.011f);
 
-        this.smooth = new SmoothFilter();
-        this.smooth.setRadius(1);
-        this.smooth.setEffect(0.7f);
+        SmoothFilter smooth = new SmoothFilter();
+        smooth.setRadius(1);
+        smooth.setEffect(0.7f);
 
-        this.iterate = new IterativeFilter();
-        this.iterate.addPreFilter(this.perturb);
-        this.iterate.addPostFilter(this.smooth);
-        this.iterate.setFilter(this.therm);
-        this.iterate.setIterations(1);
+        IterativeFilter iterate = new IterativeFilter();
+        iterate.addPreFilter(perturb);
+        iterate.addPostFilter(smooth);
+        iterate.setFilter(therm);
+        iterate.setIterations(1);
 
-        ground.addPreFilter(this.iterate);
+        ground.addPreFilter(iterate);
 
-        this.terrain = new TerrainGrid("terrain", 33, 129, new FractalTileLoader(ground, 256f));
+        TerrainGrid terrain
+                = new TerrainGrid("terrain", 33, 129, new FractalTileLoader(ground, 256f));
+        terrain.setMaterial(mat_terrain);
+        terrain.setLocalTranslation(0, 0, 0);
+        terrain.setLocalScale(2f, 1f, 2f);
+        this.rootNode.attachChild(terrain);
 
-        this.terrain.setMaterial(this.mat_terrain);
-        this.terrain.setLocalTranslation(0, 0, 0);
-        this.terrain.setLocalScale(2f, 1f, 2f);
-        this.rootNode.attachChild(this.terrain);
-
-        TerrainLodControl control = new TerrainGridLodControl(this.terrain, this.getCamera());
+        TerrainLodControl control
+                = new TerrainGridLodControl(terrain, this.getCamera());
         control.setLodCalculator(new DistanceLodCalculator(33, 2.7f)); // patch size, and a multiplier
-        this.terrain.addControl(control);
-
-
+        terrain.addControl(control);
 
         this.getCamera().setLocation(new Vector3f(0, 300, 0));
         cam.setRotation(new Quaternion(0.51176f, -0.14f, 0.085f, 0.84336f));

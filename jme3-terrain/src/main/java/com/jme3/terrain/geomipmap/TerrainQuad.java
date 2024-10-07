@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package com.jme3.terrain.geomipmap;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
@@ -44,6 +45,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.math.Quaternion;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -146,9 +148,9 @@ public class TerrainQuad extends Node implements Terrain {
      * @param name the name of the scene element. This is required for
      * identification and comparison purposes.
      * @param patchSize size of the individual patches (geometry). Power of 2 plus 1,
-     * must be smaller than totalSize. (eg. 33, 65...)
+     * must be smaller than totalSize. (e.g. 33, 65...)
      * @param totalSize the size of this entire terrain (on one side). Power of 2 plus 1
-     * (eg. 513, 1025, 2049...)
+     * (e.g. 513, 1025, 2049...)
      * @param heightMap The height map to generate the terrain from (a flat
      * height map will be generated if this is null). The size of one side of the heightmap
      * must match the totalSize. So a 513x513 heightmap is needed for a terrain with totalSize of 513.
@@ -549,9 +551,9 @@ public class TerrainQuad extends Node implements Terrain {
      * size, then patches are created, otherwise, quads are created.
      *
      * @param blockSize
-     *			the blocks size to test against.
+     *            the blocks size to test against.
      * @param heightMap
-     *			the height data.
+     *            the height data.
      */
     protected void split(int blockSize, float[] heightMap) {
         if ((size >> 1) + 1 <= blockSize) {
@@ -850,7 +852,26 @@ public class TerrainQuad extends Node implements Terrain {
             affectedAreaBBox = null;
             return;
         }
+        
+        Vector2f worldLocVec2 = changedPoint.clone();
+        worldLocVec2.multLocal(new Vector2f(getWorldScale().x, getWorldScale().z));
+        worldLocVec2.addLocal(getWorldTranslation().x, getWorldTranslation().z);		
+        changedPoint = worldLocVec2;
 
+        Quaternion wr = getWorldRotation();
+        if (wr.getX() != 0 || wr.getY() != 0 || wr.getZ() != 0) {
+            BoundingVolume bv = getWorldBound();
+            if (bv instanceof BoundingSphere) {
+                BoundingSphere bs = (BoundingSphere) bv;
+                float r = bs.getRadius();
+                Vector3f center = bs.getCenter();
+                affectedAreaBBox = new BoundingBox(center, r, r, r);
+            } else {
+                affectedAreaBBox = (BoundingBox) bv.clone();
+            }            
+            return;
+        }
+        
         if (affectedAreaBBox == null) {
             affectedAreaBBox = new BoundingBox(new Vector3f(changedPoint.x, 0, changedPoint.y), 1f, Float.MAX_VALUE, 1f); // unit length
         } else {
@@ -903,7 +924,7 @@ public class TerrainQuad extends Node implements Terrain {
                 int row = z;
                 boolean match = false;
 
-                // get the childs quadrant
+                // get the child's quadrant
                 int childQuadrant = 0;
                 if (spat instanceof TerrainQuad) {
                     childQuadrant = ((TerrainQuad) spat).getQuadrant();
@@ -948,7 +969,7 @@ public class TerrainQuad extends Node implements Terrain {
                 int row = z;
                 boolean match = false;
 
-                // get the childs quadrant
+                // get the child's quadrant
                 int childQuadrant = 0;
                 if (spat instanceof TerrainQuad) {
                     childQuadrant = ((TerrainQuad) spat).getQuadrant();
@@ -1020,7 +1041,7 @@ public class TerrainQuad extends Node implements Terrain {
                 int row = z;
                 boolean match = false;
 
-                // get the childs quadrant
+                // get the child's quadrant
                 int childQuadrant = 0;
                 if (spat instanceof TerrainQuad) {
                     childQuadrant = ((TerrainQuad) spat).getQuadrant();
@@ -1051,7 +1072,7 @@ public class TerrainQuad extends Node implements Terrain {
     /**
      * Get the interpolated height of the terrain at the specified point.
      * @param xz the location to get the height for
-     * @return Float.NAN if the value does not exist, or the coordinates are outside of the terrain
+     * @return Float.NAN if the value does not exist, or the coordinates lie outside the terrain
      */
     @Override
     public float getHeight(Vector2f xz) {
@@ -1116,9 +1137,9 @@ public class TerrainQuad extends Node implements Terrain {
 
     @Override
     public void setHeight(Vector2f xz, float height) {
-        List<Vector2f> coord = new ArrayList<Vector2f>();
+        List<Vector2f> coord = new ArrayList<>();
         coord.add(xz);
-        List<Float> h = new ArrayList<Float>();
+        List<Float> h = new ArrayList<>();
         h.add(height);
 
         setHeight(coord, h);
@@ -1126,9 +1147,9 @@ public class TerrainQuad extends Node implements Terrain {
 
     @Override
     public void adjustHeight(Vector2f xz, float delta) {
-        List<Vector2f> coord = new ArrayList<Vector2f>();
+        List<Vector2f> coord = new ArrayList<>();
         coord.add(xz);
-        List<Float> h = new ArrayList<Float>();
+        List<Float> h = new ArrayList<>();
         h.add(delta);
 
         adjustHeight(coord, h);
@@ -1150,7 +1171,7 @@ public class TerrainQuad extends Node implements Terrain {
 
         int halfSize = totalSize / 2;
 
-        List<LocationHeight> locations = new ArrayList<LocationHeight>();
+        List<LocationHeight> locations = new ArrayList<>();
 
         // offset
         for (int i=0; i<xz.size(); i++) {
@@ -1186,10 +1207,10 @@ public class TerrainQuad extends Node implements Terrain {
         if (children == null)
             return;
 
-        List<LocationHeight> quadLH1 = new ArrayList<LocationHeight>();
-        List<LocationHeight> quadLH2 = new ArrayList<LocationHeight>();
-        List<LocationHeight> quadLH3 = new ArrayList<LocationHeight>();
-        List<LocationHeight> quadLH4 = new ArrayList<LocationHeight>();
+        List<LocationHeight> quadLH1 = new ArrayList<>();
+        List<LocationHeight> quadLH2 = new ArrayList<>();
+        List<LocationHeight> quadLH3 = new ArrayList<>();
+        List<LocationHeight> quadLH4 = new ArrayList<>();
         Spatial quad1 = null;
         Spatial quad2 = null;
         Spatial quad3 = null;
@@ -1282,7 +1303,7 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
 
-    // a position can be in multiple quadrants, so use a bit anded value.
+    // a position can be in multiple quadrants, so return a bitmask.
     private int findQuadrant(int x, int y) {
         int split = (size + 1) >> 1;
         int quads = 0;
@@ -1580,7 +1601,7 @@ public class TerrainQuad extends Node implements Terrain {
      * Find what terrain patches need normal recalculations and update
      * their normals;
      */
-    protected void fixNormals(BoundingBox affectedArea) {
+    public void fixNormals(BoundingBox affectedArea) {
         if (children == null)
             return;
 
@@ -1601,7 +1622,7 @@ public class TerrainQuad extends Node implements Terrain {
     /**
      * fix the normals on the edge of the terrain patches.
      */
-    protected void fixNormalEdges(BoundingBox affectedArea) {
+    public void fixNormalEdges(BoundingBox affectedArea) {
         if (children == null)
             return;
 
@@ -1725,9 +1746,9 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule c = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule c = importer.getCapsule(this);
         size = c.readInt("size", 0);
         stepScale = (Vector3f) c.readSavable("stepScale", null);
         offset = (Vector2f) c.readSavable("offset", new Vector2f(0,0));
@@ -1765,7 +1786,7 @@ public class TerrainQuad extends Node implements Terrain {
         return this.clone(true);
     }
 
-	@Override
+    @Override
     public TerrainQuad clone(boolean cloneMaterials) {
         TerrainQuad quadClone = (TerrainQuad) super.clone(cloneMaterials);
         quadClone.name = name.toString();
@@ -1928,8 +1949,7 @@ public class TerrainQuad extends Node implements Terrain {
      */
     public void setSupportMultipleCollisions(boolean set) {
         if (picker == null) {
-            // This is so that it doesn't fail at the IllegalStateException because null !instanceof Anything
-            throw new NullPointerException("TerrainPicker is null");
+            throw new IllegalStateException("The TerrainPicker is null.");
         } else if (picker instanceof BresenhamTerrainPicker) {
             ((BresenhamTerrainPicker)picker).setSupportMultipleCollisions(set);
         } else {

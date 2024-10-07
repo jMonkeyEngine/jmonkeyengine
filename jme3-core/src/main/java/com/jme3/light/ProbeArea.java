@@ -19,16 +19,25 @@ public interface ProbeArea extends Savable, Cloneable{
     public Matrix4f getUniformMatrix();
 
     /**
+     * @param box the BoundingBox to test for intersection
+     * @param vars storage for temporary data
+     * @return true if the area and the box intersect, otherwise false
      * @see Light#intersectsBox(BoundingBox, TempVars)
      */
     public boolean intersectsBox(BoundingBox box, TempVars vars);
 
     /**
+     * @param sphere the BoundingSphere to test for intersection
+     * @param vars storage for temporary data
+     * @return true if the area and the sphere intersect, otherwise false
      * @see Light#intersectsSphere(BoundingSphere, TempVars)
      */
     public boolean intersectsSphere(BoundingSphere sphere, TempVars vars);
 
     /**
+     * @param camera the Camera whose frustum will be tested for intersection
+     * @param vars storage for temporary data
+     * @return true if the area and the frustum intersect, otherwise false
      * @see Light#intersectsFrustum(Camera, TempVars)
      */
     public abstract boolean intersectsFrustum(Camera camera, TempVars vars);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,24 +72,25 @@ public abstract class ShaderGenerator {
      */
     Pattern extensions = Pattern.compile("(#extension.*\\s+)");
 
-    private Map<String, String> imports = new LinkedHashMap<>();
+    final private Map<String, String> imports = new LinkedHashMap<>();
 
     /**
      * Build a shaderGenerator
      *
-     * @param assetManager
+     * @param assetManager for loading assets (alias created)
      */
     protected ShaderGenerator(AssetManager assetManager) {
-        this.assetManager = assetManager;        
+        this.assetManager = assetManager;
     }
-    
+
     public void initialize(TechniqueDef techniqueDef){
         this.techniqueDef = techniqueDef;
     }
-    
+
     /**
      * Generate vertex and fragment shaders for the given technique
      *
+     * @param definesSourceCode (may be null)
      * @return a Shader program
      */
     public Shader generateShader(String definesSourceCode) {
@@ -107,13 +108,13 @@ public abstract class ShaderGenerator {
             String extension = type.getExtension();
             String language = getLanguageAndVersion(type);
             String shaderSourceCode = buildShader(techniqueDef.getShaderNodes(), info, type);
-            
+
             if (shaderSourceCode != null) {
                 String shaderSourceAssetName = techniqueName + "." + extension;
                 shader.addSource(type, shaderSourceAssetName, shaderSourceCode, definesSourceCode, language);
             }
         }
-        
+
         techniqueDef = null;
         return shader;
     }
@@ -128,7 +129,7 @@ public abstract class ShaderGenerator {
      */
     protected String buildShader(List<ShaderNode> shaderNodes, ShaderGenerationInfo info, ShaderType type) {
         if (type == ShaderType.TessellationControl ||
-            type == ShaderType.TessellationEvaluation || 
+            type == ShaderType.TessellationEvaluation ||
             type == ShaderType.Geometry) {
             // TODO: Those are not supported.
             // Too much code assumes that type is either Vertex or Fragment
@@ -173,9 +174,9 @@ public abstract class ShaderGenerator {
      * @return
      */
     private String moveExtensionsUp(StringBuilder sourceDeclaration) {
-        Matcher m = extensions.matcher( sourceDeclaration.toString());
+        Matcher m = extensions.matcher(sourceDeclaration.toString());
         StringBuilder finalSource = new StringBuilder();
-        while(m.find()){
+        while (m.find()) {
             finalSource.append(m.group());
         }
         finalSource.append(m.replaceAll(""));
@@ -279,7 +280,7 @@ public abstract class ShaderGenerator {
     /**
      * generates the varyings for the given shader type shader. Note that
      * varyings are deprecated in glsl 1.3, but this method will still be called
-     * to generate all non global inputs and output of the shaders.
+     * to generate all non-global inputs and output of the shaders.
      *
      * @param source the source StringBuilder to append generated code.
      * @param info the ShaderGenerationInfo.
@@ -294,13 +295,13 @@ public abstract class ShaderGenerator {
      *
      * @see ShaderNode#getDefinition()
      * @see ShaderNodeDefinition#getType()
-     * 
-     * @param nodeDecalarationSource the declaration part of the node
+     *
+     * @param nodeDeclarationSource the declaration part of the node
      * @param source the StringBuilder to append generated code.
      * @param shaderNode the shaderNode.
      * @param info the ShaderGenerationInfo.
      */
-    protected abstract void generateDeclarativeSection(StringBuilder source, ShaderNode shaderNode, String nodeDecalarationSource, ShaderGenerationInfo info);
+    protected abstract void generateDeclarativeSection(StringBuilder source, ShaderNode shaderNode, String nodeDeclarationSource, ShaderGenerationInfo info);
 
     /**
      * generates the start of the shader main section. this method is
@@ -314,9 +315,9 @@ public abstract class ShaderGenerator {
     protected abstract void generateStartOfMainSection(StringBuilder source, ShaderGenerationInfo info, ShaderType type);
 
     /**
-     * generates the end of the shader main section. this method is responsible
-     * of appending the last "}" in the shader and mapping all global outputs of
-     * the shader
+     * Generates the end of the shader main section. This method is responsible
+     * for appending the last "}" in the shader and mapping all global outputs of
+     * the shader.
      *
      * @param source the StringBuilder to append generated code.
      * @param info the ShaderGenerationInfo.
@@ -340,15 +341,15 @@ public abstract class ShaderGenerator {
     protected abstract void generateNodeMainSection(StringBuilder source, ShaderNode shaderNode, String nodeSource, ShaderGenerationInfo info);
 
     /**
-     * returns the shaderpath index according to the version of the generator.
-     * This allow to select the higher version of the shader that the generator
-     * can handle
+     * Returns the shader-path index according to the version of the generator.
+     * This allows selecting the highest version of the shader that the generator
+     * can handle.
      *
      * @param shaderNode the shaderNode being processed
      * @param type the shaderType
      * @return the index of the shader path in ShaderNodeDefinition shadersPath
      * list
-     * @throws NumberFormatException
+     * @throws NumberFormatException for an invalid version
      */
     protected int findShaderIndexFromVersion(ShaderNode shaderNode, ShaderType type) throws NumberFormatException {
         int index = 0;
@@ -363,5 +364,5 @@ public abstract class ShaderGenerator {
             }
         }
         return index;
-    }    
+    }
 }

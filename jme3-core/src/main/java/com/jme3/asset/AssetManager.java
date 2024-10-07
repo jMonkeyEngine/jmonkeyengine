@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.TGALoader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -86,7 +87,7 @@ import java.util.List;
  * so that modifications to one instance do not leak onto others.
  */
 public interface AssetManager {
-
+    
     /**
      * Adds a {@link ClassLoader} that is used to load {@link Class classes}
      * that are needed for finding and loading Assets. 
@@ -94,19 +95,35 @@ public interface AssetManager {
      * use registerLocator for that.
      * 
      * @param loader A ClassLoader that Classes in asset files can be loaded from.
+     * @deprecated use {@link com.jme3.util.res.Resources}
      */
-    public void addClassLoader(ClassLoader loader);
+    @Deprecated
+    public default void addClassLoader(ClassLoader loader) {
+        
+    }
 
     /**
      * Remove a {@link ClassLoader} from the list of registered ClassLoaders
+     * 
+     * @param loader the ClassLoader to be removed
+     * @deprecated use {@link com.jme3.util.res.Resources}
      */
-    public void removeClassLoader(ClassLoader loader);
+    @Deprecated
+    public default void removeClassLoader(ClassLoader loader) {
+        
+    }
 
     /**
      * Retrieve the list of registered ClassLoaders that are used for loading 
      * {@link Class classes} from asset files.
+     * 
+     * @return an unmodifiable list
+    * @deprecated use {@link com.jme3.util.res.Resources}
      */
-    public List<ClassLoader> getClassLoaders();
+    @Deprecated
+    public default List<ClassLoader> getClassLoaders() {
+        return new ArrayList<>();
+    }
     
     /**
      * Register an {@link AssetLoader} by using a class object.
@@ -355,6 +372,8 @@ public interface AssetManager {
     
     /**
      * Returns the shaderGenerator responsible for generating the shaders
+     *
+     * @param caps a set of required capabilities
      * @return the shaderGenerator 
      */
     public ShaderGenerator getShaderGenerator(EnumSet<Caps> caps);

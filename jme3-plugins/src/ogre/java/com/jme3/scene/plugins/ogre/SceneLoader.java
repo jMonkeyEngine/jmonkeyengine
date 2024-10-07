@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
     private SceneMaterialLoader materialLoader = new SceneMaterialLoader();
     private SceneMeshLoader meshLoader=new SceneMeshLoader();
-    private Stack<String> elementStack = new Stack<String>();
+    private Stack<String> elementStack = new Stack<>();
     private AssetKey key;
     private String sceneName;
     private String folderName;
@@ -99,7 +99,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void reset() {
-    	meshLoader.reset();
+        meshLoader.reset();
         elementStack.clear();
         nodeIdx = 0;
 
@@ -262,7 +262,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
         }
         float fov = SAXUtil.parseFloat(attribs.getValue("fov"), 45f);
         if (fov < FastMath.PI) { 
-            // XXX: Most likely, it is in radians..
+            // XXX: Most likely it is in radians
             fov = fov * FastMath.RAD_TO_DEG;
         }
         camera.setFrustumPerspective(fov, (float)DEFAULT_CAM_WIDTH / DEFAULT_CAM_HEIGHT, 1, 1000);
@@ -300,12 +300,12 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
         entityNode = new com.jme3.scene.Node(name);
         OgreMeshKey meshKey = new OgreMeshKey(meshFile, materialList);
         try {
-			try{
-				Spatial ogreMesh=(Spatial)meshLoader.load(assetManager.locateAsset(meshKey));
-				entityNode.attachChild(ogreMesh);
-			}catch(IOException e){
-				throw new AssetNotFoundException(meshKey.toString());
-			}
+            try{
+                Spatial ogreMesh=(Spatial)meshLoader.load(assetManager.locateAsset(meshKey));
+                entityNode.attachChild(ogreMesh);
+            }catch(IOException e){
+                throw new AssetNotFoundException(meshKey.toString());
+            }
         } catch (AssetNotFoundException ex) {
             if (ex.getMessage().equals(meshFile)) {
                 logger.log(Level.WARNING, "Cannot locate {0} for scene {1}", new Object[]{meshKey, key});
@@ -423,7 +423,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             if (elementStack.peek().equals("environment")) {
                 ColorRGBA color = parseColor(attribs);
                 if (!color.equals(ColorRGBA.Black) && !color.equals(ColorRGBA.BlackNoAlpha)) {
-                    // Lets add an ambient light to the scene.
+                    // Let's add an ambient light to the scene.
                     AmbientLight al = new AmbientLight();
                     al.setColor(color);
                     root.addLight(al);
@@ -454,7 +454,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             node = cameraNode.getParent();
             cameraNode = null;
         } else if (qName.equals("light")) {
-            // apply the node's world transform on the light..
+            // Apply the node's world transform to the light.
             root.updateGeometricState();
             if (light != null) {
                 if (light instanceof DirectionalLight) {
@@ -543,11 +543,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             }
 
             return root;
-        } catch (SAXException ex) {
-            IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
-            ioEx.initCause(ex);
-            throw ioEx;
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | ParserConfigurationException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
             ioEx.initCause(ex);
             throw ioEx;

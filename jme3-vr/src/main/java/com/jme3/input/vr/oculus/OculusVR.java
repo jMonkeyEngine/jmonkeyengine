@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.input.vr.oculus;
 
 import com.jme3.app.VREnvironment;
@@ -29,7 +24,7 @@ import static org.lwjgl.system.MemoryUtil.*;
  * A few notes about the Oculus coordinate system:
  * <ul>
  * <li>Matrices should be transposed</li>
- * <li>Quaternions should be inverted<li/>
+ * <li>Quaternions should be inverted</li>
  * <li>Vectors should have their X and Z axes flipped, but apparently not Y.</li>
  * </ul>
  *
@@ -49,7 +44,7 @@ public class OculusVR implements VRAPI {
 
     /**
      * Information about the VR session (should the app quit, is
-     * it visible or is the universal menu open, etc)
+     * it visible or is the universal menu open, etcetera)
      */
     private OVRSessionStatus sessionStatus;
 
@@ -220,7 +215,7 @@ public class OculusVR implements VRAPI {
                 + "\t Resolution (total): " + resolutionW + "," + resolutionH);
 
         if (resolutionW == 0) {
-            LOGGER.severe("HMD witdth=0 : aborting");
+            LOGGER.severe("HMD width=0 : aborting");
             return false; // TODO fix memory leak - destroy() is not called
         }
 
@@ -572,7 +567,7 @@ public class OculusVR implements VRAPI {
      * @return The {@code to} argument.
      */
     public static Matrix4f matrixO2J(OVRMatrix4f from, Matrix4f to) {
-        to.loadIdentity(); // For the additional columns (unless I'm badly misunderstanding matricies)
+        to.loadIdentity(); // For the additional columns (unless I'm badly misunderstanding matrices)
 
         for (int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {

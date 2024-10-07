@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,8 +53,9 @@ public class MotionTrack extends MotionEvent {
 
     /**
      * Creates a MotionPath for the given spatial on the given motion path
-     * @param spatial
-     * @param path
+     *
+     * @param spatial the Spatial to move (not null)
+     * @param path the path to be taken (alias created)
      */
     public MotionTrack(Spatial spatial, MotionPath path) {
         super(spatial, path);
@@ -62,8 +63,10 @@ public class MotionTrack extends MotionEvent {
 
     /**
      * Creates a MotionPath for the given spatial on the given motion path
-     * @param spatial
-     * @param path
+     *
+     * @param spatial the Spatial to move (not null)
+     * @param path the path to be taken (alias created)
+     * @param initialDuration the desired duration (in seconds, default=10)
      */
     public MotionTrack(Spatial spatial, MotionPath path, float initialDuration) {
         super(spatial, path, initialDuration);
@@ -71,8 +74,10 @@ public class MotionTrack extends MotionEvent {
 
     /**
      * Creates a MotionPath for the given spatial on the given motion path
-     * @param spatial
-     * @param path
+     *
+     * @param spatial the Spatial to move (not null)
+     * @param path the path to be taken (alias created)
+     * @param loopMode (default=DontLoop)
      */
     public MotionTrack(Spatial spatial, MotionPath path, LoopMode loopMode) {
         super(spatial, path, loopMode);
@@ -81,8 +86,11 @@ public class MotionTrack extends MotionEvent {
 
     /**
      * Creates a MotionPath for the given spatial on the given motion path
-     * @param spatial
-     * @param path
+     *
+     * @param spatial the Spatial to move (not null)
+     * @param path the path to be taken (alias created)
+     * @param initialDuration the desired duration (in seconds, default=10)
+     * @param loopMode (default=DontLoop)
      */
     public MotionTrack(Spatial spatial, MotionPath path, float initialDuration, LoopMode loopMode) {
         super(spatial, path, initialDuration, loopMode);

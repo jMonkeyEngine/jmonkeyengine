@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import com.jme3.scene.shape.Quad;
 
 public class TestBitmapText3D extends SimpleApplication {
 
-    private String txtB =
+    final private String txtB =
     "ABCDEFGHIKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()-=_+[]\\;',./{}|:<>?";
 
     public static void main(String[] args){
@@ -59,7 +59,7 @@ public class TestBitmapText3D extends SimpleApplication {
         rootNode.attachChild(g);
 
         BitmapFont fnt = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        BitmapText txt = new BitmapText(fnt, false);
+        BitmapText txt = new BitmapText(fnt);
         txt.setBox(new Rectangle(0, 0, 6, 3));
         txt.setQueueBucket(Bucket.Transparent);
         txt.setSize( 0.5f );

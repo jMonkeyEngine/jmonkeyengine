@@ -22,12 +22,11 @@ public class IosInputHandler implements TouchInput {
     private boolean mouseEventsInvertX = false;
     private boolean mouseEventsInvertY = false;
     private boolean keyboardEventsEnabled = false;
-    private boolean dontSendHistory = false;
 
     // Internal
     private boolean initialized = false;
     private RawInputListener listener = null;
-    private ConcurrentLinkedQueue<InputEvent> inputEventQueue = new ConcurrentLinkedQueue<InputEvent>();
+    private ConcurrentLinkedQueue<InputEvent> inputEventQueue = new ConcurrentLinkedQueue<>();
     private final TouchEventPool touchEventPool = new TouchEventPool(MAX_TOUCH_EVENTS);
     private IosTouchHandler touchHandler;
     private float scaleX = 1f;
@@ -49,8 +48,7 @@ public class IosInputHandler implements TouchInput {
 
     @Override
     public void update() {
-         logger.log(Level.FINE, "InputEvent update : {0}",
-                new Object[]{listener});
+         logger.log(Level.FINE, "InputEvent update : {0}", listener);
        if (listener != null) {
             InputEvent inputEvent;
 
@@ -114,7 +112,7 @@ public class IosInputHandler implements TouchInput {
 
     @Override
     public void setOmitHistoricEvents(boolean dontSendHistory) {
-        this.dontSendHistory = dontSendHistory;
+        // not implemented
     }
 
     // ----------------
@@ -135,8 +133,10 @@ public class IosInputHandler implements TouchInput {
         scaleY = 1.0f;
         width = settings.getWidth();
         height = settings.getHeight();
-        logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}, width: {2}, height: {3}",
-                new Object[]{scaleX, scaleY, width, height});
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}, width: {2}, height: {3}",
+                    new Object[]{scaleX, scaleY, width, height});
+        }
     }
 
     public boolean isMouseEventsInvertX() {
@@ -177,8 +177,10 @@ public class IosInputHandler implements TouchInput {
     // ----------------
 
     public void injectTouchDown(int pointerId, long time, float x, float y) {
-        logger.log(Level.FINE, "Using input scaling, scaleX: {0}, scaleY: {1}, width: {2}, height: {3}",
-                new Object[]{scaleX, scaleY, width, height});
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Using input scaling, scaleX: {0}, scaleY: {1}, width: {2}, height: {3}",
+                    new Object[]{scaleX, scaleY, width, height});
+        }
         if (touchHandler != null) {
             touchHandler.actionDown(pointerId, time, x, y);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,17 +38,24 @@ package jme3tools.shader;
 public class ShaderDebug {
 
     /**
-     * Append the line numbers to the source code of a shader to output it
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private ShaderDebug() {
+    }
+
+    /**
+     * Prepend line numbers to the source code of a shader, for output.
+     *
      * @param source the source
-     * @return the formated source code
+     * @return the formatted source code
      */
     public static String formatShaderSource(String source) {      
         String[] sourceLines = source.split("\n");
-        int nblines = 0;
+        int lineNumber = 0;
         StringBuilder out = new StringBuilder();       
         for (String string : sourceLines) {
-            nblines++;
-            out.append(nblines).append("\t").append(string).append("\n");
+            lineNumber++;
+            out.append(lineNumber).append("\t").append(string).append("\n");
         }
         return out.toString();
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ public class FbxMaterialProperties {
     
     private static final Map<String, FBXMaterialProperty> propertyMetaMap = new HashMap<String, FBXMaterialProperty>();
     
-    private final Map<String, Object> propertyValueMap = new HashMap<String, Object>();
+    private final Map<String, Object> propertyValueMap = new HashMap<>();
     
     private static enum Type {
         Color,
@@ -68,37 +68,6 @@ public class FbxMaterialProperties {
         }
     }
 
-    private static boolean isValueAcceptable(Type type, Object value) {
-        if (type == Type.Ignore) {
-            return true;
-        }
-        if (value instanceof FbxTexture) {
-            switch (type) {
-                case Texture2D:
-                case Texture2DOrAlpha:
-                case Texture2DOrColor:
-                case Texture2DOrFactor:
-                    return true;
-            }
-        } else if (value instanceof ColorRGBA) {
-            switch (type) {
-                case Color:
-                case Texture2DOrColor:
-                    return true;
-            }
-        } else if (value instanceof Float) {
-            switch (type) {
-                case Alpha:
-                case Factor:
-                case Texture2DOrAlpha:
-                case Texture2DOrFactor:
-                    return true;
-            }
-        }
-        
-        return false;
-    }
-    
     private static void defineProp(String name, Type type) {
         propertyMetaMap.put(name, new FBXMaterialProperty(name, type));
     }
@@ -154,10 +123,10 @@ public class FbxMaterialProperties {
         // ShadingModel is no longer specified under Properties element.
         defineProp("ShadingModel", Type.Ignore);
         
-        // MultiLayer materials aren't supported anyway..
+        // MultiLayer materials aren't supported.
         defineProp("MultiLayer", Type.Ignore); 
         
-        // Not sure what this is.. NormalMap again??
+        // Not sure what this is. NormalMap again??
         defineProp("Bump", Type.Texture2DOrColor);
         
         defineProp("BumpFactor", Type.Factor);
@@ -174,7 +143,7 @@ public class FbxMaterialProperties {
         }
 
         if (propertyValueMap.get(name) instanceof FbxTexture) {
-            // Multiple / layered textures .. 
+            // Multiple / layered textures
             // Just write into 2nd slot for now (maybe will use for lightmaps).
             name = name + "2";
         }
@@ -221,14 +190,5 @@ public class FbxMaterialProperties {
     
     public Object getProperty(String name) { 
         return propertyValueMap.get(name);
-    }
-    
-    public static Type getPropertyType(String name) {
-        FBXMaterialProperty prop = propertyMetaMap.get(name);
-        if (prop == null) { 
-            return null;
-        } else {
-            return prop.type;
-        }
     }
 }

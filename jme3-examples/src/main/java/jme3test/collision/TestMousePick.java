@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,15 +54,15 @@ public class TestMousePick extends SimpleApplication {
         app.start();
     }
     
-    Node shootables;
-    Geometry mark;
+    private Node shootables;
+    private Geometry mark;
 
     @Override
     public void simpleInitApp() {
         flyCam.setEnabled(false);
-        initMark();       // a red sphere to mark the hit
+        initMark();
 
-        /** create four colored boxes and a floor to shoot at: */
+        /* Create four colored boxes and a floor to shoot at: */
         shootables = new Node("Shootables");
         rootNode.attachChild(shootables);
         shootables.attachChild(makeCube("a Dragon", -2f, 0f, 1f));
@@ -106,7 +106,7 @@ public class TestMousePick extends SimpleApplication {
     }
  
     /** A cube object for target practice */
-    protected Geometry makeCube(String name, float x, float y, float z) {
+    private Geometry makeCube(String name, float x, float y, float z) {
         Box box = new Box(1, 1, 1);
         Geometry cube = new Geometry(name, box);
         cube.setLocalTranslation(x, y, z);
@@ -117,7 +117,7 @@ public class TestMousePick extends SimpleApplication {
     }
 
     /** A floor to show that the "shot" can go through several objects. */
-    protected Geometry makeFloor() {
+    private Geometry makeFloor() {
         Box box = new Box(15, .2f, 15);
         Geometry floor = new Geometry("the Floor", box);
         floor.setLocalTranslation(0, -4, -5);
@@ -127,21 +127,19 @@ public class TestMousePick extends SimpleApplication {
         return floor;
     }
 
-    /** A red ball that marks the last spot that was "hit" by the "shot". */
-    protected void initMark() {
+    /**
+     * A red arrow to mark the spot being picked.
+     */
+    private void initMark() {
         Arrow arrow = new Arrow(Vector3f.UNIT_Z.mult(2f));
-
-        //Sphere sphere = new Sphere(30, 30, 0.2f);
         mark = new Geometry("BOOM!", arrow);
-        //mark = new Geometry("BOOM!", sphere);
         Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mark_mat.getAdditionalRenderState().setLineWidth(3);
         mark_mat.setColor("Color", ColorRGBA.Red);
         mark.setMaterial(mark_mat);
     }
 
-    protected Spatial makeCharacter() {
-        // load a character from jme3test-test-data
+    private Spatial makeCharacter() {
+        // load a character from jme3-testdata
         Spatial golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         golem.scale(0.5f);
         golem.setLocalTranslation(-1.0f, -1.5f, -0.6f);

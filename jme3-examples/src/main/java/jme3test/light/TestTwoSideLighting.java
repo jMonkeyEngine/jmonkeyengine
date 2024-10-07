@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,15 +47,15 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.util.TangentBinormalGenerator;
 
 /**
- * Checks two sided lighting capability.
+ * Checks two-sided lighting capability.
  * 
  * @author Kirill Vainer
  */
 public class TestTwoSideLighting extends SimpleApplication {
 
-    float angle;
-    PointLight pl;
-    Geometry lightMdl;
+    private float angle;
+    private PointLight pl;
+    private Geometry lightMdl;
 
     public static void main(String[] args){
         TestTwoSideLighting app = new TestTwoSideLighting();

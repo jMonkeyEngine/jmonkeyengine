@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2011, Novyon Events
  * 
  * All rights reserved.
@@ -34,7 +34,7 @@ import com.jme3.terrain.noise.Basis;
 /**
  * Interface for a general fractal basis.
  * 
- * Takes any number of basis funcions to work with and a few common parameters
+ * Takes any number of basis functions to work with and a few common parameters
  * for noise fractals
  * 
  * @author Anthyon
@@ -42,16 +42,16 @@ import com.jme3.terrain.noise.Basis;
  */
 public interface Fractal extends Basis {
 
-	public Fractal setOctaves(final float octaves);
+    public Fractal setOctaves(final float octaves);
 
-	public Fractal setFrequency(final float frequency);
+    public Fractal setFrequency(final float frequency);
 
-	public Fractal setRoughness(final float roughness);
+    public Fractal setRoughness(final float roughness);
 
-	public Fractal setAmplitude(final float amplitude);
+    public Fractal setAmplitude(final float amplitude);
 
-	public Fractal setLacunarity(final float lacunarity);
+    public Fractal setLacunarity(final float lacunarity);
 
-	public Fractal addBasis(Basis basis);
+    public Fractal addBasis(Basis basis);
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -692,12 +692,12 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
      * De-serialize this segment from the specified importer, for example
      * when loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         origin = (Vector3f) capsule.readSavable("origin", Vector3f.ZERO.clone());
         direction = (Vector3f) capsule.readSavable("direction", Vector3f.ZERO.clone());
         extent = capsule.readFloat("extent", 0);
@@ -720,6 +720,23 @@ public class LineSegment implements Cloneable, Savable, java.io.Serializable {
         }
     }
 
+    /**
+     * Returns a string representation of the LineSegment, which is unaffected.
+     * For example, a segment extending from (1,0,0) to (1,1,0) is represented
+     * by:
+     * <pre>
+     * LineSegment [Origin: (1.0, 0.0, 0.0)  Direction: (0.0, 1.0, 0.0)  Extent: 1.0]
+     * </pre>
+     *
+     * @return the string representation (not null, not empty)
+     */
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [Origin: " + origin
+                + "  Direction: " + direction + "  Extent: " + extent + "]";
+    }
+
+    /**
     /**
      * <p>Evaluates whether a given point is contained within the axis aligned bounding box
      * that contains this LineSegment.</p><p>This function is float error aware.</p>

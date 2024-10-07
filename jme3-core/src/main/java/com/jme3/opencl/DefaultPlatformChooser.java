@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,14 +46,14 @@ public class DefaultPlatformChooser implements PlatformChooser {
 
     @Override
     public List<? extends Device> chooseDevices(List<? extends Platform> platforms) {
-        ArrayList<Device> result = new ArrayList<Device>();
+        ArrayList<Device> result = new ArrayList<>();
         for (Platform p : platforms) {
             if (!p.hasOpenGLInterop()) {
                 continue; //must support interop
             }
             for (Device d : p.getDevices()) {
                 if (d.hasOpenGLInterop() && d.getDeviceType()==Device.DeviceType.GPU) {
-                    result.add(d); //GPU prefered
+                    result.add(d); //GPU preferred
                 }
             }
             if (!result.isEmpty()) {

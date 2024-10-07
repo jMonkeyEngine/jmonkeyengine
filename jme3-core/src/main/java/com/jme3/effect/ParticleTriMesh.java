@@ -72,7 +72,7 @@ public class ParticleTriMesh extends ParticleMesh {
             pvb.setupData(Usage.Stream, 3, Format.Float, pb);
             setBuffer(pvb);
         }
-        
+
         // set colors
         ByteBuffer cb = BufferUtils.createByteBuffer(numParticles * 4 * 4);
         buf = getBuffer(VertexBuffer.Type.Color);
@@ -88,14 +88,14 @@ public class ParticleTriMesh extends ParticleMesh {
         // set texcoords
         FloatBuffer tb = BufferUtils.createVector2Buffer(numParticles * 4);
         uniqueTexCoords = false;
-        for (int i = 0; i < numParticles; i++){
+        for (int i = 0; i < numParticles; i++) {
             tb.put(0f).put(1f);
             tb.put(1f).put(1f);
             tb.put(0f).put(0f);
             tb.put(1f).put(0f);
         }
         tb.flip();
-        
+
         buf = getBuffer(VertexBuffer.Type.TexCoord);
         if (buf != null) {
             buf.updateData(tb);
@@ -107,18 +107,18 @@ public class ParticleTriMesh extends ParticleMesh {
 
         // set indices
         ShortBuffer ib = BufferUtils.createShortBuffer(numParticles * 6);
-        for (int i = 0; i < numParticles; i++){
+        for (int i = 0; i < numParticles; i++) {
             int startIdx = (i * 4);
 
             // triangle 1
-            ib.put((short)(startIdx + 1))
-              .put((short)(startIdx + 0))
-              .put((short)(startIdx + 2));
+            ib.put((short) (startIdx + 1))
+                    .put((short) (startIdx + 0))
+                    .put((short) (startIdx + 2));
 
             // triangle 2
-            ib.put((short)(startIdx + 1))
-              .put((short)(startIdx + 2))
-              .put((short)(startIdx + 3));
+            ib.put((short) (startIdx + 1))
+                    .put((short) (startIdx + 2))
+                    .put((short) (startIdx + 3));
         }
         ib.flip();
 
@@ -130,15 +130,15 @@ public class ParticleTriMesh extends ParticleMesh {
             ivb.setupData(Usage.Static, 3, Format.UnsignedShort, ib);
             setBuffer(ivb);
         }
-        
+
         updateCounts();
     }
-    
+
     @Override
     public void setImagesXY(int imagesX, int imagesY) {
         this.imagesX = imagesX;
         this.imagesY = imagesY;
-        if (imagesX != 1 || imagesY != 1){
+        if (imagesX != 1 || imagesY != 1) {
             uniqueTexCoords = true;
             getBuffer(VertexBuffer.Type.TexCoord).setUsage(Usage.Stream);
         }
@@ -162,9 +162,9 @@ public class ParticleTriMesh extends ParticleMesh {
         VertexBuffer tvb = getBuffer(VertexBuffer.Type.TexCoord);
         FloatBuffer texcoords = (FloatBuffer) tvb.getData();
 
-        Vector3f camUp   = cam.getUp();
+        Vector3f camUp = cam.getUp();
         Vector3f camLeft = cam.getLeft();
-        Vector3f camDir  = cam.getDirection();
+        Vector3f camDir = cam.getDirection();
 
         inverseRotation.multLocal(camUp);
         inverseRotation.multLocal(camLeft);
@@ -172,10 +172,10 @@ public class ParticleTriMesh extends ParticleMesh {
 
         boolean facingVelocity = emitter.isFacingVelocity();
 
-        Vector3f up = new Vector3f(),
-                 left = new Vector3f();
+        Vector3f up = new Vector3f();
+        Vector3f left = new Vector3f();
 
-        if (!facingVelocity){
+        if (!facingVelocity) {
             up.set(camUp);
             left.set(camLeft);
         }
@@ -185,28 +185,31 @@ public class ParticleTriMesh extends ParticleMesh {
         colors.clear();
         texcoords.clear();
         Vector3f faceNormal = emitter.getFaceNormal();
-        
-        for (int i = 0; i < particles.length; i++){
+
+        for (int i = 0; i < particles.length; i++) {
             Particle p = particles[i];
             boolean dead = p.life == 0;
-            if (dead){
+            
+            if (dead) {
                 positions.put(0).put(0).put(0);
                 positions.put(0).put(0).put(0);
                 positions.put(0).put(0).put(0);
                 positions.put(0).put(0).put(0);
                 continue;
             }
-            
-            if (facingVelocity){
+
+            if (facingVelocity) {
                 left.set(p.velocity).normalizeLocal();
                 camDir.cross(left, up);
                 up.multLocal(p.size);
                 left.multLocal(p.size);
-            }else if (faceNormal != null){
+                
+            } else if (faceNormal != null) {
                 up.set(faceNormal).crossLocal(Vector3f.UNIT_X);
                 faceNormal.cross(up, left);
                 up.multLocal(p.size);
                 left.multLocal(p.size);
+                
                 if (p.angle != 0) {
                     TempVars vars = TempVars.get();
                     vars.vect1.set(faceNormal).normalizeLocal();
@@ -215,7 +218,7 @@ public class ParticleTriMesh extends ParticleMesh {
                     vars.quat1.multLocal(up);
                     vars.release();
                 }
-            }else if (p.angle != 0){
+            } else if (p.angle != 0) {
                 float cos = FastMath.cos(p.angle) * p.size;
                 float sin = FastMath.sin(p.angle) * p.size;
 
@@ -226,7 +229,8 @@ public class ParticleTriMesh extends ParticleMesh {
                 up.x = camLeft.x * -sin + camUp.x * cos;
                 up.y = camLeft.y * -sin + camUp.y * cos;
                 up.z = camLeft.z * -sin + camUp.z * cos;
-            }else{
+                
+            } else {
                 up.set(camUp);
                 left.set(camLeft);
                 up.multLocal(p.size);
@@ -249,14 +253,14 @@ public class ParticleTriMesh extends ParticleMesh {
                      .put(p.position.y - left.y - up.y)
                      .put(p.position.z - left.z - up.z);
 
-            if (uniqueTexCoords){
+            if (uniqueTexCoords) {
                 int imgX = p.imageIndex % imagesX;
                 int imgY = p.imageIndex / imagesX;
 
                 float startX = ((float) imgX) / imagesX;
                 float startY = ((float) imgY) / imagesY;
-                float endX   = startX + (1f / imagesX);
-                float endY   = startY + (1f / imagesY);
+                float endX = startX + (1f / imagesX);
+                float endY = startY + (1f / imagesY);
 
                 texcoords.put(startX).put(endY);
                 texcoords.put(endX).put(endY);
@@ -273,10 +277,9 @@ public class ParticleTriMesh extends ParticleMesh {
 
         positions.clear();
         colors.clear();
-        if (!uniqueTexCoords)
-            texcoords.clear();
-        else{
-            texcoords.clear();
+        texcoords.clear();
+        
+        if (uniqueTexCoords) {
             tvb.updateData(texcoords);
         }
 
@@ -284,5 +287,4 @@ public class ParticleTriMesh extends ParticleMesh {
         pvb.updateData(positions);
         cvb.updateData(colors);
     }
-
 }

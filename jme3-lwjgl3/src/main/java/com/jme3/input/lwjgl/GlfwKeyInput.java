@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,6 +107,23 @@ public class GlfwKeyInput implements KeyInput {
     private void closeCallbacks() {
         keyCallback.close();
         charCallback.close();
+    }
+
+    /**
+     * Determine the name of the specified key in the current system language.
+     *
+     * @param jmeKey the keycode from {@link com.jme3.input.KeyInput}
+     * @return the name of the key, or null if unknown
+     */
+    @Override
+    public String getKeyName(int jmeKey) {
+        int glfwKey = GlfwKeyMap.fromJmeKeyCode(jmeKey);
+        if (glfwKey == GLFW_KEY_UNKNOWN) {
+            return null;
+        }
+
+        String result = glfwGetKeyName(glfwKey, 0);
+        return result;
     }
 
     private void initCallbacks() {

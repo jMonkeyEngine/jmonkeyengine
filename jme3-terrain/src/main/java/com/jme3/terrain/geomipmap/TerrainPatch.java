@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,8 @@ import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 /**
@@ -69,7 +71,7 @@ import java.util.List;
  * LOD. If this doesn't happen, you will see gaps.
  *
  * The LOD value is most detailed at zero. It gets less detailed the higher the LOD value until you reach maxLod, which
- * is a mathematical limit on the number of times the 'size' of the patch can be divided by two. However there is a -1 to that
+ * is a mathematical limit on the number of times the 'size' of the patch can be divided by two. However, there is a -1 to that
  * for now until I add in a custom index buffer calculation for that max level, the current algorithm does not go that far.
  *
  * You can supply a LodThresholdCalculator for use in determining when the LOD should change. Its API will no doubt change
@@ -79,6 +81,8 @@ import java.util.List;
  * @author Brent Owens
  */
 public class TerrainPatch extends Geometry {
+    
+    private static final Logger logger = Logger.getLogger(TerrainPatch.class.getName());
 
     protected LODGeomap geomap;
     protected int lod = 0; // this terrain patch's LOD
@@ -133,15 +137,15 @@ public class TerrainPatch extends Geometry {
      * <code>TriMesh</code> object for rendering.
      *
      * @param name
-     *			the name of the terrain patch.
+     *            the name of the terrain patch.
      * @param size
-     *			the size of the heightmap.
+     *            the size of the heightmap.
      * @param stepScale
-     *			the scale for the axes.
+     *            the scale for the axes.
      * @param heightMap
-     *			the height data.
+     *            the height data.
      * @param origin
-     *			the origin offset of the patch.
+     *            the origin offset of the patch.
      */
     public TerrainPatch(String name, int size, Vector3f stepScale,
                     float[] heightMap, Vector3f origin) {
@@ -151,25 +155,25 @@ public class TerrainPatch extends Geometry {
     /**
      * Constructor instantiates a new <code>TerrainPatch</code> object. The
      * parameters and heightmap data are then processed to generate a
-     * <code>TriMesh</code> object for renderering.
+     * <code>TriMesh</code> object for rendering.
      *
      * @param name
-     *			the name of the terrain patch.
+     *            the name of the terrain patch.
      * @param size
-     *			the size of the patch.
+     *            the size of the patch.
      * @param stepScale
-     *			the scale for the axes.
+     *            the scale for the axes.
      * @param heightMap
-     *			the height data.
+     *            the height data.
      * @param origin
-     *			the origin offset of the patch.
+     *            the origin offset of the patch.
      * @param totalSize
-     *			the total size of the terrain. (Higher if the patch is part of
-     *			a <code>TerrainQuad</code> tree.
+     *            the total size of the terrain. (Higher if the patch is part of
+     *            a <code>TerrainQuad</code> tree.)
      * @param offset
-     *			the offset for texture coordinates.
+     *            the offset for texture coordinates.
      * @param offsetAmount
-     *			the total offset amount. Used for texture coordinates.
+     *            the total offset amount. Used for texture coordinates.
      */
     public TerrainPatch(String name, int size, Vector3f stepScale,
                     float[] heightMap, Vector3f origin, int totalSize,
@@ -319,7 +323,7 @@ public class TerrainPatch extends Geometry {
     }
 
     /**
-     * recalculate all of the normal vectors in this terrain patch
+     * Recalculates all normal vectors in this terrain patch.
      */
     protected void updateNormals() {
         FloatBuffer newNormalBuffer = geomap.writeNormalArray(null, getWorldScale());
@@ -350,7 +354,7 @@ public class TerrainPatch extends Geometry {
      * Computes the normals for the right, bottom, left, and top edges of the
      * patch, and saves those normals in the neighbour's edges too.
      *
-     * Takes 4 points (if has neighbour on that side) for each
+     * Takes 4 points (if it has a neighbour on that side) for each
      * point on the edge of the patch:
      *              *
      *              |
@@ -605,7 +609,7 @@ public class TerrainPatch extends Geometry {
 
     /**
      * Locks the mesh (sets it static) to improve performance.
-     * But it it not editable then. Set unlock to make it editable.
+     * If it is not editable, then unlock to make it editable.
      */
     public void lockMesh() {
         getMesh().setStatic();
@@ -672,7 +676,7 @@ public class TerrainPatch extends Geometry {
      * This is mostly used for outside constructors of terrain patches.
      *
      * @param offset
-     *			The new texture offset.
+     *            The new texture offset.
      */
     public void setOffset(Vector2f offset) {
         this.offset = offset;
@@ -684,7 +688,7 @@ public class TerrainPatch extends Geometry {
      * of terrain patches.
      *
      * @param size
-     *			The new size.
+     *            The new size.
      */
     public void setSize(int size) {
         this.size = size;
@@ -698,7 +702,7 @@ public class TerrainPatch extends Geometry {
      * of terrain patches.
      *
      * @param totalSize
-     *			The new total size.
+     *            The new total size.
      */
     public void setTotalSize(int totalSize) {
         this.totalSize = totalSize;
@@ -710,7 +714,7 @@ public class TerrainPatch extends Geometry {
      * outside constructors of terrain patches.
      *
      * @param stepScale
-     *			The new step scale.
+     *            The new step scale.
      */
     public void setStepScale(Vector3f stepScale) {
         this.stepScale = stepScale;
@@ -722,7 +726,7 @@ public class TerrainPatch extends Geometry {
      * constructors of terrain patches.
      *
      * @param offsetAmount
-     *			The new texture offset.
+     *            The new texture offset.
      */
     public void setOffsetAmount(float offsetAmount) {
         this.offsetAmount = offsetAmount;
@@ -737,7 +741,7 @@ public class TerrainPatch extends Geometry {
 
     /**
      * @param quadrant
-     *			The quadrant to set.
+     *            The quadrant to set.
      */
     public void setQuadrant(short quadrant) {
         this.quadrant = quadrant;
@@ -798,19 +802,22 @@ public class TerrainPatch extends Geometry {
 
     @Override
     public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
-        if (refreshFlags != 0)
-            throw new IllegalStateException("Scene graph must be updated" +
-                                            " before checking collision");
-
-        if (other instanceof BoundingVolume)
-            if (!getWorldBound().intersects((BoundingVolume)other))
+        if ((refreshFlags & (RF_BOUND | RF_TRANSFORM)) != 0) {
+            logger.log(Level.WARNING, "Scene graph must be updated before checking collision");
+            return 0;
+        }
+        
+        if (other instanceof BoundingVolume) {
+            if (!getWorldBound().intersects((BoundingVolume)other)) {
                 return 0;
-
-        if(other instanceof Ray)
+            }
+        }
+        
+        if (other instanceof Ray) {
             return collideWithRay((Ray)other, results);
-        else if (other instanceof BoundingVolume)
+        } else if (other instanceof BoundingVolume) {
             return collideWithBoundingVolume((BoundingVolume)other, results);
-        else {
+        } else {
             throw new UnsupportedCollisionException("TerrainPatch cannot collide with "+other.getClass().getName());
         }
     }
@@ -966,14 +973,14 @@ public class TerrainPatch extends Geometry {
         this.rightNeighbour = null;
         this.bottomNeighbour = null;
 
-        // Don't feel like making geomap cloneable tonight
+        // Don't feel like making geomap cloneable tonight,
         // so I'll copy the old logic.
         this.geomap = new LODGeomap(size, geomap.getHeightArray());
         Mesh m = geomap.createMesh(stepScale, Vector2f.UNIT_XY, offset, offsetAmount, totalSize, false);
         this.setMesh(m);
 
-        // In this case, we always clone material even if the cloner is setup
-        // not to clone it.  Terrain uses mutable textures and stuff so it's important
+        // In this case, we always clone material even if the cloner is set up
+        // not to clone it.  Terrain uses mutable textures and stuff, so it's important
         // to clone it.  (At least that's my understanding and is evidenced by the old
         // clone code specifically cloning material.)  -pspeed
         // Also note that Geometry will have potentially already cloned this but the pre-JmeCloner

@@ -23,11 +23,11 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
     private int selectedPosition = -1;
     /* Background Color of selected item */
     private int selectedBackgroundColor = 0xffff00;
-    /* Background Color of non selected item */
+    /* Background Color of non-selected items */
     private int nonselectedBackgroundColor = 0x000000;
     /* Background Drawable Resource ID of selected item */
     private int selectedBackgroundResource = 0;
-    /* Background Drawable Resource ID of non selected items */
+    /* Background Drawable Resource ID of non-selected items */
     private int nonselectedBackgroundResource = 0;
 
     /* Variables to support list filtering */
@@ -53,7 +53,7 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
         this.selectedBackgroundColor = selectedBackgroundColor;
     }
 
-    /** Setter for non selected background color */
+    /** Setter for non-selected background color */
     public void setNonSelectedBackgroundColor(int nonselectedBackgroundColor) {
         this.nonselectedBackgroundColor = nonselectedBackgroundColor;
     }
@@ -63,7 +63,7 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
         this.selectedBackgroundResource = selectedBackgroundResource;
     }
 
-    /** Setter for non selected background resource id*/
+    /** Setter for non-selected background resource id*/
     public void setNonSelectedBackgroundResource(int nonselectedBackgroundResource) {
         this.nonselectedBackgroundResource = nonselectedBackgroundResource;
     }
@@ -125,13 +125,13 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
             String prefix = constraint.toString().toLowerCase();
             Log.i(TAG, "performFiltering: entries size: " + entries.size());
             if (prefix == null || prefix.length() == 0){
-                ArrayList<String> list = new ArrayList<String>(entries);
+                ArrayList<String> list = new ArrayList<>(entries);
                 results.values = list;
                 results.count = list.size();
                 Log.i(TAG, "clearing filter with size: " + list.size());
             }else{
-                final ArrayList<String> list = new ArrayList<String>(entries);
-                final ArrayList<String> nlist = new ArrayList<String>();
+                final ArrayList<String> list = new ArrayList<>(entries);
+                final ArrayList<String> nlist = new ArrayList<>();
                 int count = list.size();
 
                 for (int i = 0; i<count; i++){

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,6 @@ import java.util.concurrent.Callable;
  */
 public class RollingTheMonkey extends SimpleApplication implements ActionListener, PhysicsCollisionListener {
     
-    private static final String TITLE           = "Rolling The Monkey";
     private static final String MESSAGE         = "Thanks for Playing!";
     private static final String INFO_MESSAGE    = "Collect all the spinning cubes!\nPress the 'R' key any time to reset!";
     
@@ -103,17 +102,12 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
     private boolean keyBackward;
     private boolean keyLeft;
     private boolean keyRight;
-    
-    private PhysicsSpace space;
-    
     private RigidBodyControl player;
     private int score;
     
     private Node pickUps;
-    
-    BitmapText infoText;
-    BitmapText scoreText;
-    BitmapText messageText;
+    private BitmapText scoreText;
+    private BitmapText messageText;
     
     @Override
     public void simpleInitApp() {
@@ -124,7 +118,7 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
         // init physics
         BulletAppState bulletState = new BulletAppState();
         stateManager.attach(bulletState);
-        space = bulletState.getPhysicsSpace();
+        PhysicsSpace space = bulletState.getPhysicsSpace();
         space.addCollisionListener(this);
         
         // create light
@@ -226,8 +220,8 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
         Quaternion rotation = new Quaternion();
         Vector3f translation = new Vector3f(0.0f, PICKUP_SIZE * 1.5f, -PICKUP_RADIUS);
         int index = 0;
-        float ammount = FastMath.TWO_PI / PICKUP_COUNT;
-        for(float angle = 0; angle < FastMath.TWO_PI; angle += ammount) {
+        float amount = FastMath.TWO_PI / PICKUP_COUNT;
+        for(float angle = 0; angle < FastMath.TWO_PI; angle += amount) {
             Geometry pickUp = new Geometry("pickUp" + (index++), new Box(PICKUP_SIZE,PICKUP_SIZE, PICKUP_SIZE));
             pickUp.setShadowMode(ShadowMode.CastAndReceive);
             pickUp.setMaterial(materialYellow);
@@ -278,15 +272,15 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
                 , INPUT_MAPPING_LEFT, INPUT_MAPPING_RIGHT, INPUT_MAPPING_RESET);
         
         // init UI
-        infoText = new BitmapText(guiFont, false);
+        BitmapText infoText = new BitmapText(guiFont);
         infoText.setText(INFO_MESSAGE);
         guiNode.attachChild(infoText);
         
-        scoreText = new BitmapText(guiFont, false);
+        scoreText = new BitmapText(guiFont);
         scoreText.setText("Score: 0");
         guiNode.attachChild(scoreText);
         
-        messageText = new BitmapText(guiFont, false);
+        messageText = new BitmapText(guiFont);
         messageText.setText(MESSAGE);
         messageText.setLocalScale(0.0f);
         guiNode.attachChild(messageText);
@@ -327,7 +321,7 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
         if(keyRight) centralForce.addLocal(cam.getLeft().negate());
         
         if(!Vector3f.ZERO.equals(centralForce)) {
-            centralForce.setY(0);                   // stop ball from pusing down or flying up
+            centralForce.setY(0);                   // stop ball from pushing down or flying up
             centralForce.normalizeLocal();          // normalize force
             centralForce.multLocal(PLAYER_FORCE);   // scale vector to force
 

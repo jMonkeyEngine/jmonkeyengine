@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,15 +45,15 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 
-/** Sample 5 - how to map keys and mousebuttons to actions */
+/** Sample 5 - how to map keys and mouse buttons to actions */
 public class HelloInput extends SimpleApplication {
 
   public static void main(String[] args) {
     HelloInput app = new HelloInput();
     app.start();
   }
-  protected Geometry player;
-  Boolean isRunning=true;
+  private Geometry player;
+  private Boolean isRunning=true;
 
   @Override
   public void simpleInitApp() {
@@ -68,19 +68,19 @@ public class HelloInput extends SimpleApplication {
 
   /** Custom Keybinding: Map named actions to inputs. */
   private void initKeys() {
-    /** You can map one or several inputs to one named mapping. */
-    inputManager.addMapping("Pause",  new KeyTrigger(keyInput.KEY_P));
+    /* You can map one or several inputs to one named mapping. */
+    inputManager.addMapping("Pause",  new KeyTrigger(KeyInput.KEY_P));
     inputManager.addMapping("Left",   new KeyTrigger(KeyInput.KEY_J));
     inputManager.addMapping("Right",  new KeyTrigger(KeyInput.KEY_K));
     inputManager.addMapping("Rotate", new KeyTrigger(KeyInput.KEY_SPACE), // spacebar!
                                       new MouseButtonTrigger(MouseInput.BUTTON_LEFT) );        // left click!
-    /** Add the named mappings to the action listeners. */
+    /* Add the named mappings to the action listeners. */
     inputManager.addListener(actionListener,"Pause");
     inputManager.addListener(analogListener,"Left", "Right", "Rotate");
   }
 
   /** Use this listener for KeyDown/KeyUp events */
-  private ActionListener actionListener = new ActionListener() {
+  final private ActionListener actionListener = new ActionListener() {
     @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
       if (name.equals("Pause") && !keyPressed) {
@@ -90,7 +90,7 @@ public class HelloInput extends SimpleApplication {
   };
 
   /** Use this listener for continuous events */
-  private AnalogListener analogListener = new AnalogListener() {
+  final private AnalogListener analogListener = new AnalogListener() {
     @Override
     public void onAnalog(String name, float value, float tpf) {
       if (isRunning) {

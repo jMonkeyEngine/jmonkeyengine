@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -194,7 +194,7 @@ public class TestFog extends SimpleApplication {
             e.printStackTrace();
         }
         TerrainQuad terrain = new TerrainQuad("terrain", 65, 513, heightmap.getHeightMap());
-        List<Camera> cameras = new ArrayList<Camera>();
+        List<Camera> cameras = new ArrayList<>();
         cameras.add(getCamera());
         terrain.setMaterial(matRock);
         terrain.setLocalScale(new Vector3f(5, 5, 5));

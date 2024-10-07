@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,21 +40,30 @@ import com.jme3.input.controls.JoyAxisTrigger;
  */
 public class DefaultJoystickAxis implements JoystickAxis {
 
-    private InputManager inputManager;
-    private Joystick parent;
-    private int axisIndex;
-    private String name;
-    private String logicalId;
-    private boolean isAnalog;
-    private boolean isRelative;
+    private final InputManager inputManager;
+    private final Joystick parent;
+    private final int axisIndex;
+    private final String name;
+    private final String logicalId;
+    private final boolean isAnalog;
+    private final boolean isRelative;
     private float deadZone;
 
     /**
      *  Creates a new joystick axis instance. Only used internally.
+     *
+     * @param inputManager (alias created)
+     * @param parent (alias created)
+     * @param axisIndex index for the new axis
+     * @param name name for the new axis
+     * @param logicalId logical identifier for the new axis
+     * @param isAnalog true&rarr;continuous range, false&rarr;discrete values
+     * @param isRelative true&rarr;presents relative values
+     * @param deadZone the radius of the dead zone
      */
     public DefaultJoystickAxis(InputManager inputManager, Joystick parent,
-                               int axisIndex, String name, String logicalId,
-                               boolean isAnalog, boolean isRelative, float deadZone ) {
+            int axisIndex, String name, String logicalId,
+            boolean isAnalog, boolean isRelative, float deadZone) {
         this.inputManager = inputManager;
         this.parent = parent;
         this.axisIndex = axisIndex;
@@ -72,7 +81,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
      *  @param negativeMapping The mapping to receive events when the axis is positive
      */
     @Override
-    public void assignAxis(String positiveMapping, String negativeMapping){
+    public void assignAxis(String positiveMapping, String negativeMapping) {
         if (axisIndex != -1) {
             inputManager.addMapping(positiveMapping, new JoyAxisTrigger(parent.getJoyId(), axisIndex, false));
             inputManager.addMapping(negativeMapping, new JoyAxisTrigger(parent.getJoyId(), axisIndex, true));
@@ -105,7 +114,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
     @Override
     public String getLogicalId() {
         return logicalId;
-    }    
+    }
 
     /**
      *  Returns the axisId of this joystick axis.
@@ -125,7 +134,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
     public boolean isAnalog() {
         return isAnalog;
     }
-    
+
     /**
      *  Returns true if this axis presents relative values.
      */
@@ -133,7 +142,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
     public boolean isRelative() {
         return isRelative;
     }
-    
+
     /**
      *  Returns the suggested dead zone for this axis.  Values less than this
      *  can be safely ignored.
@@ -141,19 +150,21 @@ public class DefaultJoystickAxis implements JoystickAxis {
     @Override
     public float getDeadZone() {
         return deadZone;
-    }        
+    }
 
     /**
      *  Sets/overrides the dead zone for this axis.  This indicates that values
      *  within +/- deadZone should be ignored.
+     *
+     * @param f the desired radius
      */
-    public void setDeadZone( float f ) {
+    public void setDeadZone(float f) {
         this.deadZone = f;
-    }     
+    }
 
     @Override
-    public String toString(){
-        return "JoystickAxis[name=" + name + ", parent=" + parent.getName() + ", id=" + axisIndex 
+    public String toString() {
+        return "JoystickAxis[name=" + name + ", parent=" + parent.getName() + ", id=" + axisIndex
                                     + ", logicalId=" + logicalId + ", isAnalog=" + isAnalog
                                     + ", isRelative=" + isRelative + ", deadZone=" + deadZone + "]";
     }

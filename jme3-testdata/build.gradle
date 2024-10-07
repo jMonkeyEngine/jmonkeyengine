@@ -1,10 +1,2 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
-def niftyVersion = '1.4.3'
-
 dependencies {
-    runtime "com.github.nifty-gui:nifty-examples:$niftyVersion"
-    runtime "com.github.nifty-gui:nifty-style-black:$niftyVersion"
 }

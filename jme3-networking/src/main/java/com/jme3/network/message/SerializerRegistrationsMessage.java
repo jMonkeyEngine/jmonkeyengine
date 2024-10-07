@@ -1,8 +1,33 @@
 /*
- * $Id: SerializerRegistrationsMessage.java 3829 2014-11-24 07:25:43Z pspeed $
- *
- * Copyright (c) 2012, Paul Speed
+ * Copyright (c) 2012-2021 jMonkeyEngine
  * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package com.jme3.network.message;
@@ -12,6 +37,7 @@ import com.jme3.network.serializing.Serializable;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.network.serializing.SerializerRegistration;
 import com.jme3.network.serializing.serializers.FieldSerializer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.logging.Level;
@@ -22,9 +48,9 @@ import java.util.logging.Logger;
  *  Holds a compiled set of message registration information that
  *  can be sent over the wire.  The received message can then be
  *  used to register all of the classes using the same IDs and 
- *  same ordering, etc..  The intent is that the server compiles
+ *  same ordering, etcetera.  The intent is that the server compiles
  *  this message once it is sure that all serializable classes have
- *  been registered.  It can then send this to each new client and
+ *  been registered.  It can then send this to each new client, and
  *  they can use it to register all of the classes without requiring
  *  exactly reproducing the same calls that the server did to register
  *  messages.
@@ -40,11 +66,11 @@ import java.util.logging.Logger;
 @Serializable
 public class SerializerRegistrationsMessage extends AbstractMessage {
 
-    static final Logger log = Logger.getLogger(SerializerRegistrationsMessage.class.getName());
+    private static final Logger log = Logger.getLogger(SerializerRegistrationsMessage.class.getName());
 
     public static final Set<Class> ignore = new HashSet<Class>();
     static {
-        // We could build this automatically but then we
+        // We could build this automatically, but then we
         // risk making a client and server out of date simply because
         // their JME versions are out of date.
         ignore.add(Boolean.class);
@@ -108,7 +134,7 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
     public static void compile() {
     
         // Let's just see what they are here
-        List<Registration> list = new ArrayList<Registration>();
+        List<Registration> list = new ArrayList<>();
         for( SerializerRegistration reg : Serializer.getSerializerRegistrations() ) {
             Class type = reg.getType();
             if( ignore.contains(type) )
@@ -143,7 +169,7 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
             // assume that if the registry was compiled here then it means
             // we are also the server process.  Note that this wouldn't hold true
             // under complicated examples where there are clients of one server
-            // that also run their own servers but realistically they would have
+            // that also run their own servers, but realistically they would have
             // to disable the ServerSerializerRegistrationsServer anyway.
             if( compiled != null ) {
                 log.log(Level.INFO, "Skipping registration as registry is locked, presumably by a local server process.");
@@ -178,6 +204,7 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
             } 
         }
  
+        @SuppressWarnings("unchecked")
         public void register() {        
             try {
                 Class type = Class.forName(className);
@@ -186,15 +213,13 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
                     serializer = fieldSerializer;
                 } else {
                     Class serializerType = Class.forName(serializerClassName);
-                    serializer = (Serializer)serializerType.newInstance();                    
+                    serializer = (Serializer) serializerType.getDeclaredConstructor().newInstance();
                 }
                 SerializerRegistration result = Serializer.registerClassForId(id, type, serializer);
                 log.log(Level.FINE, "   result:{0}", result);                
             } catch( ClassNotFoundException e ) {
                 throw new RuntimeException( "Class not found attempting to register:" + this, e );
-            } catch( InstantiationException e ) {
-                throw new RuntimeException( "Error instantiating serializer registering:" + this, e );
-            } catch( IllegalAccessException e ) {
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException e) {
                 throw new RuntimeException( "Error instantiating serializer registering:" + this, e );
             }            
         }

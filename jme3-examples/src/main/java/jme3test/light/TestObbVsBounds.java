@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,16 +53,16 @@ import com.jme3.util.TempVars;
 public class TestObbVsBounds extends SimpleApplication {
 
     private Node ln;
-    private BoundingBox aabb = new BoundingBox();
-    private BoundingSphere sphere = new BoundingSphere(10, new Vector3f(-30, 0, -60));
+    final private BoundingBox aabb = new BoundingBox();
+    final private BoundingSphere sphere = new BoundingSphere(10, new Vector3f(-30, 0, -60));
 
     private final static float MOVE_SPEED = 60;
-    private Vector3f tmp = new Vector3f();
-    private Quaternion tmpQuat = new Quaternion();
+    final private Vector3f tmp = new Vector3f();
+    final private Quaternion tmpQuat = new Quaternion();
     private boolean moving, shift;
     private boolean panning;
 
-    private OrientedBoxProbeArea area = new OrientedBoxProbeArea();
+    final private OrientedBoxProbeArea area = new OrientedBoxProbeArea();
     private Camera frustumCam;
 
     private Geometry areaGeom;

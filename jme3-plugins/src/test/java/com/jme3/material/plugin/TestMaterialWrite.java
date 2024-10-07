@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package com.jme3.material.plugin;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.material.plugin.export.material.J3MExporter;
@@ -76,7 +77,7 @@ public class TestMaterialWrite {
 
         mat.setFloat("Shininess", 2.5f);
 
-        Texture tex = assetManager.loadTexture("Common/Textures/MissingTexture.png");
+        Texture tex = assetManager.loadTexture(new TextureKey("Common/Textures/MissingTexture.png", true));
         tex.setMagFilter(Texture.MagFilter.Nearest);
         tex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
         tex.setWrap(Texture.WrapAxis.S, Texture.WrapMode.Repeat);

@@ -1,7 +1,7 @@
 package com.jme3.shadow;
 
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,13 +56,18 @@ import java.io.IOException;
  * a shadow map for each one.<br> splits are distributed so that the closer they
  * are from the camera, the smaller they are to maximize the resolution used of
  * the shadow map.<br> This results in a better quality shadow than standard
- * shadow mapping.<br> for more informations on this read this <a
+ * shadow mapping.<br> for more information on this read <a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
- * <p/>
+ *
  * @author Rémy Bouquet aka Nehon
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
+ * @deprecated The jme3-vr module is deprecated and will be removed in a future version (as it only supports OpenVR).
+ *             For new Virtual Reality projects, use user libraries that provide OpenXR support.
+ *             See <a href = "https://wiki.jmonkeyengine.org/docs/3.4/core/vr/virtualreality.html">Virtual Reality JME wiki section</a>
+ *             for more information.
  */
+@Deprecated
 public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
 
     protected float lambda = 0.65f;    
@@ -84,14 +89,14 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     }
 
     /**
-     * Create a DirectionalLightShadowRenderer More info on the technique at <a
+     * Creates a DirectionalLight shadow renderer. More info on the technique at <a
      * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
      *
-     * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
-     * etc...)
-     * @param nbSplits the number of shadow maps rendered (the more shadow maps
-     * the more quality, the less fps).
+     * @param assetManager the application's asset manager
+     * @param shadowMapSize the size of the rendered shadowmaps (512, 1024, 2048,
+     *     etcetera)
+     * @param nbSplits the number of shadow maps rendered (More shadow maps yield
+     *     better quality, fewer fps.)
      */
     public DirectionalLightShadowRendererVR(AssetManager assetManager, int shadowMapSize, int nbSplits) {
         super(assetManager, shadowMapSize, nbSplits);
@@ -238,11 +243,16 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     }
 
     /**
-     * Adjust the repartition of the different shadow maps in the shadow extend
-     * usually goes from 0.0 to 1.0
-     * a low value give a more linear repartition resulting in a constant quality in the shadow over the extends, but near shadows could look very jagged
-     * a high value give a more logarithmic repartition resulting in a high quality for near shadows, but the quality quickly decrease over the extend.
-     * the default value is set to 0.65f (theoretic optimal value).
+     * Adjusts the partition of the shadow extend into shadow maps.
+     * Lambda is usually between 0 and 1.
+     * A low value gives a more linear partition,
+     * resulting in consistent shadow quality over the extend,
+     * but near shadows could look very jagged.
+     * A high value gives a more logarithmic partition,
+     * resulting in high quality for near shadows,
+     * but quality decreases rapidly with distance.
+     * The default value is 0.65 (the theoretical optimum).
+     *
      * @param lambda the lambda value.
      */
     public void setLambda(float lambda) {
@@ -260,8 +270,9 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     /**
      * Enables the stabilization of the shadow's edges. (default is true)
      * This prevents shadow edges from flickering when the camera moves.
-     * However it can lead to some shadow quality loss in some particular scenes.
-     * @param stabilize  <code>true</code> if stabilization has to be enabled and <code>false</code> otherwise.
+     * However, it can lead to some loss of shadow quality in particular scenes.
+     *
+     *  @param stabilize  <code>true</code> if stabilization has to be enabled and <code>false</code> otherwise.
      */
     public void setEnabledStabilization(boolean stabilize) {
         this.stabilize = stabilize;

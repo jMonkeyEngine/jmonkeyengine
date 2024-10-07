@@ -43,6 +43,8 @@ import com.jme3.scene.Spatial;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.Image.Format;
 import com.jme3.util.SkyFactory;
 
 /**
@@ -75,25 +77,26 @@ public class TestPostFiltersCompositing extends SimpleApplication {
         fpp.addFilter(new ColorOverlayFilter(ColorRGBA.Blue));
         viewPort.addProcessor(fpp);
 
-        //creating a frame buffer for the mainviewport
+        //creating a frame buffer for the main viewport
         FrameBuffer mainVPFrameBuffer = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
         Texture2D mainVPTexture = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
-        mainVPFrameBuffer.addColorTexture(mainVPTexture);
-        mainVPFrameBuffer.setDepthBuffer(Image.Format.Depth);
+        mainVPFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
+        mainVPFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(mainVPTexture));
+
         viewPort.setOutputFrameBuffer(mainVPFrameBuffer);
 
-        //creating the post processor for the gui viewport
-        final FilterPostProcessor guifpp = new FilterPostProcessor(assetManager);
-        guifpp.setFrameBufferFormat(Image.Format.RGBA8);
-        guifpp.addFilter(new ColorOverlayFilter(ColorRGBA.Red));
-        //this will compose the main viewport texture with the guiviewport back buffer.
-        //Note that you can switch the order of the filters so that guiviewport filters are applied or not to the main viewport texture
-        guifpp.addFilter(new ComposeFilter(mainVPTexture));
+        // Create the post processor for the GUI viewport.
+        final FilterPostProcessor guiFpp = new FilterPostProcessor(assetManager);
+        guiFpp.setFrameBufferFormat(Image.Format.RGBA8);
+        guiFpp.addFilter(new ColorOverlayFilter(ColorRGBA.Red));
+        // This will compose the main viewport texture with the GUI-viewport back buffer.
+        // Note that you can switch the order of the filters so that GUI-viewport filters are applied or not to the main viewport texture
+        guiFpp.addFilter(new ComposeFilter(mainVPTexture));
 
-        guiViewPort.addProcessor(guifpp);
+        guiViewPort.addProcessor(guiFpp);
         
-        //compositing is done by mixing texture depending on the alpha channel, 
-        //it's important that the guiviewport clear color alpha value is set to 0
+        // Compositing is done by mixing texture depending on the alpha channel, so
+        // it's important that the GUI-viewport clear-color alpha value is set to 0.
         guiViewPort.setBackgroundColor(ColorRGBA.BlackNoAlpha);
         guiViewPort.setClearColor(true);
 

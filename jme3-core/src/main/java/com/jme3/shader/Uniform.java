@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,11 @@
  */
 package com.jme3.shader;
 
+import com.jme3.material.Material.BindUnits;
 import com.jme3.math.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
-
+import java.lang.reflect.InvocationTargetException;
 import java.nio.*;
 
 public class Uniform extends ShaderVariable {
@@ -47,7 +48,7 @@ public class Uniform extends ShaderVariable {
      * Currently set value of the uniform.
      */
     protected Object value = null;
-    
+
     /**
      * For arrays or matrices, efficient format
      * that can be sent to GL faster.
@@ -126,7 +127,7 @@ public class Uniform extends ShaderVariable {
     public Object getValue(){
         return value;
     }
-    
+
     public FloatBuffer getMultiData() {
         return multiData;
     }
@@ -142,12 +143,12 @@ public class Uniform extends ShaderVariable {
     public void clearValue(){
         updateNeeded = true;
 
-        if (multiData != null){           
+        if (multiData != null){
             multiData.clear();
 
             while (multiData.remaining() > 0){
                 ZERO_BUF.clear();
-                ZERO_BUF.limit( Math.min(multiData.remaining(), 16) );
+                ZERO_BUF.limit(Math.min(multiData.remaining(), 16));
                 multiData.put(ZERO_BUF);
             }
 
@@ -159,7 +160,7 @@ public class Uniform extends ShaderVariable {
         if (varType == null) {
             return;
         }
-            
+
         switch (varType){
             case Int:
                 this.value = ZERO_INT;
@@ -168,7 +169,7 @@ public class Uniform extends ShaderVariable {
                 this.value = Boolean.FALSE;
                 break;
             case Float:
-                this.value = ZERO_FLT; 
+                this.value = ZERO_FLT;
                 break;
             case Vector2:
                 if (this.value != null) {
@@ -196,8 +197,9 @@ public class Uniform extends ShaderVariable {
                 // or multidata types
         }
     }
-    
-    public void setValue(VarType type, Object value){
+
+    public void setValue(VarType type, Object value) {
+        assert !(value instanceof BindUnits);
         if (location == LOC_NOT_DEFINED) {
             return;
         }
@@ -251,6 +253,7 @@ public class Uniform extends ShaderVariable {
                     this.value = BufferUtils.createIntBuffer(ia);
                 } else {
                     this.value = BufferUtils.ensureLargeEnough((IntBuffer)this.value, ia.length);
+                    ((IntBuffer)this.value).put(ia);
                 }
                 ((IntBuffer)this.value).clear();
                 break;
@@ -260,8 +263,8 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(fa);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, fa.length);
+                    multiData.put(fa);
                 }
-                multiData.put(fa);
                 multiData.clear();
                 break;
             case Vector2Array:
@@ -270,9 +273,9 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(v2a);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v2a.length * 2);
-                }
-                for (int i = 0; i < v2a.length; i++) {
-                    BufferUtils.setInBuffer(v2a[i], multiData, i);
+                    for (int i = 0; i < v2a.length; i++) {
+                        BufferUtils.setInBuffer(v2a[i], multiData, i);
+                    }
                 }
                 multiData.clear();
                 break;
@@ -282,9 +285,9 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(v3a);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v3a.length * 3);
-                }
-                for (int i = 0; i < v3a.length; i++) {
-                    BufferUtils.setInBuffer(v3a[i], multiData, i);
+                    for (int i = 0; i < v3a.length; i++) {
+                        BufferUtils.setInBuffer(v3a[i], multiData, i);
+                    }
                 }
                 multiData.clear();
                 break;
@@ -294,9 +297,9 @@ public class Uniform extends ShaderVariable {
                     multiData = BufferUtils.createFloatBuffer(v4a);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v4a.length * 4);
-                }
-                for (int i = 0; i < v4a.length; i++) {
-                    BufferUtils.setInBuffer(v4a[i], multiData, i);
+                    for (int i = 0; i < v4a.length; i++) {
+                        BufferUtils.setInBuffer(v4a[i], multiData, i);
+                    }
                 }
                 multiData.clear();
                 break;
@@ -354,9 +357,11 @@ public class Uniform extends ShaderVariable {
                 //handle the null case
                 if (this.value == null) {
                     try {
-                        this.value = value.getClass().newInstance();
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        throw new IllegalArgumentException("Cannot instanciate param of class " + value.getClass().getCanonicalName());
+                        this.value = value.getClass().getDeclaredConstructor().newInstance();
+                    } catch (InstantiationException | IllegalAccessException
+                            | IllegalArgumentException | InvocationTargetException
+                            | NoSuchMethodException | SecurityException e) {
+                        throw new IllegalArgumentException("Cannot instantiate param of class " + value.getClass().getCanonicalName(), e);
                     }
                 }
                 //feed the pivot vec 4 with the correct value
@@ -406,7 +411,7 @@ public class Uniform extends ShaderVariable {
         if (location == -1) {
             return;
         }
-        
+
         multiData = BufferUtils.ensureLargeEnough(multiData, length * 4);
         value = multiData;
         varType = VarType.Vector4Array;
@@ -429,7 +434,7 @@ public class Uniform extends ShaderVariable {
         updateNeeded = true;
         setByCurrentMaterial = true;
     }
-    
+
     public boolean isUpdateNeeded(){
         return updateNeeded;
     }

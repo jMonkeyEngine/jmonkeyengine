@@ -28,7 +28,7 @@ public class OculusVRInput implements VRInputAPI {
 
     // Used to calculate sinceLastCall stuff
     private int lastButtons, lastTouch;
-    private final Vector2f[][] lastAxises;
+    private final Vector2f[][] lastAxes;
 
     /**
      * The state data (linear and angular velocity and acceleration) for each hand
@@ -59,7 +59,7 @@ public class OculusVRInput implements VRInputAPI {
 
         handStates = new OVRPoseStatef[ovrHand_Count];
         handPoses = new OVRPosef[handStates.length];
-        lastAxises = new Vector2f[handStates.length][3]; // trigger+grab+thumbstick for each hand.
+        lastAxes = new Vector2f[handStates.length][3]; // trigger+grab+thumbstick for each hand.
     }
 
     public void dispose() {
@@ -69,7 +69,7 @@ public class OculusVRInput implements VRInputAPI {
 
     @Override
     public void updateControllerStates() {
-        // Handle buttons, axies
+        // Handle buttons, axes
         ovr_GetInputState(session, ovrControllerType_Touch, inputState);
         buttons = inputState.Buttons();
         touch = inputState.Touches();
@@ -135,14 +135,14 @@ public class OculusVRInput implements VRInputAPI {
         OculusViewManager vrvm = (OculusViewManager) hardware.getEnvironment().getVRViewManager();
 
         Object obs = env.getObserver();
-        Quaternion tempq = new Quaternion(); // TODO move to class scope?
+        Quaternion tempQuaternion = new Quaternion(); // TODO move to class scope?
         if (obs instanceof Camera) {
-            tempq.set(((Camera) obs).getRotation());
+            tempQuaternion.set(((Camera) obs).getRotation());
         } else {
-            tempq.set(((Spatial) obs).getWorldRotation());
+            tempQuaternion.set(((Spatial) obs).getWorldRotation());
         }
 
-        return tempq.multLocal(getOrientation(index));
+        return tempQuaternion.multLocal(getOrientation(index));
     }
 
     @Override
@@ -256,9 +256,9 @@ public class OculusVRInput implements VRInputAPI {
                 return null;
         }
 
-        Vector2f last = lastAxises[controllerIndex][index];
+        Vector2f last = lastAxes[controllerIndex][index];
         if (last == null) {
-            last = lastAxises[controllerIndex][index] = new Vector2f();
+            last = lastAxes[controllerIndex][index] = new Vector2f();
         }
 
         Vector2f current = getAxis(controllerIndex, forAxis);

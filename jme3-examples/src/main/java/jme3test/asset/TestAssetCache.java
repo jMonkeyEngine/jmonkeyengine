@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ public class TestAssetCache {
         private byte[] data = new byte[10 * 1024];
 
         @Override
-        public Object clone(){
+        public DummyData clone(){
             try {
                 DummyData clone = (DummyData) super.clone();
                 clone.data = data.clone();
@@ -124,7 +124,7 @@ public class TestAssetCache {
     
     private static void runTest(boolean cloneAssets, boolean smartCache, boolean keepRefs, int limit) {
         counter = 0;
-        List<Object> refs = new ArrayList<Object>(limit);
+        List<Object> refs = new ArrayList<>(limit);
         
         AssetCache cache;
         AssetProcessor proc = null;
@@ -157,7 +157,7 @@ public class TestAssetCache {
             // Create some data
             DummyData data = new DummyData();
             
-            // Post process the data before placing it in the cache
+            // Postprocess the data before placing it in the cache.
             if (proc != null){
                 data = (DummyData) proc.postProcess(key, data);
             }
@@ -202,7 +202,7 @@ public class TestAssetCache {
             // collections of the asset in the cache thus causing
             // an out of memory error.
             if (keepRefs){
-                // Prevent the saved references from taking too much memory ..
+                // Prevent the saved references from taking too much memory.
                 if (cloneAssets) {
                     data.data = null;
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,6 @@ public abstract class Serializer {
     private static final List<SerializerRegistration> registrations                 = new ArrayList<SerializerRegistration>();
 
     private static final Serializer                         fieldSerializer         = new FieldSerializer();
-    private static final Serializer                         serializableSerializer  = new SerializableSerializer();
     private static final Serializer                         arraySerializer         = new ArraySerializer();
 
     private static short nextAvailableId = -2; // historically the first ID was always -2
@@ -81,7 +80,7 @@ public abstract class Serializer {
     
     public static void initialize() {
 
-        // Reset all of the inexes and tracking variables just in case
+        // Reset all of the indices and tracking variables just in case
         idRegistrations.clear();
         classRegistrations.clear();
         registrations.clear();        
@@ -226,8 +225,8 @@ public abstract class Serializer {
     }
     
     /**
-     *  Registers the specified class. The failOnMiss flag controls whether or
-     *  not this method returns null for failed registration or throws an exception.
+     *  Registers the specified class. The failOnMiss flag controls whether
+     *  this method returns null for failed registration or throws an exception.
      */
     @SuppressWarnings("unchecked")
     public static SerializerRegistration registerClass(Class cls, boolean failOnMiss) {
@@ -266,12 +265,12 @@ public abstract class Serializer {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             String path = pkgName.replace('.', '/');
             Enumeration<URL> resources = classLoader.getResources(path);
-            List<File> dirs = new ArrayList<File>();
+            List<File> dirs = new ArrayList<>();
             while (resources.hasMoreElements()) {
                 URL resource = resources.nextElement();
                 dirs.add(new File(resource.getFile()));
             }
-            ArrayList<Class> classes = new ArrayList<Class>();
+            ArrayList<Class> classes = new ArrayList<>();
             for (File directory : dirs) {
                 classes.addAll(findClasses(directory, pkgName));
             }
@@ -289,7 +288,7 @@ public abstract class Serializer {
     }
 
     private static List<Class> findClasses(File dir, String pkgName) throws ClassNotFoundException {
-        List<Class> classes = new ArrayList<Class>();
+        List<Class> classes = new ArrayList<>();
         if (!dir.exists()) {
             return classes;
         }
@@ -447,7 +446,7 @@ public abstract class Serializer {
         // In that case, the SerializerRegistration object we get back isn't
         // really going to be capable of recreating the object on the other
         // end because it won't know what class to use.  This only comes up
-        // in writeclassAndObejct() because we just wrote an ID to a more generic
+        // in writeClassAndObject() because we just wrote an ID to a more generic
         // class than will be readable on the other end.  The check is simple, though.
         if( reg.getType() != object.getClass() ) {
             throw new IllegalArgumentException("Class has not been registered:" 

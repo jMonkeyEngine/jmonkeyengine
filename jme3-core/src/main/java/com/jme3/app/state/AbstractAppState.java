@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,11 +51,11 @@ public abstract class AbstractAppState implements AppState {
     protected boolean initialized = false;
     private boolean enabled = true;
     private String id;
-    
-    protected AbstractAppState() {    
+
+    protected AbstractAppState() {
     }
-    
-    protected AbstractAppState( String id ) {
+
+    protected AbstractAppState(String id) {
         this.id = id;
     }
 
@@ -73,8 +73,10 @@ public abstract class AbstractAppState implements AppState {
      *  Sets the unique ID of this app state.  Note: that setting
      *  this while an app state is attached to the state manager will
      *  have no effect on ID-based lookups.
+     *
+     * @param id the desired ID
      */
-    protected void setId( String id ) {
+    protected void setId(String id) {
         this.id = id;
     }
 
@@ -87,7 +89,7 @@ public abstract class AbstractAppState implements AppState {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
-    
+
     @Override
     public boolean isEnabled() {
         return enabled;
@@ -110,12 +112,11 @@ public abstract class AbstractAppState implements AppState {
     }
 
     @Override
-    public void postRender(){
+    public void postRender() {
     }
 
     @Override
     public void cleanup() {
         initialized = false;
     }
-
 }

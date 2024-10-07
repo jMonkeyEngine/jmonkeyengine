@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,8 +53,8 @@ import java.io.IOException;
  * 
  * This Filter does basically the same as a PssmShadowRenderer except it renders 
  * the post shadow pass as a fullscreen quad pass instead of a geometry pass.
- * It's mostly faster than PssmShadowRenderer as long as you have more than a about ten shadow receiving objects.
- * The expense is the draw back that the shadow Receive mode set on spatial is ignored.
+ * It's mostly faster than PssmShadowRenderer as long as you have more than about ten shadow receiving objects.
+ * The expense is the drawback that the shadow Receive mode set on spatial is ignored.
  * So basically all and only objects that render depth in the scene receive shadows.
  * See this post for more details http://jmonkeyengine.org/groups/general-2/forum/topic/silly-question-about-shadow-rendering/#post-191599
  * 
@@ -80,11 +80,13 @@ public class PssmShadowFilter extends Filter {
     }
     
     /**
-     * Creates a PSSM Shadow Filter 
+     * Creates a PSSM shadow filter.
      * More info on the technique at <a href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
-     * @param manager the application asset manager
-     * @param size the size of the rendered shadowmaps (512,1024,2048, etc...)
-     * @param nbSplits the number of shadow maps rendered (the more shadow maps the more quality, the less fps). 
+     *
+     * @param manager the application's asset manager
+     * @param size the size of the rendered shadowmaps (512, 1024, 2048, etcetera)
+     * @param nbSplits the number of shadow maps rendered (More shadow maps mean
+     *     better quality, fewer frames per second.)
      */
     public PssmShadowFilter(AssetManager manager, int size, int nbSplits) {
         super("Post Shadow");
@@ -143,7 +145,8 @@ public class PssmShadowFilter extends Filter {
 
     /**
      * Sets the light direction to use to compute shadows
-     * @param direction 
+     *
+     * @param direction a direction vector (not null, unaffected)
      */
     public void setDirection(Vector3f direction) {
         pssmRenderer.setDirection(direction);
@@ -159,11 +162,16 @@ public class PssmShadowFilter extends Filter {
     }
 
     /**
-     * Adjust the repartition of the different shadow maps in the shadow extend
-     * usually goes from 0.0 to 1.0
-     * a low value give a more linear repartition resulting in a constant quality in the shadow over the extends, but near shadows could look very jagged
-     * a high value give a more logarithmic repartition resulting in a high quality for near shadows, but the quality quickly decrease over the extend.
-     * the default value is set to 0.65f (theoretic optimal value).
+     * Adjusts the partition of the shadow extend into shadow maps.
+     * Lambda is usually between 0 and 1.
+     * A low value gives a more linear partition,
+     * resulting in consistent shadow quality over the extend,
+     * but near shadows could look very jagged.
+     * A high value gives a more logarithmic partition,
+     * resulting in high quality for near shadows,
+     * but quality decreases rapidly with distance.
+     * The default value is 0.65 (the theoretical optimum).
+     *
      * @param lambda the lambda value.
      */
     public void setLambda(float lambda) {
@@ -218,8 +226,10 @@ public class PssmShadowFilter extends Filter {
     }
 
     /**
-     * Sets the shadow edges thickness. default is 1, setting it to lower values can help to reduce the jagged effect of the shadow edges
-     * @param edgesThickness 
+     * Sets the shadow edges thickness. Default is 1.
+     * Setting it to lower values can help to reduce the jagged effect of the shadow edges.
+     *
+     *  @param edgesThickness the desired thickness (in tenths of a pixel, default=10)
      */
     public void setEdgesThickness(int edgesThickness) {
         pssmRenderer.setEdgesThickness(edgesThickness);
@@ -236,7 +246,8 @@ public class PssmShadowFilter extends Filter {
     /**
      * Set this to false if you want to use several PssmRenderers to have multiple shadows cast by multiple light sources.
      * Make sure the last PssmRenderer in the stack DOES flush the queues, but not the others
-     * @param flushQueues 
+     *
+     * @param flushQueues true to flush the queues, false to avoid flushing them
      */
     public void setFlushQueues(boolean flushQueues) {
         pssmRenderer.setFlushQueues(flushQueues);
@@ -244,7 +255,8 @@ public class PssmShadowFilter extends Filter {
 
     /**
      * sets the shadow compare mode see {@link CompareMode} for more info
-     * @param compareMode 
+     *
+     * @param compareMode the desired mode (not null)
      */
     final public void setCompareMode(CompareMode compareMode) {
         pssmRenderer.setCompareMode(compareMode);
@@ -252,7 +264,8 @@ public class PssmShadowFilter extends Filter {
     
     /**
      * Sets the filtering mode for shadow edges see {@link FilterMode} for more info
-     * @param filterMode 
+     *
+     * @param filterMode the desired mode (not null)
      */
     final public void setFilterMode(FilterMode filterMode) {
         pssmRenderer.setFilterMode(filterMode);

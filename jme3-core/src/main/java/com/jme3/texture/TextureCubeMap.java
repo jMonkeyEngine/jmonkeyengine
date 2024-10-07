@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,23 +70,23 @@ public class TextureCubeMap extends Texture {
         PositiveX, NegativeX, PositiveY, NegativeY, PositiveZ, NegativeZ;
     }
 
-    public TextureCubeMap(){
+    public TextureCubeMap() {
         super();
     }
 
-    public TextureCubeMap(Image img){
+    public TextureCubeMap(Image img) {
         super();
         setImage(img);
     }
-    
-    public TextureCubeMap(int width, int height, Image.Format format){
+
+    public TextureCubeMap(int width, int height, Image.Format format) {
         this(createEmptyLayeredImage(width, height, 6, format));
     }
 
     private static Image createEmptyLayeredImage(int width, int height,
             int layerCount, Image.Format format) {
-        ArrayList<ByteBuffer> layers = new ArrayList<ByteBuffer>();
-        for(int i = 0; i < layerCount; i++) {
+        ArrayList<ByteBuffer> layers = new ArrayList<>();
+        for (int i = 0; i < layerCount; i++) {
             layers.add(null);
         }
         Image image = new Image(format, width, height, 0, layers, ColorSpace.Linear);
@@ -105,13 +105,13 @@ public class TextureCubeMap extends Texture {
         rVal.setWrap(WrapAxis.R, wrapR);
         return super.createSimpleClone(rVal);
     }
-    
+
     /**
      * <code>setWrap</code> sets the wrap mode of this texture for a
      * particular axis.
-     * 
+     *
      * @param axis
-     *            the texture axis to define a wrapmode on.
+     *            the texture axis to apply the wrap mode to.
      * @param mode
      *            the wrap mode for the given axis of the texture.
      * @throws IllegalArgumentException
@@ -139,7 +139,7 @@ public class TextureCubeMap extends Texture {
 
     /**
      * <code>setWrap</code> sets the wrap mode of this texture for all axis.
-     * 
+     *
      * @param mode
      *            the wrap mode for the given axis of the texture.
      * @throws IllegalArgumentException
@@ -158,7 +158,7 @@ public class TextureCubeMap extends Texture {
     /**
      * <code>getWrap</code> returns the wrap mode for a given coordinate axis
      * on this texture.
-     * 
+     *
      * @param axis
      *            the axis to return for
      * @return the wrap mode of the texture.
@@ -217,9 +217,9 @@ public class TextureCubeMap extends Texture {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         wrapS = capsule.readEnum("wrapS", WrapMode.class, WrapMode.EdgeClamp);
         wrapT = capsule.readEnum("wrapT", WrapMode.class, WrapMode.EdgeClamp);
         wrapR = capsule.readEnum("wrapR", WrapMode.class, WrapMode.EdgeClamp);

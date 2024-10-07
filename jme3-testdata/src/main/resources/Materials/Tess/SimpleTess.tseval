@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 layout (quads,equal_spacing,cw) in;
 
 uniform mat4 g_WorldViewProjectionMatrix;

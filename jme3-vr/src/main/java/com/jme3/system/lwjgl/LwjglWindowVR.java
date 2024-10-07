@@ -1,7 +1,7 @@
 package com.jme3.system.lwjgl;
 
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,6 +80,10 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
     private GLFWWindowSizeCallback windowSizeCallback;
     private GLFWWindowFocusCallback windowFocusCallback;
     private Thread mainThread;
+
+    // reusable arrays for GLFW calls
+    final private int width[] = new int[1];
+    final private int height[] = new int[1];
 
     /**
      * Create a new wrapper class over the GLFW framework in LWJGL 3.
@@ -206,9 +210,9 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
 
         glfwSetWindowFocusCallback(window, windowFocusCallback = new GLFWWindowFocusCallback() {
 
-			@Override
-			public void invoke(long window, boolean focused) {
-				if (wasActive != focused) {
+            @Override
+            public void invoke(long window, boolean focused) {
+                if (wasActive != focused) {
                     if (wasActive == false) {
                         listener.gainFocus();
                         timer.reset();
@@ -217,10 +221,8 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
                         listener.loseFocus();
                         wasActive = false;
                     }
-
-                    
                 }
-			}
+            }
         });
 
         // Center the window
@@ -245,7 +247,6 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         // Make the window visible
         if (Type.Display.equals(type)) {
             glfwShowWindow(window);
-            
             glfwFocusWindow(window);
         }
 
@@ -274,20 +275,16 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
 
             if (errorCallback != null) {
                 errorCallback.free();
-            	errorCallback = null;
+                errorCallback = null;
             }
 
             if (windowSizeCallback != null) {
-
                 windowSizeCallback.free();
-                
                 windowSizeCallback = null;
             }
 
             if (windowFocusCallback != null) {
-            	
                 windowFocusCallback.free();
-                
                 windowFocusCallback = null;
             }
 
@@ -334,7 +331,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
             loadNatives();
             timer = new NanoTimer();
 
-            // For canvas, this will create a pbuffer,
+            // For canvas, this will create a PBuffer,
             // allowing us to query information.
             // When the canvas context becomes available, it will
             // be replaced seamlessly.
@@ -383,9 +380,9 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
 
         listener.update();
 
-        // All this does is call swap buffers
+        // All this does is call glfwSwapBuffers().
         // If the canvas is not active, there's no need to waste time
-        // doing that ..
+        // doing that.
         if (renderable.get()) {
             // calls swap buffers, etc.
             try {
@@ -397,8 +394,8 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
             }
         }
 
-        // Subclasses just call GLObjectManager clean up objects here
-        // it is safe .. for now.
+        // Subclasses just call GLObjectManager. Clean up objects here.
+        // It is safe ... for now.
         if (renderer != null) {
             renderer.postFrame();
         }
@@ -455,7 +452,6 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
                     + "Must set with JmeContext.setSystemListener().");
         }
 
- 
         LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
 
         if (!initInThread()) {
@@ -535,6 +531,53 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         return window;
     }
 
+    /**
+     * Returns the height of the framebuffer.
+     *
+     * @return the height (in pixels)
+     */
+    @Override
+    public int getFramebufferHeight() {
+        glfwGetFramebufferSize(window, width, height);
+        int result = height[0];
+        return result;
+    }
+
+    /**
+     * Returns the width of the framebuffer.
+     *
+     * @return the width (in pixels)
+     */
+    @Override
+    public int getFramebufferWidth() {
+        glfwGetFramebufferSize(window, width, height);
+        int result = width[0];
+        return result;
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @return the screen X coordinate
+     */
+    @Override
+    public int getWindowXPosition() {
+        glfwGetWindowPos(window, width, height);
+        int result = width[0];
+        return result;
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @return the screen Y coordinate
+     */
+    @Override
+    public int getWindowYPosition() {
+        glfwGetWindowPos(window, width, height);
+        int result = height[0];
+        return result;
+    }
 
     // TODO: Implement support for window icon when GLFW supports it.
     /*
@@ -546,8 +589,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         }
         return out;
     }
-    
-    
+
     private ByteBuffer imageToByteBuffer(BufferedImage image) {
         if (image.getType() != BufferedImage.TYPE_INT_ARGB_PRE) {
             BufferedImage convertedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);

@@ -2,8 +2,6 @@ package jme3test.terrain;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
-import com.jme3.asset.plugins.HttpZipLocator;
-import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
@@ -28,17 +26,14 @@ import com.jme3.terrain.geomipmap.grid.AssetTileLoader;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import java.io.File;
 
 public class TerrainGridTileLoaderTest extends SimpleApplication {
 
-    private Material mat_terrain;
     private TerrainGrid terrain;
-    private float grassScale = 64;
-    private float dirtScale = 16;
-    private float rockScale = 128;
-    private boolean usePhysics = true;
-    private boolean physicsAdded = false;
+    final private float grassScale = 64;
+    final private float dirtScale = 16;
+    final private float rockScale = 128;
+    final private boolean usePhysics = true;
 
     public static void main(final String[] args) {
         TerrainGridTileLoaderTest app = new TerrainGridTileLoaderTest();
@@ -48,22 +43,21 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        File file = new File("TerrainGridTestData.zip");
-        if (!file.exists()) {
-            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/TerrainGridTestData.zip", HttpZipLocator.class);
-        } else {
-            assetManager.registerLocator("TerrainGridTestData.zip", ZipLocator.class);
-        }
-
+        /*
+         * Note: this test uses the "TerrainGrid" assets (from jme3-testdata),
+         * _not_ the "TerrainGridTestData.zip" assets
+         * (from jme3-examples and the Google Code archives).
+         */
         this.flyCam.setMoveSpeed(100f);
         ScreenshotAppState state = new ScreenshotAppState();
         this.stateManager.attach(state);
 
         // TERRAIN TEXTURE material
-        this.mat_terrain = new Material(this.assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
+        Material mat_terrain = new Material(assetManager,
+                "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
 
         // Parameters to material:
-        // regionXColorMap: X = 1..4 the texture that should be appliad to state X
+        // regionXColorMap: X = 1..4 the texture that should be applied to state X
         // regionX: a Vector3f containing the following information:
         //      regionX.x: the start height of the region
         //      regionX.y: the end height of the region
@@ -75,33 +69,33 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
         // GRASS texture
         Texture grass = this.assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
-        this.mat_terrain.setTexture("region1ColorMap", grass);
-        this.mat_terrain.setVector3("region1", new Vector3f(88, 200, this.grassScale));
+        mat_terrain.setTexture("region1ColorMap", grass);
+        mat_terrain.setVector3("region1", new Vector3f(88, 200, this.grassScale));
 
         // DIRT texture
         Texture dirt = this.assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
-        this.mat_terrain.setTexture("region2ColorMap", dirt);
-        this.mat_terrain.setVector3("region2", new Vector3f(0, 90, this.dirtScale));
+        mat_terrain.setTexture("region2ColorMap", dirt);
+        mat_terrain.setVector3("region2", new Vector3f(0, 90, this.dirtScale));
 
         // ROCK texture
         Texture rock = this.assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
         rock.setWrap(WrapMode.Repeat);
-        this.mat_terrain.setTexture("region3ColorMap", rock);
-        this.mat_terrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
+        mat_terrain.setTexture("region3ColorMap", rock);
+        mat_terrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));
 
-        this.mat_terrain.setTexture("region4ColorMap", rock);
-        this.mat_terrain.setVector3("region4", new Vector3f(198, 260, this.rockScale));
+        mat_terrain.setTexture("region4ColorMap", rock);
+        mat_terrain.setVector3("region4", new Vector3f(198, 260, this.rockScale));
 
-        this.mat_terrain.setTexture("slopeColorMap", rock);
-        this.mat_terrain.setFloat("slopeTileFactor", 32);
+        mat_terrain.setTexture("slopeColorMap", rock);
+        mat_terrain.setFloat("slopeTileFactor", 32);
 
-        this.mat_terrain.setFloat("terrainSize", 129);
+        mat_terrain.setFloat("terrainSize", 129);
 //quad.getHeightMap(), terrain.getLocalScale()), 0
         AssetTileLoader grid = new AssetTileLoader(assetManager, "testgrid", "TerrainGrid");
         this.terrain = new TerrainGrid("terrain", 65, 257, grid);
 
-        this.terrain.setMaterial(this.mat_terrain);
+        this.terrain.setMaterial(mat_terrain);
         this.terrain.setLocalTranslation(0, 0, 0);
         this.terrain.setLocalScale(2f, 1f, 2f);
 //        try {
@@ -120,7 +114,7 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
         final BulletAppState bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 
-        this.getCamera().setLocation(new Vector3f(0, 256, 0));
+        cam.setLocation(new Vector3f(257f, 256f, -514f));
         cam.setRotation(new Quaternion(-0.0075f, 0.949784f, -0.312f, -0.0227f));
 
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));

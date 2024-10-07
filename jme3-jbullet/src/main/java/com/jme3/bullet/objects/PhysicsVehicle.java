@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import java.util.ArrayList;
  * vehicle model as provided in btRaycastVehicle. Instead of simulation each wheel
  * and chassis as separate rigid bodies, connected by constraints, it uses a simplified model.
  * This simplified model has many benefits, and is widely used in commercial driving games.<br>
- * The entire vehicle is represented as a single rigidbody, the chassis.
+ * The entire vehicle is represented as a single rigid body, the chassis.
  * The collision detection of the wheels is approximated by ray casts,
  * and the tire friction is a basic anisotropic friction model.
  * </p>
@@ -64,7 +64,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     protected RaycastVehicle vehicle;
     protected VehicleTuning tuning;
     protected VehicleRaycaster rayCaster;
-    protected ArrayList<VehicleWheel> wheels = new ArrayList<VehicleWheel>();
+    protected ArrayList<VehicleWheel> wheels = new ArrayList<>();
     protected PhysicsSpace physicsSpace;
 
     protected PhysicsVehicle() {
@@ -115,7 +115,9 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * Used internally, creates the actual vehicle constraint when vehicle is added to phyicsspace
+     * Used internally, creates the actual vehicle constraint when vehicle is added to physics space
+     * 
+     * @param space the PhysicsSpace to use (alias created) or null for none
      */
     public void createVehicle(PhysicsSpace space) {
         physicsSpace = space;
@@ -180,7 +182,8 @@ public class PhysicsVehicle extends PhysicsRigidBody {
 
     /**
      * This rebuilds the vehicle as there is no way in bullet to remove a wheel.
-     * @param wheel
+     *
+     * @param wheel the index of the wheel to remove (&ge;0, &lt;count)
      */
     public void removeWheel(int wheel) {
         wheels.remove(wheel);
@@ -211,8 +214,8 @@ public class PhysicsVehicle extends PhysicsRigidBody {
      * Use before adding wheels, this is the default used when adding wheels.
      * After adding the wheel, use direct wheel access.<br>
      * The coefficient of friction between the tyre and the ground.
-     * Should be about 0.8 for realistic cars, but can increased for better handling.
-     * Set large (10000.0) for kart racers
+     * Should be about 0.8 for realistic cars, but can be increased for better handling.
+     * Set large (10000.0) for kart racers.
      * @param frictionSlip the frictionSlip to set
      */
     public void setFrictionSlip(float frictionSlip) {
@@ -221,10 +224,12 @@ public class PhysicsVehicle extends PhysicsRigidBody {
 
     /**
      * The coefficient of friction between the tyre and the ground.
-     * Should be about 0.8 for realistic cars, but can increased for better handling.
-     * Set large (10000.0) for kart racers
-     * @param wheel
-     * @param frictionSlip
+     * Should be about 0.8 for realistic cars, but can be increased for better handling.
+     * Set large (10000.0) for kart racers.
+     *
+     * @param wheel the index of the wheel to modify (&ge;0, &lt;count)
+     * @param frictionSlip the desired coefficient of friction between tyre and
+     * ground (0.8&rarr;realistic car, 10000&rarr;kart racer, default=10.5)
      */
     public void setFrictionSlip(int wheel, float frictionSlip) {
         wheels.get(wheel).setFrictionSlip(frictionSlip);
@@ -235,6 +240,10 @@ public class PhysicsVehicle extends PhysicsRigidBody {
      * This is a bit of a hack, but it's quite effective. 0.0 = no roll, 1.0 = physical behaviour.
      * If m_frictionSlip is too high, you'll need to reduce this to stop the vehicle rolling over.
      * You should also try lowering the vehicle's centre of mass
+     *
+     * @param wheel the index of the wheel to modify (&ge;0, &lt;count)
+     * @param rollInfluence the desired roll-influence factor (0&rarr;no roll
+     * torque, 1&rarr;realistic behavior, default=1)
      */
     public void setRollInfluence(int wheel, float rollInfluence) {
         wheels.get(wheel).setRollInfluence(rollInfluence);
@@ -259,8 +268,11 @@ public class PhysicsVehicle extends PhysicsRigidBody {
 
     /**
      * The maximum distance the suspension can be compressed (centimetres)
-     * @param wheel
-     * @param maxSuspensionTravelCm
+     *
+     * @param wheel the index of the wheel to modify (&ge;0, &lt;count)
+     * @param maxSuspensionTravelCm the desired maximum amount a suspension can
+     * be compressed or expanded, relative to its rest length (in hundredths of
+     * a physics-space unit, default=500)
      */
     public void setMaxSuspensionTravelCm(int wheel, float maxSuspensionTravelCm) {
         wheels.get(wheel).setMaxSuspensionTravelCm(maxSuspensionTravelCm);
@@ -273,7 +285,9 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     /**
      * This value caps the maximum suspension force, raise this above the default 6000 if your suspension cannot
      * handle the weight of your vehicle.
-     * @param maxSuspensionForce
+     *
+     * @param maxSuspensionForce the desired maximum force per wheel
+     * (default=6000)
      */
     public void setMaxSuspensionForce(float maxSuspensionForce) {
         tuning.maxSuspensionForce = maxSuspensionForce;
@@ -282,8 +296,10 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     /**
      * This value caps the maximum suspension force, raise this above the default 6000 if your suspension cannot
      * handle the weight of your vehicle.
-     * @param wheel
-     * @param maxSuspensionForce
+     *
+     * @param wheel the index of the wheel to modify (&ge;0, &lt;count)
+     * @param maxSuspensionForce the desired maximum force per wheel
+     * (default=6000)
      */
     public void setMaxSuspensionForce(int wheel, float maxSuspensionForce) {
         wheels.get(wheel).setMaxSuspensionForce(maxSuspensionForce);
@@ -314,8 +330,10 @@ public class PhysicsVehicle extends PhysicsRigidBody {
      * Set to k * 2.0 * FastMath.sqrt(m_suspensionStiffness) so k is proportional to critical damping.<br>
      * k = 0.0 undamped/bouncy, k = 1.0 critical damping<br>
      * 0.1 to 0.3 are good values
-     * @param wheel
-     * @param suspensionCompression
+     *
+     * @param wheel the index of the wheel to modify (&ge;0, &lt;count)
+     * @param suspensionCompression the desired damping coefficient
+     * (default=4.4)
      */
     public void setSuspensionCompression(int wheel, float suspensionCompression) {
         wheels.get(wheel).setWheelsDampingCompression(suspensionCompression);
@@ -342,8 +360,9 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     /**
      * The damping coefficient for when the suspension is expanding.
      * See the comments for setSuspensionCompression for how to set k.
-     * @param wheel
-     * @param suspensionDamping
+     *
+     * @param wheel the index of the wheel to modify (&ge;0, &lt;count)
+     * @param suspensionDamping the desired damping coefficient (default=2.3)
      */
     public void setSuspensionDamping(int wheel, float suspensionDamping) {
         wheels.get(wheel).setWheelsDampingRelaxation(suspensionDamping);
@@ -359,17 +378,23 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     /**
      * Use before adding wheels, this is the default used when adding wheels.
      * After adding the wheel, use direct wheel access.<br>
-     * The stiffness constant for the suspension.  10.0 - Offroad buggy, 50.0 - Sports car, 200.0 - F1 Car
-     * @param suspensionStiffness 
+     * The stiffness constant for the suspension.  10.0 - Off-road buggy, 50.0 - Sports car, 200.0 - F1 Car
+     *
+     * @param suspensionStiffness the desired stiffness coefficient
+     * (10&rarr;off-road buggy, 50&rarr;sports car, 200&rarr;Formula-1 race car,
+     * default=5.88)
      */
     public void setSuspensionStiffness(float suspensionStiffness) {
         tuning.suspensionStiffness = suspensionStiffness;
     }
 
     /**
-     * The stiffness constant for the suspension.  10.0 - Offroad buggy, 50.0 - Sports car, 200.0 - F1 Car
-     * @param wheel
-     * @param suspensionStiffness
+     * The stiffness constant for the suspension.  10.0 - Off-road buggy, 50.0 - Sports car, 200.0 - F1 Car
+     *
+     * @param wheel the index of the wheel to modify (&ge;0, &lt;count)
+     * @param suspensionStiffness the desired stiffness coefficient
+     * (10&rarr;off-road buggy, 50&rarr;sports car, 200&rarr;Formula-1 race car,
+     * default=5.88)
      */
     public void setSuspensionStiffness(int wheel, float suspensionStiffness) {
         wheels.get(wheel).setSuspensionStiffness(suspensionStiffness);
@@ -466,6 +491,8 @@ public class PhysicsVehicle extends PhysicsRigidBody {
 
     /**
      * used internally
+     * 
+     * @return the pre-existing instance
      */
     public RaycastVehicle getVehicleId() {
         return vehicle;

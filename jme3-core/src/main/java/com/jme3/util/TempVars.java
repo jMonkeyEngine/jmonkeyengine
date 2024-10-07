@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import java.util.ArrayList;
  * these temp variables with TempVars.get(), all retrieved TempVars
  * instances must be returned via TempVars.release().
  * This returns an available instance of the TempVar class ensuring this 
- * particular instance is never used elsewhere in the mean time.
+ * particular instance is never used elsewhere in the meantime.
  */
 public class TempVars {
 
@@ -225,5 +225,5 @@ public class TempVars {
      */
     public final CollisionResults collisionResults = new CollisionResults();
     public final float[] bihSwapTmp = new float[9];
-    public final ArrayList<BIHStackData> bihStack = new ArrayList<BIHStackData>();
+    public final ArrayList<BIHStackData> bihStack = new ArrayList<>();
 }

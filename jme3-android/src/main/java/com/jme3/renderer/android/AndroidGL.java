@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@ import java.nio.ShortBuffer;
 public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     IntBuffer tmpBuff = BufferUtils.createIntBuffer(1);
+    IntBuffer tmpBuff16 = BufferUtils.createIntBuffer(16);
 
     @Override
     public void resetStats() {
@@ -138,8 +139,8 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
-    public void glBufferData(int target, long data_size, int usage) {
-        GLES20.glBufferData(target, (int) data_size, null, usage);
+    public void glBufferData(int target, long dataSize, int usage) {
+        GLES20.glBufferData(target, (int) dataSize, null, usage);
     }
 
     @Override
@@ -315,6 +316,12 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     @Override
     public int glGetError() {
         return GLES20.glGetError();
+    }
+
+    @Override
+    public void glGetFloat(int parameterId, FloatBuffer storeValues) {
+        checkLimit(storeValues);
+        GLES20.glGetFloatv(parameterId, storeValues);
     }
 
     @Override
@@ -559,8 +566,8 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
-    public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount) {
-        GLES30.glDrawElementsInstanced(mode, indices_count, type, (int)indices_buffer_offset, primcount);
+    public void glDrawElementsInstancedARB(int mode, int indicesCount, int type, long indicesBufferOffset, int primcount) {
+        GLES30.glDrawElementsInstanced(mode, indicesCount, type, (int)indicesBufferOffset, primcount);
     }
 
     @Override
@@ -574,8 +581,8 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
-    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations) {
-        GLES31.glTexStorage2DMultisample(target, samples, internalformat, width, height, fixedsamplelocations);
+    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedSampleLocations) {
+        GLES31.glTexStorage2DMultisample(target, samples, internalformat, width, height, fixedSampleLocations);
     }
 
     @Override
@@ -688,10 +695,17 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     // Wrapper to DrawBuffers as there's no DrawBuffer method in GLES
     @Override
     public void glDrawBuffer(int mode) {
-        tmpBuff.clear();
-        tmpBuff.put(0, mode);
-        tmpBuff.rewind();
-        glDrawBuffers(tmpBuff);
+        int nBuffers = (mode - GLFbo.GL_COLOR_ATTACHMENT0_EXT) + 1;
+        if (nBuffers <= 0 || nBuffers > 16) {
+            throw new IllegalArgumentException("Draw buffer outside range: " + Integer.toHexString(mode));
+        }
+        tmpBuff16.clear();
+        for (int i = 0; i < nBuffers - 1; i++) {
+            tmpBuff16.put(GL.GL_NONE);
+        }
+        tmpBuff16.put(mode);
+        tmpBuff16.flip();
+        glDrawBuffers(tmpBuff16);
     }
 
     @Override
@@ -721,6 +735,22 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     public void glTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height,
                                     int depth, int format, int type, ByteBuffer data) {
         GLES30.glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
+    }
+
+    @Override
+    public void glBindVertexArray(int array) {
+        GLES30.glBindVertexArray(array);
+    }
+
+    @Override
+    public void glDeleteVertexArrays(IntBuffer arrays) {
+       GLES30.glDeleteVertexArrays(arrays.limit(),arrays);
+    }
+
+    @Override
+    public void glGenVertexArrays(IntBuffer arrays) {
+        GLES30.glGenVertexArrays(arrays.limit(),arrays);
+
     }
 
 }

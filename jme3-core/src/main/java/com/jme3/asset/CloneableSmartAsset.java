@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,16 +62,17 @@ public interface CloneableSmartAsset extends Cloneable {
      * @return A clone of this asset. 
      * The cloned asset cannot reference equal this asset.
      */
-    public Object clone();
+    public CloneableSmartAsset clone();
     
     /**
-     * Set by the {@link AssetManager} to track this asset. 
+     * Assigns the specified AssetKey to the asset.
      * 
-     * Only clones of the asset has this set, the original copy that
-     * was loaded has this key set to null so that only the clones are tracked
-     * for garbage collection. 
+     * This is invoked by the {@link AssetManager}.
+     * Only clones of the asset have non-null keys. The original copy that
+     * was loaded has no key assigned. Only the clones are tracked
+     * for garbage collection.
      * 
-     * @param key The AssetKey to set
+     * @param key The AssetKey to assign
      */
     public void setKey(AssetKey key);
     

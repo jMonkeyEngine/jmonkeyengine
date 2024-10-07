@@ -3,6 +3,9 @@ package com.jme3.util;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
+/**
+ * Interface to create/destroy direct buffers.
+ */
 public interface BufferAllocator {
     /**
      * De-allocate a direct buffer.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ package com.jme3.input;
 
 /**
  * Represents a joystick axis based on an external sensor
- * (ie. Android Device Orientation sensors)
+ * (i.e. Android Device Orientation sensors)
  * Sensor joystick axes can be calibrated to 
  * set the zero position dynamically
  * 
@@ -47,7 +47,7 @@ public interface SensorJoystickAxis {
 
     /**
      * Calibrates the axis to the current value.  Future axis values will be
-     * sent as a delta from the calibratation value.
+     * sent as a delta from the calibration value.
      */
     public void calibrateCenter();
     

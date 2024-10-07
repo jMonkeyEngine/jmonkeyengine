@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ public class FbxLayerElement {
     public enum Type {
         Position,      // Vector3f (isn't actually defined in FBX)
         BoneIndex,     // List<Integer> (isn't actually defined in FBX)
-        BoneWeight,    // List<Float> isn't actually defined in FBX)
+        BoneWeight,    // List<Float> (isn't actually defined in FBX)
         Normal,        // Vector3f
         Binormal,      // Vector3f
         Tangent,       // Vector3f
@@ -196,7 +196,7 @@ public class FbxLayerElement {
                 layerElement.name = (String) child.properties.get(0);
             }
         }
-        if (layerElement.data == null) {
+        if (layerElement.data == null && layerElement.dataIndices != null) {
             // For Smoothing / Materials, data = dataIndices
             layerElement.refInfoType = ReferenceInformationType.Direct;
             layerElement.data = new Integer[layerElement.dataIndices.length];

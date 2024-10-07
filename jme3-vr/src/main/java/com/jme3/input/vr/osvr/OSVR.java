@@ -2,9 +2,9 @@
 
 https://github.com/sensics/OSVR-RenderManager/blob/master/examples/RenderManagerOpenGLCAPIExample.cpp
 
-- JVM crashes often.. placing breakpoints during initialization clears it up most of the time (WHY!?)
-  - OSVR is just unstable.. any way to improve things?
-- render manager looks good, but left eye seems stretched
+- JVM crashes often. Placing breakpoints during initialization clears it up most of the time (WHY!?)
+  - OSVR is just unstable. Any way to improve things?
+- Render manager looks good, but left eye seems stretched.
 
  */
 package com.jme3.input.vr.osvr;
@@ -36,65 +36,64 @@ import java.nio.FloatBuffer;
 import java.util.logging.Logger;
 
 /**
- * A class that wraps an <a href="http://www.osvr.org/">OSVR</a> system. 
+ * A class that wraps an <a href="http://www.osvr.org/">OSVR</a> system.
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class OSVR implements VRAPI {
+    private static final Logger logger = Logger.getLogger(OSVR.class.getName());
 
-	private static final Logger logger = Logger.getLogger(OSVR.class.getName());
-	
-	/**
-	 * The first viewer index.
-	 */
+    /**
+     * The first viewer index.
+     */
     public static final int FIRST_VIEWER = 0;
-    
+
     /**
      * The left eye index.
      */
     public static final int EYE_LEFT = 0;
-    
+
     /**
      * The right eye index.
      */
     public static final int EYE_RIGHT = 1;
-    
+
     /**
      * The size of the left eye.
      */
     public static final NativeSize EYE_LEFT_SIZE = new NativeSize(EYE_LEFT);
-    
+
     /**
      * The size of the right eye.
      */
     public static final NativeSize EYE_RIGHT_SIZE = new NativeSize(EYE_RIGHT);
-    
+
     /**
      * The default J String.
      */
     public static byte[] defaultJString = { 'j', (byte)0 };
-    
+
     /**
      * The default OpenGL String.
      */
     public static byte[] OpenGLString = { 'O', 'p', 'e', 'n', 'G', 'L', (byte)0 };
-    
+
     private final Matrix4f[] eyeMatrix = new Matrix4f[2];
-    
+
     private PointerByReference grabRM;
     private PointerByReference grabRMOGL;
     private PointerByReference grabRIC;
-    
+
     OSVR_RenderParams.ByValue renderParams;
     OsvrClientKitLibrary.OSVR_ClientContext context;
     com.jme3.system.osvr.osvrrendermanageropengl.OSVR_GraphicsLibraryOpenGL.ByValue graphicsLibrary;
     Pointer renderManager, renderManagerOpenGL, renderInfoCollection, registerBufferState;
     OSVRInput VRinput;
     NativeSize numRenderInfo;
-    NativeSizeByReference grabNumInfo = new NativeSizeByReference();    
+    NativeSizeByReference grabNumInfo = new NativeSizeByReference();
     OSVR_RenderInfoOpenGL.ByValue eyeLeftInfo, eyeRightInfo;
     Matrix4f hmdPoseLeftEye;
-    Matrix4f hmdPoseRightEye;    
+    Matrix4f hmdPoseRightEye;
     Vector3f hmdPoseLeftEyeVec, hmdPoseRightEyeVec, hmdSeatToStand;
     OSVR_DisplayConfig displayConfig;
     OSVR_Pose3 hmdPose = new OSVR_Pose3();
@@ -102,25 +101,25 @@ public class OSVR implements VRAPI {
     Quaternion storeRot = new Quaternion();
     PointerByReference presentState = new PointerByReference();
     OSVR_OpenResultsOpenGL openResults = new OSVR_OpenResultsOpenGL();
-    
+
     long glfwContext;
     long renderManagerContext;
     long wglGLFW;
     long wglRM;
-    
+
     boolean initSuccess = false;
     boolean flipEyes = false;
-    
+
     private VREnvironment environment = null;
-    
+
     /**
      * Create a new <a href="http://www.osvr.org/">OSVR</a> system attached to the given {@link VREnvironment VR environment}.
      * @param environment the {@link VREnvironment VR environment} to which the input is attached.
      */
     public OSVR(VREnvironment environment){
-    	this.environment = environment;
+        this.environment = environment;
     }
-    
+
     /**
      * Access to the underlying OSVR structures.
      * @param leftView the left viewport.
@@ -140,14 +139,11 @@ public class OSVR implements VRAPI {
         retval = OsvrRenderManagerOpenGLLibrary.osvrRenderManagerFinishPresentRenderBuffers(renderManager, presentState.getValue(), renderParams, (byte)0);
         return retval == 0; // only check the last error, since if something errored above, the last call won't work & all calls will log to syserr
     }
-    
 
-     
     @Override
     public boolean initialize() {
-    	
-    	logger.config("Initialize OSVR system.");
-    	
+        logger.config("Initialize OSVR system.");
+
         hmdPose.setAutoSynch(false);
         context = OsvrClientKitLibrary.osvrClientInit(defaultJString, 0);
         VRinput = new OSVRInput(environment);
@@ -183,11 +179,11 @@ public class OSVR implements VRAPI {
      * Grab the current GLFW context.
      */
     public void grabGLFWContext() {
-        // get current conext
+        // get current context
         wglGLFW = org.lwjgl.opengl.WGL.wglGetCurrentContext();
         glfwContext = org.lwjgl.glfw.GLFW.glfwGetCurrentContext();
     }
-    
+
     /**
      * Enable context sharing.
      * @return <code>true</code> if the context is successfully shared and <code>false</code> otherwise.
@@ -199,9 +195,9 @@ public class OSVR implements VRAPI {
         } else {
             System.out.println("Context sharing problem...");
             return false;
-        }        
+        }
     }
-    
+
     @Override
     public boolean initVRCompositor(boolean allowed) {
         if( !allowed || renderManager != null ) return false;
@@ -231,7 +227,7 @@ public class OSVR implements VRAPI {
                 retval = OsvrRenderManagerOpenGLLibrary.osvrRenderManagerGetRenderInfoCollection(renderManager, renderParams, grabRIC);
                 if( retval == 0 ) {
                     renderInfoCollection = grabRIC.getValue();
-                    OsvrRenderManagerOpenGLLibrary.osvrRenderManagerGetNumRenderInfoInCollection(renderInfoCollection, grabNumInfo);  
+                    OsvrRenderManagerOpenGLLibrary.osvrRenderManagerGetNumRenderInfoInCollection(renderInfoCollection, grabNumInfo);
                     numRenderInfo = grabNumInfo.getValue();
                     eyeLeftInfo = new OSVR_RenderInfoOpenGL.ByValue();
                     eyeRightInfo = new OSVR_RenderInfoOpenGL.ByValue();
@@ -242,7 +238,7 @@ public class OSVR implements VRAPI {
                 OsvrRenderManagerOpenGLLibrary.osvrDestroyRenderManager(renderManager);
                 System.out.println("OSVR Render Manager Info Collection Error: " + retval);
                 return false;
-            }                
+            }
             OsvrRenderManagerOpenGLLibrary.osvrDestroyRenderManager(renderManager);
             System.out.println("OSVR Open Render Manager Display Error: " + retval);
             return false;
@@ -278,7 +274,6 @@ public class OSVR implements VRAPI {
 
     @Override
     public void printLatencyInfoToConsole(boolean set) {
-        
     }
 
     @Override
@@ -306,13 +301,13 @@ public class OSVR implements VRAPI {
     @Override
     public void getRenderSize(Vector2f store) {
         if( eyeLeftInfo == null || eyeLeftInfo.viewport.width == 0.0 ) {
-            store.x = 1280f; store.y = 720f;            
+            store.x = 1280f; store.y = 720f;
         } else {
             store.x = (float)eyeLeftInfo.viewport.width;
             store.y = (float)eyeLeftInfo.viewport.height;
         }
     }
-    
+
     /**
      * Read and update the eye info from the underlying OSVR system.
      */
@@ -456,7 +451,7 @@ public class OSVR implements VRAPI {
         }*/
         return null;
     }
-    
+
     @Override
     public HmdType getType() {
         return HmdType.OSVR;

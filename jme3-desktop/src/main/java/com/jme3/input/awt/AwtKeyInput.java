@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,10 +54,10 @@ public class AwtKeyInput implements KeyInput, KeyListener {
 
     private static final Logger logger = Logger.getLogger(AwtKeyInput.class.getName());
     
-    private final ArrayList<KeyInputEvent> eventQueue = new ArrayList<KeyInputEvent>();
+    private final List<KeyInputEvent> eventQueue = new ArrayList<>();
     private RawInputListener listener;
     private Component component;
-    private BitSet keyStateSet = new BitSet(0xFF);
+    private final BitSet keyStateSet = new BitSet(0xFF);
     
     public AwtKeyInput(){
     }
@@ -610,7 +611,7 @@ public class AwtKeyInput implements KeyInput, KeyListener {
             case KeyEvent.VK_ALT:
                 return KEY_LMENU; //Left vs. Right need to improve
             case KeyEvent.VK_META:
-            	return KEY_RCONTROL;
+                return KEY_RCONTROL;
             case KeyEvent.VK_PRINTSCREEN:
                 return KEY_PRTSCR;
 
@@ -621,6 +622,11 @@ public class AwtKeyInput implements KeyInput, KeyListener {
         }
 
         return 0;
+    }
+
+    @Override
+    public String getKeyName(int key){
+        throw new UnsupportedOperationException("getKeyName not implemented for awt input");
     }
 
 }

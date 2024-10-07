@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,16 +39,16 @@ import java.util.logging.Logger;
 
 /**
  *  The base service manager class from which the HostedServiceManager
- *  and ClientServiceManager classes are derived.  This manages the
+ *  and ClientServiceManager classes are derived.  This manages
  *  the underlying services and their life cycles.
  *
  *  @author    Paul Speed
  */
 public abstract class ServiceManager<T> {
 
-    static final Logger log = Logger.getLogger(ServiceManager.class.getName());
+    private static final Logger log = Logger.getLogger(ServiceManager.class.getName());
     
-    private final List<Service<T>> services = new CopyOnWriteArrayList<Service<T>>();
+    private final List<Service<T>> services = new CopyOnWriteArrayList<>();
     private volatile boolean started = false;
     
     protected ServiceManager() {
@@ -157,7 +157,7 @@ public abstract class ServiceManager<T> {
  
     /**
      *  Terminates all services.  If the service manager has not been
-     *  stopped yet then it will be stopped.
+     *  stopped yet, then it will be stopped.
      */
     public void terminate() {
         if( started ) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,11 @@ public interface GLExt {
 
     public static final int GL_ALREADY_SIGNALED = 0x911A;
     public static final int GL_COMPRESSED_RGB8_ETC2 = 0x9274;
+    public static final int GL_COMPRESSED_SRGB8_ETC2 = 0x9275;
+    public static final int GL_COMPRESSED_RGBA8_ETC2_EAC = 0x9278;
+    public static final int GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC = 0x9279;
+    public static final int GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9276;
+    public static final int GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9277;
     public static final int GL_COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1;
     public static final int GL_COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2;
     public static final int GL_COMPRESSED_RGBA_S3TC_DXT5_EXT = 0x83F3;
@@ -101,25 +106,46 @@ public interface GLExt {
     public static final int GL_UNSIGNED_INT_24_8_EXT = 0x84FA;
     public static final int GL_UNSIGNED_INT_5_9_9_9_REV_EXT = 0x8C3E;
     public static final int GL_WAIT_FAILED = 0x911D;
+    
+    // OpenGL 4.2 texture compression, we now check these through the extension
+    public static final int GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT = 0x8E8E;
+    public static final int GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT = 0x8E8F;
+    public static final int GL_COMPRESSED_RGBA_BPTC_UNORM = 0x8E8C;
+    public static final int GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM = 0x8E8D;
+
+    public static final int GL_DEBUG_SOURCE_API = 0x8246;
+    public static final int GL_DEBUG_SOURCE_WINDOW_SYSTEM = 0x8247;
+    public static final int GL_DEBUG_SOURCE_SHADER_COMPILER = 0x8248;
+    public static final int GL_DEBUG_SOURCE_THIRD_PARTY = 0x8249;
+    public static final int GL_DEBUG_SOURCE_APPLICATION = 0x824A;
+    public static final int GL_DEBUG_SOURCE_OTHER = 0x824B;
+
+    public static final int GL_BUFFER = 0x82E0;
+    public static final int GL_SHADER = 0x82E1;
+    public static final int GL_PROGRAM = 0x82E2;
+    public static final int GL_QUERY = 0x82E3;
+    public static final int GL_PROGRAM_PIPELINE = 0x82E4;
+    public static final int GL_SAMPLER = 0x82E6;
+    public static final int GL_DISPLAY_LIST = 0x82E7;
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
-     * <p>
+     *
      * Creates and initializes a buffer object's data store.
-     * <p>
+     *
      * <p>{@code usage} is a hint to the GL implementation as to how a buffer object's data store will be accessed. This enables the GL implementation to make
      * more intelligent decisions that may significantly impact buffer object performance. It does not, however, constrain the actual usage of the data store.
      * {@code usage} can be broken down into two parts: first, the frequency of access (modification and usage), and second, the nature of that access. The
      * frequency of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>STREAM</em> - The data store contents will be modified once and used at most a few times.</li>
      * <li><em>STATIC</em> - The data store contents will be modified once and used many times.</li>
      * <li><em>DYNAMIC</em> - The data store contents will be modified repeatedly and used many times.</li>
      * </ul>
-     * <p>
+     *
      * <p>The nature of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>DRAW</em> - The data store contents are modified by the application, and used as the source for GL drawing and image specification commands.</li>
      * <li><em>READ</em> - The data store contents are modified by reading data from the GL, and used to return that data when queried by the application.</li>
@@ -196,6 +222,7 @@ public interface GLExt {
      *
      * @param condition the condition that must be met to set the sync object's state to signaled.
      * @param flags     a bitwise combination of flags controlling the behavior of the sync object. No flags are presently defined for this operation and {@code flags} must be zero.
+     * @return          a new instance
      */
     public Object glFenceSync(int condition, int flags);
 
@@ -232,4 +259,13 @@ public interface GLExt {
      * @param divisor the divisor value.
      */
     public void glVertexAttribDivisorARB(int index, int divisor);
+
+    public default void glPushDebugGroup(int source, int id, String message) {
+    }
+
+    public default void glPopDebugGroup() {
+    }
+
+    public default void glObjectLabel(int identifier, int id, String label){
+    }
 }

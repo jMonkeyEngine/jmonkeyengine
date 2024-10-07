@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,10 +47,10 @@ class Letters {
     private final LetterQuad tail;
     private final BitmapFont font;
     private LetterQuad current;
-    private StringBlock block;
+    private final StringBlock block;
     private float totalWidth;
     private float totalHeight;
-    private ColorTags colorTags = new ColorTags();
+    private final ColorTags colorTags = new ColorTags();
     private ColorRGBA baseColor = null;
     private float baseAlpha = -1;
     private String plainText;
@@ -73,12 +73,17 @@ class Letters {
         current = head;
         if (text != null && plainText.length() > 0) {
             LetterQuad l = head;
-            for (int i = 0; i < plainText.length(); i++) {
-                l = l.addNextCharacter(plainText.charAt(i));
+            CharSequence characters = plainText;
+            if (font.getGlyphParser() != null) {
+                characters = font.getGlyphParser().parse(plainText);
+            }
+
+            for (int i = 0; i < characters.length(); i++) {
+                l = l.addNextCharacter(characters.charAt(i));
                 if (baseColor != null) {
                     // Give the letter a default color if
                     // one has been provided.
-                    l.setColor( baseColor );
+                    l.setColor(baseColor);
                 }
             }
         }
@@ -114,7 +119,7 @@ class Letters {
         while (!l.isTail()) {
             if (l.isInvalid()) {
                 l.update(block);
-
+                // Without a text block, the next line always returns false = no text wrap will be applied.
                 if (l.isInvalid(block)) {
                     switch (block.getLineWrapMode()) {
                     case Character:
@@ -164,7 +169,8 @@ class Letters {
                         l.clip(block);
 
                         // Clear the rest up to the next line feed.
-                        for( LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext() ) {
+                        // = for texts attached to a text block, all coming characters are cleared except a linefeed is explicitly used
+                        for (LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext()) {
                             q.setBitmapChar(null);
                             q.update(block);
                         }
@@ -186,44 +192,80 @@ class Letters {
     }
 
     private void align() {
+        if (block.getTextBox() == null) {
+            // Without a text block, there is no alignment.
+            return;
+
+            // For unbounded left-to-right texts the letters will simply be shown starting from
+            // x0 = 0 and advance toward right as line length is considered to be infinite.
+            // For unbounded right-to-left texts the letters will be shown starting from x0 = 0
+            // (at the same position as left-to-right texts) but move toward the left from there.
+        }
+
         final Align alignment = block.getAlignment();
         final VAlign valignment = block.getVerticalAlignment();
-        if (block.getTextBox() == null || (alignment == Align.Left && valignment == VAlign.Top))
-            return;
-        LetterQuad cursor = tail.getPrevious();
-        cursor.setEndOfLine();
         final float width = block.getTextBox().width;
         final float height = block.getTextBox().height;
         float lineWidth = 0;
         float gapX = 0;
         float gapY = 0;
+
         validateSize();
         if (totalHeight < height) { // align vertically only for no overflow
             switch (valignment) {
-            case Top:
-                gapY = 0;
-                break;
-            case Center:
-                gapY = (height - totalHeight) * 0.5f;
-                break;
-            case Bottom:
-                gapY = height - totalHeight;
-                break;
+                case Top:
+                    gapY = 0;
+                    break;
+                case Center:
+                    gapY = (height - totalHeight) * 0.5f;
+                    break;
+                case Bottom:
+                    gapY = height - totalHeight;
+                    break;
             }
         }
-        while (!cursor.isHead()) {
-            if (cursor.isEndOfLine()) {
-                lineWidth = cursor.getX1()-block.getTextBox().x;
-                if (alignment == Align.Center) {
-                    gapX = (width-lineWidth)/2;
-                } else if (alignment == Align.Right) {
-                    gapX = width-lineWidth;
-                } else {
-                    gapX = 0;
-                }
+
+        if (font.isRightToLeft()) {
+            if ((alignment == Align.Right && valignment == VAlign.Top)) {
+                return;
             }
-            cursor.setAlignment(gapX, gapY);
-            cursor = cursor.getPrevious();
+            LetterQuad cursor = tail.getPrevious();
+            // Temporary set the flag, it will be reset when invalidated.
+            cursor.setEndOfLine();
+            while (!cursor.isHead()) {
+                if (cursor.isEndOfLine()) {
+                    if (alignment == Align.Left) {
+                        gapX = block.getTextBox().x - cursor.getX0();
+                    } else if (alignment == Align.Center) {
+                        gapX = (block.getTextBox().x - cursor.getX0()) / 2;
+                    } else {
+                        gapX = 0;
+                    }
+                }
+                cursor.setAlignment(gapX, gapY);
+                cursor = cursor.getPrevious();
+            }
+        } else { // left-to-right
+            if (alignment == Align.Left && valignment == VAlign.Top) {
+                return;
+            }
+            LetterQuad cursor = tail.getPrevious();
+            // Temporary set the flag, it will be reset when invalidated.
+            cursor.setEndOfLine();
+            while (!cursor.isHead()) {
+                if (cursor.isEndOfLine()) {
+                    lineWidth = cursor.getX1() - block.getTextBox().x;
+                    if (alignment == Align.Center) {
+                        gapX = (width - lineWidth) / 2;
+                    } else if (alignment == Align.Right) {
+                        gapX = width - lineWidth;
+                    } else {
+                        gapX = 0;
+                    }
+                }
+                cursor.setAlignment(gapX, gapY);
+                cursor = cursor.getPrevious();
+            }
         }
     }
 
@@ -232,7 +274,7 @@ class Letters {
             return;
         l.getPrevious().setEndOfLine();
         l.invalidate();
-        l.update(block); // TODO: update from l
+        l.update(block);
     }
 
     float getCharacterX0() {
@@ -319,10 +361,15 @@ class Letters {
     }
 
     void validateSize() {
+        // also called from BitMaptext.getLineWidth() via getTotalWidth()
         if (totalWidth < 0) {
             LetterQuad l = head;
             while (!l.isTail()) {
-                totalWidth = Math.max(totalWidth, l.getX1());
+                if (font.isRightToLeft()) {
+                    totalWidth = Math.max(totalWidth, Math.abs(l.getX0()));
+                } else {
+                    totalWidth = Math.max(totalWidth, l.getX1());
+                }
                 l = l.getNext();
             }
         }
@@ -348,10 +395,10 @@ class Letters {
      * Sets the base color for all new letter quads and resets
      * the color of existing letter quads.
      */
-    void setColor( ColorRGBA color ) {
+    void setColor(ColorRGBA color) {
         baseColor = color;
         colorTags.setBaseColor(color);
-        setColor( 0, block.getText().length(), color );
+        setColor(0, block.getText().length(), color);
     }
 
     ColorRGBA getBaseColor() {
@@ -377,7 +424,8 @@ class Letters {
         return baseAlpha;
     }
 
-    void setBaseAlpha( float alpha ) {        this.baseAlpha = alpha;
+    void setBaseAlpha(float alpha) {
+        this.baseAlpha = alpha;
         colorTags.setBaseAlpha(alpha);
 
         if (alpha == -1) {
@@ -391,8 +439,8 @@ class Letters {
             cursor = cursor.getNext();
         }
 
-        // If the alpha was reset to "default", ie: -1
-        // then the color tags are potentially reset and
+        // If the alpha was reset to "default" (-1),
+        // then the color tags are potentially reset, and
         // we need to reapply them.  This has to be done
         // second since it may override any alpha values
         // set above... but you still need to do the above

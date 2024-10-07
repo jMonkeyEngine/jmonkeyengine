@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
     private AndroidJoyInput joyInput;
     private SensorManager sensorManager = null;
     private WindowManager windowManager = null;
-    private IntMap<SensorData> sensors = new IntMap<SensorData>();
+    private IntMap<SensorData> sensors = new IntMap<>();
     private int lastRotation = 0;
     private boolean loaded = false;
 
@@ -96,7 +96,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
         int sensorAccuracy = -1;
         float[] lastValues;
         final Object valuesLock = new Object();
-        ArrayList<AndroidSensorJoystickAxis> axes = new ArrayList<AndroidSensorJoystickAxis>();
+        ArrayList<AndroidSensorJoystickAxis> axes = new ArrayList<>();
         boolean enabled = false;
         boolean haveData = false;
 
@@ -155,16 +155,20 @@ public class AndroidSensorJoyInput implements SensorEventListener {
         SensorData sensorData = sensors.get(sensorType);
         if (sensorData != null) {
             if (sensorData.enabled) {
-                logger.log(Level.FINE, "Sensor Already Active: SensorType: {0}, active: {1}",
-                        new Object[]{sensorType, sensorData.enabled});
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Sensor Already Active: SensorType: {0}, active: {1}",
+                            new Object[]{sensorType, sensorData.enabled});
+                }
                 return true;
             }
             sensorData.haveData = false;
             if (sensorData.sensor != null) {
                 if (sensorManager.registerListener(this, sensorData.sensor, sensorData.androidSensorSpeed)) {
                     sensorData.enabled = true;
-                    logger.log(Level.FINE, "SensorType: {0}, actived: {1}",
-                            new Object[]{sensorType, sensorData.enabled});
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "SensorType: {0}, enabled: {1}",
+                                new Object[]{sensorType, sensorData.enabled});
+                    }
                     return true;
                 } else {
                     sensorData.enabled = false;
@@ -183,8 +187,10 @@ public class AndroidSensorJoyInput implements SensorEventListener {
             }
             sensorData.enabled = false;
             sensorData.haveData = false;
-            logger.log(Level.FINE, "SensorType: {0} deactivated, active: {1}",
-                    new Object[]{sensorType, sensorData.enabled});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "SensorType: {0} deactivated, active: {1}",
+                        new Object[]{sensorType, sensorData.enabled});
+            }
         }
     }
 
@@ -276,7 +282,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
      * Surface.ROTATION_270 = device in rotated 270deg counterclockwise
      *
      * When the Manifest locks the orientation, this value will not change during
-     * gametime, but if the orientation of the screen is based off the sensor,
+     * game time, but if the orientation of the screen is based off the sensor,
      * this value will change as the device is rotated.
      * @return Current device rotation amount
      */
@@ -374,7 +380,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
                                 sensorData.haveData = true;
                             } else {
                                 if (axis.isChanged()) {
-                                    joyInput.addEvent(new JoyAxisEvent(axis, axis.getJoystickAxisValue()));
+                                    joyInput.addEvent(new JoyAxisEvent(axis, axis.getJoystickAxisValue(), axis.getJoystickAxisValue()));
                                 }
                             }
                         }
@@ -409,9 +415,11 @@ public class AndroidSensorJoyInput implements SensorEventListener {
                                     "AndroidSensorsJoystick");
 
         List<Sensor> availSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
-        for (Sensor sensor: availSensors) {
-            logger.log(Level.FINE, "{0} Sensor is available, Type: {1}, Vendor: {2}, Version: {3}",
-                    new Object[]{sensor.getName(), sensor.getType(), sensor.getVendor(), sensor.getVersion()});
+        if (logger.isLoggable(Level.FINE)) {
+            for (Sensor sensor : availSensors) {
+                logger.log(Level.FINE, "{0} Sensor is available, Type: {1}, Vendor: {2}, Version: {3}",
+                        new Object[]{sensor.getName(), sensor.getType(), sensor.getVendor(), sensor.getVersion()});
+            }
         }
 
         // manually create orientation sensor data since orientation is not a physical sensor
@@ -553,7 +561,7 @@ public class AndroidSensorJoyInput implements SensorEventListener {
                             sensorData.haveData = true;
                         } else {
                             if (axis.isChanged()) {
-                                JoyAxisEvent event = new JoyAxisEvent(axis, axis.getJoystickAxisValue());
+                                JoyAxisEvent event = new JoyAxisEvent(axis, axis.getJoystickAxisValue(), axis.getJoystickAxisValue());
 //                                logger.log(Level.INFO, "adding JoyAxisEvent: {0}", event);
                                 joyInput.addEvent(event);
 //                                joyHandler.addEvent(new JoyAxisEvent(axis, axis.getJoystickAxisValue()));
@@ -575,10 +583,12 @@ public class AndroidSensorJoyInput implements SensorEventListener {
         int sensorType = sensor.getType();
         SensorData sensorData = sensors.get(sensorType);
         if (sensorData != null) {
-            logger.log(Level.FINE, "onAccuracyChanged for {0}: accuracy: {1}",
-                    new Object[]{sensor.getName(), i});
-            logger.log(Level.FINE, "MaxRange: {0}, Resolution: {1}",
-                    new Object[]{sensor.getMaximumRange(), sensor.getResolution()});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "onAccuracyChanged for {0}: accuracy: {1}",
+                        new Object[]{sensor.getName(), i});
+                logger.log(Level.FINE, "MaxRange: {0}, Resolution: {1}",
+                        new Object[]{sensor.getMaximumRange(), sensor.getResolution()});
+            }
             sensorData.sensorAccuracy = i;
         }
     }
@@ -705,8 +715,10 @@ public class AndroidSensorJoyInput implements SensorEventListener {
         @Override
         public void calibrateCenter() {
             zeroRawValue = lastRawValue;
-            logger.log(Level.FINE, "Calibrating axis {0} to {1}",
-                    new Object[]{getName(), zeroRawValue});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Calibrating axis {0} to {1}",
+                        new Object[]{getName(), zeroRawValue});
+            }
         }
 
     }

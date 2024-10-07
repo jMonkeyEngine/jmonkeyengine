@@ -46,7 +46,7 @@ import java.io.IOException;
 
 /**
  * <code>DirectionalLight</code> is a light coming from a certain direction in world space. 
- * E.g sun or moon light.
+ * E.g. sun or moon light.
  * <p>
  * Directional lights have no specific position in the scene, they always 
  * come from their direction regardless of where an object is placed.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,14 +66,10 @@ import java.util.List;
 public class TerrainTestTile extends SimpleApplication {
 
     private TiledTerrain terrain;
-    Material matTerrain;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    boolean wardiso = false;
-    boolean minnaert = false;
-    protected BitmapText hintText;
-    private float grassScale = 256;
+    private Material matTerrain;
+    private Material matWire;
+    private boolean wireframe = false;
+    final private float grassScale = 256;
     
 
     public static void main(String[] args) {
@@ -133,7 +129,7 @@ public class TerrainTestTile extends SimpleApplication {
     }
     
     public void loadHintText() {
-        hintText = new BitmapText(guiFont, false);
+        BitmapText hintText = new BitmapText(guiFont);
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
         hintText.setText("Press T to toggle wireframe");
         guiNode.attachChild(hintText);
@@ -145,7 +141,7 @@ public class TerrainTestTile extends SimpleApplication {
         inputManager.addMapping("wireframe", new KeyTrigger(KeyInput.KEY_T));
         inputManager.addListener(actionListener, "wireframe");
     }
-    private ActionListener actionListener = new ActionListener() {
+    final private ActionListener actionListener = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean pressed, float tpf) {
@@ -170,10 +166,10 @@ public class TerrainTestTile extends SimpleApplication {
      */
     private class TiledTerrain extends Node implements Terrain, NeighbourFinder {
 
-        private TerrainQuad terrain1;
-        private TerrainQuad terrain2;
-        private TerrainQuad terrain3;
-        private TerrainQuad terrain4;
+        final private TerrainQuad terrain1;
+        final private TerrainQuad terrain2;
+        final private TerrainQuad terrain3;
+        final private TerrainQuad terrain4;
         
         TiledTerrain() {
             // TERRAIN TEXTURE material

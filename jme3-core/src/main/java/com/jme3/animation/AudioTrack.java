@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,12 +44,12 @@ import java.util.logging.Logger;
 
 /**
  * AudioTrack is a track to add to an existing animation, to play a sound during
- * an animations for example : gun shot, foot step, shout, etc...
+ * an animations for example : gunshot, footstep, shout, etcetera.
  *
- * usage is
+ * Typical usage is:
  * <pre>
  * AnimControl control model.getControl(AnimControl.class);
- * AudioTrack track = new AudioTrack(existionAudioNode, control.getAnim("TheAnim").getLength());
+ * AudioTrack track = new AudioTrack(existingAudioNode, control.getAnim("TheAnim").getLength());
  * control.getAnim("TheAnim").addTrack(track);
  * </pre>
  *
@@ -156,16 +156,16 @@ public class AudioTrack implements ClonableTrack {
 
     @Override
     public float[] getKeyFrameTimes() {
-        return new float[] { startOffset };
+        return new float[]{startOffset};
     }
-    
+
     /**
      * Clone this track
      *
      * @return a new track
      */
     @Override
-    public Track clone() {
+    public AudioTrack clone() {
         return new AudioTrack(audio, length, startOffset);
     }
 
@@ -197,27 +197,25 @@ public class AudioTrack implements ClonableTrack {
         return audioTrack;
     }
 
-    @Override   
+    @Override
     public Object jmeClone() {
         try {
             return super.clone();
-        } catch( CloneNotSupportedException e ) {
+        } catch (CloneNotSupportedException e) {
             throw new RuntimeException("Error cloning", e);
         }
-    }     
+    }
 
-
-    @Override   
-    public void cloneFields( Cloner cloner, Object original ) {
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
         // Duplicating the old cloned state from cloneForSpatial()
         this.initialized = false;
         this.started = false;
-        this.played = false; 
+        this.played = false;
         this.audio = cloner.clone(audio);
     }
-         
-         
-    /**    
+
+    /**
      * recursive function responsible for finding the newly cloned AudioNode
      *
      * @param spat
@@ -279,7 +277,7 @@ public class AudioTrack implements ClonableTrack {
     /**
      * sets the audio node to be used for this track
      *
-     * @param audio
+     * @param audio the desired AudioNode (alias created)
      */
     public void setAudio(AudioNode audio) {
         if (this.audio != null) {
@@ -301,7 +299,7 @@ public class AudioTrack implements ClonableTrack {
     /**
      * set the start offset of the track
      *
-     * @param startOffset
+     * @param startOffset the desired start offset
      */
     public void setStartOffset(float startOffset) {
         this.startOffset = startOffset;

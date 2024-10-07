@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import java.nio.ShortBuffer;
 
 /**
  * Simple grid shape.
- * 
+ *
  * @author Kirill Vainer
  */
 public class Grid extends Mesh {
@@ -50,9 +50,10 @@ public class Grid extends Mesh {
 
     /**
      * Creates a grid debug shape.
-     * @param xLines
-     * @param yLines
-     * @param lineDist 
+     *
+     * @param xLines number of lines parallel to the X axis
+     * @param yLines number of lines parallel to the Y axis
+     * @param lineDist the separation between consecutive lines (in world units)
      */
     public Grid(int xLines, int yLines, float lineDist){
         xLines -= 2;
@@ -75,12 +76,12 @@ public class Grid extends Mesh {
             fpb.put(xLineLen).put(0).put(y);
 
             // indices
-            sib.put( (short) (curIndex++) );
-            sib.put( (short) (curIndex++) );
+            sib.put((short) (curIndex++));
+            sib.put((short) (curIndex++));
         }
 
         // add lines along Y
-        for (int i = 0; i < yLines + 2; i++){
+        for (int i = 0; i < yLines + 2; i++) {
             float x = (i) * lineDist;
 
             // positions
@@ -88,8 +89,8 @@ public class Grid extends Mesh {
             fpb.put(x).put(0).put(yLineLen);
 
             // indices
-            sib.put( (short) (curIndex++) );
-            sib.put( (short) (curIndex++) );
+            sib.put((short) (curIndex++));
+            sib.put((short) (curIndex++));
         }
 
         fpb.flip();
@@ -97,12 +98,11 @@ public class Grid extends Mesh {
 
         setBuffer(Type.Position, 3, fpb);
         setBuffer(Type.Index, 2, sib);
-        
+
         setMode(Mode.Lines);
 
         updateBound();
         updateCounts();
         setStatic();
     }
-    
 }

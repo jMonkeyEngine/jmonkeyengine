@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,10 +49,10 @@ import com.jme3.scene.Node;
  */
 public class TestRagDoll extends SimpleApplication implements ActionListener {
 
-    private BulletAppState bulletAppState = new BulletAppState();
-    private Node ragDoll = new Node();
+    private BulletAppState bulletAppState;
+    final private Node ragDoll = new Node();
     private Node shoulders;
-    private Vector3f upforce = new Vector3f(0, 200, 0);
+    final private Vector3f upForce = new Vector3f(0, 200, 0);
     private boolean applyForce = false;
 
     public static void main(String[] args) {
@@ -146,7 +146,7 @@ public class TestRagDoll extends SimpleApplication implements ActionListener {
     @Override
     public void simpleUpdate(float tpf) {
         if (applyForce) {
-            shoulders.getControl(RigidBodyControl.class).applyForce(upforce, Vector3f.ZERO);
+            shoulders.getControl(RigidBodyControl.class).applyForce(upForce, Vector3f.ZERO);
         }
     }
 }

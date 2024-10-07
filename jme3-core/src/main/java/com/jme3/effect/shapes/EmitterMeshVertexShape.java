@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
      *        a list of meshes that will form the emitter's shape
      */
     public void setMeshes(List<Mesh> meshes) {
-        Map<Vector3f, Vector3f> vertToNormalMap = new HashMap<Vector3f, Vector3f>();
+        Map<Vector3f, Vector3f> vertToNormalMap = new HashMap<>();
 
         this.vertices = new ArrayList<List<Vector3f>>(meshes.size());
         this.normals = new ArrayList<List<Vector3f>>(meshes.size());
@@ -100,8 +100,8 @@ public class EmitterMeshVertexShape implements EmitterShape {
             }
 
             // adding data to vertices and normals
-            List<Vector3f> vertices = new ArrayList<Vector3f>(vertToNormalMap.size());
-            List<Vector3f> normals = new ArrayList<Vector3f>(vertToNormalMap.size());
+            List<Vector3f> vertices = new ArrayList<>(vertToNormalMap.size());
+            List<Vector3f> normals = new ArrayList<>(vertToNormalMap.size());
             for (Entry<Vector3f, Vector3f> entry : vertToNormalMap.entrySet()) {
                 vertices.add(entry.getKey());
                 normals.add(entry.getValue().normalizeLocal());
@@ -146,7 +146,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
             if (this.vertices != null) {
                 clone.vertices = new ArrayList<List<Vector3f>>(vertices.size());
                 for (List<Vector3f> list : vertices) {
-                    List<Vector3f> vectorList = new ArrayList<Vector3f>(list.size());
+                    List<Vector3f> vectorList = new ArrayList<>(list.size());
                     for (Vector3f vector : list) {
                         vectorList.add(vector.clone());
                     }
@@ -156,7 +156,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
             if (this.normals != null) {
                 clone.normals = new ArrayList<List<Vector3f>>(normals.size());
                 for (List<Vector3f> list : normals) {
-                    List<Vector3f> vectorList = new ArrayList<Vector3f>(list.size());
+                    List<Vector3f> vectorList = new ArrayList<>(list.size());
                     for (Vector3f vector : list) {
                         vectorList.add(vector.clone());
                     }
@@ -185,7 +185,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         this.vertices = cloner.clone(vertices);
         this.normals = cloner.clone(normals);
     }
@@ -204,7 +204,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
         this.vertices = ic.readSavableArrayList("vertices", null);
 
         List<List<Vector3f>> tmpNormals = ic.readSavableArrayList("normals", null);
-        if (tmpNormals != null){
+        if (tmpNormals != null) {
             this.normals = tmpNormals;
         }
     }

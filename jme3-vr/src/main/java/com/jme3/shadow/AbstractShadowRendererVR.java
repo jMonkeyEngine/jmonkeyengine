@@ -1,7 +1,7 @@
 package com.jme3.shadow;
 
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,8 @@ package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
+import com.jme3.light.LightFilter;
+import com.jme3.light.NullLightFilter;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -59,6 +61,7 @@ import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 
 import java.io.IOException;
@@ -72,9 +75,14 @@ import java.util.List;
  * @author Rémy Bouquet aka Nehon
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
+ * @deprecated The jme3-vr module is deprecated and will be removed in a future version (as it only supports OpenVR).
+ *             For new Virtual Reality projects, use user libraries that provide OpenXR support.
+ *             See <a href = "https://wiki.jmonkeyengine.org/docs/3.4/core/vr/virtualreality.html">Virtual Reality JME wiki section</a>
+ *             for more information.
  */
+@Deprecated
 public abstract class AbstractShadowRendererVR implements SceneProcessor, Savable {
-
+    private static final LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     protected int nbShadowMaps = 1;
     protected float shadowMapSize;
     protected float shadowIntensity = 0.7f;
@@ -96,7 +104,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     protected boolean renderBackFacesShadows;
 
     protected AppProfiler profiler = null;
-    
+
     /**
      * true if the fallback material should be used, otherwise false
      */
@@ -108,7 +116,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     /**
      * list of materials for post shadow queue geometries
      */
-    protected List<Material> matCache = new ArrayList<Material>();
+    protected List<Material> matCache = new ArrayList<>();
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
     private String[] shadowMapStringCache;
@@ -124,13 +132,13 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      * true to skip the post pass when there are no shadow casters
      */
     protected boolean skipPostPass;
-    
+
     /**
      * used for serialization
      */
-    protected AbstractShadowRendererVR(){        
-    }    
-    
+    protected AbstractShadowRendererVR(){
+    }
+
     /**
      * Create an abstract shadow renderer. Subclasses invoke this constructor.
      *
@@ -158,7 +166,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         shadowMapStringCache = new String[nbShadowMaps];
         lightViewStringCache = new String[nbShadowMaps];
 
-        //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
+        //DO NOT COMMENT THIS (It prevents the OSX incomplete read buffer crash.)
         dummyTex = new Texture2D(shadowMapSize, shadowMapSize, Format.RGBA8);
 
         preshadowMat = new Material(assetManager, "Common/MatDefs/Shadow/PreShadow.j3md");
@@ -169,16 +177,16 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             shadowFB[i] = new FrameBuffer(shadowMapSize, shadowMapSize, 1);
             shadowMaps[i] = new Texture2D(shadowMapSize, shadowMapSize, Format.Depth);
 
-            shadowFB[i].setDepthTexture(shadowMaps[i]);
+            shadowFB[i].setDepthTarget(FrameBufferTarget.newTarget(shadowMaps[i]));
 
-            //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
-            shadowFB[i].setColorTexture(dummyTex);
-            shadowMapStringCache[i] = "ShadowMap" + i; 
+            //DO NOT COMMENT THIS (It prevents the OSX incomplete read buffer crash.)
+            shadowFB[i].addColorTarget(FrameBufferTarget.newTarget(dummyTex));
+            shadowMapStringCache[i] = "ShadowMap" + i;
             lightViewStringCache[i] = "LightViewProjectionMatrix" + i;
 
             postshadowMat.setTexture(shadowMapStringCache[i], shadowMaps[i]);
 
-            //quads for debuging purpose
+            //quads for debugging purposes
             dispPic[i] = new Picture("Picture" + i);
             dispPic[i].setTexture(assetManager, shadowMaps[i], false);
         }
@@ -221,7 +229,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      */
     final public void setEdgeFilteringMode(EdgeFilteringMode filterMode) {
         if (filterMode == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("filterMode cannot be null");
         }
 
         this.edgeFilteringMode = filterMode;
@@ -336,7 +344,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             initFrustumCam();
         }
     }
-    
+
     /**
      * delegates the initialization of the frustum cam to child renderers
      */
@@ -355,7 +363,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     /**
      * Invoked once per frame to update the shadow cams according to the light
      * view.
-     * 
+     *
      * @param viewCam the scene cam
      */
     protected abstract void updateShadowCams(Camera viewCam);
@@ -379,11 +387,11 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      */
     protected abstract Camera getShadowCam(int shadowMapIndex);
 
-	@Override
-	public void setProfiler(AppProfiler profiler) {
-		this.profiler = profiler;
-	}
-    
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.profiler = profiler;
+    }
+
     /**
      * responsible for displaying the frustum of the shadow cam for debug
      * purpose
@@ -404,7 +412,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         }
 
         updateShadowCams(viewPort.getCamera());
-        
+
         Renderer r = renderManager.getRenderer();
         renderManager.setForcedMaterial(preshadowMat);
         renderManager.setForcedTechnique("PreShadow");
@@ -425,14 +433,13 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         renderManager.setForcedMaterial(null);
         renderManager.setForcedTechnique(null);
         renderManager.setCamera(viewPort.getCamera(), false);
-        
     }
 
     protected void renderShadowMap(int shadowMapIndex) {
         shadowMapOccluders = getOccludersToRender(shadowMapIndex, shadowMapOccluders);
         Camera shadowCam = getShadowCam(shadowMapIndex);
 
-        //saving light view projection matrix for this split            
+        //saving light view projection matrix for this split
         lightViewProjectionsMatrices[shadowMapIndex].set(shadowCam.getViewProjectionMatrix());
         renderManager.setCamera(shadowCam, false);
 
@@ -440,8 +447,11 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         renderManager.getRenderer().clearBuffers(true, true, true);
         renderManager.setForcedRenderState(forcedRenderState);
 
-        // render shadow casters to shadow map
+        // render shadow casters to shadow map and disables the lightfilter
+        LightFilter tmpLightFilter = renderManager.getLightFilter();
+        renderManager.setLightFilter(NULL_LIGHT_FILTER);
         viewPort.getQueue().renderShadowQueue(shadowMapOccluders, renderManager, shadowCam, true);
+        renderManager.setLightFilter(tmpLightFilter);
         renderManager.setForcedRenderState(null);
     }
     boolean debugfrustums = false;
@@ -487,7 +497,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         if (debug) {
             displayShadowMap(renderManager.getRenderer());
         }
-        
+
         getReceivers(lightReceivers);
 
         if (lightReceivers.size() != 0) {
@@ -495,7 +505,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             setMatParams(lightReceivers);
 
             Camera cam = viewPort.getCamera();
-            //some materials in the scene does not have a post shadow technique so we're using the fall back material
+            //If some materials in the scene do not have a post shadow technique, use the fallback material.
             if (needsfallBackMaterial) {
                 renderManager.setForcedMaterial(postshadowMat);
             }
@@ -510,26 +520,25 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             renderManager.setForcedTechnique(null);
             renderManager.setForcedMaterial(null);
             renderManager.setCamera(cam, false);
-            
+
             //clearing the params in case there are some other shadow renderers
             clearMatParams();
         }
     }
-    
+
     /**
      * This method is called once per frame and is responsible for clearing any
      * material parameters that subclasses may need to clear on the post material.
      *
-     * @param material the material that was used for the post shadow pass     
+     * @param material the material that was used for the post shadow pass
      */
-    protected abstract void clearMaterialParameters(Material material);    
-    
+    protected abstract void clearMaterialParameters(Material material);
+
     private void clearMatParams(){
         for (Material mat : matCache) {
-         
-            //clearing only necessary params, the others may be set by other 
-            //renderers 
-            //Note that j start at 1 because other shadow renderers will have 
+            //clearing only necessary params, the others may be set by other
+            //renderers
+            //Note that j start at 1 because other shadow renderers will have
             //at least 1 shadow map and will set it on each frame anyway.
             for (int j = 1; j < nbShadowMaps; j++) {
                 mat.clearParam(lightViewStringCache[j]);
@@ -539,8 +548,8 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             }
             mat.clearParam("FadeInfo");
             clearMaterialParameters(mat);
-        }        
-        //No need to clear the postShadowMat params as the instance is locale to each renderer       
+        }
+        //No need to clear the postShadowMat params as the instance is locale to each renderer
     }
 
     /**
@@ -552,7 +561,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     protected abstract void setMaterialParameters(Material material);
 
     private void setMatParams(GeometryList l) {
-        //iteration throught all the geometries of the list to gather the materials
+        //iterate through all the geometries of the list to gather the materials
 
         buildMatCache(l);
 
@@ -580,8 +589,8 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             setMaterialParameters(mat);
         }
 
-        //At least one material of the receiving geoms does not support the post shadow techniques
-        //so we fall back to the forced material solution (transparent shadows won't be supported for these objects)
+        //At least one material of the receiving geoms does not support the post shadow technique,
+        //so we fall back to the forced material solution. (Transparent shadows won't be supported for these objects.)
         if (needsfallBackMaterial) {
             setPostShadowParams();
         }
@@ -617,7 +626,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         }
         postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
     }
-    
+
     /**
      * How far the shadows are rendered in the view
      *
@@ -636,7 +645,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      * @param zFar the zFar values that override the computed one
      */
     public void setShadowZExtend(float zFar) {
-        this.zFarOverride = zFar;        
+        this.zFarOverride = zFar;
         if(zFarOverride == 0){
             fadeInfo = null;
             frustumCam = null;
@@ -649,7 +658,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             }
         }
     }
-    
+
     /**
      * Define the length over which the shadow will fade out when using a
      * shadowZextend This is useful to make dynamic shadows fade into baked
@@ -685,15 +694,15 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         }
         return 0f;
     }
-    
+
     /**
      * returns true if the light source bounding box is in the view frustum
      * @return true if box in frustum
      */
     protected abstract boolean checkCulling(Camera viewCam);
-    
+
     @Override
-    public void preFrame(float tpf) {           
+    public void preFrame(float tpf) {
     }
 
     @Override
@@ -737,9 +746,9 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     }
 
     /**
-     * Sets the shadow edges thickness. default is 1, setting it to lower values
-     * can help to reduce the jagged effect of the shadow edges
-     * @param edgesThickness the shadow edges thickness.
+     * Sets the shadow edge thickness. Default is 1. Setting it to lower values
+     * can help to reduce the jagged effect of the shadow edges.
+     * @param edgesThickness the shadow edge thickness.
      */
     public void setEdgesThickness(int edgesThickness) {
         this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));
@@ -754,15 +763,6 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      */
     @Deprecated
     public boolean isFlushQueues() { return false; }
-
-    /**
-     * This method does nothing now and is kept only for backward compatibility.
-     * @param flushQueues any boolean.
-     * @deprecated This method does nothing now and is kept only for backward compatibility.
-     */
-    @Deprecated
-    public void setFlushQueues(boolean flushQueues) {}
-
 
     /**
      * Returns the pre shadows pass render state.

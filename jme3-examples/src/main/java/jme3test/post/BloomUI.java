@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ public class BloomUI {
         System.out.println("-- blur Scale : press Y to increase, H to decrease");
         System.out.println("-- exposure Power : press U to increase, J to decrease");
         System.out.println("-- exposure CutOff : press I to increase, K to decrease");
-        System.out.println("-- bloom Intensity : press O to increase, P to decrease");
+        System.out.println("-- bloom Intensity : press O to increase, L to decrease");
         System.out.println("-------------------------------------------------------");
 
         inputManager.addMapping("blurScaleUp", new KeyTrigger(KeyInput.KEY_Y));

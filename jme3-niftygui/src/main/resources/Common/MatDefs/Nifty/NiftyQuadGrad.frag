@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 varying vec4 color;
 
 void main() { 

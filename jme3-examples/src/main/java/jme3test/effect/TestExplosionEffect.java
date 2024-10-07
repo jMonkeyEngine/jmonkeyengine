@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ public class TestExplosionEffect extends SimpleApplication {
 
     private float time = 0;
     private int state = 0;
-    private Node explosionEffect = new Node("explosionFX");
+    final private Node explosionEffect = new Node("explosionFX");
     private ParticleEmitter flame, flash, spark, roundspark, smoketrail, debris,
                             shockwave;
 

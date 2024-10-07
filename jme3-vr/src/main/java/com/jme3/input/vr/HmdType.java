@@ -6,10 +6,9 @@ package com.jme3.input.vr;
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public enum HmdType {
-	
-	/**
-	 * <a href="https://www.vive.com/fr/">HTC vive</a> Head Mounted Device (HMD).
-	 */
+    /**
+     * <a href="https://www.vive.com/fr/">HTC vive</a> Head Mounted Device (HMD).
+     */
     HTC_VIVE,
 
     /**
@@ -18,50 +17,50 @@ public enum HmdType {
     VALVE_INDEX,
 
     /**
-     * <a href="https://www3.oculus.com/en-us/rift/">Occulus Rift</a> Head Mounted Device (HMD).
+     * <a href="https://www3.oculus.com/en-us/rift/">Oculus Rift</a> Head Mounted Device (HMD).
      */
-    OCULUS_RIFT, 
-    
+    OCULUS_RIFT,
+
     /**
      * <a href="http://www.osvr.org/">OSVR</a> generic Head Mounted Device (HMD).
      */
-    OSVR, 
-    
+    OSVR,
+
     /**
      * <a href="https://www.getfove.com/">FOVE</a> Head Mounted Device (HMD).
      */
-    FOVE, 
-    
+    FOVE,
+
     /**
      * <a href="http://www.starvr.com/">STARVR</a> Head Mounted Device (HMD).
      */
-    STARVR, 
-    
+    STARVR,
+
     /**
      * <a href="http://gamefacelabs.com/">GameFace</a> Head Mounted Device (HMD).
      */
-    GAMEFACE, 
-    
+    GAMEFACE,
+
     /**
-     * <a href="https://www.playstation.com/en-us/explore/playstation-vr/">PlayStation VR</a> (formely Morpheus) Head Mounted Device (HMD).
+     * <a href="https://www.playstation.com/en-us/explore/playstation-vr/">PlayStation VR</a> (formerly Morpheus) Head Mounted Device (HMD).
      */
-    MORPHEUS, 
-    
+    MORPHEUS,
+
     /**
      * <a href="http://www.samsung.com/fr/galaxynote4/gear-vr/">Samsung GearVR</a> Head Mounted Device (HMD).
      */
-    GEARVR, 
-    
+    GEARVR,
+
     /**
      * a null Head Mounted Device (HMD).
      */
-    NULL, 
-    
+    NULL,
+
     /**
      * a none Head Mounted Device (HMD).
      */
-    NONE, 
-    
+    NONE,
+
     /**
      * a not referenced Head Mounted Device (HMD).
      */

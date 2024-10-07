@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,16 +60,10 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
         TestPointDirectionalAndSpotLightShadows app = new TestPointDirectionalAndSpotLightShadows();
         app.start();
     }
-    Node lightNode;
-    PointLightShadowRenderer plsr;
-    PointLightShadowFilter plsf;
-    DirectionalLightShadowRenderer dlsr;
-    DirectionalLightShadowFilter dlsf;
-    SpotLightShadowRenderer slsr;
-    SpotLightShadowFilter slsf;
-    SpotLight spotLight;
+    private Node lightNode;
+    private SpotLight spotLight;
     
-    boolean useFilter = false;
+    final private boolean useFilter = false;
     
     @Override
     public void simpleInitApp() {
@@ -99,14 +93,14 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
         box.setLocalTranslation(-1f, 0.5f, -2);
 
         scene.getLocalLightList().get(0).setColor(ColorRGBA.Red);
-        
-        plsr = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
+
+        PointLightShadowRenderer plsr
+                = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
         plsr.setLight((PointLight) scene.getLocalLightList().get(0));
         plsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
 
-
-
-        plsf = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
+        PointLightShadowFilter plsf
+                = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
         plsf.setLight((PointLight) scene.getLocalLightList().get(0));     
         plsf.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
         plsf.setEnabled(useFilter);
@@ -116,11 +110,14 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
         rootNode.addLight(directionalLight);
         directionalLight.setColor(ColorRGBA.Blue);
         directionalLight.setDirection(new Vector3f(-1f, -.2f, 0f));
-        dlsr = new DirectionalLightShadowRenderer(assetManager, SHADOWMAP_SIZE*2, 4);
+
+        DirectionalLightShadowRenderer dlsr
+                = new DirectionalLightShadowRenderer(assetManager, SHADOWMAP_SIZE*2, 4);
         dlsr.setLight(directionalLight);
         dlsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
-        
-        dlsf = new DirectionalLightShadowFilter(assetManager, SHADOWMAP_SIZE*2, 4);
+
+        DirectionalLightShadowFilter dlsf
+                = new DirectionalLightShadowFilter(assetManager, SHADOWMAP_SIZE*2, 4);
         dlsf.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
         dlsf.setLight(directionalLight);        
         dlsf.setEnabled(useFilter);
@@ -137,12 +134,14 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
         sphereGeometry.setMaterial(assetManager.loadMaterial("Common/Materials/WhiteColor.j3m"));
         rootNode.attachChild(sphereGeometry);
         rootNode.addLight(spotLight);
-        
-        slsr = new SpotLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
+
+        SpotLightShadowRenderer slsr
+                = new SpotLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
         slsr.setLight(spotLight);
         slsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
-        
-        slsf = new SpotLightShadowFilter(assetManager, SHADOWMAP_SIZE);
+
+        SpotLightShadowFilter slsf
+                = new SpotLightShadowFilter(assetManager, SHADOWMAP_SIZE);
         slsf.setLight(spotLight);
         slsf.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
         slsf.setEnabled(useFilter);
@@ -166,7 +165,7 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
   
     }
 
-    float timeElapsed = 0.0f;
+    private float timeElapsed = 0.0f;
     @Override
     public void simpleUpdate(float tpf) {
         timeElapsed += tpf;

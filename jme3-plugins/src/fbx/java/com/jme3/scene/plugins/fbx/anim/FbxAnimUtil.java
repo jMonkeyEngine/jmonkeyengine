@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,4 +41,10 @@ public class FbxAnimUtil {
     public static final String CURVE_NODE_PROPERTY_Y          = "d|Y";
     public static final String CURVE_NODE_PROPERTY_Z          = "d|Z";
     public static final String CURVE_NODE_PROPERTY_VISIBILITY = "d|Visibility";
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private FbxAnimUtil() {
+    }
 }

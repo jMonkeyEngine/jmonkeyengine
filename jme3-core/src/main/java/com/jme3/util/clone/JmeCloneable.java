@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 jMonkeyEngine
+ * Copyright (c) 2016-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,8 @@ package com.jme3.util.clone;
  *  their local dependencies in a way that will be equivalent to the
  *  original object graph.  In other words, if two objects in the graph
  *  share the same target reference then the cloned version will share
- *  the cloned reference. 
- *  
+ *  the cloned reference.
+ *
  *  <p>For example, if an object wishes to deep clone one of its fields
  *  then it will call cloner.clone(object) instead of object.clone().
  *  The cloner will keep track of any clones already created for 'object'
@@ -74,26 +74,28 @@ public interface JmeCloneable extends Cloneable {
      *  fields and instead get at the superclass protected clone() methods.
      *  For example, through super.jmeClone() or another protected clone
      *  method that some base class eventually calls super.clone() in.</p>
+     *
+     * @return a new instance
      */
-    public Object jmeClone();     
+    public Object jmeClone();
 
     /**
      *  Implemented to perform deep cloning for this object, resolving
      *  local cloned references using the specified cloner.  The object
      *  can call cloner.clone(fieldValue) to deep clone any of its fields.
-     * 
+     *
      *  <p>Note: during normal clone operations the original object
      *  will not be needed as the clone has already had all of the fields
      *  shallow copied.</p>
      *
-     *  @param cloner The cloner that is performing the cloning operation.  The 
+     *  @param cloner The cloner that is performing the cloning operation.  The
      *              cloneFields method can call back into the cloner to make
-     *              clones of its subordinate fields.     
+     *              clones of its subordinate fields.
      *  @param original The original object from which this object was cloned.
      *              This is provided for the very rare case that this object needs
      *              to refer to its original for some reason.  In general, all of
      *              the relevant values should have been transferred during the
-     *              shallow clone and this object need merely clone what it wants.
+     *              shallow clone, and this object need only clone what it wants.
      */
-    public void cloneFields( Cloner cloner, Object original ); 
+    public void cloneFields(Cloner cloner, Object original);
 }

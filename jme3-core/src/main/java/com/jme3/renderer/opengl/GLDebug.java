@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,12 +39,12 @@ import java.lang.reflect.Proxy;
 
 /**
  * This class uses Reflection to intercept method calls to the Proxy Object ({@link #createProxy(GL, Object, Class[])}
- * and extends them with the Error Checking in {@link #checkError()}.<br/>
+ * and extends them with the Error Checking in {@link #checkError()}.<br>
  * This means we don't have to generate a class with overrides for every possible method just to add a
- * {@link #checkError()} call.<br/>
- * Note that we should not call {@link #checkError()} for {@link GL#glGetError()}, it doesn't make sense.<br />
+ * {@link #checkError()} call.<br>
+ * Note that we should not call {@link #checkError()} for {@link GL#glGetError()}, it doesn't make sense.<br>
  * Note that this class is general purpose and as such every class instance (every object) can be guarded as long as
- * the passed gl instance is valid.<br/>
+ * the passed gl instance is valid.
  *
  * @author MeFisto94
  */
@@ -121,7 +121,7 @@ public class GLDebug implements InvocationHandler {
      * @param gl The GL Context, required to call {@link GL#glGetError()}
      * @param obj The object which methods will be proxied
      * @param implementedInterfaces The interfaces/class this object implements
-     * @return The Proxy object (or null if an error occured)
+     * @return The Proxy object (or null if an error occurred)
      */
     public static Object createProxy(GL gl, Object obj, Class<?>... implementedInterfaces) {
         try {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,15 +49,15 @@ import java.util.logging.Logger;
  *  stopHostingOnConnection() methods to handle service and connection initialization.</p>
  *
  *  <p>An autoHost flag controls whether startHostingOnConnection() is called
- *  automatically when new connections are detected.  If autoHohst is false then it
- *  is up to the implementation or appliction to specifically start hosting at 
+ *  automatically when new connections are detected.  If autoHost is false then it
+ *  is up to the implementation or application to specifically start hosting at
  *  some point.</p>
  *
  *  @author    Paul Speed
  */
 public abstract class AbstractHostedConnectionService extends AbstractHostedService { 
  
-    static final Logger log = Logger.getLogger(AbstractHostedConnectionService.class.getName());
+    private static final Logger log = Logger.getLogger(AbstractHostedConnectionService.class.getName());
 
     private boolean autoHost;
     

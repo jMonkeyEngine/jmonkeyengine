@@ -3,6 +3,7 @@ package jme3test.model.anim;
 import com.jme3.anim.MorphControl;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.export.binary.BinaryExporter;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
@@ -16,12 +17,12 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.BufferUtils;
-
+import com.jme3.util.clone.Cloner;
 import java.nio.FloatBuffer;
 
 public class TestMorph extends SimpleApplication {
 
-    float[] weights = new float[2];
+    final private float[] weights = new float[2];
 
     public static void main(String... args) {
         TestMorph app = new TestMorph();
@@ -31,7 +32,7 @@ public class TestMorph extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         BitmapFont font = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        BitmapText text = new BitmapText(font, false);
+        BitmapText text = new BitmapText(font);
         text.setText("Press U-Y-I-J to vary weights. Drag LMB to orbit camera.");
         text.setLocalTranslation(10f, cam.getHeight() - 10f, 0f);
         guiNode.attachChild(text);
@@ -90,6 +91,19 @@ public class TestMorph extends SimpleApplication {
 
         g.setMorphState(weights);
         g.addControl(new MorphControl());
+        /*
+         * Attach a clone of the morphing box model, in order to test cloning.
+         */
+        Geometry g2 = Cloner.deepClone(g);
+        g2.move(-4f, 0f, 0f);
+        rootNode.attachChild(g2);
+        /*
+         * Attach a saveAndLoad() copy of the morphing box model,
+         * in order to test serialization.
+         */
+        Geometry g3 = BinaryExporter.saveAndLoad(assetManager, g);
+        g3.move(-4f, 4f, 0f);
+        rootNode.attachChild(g3);
 
         ChaseCameraAppState chase = new ChaseCameraAppState();
         chase.setTarget(rootNode);

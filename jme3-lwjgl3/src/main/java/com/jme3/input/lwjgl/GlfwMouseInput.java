@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,11 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.math.Vector2f;
 import com.jme3.system.lwjgl.LwjglWindow;
+import com.jme3.system.lwjgl.WindowSizeListener;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ import org.lwjgl.system.MemoryUtil;
 /**
  * Captures mouse input using GLFW callbacks. It then temporarily stores these
  * in event queues which are processed in the {@link #update()} method. Due to
- * some of the GLFW button id's there is a conversion method in this class which
+ * some of the GLFW button IDs, there is a conversion method in this class which
  * will convert the GLFW left, middle and right mouse button to JME3 left,
  * middle and right button codes.
  *
@@ -115,6 +116,7 @@ public class GlfwMouseInput implements MouseInput {
 
     private final LwjglWindow context;
 
+    private WindowSizeListener windowSizeListener;
     private RawInputListener listener;
 
     private IntBuffer currentCursorDelays;
@@ -130,26 +132,25 @@ public class GlfwMouseInput implements MouseInput {
     private int mouseX;
     private int mouseY;
     private int mouseWheel;
-    private int currentWidth;
     private int currentHeight;
 
     private boolean cursorVisible;
     private boolean initialized;
-
+    private final Vector2f inputScale = new Vector2f();
+  
     public GlfwMouseInput(final LwjglWindow context) {
         this.context = context;
         this.cursorVisible = true;
     }
 
     private void onCursorPos(final long window, final double xpos, final double ypos) {
+        context.getWindowContentScale(inputScale);
+        int x = (int) Math.round(xpos * inputScale.x);
+        int y = (int) Math.round((currentHeight - ypos) * inputScale.y);
+      
 
-        int xDelta;
-        int yDelta;
-        int x = (int) Math.round(xpos);
-        int y = currentHeight - (int) Math.round(ypos);
-
-        xDelta = x - mouseX;
-        yDelta = y - mouseY;
+        int xDelta = x - mouseX;
+        int yDelta = y - mouseY;
         mouseX = x;
         mouseY = y;
 
@@ -209,7 +210,7 @@ public class GlfwMouseInput implements MouseInput {
 
             glfwGetWindowSize(window, width, height);
 
-            currentWidth = width.get();
+            width.get();
             currentHeight = height.get();
         }
 
@@ -235,21 +236,19 @@ public class GlfwMouseInput implements MouseInput {
             }
         });
 
-        glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback() {
-            @Override
-            public void invoke(final long window, final int width, final int height) {
-                currentHeight = height;
-                currentWidth = width;
-            }
-        });
+        context.registerWindowSizeListener(windowSizeListener = ((width, height) -> {
+            currentHeight = height;
+        }));
     }
 
+    
     private void initCurrentMousePosition(long window) {
-        DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
-        DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
+        double[] x = new double[1];
+        double[] y = new double[1];
         glfwGetCursorPos(window, x, y);
-        mouseX = (int) Math.round(x.get());
-        mouseY = currentHeight - (int) Math.round(y.get());
+        context.getWindowContentScale(inputScale);
+        mouseX = (int) Math.round(x[0] * inputScale.x);
+        mouseY = (int) Math.round((currentHeight - y[0]) * inputScale.y);     
     }
 
     /**
@@ -330,6 +329,7 @@ public class GlfwMouseInput implements MouseInput {
         cursorPosCallback.close();
         scrollCallback.close();
         mouseButtonCallback.close();
+        context.removeWindowSizeListener(windowSizeListener);
     }
 
     @Override

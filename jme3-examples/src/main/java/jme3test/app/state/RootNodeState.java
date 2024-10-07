@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import com.jme3.scene.Node;
 
 public class RootNodeState extends AbstractAppState {
 
-    private Node rootNode = new Node("Root Node");
+    final private Node rootNode = new Node("Root Node");
 
     public Node getRootNode(){
         return rootNode;

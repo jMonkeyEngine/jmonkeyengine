@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,10 +50,10 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
 
 
     // private AnimComposer composer;
-    private String[] animNames = {"Dodge", "Walk", "pull", "push"};
+    final private String[] animNames = {"Dodge", "Walk", "pull", "push"};
     private final static int SIZE = 40;
     private boolean hwSkinningEnable = true;
-    private List<SkinningControl> skControls = new ArrayList<>();
+    final private List<SkinningControl> skControls = new ArrayList<>();
     private BitmapText hwsText;
 
     public static void main(String[] args) {
@@ -123,7 +123,7 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
 
     private void makeHudText() {
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        hwsText = new BitmapText(guiFont, false);
+        hwsText = new BitmapText(guiFont);
         hwsText.setSize(guiFont.getCharSet().getRenderedSize());
         hwsText.setText("HWS : "+ hwSkinningEnable);
         hwsText.setLocalTranslation(0, cam.getHeight(), 0);

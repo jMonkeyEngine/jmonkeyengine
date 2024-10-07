@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,12 +38,18 @@ package com.jme3.audio;
  */
 public class AudioContext {
 
-    private static ThreadLocal<AudioRenderer> audioRenderer = new ThreadLocal<AudioRenderer>();
- 
-    public static void setAudioRenderer( AudioRenderer ar ) {
-        audioRenderer.set(ar);       
+    final private static ThreadLocal<AudioRenderer> audioRenderer = new ThreadLocal<AudioRenderer>();
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private AudioContext() {
     }
-    
+
+    public static void setAudioRenderer(AudioRenderer ar) {
+        audioRenderer.set(ar);
+    }
+
     public static AudioRenderer getAudioRenderer() {
         return audioRenderer.get();
     }

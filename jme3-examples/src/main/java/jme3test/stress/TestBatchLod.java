@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,6 @@ import jme3tools.optimize.GeometryBatchFactory;
 
 public class TestBatchLod extends SimpleApplication {
 
-    private boolean lod = false;
-
     public static void main(String[] args) {
         TestBatchLod app = new TestBatchLod();
         app.start();
@@ -66,7 +64,7 @@ public class TestBatchLod extends SimpleApplication {
         mat.setBoolean("VertexLighting", true);
         teapot.setMaterial(mat);
 
-        // show normals as material
+        // A special Material to visualize mesh normals:
         //Material mat = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
         flyCam.setMoveSpeed(5);
         for (int y = -5; y < 5; y++) {

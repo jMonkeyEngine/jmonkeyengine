@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,20 +38,19 @@ import java.util.BitSet;
 
 /**
  * <code>AnimChannel</code> provides controls, such as play, pause,
- * fast forward, etc, for an animation. The animation
+ * fast-forward, etcetera, for an animation. The animation
  * channel may influence the entire model or specific bones of the model's
  * skeleton. A single model may have multiple animation channels influencing
  * various parts of its body. For example, a character model may have an
  * animation channel for its feet, and another for its torso, and
  * the animations for each channel are controlled independently.
- * 
+ *
  * @author Kirill Vainer
  */
 @Deprecated
 public final class AnimChannel {
-
     private static final float DEFAULT_BLEND_TIME = 0.15f;
-    
+
     private AnimControl control;
 
     private BitSet affectedBones;
@@ -63,36 +62,35 @@ public final class AnimChannel {
     private float timeBlendFrom;
     private float blendTime;
     private float speedBlendFrom;
-    private boolean notified=false;
+    private boolean notified = false;
 
     private LoopMode loopMode, loopModeBlendFrom;
-    
+
     private float blendAmount = 1f;
-    private float blendRate   = 0;
-    
-    public AnimChannel(){
-        
+    private float blendRate = 0;
+
+    public AnimChannel() {
     }
-    
-    public AnimChannel(AnimControl control){
+
+    public AnimChannel(AnimControl control) {
         this.control = control;
     }
 
     /**
      * Returns the parent control of this AnimChannel.
-     * 
+     *
      * @return the parent control of this AnimChannel.
      * @see AnimControl
      */
     public AnimControl getControl() {
         return control;
     }
-    
+
     /**
      * @return The name of the currently playing animation, or null if
      * none is assigned.
      *
-     * @see AnimChannel#setAnim(java.lang.String) 
+     * @see AnimChannel#setAnim(java.lang.String)
      */
     public String getAnimationName() {
         return animation != null ? animation.getName() : null;
@@ -102,7 +100,7 @@ public final class AnimChannel {
      * @return The loop mode currently set for the animation. The loop mode
      * determines what will happen to the animation once it finishes
      * playing.
-     * 
+     *
      * For more information, see the LoopMode enum class.
      * @see LoopMode
      * @see AnimChannel#setLoopMode(com.jme3.animation.LoopMode)
@@ -141,10 +139,10 @@ public final class AnimChannel {
      */
     public void setSpeed(float speed) {
         this.speed = speed;
-        if(blendTime>0){
+        if (blendTime > 0) {
             this.speedBlendFrom = speed;
-            blendTime = Math.min(blendTime, animation.getLength() / speed);  
-            blendRate = 1/ blendTime;
+            blendTime = Math.min(blendTime, animation.getLength() / speed);
+            blendRate = 1 / blendTime;
         }
     }
 
@@ -160,7 +158,7 @@ public final class AnimChannel {
 
     /**
      * @param time Set the time of the currently playing animation, the time
-     * is clamped from 0 to {@link #getAnimMaxTime()}. 
+     * is clamped from 0 to {@link #getAnimMaxTime()}.
      */
     public void setTime(float time) {
         this.time = FastMath.clamp(time, 0, getAnimMaxTime());
@@ -172,7 +170,7 @@ public final class AnimChannel {
      *
      * @see AnimChannel#getTime()
      */
-    public float getAnimMaxTime(){
+    public float getAnimMaxTime() {
         return animation != null ? animation.getLength() : 0f;
     }
 
@@ -188,7 +186,7 @@ public final class AnimChannel {
      * with the old one. If zero, then no blending will occur and the new
      * animation will be applied instantly.
      */
-    public void setAnim(String name, float blendTime){
+    public void setAnim(String name, float blendTime) {
         if (name == null)
             throw new IllegalArgumentException("name cannot be null");
 
@@ -197,21 +195,21 @@ public final class AnimChannel {
 
         Animation anim = control.animationMap.get(name);
         if (anim == null)
-            throw new IllegalArgumentException("Cannot find animation named: '"+name+"'");
+            throw new IllegalArgumentException("Cannot find animation named: '" + name + "'");
 
         control.notifyAnimChange(this, name);
 
-        if (animation != null && blendTime > 0f){
+        if (animation != null && blendTime > 0f) {
             this.blendTime = blendTime;
             // activate blending
-            blendTime = Math.min(blendTime, anim.getLength() / speed);            
+            blendTime = Math.min(blendTime, anim.getLength() / speed);
             blendFrom = animation;
             timeBlendFrom = time;
             speedBlendFrom = speed;
             loopModeBlendFrom = loopMode;
             blendAmount = 0f;
-            blendRate   = 1f / blendTime;
-        }else{
+            blendRate = 1f / blendTime;
+        } else {
             blendFrom = null;
         }
 
@@ -227,10 +225,10 @@ public final class AnimChannel {
      * <p>
      * See {@link #setAnim(java.lang.String, float)}.
      * The blendTime argument by default is 150 milliseconds.
-     * 
+     *
      * @param name The name of the animation to play
      */
-    public void setAnim(String name){
+    public void setAnim(String name) {
         setAnim(name, DEFAULT_BLEND_TIME);
     }
 
@@ -244,6 +242,8 @@ public final class AnimChannel {
 
     /**
      * Add a single bone to be influenced by this animation channel.
+     *
+     * @param name the name of the Bone to be influenced
      */
     public void addBone(String name) {
         addBone(control.getSkeleton().getBone(name));
@@ -251,10 +251,12 @@ public final class AnimChannel {
 
     /**
      * Add a single bone to be influenced by this animation channel.
+     *
+     * @param bone the Bone to be influenced
      */
     public void addBone(Bone bone) {
         int boneIndex = control.getSkeleton().getBoneIndex(bone);
-        if(affectedBones == null) {
+        if (affectedBones == null) {
             affectedBones = new BitSet(control.getSkeleton().getBoneCount());
         }
         affectedBones.set(boneIndex);
@@ -263,6 +265,8 @@ public final class AnimChannel {
     /**
      * Add bones to be influenced by this animation channel starting from the
      * given bone name and going toward the root bone.
+     *
+     * @param name the name of the Bone to use as a starting point
      */
     public void addToRootBone(String name) {
         addToRootBone(control.getSkeleton().getBone(name));
@@ -271,6 +275,8 @@ public final class AnimChannel {
     /**
      * Add bones to be influenced by this animation channel starting from the
      * given bone and going toward the root bone.
+     *
+     * @param bone the Bone to use as a starting point
      */
     public void addToRootBone(Bone bone) {
         addBone(bone);
@@ -283,6 +289,8 @@ public final class AnimChannel {
     /**
      * Add bones to be influenced by this animation channel, starting
      * from the given named bone and going toward its children.
+     *
+     * @param name the name of the Bone to use as a starting point
      */
     public void addFromRootBone(String name) {
         addFromRootBone(control.getSkeleton().getBone(name));
@@ -291,6 +299,8 @@ public final class AnimChannel {
     /**
      * Add bones to be influenced by this animation channel, starting
      * from the given bone and going toward its children.
+     *
+     * @param bone the Bone to use as a starting point
      */
     public void addFromRootBone(Bone bone) {
         addBone(bone);
@@ -302,19 +312,19 @@ public final class AnimChannel {
         }
     }
 
-    BitSet getAffectedBones(){
+    BitSet getAffectedBones() {
         return affectedBones;
     }
-    
-    public void reset(boolean rewind){
-        if(rewind){
-            setTime(0);        
-            if(control.getSkeleton()!=null){
+
+    public void reset(boolean rewind) {
+        if (rewind) {
+            setTime(0);
+            if (control.getSkeleton() != null) {
                 control.getSkeleton().resetAndUpdate();
-            }else{
+            } else {
                 TempVars vars = TempVars.get();
                 update(0, vars);
-                vars.release();    
+                vars.release();
             }
         }
         animation = null;
@@ -325,43 +335,43 @@ public final class AnimChannel {
         if (animation == null)
             return;
 
-        if (blendFrom != null && blendAmount != 1.0f){
+        if (blendFrom != null && blendAmount != 1.0f) {
             // The blendFrom anim is set, the actual animation
-            // playing will be set 
+            // playing will be set
 //            blendFrom.setTime(timeBlendFrom, 1f, control, this, vars);
             blendFrom.setTime(timeBlendFrom, 1f - blendAmount, control, this, vars);
-            
+
             timeBlendFrom += tpf * speedBlendFrom;
             timeBlendFrom = AnimationUtils.clampWrapTime(timeBlendFrom,
-                                          blendFrom.getLength(),
-                                          loopModeBlendFrom);
-            if (timeBlendFrom < 0){
+                    blendFrom.getLength(),
+                    loopModeBlendFrom);
+            if (timeBlendFrom < 0) {
                 timeBlendFrom = -timeBlendFrom;
                 speedBlendFrom = -speedBlendFrom;
             }
 
             blendAmount += tpf * blendRate;
-            if (blendAmount > 1f){
+            if (blendAmount > 1f) {
                 blendAmount = 1f;
                 blendFrom = null;
             }
         }
-        
+
         animation.setTime(time, blendAmount, control, this, vars);
-        time += tpf * speed;      
-        if (animation.getLength() > 0){
+        time += tpf * speed;
+        if (animation.getLength() > 0) {
             if (!notified && (time >= animation.getLength() || time < 0)) {
                 if (loopMode == LoopMode.DontLoop) {
-                    // Note that this flag has to be set before calling the notify
+                    // Note that this flag has to be set before calling the notify,
                     // since the notify may start a new animation and then unset
                     // the flag.
                     notified = true;
                 }
                 control.notifyAnimCycleDone(this, animation.getName());
-            } 
+            }
         }
         time = AnimationUtils.clampWrapTime(time, animation.getLength(), loopMode);
-        if (time < 0){
+        if (time < 0) {
             // Negative time indicates that speed should be inverted
             // (for cycle loop mode only)
             time = -time;

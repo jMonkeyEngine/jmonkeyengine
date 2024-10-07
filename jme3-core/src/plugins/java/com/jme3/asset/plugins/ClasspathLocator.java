@@ -33,6 +33,8 @@ package com.jme3.asset.plugins;
 
 import com.jme3.asset.*;
 import com.jme3.system.JmeSystem;
+import com.jme3.util.res.Resources;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -44,8 +46,7 @@ import java.util.logging.Logger;
  * The <code>ClasspathLocator</code> looks up an asset in the classpath.
  * 
  * This locator is used by default in all jME3 projects (unless 
- * {@link AssetManager#unregisterLocator(java.lang.String, java.lang.Class) unregistered}
- * ).
+ * {@link AssetManager#unregisterLocator(java.lang.String, java.lang.Class) unregistered}).
  * Unlike Java's default resource loading mechanism, the <code>ClasspathLocator</code>
  * enforces case-sensitivity on platforms which do not have it such as Windows.
  * Therefore, it is critical to provide a path matching the case of the file on
@@ -88,20 +89,10 @@ public class ClasspathLocator implements AssetLocator {
 //            name = root + name;
 //        }
 
-        if (JmeSystem.isLowPermissions()){
-            url = ClasspathLocator.class.getResource("/" + name);
-        }else{
-            url = Thread.currentThread().getContextClassLoader().getResource(name);
-        }
-
-        if (url == null) {
-            final List<ClassLoader> classLoaders = manager.getClassLoaders();
-            for (final ClassLoader classLoader : classLoaders) {
-                url = classLoader.getResource(name);
-                if(url != null) {
-                    break;
-                }
-            }
+        if (JmeSystem.isLowPermissions()) {
+            url = Resources.getResource("/" + name, ClasspathLocator.class);    
+        } else {
+            url = Resources.getResource(name);
         }
 
         if (url == null)

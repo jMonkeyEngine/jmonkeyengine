@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015-2016, 2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,17 +46,17 @@ import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
- * Represents a spot light.
- * A spot light emits a cone of light from a position and in a direction.
+ * Represents a spotlight.
+ * A spotlight emits a cone of light from a position and in a direction.
  * It can be used to fake torch lights or car's lights.
  * <p>
- * In addition to a position and a direction, spot lights also have a range which 
+ * In addition to a position and a direction, spotlights also have a range which
  * can be used to attenuate the influence of the light depending on the 
  * distance between the light and the affected object.
- * Also the angle of the cone can be tweaked by changing the spot inner angle and the spot outer angle.
- * the spot inner angle determines the cone of light where light has full influence.
- * the spot outer angle determines the cone global cone of light of the spot light.
- * the light intensity slowly decreases between the inner cone and the outer cone.
+ * Also, the angle of the cone can be tweaked by changing the spot inner angle and the spot outer angle.
+ * The spot inner angle determines the cone where light has full influence.
+ * The spot outer angle determines the global cone of light.
+ * The light intensity slowly decreases from the inner cone to the outer cone.
  *  @author Nehon
  */
 public class SpotLight extends Light {
@@ -96,7 +96,7 @@ public class SpotLight extends Light {
      * given range.
      * @param position the position in world space.
      * @param direction the direction of the light.
-     * @param range the spot light range
+     * @param range the spotlight range
      */
     public SpotLight(Vector3f position, Vector3f direction, float range) {
         this();
@@ -125,7 +125,7 @@ public class SpotLight extends Light {
      * the given range and the given color.
      * @param position the position in world space.
      * @param direction the direction of the light.
-     * @param range the spot light range
+     * @param range the spotlight range
      * @param color the light's color.
      */
     public SpotLight(Vector3f position, Vector3f direction, float range, ColorRGBA color) {
@@ -143,10 +143,10 @@ public class SpotLight extends Light {
      * 
      * @param position the position in world space.
      * @param direction the direction of the light.
-     * @param range the spot light range
+     * @param range the spotlight range
      * @param color the light's color.
-     * @param innerAngle the inner angle of the spot light.
-     * @param outerAngle the outer angle of the spot light.
+     * @param innerAngle the inner angle of the spotlight.
+     * @param outerAngle the outer angle of the spotlight.
      * 
      * @see SpotLight#setSpotInnerAngle(float) 
      * @see SpotLight#setSpotOuterAngle(float) 
@@ -168,7 +168,7 @@ public class SpotLight extends Light {
         packedAngleCos = (int) (innerCos * 1000);
         
         //due to approximations, very close angles can give the same cos
-        //here we make sure outer cos is bellow inner cos.
+        //here we make sure outer cos is below inner cos.
         if (((int) packedAngleCos) == ((int) (outerAngleCos * 1000))) {
             outerAngleCos -= 0.001f;
         }
@@ -207,16 +207,16 @@ public class SpotLight extends Light {
         Vector3f U = position.subtract(E, vars.vect2);
         Vector3f D = otherCenter.subtract(U, vars.vect3);
 
-        float dsqr = D.dot(D);
+        float dSquared = D.dot(D);
         float e = direction.dot(D);
 
-        if (e > 0f && e * e >= dsqr * outerAngleCosSqr) {
+        if (e > 0f && e * e >= dSquared * outerAngleCosSqr) {
             D = otherCenter.subtract(position, vars.vect3);
-            dsqr = D.dot(D);
+            dSquared = D.dot(D);
             e = -direction.dot(D);
 
-            if (e > 0f && e * e >= dsqr * outerAngleSinSqr) {
-                return dsqr <= otherRadiusSquared;
+            if (e > 0f && e * e >= dSquared * outerAngleSinSqr) {
+                return dSquared <= otherRadiusSquared;
             } else {
                 return true;
             }
@@ -244,16 +244,16 @@ public class SpotLight extends Light {
         Vector3f U = position.subtract(E, vars.vect2);
         Vector3f D = sphere.getCenter().subtract(U, vars.vect3);
 
-        float dsqr = D.dot(D);
+        float dSquared = D.dot(D);
         float e = direction.dot(D);
 
-        if (e > 0f && e * e >= dsqr * outerAngleCosSqr) {
+        if (e > 0f && e * e >= dSquared * outerAngleCosSqr) {
             D = sphere.getCenter().subtract(position, vars.vect3);
-            dsqr = D.dot(D);
+            dSquared = D.dot(D);
             e = -direction.dot(D);
 
-            if (e > 0f && e * e >= dsqr * outerAngleSinSqr) {
-                return dsqr <= otherRadiusSquared;
+            if (e > 0f && e * e >= dSquared * outerAngleSinSqr) {
+                return dSquared <= otherRadiusSquared;
             } else {
                 return true;
             }
@@ -378,7 +378,8 @@ public class SpotLight extends Light {
      * Must be between 0 and pi/2.
      * <p>
      * This angle is the angle between the spot direction axis and the inner border of the cone of influence.
-     * @param spotInnerAngle 
+     *
+     * @param spotInnerAngle the desired angle (in radians, &ge;0, &le;Pi/2)
      */
     public void setSpotInnerAngle(float spotInnerAngle) {
         if (spotInnerAngle < 0f || spotInnerAngle >= FastMath.HALF_PI) {
@@ -403,7 +404,8 @@ public class SpotLight extends Light {
      * <p>
      * This angle is the angle between the spot direction axis and the outer border of the cone of influence.
      * this should be greater than the inner angle or the result will be unexpected.
-     * @param spotOuterAngle 
+     *
+     * @param spotOuterAngle the desired angle (in radians, &ge;0, &le;Pi/2)
      */
     public void setSpotOuterAngle(float spotOuterAngle) {
         if (spotOuterAngle < 0f || spotOuterAngle >= FastMath.HALF_PI) {

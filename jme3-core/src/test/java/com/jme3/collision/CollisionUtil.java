@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,12 @@ import com.jme3.bounding.BoundingVolume;
  */
 final class CollisionUtil {
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private CollisionUtil() {
+    }
+
     private static void checkCollisionBase(Collidable a, Collidable b, int expected) {
         // Test bounding volume methods
         if (a instanceof BoundingVolume && b instanceof BoundingVolume) {
@@ -54,7 +60,7 @@ final class CollisionUtil {
         assert results.size() == numCollisions;
         assert numCollisions == expected;
 
-        // force the results to be sorted here..
+        // Force the results to be sorted here.
         results.getClosestCollision();
 
         if (results.size() > 0) {
@@ -71,7 +77,7 @@ final class CollisionUtil {
      * 
      * @param a First collidable
      * @param b Second collidable
-     * @param expect Number of expected results
+     * @param expected the expected number of results
      */
     public static void checkCollision(Collidable a, Collidable b, int expected) {
         checkCollisionBase(a, b, expected);

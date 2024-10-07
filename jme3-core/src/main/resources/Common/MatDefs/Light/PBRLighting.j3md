@@ -1,11 +1,12 @@
 MaterialDef PBR Lighting {
 
     MaterialParameters {
+        Int BoundDrawBuffer
 
         // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
 
-        //metalness of the material
+        //metallicity of the material
         Float Metallic : 1.0
         //Roughness of the material
         Float Roughness : 1.0        
@@ -28,7 +29,7 @@ MaterialDef PBR Lighting {
         Texture2D RoughnessMap -LINEAR
 
         //Metallic and Roughness are packed respectively in the b and g channel of a single map
-        // r: unspecified
+        // r: AO (if AoPackedInMRMap is true)
         // g: Roughness
         // b: Metallic
         Texture2D MetallicRoughnessMap -LINEAR
@@ -38,6 +39,8 @@ MaterialDef PBR Lighting {
 
         // Normal map
         Texture2D NormalMap -LINEAR
+        // The scalar parameter applied to each normal vector of the normal map
+        Float NormalScale
 
         //The type of normal map: -1.0 (DirectX), 1.0 (OpenGl)
         Float NormalType : -1.0
@@ -53,6 +56,13 @@ MaterialDef PBR Lighting {
         // Parallax/height map
         Texture2D ParallaxMap -LINEAR
 
+        // Specular-AA
+        Boolean UseSpecularAA : true
+        // screen space variance,Use the slider to set the strength of the geometric specular anti-aliasing effect between 0 and 1. Higher values produce a blurrier result with less aliasing.
+        Float SpecularAASigma
+        // clamping threshold,Use the slider to set a maximum value for the offset that HDRP subtracts from the smoothness value to reduce artifacts.
+        Float SpecularAAKappa
+
         //Set to true if parallax map is stored in the alpha channel of the normal map
         Boolean PackedNormalParallax   
 
@@ -67,6 +77,10 @@ MaterialDef PBR Lighting {
 
         // Set to Use Lightmap
         Texture2D LightMap
+
+        // A scalar multiplier controlling the amount of occlusion applied.
+        // A value of `0.0` means no occlusion. A value of `1.0` means full occlusion.
+        Float AoStrength
 
         // Set to use TexCoord2 for the lightmap sampling
         Boolean SeparateTexCoord
@@ -123,8 +137,8 @@ MaterialDef PBR Lighting {
     Technique {
         LightMode SinglePassAndImageBased
         
-        VertexShader GLSL300 GLSL110 GLSL150:   Common/MatDefs/Light/PBRLighting.vert
-        FragmentShader GLSL300 GLSL110 GLSL150: Common/MatDefs/Light/PBRLighting.frag
+        VertexShader GLSL300 GLSL150 GLSL110:   Common/MatDefs/Light/PBRLighting.vert
+        FragmentShader GLSL300 GLSL150 GLSL110: Common/MatDefs/Light/PBRLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -135,9 +149,11 @@ MaterialDef PBR Lighting {
             ViewMatrix
         }
 
-        Defines {         
+        Defines {  
+            BOUND_DRAW_BUFFER: BoundDrawBuffer       
             BASECOLORMAP : BaseColorMap            
             NORMALMAP : NormalMap
+            NORMALSCALE : NormalScale
             METALLICMAP : MetallicMap
             ROUGHNESSMAP : RoughnessMap
             EMISSIVEMAP : EmissiveMap
@@ -154,11 +170,15 @@ MaterialDef PBR Lighting {
             USE_PACKED_MR: MetallicRoughnessMap
             USE_PACKED_SG: SpecularGlossinessMap
             SPECULARMAP : SpecularMap
+            SPECULAR_AA : UseSpecularAA
+            SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
+            SPECULAR_AA_THRESHOLD : SpecularAAKappa
             GLOSSINESSMAP : GlossinessMap
             NORMAL_TYPE: NormalType
             VERTEX_COLOR : UseVertexColor
             AO_MAP: LightMapAsAOMap
             AO_PACKED_IN_MR_MAP : AoPackedInMRMap
+            AO_STRENGTH : AoStrength
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
             HORIZON_FADE: HorizonFade
@@ -168,8 +188,8 @@ MaterialDef PBR Lighting {
 
     Technique PreShadow {
 
-        VertexShader GLSL300 GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL300 GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadowPBR.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PreShadowPBR.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -179,6 +199,7 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
@@ -198,8 +219,8 @@ MaterialDef PBR Lighting {
 
 
     Technique PostShadow {
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadowPBR.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PostShadowPBR.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -209,6 +230,7 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
@@ -233,8 +255,8 @@ MaterialDef PBR Lighting {
 
     Technique PreNormalPass {
 
-        VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
-        FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+        VertexShader   GLSL300 GLSL150 GLSL100 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL300 GLSL150 GLSL100 : Common/MatDefs/SSAO/normal.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -245,6 +267,8 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            BASECOLORMAP_ALPHA : BaseColorMap            
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets
@@ -255,8 +279,8 @@ MaterialDef PBR Lighting {
 
     Technique Glow {
 
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Light/PBRGlow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -265,6 +289,9 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
+            HAS_EMISSIVEMAP : EmissiveMap
+            HAS_EMISSIVECOLOR : Emissive
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             NEED_TEXCOORD1
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing

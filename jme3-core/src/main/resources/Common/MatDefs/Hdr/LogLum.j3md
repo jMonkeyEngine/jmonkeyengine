@@ -1,6 +1,7 @@
 MaterialDef Log Lum 2D {
 
     MaterialParameters {
+        Int BoundDrawBuffer
         Texture2D Texture
         Vector2 BlockSize
         Vector2 PixelSize
@@ -12,14 +13,15 @@ MaterialDef Log Lum 2D {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Gui/Gui.vert
-        FragmentShader GLSL100: Common/MatDefs/Hdr/LogLum.frag
+        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Gui/Gui.vert
+        FragmentShader GLSL300 GLSL150 GLSL100:   Common/MatDefs/Hdr/LogLum.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             TEXTURE
             ENCODE_LUM : EncodeLum
             DECODE_LUM : DecodeLum

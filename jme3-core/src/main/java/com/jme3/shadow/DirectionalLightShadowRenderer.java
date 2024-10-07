@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,9 +56,9 @@ import java.io.IOException;
  * a shadow map for each one.<br> splits are distributed so that the closer they
  * are from the camera, the smaller they are to maximize the resolution used of
  * the shadow map.<br> This results in a better quality shadow than standard
- * shadow mapping.<br> for more informations on this read this <a
+ * shadow mapping.<br> for more information on this read <a
  * href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html</a><br>
- * <p/>
+ *
  * @author Rémy Bouquet aka Nehon
  */
 public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
@@ -82,14 +82,14 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     /**
-     * Create a DirectionalLightShadowRenderer More info on the technique at <a
+     * Creates a DirectionalLight shadow renderer. More info on the technique at <a
      * href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html</a>
      *
-     * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
-     * etc...)
-     * @param nbSplits the number of shadow maps rendered (the more shadow maps
-     * the more quality, the less fps).
+     * @param assetManager the application's asset manager
+     * @param shadowMapSize the size of the rendered shadowmaps (512, 1024, 2048,
+     *     etcetera)
+     * @param nbSplits the number of shadow maps rendered (More shadow maps yield
+     *     better quality, fewer fps.)
      */
     public DirectionalLightShadowRenderer(AssetManager assetManager, int shadowMapSize, int nbSplits) {
         super(assetManager, shadowMapSize, nbSplits);
@@ -243,11 +243,16 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     /**
-     * Adjust the repartition of the different shadow maps in the shadow extend.
+     * Adjusts the partition of the shadow extend into shadow maps.
      * Lambda is usually between 0 and 1.
-     * A low value give a more linear repartition resulting in a constant quality in the shadow over the extends, but near shadows could look very jagged.
-     * A high value give a more logarithmic repartition resulting in a high quality for near shadows, but the quality quickly decrease over the extend.
-     * The default value is 0.65f (theoretical optimal value).
+     * A low value gives a more linear partition,
+     * resulting in consistent shadow quality over the extend,
+     * but near shadows could look very jagged.
+     * A high value gives a more logarithmic partition,
+     * resulting in high quality for near shadows,
+     * but quality decreases rapidly with distance.
+     * The default value is 0.65 (the theoretical optimum).
+     *
      * @param lambda the lambda value.
      */
     public void setLambda(float lambda) {
@@ -264,8 +269,9 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     /**
      * Enables the stabilization of the shadow's edges. (default is true)
      * This prevents shadow edges from flickering when the camera moves.
-     * However it can lead to some shadow quality loss in some particular scenes.
-     * @param stabilize 
+     * However, it can lead to some loss of shadow quality in particular scenes.
+     *
+     * @param stabilize true to stabilize, false to disable stabilization
      */
     public void setEnabledStabilization(boolean stabilize) {
         this.stabilize = stabilize;
@@ -303,7 +309,8 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
     /**
      * Directional light are always in the view frustum
-     * @param viewCam
+     *
+     * @param viewCam a Camera to define the view frustum
      * @return true
      */
     @Override

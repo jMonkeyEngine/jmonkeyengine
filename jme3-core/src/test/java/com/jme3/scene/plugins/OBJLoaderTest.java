@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public class OBJLoaderTest {
             "  Chair 2 (material: dot_purple)\n" +
             // named group as Geometry
             "  Pillow 2 (material: dot_red)\n" +
-            // named group as node with two dufferent Geometry instances,
+            // named group as node with two different Geometry instances,
             // because two materials are used (as before named groups support)
             "  Podium\n" +
             "    TwoChairs-geom-3 (material: dot_red)\n" +

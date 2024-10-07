@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,6 @@ public class AssetTileLoader implements TerrainGridTileLoader {
     private AssetManager manager;
     private String assetPath;
     private String name;
-    private int size;
     private int patchSize;
     private int quadSize;
 

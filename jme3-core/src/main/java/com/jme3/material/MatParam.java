@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,25 @@
  */
 package com.jme3.material;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 import com.jme3.asset.TextureKey;
-import com.jme3.export.*;
-import com.jme3.math.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-
-import java.io.IOException;
 
 /**
  * Describes a material parameter. This is used for both defining a name and type
@@ -52,9 +63,14 @@ public class MatParam implements Savable, Cloneable {
     protected String name;
     protected String prefixedName;
     protected Object value;
+    protected boolean typeCheck = true;
 
     /**
      * Create a new material parameter. For internal use only.
+     *
+     * @param type  the type of the parameter
+     * @param name  the desired parameter name
+     * @param value the desired parameter value (alias created)
      */
     public MatParam(VarType type, String name, Object value) {
         this.type = type;
@@ -69,6 +85,21 @@ public class MatParam implements Savable, Cloneable {
     protected MatParam() {
     }
 
+    public boolean isTypeCheckEnabled() {
+        return typeCheck;
+    }
+
+    /**
+     * Enable type check for this param.
+     * When type check is enabled a RuntimeException is thrown if 
+     * an object of the wrong type is passed to setValue.
+     * 
+     * @param typeCheck (default = true)
+     */
+    public void setTypeCheckEnabled(boolean typeCheck) {
+        this.typeCheck = typeCheck;
+    }
+
     /**
      * Returns the material parameter type.
      *
@@ -80,6 +111,7 @@ public class MatParam implements Savable, Cloneable {
 
     /**
      * Returns the name of the material parameter.
+     * 
      * @return the name of the material parameter.
      */
     public String getName() {
@@ -126,21 +158,37 @@ public class MatParam implements Savable, Cloneable {
      * @param value the value of this material parameter.
      */
     public void setValue(Object value) {
+        if (isTypeCheckEnabled()) {
+            if (value != null && this.type != null && this.type.getJavaType().length != 0) {
+                boolean valid = false;
+                for (Class<?> jtype : this.type.getJavaType()) {
+                    if (jtype.isAssignableFrom(value.getClass())) {
+                        valid = true;
+                        break;
+                    }
+                }
+                if (!valid) {
+                    throw new RuntimeException("Trying to assign a value of type " + value.getClass() 
+                            + " to " + this.getName() 
+                            + " of type " + type.name() 
+                            + ". Valid types are " + Arrays.deepToString(type.getJavaType()));
+                }
+            }
+        }
         this.value = value;
     }
 
-
     /**
      * Returns the material parameter value as it would appear in a J3M
-     * file. E.g.<br/>
-     * <code>
-     * MaterialParameters {<br/>
-     *     ABC : 1 2 3 4<br/>
-     * }<br/>
-     * </code>
+     * file. E.g.
+     * <pre>
+     * MaterialParameters {
+     *     ABC : 1 2 3 4
+     * }
+     * </pre>
      * Assuming "ABC" is a Vector4 parameter, then the value
      * "1 2 3 4" would be returned by this method.
-     * <br/><br/>
+     *
      * @return material parameter value as it would appear in a J3M file.
      */
     public String getValueAsString() {
@@ -152,7 +200,7 @@ public class MatParam implements Savable, Cloneable {
             case Vector2:
                 Vector2f v2 = (Vector2f) value;
                 return v2.getX() + " " + v2.getY();
-/* 
+/*
 This may get used at a later point of time
 When arrays can be inserted in J3M files
 
@@ -237,12 +285,12 @@ When arrays can be inserted in J3M files
             case TextureCubeMap:
                 Texture texVal = (Texture) value;
                 TextureKey texKey = (TextureKey) texVal.getKey();
-                if (texKey == null){
-                  //throw new UnsupportedOperationException("The specified MatParam cannot be represented in J3M");
-                    // this is used in toString and the above line causes blender materials to throw this exception. 
+                if (texKey == null) {
+                    // throw new UnsupportedOperationException("The specified MatParam cannot be represented in J3M");
+                    // this is used in toString and the above line causes blender materials to throw this exception.
                     // toStrings should be very robust IMO as even debuggers often invoke toString and logging code
-                    // often does as well, even implicitly. 
-                    return texVal+":returned null key";
+                    // often does as well, even implicitly.
+                    return texVal + ":returned null key";
                 }
 
                 String ret = "";
@@ -250,22 +298,22 @@ When arrays can be inserted in J3M files
                     ret += "Flip ";
                 }
 
-                //Wrap mode
+                // Wrap mode
                 ret += getWrapMode(texVal, Texture.WrapAxis.S);
                 ret += getWrapMode(texVal, Texture.WrapAxis.T);
                 ret += getWrapMode(texVal, Texture.WrapAxis.R);
 
-                //Min and Mag filter
-                Texture.MinFilter def =  Texture.MinFilter.BilinearNoMipMaps;
-                if(texVal.getImage().hasMipmaps() || texKey.isGenerateMips()){
+                // Min and Mag filter
+                Texture.MinFilter def = Texture.MinFilter.BilinearNoMipMaps;
+                if (texVal.getImage().hasMipmaps() || texKey.isGenerateMips()) {
                     def = Texture.MinFilter.Trilinear;
                 }
-                if(texVal.getMinFilter() != def){
-                    ret += "Min" + texVal.getMinFilter().name()+ " ";
+                if (texVal.getMinFilter() != def) {
+                    ret += "Min" + texVal.getMinFilter().name() + " ";
                 }
 
-                if(texVal.getMagFilter() != Texture.MagFilter.Bilinear){
-                    ret += "Mag" + texVal.getMagFilter().name()+ " ";
+                if (texVal.getMagFilter() != Texture.MagFilter.Bilinear) {
+                    ret += "Mag" + texVal.getMagFilter().name() + " ";
                 }
 
                 return ret + "\"" + texKey.getName() + "\"";
@@ -276,14 +324,14 @@ When arrays can be inserted in J3M files
 
     private String getWrapMode(Texture texVal, Texture.WrapAxis axis) {
         WrapMode mode = WrapMode.EdgeClamp;
-        try{
+        try {
             mode = texVal.getWrap(axis);
-        }catch (IllegalArgumentException e){
-            //this axis doesn't exist on the texture
+        } catch (IllegalArgumentException ex) {
+            // this axis doesn't exist on the texture
             return "";
         }
-        if(mode != WrapMode.EdgeClamp){
-            return"Wrap"+ mode.name() + "_" + axis.name() + " ";
+        if (mode != WrapMode.EdgeClamp) {
+            return "Wrap" + mode.name() + "_" + axis.name() + " ";
         }
         return "";
     }
@@ -319,6 +367,8 @@ When arrays can be inserted in J3M files
         } else if (value.getClass().isArray() && value instanceof Savable[]) {
             oc.write((Savable[]) value, "value_savable_array", null);
         }
+
+        oc.write(typeCheck, "typeCheck", true);
     }
 
     @Override
@@ -376,6 +426,8 @@ When arrays can be inserted in J3M files
                 value = ic.readSavable("value_savable", null);
                 break;
         }
+
+        typeCheck = ic.readBoolean("typeCheck", true);
     }
 
     @Override

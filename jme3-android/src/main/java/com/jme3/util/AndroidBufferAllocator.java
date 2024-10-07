@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,9 @@ import java.util.Map;
 
 /**
  * @author Jesus Oliver
+ * @deprecated implemented {@link AndroidNativeBufferAllocator} instead.
  */
+@Deprecated
 public class AndroidBufferAllocator implements BufferAllocator {
 
     // We make use of the ReflectionAllocator to remove the inner buffer
@@ -79,14 +81,14 @@ public class AndroidBufferAllocator implements BufferAllocator {
         }
     }
 
-    @Override
     /**
-     * This function search the inner direct buffer of the android specific wrapped buffer classes
+     * Searches the inner direct buffer of the Android-specific wrapped buffer classes
      * and destroys it using the reflection allocator method.
      *
      * @param toBeDestroyed The direct buffer that will be "cleaned".
      *
      */
+    @Override
     public void destroyDirectBuffer(Buffer toBeDestroyed) {
         // If it is a wrapped buffer, get it's inner direct buffer field and destroy it
         Field field = fieldIndex.get(toBeDestroyed.getClass());

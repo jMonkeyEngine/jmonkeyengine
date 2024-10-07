@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,16 +61,13 @@ public class HelloTerrainCollision extends SimpleApplication
         implements ActionListener {
 
   private BulletAppState bulletAppState;
-  private RigidBodyControl landscape;
   private CharacterControl player;
-  private Vector3f walkDirection = new Vector3f();
+  final private Vector3f walkDirection = new Vector3f();
   private boolean left = false, right = false, up = false, down = false;
-  private TerrainQuad terrain;
-  private Material mat_terrain;
   //Temporary vectors used on each frame.
-  //They here to avoid instanciating new vectors on each frame
-  private Vector3f camDir = new Vector3f();
-  private Vector3f camLeft = new Vector3f();
+  //They here to avoid instantiating new vectors on each frame
+  final private Vector3f camDir = new Vector3f();
+  final private Vector3f camLeft = new Vector3f();
 
   public static void main(String[] args) {
     HelloTerrainCollision app = new HelloTerrainCollision();
@@ -79,51 +76,50 @@ public class HelloTerrainCollision extends SimpleApplication
 
   @Override
   public void simpleInitApp() {
-    /** Set up Physics */
+    /* Set up physics */
     bulletAppState = new BulletAppState();
     stateManager.attach(bulletAppState);
-    //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
     
     flyCam.setMoveSpeed(100);
     setUpKeys();
 
-    /** 1. Create terrain material and load four textures into it. */
-    mat_terrain = new Material(assetManager, 
+    /* 1. Create terrain material and load four textures into it. */
+    Material mat_terrain = new Material(assetManager, 
             "Common/MatDefs/Terrain/Terrain.j3md");
 
-    /** 1.1) Add ALPHA map (for red-blue-green coded splat textures) */
+    /* 1.1) Add ALPHA map (for red-blue-green coded splat textures) */
     mat_terrain.setTexture("Alpha", assetManager.loadTexture(
             "Textures/Terrain/splat/alphamap.png"));
 
-    /** 1.2) Add GRASS texture into the red layer (Tex1). */
+    /* 1.2) Add GRASS texture into the red layer (Tex1). */
     Texture grass = assetManager.loadTexture(
             "Textures/Terrain/splat/grass.jpg");
     grass.setWrap(WrapMode.Repeat);
     mat_terrain.setTexture("Tex1", grass);
     mat_terrain.setFloat("Tex1Scale", 64f);
 
-    /** 1.3) Add DIRT texture into the green layer (Tex2) */
+    /* 1.3) Add DIRT texture into the green layer (Tex2) */
     Texture dirt = assetManager.loadTexture(
             "Textures/Terrain/splat/dirt.jpg");
     dirt.setWrap(WrapMode.Repeat);
     mat_terrain.setTexture("Tex2", dirt);
     mat_terrain.setFloat("Tex2Scale", 32f);
 
-    /** 1.4) Add ROAD texture into the blue layer (Tex3) */
+    /* 1.4) Add ROAD texture into the blue layer (Tex3) */
     Texture rock = assetManager.loadTexture(
             "Textures/Terrain/splat/road.jpg");
     rock.setWrap(WrapMode.Repeat);
     mat_terrain.setTexture("Tex3", rock);
     mat_terrain.setFloat("Tex3Scale", 128f);
 
-    /** 2. Create the height map */
+    /* 2. Create the height map */
     AbstractHeightMap heightmap = null;
     Texture heightMapImage = assetManager.loadTexture(
             "Textures/Terrain/splat/mountains512.png");
     heightmap = new ImageBasedHeightMap(heightMapImage.getImage());
     heightmap.load();
 
-    /** 3. We have prepared material and heightmap. 
+    /* 3. We have prepared material and heightmap.
      * Now we create the actual terrain:
      * 3.1) Create a TerrainQuad and name it "my terrain".
      * 3.2) A good value for terrain tiles is 64x64 -- so we supply 64+1=65.
@@ -131,21 +127,22 @@ public class HelloTerrainCollision extends SimpleApplication
      * 3.4) As LOD step scale we supply Vector3f(1,1,1).
      * 3.5) We supply the prepared heightmap itself.
      */
-    terrain = new TerrainQuad("my terrain", 65, 513, heightmap.getHeightMap());
+    TerrainQuad terrain
+            = new TerrainQuad("my terrain", 65, 513, heightmap.getHeightMap());
 
-    /** 4. We give the terrain its material, position & scale it, and attach it. */
+    /* 4. We give the terrain its material, position & scale it, and attach it. */
     terrain.setMaterial(mat_terrain);
     terrain.setLocalTranslation(0, -100, 0);
     terrain.setLocalScale(2f, 1f, 2f);
     rootNode.attachChild(terrain);
 
-    /** 5. The LOD (level of detail) depends on were the camera is: */
-    List<Camera> cameras = new ArrayList<Camera>();
+    /* 5. The LOD (level of detail) depends on were the camera is: */
+    List<Camera> cameras = new ArrayList<>();
     cameras.add(getCamera());
     TerrainLodControl control = new TerrainLodControl(terrain, cameras);
     terrain.addControl(control);
     
-    /** 6. Add physics: */ 
+    /* 6. Add physics: */
     /* We set up collision detection for the scene by creating a static 
      * RigidBodyControl with mass zero.*/
     terrain.addControl(new RigidBodyControl(0));
@@ -153,7 +150,7 @@ public class HelloTerrainCollision extends SimpleApplication
     // We set up collision detection for the player by creating
     // a capsule collision shape and a CharacterControl.
     // The CharacterControl offers extra settings for
-    // size, stepheight, jumping, falling, and gravity.
+    // size, step height, jumping, falling, and gravity.
     // We also put the player in its starting position.
     CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1.5f, 6f, 1);
     player = new CharacterControl(capsuleShape, 0.05f);

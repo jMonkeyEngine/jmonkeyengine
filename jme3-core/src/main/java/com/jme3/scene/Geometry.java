@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,6 +134,18 @@ public class Geometry extends Spatial {
         }
 
         this.mesh = mesh;
+    }
+
+    /**
+     * Create a geometry node with mesh data and material.
+     *
+     * @param name The name of this geometry
+     * @param mesh The mesh data for this geometry
+     * @param material The material for this geometry
+     */
+    public Geometry(String name, Mesh mesh, Material material) {
+        this(name, mesh);
+        setMaterial(material);
     }
 
     @Override
@@ -303,7 +315,7 @@ public class Geometry extends Spatial {
     protected void updateWorldBound() {
         super.updateWorldBound();
         if (mesh == null) {
-            throw new NullPointerException("Geometry: " + getName() + " has null mesh");
+            throw new IllegalStateException("Geometry \"" + getName() + "\" has null mesh.");
         }
 
         if (mesh.getBound() != null) {
@@ -499,6 +511,7 @@ public class Geometry extends Spatial {
 
     /**
      * @deprecated Use {@link #isGrouped()} instead.
+     * @return true if managed by a {@link GeometryGroupNode}
      */
     @Deprecated
     public boolean isBatched() {
@@ -627,10 +640,10 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * Seting this to true will stop this geometry morph buffer to be updated,
+     * Setting this to true will stop this geometry morph buffer to be updated,
      * unless the morph state changes
      *
-     * @param dirtyMorph
+     * @param dirtyMorph true&rarr;prevent updating, false&rarr;allow updating
      */
     public void setDirtyMorph(boolean dirtyMorph) {
         this.dirtyMorph = dirtyMorph;
@@ -729,8 +742,10 @@ public class Geometry extends Spatial {
                 material = im.getAssetManager().loadMaterial(matName);
             } catch (AssetNotFoundException ex) {
                 // Cannot find J3M file.
-                logger.log(Level.FINE, "Cannot locate {0} for geometry {1}",
-                        new Object[]{matName, key});
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Cannot locate {0} for geometry {1}",
+                            new Object[]{matName, key});
+                }
             }
         }
         // If material is NULL, try to load it from the geometry

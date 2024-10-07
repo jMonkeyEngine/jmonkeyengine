@@ -19,12 +19,10 @@ import java.util.List;
  */
 public class TestSweepTest extends SimpleApplication {
 
-    private BulletAppState bulletAppState = new BulletAppState();
-    private CapsuleCollisionShape obstacleCollisionShape;
+    final private BulletAppState bulletAppState = new BulletAppState();
     private CapsuleCollisionShape capsuleCollisionShape;
     private Node capsule;
-    private Node obstacle;
-    private float dist = .5f;
+    final private float dist = .5f;
 
     public static void main(String[] args) {
         new TestSweepTest().start();
@@ -32,7 +30,8 @@ public class TestSweepTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        obstacleCollisionShape = new CapsuleCollisionShape(0.3f, 0.5f);
+        CapsuleCollisionShape obstacleCollisionShape
+                = new CapsuleCollisionShape(0.3f, 0.5f);
         capsuleCollisionShape = new CapsuleCollisionShape(1f, 1f);
 
         stateManager.attach(bulletAppState);
@@ -44,7 +43,7 @@ public class TestSweepTest extends SimpleApplication {
         bulletAppState.getPhysicsSpace().add(capsule);
         rootNode.attachChild(capsule);
 
-        obstacle = new Node("obstacle");
+        Node obstacle = new Node("obstacle");
         obstacle.move(2, 0, 0);
         RigidBodyControl bodyControl = new RigidBodyControl(obstacleCollisionShape, 0);
         obstacle.addControl(bodyControl);

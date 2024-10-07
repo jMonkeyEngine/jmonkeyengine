@@ -15,11 +15,11 @@ import java.util.List;
 
 /**
  *
- * @author @wezrule
+ * @author wezrule
  */
 public class TestPhysicsRayCast extends SimpleApplication {
 
-    private BulletAppState bulletAppState = new BulletAppState();
+    final private BulletAppState bulletAppState = new BulletAppState();
 
     public static void main(String[] args) {
         new TestPhysicsRayCast().start();

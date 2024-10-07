@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,6 @@ public class TestBitmapFont extends SimpleApplication {
     "ABCDEFGHIKLMNOPQRSTUVWXYZ1234567 890`~!@#$%^&*()-=_+[]\\;',./{}|:<>?";
 
     private BitmapText txt;
-    private BitmapText txt2;
     private BitmapText txt3;
 
     public static void main(String[] args){
@@ -64,20 +63,20 @@ public class TestBitmapFont extends SimpleApplication {
         inputManager.addRawInputListener(textListener);
 
         BitmapFont fnt = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        txt = new BitmapText(fnt, false);
+        txt = new BitmapText(fnt);
         txt.setBox(new Rectangle(0, 0, settings.getWidth(), settings.getHeight()));
         txt.setSize(fnt.getPreferredSize() * 2f);
         txt.setText(txtB);
         txt.setLocalTranslation(0, txt.getHeight(), 0);
         guiNode.attachChild(txt);
 
-        txt2 = new BitmapText(fnt, false);
+        BitmapText txt2 = new BitmapText(fnt);
         txt2.setSize(fnt.getPreferredSize() * 1.2f);
         txt2.setText("Text without restriction. \nText without restriction. Text without restriction. Text without restriction");
         txt2.setLocalTranslation(0, txt2.getHeight(), 0);
         guiNode.attachChild(txt2);
 
-        txt3 = new BitmapText(fnt, false);
+        txt3 = new BitmapText(fnt);
         txt3.setBox(new Rectangle(0, 0, settings.getWidth(), 0));
         txt3.setText("Press Tab to toggle word-wrap. type text and enter to input text");
         txt3.setLocalTranslation(0, settings.getHeight()/2, 0);
@@ -94,8 +93,8 @@ public class TestBitmapFont extends SimpleApplication {
         }
     };
 
-    private RawInputListener textListener = new RawInputListener() {
-        private StringBuilder str = new StringBuilder();
+    final private RawInputListener textListener = new RawInputListener() {
+        final private StringBuilder str = new StringBuilder();
 
         @Override
         public void onMouseMotionEvent(MouseMotionEvent evt) { }

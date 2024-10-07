@@ -14,20 +14,18 @@ import java.util.logging.Logger;
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class OpenVRBounds implements VRBounds {
+    private static Logger logger = Logger.getLogger(OpenVRBounds.class.getName());
 
-	private static Logger logger = Logger.getLogger(OpenVRBounds.class.getName());
-	
     private VR_IVRChaperone_FnTable vrChaperone;
     private Vector2f playSize;
-    
+
     /**
      * Initialize the VR bounds.
      * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
      */
     public boolean init(OpenVR api) {
-    	
-    	logger.config("Initialize VR bounds...");
-    	
+        logger.config("Initialize VR bounds...");
+
         if( vrChaperone == null ) {
             vrChaperone = new VR_IVRChaperone_FnTable(JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRChaperone_Version, api.hmdErrorStore).getPointer());
             if( vrChaperone != null ) {
@@ -37,23 +35,22 @@ public class OpenVRBounds implements VRBounds {
                 FloatByReference fbZ = new FloatByReference();
                 vrChaperone.GetPlayAreaSize.apply(fbX, fbZ);
                 playSize = new Vector2f(fbX.getValue(), fbZ.getValue());
-                
+
                 logger.config("Initialize VR bounds [SUCCESS]");
                 return true; // init success
             }
-            
+
             logger.warning("Initialize VR bounds [FAILED].");
             return false; // failed to init
         }
-        
+
         logger.config("Initialize VR bounds already done.");
         return true; // already initialized
     }
-    
+
     @Override
     public Vector2f getPlaySize() {
         return playSize;
     }
-    
 }
 

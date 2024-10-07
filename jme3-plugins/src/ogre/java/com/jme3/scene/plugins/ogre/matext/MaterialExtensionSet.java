@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,8 @@ import java.util.List;
  */
 public class MaterialExtensionSet {
 
-    private HashMap<String, MaterialExtension> extensions = new HashMap<String, MaterialExtension>();
-    private HashMap<String, List<String>> nameMappings = new HashMap<String, List<String>>();
+    private HashMap<String, MaterialExtension> extensions = new HashMap<>();
+    private HashMap<String, List<String>> nameMappings = new HashMap<>();
 
     /**
      * Adds a new material extension to the set of extensions.

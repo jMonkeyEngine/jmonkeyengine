@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,13 +103,13 @@ public class Torus extends Mesh {
     }
 
     @Override
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
         circleSamples = capsule.readInt("circleSamples", 0);
         radialSamples = capsule.readInt("radialSamples", 0);
         innerRadius = capsule.readFloat("innerRadius", 0);
-        outerRadius = capsule.readFloat("outerRaidus", 0);
+        outerRadius = capsule.readFloat("outerRadius", 0);
     }
 
     private void setGeometryData() {

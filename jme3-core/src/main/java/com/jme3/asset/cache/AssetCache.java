@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,10 +56,10 @@ public interface AssetCache {
      * Adds an asset to the cache.
      * Once added, it should be possible to retrieve the asset
      * by using the {@link #getFromCache(com.jme3.asset.AssetKey) } method.
-     * However the caching criteria may at some point choose that the asset
-     * should be removed from the cache to save memory, in that case, 
+     * However, the caching criteria may at some point decide that the asset
+     * should be removed from the cache to save memory. In that case,
      * {@link #getFromCache(com.jme3.asset.AssetKey) } will return null.
-     * <p><font color="red">Thread-Safe</font>
+     * <p>Thread-Safe</p>
      * 
      * @param <T> The type of the asset to cache.
      * @param key The asset key that can be used to look up the asset.
@@ -71,7 +71,7 @@ public interface AssetCache {
      * This should be called by the asset manager when it has successfully
      * acquired a cached asset (with {@link #getFromCache(com.jme3.asset.AssetKey) })
      * and cloned it for use. 
-     * <p><font color="red">Thread-Safe</font>
+     * <p>Thread-Safe</p>
      * 
      * @param <T> The type of the asset to register.
      * @param key The asset key of the loaded asset (used to retrieve from cache)
@@ -95,17 +95,17 @@ public interface AssetCache {
      * {@link #addToCache(com.jme3.asset.AssetKey, java.lang.Object) }. 
      * The asset may be removed from the cache automatically even if
      * it was added previously, in that case, this method will return null.
-     * <p><font color="red">Thread-Safe</font>
+     * <p>Thread-Safe</p>
      * 
      * @param <T> The type of the asset to retrieve
-     * @param key The key used to lookup the asset.
+     * @param key The key used to look up the asset.
      * @return The asset that was previously cached, or null if not found.
      */
     public <T> T getFromCache(AssetKey<T> key);
     
     /**
      * Deletes an asset from the cache.
-     * <p><font color="red">Thread-Safe</font>
+     * <p>Thread-Safe</p>
      * 
      * @param key The asset key to find the asset to delete.
      * @return True if the asset was successfully found in the cache
@@ -115,7 +115,7 @@ public interface AssetCache {
     
     /**
      * Deletes all assets from the cache.
-     * <p><font color="red">Thread-Safe</font>
+     * <p>Thread-Safe</p>
      */
     public void clearCache();
 }

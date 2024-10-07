@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public interface HostedConnection extends MessageConnection
     public Object setAttribute( String name, Object value );
     
     /**
-     *  Retrieves a previosly stored session attribute or
+     *  Retrieves a previously stored session attribute or
      *  null if no such attribute exists.
      */
     public <T> T getAttribute( String name );

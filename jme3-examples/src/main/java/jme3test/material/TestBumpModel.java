@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@ package jme3test.material;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
-import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -47,9 +46,9 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestBumpModel extends SimpleApplication {
 
-    float angle;
-    PointLight pl;
-    Spatial lightMdl;
+    private float angle;
+    private PointLight pl;
+    private Spatial lightMdl;
 
     public static void main(String[] args){
         TestBumpModel app = new TestBumpModel();
@@ -67,7 +66,7 @@ public class TestBumpModel extends SimpleApplication {
         lightMdl.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
         rootNode.attachChild(lightMdl);
 
-        // flourescent main light
+        // fluorescent main light
         pl = new PointLight();
         pl.setColor(new ColorRGBA(0.88f, 0.92f, 0.95f, 1.0f));
         rootNode.addLight(pl);

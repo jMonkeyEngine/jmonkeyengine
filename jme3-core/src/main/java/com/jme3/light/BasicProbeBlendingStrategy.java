@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,14 +39,14 @@ import java.util.List;
  * This strategy returns the closest probe from the rendered object.
  * 
  * This is the most basic strategy : The fastest and the easiest.
- * Though it has severe graphical draw backs as there might be very visible seams
- * on static object and some "poping" on dynamic objects.
+ * Though it has severe graphical drawbacks as there might be very visible seams
+ * on static object and some "popping" on dynamic objects.
  *
  * @author Nehon
  */
 public class BasicProbeBlendingStrategy implements LightProbeBlendingStrategy {
 
-    List<LightProbe> lightProbes = new ArrayList<LightProbe>();
+    List<LightProbe> lightProbes = new ArrayList<>();
 
     @Override
     public void registerProbe(LightProbe probe) {

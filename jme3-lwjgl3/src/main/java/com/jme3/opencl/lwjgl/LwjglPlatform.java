@@ -75,14 +75,12 @@ public final class LwjglPlatform implements Platform {
      * 
      * Copied from the old release.
      *
-     * @param device_type the device type
-     * @param filter the device filter
-     *
+     * @param deviceType the device type
      * @return the available devices
      */
-    private long[] getDevices(int device_type) {
+    private long[] getDevices(int deviceType) {
         int[] count = new int[1];
-        int errcode = CL10.clGetDeviceIDs(platform, device_type, null, count);
+        int errcode = CL10.clGetDeviceIDs(platform, deviceType, null, count);
         if (errcode == CL10.CL_DEVICE_NOT_FOUND) {
             return new long[0];
         }
@@ -95,7 +93,7 @@ public final class LwjglPlatform implements Platform {
 
         PointerBuffer devices = PointerBuffer.allocateDirect(num_devices);
 
-        errcode = CL10.clGetDeviceIDs(platform, device_type,devices, (IntBuffer) null);
+        errcode = CL10.clGetDeviceIDs(platform, deviceType, devices, (IntBuffer) null);
         Utils.checkError(errcode, "clGetDeviceIDs");
 
         long[] deviceIDs = new long[num_devices];
@@ -162,9 +160,9 @@ public final class LwjglPlatform implements Platform {
         return Arrays.asList(Info.clGetPlatformInfoStringASCII(platform, CL10.CL_PLATFORM_EXTENSIONS).split(" "));
     }
 
-	@Override
-	public String toString() {
-		return getName();
-	}
+    @Override
+    public String toString() {
+        return getName();
+    }
 
 }

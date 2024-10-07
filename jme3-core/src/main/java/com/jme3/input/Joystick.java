@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,11 +77,13 @@ public interface Joystick {
      * Returns the JoystickAxis with the specified logical ID.
      *
      * @param logicalId The id of the axis to search for as returned by JoystickAxis.getLogicalId().
+     * @return the pre-existing instance, or null if not found
      */
     public JoystickAxis getAxis(String logicalId);
 
     /**
      * Returns a read-only list of all joystick axes for this Joystick.
+     * @return an unmodifiable list of pre-existing instances
      */
     public List<JoystickAxis> getAxes();
 
@@ -89,11 +91,13 @@ public interface Joystick {
      * Returns the JoystickButton with the specified logical ID.
      *
      * @param logicalId The id of the axis to search for as returned by JoystickButton.getLogicalId().
+     * @return the pre-existing instance, or null if not found
      */
     public JoystickButton getButton(String logicalId);
 
     /**
      * Returns a read-only list of all joystick buttons for this Joystick.
+     * @return an unmodifiable list of pre-existing instances
      */
     public List<JoystickButton> getButtons();
 
@@ -102,6 +106,7 @@ public interface Joystick {
      *
      * <p>E.g. for most gamepads, the left control stick X axis will be returned.
      *
+     * @return the pre-existing instance
      * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String)
      */
     public JoystickAxis getXAxis();     
@@ -111,6 +116,7 @@ public interface Joystick {
      *
      * <p>E.g. for most gamepads, the left control stick Y axis will be returned.
      *
+     * @return the pre-existing instance
      * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String)
      */
     public JoystickAxis getYAxis();     
@@ -119,6 +125,7 @@ public interface Joystick {
      * Returns the POV X axis for this joystick.  This is a convenience axis 
      * providing an x-axis subview of the HAT axis.
      *
+     * @return the pre-existing instance
      * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String)
      */
     public JoystickAxis getPovXAxis();     
@@ -127,6 +134,7 @@ public interface Joystick {
      * Returns the POV Y axis for this joystick.  This is a convenience axis 
      * providing a y-axis subview of the HAT axis.
      *
+     * @return the pre-existing instance
      * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String)
      */
     public JoystickAxis getPovYAxis();     

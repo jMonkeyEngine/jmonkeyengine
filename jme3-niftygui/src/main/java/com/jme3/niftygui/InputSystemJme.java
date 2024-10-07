@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     /**
      * Must be set in order for nifty events to be forwarded correctly.
      *
-     * @param nifty
+     * @param nifty the Nifty instance to use
      */
     public void setNifty(Nifty nifty) {
         this.nifty = nifty;
@@ -152,12 +152,12 @@ public class InputSystemJme implements InputSystem, RawInputListener {
             // special case:
             // 1) You click on the jme scene (not Nifty) and Nifty will correctly return false (event not consumed) but
             //    internally it remembers: "mouse button is now down". Note that the jme mouse cursor is now hidden.
-            // 2) You release the mouse button but the mouse down event will not be forwarded to Nifty because it did
+            // 2) You release the mouse button but the mouse down event will not be forwarded to Nifty because it
             //    owned the mouse and the jme mouse cursor is not visible.
             //
-            // Nifty now still thinks that the mouse button is down although it's not. The result is that the next click
+            // Nifty now still thinks that the mouse button is down, but it's not. The result is that the next click
             // on any Nifty element will not be recognized as an initial click by Nifty. So you need an additional click
-            // on the Nifty element to activate it correctly. In case of drag and drop this additional click was quite
+            // on the Nifty element to activate it correctly. In case of drag and drop, this additional click was quite
             // irritating.
             //
             // To fix that we'll now forward the mouse button up event ALWAYS to Nifty regardless of it owning the mouse
@@ -170,13 +170,13 @@ public class InputSystemJme implements InputSystem, RawInputListener {
             // which is good ;-) If that ever happens to someone there is an easy fix possible:
             // nifty.setIgnoreMouseEvents() to completely stop Nifty from processing events.
 
-                boolean consumed = nic.processMouseEvent(x, y, 0, button, false);
+            boolean consumed = nic.processMouseEvent(x, y, 0, button, false);
 
-                // Only consume event if it ORIGINATED in nifty!
-                if (niftyOwnsDragging[button] && consumed) {
-                    evt.setConsumed();
-                    processSoftKeyboard();
-                }
+            // Only consume event if it ORIGINATED in nifty!
+            if (niftyOwnsDragging[button] && consumed) {
+                evt.setConsumed();
+                processSoftKeyboard();
+            }
 
             niftyOwnsDragging[button] = false;
             //System.out.format("niftyMouse(%d, %d, %d, false) = %b\n", x, y, button, consumed);
@@ -192,7 +192,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
         y = (int) (height - evt.getY());
 
         // Input manager will not convert touch events to mouse events,
-        // thus we must do it ourselves..
+        // so we must do it ourselves.
         switch (evt.getType()) {
             case DOWN:
                 if (inputPointerId != -1) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,8 +57,8 @@ public class TestDepthFuncChange extends SimpleApplication {
         //2 cubes, a blue and a red. the red cube is offset by 0.2 WU to the right   
         //the red cube is put in the transparent bucket to be sure it's rendered after the blue one (but there is no transparency involved).
         //You should see a small part of the blue cube on the left and the whole red cube
-        Box boxshape1 = new Box(1f, 1f, 1f);
-        Geometry cube1 = new Geometry("box", boxshape1);
+        Box boxShape1 = new Box(1f, 1f, 1f);
+        Geometry cube1 = new Geometry("box", boxShape1);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Blue);
         
@@ -73,8 +73,8 @@ public class TestDepthFuncChange extends SimpleApplication {
         rootNode.attachChild(cube2);
         
         //Bottom of the screen
-        //here the 2 cubes are clonned and the depthFunc for the red cube's material is set to Less
-        //You should see the whole bleu cube and a small part of the red cube on the right
+        //here the 2 cubes are cloned and the depthFunc for the red cube's material is set to Less
+        //You should see the whole blue cube and a small part of the red cube on the right
         Geometry cube3 = cube1.clone();
         Geometry cube4 = cube2.clone(true);
         cube4.getMaterial().getAdditionalRenderState().setDepthFunc(RenderState.TestFunction.Less);       

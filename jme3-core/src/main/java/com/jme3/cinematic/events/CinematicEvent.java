@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ public interface CinematicEvent extends Savable {
      * this method can be implemented if the event needs different handling when 
      * stopped naturally (when the event reach its end)
      * or when it was forced stopped during playback
-     * otherwise it just call regular stop()
+     * otherwise it just calls regular stop()
      */
     public void forceStop();
 
@@ -74,7 +74,8 @@ public interface CinematicEvent extends Savable {
 
     /**
      * Sets the speed of the animation (1 is normal speed, 2 is twice faster)
-     * @param speed
+     *
+     * @param speed the desired speed (default=1)
      */
     public void setSpeed(float speed);
 
@@ -117,8 +118,9 @@ public interface CinematicEvent extends Savable {
     public float getInitialDuration();
 
     /**
-     * Sets the duration of the antionamtion at speed = 1 in seconds
-     * @param initialDuration
+     * Sets the duration of the animation at speed = 1, in seconds.
+     *
+     * @param initialDuration the desired duration (in de-scaled seconds)
      */
     public void setInitialDuration(float initialDuration);
 
@@ -136,8 +138,9 @@ public interface CinematicEvent extends Savable {
     public void initEvent(Application app, Cinematic cinematic);
     
     /**
-     * When this method is invoked, the event should fast forward to the given time according time 0 is the start of the event.
-     * @param time the time to fast forward to
+     * Fast-forwards to the given time, where time=0 is the start of the event.
+     *
+     * @param time the time to fast-forward to
      */
     public void setTime(float time);    
    

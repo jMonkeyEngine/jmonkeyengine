@@ -69,12 +69,12 @@ public class Environment {
         Closet = new Environment(1, 1, 1, 1, .15f, 1, .6f, .0025f, .5f, .0006f);
     }
 
-    private static float eaxDbToAmp(float eaxDb){
+    private static float eaxDbToAmp(float eaxDb) {
         float dB = eaxDb / 2000f;
         return FastMath.pow(10f, dB);
     }
 
-    public Environment(){
+    public Environment() {
     }
 
     public Environment(Environment source) {
@@ -94,8 +94,8 @@ public class Environment {
     }
 
     public Environment(float density, float diffusion, float gain, float gainHf,
-                       float decayTime, float decayHf, float reflGain,
-                       float reflDelay, float lateGain, float lateDelay){
+                       float decayTime, float decayHf, float reflectGain,
+                       float reflectDelay, float lateGain, float lateDelay) {
         this.decayTime = decayTime;
         this.decayHFRatio = decayHf;
         this.density = density;
@@ -104,11 +104,11 @@ public class Environment {
         this.gainHf = gainHf;
         this.lateReverbDelay = lateDelay;
         this.lateReverbGain = lateGain;
-        this.reflectDelay = reflDelay;
-        this.reflectGain = reflGain;
+        this.reflectDelay = reflectDelay;
+        this.reflectGain = reflectGain;
     }
 
-    public Environment(float[] e){
+    public Environment(float[] e) {
         if (e.length != 28)
             throw new IllegalArgumentException("Not an EAX preset");
 
@@ -252,4 +252,29 @@ public class Environment {
     public void setRoomRolloffFactor(float roomRolloffFactor) {
         this.roomRolloffFactor = roomRolloffFactor;
     }
+
+    @Override
+    public boolean equals(Object env2) {
+        if (env2 == null)
+            return false;
+        if (env2 == this)
+            return true;
+        if (!(env2 instanceof Environment))
+            return false;
+
+        Environment e2 = (Environment) env2;
+        return (e2.airAbsorbGainHf == airAbsorbGainHf
+                && e2.decayHFRatio == decayHFRatio
+                && e2.decayHfLimit == decayHfLimit
+                && e2.decayTime == decayTime
+                && e2.density == density
+                && e2.diffusion == diffusion
+                && e2.gain == gain
+                && e2.gainHf == gainHf
+                && e2.lateReverbDelay == lateReverbDelay
+                && e2.lateReverbGain == lateReverbGain
+                && e2.reflectDelay == reflectDelay
+                && e2.reflectGain == reflectGain
+                && e2.roomRolloffFactor == roomRolloffFactor);
+    } 
 }

@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -87,8 +87,8 @@ public class J3MLoaderTest {
         final Texture textureOldStyle = Mockito.mock(Texture.class);
         final Texture textureOldStyleUsingQuotes = Mockito.mock(Texture.class);
 
-        final TextureKey textureKeyUsingQuotes = setupMockForTexture("OldStyleUsingQuotes", "old style using quotes/texture.png", true, textureOldStyleUsingQuotes);
-        final TextureKey textureKeyOldStyle = setupMockForTexture("OldStyle", "old style/texture.png", true, textureOldStyle);
+        final TextureKey textureKeyUsingQuotes = setupMockForTexture("OldStyleUsingQuotes", "old style using quotes/texture.png", true, true, textureOldStyleUsingQuotes);
+        final TextureKey textureKeyOldStyle = setupMockForTexture("OldStyle", "old style/texture.png", true, true, textureOldStyle);
 
         j3MLoader.load(assetInfo);
 
@@ -111,14 +111,14 @@ public class J3MLoaderTest {
         final Texture textureCombined = Mockito.mock(Texture.class);
         final Texture textureLooksLikeOldStyle = Mockito.mock(Texture.class);
 
-        final TextureKey textureKeyNoParameters = setupMockForTexture("Empty", "empty.png", false, textureNoParameters);
-        final TextureKey textureKeyFlip = setupMockForTexture("Flip", "flip.png", true, textureFlip);
-        setupMockForTexture("Repeat", "repeat.png", false, textureRepeat);
-        setupMockForTexture("RepeatAxis", "repeat-axis.png", false, textureRepeatAxis);
-        setupMockForTexture("Min", "min.png", false, textureMin);
-        setupMockForTexture("Mag", "mag.png", false, textureMag);
-        setupMockForTexture("Combined", "combined.png", true, textureCombined);
-        setupMockForTexture("LooksLikeOldStyle", "oldstyle.png", true, textureLooksLikeOldStyle);
+        final TextureKey textureKeyNoParameters = setupMockForTexture("Empty", "empty.png", false, true, textureNoParameters);
+        final TextureKey textureKeyFlip = setupMockForTexture("Flip", "flip.png", true, true, textureFlip);
+        setupMockForTexture("Repeat", "repeat.png", false, true, textureRepeat);
+        setupMockForTexture("RepeatAxis", "repeat-axis.png", false, true, textureRepeatAxis);
+        setupMockForTexture("Min", "min.png", false, true, textureMin);
+        setupMockForTexture("Mag", "mag.png", false, true, textureMag);
+        setupMockForTexture("Combined", "combined.png", true, false, textureCombined);
+        setupMockForTexture("LooksLikeOldStyle", "oldstyle.png", true, true, textureLooksLikeOldStyle);
 
         j3MLoader.load(assetInfo);
 
@@ -135,11 +135,11 @@ public class J3MLoaderTest {
         verify(textureCombined).setWrap(Texture.WrapMode.Repeat);
     }
 
-    private TextureKey setupMockForTexture(final String paramName, final String path, final boolean flipY, final Texture texture) {
+    private TextureKey setupMockForTexture(final String paramName, final String path, final boolean flipY, boolean generateMips, final Texture texture) {
         when(materialDef.getMaterialParam(paramName)).thenReturn(new MatParamTexture(VarType.Texture2D, paramName, texture, null));
 
         final TextureKey textureKey = new TextureKey(path, flipY);
-        textureKey.setGenerateMips(true);
+        textureKey.setGenerateMips(generateMips);
 
         when(assetManager.loadTexture(textureKey)).thenReturn(texture);
 

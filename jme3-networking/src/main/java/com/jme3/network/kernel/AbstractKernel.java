@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractKernel implements Kernel
 {
-    static Logger log = Logger.getLogger(AbstractKernel.class.getName());
+    private static final Logger log = Logger.getLogger(AbstractKernel.class.getName());
 
     private AtomicLong nextId = new AtomicLong(1);
 
@@ -57,13 +57,13 @@ public abstract class AbstractKernel implements Kernel
      *  Contains the pending endpoint events waiting for the caller
      *  to retrieve them.
      */
-    private ConcurrentLinkedQueue<EndpointEvent> endpointEvents = new ConcurrentLinkedQueue<EndpointEvent>();
+    private ConcurrentLinkedQueue<EndpointEvent> endpointEvents = new ConcurrentLinkedQueue<>();
 
     /**
      *  Contains the pending envelopes waiting for the caller to
      *  retrieve them.
      */
-    private LinkedBlockingQueue<Envelope> envelopes = new LinkedBlockingQueue<Envelope>();
+    private LinkedBlockingQueue<Envelope> envelopes = new LinkedBlockingQueue<>();
 
     protected AbstractKernel()
     {
@@ -73,7 +73,7 @@ public abstract class AbstractKernel implements Kernel
     {
         // Should really be queued up so the outer thread can
         // retrieve them.  For now we'll just log it.  FIXME
-        log.log( Level.SEVERE, "Unhanddled kernel error", e );
+        log.log( Level.SEVERE, "Unhandled kernel error", e );
     }
 
     protected void wakeupReader() {
@@ -82,7 +82,7 @@ public abstract class AbstractKernel implements Kernel
         // envelopes.
         if( !hasEnvelopes() ) {
             // Note: this is not really a race condition.  At worst, our
-            // event has already been handled by now and it does no harm
+            // event has already been handled, and it does no harm
             // to check again.
             addEnvelope( EVENTS_PENDING );
         }
@@ -113,7 +113,7 @@ public abstract class AbstractKernel implements Kernel
     }
 
     /**
-     *  Removes and returnsn one endpoint event from the event queue or
+     *  Removes and returns one endpoint event from the event queue or
      *  null if there are no endpoint events.
      */
     @Override

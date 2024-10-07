@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
      *
      * @param app      the Application
      * @param face     the face to generate
-     * @param listener
+     * @param listener to monitor progress (alias created)
      */
     public PrefilteredEnvMapFaceGenerator(Application app, int face, JobProgressListener<Integer> listener) {
         super(listener);
@@ -98,7 +98,7 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
      *                       pixel)
      * @param fixSeamsMethod the method used to fix seams as described in
      *                       {@link com.jme3.environment.util.EnvMapUtils.FixSeamsMethod}
-     * @param genType
+     * @param genType        select Fast or HighQuality
      * @param store          The cube map to store the result in.
      */
     public void setGenerationParam(TextureCubeMap sourceMap, int targetMapSize, EnvMapUtils.FixSeamsMethod fixSeamsMethod, EnvMapUtils.GenerationType genType, TextureCubeMap store) {
@@ -147,7 +147,7 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
 
     /**
      * Generates the prefiltered env map (used for image based specular
-     * lighting) With the GGX/Shlick brdf
+     * lighting) With the GGX/Schlick brdf
      * {@link EnvMapUtils#getSphericalHarmonicsCoefficents(com.jme3.texture.TextureCubeMap)}
      * Note that the output cube map is in RGBA8 format.
      *
@@ -331,8 +331,8 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
     /**
      * Computes GGX half vector in local space
      *
-     * @param xi
-     * @param a2
+     * @param xi (not null)
+     * @param a2 fourth power of roughness
      * @param store caller-provided storage
      * @return either store or a new vector (not null)
      */

@@ -16,13 +16,13 @@ import java.lang.annotation.Target;
  *
  * Example:
  * <!-- &nbsp; is a hack that prevents @ from being the first character on the line, which confuses Javadoc -->
- * <code><pre>
+ * <pre>
  * &nbsp; @DefaultQualifiers({
  * &nbsp;     @DefaultQualifier("NonNull"),
  * &nbsp;     @DefaultQualifier(value = "Interned", locations = ALL_EXCEPT_LOCALS),
  * &nbsp;     @DefaultQualifier("Tainted")
  * &nbsp; })
- * </pre></code>
+ * </pre>
  *
  * @see DefaultQualifier
  */
@@ -30,6 +30,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({CONSTRUCTOR, METHOD, FIELD, LOCAL_VARIABLE, PARAMETER, TYPE})
 public @interface DefaultQualifiers {
-    /** The default qualifier settings */
+    /** @return the default qualifier settings */
     DefaultQualifier[] value() default { };
 }

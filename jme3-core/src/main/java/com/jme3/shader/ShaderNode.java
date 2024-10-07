@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import java.util.List;
 
 /**
  * A ShaderNode is the unit brick part of a shader program. A shader can be
- * describe with several shader nodes that are plugged together through inputs
+ * described by several shader nodes that are plugged together through inputs
  * and outputs.
  *
  * A ShaderNode is based on a definition that has a shader code, inputs and
@@ -175,7 +175,7 @@ public class ShaderNode implements Savable, Cloneable {
      * jme serialization
      *
      * @param ex the exporter
-     * @throws IOException
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -191,7 +191,7 @@ public class ShaderNode implements Savable, Cloneable {
      * jme serialization
      *
      * @param im the importer
-     * @throws IOException
+     * @throws IOException from the importer
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -205,7 +205,7 @@ public class ShaderNode implements Savable, Cloneable {
     }
 
     /**
-     * convenience tostring
+     * convenience toString
      *
      * @return a string
      */

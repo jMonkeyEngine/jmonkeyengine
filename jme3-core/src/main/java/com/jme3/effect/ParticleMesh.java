@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public abstract class ParticleMesh extends Mesh {
      * Initialize mesh data.
      * 
      * @param emitter The emitter which will use this <code>ParticleMesh</code>.
-     * @param numParticles The maxmimum number of particles to simulate
+     * @param numParticles The maximum number of particles to simulate
      */
     public abstract void initParticleData(ParticleEmitter emitter, int numParticles);
     
@@ -79,6 +79,10 @@ public abstract class ParticleMesh extends Mesh {
     
     /**
      * Update the particle visual data. Typically called every frame.
+     *
+     * @param particles the particles to update
+     * @param cam the camera to use for billboarding
+     * @param inverseRotation the inverse rotation matrix
      */
     public abstract void updateParticleData(Particle[] particles, Camera cam, Matrix3f inverseRotation);
 

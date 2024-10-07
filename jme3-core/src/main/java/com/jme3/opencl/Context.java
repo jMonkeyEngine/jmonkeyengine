@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -213,7 +213,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * The returned image shares the same memory with the jME3-image, changes
      * in one view are visible in the other view.
      * This can be used to modify textures and images directly from OpenCL
-     * (e.g. for post processing effects and other texture effects).
+     * (e.g. for post-processing effects and other texture effects).
      * <br>
      * <b>Note:</b> The image must already been uploaded to the GPU,
      * i.e. it must be used at least once for drawing.
@@ -236,7 +236,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * The returned image shares the same memory with the jME3 texture, changes
      * in one view are visible in the other view.
      * This can be used to modify textures and images directly from OpenCL
-     * (e.g. for post processing effects and other texture effects).
+     * (e.g. for post-processing effects and other texture effects).
      * <br>
      * <b>Note:</b> The image must already been uploaded to the GPU,
      * i.e. it must be used at least once for drawing.
@@ -275,7 +275,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * The returned image shares the same memory with the jME3 render buffer, changes
      * in one view are visible in the other view.
      * <br>
-     * This can be used as an alternative to post processing effects
+     * This can be used as an alternative to post-processing effects
      * (e.g. reduce sum operations, needed e.g. for tone mapping).
      * <br>
      * <b>Note:</b> The renderbuffer must already been uploaded to the GPU,
@@ -286,8 +286,8 @@ public abstract class Context extends AbstractOpenCLObject {
      * and after modifying it, released by {@link Image#releaseImageForSharingAsync(com.jme3.opencl.CommandQueue) }
      * This is needed so that OpenGL and OpenCL operations do not interfere with each other.
      *
-     * @param buffer
-     * @param access
+     * @param buffer the buffer to bind
+     * @param access the kernel access permissions
      * @return an image
      */
     public Image bindRenderBuffer(FrameBuffer.RenderBuffer buffer, MemoryAccess access) {
@@ -432,6 +432,9 @@ public abstract class Context extends AbstractOpenCLObject {
      * Alternative version of {@link #createProgramFromSourceFilesWithInclude(com.jme3.asset.AssetManager, java.lang.String, java.lang.String...) }
      * with an empty include string
      *
+     * @param assetManager for loading assets
+     * @param resources asset paths pointing to OpenCL source files
+     * @return a new instance
      * @throws AssetNotFoundException if a file could not be loaded
      */
     public Program createProgramFromSourceFiles(AssetManager assetManager, String... resources) {
@@ -442,6 +445,9 @@ public abstract class Context extends AbstractOpenCLObject {
      * Alternative version of {@link #createProgramFromSourceFilesWithInclude(com.jme3.asset.AssetManager, java.lang.String, java.util.List) }
      * with an empty include string
      *
+     * @param assetManager for loading assets
+     * @param resources a list of asset paths pointing to OpenCL source files
+     * @return a new instance
      * @throws AssetNotFoundException if a file could not be loaded
      */
     public Program createProgramFromSourceFiles(AssetManager assetManager, List<String> resources) {

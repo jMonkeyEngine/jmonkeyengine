@@ -35,6 +35,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystemDelegate;
 import com.jme3.system.NullContext;
+import com.jme3.util.res.Resources;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.ios.IosAL;
 import com.jme3.audio.ios.IosALC;
@@ -54,9 +55,16 @@ import java.util.logging.Logger;
  */
 public class JmeIosSystem extends JmeSystemDelegate {
 
+    public JmeIosSystem() {
+        setErrorMessageHandler((message) -> {
+            showDialog(message);
+            System.err.println("JME APPLICATION ERROR:" + message);
+        });       
+    }
+
     @Override
     public URL getPlatformAssetConfigURL() {
-        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/IOS.cfg");
+        return Resources.getResource("com/jme3/asset/IOS.cfg");
     }
     
     @Override
@@ -64,18 +72,11 @@ public class JmeIosSystem extends JmeSystemDelegate {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    public void showErrorDialog(String message) {
-        showDialog(message);
-        System.err.println("JME APPLICATION ERROR:" + message);
-    }
+   
 
     private native void showDialog(String message);
 
-    @Override
-    public boolean showSettingsDialog(AppSettings sourceSettings, boolean loadFromRegistry) {
-        return true;
-    }
+    
 
     @Override
     public JmeContext newContext(AppSettings settings, JmeContext.Type contextType) {

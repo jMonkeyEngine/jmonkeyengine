@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,11 +34,14 @@ package com.jme3.app;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
 import com.jme3.system.JmeSystem;
+import com.jme3.util.res.Resources;
+
 import java.applet.Applet;
 import java.awt.Canvas;
 import java.awt.Graphics;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -65,6 +68,7 @@ public class AppletHarness extends Applet {
         return appToApplet.get(app);
     }
 
+    @SuppressWarnings("unchecked")
     private void createCanvas(){
         AppSettings settings = new AppSettings(true);
 
@@ -104,12 +108,13 @@ public class AppletHarness extends Applet {
 
         try{
             Class clazz = Class.forName(appClass);
-            app = (LegacyApplication) clazz.newInstance();
-        }catch (ClassNotFoundException ex){
-            ex.printStackTrace();
-        }catch (InstantiationException ex){
-            ex.printStackTrace();
-        }catch (IllegalAccessException ex){
+            app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
+        } catch (ClassNotFoundException
+                | InstantiationException
+                | IllegalAccessException
+                | NoSuchMethodException
+                | IllegalArgumentException
+                | InvocationTargetException ex) {
             ex.printStackTrace();
         }
 
@@ -147,7 +152,7 @@ public class AppletHarness extends Applet {
             assetCfg = new URL(getParameter("AssetConfigURL"));
         } catch (MalformedURLException ex){
             System.out.println(ex.getMessage());
-            assetCfg = getClass().getResource("/com/jme3/asset/Desktop.cfg");
+            assetCfg = Resources.getResource("/com/jme3/asset/Desktop.cfg",this.getClass());
         }
 
         createCanvas();

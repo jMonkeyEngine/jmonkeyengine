@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,18 +50,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Part of the jME XML IO system as introduced in the google code jmexml project.
+ * Part of the jME XML IO system as introduced in the Google Code jmexml project.
  *
  * @author Kai Rabien (hevee) - original author of the code.google.com jmexml project
  * @author Doug Daniels (dougnukem) - adjustments for jME 2.0 and Java 1.5
  */
 public class DOMOutputCapsule implements OutputCapsule {
-
+    
     private static final String dataAttributeName = "data";
     private Document doc;
     private Element currentElement;
     private JmeExporter exporter;
-    private Map<Savable, Element> writtenSavables = new IdentityHashMap<Savable, Element>();
+    private Map<Savable, Element> writtenSavables = new IdentityHashMap<>();
 
     public DOMOutputCapsule(Document doc, JmeExporter exporter) {
         this.doc = doc;
@@ -80,6 +80,7 @@ public class DOMOutputCapsule implements OutputCapsule {
     private Element appendElement(String name) {
         Element ret = doc.createElement(name);
         if (currentElement == null) {
+            // file version is always unprefixed for backwards compatibility
             ret.setAttribute("format_version", Integer.toString(FormatVersion.VERSION));
             doc.appendChild(ret);
         } else {
@@ -104,7 +105,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == defVal) {
             return;
         }
-        currentElement.setAttribute(name, String.valueOf(value));
+        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
     }
 
     @Override
@@ -124,8 +125,8 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.length));
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) currentElement.getParentNode();
     }
 
@@ -151,9 +152,9 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size_outer", String.valueOf(value.length));
-        el.setAttribute("size_inner", String.valueOf(value[0].length));
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, "size_outer", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, "size_inner", String.valueOf(value[0].length));
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) currentElement.getParentNode();
     }
 
@@ -162,7 +163,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == defVal) {
             return;
         }
-        currentElement.setAttribute(name, String.valueOf(value));
+        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
     }
 
     @Override
@@ -182,8 +183,8 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.length));
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) currentElement.getParentNode();
     }
 
@@ -193,7 +194,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if(Arrays.deepEquals(value, defVal)) return;
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
 
         for (int i=0; i<value.length; i++) {
                 int[] array = value[i];
@@ -207,7 +208,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == defVal) {
             return;
         }
-        currentElement.setAttribute(name, String.valueOf(value));
+        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
     }
 
     @Override
@@ -229,8 +230,8 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size", value == null ? "0" : String.valueOf(value.length));
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, "size", value == null ? "0" : String.valueOf(value.length));
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) currentElement.getParentNode();
     }
 
@@ -253,9 +254,9 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size_outer", String.valueOf(value.length));
-        el.setAttribute("size_inner", String.valueOf(value[0].length));
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, "size_outer", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, "size_inner", String.valueOf(value[0].length));
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) currentElement.getParentNode();
     }
 
@@ -264,7 +265,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == defVal) {
             return;
         }
-        currentElement.setAttribute(name, String.valueOf(value));
+        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
     }
 
     @Override
@@ -284,8 +285,8 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.length));
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) currentElement.getParentNode();
     }
 
@@ -295,7 +296,7 @@ public class DOMOutputCapsule implements OutputCapsule {
             if(Arrays.deepEquals(value, defVal)) return;
 
             Element el = appendElement(name);
-            el.setAttribute("size", String.valueOf(value.length));
+            XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
 
             for (int i=0; i<value.length; i++) {
                 double[] array = value[i];
@@ -309,7 +310,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == defVal) {
             return;
         }
-        currentElement.setAttribute(name, String.valueOf(value));
+        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
     }
 
     @Override
@@ -329,8 +330,8 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.length));
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) currentElement.getParentNode();
     }
 
@@ -340,7 +341,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if(Arrays.deepEquals(value, defVal)) return;
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
 
         for (int i=0; i<value.length; i++) {
                 long[] array = value[i];
@@ -354,7 +355,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == defVal) {
             return;
         }
-        currentElement.setAttribute(name, String.valueOf(value));
+        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
     }
 
     @Override
@@ -374,8 +375,8 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.length));
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) currentElement.getParentNode();
     }
 
@@ -385,7 +386,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if(Arrays.deepEquals(value, defVal)) return;
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
 
         for (int i=0; i<value.length; i++) {
                 short[] array = value[i];
@@ -399,7 +400,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == defVal) {
             return;
         }
-        currentElement.setAttribute(name, String.valueOf(value));
+        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
     }
 
     @Override
@@ -419,8 +420,8 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.length));
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) currentElement.getParentNode();
     }
 
@@ -430,7 +431,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if(Arrays.deepEquals(value, defVal)) return;
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
 
         for (int i=0; i<value.length; i++) {
                 boolean[] array = value[i];
@@ -444,7 +445,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == null || value.equals(defVal)) {
             return;
         }
-        currentElement.setAttribute(name, encodeString(value));
+        XMLUtils.setAttribute(currentElement, name, encodeString(value));
     }
 
     @Override
@@ -455,13 +456,13 @@ public class DOMOutputCapsule implements OutputCapsule {
             value = defVal;
         }
 
-        el.setAttribute("size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
 
         for (int i=0; i<value.length; i++) {
                 String b = value[i];
                 appendElement("String_"+i);
             String val = encodeString(b);
-            currentElement.setAttribute("value", val);
+            XMLUtils.setAttribute(currentElement, "value", val);
             currentElement = el;
         }
         currentElement = (Element) currentElement.getParentNode();
@@ -473,7 +474,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if(Arrays.deepEquals(value, defVal)) return;
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.length));
 
         for (int i=0; i<value.length; i++) {
                 String[] array = value[i];
@@ -498,7 +499,7 @@ public class DOMOutputCapsule implements OutputCapsule {
             buf.setLength(buf.length() - 1);
         }
         
-        currentElement.setAttribute(name, buf.toString());
+        XMLUtils.setAttribute(currentElement, name, buf.toString());
 
     }
 
@@ -533,10 +534,10 @@ public class DOMOutputCapsule implements OutputCapsule {
             String refID = el.getAttribute("reference_ID");
             if (refID.length() == 0) {
                 refID = object.getClass().getName() + "@" + object.hashCode();
-                el.setAttribute("reference_ID", refID);
+                XMLUtils.setAttribute(el, "reference_ID", refID);
             }
             el = appendElement(name);
-            el.setAttribute("ref", refID);
+            XMLUtils.setAttribute(el, "ref", refID);
         } else {
             el = appendElement(name);
             
@@ -549,13 +550,13 @@ public class DOMOutputCapsule implements OutputCapsule {
                     sb.append(", ");
                 }
             }
-            el.setAttribute("savable_versions", sb.toString());
+            XMLUtils.setAttribute(el, "savable_versions", sb.toString());
             
             writtenSavables.put(object, el);
             object.write(exporter);
         }
         if(className != null){
-            el.setAttribute("class", className);
+            XMLUtils.setAttribute(el, "class", className);
         }
 
         currentElement = old;
@@ -572,7 +573,7 @@ public class DOMOutputCapsule implements OutputCapsule {
 
         Element old = currentElement;
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(objects.length));
+        XMLUtils.setAttribute(el, "size", String.valueOf(objects.length));
         for (int i = 0; i < objects.length; i++) {
             Savable o = objects[i];
             if(o == null){
@@ -595,8 +596,8 @@ public class DOMOutputCapsule implements OutputCapsule {
         if(Arrays.deepEquals(value, defVal)) return;
 
         Element el = appendElement(name);
-        el.setAttribute("size_outer", String.valueOf(value.length));
-        el.setAttribute("size_inner", String.valueOf(value[0].length));
+        XMLUtils.setAttribute(el, "size_outer", String.valueOf(value.length));
+        XMLUtils.setAttribute(el, "size_inner", String.valueOf(value[0].length));
         for (Savable[] bs : value) {
             for(Savable b : bs){
                 write(b, b.getClass().getSimpleName(), null);
@@ -616,7 +617,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         Element old = currentElement;
         Element el = appendElement(name);
         currentElement = el;
-        el.setAttribute(XMLExporter.ATTRIBUTE_SIZE, String.valueOf(array.size()));
+        XMLUtils.setAttribute(el, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(array.size()));
         for (Object o : array) {
                 if(o == null) {
                         continue;
@@ -638,7 +639,7 @@ public class DOMOutputCapsule implements OutputCapsule {
 
         Element old = currentElement;
         Element el = appendElement(name);
-        el.setAttribute(XMLExporter.ATTRIBUTE_SIZE, String.valueOf(objects.length));
+        XMLUtils.setAttribute(el, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(objects.length));
         for (int i = 0; i < objects.length; i++) {
             ArrayList o = objects[i];
             if(o == null){
@@ -661,7 +662,7 @@ public class DOMOutputCapsule implements OutputCapsule {
 
         Element el = appendElement(name);
         int size = value.length;
-        el.setAttribute(XMLExporter.ATTRIBUTE_SIZE, String.valueOf(size));
+        XMLUtils.setAttribute(el, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(size));
 
         for (int i=0; i< size; i++) {
             ArrayList[] vi = value[i];
@@ -679,7 +680,7 @@ public class DOMOutputCapsule implements OutputCapsule {
             return;
         }
         Element el = appendElement(name);
-        el.setAttribute(XMLExporter.ATTRIBUTE_SIZE, String.valueOf(array.size()));
+        XMLUtils.setAttribute(el, XMLExporter.ATTRIBUTE_SIZE, String.valueOf(array.size()));
         for (FloatBuffer o : array) {
             write(o, XMLExporter.ELEMENT_FLOATBUFFER, null);
         }
@@ -723,7 +724,7 @@ public class DOMOutputCapsule implements OutputCapsule {
                 while(keyIterator.hasNext()) {
                         String key = keyIterator.next();
                         Element mapEntry = appendElement("MapEntry");
-                        mapEntry.setAttribute("key", key);
+                        XMLUtils.setAttribute(mapEntry, "key", key);
                         Savable s = map.get(key);
                         write(s, "Savable", null);
                         currentElement = stringMap;
@@ -745,7 +746,7 @@ public class DOMOutputCapsule implements OutputCapsule {
                 for(Entry<? extends Savable> entry : map) {
                         int key = entry.getKey();
                         Element mapEntry = appendElement("MapEntry");
-                        mapEntry.setAttribute("key", Integer.toString(key));
+                        XMLUtils.setAttribute(mapEntry, "key", Integer.toString(key));
                         Savable s = entry.getValue();
                         write(s, "Savable", null);
                         currentElement = stringMap;
@@ -761,7 +762,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.limit()));
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.limit()));
         StringBuilder buf = new StringBuilder();
         int pos = value.position();
         value.rewind();
@@ -784,7 +785,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
         
         value.position(pos);
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) el.getParentNode();
     }
 
@@ -798,7 +799,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.limit()));
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.limit()));
         StringBuilder buf = new StringBuilder();
         int pos = value.position();
         value.rewind();
@@ -820,7 +821,7 @@ public class DOMOutputCapsule implements OutputCapsule {
             buf.setLength(buf.length() - 1);
         }
         value.position(pos);
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) el.getParentNode();
     }
 
@@ -830,7 +831,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value.equals(defVal)) return;
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.limit()));
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.limit()));
         StringBuilder buf = new StringBuilder();
         int pos = value.position();
         value.rewind();
@@ -853,7 +854,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
         
         value.position(pos);
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) el.getParentNode();
     }
 
@@ -867,7 +868,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
 
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(value.limit()));
+        XMLUtils.setAttribute(el, "size", String.valueOf(value.limit()));
         StringBuilder buf = new StringBuilder();
         int pos = value.position();
         value.rewind();
@@ -890,7 +891,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         }
         
         value.position(pos);
-        el.setAttribute(dataAttributeName, buf.toString());
+        XMLUtils.setAttribute(el, dataAttributeName, buf.toString());
         currentElement = (Element) el.getParentNode();
     }
 
@@ -899,7 +900,7 @@ public class DOMOutputCapsule implements OutputCapsule {
         if (value == defVal) {
             return;
         }
-        currentElement.setAttribute(name, String.valueOf(value));
+        XMLUtils.setAttribute(currentElement, name, String.valueOf(value));
 
         }
 
@@ -913,11 +914,12 @@ public class DOMOutputCapsule implements OutputCapsule {
             return;
         }
         Element el = appendElement(name);
-        el.setAttribute("size", String.valueOf(array.size()));
+        XMLUtils.setAttribute(el, "size", String.valueOf(array.size()));
         for (ByteBuffer o : array) {
             write(o, "ByteBuffer", null);
         }
         currentElement = (Element) el.getParentNode();
 
         }
+    
 }

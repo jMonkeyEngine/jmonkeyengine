@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,19 +40,19 @@ import java.util.logging.LogRecord;
 
 /**
  * More simple formatter than the default one used in Java logging.
- * Example output: <br/>
+ * Example output: <br>
  * INFO Display3D 12:00 PM: Display created.
  */
 public class JmeFormatter extends Formatter {
 
-    private Date calendar = new Date();
-    private String lineSeperator;
-    private MessageFormat format;
-    private Object args[] = new Object[1];
-    private StringBuffer store = new StringBuffer();
+    private final Date calendar = new Date();
+    private final String lineSeparator;
+    private final MessageFormat format;
+    private final Object args[] = new Object[1];
+    private final StringBuffer store = new StringBuffer();
 
     public JmeFormatter(){
-        lineSeperator = System.getProperty("line.separator");
+        lineSeparator = System.getProperty("line.separator");
         format = new MessageFormat("{0,time}");
     }
 
@@ -66,21 +66,21 @@ public class JmeFormatter extends Formatter {
         format.format(args, store, null);
 
         String clazz = null;
-        try{
+        try {
             clazz = Class.forName(record.getSourceClassName()).getSimpleName();
-        } catch (ClassNotFoundException ex){
+        } catch (ClassNotFoundException ex) {
         }
-        
+
         sb.append(record.getLevel().getLocalizedName()).append(" ");
         sb.append(clazz).append(" ");
         sb.append(store.toString()).append(" ");
-        sb.append(formatMessage(record)).append(lineSeperator);
+        sb.append(formatMessage(record)).append(lineSeparator);
 
         if (record.getThrown() != null) {
             try {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
-                record.getThrown().printStackTrace(pw);
+                    record.getThrown().printStackTrace(pw);
                 pw.close();
                 sb.append(sw.toString());
             } catch (Exception ex) {

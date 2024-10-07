@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,6 @@ public class ReflectionProcessor implements SceneProcessor {
     private Camera reflectionCam;
     private FrameBuffer reflectionBuffer;
     private Plane reflectionClipPlane;
-    private AppProfiler prof;
 
     /**
      * Creates a ReflectionProcessor
@@ -86,12 +85,12 @@ public class ReflectionProcessor implements SceneProcessor {
 
     @Override
     public void postQueue(RenderQueue rq) {
-        //we need special treatement for the sky because it must not be clipped
+        //we need special treatment for the sky because it must not be clipped
         rm.getRenderer().setFrameBuffer(reflectionBuffer);
         reflectionCam.setProjectionMatrix(null);
         rm.setCamera(reflectionCam, false);
         rm.getRenderer().clearBuffers(true, true, true);
-        //Rendering the sky whithout clipping
+        //Rendering the sky without clipping
         rm.getRenderer().setDepthRange(1, 1);
         vp.getQueue().renderQueue(RenderQueue.Bucket.Sky, rm, reflectionCam, true);
         rm.getRenderer().setDepthRange(0, 1);
@@ -111,7 +110,7 @@ public class ReflectionProcessor implements SceneProcessor {
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-        this.prof = profiler;
+        // not implemented
     }
 
     /**
@@ -126,7 +125,8 @@ public class ReflectionProcessor implements SceneProcessor {
     /**
      * Internal use only<br>
      * sets the frame buffer
-     * @param reflectionBuffer 
+     *
+     * @param reflectionBuffer the FrameBuffer to use (alias created)
      */
     public void setReflectionBuffer(FrameBuffer reflectionBuffer) {
         this.reflectionBuffer = reflectionBuffer;
@@ -142,7 +142,8 @@ public class ReflectionProcessor implements SceneProcessor {
 
     /**
      * sets the reflection cam
-     * @param reflectionCam 
+     *
+     * @param reflectionCam the Camera to use (alias created)
      */
     public void setReflectionCam(Camera reflectionCam) {
         this.reflectionCam = reflectionCam;
@@ -158,7 +159,8 @@ public class ReflectionProcessor implements SceneProcessor {
 
     /**
      * Sets the reflection clip plane
-     * @param reflectionClipPlane 
+     *
+     * @param reflectionClipPlane the Plane to use (alias created)
      */
     public void setReflectionClipPlane(Plane reflectionClipPlane) {
         this.reflectionClipPlane = reflectionClipPlane;

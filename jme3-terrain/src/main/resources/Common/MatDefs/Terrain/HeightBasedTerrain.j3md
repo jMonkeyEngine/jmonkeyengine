@@ -1,7 +1,7 @@
 MaterialDef Terrain {
 
         // Parameters to material:
-        // regionXColorMap: X = 1..4 the texture that should be appliad to state X
+        // regionXColorMap: X = 1..4 the texture that should be applied to state X
         // regionX: a Vector3f containing the following information:
         //      regionX.x: the start height of the region
         //      regionX.y: the end height of the region
@@ -11,6 +11,7 @@ MaterialDef Terrain {
         // slopeTileFactor: the texture scale for slopes
         // terrainSize: the total size of the terrain (used for scaling the texture)
 	MaterialParameters {
+		Int BoundDrawBuffer
 		Texture2D region1ColorMap
 		Texture2D region2ColorMap
 		Texture2D region3ColorMap
@@ -25,14 +26,18 @@ MaterialDef Terrain {
 	}
 
 	Technique {
-		VertexShader GLSL100:   Common/MatDefs/Terrain/HeightBasedTerrain.vert
-		FragmentShader GLSL100: Common/MatDefs/Terrain/HeightBasedTerrain.frag
+		VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/HeightBasedTerrain.vert
+		FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/HeightBasedTerrain.frag
 
 		WorldParameters {
 			WorldViewProjectionMatrix
 			WorldMatrix
 			NormalMatrix
 		}
+		
+		Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+        }
 	}
 
     Technique {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,6 @@ import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -61,21 +60,28 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class BufferUtils {
 
     /**
-     * The field should be final to support thread-safe.
+     * Should be final for thread safety.
      */
     private static final BufferAllocator allocator = BufferAllocatorFactory.create();
 
     private static boolean trackDirectMemory = false;
-    private static ReferenceQueue<Buffer> removeCollected = new ReferenceQueue<Buffer>();
-    private static ConcurrentHashMap<BufferInfo, BufferInfo> trackedBuffers = new ConcurrentHashMap<BufferInfo, BufferInfo>();
+    private static final ReferenceQueue<Buffer> removeCollected = new ReferenceQueue<Buffer>();
+    private static final ConcurrentHashMap<BufferInfo, BufferInfo> trackedBuffers = new ConcurrentHashMap<BufferInfo, BufferInfo>();
     static ClearReferences cleanupthread;
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private BufferUtils() {
+    }
 
     /**
      * Set it to true if you want to enable direct memory tracking for debugging
      * purpose. Default is false. To print direct memory usage use
      * BufferUtils.printCurrentDirectMemory(StringBuilder store);
      *
-     * @param enabled
+     * @param enabled true to enable tracking, false to disable it
+     * (default=false)
      */
     public static void setTrackDirectMemoryEnabled(boolean enabled) {
         trackDirectMemory = enabled;

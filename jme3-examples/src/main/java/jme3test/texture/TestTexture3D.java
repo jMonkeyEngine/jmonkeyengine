@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,12 +66,12 @@ public class TestTexture3D extends SimpleApplication {
         flyCam.setMoveSpeed(10);
         //creating a sphere
         Sphere sphere = new Sphere(32, 32, 1);
-        //getting the boundingbox
+        // getting the bounding box
         sphere.updateBound();
         BoundingBox bb = (BoundingBox) sphere.getBound();
         Vector3f min = bb.getMin(null);
         float[] ext = new float[]{bb.getXExtent() * 2, bb.getYExtent() * 2, bb.getZExtent() * 2};
-        //we need to change the UV coordinates (the sphere is assumet to be inside the 3D image box)
+        //we need to change the UV coordinates (the sphere is assumed to be inside the 3D image box)
         sphere.clearBuffer(Type.TexCoord);
         VertexBuffer vb = sphere.getBuffer(Type.Position);
         FloatBuffer fb = (FloatBuffer) vb.getData();
@@ -112,10 +112,10 @@ public class TestTexture3D extends SimpleApplication {
     }
 
     /**
-         * This method creates a RGB8 texture with the sizes of 10x10x10 pixels.
+         * This method creates an RGB8 texture with the sizes of 10x10x10 pixels.
          */
     private Texture getTexture() throws IOException {
-        ArrayList<ByteBuffer> data = new ArrayList<ByteBuffer>(1);
+        ArrayList<ByteBuffer> data = new ArrayList<>(1);
         ByteBuffer bb = BufferUtils.createByteBuffer(10 * 10 * 10 * 3);//all data must be inside one buffer
         for (int i = 0; i < 10; ++i) {
             for (int j = 0; j < 10 * 10; ++j) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,15 @@ public interface GL2 extends GL {
      * The comparison is enabled or disabled with the generic {@link #glEnable Enable} and {@link #glDisable Disable} commands using the symbolic constant {@link #GL_ALPHA_TEST ALPHA_TEST}.
      * When disabled, it is as if the comparison always passes. The test is controlled with this method.
      *
-     * @param func a symbolic constant indicating the alpha test function. One of:<br><table><tr><td>{@link #GL_NEVER NEVER}</td><td>{@link #GL_ALWAYS ALWAYS}</td><td>{@link #GL_LESS LESS}</td><td>{@link #GL_LEQUAL LEQUAL}</td><td>{@link #GL_EQUAL EQUAL}</td><td>{@link #GL_GEQUAL GEQUAL}</td><td>{@link #GL_GREATER GREATER}</td><td>{@link #GL_NOTEQUAL NOTEQUAL}</td></tr></table>
+     * @param func a symbolic constant indicating the alpha test function. One of:
+     *  {@link #GL_NEVER NEVER}
+     *  {@link #GL_ALWAYS ALWAYS}
+     *  {@link #GL_LESS LESS}
+     *  {@link #GL_LEQUAL LEQUAL}
+     *  {@link #GL_EQUAL EQUAL}
+     *  {@link #GL_GEQUAL GEQUAL}
+     *  {@link #GL_GREATER GREATER}
+     *  {@link #GL_NOTEQUAL NOTEQUAL}
      * @param ref  a reference value clamped to the range [0, 1]. When performing the alpha test, the GL will convert the reference value to the same representation as the fragment's alpha value (floating-point or fixed-point).
      */
     public void glAlphaFunc(int func, float ref);
@@ -105,8 +113,14 @@ public interface GL2 extends GL {
      * polygon's vertices are lit, and the polygon is clipped and possibly culled before these modes are applied. Polygon antialiasing applies only to the
      * {@link #GL_FILL FILL} state of PolygonMode. For {@link #GL_POINT POINT} or {@link #GL_LINE LINE}, point antialiasing or line segment antialiasing, respectively, apply.</p>
      *
-     * @param face the face for which to set the rasterizing method. One of:<br><table><tr><td>{@link #GL_FRONT FRONT}</td><td>{@link #GL_BACK BACK}</td><td>{@link #GL_FRONT_AND_BACK FRONT_AND_BACK}</td></tr></table>
-     * @param mode the rasterization mode. One of:<br><table><tr><td>{@link #GL_POINT POINT}</td><td>{@link #GL_LINE LINE}</td><td>{@link #GL_FILL FILL}</td></tr></table>
+     * @param face the face for which to set the rasterizing method. One of:
+     *  {@link #GL_FRONT FRONT}
+     *  {@link #GL_BACK BACK}
+     *  {@link #GL_FRONT_AND_BACK FRONT_AND_BACK}
+     * @param mode the rasterization mode. One of:
+     *  {@link #GL_POINT POINT}
+     *  {@link #GL_LINE LINE}
+     *  {@link #GL_FILL FILL}
      */
     public void glPolygonMode(int face, int mode);
 

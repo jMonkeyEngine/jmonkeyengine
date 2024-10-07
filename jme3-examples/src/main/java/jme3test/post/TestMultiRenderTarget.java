@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,198 +33,186 @@
 package jme3test.post;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.scene.Node;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Box;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 
+/**
+ * Demonstrates rendering to multiple texture targets of a single FrameBuffer.
+ *
+ * <p>The GUI viewport is tiled into 4 pictures,
+ * each displaying a different render of 5 colorful cubes in the main scene.
+ */
 public class TestMultiRenderTarget extends SimpleApplication implements SceneProcessor {
-
     private FrameBuffer fb;
-    private Texture2D diffuseData, normalData, specularData, depthData;
-    private Picture display1, display2, display3, display4;
-    
-    private Picture display;
-    private Material mat;
+    /**
+     * Displays the merged RGB (normal color) output<ul>
+     * <li>from "ExtractRGB.frag" location 3,</li>
+     * <li>in the lower-left quadrant of the window.</li></ul>
+     */
+    private Picture display1;
+    /**
+     * Displays the red-channel output in color<ul>
+     * <li>from "ExtractRGB.frag" location 0,</li>
+     * <li>in the upper-left quadrant of the window.</li></ul>
+     */
+    private Picture display2;
+    /**
+     * Displays the green-channel output in monochrome<ul>
+     * <li>from ExtractRGB.frag location 1,</li>
+     * <li>in the upper-right quadrant of the window.</li></ul>
+     */
+    private Picture display3;
+    /**
+     * Displays the blue-channel output in monochrome<ul>
+     * <li>from ExtractRGB.frag location 2,</li>
+     * <li>in the lower-right quadrant of the window.</li></ul>
+     */
+    private Picture display4;
 
-    private String techOrig;
-    private PointLight[] pls;
+    private boolean initialized = false;
 
-    public static void main(String[] args){
+    /**
+     * The main entry point for the TestMultiRenderTarget application.
+     *
+     * @param args unused
+     */
+    public static void main(String[] args) {
         TestMultiRenderTarget app = new TestMultiRenderTarget();
         app.start();
+    }
+
+    /**
+     * Add 5 colorful cubes to the main scene.
+     */
+    protected void buildScene() {
+        Geometry cube1 = buildCube(ColorRGBA.Red);
+        cube1.setLocalTranslation(-1f, 0f, 0f);
+        Geometry cube2 = buildCube(ColorRGBA.Green);
+        cube2.setLocalTranslation(0f, 0f, 0f);
+        Geometry cube3 = buildCube(ColorRGBA.Blue);
+        cube3.setLocalTranslation(1f, 0f, 0f);
+
+        Geometry cube4 = buildCube(ColorRGBA.randomColor());
+        cube4.setLocalTranslation(-0.5f, 1f, 0f);
+        Geometry cube5 = buildCube(ColorRGBA.randomColor());
+        cube5.setLocalTranslation(0.5f, 1f, 0f);
+
+        rootNode.attachChild(cube1);
+        rootNode.attachChild(cube2);
+        rootNode.attachChild(cube3);
+        rootNode.attachChild(cube4);
+        rootNode.attachChild(cube5);
+    }
+
+    /**
+     * Create a cube with the specified color,
+     * using a custom unshaded material that outputs 4 textures:<ul>
+     * <li>red channel only to location 0,</li>
+     * <li>green channel only to location 1,</li>
+     * <li>blue channel only to location 2,</li>
+     * <li>merged RGB to location 3.</li></ul>
+     *
+     * @param color the desired albedo color (alias created)
+     * @return a new Geometry with no parent
+     */
+    private Geometry buildCube(ColorRGBA color) {
+        Geometry cube = new Geometry("Box", new Box(0.5f, 0.5f, 0.5f));
+        Material mat = new Material(assetManager, "TestMRT/MatDefs/ExtractRGB.j3md");
+        mat.setColor("Albedo", color);
+        cube.setMaterial(mat);
+        return cube;
     }
 
     @Override
     public void simpleInitApp() {
         viewPort.addProcessor(this);
-
-//        flyCam.setEnabled(false);
-        cam.setLocation(new Vector3f(4.8037705f, 4.851632f, 10.789033f));
-        cam.setRotation(new Quaternion(-0.05143692f, 0.9483723f, -0.21131563f, -0.230846f));
-
-        Node tank = (Node) assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
-        
-        //tankMesh.getMaterial().setColor("Specular", ColorRGBA.Black);
-        rootNode.attachChild(tank);
+        buildScene();
 
         display1 = new Picture("Picture");
         display1.move(0, 0, -1); // make it appear behind stats view
         display2 = (Picture) display1.clone();
         display3 = (Picture) display1.clone();
         display4 = (Picture) display1.clone();
-        display  = (Picture) display1.clone();
-
-        ColorRGBA[] colors = new ColorRGBA[]{
-            ColorRGBA.White,
-            ColorRGBA.Blue,
-            ColorRGBA.Cyan,
-            ColorRGBA.DarkGray,
-            ColorRGBA.Green,
-            ColorRGBA.Magenta,
-            ColorRGBA.Orange,
-            ColorRGBA.Pink,
-            ColorRGBA.Red,
-            ColorRGBA.Yellow
-        };
-
-        pls = new PointLight[3];
-        for (int i = 0; i < pls.length; i++){
-            PointLight pl = new PointLight();
-            pl.setColor(colors[i % colors.length]);
-            pl.setRadius(5);
-            display.addLight(pl);
-            pls[i] = pl;
-        }
     }
 
     @Override
-    public void simpleUpdate(float tpf) {
-        super.simpleUpdate(tpf);//To change body of generated methods, choose Tools | Templates.
-        for (int i = 0; i < 3; i++){
-            PointLight pl = pls[i];
-            float angle = (float)Math.PI * (i + (timer.getTimeInSeconds() % 6)/3); // 3s for full loop
-            pl.setPosition( new Vector3f(FastMath.cos(angle)*3f, 0,
-                                         FastMath.sin(angle)*3f));
-        }
+    public void destroy() {
+        viewPort.removeProcessor(this);
+        super.destroy();
     }
+
+    // Scene Processor from now on
     @Override
     public void initialize(RenderManager rm, ViewPort vp) {
         reshape(vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
         viewPort.setOutputFrameBuffer(fb);
         guiViewPort.setClearFlags(true, true, true);
-        guiNode.attachChild(display);
-//        guiNode.attachChild(display1);
+
+        guiNode.attachChild(display1);
         guiNode.attachChild(display2);
-//        guiNode.attachChild(display3);
-//        guiNode.attachChild(display4);
+        guiNode.attachChild(display3);
+        guiNode.attachChild(display4);
         guiNode.updateGeometricState();
     }
 
     @Override
     public void reshape(ViewPort vp, int w, int h) {
-        diffuseData  = new Texture2D(w, h, Format.RGBA8);
-        normalData   = new Texture2D(w, h, Format.RGBA8);
-        specularData = new Texture2D(w, h, Format.RGBA8);
-        depthData    = new Texture2D(w, h, Format.Depth);
+        // You can use multiple channel formats as well. That's why red is using RGBA8 as an example.
+        Texture2D redTexture = new Texture2D(w, h, Format.RGBA8);        // color texture
+        Texture2D greenTexture = new Texture2D(w, h, Format.Luminance8); // monochrome texture
+        Texture2D blueTexture = new Texture2D(w, h, Format.Luminance8);  // monochrome texture
+        Texture2D rgbTexture = new Texture2D(w, h, Format.RGBA8);        // color texture
 
-        mat = new Material(assetManager, "Common/MatDefs/Light/Deferred.j3md");
-        mat.setTexture("DiffuseData",  diffuseData);
-        mat.setTexture("SpecularData", specularData);
-        mat.setTexture("NormalData",   normalData);
-        mat.setTexture("DepthData",    depthData);
-
-        display.setMaterial(mat);
-        display.setPosition(0, 0);
-        display.setWidth(w);
-        display.setHeight(h);
-
-        display1.setTexture(assetManager, diffuseData, false);
-        display2.setTexture(assetManager, normalData, false);
-        display3.setTexture(assetManager, specularData, false);
-        display4.setTexture(assetManager, depthData, false);
-
-        display1.setPosition(0, 0);
-        display2.setPosition(w/2, 0);
-        display3.setPosition(0, h/2);
-        display4.setPosition(w/2, h/2);
-
-        display1.setWidth(w/2);
-        display1.setHeight(h/2);
-
-        display2.setWidth(w/2);
-        display2.setHeight(h/2);
-
-        display3.setWidth(w/2);
-        display3.setHeight(h/2);
-
-        display4.setWidth(w/2);
-        display4.setHeight(h/2);
-
-        guiNode.updateGeometricState();
-        
         fb = new FrameBuffer(w, h, 1);
-        fb.setDepthTarget(FrameBufferTarget.newTarget(depthData));
-        fb.addColorTarget(FrameBufferTarget.newTarget(diffuseData));
-        fb.addColorTarget(FrameBufferTarget.newTarget(normalData));
-        fb.addColorTarget(FrameBufferTarget.newTarget(specularData));
+        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(redTexture));   // location 0
+        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(greenTexture)); // location 1
+        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(blueTexture));  // location 2
+        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(rgbTexture));   // location 3
         fb.setMultiTarget(true);
 
-        /*
-         * Marks pixels in front of the far light boundary
-            Render back-faces of light volume
-            Depth test GREATER-EQUAL
-            Write to stencil on depth pass
-            Skipped for very small distant lights
-         */
-        
-        /*
-         * Find amount of lit pixels inside the volume
-             Start pixel query
-             Render front faces of light volume
-             Depth test LESS-EQUAL
-             Don’t write anything – only EQUAL stencil test
-         */
+        display1.setTexture(assetManager, rgbTexture, false);
+        display2.setTexture(assetManager, redTexture, false);
+        display3.setTexture(assetManager, greenTexture, false);
+        display4.setTexture(assetManager, blueTexture, false);
 
-        /*
-         * Enable conditional rendering
-            Based on query results from previous stage
-            GPU skips rendering for invisible lights
-         */
+        display1.setPosition(0, 0); // lower-left quadrant
+        display1.setWidth(w / 2f);
+        display1.setHeight(h / 2f);
 
-        /*
-         * Render front-faces of light volume
-            Depth test - LESS-EQUAL
-            Stencil test - EQUAL
-            Runs only on marked pixels inside light
-         */
+        display2.setPosition(0, h / 2f); // upper-left quadrant
+        display2.setWidth(w / 2f);
+        display2.setHeight(h / 2f);
+
+        display3.setPosition(w / 2f, h / 2f); // upper-right quadrant
+        display3.setWidth(w / 2f);
+        display3.setHeight(h / 2f);
+
+        display4.setPosition(w / 2f, 0f); // lower-right quadrant
+        display4.setWidth(w / 2f);
+        display4.setHeight(h / 2f);
+
+        guiNode.updateGeometricState();
+        initialized = true;
     }
 
     @Override
     public boolean isInitialized() {
-        return diffuseData != null;
+        return initialized;
     }
 
     @Override
     public void preFrame(float tpf) {
-        Matrix4f inverseViewProj = cam.getViewProjectionMatrix().invert();
-        mat.setMatrix4("ViewProjectionMatrixInverse", inverseViewProj);
-        techOrig = renderManager.getForcedTechnique();
-        renderManager.setForcedTechnique("GBuf");
     }
 
     @Override
@@ -233,16 +221,15 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
 
     @Override
     public void postFrame(FrameBuffer out) {
-        renderManager.setForcedTechnique(techOrig);
     }
 
     @Override
     public void cleanup() {
+        initialized = false;
     }
 
     @Override
     public void setProfiler(AppProfiler profiler) {
-
+        // not implemented
     }
-
 }

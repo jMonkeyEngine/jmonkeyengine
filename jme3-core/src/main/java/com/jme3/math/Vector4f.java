@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,36 +51,36 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * shared instance of the all-zero vector (0,0,0,0) - Do not modify!
      */
-    public final static Vector4f ZERO = new Vector4f(0, 0, 0, 0);
+    public static final Vector4f ZERO = new Vector4f(0, 0, 0, 0);
     /**
      * shared instance of the all-NaN vector (NaN,NaN,NaN,NaN) - Do not modify!
      */
-    public final static Vector4f NAN = new Vector4f(Float.NaN, Float.NaN, Float.NaN, Float.NaN);
+    public static final Vector4f NAN = new Vector4f(Float.NaN, Float.NaN, Float.NaN, Float.NaN);
     /**
      * shared instance of the +X direction (1,0,0,0) - Do not modify!
      */
-    public final static Vector4f UNIT_X = new Vector4f(1, 0, 0, 0);
+    public static final Vector4f UNIT_X = new Vector4f(1, 0, 0, 0);
     /**
      * shared instance of the +Y direction (0,1,0,0) - Do not modify!
      */
-    public final static Vector4f UNIT_Y = new Vector4f(0, 1, 0, 0);
+    public static final Vector4f UNIT_Y = new Vector4f(0, 1, 0, 0);
     /**
      * shared instance of the +Z direction (0,0,1,0) - Do not modify!
      */
-    public final static Vector4f UNIT_Z = new Vector4f(0, 0, 1, 0);
+    public static final Vector4f UNIT_Z = new Vector4f(0, 0, 1, 0);
     /**
      * shared instance of the +W direction (0,0,0,1) - Do not modify!
      */
-    public final static Vector4f UNIT_W = new Vector4f(0, 0, 0, 1);
+    public static final Vector4f UNIT_W = new Vector4f(0, 0, 0, 1);
     /**
      * shared instance of the all-ones vector (1,1,1,1) - Do not modify!
      */
-    public final static Vector4f UNIT_XYZW = new Vector4f(1, 1, 1, 1);
+    public static final Vector4f UNIT_XYZW = new Vector4f(1, 1, 1, 1);
     /**
      * shared instance of the all-plus-infinity vector (+Inf,+Inf,+Inf,+Inf)
      * - Do not modify!
      */
-    public final static Vector4f POSITIVE_INFINITY = new Vector4f(
+    public static final Vector4f POSITIVE_INFINITY = new Vector4f(
             Float.POSITIVE_INFINITY,
             Float.POSITIVE_INFINITY,
             Float.POSITIVE_INFINITY,
@@ -89,7 +89,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * shared instance of the all-negative-infinity vector (-Inf,-Inf,-Inf,-Inf)
      * - Do not modify!
      */
-    public final static Vector4f NEGATIVE_INFINITY = new Vector4f(
+    public static final Vector4f NEGATIVE_INFINITY = new Vector4f(
             Float.NEGATIVE_INFINITY,
             Float.NEGATIVE_INFINITY,
             Float.NEGATIVE_INFINITY,
@@ -424,6 +424,20 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
+     * Multiplies component-wise by the specified components and returns the
+     * product as a new instance. The current instance is unaffected.
+     *
+     * @param x the scale factor for the X component
+     * @param y the scale factor for the Y component
+     * @param z the scale factor for the Z component
+     * @param w the scale factor for the W component
+     * @return a new Vector4f
+     */
+    public Vector4f mult(float x, float y, float z, float w) {
+        return new Vector4f(this.x * x, this.y * y, this.z * z, this.w * w);
+    }
+
+    /**
      * <code>multLocal</code> multiplies this vector by a scalar internally,
      * and returns a handle to this vector for easy chaining of calls.
      *
@@ -465,10 +479,10 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * internally, and returns a handle to this vector for easy chaining of
      * calls.
      *
-     * @param x
-     * @param y
-     * @param z
-     * @param w
+     * @param x the scaling factor for the X component
+     * @param y the scaling factor for the Y component
+     * @param z the scaling factor for the Z component
+     * @param w the scaling factor for the W component
      * @return this
      */
     public Vector4f multLocal(float x, float y, float z, float w) {
@@ -552,12 +566,12 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * <code>divide</code> divides the values of this vector by a scalar and
      * returns the result. The values of this vector remain untouched.
      *
-     * @param scalar
+     * @param divisor
      *            the value to divide this vectors attributes by.
      * @return the result <code>Vector</code>.
      */
-    public Vector4f divide(Vector4f scalar) {
-        return new Vector4f(x / scalar.x, y / scalar.y, z / scalar.z, w / scalar.w);
+    public Vector4f divide(Vector4f divisor) {
+        return new Vector4f(x / divisor.x, y / divisor.y, z / divisor.z, w / divisor.w);
     }
 
     /**
@@ -565,16 +579,48 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * and returns a handle to this vector for easy chaining of calls. Dividing
      * by zero will result in an exception.
      *
-     * @param scalar
+     * @param divisor
      *            the value to divides this vector by.
      * @return this
      */
-    public Vector4f divideLocal(Vector4f scalar) {
-        x /= scalar.x;
-        y /= scalar.y;
-        z /= scalar.z;
-        w /= scalar.w;
+    public Vector4f divideLocal(Vector4f divisor) {
+        x /= divisor.x;
+        y /= divisor.y;
+        z /= divisor.z;
+        w /= divisor.w;
         return this;
+    }
+
+    /**
+     * Divides component-wise by the specified components returns the (modified)
+     * current instance.
+     *
+     * @param x the divisor for the X component
+     * @param y the divisor for the Y component
+     * @param z the divisor for the Z component
+     * @param w the divisor for the W component
+     * @return the (modified) current instance (for chaining)
+     */
+    public Vector4f divideLocal(float x, float y, float z, float w) {
+        this.x /= x;
+        this.y /= y;
+        this.z /= z;
+        this.w /= w;
+        return this;
+    }
+
+    /**
+     * Divides component-wise by the specified components and returns the quotient
+     * as a new instance. The current instance is unaffected.
+     *
+     * @param x the divisor for the X component
+     * @param y the divisor for the Y component
+     * @param z the divisor for the Z component
+     * @param w the divisor for the W component
+     * @return a new Vector4f
+     */
+    public Vector4f divide(float x, float y, float z, float w) {
+        return new Vector4f(this.x / x, this.y / y, this.z / z, this.w / w);
     }
 
     /**
@@ -741,7 +787,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      *
-     * @param other
+     * @param other the vector to compare with (not null, unaffected)
      * @return this
      */
     public Vector4f maxLocal(Vector4f other) {
@@ -757,7 +803,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * component in this and <code>other</code> vector. The result is stored
      * in this vector.
      *
-     * @param other
+     * @param other the vector to compare with (not null, unaffected)
      * @return this
      */
     public Vector4f minLocal(Vector4f other) {
@@ -792,37 +838,37 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * Sets this vector to the interpolation by changeAmnt from this to the finalVec
-     * this=(1-changeAmnt)*this + changeAmnt * finalVec
+     * Sets this vector to the interpolation by changeAmount from this to the finalVec
+     * this=(1-changeAmount)*this + changeAmount * finalVec
      *
      * @param finalVec The final vector to interpolate towards
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
+     * @param changeAmount An amount between 0.0 - 1.0 representing a percentage
      *  change from this towards finalVec
      * @return this
      */
-    public Vector4f interpolateLocal(Vector4f finalVec, float changeAmnt) {
-        this.x = (1 - changeAmnt) * this.x + changeAmnt * finalVec.x;
-        this.y = (1 - changeAmnt) * this.y + changeAmnt * finalVec.y;
-        this.z = (1 - changeAmnt) * this.z + changeAmnt * finalVec.z;
-        this.w = (1 - changeAmnt) * this.w + changeAmnt * finalVec.w;
+    public Vector4f interpolateLocal(Vector4f finalVec, float changeAmount) {
+        this.x = (1 - changeAmount) * this.x + changeAmount * finalVec.x;
+        this.y = (1 - changeAmount) * this.y + changeAmount * finalVec.y;
+        this.z = (1 - changeAmount) * this.z + changeAmount * finalVec.z;
+        this.w = (1 - changeAmount) * this.w + changeAmount * finalVec.w;
         return this;
     }
 
     /**
-     * Sets this vector to the interpolation by changeAmnt from beginVec to finalVec
-     * this=(1-changeAmnt)*beginVec + changeAmnt * finalVec
+     * Sets this vector to the interpolation by changeAmount from beginVec to finalVec
+     * this=(1-changeAmount)*beginVec + changeAmount * finalVec
      *
-     * @param beginVec the beginning vector (changeAmnt=0)
+     * @param beginVec the beginning vector (changeAmount=0)
      * @param finalVec The final vector to interpolate towards
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
+     * @param changeAmount An amount between 0.0 - 1.0 representing a percentage
      *  change from beginVec towards finalVec
      * @return this
      */
-    public Vector4f interpolateLocal(Vector4f beginVec, Vector4f finalVec, float changeAmnt) {
-        this.x = (1 - changeAmnt) * beginVec.x + changeAmnt * finalVec.x;
-        this.y = (1 - changeAmnt) * beginVec.y + changeAmnt * finalVec.y;
-        this.z = (1 - changeAmnt) * beginVec.z + changeAmnt * finalVec.z;
-        this.w = (1 - changeAmnt) * beginVec.w + changeAmnt * finalVec.w;
+    public Vector4f interpolateLocal(Vector4f beginVec, Vector4f finalVec, float changeAmount) {
+        this.x = (1 - changeAmount) * beginVec.x + changeAmount * finalVec.x;
+        this.y = (1 - changeAmount) * beginVec.y + changeAmount * finalVec.y;
+        this.z = (1 - changeAmount) * beginVec.z + changeAmount * finalVec.z;
+        this.w = (1 - changeAmount) * beginVec.w + changeAmount * finalVec.w;
         return this;
     }
 
@@ -886,8 +932,8 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * are these two vectors the same? they are is they both have the same x,y,
-     * and z values.
+     * Are these two vectors the same? They are if they have the same x, y,
+     * z, and w values.
      *
      * @param o   the object to compare for equality
      * @return true if they are equal
@@ -995,12 +1041,12 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * De-serialize this vector from the specified importer, for example
      * when loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         x = capsule.readFloat("x", 0);
         y = capsule.readFloat("y", 0);
         z = capsule.readFloat("z", 0);
@@ -1088,7 +1134,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * @param index
+     * @param index which component (&ge;0, &lt;4)
      * @return x value if index == 0, y value if index == 1 or z value if index == 2
      * @throws IllegalArgumentException
      *             if index is not one of 0, 1, 2.

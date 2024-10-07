@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,12 +63,11 @@ public class TestBetterCharacter extends SimpleApplication implements ActionList
     private BetterCharacterControl physicsCharacter;
     private Node characterNode;
     private CameraNode camNode;
-    boolean rotate = false;
-    private Vector3f walkDirection = new Vector3f(0, 0, 0);
-    private Vector3f viewDirection = new Vector3f(0, 0, 1);
-    boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false,
+    final private Vector3f walkDirection = new Vector3f(0, 0, 0);
+    final private Vector3f viewDirection = new Vector3f(0, 0, 1);
+    private boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false,
             leftRotate = false, rightRotate = false;
-    private Vector3f normalGravity = new Vector3f(0, -9.81f, 0);
+    final private Vector3f normalGravity = new Vector3f(0, -9.81f, 0);
     private Geometry planet;
 
     public static void main(String[] args) {
@@ -105,8 +104,8 @@ public class TestBetterCharacter extends SimpleApplication implements ActionList
         characterNode = new Node("character node");
         characterNode.setLocalTranslation(new Vector3f(4, 5, 2));
 
-        // Add a character control to the node so we can add other things and
-        // control the model rotation
+        // Add a character control to the node, so we can add other things and
+        // control the model rotation.
         physicsCharacter = new BetterCharacterControl(0.3f, 2.5f, 8f);
         characterNode.addControl(physicsCharacter);
         getPhysicsSpace().add(physicsCharacter);
@@ -118,6 +117,8 @@ public class TestBetterCharacter extends SimpleApplication implements ActionList
 
         // Add character node to the rootNode
         rootNode.attachChild(characterNode);
+
+        cam.setLocation(new Vector3f(10f, 6f, -5f));
 
         // Set forward camera node that follows the character, only used when
         // view is "locked"

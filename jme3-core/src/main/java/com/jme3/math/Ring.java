@@ -35,7 +35,7 @@ import com.jme3.export.*;
 import java.io.IOException;
 
 /**
- * <code>Ring</code> defines a flat ring or disk within three dimensional
+ * <code>Ring</code> defines a flat ring or disc in three-dimensional
  * space that is specified via the ring's center point, an up vector, an inner
  * radius, and an outer radius.
  *
@@ -47,7 +47,7 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
 
     private Vector3f center, up;
     private float innerRadius, outerRadius;
-    private transient static Vector3f b1 = new Vector3f(), b2 = new Vector3f();
+    private static transient Vector3f b1 = new Vector3f(), b2 = new Vector3f();
 
     /**
      * Constructor creates a new <code>Ring</code> lying on the XZ plane,
@@ -214,12 +214,12 @@ public final class Ring implements Savable, Cloneable, java.io.Serializable {
      * De-serialize this ring from the specified importer, for example
      * when loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         center = (Vector3f) capsule.readSavable("center", Vector3f.ZERO.clone());
         up = (Vector3f) capsule.readSavable("up", Vector3f.UNIT_Z.clone());
         innerRadius = capsule.readFloat("innerRadius", 0f);

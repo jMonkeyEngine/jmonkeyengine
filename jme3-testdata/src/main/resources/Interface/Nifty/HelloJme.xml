@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <nifty>
-  <screen id="start" controller="jme3test.niftygui.TestNiftyGui">
+  <screen id="start" controller="jme3test.niftygui.StartScreenController">
     <layer id="layer" backgroundColor="#0000" childLayout="center">
       <panel id="panel" height="25%" width="35%" align="center" valign="center" backgroundColor="#f60f" childLayout="center" visibleToMouse="true">
         <interact onClick="quit()"/>

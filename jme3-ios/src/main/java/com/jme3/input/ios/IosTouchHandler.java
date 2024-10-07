@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,18 +45,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * AndroidTouchHandler is the base class that receives touch inputs from the 
- * Android system and creates the TouchEvents for jME.  This class is designed
- * to handle the base touch events for Android rev 9 (Android 2.3).  This is
- * extended by other classes to add features that were introducted after
- * Android rev 9.
+ * IosTouchHandler is the base class that receives touch inputs from the 
+ * iOS system and creates the TouchEvents for jME.
  * 
  * @author iwgeric
  */
 public class IosTouchHandler {
     private static final Logger logger = Logger.getLogger(IosTouchHandler.class.getName());
     
-    final private HashMap<Integer, Vector2f> lastPositions = new HashMap<Integer, Vector2f>();
+    final private HashMap<Integer, Vector2f> lastPositions = new HashMap<>();
 
     protected int numPointers = 1;
     
@@ -73,8 +70,10 @@ public class IosTouchHandler {
     }
     
     public void actionDown(int pointerId, long time, float x, float y) {
-        logger.log(Level.FINE, "Inject input pointer: {0}, time: {1}, x: {2}, y: {3}", 
-                new Object[]{pointerId, time, x, y});
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Inject input pointer: {0}, time: {1}, x: {2}, y: {3}",
+                    new Object[]{pointerId, time, x, y});
+        }
         float jmeX = iosInput.getJmeX(x);
         float jmeY = iosInput.invertY(iosInput.getJmeY(y));
         TouchEvent touch = iosInput.getFreeTouchEvent();
@@ -82,7 +81,7 @@ public class IosTouchHandler {
         touch.setPointerId(pointerId);//TODO: pointer ID
         touch.setTime(time);
         touch.setPressure(1.0f);
-        //touch.setPressure(event.getPressure(pointerIndex)); //TODO: preassure
+        //touch.setPressure(event.getPressure(pointerIndex)); //TODO: pressure
 
         lastPositions.put(pointerId, new Vector2f(jmeX, jmeY));
 
@@ -97,7 +96,7 @@ public class IosTouchHandler {
         touch.setPointerId(pointerId);//TODO: pointer ID
         touch.setTime(time);
         touch.setPressure(1.0f);
-        //touch.setPressure(event.getPressure(pointerIndex)); //TODO: preassure
+        //touch.setPressure(event.getPressure(pointerIndex)); //TODO: pressure
         lastPositions.remove(pointerId);
 
         processEvent(touch);

@@ -37,7 +37,7 @@ import com.jme3.texture.Image;
 import java.nio.ByteBuffer;
 
 public class DefaultImageRaster extends ImageRaster {
-    
+
     private final int[] components = new int[4];
     private ByteBuffer buffer;
     private final Image image;
@@ -48,60 +48,60 @@ public class DefaultImageRaster extends ImageRaster {
     private final byte[] temp;
     private final boolean convertToLinear;
     private int slice;
-    
+
     private void rangeCheck(int x, int y) {
         if (x < 0 || y < 0 || x >= width || y >= height) {
-            throw new IllegalArgumentException("x and y must be inside the image dimensions:" 
+            throw new IllegalArgumentException("x and y must be inside the image dimensions:"
                                                 + x + ", " + y + " in:" + width + ", " + height);
         }
     }
-    
+
     public DefaultImageRaster(Image image, int slice, int mipMapLevel, boolean convertToLinear) {
         int[] mipMapSizes = image.getMipMapSizes();
         int availableMips = mipMapSizes != null ? mipMapSizes.length : 1;
-        
+
         if (mipMapLevel >= availableMips) {
             throw new IllegalStateException("Cannot create image raster for mipmap level #" + mipMapLevel + ". "
                                           + "Image only has " + availableMips + " mipmap levels.");
         }
-        
+
         if (image.hasMipmaps()) {
             this.width  = Math.max(1, image.getWidth()  >> mipMapLevel);
             this.height = Math.max(1, image.getHeight() >> mipMapLevel);
-            
+
             int mipOffset = 0;
             for (int i = 0; i < mipMapLevel; i++) {
                 mipOffset += mipMapSizes[i];
             }
-            
+
             this.offset = mipOffset;
         } else {
             this.width = image.getWidth();
             this.height = image.getHeight();
             this.offset = 0;
         }
-        
+
         this.image = image;
         this.slice = slice;
-        
+
         // Conversion to linear only needed if image's color space is sRGB.
         this.convertToLinear = convertToLinear && image.getColorSpace() == ColorSpace.sRGB;
-        
+
         this.buffer = image.getData(slice);
         this.codec = ImageCodec.lookup(image.getFormat());
-        
+
         if (codec instanceof ByteAlignedImageCodec || codec instanceof ByteOffsetImageCodec) {
             this.temp = new byte[codec.bpp];
         } else {
             this.temp = null;
         }
     }
-    
+
     public void setSlice(int slice) {
         this.slice = slice;
         this.buffer = image.getData(slice);
     }
-    
+
     @Override
     public int getWidth() {
         return width;
@@ -115,13 +115,13 @@ public class DefaultImageRaster extends ImageRaster {
     @Override
     public void setPixel(int x, int y, ColorRGBA color) {
         rangeCheck(x, y);
-        
+
         if (convertToLinear) {
             // Input is linear, needs to be converted to sRGB before writing
             // into image.
             color = color.getAsSrgb();
         }
-        
+
         // Check flags for grayscale
         if (codec.isGray) {
             float gray = color.r * 0.27f + color.g * 0.67f + color.b * 0.06f;
@@ -148,22 +148,29 @@ public class DefaultImageRaster extends ImageRaster {
                 components[2] = Math.min( (int) (color.g * codec.maxGreen + 0.5f), codec.maxGreen);
                 components[3] = Math.min( (int) (color.b * codec.maxBlue + 0.5f), codec.maxBlue);
                 break;
-        }     
+        }
         codec.writeComponents(getBuffer(), x, y, width, offset, components, temp);
         image.setUpdateNeeded();
     }
-    
-    private ByteBuffer getBuffer(){
-        if(buffer == null){
-            this.buffer = image.getData(slice);
+
+    private ByteBuffer getBuffer() {
+        if (buffer == null) {
+            if (image.getDepth() > 1) {
+                int skip = image.getWidth() * image.getHeight() * codec.bpp * slice;
+                this.buffer = image.getData(0);
+                this.buffer.position(skip);
+                this.buffer = this.buffer.slice();
+            } else {
+                this.buffer = image.getData(slice);
+            }
         }
         return buffer;
     }
-    
+
     @Override
     public ColorRGBA getPixel(int x, int y, ColorRGBA store) {
         rangeCheck(x, y);
-        
+
         codec.readComponents(getBuffer(), x, y, width, offset, components, temp);
         if (store == null) {
             store = new ColorRGBA();
@@ -183,10 +190,10 @@ public class DefaultImageRaster extends ImageRaster {
                 break;
             case 0:
                 // Convert to float and divide by bitsize to get into range 0.0 - 1.0.
-                store.set((float)components[1] / codec.maxRed,
-                          (float)components[2] / codec.maxGreen,
-                          (float)components[3] / codec.maxBlue,
-                          (float)components[0] / codec.maxAlpha);
+                store.set((float) components[1] / codec.maxRed,
+                          (float) components[2] / codec.maxGreen,
+                          (float) components[3] / codec.maxBlue,
+                          (float) components[0] / codec.maxAlpha);
                 break;
         }
         if (codec.isGray) {
@@ -205,12 +212,12 @@ public class DefaultImageRaster extends ImageRaster {
                 store.a = 1;
             }
         }
-        
+
         if (convertToLinear) {
             // Input image is sRGB, need to convert to linear.
             store.setAsSrgb(store.r, store.g, store.b, store.a);
         }
-        
+
         return store;
     }
 }

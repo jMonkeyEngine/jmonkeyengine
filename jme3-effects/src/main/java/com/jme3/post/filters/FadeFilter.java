@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,8 @@ public class FadeFilter extends Filter {
 
     /**
      * Creates a FadeFilter with the given duration
-     * @param duration 
+     *
+     * @param duration the desired duration (in seconds, default=1)
      */
     public FadeFilter(float duration) {
         this();
@@ -109,7 +110,8 @@ public class FadeFilter extends Filter {
 
     /**
      * Sets the duration of the filter default is 1 second
-     * @param duration 
+     *
+     * @param duration the desired duration (in seconds, default=1)
      */
     public void setDuration(float duration) {
         this.duration = duration;
@@ -153,8 +155,8 @@ public class FadeFilter extends Filter {
     }
 
     /**
-     * return the current value of the fading
-     * can be used to check if fade is complete (eg value=1)
+     * Returns the current fade value.
+     * Can be used to check whether fade is complete (e.g. value=1).
      * @return the fractional progress (&ge;0, &le;1)
      */
     public float getValue() {
@@ -162,9 +164,10 @@ public class FadeFilter extends Filter {
     }
 
     /**
-     * sets the fade value
-     * can be used to force complete black or compete scene
-     * @param value 
+     * Sets the fade value.
+     * Can be used to force all black or all scene.
+     *
+     * @param value the desired value (default=1)
      */
     public void setValue(float value) {
         this.value = value;       

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,9 +41,8 @@ import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Quad;
+import com.jme3.scene.shape.RectangleMesh;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 
@@ -59,33 +58,28 @@ public class TestParallax extends SimpleApplication {
     public void setupSkyBox() {
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", SkyFactory.EnvMapType.CubeMap));
     }
-    DirectionalLight dl;
 
     public void setupLighting() {
-
-        dl = new DirectionalLight();
+        DirectionalLight dl = new DirectionalLight();
         dl.setDirection(lightDir);
         dl.setColor(new ColorRGBA(.9f, .9f, .9f, 1));
         rootNode.addLight(dl);
     }
-    Material mat;
+    private Material mat;
 
     public void setupFloor() {
         mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
-                
-        Node floorGeom = new Node("floorGeom");
-        Quad q = new Quad(100, 100);
-        q.scaleTextureCoordinates(new Vector2f(10, 10));
-        Geometry g = new Geometry("geom", q);
-        g.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X));
-        floorGeom.attachChild(g);
-        
-        
-        TangentBinormalGenerator.generate(floorGeom);
-        floorGeom.setLocalTranslation(-50, 22, 60);
-        //floorGeom.setLocalScale(100);
 
-        floorGeom.setMaterial(mat);        
+        RectangleMesh rm = new RectangleMesh(
+                new Vector3f(-50, 22, 60),
+                new Vector3f(50, 22, 60),
+                new Vector3f(-50, 22, -40));
+        rm.scaleTextureCoordinates(new Vector2f(10, 10));
+
+        Geometry floorGeom = new Geometry("floorGeom", rm);
+        TangentBinormalGenerator.generate(floorGeom);
+        floorGeom.setMaterial(mat);
+
         rootNode.attachChild(floorGeom);
     }
 
@@ -117,13 +111,13 @@ public class TestParallax extends SimpleApplication {
             @Override
             public void onAnalog(String name, float value, float tpf) {
                 if ("heightUP".equals(name)) {
-                    parallaxHeigh += 0.01;
-                    mat.setFloat("ParallaxHeight", parallaxHeigh);
+                    parallaxHeight += 0.01;
+                    mat.setFloat("ParallaxHeight", parallaxHeight);
                 }
                 if ("heightDown".equals(name)) {
-                    parallaxHeigh -= 0.01;
-                    parallaxHeigh = Math.max(parallaxHeigh, 0);
-                    mat.setFloat("ParallaxHeight", parallaxHeigh);
+                    parallaxHeight -= 0.01;
+                    parallaxHeight = Math.max(parallaxHeight, 0);
+                    mat.setFloat("ParallaxHeight", parallaxHeight);
                 }
 
             }
@@ -143,9 +137,8 @@ public class TestParallax extends SimpleApplication {
         }, "toggleSteep");
         inputManager.addMapping("toggleSteep", new KeyTrigger(KeyInput.KEY_SPACE));
     }
-    float parallaxHeigh = 0.05f;
-    float time = 0;
-    boolean steep = false;
+    private float parallaxHeight = 0.05f;
+    private boolean steep = false;
 
     @Override
     public void simpleUpdate(float tpf) {

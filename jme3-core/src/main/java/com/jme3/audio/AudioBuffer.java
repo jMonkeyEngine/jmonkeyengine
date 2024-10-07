@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import java.nio.ByteBuffer;
 /**
  * An <code>AudioBuffer</code> is an implementation of AudioData
  * where the audio is buffered (stored in memory). All parts of it
- * are accessible at any time. <br/>
+ * are accessible at any time. <br>
  * AudioBuffers are useful for short sounds, like effects, etc.
  *
  * @author Kirill Vainer
@@ -51,11 +51,11 @@ public class AudioBuffer extends AudioData {
      */
     protected ByteBuffer audioData;
 
-    public AudioBuffer(){
+    public AudioBuffer() {
         super();
     }
-    
-    protected AudioBuffer(int id){
+
+    protected AudioBuffer(int id) {
         super(id);
     }
 
@@ -69,7 +69,7 @@ public class AudioBuffer extends AudioData {
      * that audio is uncompressed.
      */
     @Override
-    public float getDuration(){
+    public float getDuration() {
         int bytesPerSec = (bitsPerSample / 8) * channels * sampleRate;
         if (audioData != null)
             return (float) audioData.limit() / bytesPerSec;
@@ -78,18 +78,19 @@ public class AudioBuffer extends AudioData {
     }
 
     @Override
-    public String toString(){
-        return getClass().getSimpleName() +
-               "[id="+id+", ch="+channels+", bits="+bitsPerSample +
-               ", rate="+sampleRate+", duration="+getDuration()+"]";
+    public String toString() {
+        return getClass().getSimpleName()
+                + "[id=" + id + ", ch=" + channels + ", bits=" + bitsPerSample
+                + ", rate=" + sampleRate + ", duration=" + getDuration() + "]";
     }
 
     /**
      * Update the data in the buffer with new data.
-     * @param data
+     *
+     * @param data the audio data provided (not null, direct, alias created)
      * @throws IllegalArgumentException if the provided buffer is not a direct buffer
      */
-    public void updateData(ByteBuffer data){
+    public void updateData(ByteBuffer data) {
         if (!data.isDirect()) {
             throw new IllegalArgumentException(
                     "Currently only direct buffers are allowed");
@@ -102,7 +103,7 @@ public class AudioBuffer extends AudioData {
     /**
      * @return The buffered audio data.
      */
-    public ByteBuffer getData(){
+    public ByteBuffer getData() {
         return audioData;
     }
 
@@ -118,10 +119,10 @@ public class AudioBuffer extends AudioData {
             BufferUtils.destroyDirectBuffer(audioData);
         }
     }
-    
+
     @Override
     public void deleteObject(Object rendererObject) {
-        ((AudioRenderer)rendererObject).deleteAudioData(this);
+        ((AudioRenderer) rendererObject).deleteAudioData(this);
     }
 
     @Override
@@ -131,6 +132,6 @@ public class AudioBuffer extends AudioData {
 
     @Override
     public long getUniqueId() {
-        return ((long)OBJTYPE_AUDIOBUFFER << 32) | ((long)id);
+        return ((long) OBJTYPE_AUDIOBUFFER << 32) | (0xffffffffL & (long) id);
     }
 }

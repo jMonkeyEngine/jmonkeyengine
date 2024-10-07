@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.awt;
 
 import com.jme3.app.LegacyApplication;
@@ -45,6 +44,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -170,7 +170,7 @@ public class TestCanvas {
             public void actionPerformed(ActionEvent e) {
                 currentPanel.remove(canvas);
                 app.stop(true);
-
+                
                 createCanvas(appClass);
                 currentPanel.add(canvas, BorderLayout.CENTER);
                 frame.pack();
@@ -203,6 +203,7 @@ public class TestCanvas {
         createMenu();
     }
 
+    @SuppressWarnings("unchecked")
     public static void createCanvas(String appClass){
         AppSettings settings = new AppSettings(true);
         settings.setWidth(640);
@@ -210,12 +211,14 @@ public class TestCanvas {
 
         try{
             Class clazz = Class.forName(appClass);
-            app = (LegacyApplication)clazz.newInstance();
-        }catch (ClassNotFoundException ex){
-            ex.printStackTrace();
-        }catch (InstantiationException ex){
-            ex.printStackTrace();
-        }catch (IllegalAccessException ex){
+            app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
+        }catch (ClassNotFoundException
+                | InstantiationException
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | SecurityException ex) {
             ex.printStackTrace();
         }
 

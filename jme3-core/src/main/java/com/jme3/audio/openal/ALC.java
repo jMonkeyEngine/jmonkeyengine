@@ -61,6 +61,7 @@ public interface ALC {
     public static final int ALC_ALL_DEVICES_SPECIFIER = 0x1013;
 
     //public static ALCCapabilities createCapabilities(long device);
+    public static final int ALC_CONNECTED = 0x313;
 
     /**
      * Creates an AL context.
@@ -82,24 +83,36 @@ public interface ALC {
     /**
      * Obtains string value(s) from ALC.
      *
-     * @param parameter the information to query. One of:<br><table><tr><td>{@link #ALC_DEFAULT_DEVICE_SPECIFIER DEFAULT_DEVICE_SPECIFIER}</td><td>{@link #ALC_DEVICE_SPECIFIER DEVICE_SPECIFIER}</td><td>{@link #ALC_EXTENSIONS EXTENSIONS}</td></tr><tr><td>{@link #ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER CAPTURE_DEFAULT_DEVICE_SPECIFIER}</td><td>{@link #ALC_CAPTURE_DEVICE_SPECIFIER CAPTURE_DEVICE_SPECIFIER}</td></tr></table>
+     * @param parameter the information to query. One of:
+     *  {@link #ALC_DEFAULT_DEVICE_SPECIFIER DEFAULT_DEVICE_SPECIFIER}
+     *  {@link #ALC_DEVICE_SPECIFIER DEVICE_SPECIFIER}
+     *  {@link #ALC_EXTENSIONS EXTENSIONS}
+     *  {@link #ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER CAPTURE_DEFAULT_DEVICE_SPECIFIER}
+     *  {@link #ALC_CAPTURE_DEVICE_SPECIFIER CAPTURE_DEVICE_SPECIFIER}
+     * @return the parameter value
      */
     public String alcGetString(int parameter);
 
     /**
      * Verifies that a given extension is available for the current context and the device it is associated with.
-     * <p>
+     *
      * <p>Invalid and unsupported string tokens return ALC_FALSE. A {@code NULL} deviceHandle is acceptable. {@code extName} is not case sensitive – the implementation
      * will convert the name to all upper-case internally (and will express extension names in upper-case).</p>
      *
      * @param extension the extension name.
+     * @return true if the extension is available, otherwise false
      */
     public boolean alcIsExtensionPresent(String extension);
 
     /**
      * Obtains integer value(s) from ALC.
      *
-     * @param param  the information to query. One of:<br><table><tr><td>{@link #ALC_MAJOR_VERSION MAJOR_VERSION}</td><td>{@link #ALC_MINOR_VERSION MINOR_VERSION}</td><td>{@link #ALC_ATTRIBUTES_SIZE ATTRIBUTES_SIZE}</td><td>{@link #ALC_ALL_ATTRIBUTES ALL_ATTRIBUTES}</td><td>{@link #ALC_CAPTURE_SAMPLES CAPTURE_SAMPLES}</td></tr></table>
+     * @param param  the information to query. One of:
+     *  {@link #ALC_MAJOR_VERSION MAJOR_VERSION}
+     *  {@link #ALC_MINOR_VERSION MINOR_VERSION}
+     *  {@link #ALC_ATTRIBUTES_SIZE ATTRIBUTES_SIZE}
+     *  {@link #ALC_ALL_ATTRIBUTES ALL_ATTRIBUTES}
+     *  {@link #ALC_CAPTURE_SAMPLES CAPTURE_SAMPLES}
      * @param buffer the destination buffer.
      * @param size   the buffer size.
      */
@@ -107,7 +120,7 @@ public interface ALC {
 
     /**
      * Pauses a playback device.
-     * <p>
+     *
      * <p>When paused, no contexts associated with the device will be processed or updated. Playing sources will not produce sound, have their offsets
      * incremented, or process any more buffers, until the device is resumed. Pausing a device that is already paused is a legal no-op.</p>
      */
@@ -115,10 +128,10 @@ public interface ALC {
 
     /**
      * Resumes playback of a paused device.
-     * <p>
+     *
      * <p>This will restart processing on the device -- sources will resume playing sound as normal. Resuming playback on a device that is not paused is a legal
      * no-op.</p>
-     * <p>
+     *
      * <p>These functions are not reference counted. alcDeviceResumeSOFT only needs to be called once to resume playback, regardless of how many times
      * {@link #alcDevicePauseSOFT DevicePauseSOFT} was called.</p>
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public class AndroidGestureProcessor implements
 
     @Override
     public boolean onDown(MotionEvent event) {
-        // start of all GestureListeners.  Not really a gesture by itself
+        // The start of all GestureListeners. Not really a gesture by itself,
         // so we don't create an event.
         // However, reset the scaleInProgress here since this is the beginning
         // of a series of gesture events.
@@ -116,11 +116,11 @@ public class AndroidGestureProcessor implements
 
     @Override
     public boolean onScroll(MotionEvent startEvent, MotionEvent endEvent, float distX, float distY) {
-        // if not scaleInProgess, send scroll events.  This is to avoid sending
+        // if not scaleInProgress, send scroll events.  This is to avoid sending
         // scroll events when one of the fingers is lifted just before the other one.
         // Avoids sending the scroll for that brief period of time.
         // Return true so that the next event doesn't accumulate the distX and distY values.
-        // Apparantly, both distX and distY are negative.
+        // Apparently, both distX and distY are negative.
         // Negate distX to get the real value, but leave distY negative to compensate
         // for the fact that jME has y=0 at bottom where Android has y=0 at top.
         if (!touchInput.getScaleDetector().isInProgress()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,21 +48,21 @@ import java.util.ArrayList;
  * <code>Bone</code> describes a bone in the bone-weight skeletal animation
  * system. A bone contains a name and an index, as well as relevant
  * transformation data.
- * 
+ *
  * A bone has 3 sets of transforms :
  * 1. The bind transforms, that are the transforms of the bone when the skeleton
- * is in its rest pose (also called bind pose or T pose in the literature). 
- * The bind transforms are expressed in Local space meaning relatively to the 
+ * is in its rest pose (also called bind pose or T pose in the literature).
+ * The bind transforms are expressed in Local space meaning relatively to the
  * parent bone.
- * 
+ *
  * 2. The Local transforms, that are the transforms of the bone once animation
  * or user transforms has been applied to the bind pose. The local transforms are
  * expressed in Local space meaning relatively to the parent bone.
- * 
- * 3. The Model transforms, that are the transforms of the bone relatives to the 
- * rootBone of the skeleton. Those transforms are what is needed to apply skinning 
+ *
+ * 3. The Model transforms, that are the transforms of the bone relatives to the
+ * rootBone of the skeleton. Those transforms are what is needed to apply skinning
  * to the mesh the skeleton controls.
- * Note that there can be several rootBones in a skeleton. The one considered for 
+ * Note that there can be several rootBones in a skeleton. The one considered for
  * these transforms is the one that is an ancestor of this bone.
  *
  * @author Kirill Vainer
@@ -76,7 +76,7 @@ public final class Bone implements Savable, JmeCloneable {
     public static final int SAVABLE_VERSION = 2;
     private String name;
     private Bone parent;
-    private ArrayList<Bone> children = new ArrayList<Bone>();
+    private ArrayList<Bone> children = new ArrayList<>();
     /**
      * If enabled, user can control bone transform with setUserTransforms.
      * Animation transforms are not applied to this bone when enabled.
@@ -96,14 +96,14 @@ public final class Bone implements Savable, JmeCloneable {
     private Vector3f bindPos;
     private Quaternion bindRot;
     private Vector3f bindScale;
-    
+
     /**
-     * The inverse bind transforms of this bone expressed in model space     
+     * The inverse bind transforms of this bone expressed in model space
      */
     private Vector3f modelBindInversePos;
     private Quaternion modelBindInverseRot;
     private Vector3f modelBindInverseScale;
-    
+
     /**
      * The local animated or user transform combined with the local bind transform
      */
@@ -111,15 +111,15 @@ public final class Bone implements Savable, JmeCloneable {
     private Quaternion localRot = new Quaternion();
     private Vector3f localScale = new Vector3f(1.0f, 1.0f, 1.0f);
     /**
-     * The model transforms of this bone     
+     * The model transforms of this bone
      */
     private Vector3f modelPos = new Vector3f();
     private Quaternion modelRot = new Quaternion();
     private Vector3f modelScale = new Vector3f();
-    
+
     // Used for getCombinedTransform
     private Transform tmpTransform;
-    
+
     /**
      * Used to handle blending from one animation to another.
      * See {@link #blendAnimTransforms(com.jme3.math.Vector3f, com.jme3.math.Quaternion, com.jme3.math.Vector3f, float)}
@@ -129,13 +129,13 @@ public final class Bone implements Savable, JmeCloneable {
 
     /**
      * Creates a new bone with the given name.
-     * 
+     *
      * @param name Name to give to this bone
      */
     public Bone(String name) {
         if (name == null)
             throw new IllegalArgumentException("Name cannot be null");
-        
+
         this.name = name;
 
         bindPos = new Vector3f();
@@ -148,13 +148,13 @@ public final class Bone implements Savable, JmeCloneable {
     }
 
     /**
-     * Special-purpose copy constructor. 
+     * Special-purpose copy constructor.
      * <p>
      * Only copies the name, user control state and bind pose transforms from the original.
      * <p>
      * The rest of the data is <em>NOT</em> copied, as it will be
      * generated automatically when the bone is animated.
-     * 
+     *
      * @param source The bone from which to copy the data.
      */
     Bone(Bone source) {
@@ -170,7 +170,7 @@ public final class Bone implements Savable, JmeCloneable {
         modelBindInverseRot = source.modelBindInverseRot.clone();
         modelBindInverseScale = source.modelBindInverseScale.clone();
 
-        // parent and children will be assigned manually..
+        // Parent and children will be assigned manually.
     }
 
     /**
@@ -178,48 +178,48 @@ public final class Bone implements Savable, JmeCloneable {
      */
     protected Bone() {
     }
-    
-    @Override   
+
+    @Override
     public Object jmeClone() {
         try {
-            Bone clone = (Bone)super.clone();
+            Bone clone = (Bone) super.clone();
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
-    }     
+    }
 
-    @Override   
-    public void cloneFields( Cloner cloner, Object original ) {
-    
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+
         this.parent = cloner.clone(parent);
-        this.children = cloner.clone(children);    
-        
+        this.children = cloner.clone(children);
+
         this.attachNode = cloner.clone(attachNode);
         this.targetGeometry = cloner.clone(targetGeometry);
 
         this.bindPos = cloner.clone(bindPos);
         this.bindRot = cloner.clone(bindRot);
         this.bindScale = cloner.clone(bindScale);
-        
+
         this.modelBindInversePos = cloner.clone(modelBindInversePos);
         this.modelBindInverseRot = cloner.clone(modelBindInverseRot);
         this.modelBindInverseScale = cloner.clone(modelBindInverseScale);
-    
+
         this.localPos = cloner.clone(localPos);
         this.localRot = cloner.clone(localRot);
         this.localScale = cloner.clone(localScale);
-        
+
         this.modelPos = cloner.clone(modelPos);
         this.modelRot = cloner.clone(modelRot);
         this.modelScale = cloner.clone(modelScale);
-    
+
         this.tmpTransform = cloner.clone(tmpTransform);
     }
 
     /**
      * Returns the name of the bone, set in the constructor.
-     * 
+     *
      * @return The name of the bone, set in the constructor.
      */
     public String getName() {
@@ -236,7 +236,7 @@ public final class Bone implements Savable, JmeCloneable {
 
     /**
      * Returns all the children bones of this bone.
-     * 
+     *
      * @return All the children bones of this bone.
      */
     public ArrayList<Bone> getChildren() {
@@ -245,7 +245,7 @@ public final class Bone implements Savable, JmeCloneable {
 
     /**
      * Returns the local position of the bone, relative to the parent bone.
-     * 
+     *
      * @return The local position of the bone, relative to the parent bone.
      */
     public Vector3f getLocalPosition() {
@@ -254,7 +254,7 @@ public final class Bone implements Savable, JmeCloneable {
 
     /**
      * Returns the local rotation of the bone, relative to the parent bone.
-     * 
+     *
      * @return The local rotation of the bone, relative to the parent bone.
      */
     public Quaternion getLocalRotation() {
@@ -263,7 +263,7 @@ public final class Bone implements Savable, JmeCloneable {
 
     /**
      * Returns the local scale of the bone, relative to the parent bone.
-     * 
+     *
      * @return The local scale of the bone, relative to the parent bone.
      */
     public Vector3f getLocalScale() {
@@ -272,7 +272,7 @@ public final class Bone implements Savable, JmeCloneable {
 
     /**
      * Returns the position of the bone in model space.
-     * 
+     *
      * @return The position of the bone in model space.
      */
     public Vector3f getModelSpacePosition() {
@@ -281,7 +281,7 @@ public final class Bone implements Savable, JmeCloneable {
 
     /**
      * Returns the rotation of the bone in model space.
-     * 
+     *
      * @return The rotation of the bone in model space.
      */
     public Quaternion getModelSpaceRotation() {
@@ -290,68 +290,70 @@ public final class Bone implements Savable, JmeCloneable {
 
     /**
      * Returns the scale of the bone in model space.
-     * 
+     *
      * @return The scale of the bone in model space.
      */
     public Vector3f getModelSpaceScale() {
         return modelScale;
     }
 
-    /**     
+    /**
+     * @return the pre-existing vector
      * @deprecated use {@link #getModelBindInversePosition()}
      */
-    @Deprecated 
+    @Deprecated
     public Vector3f getWorldBindInversePosition() {
         return modelBindInversePos;
     }
-    
-      /**
+
+    /**
      * Returns the inverse Bind position of this bone expressed in model space.
      * <p>
      * The inverse bind pose transform of the bone in model space is its "default"
      * transform with no animation applied.
-     * 
+     *
      * @return the inverse bind position of this bone expressed in model space.
-     */   
+     */
     public Vector3f getModelBindInversePosition() {
         return modelBindInversePos;
     }
 
-    /**     
+    /**
+     * @return the pre-existing Quaternion
      * @deprecated use {@link #getModelBindInverseRotation()}
      */
     @Deprecated
     public Quaternion getWorldBindInverseRotation() {
         return modelBindInverseRot;
     }
-    
-      /**
+
+    /**
      * Returns the inverse bind rotation of this bone expressed in model space.
      * <p>
      * The inverse bind pose transform of the bone in model space is its "default"
      * transform with no animation applied.
-     * 
+     *
      * @return the inverse bind rotation of this bone expressed in model space.
      */
     public Quaternion getModelBindInverseRotation() {
         return modelBindInverseRot;
     }
 
-
-    /**     
+    /**
+     * @return the pre-existing vector
      * @deprecated use {@link #getModelBindInverseScale()}
      */
     @Deprecated
     public Vector3f getWorldBindInverseScale() {
         return modelBindInverseScale;
     }
-    
+
     /**
      * Returns the inverse world bind pose scale.
      * <p>
      * The inverse bind pose transform of the bone in model space is its "default"
      * transform with no animation applied.
-     * 
+     *
      * @return the inverse world bind pose scale.
      */
     public Vector3f getModelBindInverseScale() {
@@ -367,7 +369,7 @@ public final class Bone implements Savable, JmeCloneable {
         }
         return t;
     }
-    
+
     public Transform getBindInverseTransform() {
         Transform t = new Transform();
         t.setTranslation(bindPos);
@@ -377,30 +379,32 @@ public final class Bone implements Savable, JmeCloneable {
         }
         return t.invert();
     }
-    
-    /**    
+
+    /**
+     * @return the pre-existing vector
      * @deprecated use {@link #getBindPosition()}
      */
     @Deprecated
     public Vector3f getWorldBindPosition() {
         return bindPos;
     }
-    
-     /**
+
+    /**
      * Returns the bind position expressed in local space (relative to the parent bone).
      * <p>
      * The bind pose transform of the bone in local space is its "default"
      * transform with no animation applied.
-     * 
+     *
      * @return the bind position in local space.
      */
     public Vector3f getBindPosition() {
         return bindPos;
     }
 
-    /**  
+    /**
+     * @return the pre-existing Quaternion
      * @deprecated use {@link #getBindRotation() }
-     */    
+     */
     @Deprecated
     public Quaternion getWorldBindRotation() {
         return bindRot;
@@ -411,27 +415,28 @@ public final class Bone implements Savable, JmeCloneable {
      * <p>
      * The bind pose transform of the bone in local space is its "default"
      * transform with no animation applied.
-     * 
+     *
      * @return the bind rotation in local space.
-     */    
+     */
     public Quaternion getBindRotation() {
         return bindRot;
-    }  
-    
+    }
+
     /**
+     * @return the pre-existing vector
      * @deprecated use {@link #getBindScale() }
      */
     @Deprecated
     public Vector3f getWorldBindScale() {
         return bindScale;
     }
-    
+
     /**
      * Returns the  bind scale expressed in local space (relative to the parent bone).
      * <p>
      * The bind pose transform of the bone in local space is its "default"
      * transform with no animation applied.
-     * 
+     *
      * @return the bind scale in local space.
      */
     public Vector3f getBindScale() {
@@ -441,6 +446,8 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * If enabled, user can control bone transform with setUserTransforms.
      * Animation transforms are not applied to this bone when enabled.
+     *
+     * @param enable true for direct control, false for canned animations
      */
     public void setUserControl(boolean enable) {
         userControl = enable;
@@ -449,7 +456,7 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * Add a new child to this bone. Shouldn't be used by user code.
      * Can corrupt skeleton.
-     * 
+     *
      * @param bone The bone to add
      */
     public void addChild(Bone bone) {
@@ -458,21 +465,20 @@ public final class Bone implements Savable, JmeCloneable {
     }
 
     /**
-     * 
+     *
      * @deprecated use {@link #updateModelTransforms() }
      */
     @Deprecated
-    public final void updateWorldVectors(){
+    public final void updateWorldVectors() {
         updateModelTransforms();
     }
-            
-            
+
     /**
-     * Updates the model transforms for this bone, and, possibly the attach node
+     * Updates the model transforms for this bone and, possibly, the attachments node
      * if not null.
      * <p>
      * The model transform of this bone is computed by combining the parent's
-     * model transform with this bones' local transform.
+     * model transform with this bone's local transform.
      */
     public final void updateModelTransforms() {
         if (currentWeightSum == 1f) {
@@ -489,11 +495,11 @@ public final class Bone implements Savable, JmeCloneable {
                 localPos.interpolateLocal(bindPos, invWeightSum);
                 localScale.interpolateLocal(bindScale, invWeightSum);
             }
-            
+
             // Future invocations of transform blend will start over.
             currentWeightSum = -1;
         }
-        
+
         if (parent != null) {
             //rotation
             parent.modelRot.mult(localRot, modelRot);
@@ -504,7 +510,7 @@ public final class Bone implements Savable, JmeCloneable {
             parent.modelScale.mult(localScale, modelScale);
 
             //translation
-            //scale and rotation of parent affect bone position            
+            //scale and rotation of parent affect bone position
             parent.modelRot.mult(localPos, modelPos);
             modelPos.multLocal(parent.modelScale);
             modelPos.addLocal(parent.modelPos);
@@ -616,14 +622,14 @@ public final class Bone implements Savable, JmeCloneable {
         }
     }
 
-     /**
+    /**
      * Stores the skinning transform in the specified Matrix4f.
      * The skinning transform applies the animation of the bone to a vertex.
-     * 
+     *
      * This assumes that the world transforms for the entire bone hierarchy
      * have already been computed, otherwise this method will return undefined
      * results.
-     * 
+     *
      * @param outTransform
      */
     void getOffsetTransform(Matrix4f outTransform, Quaternion tmp1, Vector3f tmp2, Vector3f tmp3, Matrix3f tmp4) {
@@ -634,7 +640,7 @@ public final class Bone implements Savable, JmeCloneable {
         Quaternion rotate = modelRot.mult(modelBindInverseRot, tmp1);
 
         // Computing translation
-        // Translation depend on rotation and scale
+        // Translation depends on rotation and scale.
         Vector3f translate = modelPos.add(rotate.mult(scale.mult(modelBindInversePos, tmp2), tmp2), tmp2);
 
         // Populating the matrix
@@ -642,7 +648,7 @@ public final class Bone implements Savable, JmeCloneable {
     }
 
     /**
-     * 
+     *
      * Sets the transforms of this bone in local space (relative to the parent bone)
      *
      * @param translation the translation in local space
@@ -664,18 +670,8 @@ public final class Bone implements Savable, JmeCloneable {
     }
 
     /**
-     * 
-     * @param translation -
-     * @param rotation -
-     * @deprecated use {@link #setUserTransformsInModelSpace(com.jme3.math.Vector3f, com.jme3.math.Quaternion) }
-     */
-    @Deprecated
-    public void setUserTransformsWorld(Vector3f translation, Quaternion rotation) {
-        
-    }
-    /**
      * Sets the transforms of this bone in model space (relative to the root bone)
-     * 
+     *
      * Must update all bones in skeleton for this to work.
      * @param translation translation in model space
      * @param rotation rotation in model space
@@ -688,9 +684,9 @@ public final class Bone implements Savable, JmeCloneable {
         // TODO: add scale here ???
         modelPos.set(translation);
         modelRot.set(rotation);
-        
-        //if there is an attached Node we need to set its local transforms too.
-        if(attachNode != null){
+
+        // if there is an attached Node we need to set its local transforms too.
+        if (attachNode != null) {
             attachNode.setLocalTranslation(translation);
             attachNode.setLocalRotation(rotation);
         }
@@ -700,9 +696,10 @@ public final class Bone implements Savable, JmeCloneable {
      * Returns the local transform of this bone combined with the given position and rotation
      * @param position a position
      * @param rotation a rotation
+     * @return the resulting Transform (in reusable temporary storage!)
      */
     public Transform getCombinedTransform(Vector3f position, Quaternion rotation) {
-        if(tmpTransform == null){
+        if (tmpTransform == null) {
             tmpTransform = new Transform();
         }
         rotation.mult(localPos, tmpTransform.getTranslation()).addLocal(position);
@@ -735,7 +732,7 @@ public final class Bone implements Savable, JmeCloneable {
         if (attachNode == null) {
             attachNode = new Node(name + "_attachnode");
             attachNode.setUserData("AttachedBone", this);
-            //We don't want the node to have a numBone set by a parent node so we force it to null
+            //We don't want the node to have NumberOfBones set by a parent node, so we force it to null.
             attachNode.addMatParamOverride(new MatParamOverride(VarType.Int, "NumberOfBones", null));
         }
 
@@ -782,7 +779,7 @@ public final class Bone implements Savable, JmeCloneable {
      * updateModelTransforms() call will result in final transform = transform * 0.5.
      * Two transform blends with weight = 0.5 each will result in the two
      * transforms blended together (nlerp) with blend = 0.5.
-     * 
+     *
      * @param translation The translation to blend in
      * @param rotation The rotation to blend in
      * @param scale The scale to blend in
@@ -793,13 +790,13 @@ public final class Bone implements Savable, JmeCloneable {
         if (userControl) {
             return;
         }
-        
+
         if (weight == 0) {
             // Do not apply this transform at all.
             return;
         }
 
-        if (currentWeightSum == 1){
+        if (currentWeightSum == 1) {
             return; // More than 2 transforms are being blended
         } else if (currentWeightSum == -1 || currentWeightSum == 0) {
             // Set the transform fully
@@ -811,14 +808,14 @@ public final class Bone implements Savable, JmeCloneable {
             // Set the weight. It will be applied in updateModelTransforms().
             currentWeightSum = weight;
         } else {
-            // The weight is already set. 
+            // The weight is already set.
             // Blend in the new transform.
             TempVars vars = TempVars.get();
 
             Vector3f tmpV = vars.vect1;
             Vector3f tmpV2 = vars.vect2;
             Quaternion tmpQ = vars.quat1;
-            
+
             tmpV.set(bindPos).addLocal(translation);
             localPos.interpolateLocal(tmpV, weight);
 
@@ -829,17 +826,21 @@ public final class Bone implements Savable, JmeCloneable {
                 tmpV2.set(bindScale).multLocal(scale);
                 localScale.interpolateLocal(tmpV2, weight);
             }
-        
+
             // Ensures no new weights will be blended in the future.
             currentWeightSum = 1;
-            
+
             vars.release();
         }
     }
 
     /**
-     * Sets local bind transform for bone.
-     * Call setBindingPose() after all of the skeleton bones' bind transforms are set to save them.
+     * Sets the local bind transform of the bone.
+     * Call setBindingPose() after all of the bones' bind transforms are set to save them.
+     *
+     * @param translation the desired bind translation (not null, unaffected)
+     * @param rotation the desired bind rotation (not null, unaffected)
+     * @param scale the desired bind scale (unaffected) or null for no scaling
      */
     public void setBindTransforms(Vector3f translation, Quaternion rotation, Vector3f scale) {
         bindPos.set(translation);
@@ -881,16 +882,16 @@ public final class Bone implements Savable, JmeCloneable {
 
         name = input.readString("name", null);
         int ver = input.getSavableVersion(Bone.class);
-        if(ver < 2){
+        if (ver < 2) {
             bindPos = (Vector3f) input.readSavable("initialPos", null);
             bindRot = (Quaternion) input.readSavable("initialRot", null);
             bindScale = (Vector3f) input.readSavable("initialScale", new Vector3f(1.0f, 1.0f, 1.0f));
-        }else{
+        } else {
             bindPos = (Vector3f) input.readSavable("bindPos", null);
             bindRot = (Quaternion) input.readSavable("bindRot", null);
             bindScale = (Vector3f) input.readSavable("bindScale", new Vector3f(1.0f, 1.0f, 1.0f));
         }
-        
+
         attachNode = (Node) input.readSavable("attachNode", null);
         targetGeometry = (Geometry) input.readSavable("targetGeometry", null);
 
@@ -925,9 +926,10 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * Sets the rotation of the bone in object space.
      * Warning: you need to call {@link #setUserControl(boolean)} with true to be able to do that operation
-     * @param rot
+     *
+     * @param rot the desired rotation (not null, unaffected)
      */
-    public void setLocalRotation(Quaternion rot){
+    public void setLocalRotation(Quaternion rot) {
         if (!userControl) {
             throw new IllegalStateException("User control must be on bone to allow user transforms");
         }
@@ -937,9 +939,10 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * Sets the position of the bone in object space.
      * Warning: you need to call {@link #setUserControl(boolean)} with true to be able to do that operation
-     * @param pos
+     *
+     * @param pos the desired translation (not null, unaffected)
      */
-    public void setLocalTranslation(Vector3f pos){
+    public void setLocalTranslation(Vector3f pos) {
         if (!userControl) {
             throw new IllegalStateException("User control must be on bone to allow user transforms");
         }
@@ -951,7 +954,7 @@ public final class Bone implements Savable, JmeCloneable {
      * Warning: you need to call {@link #setUserControl(boolean)} with true to be able to do that operation
      * @param scale the scale to apply
      */
-    public void setLocalScale(Vector3f scale){
+    public void setLocalScale(Vector3f scale) {
         if (!userControl) {
             throw new IllegalStateException("User control must be on bone to allow user transforms");
         }
@@ -961,9 +964,9 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * returns true if this bone can be directly manipulated by the user.
      * @see #setUserControl(boolean)
-     * @return true if can be manipulated
+     * @return true if it can be manipulated
      */
-    public boolean hasUserControl(){
+    public boolean hasUserControl() {
         return userControl;
     }
 }

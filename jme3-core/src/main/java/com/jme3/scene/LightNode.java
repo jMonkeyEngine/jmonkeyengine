@@ -44,7 +44,9 @@ import java.io.IOException;
  * with a {@link Node} object.
  *
  * @author Tim8Dev
+ * @deprecated Use a {@link LightControl} attached to a {@link Node} directly.
  */
+@Deprecated
 public class LightNode extends Node {
 
     private LightControl lightControl;
@@ -99,7 +101,7 @@ public class LightNode extends Node {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         // A change in behavior... I think previously LightNode was probably

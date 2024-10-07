@@ -2,18 +2,6 @@
 //   for this project. This initialization is applied in the "build.gradle"
 //   of the root project.
 
-// NetBeans will automatically add "run" and "debug" tasks relying on the
-// "mainClass" property. You may however define the property prior executing
-// tasks by passing a "-PmainClass=<QUALIFIED_CLASS_NAME>" argument.
-//
-// Note however, that you may define your own "run" and "debug" task if you
-// prefer. In this case NetBeans will not add these tasks but you may rely on
-// your own implementation.
-
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
 sourceSets {
     main {
         java {
@@ -30,20 +18,18 @@ dependencies {
     //
     // You can read more about how to add dependency here:
     //   http://www.gradle.org/docs/current/userguide/dependency_management.html#sec:how_to_declare_your_dependencies
-    compile project(':jme3-android')
+    api project(':jme3-android')
 }
 
 ext {
     // stores the native project classpath to be used in each native
     // build to generate native header files
-    projectClassPath = configurations.runtime.asFileTree.matching {
+    projectClassPath = configurations.runtimeClasspath.asFileTree.matching {
         exclude ".gradle"
     }.asPath
 }
-//println "projectClassPath = " + projectClassPath
 
 // add each native lib build file
 apply from: file('openalsoft.gradle')
-// apply from: file('stb_image.gradle')
-// apply from: file('tremor.gradle')
 apply from: file('decode.gradle')
+apply from: file('bufferallocator.gradle')

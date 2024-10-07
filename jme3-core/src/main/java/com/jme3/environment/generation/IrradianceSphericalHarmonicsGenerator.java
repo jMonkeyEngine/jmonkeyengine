@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ public class IrradianceSphericalHarmonicsGenerator extends RunnableWithProgress 
      * process is thread safe.
      *
      * @param app      the Application
-     * @param listener
+     * @param listener to monitor progress (alias created)
      */
     public IrradianceSphericalHarmonicsGenerator(Application app, JobProgressListener<Integer> listener) {
         super(listener);
@@ -91,9 +91,9 @@ public class IrradianceSphericalHarmonicsGenerator extends RunnableWithProgress 
             }
         });
         try {
-            Vector3f[] shCoeffs = EnvMapUtils.getSphericalHarmonicsCoefficents(sourceMap);
-            EnvMapUtils.prepareShCoefs(shCoeffs);
-            store.setShCoeffs(shCoeffs);
+            Vector3f[] shCoefficients = EnvMapUtils.getSphericalHarmonicsCoefficents(sourceMap);
+            EnvMapUtils.prepareShCoefs(shCoefficients);
+            store.setShCoeffs(shCoefficients);
 
         } catch (Exception e) {
             e.printStackTrace();

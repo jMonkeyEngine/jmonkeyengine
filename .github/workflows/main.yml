@@ -5,7 +5,7 @@
 #   - Build natives for android
 #   - Merge the natives, build the engine, create the zip release, maven artifacts, javadoc and native snapshot
 #   - (only when native code changes) Deploy the natives snapshot to the MinIO instance
-#   - (only when building a release) Deploy everything else to github releases, github packet registry, Bintray, and Sonatype
+#   - (only when building a release) Deploy everything else to github releases and Sonatype
 #   - (only when building a release) Update javadoc.jmonkeyengine.org
 # Note:
 #   All the actions/upload-artifact and actions/download-artifact steps are used to pass
@@ -13,13 +13,6 @@
 #   running workflow, we use it to store the result of each job since the filesystem
 #   is not maintained between jobs.
 ################# CONFIGURATIONS #####################################################
-# >> Configure BINTRAY RELEASE
-#   Configure the following secrets/variables (customize the values with your own)
-#     BINTRAY_GENERIC_REPO=riccardoblsandbox/jmonkeyengine-files
-#     BINTRAY_MAVEN_REPO=riccardoblsandbox/jmonkeyengine
-#     BINTRAY_USER=riccardo
-#     BINTRAY_APIKEY=XXXXXX
-#     BINTRAY_LICENSE="BSD 3-Clause"
 # >> Configure MINIO NATIVES SNAPSHOT
 #     OBJECTS_KEY=XXXXXX
 # >> Configure SONATYPE RELEASE
@@ -33,7 +26,7 @@
 #   is running the build.
 # >> Configure  JAVADOC
 #     JAVADOC_GHPAGES_REPO="riccardoblsandbox/javadoc.jmonkeyengine.org.git"
-#   Generate a deloy key
+#   Generate a deploy key
 #       ssh-keygen -t rsa -b 4096 -C "actions@users.noreply.github.com" -f javadoc_deploy
 #   Set
 #     JAVADOC_GHPAGES_DEPLOY_PRIVKEY="......."
@@ -52,12 +45,12 @@ name: Build jMonkeyEngine
 on:
   push:
     branches:
-      - gsw
       - master
-      - newbuild
-      - v3.3.*
-      - v3.2
-      - v3.2.*
+      - v3.7
+      - v3.6
+      - v3.5
+      - v3.4
+      - v3.3
   pull_request:
   release:
     types: [published]
@@ -67,17 +60,17 @@ jobs:
   # Build the natives on android
   BuildAndroidNatives:
     name: Build natives for android
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container:
       image: jmonkeyengine/buildenv-jme3:android
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/actions/wrapper-validation@v3
       - name: Build
         run: |
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
@@ -89,7 +82,7 @@ jobs:
           name: android-natives
           path: build/native
 
-  # Build the engine, we only deploy from ubuntu-18.04 jdk8
+  # Build the engine, we only deploy from ubuntu-latest jdk21
   BuildJMonkey:
     needs: [BuildAndroidNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
@@ -97,32 +90,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04,ubuntu-20.04,windows-2019,macOS-latest]
-        jdk: [8.x.x,11.x.x]
+        os: [ubuntu-latest,windows-latest,macOS-latest]
+        jdk: [11, 17, 21]
         include:
-          - os: ubuntu-20.04
-            osName: linux-next
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             osName: linux
             deploy: true
-          - os: windows-2019
+          - os: windows-latest
             osName: windows
+            deploy: false
           - os: macOS-latest
             osName: mac
-          - jdk: 11.x.x
+            deploy: false
+          - jdk: 11
+            deploy: false
+          - jdk: 17
             deploy: false
 
     steps:
       - name: Clone the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
       - name: Setup the java environment
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
+          distribution: 'temurin'
           java-version: ${{ matrix.jdk }}
-          architecture: x64
 
       - name: Download natives for android
         uses: actions/download-artifact@master
@@ -131,12 +126,12 @@ jobs:
           path: build/native
 
       - name: Validate the Gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/actions/wrapper-validation@v3
       - name: Build Engine
         shell: bash
         run: |
           # Build
-          ./gradlew -i -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
+          ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
 
           if [ "${{ matrix.deploy }}" = "true" ];
           then
@@ -212,10 +207,10 @@ jobs:
   # The snapshot is downloaded when people build the engine without setting buildNativeProject
   # this is useful for people that want to build only the java part and don't have
   # all the stuff needed to compile natives.
-  DeploySnapshot:
+  DeployNativeSnapshot:
     needs: [BuildJMonkey]
-    name: "Deploy snapshot"
-    runs-on: ubuntu-18.04
+    name: "Deploy native snapshot"
+    runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
 
@@ -236,7 +231,7 @@ jobs:
 
       - name: Deploy natives snapshot
         run: |
-          source .github/actions/tools/bintray.sh
+          source .github/actions/tools/minio.sh
           NATIVE_CHANGES="yes"
           branch="${GITHUB_REF//refs\/heads\//}"
           if [ "$branch" != "" ];
@@ -266,7 +261,7 @@ jobs:
               then
                 echo "Configure the OBJECTS_KEY secret to enable natives snapshot deployment to MinIO"
               else
-                # Deploy natives snapshot to a MinIO instance using function in bintray.sh
+                # Deploy natives snapshot to a MinIO instance using function in minio.sh
                 minio_uploadFile dist/jme3-natives.zip \
                   native-snapshots/$GITHUB_SHA/jme3-natives.zip \
                   https://objects.jmonkeyengine.org \
@@ -297,19 +292,70 @@ jobs:
             fi
           fi
 
+  # This job deploys snapshots on the master branch
+  DeployJavaSnapshot:
+    needs: [BuildJMonkey]
+    name: Deploy Java Snapshot
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref_name == 'master'
+    steps:
+
+      # We need to clone everything again for uploadToMaven.sh ...
+      - name: Clone the repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # Setup jdk 21 used for building Maven-style artifacts
+      - name: Setup the java environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Download natives for android
+        uses: actions/download-artifact@master
+        with:
+          name: android-natives
+          path: build/native
+
+      - name: Rebuild the maven artifacts and deploy them to the Sonatype repository
+        run: |
+          if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
+          then
+            echo "Configure the following secrets to enable deployment to Sonatype:"
+            echo "OSSRH_PASSWORD, OSSRH_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
+          else
+            ./gradlew publishMavenPublicationToSNAPSHOTRepository \
+            -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} \
+            -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
+            -PsigningKey='${{ secrets.SIGNING_KEY }}' \
+            -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
+            -PuseCommitHashAsVersionName=true \
+            --console=plain --stacktrace
+          fi
+
+
   # This job deploys the release
   DeployRelease:
     needs: [BuildJMonkey]
     name: Deploy Release
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     if: github.event_name == 'release'
     steps:
 
       # We need to clone everything again for uploadToMaven.sh ...
       - name: Clone the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      # Setup jdk 21 used for building Sonatype OSSRH artifacts
+      - name: Setup the java environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
 
       # Download all the stuff...
       - name: Download maven artifacts
@@ -324,6 +370,12 @@ jobs:
           name: release
           path: dist/release
 
+      - name: Download natives for android
+        uses: actions/download-artifact@master
+        with:
+          name: android-natives
+          path: build/native
+
       - name: Rebuild the maven artifacts and deploy them to Sonatype OSSRH
         run: |
           if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
@@ -336,7 +388,7 @@ jobs:
             -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
             -PsigningKey='${{ secrets.SIGNING_KEY }}' \
             -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-            -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+            -PuseCommitHashAsVersionName=true \
             --console=plain --stacktrace
           fi
 
@@ -358,29 +410,18 @@ jobs:
           --data-binary @"$filename" \
           "$url"
 
-      - name: Deploy to bintray
+      - name: Deploy to github package registry
         run: |
           source .github/actions/tools/uploadToMaven.sh
-          if [ "${{ secrets.BINTRAY_MAVEN_REPO }}" = "" ];
-          then
-            echo "Configure the following secrets to enable bintray deployment"
-            echo "BINTRAY_MAVEN_REPO, BINTRAY_USER, BINTRAY_APIKEY"
-          else
-            uploadAllToMaven dist/maven/ https://api.bintray.com/maven/${{ secrets.BINTRAY_MAVEN_REPO }} ${{ secrets.BINTRAY_USER }} ${{ secrets.BINTRAY_APIKEY }} "https://github.com/${GITHUB_REPOSITORY}" "${{ secrets.BINTRAY_LICENSE }}"
-          fi
-
-      # - name: Deploy to github package registry
-      #   run: |
-      #     source .github/actions/tools/uploadToMaven.sh
-      #     registry="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
-      #     echo "Deploy to github package registry $registry"
-      #     uploadAllToMaven dist/maven/ $registry "token" ${{ secrets.GITHUB_TOKEN }}
+          registry="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
+          echo "Deploy to github package registry $registry"
+          uploadAllToMaven dist/maven/ $registry "token" ${{ secrets.GITHUB_TOKEN }}
 
   # Deploy the javadoc
   DeployJavaDoc:
     needs: [BuildJMonkey]
     name: Deploy Javadoc
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     if: github.event_name == 'release'
     steps:
 

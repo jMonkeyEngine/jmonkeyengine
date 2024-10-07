@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,10 +54,50 @@ public class FbxCluster extends FbxObject {
         super.fromElement(element);
         for (FbxElement e : element.children) {
             if (e.id.equals("Indexes")) {
-                indexes = (int[]) e.properties.get(0);
+                int numProperties = e.propertiesTypes.length;
+                if (numProperties == 1 && e.propertiesTypes[0] == 'i') {
+                    this.indexes = (int[]) e.properties.get(0);
+
+                } else {
+                    this.indexes = new int[numProperties];
+                    for (int i = 0; i < numProperties; ++i) {
+                        char propertyType = e.propertiesTypes[i];
+                        if (propertyType != 'I') {
+                            throw new UnsupportedOperationException(
+                                    "Indexes should have properties of type 'I',"
+                                    + "but found '" + propertyType + "'");
+                        }
+                        int index = (Integer) e.properties.get(i);
+                        this.indexes[i] = index;
+                    }
+                }
+
             } else if (e.id.equals("Weights")) {
-                weights = (double[]) e.properties.get(0);
+                int numTypes = e.propertiesTypes.length;
+                if (numTypes == 1 && e.propertiesTypes[0] == 'd') {
+                    this.weights = (double[]) e.properties.get(0);
+
+                } else {
+                    int numElements = numTypes;
+                    this.weights = new double[numElements];
+                    for (int i = 0; i < numElements; ++i) {
+                        int propertyType = e.propertiesTypes[i];
+                        if (propertyType != 'D') {
+                            throw new UnsupportedOperationException(
+                                    "Weights should have properties of type 'D',"
+                                    + "but found '" + propertyType + "'");
+                        }
+                        double weight = (Double) e.properties.get(i);
+                        this.weights[i] = weight;
+                    }
+                }
             }
+        }
+
+        if (indexes == null && weights == null) {
+            // The cluster doesn't contain any keyframes!
+            this.indexes = new int[0];
+            this.weights = new double[0];
         }
     }
 

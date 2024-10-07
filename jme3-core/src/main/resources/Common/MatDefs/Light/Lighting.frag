@@ -92,6 +92,11 @@ uniform float m_AlphaDiscardThreshold;
     #endif
 #endif
 
+
+#ifndef NORMAL_TYPE
+  #define NORMAL_TYPE -1.0
+#endif
+
 void main(){
     vec2 newTexCoord;
      
@@ -141,11 +146,8 @@ void main(){
     // ***********************
     #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
       vec4 normalHeight = texture2D(m_NormalMap, newTexCoord);
-      //Note the -2.0 and -1.0. We invert the green channel of the normal map, 
-      //as it's complient with normal maps generated with blender.
-      //see http://hub.jmonkeyengine.org/forum/topic/parallax-mapping-fundamental-bug/#post-256898
-      //for more explanation.
-      vec3 normal = normalize((normalHeight.xyz * vec3(2.0,-2.0,2.0) - vec3(1.0,-1.0,1.0)));
+      // Note we invert directx style normal maps to opengl style
+      vec3 normal = normalize((normalHeight.xyz * vec3(2.0,NORMAL_TYPE * 2.0,2.0) - vec3(1.0,NORMAL_TYPE * 1.0,1.0)));
       #ifdef LATC
         normal.z = sqrt(1.0 - (normal.x * normal.x) - (normal.y * normal.y));
       #endif      

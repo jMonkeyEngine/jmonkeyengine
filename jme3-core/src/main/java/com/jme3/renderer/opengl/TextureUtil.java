@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -91,12 +91,12 @@ final class TextureUtil {
     }
 
     public GLImageFormat getImageFormatWithError(Format fmt, boolean isSrgb) {
-        //if the passed format is one kind of depth there isno point in getting the srgb format;
+        //if the passed format is one kind of depth there is no point in getting the srgb format;
         isSrgb = isSrgb && !fmt.isDepthFormat();
         GLImageFormat glFmt = getImageFormat(fmt, isSrgb);
         if (glFmt == null && isSrgb) {
             glFmt = getImageFormat(fmt, false);               
-            logger.log(Level.WARNING, "No sRGB format available for ''{0}''. Failling back to linear.", fmt);
+            logger.log(Level.WARNING, "No sRGB format available for ''{0}''. Falling back to linear.", fmt);
         }
         if (glFmt == null) { 
             throw new RendererException("Image format '" + fmt + "' is unsupported by the video hardware.");
@@ -351,7 +351,7 @@ final class TextureUtil {
         }
 
         if (src.getMipMapSizes() != null) {
-            throw new UnsupportedOperationException("Updating mip-mappped images is not supported");
+            throw new UnsupportedOperationException("Updating mip-mapped images is not supported");
         }
 
         if (src.getMultiSamples() > 1) {

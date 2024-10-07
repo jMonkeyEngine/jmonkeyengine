@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,10 +46,20 @@ public interface SystemListener {
 
     /**
      * Called to notify the application that the resolution has changed.
-     * @param width
-     * @param height
+     * @param width the new width of the display (in pixels, &ge;0)
+     * @param height the new height of the display (in pixels, &ge;0)
      */
     public void reshape(int width, int height);
+
+    /**
+     * Called to notify the application that the scale has changed.
+     * @param x the new horizontal scale of the display 
+     * @param y the new vertical scale of the display
+     */
+    public default void rescale(float x, float y){
+
+    }
+
 
     /**
      * Callback to update the application state, and render the scene
@@ -60,7 +70,7 @@ public interface SystemListener {
     /**
      * Called when the user requests to close the application. This
      * could happen when he clicks the X button on the window, presses
-     * the Alt-F4 combination, attempts to shutdown the process from 
+     * the Alt-F4 combination, attempts to shut down the process from
      * the task manager, or presses ESC. 
      * @param esc If true, the user pressed ESC to close the application.
      */

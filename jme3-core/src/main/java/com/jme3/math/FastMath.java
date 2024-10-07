@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -532,8 +532,8 @@ final public class FastMath {
     /**
      * A direct call to Math.atan2.
      *
-     * @param fY
-     * @param fX
+     * @param fY ordinate
+     * @param fX abscissa
      * @return Math.atan2(fY,fX)
      * @see java.lang.Math#atan2(double, double)
      */
@@ -628,11 +628,11 @@ final public class FastMath {
      * @return an approximate value for 1/sqrt(x)
      */
     public static float fastInvSqrt(float x) {
-        float xhalf = 0.5f * x;
+        float halfX = 0.5f * x;
         int i = Float.floatToIntBits(x); // get bits for floating value
         i = 0x5f375a86 - (i >> 1); // gives initial guess y0
         x = Float.intBitsToFloat(i); // convert bits back to float
-        x = x * (1.5f - xhalf * x * x); // Newton step, repeating increases accuracy
+        x = x * (1.5f - halfX * x * x); // Newton step, repeating increases accuracy
         return x;
     }
 
@@ -846,8 +846,7 @@ final public class FastMath {
     /**
      * Returns a random float between 0 and 1.
      *
-     * @return A random float between <tt>0.0f</tt> (inclusive) to
-     * <tt>1.0f</tt> (exclusive).
+     * @return a random float between 0 (inclusive) and 1 (exclusive)
      */
     public static float nextRandomFloat() {
         return rand.nextFloat();
@@ -858,8 +857,7 @@ final public class FastMath {
      *
      * @param min the desired minimum value
      * @param max the desired maximum value
-     * @return A random int between <tt>min</tt> (inclusive) to
-     * <tt>max</tt> (inclusive).
+     * @return a random int between min (inclusive) and max (inclusive)
      */
     public static int nextRandomInt(int min, int max) {
         return (int) (nextRandomFloat() * (max - min + 1)) + min;
@@ -933,7 +931,7 @@ final public class FastMath {
      * Z as up) and stores the results in the store var.
      *
      * @param sphereCoords the input spherical coordinates: x=distance from
-     * origin, y=longitude in radians, z=latitude in radians (not null,
+     * origin, y=latitude in radians, z=longitude in radians (not null,
      * unaffected)
      * @param store storage for the result (modified if not null)
      * @return the Cartesian coordinates (either store or a new vector)
@@ -943,10 +941,10 @@ final public class FastMath {
         if (store == null) {
             store = new Vector3f();
         }
-        store.z = sphereCoords.x * FastMath.sin(sphereCoords.z);
-        float a = sphereCoords.x * FastMath.cos(sphereCoords.z);
-        store.x = a * FastMath.cos(sphereCoords.y);
-        store.y = a * FastMath.sin(sphereCoords.y);
+        store.y = sphereCoords.x * FastMath.sin(sphereCoords.y);
+        float a = sphereCoords.x * FastMath.cos(sphereCoords.y);
+        store.x = a * FastMath.cos(sphereCoords.z);
+        store.z = a * FastMath.sin(sphereCoords.z);
 
         return store;
     }
@@ -1024,9 +1022,9 @@ final public class FastMath {
     /**
      * Take a float input and clamp it between min and max.
      *
-     * @param input
-     * @param min
-     * @param max
+     * @param input the value to be clamped
+     * @param min the minimum output value
+     * @param max the maximum output value
      * @return clamped input
      */
     public static float clamp(float input, float min, float max) {
@@ -1036,7 +1034,7 @@ final public class FastMath {
     /**
      * Clamps the given float to be between 0 and 1.
      *
-     * @param input
+     * @param input the value to be clamped
      * @return input clamped between 0 and 1.
      */
     public static float saturate(float input) {
@@ -1137,4 +1135,13 @@ final public class FastMath {
     public static float unInterpolateLinear(float value, float min, float max) {
         return (value - min) / (max - min);
     }
+
+    /**
+     * Round n to a multiple of p
+     */
+    public static int toMultipleOf(int n, int p) {
+        return ((n - 1) | (p - 1)) + 1;
+    }
+
+
 }

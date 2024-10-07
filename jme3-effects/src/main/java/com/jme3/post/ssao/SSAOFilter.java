@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import java.util.ArrayList;
 
 /**
  * SSAO stands for screen space ambient occlusion
- * It's a technique that fakes ambient lighting by computing shadows that near by objects would casts on each others 
+ * It's a technique that fakes ambient lighting by computing shadows that nearby objects would cast on each other.
  * under the effect of an ambient light
  * more info on this in this blog post <a href="http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/">http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/</a>
  * 
@@ -208,7 +208,8 @@ public class SSAOFilter extends Filter {
 
     /**
      * Sets the width of the occlusion cone considered by the occludee default is 0.1f
-     * @param bias 
+     *
+     * @param bias the desired width (default=0.1)
      */
     public void setBias(float bias) {
         this.bias = bias;
@@ -226,8 +227,9 @@ public class SSAOFilter extends Filter {
     }
 
     /**
-     * Sets the Ambient occlusion intensity default is 1.2f
-     * @param intensity 
+     * Sets the Ambient occlusion intensity default is 1.5
+     *
+     * @param intensity the desired intensity (default=1.5)
      */
     public void setIntensity(float intensity) {
         this.intensity = intensity;
@@ -247,8 +249,9 @@ public class SSAOFilter extends Filter {
     }
 
     /**
-     * Sets the radius of the area where random samples will be picked default 5.1f     
-     * @param sampleRadius 
+     * Sets the radius of the area where random samples will be picked default 5.1f 
+     *
+     * @param sampleRadius the desired radius (default=5.1)
      */
     public void setSampleRadius(float sampleRadius) {
         this.sampleRadius = sampleRadius;
@@ -270,7 +273,8 @@ public class SSAOFilter extends Filter {
     /**
      * 
      * Returns the distance between occluders and occludee. default 0.2f
-     * @param scale 
+     *
+     * @param scale the desired distance (default=0.2)
      */
     public void setScale(float scale) {
         this.scale = scale;
@@ -281,7 +285,7 @@ public class SSAOFilter extends Filter {
 
     /**
      * debugging only , will be removed
-     * @return Whether or not
+     * @return true if using ambient occlusion
      */
     public boolean isUseAo() {
         return useAo;
@@ -289,6 +293,8 @@ public class SSAOFilter extends Filter {
 
     /**
      * debugging only , will be removed
+     *
+     * @param useAo true to enable, false to disable (default=true)
      */
     public void setUseAo(boolean useAo) {
         this.useAo = useAo;
@@ -319,6 +325,8 @@ public class SSAOFilter extends Filter {
 
     /**
      * debugging only , will be removed
+     *
+     * @param useOnlyAo true to enable, false to disable (default=false)
      */
     public void setUseOnlyAo(boolean useOnlyAo) {
         this.useOnlyAo = useOnlyAo;

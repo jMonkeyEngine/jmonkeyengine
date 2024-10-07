@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ public class TestBatchNodeCluster extends SimpleApplication {
         app.setShowSettings(false); 
         app.start();
     }
-    private ActionListener al = new ActionListener() {
+    final private ActionListener al = new ActionListener() {
 
         @Override
         public void onAction(String name, boolean isPressed, float tpf) {
@@ -72,27 +72,21 @@ public class TestBatchNodeCluster extends SimpleApplication {
             }
         }
     };
-    protected Random rand = new Random();
-    protected int maxCubes = 2000;
-    protected int startAt = 0;
-    protected static int xPositions = 0, yPositions = 0, zPositions = 0;
-    protected int returner = 0;
-    protected ArrayList<Integer> xPosition = new ArrayList<Integer>();
-    protected ArrayList<Integer> yPosition = new ArrayList<Integer>();
-    protected ArrayList<Integer> zPosition = new ArrayList<Integer>();
-    protected int xLimitf = 60, xLimits = -60, yLimitf = 60, yLimits = -20, zLimitf = 60, zLimits = -60;
-    protected int circ = 8;//increases by 8 every time.
-    protected int dynamic = 4;
-    protected static AppSettings settingst;
-    protected boolean isTrue = true;
-    private int lineLength = 50;
-    protected BatchNode batchNode;
-    Material mat1;
-    Material mat2;
-    Material mat3;
-    Material mat4;
-    Node terrain;
-    //protected
+    final private Random rand = new Random();
+    final private int maxCubes = 2000;
+    final private int startAt = 0;
+    final private ArrayList<Integer> xPosition = new ArrayList<>();
+    final private ArrayList<Integer> yPosition = new ArrayList<>();
+    final private ArrayList<Integer> zPosition = new ArrayList<>();
+    final private int yLimitf = 60, yLimits = -20;
+    private static AppSettings settingst;
+    final private int lineLength = 50;
+    private BatchNode batchNode;
+    private Material mat1;
+    private Material mat2;
+    private Material mat3;
+    private Material mat4;
+    private Node terrain;
 //    protected Geometry player;
 
     @Override
@@ -335,12 +329,7 @@ public class TestBatchNodeCluster extends SimpleApplication {
     public int getz(int i) {
         return zPosition.get(i);
     }
-    long nbFrames = 0;
-    long cullTime = 0;
-    float time = 0;
-    Vector3f lookAtPos = new Vector3f(0, 0, 0);
-    float xpos = 0;
-    Spatial box;
+    private float time = 0;
 
     @Override
     public void simpleUpdate(float tpf) {
@@ -361,7 +350,7 @@ public class TestBatchNodeCluster extends SimpleApplication {
             mult1 = -1.0f;
             mult2 = -1.0f;
         }
-        box = batchNode.getChild("Box" + random);
+        Spatial box = batchNode.getChild("Box" + random);
         if (box != null) {
             Vector3f v = box.getLocalTranslation();
             box.setLocalTranslation(v.x + FastMath.sin(time * mult1) * 20, v.y + (FastMath.sin(time * mult1) * FastMath.cos(time * mult1) * 20), v.z + FastMath.cos(time * mult2) * 20);

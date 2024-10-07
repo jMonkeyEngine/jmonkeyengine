@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,11 +50,10 @@ import com.jme3.scene.shape.Box;
  */
 public class TestSplitScreen extends SimpleApplication implements ActionListener {
 
-    boolean splitScreen = false;
-    Box mesh = new Box(1f, 1f, 1f);
-    Camera leftCam, rightCam;
-    Node leftScene = new Node("left scene");
-    ViewPort leftView, rightView;
+    private boolean splitScreen = false;
+    final private Box mesh = new Box(1f, 1f, 1f);
+    final private Node leftScene = new Node("left scene");
+    private ViewPort leftView, rightView;
 
     @Override
     public void simpleInitApp() {
@@ -66,7 +65,7 @@ public class TestSplitScreen extends SimpleApplication implements ActionListener
         blueBox.setMaterial(blueMat);
         rootNode.attachChild(blueBox);
 
-        rightCam = cam.clone();
+        Camera rightCam = cam.clone();
         rightCam.setViewPort(0.5f, 1f, 0f, 1f);
 
         rightView = renderManager.createMainView("right", rightCam);
@@ -80,7 +79,7 @@ public class TestSplitScreen extends SimpleApplication implements ActionListener
         redBox.setMaterial(redMat);
         leftScene.attachChild(redBox);
 
-        leftCam = cam.clone();
+        Camera leftCam = cam.clone();
         leftCam.setViewPort(0f, 0.5f, 0f, 1f);
 
         leftView = renderManager.createMainView("left", leftCam);

@@ -50,10 +50,10 @@ public final class Pose implements Savable, Cloneable {
     private Vector3f[] offsets;
     private int[] indices;
 
-    private transient final Vector3f tempVec  = new Vector3f();
+    private transient final Vector3f tempVec = new Vector3f();
     private transient final Vector3f tempVec2 = new Vector3f();
 
-    public Pose(String name, int targetMeshIndex, Vector3f[] offsets, int[] indices){
+    public Pose(String name, int targetMeshIndex, Vector3f[] offsets, int[] indices) {
         this.name = name;
         this.targetMeshIndex = targetMeshIndex;
         this.offsets = offsets;
@@ -63,39 +63,37 @@ public final class Pose implements Savable, Cloneable {
     /**
      * Serialization-only. Do not use.
      */
-    protected Pose()
-    {
-    }
-    
-    public int getTargetMeshIndex(){
-        return targetMeshIndex;
+    protected Pose() {
     }
 
+    public int getTargetMeshIndex() {
+        return targetMeshIndex;
+    }
 
     /**
      * Applies the offsets of this pose to the vertex buffer given by the blend factor.
      *
      * @param blend Blend factor, 0 = no change to vertex buffer, 1 = apply full offsets
-     * @param vertbuf Vertex buffer to apply this pose to
+     * @param vertexBuffer Vertex buffer to apply this pose to
      */
-    public void apply(float blend, FloatBuffer vertbuf){
-        for (int i = 0; i < indices.length; i++){
+    public void apply(float blend, FloatBuffer vertexBuffer) {
+        for (int i = 0; i < indices.length; i++) {
             Vector3f offset = offsets[i];
-            int vertIndex   = indices[i];
+            int vertIndex = indices[i];
 
             tempVec.set(offset).multLocal(blend);
 
             // acquire vertex
-            BufferUtils.populateFromBuffer(tempVec2, vertbuf, vertIndex);
+            BufferUtils.populateFromBuffer(tempVec2, vertexBuffer, vertIndex);
 
             // add offset multiplied by factor
             tempVec2.addLocal(tempVec);
 
             // write modified vertex
-            BufferUtils.setInBuffer(tempVec2, vertbuf, vertIndex);
+            BufferUtils.setInBuffer(tempVec2, vertexBuffer, vertIndex);
         }
     }
-    
+
     /**
      * This method creates a clone of the current object.
      * @return a clone of the current object

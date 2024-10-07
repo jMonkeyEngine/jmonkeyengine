@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 jMonkeyEngine
+ * Copyright (c) 2015-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,14 +47,23 @@ import java.util.logging.Logger;
  */
 public class Tweens {
 
-    static Logger log = Logger.getLogger(Tweens.class.getName());
+    private static final Logger log = Logger.getLogger(Tweens.class.getName());
 
     private static final CurveFunction SMOOTH = new SmoothStep();
     private static final CurveFunction SINE = new Sine();
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private Tweens() {
+    }
+
+    /**
      * Creates a tween that will interpolate over an entire sequence
      * of tweens in order.
+     *
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
      */
     public static Tween sequence(Tween... delegates) {
         return new Sequence(delegates);
@@ -64,6 +73,9 @@ public class Tweens {
      * Creates a tween that will interpolate over an entire list
      * of tweens in parallel, ie: all tweens will be run at the same
      * time.
+     *
+     * @param delegates the tweens to be interpolated
+     * @return a new instance
      */
     public static Tween parallel(Tween... delegates) {
         return new Parallel(delegates);
@@ -72,6 +84,9 @@ public class Tweens {
     /**
      * Creates a tween that will perform a no-op until the length
      * has expired.
+     *
+     * @param length the desired duration (in seconds)
+     * @return a new instance
      */
     public static Tween delay(double length) {
         return new Delay(length);
@@ -81,6 +96,10 @@ public class Tweens {
      * Creates a tween that scales the specified delegate tween or tweens
      * to the desired length.  If more than one tween is specified then they
      * are wrapped in a sequence using the sequence() method.
+     *
+     * @param desiredLength the desired duration (in seconds)
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
      */
     public static Tween stretch(double desiredLength, Tween... delegates) {
         if (delegates.length == 1) {
@@ -93,6 +112,9 @@ public class Tweens {
      * Creates a tween that uses a sine function to smooth step the time value
      * for the specified delegate tween or tweens.  These 'curved' wrappers
      * can be used to smooth the interpolation of another tween.
+     *
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
      */
     public static Tween sineStep(Tween... delegates) {
         if (delegates.length == 1) {
@@ -106,6 +128,9 @@ public class Tweens {
      * for the specified delegate tween or tweens.  This is similar to GLSL's
      * smoothstep().  These 'curved' wrappers can be used to smooth the interpolation
      * of another tween.
+     *
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
      */
     public static Tween smoothStep(Tween... delegates) {
         if (delegates.length == 1) {
@@ -118,6 +143,11 @@ public class Tweens {
      * Creates a Tween that will call the specified method and optional arguments
      * whenever supplied a time value greater than or equal to 0.  This creates
      * an "instant" tween of length 0.
+     *
+     * @param target object on which the method is to be invoked
+     * @param method name of the method to be invoked
+     * @param args arguments to be passed to the method
+     * @return a new instance
      */
     public static Tween callMethod(Object target, String method, Object... args) {
         return new CallMethod(target, method, args);
@@ -128,19 +158,81 @@ public class Tweens {
      * including the time value scaled between 0 and 1.  The method must take
      * a float or double value as its first or last argument, in addition to whatever
      * optional arguments are specified.
-     * <p>
+     *
      * <p>For example:</p>
      * <pre>Tweens.callTweenMethod(1, myObject, "foo", "bar")</pre>
      * <p>Would work for any of the following method signatures:</p>
      * <pre>
-     *    void foo( float t, String arg )
-     *    void foo( double t, String arg )
-     *    void foo( String arg, float t )
-     *    void foo( String arg, double t )
-     *  </pre>
+     *    void foo(float t, String arg)
+     *    void foo(double t, String arg)
+     *    void foo(String arg, float t)
+     *    void foo(String arg, double t)
+     * </pre>
+     *
+     * @param length the desired duration (in seconds)
+     * @param target object on which the method is to be invoked
+     * @param method name of the method to be invoked
+     * @param args additional arguments to be passed to the method
+     * @return a new instance
      */
     public static Tween callTweenMethod(double length, Object target, String method, Object... args) {
         return new CallTweenMethod(length, target, method, args);
+    }
+
+    /**
+     * Creates a tween that loops the specified delegate tween or tweens
+     * to the desired count.  If more than one tween is specified then they
+     * are wrapped in a sequence using the sequence() method.
+     *
+     * @param count the desired loop count
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
+     */
+    public static Tween loopCount(int count, Tween... delegates) {
+        if (delegates.length == 1) {
+            return new Loop(delegates[0], count);
+        }
+
+        return new Loop(sequence(delegates), count);
+    }
+
+    /**
+     * Creates a tween that loops the specified delegate tween or tweens
+     * to the desired duration.  If more than one tween is specified then they
+     * are wrapped in a sequence using the sequence() method.
+     *
+     * @param duration the desired duration
+     * @param delegates the desired sequence of tweens
+     * @return a new instance
+     */
+    public static Tween loopDuration(double duration, Tween... delegates) {
+        if (delegates.length == 1) {
+            return new Loop(delegates[0], duration);
+        }
+
+        return new Loop(sequence(delegates), duration);
+    }
+
+    /**
+     * Creates a tween that inverts the specified delegate tween.
+     *
+     * @param delegate the desired tween
+     * @return a new instance
+     */
+    public static Tween invert(Tween delegate) {
+        return new Invert(delegate);
+    }
+
+    /**
+     * Creates a tween that will cycle back and forth the specified delegate tween.
+     * When reaching the end, the tween will play backwards from the end until it
+     * reaches the start.
+     *
+     * @param delegate the desired tween
+     * @return a new instance
+     */
+    public static Tween cycle(Tween delegate) {
+        return sequence(delegate, invert(delegate));
     }
 
     private static interface CurveFunction {
@@ -172,7 +264,7 @@ public class Tweens {
             } else if (t > 1) {
                 return 1;
             }
-            // Sine starting at -90 will go from -1 to 1 through 0 
+            // Sine starting at -90 will go from -1 to 1 through 0
             double result = Math.sin(t * Math.PI - Math.PI * 0.5);
             return (result + 1) * 0.5;
         }
@@ -373,7 +465,7 @@ public class Tweens {
             this.length = length;
 
             // Caller desires delegate to be 'length' instead of
-            // its actual length so we will calculate a time scale
+            // its actual length, so we will calculate a time scale.
             // If the desired length is longer than delegate's then
             // we need to feed time in slower, ie: scale < 1
             if (length != 0) {
@@ -469,9 +561,7 @@ public class Tweens {
         protected void doInterpolate(double t) {
             try {
                 method.invoke(target, args);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
             }
         }
@@ -504,7 +594,7 @@ public class Tweens {
             }
             this.method.setAccessible(true);
 
-            // So now setup the real args list
+            // So now set up the real args list.
             this.args = new Object[args.length + 1];
             if (tIndex == 0) {
                 for (int i = 0; i < args.length; i++) {
@@ -533,15 +623,15 @@ public class Tweens {
                 Class[] paramTypes = m.getParameterTypes();
                 if (paramTypes.length != args.length + 1) {
                     if (log.isLoggable(Level.FINE)) {
-                        log.log(Level.FINE, "Param lengths of [" + m + "] differ.  method arg count:" + paramTypes.length + "  lookging for:" + (args.length + 1));
+                        log.log(Level.FINE, "Param lengths of [" + m + "] differ.  method arg count:" + paramTypes.length + "  looking for:" + (args.length + 1));
                     }
                     continue;
                 }
 
-                // We accept the 't' parameter as either first or last
+                // We accept the 't' parameter as either first or last,
                 // so we'll see which one matches.
                 if (isFloatType(paramTypes[0]) || isDoubleType(paramTypes[0])) {
-                    // Try it as the first parameter 
+                    // Try it as the first parameter
                     int matches = 0;
 
                     for (int i = 1; i < paramTypes.length; i++) {
@@ -563,7 +653,7 @@ public class Tweens {
                     return m;
                 }
 
-                // Else try it at the end                
+                // Else try it at the end
                 int last = paramTypes.length - 1;
                 if (isFloatType(paramTypes[last]) || isDoubleType(paramTypes[last])) {
                     int matches = 0;
@@ -600,9 +690,7 @@ public class Tweens {
                     args[tIndex] = t;
                 }
                 method.invoke(target, args);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException("Error running method:" + method + " for object:" + target, e);
             }
         }
@@ -610,6 +698,114 @@ public class Tweens {
         @Override
         public String toString() {
             return getClass().getSimpleName() + "[method=" + method + ", parms=" + Arrays.asList(args) + "]";
+        }
+    }
+
+    private static class Loop implements Tween, ContainsTweens {
+
+        private final Tween[] delegate = new Tween[1];
+        private final double length;
+        private final int loopCount;
+        private double baseTime;
+        private int current = 0;
+
+        public Loop (Tween delegate, double duration) {
+            if (delegate.getLength() <= 0) {
+                throw new IllegalArgumentException("Delegate length must be greater than 0");
+            }
+            if (duration <= 0) {
+                throw new IllegalArgumentException("Duration must be greater than 0");
+            }
+
+            this.delegate[0] = delegate;
+            this.length = duration;
+            this.loopCount = (int) Math.ceil(duration / delegate.getLength());
+        }
+
+        public Loop (Tween delegate, int count) {
+            if (count <= 0) {
+                throw new IllegalArgumentException("Loop count must be greater than 0");
+            }
+
+            this.delegate[0] = delegate;
+            this.length = count * delegate.getLength();
+            this.loopCount = count;
+        }
+
+        @Override
+        public double getLength() {
+            return length;
+        }
+
+        @Override
+        public Tween[] getTweens() {
+            return delegate;
+        }
+
+        @Override
+        public boolean interpolate(double t) {
+
+            // Sanity check the inputs
+            if (t < 0) {
+                return true;
+            }
+
+            if (t < baseTime) {
+                // We've rolled back before the current loop step
+                // which means we need to reset and start forward
+                // again.  We have no idea how to 'roll back' and
+                // this is the only way to maintain consistency.
+                // The only 'normal' case where this happens is when looping
+                // in which case a full rollback is appropriate.
+                current = 0;
+                baseTime = 0;
+            }
+
+            if (current >= loopCount) {
+                return false;
+            }
+
+            // Skip any that are done
+            while (!delegate[0].interpolate(t - baseTime)) {
+                // Time to go to the next loop
+                baseTime += delegate[0].getLength();
+                current++;
+                if (current >= loopCount) {
+                    return false;
+                }
+            }
+
+            return t < length;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "[delegate=" + delegate[0] + ", length=" + length + "]";
+        }
+    }
+
+    private static class Invert extends AbstractTween implements ContainsTweens {
+
+        private final Tween[] delegate = new Tween[1];
+
+        public Invert( Tween delegate ) {
+            super(delegate.getLength());
+            this.delegate[0] = delegate;
+        }
+
+        @Override
+        protected void doInterpolate(double t) {
+            delegate[0].interpolate((1.0 - t) * getLength());
+        }
+
+        @Override
+        public Tween[] getTweens() {
+            return delegate;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getSimpleName() + "[delegate=" + delegate[0] + ", length=" + getLength() + "]";
         }
     }
 }

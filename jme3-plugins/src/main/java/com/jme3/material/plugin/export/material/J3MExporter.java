@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.jme3.material.plugin.export.material;
 
 import com.jme3.export.JmeExporter;
@@ -60,7 +55,12 @@ public class J3MExporter implements JmeExporter {
     }
 
     @Override
-    public void save(Savable object, File f) throws IOException {
+    public void save(Savable object, File f, boolean createDirectories) throws IOException {
+        File parentDirectory = f.getParentFile();
+        if (parentDirectory != null && !parentDirectory.exists() && createDirectories) {
+            parentDirectory.mkdirs();
+        }
+
         try (FileOutputStream fos = new FileOutputStream(f);
                 BufferedOutputStream bos = new BufferedOutputStream(fos)) {
             save(object, bos);

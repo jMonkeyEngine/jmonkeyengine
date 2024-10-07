@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ public class LightScatteringFilter extends Filter {
     private float blurStart = 0.02f;
     private float blurWidth = 0.9f;
     private float lightDensity = 1.4f;
-    private boolean adaptative = true;
+    private boolean adaptive = true;
     Vector3f viewLightPos = new Vector3f();
     private boolean display = true;
     private float innerLightDensity;
@@ -75,7 +75,9 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * Creates a lightScatteringFilter
-     * @param lightPosition 
+     *
+     * @param lightPosition the desired location (in world coordinates, alias
+     * created)
      */
     public LightScatteringFilter(Vector3f lightPosition) {
         this();
@@ -102,7 +104,7 @@ public class LightScatteringFilter extends Filter {
     protected void postQueue(RenderQueue queue) {
         getClipCoordinates(lightPosition, screenLightPos, viewPort.getCamera());
         viewPort.getCamera().getViewMatrix().mult(lightPosition, viewLightPos);        
-        if (adaptative) {
+        if (adaptive) {
             float densityX = 1f - FastMath.clamp(FastMath.abs(screenLightPos.x - 0.5f), 0, 1);
             float densityY = 1f - FastMath.clamp(FastMath.abs(screenLightPos.y - 0.5f), 0, 1);
             innerLightDensity = lightDensity * densityX * densityY;
@@ -142,7 +144,9 @@ public class LightScatteringFilter extends Filter {
     /**
      * sets the blur start<br>
      * at which distance from the light source the effect starts default is 0.02
-     * @param blurStart 
+     *
+     * @param blurStart the desired start distance (in world units,
+     * default=0.02)
      */
     public void setBlurStart(float blurStart) {
         this.blurStart = blurStart;
@@ -159,7 +163,8 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * sets the blur width default is 0.9
-     * @param blurWidth 
+     *
+     * @param blurWidth the desired width (default=0.9)
      */
     public void setBlurWidth(float blurWidth) {
         this.blurWidth = blurWidth;
@@ -177,7 +182,8 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * sets how much the effect is visible over the rendered scene default is 1.4
-     * @param lightDensity 
+     *
+     * @param lightDensity the desired density (default=1.4)
      */
     public void setLightDensity(float lightDensity) {
         this.lightDensity = lightDensity;
@@ -193,7 +199,9 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * sets the light position
-     * @param lightPosition 
+     *
+     * @param lightPosition the desired location (in world coordinates, alias
+     * created)
      */
     public void setLightPosition(Vector3f lightPosition) {
         this.lightPosition = lightPosition;
@@ -210,7 +218,8 @@ public class LightScatteringFilter extends Filter {
     /**
      * sets the number of samples for the radial blur default is 50
      * the higher the value the higher the quality, but the slower the performance.
-     * @param nbSamples 
+     *
+     * @param nbSamples the desired number of samples (default=50)
      */
     public void setNbSamples(int nbSamples) {
         this.nbSamples = nbSamples;
@@ -225,7 +234,7 @@ public class LightScatteringFilter extends Filter {
         oc.write(blurStart, "blurStart", 0.02f);
         oc.write(blurWidth, "blurWidth", 0.9f);
         oc.write(lightDensity, "lightDensity", 1.4f);
-        oc.write(adaptative, "adaptative", true);
+        oc.write(adaptive, "adaptative", true);
     }
 
     @Override
@@ -237,6 +246,6 @@ public class LightScatteringFilter extends Filter {
         blurStart = ic.readFloat("blurStart", 0.02f);
         blurWidth = ic.readFloat("blurWidth", 0.9f);
         lightDensity = ic.readFloat("lightDensity", 1.4f);
-        adaptative = ic.readBoolean("adaptative", true);
+        adaptive = ic.readBoolean("adaptative", true);
     }
 }

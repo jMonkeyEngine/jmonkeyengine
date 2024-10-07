@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,12 +56,12 @@ import java.util.logging.Logger;
  */
 public class SelectorKernel extends AbstractKernel
 {
-    static Logger log = Logger.getLogger(SelectorKernel.class.getName());
+    private static final Logger log = Logger.getLogger(SelectorKernel.class.getName());
 
     private InetSocketAddress address;
     private SelectorThread thread;
 
-    private Map<Long,NioEndpoint> endpoints = new ConcurrentHashMap<Long,NioEndpoint>();
+    private Map<Long,NioEndpoint> endpoints = new ConcurrentHashMap<>();
 
     public SelectorKernel( InetAddress host, int port )
     {
@@ -184,7 +184,7 @@ public class SelectorKernel extends AbstractKernel
     }
 
     /**
-     *  Used internally by the endpoints to wakeup the selector
+     *  Used internally by the endpoints to wake up the selector
      *  when they have data to send.
      */
     protected void wakeupSelector()
@@ -196,7 +196,7 @@ public class SelectorKernel extends AbstractKernel
     {
         // Note: if ever desirable, it would be possible to accumulate
         //       data per source channel and only 'finalize' it when
-        //       asked for more envelopes then were ready.  I just don't
+        //       asked for more envelopes than were ready.  I just don't
         //       think it will be an issue in practice.  The busier the
         //       server, the more the buffers will fill before we get to them.
         //       And if the server isn't busy, who cares if we chop things up
@@ -205,7 +205,7 @@ public class SelectorKernel extends AbstractKernel
 
         // Must copy the shared data before we use it
         byte[] dataCopy = new byte[size];
-		System.arraycopy(shared.array(), 0, dataCopy, 0, size);
+        System.arraycopy(shared.array(), 0, dataCopy, 0, size);
 
         Envelope env = new Envelope( p, dataCopy, true );
         addEnvelope( env );
@@ -227,7 +227,7 @@ public class SelectorKernel extends AbstractKernel
          *  Because we want to keep the keys to ourselves, we'll do
          *  the endpoint -&gt; key mapping internally.
          */
-        private Map<NioEndpoint,SelectionKey> endpointKeys = new ConcurrentHashMap<NioEndpoint,SelectionKey>();
+        private Map<NioEndpoint,SelectionKey> endpointKeys = new ConcurrentHashMap<>();
 
         public SelectorThread()
         {
@@ -279,8 +279,8 @@ public class SelectorKernel extends AbstractKernel
             // For now, selection keys will either be in OP_READ
             // or OP_WRITE.  So while we are writing a buffer, we
             // will not be reading.  This is way simpler and less
-            // error prone... it can always be changed when everything
-            // else works if we are looking to micro-optimize.
+            // error-prone. It can be changed when everything
+            // else works, if we are looking to micro-optimize.
 
             // Setup options based on the current state of
             // the endpoints.  This could potentially be more
@@ -299,7 +299,7 @@ public class SelectorKernel extends AbstractKernel
             // Would only get accepts on a server channel
             ServerSocketChannel serverChan = (ServerSocketChannel)key.channel();
 
-            // Setup the connection to be non-blocking
+            // Set up the connection to be non-blocking.
             SocketChannel remoteChan = serverChan.accept();
             remoteChan.configureBlocking(false);
 
@@ -434,7 +434,7 @@ public class SelectorKernel extends AbstractKernel
                     reportError( e );
                     
                     // And at this level, errors likely mean the key is now
-                    // dead and it doesn't hurt to kick them anyway.  If we
+                    // dead, and it doesn't hurt to kick them anyway.  If we
                     // find IOExceptions that are not fatal, this can be
                     // readdressed
                     cancel( key, (SocketChannel)key.channel() );                    

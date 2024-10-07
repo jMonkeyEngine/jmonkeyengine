@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureCubeMap;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 
@@ -58,7 +59,6 @@ public class TestRenderToCubemap  extends SimpleApplication {
  
     private Geometry offBox;
     private float angle = 0;
-    private ViewPort offView;
  
     public static void main(String[] args){
         TestRenderToCubemap app = new TestRenderToCubemap();
@@ -68,7 +68,8 @@ public class TestRenderToCubemap  extends SimpleApplication {
     public Texture setupOffscreenView(){
         Camera offCamera = new Camera(512, 512);
  
-        offView = renderManager.createPreView("Offscreen View", offCamera);
+        ViewPort offView
+                = renderManager.createPreView("Offscreen View", offCamera);
         offView.setClearFlags(true, true, true);
         offView.setBackgroundColor(ColorRGBA.DarkGray);
  
@@ -86,15 +87,15 @@ public class TestRenderToCubemap  extends SimpleApplication {
         offTex.setMagFilter(Texture.MagFilter.Bilinear);
  
         //setup framebuffer to use texture
-        offBuffer.setDepthBuffer(Format.Depth);
+        offBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
         offBuffer.setMultiTarget(true);
-        offBuffer.addColorTexture(offTex, TextureCubeMap.Face.NegativeX);
-        offBuffer.addColorTexture(offTex, TextureCubeMap.Face.PositiveX);
-        offBuffer.addColorTexture(offTex, TextureCubeMap.Face.NegativeY);
-        offBuffer.addColorTexture(offTex, TextureCubeMap.Face.PositiveY);
-        offBuffer.addColorTexture(offTex, TextureCubeMap.Face.NegativeZ);
-        offBuffer.addColorTexture(offTex, TextureCubeMap.Face.PositiveZ);
-        
+        offBuffer.addColorTarget(FrameBufferTarget.newTarget(offTex, TextureCubeMap.Face.NegativeX));
+        offBuffer.addColorTarget(FrameBufferTarget.newTarget(offTex, TextureCubeMap.Face.PositiveX));
+        offBuffer.addColorTarget(FrameBufferTarget.newTarget(offTex, TextureCubeMap.Face.NegativeY));
+        offBuffer.addColorTarget(FrameBufferTarget.newTarget(offTex, TextureCubeMap.Face.PositiveY));
+        offBuffer.addColorTarget(FrameBufferTarget.newTarget(offTex, TextureCubeMap.Face.NegativeZ));
+        offBuffer.addColorTarget(FrameBufferTarget.newTarget(offTex, TextureCubeMap.Face.PositiveZ));
+
         //set viewport to render to offscreen framebuffer
         offView.setOutputFrameBuffer(offBuffer);
  

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -168,9 +168,9 @@ public class TestVertexBufferSharing extends SimpleApplication {
         //advect time
         time += tpf;
         
-        //aquire resource
+        //acquire resource
         buffer.acquireBufferForSharingNoEvent(clQueue);
-        //no need to wait for the returned event, since the kernel implicitely waits for it (same command queue)
+        //no need to wait for the returned event, since the kernel implicitly waits for it (same command queue)
         
         //execute kernel
         float scale = (float) Math.pow(1.1, (1.0 - time%2) / 16.0);

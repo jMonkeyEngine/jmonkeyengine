@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,9 +49,9 @@ import com.jme3.scene.shape.Box;
 
 public class TestTriangleCollision extends SimpleApplication {
 
-    Geometry geom1;
+    private Geometry geom1;
 
-    Spatial golem;
+    private Spatial golem;
 
     public static void main(String[] args) {
         TestTriangleCollision app = new TestTriangleCollision();
@@ -69,7 +69,7 @@ public class TestTriangleCollision extends SimpleApplication {
         geom1.setMaterial(m1);
         rootNode.attachChild(geom1);
 
-        // load a character from jme3test-test-data
+        // load a character from jme3-testdata
         golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         golem.scale(0.5f);
         golem.setLocalTranslation(-1.0f, -1.5f, -0.6f);
@@ -90,7 +90,7 @@ public class TestTriangleCollision extends SimpleApplication {
                     "MoveRight", "MoveLeft", "MoveUp", "MoveDown"
                 });
     }
-    private AnalogListener analogListener = new AnalogListener() {
+    final private AnalogListener analogListener = new AnalogListener() {
 
         @Override
         public void onAnalog(String name, float value, float tpf) {

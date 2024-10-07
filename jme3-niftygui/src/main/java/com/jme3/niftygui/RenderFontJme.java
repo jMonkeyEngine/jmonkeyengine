@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ public class RenderFontJme implements RenderFont {
     /**
      * Initialize the font.
      * @param name font filename
-     * @param display
+     * @param display (not null)
      */
     public RenderFontJme(String name, NiftyJmeDisplay display) {
         font = display.getAssetManager().loadFont(name);
@@ -54,14 +54,14 @@ public class RenderFontJme implements RenderFont {
     }
 
     public BitmapText createText() {
-      return new BitmapText(font);
+        return new BitmapText(font);
     }
 
     public BitmapFont getFont() {
         return font;
     }
 
-    public BitmapText getText(){
+    public BitmapText getText() {
         return text;
     }
 
@@ -101,11 +101,11 @@ public class RenderFontJme implements RenderFont {
 
     @Override
     public int getWidth(final String str, final float size) {
-      // Note: This is supposed to return the width of the String when scaled
-      //       with the size factor. Since I don't know how to do that with
-      //       the font rendering in jme this will only work correctly with
-      //       a size value of 1.f and will return inaccurate values otherwise.
-      return getWidth(str);
+        // Note: This is supposed to return the width of the String when scaled
+        //       with the size factor. Since I don't know how to do that with
+        //       the font rendering in jme this will only work correctly with
+        //       a size value of 1.f and will return inaccurate values otherwise.
+        return getWidth(str);
     }
 
     /**

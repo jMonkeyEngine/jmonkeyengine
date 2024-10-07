@@ -13,7 +13,7 @@ ShaderNodeDefinitions{
             @input mat4 worldViewMatrix The worldView matrix
             @input mat4 projectionMatrix The projection matrix
             @input vec3 modelPosition the vertex position
-            @input float scale the scale of the billboard (defautl 1)
+            @input float scale the scale of the billboard (default 1)
 
             //@output <glslType> <varName> <description>
             @output vec4 projPosition The position in projection space

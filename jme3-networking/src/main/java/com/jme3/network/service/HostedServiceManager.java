@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
 
     /**
      *  Returns 'this' and is what is passed to HostedService.initialize()
-     *  and HostedService.termnate();
+     *  and HostedService.terminate();
      */
     @Override
     protected final HostedServiceManager getParent() {
@@ -83,7 +83,7 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
     }
 
     /**
-     *  Adds all of the specified HostedServices and initializes them.  If the service manager
+     *  Adds the specified services and initializes them.  If the service manager
      *  has already been started then the services will also be started.
      *  This is a convenience method that delegates to addService(), thus each
      *  service will be initialized (and possibly started) in sequence rather

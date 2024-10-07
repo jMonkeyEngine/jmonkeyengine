@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import com.jme3.light.LightList;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.TechniqueDef;
+import com.jme3.material.Material.BindUnits;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
@@ -67,9 +68,9 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
     private final int numPointLightsDefineId;
     private final int numSpotLightsDefineId;
 
-    private final ArrayList<DirectionalLight> tempDirLights = new ArrayList<DirectionalLight>();
-    private final ArrayList<PointLight> tempPointLights = new ArrayList<PointLight>();
-    private final ArrayList<SpotLight> tempSpotLights = new ArrayList<SpotLight>();
+    private final ArrayList<DirectionalLight> tempDirLights = new ArrayList<>();
+    private final ArrayList<PointLight> tempPointLights = new ArrayList<>();
+    private final ArrayList<SpotLight> tempSpotLights = new ArrayList<>();
 
     private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
     private final Vector3f tempPosition = new Vector3f();
@@ -171,7 +172,7 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits) {
         Renderer renderer = renderManager.getRenderer();
         Matrix4f viewMatrix = renderManager.getCurrentCamera().getViewMatrix();
         updateLightListUniforms(viewMatrix, shader, lights);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import java.util.logging.Logger;
 /**
  * <code>AndroidInput</code> is the main class that connects the Android system
  * inputs to jME. It receives the inputs from the Android View and passes them
- * to the appropriate classes based on the source of the input.</br>
+ * to the appropriate classes based on the source of the input.<br>
  * This class is to be extended when new functionality is released in Android.
  *
  * @author iwgeric

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ public class Spline implements Savable {
         Nurb
     }
 
-    private List<Vector3f> controlPoints = new ArrayList<Vector3f>();
+    private List<Vector3f> controlPoints = new ArrayList<>();
     private List<Float> knots;       //knots of NURBS spline
     private float[] weights;         //weights of NURBS spline
     private int basisFunctionDegree; //degree of NURBS spline basis function (computed automatically)
@@ -69,7 +69,7 @@ public class Spline implements Savable {
      *
      * @param splineType the type of the spline @see {SplineType}
      * @param controlPoints an array of vector to use as control points of the spline
-     * If the type of the curve is Bezier curve the control points should be provided
+     * If the type of the curve is Bézier curve the control points should be provided
      * in the appropriate way. Each point 'p' describing control position in the scene
      * should be surrounded by two handler points. This applies to every point except
      * for the border points of the curve, who should have only one handle point.
@@ -99,7 +99,7 @@ public class Spline implements Savable {
      *
      * @param splineType the type of the spline @see {SplineType}
      * @param controlPoints a list of vector to use as control points of the spline
-     * If the type of the curve is Bezier curve the control points should be provided
+     * If the curve is a Bézier curve, the control points should be provided
      * in the appropriate way. Each point 'p' describing control position in the scene
      * should be surrounded by two handler points. This applies to every point except
      * for the border points of the curve, who should have only one handle point.
@@ -256,7 +256,7 @@ public class Spline implements Savable {
     }
 
     /**
-     * This method calculates the Bezier curve length.
+     * This method calculates the Bézier curve length.
      */
     private void computeBezierLength() {
         float l = 0;
@@ -341,7 +341,7 @@ public class Spline implements Savable {
     /**
      * set to true to make the spline cycle
      *
-     * @param cycle
+     * @param cycle true for cyclic, false for acyclic
      */
     public void setCycle(boolean cycle) {
         if (type != SplineType.Nurb) {
@@ -379,7 +379,7 @@ public class Spline implements Savable {
     /**
      * Sets the type of the spline
      *
-     * @param type
+     * @param type Linear/CatmullRom/Bezier/Nurb
      */
     public void setType(SplineType type) {
         this.type = type;
@@ -407,7 +407,7 @@ public class Spline implements Savable {
     //////////// NURBS getters /////////////////////
     /**
      * This method returns the minimum nurb curve knot value. Check the nurb
-     * type before calling this method. It the curve is not of a Nurb type - NPE
+     * type before calling this method. If the curve is not of a Nurb type, an NPE
      * will be thrown.
      *
      * @return the minimum nurb curve knot value
@@ -418,7 +418,7 @@ public class Spline implements Savable {
 
     /**
      * This method returns the maximum nurb curve knot value. Check the nurb
-     * type before calling this method. It the curve is not of a Nurb type - NPE
+     * type before calling this method. If the curve is not of a Nurb type, an NPE
      * will be thrown.
      *
      * @return the maximum nurb curve knot value
@@ -501,9 +501,9 @@ public class Spline implements Savable {
         /* Empty List as default, prevents null pointers */
         float list[] = in.readFloatArray("segmentsLength", null);
         if (list != null) {
-            segmentsLength = new ArrayList<Float>();
+            segmentsLength = new ArrayList<>(list.length);
             for (int i = 0; i < list.length; i++) {
-                segmentsLength.add(new Float(list[i]));
+                segmentsLength.add(list[i]);
             }
         }
         type = in.readEnum("pathSplineType", SplineType.class, SplineType.CatmullRom);

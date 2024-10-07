@@ -37,12 +37,12 @@ import com.jme3.texture.Image;
 /**
  * Utility class for reading and writing from jME3 {@link Image images}.
  * <br>
- * Allows directly manipulating pixels of the image by writing and 
+ * Allows directly manipulating pixels of the image by writing and
  * reading {@link ColorRGBA colors} at any coordinate, without
  * regard to the underlying {@link com.jme3.texture.Image.Format format} of the image.
  * NOTE: compressed and depth formats are <strong>not supported</strong>.
  * Special RGB formats like RGB111110F and RGB9E5 are not supported
- * at the moment, but may be added later on. For now 
+ * at the moment, but may be added later on. For now
  * use RGB16F_to_RGB111110F and RGB16F_to_RGB9E5 to handle
  * the conversion on the GPU.
  * <p>
@@ -51,15 +51,15 @@ import com.jme3.texture.Image;
  * all current instances of <code>ImageReadWrite</code> become invalid, and
  * new instances must be created in order to properly access
  * the image data.
- * 
+ *
  * Usage example:<br>
  * <code>
  * Image myImage = ...
  * ImageRaster raster = ImageRaster.create(myImage);
  * raster.setPixel(1, 5, ColorRGBA.Green);
- * System.out.println( raster.getPixel(1, 5) ); // Will print [0.0, 1.0, 0.0, 1.0].
+ * System.out.println(raster.getPixel(1, 5)); // Will print [0.0, 1.0, 0.0, 1.0].
  * </code>
- * 
+ *
  * @author Kirill Vainer
  */
 public abstract class ImageRaster {
@@ -70,8 +70,8 @@ public abstract class ImageRaster {
      * @param image The image to read / write to.
      * @param slice Which slice to use. Only applies to 3D images, 2D image
      * arrays or cubemaps.
-     * @param mipMapLevel The mipmap level to read / write to. To access levels 
-     * other than 0, the image must have 
+     * @param mipMapLevel The mipmap level to read / write to. To access levels
+     * other than 0, the image must have
      * {@link Image#setMipMapSizes(int[]) mipmap sizes} set.
      * @param convertToLinear If true, the application expects read or written
      * colors to be in linear color space (<code>ImageRaster</code> will
@@ -82,7 +82,7 @@ public abstract class ImageRaster {
     public static ImageRaster create(Image image, int slice, int mipMapLevel, boolean convertToLinear) {
         return new DefaultImageRaster(image, slice, mipMapLevel, convertToLinear);
     }
-    
+
     /**
      * Create new image reader / writer.
      *
@@ -94,10 +94,10 @@ public abstract class ImageRaster {
     public static ImageRaster create(Image image, int slice) {
         return create(image, slice, 0, false);
     }
-    
+
     /**
      * Create new image reader / writer for 2D images.
-     * 
+     *
      * @param image The image to read / write to.
      * @return An ImageRaster to read / write to the image.
      */
@@ -107,30 +107,30 @@ public abstract class ImageRaster {
         }
         return create(image, 0, 0, false);
     }
-    
+
     public ImageRaster() {
     }
-    
+
     /**
      * Returns the pixel width of the underlying image.
-     * 
+     *
      * @return the pixel width of the underlying image.
      */
     public abstract int getWidth();
-    
+
     /**
      * Returns the pixel height of the underlying image.
-     * 
+     *
      * @return the pixel height of the underlying image.
      */
     public abstract int getHeight();
-    
+
     /**
      * Sets the pixel at the given coordinate to the given color.
      * <p>
-     * For all integer based formats (those not ending in "F"), the 
+     * For all integer based formats (those not ending in "F"), the
      * color is first clamped to 0.0 - 1.0 before converting it to
-     * an integer to avoid overflow. For floating point based formats, 
+     * an integer to avoid overflow. For floating point based formats,
      * components larger than 1.0 can be represented, but components
      * lower than 0.0 are still not allowed (as all formats are unsigned).
      * <p>
@@ -138,7 +138,7 @@ public abstract class ImageRaster {
      * such as {@link com.jme3.texture.Image.Format#Luminance8}) then a color to grayscale
      * conversion is done first, before writing the result into the image.
      * <p>
-     * If the image does not have some of the components in the color (such
+     * If the image lacks some components (such
      * as alpha, or any of the color components), then these components
      * will be ignored. The only exception to this is luminance formats
      * for which the color is converted to luminance first (see above).
@@ -146,14 +146,14 @@ public abstract class ImageRaster {
      * After writing the color, the image shall be marked as requiring an
      * update. The next time it is used for rendering, all pixel changes
      * will be reflected when the image is rendered.
-     * 
+     *
      * @param x The x coordinate, from 0 to width - 1.
      * @param y The y coordinate, from 0 to height - 1.
-     * @param color The color to write. 
+     * @param color The color to write.
      * @throws IllegalArgumentException If x or y are outside the image dimensions.
      */
     public abstract void setPixel(int x, int y, ColorRGBA color);
-    
+
     /**
      * Retrieve the color at the given coordinate.
      * <p>
@@ -164,7 +164,7 @@ public abstract class ImageRaster {
      * the A component set to the alpha in the image.
      * <p>
      * For grayscale or luminance formats, the luminance value is replicated
-     * in the R, G, and B components. 
+     * in the R, G, and B components.
      * <p>
      * Integer formats are converted to the range 0.0 - 1.0, based
      * on the maximum possible integer value that can be represented
@@ -173,31 +173,31 @@ public abstract class ImageRaster {
      * contain the integer values 0 - 31, a conversion to floating point
      * is done by diving the integer value by 31 (done with floating point
      * precision).
-     * 
+     *
      * @param x The x coordinate, from 0 to width - 1.
      * @param y The y coordinate, from 0 to height - 1.
-     * @param store Storage location for the read color, if <code>null</code>, 
+     * @param store Storage location for the read color, if <code>null</code>,
      * then a new ColorRGBA is created and returned with the read color.
      * @return The store parameter, if it is null, then a new ColorRGBA
      * with the read color.
      * @throws IllegalArgumentException If x or y are outside the image dimensions.
      */
     public abstract ColorRGBA getPixel(int x, int y, ColorRGBA store);
-    
+
     /**
      * Retrieve the color at the given coordinate.
      * <p>
      * Convenience method that does not take a store argument. Equivalent
-     * to calling getPixel(x, y, null). 
+     * to calling getPixel(x, y, null).
      * See {@link #getPixel(int, int, com.jme3.math.ColorRGBA) } for
      * more information.
-     * 
+     *
      * @param x The x coordinate, from 0 to width - 1.
      * @param y The y coordinate, from 0 to height - 1.
      * @return A new ColorRGBA with the read color.
      * @throws IllegalArgumentException If x or y are outside the image dimensions
      */
-    public ColorRGBA getPixel(int x, int y) { 
+    public ColorRGBA getPixel(int x, int y) {
         return getPixel(x, y, null);
     }
 }

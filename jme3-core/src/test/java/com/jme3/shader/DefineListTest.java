@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,6 @@ public class DefineListTest {
     private static final int BOOL_VAR = 0;
     private static final int INT_VAR = 1;
     private static final int FLOAT_VAR = 2;
-    private static final DefineList EMPTY = new DefineList(NUM_DEFINES);
 
     @Test
     public void testHashCollision() {
@@ -92,7 +91,9 @@ public class DefineListTest {
     @Test
     public void testSourceInitial() {
         DefineList dl = new DefineList(NUM_DEFINES);
-        assert dl.hashCode() == 0;
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            assert !dl.isSet(id);
+        }
         assert generateSource(dl).equals("");
     }
 
@@ -101,19 +102,29 @@ public class DefineListTest {
         DefineList dl = new DefineList(NUM_DEFINES);
 
         dl.set(BOOL_VAR, true);
-        assert dl.hashCode() == 1;
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            boolean isBoolVar = (id == BOOL_VAR);
+            assert dl.isSet(id) == isBoolVar;
+        }
         assert generateSource(dl).equals("#define BOOL_VAR 1\n");
 
         dl.set(BOOL_VAR, false);
-        assert dl.hashCode() == 0;
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            assert !dl.isSet(id);
+        }
         assert generateSource(dl).equals("");
 
         dl.set(BOOL_VAR, true);
-        assert dl.hashCode() == 1;
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            boolean isBoolVar = (id == BOOL_VAR);
+            assert dl.isSet(id) == isBoolVar;
+        }
         assert generateSource(dl).equals("#define BOOL_VAR 1\n");
 
         dl.unset(BOOL_VAR);
-        assert dl.hashCode() == 0;
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            assert !dl.isSet(id);
+        }
         assert generateSource(dl).equals("");
     }
 
@@ -121,26 +132,38 @@ public class DefineListTest {
     public void testSourceIntDefine() {
         DefineList dl = new DefineList(NUM_DEFINES);
 
-        int hashCodeWithInt = 1 << INT_VAR;
-
         dl.set(INT_VAR, 123);
-        assert dl.hashCode() == hashCodeWithInt;
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            boolean isIntVar = (id == INT_VAR);
+            assert dl.isSet(id) == isIntVar;
+        }
         assert generateSource(dl).equals("#define INT_VAR 123\n");
 
         dl.set(INT_VAR, 0);
-        assert dl.hashCode() == hashCodeWithInt;
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            boolean isIntVar = (id == INT_VAR);
+            assert dl.isSet(id) == isIntVar;
+        }
         assert generateSource(dl).equals("#define INT_VAR 0\n");
 
         dl.set(INT_VAR, -99);
-        assert dl.hashCode() == hashCodeWithInt;
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            boolean isIntVar = (id == INT_VAR);
+            assert dl.isSet(id) == isIntVar;
+        }
         assert generateSource(dl).equals("#define INT_VAR -99\n");
 
         dl.set(INT_VAR, Integer.MAX_VALUE);
-        assert dl.hashCode() == hashCodeWithInt;
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            boolean isIntVar = (id == INT_VAR);
+            assert dl.isSet(id) == isIntVar;
+        }
         assert generateSource(dl).equals("#define INT_VAR 2147483647\n");
 
         dl.unset(INT_VAR);
-        assert dl.hashCode() == 0;
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            assert !dl.isSet(id);
+        }
         assert generateSource(dl).equals("");
     }
 
@@ -149,11 +172,17 @@ public class DefineListTest {
         DefineList dl = new DefineList(NUM_DEFINES);
 
         dl.set(FLOAT_VAR, 1f);
-        assert dl.hashCode() == (1 << FLOAT_VAR);
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            boolean isFloatVar = (id == FLOAT_VAR);
+            assert dl.isSet(id) == isFloatVar;
+        }
         assert generateSource(dl).equals("#define FLOAT_VAR 1.0\n");
 
         dl.set(FLOAT_VAR, 0f);
-        assert dl.hashCode() == (1 << FLOAT_VAR);
+        for (int id = 0; id < NUM_DEFINES; ++id) {
+            boolean isFloatVar = (id == FLOAT_VAR);
+            assert dl.isSet(id) == isFloatVar;
+        }
         assert generateSource(dl).equals("#define FLOAT_VAR 0.0\n");
 
         dl.set(FLOAT_VAR, -1f);
@@ -192,49 +221,38 @@ public class DefineListTest {
         DefineList dl1 = new DefineList(NUM_DEFINES);
         DefineList dl2 = new DefineList(NUM_DEFINES);
 
-        assertEquals(0, dl1.hashCode());
-        assertEquals(0, dl2.hashCode());
+        assertEquals(dl1.hashCode(), dl2.hashCode());
         assertEquals(dl1, dl2);
 
         dl1.set(BOOL_VAR, true);
 
-        assertEquals(1, dl1.hashCode());
-        assertEquals(0, dl2.hashCode());
         assertNotEquals(dl1, dl2);
 
         dl2.set(BOOL_VAR, true);
 
-        assertEquals(1, dl1.hashCode());
-        assertEquals(1, dl2.hashCode());
+        assertEquals(dl1.hashCode(), dl2.hashCode());
         assertEquals(dl1, dl2);
 
         dl1.set(INT_VAR, 2);
 
-        assertEquals(1 | 2, dl1.hashCode());
-        assertEquals(1, dl2.hashCode());
         assertNotEquals(dl1, dl2);
 
         dl2.set(INT_VAR, 2);
 
-        assertEquals(1 | 2, dl1.hashCode());
-        assertEquals(1 | 2, dl2.hashCode());
+        assertEquals(dl1.hashCode(), dl2.hashCode());
         assertEquals(dl1, dl2);
 
         dl1.set(BOOL_VAR, false);
 
-        assertEquals(2, dl1.hashCode());
-        assertEquals(1 | 2, dl2.hashCode());
         assertNotEquals(dl1, dl2);
 
         dl2.unset(BOOL_VAR);
 
-        assertEquals(2, dl1.hashCode());
-        assertEquals(2, dl2.hashCode());
+        assertEquals(dl1.hashCode(), dl2.hashCode());
         assertEquals(dl1, dl2); // unset is the same as false
 
         dl1.unset(BOOL_VAR);
-        assertEquals(2, dl1.hashCode());
-        assertEquals(2, dl2.hashCode());
+        assertEquals(dl1.hashCode(), dl2.hashCode());
         assertEquals(dl1, dl2);
     }
 

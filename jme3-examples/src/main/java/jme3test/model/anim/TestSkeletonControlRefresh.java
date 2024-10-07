@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,6 @@
  */
 package jme3test.model.anim;
 
-/**
- *
- * @author Nehon
- */
-
-
 import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
@@ -63,12 +57,14 @@ import com.jme3.shadow.DirectionalLightShadowFilter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Nehon
+ */
 public class TestSkeletonControlRefresh extends SimpleApplication implements ActionListener{
 
-    private AnimComposer animComposer;
     private final static int SIZE = 10;
     private boolean hwSkinningEnable = true;
-    private List<SkinningControl> skinningControls = new ArrayList<>();
+    final private List<SkinningControl> skinningControls = new ArrayList<>();
     private BitmapText hwsText;
  
     public static void main(String[] args) {
@@ -100,11 +96,12 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
                 model.setLocalScale(0.1f);
                 model.setLocalTranslation(i - SIZE / 2, 0, j - SIZE / 2);
 
-                animComposer = model.getControl(AnimComposer.class);
+                AnimComposer animComposer
+                        = model.getControl(AnimComposer.class);
                 for (AnimClip animClip : animComposer.getAnimClips()) {
                     Action action = animComposer.action(animClip.getName());
                     animComposer.addAction(animClip.getName(), new BaseAction(
-                    		Tweens.sequence(action, Tweens.callMethod(animComposer, "removeCurrentAction", AnimComposer.DEFAULT_LAYER))));
+                            Tweens.sequence(action, Tweens.callMethod(animComposer, "removeCurrentAction", AnimComposer.DEFAULT_LAYER))));
                 }
                 animComposer.setCurrentAction(new ArrayList<>(animComposer.getAnimClips()).get((i + j) % 4).getName());
 
@@ -166,7 +163,7 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
  
     private void makeHudText() {
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        hwsText = new BitmapText(guiFont, false);
+        hwsText = new BitmapText(guiFont);
         hwsText.setSize(guiFont.getCharSet().getRenderedSize());
         hwsText.setText("HWS : "+ hwSkinningEnable);
         hwsText.setLocalTranslation(0, cam.getHeight(), 0);

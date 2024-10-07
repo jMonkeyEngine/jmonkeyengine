@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,8 +57,6 @@ import java.util.ArrayList;
  * Meshes may contain three types of geometric primitives:
  * <ul>
  * <li>Points - Every vertex represents a single point in space.
- * Points can also be used for {@link RenderState#setPointSprite(boolean) point
- * sprite} mode.</li>
  * <li>Lines - 2 vertices represent a line segment, with the width specified
  * via {@link Material#getAdditionalRenderState()} and {@link RenderState#setLineWidth(float)}.</li>
  * <li>Triangles - 3 vertices represent a solid triangle primitive. </li>
@@ -131,6 +129,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
          * for each patch (default is 3 for triangle tessellation)
          */
         Patch(true);
+
         private boolean listMode = false;
 
         private Mode(boolean listMode) {
@@ -150,28 +149,44 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             return listMode;
         }
     }
+    
+    /**
+     * Default Variables
+     */
+    private static final int DEFAULT_VERTEX_ARRAY_ID = -1;
+    private static final CollisionData DEFAULT_COLLISION_TREE = null;
 
+    private static final float DEFAULT_POINT_SIZE = 1.0f;
+    private static final float DEFAULT_LINE_WIDTH = 1.0f;
+
+    private static final int DEFAULT_VERT_COUNT = -1;
+    private static final int DEFAULT_ELEMENT_COUNT = -1;
+    private static final int DEFAULT_INSTANCE_COUNT = -1;
+    private static final int DEFAULT_PATCH_VERTEX_COUNT = 3;
+    private static final int DEFAULT_MAX_NUM_WEIGHTS = -1;
+    
     /**
      * The bounding volume that contains the mesh entirely.
      * By default a BoundingBox (AABB).
      */
     private BoundingVolume meshBound = new BoundingBox();
 
-    private CollisionData collisionTree = null;
+    private CollisionData collisionTree = DEFAULT_COLLISION_TREE;
 
     private SafeArrayList<VertexBuffer> buffersList = new SafeArrayList<>(VertexBuffer.class);
     private IntMap<VertexBuffer> buffers = new IntMap<>();
     private VertexBuffer[] lodLevels;
-    private float pointSize = 1;
-    private float lineWidth = 1;
+    
+    private float pointSize = DEFAULT_POINT_SIZE;
+    private float lineWidth = DEFAULT_LINE_WIDTH;
 
-    private transient int vertexArrayID = -1;
+    private transient int vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
 
-    private int vertCount = -1;
-    private int elementCount = -1;
-    private int instanceCount = -1;
-    private int patchVertexCount = 3; //only used for tessellation
-    private int maxNumWeights = -1; // only if using skeletal animation
+    private int vertCount = DEFAULT_VERT_COUNT;
+    private int elementCount = DEFAULT_ELEMENT_COUNT;
+    private int instanceCount = DEFAULT_INSTANCE_COUNT;
+    private int patchVertexCount = DEFAULT_PATCH_VERTEX_COUNT; //only used for tessellation
+    private int maxNumWeights = DEFAULT_MAX_NUM_WEIGHTS; // only if using skeletal animation
 
     private int[] elementLengths;
     private int[] modeStart;
@@ -201,7 +216,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             clone.collisionTree = collisionTree != null ? collisionTree : null;
             clone.buffers = buffers.clone();
             clone.buffersList = new SafeArrayList<>(VertexBuffer.class, buffersList);
-            clone.vertexArrayID = -1;
+            clone.vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
             if (elementLengths != null) {
                 clone.elementLengths = elementLengths.clone();
             }
@@ -228,7 +243,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
             // TODO: Collision tree cloning
             //clone.collisionTree = collisionTree != null ? collisionTree : null;
-            clone.collisionTree = null; // it will get re-generated in any case
+            clone.collisionTree = DEFAULT_COLLISION_TREE; // it will get re-generated in any case
 
             clone.buffers = new IntMap<>();
             clone.buffersList = new SafeArrayList<>(VertexBuffer.class);
@@ -238,7 +253,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                 clone.buffersList.add(bufClone);
             }
 
-            clone.vertexArrayID = -1;
+            clone.vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
             clone.vertCount = vertCount;
             clone.elementCount = elementCount;
             clone.instanceCount = instanceCount;
@@ -298,7 +313,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     public Mesh jmeClone() {
         try {
             Mesh clone = (Mesh) super.clone();
-            clone.vertexArrayID = -1;
+            clone.vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -311,7 +326,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         // Probably could clone this now but it will get regenerated anyway.
-        this.collisionTree = null;
+        this.collisionTree = DEFAULT_COLLISION_TREE;
 
         this.meshBound = cloner.clone(meshBound);
         this.buffersList = cloner.clone(buffersList);
@@ -322,7 +337,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * @param forSoftwareAnim
+     * @param forSoftwareAnim ignored
      * @deprecated use generateBindPose();
      */
     @Deprecated
@@ -419,7 +434,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                 weights.updateData(arrayWeight);
             }
             weights.setUsage(Usage.CpuOnly);
-            // position, normal, and tanget buffers to be in "Stream" mode
+            // position, normal, and tangent buffers to be in "Stream" mode
             VertexBuffer positions = getBuffer(Type.Position);
             VertexBuffer normals = getBuffer(Type.Normal);
             VertexBuffer tangents = getBuffer(Type.Tangent);
@@ -469,7 +484,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                         weights.getFormat(), directWeight);
             }
 
-            // position, normal, and tanget buffers to be in "Static" mode
+            // position, normal, and tangent buffers to be in "Static" mode
             VertexBuffer positions = getBuffer(Type.Position);
             VertexBuffer normals = getBuffer(Type.Normal);
             VertexBuffer tangents = getBuffer(Type.Tangent);
@@ -558,6 +573,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
      * Get the mode start indices for {@link Mode#Hybrid} mesh mode.
+     *
+     * @param modeStart the pre-existing array
      */
     public void setModeStart(int[] modeStart) {
         this.modeStart = modeStart;
@@ -602,7 +619,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * Only relevant if this mesh has bone index/weight buffers.
      * This value should be between 0 and 4.
      *
-     * @param maxNumWeights
+     * @param maxNumWeights the desired number (between 0 and 4, inclusive)
      */
     public void setMaxNumWeights(int maxNumWeights) {
         this.maxNumWeights = maxNumWeights;
@@ -613,22 +630,10 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * determined in the vertex shader.
      *
      * @return <code>1.0</code>
-     *
-     * @see #setPointSize(float)
      */
     @Deprecated
     public float getPointSize() {
-        return 1.0f;
-    }
-
-    /**
-     * @deprecated Does nothing, since the size of {@link Mode#Points points} is
-     * determined via the vertex shader's <code>gl_PointSize</code> output.
-     *
-     * @param pointSize ignored
-     */
-    @Deprecated
-    public void setPointSize(float pointSize) {
+        return DEFAULT_POINT_SIZE;
     }
 
     /**
@@ -891,6 +896,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     /**
      * Returns the number of instances this mesh contains.  The instance
      * count is based on any VertexBuffers with instancing set.
+     *
+     * @return the number of instances
      */
     public int getInstanceCount() {
         return instanceCount;
@@ -913,7 +920,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         if (pb != null && pb.getFormat() == Format.Float && pb.getNumComponents() == 3) {
             FloatBuffer fpb = (FloatBuffer) pb.getData();
 
-            // aquire triangle's vertex indices
+            // acquire triangle's vertex indices
             int vertIndex = index * 3;
             int vert1 = ib.get(vertIndex);
             int vert2 = ib.get(vertIndex + 1);
@@ -941,6 +948,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     public void getTriangle(int index, Triangle tri) {
         getTriangle(index, tri.get1(), tri.get2(), tri.get3());
         tri.setIndex(index);
+        tri.setCenter(null); // invalidate previously cached centroid, if any
         tri.setNormal(null);
     }
 
@@ -965,6 +973,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
      * Returns the mesh's VAO ID. Internal use only.
+     *
+     * @return the array ID
      */
     public int getId() {
         return vertexArrayID;
@@ -972,9 +982,11 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
      * Sets the mesh's VAO ID. Internal use only.
+     *
+     * @param id the array ID
      */
     public void setId(int id) {
-        if (vertexArrayID != -1) {
+        if (vertexArrayID != DEFAULT_VERTEX_ARRAY_ID) {
             throw new IllegalStateException("ID has already been set.");
         }
 
@@ -1000,13 +1012,19 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * generated BIHTree.
      */
     public void clearCollisionData() {
-        collisionTree = null;
+        collisionTree = DEFAULT_COLLISION_TREE;
     }
 
     /**
      * Handles collision detection, internal use only.
      * User code should only use collideWith() on scene
      * graph elements such as {@link Spatial}s.
+     *
+     * @param other the other Collidable
+     * @param worldMatrix the world matrix
+     * @param worldBound the world bound
+     * @param results storage for the results
+     * @return the number of collisions detected (&ge;0)
      */
     public int collideWith(Collidable other,
             Matrix4f worldMatrix,
@@ -1335,7 +1353,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         // Copy max weights per vertex as well
         setMaxNumWeights(other.getMaxNumWeights());
 
-        // The data has been copied over, update informations
+        // The data has been copied over, update information
         updateCounts();
         updateBound();
     }
@@ -1458,7 +1476,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
      * @deprecated use isAnimatedByJoint
-     * @param boneIndex
+     * @param boneIndex the bone's index in its skeleton
      * @return true if animated by that bone, otherwise false
      */
     @Deprecated
@@ -1508,7 +1526,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     /**
      * Sets the count of vertices used for each tessellation patch
      *
-     * @param patchVertexCount
+     * @param patchVertexCount the desired count
      */
     public void setPatchVertexCount(int patchVertexCount) {
         this.patchVertexCount = patchVertexCount;
@@ -1619,15 +1637,15 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         OutputCapsule out = ex.getCapsule(this);
 
         out.write(meshBound, "modelBound", null);
-        out.write(vertCount, "vertCount", -1);
-        out.write(elementCount, "elementCount", -1);
-        out.write(instanceCount, "instanceCount", -1);
-        out.write(maxNumWeights, "max_num_weights", -1);
+        out.write(vertCount, "vertCount", DEFAULT_VERT_COUNT);
+        out.write(elementCount, "elementCount", DEFAULT_ELEMENT_COUNT);
+        out.write(instanceCount, "instanceCount", DEFAULT_INSTANCE_COUNT);
+        out.write(maxNumWeights, "max_num_weights", DEFAULT_MAX_NUM_WEIGHTS);
         out.write(mode, "mode", Mode.Triangles);
-        out.write(collisionTree, "collisionTree", null);
+        out.write(collisionTree, "collisionTree", DEFAULT_COLLISION_TREE);
         out.write(elementLengths, "elementLengths", null);
         out.write(modeStart, "modeStart", null);
-        out.write(pointSize, "pointSize", 1f);
+        out.write(pointSize, "pointSize", DEFAULT_POINT_SIZE);
 
         //Removing HW skinning buffers to not save them
         VertexBuffer hwBoneIndex = null;
@@ -1662,17 +1680,17 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         meshBound = (BoundingVolume) in.readSavable("modelBound", null);
-        vertCount = in.readInt("vertCount", -1);
-        elementCount = in.readInt("elementCount", -1);
-        instanceCount = in.readInt("instanceCount", -1);
-        maxNumWeights = in.readInt("max_num_weights", -1);
+        vertCount = in.readInt("vertCount", DEFAULT_VERT_COUNT);
+        elementCount = in.readInt("elementCount", DEFAULT_ELEMENT_COUNT);
+        instanceCount = in.readInt("instanceCount", DEFAULT_INSTANCE_COUNT);
+        maxNumWeights = in.readInt("max_num_weights", DEFAULT_MAX_NUM_WEIGHTS);
         mode = in.readEnum("mode", Mode.class, Mode.Triangles);
         elementLengths = in.readIntArray("elementLengths", null);
         modeStart = in.readIntArray("modeStart", null);
-        collisionTree = (BIHTree) in.readSavable("collisionTree", null);
+        collisionTree = (BIHTree) in.readSavable("collisionTree", DEFAULT_COLLISION_TREE);
         elementLengths = in.readIntArray("elementLengths", null);
         modeStart = in.readIntArray("modeStart", null);
-        pointSize = in.readFloat("pointSize", 1f);
+        pointSize = in.readFloat("pointSize", DEFAULT_POINT_SIZE);
 
 //        in.readStringSavableMap("buffers", null);
         buffers = (IntMap<VertexBuffer>) in.readIntSavableMap("buffers", null);

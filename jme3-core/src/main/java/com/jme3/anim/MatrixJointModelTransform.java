@@ -10,8 +10,8 @@ import com.jme3.math.Transform;
  */
 public class MatrixJointModelTransform implements JointModelTransform {
 
-    private Matrix4f modelTransformMatrix = new Matrix4f();
-    private Transform modelTransform = new Transform();
+    final private Matrix4f modelTransformMatrix = new Matrix4f();
+    final private Transform modelTransform = new Transform();
 
     @Override
     public void updateModelTransform(Transform localTransform, Joint parent) {
@@ -36,6 +36,11 @@ public class MatrixJointModelTransform implements JointModelTransform {
         localTransform.fromTransformMatrix(modelTransformMatrix);
     }
 
+    /**
+     * Access the model transform.
+     *
+     * @return the pre-existing instance 
+     */
     public Matrix4f getModelTransformMatrix() {
         return modelTransformMatrix;
     }

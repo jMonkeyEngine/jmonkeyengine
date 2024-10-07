@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,22 +69,22 @@ public class NativeObjectManager {
     /**
      * Reference queue for {@link NativeObjectRef native object references}.
      */
-    private ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
+    private ReferenceQueue<Object> refQueue = new ReferenceQueue<>();
 
     /**
      * List of currently active GLObjects.
      */
-    private HashMap<Long, NativeObjectRef> refMap = new HashMap<Long, NativeObjectRef>();
+    private final HashMap<Long, NativeObjectRef> refMap = new HashMap<>();
     
     /**
      * List of real objects requested by user for deletion.
      */
-    private ArrayDeque<NativeObject> userDeletionQueue = new ArrayDeque<NativeObject>();
+    private final ArrayDeque<NativeObject> userDeletionQueue = new ArrayDeque<>();
 
     private static class NativeObjectRef extends PhantomReference<Object> {
         
-        private NativeObject objClone;
-        private WeakReference<NativeObject> realObj;
+        final private NativeObject objClone;
+        final private WeakReference<NativeObject> realObj;
 
         public NativeObjectRef(ReferenceQueue<Object> refQueue, NativeObject obj){
             super(obj.handleRef, refQueue);
@@ -98,6 +98,8 @@ public class NativeObjectManager {
 
     /**
      * (Internal use only) Register a <code>NativeObject</code> with the manager.
+     *
+     * @param obj the object to register (not null)
      */
     public void registerObject(NativeObject obj) {
         if (obj.getId() <= 0) {
@@ -138,6 +140,7 @@ public class NativeObjectManager {
                 }
 
                 assert ref == null || ref == ref2;
+                ref2.clear();
 
                 int id = obj.getId();
 
@@ -196,10 +199,12 @@ public class NativeObjectManager {
     /**
      * (Internal use only) Deletes all objects. 
      * Must only be called when display is destroyed.
+     *
+     * @param rendererObject the renderer object
      */
     public void deleteAllObjects(Object rendererObject){
         deleteUnused(rendererObject);
-        ArrayList<NativeObjectRef> refMapCopy = new ArrayList<NativeObjectRef>(refMap.values());
+        ArrayList<NativeObjectRef> refMapCopy = new ArrayList<>(refMap.values());
         for (NativeObjectRef ref : refMapCopy) {
             deleteNativeObject(rendererObject, ref.objClone, ref, true, false);
         }
@@ -232,9 +237,7 @@ public class NativeObjectManager {
             }
             
             realObj.resetObject();
-            if (logger.isLoggable(Level.FINEST)) {
-                logger.log(Level.FINEST, "Reset: {0}", realObj);
-            }
+            logger.log(Level.FINEST, "Reset: {0}", realObj);
         }
         refMap.clear();
         refQueue = new ReferenceQueue<Object>();

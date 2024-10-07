@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -113,7 +113,7 @@ public class LightFilterTest {
         pl.setPosition(new Vector3f(0, 0, 8f));
         checkFilteredLights(0);
         
-        // And more close - now its an intersection.
+        // And closer - now they intersect.
         pl.setPosition(new Vector3f(0, 0, 8f + FastMath.ZERO_TOLERANCE));
         checkFilteredLights(1);
         
@@ -134,8 +134,9 @@ public class LightFilterTest {
         checkFilteredLights(1);
         
         // Rotate the camera so it is up, light is outside frustum.
-        cam.lookAtDirection(Vector3f.UNIT_Y, Vector3f.UNIT_Y);
+        cam.lookAtDirection(Vector3f.UNIT_Y, Vector3f.UNIT_X);
         checkFilteredLights(0);
+        cam.lookAtDirection(Vector3f.UNIT_Z, Vector3f.UNIT_Y);
         
         // ==================================
         // Tests for bounding Sphere
@@ -148,30 +149,30 @@ public class LightFilterTest {
         checkFilteredLights(1);
      
         pl.setRadius(1f);
-        // Put the light at the very close to the geom,
-        // the very edge of the sphere touches the other bounding sphere
+        // Put the light very close to the geometry.
+        // The edge of the sphere touches the other bounding sphere.
         // Still not considered an intersection though.
         pl.setPosition(new Vector3f(0, 0, 0));
         checkFilteredLights(0);
 
-        // And more close - now its an intersection.
+        // And closer - now they intersect.
         pl.setPosition(new Vector3f(0, 0, 0f + FastMath.ZERO_TOLERANCE));
         checkFilteredLights(1);
                
         geom.setLocalTranslation(0, 0, 0);
-        // In this case its an intersection for pointLight v. box
-        // But not for pointLight v. sphere
+        // In this case, it's an intersection for PointLight versus box,
+        // but not for PointLight versus sphere.
         // Vector3f(0, 0.5f, 0.5f).normalize().mult(2) ~ >= (0.0, 1.4142135, 1.4142135)
         //pl.setPosition(new Vector3f(0, 0.5f, 0.5f).normalizeLocal().multLocal(2 + FastMath.ZERO_TOLERANCE));
         pl.setPosition(new Vector3f(0f, 1.4142135f, 1.4142135f).multLocal(1+FastMath.ZERO_TOLERANCE));
         checkFilteredLights(0);
         
-        // Make the distance a wee bit closer, now its an intersection
+        // Make the distance a wee bit closer. Now it intersects.
         //pl.setPosition(new Vector3f(0, 0.5f, 0.5f).normalizeLocal().multLocal(2 - FastMath.ZERO_TOLERANCE));
         pl.setPosition(new Vector3f(0f, 1.4142135f, 1.4142135f).multLocal(1-FastMath.ZERO_TOLERANCE));
         checkFilteredLights(1);
         
-        // it's a point light, also test for the other corner
+        // It's a point light; also test for the other corner.
         pl.setPosition(new Vector3f(0f, -1.4142135f, -1.4142135f).multLocal(1-FastMath.ZERO_TOLERANCE));
         checkFilteredLights(0);
 
@@ -236,7 +237,7 @@ public class LightFilterTest {
         sl.setSpotRange(0);
         checkFilteredLights(1);
        
-        //the geommetry is outside the infinite cone (cone direction going away from the geom)
+        //the geometry is outside the infinite cone (cone direction going away from the geom)
         sl.setPosition(Vector3f.UNIT_Z.mult(1+FastMath.ZERO_TOLERANCE));
         checkFilteredLights(0);
        

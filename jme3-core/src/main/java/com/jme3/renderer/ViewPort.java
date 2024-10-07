@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,23 +40,23 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
 
 /**
- * A <code>ViewPort</code> represents a view inside the display
- * window or a {@link FrameBuffer} to which scenes will be rendered. 
- * <p>
- * A viewport has a {@link #ViewPort(java.lang.String, com.jme3.renderer.Camera) camera}
+ * Represents a view inside the display
+ * window or a {@link FrameBuffer} to which scenes will be rendered.
+ *
+ * <p>A viewport has a {@link #ViewPort(java.lang.String, com.jme3.renderer.Camera) camera}
  * which is used to render a set of {@link #attachScene(com.jme3.scene.Spatial) scenes}.
- * A view port has a location on the screen as set by the 
+ * A view port has a location on the screen as set by the
  * {@link Camera#setViewPort(float, float, float, float) } method.
  * By default, a view port does not clear the framebuffer, but it can be
  * set to {@link #setClearFlags(boolean, boolean, boolean) clear the framebuffer}.
- * The background color which the color buffer is cleared to can be specified 
+ * The background color which the color buffer is cleared to can be specified
  * via the {@link #setBackgroundColor(com.jme3.math.ColorRGBA)} method.
- * <p>
- * A ViewPort has a list of {@link SceneProcessor}s which can
+ *
+ * <p>A ViewPort has a list of {@link SceneProcessor}s which can
  * control how the ViewPort is rendered by the {@link RenderManager}.
- * 
+ *
  * @author Kirill Vainer
- * 
+ *
  * @see RenderManager
  * @see SceneProcessor
  * @see Spatial
@@ -64,28 +64,60 @@ import com.jme3.util.SafeArrayList;
  */
 public class ViewPort {
 
+    /**
+     * Name for this viewport.
+     */
     protected final String name;
+    /**
+     * Camera used for rendering.
+     */
     protected final Camera cam;
+    /**
+     * Geometries for rendering, sorted.
+     */
     protected final RenderQueue queue = new RenderQueue();
-    protected final SafeArrayList<Spatial> sceneList = new SafeArrayList<Spatial>(Spatial.class);
-    protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<SceneProcessor>(SceneProcessor.class);
+    /**
+     * Scene-graph hierarchies for rendering.
+     */
+    protected final SafeArrayList<Spatial> sceneList = new SafeArrayList<>(Spatial.class);
+    /**
+     * Scene processors currently applied.
+     */
+    protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
+    /**
+     * FrameBuffer for output.
+     */
     protected FrameBuffer out = null;
 
-    protected final ColorRGBA backColor = new ColorRGBA(0,0,0,0);
-    protected boolean clearDepth = false, clearColor = false, clearStencil = false;
+    /**
+     * Color applied when the color buffer is cleared.
+     */
+    protected final ColorRGBA backColor = new ColorRGBA(0, 0, 0, 0);
+    /**
+     * Enables clearing the depth buffer.
+     */
+    protected boolean clearDepth = false;
+    /**
+     * Enables clearing the color buffer.
+     */
+    protected boolean clearColor = false;
+    /**
+     * Enables clearing the stencil buffer.
+     */
+    protected boolean clearStencil = false;
     private boolean enabled = true;
 
     /**
-     * Create a new viewport. User code should generally use these methods instead:<br>
+     * Creates a new viewport. User code should generally use these methods instead:<br>
      * <ul>
      * <li>{@link RenderManager#createPreView(java.lang.String, com.jme3.renderer.Camera) }</li>
      * <li>{@link RenderManager#createMainView(java.lang.String, com.jme3.renderer.Camera)  }</li>
      * <li>{@link RenderManager#createPostView(java.lang.String, com.jme3.renderer.Camera)  }</li>
      * </ul>
-     * 
+     *
      * @param name The name of the viewport. Used for debugging only.
      * @param cam The camera through which the viewport is rendered. The camera
-     * cannot be swapped to a different one after creating the viewport.
+     *     cannot be swapped to a different one after creating the viewport.
      */
     public ViewPort(String name, Camera cam) {
         this.name = name;
@@ -94,65 +126,65 @@ public class ViewPort {
 
     /**
      * Returns the name of the viewport as set in the constructor.
-     * 
+     *
      * @return the name of the viewport
-     * 
-     * @see #ViewPort(java.lang.String, com.jme3.renderer.Camera) 
+     *
+     * @see #ViewPort(java.lang.String, com.jme3.renderer.Camera)
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Get the list of {@link SceneProcessor scene processors} that were
-     * added to this <code>ViewPort</code>
-     * 
+     * Gets the list of {@link SceneProcessor scene processors} that were
+     * added to this <code>ViewPort</code>.
+     *
      * @return the list of processors attached to this ViewPort
-     * 
-     * @see #addProcessor(com.jme3.post.SceneProcessor) 
+     *
+     * @see #addProcessor(com.jme3.post.SceneProcessor)
      */
-    public SafeArrayList<SceneProcessor> getProcessors(){
+    public SafeArrayList<SceneProcessor> getProcessors() {
         return processors;
     }
 
     /**
      * Adds a {@link SceneProcessor} to this ViewPort.
-     * <p>
-     * SceneProcessors that are added to the ViewPort will be notified
+     *
+     * <p>SceneProcessors that are added to the ViewPort will be notified
      * of events as the ViewPort is being rendered by the {@link RenderManager}.
-     * 
+     *
      * @param processor The processor to add
-     * 
+     *
      * @see SceneProcessor
      */
-    public void addProcessor(SceneProcessor processor){
+    public void addProcessor(SceneProcessor processor) {
         if (processor == null) {
-            throw new IllegalArgumentException( "Processor cannot be null." );
+            throw new IllegalArgumentException("Processor cannot be null.");
         }
         processors.add(processor);
     }
 
     /**
      * Removes a {@link SceneProcessor} from this ViewPort.
-     * <p>
-     * The processor will no longer receive events occurring to this ViewPort.
-     * 
+     *
+     * <p>The processor will no longer receive events occurring to this ViewPort.
+     *
      * @param processor The processor to remove
-     * 
+     *
      * @see SceneProcessor
      */
-    public void removeProcessor(SceneProcessor processor){
+    public void removeProcessor(SceneProcessor processor) {
         if (processor == null) {
-            throw new IllegalArgumentException( "Processor cannot be null." );
+            throw new IllegalArgumentException("Processor cannot be null.");
         }
         processors.remove(processor);
         processor.cleanup();
     }
-    
+
     /**
      * Removes all {@link SceneProcessor scene processors} from this
-     * ViewPort. 
-     * 
+     * ViewPort.
+     *
      * @see SceneProcessor
      */
     public void clearProcessors() {
@@ -163,21 +195,21 @@ public class ViewPort {
     }
 
     /**
-     * Check if depth buffer clearing is enabled.
-     * 
+     * Checks if depth buffer clearing is enabled.
+     *
      * @return true if depth buffer clearing is enabled.
-     * 
-     * @see #setClearDepth(boolean) 
+     *
+     * @see #setClearDepth(boolean)
      */
     public boolean isClearDepth() {
         return clearDepth;
     }
 
     /**
-     * Enable or disable clearing of the depth buffer for this ViewPort.
-     * <p>
-     * By default depth clearing is disabled.
-     * 
+     * Enables or disables clearing of the depth buffer for this ViewPort.
+     *
+     * <p>By default depth clearing is disabled.
+     *
      * @param clearDepth Enable/disable depth buffer clearing.
      */
     public void setClearDepth(boolean clearDepth) {
@@ -185,21 +217,21 @@ public class ViewPort {
     }
 
     /**
-     * Check if color buffer clearing is enabled.
-     * 
+     * Checks if color buffer clearing is enabled.
+     *
      * @return true if color buffer clearing is enabled.
-     * 
-     * @see #setClearColor(boolean) 
+     *
+     * @see #setClearColor(boolean)
      */
     public boolean isClearColor() {
         return clearColor;
     }
 
     /**
-     * Enable or disable clearing of the color buffer for this ViewPort.
-     * <p>
-     * By default color clearing is disabled.
-     * 
+     * Enables or disables clearing of the color buffer for this ViewPort.
+     *
+     * <p>By default color clearing is disabled.
+     *
      * @param clearColor Enable/disable color buffer clearing.
      */
     public void setClearColor(boolean clearColor) {
@@ -207,21 +239,21 @@ public class ViewPort {
     }
 
     /**
-     * Check if stencil buffer clearing is enabled.
-     * 
+     * Checks if stencil buffer clearing is enabled.
+     *
      * @return true if stencil buffer clearing is enabled.
-     * 
-     * @see #setClearStencil(boolean) 
+     *
+     * @see #setClearStencil(boolean)
      */
     public boolean isClearStencil() {
         return clearStencil;
     }
 
     /**
-     * Enable or disable clearing of the stencil buffer for this ViewPort.
-     * <p>
-     * By default stencil clearing is disabled.
-     * 
+     * Enables or disables clearing of the stencil buffer for this ViewPort.
+     *
+     * <p>By default stencil clearing is disabled.
+     *
      * @param clearStencil Enable/disable stencil buffer clearing.
      */
     public void setClearStencil(boolean clearStencil) {
@@ -229,17 +261,17 @@ public class ViewPort {
     }
 
     /**
-     * Set the clear flags (color, depth, stencil) in one call.
-     * 
+     * Sets the clear flags (color, depth, stencil) in one call.
+     *
      * @param color If color buffer clearing should be enabled.
      * @param depth If depth buffer clearing should be enabled.
      * @param stencil If stencil buffer clearing should be enabled.
-     * 
-     * @see #setClearColor(boolean) 
-     * @see #setClearDepth(boolean) 
-     * @see #setClearStencil(boolean) 
+     *
+     * @see #setClearColor(boolean)
+     * @see #setClearDepth(boolean)
+     * @see #setClearStencil(boolean)
      */
-    public void setClearFlags(boolean color, boolean depth, boolean stencil){
+    public void setClearFlags(boolean color, boolean depth, boolean stencil) {
         this.clearColor = color;
         this.clearDepth = depth;
         this.clearStencil = stencil;
@@ -248,11 +280,11 @@ public class ViewPort {
     /**
      * Returns the framebuffer where this ViewPort's scenes are
      * rendered to.
-     * 
+     *
      * @return the framebuffer where this ViewPort's scenes are
-     * rendered to.
-     * 
-     * @see #setOutputFrameBuffer(com.jme3.texture.FrameBuffer) 
+     *     rendered to.
+     *
+     * @see #setOutputFrameBuffer(com.jme3.texture.FrameBuffer)
      */
     public FrameBuffer getOutputFrameBuffer() {
         return out;
@@ -260,13 +292,13 @@ public class ViewPort {
 
     /**
      * Sets the output framebuffer for the ViewPort.
-     * <p>
-     * The output framebuffer specifies where the scenes attached
-     * to this ViewPort are rendered to. By default this is <code>null</code>
+     *
+     * <p>The output framebuffer specifies where the scenes attached
+     * to this ViewPort are rendered to. By default, this is <code>null</code>,
      * which indicates the scenes are rendered to the display window.
-     * 
+     *
      * @param out The framebuffer to render scenes to, or null if to render
-     * to the screen.
+     *     to the screen.
      */
     public void setOutputFrameBuffer(FrameBuffer out) {
         this.out = out;
@@ -274,9 +306,9 @@ public class ViewPort {
 
     /**
      * Returns the camera which renders the attached scenes.
-     * 
+     *
      * @return the camera which renders the attached scenes.
-     * 
+     *
      * @see Camera
      */
     public Camera getCamera() {
@@ -285,6 +317,8 @@ public class ViewPort {
 
     /**
      * Internal use only.
+     *
+     * @return the pre-existing instance
      */
     public RenderQueue getQueue() {
         return queue;
@@ -292,14 +326,14 @@ public class ViewPort {
 
     /**
      * Attaches a new scene to render in this ViewPort.
-     * 
+     *
      * @param scene The scene to attach
-     * 
+     *
      * @see Spatial
      */
-    public void attachScene(Spatial scene){
+    public void attachScene(Spatial scene) {
         if (scene == null) {
-            throw new IllegalArgumentException( "Scene cannot be null." );
+            throw new IllegalArgumentException("Scene cannot be null.");
         }
         sceneList.add(scene);
         if (scene instanceof Geometry) {
@@ -309,14 +343,14 @@ public class ViewPort {
 
     /**
      * Detaches a scene from rendering.
-     * 
+     *
      * @param scene The scene to detach
-     * 
-     * @see #attachScene(com.jme3.scene.Spatial) 
+     *
+     * @see #attachScene(com.jme3.scene.Spatial)
      */
-    public void detachScene(Spatial scene){
+    public void detachScene(Spatial scene) {
         if (scene == null) {
-            throw new IllegalArgumentException( "Scene cannot be null." );
+            throw new IllegalArgumentException("Scene cannot be null.");
         }
         sceneList.remove(scene);
         if (scene instanceof Geometry) {
@@ -326,8 +360,8 @@ public class ViewPort {
 
     /**
      * Removes all attached scenes.
-     * 
-     * @see #attachScene(com.jme3.scene.Spatial) 
+     *
+     * @see #attachScene(com.jme3.scene.Spatial)
      */
     public void clearScenes() {
         sceneList.clear();
@@ -335,56 +369,57 @@ public class ViewPort {
 
     /**
      * Returns a list of all attached scenes.
-     * 
+     *
      * @return a list of all attached scenes.
-     * 
-     * @see #attachScene(com.jme3.scene.Spatial) 
+     *
+     * @see #attachScene(com.jme3.scene.Spatial)
      */
-    public SafeArrayList<Spatial> getScenes(){
+    public SafeArrayList<Spatial> getScenes() {
         return sceneList;
     }
 
     /**
      * Sets the background color.
-     * <p>
-     * When the ViewPort's color buffer is cleared 
-     * (if {@link #setClearColor(boolean) color clearing} is enabled), 
+     *
+     * <p>When the ViewPort's color buffer is cleared
+     * (if {@link #setClearColor(boolean) color clearing} is enabled),
      * this specifies the color to which the color buffer is set to.
-     * By default the background color is black without alpha.
-     * 
+     * By default, the background color is black without alpha.
+     *
      * @param background the background color.
      */
-    public void setBackgroundColor(ColorRGBA background){
+    public void setBackgroundColor(ColorRGBA background) {
         backColor.set(background);
     }
 
     /**
-     * Returns the background color of this ViewPort
-     * 
+     * Returns the background color of this ViewPort.
+     *
      * @return the background color of this ViewPort
-     * 
-     * @see #setBackgroundColor(com.jme3.math.ColorRGBA) 
+     *
+     * @see #setBackgroundColor(com.jme3.math.ColorRGBA)
      */
-    public ColorRGBA getBackgroundColor(){
+    public ColorRGBA getBackgroundColor() {
         return backColor;
     }
-    
+
     /**
-     * Enable or disable this ViewPort.
-     * <p>
-     * Disabled ViewPorts are skipped by the {@link RenderManager} when
-     * rendering. By default all ViewPorts are enabled.
-     * 
+     * Enables or disables this ViewPort.
+     *
+     * <p>Disabled ViewPorts are skipped by the {@link RenderManager} when
+     * rendering. By default, all viewports are enabled.
+     *
      * @param enable If the viewport should be disabled or enabled.
      */
     public void setEnabled(boolean enable) {
         this.enabled = enable;
     }
-    
+
     /**
      * Returns true if the viewport is enabled, false otherwise.
+     *
      * @return true if the viewport is enabled, false otherwise.
-     * @see #setEnabled(boolean) 
+     * @see #setEnabled(boolean)
      */
     public boolean isEnabled() {
         return enabled;

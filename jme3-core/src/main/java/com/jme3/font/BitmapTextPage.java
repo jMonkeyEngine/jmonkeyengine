@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ class BitmapTextPage extends Geometry {
     private final byte[] color;
     private final int page;
     private final Texture2D texture;
-    private final LinkedList<LetterQuad> pageQuads = new LinkedList<LetterQuad>();
+    private final LinkedList<LetterQuad> pageQuads = new LinkedList<>();
 
     BitmapTextPage(BitmapFont font, boolean arrayBased, int page) {
         super("BitmapFont", new Mesh());
@@ -93,10 +93,10 @@ class BitmapTextPage extends Geometry {
          * - Skye (sbook)
          */
         if (arrayBased) {
-            pos = new float[4 * 3];  // 4 verticies * 3 floats
-            tc = new float[4 * 2];  // 4 verticies * 2 floats
+            pos = new float[4 * 3];  // 4 vertices * 3 floats
+            tc = new float[4 * 2];  // 4 vertices * 2 floats
             idx = new short[2 * 3];  // 2 triangles * 3 indices
-            color = new byte[4 * 4];   // 4 verticies * 4 bytes
+            color = new byte[4 * 4];   // 4 vertices * 4 bytes
         } else {
             pos = null;
             tc = null;
@@ -128,7 +128,7 @@ class BitmapTextPage extends Geometry {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         
         Mesh originalMesh = this.mesh;
     
@@ -138,7 +138,7 @@ class BitmapTextPage extends Geometry {
         // BitmapText instances will clobber one another.
         // But if we were already deep cloning meshes then we don't
         // want to do it again... so we'll check first.
-        if( this.mesh == originalMesh ) {
+        if (this.mesh == originalMesh) {
             this.mesh = mesh.deepClone();
         }        
     }        
@@ -146,7 +146,7 @@ class BitmapTextPage extends Geometry {
     // Here is where one might add JmeCloneable related stuff except
     // the old clone() method doesn't actually bother to clone anything.
     // The arrays and the pageQuads are shared across all BitmapTextPage
-    // clones and it doesn't seem to bother anything.  That means the
+    // clones, and it doesn't seem to bother anything.  That means the
     // fields could probably just as well be static... but this code is
     // all very fragile.  I'm not tipping that particular boat today. -pspeed
 

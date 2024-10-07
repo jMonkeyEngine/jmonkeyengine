@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -161,6 +161,34 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         this.g = rgba.g;
         this.b = rgba.b;
     }
+    
+    /**
+     * Constructor creates a new <code>ColorRGBA</code> object, based on
+     * a provided Vector4f.
+     *
+     * @param vec4 The <code>Vector4f</code> object that will have its x, y, z, and w
+     * values copied to this color's r, g, b, and a values respectively.
+     */
+    public ColorRGBA(Vector4f vec4) {
+        this.a = vec4.w;
+        this.r = vec4.x;
+        this.g = vec4.y;
+        this.b = vec4.z;
+    }    
+    
+    /**
+     * Constructor creates a new <code>ColorRGBA</code> object, based on
+     * a provided Vector3f, at full opacity with a 1.0 alpha value by default
+     *
+     * @param vec3 The <code>Vector3f</code> object that will have its x, y, and z
+     * values copied to this color's r, g, and b values respectively.
+     */
+    public ColorRGBA(Vector3f vec3) {
+        this.a = 1.0f;
+        this.r = vec3.x;
+        this.g = vec3.y;
+        this.b = vec3.z;
+    }    
 
     /**
      * <code>set</code> sets the RGBA values of this <code>ColorRGBA</code>.
@@ -203,6 +231,52 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         }
         return this;
     }
+    
+    /**
+     * <code>set</code> sets the values of this <code>ColorRGBA</code> to those
+     * set by a parameter Vector4f.
+     *
+     * @param vec4 The 4 component vector that will have its x, y, z, and w values copied to
+     * this <code>ColorRGBA</code>'s r, g, b, and a values respectively.
+     *
+     * @return this
+     */
+    public ColorRGBA set(Vector4f vec4) {
+        if (vec4 == null) {
+            r = 0;
+            g = 0;
+            b = 0;
+            a = 0;
+        } else {
+            r = vec4.x;
+            g = vec4.y;
+            b = vec4.z;
+            a = vec4.w;
+        }
+        return this;
+    }    
+    
+    /**
+     * <code>set</code> sets the values of this <code>ColorRGBA</code> to those
+     * set by a parameter Vector3f.
+     *
+     * @param vec3 The 3 component vector that will have its x, y, and z values copied to
+     * this <code>ColorRGBA</code>'s r, g, and b values respectively.
+     *
+     * @return this
+     */
+    public ColorRGBA set(Vector3f vec3) {
+        if (vec3 == null) {
+            r = 0;
+            g = 0;
+            b = 0;
+        } else {
+            r = vec3.x;
+            g = vec3.y;
+            b = vec3.z;
+        }
+        return this;
+    }       
 
     /**
      * Sets the red color to the specified value.
@@ -317,39 +391,39 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this <code>ColorRGBA</code> to the interpolation by changeAmnt from
+     * Sets this <code>ColorRGBA</code> to the interpolation by changeAmount from
      * this to the finalColor:
-     * this=(1-changeAmnt)*this + changeAmnt * finalColor
+     * this=(1-changeAmount)*this + changeAmount * finalColor
      *
      * @param finalColor The final color to interpolate towards.
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
+     * @param changeAmount An amount between 0.0 - 1.0 representing a percentage
      * change from this towards finalColor.
      * @return this ColorRGBA
      */
-    public ColorRGBA interpolateLocal(ColorRGBA finalColor, float changeAmnt) {
-        this.r = (1 - changeAmnt) * this.r + changeAmnt * finalColor.r;
-        this.g = (1 - changeAmnt) * this.g + changeAmnt * finalColor.g;
-        this.b = (1 - changeAmnt) * this.b + changeAmnt * finalColor.b;
-        this.a = (1 - changeAmnt) * this.a + changeAmnt * finalColor.a;
+    public ColorRGBA interpolateLocal(ColorRGBA finalColor, float changeAmount) {
+        this.r = (1 - changeAmount) * this.r + changeAmount * finalColor.r;
+        this.g = (1 - changeAmount) * this.g + changeAmount * finalColor.g;
+        this.b = (1 - changeAmount) * this.b + changeAmount * finalColor.b;
+        this.a = (1 - changeAmount) * this.a + changeAmount * finalColor.a;
         return this;
     }
 
     /**
-     * Sets this <code>ColorRGBA</code> to the interpolation by changeAmnt from
+     * Sets this <code>ColorRGBA</code> to the interpolation by changeAmount from
      * beginColor to finalColor:
-     * this=(1-changeAmnt)*beginColor + changeAmnt * finalColor
+     * this=(1-changeAmount)*beginColor + changeAmount * finalColor
      *
-     * @param beginColor The beginning color (changeAmnt=0).
-     * @param finalColor The final color to interpolate towards (changeAmnt=1).
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
+     * @param beginColor The beginning color (changeAmount=0).
+     * @param finalColor The final color to interpolate towards (changeAmount=1).
+     * @param changeAmount An amount between 0.0 - 1.0 representing a percentage
      *  change from beginColor towards finalColor.
      * @return this ColorRGBA
      */
-    public ColorRGBA interpolateLocal(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmnt) {
-        this.r = (1 - changeAmnt) * beginColor.r + changeAmnt * finalColor.r;
-        this.g = (1 - changeAmnt) * beginColor.g + changeAmnt * finalColor.g;
-        this.b = (1 - changeAmnt) * beginColor.b + changeAmnt * finalColor.b;
-        this.a = (1 - changeAmnt) * beginColor.a + changeAmnt * finalColor.a;
+    public ColorRGBA interpolateLocal(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmount) {
+        this.r = (1 - changeAmount) * beginColor.r + changeAmount * finalColor.r;
+        this.g = (1 - changeAmount) * beginColor.g + changeAmount * finalColor.g;
+        this.b = (1 - changeAmount) * beginColor.b + changeAmount * finalColor.b;
+        this.a = (1 - changeAmount) * beginColor.a + changeAmount * finalColor.a;
         return this;
     }
 
@@ -420,8 +494,8 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Adds each r,g,b,a of this <code>ColorRGBA</code> by the r,g,b,a the given
-     * color and returns the result (this).
+     * Adds each component to the corresponding component of the argument
+     * and returns the result (this).
      * Used as a way of combining colors and lights.
      *
      * @param c The color to add.
@@ -547,12 +621,12 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * De-serialize this color from the specified importer, for example when
      * loading from a J3O file.
      *
-     * @param e (not null)
+     * @param importer (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter e) throws IOException {
-        InputCapsule capsule = e.getCapsule(this);
+    public void read(JmeImporter importer) throws IOException {
+        InputCapsule capsule = importer.getCapsule(this);
         r = capsule.readFloat("r", 0);
         g = capsule.readFloat("g", 0);
         b = capsule.readFloat("b", 0);
@@ -744,10 +818,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      */
     public ColorRGBA getAsSrgb() {
         ColorRGBA srgb = new ColorRGBA();
-        float invGama = 1f / GAMMA;
-        srgb.r = (float) Math.pow(r, invGama);
-        srgb.g = (float) Math.pow(g, invGama);
-        srgb.b = (float) Math.pow(b, invGama);
+        float invGamma = 1f / GAMMA;
+        srgb.r = (float) Math.pow(r, invGamma);
+        srgb.g = (float) Math.pow(g, invGamma);
+        srgb.b = (float) Math.pow(b, invGamma);
         srgb.a = a;
         return srgb;
     }

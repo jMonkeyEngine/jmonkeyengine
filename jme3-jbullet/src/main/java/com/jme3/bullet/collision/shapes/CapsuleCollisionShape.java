@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,9 +68,11 @@ public class CapsuleCollisionShape extends CollisionShape{
 
     /**
      * Creates a capsule shape around the given axis (0=X,1=Y,2=Z).
-     * @param radius
-     * @param height
-     * @param axis
+     *
+     * @param radius the desired unscaled radius
+     * @param height the desired unscaled height of the cylindrical portion
+     * @param axis which local axis for the height: 0&rarr;X, 1&rarr;Y,
+     * 2&rarr;Z
      */
     public CapsuleCollisionShape(float radius, float height, int axis) {
         this.radius=radius;

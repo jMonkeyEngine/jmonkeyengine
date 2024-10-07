@@ -51,8 +51,8 @@ public final class LwjglGLExt implements GLExt {
     }
 
     @Override
-    public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount) {
-        ARBDrawInstanced.glDrawElementsInstancedARB(mode, indices_count, type, indices_buffer_offset, primcount);
+    public void glDrawElementsInstancedARB(int mode, int indicesCount, int type, long indicesBufferOffset, int primcount) {
+        ARBDrawInstanced.glDrawElementsInstancedARB(mode, indicesCount, type, indicesBufferOffset, primcount);
     }
 
     @Override
@@ -62,8 +62,8 @@ public final class LwjglGLExt implements GLExt {
     }
 
     @Override
-    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations) {
-        ARBTextureMultisample.glTexImage2DMultisample(target, samples, internalformat, width, height, fixedsamplelocations);
+    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedSampleLocations) {
+        ARBTextureMultisample.glTexImage2DMultisample(target, samples, internalformat, width, height, fixedSampleLocations);
     }
 
     @Override

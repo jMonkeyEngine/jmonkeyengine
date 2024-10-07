@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -136,7 +136,7 @@ public class ImageToAwt {
         final int m__xx  = 0x0000ffff;
         final int s__xx  = 0;
 
-        // note: compressed, depth, or floating point formats not included here..
+        // Note: compressed, depth, and floating-point formats are not included here.
         
         params.put(Format.ABGR8,    new DecodeParams(4, mx___, m___x, m__x_, m_x__,
                                                         sx___, s___x, s__x_, s_x__,
@@ -177,6 +177,12 @@ public class ImageToAwt {
         
     }
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private ImageToAwt() {
+    }
+
     private static int Ix(int x, int y, int w){
         return y * w + x;
     }
@@ -200,11 +206,14 @@ public class ImageToAwt {
         }
     }
 
-
     /**
-     * Convert an AWT image to jME image.
+     * Convert an AWT image to jME image. XXX not implemented yet!
+     *
+     * @param image the input image (not null, unaffected)
+     * @param format the data format
+     * @param buf the output buffer (not null, modified)
      */
-    public static void convert(BufferedImage image, Format format, ByteBuffer buf){
+    public static void convert(BufferedImage image, Format format, ByteBuffer buf) {
         DecodeParams p = params.get(format);
         if (p == null)
             throw new UnsupportedOperationException("Image format " + format + " is not supported");
@@ -297,8 +306,8 @@ public class ImageToAwt {
      * It is assumed that both images have buffers with the appropriate
      * number of elements and that both have the same dimensions.
      *
-     * @param input
-     * @param output
+     * @param input the input image (not null, unaffected)
+     * @param output the output image (not null, modified)
      */
     public static void convert(Image input, Image output){
         DecodeParams inParams  = params.get(input.getFormat());
@@ -366,7 +375,7 @@ public class ImageToAwt {
         }
     }
 
-    public static BufferedImage convert(Image image, boolean do16bit, boolean fullalpha, int mipLevel){
+    public static BufferedImage convert(Image image, boolean do16bit, boolean fullAlpha, int mipLevel){
         Format format = image.getFormat();
         DecodeParams p = params.get(image.getFormat());
         if (p == null)
@@ -402,7 +411,7 @@ public class ImageToAwt {
             out = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
         }else if ( (rgb && alpha) || (luminance && alpha) ){
             if (do16bit){
-                if (fullalpha){
+                if (fullAlpha){
                     ColorModel model = AWTLoader.AWT_RGBA4444;
                     WritableRaster raster = model.createCompatibleWritableRaster(width, width);
                     out = new BufferedImage(model, raster, false, null);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,12 @@ import static com.jme3.input.KeyInput.*;
 public class GlfwKeyMap {
 
     private static final int[] GLFW_TO_JME_KEY_MAP = new int[GLFW_KEY_LAST + 1];
+
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private GlfwKeyMap() {
+    }
 
     private static void reg(final int jmeKey, final int glfwKey) {
         GLFW_TO_JME_KEY_MAP[glfwKey] = jmeKey;
@@ -165,7 +171,26 @@ public class GlfwKeyMap {
         reg(KEY_RMETA, GLFW_KEY_RIGHT_SUPER);
     }
 
+    /**
+     * Returns the jme keycode that matches the specified glfw keycode
+     * @param glfwKey the glfw keycode
+     */
     public static int toJmeKeyCode(final int glfwKey) {
         return GLFW_TO_JME_KEY_MAP[glfwKey];
     }
+
+
+    /**
+     * Returns the glfw keycode that matches the specified jme keycode or
+     * GLFW_KEY_UNKNOWN if there isn't any match.
+     * 
+     * @param jmeKey the jme keycode
+     */
+    public static int fromJmeKeyCode(final int jmeKey) {
+        for (int i = 0; i < GLFW_TO_JME_KEY_MAP.length; i++) {
+            if (GLFW_TO_JME_KEY_MAP[i] == jmeKey) return i;
+        }
+        return GLFW_KEY_UNKNOWN;
+    }
+    
 }

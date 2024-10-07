@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
     /**
      * Set the title if it's a windowed display
-     * @param title
+     * @param title the desired title
      */
     @Override
     public abstract void setTitle(String title);
@@ -81,7 +81,8 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
     /**
      * Apply the settings, changing resolution, etc.
-     * @param settings
+     * @param settings the AppSettings to apply
+     * @throws LWJGLException for various error conditions
      */
     protected abstract void createContext(AppSettings settings) throws LWJGLException;
 
@@ -92,6 +93,8 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
     /**
      * Does LWJGL display initialization in the OpenGL thread
+     * 
+     * @return true if successful, otherwise false
      */
     protected boolean initInThread() {
         try {
@@ -110,7 +113,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
                 });
             }
 
-            // For canvas, this will create a pbuffer,
+            // For canvas, this will create a Pbuffer,
             // allowing us to query information.
             // When the canvas context becomes available, it will
             // be replaced seamlessly.
@@ -129,7 +132,10 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             }
 
             listener.handleError("Failed to create display", ex);
-            createdLock.notifyAll(); // Release the lock, so start(true) doesn't deadlock.
+            synchronized (createdLock) {
+                createdLock.notifyAll(); // Release the lock, so start(true) doesn't deadlock.
+            }
+
             return false; // if we failed to create display, do not continue
         }
 
@@ -156,9 +162,9 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
         listener.update();
         
-        // All this does is call swap buffers
+        // All this does is call update().
         // If the canvas is not active, there's no need to waste time
-        // doing that ..
+        // doing that.
         if (renderable.get()){
             assert checkGLError();
 
@@ -190,8 +196,8 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             Display.processMessages();
         }
         
-        // Subclasses just call GLObjectManager clean up objects here
-        // it is safe .. for now.
+        // Subclasses just call GLObjectManager. Clean up objects here.
+        // It is safe ... for now.
         renderer.postFrame();
     }
 

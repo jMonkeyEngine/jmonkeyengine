@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ package com.jme3.shader.plugins;
 
 import com.jme3.asset.*;
 import com.jme3.asset.cache.AssetCache;
-
+import jme3tools.shader.Preprocessor;
 import java.io.*;
 import java.util.*;
 
@@ -43,7 +43,7 @@ import java.util.*;
 public class GLSLLoader implements AssetLoader {
 
     private AssetManager assetManager;
-    private Map<String, ShaderDependencyNode> dependCache = new HashMap<>();
+    private final Map<String, ShaderDependencyNode> dependCache = new HashMap<>();
 
     /**
      * Used to load {@link ShaderDependencyNode}s.
@@ -85,8 +85,9 @@ public class GLSLLoader implements AssetLoader {
             }
 
             while ((ln = bufferedReader.readLine()) != null) {
-                if (ln.trim().startsWith("#import ")) {
-                    ln = ln.trim().substring(8).trim();
+                String tln = ln.trim();
+                if (tln.startsWith("#import ")) {
+                    ln = tln.substring(8).trim();
                     if (ln.startsWith("\"") && ln.endsWith("\"") && ln.length() > 3) {
                         // import user code
                         // remove quotes to get filename
@@ -105,7 +106,7 @@ public class GLSLLoader implements AssetLoader {
 
                         node.addDependency(sb.length(), dependNode);
                     }
-                } else if (ln.trim().startsWith("#extension ")) {
+                } else if (tln.startsWith("#extension ")) {
                     sbExt.append(ln).append('\n');
                 } else {
                     sb.append(ln).append('\n');
@@ -122,27 +123,6 @@ public class GLSLLoader implements AssetLoader {
         node.setExtensions(sbExt.toString());
         dependCache.put(nodeName, node);
         return node;
-    }
-
-    private ShaderDependencyNode nextIndependentNode() throws IOException {
-        Collection<ShaderDependencyNode> allNodes = dependCache.values();
-
-        if (allNodes.isEmpty()) {
-            return null;
-        }
-
-        for (ShaderDependencyNode node : allNodes) {
-            if (node.getDependOnMe().isEmpty()) {
-                return node;
-            }
-        }
-
-        // Circular dependency found..
-        for (ShaderDependencyNode node : allNodes){
-            System.out.println(node.getName());
-        }
-
-        throw new IOException("Circular dependency.");
     }
 
     private String resolveDependencies(ShaderDependencyNode node, Set<ShaderDependencyNode> alreadyInjectedSet, StringBuilder extensions, boolean injectDependencies) {
@@ -167,7 +147,7 @@ public class GLSLLoader implements AssetLoader {
 
                 List<Integer> injectIndices = node.getDependencyInjectIndices();
                 for (int i = resolvedShaderNodes.size() - 1; i >= 0; i--) {
-                    // Must insert them backwards ..
+                    // Must insert them backward
                     sb.insert(injectIndices.get(i), resolvedShaderNodes.get(i));
                 }
                 return sb.toString();
@@ -186,7 +166,9 @@ public class GLSLLoader implements AssetLoader {
         // The input stream provided is for the vertex shader,
         // to retrieve the fragment shader, use the content manager
         this.assetManager = info.getManager();
-        Reader reader = new InputStreamReader(info.openStream());
+        InputStream in = info.openStream();
+        in = Preprocessor.apply(in);
+        Reader reader = new InputStreamReader(in);
         boolean injectDependencies = true;
         if (info.getKey() instanceof ShaderAssetKey) {
             injectDependencies = ((ShaderAssetKey) info.getKey()).isInjectDependencies();

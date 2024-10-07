@@ -70,9 +70,9 @@ public class TestInstancedNodeAttachDetachWithPicking extends SimpleApplication 
 
     private InstancedNode instancedNode;
 
-    private Vector3f[] locations = new Vector3f[10];
-    private Geometry[] spheres = new Geometry[10];
-    private Geometry[] boxes = new Geometry[10];
+    final private Vector3f[] locations = new Vector3f[10];
+    final private Geometry[] spheres = new Geometry[10];
+    final private Geometry[] boxes = new Geometry[10];
 
     @Override
     public void simpleInitApp() {
@@ -176,7 +176,7 @@ public class TestInstancedNodeAttachDetachWithPicking extends SimpleApplication 
     }
 
     private void addCrossHairs() {
-        BitmapText ch = new BitmapText(guiFont, false);
+        BitmapText ch = new BitmapText(guiFont);
         ch.setSize(guiFont.getCharSet().getRenderedSize()+4);
         ch.setText("+"); // crosshairs
         ch.setColor(ColorRGBA.White);

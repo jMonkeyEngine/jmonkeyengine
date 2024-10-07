@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * the indentation characters 1à tabulation characters
      */
-    private final static String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+    private static final String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 
     protected ShaderNodeVariable inPosTmp;
 
@@ -192,7 +192,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * Appends an output assignment to a shader globalOutputName =
      * nameSpace_varName;
      *
-     * @param source the source StringBuilter to append the code.
+     * @param source the source StringBuilder to append the code.
      * @param globalOutputName the name of the global output (can be gl_Position
      * or gl_FragColor etc...).
      * @param var the variable to assign to the output.
@@ -210,7 +210,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * {@inheritDoc}
      *
-     * this methods does things in this order : 
+     * This method does things in the following order:
      * 
      * 1. declaring and mapping input<br>
      * variables : variable replaced with MatParams or WorldParams that are Samplers are not
@@ -230,7 +230,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * 
      *
      *<br>
-     * All of this is embed in a #if conditional statement if needed
+     * All of this is embedded in a #if conditional statement if necessary.
      */
     @Override
     protected void generateNodeMainSection(StringBuilder source, ShaderNode shaderNode, String nodeSource, ShaderGenerationInfo info) {
@@ -242,7 +242,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
 
         final List<String> declaredInputs = new ArrayList<>();
 
-        // Decalring variables with default values first
+        // Declaring variables with default values first
         final ShaderNodeDefinition definition = shaderNode.getDefinition();
 
         for (final ShaderNodeVariable var : definition.getInputs()) {
@@ -422,6 +422,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      *
      * @param mapping the VariableMapping to append
      * @param source  the StringBuilder to use
+     * @param declare true to declare the variable, false if already declared
      */
     protected void map(VariableMapping mapping, StringBuilder source, boolean declare) {
 
@@ -605,7 +606,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
 
     /**
      * appends indentation.
-     * @param source 
+     * @param source the builder to append to
      */
     protected void appendIndent(StringBuilder source) {
         source.append(INDENTCHAR.substring(0, indent));
@@ -624,9 +625,9 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * Declares a varying
      * @param source the StringBuilder to use
      * @param var the variable to declare as a varying
-     * @param input a boolean set to true if the this varying is an input.
-     * this in not used in this implementation but can be used in overriding 
-     * implementation
+     * @param input a boolean set to true if the varying is an input.
+     * This in not used in this implementation, but can be used in overriding
+     * implementations.
      */
     protected void declareVarying(StringBuilder source, ShaderNodeVariable var, boolean input) {
         declareVariable(source, var, true, "varying");

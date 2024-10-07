@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,11 +39,12 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.Limits;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.Statistics;
+import com.jme3.renderer.TextureUnitException;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
-import com.jme3.shader.BufferObject;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
+import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
@@ -166,7 +167,8 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void setTexture(int unit, Texture tex) {
+    public void setTexture(int unit, Texture tex) throws TextureUnitException {
+        // do nothing
     }
 
     @Override
@@ -177,9 +179,6 @@ public class NullRenderer implements Renderer {
     public void updateBufferData(VertexBuffer vb) {
     }
 
-    @Override
-    public void updateBufferData(BufferObject bo) {
-    }
     @Override
     public void deleteBuffer(VertexBuffer vb) {
     }
@@ -250,6 +249,16 @@ public class NullRenderer implements Renderer {
     public void setDefaultAnisotropicFilter(int level) {
     }
 
+    /**
+     * Determine the maximum allowed width for lines.
+     *
+     * @return the maximum width (in pixels)
+     */
+    @Override
+    public float getMaxLineWidth() {
+        return Float.MAX_VALUE;
+    }
+
     @Override
     public boolean getAlphaToCoverage() {
         return false;
@@ -258,5 +267,51 @@ public class NullRenderer implements Renderer {
     @Override
     public int getDefaultAnisotropicFilter() {
         return 0;
+    }
+
+    /**
+     * Test whether images with the sRGB flag will be linearized when read by a
+     * shader.
+     *
+     * @return true for linearization, false for no linearization
+     */
+    @Override
+    public boolean isLinearizeSrgbImages() {
+        return false;
+    }
+
+    /**
+     * Test whether colors rendered to the main framebuffer undergo
+     * linear-to-sRGB conversion.
+     *
+     * @return true for conversion, false for no conversion
+     */
+    @Override
+    public boolean isMainFrameBufferSrgb() {
+        return false;
+    }
+
+    @Override
+    public FrameBuffer getCurrentFrameBuffer() {
+        return null;
+    }
+    
+    public void updateShaderStorageBufferObjectData(BufferObject bo) {
+
+    }
+
+    @Override
+    public void updateUniformBufferObjectData(BufferObject bo) {
+
+    }
+
+    @Override
+    public void setShaderStorageBufferObject(int bindingPoint, BufferObject bufferObject) {
+
+    }
+
+    @Override
+    public void setUniformBufferObject(int bindingPoint, BufferObject bufferObject) {
+
     }
 }

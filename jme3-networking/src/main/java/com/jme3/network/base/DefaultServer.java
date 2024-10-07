@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ import java.util.logging.Logger;
  */
 public class DefaultServer implements Server
 {
-    static final Logger log = Logger.getLogger(DefaultServer.class.getName());
+    private static final Logger log = Logger.getLogger(DefaultServer.class.getName());
 
     // First two channels are reserved for reliable and
     // unreliable
@@ -73,20 +73,20 @@ public class DefaultServer implements Server
     private final KernelFactory kernelFactory = KernelFactory.DEFAULT;
     private KernelAdapter reliableAdapter;
     private KernelAdapter fastAdapter;
-    private final List<KernelAdapter> channels = new ArrayList<KernelAdapter>();
-    private final List<Integer> alternatePorts = new ArrayList<Integer>();
+    private final List<KernelAdapter> channels = new ArrayList<>();
+    private final List<Integer> alternatePorts = new ArrayList<>();
     private final Redispatch dispatcher = new Redispatch();
-    private final Map<Integer,HostedConnection> connections = new ConcurrentHashMap<Integer,HostedConnection>();
+    private final Map<Integer,HostedConnection> connections = new ConcurrentHashMap<>();
     private final Map<Endpoint,HostedConnection> endpointConnections 
-                            = new ConcurrentHashMap<Endpoint,HostedConnection>();
+                            = new ConcurrentHashMap<>();
     
     // Keeps track of clients for whom we've only received the UDP
     // registration message
-    private final Map<Long,Connection> connecting = new ConcurrentHashMap<Long,Connection>();
+    private final Map<Long,Connection> connecting = new ConcurrentHashMap<>();
     
     private final MessageListenerRegistry<HostedConnection> messageListeners 
-                            = new MessageListenerRegistry<HostedConnection>();                        
-    private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<ConnectionListener>();
+                            = new MessageListenerRegistry<>();                        
+    private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
     
     private HostedServiceManager services;
     private MessageProtocol protocol = new SerializerMessageProtocol();
@@ -94,7 +94,7 @@ public class DefaultServer implements Server
     public DefaultServer( String gameName, int version, Kernel reliable, Kernel fast )
     {
         if( reliable == null )
-            throw new IllegalArgumentException( "Default server reqiures a reliable kernel instance." );
+            throw new IllegalArgumentException( "Default server requires a reliable kernel instance." );
             
         this.gameName = gameName;
         this.version = version;
@@ -139,7 +139,7 @@ public class DefaultServer implements Server
             throw new IllegalStateException( "Channels cannot be added once server is started." );
  
         // Note: it does bug me that channels aren't 100% universal and
-        // setup externally but it requires a more invasive set of changes
+        // set up externally, but it requires a more invasive set of changes
         // for "connection types" and some kind of registry of kernel and
         // connector factories.  This really would be the best approach and
         // would allow all kinds of channel customization maybe... but for
@@ -210,14 +210,14 @@ public class DefaultServer implements Server
         services.stop();
  
         try {
-            // Kill the adpaters, they will kill the kernels
+            // Kill the adapters, they will kill the kernels
             for( KernelAdapter ka : channels ) {
                 ka.close();
             }
             
             isRunning = false;
             
-            // Now terminate all of the services
+            // Now terminate all of the services.
             services.terminate();             
         } catch( InterruptedException e ) {
             throw new RuntimeException( "Interrupted while closing", e );
@@ -368,8 +368,8 @@ public class DefaultServer implements Server
     {
         Connection addedConnection = null;
 
-        // generally this will only be called by one thread but it's        
-        // important enough I won't take chances
+        // Generally this will only be called by one thread, but it's
+        // so important that I won't take chances.
         synchronized( this ) {       
             // Grab the random ID that the client created when creating
             // its two registration messages
@@ -389,8 +389,8 @@ public class DefaultServer implements Server
             c.setChannel(channel, p);            
             log.log( Level.FINE, "Setting up channel:{0}", channel );
  
-            // If it's channel 0 then this is the initial connection
-            // and we will send the connection information
+            // If it's channel 0, then this is the initial connection,
+            // and we will send the connection information.
             if( channel == CH_RELIABLE ) {
                 // Validate the name and version which is only sent
                 // over the reliable connection at this point.
@@ -426,8 +426,8 @@ public class DefaultServer implements Server
                     addedConnection = c;               
                 }
             } else {
-                // Need to keep getting channels so we'll keep it in
-                // the map
+                // Need to keep getting channels, so we'll keep it in
+                // the map.
                 connecting.put(tempId, c);
             } 
         }
@@ -523,7 +523,7 @@ public class DefaultServer implements Server
         private Endpoint[] channels;
         private int setChannelCount = 0; 
        
-        private final Map<String,Object> sessionData = new ConcurrentHashMap<String,Object>();       
+        private final Map<String,Object> sessionData = new ConcurrentHashMap<>();       
         
         public Connection( int channelCount )
         {
@@ -629,12 +629,12 @@ public class DefaultServer implements Server
             send( m );
             
             // Just close the reliable endpoint
-            // fast will be cleaned up as a side-effect
+            // fast.  Will be cleaned up as a side effect
             // when closeConnection() is called by the
             // connectionClosed() endpoint callback.
             if( channels[CH_RELIABLE] != null ) {
-                // Close with flush so we make sure our
-                // message gets out
+                // Close with flush to ensure our
+                // message gets out.
                 channels[CH_RELIABLE].close(true);
             }
         }

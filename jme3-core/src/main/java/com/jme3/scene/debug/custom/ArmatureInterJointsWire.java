@@ -1,7 +1,7 @@
 package com.jme3.scene.debug.custom;
 
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,17 +41,23 @@ import com.jme3.scene.VertexBuffer.Type;
 import java.nio.FloatBuffer;
 
 /**
- * A class that displays a dotted line between a bone tail and its childrens' heads.
+ * A class that displays a dotted line between a bone tail and its children's heads.
  *
  * @author Marcin Roguski (Kaelthas)
  */
 public class ArmatureInterJointsWire extends Mesh {
-    private Vector3f tmp = new Vector3f();
+    private final Vector3f tmp = new Vector3f();
 
 
     public ArmatureInterJointsWire(Vector3f start, Vector3f[] ends) {
         setMode(Mode.Lines);
         updateGeometry(start, ends);
+    }
+
+    /**
+     * For serialization only. Do not use.
+     */
+    protected ArmatureInterJointsWire() {
     }
 
     protected void updateGeometry(Vector3f start, Vector3f[] ends) {
@@ -97,6 +103,9 @@ public class ArmatureInterJointsWire extends Mesh {
 
     /**
      * Update the start and end points of the line.
+     * 
+     * @param start location vector (not null, unaffected)
+     * @param ends array of location vectors (not null, unaffected)
      */
     public void updatePoints(Vector3f start, Vector3f[] ends) {
         VertexBuffer posBuf = getBuffer(Type.Position);

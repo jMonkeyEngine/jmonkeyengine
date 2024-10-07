@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ public class ClientServiceManager extends ServiceManager<ClientServiceManager> {
 
     /**
      *  Returns 'this' and is what is passed to ClientService.initialize()
-     *  and ClientService.termnate();
+     *  and ClientService.terminate();
      */
     @Override
     protected final ClientServiceManager getParent() {
@@ -76,7 +76,7 @@ public class ClientServiceManager extends ServiceManager<ClientServiceManager> {
     }
 
     /**
-     *  Adds all of the specified ClientServices and initializes them.  If the service manager
+     *  Adds the specified services and initializes them.  If the service manager
      *  has already been started then the services will also be started.
      *  This is a convenience method that delegates to addService(), thus each
      *  service will be initialized (and possibly started) in sequence rather

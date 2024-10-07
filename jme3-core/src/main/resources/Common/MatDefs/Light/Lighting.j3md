@@ -1,6 +1,7 @@
 MaterialDef Phong Lighting {
 
     MaterialParameters {
+        Int BoundDrawBuffer
 
         // Compute vertex lighting in the shader
         // For better performance
@@ -65,6 +66,9 @@ MaterialDef Phong Lighting {
 
         // The glow color of the object
         Color GlowColor
+
+        //The type of normal map: -1.0 (DirectX = default), 1.0 (OpenGl)
+        Float NormalType
 
         // Parameters for fresnel
         // X = bias
@@ -133,8 +137,8 @@ MaterialDef Phong Lighting {
     Technique {
         LightMode SinglePass
 
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/SPLighting.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/SPLighting.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Light/SPLighting.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100: Common/MatDefs/Light/SPLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -146,7 +150,8 @@ MaterialDef Phong Lighting {
             ViewProjectionMatrix            
         }
 
-        Defines {           
+        Defines {  
+            BOUND_DRAW_BUFFER: BoundDrawBuffer         
             VERTEX_COLOR : UseVertexColor
             VERTEX_LIGHTING : VertexLighting           
             MATERIAL_COLORS : UseMaterialColors         
@@ -167,6 +172,7 @@ MaterialDef Phong Lighting {
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+            NORMAL_TYPE: NormalType
 
             // fog - jayfella
             USE_FOG : UseFog
@@ -180,8 +186,8 @@ MaterialDef Phong Lighting {
 
         LightMode MultiPass
 
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Light/Lighting.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/Lighting.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Light/Lighting.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100: Common/MatDefs/Light/Lighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -194,6 +200,7 @@ MaterialDef Phong Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             VERTEX_COLOR : UseVertexColor
             VERTEX_LIGHTING : VertexLighting            
             MATERIAL_COLORS : UseMaterialColors
@@ -214,6 +221,7 @@ MaterialDef Phong Lighting {
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+            NORMAL_TYPE: NormalType
 
             // fog - jayfella
             USE_FOG : UseFog
@@ -225,8 +233,8 @@ MaterialDef Phong Lighting {
 
     Technique PreShadow {
 
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -236,6 +244,7 @@ MaterialDef Phong Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
@@ -255,8 +264,8 @@ MaterialDef Phong Lighting {
 
 
     Technique PostShadow {
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -267,6 +276,7 @@ MaterialDef Phong Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
@@ -292,8 +302,8 @@ MaterialDef Phong Lighting {
 
   Technique PreNormalPass {
 
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150 :   Common/MatDefs/SSAO/normal.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150 : Common/MatDefs/SSAO/normal.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100: Common/MatDefs/SSAO/normal.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -304,6 +314,7 @@ MaterialDef Phong Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             DIFFUSEMAP_ALPHA : DiffuseMap
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
@@ -315,8 +326,8 @@ MaterialDef Phong Lighting {
 
     Technique Glow {
 
-        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100: Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -325,6 +336,7 @@ MaterialDef Phong Lighting {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             NEED_TEXCOORD1
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor

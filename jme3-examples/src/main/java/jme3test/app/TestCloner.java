@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 jMonkeyEngine
+ * Copyright (c) 2016-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -197,7 +197,7 @@ public class TestCloner {
     
     public static class GraphNode implements Cloneable, JmeCloneable {
  
-        private String name;       
+        final private String name;       
         private List<GraphNode> links = new ArrayList<>();
         
         public GraphNode( String name ) {
@@ -262,9 +262,9 @@ public class TestCloner {
     
         private int[] intArray;
         private int[][] intArray2D;
-        private Object[] objects;
+        final private Object[] objects;
         private RegularObject[] regularObjects;
-        private String[] strings;
+        final private String[] strings;
  
         public ArrayHolder( int... values ) {
             this.intArray = values;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import java.io.IOException;
  *
  * @author Rickard (neph1 @ github)
  */
-public class CameraEvent extends AbstractCinematicEvent{
+public class CameraEvent extends AbstractCinematicEvent {
 
     private String cameraName;
     private Cinematic cinematic;
@@ -56,27 +56,26 @@ public class CameraEvent extends AbstractCinematicEvent{
         this.cameraName = cameraName;
     }
 
-    public CameraEvent(){
-        
+    public CameraEvent() {
     }
-    
-    public CameraEvent(Cinematic parentEvent, String cameraName){
+
+    public CameraEvent(Cinematic parentEvent, String cameraName) {
         this.cinematic = parentEvent;
         this.cameraName = cameraName;
     }
-    
-     @Override
+
+    @Override
     public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
         this.cinematic = cinematic;
     }
-    
+
     @Override
     public void play() {
         super.play();
         stop();
     }
-    
+
     @Override
     public void onPlay() {
         cinematic.setActiveCamera(cameraName);
@@ -110,14 +109,12 @@ public class CameraEvent extends AbstractCinematicEvent{
     public void setCinematic(Cinematic cinematic) {
         this.cinematic = cinematic;
     }
-    
-    
-    
+
     /**
      * used internally for serialization
      *
-     * @param ex
-     * @throws IOException
+     * @param ex the exporter (not null)
+     * @throws IOException from the exporter
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -130,8 +127,8 @@ public class CameraEvent extends AbstractCinematicEvent{
     /**
      * used internally for serialization
      *
-     * @param im
-     * @throws IOException
+     * @param im the importer (not null)
+     * @throws IOException from the importer
      */
     @Override
     public void read(JmeImporter im) throws IOException {

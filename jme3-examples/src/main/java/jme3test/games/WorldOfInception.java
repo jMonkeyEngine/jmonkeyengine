@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -142,7 +142,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
 
     private void setupDisplay() {
         if (fpsText == null) {
-            fpsText = new BitmapText(guiFont, false);
+            fpsText = new BitmapText(guiFont);
         }
         fpsText.setLocalScale(0.7f, 0.7f, 0.7f);
         fpsText.setLocalTranslation(0, fpsText.getLineHeight(), 0);
@@ -236,7 +236,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
                     return;
                 }
                 //give to parent
-                logger.log(Level.INFO, "give to parent");;
+                logger.log(Level.INFO, "give to parent");
                 parent.takeOverChild(inParentPosition.add(playerPos.normalize()));
                 application.getStateManager().attach(parent);
                 currentReturnLevel = parent;
@@ -244,7 +244,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
             }
 
             AppStateManager stateManager = application.getStateManager();
-            // We create child positions based on the parent position hash so we
+            // We create child positions based on the parent position hash, so we
             // should in practice get the same galaxy w/o too many doubles
             // with each run with the same root vector.
             Vector3f[] vectors = getPositions(poiCount, inParentPosition.hashCode());
@@ -276,7 +276,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
                     currentReturnLevel = this;
                     return;
                 } else if (currentActiveChild != null && currentActiveChild.getPositionInParent().equals(vector3f)) {
-                    //TODO: doing this here causes problems when close to multiple pois
+                    //TODO: doing this here causes problems when close to multiple POIs
                     rootNode.getChild(i).setCullHint(Spatial.CullHint.Inherit);
                 }
             }
@@ -484,15 +484,15 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
 
         public String getCoordinates() {
             InceptionLevel cur = this;
-            StringBuilder strb = new StringBuilder();
-            strb.insert(0, this.getPlayerPosition());
-            strb.insert(0, this.getPositionInParent() + " / ");
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.insert(0, this.getPlayerPosition());
+            stringBuilder.insert(0, this.getPositionInParent() + " / ");
             cur = cur.getParent();
             while (cur != null) {
-                strb.insert(0, cur.getPositionInParent() + " / ");
+                stringBuilder.insert(0, cur.getPositionInParent() + " / ");
                 cur = cur.getParent();
             }
-            return strb.toString();
+            return stringBuilder.toString();
         }
     }
 
@@ -515,7 +515,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
      * @param max
      * @return the mapped value
      */
-    public static float mapValue(float x, float min, float max) {
+    private static float mapValue(float x, float min, float max) {
         return mapValue(x, 0, 1, min, max);
     }
 
@@ -529,7 +529,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
      * @param max
      * @return the mapped value
      */
-    public static float mapValue(float x, float inputMin, float inputMax, float min, float max) {
+    private static float mapValue(float x, float inputMin, float inputMax, float min, float max) {
         return (x - inputMin) * (max - min) / (inputMax - inputMin) + min;
     }
 }

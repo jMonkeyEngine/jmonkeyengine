@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ConfigurationInfo;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.text.InputType;
 import android.view.Gravity;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
@@ -54,8 +57,9 @@ import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.*;
 import com.jme3.system.*;
-import com.jme3.util.AndroidBufferAllocator;
 import com.jme3.util.BufferAllocatorFactory;
+import com.jme3.util.PrimitiveAllocator;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,7 +86,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
 
         if (System.getProperty(implementation) == null) {
-            System.setProperty(implementation, AndroidBufferAllocator.class.getName());
+            System.setProperty(implementation, PrimitiveAllocator.class.getName());
         }
     }
 
@@ -101,6 +105,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      * GLSurfaceView. Only one GLSurfaceView can be created at this time. The
      * given configType specifies how to determine the display configuration.
      *
+     * @param context (not null)
      * @return GLSurfaceView The newly created view
      */
     public GLSurfaceView createView(Context context) {
@@ -256,6 +261,16 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         }
     }
 
+    /**
+     * Accesses the listener that receives events related to this context.
+     *
+     * @return the pre-existing instance
+     */
+    @Override
+    public SystemListener getSystemListener() {
+        return listener;
+    }
+
     @Override
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
@@ -313,11 +328,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     // SystemListener:reshape
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        logger.log(Level.FINE, "GL Surface changed, width: {0} height: {1}", new Object[]{width, height});
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "GL Surface changed, width: {0} height: {1}", new Object[]{width, height});
+        }
         // update the application settings with the new resolution
         settings.setResolution(width, height);
-        // reload settings in androidInput so the correct touch event scaling can be
-        // calculated in case the surface resolution is different than the view
+        // Reload settings in androidInput so the correct touch event scaling can be
+        // calculated in case the surface resolution is different than the view.
         androidInput.loadSettings(settings);
         // if the application has already been initialized (ie renderable is set)
         // then call reshape so the app can adjust to the new resolution.
@@ -411,8 +428,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
     @Override
     public void requestDialog(final int id, final String title, final String initialValue, final SoftTextDialogInputListener listener) {
-        logger.log(Level.FINE, "requestDialog: title: {0}, initialValue: {1}",
-                new Object[]{title, initialValue});
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "requestDialog: title: {0}, initialValue: {1}",
+                    new Object[]{title, initialValue});
+        }
 
         final View view = JmeAndroidSystem.getView();
         view.getHandler().post(new Runnable() {
@@ -478,5 +497,62 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     public com.jme3.opencl.Context getOpenCLContext() {
         logger.warning("OpenCL is not yet supported on android");
         return null;
+    }
+
+    /**
+     * Returns the height of the input surface.
+     *
+     * @return the height (in pixels)
+     */
+    @Override
+    public int getFramebufferHeight() {
+        Rect rect = getSurfaceFrame();
+        int result = rect.height();
+        return result;
+    }
+
+    /**
+     * Returns the width of the input surface.
+     *
+     * @return the width (in pixels)
+     */
+    @Override
+    public int getFramebufferWidth() {
+        Rect rect = getSurfaceFrame();
+        int result = rect.width();
+        return result;
+    }
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowXPosition() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public int getWindowYPosition() {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+    
+    /**
+     * Retrieves the dimensions of the input surface. Note: do not modify the
+     * returned object.
+     * 
+     * @return the dimensions (in pixels, left and top are 0)
+     */
+    private Rect getSurfaceFrame() {
+        SurfaceView view = (SurfaceView) androidInput.getView();
+        SurfaceHolder holder = view.getHolder();
+        Rect result = holder.getSurfaceFrame();
+        return result;
     }
 }

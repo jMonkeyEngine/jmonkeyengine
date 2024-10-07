@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,16 +68,9 @@ public class BIHTree implements CollisionData {
     private int numTris;
     private float[] pointData;
     private int[] triIndices;
-    
+
     // private transient CollisionResults boundResults = new CollisionResults();
     private transient float[] bihSwapTmp;
-    
-    private static final TriangleAxisComparator[] comparators = new TriangleAxisComparator[]
-    {
-        new TriangleAxisComparator(0),
-        new TriangleAxisComparator(1),
-        new TriangleAxisComparator(2)
-    };
 
     private void initTriList(FloatBuffer vb, IndexBuffer ib) {
         pointData = new float[numTris * 3 * 3];
@@ -119,12 +112,12 @@ public class BIHTree implements CollisionData {
         bihSwapTmp = new float[9];
 
         VertexBuffer vBuffer = mesh.getBuffer(Type.Position);
-        if(vBuffer == null){
+        if (vBuffer == null) {
             throw new IllegalArgumentException("A mesh should at least contain a Position buffer");
-        }        
+        }
         IndexBuffer ib = mesh.getIndexBuffer();
         FloatBuffer vb = (FloatBuffer) vBuffer.getData();
-        
+
         if (ib == null) {
             ib = new VirtualIndexBuffer(mesh.getVertexCount(), mesh.getMode());
         } else if (mesh.getMode() != Mode.Triangles) {
@@ -333,7 +326,7 @@ public class BIHTree implements CollisionData {
             pivot = (r + l) / 2;
         }
 
-        //If one of the partitions is empty, continue with recursion: same level but different bbox
+        // If one of the partitions is empty, continue with recursion: same level but different bbox
         if (pivot < l) {
             //Only right
             BoundingBox rbbox = new BoundingBox(currentBox);
@@ -345,21 +338,21 @@ public class BIHTree implements CollisionData {
             setMinMax(lbbox, false, axis, split);
             return createNode(l, r, lbbox, depth + 1);
         } else {
-            //Build the node
+            // Build the node
             BIHNode node = new BIHNode(axis);
 
-            //Left child
+            // Left child
             BoundingBox lbbox = new BoundingBox(currentBox);
             setMinMax(lbbox, false, axis, split);
 
-            //The left node right border is the plane most right
+            // The left node right border is the plane most right
             node.setLeftPlane(getMinMax(createBox(l, max(l, pivot - 1)), false, axis));
             node.setLeftChild(createNode(l, max(l, pivot - 1), lbbox, depth + 1)); //Recursive call
 
-            //Right Child
+            // Right Child
             BoundingBox rbbox = new BoundingBox(currentBox);
             setMinMax(rbbox, true, axis, split);
-            //The right node left border is the plane most left
+            // The right node left border is the plane most left
             node.setRightPlane(getMinMax(createBox(pivot, r), true, axis));
             node.setRightChild(createNode(pivot, r, rbbox, depth + 1)); //Recursive call
 
@@ -428,7 +421,7 @@ public class BIHTree implements CollisionData {
 
                 if (r.getLimit() < Float.POSITIVE_INFINITY) {
                     tMax = Math.min(tMax, r.getLimit());
-                    if (tMin > tMax){
+                    if (tMin > tMax) {
                         return 0;
                     }
                 }

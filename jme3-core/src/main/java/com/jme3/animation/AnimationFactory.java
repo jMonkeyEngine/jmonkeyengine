@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,25 +37,27 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 
 /**
- * A convenience class to easily setup a spatial keyframed animation
- * you can add some keyFrames for a given time or a given keyFrameIndex, for translation rotation and scale.
- * The animationHelper will then generate an appropriate SpatialAnimation by interpolating values between the keyFrames.
+ * A convenience class to easily set up a spatial keyframe animation.
+ * You can add some keyFrames for a given time or a given keyFrameIndex, for translation, rotation, and scale.
+ * The animationFactory will then generate an appropriate SpatialAnimation by interpolating values between the keyFrames.
  * <br><br>
  * Usage is : <br>
- * - Create the AnimationHelper<br>
+ * - Create the AnimationFactory<br>
  * - add some keyFrames<br>
  * - call the buildAnimation() method that will return a new Animation<br>
  * - add the generated Animation to any existing AnimationControl<br>
  * <br><br>
- * Note that the first keyFrame (index 0) is defaulted with the identity transforms.
- * If you want to change that you have to replace this keyFrame with any transform you want.
+ * Note that the first keyFrame (index 0) is defaulted with the identity transform.
+ * If you want to change that you have to replace this keyFrame with the transform you want.
  * 
  * @author Nehon
+ * @deprecated use {@link com.jme3.anim.AnimFactory}
  */
+@Deprecated
 public class AnimationFactory {
 
     /**
-     * step for splitting rotation that have a n angle above PI/2
+     * step for splitting rotations that have an angle above PI/2
      */
     private final static float EULER_STEP = FastMath.QUARTER_PI * 3;
 
@@ -68,8 +70,9 @@ public class AnimationFactory {
     }
 
     /**
-     * Inner Rotation type class to kep track on a rotation Euler angle
+     * inner class to keep track of a rotation using Euler angles
      */
+    @Deprecated
     protected class Rotation {
 
         /**
@@ -81,7 +84,7 @@ public class AnimationFactory {
          */
         Vector3f eulerAngles = new Vector3f();
         /**
-         * the index of the parent key frame is this keyFrame is a splitted rotation
+         * the index of the parent key frame is this keyFrame is a split rotation
          */
         int masterKeyFrame = -1;
 
@@ -146,7 +149,7 @@ public class AnimationFactory {
     protected Rotation[] keyFramesRotation;
 
     /**
-     * Creates and AnimationHelper
+     * Creates an AnimationFactory
      * @param duration the desired duration for the resulting animation
      * @param name the name of the resulting animation
      */
@@ -155,7 +158,7 @@ public class AnimationFactory {
     }
 
     /**
-     * Creates and AnimationHelper
+     * Creates an AnimationFactory
      * @param duration the desired duration for the resulting animation
      * @param name the name of the resulting animation
      * @param fps the number of frames per second for this animation (default is 30)
@@ -182,7 +185,7 @@ public class AnimationFactory {
     /**
      * Adds a key frame for the given Transform at the given time
      * @param time the time at which the keyFrame must be inserted
-     * @param transform the transforms to use for this keyFrame
+     * @param transform the transform to use for this keyFrame
      */
     public void addTimeTransform(float time, Transform transform) {
         addKeyFrameTransform((int) (time / tpf), transform);
@@ -191,7 +194,7 @@ public class AnimationFactory {
     /**
      * Adds a key frame for the given Transform at the given keyFrame index
      * @param keyFrameIndex the index at which the keyFrame must be inserted
-     * @param transform the transforms to use for this keyFrame
+     * @param transform the transform to use for this keyFrame
      */
     public void addKeyFrameTransform(int keyFrameIndex, Transform transform) {
         addKeyFrameTranslation(keyFrameIndex, transform.getTranslation());
@@ -221,7 +224,7 @@ public class AnimationFactory {
     /**
      * Adds a key frame for the given rotation at the given time<br>
      * This can't be used if the interpolated angle is higher than PI (180°)<br>
-     * Use {@link #addTimeRotationAngles(float time, float x, float y, float z)}  instead that uses Euler angles rotations.<br>     * 
+     * Use {@link #addTimeRotationAngles(float time, float x, float y, float z)}  instead that uses Euler angle rotations.<br>
      * @param time the time at which the keyFrame must be inserted
      * @param rotation the rotation Quaternion to use for this keyFrame
      * @see #addTimeRotationAngles(float time, float x, float y, float z) 
@@ -233,7 +236,7 @@ public class AnimationFactory {
     /**
      * Adds a key frame for the given rotation at the given keyFrame index<br>
      * This can't be used if the interpolated angle is higher than PI (180°)<br>
-     * Use {@link #addKeyFrameRotationAngles(int keyFrameIndex, float x, float y, float z)} instead that uses Euler angles rotations.
+     * Use {@link #addKeyFrameRotationAngles(int keyFrameIndex, float x, float y, float z)} instead that uses Euler angle rotations.
      * @param keyFrameIndex the index at which the keyFrame must be inserted
      * @param rotation the rotation Quaternion to use for this keyFrame
      * @see #addKeyFrameRotationAngles(int keyFrameIndex, float x, float y, float z) 
@@ -245,7 +248,7 @@ public class AnimationFactory {
 
     /**
      * Adds a key frame for the given rotation at the given time.<br>
-     * Rotation is expressed by Euler angles values in radians.<br>
+     * Rotation is expressed by Euler angles in radians.<br>
      * Note that the generated rotation will be stored as a quaternion and interpolated using a spherical linear interpolation (slerp)<br>
      * Hence, this method may create intermediate keyFrames if the interpolation angle is higher than PI to ensure continuity in animation<br>
      * 
@@ -260,7 +263,7 @@ public class AnimationFactory {
 
     /**
      * Adds a key frame for the given rotation at the given key frame index.<br>
-     * Rotation is expressed by Euler angles values in radians.<br>
+     * Rotation is expressed by Euler angles in radians.<br>
      * Note that the generated rotation will be stored as a quaternion and interpolated using a spherical linear interpolation (slerp)<br>
      * Hence, this method may create intermediate keyFrames if the interpolation angle is higher than PI to ensure continuity in animation<br>
      * 
@@ -273,7 +276,7 @@ public class AnimationFactory {
         Rotation r = getRotationForFrame(keyFrameIndex);
         r.set(x, y, z);
 
-        // if the delta of euler angles is higher than PI, we create intermediate keyframes
+        // if the delta of Euler angles is higher than PI, we create intermediate keyframes
         // since we are using quaternions and slerp for rotation interpolation, we cannot interpolate over an angle higher than PI
         int prev = getPreviousKeyFrame(keyFrameIndex, keyFramesRotation);
         if (prev != -1) {
@@ -329,7 +332,7 @@ public class AnimationFactory {
 
     /**
      * returns the translation for a given frame index
-     * creates the translation if it doesn't exists
+     * creates the translation if it doesn't exist
      * @param keyFrameIndex index
      * @return the translation
      */
@@ -347,7 +350,7 @@ public class AnimationFactory {
 
     /**
      * returns the scale for a given frame index
-     * creates the scale if it doesn't exists
+     * creates the scale if it doesn't exist
      * @param keyFrameIndex index
      * @return the scale
      */
@@ -365,7 +368,7 @@ public class AnimationFactory {
 
     /**
      * returns the rotation for a given frame index
-     * creates the rotation if it doesn't exists
+     * creates the rotation if it doesn't exist
      * @param keyFrameIndex index
      * @return the rotation
      */
@@ -382,7 +385,7 @@ public class AnimationFactory {
     }
 
     /**
-     * Creates an Animation based on the keyFrames previously added to the helper.
+     * Creates an Animation based on the keyFrames previously added to the factory.
      * @return the generated animation 
      */
     public Animation buildAnimation() {
@@ -422,11 +425,11 @@ public class AnimationFactory {
             if (key != -1) {
                 //computing the frame span to interpolate over
                 int span = key - i;
-                //interating over the frames
+                //iterating over the frames
                 for (int j = i; j <= key; j++) {
                     // computing interpolation value
                     float val = (j - i) / (float) span;
-                    //interpolationg depending on the transform type
+                    //interpolating depending on the transform type
                     switch (type) {
                         case Translation:
                             translations[j] = FastMath.interpolateLinear(val, (Vector3f) keyFrames[i], (Vector3f) keyFrames[key]);

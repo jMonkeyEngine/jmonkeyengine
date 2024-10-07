@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
  
 package com.jme3.network.base.protocol;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
@@ -46,9 +45,9 @@ import com.jme3.network.base.MessageProtocol;
  *  all messages as byte data comes in.  In other words, if there
  *  are four messages in the ByteBuffer passed to addBuffer() then
  *  all of the messages will be deserialized during that call and
- *  queued up for later return.  The down side is that if any of 
+ *  queued up for later return.  The downside is that, if any of
  *  those messages was going to alter the MessageProtocol serialization
- *  behavior in a way that affects later messages then problems occur
+ *  behavior in a way that affects later messages, then problems occur
  *  when those messages are all in one block.
  *
  *  @author    Paul Speed
@@ -56,7 +55,7 @@ import com.jme3.network.base.MessageProtocol;
 public class GreedyMessageBuffer implements MessageBuffer {
 
     private MessageProtocol protocol;
-    private final LinkedList<Message> messages = new LinkedList<Message>();
+    private final LinkedList<Message> messages = new LinkedList<>();
     private ByteBuffer current;
     private int size;
     private Byte carry;
@@ -97,8 +96,8 @@ public class GreedyMessageBuffer implements MessageBuffer {
 
             if( current == null ) {
 
-                // If we have a left over carry then we need to
-                // do manual processing to get the short value
+                // If we have a left-over carry,
+                // extra processing is needed to get the short value.
                 if( carry != null ) {
                     byte high = carry;
                     byte low = buffer.get();
@@ -111,8 +110,8 @@ public class GreedyMessageBuffer implements MessageBuffer {
                     // byte in it... and in that case we will get an underflow
                     // when attempting to read the short below.
                     
-                    // It has to be 1 or we'd never get here... but one
-                    // isn't enough so we stash it away.
+                    // It has to be 1, or we'd never get here... but one
+                    // isn't enough, so we stash it away.
                     carry = buffer.get();
                     break;
                 } else {

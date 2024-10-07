@@ -15,7 +15,7 @@ import static org.lwjgl.system.Pointer.*;
 
 /**
  * Base class for OpenCL object information queries.
- * <p/>
+ * <p>
  * All methods require the object being queried (a pointer value), a second
  * integer argument and the integer parameter name.
  *
@@ -23,40 +23,40 @@ import static org.lwjgl.system.Pointer.*;
  */
 abstract class InfoQueryInt {
 
-    protected abstract int get(long pointer, int arg, int param_name, long param_value_size, long param_value, long param_value_size_ret);
+    protected abstract int get(long pointer, int arg, int parameterName, long parameterValueSize, long parameterValue, long parameterValueSizeRet);
 
     InfoQueryInt() {
     }
 
     /**
-     * Returns the integer value for the specified {@code param_name}, converted
+     * Returns the integer value for the specified {@code parameterName}, converted
      * to a boolean.
      *
      * @param object the object to query
      * @param arg an integer argument
-     * @param param_name the parameter to query
+     * @param parameterName the parameter to query
      *
      * @return the parameter's boolean value
      */
-    boolean getBoolean(long object, int arg, int param_name) {
-        return getInt(object, arg, param_name) != 0;
+    boolean getBoolean(long object, int arg, int parameterName) {
+        return getInt(object, arg, parameterName) != 0;
     }
 
     /**
-     * Returns the integer value for the specified {@code param_name}.
-     * <p/>
+     * Returns the integer value for the specified {@code parameterName}.
+     * <p>
      * For integer parameters that may be 32 or 64 bits (e.g. {@code size_t}),
      * {@link #getPointer} should be used instead.
      *
      * @param object the object to query
      * @param arg an integer argument
-     * @param param_name the parameter to query
+     * @param parameterName the parameter to query
      *
      * @return the parameter's int value
      */
-    int getInt(long object, int arg, int param_name) {
+    int getInt(long object, int arg, int parameterName) {
         APIBuffer __buffer = apiBuffer();
-        int errcode = get(object, arg, param_name, 4L, __buffer.address(), NULL);
+        int errcode = get(object, arg, parameterName, 4L, __buffer.address(), NULL);
         if (DEBUG) {
             checkCLError(errcode);
         }
@@ -64,20 +64,20 @@ abstract class InfoQueryInt {
     }
 
     /**
-     * Returns the long value for the specified {@code param_name}.
-     * <p/>
+     * Returns the long value for the specified {@code parameterName}.
+     * <p>
      * For integer parameters that may be 32 or 64 bits (e.g. {@code size_t}),
      * {@link #getPointer} should be used instead.
      *
      * @param object the object to query
      * @param arg an integer argument
-     * @param param_name the parameter to query
+     * @param parameterName the parameter to query
      *
      * @return the parameter's long value
      */
-    long getLong(long object, int arg, int param_name) {
+    long getLong(long object, int arg, int parameterName) {
         APIBuffer __buffer = apiBuffer();
-        int errcode = get(object, arg, param_name, 8L, __buffer.address(), NULL);
+        int errcode = get(object, arg, parameterName, 8L, __buffer.address(), NULL);
         if (DEBUG) {
             checkCLError(errcode);
         }
@@ -85,20 +85,20 @@ abstract class InfoQueryInt {
     }
 
     /**
-     * Returns the pointer value for the specified {@code param_name}.
-     * <p/>
+     * Returns the pointer value for the specified {@code parameterName}.
+     * <p>
      * This method should also be used for integer parameters that may be 32 or
      * 64 bits (e.g. {@code size_t}).
      *
      * @param object the object to query
      * @param arg an integer argument
-     * @param param_name the parameter to query
+     * @param parameterName the parameter to query
      *
      * @return the parameter's pointer value
      */
-    long getPointer(long object, int arg, int param_name) {
+    long getPointer(long object, int arg, int parameterName) {
         APIBuffer __buffer = apiBuffer();
-        int errcode = get(object, arg, param_name, POINTER_SIZE, __buffer.address(), NULL);
+        int errcode = get(object, arg, parameterName, POINTER_SIZE, __buffer.address(), NULL);
         if (DEBUG) {
             checkCLError(errcode);
         }
@@ -106,22 +106,22 @@ abstract class InfoQueryInt {
     }
 
     /**
-     * Writes the pointer list for the specified {@code param_name} into
+     * Writes the pointer list for the specified {@code parameterName} into
      * {@code target}.
-     * <p/>
+     * <p>
      * This method should also be used for integer parameters that may be 32 or
      * 64 bits (e.g. {@code size_t}).
      *
      * @param object the object to query
      * @param arg an integer argument
-     * @param param_name the parameter to query
+     * @param parameterName the parameter to query
      * @param target the buffer in which to put the returned pointer list
      *
      * @return how many pointers were actually returned
      */
-    int getPointers(long object, int arg, int param_name, PointerBuffer target) {
+    int getPointers(long object, int arg, int parameterName, PointerBuffer target) {
         APIBuffer __buffer = apiBuffer();
-        int errcode = get(object, arg, param_name, target.remaining() * POINTER_SIZE, memAddress(target), __buffer.address());
+        int errcode = get(object, arg, parameterName, target.remaining() * POINTER_SIZE, memAddress(target), __buffer.address());
         if (DEBUG) {
             checkCLError(errcode);
         }
@@ -129,91 +129,91 @@ abstract class InfoQueryInt {
     }
 
     /**
-     * Returns the string value for the specified {@code param_name}. The raw
+     * Returns the string value for the specified {@code parameterName}. The raw
      * bytes returned are assumed to be ASCII encoded.
      *
      * @param object the object to query
      * @param arg an integer argument
-     * @param param_name the parameter to query
+     * @param parameterName the parameter to query
      *
      * @return the parameter's string value
      */
-    String getStringASCII(long object, int arg, int param_name) {
+    String getStringASCII(long object, int arg, int parameterName) {
         APIBuffer __buffer = apiBuffer();
-        int bytes = getString(object, arg, param_name, __buffer);
+        int bytes = getString(object, arg, parameterName, __buffer);
         return __buffer.stringValueASCII(0, bytes);
     }
 
     /**
-     * Returns the string value for the specified {@code param_name}. The raw
+     * Returns the string value for the specified {@code parameterName}. The raw
      * bytes returned are assumed to be ASCII encoded and have length equal to {@code
-     * param_value_size}.
+     * parameterValueSize}.
      *
      * @param object the object to query
      * @param arg an integer argument
-     * @param param_name the parameter to query
-     * @param param_value_size the explicit string length
+     * @param parameterName the parameter to query
+     * @param parameterValueSize the explicit string length
      *
      * @return the parameter's string value
      */
-    String getStringASCII(long object, int arg, int param_name, int param_value_size) {
+    String getStringASCII(long object, int arg, int parameterName, int parameterValueSize) {
         APIBuffer __buffer = apiBuffer();
-        int errcode = get(object, arg, param_name, param_value_size, __buffer.address(), NULL);
+        int errcode = get(object, arg, parameterName, parameterValueSize, __buffer.address(), NULL);
         if (DEBUG) {
             checkCLError(errcode);
         }
-        return __buffer.stringValueASCII(0, param_value_size);
+        return __buffer.stringValueASCII(0, parameterValueSize);
     }
 
     /**
-     * Returns the string value for the specified {@code param_name}. The raw
+     * Returns the string value for the specified {@code parameterName}. The raw
      * bytes returned are assumed to be UTF-8 encoded.
      *
      * @param object the object to query
      * @param arg an integer argument
-     * @param param_name the parameter to query
+     * @param parameterName the parameter to query
      *
      * @return the parameter's string value
      */
-    String getStringUTF8(long object, int arg, int param_name) {
+    String getStringUTF8(long object, int arg, int parameterName) {
         APIBuffer __buffer = apiBuffer();
-        int bytes = getString(object, arg, param_name, __buffer);
+        int bytes = getString(object, arg, parameterName, __buffer);
         return __buffer.stringValueUTF8(0, bytes);
     }
 
     /**
-     * Returns the string value for the specified {@code param_name}. The raw
+     * Returns the string value for the specified {@code parameterName}. The raw
      * bytes returned are assumed to be UTF-8 encoded and have length equal to {@code
-     * param_value_size}.
+     * parameterValueSize}.
      *
      * @param object the object to query
      * @param arg an integer argument
-     * @param param_name the parameter to query
-     * @param param_value_size the explicit string length
+     * @param parameterName the parameter to query
+     * @param parameterValueSize the explicit string length
      *
      * @return the parameter's string value
      */
-    String getStringUTF8(long object, int arg, int param_name, int param_value_size) {
+    String getStringUTF8(long object, int arg, int parameterName, int parameterValueSize) {
         APIBuffer __buffer = apiBuffer();
-        int errcode = get(object, arg, param_name, param_value_size, __buffer.address(), NULL);
+        int errcode = get(object, arg, parameterName, parameterValueSize, __buffer.address(), NULL);
         if (DEBUG) {
             checkCLError(errcode);
         }
-        return __buffer.stringValueUTF8(0, param_value_size);
+        return __buffer.stringValueUTF8(0, parameterValueSize);
     }
 
-    private int getString(long object, int arg, int param_name, APIBuffer __buffer) {
+    private int getString(long object, int arg, int parameterName, APIBuffer buffer) {
         // Get string length
-        int errcode = get(object, arg, param_name, 0, NULL, __buffer.address());
+        int errcode = get(object, arg, parameterName, 0, NULL, buffer.address());
         if (DEBUG) {
             checkCLError(errcode);
         }
 
-        int bytes = (int) __buffer.pointerValue(0);
-        __buffer.bufferParam(bytes + POINTER_SIZE);
+        int bytes = (int) buffer.pointerValue(0);
+        buffer.bufferParam(bytes + POINTER_SIZE);
 
         // Get string
-        errcode = get(object, arg, param_name, bytes, __buffer.address(), NULL);
+        errcode = get(object, arg, parameterName, bytes, buffer.address(), NULL);
         if (DEBUG) {
             checkCLError(errcode);
         }

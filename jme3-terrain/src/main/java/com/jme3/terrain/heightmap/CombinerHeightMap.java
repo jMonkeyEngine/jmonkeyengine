@@ -34,13 +34,12 @@ package com.jme3.terrain.heightmap;
 import java.util.logging.Logger;
 
 /**
- * <code>CombinerHeightMap</code> generates a new height map based on
- * two provided height maps. These had maps can either be added together
+ * Generates a new height map based on
+ * two provided height maps. These maps can either be added together
  * or subtracted from each other. Each heightmap has a weight to
- * determine how much one will affect the other. By default it is set to
- * 0.5, 0.5 and meaning the two heightmaps are averaged evenly. This
- * value can be adjusted at will, as long as the two factors are equal
- * to 1.0.
+ * determine how much one will affect the other. By default, it is set to
+ * 0.5, 0.5, meaning the two heightmaps have equal weight. This
+ * value can be adjusted at will, as long as the two factors sum to 1.
  *
  * @author Mark Powell
  * @version $Id$
@@ -190,7 +189,7 @@ public class CombinerHeightMap extends AbstractHeightMap {
      * The size of the height maps must be the same.
      * @param map1 the first height map.
      * @param map2 the second height map.
-     * @throws Exception if the either heightmap is null, or their
+     * @throws Exception if either height map is null, or their
      *              sizes do not match.
      */
     public void setHeightMaps(AbstractHeightMap map1, AbstractHeightMap map2) throws Exception {

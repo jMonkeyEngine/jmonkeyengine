@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,11 +40,12 @@ import java.util.Map;
 /**
  * Object is indexed and stored in primitive float[]
  * @author Lim, YongHoon
- * @param <T>
+ *
+ * @param <T> the type of object (i.e. Vector3f)
  */
 public abstract class CompactArray<T> implements JmeCloneable {
 
-    protected Map<T, Integer> indexPool = new HashMap<T, Integer>();
+    protected Map<T, Integer> indexPool = new HashMap<>();
     protected int[] index;
     protected float[] array;
     private boolean invalid;
@@ -57,8 +58,9 @@ public abstract class CompactArray<T> implements JmeCloneable {
 
     /**
      * create array using serialized data
-     * @param compressedArray
-     * @param index
+     *
+     * @param compressedArray storage for float data
+     * @param index storage for indices
      */
     public CompactArray(float[] compressedArray, int[] index) {
         this.array = compressedArray;
@@ -68,7 +70,8 @@ public abstract class CompactArray<T> implements JmeCloneable {
     /**
      * Add objects.
      * They are serialized automatically when get() method is called.
-     * @param objArray
+     *
+     * @param objArray the objects to be added (may be null)
      */
     @SuppressWarnings("unchecked")
     public void add(T... objArray) {
@@ -119,8 +122,8 @@ public abstract class CompactArray<T> implements JmeCloneable {
     }
 
     /**
-     * @param index
-     * @param value
+     * @param index zero-origin index of the element to be altered
+     * @param value the desired value
      */
     public final void set(int index, T value) {
         int j = getCompactIndex(index);
@@ -194,7 +197,8 @@ public abstract class CompactArray<T> implements JmeCloneable {
 
     /**
      * Return an array of indices for the given objects
-     * @param objArray
+     *
+     * @param objArray the input objects
      * @return a new array
      */
     @SuppressWarnings("unchecked")
@@ -209,7 +213,8 @@ public abstract class CompactArray<T> implements JmeCloneable {
 
     /**
      * returns the corresponding index in the compact array
-     * @param objIndex
+     *
+     * @param objIndex the input index
      * @return object index in the compacted object array
      */
     public int getCompactIndex(int objIndex) {
@@ -241,7 +246,7 @@ public abstract class CompactArray<T> implements JmeCloneable {
         try {
             T[] compactArr = (T[]) Array.newInstance(getElementClass(), getSerializedSize() / getTupleSize());
             for (int i = 0; i < compactArr.length; i++) {
-                compactArr[i] = getElementClass().newInstance();
+                compactArr[i] = getElementClass().getDeclaredConstructor().newInstance();
                 deserialize(i, compactArr[i]);
             }
 
@@ -260,10 +265,10 @@ public abstract class CompactArray<T> implements JmeCloneable {
      * Create a deep clone of this array.
      *
      * @return a new array
-     * @throws java.lang.CloneNotSupportedException
+     * @throws CloneNotSupportedException never
      */
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public CompactArray clone() throws CloneNotSupportedException {
         return Cloner.deepClone(this);
     }
 
@@ -300,19 +305,22 @@ public abstract class CompactArray<T> implements JmeCloneable {
     /**
      * serialize object
      * @param compactIndex compacted object index
-     * @param store
+     * @param store the value to be serialized (not null, unaffected)
      */
     protected abstract void serialize(int compactIndex, T store);
 
     /**
      * deserialize object
      * @param compactIndex compacted object index
-     * @param store
+     * @param store storage for the result
+     * @return the deserialized value
      */
     protected abstract T deserialize(int compactIndex, T store);
 
     /**
      * serialized size of one object element
+     *
+     * @return the number of primitive components (floats) per object
      */
     protected abstract int getTupleSize();
 

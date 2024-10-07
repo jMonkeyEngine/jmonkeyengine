@@ -1,0 +1,22 @@
+// Defines a custom unshaded material that outputs 4 textures:
+//    + red channel only to location 0,
+//    + green channel only to location 1,
+//    + blue channel only to location 2, and
+//    + merged RGB to location 3.
+//
+// This is used in the "TestMultiRenderTarget" example app.
+
+MaterialDef ExtractRGB {
+    MaterialParameters {
+        Color   Albedo
+    }
+
+    Technique {
+        VertexShader GLSL100 : TestMRT/MatDefs/ExtractRGB.vert
+        FragmentShader GLSL330 : TestMRT/MatDefs/ExtractRGB.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+}

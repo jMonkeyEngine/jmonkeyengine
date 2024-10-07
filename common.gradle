@@ -2,36 +2,35 @@
 // This file is to be applied to every subproject.
 //
 
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'groovy'
-apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'eclipse'
+apply plugin: 'checkstyle'
 
+eclipse.jdt.file.withProperties { props ->
+    props.setProperty "org.eclipse.jdt.core.circularClasspath", "warning"
+}
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
-sourceCompatibility = '1.8'
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-
-if(JavaVersion.current() >= JavaVersion.VERSION_1_9) {
-    compileJava {
-	options.compilerArgs.addAll(['--release', '8'])
-        //Replace previous with "options.release = 8" if updated to gradle 6.6 or newer
-    }
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-gradle.projectsEvaluated {
-    tasks.withType(JavaCompile) { // compile-time options:
-        options.compilerArgs << '-Xlint:unchecked'
+tasks.withType(JavaCompile) { // compile-time options:
+    //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
+    options.compilerArgs << '-Xlint:unchecked'
+    options.encoding = 'UTF-8'
+    if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_1_10)) {
+        options.release = 8
     }
 }
 
 repositories {
     mavenCentral()
-    maven {
-        url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
-    }
     flatDir {
         dirs rootProject.file('lib')
     }
@@ -39,12 +38,10 @@ repositories {
 
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '3.0.0'
-    testCompile group: 'org.easytesting', name: 'fest-assert-core', version: '2.0M10'
-    testCompile 'org.codehaus.groovy:groovy-all:2.5.8'
+    testImplementation libs.junit4
+    testImplementation libs.mokito.core
+    testImplementation libs.groovy.test
 }
-
 
 // Uncomment if you want to see the status of every test that is run and
 // the test output.
@@ -60,7 +57,8 @@ jar {
     manifest {
         attributes 'Implementation-Title': 'jMonkeyEngine',
                    'Implementation-Version': jmeFullVersion,
-                   'Automatic-Module-Name': "${project.name.replace("-", ".")}" 
+                   'Automatic-Module-Name': "${project.name.replace("-", ".")}",
+                   'Created-By': "${JavaVersion.current()} (${System.getProperty("java.vendor")})"
     }
 }
 
@@ -74,10 +72,6 @@ javadoc {
     options.use = "true"
     options.charSet = "UTF-8"
     options.encoding = "UTF-8"
-    //disable doclint for JDK8, more quiet output
-    if (JavaVersion.current().isJava8Compatible()){
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
     source = sourceSets.main.allJava // main only, exclude tests
 }
 
@@ -88,12 +82,12 @@ test {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates a jar from the source files.') {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets*.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc, description: 'Creates a jar from the javadoc files.') {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
 }
 
@@ -122,28 +116,12 @@ ext.pomConfig = {
     }
 }
 
-// workaround to be able to use same custom pom with 'maven' and 'bintray' plugin
-task writeFullPom {
-    ext.pomFile = "$mavenPomDir/${project.name}-${project.version}.pom"
-    outputs.file pomFile
-    doLast {
-        pom {
-            project pomConfig
-        }.writeTo(pomFile)
-    }
-}
-
-assemble.dependsOn(writeFullPom)
-install.dependsOn(writeFullPom)
-uploadArchives.dependsOn(writeFullPom)
-
 artifacts {
     archives jar
     archives sourcesJar
     if (buildJavaDoc == "true") {
         archives javadocJar
     }
-    archives writeFullPom.outputs.files[0]
 }
 
 publishing {
@@ -190,9 +168,24 @@ publishing {
                 password = gradle.rootProject.hasProperty('ossrhPassword') ? ossrhPassword : 'Unknown password'
             }
             name = 'OSSRH'
-            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2'
         }
+	maven {
+	    credentials {
+                username = gradle.rootProject.hasProperty('ossrhUsername') ? ossrhUsername : 'Unknown user'
+                password = gradle.rootProject.hasProperty('ossrhPassword') ? ossrhPassword : 'Unknown password'
+	    }
+	    name = 'SNAPSHOT'
+	    url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+	}
     }
+}
+
+publishToMavenLocal.doLast {
+    println 'published ' + project.getName() + "-${jmeFullVersion} to mavenLocal"
+}
+task('install') {
+    dependsOn 'publishToMavenLocal'
 }
 
 signing {
@@ -205,4 +198,25 @@ signing {
 }
 tasks.withType(Sign) {
     onlyIf { gradle.rootProject.hasProperty('signingKey') }
+}
+
+checkstyle {
+    toolVersion libs.versions.checkstyle.get()
+    configFile file("${gradle.rootProject.rootDir}/config/checkstyle/checkstyle.xml")
+}
+
+checkstyleMain {
+    source ='src/main/java'
+}
+
+checkstyleTest {
+    source ='src/test/java'
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.required.set(false)
+        html.required.set(true)
+    }
+    include("**/com/jme3/renderer/**/*.java")
 }

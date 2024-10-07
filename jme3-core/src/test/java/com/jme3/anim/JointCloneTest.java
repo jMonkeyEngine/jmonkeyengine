@@ -44,7 +44,7 @@ public class JointCloneTest {
 
     /**
      * Make sure the initial transform gets cloned. This was issue 1469 at
-     * Github.
+     * GitHub.
      */
     @Test
     public void testInitialTransform() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  */
 public class AndroidTouchInput14 extends AndroidTouchInput {
     private static final Logger logger = Logger.getLogger(AndroidTouchInput14.class.getName());
-    final private HashMap<Integer, Vector2f> lastHoverPositions = new HashMap<Integer, Vector2f>();
+    final private HashMap<Integer, Vector2f> lastHoverPositions = new HashMap<>();
 
     public AndroidTouchInput14(AndroidInputHandler androidInput) {
         super(androidInput);

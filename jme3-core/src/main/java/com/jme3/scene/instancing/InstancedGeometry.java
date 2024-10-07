@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,14 +58,20 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.BiFunction;
 
 public class InstancedGeometry extends Geometry {
 
     private static final int INSTANCE_SIZE = 16;
 
+    private static BiFunction<Camera, Geometry, Boolean> instanceCullingFunction = new DefaultInstanceCullingFunction();
+
     private VertexBuffer[] globalInstanceData;
     private VertexBuffer transformInstanceData;
     private Geometry[] geometries = new Geometry[1];
+    // Keep track of both transformInstanceData and globalInstanceData
+    // that is used by renderer.
+    private VertexBuffer[] allInstanceData;
 
     private int firstUnusedIndex = 0;
     private int numVisibleInstances = 0;
@@ -90,6 +96,22 @@ public class InstancedGeometry extends Geometry {
         setIgnoreTransform(true);
         setBatchHint(BatchHint.Never);
         setMaxNumInstances(1);
+    }
+
+    /**
+     * Set the function used for culling instances from being rendered.
+     * Default is {@link DefaultInstanceCullingFunction}.
+     */
+    public static void setInstanceCullingFunction(BiFunction<Camera, Geometry, Boolean> instanceCullingFunction) {
+        InstancedGeometry.instanceCullingFunction = instanceCullingFunction;
+    }
+
+    /**
+     * @return The instance culling function or null if there isn't any.
+     * Default is {@link DefaultInstanceCullingFunction}.
+     */
+    public static BiFunction<Camera, Geometry, Boolean> getInstanceCullingFunction() {
+        return instanceCullingFunction;
     }
 
     /**
@@ -118,6 +140,7 @@ public class InstancedGeometry extends Geometry {
      */
     public void setGlobalUserInstanceData(VertexBuffer[] globalInstanceData) {
         this.globalInstanceData = globalInstanceData;
+        updateAllInstanceData();
     }
 
     /**
@@ -127,6 +150,7 @@ public class InstancedGeometry extends Geometry {
      */
     public void setTransformUserInstanceData(VertexBuffer transformInstanceData) {
         this.transformInstanceData = transformInstanceData;
+        updateAllInstanceData();
     }
 
     /**
@@ -207,6 +231,7 @@ public class InstancedGeometry extends Geometry {
                     INSTANCE_SIZE,
                     Format.Float,
                     BufferUtils.createFloatBuffer(geometries.length * INSTANCE_SIZE));
+            updateAllInstanceData();
         }
     }
 
@@ -251,28 +276,14 @@ public class InstancedGeometry extends Geometry {
         }
     }
 
-    private void sanitize(boolean insideEntriesNonNull) {
-        if (firstUnusedIndex >= geometries.length) {
-            throw new AssertionError();
-        }
-        for (int i = 0; i < geometries.length; i++) {
-            if (i < firstUnusedIndex) {
-                if (geometries[i] == null) {
-                    if (insideEntriesNonNull) {
-                        throw new AssertionError();
-                    }
-                } else if (InstancedNode.getGeometryStartIndex2(geometries[i]) != i) {
-                    throw new AssertionError();
-                }
-            } else {
-                if (geometries[i] != null) {
-                    throw new AssertionError();
-                }
-            }
-        }
+    /**
+     * @deprecated use {@link #updateInstances(com.jme3.renderer.Camera)}
+     */
+    public void updateInstances() {
+        updateInstances(cam);
     }
 
-    public void updateInstances() {
+    public void updateInstances(Camera cam) {
         FloatBuffer fb = (FloatBuffer) transformInstanceData.getData();
         fb.limit(fb.capacity());
         fb.position(0);
@@ -299,14 +310,9 @@ public class InstancedGeometry extends Geometry {
                     }
                 }
 
-                if (cam != null) {
-                    BoundingVolume bv = geom.getWorldBound();
-                    int save = cam.getPlaneState();
-                    cam.setPlaneState(0);
-                    FrustumIntersect intersect = cam.contains(bv);
-                    cam.setPlaneState(save);
-
-                    if (intersect == FrustumIntersect.Outside) {
+                if (cam != null && instanceCullingFunction != null) {
+                    boolean culled = instanceCullingFunction.apply(cam, geom);
+                    if (culled) {
                         numCulledGeometries++;
                         continue;
                     }
@@ -402,16 +408,19 @@ public class InstancedGeometry extends Geometry {
         return geometries;
     }
 
-    @SuppressWarnings("unchecked")
     public VertexBuffer[] getAllInstanceData() {
-        ArrayList<VertexBuffer> allData = new ArrayList();
+        return allInstanceData;
+    }
+
+    private void updateAllInstanceData() {
+        ArrayList<VertexBuffer> allData = new ArrayList<>();
         if (transformInstanceData != null) {
             allData.add(transformInstanceData);
         }
         if (globalInstanceData != null) {
             allData.addAll(Arrays.asList(globalInstanceData));
         }
-        return allData.toArray(new VertexBuffer[allData.size()]);
+        allInstanceData = allData.toArray(new VertexBuffer[allData.size()]);
     }
 
     @Override
@@ -429,11 +438,12 @@ public class InstancedGeometry extends Geometry {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         this.globalInstanceData = cloner.clone(globalInstanceData);
         this.transformInstanceData = cloner.clone(transformInstanceData);
+        this.allInstanceData = cloner.clone(allInstanceData);
         this.geometries = cloner.clone(geometries);
     }
 
@@ -456,6 +466,8 @@ public class InstancedGeometry extends Geometry {
         for (int i = 0; i < geometrySavables.length; i++) {
             geometries[i] = (Geometry) geometrySavables[i];
         }
+
+        updateAllInstanceData();
     }
 
     /**
@@ -464,6 +476,25 @@ public class InstancedGeometry extends Geometry {
     protected void cleanup() {
         BufferUtils.destroyDirectBuffer(transformInstanceData.getData());
         transformInstanceData = null;
+        allInstanceData = null;
         geometries = null;
+    }
+
+    /**
+     * By default, it checks if geometry is in camera frustum and culls it
+     * if it is outside camera view.
+     */
+    public static class DefaultInstanceCullingFunction implements BiFunction<Camera, Geometry, Boolean> {
+
+        @Override
+        public Boolean apply(Camera cam, Geometry geom) {
+            BoundingVolume bv = geom.getWorldBound();
+            int save = cam.getPlaneState();
+            cam.setPlaneState(0);
+            FrustumIntersect intersect = cam.contains(bv);
+            cam.setPlaneState(save);
+
+            return intersect == FrustumIntersect.Outside;
+        }
     }
 }

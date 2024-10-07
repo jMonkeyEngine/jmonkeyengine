@@ -1,11 +1,14 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
+dependencies {
+    api project(':jme3-core')
+    testImplementation project(':jme3-core')
+    testImplementation project(':jme3-core').sourceSets.test.output
+    testRuntimeOnly project(':jme3-desktop')
+    testRuntimeOnly project(':jme3-testdata')
 }
 
-dependencies {
-    compile project(':jme3-core')
-    testCompile project(':jme3-core')
-    testCompile project(':jme3-desktop')
-    testCompile project(':jme3-core').sourceSets.test.output
-    testCompile project(':jme3-testdata')
+javadoc {
+    // Disable doclint for JDK8+.
+    if (JavaVersion.current().isJava8Compatible()){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
 }

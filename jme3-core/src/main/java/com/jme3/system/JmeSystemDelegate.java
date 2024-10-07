@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,14 +35,19 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.SoftTextDialogInput;
+import com.jme3.util.res.Resources;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,8 +60,34 @@ public abstract class JmeSystemDelegate {
     protected final Logger logger = Logger.getLogger(JmeSystem.class.getName());
     protected boolean initialized = false;
     protected boolean lowPermissions = false;
-    protected Map<JmeSystem.StorageFolderType, File> storageFolders = new EnumMap<JmeSystem.StorageFolderType, File>(JmeSystem.StorageFolderType.class);
+    protected Map<JmeSystem.StorageFolderType, File> storageFolders = new EnumMap<>(JmeSystem.StorageFolderType.class);
     protected SoftTextDialogInput softTextDialogInput = null;
+
+    protected Consumer<String> errorMessageHandler = (message) -> {
+        JmeDialogsFactory dialogFactory = null;
+        try {
+             dialogFactory = (JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
+        } catch(ClassNotFoundException e){
+            logger.warning("JmeDialogsFactory implementation not found.");    
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+        if(dialogFactory != null) dialogFactory.showErrorDialog(message);
+        else System.err.println(message);
+    };
+
+    protected BiFunction<AppSettings,Boolean,Boolean> settingsHandler = (settings,loadFromRegistry) -> {
+        JmeDialogsFactory dialogFactory = null;
+        try {
+            dialogFactory = (JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
+        } catch(ClassNotFoundException e){
+            logger.warning("JmeDialogsFactory implementation not found.");    
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+        if(dialogFactory != null) return dialogFactory.showSettingsDialog(settings, loadFromRegistry);
+        return true;
+    };
 
     public synchronized File getStorageFolder(JmeSystem.StorageFolderType type) {
         File storageFolder = null;
@@ -82,7 +113,9 @@ public abstract class JmeSystemDelegate {
                 break;
         }
         if (storageFolder != null) {
-            logger.log(Level.FINE, "Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+            }
         } else {
             logger.log(Level.FINE, "Storage Folder not found!");
         }
@@ -94,11 +127,11 @@ public abstract class JmeSystemDelegate {
     }
 
     public InputStream getResourceAsStream(String name) {
-        return this.getClass().getResourceAsStream(name);
+        return Resources.getResourceAsStream(name,this.getClass());
     }
 
     public URL getResource(String name) {
-        return this.getClass().getResource(name);
+        return Resources.getResource(name,this.getClass());
     }
 
     public boolean trackDirectMemory() {
@@ -131,9 +164,56 @@ public abstract class JmeSystemDelegate {
     
     public abstract void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException;
 
-    public abstract void showErrorDialog(String message);
+    /**
+     * Set function to handle errors. 
+     * The default implementation show a dialog if available.
+     * @param handler Consumer to which the error is passed as String
+     */
+    public void setErrorMessageHandler(Consumer<String> handler){
+        errorMessageHandler = handler;
+    }
 
-    public abstract boolean showSettingsDialog(AppSettings sourceSettings, boolean loadFromRegistry);
+    /**
+     * Internal use only: submit an error to the error message handler
+     */
+    public void handleErrorMessage(String message){
+        if(errorMessageHandler != null) errorMessageHandler.accept(message);
+    }
+
+    /**
+     * Set a function to handler app settings. 
+     * The default implementation shows a settings dialog if available.
+     * @param handler handler function that accepts as argument an instance of AppSettings 
+     * to transform and a boolean with the value of true if the settings are expected to be loaded from 
+     * the user registry. The handler function returns false if the configuration is interrupted (eg.the the dialog was closed)
+     * or true otherwise.
+     */
+    public void setSettingsHandler(BiFunction<AppSettings,Boolean, Boolean> handler){
+        settingsHandler = handler;
+    }
+
+    /**
+     * Internal use only: summon the settings handler
+     */
+    public boolean handleSettings(AppSettings settings, boolean loadFromRegistry){
+        if(settingsHandler != null) return settingsHandler.apply(settings,loadFromRegistry);
+        return true;
+    }
+
+    /**
+     * @deprecated Use JmeSystemDelegate.handleErrorMessage(String) instead
+     * @param message
+     */
+    @Deprecated
+    public void showErrorDialog(String message){
+        handleErrorMessage(message);
+    }
+
+    @Deprecated
+    public boolean showSettingsDialog(AppSettings settings, boolean loadFromRegistry){
+        return handleSettings(settings, loadFromRegistry);
+    }
+
 
     private boolean is64Bit(String arch) {
         if (arch.equals("x86")) {
@@ -168,7 +248,11 @@ public abstract class JmeSystemDelegate {
         String arch = System.getProperty("os.arch").toLowerCase();
         boolean is64 = is64Bit(arch);
         if (os.contains("windows")) {
-            return is64 ? Platform.Windows64 : Platform.Windows32;
+            if (arch.startsWith("arm") || arch.startsWith("aarch")) {
+                return is64 ? Platform.Windows_ARM64 : Platform.Windows_ARM32;
+            } else {
+                return is64 ? Platform.Windows64 : Platform.Windows32;
+            }
         } else if (os.contains("linux") || os.contains("freebsd") 
                 || os.contains("sunos") || os.contains("unix")) {
             if (arch.startsWith("arm") || arch.startsWith("aarch")) {
@@ -179,6 +263,8 @@ public abstract class JmeSystemDelegate {
         } else if (os.contains("mac os x") || os.contains("darwin")) {
             if (arch.startsWith("ppc")) {
                 return is64 ? Platform.MacOSX_PPC64 : Platform.MacOSX_PPC32;
+            } else if (arch.startsWith("aarch")) {
+                return Platform.MacOSX_ARM64; // no 32-bit version
             } else {
                 return is64 ? Platform.MacOSX64 : Platform.MacOSX32;
             }

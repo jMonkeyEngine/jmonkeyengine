@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     private final ObjectPool<Batch> batchPool;
     private final List<Batch> batches = new ArrayList<>();
 
-    // a modify texture call needs a jme Renderer to execute. if we're called to modify a texture but don't
+    // A modify texture call needs a jme Renderer to execute. If we're called to modify a texture but don't
     // have a Renderer yet - since it was not initialized on the jme side - we'll cache the modify texture calls
     // in here and execute them later (at the next beginFrame() call).
     private final List<ModifyTexture> modifyTextureCalls = new ArrayList<>();
@@ -94,10 +94,10 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     private Matrix4f tempMat = new Matrix4f();
     private ByteBuffer initialData = null;
 
-    // this is only used for debugging purpose and will make the removed textures filled with a color
-    // please note: the old way to init this via a system property has been
-    // removed since it's now possible to configure it using the
-    // BatchRenderConfiguration class when you create the NiftyJmeDisplay instance
+    // This is only used for debugging purposes and will fill the removed textures with a color.
+    // Please note: the old way to init this via a system property has been
+    // removed, since it's now possible to configure it using the
+    // BatchRenderConfiguration class when you create the NiftyJmeDisplay instance.
     private boolean fillRemovedTexture = false;
 
     public JmeBatchRenderBackend(final NiftyJmeDisplay display) {
@@ -202,7 +202,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
             return atlasId;
         } catch (Exception e) {
             log.log(Level.WARNING, e.getMessage(), e);
-            return 0; // TODO Nifty always expects this call to be successfull
+            return 0; // TODO Nifty always expects this call to be successful
             // there currently is no way to return failure or something :/
         }
     }
@@ -347,7 +347,8 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
      * {@link de.lessvoid.nifty.render.batch.spi.BatchRenderBackend}
      * implementation
      *
-     * @param shouldUseHighQualityTextures
+     * @param shouldUseHighQualityTextures true&rarr;higher quality,
+     * false&rarr;lower quality
      */
     @Override
     public void useHighQualityTextures(final boolean shouldUseHighQualityTextures) {
@@ -362,7 +363,8 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
      * debugging when visually inspecting the atlas, since there will not be
      * portions of old images visible in currently unused atlas space.
      *
-     * @param shouldFill
+     * @param shouldFill true&rarr;overwrite with blank data, false&rarr;don't
+     * overwrite
      */
     @Override
     public void fillRemovedImagesInAtlas(final boolean shouldFill) {
@@ -392,7 +394,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
             return;
         }
 
-        // all is well, we can execute the modify right away
+        // All is well. We can execute the modify right away.
         renderer.modifyTexture(textureAtlas, image, x, y);
     }
 
@@ -468,8 +470,8 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     /**
      * This class helps us to manage the batch data. We'll keep a bunch of
      * instances of this class around that will be reused when needed. Each
-     * Batch instance provides room for a certain amount of vertices and we'll
-     * use a new Batch when we exceed this amount of data.
+     * Batch instance provides room for a certain number of vertices. We'll
+     * use a new Batch when we exceed that limit.
      *
      * @author void
      */
@@ -512,7 +514,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         private final Material material;
 
         public Batch() {
-            // setup mesh
+            // set up mesh
             vertexPos.setupData(Usage.Stream, 2, VertexBuffer.Format.Float, BufferUtils.createFloatBuffer(BATCH_MAX_VERTICES * 2));
             vertexPosBuffer = (FloatBuffer) vertexPos.getData();
             mesh.setBuffer(vertexPos);

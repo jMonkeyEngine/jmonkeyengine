@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,9 +64,8 @@ import java.util.logging.Logger;
 public class AndroidJoystickJoyInput14 {
     private static final Logger logger = Logger.getLogger(AndroidJoystickJoyInput14.class.getName());
 
-    private boolean loaded = false;
     private AndroidJoyInput joyInput;
-    private Map<Integer, AndroidJoystick> joystickIndex = new HashMap<Integer, AndroidJoystick>();
+    private Map<Integer, AndroidJoystick> joystickIndex = new HashMap<>();
 
     private static int[] AndroidGamepadButtons = {
             // Dpad buttons
@@ -109,7 +109,7 @@ public class AndroidJoystickJoyInput14 {
 
     public List<Joystick> loadJoysticks(int joyId, InputManager inputManager) {
         logger.log(Level.INFO, "loading Joystick devices");
-        ArrayList<Joystick> joysticks = new ArrayList<Joystick>();
+        ArrayList<Joystick> joysticks = new ArrayList<>();
         joysticks.clear();
         joystickIndex.clear();
 
@@ -118,7 +118,9 @@ public class AndroidJoystickJoyInput14 {
         for (int deviceId : deviceIds) {
             InputDevice dev = InputDevice.getDevice(deviceId);
             int sources = dev.getSources();
-            logger.log(Level.FINE, "deviceId[{0}] sources: {1}", new Object[]{deviceId, sources});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "deviceId[{0}] sources: {1}", new Object[]{deviceId, sources});
+            }
 
             // Verify that the device has gamepad buttons, control sticks, or both.
             if (((sources & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
@@ -127,9 +129,9 @@ public class AndroidJoystickJoyInput14 {
                 if (!gameControllerDeviceIds.contains(deviceId)) {
                     gameControllerDeviceIds.add(deviceId);
                     logger.log(Level.FINE, "Attempting to create joystick for device: {0}", dev);
-                    // Create an AndroidJoystick and store the InputDevice so we
-                    // can later correspond the input from the InputDevice to the
-                    // appropriate jME Joystick event
+                    // Create an AndroidJoystick and store the InputDevice, so we
+                    // can later convert the input from the InputDevice to the
+                    // appropriate jME Joystick event.
                     AndroidJoystick joystick = new AndroidJoystick(inputManager,
                                                                 joyInput,
                                                                 dev,
@@ -144,10 +146,14 @@ public class AndroidJoystickJoyInput14 {
                     // type reported by Android into the jME Joystick axis
                     List<MotionRange> motionRanges = dev.getMotionRanges();
                     for (MotionRange motionRange: motionRanges) {
-                        logger.log(Level.INFO, "motion range: {0}", motionRange.toString());
-                        logger.log(Level.INFO, "axis: {0}", motionRange.getAxis());
+                        if (logger.isLoggable(Level.INFO)) {
+                            logger.log(Level.INFO, "motion range: {0}", motionRange);
+                            logger.log(Level.INFO, "axis: {0}", motionRange.getAxis());
+                        }
                         JoystickAxis axis = joystick.addAxis(motionRange);
-                        logger.log(Level.INFO, "added axis: {0}", axis);
+                        if (logger.isLoggable(Level.INFO)) {
+                            logger.log(Level.INFO, "added axis: {0}", axis);
+                        }
                     }
 
                     // InputDevice has a method for determining if a keyCode is
@@ -158,8 +164,10 @@ public class AndroidJoystickJoyInput14 {
                     // buttons being configured that don't exist on the specific
                     // device, but I haven't found a better way yet.
                     for (int keyCode: AndroidGamepadButtons) {
-                        logger.log(Level.INFO, "button[{0}]: {1}",
-                                new Object[]{keyCode, KeyCharacterMap.deviceHasKey(keyCode)});
+                        if (logger.isLoggable(Level.INFO)) {
+                            logger.log(Level.INFO, "button[{0}]: {1}",
+                                    new Object[]{keyCode, KeyCharacterMap.deviceHasKey(keyCode)});
+                        }
                         if (KeyCharacterMap.deviceHasKey(keyCode)) {
                             // add button even though we aren't sure if the button
                             // actually exists on this InputDevice
@@ -173,13 +181,12 @@ public class AndroidJoystickJoyInput14 {
             }
         }
 
-
-        loaded = true;
         return joysticks;
     }
 
     public boolean onGenericMotion(MotionEvent event) {
         boolean consumed = false;
+        float rawValue, value;
 //        logger.log(Level.INFO, "onGenericMotion event: {0}", event);
         event.getDeviceId();
         event.getSource();
@@ -188,7 +195,8 @@ public class AndroidJoystickJoyInput14 {
         if (joystick != null) {
             for (int androidAxis: joystick.getAndroidAxes()) {
                 String axisName = MotionEvent.axisToString(androidAxis);
-                float value = event.getAxisValue(androidAxis);
+                rawValue = event.getAxisValue(androidAxis);
+                value = JoystickCompatibilityMappings.remapAxisRange(joystick.getAxis(androidAxis), rawValue);
                 int action = event.getAction();
                 if (action == MotionEvent.ACTION_MOVE) {
 //                    logger.log(Level.INFO, "MOVE axis num: {0}, axisName: {1}, value: {2}",
@@ -197,7 +205,7 @@ public class AndroidJoystickJoyInput14 {
                     if (axis != null) {
 //                        logger.log(Level.INFO, "MOVE axis num: {0}, axisName: {1}, value: {2}, deadzone: {3}",
 //                                new Object[]{androidAxis, axisName, value, axis.getDeadZone()});
-                        JoyAxisEvent axisEvent = new JoyAxisEvent(axis, value);
+                        JoyAxisEvent axisEvent = new JoyAxisEvent(axis, value, rawValue);
                         joyInput.addEvent(axisEvent);
                         consumed = true;
                     } else {
@@ -245,8 +253,8 @@ public class AndroidJoystickJoyInput14 {
         private JoystickAxis yAxis;
         private JoystickAxis povX;
         private JoystickAxis povY;
-        private Map<Integer, JoystickAxis> axisIndex = new HashMap<Integer, JoystickAxis>();
-        private Map<Integer, JoystickButton> buttonIndex = new HashMap<Integer, JoystickButton>();
+        private Map<Integer, JoystickAxis> axisIndex = new HashMap<>();
+        private Map<Integer, JoystickButton> buttonIndex = new HashMap<>();
 
         public AndroidJoystick( InputManager inputManager, JoyInput joyInput, InputDevice device,
                                int joyId, String name ) {
@@ -319,8 +327,8 @@ public class AndroidJoystickJoyInput14 {
                 original = JoystickButton.BUTTON_11;
             }
 
-            String logicalId = JoystickCompatibilityMappings.remapComponent( getName(), original );
-            if( logicalId == null ? original != null : !logicalId.equals(original) ) {
+            String logicalId = JoystickCompatibilityMappings.remapButton( getName(), original );
+            if (logger.isLoggable(Level.FINE) && !Objects.equals(logicalId, original)) {
                 logger.log(Level.FINE, "Remapped: {0} to: {1}",
                         new Object[]{original, logicalId});
             }
@@ -350,8 +358,8 @@ public class AndroidJoystickJoyInput14 {
             } else if (motionRange.getAxis() == MotionEvent.AXIS_HAT_Y) {
                 original = JoystickAxis.POV_Y;
             }
-            String logicalId = JoystickCompatibilityMappings.remapComponent( getName(), original );
-            if( logicalId == null ? original != null : !logicalId.equals(original) ) {
+            String logicalId = JoystickCompatibilityMappings.remapAxis( getName(), original );
+            if (logger.isLoggable(Level.FINE) && !Objects.equals(logicalId, original)) {
                 logger.log(Level.FINE, "Remapped: {0} to: {1}",
                         new Object[]{original, logicalId});
             }

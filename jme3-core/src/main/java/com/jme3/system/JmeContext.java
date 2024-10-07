@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,8 +93,17 @@ public interface JmeContext {
     public void setSettings(AppSettings settings);
 
     /**
+     * Accesses the listener that receives events related to this context.
+     *
+     * @return the pre-existing instance
+     */
+    public SystemListener getSystemListener();
+
+    /**
      * Sets the listener that will receive events relating to context
      * creation, update, and destroy.
+     * 
+     * @param listener the desired listener
      */
     public void setSystemListener(SystemListener listener);
 
@@ -185,4 +194,35 @@ public interface JmeContext {
      */
     public void destroy(boolean waitFor);
 
+    /**
+     * Returns the height of the framebuffer.
+     *
+     * @return the height (in pixels)
+     * @throws IllegalStateException for a headless or null context
+     */
+    public int getFramebufferHeight();
+
+    /**
+     * Returns the width of the framebuffer.
+     *
+     * @return the width (in pixels)
+     * @throws IllegalStateException for a headless or null context
+     */
+    public int getFramebufferWidth();
+
+    /**
+     * Returns the screen X coordinate of the left edge of the content area.
+     *
+     * @return the screen X coordinate
+     * @throws IllegalStateException for a headless or null context
+     */
+    public int getWindowXPosition();
+
+    /**
+     * Returns the screen Y coordinate of the top edge of the content area.
+     *
+     * @return the screen Y coordinate
+     * @throws IllegalStateException for a headless or null context
+     */
+    public int getWindowYPosition();
 }

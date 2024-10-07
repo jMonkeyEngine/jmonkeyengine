@@ -61,8 +61,8 @@ public class ParticlePointMesh extends ParticleMesh {
 
         // set positions
         FloatBuffer pb = BufferUtils.createVector3Buffer(numParticles);
-        
-        //if the buffer is already set only update the data
+
+        // if the buffer is already set only update the data
         VertexBuffer buf = getBuffer(VertexBuffer.Type.Position);
         if (buf != null) {
             buf.updateData(pb);
@@ -74,7 +74,7 @@ public class ParticlePointMesh extends ParticleMesh {
 
         // set colors
         ByteBuffer cb = BufferUtils.createByteBuffer(numParticles * 4);
-        
+
         buf = getBuffer(VertexBuffer.Type.Color);
         if (buf != null) {
             buf.updateData(cb);
@@ -87,7 +87,7 @@ public class ParticlePointMesh extends ParticleMesh {
 
         // set sizes
         FloatBuffer sb = BufferUtils.createFloatBuffer(numParticles);
-        
+
         buf = getBuffer(VertexBuffer.Type.Size);
         if (buf != null) {
             buf.updateData(sb);
@@ -98,8 +98,8 @@ public class ParticlePointMesh extends ParticleMesh {
         }
 
         // set UV-scale
-        FloatBuffer tb = BufferUtils.createFloatBuffer(numParticles*4);
-        
+        FloatBuffer tb = BufferUtils.createFloatBuffer(numParticles * 4);
+
         buf = getBuffer(VertexBuffer.Type.TexCoord);
         if (buf != null) {
             buf.updateData(tb);
@@ -108,7 +108,7 @@ public class ParticlePointMesh extends ParticleMesh {
             tvb.setupData(Usage.Stream, 4, Format.Float, tb);
             setBuffer(tvb);
         }
-        
+
         updateCounts();
     }
 
@@ -133,9 +133,10 @@ public class ParticlePointMesh extends ParticleMesh {
         colors.rewind();
         sizes.rewind();
         texcoords.rewind();
-        for (int i = 0; i < particles.length; i++){
+        
+        for (int i = 0; i < particles.length; i++) {
             Particle p = particles[i];
-            
+
             positions.put(p.position.x)
                      .put(p.position.y)
                      .put(p.position.z);
@@ -144,15 +145,16 @@ public class ParticlePointMesh extends ParticleMesh {
             colors.putInt(p.color.asIntABGR());
 
             int imgX = p.imageIndex % imagesX;
-            int imgY = p.imageIndex/imagesX;
+            int imgY = p.imageIndex / imagesX;
 
             float startX = ((float) imgX) / imagesX;
             float startY = ((float) imgY) / imagesY;
-            float endX   = startX + (1f / imagesX);
-            float endY   = startY + (1f / imagesY);
+            float endX = startX + (1f / imagesX);
+            float endY = startY + (1f / imagesY);
 
             texcoords.put(startX).put(startY).put(endX).put(endY);
         }
+        
         positions.flip();
         colors.flip();
         sizes.flip();

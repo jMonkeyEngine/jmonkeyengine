@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,14 +35,15 @@ import com.jme3.asset.ModelKey;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * An optional key to use when loading a glTF file
- * It allows to specify custom data loader replacing the default ones.
+ * It allows you to specify custom data loader, replacing the default ones.
  *
- * MaterialAdapters: Allows to map glTF standard material model to a non stock material.
- * ExtensionLoaders: Allows to provide or override a loader for a given gltf extension.
- * ExtrasLoader: Allows to load any extras, application specific data of the gltf file.
+ * MaterialAdapters: Allows you to map glTF standard material model to a non-stock material.
+ * ExtensionLoaders: Allows you to provide or override a loader for a given glTF extension.
+ * ExtrasLoader: Allows you to load any extras, application specific data of the glTF file.
  *
  * For more information, please see glTF 2.0 specifications
  * https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md
@@ -53,8 +54,8 @@ public class GltfModelKey extends ModelKey {
 
     private Map<String, MaterialAdapter> materialAdapters = new HashMap<>();
     private static Map<String, ExtensionLoader> extensionLoaders = new HashMap<>();
-    private ExtrasLoader extrasLoader;
     private boolean keepSkeletonPose = false;
+    private ExtrasLoader extrasLoader;
 
     public GltfModelKey(String name) {
         super(name);
@@ -109,9 +110,38 @@ public class GltfModelKey extends ModelKey {
     /**
      * Sets the ExtrasLoader for reading any extra information from the gltf file.
      *
-     * @param extrasLoader
+     * @param extrasLoader the desired loader
      */
     public void setExtrasLoader(ExtrasLoader extrasLoader) {
         this.extrasLoader = extrasLoader;
     }
+    
+    @Override
+    public boolean equals(Object object) {
+        if (object == null) {
+            return false;
+        }
+        if (getClass() != object.getClass()) {
+            return false;
+        }
+        final GltfModelKey other = (GltfModelKey)object;
+        if (!super.equals(other)) {
+            return false;
+        }
+        if (!Objects.equals(materialAdapters, other.materialAdapters)
+                || !Objects.equals(extrasLoader, other.extrasLoader)) {
+            return false;
+        }
+        return keepSkeletonPose == other.keepSkeletonPose;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + materialAdapters.hashCode();
+        hash = 37 * hash + Objects.hashCode(this.extrasLoader);
+        hash = 37 * hash + (this.keepSkeletonPose ? 1 : 0);
+        return hash;
+    }
+    
 }

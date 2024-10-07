@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,15 +72,15 @@ public class ObjectStore {
     // Local invocation ID counter
     private volatile short invocationIdCounter = 0;
 
-    // Invocations waiting ..
-    private IntMap<Invocation> pendingInvocations = new IntMap<Invocation>();
+    // Invocations waiting
+    private IntMap<Invocation> pendingInvocations = new IntMap<>();
     
     // Objects I share with other people
-    private IntMap<LocalObject> localObjects = new IntMap<LocalObject>();
+    private IntMap<LocalObject> localObjects = new IntMap<>();
 
     // Objects others share with me
-    private HashMap<String, RemoteObject> remoteObjects = new HashMap<String, RemoteObject>();
-    private IntMap<RemoteObject> remoteObjectsById = new IntMap<RemoteObject>();
+    private HashMap<String, RemoteObject> remoteObjects = new HashMap<>();
+    private IntMap<RemoteObject> remoteObjectsById = new IntMap<>();
 
     private final Object receiveObjectLock = new Object();
 
@@ -164,7 +164,7 @@ public class ObjectStore {
         localObj.theObject = obj;
         //localObj.methods   = obj.getClass().getMethods();
         
-        ArrayList<Method> methodList = new ArrayList<Method>();
+        ArrayList<Method> methodList = new ArrayList<>();
         for (Method method : obj.getClass().getMethods()){
             if (method.getDeclaringClass() == obj.getClass()){
                 methodList.add(method);
@@ -328,7 +328,7 @@ public class ObjectStore {
 
     private void onConnection(HostedConnection conn) {
         if (localObjects.size() > 0){
-            // send a object definition message
+            // send an object definition message
             ObjectDef[] defs = new ObjectDef[localObjects.size()];
             int i = 0;
             for (Entry<LocalObject> entry : localObjects){

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,12 @@
  */
 package jme3test.model.anim;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.AnimEventListener;
-import com.jme3.animation.LoopMode;
-import com.jme3.animation.SkeletonControl;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.SkinningControl;
+import com.jme3.anim.tween.Tween;
+import com.jme3.anim.tween.Tweens;
+import com.jme3.anim.tween.action.Action;
+import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -56,15 +57,15 @@ import com.jme3.scene.shape.Box;
  * Derived from {@link jme3test.model.anim.TestOgreAnim}.
  */
 public class TestAttachmentsNode extends SimpleApplication
-        implements AnimEventListener, ActionListener {
+        implements ActionListener {
+
+    private Action punchesOnce;
+    private AnimComposer control;
 
     public static void main(String[] args) {
         TestAttachmentsNode app = new TestAttachmentsNode();
         app.start();
     }
-
-    private AnimChannel channel;
-    private AnimControl control;
 
     @Override
     public void simpleInitApp() {
@@ -76,23 +77,40 @@ public class TestAttachmentsNode extends SimpleApplication
         dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
         dl.setColor(ColorRGBA.White);
         rootNode.addLight(dl);
-
+        /*
+         * Load the Jaime model and convert it
+         * from the old animation system to the new one.
+         */
         Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
-        control = model.getControl(AnimControl.class);
-        SkeletonControl skeletonControl = model.getControl(SkeletonControl.class);
+        AnimMigrationUtils.migrate(model);
+        /*
+         * Play the "Idle" animation at half speed.
+         */
+        control = model.getControl(AnimComposer.class);
+        control.setCurrentAction("Idle");
+        control.setGlobalSpeed(0.5f);
+        /*
+         * Define a "PunchesOnce" action sequence to play the "Punches"
+         * animation for one cycle before returning to idle.
+         */
+        Action punches = control.action("Punches");
+        Tween doneTween
+                = Tweens.callMethod(control, "setCurrentAction", "Idle");
+        punchesOnce = control.actionSequence("PunchesOnce", punches, doneTween);
 
         model.center();
         model.setLocalScale(5f);
-
-        control.addListener(this);
-        channel = control.createChannel();
-        channel.setAnim("Idle");
 
         Box box = new Box(0.3f, 0.02f, 0.02f);
         Geometry saber = new Geometry("saber", box);
         saber.move(0.4f, 0.05f, 0.01f);
         Material red = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
         saber.setMaterial(red);
+        /*
+         * Create an attachments node for Jaime's right hand,
+         * and attach the saber to that Node.
+         */
+        SkinningControl skeletonControl = model.getControl(SkinningControl.class);
         Node n = skeletonControl.getAttachmentsNode("hand.R");
         n.attachChild(saber);
         rootNode.attachChild(model);
@@ -102,26 +120,10 @@ public class TestAttachmentsNode extends SimpleApplication
     }
 
     @Override
-    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
-        if (animName.equals("Punches")) {
-            channel.setAnim("Idle", 0.5f);
-            channel.setLoopMode(LoopMode.DontLoop);
-            channel.setSpeed(1f);
-        }
-    }
-
-    @Override
-    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
-    }
-
-    @Override
     public void onAction(String binding, boolean value, float tpf) {
-        if (binding.equals("Attack") && value) {
-            if (!channel.getAnimationName().equals("Punches")) {
-                channel.setAnim("Punches", 0.5f);
-                channel.setLoopMode(LoopMode.Cycle);
-                channel.setSpeed(0.5f);
-            }
+        if (value && binding.equals("Attack")
+                && control.getCurrentAction() != punchesOnce) {
+            control.setCurrentAction("PunchesOnce");
         }
     }
 }

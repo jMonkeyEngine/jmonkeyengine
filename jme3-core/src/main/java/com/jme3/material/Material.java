@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,9 +43,11 @@ import com.jme3.math.*;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
+import com.jme3.renderer.TextureUnitException;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.*;
+import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.image.ColorSpace;
@@ -64,7 +66,7 @@ import java.util.logging.Logger;
  * those parameters map to uniforms which are defined in a shader.
  * Setting the parameters can modify the behavior of a
  * shader.
- * <p/>
+ * </p>
  *
  * @author Kirill Vainer
  */
@@ -77,18 +79,28 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private AssetKey key;
     private String name;
     private MaterialDef def;
-    private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
+    private ListMap<String, MatParam> paramValues = new ListMap<>();
     private Technique technique;
-    private HashMap<String, Technique> techniques = new HashMap<String, Technique>();
+    private HashMap<String, Technique> techniques = new HashMap<>();
     private RenderState additionalState = null;
-    private RenderState mergedRenderState = new RenderState();
+    private final RenderState mergedRenderState = new RenderState();
     private boolean transparent = false;
     private boolean receivesShadows = false;
     private int sortingId = -1;
 
+    /**
+     * Track bind ids for textures and buffers
+     * Used internally 
+     */
+    public static class BindUnits {
+        public int textureUnit = 0;
+        public int bufferUnit = 0;
+    }
+    private BindUnits bindUnits = new BindUnits();
+
     public Material(MaterialDef def) {
         if (def == null) {
-            throw new NullPointerException("Material definition cannot be null");
+            throw new IllegalArgumentException("Material definition cannot be null");
         }
         this.def = def;
 
@@ -295,6 +307,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
     /**
      * Works like {@link Object#hashCode() } except it may change together with the material as the material is mutable by definition.
+     * 
+     * @return value for use in hashing
      */
     public int contentHashCode() {
         int hash = 7;
@@ -413,6 +427,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     /**
      * Returns the current parameter's value.
      *
+     * @param <T> the expected type of the parameter value
      * @param name the parameter name to look up.
      * @return current value or null if the parameter wasn't set.
      */
@@ -503,6 +518,18 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
+     * Pass a parameter to the material shader.
+     *
+     * @param name the name of the parameter defined in the material definition (j3md)
+     * @param value the value of the parameter
+     */
+    public void setParam(String name, Object value) {
+        MatParam p = getMaterialDef().getMaterialParam(name);
+        setParam(name, p.getVarType(), value);
+    }
+
+
+    /**
      * Clear a parameter from this material. The parameter must exist
      * @param name the name of the parameter to clear
      */
@@ -559,11 +586,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         MatParamTexture paramDef = (MatParamTexture) def.getMaterialParam(name);
         if (paramDef.getColorSpace() != null && paramDef.getColorSpace() != value.getImage().getColorSpace()) {
             value.getImage().setColorSpace(paramDef.getColorSpace());
-            logger.log(Level.FINE, "Material parameter {0} needs a {1} texture, "
-                            + "texture {2} was switched to {3} color space.",
-                    new Object[]{name, paramDef.getColorSpace().toString(),
-                            value.getName(),
-                            value.getImage().getColorSpace().name()});
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Material parameter {0} needs a {1} texture, "
+                                + "texture {2} was switched to {3} color space.",
+                        new Object[]{name, paramDef.getColorSpace().toString(),
+                                value.getName(),
+                                value.getImage().getColorSpace().name()});
+            }
         } else if (paramDef.getColorSpace() == null && value.getName() != null && value.getImage().getColorSpace() == ColorSpace.Linear) {
             logger.log(Level.WARNING,
                     "The texture {0} has linear color space, but the material "
@@ -679,8 +708,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param value the buffer object.
      */
     public void setUniformBufferObject(final String name, final BufferObject value) {
-        value.setBufferType(BufferObject.BufferType.UniformBufferObject);
-        setParam(name, VarType.BufferObject, value);
+        setParam(name, VarType.UniformBufferObject, value);
     }
 
     /**
@@ -690,8 +718,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param value the buffer object.
      */
     public void setShaderStorageBufferObject(final String name, final BufferObject value) {
-        value.setBufferType(BufferObject.BufferType.ShaderStorageBufferObject);
-        setParam(name, VarType.BufferObject, value);
+        setParam(name, VarType.ShaderStorageBufferObject, value);
     }
 
     /**
@@ -775,7 +802,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                                 + "The capabilities %s are required.",
                                 name, def.getName(), lastTech.getRequiredCaps()));
             }
-            logger.log(Level.FINE, this.getMaterialDef().getName() + " selected technique def " + tech.getDef());
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, this.getMaterialDef().getName() + " selected technique def " + tech.getDef());
+            }
         } else if (technique == tech) {
             // attempting to switch to an already
             // active technique.
@@ -789,7 +818,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         sortingId = -1;
     }
 
-    private int applyOverrides(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> overrides, int unit) {
+    private void applyOverrides(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> overrides, BindUnits bindUnits) {
         for (MatParamOverride override : overrides.getArray()) {
             VarType type = override.getVarType();
 
@@ -802,29 +831,64 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             Uniform uniform = shader.getUniform(override.getPrefixedName());
 
             if (override.getValue() != null) {
-                if (type.isTextureType()) {
-                    renderer.setTexture(unit, (Texture) override.getValue());
-                    uniform.setValue(VarType.Int, unit);
-                    unit++;
-                } else {
-                    uniform.setValue(type, override.getValue());
-                }
+                updateShaderMaterialParameter(renderer, type, shader, override, bindUnits, true);
             } else {
                 uniform.clearValue();
             }
         }
-        return unit;
     }
 
-    private int updateShaderMaterialParameters(Renderer renderer, Shader shader,
-                                               SafeArrayList<MatParamOverride> worldOverrides, SafeArrayList<MatParamOverride> forcedOverrides) {
 
-        int unit = 0;
+    private void updateShaderMaterialParameter(Renderer renderer, VarType type, Shader shader, MatParam param, BindUnits unit, boolean override) {
+        if (type == VarType.UniformBufferObject || type == VarType.ShaderStorageBufferObject) {
+            ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
+            BufferObject bufferObject = (BufferObject) param.getValue();
+
+            ShaderBufferBlock.BufferType btype;
+            if (type == VarType.ShaderStorageBufferObject) {
+                btype = ShaderBufferBlock.BufferType.ShaderStorageBufferObject;
+                bufferBlock.setBufferObject(btype, bufferObject);
+                renderer.setShaderStorageBufferObject(unit.bufferUnit, bufferObject); // TODO: probably not needed
+            } else {
+                btype = ShaderBufferBlock.BufferType.UniformBufferObject;
+                bufferBlock.setBufferObject(btype, bufferObject);
+                renderer.setUniformBufferObject(unit.bufferUnit, bufferObject); // TODO: probably not needed
+            }
+            unit.bufferUnit++;
+        } else {
+            Uniform uniform = shader.getUniform(param.getPrefixedName());
+            if (!override && uniform.isSetByCurrentMaterial()) return;
+
+            if (type.isTextureType()) {
+                try {
+                    renderer.setTexture(unit.textureUnit, (Texture) param.getValue());
+                } catch (TextureUnitException exception) {
+                    int numTexParams = unit.textureUnit + 1;
+                    String message = "Too many texture parameters (" + numTexParams + ") assigned\n to " + toString();
+                    throw new IllegalStateException(message);
+                }
+                uniform.setValue(VarType.Int, unit.textureUnit);
+                unit.textureUnit++;
+            } else {
+                uniform.setValue(type, param.getValue());
+            }
+        }
+    }
+
+
+
+
+    private BindUnits updateShaderMaterialParameters(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> worldOverrides,
+            SafeArrayList<MatParamOverride> forcedOverrides) {
+
+        bindUnits.textureUnit = 0;
+        bindUnits.bufferUnit = 0;
+
         if (worldOverrides != null) {
-            unit = applyOverrides(renderer, shader, worldOverrides, unit);
+            applyOverrides(renderer, shader, worldOverrides, bindUnits);
         }
         if (forcedOverrides != null) {
-            unit = applyOverrides(renderer, shader, forcedOverrides, unit);
+            applyOverrides(renderer, shader, forcedOverrides, bindUnits);
         }
 
         for (int i = 0; i < paramValues.size(); i++) {
@@ -832,52 +896,48 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             MatParam param = paramValues.getValue(i);
             VarType type = param.getVarType();
 
-            if (isBO(type)) {
-
-                final ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
-                bufferBlock.setBufferObject((BufferObject) param.getValue());
-
-            } else {
-
-                Uniform uniform = shader.getUniform(param.getPrefixedName());
-                if (uniform.isSetByCurrentMaterial()) {
-                    continue;
-                }
-
-                if (type.isTextureType()) {
-                    renderer.setTexture(unit, (Texture) param.getValue());
-                    uniform.setValue(VarType.Int, unit);
-                    unit++;
-                } else {
-                    uniform.setValue(type, param.getValue());
-                }
-            }
+            updateShaderMaterialParameter(renderer, type, shader, param, bindUnits, false);
         }
 
-        //TODO HACKY HACK remove this when texture unit is handled by the uniform.
-        return unit;
+        // TODO HACKY HACK remove this when texture unit is handled by the
+        // uniform.
+        return bindUnits;
+    }
+
+
+
+    private void updateRenderState(Geometry geometry, RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
+        RenderState finalRenderState;
+        if (renderManager.getForcedRenderState() != null) {
+            finalRenderState = mergedRenderState.copyFrom(renderManager.getForcedRenderState());
+        } else if (techniqueDef.getRenderState() != null) {
+            finalRenderState = mergedRenderState.copyFrom(RenderState.DEFAULT);
+            finalRenderState = techniqueDef.getRenderState().copyMergedTo(additionalState, finalRenderState);
+        } else {
+            finalRenderState = mergedRenderState.copyFrom(RenderState.DEFAULT);
+            finalRenderState = RenderState.DEFAULT.copyMergedTo(additionalState, finalRenderState);
+        }
+        // test if the face cull mode should be flipped before render
+        if (finalRenderState.isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
+            finalRenderState.flipFaceCull();
+        }
+        renderer.applyRenderState(finalRenderState);
     }
 
     /**
-     * Returns true if the type is Buffer Object's type.
-     *
-     * @param type the material parameter type.
-     * @return true if the type is Buffer Object's type.
+     * Returns true if the geometry world scale indicates that normals will be backward.
+     * @param scalar geometry world scale
+     * @return 
      */
-    private boolean isBO(final VarType type) {
-        return type == VarType.BufferObject;
-    }
-
-    private void updateRenderState(RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
-        if (renderManager.getForcedRenderState() != null) {
-            renderer.applyRenderState(renderManager.getForcedRenderState());
-        } else {
-            if (techniqueDef.getRenderState() != null) {
-                renderer.applyRenderState(techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState));
-            } else {
-                renderer.applyRenderState(RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState));
-            }
-        }
+    private boolean isNormalsBackward(Vector3f scalar) {
+        // count number of negative scalar vector components
+        int n = 0;
+        if (scalar.x < 0) n++;
+        if (scalar.y < 0) n++;
+        if (scalar.z < 0) n++;
+        // An odd number of negative components means the normal vectors
+        // are backward to what they should be.
+        return n == 1 || n == 3;
     }
     
     /**
@@ -888,6 +948,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * been already been setup for rendering.
      *
      * @param renderManager The render manager to preload for
+     * @param geometry to determine the applicable parameter overrides, if any
      */
     public void preload(RenderManager renderManager, Geometry geometry) {
         if (technique == null) {
@@ -956,11 +1017,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * <li>Set the {@link RenderState} to use for rendering. The render states are
      * applied in this order (later RenderStates override earlier RenderStates):<ol>
      * <li>{@link TechniqueDef#getRenderState() Technique Definition's RenderState}
-     * - i.e. specific renderstate that is required for the shader.</li>
+     * - i.e. specific RenderState that is required for the shader.</li>
      * <li>{@link #getAdditionalRenderState() Material Instance Additional RenderState}
-     * - i.e. ad-hoc renderstate set per model</li>
+     * - i.e. ad-hoc RenderState set per model</li>
      * <li>{@link RenderManager#getForcedRenderState() RenderManager's Forced RenderState}
-     * - i.e. renderstate requested by a {@link com.jme3.post.SceneProcessor} or
+     * - i.e. RenderState requested by a {@link com.jme3.post.SceneProcessor} or
      * post-processing filter.</li></ol>
      * <li>If the technique uses a shader, then the uniforms of the shader must be updated.<ul>
      * <li>Uniforms bound to material parameters are updated based on the current material parameter values.</li>
@@ -1005,7 +1066,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         // Apply render state
-        updateRenderState(renderManager, renderer, techniqueDef);
+        updateRenderState(geometry, renderManager, renderer, techniqueDef);
 
         // Get world overrides
         SafeArrayList<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();
@@ -1020,13 +1081,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         renderManager.updateUniformBindings(shader);
         
         // Set material parameters
-        int unit = updateShaderMaterialParameters(renderer, shader, overrides, renderManager.getForcedMatParams());
+        BindUnits units = updateShaderMaterialParameters(renderer, shader, overrides, renderManager.getForcedMatParams());
 
         // Clear any uniforms not changed by material.
         resetUniformsNotSetByCurrent(shader);
         
         // Delegate rendering to the technique
-        technique.render(renderManager, shader, geometry, lights, unit);
+        technique.render(renderManager, shader, geometry, lights, units);
     }
 
     /**
@@ -1097,7 +1158,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 // Using SimpleTextured/SolidColor, just switch to Unshaded
                 defName = "Common/MatDefs/Misc/Unshaded.j3md";
             } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/WireColor.j3md")) {
-                // Using WireColor, set wireframe renderstate = true and use Unshaded
+                // Using WireColor, set wireframe render state = true and use Unshaded
                 getAdditionalRenderState().setWireframe(true);
                 defName = "Common/MatDefs/Misc/Unshaded.j3md";
             } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/Unshaded.j3md")) {

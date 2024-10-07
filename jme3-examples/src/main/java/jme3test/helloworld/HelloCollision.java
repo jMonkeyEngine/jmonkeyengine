@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,6 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 /**
@@ -58,17 +57,14 @@ import com.jme3.scene.Spatial;
 public class HelloCollision extends SimpleApplication
         implements ActionListener {
 
-  private Spatial sceneModel;
-  private BulletAppState bulletAppState;
-  private RigidBodyControl landscape;
   private CharacterControl player;
-  private Vector3f walkDirection = new Vector3f();
+  final private Vector3f walkDirection = new Vector3f();
   private boolean left = false, right = false, up = false, down = false;
   
   //Temporary vectors used on each frame.
-  //They here to avoid instanciating new vectors on each frame
-  private Vector3f camDir = new Vector3f();
-  private Vector3f camLeft = new Vector3f();
+  //They here to avoid instantiating new vectors on each frame
+  final private Vector3f camDir = new Vector3f();
+  final private Vector3f camLeft = new Vector3f();
 
   public static void main(String[] args) {
     HelloCollision app = new HelloCollision();
@@ -77,10 +73,9 @@ public class HelloCollision extends SimpleApplication
 
   @Override
   public void simpleInitApp() {
-    /** Set up Physics */
-    bulletAppState = new BulletAppState();
+    /* Set up physics */
+    BulletAppState bulletAppState = new BulletAppState();
     stateManager.attach(bulletAppState);
-    //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 
     // We re-use the flyby camera for rotation, while positioning is handled by physics
     viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
@@ -92,20 +87,20 @@ public class HelloCollision extends SimpleApplication
     assetManager.registerLocator(
                     "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/town.zip",
                     HttpZipLocator.class);
-    sceneModel = assetManager.loadModel("main.scene");
+    Spatial sceneModel = assetManager.loadModel("main.scene");
     sceneModel.setLocalScale(2f);
 
     // We set up collision detection for the scene by creating a
     // compound collision shape and a static RigidBodyControl with mass zero.
     CollisionShape sceneShape =
             CollisionShapeFactory.createMeshShape(sceneModel);
-    landscape = new RigidBodyControl(sceneShape, 0);
+    RigidBodyControl landscape = new RigidBodyControl(sceneShape, 0);
     sceneModel.addControl(landscape);
 
     // We set up collision detection for the player by creating
     // a capsule collision shape and a CharacterControl.
     // The CharacterControl offers extra settings for
-    // size, stepheight, jumping, falling, and gravity.
+    // size, step height, jumping, falling, and gravity.
     // We also put the player in its starting position.
     CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1.5f, 6f, 1);
     player = new CharacterControl(capsuleShape, 0.05f);

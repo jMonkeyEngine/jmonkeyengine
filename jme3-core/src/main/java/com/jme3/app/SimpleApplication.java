@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2022 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,16 +54,14 @@ import com.jme3.system.JmeSystem;
  * <code>SimpleApplication</code> will display a statistics view
  * using the {@link com.jme3.app.StatsAppState} AppState. It will display
  * the current frames-per-second value on-screen in addition to the statistics.
- * Several keys have special functionality in <code>SimpleApplication</code>:<br/>
+ * Several keys have special functionality in <code>SimpleApplication</code>:<br>
  *
- * <table>
- * <tr><td>Esc</td><td>- Close the application</td></tr>
- * <tr><td>C</td><td>- Display the camera position and rotation in the console.</td></tr>
- * <tr><td>M</td><td>- Display memory usage in the console.</td></tr>
- * </table>
+ *  Esc - Close the application.<br>
+ *  C - Display the camera position and rotation in the console.<br>
+ *  M - Display memory usage in the console.<br>
  *
  * A {@link com.jme3.app.FlyCamAppState} is by default attached as well and can
- * be removed by calling <code>stateManager.detach( stateManager.getState(FlyCamAppState.class) );</code>
+ * be removed by calling <code>stateManager.detach(stateManager.getState(FlyCamAppState.class));</code>
  */
 public abstract class SimpleApplication extends LegacyApplication {
 
@@ -78,7 +76,7 @@ public abstract class SimpleApplication extends LegacyApplication {
     protected BitmapFont guiFont;
     protected FlyByCamera flyCam;
     protected boolean showSettings = true;
-    private AppActionListener actionListener = new AppActionListener();
+    private final AppActionListener actionListener = new AppActionListener();
 
     private class AppActionListener implements ActionListener {
 
@@ -90,7 +88,7 @@ public abstract class SimpleApplication extends LegacyApplication {
 
             if (name.equals(INPUT_MAPPING_EXIT)) {
                 stop();
-            }else if (name.equals(INPUT_MAPPING_HIDE_STATS)){
+            } else if (name.equals(INPUT_MAPPING_HIDE_STATS)) {
                 if (stateManager.getState(StatsAppState.class) != null) {
                     stateManager.getState(StatsAppState.class).toggleStats();
                 }
@@ -100,10 +98,10 @@ public abstract class SimpleApplication extends LegacyApplication {
 
     public SimpleApplication() {
         this(new StatsAppState(), new FlyCamAppState(), new AudioListenerState(), new DebugKeysAppState(),
-             new ConstantVerifierState());
+                new ConstantVerifierState());
     }
 
-    public SimpleApplication( AppState... initialStates ) {
+    public SimpleApplication(AppState... initialStates) {
         super(initialStates);
     }
 
@@ -127,18 +125,18 @@ public abstract class SimpleApplication extends LegacyApplication {
         setSettings(settings);
         super.start();
     }
-        
+
     /**
-     * Returns the applications speed.
+     * Returns the application's speed.
      *
      * @return The speed of the application.
      */
     public float getSpeed() {
         return speed;
     }
-    
+
     /**
-     * Changes the application speed. 0.0f prevents the application from updating.
+     * Changes the application's speed. 0.0f prevents the application from updating.
      * @param speed The speed to set.
      */
     public void setSpeed(float speed) {
@@ -188,6 +186,8 @@ public abstract class SimpleApplication extends LegacyApplication {
     /**
      *  Creates the font that will be set to the guiFont field
      *  and subsequently set as the font for the stats text.
+     *
+     * @return the loaded BitmapFont
      */
     protected BitmapFont loadGuiFont() {
         return assetManager.loadFont("Interface/Fonts/Default.fnt");
@@ -214,7 +214,7 @@ public abstract class SimpleApplication extends LegacyApplication {
             if (stateManager.getState(FlyCamAppState.class) != null) {
                 flyCam = new FlyByCamera(cam);
                 flyCam.setMoveSpeed(1f); // odd to set this here but it did it before
-                stateManager.getState(FlyCamAppState.class).setCamera( flyCam );
+                stateManager.getState(FlyCamAppState.class).setCamera(flyCam);
             }
 
             if (context.getType() == Type.Display) {
@@ -230,7 +230,7 @@ public abstract class SimpleApplication extends LegacyApplication {
         }
 
         if (stateManager.getState(StatsAppState.class) != null) {
-            // Some of the tests rely on having access to fpsText
+            // Some tests rely on having access to fpsText
             // for quick display.  Maybe a different way would be better.
             stateManager.getState(StatsAppState.class).setFont(guiFont);
             fpsText = stateManager.getState(StatsAppState.class).getFpsText();
@@ -242,7 +242,9 @@ public abstract class SimpleApplication extends LegacyApplication {
 
     @Override
     public void update() {
-        if (prof!=null) prof.appStep(AppStep.BeginFrame);
+        if (prof != null) {
+            prof.appStep(AppStep.BeginFrame);
+        }
 
         super.update(); // makes sure to execute AppTasks
         if (speed == 0 || paused) {
@@ -252,13 +254,17 @@ public abstract class SimpleApplication extends LegacyApplication {
         float tpf = timer.getTimePerFrame() * speed;
 
         // update states
-        if (prof!=null) prof.appStep(AppStep.StateManagerUpdate);
+        if (prof != null) {
+            prof.appStep(AppStep.StateManagerUpdate);
+        }
         stateManager.update(tpf);
 
         // simple update and root node
         simpleUpdate(tpf);
 
-        if (prof!=null) prof.appStep(AppStep.SpatialUpdate);
+        if (prof != null) {
+            prof.appStep(AppStep.SpatialUpdate);
+        }
         rootNode.updateLogicalState(tpf);
         guiNode.updateLogicalState(tpf);
 
@@ -266,15 +272,21 @@ public abstract class SimpleApplication extends LegacyApplication {
         guiNode.updateGeometricState();
 
         // render states
-        if (prof!=null) prof.appStep(AppStep.StateManagerRender);
+        if (prof != null) {
+            prof.appStep(AppStep.StateManagerRender);
+        }
         stateManager.render(renderManager);
 
-        if (prof!=null) prof.appStep(AppStep.RenderFrame);
+        if (prof != null) {
+            prof.appStep(AppStep.RenderFrame);
+        }
         renderManager.render(tpf, context.isRenderable());
         simpleRender(renderManager);
         stateManager.postRender();
 
-        if (prof!=null) prof.appStep(AppStep.EndFrame);
+        if (prof != null) {
+            prof.appStep(AppStep.EndFrame);
+        }
     }
 
     public void setDisplayFps(boolean show) {

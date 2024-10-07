@@ -26,12 +26,12 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Dependent {
 
     /**
-     * The class of the refined qualifier to be applied.
+     * @return the class of the refined qualifier to be applied.
      */
     Class<? extends Annotation> result();
 
     /**
-     * The qualifier class of the receiver that causes the {@code result}
+     * @return the qualifier class of the receiver that causes the {@code result}
      * qualifier to be applied.
      */
     Class<? extends Annotation> when();

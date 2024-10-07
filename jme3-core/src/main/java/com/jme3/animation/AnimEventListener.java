@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ public interface AnimEventListener {
     public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName);
 
     /**
-     * Invoked when a animation is set to play by the user on the given channel.
+     * Invoked when an animation is set to play by the user on the given channel.
      *
      * @param control The control to which the listener is assigned.
      * @param channel The channel being altered

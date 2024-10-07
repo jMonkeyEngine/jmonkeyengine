@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -127,7 +127,7 @@ public class PhysicsSpace {
                     return new ConcurrentLinkedQueue<AppTask<?>>();
                 }
             };
-    private ConcurrentLinkedQueue<AppTask<?>> pQueue = new ConcurrentLinkedQueue<AppTask<?>>();
+    private ConcurrentLinkedQueue<AppTask<?>> pQueue = new ConcurrentLinkedQueue<>();
     private static ThreadLocal<PhysicsSpace> physicsSpaceTL = new ThreadLocal<PhysicsSpace>();
     private DiscreteDynamicsWorld dynamicsWorld = null;
     private BroadphaseInterface broadphase;
@@ -135,19 +135,19 @@ public class PhysicsSpace {
     private CollisionDispatcher dispatcher;
     private ConstraintSolver solver;
     private DefaultCollisionConfiguration collisionConfiguration;
-    private Map<PairCachingGhostObject, PhysicsGhostObject> physicsGhostObjects = new ConcurrentHashMap<PairCachingGhostObject, PhysicsGhostObject>();
-    private Map<PairCachingGhostObject, PhysicsCharacter> physicsCharacters = new ConcurrentHashMap<PairCachingGhostObject, PhysicsCharacter>();
-    private Map<RigidBody, PhysicsRigidBody> physicsBodies = new ConcurrentHashMap<RigidBody, PhysicsRigidBody>();
-    private Map<TypedConstraint, PhysicsJoint> physicsJoints = new ConcurrentHashMap<TypedConstraint, PhysicsJoint>();
-    private Map<RaycastVehicle, PhysicsVehicle> physicsVehicles = new ConcurrentHashMap<RaycastVehicle, PhysicsVehicle>();
+    private Map<PairCachingGhostObject, PhysicsGhostObject> physicsGhostObjects = new ConcurrentHashMap<>();
+    private Map<PairCachingGhostObject, PhysicsCharacter> physicsCharacters = new ConcurrentHashMap<>();
+    private Map<RigidBody, PhysicsRigidBody> physicsBodies = new ConcurrentHashMap<>();
+    private Map<TypedConstraint, PhysicsJoint> physicsJoints = new ConcurrentHashMap<>();
+    private Map<RaycastVehicle, PhysicsVehicle> physicsVehicles = new ConcurrentHashMap<>();
     /**
      * map from collision groups to registered group listeners
      */
-    private Map<Integer, PhysicsCollisionGroupListener> collisionGroupListeners = new ConcurrentHashMap<Integer, PhysicsCollisionGroupListener>();
+    private Map<Integer, PhysicsCollisionGroupListener> collisionGroupListeners = new ConcurrentHashMap<>();
     /**
      * queue of registered tick listeners
      */
-    private ConcurrentLinkedQueue<PhysicsTickListener> tickListeners = new ConcurrentLinkedQueue<PhysicsTickListener>();
+    private ConcurrentLinkedQueue<PhysicsTickListener> tickListeners = new ConcurrentLinkedQueue<>();
     /**
      * list of registered collision listeners
      */
@@ -156,7 +156,7 @@ public class PhysicsSpace {
     /**
      * queue of collision events not yet distributed to listeners
      */
-    private ArrayDeque<PhysicsCollisionEvent> collisionEvents = new ArrayDeque<PhysicsCollisionEvent>();
+    private ArrayDeque<PhysicsCollisionEvent> collisionEvents = new ArrayDeque<>();
     private PhysicsCollisionEventFactory eventFactory = new PhysicsCollisionEventFactory();
     /**
      * copy of minimum coordinate values when using AXIS_SWEEP broadphase
@@ -182,7 +182,7 @@ public class PhysicsSpace {
     private com.bulletphysics.linearmath.Transform sweepTrans2 = new com.bulletphysics.linearmath.Transform(new javax.vecmath.Matrix3f());
 
     /**
-     * Get the current PhysicsSpace <b>running on this thread</b><br/>
+     * Get the current PhysicsSpace <b>running on this thread</b><br>
      * For parallel physics, this can also be called from the OpenGL thread to receive the PhysicsSpace
      * @return the PhysicsSpace running on this thread
      */
@@ -192,7 +192,8 @@ public class PhysicsSpace {
 
     /**
      * Used internally
-     * @param space
+     *
+     * @param space which space to simulate on the current thread
      */
     public static void setLocalThreadPhysicsSpace(PhysicsSpace space) {
         physicsSpaceTL.set(space);
@@ -381,7 +382,8 @@ public class PhysicsSpace {
     /**
      * updates the physics space, uses maxSteps<br>
      * @param time the current time value
-     * @param maxSteps
+     * @param maxSteps the maximum number of steps of size accuracy (&ge;1) or 0
+     * for a single step of size timeInterval
      */
     public void update(float time, int maxSteps) {
         if (getDynamicsWorld() == null) {
@@ -393,10 +395,10 @@ public class PhysicsSpace {
 
     public void distributeEvents() {
         //add collision callbacks
-        int clistsize = collisionListeners.size();
+        int cListSize = collisionListeners.size();
         while( collisionEvents.isEmpty() == false ) {
             PhysicsCollisionEvent physicsCollisionEvent = collisionEvents.pop();
-            for(int i=0;i<clistsize;i++) {
+            for(int i=0;i<cListSize;i++) {
                 collisionListeners.get(i).collision(physicsCollisionEvent);
             }
             //recycle events
@@ -405,20 +407,21 @@ public class PhysicsSpace {
     }
 
     public static <V> Future<V> enqueueOnThisThread(Callable<V> callable) {
-        AppTask<V> task = new AppTask<V>(callable);
-        System.out.println("created apptask");
+        AppTask<V> task = new AppTask<>(callable);
+        System.out.println("created AppTask");
         pQueueTL.get().add(task);
         return task;
     }
 
     /**
      * calls the callable on the next physics tick (ensuring e.g. force applying)
-     * @param <V>
-     * @param callable
+     *
+     * @param <V> the return type of the Callable
+     * @param callable the Callable to invoke
      * @return a new AppTask
      */
     public <V> Future<V> enqueue(Callable<V> callable) {
-        AppTask<V> task = new AppTask<V>(callable);
+        AppTask<V> task = new AppTask<>(callable);
         pQueue.add(task);
         return task;
     }
@@ -604,8 +607,8 @@ public class PhysicsSpace {
         physicsBodies.put(node.getObjectId(), node);
 
         //Workaround
-        //It seems that adding a Kinematic RigidBody to the dynamicWorld prevent it from being non kinematic again afterward.
-        //so we add it non kinematic, then set it kinematic again.
+        //It seems that adding a Kinematic RigidBody to the dynamicWorld prevent it from being non-kinematic again afterward.
+        //so we add it non-kinematic, then set it kinematic again.
         boolean kinematic = false;
         if (node.isKinematic()) {
             kinematic = true;
@@ -682,7 +685,9 @@ public class PhysicsSpace {
 
     /**
      * Sets the gravity of the PhysicsSpace, set before adding physics objects!
-     * @param gravity
+     *
+     * @param gravity the desired acceleration vector
+     * (in physics-space coordinates, not null, unaffected, default=0,-10,0)
      */
     public void setGravity(Vector3f gravity) {
         dynamicsWorld.setGravity(Converter.convert(gravity));
@@ -690,7 +695,10 @@ public class PhysicsSpace {
 
     /**
      * Gets the gravity of the PhysicsSpace
-     * @param gravity
+     *
+     * @param gravity storage for the result (modified if not null)
+     * @return the acceleration vector (in physics-space coordinates, either
+     * gravity or a new instance)
      */
     public Vector3f getGravity(Vector3f gravity) {
         javax.vecmath.Vector3f tempVec = new javax.vecmath.Vector3f();
@@ -716,7 +724,8 @@ public class PhysicsSpace {
      * Adds the specified listener to the physics tick listeners.
      * The listeners are called on each physics step, which is not necessarily
      * each frame but is determined by the accuracy of the physics space.
-     * @param listener
+     *
+     * @param listener the listener to register (not null, alias created)
      */
     public void addTickListener(PhysicsTickListener listener) {
         tickListeners.add(listener);
@@ -745,8 +754,10 @@ public class PhysicsSpace {
     /**
      * Adds a listener for a specific collision group, such a listener can disable collisions when they happen.<br>
      * There can be only one listener per collision group.
-     * @param listener
-     * @param collisionGroup
+     *
+     * @param listener the listener to register (not null, alias created)
+     * @param collisionGroup which group it should listen for (bitmask with
+     * exactly one bit set)
      */
     public void addCollisionGroupListener(PhysicsCollisionGroupListener listener, int collisionGroup) {
         collisionGroupListeners.put(collisionGroup, listener);
@@ -758,15 +769,28 @@ public class PhysicsSpace {
 
     /**
      * Performs a ray collision test and returns the results as a list of PhysicsRayTestResults
+     *
+     * @param from the starting location (physics-space coordinates, not null,
+     * unaffected)
+     * @param to the ending location (in physics-space coordinates, not null,
+     * unaffected)
+     * @return a new list of results (not null)
      */
     public List<PhysicsRayTestResult> rayTest(Vector3f from, Vector3f to) {
-        List<PhysicsRayTestResult> results = new LinkedList<PhysicsRayTestResult>();
+        List<PhysicsRayTestResult> results = new LinkedList<>();
         dynamicsWorld.rayTest(Converter.convert(from, rayVec1), Converter.convert(to, rayVec2), new InternalRayListener(results));
         return results;
     }
 
     /**
      * Performs a ray collision test and returns the results as a list of PhysicsRayTestResults
+     *
+     * @param from the starting location (in physics-space coordinates, not
+     * null, unaffected)
+     * @param to the ending location (in physics-space coordinates, not null,
+     * unaffected)
+     * @param results the list to hold results (not null, modified)
+     * @return results
      */
     public List<PhysicsRayTestResult> rayTest(Vector3f from, Vector3f to, List<PhysicsRayTestResult> results) {
         results.clear();
@@ -791,12 +815,17 @@ public class PhysicsSpace {
     }
 
     /**
-     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br/>
+     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br>
      * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
+     *
+     * @param shape the shape to sweep (not null, convex, unaffected)
+     * @param start the starting physics-space transform (not null, unaffected)
+     * @param end the ending physics-space transform (not null, unaffected)
+     * @return a new list of results
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
-        List<PhysicsSweepTestResult> results = new LinkedList<PhysicsSweepTestResult>();
+        List<PhysicsSweepTestResult> results = new LinkedList<>();
         if (!(shape.getCShape() instanceof ConvexShape)) {
             logger.log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
             return results;
@@ -807,9 +836,15 @@ public class PhysicsSpace {
     }
 
     /**
-     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br/>
+     * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br>
      * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
+     * 
+     * @param shape the shape to sweep (not null, convex, unaffected)
+     * @param start the starting physics-space transform (not null, unaffected)
+     * @param end the ending physics-space transform (not null, unaffected)
+     * @param results the list to hold results (not null, modified)
+     * @return results
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
         results.clear();
@@ -867,7 +902,7 @@ public class PhysicsSpace {
     /**
      * Sets the maximum amount of extra steps that will be used to step the physics
      * when the fps is below the physics fps. Doing this maintains determinism in physics.
-     * For example a maximum number of 2 can compensate for framerates as low as 30fps
+     * For example a maximum number of 2 can compensate for frame rates as low as 30fps
      * when the physics has the default accuracy of 60 fps. Note that setting this
      * value too high can make the physics drive down its own fps in case it's overloaded.
      * @param steps The maximum number of extra steps, default is 4.
@@ -886,7 +921,8 @@ public class PhysicsSpace {
 
     /**
      * sets the accuracy of the physics computation, default=1/60s<br>
-     * @param accuracy
+     *
+     * @param accuracy the desired time step (in seconds, default=1/60)
      */
     public void setAccuracy(float accuracy) {
         this.accuracy = accuracy;
@@ -898,7 +934,9 @@ public class PhysicsSpace {
 
     /**
      * only applies for AXIS_SWEEP broadphase
-     * @param worldMin
+     *
+     * @param worldMin the desired minimum coordinates values (not null,
+     * unaffected, default=-10k,-10k,-10k)
      */
     public void setWorldMin(Vector3f worldMin) {
         this.worldMin.set(worldMin);
@@ -910,7 +948,9 @@ public class PhysicsSpace {
 
     /**
      * only applies for AXIS_SWEEP broadphase
-     * @param worldMax
+     *
+     * @param worldMax the desired maximum coordinates values (not null,
+     * unaffected, default=10k,10k,10k)
      */
     public void setWorldMax(Vector3f worldMax) {
         this.worldMax.set(worldMax);

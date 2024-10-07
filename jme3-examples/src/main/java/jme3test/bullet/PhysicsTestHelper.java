@@ -63,6 +63,11 @@ import com.jme3.util.BufferUtils;
  * @author normenhansen
  */
 public class PhysicsTestHelper {
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private PhysicsTestHelper() {
+    }
 
     /**
      * creates a simple physics test world with a floor, an obstacle and some test boxes
@@ -216,7 +221,7 @@ public class PhysicsTestHelper {
     }
 
     /**
-     * creates the necessary inputlistener and action to shoot balls from the camera
+     * creates the necessary input listener and action to shoot balls from the camera
      *
      * @param app the application that's running
      * @param rootNode where ball geometries should be added
@@ -235,15 +240,15 @@ public class PhysicsTestHelper {
                 Texture tex2 = app.getAssetManager().loadTexture(key2);
                 mat2.setTexture("ColorMap", tex2);
                 if (name.equals("shoot") && !keyPressed) {
-                    Geometry bulletg = new Geometry("bullet", bullet);
-                    bulletg.setMaterial(mat2);
-                    bulletg.setShadowMode(ShadowMode.CastAndReceive);
-                    bulletg.setLocalTranslation(app.getCamera().getLocation());
+                    Geometry bulletGeometry = new Geometry("bullet", bullet);
+                    bulletGeometry.setMaterial(mat2);
+                    bulletGeometry.setShadowMode(ShadowMode.CastAndReceive);
+                    bulletGeometry.setLocalTranslation(app.getCamera().getLocation());
                     RigidBodyControl bulletControl = new RigidBodyControl(10);
-                    bulletg.addControl(bulletControl);
+                    bulletGeometry.addControl(bulletControl);
                     bulletControl.setLinearVelocity(app.getCamera().getDirection().mult(25));
-                    bulletg.addControl(bulletControl);
-                    rootNode.attachChild(bulletg);
+                    bulletGeometry.addControl(bulletControl);
+                    rootNode.attachChild(bulletGeometry);
                     space.add(bulletControl);
                 }
             }

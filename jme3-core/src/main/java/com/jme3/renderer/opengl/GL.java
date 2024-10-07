@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@ import java.nio.ShortBuffer;
  */
 public interface GL {
 
+    public static final int GL_ALIASED_LINE_WIDTH_RANGE = 0x846E;
     public static final int GL_ALPHA = 0x1906;
     public static final int GL_ALWAYS = 0x207;
     public static final int GL_ARRAY_BUFFER = 0x8892;
@@ -67,6 +68,7 @@ public interface GL {
     public static final int GL_DST_COLOR = 0x306;
     public static final int GL_DYNAMIC_DRAW = 0x88E8;
     public static final int GL_DYNAMIC_COPY = 0x88EA;
+    public static final int GL_DYNAMIC_READ = 0x88E9;
     public static final int GL_ELEMENT_ARRAY_BUFFER = 0x8893;
     public static final int GL_EQUAL = 0x202;
     public static final int GL_EXTENSIONS = 0x1F03;
@@ -97,6 +99,7 @@ public interface GL {
     public static final int GL_LINEAR_MIPMAP_NEAREST = 0x2701;
     public static final int GL_LINES = 0x1;
     public static final int GL_LINE_LOOP = 0x2;
+    public static final int GL_LINE_SMOOTH = 0xB20;
     public static final int GL_LINE_STRIP = 0x3;
     public static final int GL_LINK_STATUS = 0x8B82;
     public static final int GL_LUMINANCE = 0x1909;
@@ -146,10 +149,13 @@ public interface GL {
     public static final int GL_SRC_ALPHA_SATURATE = 0x0308;
     public static final int GL_SRC_COLOR = 0x300;
     public static final int GL_STATIC_DRAW = 0x88E4;
+    public static final int GL_STATIC_READ = 0x88E5;
+    public static final int GL_STATIC_COPY = 0x88E6;
     public static final int GL_STENCIL_BUFFER_BIT = 0x400;
     public static final int GL_STENCIL_TEST = 0xB90;
     public static final int GL_STREAM_DRAW = 0x88E0;
     public static final int GL_STREAM_READ = 0x88E1;
+    public static final int GL_STREAM_COPY = 0x88E2;
     public static final int GL_TEXTURE = 0x1702;
     public static final int GL_TEXTURE0 = 0x84C0;
     public static final int GL_TEXTURE1 = 0x84C1;
@@ -205,7 +211,9 @@ public interface GL {
      * Selects which texture unit subsequent texture state calls will affect. The number of texture units an implementation supports is implementation
      * dependent.
      *
-     * @param texture which texture unit to make active. One of:<br><table><tr><td>{@link #GL_TEXTURE0 TEXTURE0}</td><td>GL_TEXTURE[1-31]</td></tr></table>
+     * @param texture which texture unit to make active. One of:
+     *  {@link #GL_TEXTURE0 TEXTURE0}
+     *  GL_TEXTURE[1-31]
      */
     public void glActiveTexture(int texture);
 
@@ -213,12 +221,12 @@ public interface GL {
      * <p><a target="_blank" href="http://docs.gl/gl4/glAttachShader">Reference Page</a></p>
      * <p>
      * Attaches a shader object to a program object.
-     * <p>
+     *
      * <p>In order to create a complete shader program, there must be a way to specify the list of things that will be linked together. Program objects provide
      * this mechanism. Shaders that are to be linked together in a program object must first be attached to that program object. glAttachShader attaches the
      * shader object specified by shader to the program object specified by program. This indicates that shader will be included in link operations that will
      * be performed on program.</p>
-     * <p>
+     *
      * <p>All operations that can be performed on a shader object are valid whether or not the shader object is attached to a program object. It is permissible to
      * attach a shader object to a program object before source code has been loaded into the shader object or before the shader object has been compiled. It
      * is permissible to attach multiple shader objects of the same type because each may contain a portion of the complete shader. It is also permissible to
@@ -254,7 +262,7 @@ public interface GL {
      * <p><a target="_blank" href="http://docs.gl/gl4/glBindTexture">Reference Page</a></p>
      * <p>
      * Binds the a texture to a texture target.
-     * <p>
+     *
      * <p>While a texture object is bound, GL operations on the target to which it is bound affect the bound object, and queries of the target to which it is
      * bound return state from the bound object. If texture mapping of the dimensionality of the target to which a texture object is bound is enabled, the
      * state of the bound texture object directs the texturing operation.</p>
@@ -279,41 +287,41 @@ public interface GL {
      * <p>
      * Specifies the weighting factors used by the blend equation, for both RGB and alpha functions and for all draw buffers.
      *
-     * @param sfactor the source weighting factor.
-     * @param dfactor the destination weighting factor.
+     * @param sFactor the source weighting factor.
+     * @param dFactor the destination weighting factor.
      */
-    public void glBlendFunc(int sfactor, int dfactor);
+    public void glBlendFunc(int sFactor, int dFactor);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBlendFuncSeparate">Reference Page</a></p>
      * <p>
      * Specifies pixel arithmetic for RGB and alpha components separately.
      *
-     * @param sfactorRGB   how the red, green, and blue blending factors are computed. The initial value is GL_ONE.
-     * @param dfactorRGB   how the red, green, and blue destination blending factors are computed. The initial value is GL_ZERO.
-     * @param sfactorAlpha how the alpha source blending factor is computed. The initial value is GL_ONE.
-     * @param dfactorAlpha how the alpha destination blending factor is computed. The initial value is GL_ZERO.
+     * @param sFactorRGB   how the red, green, and blue blending factors are computed. The initial value is GL_ONE.
+     * @param dFactorRGB   how the red, green, and blue destination blending factors are computed. The initial value is GL_ZERO.
+     * @param sFactorAlpha how the alpha source blending factor is computed. The initial value is GL_ONE.
+     * @param dFactorAlpha how the alpha destination blending factor is computed. The initial value is GL_ZERO.
      */
-    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha);
+    public void glBlendFuncSeparate(int sFactorRGB, int dFactorRGB, int sFactorAlpha, int dFactorAlpha);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
      * <p>
      * Creates and initializes a buffer object's data store.
-     * <p>
+     *
      * <p>{@code usage} is a hint to the GL implementation as to how a buffer object's data store will be accessed. This enables the GL implementation to make
      * more intelligent decisions that may significantly impact buffer object performance. It does not, however, constrain the actual usage of the data store.
      * {@code usage} can be broken down into two parts: first, the frequency of access (modification and usage), and second, the nature of that access. The
      * frequency of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>STREAM</em> - The data store contents will be modified once and used at most a few times.</li>
      * <li><em>STATIC</em> - The data store contents will be modified once and used many times.</li>
      * <li><em>DYNAMIC</em> - The data store contents will be modified repeatedly and used many times.</li>
      * </ul>
-     * <p>
+     *
      * <p>The nature of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>DRAW</em> - The data store contents are modified by the application, and used as the source for GL drawing and image specification commands.</li>
      * <li><em>READ</em> - The data store contents are modified by reading data from the GL, and used to return that data when queried by the application.</li>
@@ -330,20 +338,20 @@ public interface GL {
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
      * <p>
      * Creates and initializes a buffer object's data store.
-     * <p>
+     *
      * <p>{@code usage} is a hint to the GL implementation as to how a buffer object's data store will be accessed. This enables the GL implementation to make
      * more intelligent decisions that may significantly impact buffer object performance. It does not, however, constrain the actual usage of the data store.
      * {@code usage} can be broken down into two parts: first, the frequency of access (modification and usage), and second, the nature of that access. The
      * frequency of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>STREAM</em> - The data store contents will be modified once and used at most a few times.</li>
      * <li><em>STATIC</em> - The data store contents will be modified once and used many times.</li>
      * <li><em>DYNAMIC</em> - The data store contents will be modified repeatedly and used many times.</li>
      * </ul>
-     * <p>
+     *
      * <p>The nature of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>DRAW</em> - The data store contents are modified by the application, and used as the source for GL drawing and image specification commands.</li>
      * <li><em>READ</em> - The data store contents are modified by reading data from the GL, and used to return that data when queried by the application.</li>
@@ -360,20 +368,20 @@ public interface GL {
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
      * <p>
      * Creates and initializes a buffer object's data store.
-     * <p>
+     *
      * <p>{@code usage} is a hint to the GL implementation as to how a buffer object's data store will be accessed. This enables the GL implementation to make
      * more intelligent decisions that may significantly impact buffer object performance. It does not, however, constrain the actual usage of the data store.
      * {@code usage} can be broken down into two parts: first, the frequency of access (modification and usage), and second, the nature of that access. The
      * frequency of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>STREAM</em> - The data store contents will be modified once and used at most a few times.</li>
      * <li><em>STATIC</em> - The data store contents will be modified once and used many times.</li>
      * <li><em>DYNAMIC</em> - The data store contents will be modified repeatedly and used many times.</li>
      * </ul>
-     * <p>
+     *
      * <p>The nature of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>DRAW</em> - The data store contents are modified by the application, and used as the source for GL drawing and image specification commands.</li>
      * <li><em>READ</em> - The data store contents are modified by reading data from the GL, and used to return that data when queried by the application.</li>
@@ -390,20 +398,20 @@ public interface GL {
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
      * <p>
      * Creates and initializes a buffer object's data store.
-     * <p>
+     *
      * <p>{@code usage} is a hint to the GL implementation as to how a buffer object's data store will be accessed. This enables the GL implementation to make
      * more intelligent decisions that may significantly impact buffer object performance. It does not, however, constrain the actual usage of the data store.
      * {@code usage} can be broken down into two parts: first, the frequency of access (modification and usage), and second, the nature of that access. The
      * frequency of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>STREAM</em> - The data store contents will be modified once and used at most a few times.</li>
      * <li><em>STATIC</em> - The data store contents will be modified once and used many times.</li>
      * <li><em>DYNAMIC</em> - The data store contents will be modified repeatedly and used many times.</li>
      * </ul>
-     * <p>
+     *
      * <p>The nature of access may be one of these:</p>
-     * <p>
+     *
      * <ul>
      * <li><em>DRAW</em> - The data store contents are modified by the application, and used as the source for GL drawing and image specification commands.</li>
      * <li><em>READ</em> - The data store contents are modified by reading data from the GL, and used to return that data when queried by the application.</li>
@@ -510,7 +518,7 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCompressedTexSubImage2D">Reference Page</a></p>
-     * <p>
+     *
      * Respecifies only a rectangular subregion of an existing 2D texel array, with incoming data stored in a specific compressed image format.
      *
      * @param target  the target texture.
@@ -527,17 +535,25 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCreateProgram">Reference Page</a></p>
-     * <p>
+     *
      * Creates a program object.
+     *
+     * @return the ID of the new program, or 0 if unsuccessful
      */
     public int glCreateProgram();
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCreateShader">Reference Page</a></p>
-     * <p>
+     *
      * Creates a shader object.
      *
-     * @param shaderType the type of shader to be created. One of:<br><table><tr><td>{@link #GL_VERTEX_SHADER VERTEX_SHADER}</td><td>{@link #GL_FRAGMENT_SHADER FRAGMENT_SHADER}</td><td>{@link GL3#GL_GEOMETRY_SHADER GEOMETRY_SHADER}</td><td>{@link GL4#GL_TESS_CONTROL_SHADER TESS_CONTROL_SHADER}</td></tr><tr><td>{@link GL4#GL_TESS_EVALUATION_SHADER TESS_EVALUATION_SHADER}</td></tr></table>
+     * @param shaderType the type of shader to be created. One of:
+     *  {@link #GL_VERTEX_SHADER VERTEX_SHADER}
+     *  {@link #GL_FRAGMENT_SHADER FRAGMENT_SHADER}
+     *  {@link GL3#GL_GEOMETRY_SHADER GEOMETRY_SHADER}
+     *  {@link GL4#GL_TESS_CONTROL_SHADER TESS_CONTROL_SHADER}
+     *  {@link GL4#GL_TESS_EVALUATION_SHADER TESS_EVALUATION_SHADER}
+     * @return the ID of the new shader, or 0 if unsuccessful
      */
     public int glCreateShader(int shaderType);
 
@@ -548,7 +564,10 @@ public interface GL {
      * CullFace mode is {@link #GL_BACK BACK} while back-facing polygons are rasterized only if either culling is disabled or the CullFace mode is
      * {@link #GL_FRONT FRONT}. The initial setting of the CullFace mode is {@link #GL_BACK BACK}. Initially, culling is disabled.
      *
-     * @param mode the CullFace mode. One of:<br><table><tr><td>{@link #GL_FRONT FRONT}</td><td>{@link #GL_BACK BACK}</td><td>{@link #GL_FRONT_AND_BACK FRONT_AND_BACK}</td></tr></table>
+     * @param mode the CullFace mode. One of:
+     *  {@link #GL_FRONT FRONT}
+     *  {@link #GL_BACK BACK}
+     *  {@link #GL_FRONT_AND_BACK FRONT_AND_BACK}
      */
     public void glCullFace(int mode);
 
@@ -586,7 +605,7 @@ public interface GL {
      * currently bound to any of the target bindings of {@link #glBindTexture BindTexture} is deleted, it is as though {@link #glBindTexture BindTexture} had been executed with the
      * same target and texture zero. Additionally, special care must be taken when deleting a texture if any of the images of the texture are attached to a
      * framebuffer object.
-     * <p>
+     *
      * <p>Unused names in textures that have been marked as used for the purposes of {@link #glGenTextures GenTextures} are marked as unused again. Unused names in textures are
      * silently ignored, as is the name zero.</p>
      *
@@ -599,7 +618,15 @@ public interface GL {
      * <p>
      * Specifies the comparison that takes place during the depth buffer test (when {@link #GL_DEPTH_TEST DEPTH_TEST} is enabled).
      *
-     * @param func the depth test comparison. One of:<br><table><tr><td>{@link #GL_NEVER NEVER}</td><td>{@link #GL_ALWAYS ALWAYS}</td><td>{@link #GL_LESS LESS}</td><td>{@link #GL_LEQUAL LEQUAL}</td><td>{@link #GL_EQUAL EQUAL}</td><td>{@link #GL_GREATER GREATER}</td><td>{@link #GL_GEQUAL GEQUAL}</td><td>{@link #GL_NOTEQUAL NOTEQUAL}</td></tr></table>
+     * @param func the depth test comparison. One of:
+     *  {@link #GL_NEVER NEVER}
+     *  {@link #GL_ALWAYS ALWAYS}
+     *  {@link #GL_LESS LESS}
+     *  {@link #GL_LEQUAL LEQUAL}
+     *  {@link #GL_EQUAL EQUAL}
+     *  {@link #GL_GREATER GREATER}
+     *  {@link #GL_GEQUAL GEQUAL}
+     *  {@link #GL_NOTEQUAL NOTEQUAL}
      */
     public void glDepthFunc(int func);
 
@@ -655,7 +682,7 @@ public interface GL {
      * <p>
      * Constructs a sequence of geometric primitives by successively transferring elements for {@code count} vertices. Elements {@code first} through
      * <code>first + count &ndash; 1</code> of each enabled non-instanced array are transferred to the GL.
-     * <p>
+     *
      * <p>If an array corresponding to an attribute required by a vertex shader is not enabled, then the corresponding element is taken from the current attribute
      * state. If an array is enabled, the corresponding current vertex attribute value is unaffected by the execution of this function.</p>
      *
@@ -667,25 +694,25 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDrawRangeElements">Reference Page</a></p>
-     * <p>
+     *
      * <p>Implementations denote recommended maximum amounts of vertex and index data, which may be queried by calling glGet with argument
      * {@link GL2#GL_MAX_ELEMENTS_VERTICES MAX_ELEMENTS_VERTICES} and {@link GL2#GL_MAX_ELEMENTS_INDICES MAX_ELEMENTS_INDICES}. If end - start + 1 is greater than the value of GL_MAX_ELEMENTS_VERTICES, or if
      * count is greater than the value of GL_MAX_ELEMENTS_INDICES, then the call may operate at reduced performance. There is no requirement that all vertices
      * in the range start end be referenced. However, the implementation may partially process unused vertices, reducing performance from what could be
      * achieved with an optimal index set.</p>
-     * <p>
+     *
      * <p>When glDrawRangeElements is called, it uses count sequential elements from an enabled array, starting at start to construct a sequence of geometric
      * primitives. mode specifies what kind of primitives are constructed, and how the array elements construct these primitives. If more than one array is
      * enabled, each is used.</p>
-     * <p>
+     *
      * <p>Vertex attributes that are modified by glDrawRangeElements have an unspecified value after glDrawRangeElements returns. Attributes that aren't modified
      * maintain their previous values.</p>
-     * <p>
-     * <h5>Errors</h5>
-     * <p>
+     *
+     * Errors
+     *
      * <p>It is an error for indices to lie outside the range start end, but implementations may not check for this situation. Such indices cause
      * implementation-dependent behavior.</p>
-     * <p>
+     *
      * <ul>
      * <li>GL_INVALID_ENUM is generated if mode is not an accepted value.</li>
      * <li>GL_INVALID_VALUE is generated if count is negative.</li>
@@ -753,28 +780,30 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGenQueries">Reference Page</a></p>
-     * <p>
+     *
      * Generates query object names.
      *
+     * @param number the number of query object names to be generated
      * @param ids a buffer in which the generated query object names are stored.
      */
     public void glGenQueries(int number, IntBuffer ids);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetAttribLocation">Reference Page</a></p>
-     * <p>
+     *
      * Returns the location of an attribute variable.
      *
      * @param program the program object to be queried.
      * @param name    a null terminated string containing the name of the attribute variable whose location is to be queried.
+     * @return        the location
      */
     public int glGetAttribLocation(int program, String name);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetBooleanv">Reference Page</a></p>
-     * <p>
+     *
      * Returns the current boolean value of the specified state variable.
-     * <p>
+     *
      * <p><b>LWJGL note</b>: The state that corresponds to the state variable may be a single value or an array of values. In the case of an array of values,
      * LWJGL will <b>not</b> validate if {@code params} has enough space to store that array. Doing so would introduce significant overhead, as the
      * OpenGL state variables are too many. It is the user's responsibility to avoid JVM crashes by ensuring enough space for the returned values.</p>
@@ -786,7 +815,7 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetBufferSubData">Reference Page</a></p>
-     * <p>
+     *
      * Returns a subset of a buffer object's data store.
      *
      * @param target the target buffer object.
@@ -797,19 +826,29 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetError">Reference Page</a></p>
-     * <p>
+     *
      * Returns error information. Each detectable error is assigned a numeric code. When an error is detected, a flag is set and the code is recorded. Further
      * errors, if they occur, do not affect this recorded code. When {@code GetError} is called, the code is returned and the flag is cleared, so that a
      * further error will again record its code. If a call to {@code GetError} returns {@link #GL_NO_ERROR NO_ERROR}, then there has been no detectable error since
      * the last call to {@code GetError} (or since the GL was initialized).
+     * @return the error code, or NO_ERROR if none
      */
     public int glGetError();
 
     /**
+     * Determine the current single-precision floating-point value(s) of the
+     * specified parameter.
+     *
+     * @param parameterId which parameter
+     * @param storeValues storage for the value(s)
+     */
+    public void glGetFloat(int parameterId, FloatBuffer storeValues);
+
+    /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetIntegerv">Reference Page</a></p>
-     * <p>
+     *
      * Returns the current integer value of the specified state variable.
-     * <p>
+     *
      * <p><b>LWJGL note</b>: The state that corresponds to the state variable may be a single value or an array of values. In the case of an array of values,
      * LWJGL will <b>not</b> validate if {@code params} has enough space to store that array. Doing so would introduce significant overhead, as the
      * OpenGL state variables are too many. It is the user's responsibility to avoid JVM crashes by ensuring enough space for the returned values.</p>
@@ -837,6 +876,7 @@ public interface GL {
      *
      * @param program the program object whose information log is to be queried.
      * @param maxSize the size of the character buffer for storing the returned information log.
+     * @return the contents of the information log
      */
     public String glGetProgramInfoLog(int program, int maxSize);
 
@@ -845,6 +885,7 @@ public interface GL {
      *
      * @param query the name of a query object
      * @param pname the symbolic name of a query object parameter
+     * @return the value of the parameter
      */
     public long glGetQueryObjectui64(int query, int pname);
 
@@ -854,7 +895,10 @@ public interface GL {
      * Returns the integer value of a query object parameter.
      *
      * @param query the name of a query object
-     * @param pname the symbolic name of a query object parameter. One of:<br><table><tr><td>{@link #GL_QUERY_RESULT QUERY_RESULT}</td><td>{@link #GL_QUERY_RESULT_AVAILABLE QUERY_RESULT_AVAILABLE}</td></tr></table>
+     * @param pname the symbolic name of a query object parameter. One of:
+     *  {@link #GL_QUERY_RESULT QUERY_RESULT}
+     *  {@link #GL_QUERY_RESULT_AVAILABLE QUERY_RESULT_AVAILABLE}
+     * @return the value of the parameter
      */
     public int glGetQueryObjectiv(int query, int pname);
 
@@ -876,6 +920,7 @@ public interface GL {
      *
      * @param shader  the shader object whose information log is to be queried.
      * @param maxSize the size of the character buffer for storing the returned information log.
+     * @return the contents of the information log
      */
     public String glGetShaderInfoLog(int shader, int maxSize);
 
@@ -884,7 +929,13 @@ public interface GL {
      * <p>
      * Return strings describing properties of the current GL context.
      *
-     * @param name the property to query. One of:<br><table><tr><td>{@link #GL_RENDERER RENDERER}</td><td>{@link #GL_VENDOR VENDOR}</td><td>{@link #GL_EXTENSIONS EXTENSIONS}</td><td>{@link #GL_VERSION VERSION}</td><td>{@link GL2#GL_SHADING_LANGUAGE_VERSION SHADING_LANGUAGE_VERSION}</td></tr></table>
+     * @param name the property to query. One of:
+     *  {@link #GL_RENDERER RENDERER}
+     *  {@link #GL_VENDOR VENDOR}
+     *  {@link #GL_EXTENSIONS EXTENSIONS}
+     *  {@link #GL_VERSION VERSION}
+     *  {@link GL2#GL_SHADING_LANGUAGE_VERSION SHADING_LANGUAGE_VERSION}
+     * @return the value of the property
      */
     public String glGetString(int name);
 
@@ -895,6 +946,7 @@ public interface GL {
      *
      * @param program the program object to be queried.
      * @param name    a null terminated string containing the name of the uniform variable whose location is to be queried.
+     * @return the location
      */
     public int glGetUniformLocation(int program, String name);
 
@@ -904,6 +956,7 @@ public interface GL {
      * Determines if {@code cap} is currently enabled (as with {@link #glEnable Enable}) or disabled.
      *
      * @param cap the enable state to query.
+     * @return true if enabled, otherwise false
      */
     public boolean glIsEnabled(int cap);
 
@@ -937,10 +990,10 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glPolygonOffset">Reference Page</a></p>
-     * <p>
+     *
      * The depth values of all fragments generated by the rasterization of a polygon may be offset by a single value that is computed for that polygon. This
      * function determines that value.
-     * <p>
+     *
      * <p>{@code factor} scales the maximum depth slope of the polygon, and {@code units} scales an implementation-dependent constant that relates to the usable
      * resolution of the depth buffer. The resulting values are summed to produce the polygon offset value.</p>
      *
@@ -1015,6 +1068,8 @@ public interface GL {
      *
      * @param shader  the shader object whose source code is to be replaced,
      * @param strings an array of pointers to strings containing the source code to be loaded into the shader
+     * @param length  storage for the string lengths, or null for
+     * null-terminated strings
      */
     public void glShaderSource(int shader, String[] strings, IntBuffer length);
 
@@ -1023,8 +1078,19 @@ public interface GL {
      * <p>
      * Sets front and/or back function and reference value for stencil testing.
      *
-     * @param face whether front and/or back stencil state is updated. One of:<br><table><tr><td>{@link GL#GL_FRONT FRONT}</td><td>{@link GL#GL_BACK BACK}</td><td>{@link GL#GL_FRONT_AND_BACK FRONT_AND_BACK}</td></tr></table>
-     * @param func the test function. The initial value is GL_ALWAYS. One of:<br><table><tr><td>{@link GL#GL_NEVER NEVER}</td><td>{@link GL#GL_LESS LESS}</td><td>{@link GL#GL_LEQUAL LEQUAL}</td><td>{@link GL#GL_GREATER GREATER}</td><td>{@link GL#GL_GEQUAL GEQUAL}</td><td>{@link GL#GL_EQUAL EQUAL}</td><td>{@link GL#GL_NOTEQUAL NOTEQUAL}</td><td>{@link GL#GL_ALWAYS ALWAYS}</td></tr></table>
+     * @param face whether front and/or back stencil state is updated. One of:
+     *  {@link GL#GL_FRONT FRONT}
+     *  {@link GL#GL_BACK BACK}
+     *  {@link GL#GL_FRONT_AND_BACK FRONT_AND_BACK}
+     * @param func the test function. The initial value is GL_ALWAYS. One of:
+     *  {@link GL#GL_NEVER NEVER}
+     *  {@link GL#GL_LESS LESS}
+     *  {@link GL#GL_LEQUAL LEQUAL}
+     *  {@link GL#GL_GREATER GREATER}
+     *  {@link GL#GL_GEQUAL GEQUAL}
+     *  {@link GL#GL_EQUAL EQUAL}
+     *  {@link GL#GL_NOTEQUAL NOTEQUAL}
+     *  {@link GL#GL_ALWAYS ALWAYS}
      * @param ref  the reference value for the stencil test. {@code ref} is clamped to the range [0, 2n &ndash; 1], where {@code n} is the number of bitplanes in the stencil
      *             buffer. The initial value is 0.
      * @param mask a mask that is ANDed with both the reference value and the stored stencil value when the test is done. The initial value is all 1's.
@@ -1036,8 +1102,19 @@ public interface GL {
      * <p>
      * Sets front and/or back stencil test actions.
      *
-     * @param face   whether front and/or back stencil state is updated. One of:<br><table><tr><td>{@link GL#GL_FRONT FRONT}</td><td>{@link GL#GL_BACK BACK}</td><td>{@link GL#GL_FRONT_AND_BACK FRONT_AND_BACK}</td></tr></table>
-     * @param sfail  the action to take when the stencil test fails. The initial value is GL_KEEP. One of:<br><table><tr><td>{@link GL#GL_KEEP KEEP}</td><td>{@link GL#GL_ZERO ZERO}</td><td>{@link GL#GL_REPLACE REPLACE}</td><td>{@link GL#GL_INCR INCR}</td><td>{@link GL#GL_INCR_WRAP INCR_WRAP}</td><td>{@link GL#GL_DECR DECR}</td><td>{@link GL#GL_DECR_WRAP DECR_WRAP}</td><td>{@link GL#GL_INVERT INVERT}</td></tr></table>
+     * @param face   whether front and/or back stencil state is updated. One of:
+     *  {@link GL#GL_FRONT FRONT}
+     *  {@link GL#GL_BACK BACK}
+     *  {@link GL#GL_FRONT_AND_BACK FRONT_AND_BACK}
+     * @param sfail  the action to take when the stencil test fails. The initial value is GL_KEEP. One of:
+     *  {@link GL#GL_KEEP KEEP}
+     *  {@link GL#GL_ZERO ZERO}
+     *  {@link GL#GL_REPLACE REPLACE}
+     *  {@link GL#GL_INCR INCR}
+     *  {@link GL#GL_INCR_WRAP INCR_WRAP}
+     *  {@link GL#GL_DECR DECR}
+     *  {@link GL#GL_DECR_WRAP DECR_WRAP}
+     *  {@link GL#GL_INVERT INVERT}
      * @param dpfail the stencil action when the stencil test passes, but the depth test fails. The initial value is GL_KEEP.
      * @param dppass the stencil action when both the stencil test and the depth test pass, or when the stencil test passes and either there is no depth buffer or depth
      *               testing is not enabled. The initial value is GL_KEEP.
@@ -1116,7 +1193,7 @@ public interface GL {
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
      * <p>
-     * Specifies the value of a single int uniform variable or a int uniform variable array for the current program object.
+     * Specifies the value of a single int uniform variable or an int uniform variable array for the current program object.
      *
      * @param location the location of the uniform variable to be modified.
      * @param value    a pointer to an array of {@code count} values that will be used to update the specified uniform variable.
@@ -1288,9 +1365,9 @@ public interface GL {
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glViewport">Reference Page</a></p>
-     * <p>
+     *
      * Specifies the viewport transformation parameters for all viewports.
-     * <p>
+     * 
      * <p>In the initial state, {@code width} and {@code height} for each viewport are set to the width and height, respectively, of the window into which the GL is to do
      * its rendering. If the default framebuffer is bound but no default framebuffer is associated with the GL context, then {@code width} and {@code height} are
      * initially set to zero.</p>

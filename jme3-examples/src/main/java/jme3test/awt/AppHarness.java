@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ import java.awt.Canvas;
 import java.awt.Graphics;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.swing.SwingUtilities;
@@ -58,6 +59,7 @@ public class AppHarness extends Applet {
     private String appClass;
     private URL appCfg = null;
 
+    @SuppressWarnings("unchecked")
     private void createCanvas(){
         AppSettings settings = new AppSettings(true);
 
@@ -80,12 +82,14 @@ public class AppHarness extends Applet {
 
         try{
             Class clazz = Class.forName(appClass);
-            app = (LegacyApplication) clazz.newInstance();
-        }catch (ClassNotFoundException ex){
-            ex.printStackTrace();
-        }catch (InstantiationException ex){
-            ex.printStackTrace();
-        }catch (IllegalAccessException ex){
+            app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
+        }catch (ClassNotFoundException
+                | InstantiationException
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | SecurityException ex) {
             ex.printStackTrace();
         }
 

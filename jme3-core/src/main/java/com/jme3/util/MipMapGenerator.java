@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,35 +43,35 @@ public class MipMapGenerator {
 
     private MipMapGenerator() {
     }
-    
+
     public static Image scaleImage(Image inputImage, int outputWidth, int outputHeight) {
         int size = outputWidth * outputHeight * inputImage.getFormat().getBitsPerPixel() / 8;
         ByteBuffer buffer = BufferUtils.createByteBuffer(size);
-        Image outputImage = new Image(inputImage.getFormat(), 
-                                      outputWidth, 
-                                      outputHeight, 
-                                      buffer, 
+        Image outputImage = new Image(inputImage.getFormat(),
+                                      outputWidth,
+                                      outputHeight,
+                                      buffer,
                                       inputImage.getColorSpace());
-        
+
         ImageRaster input = ImageRaster.create(inputImage, 0, 0, false);
         ImageRaster output = ImageRaster.create(outputImage, 0, 0, false);
-        
-        float xRatio = ((float)(input.getWidth()  - 1)) / output.getWidth();
-        float yRatio = ((float)(input.getHeight() - 1)) / output.getHeight();
+
+        float xRatio = ((float) (input.getWidth()  - 1)) / output.getWidth();
+        float yRatio = ((float) (input.getHeight() - 1)) / output.getHeight();
 
         ColorRGBA outputColor = new ColorRGBA(0, 0, 0, 0);
         ColorRGBA bottomLeft = new ColorRGBA();
         ColorRGBA bottomRight = new ColorRGBA();
         ColorRGBA topLeft = new ColorRGBA();
         ColorRGBA topRight = new ColorRGBA();
-        
+
         for (int y = 0; y < outputHeight; y++) {
             for (int x = 0; x < outputWidth; x++) {
                 float x2f = x * xRatio;
                 float y2f = y * yRatio;
-                
-                int x2 = (int)x2f;
-                int y2 = (int)y2f;
+
+                int x2 = (int) x2f;
+                int y2 = (int) y2f;
 
                 input.getPixel(x2,     y2,     bottomLeft);
                 input.getPixel(x2 + 1, y2,     bottomRight);
@@ -92,15 +92,15 @@ public class MipMapGenerator {
         int potHeight = FastMath.nearestPowerOfTwo(original.getHeight());
         return scaleImage(original, potWidth, potHeight);
     }
-    
+
     public static void generateMipMaps(Image image){
         int width = image.getWidth();
         int height = image.getHeight();
 
         Image current = image;
-        ArrayList<ByteBuffer> output = new ArrayList<ByteBuffer>();
+        ArrayList<ByteBuffer> output = new ArrayList<>();
         int totalSize = 0;
-        
+
         while (height >= 1 || width >= 1){
             output.add(current.getData(0));
             totalSize += current.getData(0).capacity();

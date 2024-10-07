@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,22 +46,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A debug state that will display LIght gizmos on screen.
+ * A debug state that will display Light gizmos on screen.
  * Still a wip and for now it only displays light probes.
- * 
+ *
  * @author nehon
  */
 public class LightsDebugState extends BaseAppState {
 
     private Node debugNode;
-    private final Map<LightProbe, Node> probeMapping = new HashMap<LightProbe, Node>();
-    private final List<LightProbe> garbage = new ArrayList<LightProbe>();
+    private final Map<LightProbe, Node> probeMapping = new HashMap<>();
+    private final List<LightProbe> garbage = new ArrayList<>();
     private Geometry debugGeom;
     private Geometry debugBounds;
     private Material debugMaterial;
     private float probeScale = 1.0f;
     private Spatial scene = null;
-    private final List<LightProbe> probes = new ArrayList<LightProbe>();
+    private final List<LightProbe> probes = new ArrayList<>();
 
     @Override
     protected void initialize(Application app) {
@@ -78,7 +78,7 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     public void update(float tpf) {
-        if(!isEnabled()){
+        if (!isEnabled()) {
             return;
         }
         updateLights(scene);
@@ -115,7 +115,7 @@ public class LightsDebugState extends BaseAppState {
                     break;
             }
         }
-        if( scene instanceof Node){
+        if (scene instanceof Node) {
             Node n = (Node)scene;
             for (Spatial spatial : n.getChildren()) {
                 updateLights(spatial);
@@ -125,7 +125,8 @@ public class LightsDebugState extends BaseAppState {
 
     /**
      * Set the scenes for which to render light gizmos.
-     * @param scene 
+     *
+     * @param scene the root of the desired scene (alias created)
      */
     public void setScene(Spatial scene) {
         this.scene = scene;
@@ -148,12 +149,11 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     public void render(RenderManager rm) {
-        if(!isEnabled()){
+        if (!isEnabled()) {
             return;
         }
         rm.renderScene(debugNode, getApplication().getViewPort());
     }
-
 
     /**
      * returns the scale of the probe's debug sphere
@@ -165,7 +165,8 @@ public class LightsDebugState extends BaseAppState {
 
     /**
      * sets the scale of the probe's debug sphere
-     * @param probeScale 
+     *
+     * @param probeScale the scale factor (default=1)
      */
     public void setProbeScale(float probeScale) {
         this.probeScale = probeScale;
@@ -173,17 +174,13 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     protected void cleanup(Application app) {
-
     }
 
     @Override
     protected void onEnable() {
-
     }
 
     @Override
     protected void onDisable() {
-
     }
-
 }

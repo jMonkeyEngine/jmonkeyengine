@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,40 +38,85 @@ import com.jme3.texture.Image;
 import com.jme3.util.IntMap;
 
 /**
- * The statistics class allows tracking of real-time rendering statistics.
- * <p>
- * The <code>Statistics</code> can be retrieved by using {@link Renderer#getStatistics() }.
- * 
+ * Allows tracking of real-time rendering statistics.
+ *
+ * <p>The <code>Statistics</code> can be retrieved by using {@link Renderer#getStatistics() }.
+ *
  * @author Kirill Vainer
  */
 public class Statistics {
 
+    /**
+     * Enables or disables updates.
+     */
     protected boolean enabled = false;
 
+    /**
+     * Number of object used during the current frame.
+     */
     protected int numObjects;
+    /**
+     * Number of mesh primitives rendered during the current frame.
+     */
     protected int numTriangles;
+    /**
+     * Number of mesh vertices rendered during the current frame.
+     */
     protected int numVertices;
+    /**
+     * Number of shader switches during the current frame.
+     */
     protected int numShaderSwitches;
+    /**
+     * Number of texture binds during the current frame.
+     */
     protected int numTextureBinds;
+    /**
+     * Number of FBO switches during the current frame.
+     */
     protected int numFboSwitches;
+    /**
+     * Number of uniforms set during the current frame.
+     */
     protected int numUniformsSet;
 
+    /**
+     * Number of active shaders.
+     */
     protected int memoryShaders;
+    /**
+     * Number of active frame buffers.
+     */
     protected int memoryFrameBuffers;
+    /**
+     * Number of active textures.
+     */
     protected int memoryTextures;
 
-    protected IntMap<Void> shadersUsed = new IntMap<Void>();
-    protected IntMap<Void> texturesUsed = new IntMap<Void>();
-    protected IntMap<Void> fbosUsed = new IntMap<Void>();
+    /**
+     * IDs of all shaders in use.
+     */
+    protected IntMap<Void> shadersUsed = new IntMap<>();
+    /**
+     * IDs of all textures in use.
+     */
+    protected IntMap<Void> texturesUsed = new IntMap<>();
+    /**
+     * IDs of all FBOs in use.
+     */
+    protected IntMap<Void> fbosUsed = new IntMap<>();
 
+    /**
+     * ID of the most recently used shader.
+     */
     protected int lastShader = -1;
-    
+
     /**
      * Returns a list of labels corresponding to each statistic.
-     * 
+     *
      * @return a list of labels corresponding to each statistic.
-     * 
-     * @see #getData(int[]) 
+     *
+     * @see #getData(int[])
      */
     public String[] getLabels(){
         return new String[]{ "Vertices",
@@ -96,12 +141,12 @@ public class Statistics {
 
     /**
      * Retrieves the statistics data into the given array.
-     * The array should be as large as the array given in 
+     * The array should be as large as the array given in
      * {@link #getLabels() }.
-     * 
+     *
      * @param data The data array to write to
      */
-    public void getData(int[] data){
+    public void getData(int[] data) {
         data[0] = numVertices;
         data[1] = numTriangles;
         data[2] = numUniformsSet;
@@ -114,7 +159,7 @@ public class Statistics {
         data[7] = numTextureBinds;
         data[8] = texturesUsed.size();
         data[9] = memoryTextures;
-        
+
         data[10] = numFboSwitches;
         data[11] = fbosUsed.size();
         data[12] = memoryFrameBuffers;
@@ -122,35 +167,44 @@ public class Statistics {
 
     /**
      * Called by the Renderer when a mesh has been drawn.
+     *
+     * @param mesh the Mesh that was drawn (not null)
+     * @param lod which level of detail
+     * @param count multiplier for triangles and vertices
      */
-    public void onMeshDrawn(Mesh mesh, int lod, int count){
-        if( !enabled )
+    public void onMeshDrawn(Mesh mesh, int lod, int count) {
+        if (!enabled) {
             return;
-            
+        }
+
         numObjects += 1;
         numTriangles += mesh.getTriangleCount(lod) * count;
         numVertices += mesh.getVertexCount() * count;
     }
-    
+
     /**
      * Called by the Renderer when a mesh has been drawn.
+     *
+     * @param mesh the Mesh that was drawn (not null)
+     * @param lod which level of detail
      */
-    public void onMeshDrawn(Mesh mesh, int lod){
+    public void onMeshDrawn(Mesh mesh, int lod) {
         onMeshDrawn(mesh, lod, 1);
     }
 
     /**
      * Called by the Renderer when a shader has been utilized.
-     * 
+     *
      * @param shader The shader that was used
      * @param wasSwitched If true, the shader has required a state switch
      */
-    public void onShaderUse(Shader shader, boolean wasSwitched){
+    public void onShaderUse(Shader shader, boolean wasSwitched) {
         assert shader.getId() >= 1;
 
-        if( !enabled )
+        if (!enabled) {
             return;
-        
+        }
+
         // Reduces unnecessary hashmap lookups if
         // we already considered this shader.
         if (lastShader != shader.getId()) {
@@ -160,63 +214,71 @@ public class Statistics {
             }
         }
 
-        if (wasSwitched)
+        if (wasSwitched) {
             numShaderSwitches++;
+        }
     }
 
     /**
      * Called by the Renderer when a uniform was set.
      */
-    public void onUniformSet(){
-        if( !enabled )
+    public void onUniformSet() {
+        if (!enabled) {
             return;
-        numUniformsSet ++;
+        }
+        numUniformsSet++;
     }
 
     /**
      * Called by the Renderer when a texture has been set.
-     * 
+     *
      * @param image The image that was set
      * @param wasSwitched If true, the texture has required a state switch
      */
-    public void onTextureUse(Image image, boolean wasSwitched){
+    public void onTextureUse(Image image, boolean wasSwitched) {
         assert image.getId() >= 1;
 
-        if( !enabled )
+        if (!enabled) {
             return;
-            
-        if (!texturesUsed.containsKey(image.getId()))
-            texturesUsed.put(image.getId(), null);
+        }
 
-        if (wasSwitched)
-            numTextureBinds ++;
+        if (!texturesUsed.containsKey(image.getId())) {
+            texturesUsed.put(image.getId(), null);
+        }
+
+        if (wasSwitched) {
+            numTextureBinds++;
+        }
     }
 
     /**
      * Called by the Renderer when a framebuffer has been set.
-     * 
+     *
      * @param fb The framebuffer that was set
      * @param wasSwitched If true, the framebuffer required a state switch
      */
-    public void onFrameBufferUse(FrameBuffer fb, boolean wasSwitched){
-        if( !enabled )
+    public void onFrameBufferUse(FrameBuffer fb, boolean wasSwitched) {
+        if (!enabled) {
             return;
-            
-        if (fb != null){
-            assert fb.getId() >= 1;
-
-            if (!fbosUsed.containsKey(fb.getId()))
-                fbosUsed.put(fb.getId(), null);
         }
 
-        if (wasSwitched)
-            numFboSwitches ++;
+        if (fb != null) {
+            assert fb.getId() >= 1;
+
+            if (!fbosUsed.containsKey(fb.getId())) {
+                fbosUsed.put(fb.getId(), null);
+            }
+        }
+
+        if (wasSwitched) {
+            numFboSwitches++;
+        }
     }
-    
+
     /**
      * Clears all frame-specific statistics such as objects used per frame.
      */
-    public void clearFrame(){
+    public void clearFrame() {
         shadersUsed.clear();
         texturesUsed.clear();
         fbosUsed.clear();
@@ -228,77 +290,93 @@ public class Statistics {
         numTextureBinds = 0;
         numFboSwitches = 0;
         numUniformsSet = 0;
-        
+
         lastShader = -1;
     }
 
     /**
-     * Called by the Renderer when it creates a new shader
+     * Called by the Renderer when it creates a new shader.
      */
-    public void onNewShader(){
-        if( !enabled )
+    public void onNewShader() {
+        if (!enabled) {
             return;
-        memoryShaders ++;
+        }
+        memoryShaders++;
     }
 
     /**
-     * Called by the Renderer when it creates a new texture
+     * Called by the Renderer when it creates a new texture.
      */
-    public void onNewTexture(){
-        if( !enabled )
+    public void onNewTexture() {
+        if (!enabled) {
             return;
-        memoryTextures ++;
+        }
+        memoryTextures++;
     }
 
     /**
-     * Called by the Renderer when it creates a new framebuffer
+     * Called by the Renderer when it creates a new framebuffer.
      */
-    public void onNewFrameBuffer(){
-        if( !enabled )
+    public void onNewFrameBuffer() {
+        if (!enabled) {
             return;
-        memoryFrameBuffers ++;
+        }
+        memoryFrameBuffers++;
     }
 
     /**
-     * Called by the Renderer when it deletes a shader
+     * Called by the Renderer when it deletes a shader.
      */
-    public void onDeleteShader(){
-        if( !enabled )
+    public void onDeleteShader() {
+        if (!enabled) {
             return;
-        memoryShaders --;
+        }
+        memoryShaders--;
     }
 
     /**
-     * Called by the Renderer when it deletes a texture
+     * Called by the Renderer when it deletes a texture.
      */
-    public void onDeleteTexture(){
-        if( !enabled )
+    public void onDeleteTexture() {
+        if (!enabled) {
             return;
-        memoryTextures --;
+        }
+        memoryTextures--;
     }
 
     /**
-     * Called by the Renderer when it deletes a framebuffer
+     * Called by the Renderer when it deletes a framebuffer.
      */
-    public void onDeleteFrameBuffer(){
-        if( !enabled )
+    public void onDeleteFrameBuffer() {
+        if (!enabled) {
             return;
-        memoryFrameBuffers --;
+        }
+        memoryFrameBuffers--;
     }
 
     /**
      * Called when video memory is cleared.
      */
-    public void clearMemory(){
+    public void clearMemory() {
         memoryFrameBuffers = 0;
         memoryShaders = 0;
         memoryTextures = 0;
     }
 
-    public void setEnabled( boolean f ) {
+    /**
+     * Enables or disables updates.
+     *
+     * @param f true to enable, false to disable
+     */
+    public void setEnabled(boolean f) {
         this.enabled = f;
     }
-    
+
+    /**
+     * Tests whether updates are enabled.
+     *
+     * @return true if enabled, otherwise false
+     */
     public boolean isEnabled() {
         return enabled;
     }

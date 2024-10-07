@@ -45,11 +45,11 @@ public interface AL {
     public static final int AL_PITCH = 0x1003;
 
     /**
-     * Specify the current location in three dimensional space. OpenAL, like
-     * OpenGL, uses a right handed coordinate system, where in a frontal default
+     * Specify the current location in three-dimensional space. OpenAL, like
+     * OpenGL, uses a right-handed coordinate system, where in a frontal default
      * view X (thumb) points right, Y points up (index finger), and Z points
-     * towards the viewer/camera (middle finger). To switch from a left handed
-     * coordinate system, flip the sign on the Z coordinate. Listener position
+     * towards the viewer/camera (middle finger). To switch from a left-handed
+     * coordinate system, flip the sign of the Z coordinate. Listener position
      * is always in the world coordinate system.
      */
     public static final int AL_POSITION = 0x1004;
@@ -60,7 +60,7 @@ public interface AL {
     public static final int AL_DIRECTION = 0x1005;
 
     /**
-     * Specify the current velocity in three dimensional space.
+     * Specify the current velocity in three-dimensional space.
      */
     public static final int AL_VELOCITY = 0x1006;
 
@@ -235,7 +235,7 @@ public interface AL {
     public static final int AL_RENDERER = 0xB003;
     public static final int AL_EXTENSIONS = 0xB004;
 
-    /**
+    /*
      * Global tweakage.
      */
     /**
@@ -285,14 +285,16 @@ public interface AL {
 
     /**
      * Obtains error information.
-     * <p>
+     *
      * <p>Each detectable error is assigned a numeric code. When an error is detected by AL, a flag is set and the error code is recorded. Further errors, if they
      * occur, do not affect this recorded code. When alGetError is called, the code is returned and the flag is cleared, so that a further error will again
      * record its code. If a call to alGetError returns AL_NO_ERROR then there has been no detectable error since the last call to alGetError (or since the AL
      * was initialized).</p>
-     * <p>
+     *
      * <p>Error codes can be mapped to strings. The alGetString function returns a pointer to a constant (literal) string that is identical to the identifier used
      * for the enumeration value, as defined in the specification.</p>
+     *
+     * @return the error code, or AL_NO_ERROR if none
      */
     public int alGetError();
 
@@ -322,7 +324,7 @@ public interface AL {
 
     /**
      * Sets the source state to AL_STOPPED.
-     * <p>
+     *
      * <p>alSourceStop applied to an AL_INITIAL source is a legal NOP. alSourceStop applied to a AL_PLAYING source will change its state to AL_STOPPED. The source
      * is exempt from processing, its current state is preserved. alSourceStop applied to a AL_PAUSED source will change its state to AL_STOPPED, with the same
      * consequences as on a AL_PLAYING source. alSourceStop applied to a AL_STOPPED source is a legal NOP.</p>
@@ -342,30 +344,35 @@ public interface AL {
 
     /**
      * Sets the sample data of the specified buffer.
-     * <p>
+     *
      * <p>The data specified is copied to an internal software, or if possible, hardware buffer. The implementation is free to apply decompression, conversion,
      * resampling, and filtering as needed.</p>
-     * <p>
+     *
      * <p>8-bit data is expressed as an unsigned value over the range 0 to 255, 128 being an audio output level of zero.</p>
-     * <p>
+     *
      * <p>16-bit data is expressed as a signed value over the range -32768 to 32767, 0 being an audio output level of zero. Byte order for 16-bit values is
      * determined by the native format of the CPU.</p>
-     * <p>
+     *
      * <p>Stereo data is expressed in an interleaved format, left channel sample followed by the right channel sample.</p>
-     * <p>
+     *
      * <p>Buffers containing audio data with more than one channel will be played without 3D spatialization features – these formats are normally used for
      * background music.</p>
      *
      * @param buffer    the buffer to modify.
-     * @param format    the data format. One of:<br><table><tr><td>{@link #AL_FORMAT_MONO8 FORMAT_MONO8}</td><td>{@link #AL_FORMAT_MONO16 FORMAT_MONO16}</td><td>{@link #AL_FORMAT_STEREO8 FORMAT_STEREO8}</td><td>{@link #AL_FORMAT_STEREO16 FORMAT_STEREO16}</td></tr></table>
+     * @param format    the data format. One of:
+     *  {@link #AL_FORMAT_MONO8 FORMAT_MONO8}
+     *  {@link #AL_FORMAT_MONO16 FORMAT_MONO16}
+     *  {@link #AL_FORMAT_STEREO8 FORMAT_STEREO8}
+     *  {@link #AL_FORMAT_STEREO16 FORMAT_STEREO16}
      * @param data      the sample data.
+     * @param size      the length of the data (in bytes, &ge;0)
      * @param frequency the data frequency.
      */
     public void alBufferData(int buffer, int format, ByteBuffer data, int size, int frequency);
 
     /**
      * Sets the source state to AL_PLAYING.
-     * <p>
+     *
      * <p>alSourcePlay applied to an AL_INITIAL source will promote the source to AL_PLAYING, thus the data found in the buffer will be fed into the processing,
      * starting at the beginning. alSourcePlay applied to a AL_PLAYING source will restart the source from the beginning. It will not affect the configuration,
      * and will leave the source in AL_PLAYING state, but reset the sampling offset to the beginning. alSourcePlay applied to a AL_PAUSED source will resume
@@ -378,7 +385,7 @@ public interface AL {
 
     /**
      * Sets the source state to AL_PAUSED.
-     * <p>
+     *
      * <p>alSourcePause applied to an AL_INITIAL source is a legal NOP. alSourcePause applied to a AL_PLAYING source will change its state to AL_PAUSED. The
      * source is exempt from processing, its current state is preserved. alSourcePause applied to a AL_PAUSED source is a legal NOP. alSourcePause applied to a
      * AL_STOPPED source is a legal NOP.</p>
@@ -391,7 +398,22 @@ public interface AL {
      * Sets the float value of a source parameter.
      *
      * @param source the source to modify.
-     * @param param  the parameter to modify. One of:<br><table><tr><td>{@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}</td><td>{@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}</td><td>{@link #AL_PITCH PITCH}</td><td>{@link #AL_DIRECTION DIRECTION}</td><td>{@link #AL_LOOPING LOOPING}</td><td>{@link #AL_BUFFER BUFFER}</td><td>{@link #AL_SOURCE_STATE SOURCE_STATE}</td></tr><tr><td>{@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}</td><td>{@link #AL_SOURCE_TYPE SOURCE_TYPE}</td><td>{@link #AL_POSITION POSITION}</td><td>{@link #AL_VELOCITY VELOCITY}</td><td>{@link #AL_GAIN GAIN}</td><td>{@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}</td><td>{@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}</td></tr><tr><td>{@link #AL_MAX_DISTANCE MAX_DISTANCE}</td></tr></table>
+     * @param param  the parameter to modify. One of:
+     *  {@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}
+     *  {@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}
+     *  {@link #AL_PITCH PITCH}
+     *  {@link #AL_DIRECTION DIRECTION}
+     *  {@link #AL_LOOPING LOOPING}
+     *  {@link #AL_BUFFER BUFFER}
+     *  {@link #AL_SOURCE_STATE SOURCE_STATE}
+     *  {@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}
+     *  {@link #AL_SOURCE_TYPE SOURCE_TYPE}
+     *  {@link #AL_POSITION POSITION}
+     *  {@link #AL_VELOCITY VELOCITY}
+     *  {@link #AL_GAIN GAIN}
+     *  {@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}
+     *  {@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}
+     *  {@link #AL_MAX_DISTANCE MAX_DISTANCE}
      * @param value  the parameter value.
      */
     public void alSourcef(int source, int param, float value);
@@ -400,7 +422,22 @@ public interface AL {
      * Sets the 3 dimensional values of a source parameter.
      *
      * @param source the source to modify.
-     * @param param  the parameter to modify. One of:<br><table><tr><td>{@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}</td><td>{@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}</td><td>{@link #AL_PITCH PITCH}</td><td>{@link #AL_DIRECTION DIRECTION}</td><td>{@link #AL_LOOPING LOOPING}</td><td>{@link #AL_BUFFER BUFFER}</td><td>{@link #AL_SOURCE_STATE SOURCE_STATE}</td></tr><tr><td>{@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}</td><td>{@link #AL_SOURCE_TYPE SOURCE_TYPE}</td><td>{@link #AL_POSITION POSITION}</td><td>{@link #AL_VELOCITY VELOCITY}</td><td>{@link #AL_GAIN GAIN}</td><td>{@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}</td><td>{@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}</td></tr><tr><td>{@link #AL_MAX_DISTANCE MAX_DISTANCE}</td></tr></table>
+     * @param param  the parameter to modify. One of:
+     *  {@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}
+     *  {@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}
+     *  {@link #AL_PITCH PITCH}
+     *  {@link #AL_DIRECTION DIRECTION}
+     *  {@link #AL_LOOPING LOOPING}
+     *  {@link #AL_BUFFER BUFFER}
+     *  {@link #AL_SOURCE_STATE SOURCE_STATE}
+     *  {@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}
+     *  {@link #AL_SOURCE_TYPE SOURCE_TYPE}
+     *  {@link #AL_POSITION POSITION}
+     *  {@link #AL_VELOCITY VELOCITY}
+     *  {@link #AL_GAIN GAIN}
+     *  {@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}
+     *  {@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}
+     *  {@link #AL_MAX_DISTANCE MAX_DISTANCE}
      * @param value1 the first parameter value.
      * @param value2 the second parameter value.
      * @param value3 the third parameter value.
@@ -411,13 +448,29 @@ public interface AL {
      * Returns the integer value of the specified source parameter.
      *
      * @param source the source to query.
-     * @param param  the parameter to query. One of:<br><table><tr><td>{@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}</td><td>{@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}</td><td>{@link #AL_PITCH PITCH}</td><td>{@link #AL_DIRECTION DIRECTION}</td><td>{@link #AL_LOOPING LOOPING}</td><td>{@link #AL_BUFFER BUFFER}</td><td>{@link #AL_SOURCE_STATE SOURCE_STATE}</td></tr><tr><td>{@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}</td><td>{@link #AL_SOURCE_TYPE SOURCE_TYPE}</td><td>{@link #AL_POSITION POSITION}</td><td>{@link #AL_VELOCITY VELOCITY}</td><td>{@link #AL_GAIN GAIN}</td><td>{@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}</td><td>{@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}</td></tr><tr><td>{@link #AL_MAX_DISTANCE MAX_DISTANCE}</td></tr></table>
+     * @param param  the parameter to query. One of:
+     *  {@link #AL_CONE_INNER_ANGLE CONE_INNER_ANGLE}
+     *  {@link #AL_CONE_OUTER_ANGLE CONE_OUTER_ANGLE}
+     *  {@link #AL_PITCH PITCH}
+     *  {@link #AL_DIRECTION DIRECTION}
+     *  {@link #AL_LOOPING LOOPING}
+     *  {@link #AL_BUFFER BUFFER}
+     *  {@link #AL_SOURCE_STATE SOURCE_STATE}
+     *  {@link #AL_CONE_OUTER_GAIN CONE_OUTER_GAIN}
+     *  {@link #AL_SOURCE_TYPE SOURCE_TYPE}
+     *  {@link #AL_POSITION POSITION}
+     *  {@link #AL_VELOCITY VELOCITY}
+     *  {@link #AL_GAIN GAIN}
+     *  {@link #AL_REFERENCE_DISTANCE REFERENCE_DISTANCE}
+     *  {@link #AL_ROLLOFF_FACTOR ROLLOFF_FACTOR}
+     *  {@link #AL_MAX_DISTANCE MAX_DISTANCE}
+     * @return the parameter value
      */
     public int alGetSourcei(int source, int param);
 
     /**
-     * Removes a number of buffer entries that have finished processing, in the order of apperance, from the queue of the specified source.
-     * <p>
+     * Removes a number of buffer entries that have finished processing, in the order of appearance, from the queue of the specified source.
+     *
      * <p>Once a queue entry for a buffer has been appended to a queue and is pending processing, it should not be changed. Removal of a given queue entry is not
      * possible unless either the source is stopped (in which case then entire queue is considered processed), or if the queue entry has already been processed
      * (AL_PLAYING or AL_PAUSED source). A playing source will enter the AL_STOPPED state if it completes playback of the last buffer in its queue (the same
@@ -431,7 +484,7 @@ public interface AL {
 
     /**
      * Queues up one or multiple buffer names to the specified source.
-     * <p>
+     *
      * <p>The buffers will be queued in the sequence in which they appear in the array. This command is legal on a source in any playback state (to allow for
      * streaming, queuing has to be possible on a AL_PLAYING source). All buffers in a queue must have the same format and attributes, with the exception of
      * the {@code NULL} buffer (i.e., 0) which can always be queued.</p>
@@ -453,7 +506,11 @@ public interface AL {
     /**
      * Sets the float value of a listener parameter.
      *
-     * @param param the parameter to modify. One of:<br><table><tr><td>{@link #AL_ORIENTATION ORIENTATION}</td><td>{@link #AL_POSITION POSITION}</td><td>{@link #AL_VELOCITY VELOCITY}</td><td>{@link #AL_GAIN GAIN}</td></tr></table>
+     * @param param the parameter to modify. One of:
+     *  {@link #AL_ORIENTATION ORIENTATION}
+     *  {@link #AL_POSITION POSITION}
+     *  {@link #AL_VELOCITY VELOCITY}
+     *  {@link #AL_GAIN GAIN}
      * @param value the parameter value.
      */
     public void alListenerf(int param, float value);
@@ -461,7 +518,11 @@ public interface AL {
     /**
      * Sets the 3 dimensional float values of a listener parameter.
      *
-     * @param param  the parameter to modify. One of:<br><table><tr><td>{@link #AL_ORIENTATION ORIENTATION}</td><td>{@link #AL_POSITION POSITION}</td><td>{@link #AL_VELOCITY VELOCITY}</td><td>{@link #AL_GAIN GAIN}</td></tr></table>
+     * @param param  the parameter to modify. One of:
+     *  {@link #AL_ORIENTATION ORIENTATION}
+     *  {@link #AL_POSITION POSITION}
+     *  {@link #AL_VELOCITY VELOCITY}
+     *  {@link #AL_GAIN GAIN}
      * @param value1 the first value.
      * @param value2 the second value.
      * @param value3 the third value.

@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 public class TestCursor extends SimpleApplication {
 
-    private ArrayList<JmeCursor> cursors = new ArrayList<JmeCursor>();
+    final private ArrayList<JmeCursor> cursors = new ArrayList<>();
     private long sysTime;
     private int count = 0;
 
@@ -68,7 +68,7 @@ public class TestCursor extends SimpleApplication {
             }
             sysTime = currentTime;
             // 8 seconds have passed,
-            // tell jME3 to swith to a different cursor.
+            // tell jME3 to switch to a different cursor.
             inputManager.setMouseCursor(cursors.get(count));
         }
 

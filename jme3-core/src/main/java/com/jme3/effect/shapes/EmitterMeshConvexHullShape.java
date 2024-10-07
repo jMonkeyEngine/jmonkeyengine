@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,34 +60,34 @@ public class EmitterMeshConvexHullShape extends EmitterMeshFaceShape {
     }
 
     /**
-     * This method fills the point with coordinates of randomly selected point inside a convex hull
-     * of randomly selected mesh.
+     * Randomly selects a point inside the convex hull
+     * of a randomly selected mesh.
+     *
      * @param store
-     *        the variable to store with coordinates of randomly selected selected point inside a convex hull
-     *        of randomly selected mesh
+     *        storage for the coordinates of the selected point
      */
     @Override
     public void getRandomPoint(Vector3f store) {
         super.getRandomPoint(store);
-        // now move the point from the meshe's face towards the center of the mesh
+        // now move the point from the mesh's face toward the center of the mesh
         // the center is in (0, 0, 0) in the local coordinates
         store.multLocal(FastMath.nextRandomFloat());
     }
 
     /**
-     * This method fills the point with coordinates of randomly selected point inside a convex hull
-     * of randomly selected mesh.
-     * The normal param is not used.
+     * Randomly selects a point inside the convex hull
+     * of a randomly selected mesh.
+     * The {@code normal} argument is not used.
+     *
      * @param store
-     *        the variable to store with coordinates of randomly selected selected point inside a convex hull
-     *        of randomly selected mesh
+     *        storage for the coordinates of the selected point
      * @param normal
      *        not used in this class
      */
     @Override
     public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
         super.getRandomPointAndNormal(store, normal);
-        // now move the point from the meshe's face towards the center of the mesh
+        // now move the point from the mesh's face toward the center of the mesh
         // the center is in (0, 0, 0) in the local coordinates
         store.multLocal(FastMath.nextRandomFloat());
     }

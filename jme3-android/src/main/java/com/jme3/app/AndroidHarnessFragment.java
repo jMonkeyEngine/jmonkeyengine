@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -103,8 +103,8 @@ public class AndroidHarnessFragment extends Fragment implements
     protected int eglDepthBits = 16;
 
     /**
-     * Sets the number of samples to use for multisampling.</br>
-     * Leave 0 (default) to disable multisampling.</br>
+     * Sets the number of samples to use for multisampling.<br>
+     * Leave 0 (default) to disable multisampling.<br>
      * Set to 2 or 4 to enable multisampling.
      */
     protected int eglSamples = 0;
@@ -128,9 +128,9 @@ public class AndroidHarnessFragment extends Fragment implements
      * If the surfaceview is rectangular, the longest side (width or height)
      * will have the resolution set to a maximum of maxResolutionDimension.
      * The other direction will be set to a value that maintains the aspect
-     * ratio of the surfaceview. </br>
+     * ratio of the surfaceview. <br>
      * Any value less than 0 (default = -1) will result in the surfaceview having the
-     * same resolution as the view layout (ie. no max resolution).
+     * same resolution as the view layout (i.e. no max resolution).
      */
     protected int maxResolutionDimension = -1;
 
@@ -229,9 +229,10 @@ public class AndroidHarnessFragment extends Fragment implements
      * other methods.  View related objects should not be reused, but rather
      * created and destroyed along with the Activity.
      *
-     * @param savedInstanceState
+     * @param savedInstanceState the saved instance state
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void onCreate(Bundle savedInstanceState) {
         initializeLogHandler();
         logger.fine("onCreate");
@@ -258,7 +259,7 @@ public class AndroidHarnessFragment extends Fragment implements
         try {
             if (app == null) {
                 Class clazz = Class.forName(appClass);
-                app = (LegacyApplication)clazz.newInstance();
+                app = (LegacyApplication) clazz.getDeclaredConstructor().newInstance();
             }
 
             app.setSettings(settings);
@@ -282,9 +283,9 @@ public class AndroidHarnessFragment extends Fragment implements
      * by the Activity's layout parameters for this Fragment.  For jME, we also
      * update the application reference to the new view.
      *
-     * @param inflater
-     * @param container
-     * @param savedInstanceState
+     * @param inflater ignored
+     * @param container ignored
+     * @param savedInstanceState ignored
      * @return the new view
      */
     @Override
@@ -312,7 +313,7 @@ public class AndroidHarnessFragment extends Fragment implements
     }
 
     /**
-     * When the Fragment resumes (ie. after app resumes or device screen turned
+     * When the Fragment resumes (i.e. after app resumes or device screen turned
      * back on), call the gainFocus() in the jME application.
      */
     @Override
@@ -324,7 +325,7 @@ public class AndroidHarnessFragment extends Fragment implements
     }
 
     /**
-     * When the Fragment pauses (ie. after home button pressed on the device
+     * When the Fragment pauses (i.e. after home button pressed on the device
      * or device screen turned off) , call the loseFocus() in the jME application.
      */
     @Override
@@ -431,8 +432,8 @@ public class AndroidHarnessFragment extends Fragment implements
      * Called by the android alert dialog, terminate the activity and OpenGL
      * rendering
      *
-     * @param dialog
-     * @param whichButton
+     * @param dialog ignored
+     * @param whichButton the button index
      */
     @Override
     public void onClick(DialogInterface dialog, int whichButton) {
@@ -572,6 +573,11 @@ public class AndroidHarnessFragment extends Fragment implements
     }
 
     @Override
+    public void rescale(float x, float y) {
+        app.rescale(x, y);
+    }
+
+    @Override
     public void update() {
         app.update();
         // call to remove the splash screen, if present.
@@ -673,8 +679,10 @@ public class AndroidHarnessFragment extends Fragment implements
                 int newHeight = bottom-top;
 
                 if (viewWidth != newWidth || viewHeight != newHeight) {
-                    logger.log(Level.FINE, "SurfaceView layout changed: old width: {0}, old height: {1}, new width: {2}, new height: {3}",
-                            new Object[]{viewWidth, viewHeight, newWidth, newHeight});
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "SurfaceView layout changed: old width: {0}, old height: {1}, new width: {2}, new height: {3}",
+                                new Object[]{viewWidth, viewHeight, newWidth, newHeight});
+                    }
                     viewWidth = newWidth;
                     viewHeight = newHeight;
 
@@ -694,8 +702,10 @@ public class AndroidHarnessFragment extends Fragment implements
                     }
                     // set the surfaceview resolution if the size != current view size
                     if (fixedSizeWidth != viewWidth || fixedSizeHeight != viewHeight) {
-                        logger.log(Level.FINE, "setting surfaceview resolution to width: {0}, height: {1}",
-                                new Object[]{fixedSizeWidth, fixedSizeHeight});
+                        if (logger.isLoggable(Level.FINE)) {
+                            logger.log(Level.FINE, "setting surfaceview resolution to width: {0}, height: {1}",
+                                    new Object[]{fixedSizeWidth, fixedSizeHeight});
+                        }
                         view.getHolder().setFixedSize(fixedSizeWidth, fixedSizeHeight);
                     }
                 }

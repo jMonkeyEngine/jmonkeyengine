@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ public class DebugKeysAppState extends AbstractAppState {
     public static final String INPUT_MAPPING_MEMORY = "SIMPLEAPP_Memory";
     
     private Application app;
-    private DebugKeyListener keyListener = new DebugKeyListener();
+    private final DebugKeyListener keyListener = new DebugKeyListener();
     private InputManager inputManager;
 
     public DebugKeysAppState() {
@@ -83,10 +83,12 @@ public class DebugKeysAppState extends AbstractAppState {
     public void cleanup() {
         super.cleanup();
 
-        if (inputManager.hasMapping(INPUT_MAPPING_CAMERA_POS))
+        if (inputManager.hasMapping(INPUT_MAPPING_CAMERA_POS)) {
             inputManager.deleteMapping(INPUT_MAPPING_CAMERA_POS);
-        if (inputManager.hasMapping(INPUT_MAPPING_MEMORY))
+        }
+        if (inputManager.hasMapping(INPUT_MAPPING_MEMORY)) {
             inputManager.deleteMapping(INPUT_MAPPING_MEMORY);
+        }
         
         inputManager.removeListener(keyListener);
     }
@@ -111,7 +113,8 @@ public class DebugKeysAppState extends AbstractAppState {
                     System.out.println("Camera Direction: " + cam.getDirection());
                     System.out.println("cam.setLocation(new Vector3f("
                             + loc.x + "f, " + loc.y + "f, " + loc.z + "f));");
-                    System.out.println("cam.setRotation(new Quaternion(" + rot.getX() + "f, " +rot.getY()+ "f, " + rot.getZ() + "f, " + rot.getW() + "f));");
+                    System.out.println("cam.setRotation(new Quaternion(" + rot.getX() + "f, " + rot.getY()
+                            + "f, " + rot.getZ() + "f, " + rot.getW() + "f));");
                   
                 }
             } else if (name.equals(INPUT_MAPPING_MEMORY)) {

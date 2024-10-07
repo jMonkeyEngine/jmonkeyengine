@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,14 +53,14 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestSpotLightShadows extends SimpleApplication {
 
-    private Vector3f lightTarget = new Vector3f(12, 3.5f, 30);
+    final private Vector3f lightTarget = new Vector3f(12, 3.5f, 30);
 
     public static void main(String[] args) {
         TestSpotLightShadows app = new TestSpotLightShadows();
         app.start();
     }
-    SpotLight spot;
-    Geometry lightMdl;
+    private SpotLight spot;
+    private Geometry lightMdl;
 
     public void setupLighting() {
         AmbientLight al = new AmbientLight();
@@ -99,7 +99,7 @@ public class TestSpotLightShadows extends SimpleApplication {
 
         final SpotLightShadowRenderer slsr = new SpotLightShadowRenderer(assetManager, 512);
         slsr.setLight(spot);       
-        slsr.setShadowIntensity(0.5f);
+        slsr.setShadowIntensity(.7f);
         slsr.setShadowZExtend(100);
         slsr.setShadowZFadeLength(5);
         slsr.setEdgeFilteringMode(EdgeFilteringMode.PCFPOISSON);   
@@ -107,7 +107,7 @@ public class TestSpotLightShadows extends SimpleApplication {
 
         SpotLightShadowFilter slsf = new SpotLightShadowFilter(assetManager, 512);
         slsf.setLight(spot);    
-        slsf.setShadowIntensity(0.5f);
+        slsf.setShadowIntensity(.7f);
         slsf.setShadowZExtend(100);
         slsf.setShadowZFadeLength(5);
         slsf.setEdgeFilteringMode(EdgeFilteringMode.PCFPOISSON);  
@@ -182,8 +182,8 @@ public class TestSpotLightShadows extends SimpleApplication {
 
 
     }
-    float angle;
-    boolean stop = true;
+    private float angle;
+    private boolean stop = true;
 
     @Override
     public void simpleUpdate(float tpf) {

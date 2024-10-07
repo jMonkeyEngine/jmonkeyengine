@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009-2020 jMonkeyEngine
+ *  Copyright (c) 2009-2021 jMonkeyEngine
  *  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ import java.util.logging.Logger;
  * 
  * <p>Also note that textures are not scaled and the atlas needs to be large enough to hold all textures.
  * All methods that allow adding textures return false if the texture could not be added due to the
- * atlas being full. Furthermore secondary textures (normal, spcular maps etc.) have to be the same size
+ * atlas being full. Furthermore secondary textures (normal, specular maps etc.) have to be the same size
  * as the main (e.g. DiffuseMap) texture.</p>
  * 
  * <p><b>Usage examples</b></p>
@@ -121,11 +121,11 @@ public class TextureAtlas {
 
     private static final Logger logger = Logger.getLogger(TextureAtlas.class.getName());
     private Map<String, byte[]> images;
-    private int atlasWidth, atlasHeight;
-    private Format format = Format.ABGR8;
-    private Node root;
-    private Map<String, TextureAtlasTile> locationMap;
-    private Map<String, String> mapNameMap;
+    private final int atlasWidth, atlasHeight;
+    private final Format format = Format.ABGR8;
+    private final Node root;
+    private final Map<String, TextureAtlasTile> locationMap;
+    private final Map<String, String> mapNameMap;
     private String rootMapName;
 
     public TextureAtlas(int width, int height) {
@@ -138,7 +138,8 @@ public class TextureAtlas {
 
     /**
      * Add a geometries DiffuseMap (or ColorMap), NormalMap and SpecularMap to the atlas.
-     * @param geometry
+     *
+     * @param geometry the Geometry to be added (not null)
      * @return false if the atlas is full.
      */
     public boolean addGeometry(Geometry geometry) {
@@ -357,15 +358,15 @@ public class TextureAtlas {
                 return null;
             }
             Image newImage = new Image(format, source.getWidth(), source.getHeight(), BufferUtils.createByteBuffer(source.getWidth() * source.getHeight() * 4), null, ColorSpace.Linear);
-            clazz.getMethod("convert", Image.class, Image.class).invoke(clazz.newInstance(), source, newImage);
+            clazz.getMethod("convert", Image.class, Image.class).invoke(clazz.getDeclaredConstructor().newInstance(), source, newImage);
             return newImage;
-        } catch (InstantiationException ex) {
-        } catch (IllegalAccessException ex) {
-        } catch (IllegalArgumentException ex) {
-        } catch (InvocationTargetException ex) {
-        } catch (NoSuchMethodException ex) {
-        } catch (SecurityException ex) {
-        } catch (ClassNotFoundException ex) {
+        } catch (InstantiationException
+                | IllegalAccessException
+                | IllegalArgumentException
+                | InvocationTargetException
+                | NoSuchMethodException
+                | SecurityException
+                | ClassNotFoundException ex) {
         }
         return null;
     }
@@ -394,7 +395,8 @@ public class TextureAtlas {
 
     /**
      * Creates a new atlas texture for the given map name.
-     * @param mapName
+     *
+     * @param mapName the desired name
      * @return the atlas texture
      */
     public Texture getAtlasTexture(String mapName) {
@@ -469,7 +471,7 @@ public class TextureAtlas {
      * @return Null if the atlas cannot be created because not all textures fit.
      */
     public static TextureAtlas createAtlas(Spatial root, int atlasSize) {
-        List<Geometry> geometries = new ArrayList<Geometry>();
+        List<Geometry> geometries = new ArrayList<>();
         GeometryBatchFactory.gatherGeoms(root, geometries);
         TextureAtlas atlas = new TextureAtlas(atlasSize, atlasSize);
         for (Geometry geometry : geometries) {
@@ -485,12 +487,12 @@ public class TextureAtlas {
      * Creates one geometry out of the given root spatial and merges all single
      * textures into one texture of the given size.
      * @param spat The root spatial of the scene to batch
-     * @param mgr An assetmanager that can be used to create the material.
+     * @param mgr An asset manager that can be used to create the material.
      * @param atlasSize A size for the atlas texture, it has to be large enough to hold all single textures.
      * @return A new geometry that uses the generated texture atlas and merges all meshes of the root spatial, null if the atlas cannot be created because not all textures fit.
      */
     public static Geometry makeAtlasBatch(Spatial spat, AssetManager mgr, int atlasSize) {
-        List<Geometry> geometries = new ArrayList<Geometry>();
+        List<Geometry> geometries = new ArrayList<>();
         GeometryBatchFactory.gatherGeoms(spat, geometries);
         TextureAtlas atlas = createAtlas(spat, atlasSize);
         if (atlas == null) {
@@ -620,8 +622,8 @@ public class TextureAtlas {
 
     public class TextureAtlasTile {
 
-        private int x;
-        private int y;
+        final private int x;
+        final private int y;
         private int width;
         private int height;
 

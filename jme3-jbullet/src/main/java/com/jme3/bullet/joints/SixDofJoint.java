@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,9 +50,9 @@ import java.util.LinkedList;
 /**
  * <i>From bullet manual:</i><br>
  * This generic constraint can emulate a variety of standard constraints,
- * by configuring each of the 6 degrees of freedom (dof).
- * The first 3 dof axis are linear axis, which represent translation of rigidbodies,
- * and the latter 3 dof axis represent the angular motion. Each axis can be either locked,
+ * by configuring each of the 6 degrees of freedom (DOF).
+ * The first 3 DOF axes are linear axes, which represent translation of rigid bodies,
+ * and the latter 3 DOF axes represent the angular motion. Each axis can be either locked,
  * free or limited. On construction of a new btGeneric6DofConstraint, all axis are locked.
  * Afterwards the axis can be reconfigured. Note that several combinations that
  * include free and/or limited angular degrees of freedom are undefined.
@@ -61,7 +61,7 @@ import java.util.LinkedList;
 public class SixDofJoint extends PhysicsJoint {
 
     private boolean useLinearReferenceFrameA = true;
-    private LinkedList<RotationalLimitMotor> rotationalMotors = new LinkedList<RotationalLimitMotor>();
+    private LinkedList<RotationalLimitMotor> rotationalMotors = new LinkedList<>();
     private TranslationalLimitMotor translationalMotor;
     private Vector3f angularUpperLimit = new Vector3f(Vector3f.POSITIVE_INFINITY);
     private Vector3f angularLowerLimit = new Vector3f(Vector3f.NEGATIVE_INFINITY);
@@ -72,8 +72,15 @@ public class SixDofJoint extends PhysicsJoint {
     }
 
     /**
+     * @param nodeA the body for the A end (not null, alias created)
+     * @param nodeB the body for the B end (not null, alias created)
      * @param pivotA local translation of the joint connection point in node A
      * @param pivotB local translation of the joint connection point in node B
+     * @param rotA the joint orientation in A's local coordinates (rotation
+     * matrix, unaffected)
+     * @param rotB the joint orientation in B's local coordinates (rotation
+     * matrix, unaffected)
+     * @param useLinearReferenceFrameA true&rarr;use body A, false&rarr;use body
      */
     public SixDofJoint(PhysicsRigidBody nodeA, PhysicsRigidBody nodeB, Vector3f pivotA, Vector3f pivotB, Matrix3f rotA, Matrix3f rotB, boolean useLinearReferenceFrameA) {
         super(nodeA, nodeB, pivotA, pivotB);
@@ -92,8 +99,12 @@ public class SixDofJoint extends PhysicsJoint {
     }
 
     /**
+     * @param nodeA the body for the A end (not null, alias created)
+     * @param nodeB the body for the B end (not null, alias created)
      * @param pivotA local translation of the joint connection point in node A
      * @param pivotB local translation of the joint connection point in node B
+     * @param useLinearReferenceFrameA true&rarr;use body A, false&rarr;use body
+     * B
      */
     public SixDofJoint(PhysicsRigidBody nodeA, PhysicsRigidBody nodeB, Vector3f pivotA, Vector3f pivotB, boolean useLinearReferenceFrameA) {
         super(nodeA, nodeB, pivotA, pivotB);
@@ -111,8 +122,8 @@ public class SixDofJoint extends PhysicsJoint {
 
     private void gatherMotors() {
         for (int i = 0; i < 3; i++) {
-            RotationalLimitMotor rmot = new RotationalLimitMotor(((Generic6DofConstraint) constraint).getRotationalLimitMotor(i));
-            rotationalMotors.add(rmot);
+            RotationalLimitMotor rMotor = new RotationalLimitMotor(((Generic6DofConstraint) constraint).getRotationalLimitMotor(i));
+            rotationalMotors.add(rMotor);
         }
         translationalMotor = new TranslationalLimitMotor(((Generic6DofConstraint) constraint).getTranslationalLimitMotor());
     }

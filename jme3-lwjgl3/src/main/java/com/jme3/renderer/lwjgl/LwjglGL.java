@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,14 +87,14 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
     }
 
     @Override
-    public void glBlendFunc(final int sfactor, final int dfactor) {
-        GL11.glBlendFunc(sfactor, dfactor);
+    public void glBlendFunc(final int sFactor, final int dFactor) {
+        GL11.glBlendFunc(sFactor, dFactor);
     }
 
     @Override
-    public void glBlendFuncSeparate(final int sfactorRGB, final int dfactorRGB, final int sfactorAlpha,
-                                    final int dfactorAlpha) {
-        GL14.glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);
+    public void glBlendFuncSeparate(final int sFactorRGB, final int dFactorRGB, final int sFactorAlpha,
+                                    final int dFactorAlpha) {
+        GL14.glBlendFuncSeparate(sFactorRGB, dFactorRGB, sFactorAlpha, dFactorAlpha);
     }
 
     @Override
@@ -317,6 +317,12 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
     @Override
     public int glGetError() {
         return GL11.glGetError();
+    }
+
+    @Override
+    public void glGetFloat(int parameterId, FloatBuffer storeValues) {
+        checkLimit(storeValues);
+        GL11.glGetFloatv(parameterId, storeValues);
     }
 
     @Override

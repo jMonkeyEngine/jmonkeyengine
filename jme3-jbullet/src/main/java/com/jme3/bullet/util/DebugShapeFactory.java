@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,9 +65,16 @@ public class DebugShapeFactory {
     private static final Vector3f aabbMin = new Vector3f(-1e30f, -1e30f, -1e30f);
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private DebugShapeFactory() {
+    }
+
+    /**
      * Creates a debug shape from the given collision shape. This is mostly used internally.<br>
      * To attach a debug shape to a physics object, call <code>attachDebugShape(AssetManager manager);</code> on it.
-     * @param collisionShape
+     *
+     * @param collisionShape the CollisionShape to use or null
      * @return a new Spatial or null
      */
     public static Spatial getDebugShape(CollisionShape collisionShape) {
@@ -144,7 +151,7 @@ public class DebugShapeFactory {
         BufferedTriangleCallback triangleProcessor = new BufferedTriangleCallback();
         concaveShape.processAllTriangles(triangleProcessor, aabbMin, aabbMax);
 
-        // Retrieve the vextex and index buffers
+        // Retrieve the vertex and index buffers
         return triangleProcessor.getVertices();
     }
 
@@ -177,22 +184,22 @@ public class DebugShapeFactory {
         final int numberOfFloats = 3 * 3 * numberOfTriangles;
         FloatBuffer vertices = BufferUtils.createFloatBuffer(numberOfFloats); 
 
-        // Force the limit, set the cap - most number of floats we will use the buffer for
+        // Force the limit, set the cap - the largest number of floats we will use the buffer for
         vertices.limit(numberOfFloats);
 
         // Loop variables
-        final IntArrayList hullIndicies = hull.getIndexPointer();
+        final IntArrayList hullIndices = hull.getIndexPointer();
         final List<Vector3f> hullVertices = hull.getVertexPointer();
         Vector3f vertexA, vertexB, vertexC;
         int index = 0;
 
         for (int i = 0; i < numberOfTriangles; i++) {
             // Grab the data for this triangle from the hull
-            vertexA = hullVertices.get(hullIndicies.get(index++));
-            vertexB = hullVertices.get(hullIndicies.get(index++));
-            vertexC = hullVertices.get(hullIndicies.get(index++));
+            vertexA = hullVertices.get(hullIndices.get(index++));
+            vertexB = hullVertices.get(hullIndices.get(index++));
+            vertexC = hullVertices.get(hullIndices.get(index++));
 
-            // Put the verticies into the vertex buffer
+            // Put the vertices into the vertex buffer
             vertices.put(vertexA.x).put(vertexA.y).put(vertexA.z);
             vertices.put(vertexB.x).put(vertexB.y).put(vertexB.z);
             vertices.put(vertexC.x).put(vertexC.y).put(vertexC.z);
@@ -205,7 +212,7 @@ public class DebugShapeFactory {
 
 /**
  *  A callback is used to process the triangles of the shape as there is no direct access to a concave shapes, shape.
- *  <p/>
+ *  <p>
  *  The triangles are simply put into a list (which in extreme condition will cause memory problems) then put into a direct buffer.
  *
  * @author CJ Hare
@@ -235,7 +242,7 @@ class BufferedTriangleCallback extends TriangleCallback {
         final int numberOfFloats = vertices.size() * 3;
         FloatBuffer verticesBuffer = BufferUtils.createFloatBuffer(numberOfFloats); 
 
-        // Force the limit, set the cap - most number of floats we will use the buffer for
+        // Force the limit, set the cap - the largest number of floats we will use the buffer for
         verticesBuffer.limit(numberOfFloats);
 
         // Copy the values from the list to the direct float buffer

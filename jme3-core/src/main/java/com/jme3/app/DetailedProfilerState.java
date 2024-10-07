@@ -1,3 +1,34 @@
+/*
+ * Copyright (c) 2017-2021 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.jme3.app;
 
 import com.jme3.app.state.BaseAppState;
@@ -29,13 +60,13 @@ public class DetailedProfilerState extends BaseAppState {
     private static final String TOGGLE_KEY = "Toggle_Detailed_Profiler";
     private static final String CLICK_KEY = "Click_Detailed_Profiler";
     private static final String INSIGNIFICANT = "Hide insignificant stat";
-    private DetailedProfiler prof = new DetailedProfiler();
+    private final DetailedProfiler prof = new DetailedProfiler();
 
     private float time = 0;
     private BitmapFont font;
     private BitmapFont bigFont;
-    private Node ui = new Node("Stats ui");
-    private Map<String, StatLineView> lines = new HashMap<>();
+    private final Node ui = new Node("Stats ui");
+    private final Map<String, StatLineView> lines = new HashMap<>();
     private double totalTimeCpu;
     private double totalTimeGpu;
     private int maxLevel = 0;
@@ -52,14 +83,14 @@ public class DetailedProfilerState extends BaseAppState {
 
     private StatLineView rootLine;
     private int height = 0;
-    private DecimalFormat df = new DecimalFormat("##0.00", new DecimalFormatSymbols(Locale.US));
+    private final DecimalFormat df = new DecimalFormat("##0.00", new DecimalFormatSymbols(Locale.US));
 
-    private ColorRGBA dimmedWhite = ColorRGBA.White.mult(0.7f);
-    private ColorRGBA dimmedGreen = ColorRGBA.Green.mult(0.7f);
-    private ColorRGBA dimmedOrange = ColorRGBA.Orange.mult(0.7f);
-    private ColorRGBA dimmedRed = ColorRGBA.Red.mult(0.7f);
+    private final ColorRGBA dimmedWhite = ColorRGBA.White.mult(0.7f);
+    private final ColorRGBA dimmedGreen = ColorRGBA.Green.mult(0.7f);
+    private final ColorRGBA dimmedOrange = ColorRGBA.Orange.mult(0.7f);
+    private final ColorRGBA dimmedRed = ColorRGBA.Red.mult(0.7f);
 
-    private ProfilerInputListener inputListener = new ProfilerInputListener();
+    private final ProfilerInputListener inputListener = new ProfilerInputListener();
 
     public DetailedProfilerState() {
 
@@ -70,7 +101,8 @@ public class DetailedProfilerState extends BaseAppState {
         Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", new ColorRGBA(0, 0, 0, 0.5f));
         mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-        Geometry darkenStats = new Geometry("StatsDarken", new Quad(PANEL_WIDTH, app.getCamera().getHeight()));
+        Geometry darkenStats = new Geometry("StatsDarken", new Quad(PANEL_WIDTH,
+                app.getCamera().getHeight()));
         darkenStats.setMaterial(mat);
         darkenStats.setLocalTranslation(0, -app.getCamera().getHeight(), -1);
 
@@ -85,17 +117,20 @@ public class DetailedProfilerState extends BaseAppState {
         BitmapText frameLabel = new BitmapText(bigFont);
         frameLabel.setText("Total Frame Time: ");
         ui.attachChild(frameLabel);
-        frameLabel.setLocalTranslation(new Vector3f(PANEL_WIDTH / 2 - bigFont.getLineWidth(frameLabel.getText()), -PADDING, 0));
+        frameLabel.setLocalTranslation(
+                new Vector3f(PANEL_WIDTH / 2 - bigFont.getLineWidth(frameLabel.getText()), -PADDING, 0));
 
         BitmapText cpuLabel = new BitmapText(bigFont);
         cpuLabel.setText("CPU");
         ui.attachChild(cpuLabel);
-        cpuLabel.setLocalTranslation(PANEL_WIDTH / 4 - bigFont.getLineWidth(cpuLabel.getText()) / 2, -PADDING - 30, 0);
+        cpuLabel.setLocalTranslation(PANEL_WIDTH / 4 - bigFont.getLineWidth(cpuLabel.getText()) / 2,
+                -PADDING - 30, 0);
 
         BitmapText gpuLabel = new BitmapText(bigFont);
         gpuLabel.setText("GPU");
         ui.attachChild(gpuLabel);
-        gpuLabel.setLocalTranslation(3 * PANEL_WIDTH / 4 - bigFont.getLineWidth(gpuLabel.getText()) / 2, -PADDING - 30, 0);
+        gpuLabel.setLocalTranslation(3 * PANEL_WIDTH / 4 - bigFont.getLineWidth(gpuLabel.getText()) / 2,
+                -PADDING - 30, 0);
 
         frameTimeValue = new BitmapText(bigFont);
         frameCpuTimeValue = new BitmapText(bigFont);
@@ -190,16 +225,22 @@ public class DetailedProfilerState extends BaseAppState {
         setColor(frameTimeValue, prof.getAverageFrameTime(), totalTimeCpu, false, false);
 
         frameCpuTimeValue.setText(df.format(getMsFromNs(totalTimeCpu)) + "ms");
-        frameCpuTimeValue.setLocalTranslation(new Vector3f(PANEL_WIDTH / 4 - bigFont.getLineWidth(frameCpuTimeValue.getText()) / 2, -PADDING - 50, 0));
+        frameCpuTimeValue.setLocalTranslation(
+                new Vector3f(PANEL_WIDTH / 4 - bigFont.getLineWidth(frameCpuTimeValue.getText()) / 2,
+                -PADDING - 50, 0));
         setColor(frameCpuTimeValue, totalTimeCpu, totalTimeCpu, false, false);
 
         frameGpuTimeValue.setText(df.format(getMsFromNs(totalTimeGpu)) + "ms");
-        frameGpuTimeValue.setLocalTranslation(new Vector3f(3 * PANEL_WIDTH / 4 - bigFont.getLineWidth(frameGpuTimeValue.getText()) / 2, -PADDING - 50, 0));
+        frameGpuTimeValue.setLocalTranslation(
+                new Vector3f(3 * PANEL_WIDTH / 4 - bigFont.getLineWidth(frameGpuTimeValue.getText()) / 2,
+                -PADDING - 50, 0));
         setColor(frameGpuTimeValue, totalTimeGpu, totalTimeGpu, false, false);
 
-        selectedField.setText("Selected: " + df.format(getMsFromNs(selectedValueCpu)) + "ms / " + df.format(getMsFromNs(selectedValueGpu)) + "ms");
+        selectedField.setText("Selected: " + df.format(getMsFromNs(selectedValueCpu)) + "ms / "
+                + df.format(getMsFromNs(selectedValueGpu)) + "ms");
 
-        selectedField.setLocalTranslation(3 * PANEL_WIDTH / 4 - font.getLineWidth(selectedField.getText()) / 2, -PADDING - 75, 0);
+        selectedField.setLocalTranslation(
+                3 * PANEL_WIDTH / 4 - font.getLineWidth(selectedField.getText()) / 2, -PADDING - 75, 0);
     }
 
     private StatLineView getStatLineView(String path) {
@@ -254,7 +295,8 @@ public class DetailedProfilerState extends BaseAppState {
         ui.removeFromParent();
     }
 
-    public boolean setColor(BitmapText t, double value, double totalTime, boolean isParent, boolean expended) {
+    public boolean setColor(BitmapText t, double value, double totalTime, boolean isParent,
+            boolean expended) {
 
         boolean dimmed = isParent && expended;
         boolean insignificant = false;
@@ -382,7 +424,8 @@ public class DetailedProfilerState extends BaseAppState {
             int y = -(height * LINE_HEIGHT + HEADER_HEIGHT);
 
             label.setLocalTranslation(PADDING + indent * PADDING, y, 0);
-            float gpuPos = PANEL_WIDTH - font.getLineWidth(gpuText.getText()) - PADDING * (maxLevel - indent + 1);
+            float gpuPos = PANEL_WIDTH - font.getLineWidth(gpuText.getText())
+                    - PADDING * (maxLevel - indent + 1);
             cpuText.setLocalTranslation(gpuPos - font.getLineWidth(cpuText.getText()), y, 0);
             gpuText.setLocalTranslation(gpuPos, y, 0);
 
@@ -435,7 +478,8 @@ public class DetailedProfilerState extends BaseAppState {
 
         @Override
         public String toString() {
-            return label.getText() + " - " + df.format(getMsFromNs(cpuValue)) + "ms / " + df.format(getMsFromNs(gpuValue)) + "ms";
+            return label.getText() + " - " + df.format(getMsFromNs(cpuValue)) + "ms / "
+                    + df.format(getMsFromNs(gpuValue)) + "ms";
         }
     }
 

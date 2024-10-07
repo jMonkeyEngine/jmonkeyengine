@@ -28,7 +28,7 @@ public class VirtualIndexBufferTest {
         assertEquals(7, bufferPoints.remaining());
 
         final VirtualIndexBuffer bufferLineLoop = new VirtualIndexBuffer(8, Mode.LineLoop);
-        assertEquals(15, bufferLineLoop.remaining());
+        assertEquals(16, bufferLineLoop.remaining()); // see JME issue #1603
 
         final VirtualIndexBuffer bufferLineStrip = new VirtualIndexBuffer(8, Mode.LineStrip);
         assertEquals(14, bufferLineStrip.remaining());
@@ -79,6 +79,23 @@ public class VirtualIndexBufferTest {
         ib.clear();
         assertEquals(0, bufferPoints.remaining());
 
+        /*
+         * Test with Mode.Lines and no leftover vertices.
+         */
+        IntBuffer ib8 = IntBuffer.allocate(8);
+        final VirtualIndexBuffer vibLinesEven
+                = new VirtualIndexBuffer(8, Mode.Lines);
+        for (int i = 0; i < 8; i++) {
+            ib8.put(vibLinesEven.get());
+        }
+        assertArrayEquals(new int[]{
+            0, 1,
+            2, 3,
+            4, 5,
+            6, 7}, ib8.array());
+        assertEquals(0, vibLinesEven.remaining());
+        ib8.clear();
+
         final VirtualIndexBuffer bufferLines = new VirtualIndexBuffer(27, Mode.Lines);
         for (int i=0; i<27; i++) {ib.put(bufferLines.get());}
         assertArrayEquals(new int[]{
@@ -109,6 +126,22 @@ public class VirtualIndexBufferTest {
         assertEquals(0, bufferTriangles.remaining());
         ib.clear();
 
+        /*
+         * Test with Mode.LineStrip and no leftover vertices.
+         */
+        final VirtualIndexBuffer vibLineStripEven
+                = new VirtualIndexBuffer(5, Mode.LineStrip);
+        for (int i = 0; i < 8; i++) {
+            ib8.put(vibLineStripEven.get());
+        }
+        assertArrayEquals(new int[]{
+            0, 1,
+            1, 2,
+            2, 3,
+            3, 4}, ib8.array());
+        assertEquals(0, vibLineStripEven.remaining());
+        ib8.clear();
+
         final VirtualIndexBuffer bufferLineStrip = new VirtualIndexBuffer(27, Mode.LineStrip);
         for (int i=0; i<27; i++) {ib.put(bufferLineStrip.get());}
         assertArrayEquals(new int[]{
@@ -124,6 +157,24 @@ public class VirtualIndexBufferTest {
         assertEquals(25, bufferLineStrip.remaining());
         ib.clear();
 
+        /*
+         * Test with Mode.LineLoop and no leftover vertices,
+         * to ensure that the loop wraps around to 0 properly.
+         * See JME issue #1603.
+         */
+        final VirtualIndexBuffer vibLineLoopEven
+                = new VirtualIndexBuffer(4, Mode.LineLoop);
+        for (int i = 0; i < 8; i++) {
+            ib8.put(vibLineLoopEven.get());
+        }
+        assertArrayEquals(new int[]{
+            0, 1,
+            1, 2,
+            2, 3,
+            3, 0}, ib8.array());
+        assertEquals(0, vibLineLoopEven.remaining());
+        ib8.clear();
+
         final VirtualIndexBuffer bufferLineLoop = new VirtualIndexBuffer(27, Mode.LineLoop);
         for (int i=0; i<27; i++) {ib.put(bufferLineLoop.get());}
         assertArrayEquals(new int[]{
@@ -135,8 +186,8 @@ public class VirtualIndexBufferTest {
                 8, 8, 9,
                 9, 10, 10,
                 11, 11, 12,
-                12, 13, 0}, ib.array());
-        assertEquals(26, bufferLineLoop.remaining());
+                12, 13, 13}, ib.array());
+        assertEquals(27, bufferLineLoop.remaining()); // see JME issue #1603
         ib.clear();
 
         final VirtualIndexBuffer bufferTriangleStrip = new VirtualIndexBuffer(27, Mode.TriangleStrip);
@@ -183,7 +234,7 @@ public class VirtualIndexBufferTest {
         assertEquals(9, bufferTriangleFan.size());
 
         final VirtualIndexBuffer bufferLineLoop = new VirtualIndexBuffer(8, Mode.LineLoop);
-        assertEquals(15, bufferLineLoop.size());
+        assertEquals(16, bufferLineLoop.size()); // see JME issue #1603
 
         final VirtualIndexBuffer bufferPoints = new VirtualIndexBuffer(8, Mode.Points);
         assertEquals(8, bufferPoints.size());

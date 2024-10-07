@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,8 +46,9 @@ public class FileLocator implements AssetLocator {
 
     @Override
     public void setRootPath(String rootPath) {
-        if (rootPath == null)
-            throw new NullPointerException();
+        if (rootPath == null) {
+            throw new IllegalArgumentException("rootPath cannot be null");
+        }
         
         try {
             root = new File(rootPath).getCanonicalFile();
@@ -61,7 +62,7 @@ public class FileLocator implements AssetLocator {
 
     private static class AssetInfoFile extends AssetInfo {
 
-        private File file;
+        final private File file;
 
         public AssetInfoFile(AssetManager manager, AssetKey key, File file){
             super(manager, key);

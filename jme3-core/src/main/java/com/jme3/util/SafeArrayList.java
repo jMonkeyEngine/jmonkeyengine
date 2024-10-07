@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import java.util.*;
  *  <li>The ListIterators returned by this class only support the remove()
  *  modification method.  add() and set() are not supported on the iterator.
  *  Even after ListIterator.remove() or Iterator.remove() is called, this change
- *  is not reflected in the iterator instance as it is still refering to its
+ *  is not reflected in the iterator instance as it is still referring to its
  *  original snapshot.
  *  </ul>
  *
@@ -80,10 +80,10 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     //       make this publicly act like a read-only list.
     //       SafeArrayList-specific methods could then be exposed
     //       for the classes like Node and Spatial to use to manage
-    //       the list.  This was the callers couldn't remove a child
+    //       the list.  This was because the callers couldn't remove a child
     //       without it being detached properly, for example.
 
-    private Class<E> elementType;
+    private final Class<E> elementType;
     private List<E> buffer;
     private E[] backingArray;
     private int size = 0;
@@ -110,15 +110,15 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
             SafeArrayList<E> clone = (SafeArrayList<E>)super.clone();
 
             // Clone whichever backing store is currently active
-            if( backingArray != null ) {
+            if (backingArray != null) {
                 clone.backingArray = backingArray.clone();
             }
-            if( buffer != null ) {
+            if (buffer != null) {
                 clone.buffer = (List<E>)((ArrayList<E>)buffer).clone();
             }
 
             return clone;
-        } catch( CloneNotSupportedException e ) {
+        } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
     }
@@ -137,34 +137,36 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
      *  is guaranteed not to change through further List manipulation.
      *  Changes to this array may or may not be reflected in the list and
      *  should be avoided.
+     *
+     * @return either the pre-existing array or a new one
      */
     public final E[] getArray() {
-        if( backingArray != null )
+        if (backingArray != null)
             return backingArray;
 
-        if( buffer == null ) {
+        if (buffer == null) {
             backingArray = createArray(0);
         } else {
             // Only keep the array or the buffer but never both at
             // the same time.  1) it saves space, 2) it keeps the rest
             // of the code safer.
-            backingArray = buffer.toArray( createArray(buffer.size()) );
+            backingArray = buffer.toArray(createArray(buffer.size()));
             buffer = null;
         }
         return backingArray;
     }
 
     protected final List<E> getBuffer() {
-        if( buffer != null )
+        if (buffer != null)
             return buffer;
 
-        if( backingArray == null ) {
+        if (backingArray == null) {
             buffer = new ArrayList<>();
         } else {
             // Only keep the array or the buffer but never both at
             // the same time.  1) it saves space, 2) it keeps the rest
             // of the code safer.
-            buffer = new ArrayList<>( Arrays.asList(backingArray) );
+            buffer = new ArrayList<>(Arrays.asList(backingArray));
             backingArray = null;
         }
         return buffer;
@@ -204,7 +206,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
             return (T[])Arrays.copyOf(array, array.length, a.getClass());
         }
 
-        System.arraycopy( array, 0, a, 0, array.length );
+        System.arraycopy(array, 0, a, 0, array.length);
 
         if (a.length > array.length) {
             a[array.length] = null;
@@ -284,12 +286,12 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
         List other = (List)o;
         Iterator i1 = iterator();
         Iterator i2 = other.iterator();
-        while( i1.hasNext() && i2.hasNext() ) {
+        while (i1.hasNext() && i2.hasNext()) {
             Object o1 = i1.next();
             Object o2 = i2.next();
-            if( o1 == o2 )
+            if (o1 == o2)
                 continue;
-            if( o1 == null || !o1.equals(o2) )
+            if (o1 == null || !o1.equals(o2))
                 return false;
         }
         return !(i1.hasNext() || i2.hasNext());
@@ -300,7 +302,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
         // Exactly the hash code described in the List interface, basically
         E[] array = getArray();
         int result = 1;
-        for( E e : array ) {
+        for (E e : array) {
             result = 31 * result + (e == null ? 0 : e.hashCode());
         }
         return result;
@@ -308,11 +310,11 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
 
     @Override
     public final E get(int index) {
-        if( backingArray != null )
+        if (backingArray != null)
             return backingArray[index];
-        if( buffer != null )
+        if (buffer != null)
             return buffer.get(index);
-        throw new IndexOutOfBoundsException( "Index:" + index + ", Size:0" );
+        throw new IndexOutOfBoundsException("Index:" + index + ", Size:0");
     }
 
     @Override
@@ -336,12 +338,12 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     @Override
     public int indexOf(Object o) {
         E[] array = getArray();
-        for( int i = 0; i < array.length; i++ ) {
+        for (int i = 0; i < array.length; i++) {
             E element = array[i];
-            if( element == o ) {
+            if (element == o) {
                 return i;
             }
-            if( element != null && element.equals(o) ) {
+            if (element != null && element.equals(o)) {
                 return i;
             }
         }
@@ -351,12 +353,12 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     @Override
     public int lastIndexOf(Object o) {
         E[] array = getArray();
-        for( int i = array.length - 1; i >= 0; i-- ) {
+        for (int i = array.length - 1; i >= 0; i--) {
             E element = array[i];
-            if( element == o ) {
+            if (element == o) {
                 return i;
             }
-            if( element != null && element.equals(o) ) {
+            if (element != null && element.equals(o)) {
                 return i;
             }
         }
@@ -375,38 +377,36 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
 
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
-
-        // So far JME doesn't use subList that I can see so I'm nerfing it.
+        // So far, JME doesn't use subList that I can see, so I'm nerfing it.
         List<E> raw =  Arrays.asList(getArray()).subList(fromIndex, toIndex);
         return Collections.unmodifiableList(raw);
     }
 
     @Override
     public String toString() {
-
         E[] array = getArray();
-        if( array.length == 0 ) {
+        if (array.length == 0) {
             return "[]";
         }
 
         StringBuilder sb = new StringBuilder();
         sb.append('[');
-        for( int i = 0; i < array.length; i++ ) {
-            if( i > 0 )
-                sb.append( ", " );
+        for (int i = 0; i < array.length; i++) {
+            if (i > 0)
+                sb.append(", ");
             E e = array[i];
-            sb.append( e == this ? "(this Collection)" : e );
+            sb.append(e == this ? "(this Collection)" : e);
         }
         sb.append(']');
         return sb.toString();
     }
 
     protected class ArrayIterator<E> implements ListIterator<E> {
-        private E[] array;
+        final private E[] array;
         private int next;
         private int lastReturned;
 
-        protected ArrayIterator( E[] array, int index ) {
+        protected ArrayIterator(E[] array, int index) {
             this.array = array;
             this.next = index;
             this.lastReturned = -1;
@@ -419,7 +419,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
 
         @Override
         public E next() {
-            if( !hasNext() )
+            if (!hasNext())
                 throw new NoSuchElementException();
             lastReturned = next++;
             return array[lastReturned];
@@ -432,7 +432,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
 
         @Override
         public E previous() {
-            if( !hasPrevious() )
+            if (!hasPrevious())
                 throw new NoSuchElementException();
             lastReturned = --next;
             return array[lastReturned];
@@ -450,14 +450,14 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
 
         @Override
         public void remove() {
-            // This operation is not so easy to do but we will fake it.
+            // This operation is not so easy to do, but we will fake it.
             // The issue is that the backing list could be completely
-            // different than the one this iterator is a snapshot of.
+            // different from the one this iterator is a snapshot of.
             // We'll just remove(element) which in most cases will be
             // correct.  If the list had earlier .equals() equivalent
             // elements then we'll remove one of those instead.  Either
             // way, none of those changes are reflected in this iterator.
-            SafeArrayList.this.remove( array[lastReturned] );
+            SafeArrayList.this.remove(array[lastReturned]);
         }
 
         @Override
