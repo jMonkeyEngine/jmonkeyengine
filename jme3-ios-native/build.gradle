@@ -1,0 +1,35 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+task deleteXcframework(type: Delete) {
+    delete 'template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework'
+}
+
+task buildNativeLibIos(type: Exec) {
+    executable "xcodebuild"
+    args 'archive', '-project', 'jme3-ios-native.xcodeproj', '-scheme', 'jme3-ios-native', '-destination', 'generic/platform=iOS', '-archivePath', 'build/archives/jme3-ios-native_iOS', 'SKIP_INSTALL=NO', 'BUILD_LIBRARY_FOR_DISTRIBUTION=YES'
+}
+
+task buildNativeLibSimulator(type: Exec) {
+    executable "xcodebuild"
+    args 'archive', '-project', 'jme3-ios-native.xcodeproj', '-scheme', 'jme3-ios-native', '-destination', 'generic/platform=iOS Simulator', '-archivePath', 'build/archives/jme3-ios-native_iOS-Simulator', 'SKIP_INSTALL=NO', 'BUILD_LIBRARY_FOR_DISTRIBUTION=YES'
+}
+
+task buildNativeLib(type: Exec) {
+    dependsOn 'deleteXcframework'
+    dependsOn 'buildNativeLibIos'
+    dependsOn 'buildNativeLibSimulator'
+    executable "xcodebuild"
+    args '-create-xcframework', '-framework', 'build/archives/jme3-ios-native_iOS.xcarchive/Products/Library/Frameworks/jme3_ios_native.framework', '-framework', 'build/archives/jme3-ios-native_iOS-Simulator.xcarchive/Products/Library/Frameworks/jme3_ios_native.framework', '-output', 'template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework'
+}
+
+// buildNativeProjects is a string set to "true"
+if (Os.isFamily(Os.FAMILY_MAC) && buildNativeProjects == "true") {
+    // build native libs and update stored pre-compiled libs to commit
+    compileJava.dependsOn { buildNativeLib }
+} else {
+    // TODO: (like android natives?) use pre-compiled native libs (not building new ones)
+    // compileJava.dependsOn { copyPreCompiledLibs }
+    println "Native build disable or not running on OSX"
+}
+
+jar.into("") { from "template" }

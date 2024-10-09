@@ -51,7 +51,7 @@ on:
       - v3.5
       - v3.4
       - v3.3
-      - ios-2024
+      - ios-2024_2
   pull_request:
   release:
     types: [published]
@@ -88,8 +88,11 @@ jobs:
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
 
-      - name: Manually run export shell script
-        run: cd jme3-ios-native && ./export.sh
+      - name: Build
+        run: |
+          ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
+          :jme3-ios-native:build
+
 
 
 
