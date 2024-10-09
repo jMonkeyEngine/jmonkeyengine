@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		BB0987B82CA2B31900AF4C26 /* com_jme3_util_IosNativeBufferAllocator.c in Sources */ = {isa = PBXBuildFile; fileRef = BB0987B62CA2B31900AF4C26 /* com_jme3_util_IosNativeBufferAllocator.c */; };
 		BB0987B92CA2B31900AF4C26 /* com_jme3_util_IosNativeBufferAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = BB0987B72CA2B31900AF4C26 /* com_jme3_util_IosNativeBufferAllocator.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		BBAA18642C9CC9B40015DF5E /* jme3_ios_native_lib.h in Headers */ = {isa = PBXBuildFile; fileRef = BBAA18622C9CC9B40015DF5E /* jme3_ios_native_lib.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		BBAA18642C9CC9B40015DF5E /* jme3_ios_native.h in Headers */ = {isa = PBXBuildFile; fileRef = BBAA18622C9CC9B40015DF5E /* jme3_ios_native.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BBAA18752C9CCACB0015DF5E /* com_jme3_audio_ios_IosEFX.c in Sources */ = {isa = PBXBuildFile; fileRef = BBAA186A2C9CCACB0015DF5E /* com_jme3_audio_ios_IosEFX.c */; };
 		BBAA18762C9CCACB0015DF5E /* com_jme3_audio_ios_IosALC.c in Sources */ = {isa = PBXBuildFile; fileRef = BBAA186B2C9CCACB0015DF5E /* com_jme3_audio_ios_IosALC.c */; };
 		BBAA18772C9CCACB0015DF5E /* com_jme3_audio_ios_IosEFX.h in Headers */ = {isa = PBXBuildFile; fileRef = BBAA186C2C9CCACB0015DF5E /* com_jme3_audio_ios_IosEFX.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -26,8 +26,8 @@
 /* Begin PBXFileReference section */
 		BB0987B62CA2B31900AF4C26 /* com_jme3_util_IosNativeBufferAllocator.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = com_jme3_util_IosNativeBufferAllocator.c; sourceTree = "<group>"; };
 		BB0987B72CA2B31900AF4C26 /* com_jme3_util_IosNativeBufferAllocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = com_jme3_util_IosNativeBufferAllocator.h; sourceTree = "<group>"; };
-		BBAA185F2C9CC9B40015DF5E /* jme3_ios_native_lib.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = jme3_ios_native_lib.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		BBAA18622C9CC9B40015DF5E /* jme3_ios_native_lib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jme3_ios_native_lib.h; sourceTree = "<group>"; };
+		BBAA185F2C9CC9B40015DF5E /* jme3_ios_native.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = jme3_ios_native.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBAA18622C9CC9B40015DF5E /* jme3_ios_native.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jme3_ios_native.h; sourceTree = "<group>"; };
 		BBAA18632C9CC9B40015DF5E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BBAA186A2C9CCACB0015DF5E /* com_jme3_audio_ios_IosEFX.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = com_jme3_audio_ios_IosEFX.c; sourceTree = "<group>"; };
 		BBAA186B2C9CCACB0015DF5E /* com_jme3_audio_ios_IosALC.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = com_jme3_audio_ios_IosALC.c; sourceTree = "<group>"; };
@@ -57,7 +57,7 @@
 		BBAA18552C9CC9B40015DF5E = {
 			isa = PBXGroup;
 			children = (
-				BBAA18612C9CC9B40015DF5E /* jme3-ios-native-lib */,
+				BBAA18612C9CC9B40015DF5E /* src */,
 				BBAA18602C9CC9B40015DF5E /* Products */,
 				BBAA18802C9CCB710015DF5E /* Frameworks */,
 			);
@@ -66,12 +66,12 @@
 		BBAA18602C9CC9B40015DF5E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BBAA185F2C9CC9B40015DF5E /* jme3_ios_native_lib.framework */,
+				BBAA185F2C9CC9B40015DF5E /* jme3_ios_native.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		BBAA18612C9CC9B40015DF5E /* jme3-ios-native-lib */ = {
+		BBAA18612C9CC9B40015DF5E /* src */ = {
 			isa = PBXGroup;
 			children = (
 				BB0987B62CA2B31900AF4C26 /* com_jme3_util_IosNativeBufferAllocator.c */,
@@ -86,10 +86,10 @@
 				BBAA18722C9CCACB0015DF5E /* JmeAppHarness.java */,
 				BBAA186E2C9CCACB0015DF5E /* JmeAppHarness.m */,
 				BBAA18712C9CCACB0015DF5E /* JmeIosGLES.m */,
-				BBAA18622C9CC9B40015DF5E /* jme3_ios_native_lib.h */,
+				BBAA18622C9CC9B40015DF5E /* jme3_ios_native.h */,
 				BBAA18632C9CC9B40015DF5E /* Info.plist */,
 			);
-			path = "jme3-ios-native-lib";
+			path = src;
 			sourceTree = "<group>";
 		};
 		BBAA18802C9CCB710015DF5E /* Frameworks */ = {
@@ -111,16 +111,16 @@
 				BBAA187A2C9CCACB0015DF5E /* com_jme3_audio_ios_IosAL.h in Headers */,
 				BB0987B92CA2B31900AF4C26 /* com_jme3_util_IosNativeBufferAllocator.h in Headers */,
 				BBAA18782C9CCACB0015DF5E /* com_jme3_audio_ios_IosALC.h in Headers */,
-				BBAA18642C9CC9B40015DF5E /* jme3_ios_native_lib.h in Headers */,
+				BBAA18642C9CC9B40015DF5E /* jme3_ios_native.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		BBAA185E2C9CC9B40015DF5E /* jme3-ios-native-lib */ = {
+		BBAA185E2C9CC9B40015DF5E /* jme3-ios-native */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = BBAA18672C9CC9B40015DF5E /* Build configuration list for PBXNativeTarget "jme3-ios-native-lib" */;
+			buildConfigurationList = BBAA18672C9CC9B40015DF5E /* Build configuration list for PBXNativeTarget "jme3-ios-native" */;
 			buildPhases = (
 				BBAA185A2C9CC9B40015DF5E /* Headers */,
 				BBAA185B2C9CC9B40015DF5E /* Sources */,
@@ -131,9 +131,9 @@
 			);
 			dependencies = (
 			);
-			name = "jme3-ios-native-lib";
-			productName = "jme3-ios-native-lib";
-			productReference = BBAA185F2C9CC9B40015DF5E /* jme3_ios_native_lib.framework */;
+			name = "jme3-ios-native";
+			productName = "jme3-ios-native";
+			productReference = BBAA185F2C9CC9B40015DF5E /* jme3_ios_native.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -149,7 +149,7 @@
 					};
 				};
 			};
-			buildConfigurationList = BBAA18592C9CC9B40015DF5E /* Build configuration list for PBXProject "jme3-ios-native-lib" */;
+			buildConfigurationList = BBAA18592C9CC9B40015DF5E /* Build configuration list for PBXProject "jme3-ios-native" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -162,7 +162,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				BBAA185E2C9CC9B40015DF5E /* jme3-ios-native-lib */,
+				BBAA185E2C9CC9B40015DF5E /* jme3-ios-native */,
 			);
 		};
 /* End PBXProject section */
@@ -327,7 +327,7 @@
 					"/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home/include/**",
 					"/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/11.0.24-8/arm64/Contents/Home/include/**",
 				);
-				INFOPLIST_FILE = "jme3-ios-native-lib/Info.plist";
+				INFOPLIST_FILE = "src/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -335,7 +335,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "jme3.jme3-ios-native-lib";
+				PRODUCT_BUNDLE_IDENTIFIER = "jme3.jme3-ios-native";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -361,7 +361,7 @@
 					"/Library/Java/JavaVirtualMachines/jdk-11.0.6.jdk/Contents/Home/include/**",
 					"/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/11.0.24-8/arm64/Contents/Home/include/**",
 				);
-				INFOPLIST_FILE = "jme3-ios-native-lib/Info.plist";
+				INFOPLIST_FILE = "src/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -369,7 +369,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "jme3.jme3-ios-native-lib";
+				PRODUCT_BUNDLE_IDENTIFIER = "jme3.jme3-ios-native";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
@@ -384,7 +384,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		BBAA18592C9CC9B40015DF5E /* Build configuration list for PBXProject "jme3-ios-native-lib" */ = {
+		BBAA18592C9CC9B40015DF5E /* Build configuration list for PBXProject "jme3-ios-native" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BBAA18652C9CC9B40015DF5E /* Debug */,
@@ -393,7 +393,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		BBAA18672C9CC9B40015DF5E /* Build configuration list for PBXNativeTarget "jme3-ios-native-lib" */ = {
+		BBAA18672C9CC9B40015DF5E /* Build configuration list for PBXNativeTarget "jme3-ios-native" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BBAA18682C9CC9B40015DF5E /* Debug */,
