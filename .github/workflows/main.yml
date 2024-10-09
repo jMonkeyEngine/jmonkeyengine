@@ -93,7 +93,7 @@ jobs:
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
           :jme3-ios-native:build
 
-
+      # TODO: Add upload natives like done for Android?
 
 
   # Build the natives on android
