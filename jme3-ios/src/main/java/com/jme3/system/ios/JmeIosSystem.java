@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -106,6 +106,18 @@ public class JmeIosSystem extends JmeSystemDelegate {
     public void initialize(AppSettings settings) {
         Logger.getLogger("").addHandler(new IosLogHandler());
 //                throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Platform getPlatform() {
+        String arch = System.getProperty("os.arch").toLowerCase();
+        if (arch.contains("arm")) {
+            return Platform.iOS_ARM;
+        } else if (arch.contains("aarch")) {
+            return Platform.iOS_ARM;
+        } else {
+            return Platform.iOS_X86;
+        }
     }
 
     @Override
