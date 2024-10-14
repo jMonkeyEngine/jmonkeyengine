@@ -35,6 +35,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystemDelegate;
 import com.jme3.system.NullContext;
+import com.jme3.system.Platform;
 import com.jme3.util.res.Resources;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.ios.IosAL;
