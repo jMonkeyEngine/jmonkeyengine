@@ -71,6 +71,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -150,6 +151,7 @@ public class RenderManager {
      * @param pipeline default pipeline (not null)
      */
     public void setPipeline(RenderPipeline pipeline) {
+        assert pipeline != null;
         this.defaultPipeline = pipeline;
     }
     
@@ -168,7 +170,7 @@ public class RenderManager {
      * 
      * @param <T>
      * @param type
-     * @return 
+     * @return registered context or null
      */
     public <T extends PipelineContext> T getContext(Class<T> type) {
         return (T)contexts.get(type);
@@ -176,12 +178,12 @@ public class RenderManager {
     
     /**
      * Gets the pipeline context registered under the class or creates
-     * and registers a new context supplied by the supplier.
+     * and registers a new context from the supplier.
      * 
      * @param <T>
      * @param type
-     * @param supplier
-     * @return 
+     * @param supplier interface for creating a new context if necessary
+     * @return registered or newly created context
      */
     public <T extends PipelineContext> T getOrCreateContext(Class<T> type, Supplier<T> supplier) {
         T c = getContext(type);
@@ -193,13 +195,38 @@ public class RenderManager {
     }
     
     /**
-     * Registers the pipeline context under the class.
+     * Gets the pipeline context registered under the class or creates
+     * and registers a new context from the function.
      * 
      * @param <T>
      * @param type
-     * @param context 
+     * @param function interface for creating a new context if necessary
+     * @return registered or newly created context
+     */
+    public <T extends PipelineContext> T getOrCreateContext(Class<T> type, Function<RenderManager, T> function) {
+        T c = getContext(type);
+        if (c == null) {
+            c = function.apply(this);
+            registerContext(type, c);
+        }
+        return c;
+    }
+    
+    /**
+     * Registers the pipeline context under the class.
+     * <p>
+     * If another context is already registered under the class, that
+     * context will be replaced by the given context.
+     * 
+     * @param <T>
+     * @param type class type to register the context under (not null)
+     * @param context context to register (not null)
      */
     public <T extends PipelineContext> void registerContext(Class<T> type, T context) {
+        assert type != null;
+        if (context == null) {
+            throw new NullPointerException("Context to register cannot be null.");
+        }
         contexts.put(type, context);
     }
     
@@ -910,7 +937,7 @@ public class RenderManager {
         // (must be 0 for the first note of the scene to be rendered)
         vp.getCamera().setPlaneState(0);
         // queue the scene for rendering
-        queueSubScene(scene, vp);
+        renderSubScene(scene, vp);
     }
 
     /**
@@ -919,7 +946,7 @@ public class RenderManager {
      * @param scene the scene to be rendered (not null)
      * @param vp the ViewPort to render in (not null)
      */
-    private void queueSubScene(Spatial scene, ViewPort vp) {
+    private void renderSubScene(Spatial scene, ViewPort vp) {
         // check culling first
         if (!scene.checkCulling(vp.getCamera())) {
             return;
@@ -934,7 +961,7 @@ public class RenderManager {
             for (int i = 0; i < children.size(); i++) {
                 // Restoring cam state before proceeding children recursively
                 vp.getCamera().setPlaneState(camState);
-                queueSubScene(children.get(i), vp);
+                renderSubScene(children.get(i), vp);
             }
         } else if (scene instanceof Geometry) {
             // addUserEvent to the render queue
@@ -1254,44 +1281,12 @@ public class RenderManager {
     }
     
     /**
-     * Renders the {@link ViewPort}.
-     *
-     * <p>If the ViewPort is {@link ViewPort#isEnabled() disabled}, this method
-     * returns immediately. Otherwise, the ViewPort is rendered by
-     * the following process:<br>
-     * <ul>
-     * <li>All {@link SceneProcessor scene processors} that are attached
-     * to the ViewPort are {@link SceneProcessor#initialize(com.jme3.renderer.RenderManager,
-     * com.jme3.renderer.ViewPort) initialized}.
-     * </li>
-     * <li>The SceneProcessors' {@link SceneProcessor#preFrame(float) } method
-     * is called.</li>
-     * <li>The ViewPort's {@link ViewPort#getOutputFrameBuffer() output framebuffer}
-     * is set on the Renderer</li>
-     * <li>The camera is set on the renderer, including its view port parameters.
-     * (see {@link #setCamera(com.jme3.renderer.Camera, boolean) })</li>
-     * <li>Any buffers that the ViewPort requests to be cleared are cleared
-     * and the {@link ViewPort#getBackgroundColor() background color} is set</li>
-     * <li>Every scene that is attached to the ViewPort is flattened into
-     * the ViewPort's render queue
-     * (see {@link #renderViewPortQueues(com.jme3.renderer.ViewPort, boolean) })
-     * </li>
-     * <li>The SceneProcessors' {@link SceneProcessor#postQueue(com.jme3.renderer.queue.RenderQueue) }
-     * method is called.</li>
-     * <li>The render queue is sorted and then flushed, sending
-     * rendering commands to the underlying Renderer implementation.
-     * (see {@link #flushQueue(com.jme3.renderer.ViewPort) })</li>
-     * <li>The SceneProcessors' {@link SceneProcessor#postFrame(com.jme3.texture.FrameBuffer) }
-     * method is called.</li>
-     * <li>The translucent queue of the ViewPort is sorted and then flushed
-     * (see {@link #renderTranslucentQueue(com.jme3.renderer.ViewPort) })</li>
-     * <li>If any objects remained in the render queue, they are removed
-     * from the queue. This is generally objects added to the
-     * {@link RenderQueue#renderQueue(com.jme3.renderer.queue.RenderQueue.Bucket,
-     * com.jme3.renderer.RenderManager, com.jme3.renderer.Camera)
-     * shadow queue}
-     * which were not rendered because of a missing shadow renderer.</li>
-     * </ul>
+     * Renders the {@link ViewPort} using the ViewPort's {@link RenderPipeline}.
+     * <p>
+     * If the ViewPort's RenderPipeline is null, the pipeline returned by
+     * {@link #getPipeline()} is used instead.
+     * <p>
+     * If the ViewPort is disabled, no rendering will occur.
      *
      * @param vp View port to render
      * @param tpf Time per frame value
@@ -1305,6 +1300,9 @@ public class RenderManager {
             pipeline = defaultPipeline;
         }
         PipelineContext context = pipeline.fetchPipelineContext(this);
+        if (context == null) {
+            throw new NullPointerException("Failed to fetch pipeline context.");
+        }
         if (!context.startViewPortRender(this, vp)) {
             usedContexts.add(context);
         }
@@ -1368,7 +1366,7 @@ public class RenderManager {
             }
         }
         
-        // cleanup for used pipeline contexts only
+        // cleanup for used render pipelines and pipeline contexts only
         for (PipelineContext c : usedContexts) {
             c.endContextRenderFrame(this);
         }
