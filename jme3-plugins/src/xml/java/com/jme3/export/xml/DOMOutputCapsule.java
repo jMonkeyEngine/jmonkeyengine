@@ -403,9 +403,9 @@ public class DOMOutputCapsule implements OutputCapsule {
             }
             XMLUtils.setAttribute(currentElement, XMLExporter.ATTRIBUTE_SAVABLE_VERSIONS, sb.toString());
             
-            value.write(exporter);
-
             writtenSavables.put(value, currentElement);
+
+            value.write(exporter);
         }
 
         currentElement = old;

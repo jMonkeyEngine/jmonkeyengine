@@ -59,6 +59,7 @@ import com.jme3.export.binary.BinaryExporter;
 import com.jme3.export.binary.BinaryImporter;
 import com.jme3.export.xml.XMLExporter;
 import com.jme3.export.xml.XMLImporter;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
@@ -514,6 +515,16 @@ public class InputOutputCapsuleTest {
             capsule.write(v1, "v1", null);
             capsule.write(v1, "also_v1", null);
             capsule.write(notV1, "not_v1", null);
+
+            // testing reference loop.  this used to cause infinite recursion.
+            Node n1 = new Node("node_1");
+            Node n2 = new Node("node_2");
+
+            n1.setUserData("node_2", n2);
+            n2.setUserData("node_1", n1);
+
+            capsule.write(n1, "node_1", null);
+            capsule.write(n2, "node_2", null);
         }
 
         @Override
@@ -526,6 +537,11 @@ public class InputOutputCapsuleTest {
 
             Assert.assertTrue("readSavable() savable duplicated, references not preserved.", v1 == alsoV1);
             Assert.assertTrue("readSavable() unique savables merged, unexpected shared references.", v1 != notV1);
+
+            Node n1 = (Node) capsule.readSavable("node_1", null);
+            Node n2 = (Node) capsule.readSavable("node_2", null);
+
+            Assert.assertTrue("readSavable() reference loop not preserved.", n1.getUserData("node_2") == n2 && n2.getUserData("node_1") == n1);
         }
     }
 
