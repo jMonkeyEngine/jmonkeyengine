@@ -6,12 +6,12 @@ task deleteXcframework(type: Delete) {
 
 task buildNativeLibIos(type: Exec) {
     executable "xcodebuild"
-    args 'archive', '-project', 'jme3-ios-native.xcodeproj', '-scheme', 'jme3-ios-native', '-destination', 'generic/platform=iOS', '-archivePath', 'build/archives/jme3-ios-native_iOS', 'SKIP_INSTALL=NO', 'BUILD_LIBRARY_FOR_DISTRIBUTION=YES'
+    args 'archive', '-project', 'jme3-ios-native.xcodeproj', '-scheme', 'jme3-ios-native', '-configuration', 'release', '-destination', 'generic/platform=iOS', '-archivePath', 'build/archives/jme3-ios-native_iOS', 'SKIP_INSTALL=NO', 'BUILD_LIBRARY_FOR_DISTRIBUTION=YES'
 }
 
 task buildNativeLibSimulator(type: Exec) {
     executable "xcodebuild"
-    args 'archive', '-project', 'jme3-ios-native.xcodeproj', '-scheme', 'jme3-ios-native', '-destination', 'generic/platform=iOS Simulator', '-archivePath', 'build/archives/jme3-ios-native_iOS-Simulator', 'SKIP_INSTALL=NO', 'BUILD_LIBRARY_FOR_DISTRIBUTION=YES'
+    args 'archive', '-project', 'jme3-ios-native.xcodeproj', '-scheme', 'jme3-ios-native', '-configuration', 'release', '-destination', 'generic/platform=iOS Simulator', '-archivePath', 'build/archives/jme3-ios-native_iOS-Simulator', 'SKIP_INSTALL=NO', 'BUILD_LIBRARY_FOR_DISTRIBUTION=YES'
 }
 
 task buildNativeLib(type: Exec) {
