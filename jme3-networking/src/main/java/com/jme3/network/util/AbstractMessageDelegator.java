@@ -82,7 +82,7 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      */
     public Class[] getMessageTypes() {
         if( messageTypes == null ) {
-            messageTypes = methods.keySet().toArray(new Class[methods.size()]);
+            messageTypes = methods.keySet().toArray(new Class[0]);
         }
         return messageTypes;
     }

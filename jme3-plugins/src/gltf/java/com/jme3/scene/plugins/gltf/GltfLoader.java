@@ -969,7 +969,7 @@ public class GltfLoader implements AssetLoader {
             }
         }
         
-        anim.setTracks(aTracks.toArray(new AnimTrack[aTracks.size()]));
+        anim.setTracks(aTracks.toArray(new AnimTrack[0]));
         anim = customContentManager.readExtensionAndExtras("animations", animation, anim);
 
         if (skinIndex != -1) {

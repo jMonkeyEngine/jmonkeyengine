@@ -106,8 +106,7 @@ public class TimeLine extends HashMap<Integer, KeyFrame> implements Savable {
     @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
-        ArrayList list = new ArrayList();
-        list.addAll(values());
+        ArrayList list = new ArrayList(values());
         oc.writeSavableArrayList(list, "keyFrames", null);
     }
 

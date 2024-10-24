@@ -165,9 +165,7 @@ public class TestAnimMorphSerialization extends SimpleApplication {
             debugAppState.addArmatureFrom(sc);
 
             anims.clear();
-            for (String name : composer.getAnimClipsNames()) {
-                anims.add(name);
-            }
+            anims.addAll(composer.getAnimClipsNames());
             if (anims.isEmpty()) {
                 return;
             }

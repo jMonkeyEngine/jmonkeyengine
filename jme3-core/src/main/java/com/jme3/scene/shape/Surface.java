@@ -43,8 +43,8 @@ import com.jme3.math.Vector4f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
-import java.io.IOException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -229,7 +229,7 @@ public class Surface extends Mesh {
             }
         }
 
-        Vector3f[] verticesArray = vertices.toArray(new Vector3f[vertices.size()]);
+        Vector3f[] verticesArray = vertices.toArray(new Vector3f[0]);
         // normalMap merges normals of faces that will be rendered smooth
         Map<Vector3f, Vector3f> normalMap = new HashMap<>(verticesArray.length);
         for (int i = 0; i < indices.length; i += 3) {

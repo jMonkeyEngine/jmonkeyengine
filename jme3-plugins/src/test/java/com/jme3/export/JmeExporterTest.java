@@ -31,26 +31,6 @@
  */
 package com.jme3.export;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
@@ -62,6 +42,26 @@ import com.jme3.export.xml.XMLImporter;
 import com.jme3.material.Material;
 import com.jme3.material.plugin.export.material.J3MExporter;
 import com.jme3.scene.Node;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.NoSuchFileException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Tests the methods on classes that implements the JmeExporter interface.
@@ -117,7 +117,7 @@ public class JmeExporterTest {
         Assert.assertTrue(file.exists());
     }
 
-    @Test(expected = FileNotFoundException.class)
+    @Test(expected = NoSuchFileException.class)
     public void testSaveWhenPathDoesntExistWithoutCreateDirs() throws IOException {
         File file = fileWithMissingParent();
         exporter.save(material, file, false);
@@ -168,7 +168,7 @@ public class JmeExporterTest {
         origin.setUserData("testFloat", 1.5f);
         origin.setUserData("1", "test");
         if (testLists) {
-            origin.setUserData("string-list", Arrays.asList("abc"));
+            origin.setUserData("string-list", Collections.singletonList("abc"));
             origin.setUserData("int-list", Arrays.asList(1, 2, 3));
             origin.setUserData("float-list", Arrays.asList(1f, 2f, 3f));
         }

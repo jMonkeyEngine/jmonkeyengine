@@ -597,13 +597,9 @@ public class Tweens {
             // So now set up the real args list.
             this.args = new Object[args.length + 1];
             if (tIndex == 0) {
-                for (int i = 0; i < args.length; i++) {
-                    this.args[i + 1] = args[i];
-                }
+                System.arraycopy(args, 0, this.args, 1, args.length);
             } else {
-                for (int i = 0; i < args.length; i++) {
-                    this.args[i] = args[i];
-                }
+                System.arraycopy(args, 0, this.args, 0, args.length);
             }
         }
 

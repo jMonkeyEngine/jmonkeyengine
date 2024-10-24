@@ -734,7 +734,7 @@ public class J3MLoader implements AssetLoader {
 
         String[] split = materialName.split(":", 2);
 
-        if (materialName.equals("")){
+        if (materialName.isEmpty()){
             throw new MatParseException("Material name cannot be empty", materialStat);
         }
 

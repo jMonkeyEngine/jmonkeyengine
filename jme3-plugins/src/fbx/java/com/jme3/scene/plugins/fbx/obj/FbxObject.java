@@ -72,7 +72,7 @@ public abstract class FbxObject<JT> {
     }
     
     public String getFullClassName() { 
-        if (subclassName.equals("")) {
+        if (subclassName.isEmpty()) {
             return className;
         } else {
             return subclassName + " : " + className;

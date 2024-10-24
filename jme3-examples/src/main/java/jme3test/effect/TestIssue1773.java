@@ -64,6 +64,7 @@ import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Test case for Issue 1773 (Wrong particle position when using
@@ -162,7 +163,7 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
         emitter.setGravity(0, 0f, 0);
         //emitter.getParticleInfluencer().setVelocityVariation(1);
         //emitter.getParticleInfluencer().setInitialVelocity(new Vector3f(0, .5f, 0));
-        emitter.setShape(new EmitterMeshVertexShape(Arrays.asList(geo.getMesh())));
+        emitter.setShape(new EmitterMeshVertexShape(Collections.singletonList(geo.getMesh())));
         //emitter.setShape(new EmitterMeshFaceShape(Arrays.asList(geo.getMesh())));
         return emitter;
     }

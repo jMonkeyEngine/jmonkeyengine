@@ -95,7 +95,7 @@ public class FbxTexture extends FbxObject<Texture> {
     @Override
     public void fromElement(FbxElement element) {
         super.fromElement(element);
-        if (getSubclassName().equals("")) {
+        if (getSubclassName().isEmpty()) {
             for (FbxElement e : element.children) {
                 if (e.id.equals("Type")) {
                     e.properties.get(0);

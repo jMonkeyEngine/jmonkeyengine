@@ -36,6 +36,7 @@ import com.jme3.export.Savable;
 import com.jme3.export.SavableClassUtil;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -44,6 +45,7 @@ import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -562,9 +564,7 @@ final class BinaryInputCapsule implements InputCapsule {
             return null;
         }
         ArrayList<Savable> arrayList = new ArrayList<>(savables.length);
-        for (int x = 0; x < savables.length; x++) {
-            arrayList.add(savables[x]);
-        }
+        Collections.addAll(arrayList, savables);
         return arrayList;
     }
 

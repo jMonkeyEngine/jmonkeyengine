@@ -110,7 +110,7 @@ public class JInputJoyInput implements JoyInput {
             list.add(stick);
         }
 
-        joysticks = list.toArray( new JInputJoystick[list.size()] );
+        joysticks = list.toArray(new JInputJoystick[0]);
 
         return joysticks;
     }

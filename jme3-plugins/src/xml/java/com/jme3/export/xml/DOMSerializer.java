@@ -35,6 +35,7 @@ package com.jme3.export.xml;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 import org.w3c.dom.*;
 
@@ -90,7 +91,7 @@ public class DOMSerializer {
      * @throws IOException for various error conditions
      */
     public void serialize(Document doc, File file) throws IOException {
-        serialize(doc, new FileOutputStream(file));
+        serialize(doc, Files.newOutputStream(file.toPath()));
     }
 
     /**

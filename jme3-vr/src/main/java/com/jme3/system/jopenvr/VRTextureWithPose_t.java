@@ -2,6 +2,7 @@ package com.jme3.system.jopenvr;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 /**
  * <i>native declaration : headers\openvr_capi.h:1266</i><br>
@@ -17,7 +18,7 @@ public class VRTextureWithPose_t extends Structure {
 	}
         @Override
 	protected List<String> getFieldOrder() {
-		return Arrays.asList("mDeviceToAbsoluteTracking");
+		return Collections.singletonList("mDeviceToAbsoluteTracking");
 	}
 	/** @param mDeviceToAbsoluteTracking C type : HmdMatrix34_t */
 	public VRTextureWithPose_t(HmdMatrix34_t mDeviceToAbsoluteTracking) {

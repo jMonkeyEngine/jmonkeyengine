@@ -37,13 +37,13 @@ public class StructTest {
     public void testFieldsExtraction() {
         TestStruct test = new TestStruct();
         java.util.List<StructField<?>> fields = StructUtils.getFields(test);
-        String checkString = "";
+        StringBuilder checkString = new StringBuilder();
         for (StructField<?> f : fields) {
             String s = f.getPosition() + " " + f.getName() + " " + f.getDepth() + "\n";
-            checkString += s;
+            checkString.append(s);
         }
         String expectedString = "0 intField0 0\n1 floatField1 0\n2 floatFieldArray2 0\n3 subIntField0 1\n4 subFloatField1 1\n5 subIntField0 1\n6 subFloatField1 1\n7 subIntField0 1\n8 subFloatField1 1\n9 boolField6 0\n";
-        assertEquals(expectedString, checkString);
+        assertEquals(expectedString, checkString.toString());
     }
 
     @Test
@@ -61,11 +61,11 @@ public class StructTest {
         ByteBuffer bbf = bo.getData();
 
         String expectedData = "100 0 0 0 0 0 -56 66 0 0 0 0 0 0 0 0 0 0 -56 66 0 0 0 0 0 0 0 0 0 0 0 0 0 0 72 67 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -106 67 0 0 0 0 0 0 0 0 0 0 0 0 100 0 0 0 0 0 -56 66 0 0 0 0 0 0 0 0 100 0 0 0 0 0 -56 66 0 0 0 0 0 0 0 0 100 0 0 0 0 0 -56 66 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ";
-        String actualData = "";
+        StringBuilder actualData = new StringBuilder();
         while (bbf.hasRemaining()) {
-            actualData += bbf.get() + " ";
+            actualData.append(bbf.get()).append(" ");
         }
-        assertEquals(expectedData, actualData);
+        assertEquals(expectedData, actualData.toString());
     }
 
     @Test

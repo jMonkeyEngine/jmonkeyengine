@@ -3,6 +3,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 /**
  * <i>native declaration : headers\openvr_capi.h:1592</i><br>
@@ -21,7 +22,7 @@ public class CVRSettingHelper extends Structure {
 	}
         @Override
 	protected List<String> getFieldOrder() {
-		return Arrays.asList("m_pSettings");
+		return Collections.singletonList("m_pSettings");
 	}
 	/**
 	 * @param m_pSettings class vr::IVRSettings *<br>

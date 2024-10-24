@@ -16,7 +16,7 @@ public class FbxAnimNode extends FbxObject {
 
     public FbxAnimNode(SceneLoader scene, FbxElement element) {
         super(scene, element);
-        if(type.equals("")) {
+        if(type.isEmpty()) {
             Double x = null, y = null, z = null;
             for(FbxElement e2 : element.getFbxProperties()) {
                 String propName = (String) e2.properties.get(0);

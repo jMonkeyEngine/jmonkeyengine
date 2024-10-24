@@ -38,6 +38,7 @@ import com.jme3.math.FastMath;
 import java.io.*;
 import java.net.URL;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.logging.Level;
@@ -258,9 +259,10 @@ public final class BinaryImporter implements JmeImporter {
     }
 
     public Savable load(URL f, ReadListener listener) throws IOException {
-        InputStream is = f.openStream();
-        Savable rVal = load(is, listener);
-        is.close();
+        Savable rVal;
+        try (InputStream is = f.openStream()) {
+            rVal = load(is, listener);
+        }
         return rVal;
     }
 
@@ -269,18 +271,16 @@ public final class BinaryImporter implements JmeImporter {
     }
 
     public Savable load(File f, ReadListener listener) throws IOException {
-        FileInputStream fis = new FileInputStream(f);
-        try {
-            return load(fis, listener);
-        } finally {
-            fis.close();
+        try (InputStream is = Files.newInputStream(f.toPath())) {
+            return load(is, listener);
         }
     }
 
     public Savable load(byte[] data) throws IOException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        Savable rVal = load(bais);
-        bais.close();
+        Savable rVal;
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
+            rVal = load(bais);
+        }
         return rVal;
     }
 
@@ -291,18 +291,14 @@ public final class BinaryImporter implements JmeImporter {
 
     protected String readString(InputStream f, int length) throws IOException {
         byte[] data = new byte[length];
-        for(int j = 0; j < length; j++) {
-            data[j] = (byte)f.read();
-        }
+        f.read(data, 0, length);
 
         return new String(data);
     }
 
     protected String readString(int length, int offset) throws IOException {
         byte[] data = new byte[length];
-        for(int j = 0; j < length; j++) {
-            data[j] = dataArray[j+offset];
-        }
+        System.arraycopy(dataArray, offset, data, 0, length);
 
         return new String(data);
     }

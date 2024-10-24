@@ -98,7 +98,7 @@ public final class ClassInfo {
             // Simple... add all methods exposed through the interface
             result.add(new MethodInfo(methodId++, m));
         }
-        return result.toArray(new MethodInfo[result.size()]);
+        return result.toArray(new MethodInfo[0]);
     }
  
     public MethodInfo[] getMethods() {

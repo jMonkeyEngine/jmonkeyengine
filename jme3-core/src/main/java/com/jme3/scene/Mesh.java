@@ -705,8 +705,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      */
     @Deprecated
     public void setInterleaved() {
-        ArrayList<VertexBuffer> vbs = new ArrayList<>();
-        vbs.addAll(buffersList);
+        ArrayList<VertexBuffer> vbs = new ArrayList<>(buffersList);
 
 //        ArrayList<VertexBuffer> vbs = new ArrayList<VertexBuffer>(buffers.values());
         // index buffer not included when interleaving

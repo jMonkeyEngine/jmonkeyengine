@@ -34,6 +34,7 @@ package com.jme3.network.message;
 import com.jme3.network.AbstractMessage;
 import com.jme3.network.serializing.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -69,6 +70,6 @@ public class ChannelInfoMessage extends AbstractMessage {
     
     @Override
     public String toString() {
-        return "ChannelInfoMessage[" + id + ", " + Arrays.asList(ports) + "]";
+        return "ChannelInfoMessage[" + id + ", " + Arrays.toString(ports) + "]";
     }
 }
