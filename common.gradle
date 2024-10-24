@@ -29,11 +29,6 @@ tasks.withType(JavaCompile) { // compile-time options:
     }
 }
 
-ext {
-    lwjgl3Version = '3.3.3' // used in both the jme3-lwjgl3 and jme3-vr build scripts
-    niftyVersion = '1.4.3' // used in both the jme3-niftygui and jme3-examples build scripts
-}
-
 repositories {
     mavenCentral()
     flatDir {
@@ -43,9 +38,9 @@ repositories {
 
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:3.12.4'
-    testImplementation 'org.codehaus.groovy:groovy-test:3.0.21'
+    testImplementation libs.junit4
+    testImplementation libs.mokito.core
+    testImplementation libs.groovy.test
 }
 
 // Uncomment if you want to see the status of every test that is run and
@@ -206,7 +201,7 @@ tasks.withType(Sign) {
 }
 
 checkstyle {
-    toolVersion '9.3'
+    toolVersion libs.versions.checkstyle.get()
     configFile file("${gradle.rootProject.rootDir}/config/checkstyle/checkstyle.xml")
 }
 

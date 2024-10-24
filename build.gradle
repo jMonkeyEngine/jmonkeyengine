@@ -10,9 +10,9 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
-        classpath 'me.tatarka:gradle-retrolambda:3.7.1'
-        classpath "com.github.spotbugs.snom:spotbugs-gradle-plugin:6.0.18"
+        classpath libs.android.build.gradle
+        classpath libs.gradle.retrolambda
+        classpath libs.spotbugs.gradle.plugin
     }
 }
 
