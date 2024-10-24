@@ -80,8 +80,9 @@ public class XMLImporter implements JmeImporter {
         try {
             return load(in);
         } finally {
-            if (in != null)
+            if (in != null) {
                 in.close();
+            }
         }
     }
     
@@ -115,5 +116,4 @@ public class XMLImporter implements JmeImporter {
     public static XMLImporter getInstance() {
         return new XMLImporter();
     }
-
 }
