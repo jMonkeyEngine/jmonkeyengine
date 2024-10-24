@@ -264,7 +264,7 @@ public class RenderQueue {
         }
     }
 
-    private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
+    private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean flush) {
         list.setCamera(cam); // select camera for sorting
         list.sort();
         for (int i = 0; i < list.size(); i++) {
@@ -273,7 +273,7 @@ public class RenderQueue {
             rm.renderGeometry(obj);
             obj.queueDistance = Float.NEGATIVE_INFINITY;
         }
-        if (clear) {
+        if (flush) {
             list.clear();
         }
     }
@@ -328,6 +328,18 @@ public class RenderQueue {
                 throw new UnsupportedOperationException("Unsupported bucket type: " + bucket);
         }
         rm.getRenderer().popDebugGroup();
+    }
+    
+    public GeometryList getList(Bucket bucket) {
+        switch (bucket) {
+            case Opaque: return opaqueList;
+            case Gui: return guiList;
+            case Transparent: return transparentList;
+            case Translucent: return translucentList;
+            case Sky: return skyList;
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
     public void clear() {

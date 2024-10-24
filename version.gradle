@@ -7,7 +7,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.ajoberstar:gradle-git:1.2.0'
+        classpath libs.gradle.git
     }
 }
 

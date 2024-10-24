@@ -29,7 +29,7 @@ dependencies {
     implementation project(':jme3-terrain')
     implementation project(':jme3-awt-dialogs')
     runtimeOnly project(':jme3-testdata')
-    runtimeOnly "com.github.nifty-gui:nifty-examples:${niftyVersion}" // for the "all/intro.xml" example GUI
+    runtimeOnly libs.nifty.examples // for the "all/intro.xml" example GUI
 }
 
 jar.doFirst{
