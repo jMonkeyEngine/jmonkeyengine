@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -319,7 +319,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
         });
 
-        if (!settings.isFullscreen()) {
+        int platformId = glfwGetPlatform();
+        if (platformId != GLFW_PLATFORM_WAYLAND && !settings.isFullscreen()) {
+            // Wayland doesn't support window positioning.
             if (settings.getCenterWindow()) {
                 // Center the window
                 glfwSetWindowPos(window,
