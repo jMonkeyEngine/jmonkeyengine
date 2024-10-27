@@ -315,7 +315,7 @@ public class AnimComposer extends AbstractControl {
      * @return a new layer
      */
     public AnimLayer makeLayer(String name, AnimationMask mask) {
-        AnimLayer l = new AnimLayer(this, name, mask);
+        AnimLayer l = new AnimLayer(name, mask);
         layers.put(name, l);
         return l;
     }
