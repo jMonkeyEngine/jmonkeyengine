@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -310,21 +310,24 @@ public class AnimComposer extends AbstractControl {
     /**
      * Add a layer to this composer.
      *
-     * @param name the desired name for the new layer
-     * @param mask the desired mask for the new layer (alias created)
+     * @param name The desired name for the new layer
+     * @param mask The desired mask for the new layer (alias created)
+     * @return a new layer
      */
-    public void makeLayer(String name, AnimationMask mask) {
+    public AnimLayer makeLayer(String name, AnimationMask mask) {
         AnimLayer l = new AnimLayer(name, mask);
         layers.put(name, l);
+        return l;
     }
 
     /**
      * Remove specified layer. This will stop the current action on this layer.
      *
      * @param name The name of the layer to remove.
+     * @return The removed layer.
      */
-    public void removeLayer(String name) {
-        layers.remove(name);
+    public AnimLayer removeLayer(String name) {
+        return layers.remove(name);
     }
 
     /**
