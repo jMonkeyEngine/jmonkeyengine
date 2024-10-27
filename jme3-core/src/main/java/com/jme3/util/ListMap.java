@@ -43,7 +43,7 @@ import java.util.Map.Entry;
  */
 public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable, Serializable {
 
-    private final static class ListMapEntry<K, V> implements Map.Entry<K, V>, Cloneable {
+    private static final class ListMapEntry<K, V> implements Map.Entry<K, V>, Cloneable {
 
         private final K key;
         private V value;

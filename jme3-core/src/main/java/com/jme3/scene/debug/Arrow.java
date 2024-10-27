@@ -47,8 +47,8 @@ import java.nio.FloatBuffer;
  */
 public class Arrow extends Mesh {
     
-    final private Quaternion tempQuat = new Quaternion();
-    final private Vector3f tempVec = new Vector3f();
+    private final Quaternion tempQuat = new Quaternion();
+    private final Vector3f tempVec = new Vector3f();
 
     private static final float[] positions = new float[]{
         0, 0, 0,

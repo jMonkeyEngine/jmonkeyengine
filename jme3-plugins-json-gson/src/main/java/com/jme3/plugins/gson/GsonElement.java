@@ -36,6 +36,8 @@ import com.jme3.plugins.json.JsonElement;
 import com.jme3.plugins.json.JsonObject;
 import com.jme3.plugins.json.JsonPrimitive;
 
+import java.util.Objects;
+
 /**
  * GSON implementation of {@link JsonElement}
  */
@@ -46,6 +48,23 @@ class GsonElement implements JsonElement {
         this.element = element;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.element);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final GsonElement other = (GsonElement) obj;
+        return Objects.equals(this.element, other.element);
+    }
+    
     protected boolean isNull(com.google.gson.JsonElement element) {
         if (element == null) return true;
         if (element.isJsonNull()) return true;

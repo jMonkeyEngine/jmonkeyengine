@@ -40,7 +40,7 @@ package com.jme3.input.event;
  */
 public class MouseMotionEvent extends InputEvent {
 
-    final private int x, y, dx, dy, wheel, deltaWheel;
+    private final int x, y, dx, dy, wheel, deltaWheel;
 
     public MouseMotionEvent(int x, int y, int dx, int dy, int wheel, int deltaWheel) {
         this.x = x;

@@ -43,7 +43,7 @@ import com.jme3.scene.VertexBuffer.Format;
  */
 public class IndexShortBuffer extends IndexBuffer {
 
-    final private ShortBuffer buf;
+    private final ShortBuffer buf;
     /**
      * the largest index value that can be put to the buffer
      */

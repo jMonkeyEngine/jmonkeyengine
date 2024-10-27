@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 jMonkeyEngine
+ * Copyright (c) 2023-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

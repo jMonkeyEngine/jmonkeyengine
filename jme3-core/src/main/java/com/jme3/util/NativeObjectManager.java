@@ -74,12 +74,12 @@ public class NativeObjectManager {
     /**
      * List of currently active GLObjects.
      */
-    final private HashMap<Long, NativeObjectRef> refMap = new HashMap<>();
+    private final HashMap<Long, NativeObjectRef> refMap = new HashMap<>();
     
     /**
      * List of real objects requested by user for deletion.
      */
-    final private ArrayDeque<NativeObject> userDeletionQueue = new ArrayDeque<>();
+    private final ArrayDeque<NativeObject> userDeletionQueue = new ArrayDeque<>();
 
     private static class NativeObjectRef extends PhantomReference<Object> {
         

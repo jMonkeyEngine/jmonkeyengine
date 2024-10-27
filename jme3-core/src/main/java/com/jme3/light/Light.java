@@ -87,7 +87,7 @@ public abstract class Light implements Savable, Cloneable {
         Probe(4);
                 
 
-        final private int typeId;
+        private final int typeId;
 
         Type(int type){
             this.typeId = type;

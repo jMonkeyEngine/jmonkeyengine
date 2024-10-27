@@ -42,13 +42,13 @@ import java.util.*;
  */
 public abstract class AbstractJoystick implements Joystick {
 
-    final private InputManager inputManager;
-    final private JoyInput joyInput;
-    final private int joyId;
-    final private String name;
+    private final InputManager inputManager;
+    private final JoyInput joyInput;
+    private final int joyId;
+    private final String name;
 
-    final private List<JoystickAxis> axes = new ArrayList<>();
-    final private List<JoystickButton> buttons = new ArrayList<>();
+    private final List<JoystickAxis> axes = new ArrayList<>();
+    private final List<JoystickButton> buttons = new ArrayList<>();
 
     /**
      * Creates a new joystick instance. Only used internally.

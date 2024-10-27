@@ -15,8 +15,10 @@ eclipse.jdt.file.withProperties { props ->
 group = 'org.jmonkeyengine'
 version = jmeFullVersion
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 tasks.withType(JavaCompile) { // compile-time options:
     //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
@@ -25,11 +27,6 @@ tasks.withType(JavaCompile) { // compile-time options:
     if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_1_10)) {
         options.release = 8
     }
-}
-
-ext {
-    lwjgl3Version = '3.3.3' // used in both the jme3-lwjgl3 and jme3-vr build scripts
-    niftyVersion = '1.4.3' // used in both the jme3-niftygui and jme3-examples build scripts
 }
 
 repositories {
@@ -41,9 +38,9 @@ repositories {
 
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:3.12.4'
-    testImplementation 'org.codehaus.groovy:groovy-test:3.0.21'
+    testImplementation libs.junit4
+    testImplementation libs.mokito.core
+    testImplementation libs.groovy.test
 }
 
 // Uncomment if you want to see the status of every test that is run and
@@ -85,12 +82,12 @@ test {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates a jar from the source files.') {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets*.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc, description: 'Creates a jar from the javadoc files.') {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
 }
 
@@ -204,7 +201,7 @@ tasks.withType(Sign) {
 }
 
 checkstyle {
-    toolVersion '9.3'
+    toolVersion libs.versions.checkstyle.get()
     configFile file("${gradle.rootProject.rootDir}/config/checkstyle/checkstyle.xml")
 }
 
@@ -218,8 +215,8 @@ checkstyleTest {
 
 tasks.withType(Checkstyle) {
     reports {
-        xml.enabled false
-        html.enabled true
+        xml.required.set(false)
+        html.required.set(true)
     }
     include("**/com/jme3/renderer/**/*.java")
 }

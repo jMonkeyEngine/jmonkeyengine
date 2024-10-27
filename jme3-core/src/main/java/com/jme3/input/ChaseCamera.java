@@ -105,37 +105,37 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * @deprecated use {@link CameraInput#CHASECAM_DOWN}
      */
     @Deprecated
-    public final static String ChaseCamDown = "ChaseCamDown";
+    public static final String ChaseCamDown = "ChaseCamDown";
     /**
      * @deprecated use {@link CameraInput#CHASECAM_UP}
      */
     @Deprecated
-    public final static String ChaseCamUp = "ChaseCamUp";
+    public static final String ChaseCamUp = "ChaseCamUp";
     /**
      * @deprecated use {@link CameraInput#CHASECAM_ZOOMIN}
      */
     @Deprecated
-    public final static String ChaseCamZoomIn = "ChaseCamZoomIn";
+    public static final String ChaseCamZoomIn = "ChaseCamZoomIn";
     /**
      * @deprecated use {@link CameraInput#CHASECAM_ZOOMOUT}
      */
     @Deprecated
-    public final static String ChaseCamZoomOut = "ChaseCamZoomOut";
+    public static final String ChaseCamZoomOut = "ChaseCamZoomOut";
     /**
      * @deprecated use {@link CameraInput#CHASECAM_MOVELEFT}
      */
     @Deprecated
-    public final static String ChaseCamMoveLeft = "ChaseCamMoveLeft";
+    public static final String ChaseCamMoveLeft = "ChaseCamMoveLeft";
     /**
      * @deprecated use {@link CameraInput#CHASECAM_MOVERIGHT}
      */
     @Deprecated
-    public final static String ChaseCamMoveRight = "ChaseCamMoveRight";
+    public static final String ChaseCamMoveRight = "ChaseCamMoveRight";
     /**
      * @deprecated use {@link CameraInput#CHASECAM_TOGGLEROTATE}
      */
     @Deprecated
-    public final static String ChaseCamToggleRotate = "ChaseCamToggleRotate";
+    public static final String ChaseCamToggleRotate = "ChaseCamToggleRotate";
 
     protected boolean zoomin;
     protected boolean hideCursorOnRotate = true;

@@ -83,7 +83,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     //       the list.  This was because the callers couldn't remove a child
     //       without it being detached properly, for example.
 
-    final private Class<E> elementType;
+    private final Class<E> elementType;
     private List<E> buffer;
     private E[] backingArray;
     private int size = 0;

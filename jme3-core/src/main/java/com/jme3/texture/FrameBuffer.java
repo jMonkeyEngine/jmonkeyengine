@@ -80,7 +80,7 @@ public class FrameBuffer extends NativeObject {
     private int width = 0;
     private int height = 0;
     private int samples = 1;
-    final private ArrayList<RenderBuffer> colorBufs = new ArrayList<>();
+    private final ArrayList<RenderBuffer> colorBufs = new ArrayList<>();
     private RenderBuffer depthBuf = null;
     private int colorBufIndex = 0;
     private boolean srgb;
@@ -179,7 +179,6 @@ public class FrameBuffer extends NativeObject {
             return this.layer;
         }
     }
-
     
     public static class FrameBufferTextureTarget extends RenderBuffer {
         private FrameBufferTextureTarget(){}
@@ -260,11 +259,43 @@ public class FrameBuffer extends NativeObject {
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
     }
-
+    
     public void addColorTarget(FrameBufferTextureTarget colorBuf){
         // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
+    }
+    
+    /**
+     * Replaces the color target at the index.
+     * <p>
+     * A color target must already exist at the index, otherwise
+     * an exception will be thrown.
+     * 
+     * @param i index of color target to replace
+     * @param colorBuf color target to replace with
+     */
+    public void replaceColorTarget(int i, FrameBufferTextureTarget colorBuf) {
+        if (i < 0 || i >= colorBufs.size()) {
+            throw new IndexOutOfBoundsException("No color target exists to replace at index=" + i);
+        }
+        colorBuf.slot = i;
+        colorBufs.set(i, colorBuf);
+    }
+    
+    /**
+     * Removes the color target at the index.
+     * <p>
+     * Color targets above the removed target will have their
+     * slot indices shifted accordingly.
+     * 
+     * @param i 
+     */
+    public void removeColorTarget(int i) {
+        colorBufs.remove(i);
+        for (; i < colorBufs.size(); i++) {
+            colorBufs.get(i).slot = i;
+        }
     }
 
     /**
