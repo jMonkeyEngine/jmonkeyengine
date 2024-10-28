@@ -1511,6 +1511,10 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.backStencilDepthPassOperation != null ? this.backStencilDepthPassOperation.hashCode() : 0);
             hash = 79 * hash + (this.frontStencilFunction != null ? this.frontStencilFunction.hashCode() : 0);
             hash = 79 * hash + (this.backStencilFunction != null ? this.backStencilFunction.hashCode() : 0);
+            hash = 79 * hash + (this.frontStencilMask);
+            hash = 79 * hash + (this.frontStencilReference);
+            hash = 79 * hash + (this.backStencilMask);
+            hash = 79 * hash + (this.backStencilReference);
             hash = 79 * hash + Float.floatToIntBits(this.lineWidth);
             
             hash = 79 * hash + this.sfactorRGB.hashCode();
