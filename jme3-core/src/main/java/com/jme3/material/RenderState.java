@@ -1679,6 +1679,10 @@ public class RenderState implements Cloneable, Savable {
         backStencilDepthPassOperation = state.backStencilDepthPassOperation;
         frontStencilFunction = state.frontStencilFunction;
         backStencilFunction = state.backStencilFunction;
+        frontStencilMask=state.frontStencilMask;
+        frontStencilReference=state.frontStencilReference;
+        backStencilMask=state.backStencilMask;
+        backStencilReference=state.backStencilReference;
         blendEquationAlpha = state.blendEquationAlpha;
         blendEquation = state.blendEquation;
         depthFunc = state.depthFunc;
