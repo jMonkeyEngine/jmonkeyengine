@@ -1627,6 +1627,11 @@ public class RenderState implements Cloneable, Savable {
 
             state.frontStencilFunction = additionalState.frontStencilFunction;
             state.backStencilFunction = additionalState.backStencilFunction;
+
+            state.frontStencilMask=additionalState.frontStencilMask;
+            state.frontStencilReference=additionalState.frontStencilMask;
+            state.backStencilMask=additionalState.backStencilMask;
+            state.backStencilReference=additionalState.backStencilMask;
         } else {
             state.stencilTest = stencilTest;
 
@@ -1640,6 +1645,11 @@ public class RenderState implements Cloneable, Savable {
 
             state.frontStencilFunction = frontStencilFunction;
             state.backStencilFunction = backStencilFunction;
+
+            state.frontStencilMask=frontStencilMask;
+            state.frontStencilReference=frontStencilMask;
+            state.backStencilMask=backStencilMask;
+            state.backStencilReference=backStencilMask;
         }
         if (additionalState.applyLineWidth) {
             state.lineWidth = additionalState.lineWidth;
