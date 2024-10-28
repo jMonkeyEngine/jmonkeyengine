@@ -10,9 +10,9 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
-        classpath 'me.tatarka:gradle-retrolambda:3.7.1'
-        classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.5.1"
+        classpath libs.android.build.gradle
+        classpath libs.gradle.retrolambda
+        classpath libs.spotbugs.gradle.plugin
     }
 }
 
@@ -49,6 +49,7 @@ subprojects {
         // Currently we only warn about issues and try to fix them as we go, but those aren't mission critical.
         spotbugs {
             ignoreFailures = true
+            toolVersion = '4.8.6'
         }
 
         tasks.withType(com.github.spotbugs.snom.SpotBugsTask ) {
@@ -74,23 +75,23 @@ task libDist(dependsOn: subprojects.build, description: 'Builds and copies the e
         subprojects.each {project ->
             if(!project.hasProperty('mainClassName')){
                 project.tasks.withType(Jar).each {archiveTask ->
-                    if(archiveTask.classifier == "sources"){
+                    if(archiveTask.archiveClassifier == "sources"){
                         copy {
                             from archiveTask.archivePath
                                 into sourceFolder
-                                rename {project.name + '-' + archiveTask.classifier +'.'+ archiveTask.extension}
+                                rename {project.name + '-' + archiveTask.archiveClassifier +'.'+ archiveTask.archiveExtension}
                         }
-                    } else if(archiveTask.classifier == "javadoc"){
+                    } else if(archiveTask.archiveClassifier == "javadoc"){
                         copy {
                             from archiveTask.archivePath
                                 into javadocFolder
-                                rename {project.name + '-' + archiveTask.classifier +'.'+ archiveTask.extension}
+                                rename {project.name + '-' + archiveTask.archiveClassifier +'.'+ archiveTask.archiveExtension}
                         }
                     } else{
                         copy {
                             from archiveTask.archivePath
                                 into libFolder
-                                rename {project.name + '.' + archiveTask.extension}
+                                rename {project.name + '.' + archiveTask.archiveExtension}
                         }
                     }
                 }
@@ -114,7 +115,7 @@ task createZipDistribution(type:Zip,dependsOn:["dist","libDist"], description:"P
 task copyLibs(type: Copy){
 //    description 'Copies the engine dependencies to build/libDist'
     from {
-        subprojects*.configurations*.compile*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
+        subprojects*.configurations*.implementation*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
     }
 
     into "$buildDir/libDist/lib-ext" //buildDir.path + '/' + libsDirName + '/lib'
@@ -244,48 +245,6 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
         assemble.dependsOn extractPrebuiltNatives
     }
 }
-
-
-//class IncrementalReverseTask extends DefaultTask {
-//    @InputDirectory
-//    def File inputDir
-//
-//    @OutputDirectory
-//    def File outputDir
-//
-//    @Input
-//    def inputProperty
-//
-//    @TaskAction
-//    void execute(IncrementalTaskInputs inputs) {
-//        println inputs.incremental ? "CHANGED inputs considered out of date" : "ALL inputs considered out of date"
-//        inputs.outOfDate { change ->
-//            println "out of date: ${change.file.name}"
-//            def targetFile = new File(outputDir, change.file.name)
-//            targetFile.text = change.file.text.reverse()
-//        }
-//
-//        inputs.removed { change ->
-//            println "removed: ${change.file.name}"
-//            def targetFile = new File(outputDir, change.file.name)
-//            targetFile.delete()
-//        }
-//    }
-//}
-
-//allprojects {
-//    tasks.withType(JavaExec) {
-//        enableAssertions = true // false by default
-//    }
-//    tasks.withType(Test) {
-//        enableAssertions = true // true by default
-//    }
-//}
-
-wrapper {
-    gradleVersion = '7.6.4'
-}
-
 
 retrolambda {
   javaVersion JavaVersion.VERSION_1_7

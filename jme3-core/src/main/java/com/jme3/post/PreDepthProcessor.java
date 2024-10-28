@@ -49,8 +49,8 @@ public class PreDepthProcessor implements SceneProcessor {
 
     private RenderManager rm;
     private ViewPort vp;
-    final private Material preDepth;
-    final private RenderState forcedRS;
+    private final Material preDepth;
+    private final RenderState forcedRS;
 
     public PreDepthProcessor(AssetManager assetManager){
         preDepth = new Material(assetManager, "Common/MatDefs/Shadow/PreShadow.j3md");

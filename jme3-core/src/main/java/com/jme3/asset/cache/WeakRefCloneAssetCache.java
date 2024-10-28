@@ -60,8 +60,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
      * Maps cloned key to AssetRef which has a weak ref to the original
      * key and a strong ref to the original asset.
      */
-    private final ConcurrentHashMap<AssetKey, AssetRef> smartCache
-            = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<AssetKey, AssetRef> smartCache = new ConcurrentHashMap<>();
 
     /**
      * Stored in the ReferenceQueue to find out when originalKey is collected

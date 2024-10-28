@@ -41,8 +41,8 @@ import com.jme3.input.JoystickButton;
  */
 public class JoyButtonEvent extends InputEvent {
 
-    final private JoystickButton button;
-    final private boolean pressed;
+    private final JoystickButton button;
+    private final boolean pressed;
 
     public JoyButtonEvent(JoystickButton button, boolean pressed) {
         this.button = button;

@@ -5,6 +5,7 @@
     #if __VERSION__ >= 130
       precision highp sampler2DArray;        
     #endif
+    precision highp sampler2DArray;
     precision highp sampler2DShadow;
     precision highp samplerCube;
     precision highp sampler3D;

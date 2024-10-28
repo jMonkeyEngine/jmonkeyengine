@@ -1608,4 +1608,27 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             throw new AssertionError(); // can not happen
         }
     }
+
+    /**
+     * Tests whether the argument is a valid quaternion, returning false if it's
+     * null or if any component is NaN or infinite.
+     *
+     * @param quaternion the quaternion to test (unaffected)
+     * @return true if non-null and finite, otherwise false
+     */
+    public static boolean isValidQuaternion(Quaternion quaternion) {
+        if (quaternion == null) {
+            return false;
+        }
+        if (Float.isNaN(quaternion.x)
+                || Float.isNaN(quaternion.y)
+                || Float.isNaN(quaternion.z)
+                || Float.isNaN(quaternion.w)) {
+            return false;
+        }
+        return !Float.isInfinite(quaternion.x)
+                && !Float.isInfinite(quaternion.y)
+                && !Float.isInfinite(quaternion.z)
+                && !Float.isInfinite(quaternion.w);
+    }
 }

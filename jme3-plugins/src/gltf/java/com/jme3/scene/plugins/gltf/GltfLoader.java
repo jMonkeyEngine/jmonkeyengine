@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -619,11 +619,6 @@ public class GltfLoader implements AssetLoader {
     public Material readMaterial(int materialIndex) throws IOException {
         assertNotNull(materials, "There is no material defined yet a mesh references one");
 
-        Material material = fetchFromCache("materials", materialIndex, Material.class);
-        if (material != null) {
-            return material.clone();
-        }
-
         JsonObject matData = materials.get(materialIndex).getAsJsonObject();
         JsonObject pbrMat = matData.getAsJsonObject("pbrMetallicRoughness");
 
@@ -693,10 +688,7 @@ public class GltfLoader implements AssetLoader {
 
         adapter.setParam("emissiveTexture", readTexture(matData.getAsJsonObject("emissiveTexture")));
 
-        material = adapter.getMaterial();
-        addToCache("materials", materialIndex, material, materials.size());
-
-        return material;
+        return adapter.getMaterial();
     }
 
     public void readCameras() throws IOException {

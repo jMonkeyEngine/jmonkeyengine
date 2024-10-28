@@ -31,14 +31,20 @@
  */
 package com.jme3.anim;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
+import java.io.IOException;
 import java.util.BitSet;
 
 /**
  * An AnimationMask to select joints from a single Armature.
  */
-public class ArmatureMask implements AnimationMask {
+public class ArmatureMask implements AnimationMask, Savable {
 
-    final private BitSet affectedJoints = new BitSet();
+    private BitSet affectedJoints = new BitSet();
 
     /**
      * Instantiate a mask that affects no joints.
@@ -205,5 +211,17 @@ public class ArmatureMask implements AnimationMask {
         }
 
         return this;
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(affectedJoints, "affectedJoints", null);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = im.getCapsule(this);
+        affectedJoints = ic.readBitSet("affectedJoints", null);
     }
 }

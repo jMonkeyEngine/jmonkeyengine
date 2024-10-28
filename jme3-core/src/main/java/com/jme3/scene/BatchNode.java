@@ -246,13 +246,7 @@ public class BatchNode extends GeometryGroupNode {
 
         //init the temp arrays if something has been batched only.
         if (matMap.size() > 0) {
-            //TODO these arrays should be allocated by chunk instead to avoid recreating them each time the batch is changed.
-            //init temp float arrays
-            tmpFloat = new float[maxVertCount * 3];
-            tmpFloatN = new float[maxVertCount * 3];
-            if (useTangents) {
-                tmpFloatT = new float[maxVertCount * 4];
-            }
+            initTempFloatArrays();
         }
     }
 
@@ -387,7 +381,6 @@ public class BatchNode extends GeometryGroupNode {
         int maxWeights = -1;
 
         Mesh.Mode mode = null;
-        float lineWidth = 1f;
         for (Geometry geom : geometries) {
             totalVerts += geom.getVertexCount();
             totalTris += geom.getTriangleCount();
@@ -537,6 +530,7 @@ public class BatchNode extends GeometryGroupNode {
         Vector3f norm = vars.vect2;
         Vector3f tan = vars.vect3;
 
+        validateTempFloatArrays(end - start);
         int length = (end - start) * 3;
         int tanLength = (end - start) * 4;
 
@@ -614,6 +608,22 @@ public class BatchNode extends GeometryGroupNode {
         if (bindBufTangents != null) {
             bufTangents.position(tanOffset);
             bufTangents.put(tmpFloatT, 0, tanLength);
+        }
+    }
+
+    private void validateTempFloatArrays(int vertCount) {
+        if (maxVertCount < vertCount) {
+            maxVertCount = vertCount;
+            initTempFloatArrays();
+        }
+    }
+
+    private void initTempFloatArrays() {
+        //TODO these arrays should be allocated by chunk instead to avoid recreating them each time the batch is changed.
+        tmpFloat = new float[maxVertCount * 3];
+        tmpFloatN = new float[maxVertCount * 3];
+        if (useTangents) {
+            tmpFloatT = new float[maxVertCount * 4];
         }
     }
 

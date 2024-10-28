@@ -57,7 +57,7 @@ import java.util.logging.Logger;
  */
 public class SavableClassUtil {
 
-    private final static HashMap<String, String> CLASS_REMAPPINGS = new HashMap<>();
+    private static final HashMap<String, String> CLASS_REMAPPINGS = new HashMap<>();
 
     private static void addRemapping(String oldClass, Class<? extends Savable> newClass) {
         CLASS_REMAPPINGS.put(oldClass, newClass.getName());

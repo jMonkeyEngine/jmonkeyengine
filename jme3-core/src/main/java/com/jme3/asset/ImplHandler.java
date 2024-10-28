@@ -124,10 +124,7 @@ final class ImplHandler {
             } catch (InstantiationException | IllegalAccessException
                     | IllegalArgumentException | InvocationTargetException
                     | NoSuchMethodException | SecurityException ex) {
-                logger.log(Level.SEVERE, "Cannot create locator of type {0}, does"
-                        + " the class have an empty and publicly accessible"
-                        + " constructor?", type.getName());
-                logger.throwing(type.getName(), "<init>", ex);
+                logger.log(Level.SEVERE, "An exception occurred while instantiating asset locator: " + type.getName(), ex);
             }
             return null;
         }

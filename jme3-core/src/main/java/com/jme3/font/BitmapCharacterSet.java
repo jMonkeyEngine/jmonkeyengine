@@ -43,7 +43,7 @@ public class BitmapCharacterSet implements Savable {
     private int renderedSize;
     private int width;
     private int height;
-    final private IntMap<IntMap<BitmapCharacter>> characters;
+    private final IntMap<IntMap<BitmapCharacter>> characters;
     private int pageSize;
 
     @Override

@@ -39,11 +39,13 @@ import com.jme3.util.struct.StructField;
 
 public class SubStructArrayField<T extends Struct> extends StructField<T[]> {
 
+    @SuppressWarnings("unchecked")
     public SubStructArrayField(int position, String name, T[] value) {
         super(position, name, value);
         initializeToZero((Class<? extends T>) value[0].getClass());
     }
 
+    @SuppressWarnings("unchecked")
     public SubStructArrayField(int position, String name, int length, Class<? extends T> structClass) {
         super(position, name, (T[]) Array.newInstance(structClass, length));
         initializeToZero(structClass);

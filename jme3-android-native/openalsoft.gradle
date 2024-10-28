@@ -111,6 +111,9 @@ task copyPreCompiledOpenAlSoftLibs(type: Copy) {
     from sourceDir
     into outputDir
 }
+if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
+    copyPreCompiledOpenAlSoftLibs.dependsOn(rootProject.extractPrebuiltNatives)
+}
 
 // ndkExists is a boolean from the build.gradle in the root project
 // buildNativeProjects is a string set to "true"

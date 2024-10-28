@@ -32,8 +32,14 @@
 package com.jme3.anim;
 
 import com.jme3.anim.tween.action.Action;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+import java.io.IOException;
 
 /**
  * A named portion of an AnimComposer that can run (at most) one Action at a
@@ -48,7 +54,7 @@ import com.jme3.util.clone.JmeCloneable;
  * <p>Animation time may advance at a different rate from application time,
  * based on speedup factors in the composer and the current Action.
  */
-public class AnimLayer implements JmeCloneable {
+public class AnimLayer implements JmeCloneable, Savable {
     /**
      * The Action currently running on this layer, or null if none.
      */
@@ -57,16 +63,12 @@ public class AnimLayer implements JmeCloneable {
      * The name of Action currently running on this layer, or null if none.
      */
     private String currentActionName;
-    /**
-     * The composer that owns this layer. Were it not for cloning, this field
-     * would be final.
-     */
-    private AnimComposer composer;
+    
     /**
      * Limits the portion of the model animated by this layer. If null, this
      * layer can animate the entire model.
      */
-    private final AnimationMask mask;
+    private AnimationMask mask;
     /**
      * The current animation time, in scaled seconds. Always non-negative.
      */
@@ -79,23 +81,26 @@ public class AnimLayer implements JmeCloneable {
     /**
      * The name of this layer.
      */
-    final private String name;
+    private String name;
 
     private boolean loop = true;
+    
+    /**
+    * For serialization only. Do not use.
+    */
+    protected AnimLayer() {
+        
+    }
 
     /**
      * Instantiates a layer without a manager or a current Action, owned by the
      * specified composer.
      *
-     * @param composer the owner (not null, alias created)
      * @param name the layer name (not null)
      * @param mask the AnimationMask (alias created) or null to allow this layer
      *     to animate the entire model
      */
-    AnimLayer(AnimComposer composer, String name, AnimationMask mask) {
-        assert composer != null;
-        this.composer = composer;
-
+    AnimLayer(String name, AnimationMask mask) {
         assert name != null;
         this.name = name;
 
@@ -248,14 +253,15 @@ public class AnimLayer implements JmeCloneable {
      *
      * @param appDeltaTimeInSeconds the amount application time to advance the
      *     current Action, in seconds
+     * @param globalSpeed the global speed applied to all layers.
      */
-    void update(float appDeltaTimeInSeconds) {
+    void update(float appDeltaTimeInSeconds, float globalSpeed) {
         Action action = currentAction;
         if (action == null) {
             return;
         }
 
-        double speedup = action.getSpeed() * composer.getGlobalSpeed();
+        double speedup = action.getSpeed() * globalSpeed;
         double scaledDeltaTime = speedup * appDeltaTimeInSeconds;
         time += scaledDeltaTime;
 
@@ -292,7 +298,6 @@ public class AnimLayer implements JmeCloneable {
      */
     @Override
     public void cloneFields(Cloner cloner, Object original) {
-        composer = cloner.clone(composer);
         currentAction = null;
         currentActionName = null;
     }
@@ -305,5 +310,21 @@ public class AnimLayer implements JmeCloneable {
         } catch (CloneNotSupportedException exception) {
             throw new AssertionError();
         }
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(name, "name", null);
+        if (mask instanceof Savable) {
+            oc.write((Savable) mask, "mask", null);
+        }
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = im.getCapsule(this);
+        name = ic.readString("name", null);
+        mask = (AnimationMask) ic.readSavable("mask", null);
     }
 }

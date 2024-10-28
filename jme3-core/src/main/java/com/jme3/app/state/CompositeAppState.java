@@ -63,41 +63,41 @@ public class CompositeAppState extends BaseAppState {
     private AppStateManager stateManager;
     private boolean attached;  
     
-    public CompositeAppState( AppState... states ) {
-        for( AppState a : states ) {
+    public CompositeAppState(AppState... states) {
+        for (AppState a : states) {
             this.states.add(new AppStateEntry(a, false));
         }
     }
 
-    private int indexOf( AppState state ) {
-        for( int i = 0; i < states.size(); i++ ) {
+    private int indexOf(AppState state) {
+        for (int i = 0; i < states.size(); i++) {
             AppStateEntry e = states.get(i);
-            if( e.state == state ) {
+            if (e.state == state) {
                 return i;
             }
         }
         return -1;
     }
 
-    private AppStateEntry entry( AppState state ) {
-        for( AppStateEntry e : states.getArray() ) {
-            if( e.state == state ) {
+    private AppStateEntry entry(AppState state) {
+        for (AppStateEntry e : states.getArray()) {
+            if (e.state == state) {
                 return e;
             }
         }
         return null;
     }
 
-    protected <T extends AppState> T addChild( T state ) {
+    protected <T extends AppState> T addChild(T state) {
         return addChild(state, false);
     }
     
-    protected <T extends AppState> T addChild( T state, boolean overrideEnable ) {
-        if( indexOf(state) >= 0 ) {
+    protected <T extends AppState> T addChild(T state, boolean overrideEnable) {
+        if (indexOf(state) >= 0) {
             return state;
         }
         states.add(new AppStateEntry(state, overrideEnable));
-        if( attached ) {
+        if (attached) {
             stateManager.attach(state);
         }
         return state;   
@@ -130,30 +130,30 @@ public class CompositeAppState extends BaseAppState {
     }
     
     @Override 
-    public void stateAttached( AppStateManager stateManager ) {
+    public void stateAttached(AppStateManager stateManager) {
         this.stateManager = stateManager;
-        for( AppStateEntry e : states.getArray() ) {
+        for (AppStateEntry e : states.getArray()) {
             stateManager.attach(e.state);
         }
         this.attached = true;
     }
     
     @Override
-    public void stateDetached( AppStateManager stateManager ) {
+    public void stateDetached(AppStateManager stateManager) {
         // Reverse order
-        for( int i = states.size() - 1; i >= 0; i-- ) {
+        for (int i = states.size() - 1; i >= 0; i--) {
             stateManager.detach(states.get(i).state);
         }
         this.attached = false;
         this.stateManager = null;
     }
 
-    protected void setChildrenEnabled( boolean b ) {
-        if( childrenEnabled == b ) {
+    protected void setChildrenEnabled(boolean b) {
+        if(childrenEnabled == b) {
             return;
         }
         childrenEnabled = b;
-        for( AppStateEntry e : states.getArray() ) {
+        for (AppStateEntry e : states.getArray()) {
             e.setEnabled(b);
         }
     }
@@ -170,12 +170,12 @@ public class CompositeAppState extends BaseAppState {
      *  too.  Override is about remembering the child's state before that
      *  happened and restoring it when the 'family' is enabled again as a whole.
      */
-    public void setOverrideEnabled( AppState state, boolean override ) {
+    public void setOverrideEnabled(AppState state, boolean override) {
         AppStateEntry e = entry(state);
-        if( e == null ) {
+        if (e == null) {
             throw new IllegalArgumentException("State not managed:" + state);
         }
-        if( override ) {
+        if (override) {
             e.override = true;
         } else {
             e.override = false;
@@ -206,16 +206,16 @@ public class CompositeAppState extends BaseAppState {
         boolean enabled;
         boolean override;
         
-        public AppStateEntry( AppState state, boolean overrideEnable ) {
+        public AppStateEntry(AppState state, boolean overrideEnable) {
             this.state = state;
             this.override = overrideEnable;
             this.enabled = state.isEnabled();
         }
         
-        public void setEnabled( boolean b ) {
+        public void setEnabled(boolean b) {
  
-            if( override ) {
-                if( b ) {
+            if (override) {
+                if (b) {
                     // Set it to whatever its enabled state
                     // was before going disabled last time.
                     state.setEnabled(enabled);

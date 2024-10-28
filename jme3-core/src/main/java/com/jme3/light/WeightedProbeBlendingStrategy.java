@@ -45,7 +45,7 @@ import java.util.List;
  */
 public class WeightedProbeBlendingStrategy implements LightProbeBlendingStrategy {
 
-    private final static int MAX_PROBES = 3;
+    private static final int MAX_PROBES = 3;
     List<LightProbe> lightProbes = new ArrayList<>();
 
     @Override

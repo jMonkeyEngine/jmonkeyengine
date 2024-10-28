@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,5 +78,21 @@ public abstract class AbstractTriangle implements Collidable {
     @Override
     public int collideWith(Collidable other, CollisionResults results) {
         return other.collideWith(this, results);
+    }
+
+    /**
+     * Returns a string representation of the triangle, which is unaffected. For
+     * example, a {@link com.jme3.math.Triangle} joining (1,0,0) and (0,1,0)
+     * with (0,0,1) is represented by:
+     * <pre>
+     * Triangle [V1: (1.0, 0.0, 0.0)  V2: (0.0, 1.0, 0.0)  V3: (0.0, 0.0, 1.0)]
+     * </pre>
+     *
+     * @return the string representation (not null, not empty)
+     */
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " [V1: " + get1() + "  V2: "
+                + get2() + "  V3: " + get3() + "]";
     }
 }

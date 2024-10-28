@@ -124,17 +124,17 @@ public class BinaryExporter implements JmeExporter {
     protected int aliasCount = 1;
     protected int idCount = 1;
 
-    final private IdentityHashMap<Savable, BinaryIdContentPair> contentTable
+    private final IdentityHashMap<Savable, BinaryIdContentPair> contentTable
              = new IdentityHashMap<>();
 
     protected HashMap<Integer, Integer> locationTable
              = new HashMap<>();
 
     // key - class name, value = bco
-    final private HashMap<String, BinaryClassObject> classes
+    private final HashMap<String, BinaryClassObject> classes
              = new HashMap<>();
 
-    final private ArrayList<Savable> contentKeys = new ArrayList<>();
+    private final ArrayList<Savable> contentKeys = new ArrayList<>();
 
     public static boolean debug = false;
     public static boolean useFastBufs = true;

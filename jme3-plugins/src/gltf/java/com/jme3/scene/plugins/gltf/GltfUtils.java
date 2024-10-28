@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,15 @@
  */
 package com.jme3.scene.plugins.gltf;
 
+import com.jme3.plugins.json.JsonArray;
+import com.jme3.plugins.json.JsonElement;
+import com.jme3.plugins.json.JsonObject;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.*;
-import com.jme3.scene.*;
 import com.jme3.plugins.json.Json;
 import com.jme3.plugins.json.JsonParser;
-import com.jme3.plugins.json.JsonArray;
-import com.jme3.plugins.json.JsonObject;
-import com.jme3.plugins.json.JsonElement;
+import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import com.jme3.util.*;
 import java.io.*;
@@ -60,8 +60,7 @@ public class GltfUtils {
      */
     private GltfUtils() {
     }
-
-  
+    
     /**
      * Parse a json input stream and returns a {@link JsonObject}
      * @param stream the stream to parse
