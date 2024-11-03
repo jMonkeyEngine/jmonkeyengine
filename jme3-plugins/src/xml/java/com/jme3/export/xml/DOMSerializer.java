@@ -46,7 +46,9 @@ import org.w3c.dom.*;
  * @author Brett McLaughlin, Justin Edelson - Original creation for "Java and XML" book.
  * @author Doug Daniels (dougnukem) - adjustments for XML formatting
  * @version $Revision: 4207 $, $Date: 2009-03-29 11:19:16 -0400 (Sun, 29 Mar 2009) $
+ * @deprecated This class was only used in XMLExporter and has been replaced by javax.xml.transform.Transformer
  */
+@Deprecated
 public class DOMSerializer {
 
     /** The encoding to use for output (default is UTF-8) */

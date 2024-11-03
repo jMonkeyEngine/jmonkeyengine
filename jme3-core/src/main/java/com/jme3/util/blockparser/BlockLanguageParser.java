@@ -41,7 +41,7 @@ import java.util.List;
 public class BlockLanguageParser {
 
     private Reader reader;
-    final private ArrayList<Statement> statementStack = new ArrayList<>();
+    private final ArrayList<Statement> statementStack = new ArrayList<>();
     private Statement lastStatement;
     private int lineNumber = 1;
 

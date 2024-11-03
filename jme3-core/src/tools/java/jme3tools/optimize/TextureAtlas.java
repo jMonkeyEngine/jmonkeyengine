@@ -121,11 +121,11 @@ public class TextureAtlas {
 
     private static final Logger logger = Logger.getLogger(TextureAtlas.class.getName());
     private Map<String, byte[]> images;
-    final private int atlasWidth, atlasHeight;
-    final private Format format = Format.ABGR8;
-    final private Node root;
-    final private Map<String, TextureAtlasTile> locationMap;
-    final private Map<String, String> mapNameMap;
+    private final int atlasWidth, atlasHeight;
+    private final Format format = Format.ABGR8;
+    private final Node root;
+    private final Map<String, TextureAtlasTile> locationMap;
+    private final Map<String, String> mapNameMap;
     private String rootMapName;
 
     public TextureAtlas(int width, int height) {

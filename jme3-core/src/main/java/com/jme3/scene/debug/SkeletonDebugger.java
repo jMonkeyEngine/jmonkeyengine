@@ -150,6 +150,7 @@ public class SkeletonDebugger extends Node {
         interBoneWires = getMesh("_interwires");
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Mesh> T getMesh(String suffix) {
         Geometry child = (Geometry)getChild(getGeometryName(suffix));
         if(child != null) {

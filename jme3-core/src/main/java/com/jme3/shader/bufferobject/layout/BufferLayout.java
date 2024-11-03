@@ -84,8 +84,7 @@ public abstract class  BufferLayout {
 
     /**
      * Register a serializer
-     * 
-     * @param type
+     * @param serializer An object of type {@link ObjectSerializer}
      */
     protected void registerSerializer(ObjectSerializer<?> serializer) {
         serializers.add(serializer);
@@ -98,6 +97,7 @@ public abstract class  BufferLayout {
      *            the object to serialize
      * @return the size
      */
+    @SuppressWarnings("unchecked")
     public int estimateSize(Object o) {
         ObjectSerializer s = getSerializer(o);
         return s.length(this, o);
@@ -109,7 +109,7 @@ public abstract class  BufferLayout {
      *            the object to serialize
      * @return the basic alignment
      */
-
+    @SuppressWarnings("unchecked")
     public int getBasicAlignment(Object o) {
         ObjectSerializer s = getSerializer(o);
         return s.basicAlignment(this, o);
@@ -137,6 +137,7 @@ public abstract class  BufferLayout {
      * @param o
      *            the Object to serialize
      */
+    @SuppressWarnings("unchecked")
     public void write(ByteBuffer out, Object o) {
         ObjectSerializer s = getSerializer(o);        
         s.write(this, out, o);

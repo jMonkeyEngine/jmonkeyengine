@@ -124,7 +124,7 @@ jobs:
           name: android-natives
           path: build/native
 
-  # Build the engine, we only deploy from ubuntu-latest jdk17
+  # Build the engine, we only deploy from ubuntu-latest jdk21
   BuildJMonkey:
     needs: [BuildAndroidNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
@@ -132,19 +132,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest,windows-2019,macOS-latest]
-        jdk: [11, 17]
+        os: [ubuntu-latest,windows-latest,macOS-latest]
+        jdk: [11, 17, 21]
         include:
           - os: ubuntu-latest
             osName: linux
             deploy: true
-          - os: windows-2019
+          - os: windows-latest
             osName: windows
             deploy: false
           - os: macOS-latest
             osName: mac
             deploy: false
           - jdk: 11
+            deploy: false
+          - jdk: 17
             deploy: false
 
     steps:
@@ -346,12 +348,12 @@ jobs:
         with:
           fetch-depth: 1
 
-      # Setup jdk 17 used for building Maven-style artifacts
+      # Setup jdk 21 used for building Maven-style artifacts
       - name: Setup the java environment
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Download natives for android
         uses: actions/download-artifact@master
@@ -390,12 +392,12 @@ jobs:
         with:
           fetch-depth: 1
 
-      # Setup jdk 17 used for building Sonatype OSSRH artifacts
+      # Setup jdk 21 used for building Sonatype OSSRH artifacts
       - name: Setup the java environment
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       # Download all the stuff...
       - name: Download maven artifacts

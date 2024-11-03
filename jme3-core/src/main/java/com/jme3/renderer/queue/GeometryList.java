@@ -51,7 +51,7 @@ public class GeometryList implements Iterable<Geometry>{
     private static final int DEFAULT_SIZE = 32;
 
     private Geometry[] geometries;
-    final private ListSort listSort;
+    private final ListSort listSort;
     private int size;
     private GeometryComparator comparator;
 

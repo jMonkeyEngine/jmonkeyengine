@@ -104,12 +104,12 @@ public class Cloner {
     /**
      *  Keeps track of the objects that have been cloned so far.
      */
-    final private IdentityHashMap<Object, Object> index = new IdentityHashMap<>();
+    private final IdentityHashMap<Object, Object> index = new IdentityHashMap<>();
 
     /**
      *  Custom functions for cloning objects.
      */
-    final private Map<Class, CloneFunction> functions = new HashMap<>();
+    private final Map<Class, CloneFunction> functions = new HashMap<>();
 
     /**
      *  Cache the clone methods once for all cloners.

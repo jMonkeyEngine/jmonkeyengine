@@ -55,7 +55,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     // which is exactly 1 second of audio.
     private static final int BUFFER_SIZE = 35280;
     private static final int STREAMING_BUFFER_COUNT = 5;
-    private final static int MAX_NUM_CHANNELS = 64;
+    private static final int MAX_NUM_CHANNELS = 64;
     private IntBuffer ib = BufferUtils.createIntBuffer(1);
     private final FloatBuffer fb = BufferUtils.createVector3Buffer(2);
     private final ByteBuffer nativeBuf = BufferUtils.createByteBuffer(BUFFER_SIZE);

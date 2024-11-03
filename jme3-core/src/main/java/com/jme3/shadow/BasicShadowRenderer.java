@@ -64,17 +64,17 @@ public class BasicShadowRenderer implements SceneProcessor {
     private static final LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     private RenderManager renderManager;
     private ViewPort viewPort;
-    final private FrameBuffer shadowFB;
-    final private Texture2D shadowMap;
-    final private Camera shadowCam;
-    final private Material preshadowMat;
-    final private Material postshadowMat;
-    final private Picture dispPic = new Picture("Picture");
+    private final FrameBuffer shadowFB;
+    private final Texture2D shadowMap;
+    private final Camera shadowCam;
+    private final Material preshadowMat;
+    private final Material postshadowMat;
+    private final Picture dispPic = new Picture("Picture");
     private boolean noOccluders = false;
-    final private Vector3f[] points = new Vector3f[8];
-    final private Vector3f direction = new Vector3f();
+    private final Vector3f[] points = new Vector3f[8];
+    private final Vector3f direction = new Vector3f();
     protected Texture2D dummyTex;
-    final private float shadowMapSize;
+    private final float shadowMapSize;
 
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowOccluders = new GeometryList(new OpaqueComparator());

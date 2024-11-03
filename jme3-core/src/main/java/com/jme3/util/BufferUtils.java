@@ -65,8 +65,8 @@ public final class BufferUtils {
     private static final BufferAllocator allocator = BufferAllocatorFactory.create();
 
     private static boolean trackDirectMemory = false;
-    final private static ReferenceQueue<Buffer> removeCollected = new ReferenceQueue<Buffer>();
-    final private static ConcurrentHashMap<BufferInfo, BufferInfo> trackedBuffers = new ConcurrentHashMap<BufferInfo, BufferInfo>();
+    private static final ReferenceQueue<Buffer> removeCollected = new ReferenceQueue<Buffer>();
+    private static final ConcurrentHashMap<BufferInfo, BufferInfo> trackedBuffers = new ConcurrentHashMap<BufferInfo, BufferInfo>();
     static ClearReferences cleanupthread;
 
     /**

@@ -40,13 +40,13 @@ import com.jme3.input.controls.JoyAxisTrigger;
  */
 public class DefaultJoystickAxis implements JoystickAxis {
 
-    final private InputManager inputManager;
-    final private Joystick parent;
-    final private int axisIndex;
-    final private String name;
-    final private String logicalId;
-    final private boolean isAnalog;
-    final private boolean isRelative;
+    private final InputManager inputManager;
+    private final Joystick parent;
+    private final int axisIndex;
+    private final String name;
+    private final String logicalId;
+    private final boolean isAnalog;
+    private final boolean isRelative;
     private float deadZone;
 
     /**

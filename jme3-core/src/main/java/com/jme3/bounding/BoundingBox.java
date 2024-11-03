@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@ import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 //import com.jme.scene.TriMesh;
+import java.util.Objects;
 
 /**
  * <code>BoundingBox</code> describes a bounding volume as an axis-aligned box.
@@ -585,6 +586,76 @@ public class BoundingBox extends BoundingVolume {
         BoundingBox rVal = new BoundingBox(center.clone(),
                 xExtent, yExtent, zExtent);
         return rVal;
+    }
+
+    /**
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code other} is null, false is returned. Either way, the current
+     * instance is unaffected.
+     *
+     * @param other the object to compare (may be null, unaffected)
+     * @return true if {@code this} and {@code other} have identical values,
+     *     otherwise false
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof BoundingBox)) {
+            return false;
+        }
+
+        if (this == other) {
+            return true;
+        }
+
+        BoundingBox otherBoundingBox = (BoundingBox) other;
+        if (Float.compare(xExtent, otherBoundingBox.xExtent) != 0) {
+            return false;
+        } else if (Float.compare(yExtent, otherBoundingBox.yExtent) != 0) {
+            return false;
+        } else if (Float.compare(zExtent, otherBoundingBox.zExtent) != 0) {
+            return false;
+        } else {
+            return super.equals(otherBoundingBox);
+        }
+    }
+
+    /**
+     * Returns a hash code. If two bounding boxes have identical values, they
+     * will have the same hash code. The current instance is unaffected.
+     *
+     * @return a 32-bit value for use in hashing
+     */
+    @Override
+    public int hashCode() {
+        int hash = Objects.hash(xExtent, yExtent, zExtent);
+        hash = 59 * hash + super.hashCode();
+
+        return hash;
+    }
+
+    /**
+     * Tests for approximate equality with the specified bounding box, using the
+     * specified tolerance. If {@code other} is null, false is returned. Either
+     * way, the current instance is unaffected.
+     *
+     * @param aabb the bounding box to compare (unaffected) or null for none
+     * @param epsilon the tolerance for each component
+     * @return true if all components are within tolerance, otherwise false
+     */
+    public boolean isSimilar(BoundingBox aabb, float epsilon) {
+        if (aabb == null) {
+            return false;
+        } else if (Float.compare(Math.abs(aabb.xExtent - xExtent), epsilon) > 0) {
+            return false;
+        } else if (Float.compare(Math.abs(aabb.yExtent - yExtent), epsilon) > 0) {
+            return false;
+        } else if (Float.compare(Math.abs(aabb.zExtent - zExtent), epsilon) > 0) {
+            return false;
+        } else if (!center.isSimilar(aabb.getCenter(), epsilon)) {
+            return false;
+        }
+        // The checkPlane field is ignored.
+        return true;
     }
 
     /**
