@@ -38,6 +38,7 @@ import com.jme3.math.ColorRGBA;
  */
 public enum PixelSamenessDegree{
     SAME(1, null),
+    NEGLIGIBLY_DIFFERENT(1, ColorRGBA.Green),
     SUBTLY_DIFFERENT(10, ColorRGBA.Blue),
 
     MEDIUMLY_DIFFERENT(20, ColorRGBA.Yellow),

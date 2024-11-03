@@ -426,8 +426,8 @@ public class TestDriver extends BaseAppState{
 
         int pixelDifference = getMaximumComponentDifference(pixel1, pixel2);
 
-        if(pixelDifference<= PixelSamenessDegree.SAME.getMaximumAllowedDifference()){
-            return PixelSamenessDegree.SAME;
+        if(pixelDifference<= PixelSamenessDegree.NEGLIGIBLY_DIFFERENT.getMaximumAllowedDifference()){
+            return PixelSamenessDegree.NEGLIGIBLY_DIFFERENT;
         }
         if(pixelDifference<= PixelSamenessDegree.SUBTLY_DIFFERENT.getMaximumAllowedDifference()){
             return PixelSamenessDegree.SUBTLY_DIFFERENT;
