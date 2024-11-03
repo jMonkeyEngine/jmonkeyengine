@@ -44,7 +44,7 @@ public enum PixelSamenessDegree{
 
     VERY_DIFFERENT(60,ColorRGBA.Orange),
 
-    EXTREMELY_DIFFERENT(100,ColorRGBA.Orange);
+    EXTREMELY_DIFFERENT(100,ColorRGBA.Red);
 
     private final int maximumAllowedDifference;
 
