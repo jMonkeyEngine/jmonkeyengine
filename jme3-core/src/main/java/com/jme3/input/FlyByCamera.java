@@ -107,6 +107,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     protected boolean dragToRotate = false;
     protected boolean canRotate = false;
     protected boolean invertY = false;
+    private boolean hideCursorOnNextRotate = false;
     protected InputManager inputManager;
 
     /**
@@ -200,6 +201,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         if (enabled && !enable){
             if (inputManager!= null && (!dragToRotate || (dragToRotate && canRotate))){
                 inputManager.setCursorVisible(true);
+                hideCursorOnNextRotate = false;
             }
         }
         enabled = enable;
@@ -353,6 +355,10 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     protected void rotateCamera(float value, Vector3f axis) {
         if (dragToRotate) {
             if (canRotate) {
+                if(hideCursorOnNextRotate) {
+                    inputManager.setCursorVisible(false);
+                    hideCursorOnNextRotate = false;
+                }
 //                value = -value;
             } else {
                 return;
@@ -499,7 +505,14 @@ public class FlyByCamera implements AnalogListener, ActionListener {
 
         if (name.equals(CameraInput.FLYCAM_ROTATEDRAG) && dragToRotate) {
             canRotate = value;
-            inputManager.setCursorVisible(!value);
+
+            if(value) {
+                hideCursorOnNextRotate = true;
+            }
+            else {
+                inputManager.setCursorVisible(true);
+                hideCursorOnNextRotate = false;
+            }
         } else if (name.equals(CameraInput.FLYCAM_INVERTY)) {
             // Invert the "up" direction.
             if (!value) {
