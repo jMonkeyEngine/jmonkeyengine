@@ -80,7 +80,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.lwjgl.opengl.GL43;
 
 
 public final class GLRenderer implements Renderer {
@@ -2550,10 +2549,10 @@ public final class GLRenderer implements Renderer {
         }
         if (context.boundTextures[unit]==null||context.boundTextures[unit].get() != img.getWeakRef().get()) {
             gl.glBindTexture(target, img.getId());
-            if (img.getAccess() != null) {
+            if (gl4 != null && img.getAccess() != null) {
                 // binds the image so that imageStore and imageLoad operations
                 // can be used in shaders on the image
-                GL43.glBindImageTexture(unit, img.getId(), 0, img.isLayered(),
+                gl4.glBindImageTexture(unit, img.getId(), 0, img.isLayered(),
                         Math.max(img.getBindLayer(), 0), img.getAccess().getGlEnum(),
                         texUtil.getImageFormat(img.getFormat(), false).internalFormat);
             }
@@ -2579,10 +2578,10 @@ public final class GLRenderer implements Renderer {
                 context.boundTextureUnit = unit;
             }
             gl.glBindTexture(target, img.getId());
-            if (img.getAccess() != null) {
+            if (gl4 != null && img.getAccess() != null) {
                 // binds the image so that imageStore and imageLoad operations
                 // can be used in shaders on the image
-                GL43.glBindImageTexture(unit, img.getId(), 0, img.isLayered(),
+                gl4.glBindImageTexture(unit, img.getId(), 0, img.isLayered(),
                         Math.max(img.getBindLayer(), 0), img.getAccess().getGlEnum(),
                         texUtil.getImageFormat(img.getFormat(), false).internalFormat);
             }

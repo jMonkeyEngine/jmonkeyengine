@@ -37,9 +37,9 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.math.FastMath;
-import com.jme3.opencl.MemoryAccess;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
+import com.jme3.renderer.opengl.GL2;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.LastTextureState;
 import com.jme3.util.BufferUtils;
@@ -49,7 +49,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.lwjgl.opengl.GL20;
 
 /**
  * <code>Image</code> defines a data format for a graphical image. The image
@@ -606,17 +605,17 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         /**
          * The image can only read from in a shader.
          */
-        ReadOnly(true, false, GL20.GL_READ_ONLY),
+        ReadOnly(true, false, GL2.GL_READ_ONLY),
         
         /**
          * The image can written to in a shader.
          */
-        WriteOnly(false, true, GL20.GL_WRITE_ONLY),
+        WriteOnly(false, true, GL2.GL_WRITE_ONLY),
         
         /**
          * The image can both be written to and read from in a shader.
          */
-        ReadWrite(true, true, GL20.GL_READ_WRITE);
+        ReadWrite(true, true, GL2.GL_READ_WRITE);
         
         private final boolean read, write;
         private final int glEnum;
