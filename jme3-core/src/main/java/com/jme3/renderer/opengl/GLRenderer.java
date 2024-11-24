@@ -1986,7 +1986,7 @@ public final class GLRenderer implements Renderer {
             // NOTE: For depth textures, sets nearest/no-mips mode
             // Required to fix "framebuffer unsupported"
             // for old NVIDIA drivers!
-            setupTextureParams(0, tex, true);
+            setupTextureParams(0, tex);
         }
 
         if (rb.getLayer() < 0){
@@ -2393,7 +2393,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @SuppressWarnings("fallthrough")
-    private void setupTextureParams(int unit, Texture tex, boolean accessBindUpdate) {
+    private void setupTextureParams(int unit, Texture tex) {
         Image image = tex.getImage();
         int samples = image != null ? image.getMultiSamples() : 1;
         int target = convertTextureType(tex.getType(), samples, -1);
@@ -2479,15 +2479,6 @@ public final class GLRenderer implements Renderer {
         // If at this point we didn't bind the texture, bind it now
         bindTextureOnly(target, image, unit);
         
-        // binds the image so that imageStore and imageLoad operations
-        // can be used in shaders on the image
-        if ((accessBindUpdate || image.isAccessUpdateNeeded()) && image.getAccess() != null) {
-            GL43.glBindImageTexture(unit, image.getId(), 0, image.isLayered(),
-                    Math.max(image.getBindLayer(), 0), image.getAccess().getGlEnum(),
-                    texUtil.getImageFormat(image.getFormat(), false).internalFormat);
-            image.setAccessUpdateNeeded(false);
-        }
-        
     }
 
     /**
@@ -2560,6 +2551,13 @@ public final class GLRenderer implements Renderer {
         }
         if (context.boundTextures[unit]==null||context.boundTextures[unit].get() != img.getWeakRef().get()) {
             gl.glBindTexture(target, img.getId());
+            if (img.getAccess() != null) {
+                // binds the image so that imageStore and imageLoad operations
+                // can be used in shaders on the image
+                GL43.glBindImageTexture(unit, img.getId(), 0, img.isLayered(),
+                        Math.max(img.getBindLayer(), 0), img.getAccess().getGlEnum(),
+                        texUtil.getImageFormat(img.getFormat(), false).internalFormat);
+            }
             context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
@@ -2582,6 +2580,13 @@ public final class GLRenderer implements Renderer {
                 context.boundTextureUnit = unit;
             }
             gl.glBindTexture(target, img.getId());
+            if (img.getAccess() != null) {
+                // binds the image so that imageStore and imageLoad operations
+                // can be used in shaders on the image
+                GL43.glBindImageTexture(unit, img.getId(), 0, img.isLayered(),
+                        Math.max(img.getBindLayer(), 0), img.getAccess().getGlEnum(),
+                        texUtil.getImageFormat(img.getFormat(), false).internalFormat);
+            }
             context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
@@ -2734,8 +2739,7 @@ public final class GLRenderer implements Renderer {
         }
         
         Image image = tex.getImage();
-        boolean updateNeeded = image.isUpdateNeeded();
-        if (updateNeeded || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
+        if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
             // Check NPOT requirements
             boolean scaleToPot = false;
 
@@ -2759,7 +2763,7 @@ public final class GLRenderer implements Renderer {
         int texId = image.getId();
         assert texId != -1;
 
-        setupTextureParams(unit, tex, updateNeeded);
+        setupTextureParams(unit, tex);
         if (debug && caps.contains(Caps.GLDebug)) {
             if (tex.getName() != null) glext.glObjectLabel(GL.GL_TEXTURE, tex.getImage().getId(), tex.getName());
         }

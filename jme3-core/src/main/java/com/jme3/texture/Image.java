@@ -670,7 +670,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     // attributes relating to GL object
     protected boolean mipsWereGenerated = false;
     protected boolean needGeneratedMips = false;
-    protected boolean accessUpdateNeeded = true;
     protected LastTextureState lastTextureState = new LastTextureState();
 
     /**
@@ -1284,7 +1283,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     public void setAccess(Access access) {
         if (this.access != access) {
             this.access = access;
-            accessUpdateNeeded = true;
+            setUpdateNeeded();
         }
     }
     
@@ -1311,28 +1310,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     public void setBindLayer(int bindLayer) {
         if (this.bindLayer != bindLayer) {
             this.bindLayer = bindLayer;
-            accessUpdateNeeded = true;
+            setUpdateNeeded();
         }
-    }
-    
-    /**
-     * Sets or clears the update flag indicating that this image must
-     * be rebound in cases where {@link #getAccess()} is not null.
-     * 
-     * @param accessUpdateNeeded 
-     */
-    public void setAccessUpdateNeeded(boolean accessUpdateNeeded) {
-        this.accessUpdateNeeded = accessUpdateNeeded;
-    }
-    
-    /**
-     * Indicates that this image must be rebound in cases
-     * where {@link #getAccess()} is not null.
-     * 
-     * @return 
-     */
-    public boolean isAccessUpdateNeeded() {
-        return accessUpdateNeeded;
     }
     
     /**
