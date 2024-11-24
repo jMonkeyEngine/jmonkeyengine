@@ -80,6 +80,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.lwjgl.opengl.GL43;
 
 
 public final class GLRenderer implements Renderer {
@@ -1985,7 +1986,7 @@ public final class GLRenderer implements Renderer {
             // NOTE: For depth textures, sets nearest/no-mips mode
             // Required to fix "framebuffer unsupported"
             // for old NVIDIA drivers!
-            setupTextureParams(0, tex);
+            setupTextureParams(0, tex, true);
         }
 
         if (rb.getLayer() < 0){
@@ -2392,7 +2393,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @SuppressWarnings("fallthrough")
-    private void setupTextureParams(int unit, Texture tex) {
+    private void setupTextureParams(int unit, Texture tex, boolean accessBindUpdate) {
         Image image = tex.getImage();
         int samples = image != null ? image.getMultiSamples() : 1;
         int target = convertTextureType(tex.getType(), samples, -1);
@@ -2477,6 +2478,16 @@ public final class GLRenderer implements Renderer {
 
         // If at this point we didn't bind the texture, bind it now
         bindTextureOnly(target, image, unit);
+        
+        // binds the image so that imageStore and imageLoad operations
+        // can be used in shaders on the image
+        if ((accessBindUpdate || image.isAccessUpdateNeeded()) && image.getAccess() != null) {
+            GL43.glBindImageTexture(unit, image.getId(), 0, image.isLayered(),
+                    Math.max(image.getBindLayer(), 0), image.getAccess().getGlEnum(),
+                    texUtil.getImageFormat(image.getFormat(), false).internalFormat);
+            image.setAccessUpdateNeeded(false);
+        }
+        
     }
 
     /**
@@ -2723,7 +2734,8 @@ public final class GLRenderer implements Renderer {
         }
         
         Image image = tex.getImage();
-        if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
+        boolean updateNeeded = image.isUpdateNeeded();
+        if (updateNeeded || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
             // Check NPOT requirements
             boolean scaleToPot = false;
 
@@ -2747,7 +2759,7 @@ public final class GLRenderer implements Renderer {
         int texId = image.getId();
         assert texId != -1;
 
-        setupTextureParams(unit, tex);
+        setupTextureParams(unit, tex, updateNeeded);
         if (debug && caps.contains(Caps.GLDebug)) {
             if (tex.getName() != null) glext.glObjectLabel(GL.GL_TEXTURE, tex.getImage().getId(), tex.getName());
         }
