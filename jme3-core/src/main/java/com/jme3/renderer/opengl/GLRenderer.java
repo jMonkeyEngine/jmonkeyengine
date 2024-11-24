@@ -2478,7 +2478,6 @@ public final class GLRenderer implements Renderer {
 
         // If at this point we didn't bind the texture, bind it now
         bindTextureOnly(target, image, unit);
-        
     }
 
     /**
