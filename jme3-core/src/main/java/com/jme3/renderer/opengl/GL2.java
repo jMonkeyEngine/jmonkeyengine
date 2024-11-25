@@ -74,6 +74,10 @@ public interface GL2 extends GL {
     public static final int GL_TEXTURE_WRAP_R = 0x8072;
     public static final int GL_VERTEX_PROGRAM_POINT_SIZE = 0x8642;
     public static final int GL_UNSIGNED_INT_8_8_8_8 = 0x8035;
+    
+    public static final int GL_READ_ONLY = 35000;
+    public static final int GL_WRITE_ONLY = 35001;
+    public static final int GL_READ_WRITE = 35002;
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl3/glAlphaFunc">Reference Page</a> - <em>This function is deprecated and unavailable in the Core profile</em></p>

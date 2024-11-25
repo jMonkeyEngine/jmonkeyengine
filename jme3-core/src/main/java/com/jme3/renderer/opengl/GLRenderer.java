@@ -2549,6 +2549,13 @@ public final class GLRenderer implements Renderer {
         }
         if (context.boundTextures[unit]==null||context.boundTextures[unit].get() != img.getWeakRef().get()) {
             gl.glBindTexture(target, img.getId());
+            if (gl4 != null && img.getAccess() != null) {
+                // binds the image so that imageStore and imageLoad operations
+                // can be used in shaders on the image
+                gl4.glBindImageTexture(unit, img.getId(), 0, img.isLayered(),
+                        Math.max(img.getBindLayer(), 0), img.getAccess().getGlEnum(),
+                        texUtil.getImageFormat(img.getFormat(), false).internalFormat);
+            }
             context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
@@ -2571,6 +2578,13 @@ public final class GLRenderer implements Renderer {
                 context.boundTextureUnit = unit;
             }
             gl.glBindTexture(target, img.getId());
+            if (gl4 != null && img.getAccess() != null) {
+                // binds the image so that imageStore and imageLoad operations
+                // can be used in shaders on the image
+                gl4.glBindImageTexture(unit, img.getId(), 0, img.isLayered(),
+                        Math.max(img.getBindLayer(), 0), img.getAccess().getGlEnum(),
+                        texUtil.getImageFormat(img.getFormat(), false).internalFormat);
+            }
             context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
