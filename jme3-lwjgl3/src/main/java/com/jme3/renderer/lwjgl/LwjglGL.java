@@ -83,7 +83,8 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
     
     @Override
     public void glBindImageTexture(final int unit, final int texture, final int level,
-            final boolean layered, final int layer, final int access, final int format) {
+                                   final boolean layered, final int layer,
+                                   final int access, final int format) {
         GL42.glBindImageTexture(unit, texture, level, layered, layer, access, format);
     }
 
