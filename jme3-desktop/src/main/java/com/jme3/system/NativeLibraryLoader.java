@@ -198,15 +198,18 @@ public final class NativeLibraryLoader {
                 setExtractionFolderToUserCache();
             } else {
                 try {
-                    extractionFolder = new File(userTempDir, "jme3_natives_" + Integer.toHexString(computeNativesHash()));
-
-                    if (!extractionFolder.exists()) {
-                        if(!extractionFolder.mkdir()) {
-                            throw new IOException("Failed to create folder "+extractionFolder);
-                        }
+                    File jmeTempDir = new File(userTempDir, "jme3");
+                    if (!jmeTempDir.exists()) {
+                        jmeTempDir.mkdir();
                     }
-                    if(!extractionFolder.canWrite()) {
+                    if(!jmeTempDir.canWrite()) {
                         setExtractionFolderToUserCache();
+                    } else {
+                        extractionFolder = new File(jmeTempDir, "natives_" + Integer.toHexString(computeNativesHash()));
+
+                        if (!extractionFolder.exists()) {
+                            extractionFolder.mkdir();
+                        }
                     }
                 } catch (Exception e) {
                     setExtractionFolderToUserCache();
