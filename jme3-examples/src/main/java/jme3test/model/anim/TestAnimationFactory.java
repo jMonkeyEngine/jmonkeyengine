@@ -12,7 +12,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestAnimationFactory extends SimpleApplication {
 
@@ -45,7 +45,7 @@ public class TestAnimationFactory extends SimpleApplication {
         childModel.setLocalTranslation(2, 2, 2);
         childModel.attachChild(childGeom);
         model.attachChild(childModel);
-        TangentBinormalGenerator.generate(model);
+        MikktspaceTangentGenerator.generate(model);
 
         // Construct a complex animation using AnimFactory:
         // 6 seconds in duration, named "anim", running at 25 frames per second

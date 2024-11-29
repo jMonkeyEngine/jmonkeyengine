@@ -45,7 +45,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SkyFactory;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestLightScattering extends SimpleApplication {
 
@@ -66,7 +66,7 @@ public class TestLightScattering extends SimpleApplication {
         flyCam.setMoveSpeed(10);
         Material mat = assetManager.loadMaterial("Textures/Terrain/Rocky/Rocky.j3m");
         Spatial scene = assetManager.loadModel("Models/Terrain/Terrain.mesh.xml");
-        TangentBinormalGenerator.generate(((Geometry)((Node)scene).getChild(0)).getMesh());
+        MikktspaceTangentGenerator.generate(((Geometry) ((Node) scene).getChild(0)).getMesh());
         scene.setMaterial(mat);
         scene.setShadowMode(ShadowMode.CastAndReceive);
         scene.setLocalScale(400);
