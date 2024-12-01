@@ -217,11 +217,11 @@ void main(){
         Roughness = 1.0 - glossiness;
         vec3 fZero = specularColor.xyz;
     #else
-        float specular = 0.5;
-        float nonMetalSpec = 0.08 * specular;
-        vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
+        float nonMetalSpec = 0.08; //nonMetalSpec is always constant value of 0.8 in metallic workflow
+        specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
         vec4 diffuseColor = albedo - albedo * Metallic;
-        vec3 fZero = vec3(specular);
+        vec3 fZero = vec3(0.04); 
+        fZero = mix(fZero, albedo.rgb, Metallic);          
     #endif
 
     gl_FragColor.rgb = vec3(0.0);
