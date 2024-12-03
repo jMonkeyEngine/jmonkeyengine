@@ -218,7 +218,7 @@ void main(){
         vec3 fZero = specularColor.xyz;
     #else
         float nonMetalSpec = 0.08; //nonMetalSpec is always constant value of 0.8 in metallic workflow
-        specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
+        vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
         vec4 diffuseColor = albedo - albedo * Metallic;
         vec3 fZero = vec3(0.04); 
         fZero = mix(fZero, albedo.rgb, Metallic);          
