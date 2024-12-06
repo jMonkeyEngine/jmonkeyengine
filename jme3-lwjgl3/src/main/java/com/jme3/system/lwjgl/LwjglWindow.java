@@ -65,6 +65,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.lwjgl.system.Configuration;
+import org.lwjgl.system.Platform;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
@@ -579,6 +581,12 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                     }
                 });
             }
+
+            String libraryName = settings.getString("GlfwLibraryName");
+            if (libraryName == null) { // use the (platform-dependent) default
+                libraryName = (Platform.get() == Platform.MACOSX) ? "glfw_async" : "glfw";
+            }
+            Configuration.GLFW_LIBRARY_NAME.set(libraryName);
 
             timer = new NanoTimer();
 
