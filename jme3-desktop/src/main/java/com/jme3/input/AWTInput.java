@@ -35,8 +35,6 @@ import java.awt.Component;
 import java.util.Objects;
 
 import com.jme3.app.Application;
-import com.jme3.input.Input;
-import com.jme3.input.RawInputListener;
 import com.jme3.system.AWTContext;
 import com.jme3.system.AWTTaskExecutor;
 

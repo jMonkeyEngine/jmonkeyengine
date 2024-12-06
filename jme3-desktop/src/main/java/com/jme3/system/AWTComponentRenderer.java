@@ -185,10 +185,7 @@ public class AWTComponentRenderer {
     if (frameBuffer != null) {
       this.frameBuffer = frameBuffer;
     } else {
-      this.frameBuffer = new FrameBuffer(width, height, 1);
-      this.frameBuffer.setDepthBuffer(Image.Format.Depth);
-      this.frameBuffer.setColorBuffer(Image.Format.RGBA8);
-      this.frameBuffer.setSrgb(true);
+      this.frameBuffer = AWTUtils.getFrameBuffer(width, height, 1);
     }
 
     colorModel = ColorModel.getRGBdefault();
@@ -202,6 +199,7 @@ public class AWTComponentRenderer {
     this.component = destination;
     
   }
+
 
   /**
    * Initialize the component renderer.
