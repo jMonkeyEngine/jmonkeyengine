@@ -96,15 +96,6 @@ public class FbxTexture extends FbxObject<Texture> {
     public void fromElement(FbxElement element) {
         super.fromElement(element);
         if (getSubclassName().equals("")) {
-            for (FbxElement e : element.children) {
-                if (e.id.equals("Type")) {
-                    e.properties.get(0);
-                } 
-                /*else if (e.id.equals("FileName")) {
-                    filename = (String) e.properties.get(0);
-                }*/
-            }
-            
             for (FbxElement prop : element.getFbxProperties()) {
                 String propName = (String) prop.properties.get(0);
                 if (propName.equals("AlphaSource")) {
