@@ -44,6 +44,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.TangentUtils;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 /**
@@ -120,7 +121,7 @@ public class TestTangentSpace extends SimpleApplication {
     private void createDebugTangents(Geometry geom) {
         Geometry debug = new Geometry(
                 "Debug " + geom.getName(),
-                TangentBinormalGenerator.genTbnLines(geom.getMesh(), 0.8f)
+                TangentUtils.genTbnLines(geom.getMesh(), 0.8f)
         );
         Material debugMat = assetManager.loadMaterial("Common/Materials/VertexColor.j3m");
         debug.setMaterial(debugMat);
