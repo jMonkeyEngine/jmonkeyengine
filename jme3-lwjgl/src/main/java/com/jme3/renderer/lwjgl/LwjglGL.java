@@ -59,7 +59,14 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
     public void glBindTexture(int param1, int param2) {
         GL11.glBindTexture(param1, param2);
     }
-
+    
+    @Override
+    public void glBindImageTexture(final int unit, final int texture, final int level,
+                                   final boolean layered, final int layer,
+                                   final int access, final int format) {
+        GL42.glBindImageTexture(unit, texture, level, layered, layer, access, format);
+    }
+    
     @Override
     public void glBlendEquationSeparate(int colorMode, int alphaMode){
         GL20.glBlendEquationSeparate(colorMode,alphaMode);

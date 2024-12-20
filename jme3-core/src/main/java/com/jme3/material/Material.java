@@ -50,6 +50,7 @@ import com.jme3.shader.*;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
+import com.jme3.texture.TextureImage;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
@@ -451,7 +452,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
         return null;
     }
-
+    
     /**
      * Returns a collection of all parameters set on this material.
      *
@@ -513,6 +514,10 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
             if (technique != null) {
                 technique.notifyParamChanged(name, type, value);
+            }
+            if (type.isImageType()) {
+                // recompute sort id
+                sortingId = -1;
             }
         }
     }
@@ -859,9 +864,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             Uniform uniform = shader.getUniform(param.getPrefixedName());
             if (!override && uniform.isSetByCurrentMaterial()) return;
 
-            if (type.isTextureType()) {
+            if (type.isTextureType() || type.isImageType()) {
                 try {
-                    renderer.setTexture(unit.textureUnit, (Texture) param.getValue());
+                    if (type.isTextureType()) {
+                        renderer.setTexture(unit.textureUnit, (Texture) param.getValue());
+                    } else {
+                        renderer.setTextureImage(unit.textureUnit, (TextureImage) param.getValue());
+                    }
                 } catch (TextureUnitException exception) {
                     int numTexParams = unit.textureUnit + 1;
                     String message = "Too many texture parameters (" + numTexParams + ") assigned\n to " + toString();
