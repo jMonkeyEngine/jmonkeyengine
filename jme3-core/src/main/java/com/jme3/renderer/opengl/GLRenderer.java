@@ -61,6 +61,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture.WrapAxis;
+import com.jme3.texture.TextureImage;
 import com.jme3.texture.image.LastTextureState;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
@@ -2549,13 +2550,6 @@ public final class GLRenderer implements Renderer {
         }
         if (context.boundTextures[unit]==null||context.boundTextures[unit].get() != img.getWeakRef().get()) {
             gl.glBindTexture(target, img.getId());
-            if (gl4 != null && img.getAccess() != null) {
-                // binds the image so that imageStore and imageLoad operations
-                // can be used in shaders on the image
-                gl4.glBindImageTexture(unit, img.getId(), 0, img.isLayered(),
-                        Math.max(img.getBindLayer(), 0), img.getAccess().getGlEnum(),
-                        texUtil.getImageFormat(img.getFormat(), false).internalFormat);
-            }
             context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
@@ -2578,13 +2572,6 @@ public final class GLRenderer implements Renderer {
                 context.boundTextureUnit = unit;
             }
             gl.glBindTexture(target, img.getId());
-            if (gl4 != null && img.getAccess() != null) {
-                // binds the image so that imageStore and imageLoad operations
-                // can be used in shaders on the image
-                gl4.glBindImageTexture(unit, img.getId(), 0, img.isLayered(),
-                        Math.max(img.getBindLayer(), 0), img.getAccess().getGlEnum(),
-                        texUtil.getImageFormat(img.getFormat(), false).internalFormat);
-            }
             context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
@@ -2766,7 +2753,20 @@ public final class GLRenderer implements Renderer {
             if (tex.getName() != null) glext.glObjectLabel(GL.GL_TEXTURE, tex.getImage().getId(), tex.getName());
         }
     }
-
+    
+    @Override
+    public void setTextureImage(int unit, TextureImage tex) throws TextureUnitException {
+        if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
+            throw new TextureUnitException();
+        }
+        WeakReference<Image> ref = context.boundTextures[unit];
+        boolean bindRequired = tex.clearUpdateNeeded() || ref == null || ref.get() != tex.getImage().getWeakRef().get();
+        setTexture(unit, tex.getTexture());
+        if (gl4 != null && bindRequired) {
+            tex.bindImage(gl4, texUtil, unit);
+        }
+    }
+    
     @Override
     public void setUniformBufferObject(int bindingPoint, BufferObject bufferObject) {
         if (bufferObject.isUpdateNeeded()) {

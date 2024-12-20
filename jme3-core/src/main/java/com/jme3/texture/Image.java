@@ -39,7 +39,6 @@ import com.jme3.export.Savable;
 import com.jme3.math.FastMath;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
-import com.jme3.renderer.opengl.GL2;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.LastTextureState;
 import com.jme3.util.BufferUtils;
@@ -599,61 +598,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
 
     }
-    
-    public enum Access {
-        
-        /**
-         * The image can only read from in a shader.
-         */
-        ReadOnly(true, false, GL2.GL_READ_ONLY),
-        
-        /**
-         * The image can written to in a shader.
-         */
-        WriteOnly(false, true, GL2.GL_WRITE_ONLY),
-        
-        /**
-         * The image can both be written to and read from in a shader.
-         */
-        ReadWrite(true, true, GL2.GL_READ_WRITE);
-        
-        private final boolean read, write;
-        private final int glEnum;
-
-        private Access(boolean read, boolean write, int glEnum) {
-            this.read = read;
-            this.write = write;
-            this.glEnum = glEnum;
-        }
-        
-        /**
-         * If true, the image can be read from in a shader.
-         * 
-         * @return 
-         */
-        public boolean isRead() {
-            return read;
-        }
-
-        /**
-         * If true, the image can be written to in a shader.
-         * 
-         * @return 
-         */
-        public boolean isWrite() {
-            return write;
-        }
-        
-        /**
-         * Corresponding OpenGL enum.
-         * 
-         * @return 
-         */
-        public int getGlEnum() {
-            return glEnum;
-        }
-        
-    }
 
     // image attributes
     protected Format format;
@@ -662,8 +606,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     protected ArrayList<ByteBuffer> data;
     protected int multiSamples = 1;
     protected ColorSpace colorSpace = null;
-    protected Access access = null;
-    protected int bindLayer = -1;
 //    protected int mipOffset = 0;
     
     // attributes relating to GL object
@@ -1268,70 +1210,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         return colorSpace;
     }
 
-    /**
-     * Sets the access modifier for this image.
-     * <p>
-     * If not null, the image will be bound in such a way as to allow
-     * {@code imageStore} and {@code imageLoad} functions to work. Otherwise
-     * the image will be bound normally.
-     * <p>
-     * default=null
-     * 
-     * @param access 
-     */
-    public void setAccess(Access access) {
-        if (this.access != access) {
-            this.access = access;
-            setUpdateNeeded();
-        }
-    }
-    
-    /**
-     * 
-     * @return 
-     * @see #setAccess(com.jme3.texture.Image.Access)
-     */
-    public Access getAccess() {
-        return access;
-    }
-
-    /**
-     * Sets the bind layer used if {@link #getAccess()} does not
-     * return null.
-     * <p>
-     * If greater than or equal to zero, only the specified layer will be
-     * bound. If less than zero, the entire image will be bound.
-     * <p>
-     * default=-1
-     * 
-     * @param bindLayer 
-     */
-    public void setBindLayer(int bindLayer) {
-        if (this.bindLayer != bindLayer) {
-            this.bindLayer = bindLayer;
-            setUpdateNeeded();
-        }
-    }
-    
-    /**
-     * 
-     * @return 
-     * @see #setBindLayer(int) 
-     */
-    public int getBindLayer() {
-        return bindLayer;
-    }
-    
-    /**
-     * Returns true if the entire image will be bound in cases where
-     * {@link #getAccess()} does not return null.
-     * 
-     * @return 
-     */
-    public boolean isLayered() {
-        return bindLayer < 0;
-    }
-
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
@@ -1408,8 +1286,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         capsule.write(multiSamples, "multiSamples", 1);
         capsule.writeByteBufferArrayList(data, "data", null);
         capsule.write(colorSpace, "colorSpace", null);
-        capsule.write(access, "access", null);
-        capsule.write(bindLayer, "bindLayer", -1);
     }
 
     @Override
@@ -1423,8 +1299,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         multiSamples = capsule.readInt("multiSamples", 1);
         data = capsule.readByteBufferArrayList("data", null);
         colorSpace = capsule.readEnum("colorSpace", ColorSpace.class, null);
-        access = capsule.readEnum("access", Access.class, null);
-        bindLayer = capsule.readInt("bindLayer", -1);
         if (mipMapSizes != null) {
             needGeneratedMips = false;
             mipsWereGenerated = true;
