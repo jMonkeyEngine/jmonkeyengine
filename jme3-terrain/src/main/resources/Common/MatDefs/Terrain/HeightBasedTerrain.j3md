@@ -1,45 +1,44 @@
 MaterialDef Terrain {
 
-        // Parameters to material:
-        // regionXColorMap: X = 1..4 the texture that should be applied to state X
-        // regionX: a Vector3f containing the following information:
-        //      regionX.x: the start height of the region
-        //      regionX.y: the end height of the region
-        //      regionX.z: the texture scale for the region
-        //  it might not be the most elegant way for storing these 3 values, but it packs the data nicely :)
-        // slopeColorMap: the texture to be used for cliffs, and steep mountain sites
-        // slopeTileFactor: the texture scale for slopes
-        // terrainSize: the total size of the terrain (used for scaling the texture)
-	MaterialParameters {
-		Int BoundDrawBuffer
-		Texture2D region1ColorMap
-		Texture2D region2ColorMap
-		Texture2D region3ColorMap
-		Texture2D region4ColorMap
-		Texture2D slopeColorMap
-		Float slopeTileFactor
-		Float terrainSize
-		Vector3 region1
-		Vector3 region2
-		Vector3 region3
-		Vector3 region4
-	}
+    // Parameters to material:
+    // regionXColorMap: X = 1..4 the texture that should be applied to state X
+    // regionX: a Vector3f containing the following information:
+    //      regionX.x: the start height of the region
+    //      regionX.y: the end height of the region
+    //      regionX.z: the texture scale for the region
+    // it might not be the most elegant way for storing these 3 values, but it packs the data nicely :)
+    // slopeColorMap: the texture to be used for cliffs, and steep mountain sites
+    // slopeTileFactor: the texture scale for slopes
+    // terrainSize: the total size of the terrain (used for scaling the texture)
 
-	Technique {
-		VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/HeightBasedTerrain.vert
-		FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/HeightBasedTerrain.frag
-
-		WorldParameters {
-			WorldViewProjectionMatrix
-			WorldMatrix
-			NormalMatrix
-		}
-		
-		Defines {
-            BOUND_DRAW_BUFFER: BoundDrawBuffer
-        }
-	}
+    MaterialParameters {
+        Int BoundDrawBuffer
+        Texture2D region1ColorMap
+        Texture2D region2ColorMap
+        Texture2D region3ColorMap
+        Texture2D region4ColorMap
+        Texture2D slopeColorMap
+        Float slopeTileFactor
+        Float terrainSize
+        Vector3 region1
+        Vector3 region2
+        Vector3 region3
+        Vector3 region4
+    }
 
     Technique {
+        VertexShader    GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/HeightBasedTerrain.vert
+        FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/HeightBasedTerrain.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+            NormalMatrix
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+        }
     }
+
 }

@@ -1,34 +1,32 @@
 MaterialDef Terrain {
 
-	MaterialParameters {
-		Int BoundDrawBuffer
+    MaterialParameters {
+        Int BoundDrawBuffer
 
         // use tri-planar mapping
         Boolean useTriPlanarMapping
 
-		Texture2D Alpha -LINEAR
-		Texture2D Tex1
-		Texture2D Tex2
-		Texture2D Tex3
-		Float Tex1Scale
-		Float Tex2Scale
-		Float Tex3Scale
-	}
+        Texture2D Alpha -LINEAR
+        Texture2D Tex1
+        Texture2D Tex2
+        Texture2D Tex3
+        Float Tex1Scale
+        Float Tex2Scale
+        Float Tex3Scale
+    }
 
-	Technique {
-		VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Terrain/Terrain.vert
-		FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/Terrain.frag
-            
-		WorldParameters {
-			WorldViewProjectionMatrix
-		}
+    Technique {
+        VertexShader    GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/Terrain.vert
+        FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Terrain/Terrain.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
 
         Defines {
             BOUND_DRAW_BUFFER: BoundDrawBuffer
             TRI_PLANAR_MAPPING : useTriPlanarMapping
         }
-	}
-	
-    Technique {
     }
+	
 }
