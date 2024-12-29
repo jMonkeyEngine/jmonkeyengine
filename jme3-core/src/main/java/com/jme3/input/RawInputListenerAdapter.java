@@ -39,58 +39,59 @@ import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.input.event.TouchEvent;
 
 /**
- * An abstract adapter class for {@link RawInputListener}. 
- * 
- * This class provides empty implementations for all methods in the 
- * {@link RawInputListener} interface, making it easier to create 
- * custom listeners by extending this class and overriding only the 
- * methods of interest.
+ * An abstract adapter class for {@link RawInputListener}.
+ *
+ * This class provides empty implementations for all methods in the
+ * {@link RawInputListener} interface, making it easier to create custom
+ * listeners by extending this class and overriding only the methods of
+ * interest.
  */
 public abstract class RawInputListenerAdapter implements RawInputListener {
-	
+
     /**
      * Constructs a {@code RawInputListenerAdapter}.
      */
-    protected RawInputListenerAdapter() {}
+    protected RawInputListenerAdapter() {
+    }
 
-	@Override
-	public void beginInput() {
-		// No-op implementation
-	}
+    @Override
+    public void beginInput() {
+        // No-op implementation
+    }
 
-	@Override
-	public void endInput() {
-		// No-op implementation
-	}
+    @Override
+    public void endInput() {
+        // No-op implementation
+    }
 
-	@Override
-	public void onJoyAxisEvent(JoyAxisEvent evt) {
-		// No-op implementation
-	}
+    @Override
+    public void onJoyAxisEvent(JoyAxisEvent evt) {
+        // No-op implementation
+    }
 
-	@Override
-	public void onJoyButtonEvent(JoyButtonEvent evt) {
-		// No-op implementation
-	}
+    @Override
+    public void onJoyButtonEvent(JoyButtonEvent evt) {
+        // No-op implementation
+    }
 
-	@Override
-	public void onMouseMotionEvent(MouseMotionEvent evt) {
-		// No-op implementation
-	}
+    @Override
+    public void onMouseMotionEvent(MouseMotionEvent evt) {
+        // No-op implementation
+    }
 
-	@Override
-	public void onMouseButtonEvent(MouseButtonEvent evt) {
-		// No-op implementation
-	}
+    @Override
+    public void onMouseButtonEvent(MouseButtonEvent evt) {
+        // No-op implementation
+    }
 
-	@Override
-	public void onKeyEvent(KeyInputEvent evt) {
-		// No-op implementation
-	}
+    @Override
+    public void onKeyEvent(KeyInputEvent evt) {
+        // No-op implementation
+    }
 
-	@Override
-	public void onTouchEvent(TouchEvent evt) {
-		// No-op implementation
-	}
+    @Override
+    public void onTouchEvent(TouchEvent evt) {
+        // No-op implementation
+    }
 
 }
