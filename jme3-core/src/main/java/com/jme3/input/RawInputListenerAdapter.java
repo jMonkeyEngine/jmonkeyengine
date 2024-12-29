@@ -48,12 +48,6 @@ import com.jme3.input.event.TouchEvent;
  */
 public abstract class RawInputListenerAdapter implements RawInputListener {
 
-    /**
-     * Constructs a {@code RawInputListenerAdapter}.
-     */
-    protected RawInputListenerAdapter() {
-    }
-
     @Override
     public void beginInput() {
         // No-op implementation
