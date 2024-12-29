@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -153,13 +153,13 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     public long getInputTimeNanos() {
         return System.nanoTime();
     }
-    
+
     @Override
     public void setCursorVisible(boolean visible) {
         if (this.visible != visible) {
             grabLocation.x = lastKnownLocation.x;
             grabLocation.y = lastKnownLocation.y;
-            
+
             this.visible = visible;
             final boolean newVisible = visible;
             SwingUtilities.invokeLater(() -> {
