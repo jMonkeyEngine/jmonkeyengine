@@ -158,7 +158,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     public void setCursorVisible(boolean visible) {
         if (this.visible != visible) {
             grabLocation.x = lastKnownLocation.x;
-            grabLocation.y = lastKnownLocation.y;           
+            grabLocation.y = lastKnownLocation.y;
             
             this.visible = visible;
             final boolean newVisible = visible;
