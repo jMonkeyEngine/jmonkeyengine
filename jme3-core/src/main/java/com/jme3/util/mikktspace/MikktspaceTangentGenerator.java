@@ -34,6 +34,7 @@ package com.jme3.util.mikktspace;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.*;
+import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.*;
 
 import java.util.ArrayList;
@@ -117,33 +118,35 @@ public class MikktspaceTangentGenerator {
             Geometry g = (Geometry) s;
             Mesh mesh = g.getMesh();
 
-            Mesh.Mode mode = mesh.getMode();
-            boolean hasTriangles;
-            switch (mode) {
-                case Points:
-                case Lines:
-                case LineStrip:
-                case LineLoop:
-                    hasTriangles = false; // skip this mesh
-                    break;
+            if (mesh.getBuffer(Type.TexCoord) != null && mesh.getBuffer(Type.Normal) != null) {
+                Mesh.Mode mode = mesh.getMode();
+                boolean hasTriangles;
+                switch (mode) {
+                    case Points:
+                    case Lines:
+                    case LineStrip:
+                    case LineLoop:
+                        hasTriangles = false; // skip this mesh
+                        break;
 
-                case Triangles:
-                case TriangleFan:
-                case TriangleStrip:
-                    hasTriangles = true;
-                    break;
+                    case Triangles:
+                    case TriangleFan:
+                    case TriangleStrip:
+                        hasTriangles = true;
+                        break;
 
-                default:
-                    String message = "Tangent generation isn't implemented for mode=" + mode;
-                    throw new UnsupportedOperationException(message);
-            }
-
-            if (hasTriangles) {
-                MikkTSpaceImpl context = new MikkTSpaceImpl(mesh);
-                if (!genTangSpaceDefault(context)) {
-                    logger.log(Level.SEVERE, "Failed to generate tangents for geometry {0}", g.getName());
+                    default:
+                        String message = "Tangent generation isn't implemented for mode=" + mode;
+                        throw new UnsupportedOperationException(message);
                 }
-                TangentUtils.generateBindPoseTangentsIfNecessary(mesh);
+
+                if (hasTriangles) {
+                    MikkTSpaceImpl context = new MikkTSpaceImpl(mesh);
+                    if (!genTangSpaceDefault(context)) {
+                        logger.log(Level.SEVERE, "Failed to generate tangents for geometry {0}", g.getName());
+                    }
+                    TangentUtils.generateBindPoseTangentsIfNecessary(mesh);
+                }
             }
         }
     }
