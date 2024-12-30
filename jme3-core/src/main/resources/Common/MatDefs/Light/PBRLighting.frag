@@ -217,11 +217,9 @@ void main(){
         Roughness = 1.0 - glossiness;
         vec3 fZero = specularColor.xyz;
     #else
-        float nonMetalSpec = 0.08; //nonMetalSpec is always constant value of 0.8 in metallic workflow
-        vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
+        vec4 specularColor = (0.08 - 0.08 * Metallic) + albedo * Metallic;  // 0.08 represents the base specular reflectance for non-metallic surfaces. This can be slightly adjusted to values like 0.04, however 0.08 is considered the standard for PBR.
         vec4 diffuseColor = albedo - albedo * Metallic;
-        vec3 fZero = vec3(0.04); 
-        fZero = mix(fZero, albedo.rgb, Metallic);          
+        vec3 fZero = mix(vec3(0.04), albedo.rgb, Metallic);
     #endif
 
     gl_FragColor.rgb = vec3(0.0);
