@@ -172,17 +172,15 @@ jobs:
       - name: Build Engine
         shell: bash
         run: |
-          # Build
-          ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
+          # Normal build plus ZIP distribution and merged javadoc
+          ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true \
+          build createZipDistribution mergedJavadoc
 
           if [ "${{ matrix.deploy }}" = "true" ];
           then
             # We are going to need "zip"
             sudo apt-get update
             sudo apt-get install -y zip
-
-            # Create the zip release and the javadoc
-            ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true mergedJavadoc createZipDistribution
 
             # We prepare the release for deploy
             mkdir -p ./dist/release/

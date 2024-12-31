@@ -41,7 +41,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestNormalMapping extends SimpleApplication {
 
@@ -59,7 +59,7 @@ public class TestNormalMapping extends SimpleApplication {
         Sphere sphMesh = new Sphere(32, 32, 1);
         sphMesh.setTextureMode(Sphere.TextureMode.Projected);
         sphMesh.updateGeometry(32, 32, 1, false, false);
-        TangentBinormalGenerator.generate(sphMesh);
+        MikktspaceTangentGenerator.generate(sphMesh);
 
         Geometry sphere = new Geometry("Rock Ball", sphMesh);
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
