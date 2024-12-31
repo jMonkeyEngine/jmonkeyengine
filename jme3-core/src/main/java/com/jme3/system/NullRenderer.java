@@ -48,6 +48,7 @@ import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
+import com.jme3.texture.TextureImage;
 
 import java.nio.ByteBuffer;
 import java.util.EnumMap;
@@ -168,6 +169,11 @@ public class NullRenderer implements Renderer {
 
     @Override
     public void setTexture(int unit, Texture tex) throws TextureUnitException {
+        // do nothing
+    }
+    
+    @Override
+    public void setTextureImage(int unit, TextureImage tex) throws TextureUnitException {
         // do nothing
     }
 
@@ -314,4 +320,5 @@ public class NullRenderer implements Renderer {
     public void setUniformBufferObject(int bindingPoint, BufferObject bufferObject) {
 
     }
+    
 }
