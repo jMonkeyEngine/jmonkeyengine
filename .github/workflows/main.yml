@@ -71,7 +71,7 @@ jobs:
     - name: Install Mesa3D
       run: |
         sudo apt-get update
-        sudo apt-get install -y mesa-utils libgl1-mesa-dri libgl1-mesa-glx xvfb
+        sudo apt-get install -y mesa-utils libgl1-mesa-dri libgl1 libglx-mesa0 xvfb
     - name: Set environment variables for Mesa3D
       run: |
         echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
