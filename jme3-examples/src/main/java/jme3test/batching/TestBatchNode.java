@@ -45,7 +45,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.NanoTimer;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 /**
  * A test to demonstrate the usage and functionality of the {@link BatchNode}
@@ -96,8 +96,8 @@ public class TestBatchNode extends SimpleApplication {
         cube2 = new Geometry("cube2", box);
         cube2.setMaterial(mat);
 
-        TangentBinormalGenerator.generate(cube);
-        TangentBinormalGenerator.generate(cube2);
+        MikktspaceTangentGenerator.generate(cube);
+        MikktspaceTangentGenerator.generate(cube2);
 
         batch.attachChild(cube);
         //  batch.attachChild(cube2);
