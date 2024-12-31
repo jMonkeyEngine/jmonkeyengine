@@ -1,0 +1,8 @@
+// nothing
+#define STRUCT_MyStruct \
+float x ; \
+float y;
+struct MyStruct { 
+STRUCT_MyStruct
+};
+//nothing
