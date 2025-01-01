@@ -530,11 +530,8 @@ public class AnimComposer extends AbstractControl {
         for (String key : layers.keySet()) {
             newLayers.put(key, cloner.clone(layers.get(key)));
         }
-        if (!newLayers.containsKey(DEFAULT_LAYER)) {
-            newLayers.put(DEFAULT_LAYER, new AnimLayer(DEFAULT_LAYER, null));
-        }
+        newLayers.putIfAbsent(DEFAULT_LAYER, new AnimLayer(DEFAULT_LAYER, null));
         layers = newLayers;
-
     }
 
     /**
@@ -552,9 +549,7 @@ public class AnimComposer extends AbstractControl {
         animClipMap = (Map<String, AnimClip>) ic.readStringSavableMap("animClipMap", new HashMap<String, AnimClip>());
         globalSpeed = ic.readFloat("globalSpeed", 1f);
         layers = (Map<String, AnimLayer>) ic.readStringSavableMap("layers", new HashMap<String, AnimLayer>());
-        if (!layers.containsKey(DEFAULT_LAYER)) {
-            layers.put(DEFAULT_LAYER, new AnimLayer(DEFAULT_LAYER, null));
-        }
+        layers.putIfAbsent(DEFAULT_LAYER, new AnimLayer(DEFAULT_LAYER, null));
     }
 
     /**
