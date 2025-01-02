@@ -52,6 +52,7 @@ import java.util.*;
  * @author Nehon
  */
 public class AnimComposer extends AbstractControl {
+
     /**
      * The name of the default layer.
      */
@@ -121,7 +122,7 @@ public class AnimComposer extends AbstractControl {
      * @return The action corresponding to the given name.
      */
     public Action setCurrentAction(String name) {
-        return setCurrentAction(name, DEFAULT_LAYER);
+        return setCurrentAction(name, DEFAULT_LAYER, true);
     }
 
     /**
@@ -144,9 +145,9 @@ public class AnimComposer extends AbstractControl {
      * @return The action corresponding to the given name.
      */
     public Action setCurrentAction(String actionName, String layerName, boolean loop) {
-        AnimLayer l = getLayer(layerName);
+        AnimLayer layer = getLayer(layerName);
         Action currentAction = action(actionName);
-        l.setCurrentAction(actionName, currentAction, loop);
+        layer.setCurrentAction(actionName, currentAction, loop);
 
         return currentAction;
     }
@@ -239,7 +240,8 @@ public class AnimComposer extends AbstractControl {
     /**
      *
      * @param name The name of the action to return.
-     * @return The action registered with specified name. It will make a new action if there isn't any.
+     * @return The action registered with specified name. It will make a new
+     * action if there isn't any.
      * @see #makeAction(java.lang.String)
      */
     public Action action(String name) {
@@ -254,7 +256,8 @@ public class AnimComposer extends AbstractControl {
     /**
      *
      * @param name The name of the action to return.
-     * @return The action registered with specified name or null if nothing is registered.
+     * @return The action registered with specified name or null if nothing is
+     * registered.
      */
     public Action getAction(String name) {
         return actions.get(name);
@@ -331,8 +334,8 @@ public class AnimComposer extends AbstractControl {
     }
 
     /**
-     * Creates an action that will interpolate over an entire sequence
-     * of tweens in order.
+     * Creates an action that will interpolate over an entire sequence of tweens
+     * in order.
      *
      * @param name a name for the new Action
      * @param tweens the desired sequence of tweens
@@ -374,8 +377,9 @@ public class AnimComposer extends AbstractControl {
     }
 
     /**
-     * Returns an unmodifiable collection of all available animations. When an attempt
-     * is made to modify the collection, an UnsupportedOperationException is thrown.
+     * Returns an unmodifiable collection of all available animations. When an
+     * attempt is made to modify the collection, an
+     * UnsupportedOperationException is thrown.
      *
      * @return the unmodifiable collection of animations
      */
@@ -526,9 +530,8 @@ public class AnimComposer extends AbstractControl {
         for (String key : layers.keySet()) {
             newLayers.put(key, cloner.clone(layers.get(key)));
         }
-
+        newLayers.putIfAbsent(DEFAULT_LAYER, new AnimLayer(DEFAULT_LAYER, null));
         layers = newLayers;
-
     }
 
     /**
@@ -546,6 +549,7 @@ public class AnimComposer extends AbstractControl {
         animClipMap = (Map<String, AnimClip>) ic.readStringSavableMap("animClipMap", new HashMap<String, AnimClip>());
         globalSpeed = ic.readFloat("globalSpeed", 1f);
         layers = (Map<String, AnimLayer>) ic.readStringSavableMap("layers", new HashMap<String, AnimLayer>());
+        layers.putIfAbsent(DEFAULT_LAYER, new AnimLayer(DEFAULT_LAYER, null));
     }
 
     /**
