@@ -62,6 +62,13 @@ public abstract class MaterialAdapter {
     protected abstract String getMaterialDefPath();
 
     protected abstract MatParam adaptMatParam(MatParam param);
+    
+    /**
+     * Initializes material parameters to their default settings.
+     * 
+     * @param material 
+     */
+    protected abstract void initDefaultMatParams(Material material);
 
     protected void init(AssetManager assetManager) {
         this.assetManager = assetManager;
@@ -75,6 +82,7 @@ public abstract class MaterialAdapter {
     protected Material getMaterial() {
         if (mat == null) {
             mat = new Material(assetManager, getMaterialDefPath());
+            initDefaultMatParams(mat);
         }
         return mat;
     }

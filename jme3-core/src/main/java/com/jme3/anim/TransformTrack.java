@@ -302,6 +302,15 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     /**
+     * Access the FrameInterpolator.
+     *
+     * @return the pre-existing instance or null
+     */
+    public FrameInterpolator getFrameInterpolator() {
+        return interpolator;
+    }
+
+    /**
      * Replaces the frame interpolator.
      *
      * @param interpolator the interpolator to use (alias created)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,15 @@
 package com.jme3.post.filters;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import java.io.IOException;
 
 /**
  * A Post Processing filter to change colors appear with sharp edges as if the
@@ -157,5 +162,39 @@ public class PosterizationFilter extends Filter {
      */
     public float getStrength() {
         return strength;
+    }
+
+    /**
+     * Load properties when the filter is de-serialized, for example when
+     * loading from a J3O file.
+     *
+     * @param importer the importer to use (not null)
+     * @throws IOException from the importer
+     */
+    @Override
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
+
+        this.gamma = capsule.readFloat("gamma", 0.6f);
+        this.numColors = capsule.readInt("numColors", 8);
+        this.strength = capsule.readFloat("strength", 1f);
+    }
+
+    /**
+     * Save properties when the filter is serialized, for example when saving to
+     * a J3O file.
+     *
+     * @param exporter the exporter to use (not null)
+     * @throws IOException from the exporter
+     */
+    @Override
+    public void write(JmeExporter exporter) throws IOException {
+        super.write(exporter);
+        OutputCapsule capsule = exporter.getCapsule(this);
+
+        capsule.write(gamma, "gamma", 0.6f);
+        capsule.write(numColors, "numColors", 8);
+        capsule.write(strength, "strength", 1f);
     }
 }

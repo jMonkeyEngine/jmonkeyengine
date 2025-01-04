@@ -47,10 +47,10 @@ class Letters {
     private final LetterQuad tail;
     private final BitmapFont font;
     private LetterQuad current;
-    final private StringBlock block;
+    private final StringBlock block;
     private float totalWidth;
     private float totalHeight;
-    final private ColorTags colorTags = new ColorTags();
+    private final ColorTags colorTags = new ColorTags();
     private ColorRGBA baseColor = null;
     private float baseAlpha = -1;
     private String plainText;

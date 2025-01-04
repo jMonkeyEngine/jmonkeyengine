@@ -31,10 +31,7 @@
  */
 package com.jme3.scene.control;
 
-import com.jme3.bounding.BoundingBox;
-import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
-import com.jme3.math.FastMath;
 
 /**
  * <code>AreaUtils</code> is used to calculate the area of various objects, such as bounding volumes.  These

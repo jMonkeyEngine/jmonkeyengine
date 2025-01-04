@@ -27,6 +27,13 @@ MaterialDef Advanced PBR Terrain {
      // affliction texture splatting & desaturation functionality
         Boolean UseTriplanarAfflictionMapping
 
+        // Specular-AA
+        Boolean UseSpecularAA : true
+        // screen space variance,Use the slider to set the strength of the geometric specular anti-aliasing effect between 0 and 1. Higher values produce a blurrier result with less aliasing.
+        Float SpecularAASigma
+        // clamping threshold,Use the slider to set a maximum value for the offset that HDRP subtracts from the smoothness value to reduce artifacts.
+        Float SpecularAAKappa
+
         Texture2D AfflictionAlphaMap
 
         Texture2D SplatAlbedoMap  -LINEAR
@@ -279,6 +286,10 @@ MaterialDef Advanced PBR Terrain {
             AFFLICTIONROUGHNESSMETALLICMAP : SplatRoughnessMetallicMap
             AFFLICTIONEMISSIVEMAP : SplatEmissiveMap
             USE_SPLAT_NOISE : SplatNoiseVar
+
+            SPECULAR_AA : UseSpecularAA
+            SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
+            SPECULAR_AA_THRESHOLD : SpecularAAKappa
 
             TRI_PLANAR_MAPPING : useTriPlanarMapping
 

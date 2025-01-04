@@ -1,56 +1,55 @@
 dependencies {
     api project(':jme3-core')
+    api project(':jme3-desktop')
+    api libs.lwjgl3.awt
 
-    api "org.lwjgl:lwjgl:${lwjgl3Version}"
-    api "org.lwjgl:lwjgl-glfw:${lwjgl3Version}"
-    api "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}"
-    api "org.lwjgl:lwjgl-openal:${lwjgl3Version}"
-    api "org.lwjgl:lwjgl-opencl:${lwjgl3Version}"
-    api "org.lwjgl:lwjgl-opengl:${lwjgl3Version}"
+    api libs.lwjgl3.base
+    api libs.lwjgl3.glfw
+    api libs.lwjgl3.jawt
+    api libs.lwjgl3.jemalloc
+    api libs.lwjgl3.openal
+    api libs.lwjgl3.opencl
+    api libs.lwjgl3.opengl
 
-    runtimeOnly "org.lwjgl:lwjgl:${lwjgl3Version}:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl:${lwjgl3Version}:natives-windows-x86"
-    runtimeOnly "org.lwjgl:lwjgl:${lwjgl3Version}:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl:${lwjgl3Version}:natives-linux-arm32"
-    runtimeOnly "org.lwjgl:lwjgl:${lwjgl3Version}:natives-linux-arm64"
-    runtimeOnly "org.lwjgl:lwjgl:${lwjgl3Version}:natives-macos"
-    runtimeOnly "org.lwjgl:lwjgl:${lwjgl3Version}:natives-macos-arm64"
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-macos-arm64') })
 
-    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-windows-x86"
-    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-linux-arm32"
-    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-linux-arm64"
-    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-macos"
-    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjgl3Version}:natives-macos-arm64"
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-macos-arm64') })
 
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-macos-arm64') })
 
-    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-windows-x86"
-    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-linux-arm32"
-    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-linux-arm64"
-    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-macos"
-    runtimeOnly "org.lwjgl:lwjgl-jemalloc:${lwjgl3Version}:natives-macos-arm64"
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-macos-arm64') })
 
-
-    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-windows-x86"
-    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-linux-arm32"
-    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-linux-arm64"
-    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-macos"
-    runtimeOnly "org.lwjgl:lwjgl-opengl:${lwjgl3Version}:natives-macos-arm64"
-
-
-    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-windows-x86"
-    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-linux-arm32"
-    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-linux-arm64"
-    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-macos"
-    runtimeOnly "org.lwjgl:lwjgl-openal:${lwjgl3Version}:natives-macos-arm64"
-
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos-arm64') })
 }
 
 javadoc {

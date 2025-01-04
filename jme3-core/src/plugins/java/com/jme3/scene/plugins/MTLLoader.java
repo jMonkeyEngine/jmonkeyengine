@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2023 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -184,7 +184,7 @@ public class MTLLoader implements AssetLoader {
             logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{texKey, key});
             texture = new Texture2D(PlaceholderAssets.getPlaceholderImage(assetManager));
             texture.setWrap(WrapMode.Repeat);
-            texture.setKey(key);
+            texture.setKey(texKey);
         }
         return texture;
     }

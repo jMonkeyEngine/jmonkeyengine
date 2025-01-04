@@ -121,6 +121,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setRotation(Quaternion rot) {
+        assert Quaternion.isValidQuaternion(rot) : "Invalid rotation " + rot;
         this.rot.set(rot);
         return this;
     }
@@ -132,6 +133,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setTranslation(Vector3f trans) {
+        assert Vector3f.isValidVector(trans) : "Invalid translation " + trans;
         this.translation.set(trans);
         return this;
     }
@@ -152,6 +154,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(Vector3f scale) {
+        assert Vector3f.isValidVector(scale) : "Invalid scale " + scale;
         this.scale.set(scale);
         return this;
     }
@@ -163,6 +166,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(float scale) {
+        assert Float.isFinite(scale) : "Invalid scale " + scale;
         this.scale.set(scale, scale, scale);
         return this;
     }
@@ -286,6 +290,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setTranslation(float x, float y, float z) {
+        assert Float.isFinite(x) && Float.isFinite(y) && Float.isFinite(z) : "Invalid translation " + x + ", " + y + ", " + z;
         translation.set(x, y, z);
         return this;
     }
@@ -299,6 +304,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @return the (modified) current instance (for chaining)
      */
     public Transform setScale(float x, float y, float z) {
+        assert Float.isFinite(x) && Float.isFinite(y) && Float.isFinite(z) : "Invalid scale " + x + ", " + y + ", " + z;
         scale.set(x, y, z);
         return this;
     }
@@ -389,9 +395,12 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets the current instance from a transform matrix. Any shear in the
+     * Sets the current instance from a transform matrix. Any reflection or shear in the
      * matrix is lost -- in other words, it may not be possible to recreate the
      * original matrix from the result.
+     *
+     * <p>After this method is invoked, all components of {@code scale} will be
+     * non-negative, even if {@code mat} includes reflection.
      *
      * @param mat the input matrix (not null, unaffected)
      */
@@ -405,6 +414,10 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Returns the inverse. The current instance is unaffected.
+     *
+     * <p>Assumes (but does not verify) that the scale factors are all positive.
+     * If any component of {@code scale} is negative or zero, the result is
+     * undefined.
      *
      * @return a new Transform
      */

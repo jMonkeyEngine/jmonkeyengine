@@ -31,7 +31,6 @@
  */
 package com.jme3.system.lwjgl;
 
-
 /**
 * A highly accurate sync method that continually adapts to the system 
 * it runs on to provide reliable results.
@@ -40,8 +39,6 @@ package com.jme3.system.lwjgl;
 * @author kappaOne
 */
 class Sync {
-
-
 
     /** number of nanoseconds in a second */
     private static final long NANOS_IN_SECOND = 1000L * 1000L * 1000L;

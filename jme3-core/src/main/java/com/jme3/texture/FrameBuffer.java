@@ -80,7 +80,7 @@ public class FrameBuffer extends NativeObject {
     private int width = 0;
     private int height = 0;
     private int samples = 1;
-    final private ArrayList<RenderBuffer> colorBufs = new ArrayList<>();
+    private final ArrayList<RenderBuffer> colorBufs = new ArrayList<>();
     private RenderBuffer depthBuf = null;
     private int colorBufIndex = 0;
     private boolean srgb;
@@ -179,7 +179,6 @@ public class FrameBuffer extends NativeObject {
             return this.layer;
         }
     }
-
     
     public static class FrameBufferTextureTarget extends RenderBuffer {
         private FrameBufferTextureTarget(){}
@@ -260,11 +259,43 @@ public class FrameBuffer extends NativeObject {
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
     }
-
+    
     public void addColorTarget(FrameBufferTextureTarget colorBuf){
         // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
         colorBuf.slot=colorBufs.size();
         colorBufs.add(colorBuf);
+    }
+    
+    /**
+     * Replaces the color target at the index.
+     * <p>
+     * A color target must already exist at the index, otherwise
+     * an exception will be thrown.
+     * 
+     * @param i index of color target to replace
+     * @param colorBuf color target to replace with
+     */
+    public void replaceColorTarget(int i, FrameBufferTextureTarget colorBuf) {
+        if (i < 0 || i >= colorBufs.size()) {
+            throw new IndexOutOfBoundsException("No color target exists to replace at index=" + i);
+        }
+        colorBuf.slot = i;
+        colorBufs.set(i, colorBuf);
+    }
+    
+    /**
+     * Removes the color target at the index.
+     * <p>
+     * Color targets above the removed target will have their
+     * slot indices shifted accordingly.
+     * 
+     * @param i 
+     */
+    public void removeColorTarget(int i) {
+        colorBufs.remove(i);
+        for (; i < colorBufs.size(); i++) {
+            colorBufs.get(i).slot = i;
+        }
     }
 
     /**
@@ -363,7 +394,8 @@ public class FrameBuffer extends NativeObject {
      *
      * @param format The format to use for the depth buffer.
      * @throws IllegalArgumentException If <code>format</code> is not a depth format.
-     * @deprecated Use setDepthTarget
+     * @deprecated Use
+     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferBufferTarget)}
      */
     @Deprecated
     public void setDepthBuffer(Image.Format format) {
@@ -656,7 +688,8 @@ public class FrameBuffer extends NativeObject {
      * Set the depth texture to use for this framebuffer.
      *
      * @param tex The color texture to set.
-     * @deprecated Use setDepthTarget
+     * @deprecated Use
+     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferTextureTarget)}
      */
     @Deprecated
     public void setDepthTexture(Texture2D tex) {
@@ -677,7 +710,8 @@ public class FrameBuffer extends NativeObject {
      * 
      * @param tex the TextureArray to apply
      * @param layer (default=-1)
-     * @deprecated Use setDepthTarget
+     * @deprecated Use
+     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferTextureTarget)}
      */
     @Deprecated
     public void setDepthTexture(TextureArray tex, int layer) {

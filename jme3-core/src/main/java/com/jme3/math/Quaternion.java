@@ -356,8 +356,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * Sets the quaternion from the specified rotation matrix. Does not verify
-     * that the argument is a valid rotation matrix.
+     * Sets the quaternion from the specified rotation matrix.
+     *
+     * <p>Does not verify that the argument is a valid rotation matrix.
+     * Positive scaling is compensated for, but not reflection or shear.
      *
      * @param matrix the input matrix (not null, unaffected)
      * @return the (modified) current instance (for chaining)
@@ -369,7 +371,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Sets the quaternion from a rotation matrix with the specified elements.
-     * Does not verify that the arguments form a valid rotation matrix.
+     *
+     * <p>Does not verify that the arguments form a valid rotation matrix.
+     * Positive scaling is compensated for, but not reflection or shear.
      *
      * @param m00 the matrix element in row 0, column 0
      * @param m01 the matrix element in row 0, column 1
@@ -385,7 +389,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     public Quaternion fromRotationMatrix(float m00, float m01, float m02,
             float m10, float m11, float m12, float m20, float m21, float m22) {
         // first normalize the forward (F), up (U) and side (S) vectors of the rotation matrix
-        // so that the scale does not affect the rotation
+        // so that positive scaling does not affect the rotation
         float lengthSquared = m00 * m00 + m10 * m10 + m20 * m20;
         if (lengthSquared != 1f && lengthSquared != 0f) {
             lengthSquared = 1.0f / FastMath.sqrt(lengthSquared);
@@ -564,7 +568,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * current instance is unaffected.
      *
      * <p>Note: preserves the translation and scaling components of
-     * {@code result}.
+     * {@code result} unless {@code result} includes reflection.
      *
      * <p>Note: the result is created from a normalized version of the current
      * instance.
@@ -1012,6 +1016,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * Applies the rotation represented by the argument to the current instance.
+     *
+     * <p>Does not verify that {@code matrix} is a valid rotation matrix.
+     * Positive scaling is compensated for, but not reflection or shear.
      *
      * @param matrix the rotation matrix to apply (not null, unaffected)
      */
@@ -1600,5 +1607,28 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(); // can not happen
         }
+    }
+
+    /**
+     * Tests whether the argument is a valid quaternion, returning false if it's
+     * null or if any component is NaN or infinite.
+     *
+     * @param quaternion the quaternion to test (unaffected)
+     * @return true if non-null and finite, otherwise false
+     */
+    public static boolean isValidQuaternion(Quaternion quaternion) {
+        if (quaternion == null) {
+            return false;
+        }
+        if (Float.isNaN(quaternion.x)
+                || Float.isNaN(quaternion.y)
+                || Float.isNaN(quaternion.z)
+                || Float.isNaN(quaternion.w)) {
+            return false;
+        }
+        return !Float.isInfinite(quaternion.x)
+                && !Float.isInfinite(quaternion.y)
+                && !Float.isInfinite(quaternion.z)
+                && !Float.isInfinite(quaternion.w);
     }
 }

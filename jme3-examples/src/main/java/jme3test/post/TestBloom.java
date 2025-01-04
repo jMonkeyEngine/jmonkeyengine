@@ -75,8 +75,6 @@ public class TestBloom extends SimpleApplication {
         mat.setColor("Diffuse", ColorRGBA.Yellow.mult(0.2f));
         mat.setColor("Specular", ColorRGBA.Yellow.mult(0.8f));
 
-    
-
 
         Material matSoil = new Material(assetManager,"Common/MatDefs/Light/Lighting.j3md");
         matSoil.setFloat("Shininess", 15f);

@@ -72,8 +72,8 @@ public class JoystickCompatibilityMappings {
     private static Map<String, Map<String, String>> buttonMappings = new HashMap<String, Map<String, String>>();
 
     // Remaps names by regex.
-    final private static Map<Pattern, String> nameRemappings = new HashMap<>();
-    final private static Map<String, String> nameCache = new HashMap<>();
+    private static final Map<Pattern, String> nameRemappings = new HashMap<>();
+    private static final Map<String, String> nameCache = new HashMap<>();
 
     static {
         loadDefaultMappings();

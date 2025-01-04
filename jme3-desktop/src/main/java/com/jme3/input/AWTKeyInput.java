@@ -31,17 +31,16 @@
  */
 package com.jme3.input;
 
+import com.jme3.input.event.KeyInputEvent;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import com.jme3.input.KeyInput;
-import com.jme3.input.event.KeyInputEvent;
 import com.jme3.system.AWTContext;
-
 
 /**
  * The implementation of the {@link KeyInput} dedicated to AWT {@link Component component}.
@@ -166,11 +165,11 @@ public class AWTKeyInput extends AWTInput implements KeyInput, KeyListener{
         KEY_CODE_TO_JME.put(KeyEvent.VK_META, KEY_RCONTROL);
     }
 
-    private final LinkedList<KeyInputEvent> keyInputEvents;
+    private final Deque<KeyInputEvent> keyInputEvents;
 
     public AWTKeyInput(AWTContext context) {
         super(context);
-        keyInputEvents = new LinkedList<KeyInputEvent>();
+        keyInputEvents = new LinkedList<>();
     }
 
     @Override

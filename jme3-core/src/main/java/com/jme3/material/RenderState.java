@@ -1511,6 +1511,10 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.backStencilDepthPassOperation != null ? this.backStencilDepthPassOperation.hashCode() : 0);
             hash = 79 * hash + (this.frontStencilFunction != null ? this.frontStencilFunction.hashCode() : 0);
             hash = 79 * hash + (this.backStencilFunction != null ? this.backStencilFunction.hashCode() : 0);
+            hash = 79 * hash + (this.frontStencilMask);
+            hash = 79 * hash + (this.frontStencilReference);
+            hash = 79 * hash + (this.backStencilMask);
+            hash = 79 * hash + (this.backStencilReference);
             hash = 79 * hash + Float.floatToIntBits(this.lineWidth);
             
             hash = 79 * hash + this.sfactorRGB.hashCode();
@@ -1623,6 +1627,11 @@ public class RenderState implements Cloneable, Savable {
 
             state.frontStencilFunction = additionalState.frontStencilFunction;
             state.backStencilFunction = additionalState.backStencilFunction;
+
+            state.frontStencilMask = additionalState.frontStencilMask;
+            state.frontStencilReference = additionalState.frontStencilMask;
+            state.backStencilMask = additionalState.backStencilMask;
+            state.backStencilReference = additionalState.backStencilMask;
         } else {
             state.stencilTest = stencilTest;
 
@@ -1636,6 +1645,11 @@ public class RenderState implements Cloneable, Savable {
 
             state.frontStencilFunction = frontStencilFunction;
             state.backStencilFunction = backStencilFunction;
+
+            state.frontStencilMask = frontStencilMask;
+            state.frontStencilReference = frontStencilMask;
+            state.backStencilMask = backStencilMask;
+            state.backStencilReference = backStencilMask;
         }
         if (additionalState.applyLineWidth) {
             state.lineWidth = additionalState.lineWidth;
@@ -1665,6 +1679,10 @@ public class RenderState implements Cloneable, Savable {
         backStencilDepthPassOperation = state.backStencilDepthPassOperation;
         frontStencilFunction = state.frontStencilFunction;
         backStencilFunction = state.backStencilFunction;
+        frontStencilMask = state.frontStencilMask;
+        frontStencilReference = state.frontStencilReference;
+        backStencilMask = state.backStencilMask;
+        backStencilReference = state.backStencilReference;
         blendEquationAlpha = state.blendEquationAlpha;
         blendEquation = state.blendEquation;
         depthFunc = state.depthFunc;
@@ -1692,7 +1710,7 @@ public class RenderState implements Cloneable, Savable {
      * This method is more precise than {@link #set(com.jme3.material.RenderState)}.
      * @param state state to copy from
      */
-    public void copyFrom(RenderState state) {
+    public RenderState copyFrom(RenderState state) {
         this.applyBlendMode = state.applyBlendMode;
         this.applyColorWrite = state.applyColorWrite;
         this.applyCullMode = state.applyCullMode;
@@ -1734,6 +1752,7 @@ public class RenderState implements Cloneable, Savable {
         this.sfactorRGB = state.sfactorRGB;
         this.stencilTest = state.stencilTest;
         this.wireframe = state.wireframe;
+        return this;
     }
 
     @Override
@@ -1767,8 +1786,6 @@ public class RenderState implements Cloneable, Savable {
      * {@code Front} and {@code Front} becomes {@code Back}.
      * <p>{@code FrontAndBack} and {@code Off} are unaffected. This is important
      * for flipping the cull mode when normal vectors are found to be backward.
-     * @param cull
-     * @return flipped cull mode
      */
     public void flipFaceCull() {
         switch (cullMode) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -649,6 +650,68 @@ public class BoundingSphere extends BoundingVolume {
         }
 
         return new BoundingSphere(radius, center.clone());
+    }
+
+    /**
+     * Tests for exact equality with the argument, distinguishing -0 from 0. If
+     * {@code other} is null, false is returned. Either way, the current
+     * instance is unaffected.
+     *
+     * @param other the object to compare (may be null, unaffected)
+     * @return true if {@code this} and {@code other} have identical values,
+     *     otherwise false
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof BoundingSphere)) {
+            return false;
+        }
+
+        if (this == other) {
+            return true;
+        }
+
+        BoundingSphere otherBoundingSphere = (BoundingSphere) other;
+        if (Float.compare(radius, otherBoundingSphere.getRadius()) != 0) {
+            return false;
+        } else {
+            return super.equals(otherBoundingSphere);
+        }
+    }
+
+    /**
+     * Returns a hash code. If two bounding boxes have identical values, they
+     * will have the same hash code. The current instance is unaffected.
+     *
+     * @return a 32-bit value for use in hashing
+     */
+    @Override
+    public int hashCode() {
+        int hash = Objects.hash(radius);
+        hash = 59 * hash + super.hashCode();
+
+        return hash;
+    }
+
+    /**
+     * Tests for approximate equality with the specified bounding sphere, using
+     * the specified tolerance. If {@code other} is null, false is returned.
+     * Either way, the current instance is unaffected.
+     *
+     * @param sphere the bounding sphere to compare (unaffected) or null for none
+     * @param epsilon the tolerance for each component
+     * @return true if all components are within tolerance, otherwise false
+     */
+    public boolean isSimilar(BoundingSphere sphere, float epsilon) {
+        if (sphere == null) {
+            return false;
+        } else if (Float.compare(Math.abs(sphere.getRadius() - radius), epsilon) > 0) {
+            return false;
+        } else if (!center.isSimilar(sphere.getCenter(), epsilon)) {
+            return false;
+        }
+        // The checkPlane field is ignored.
+        return true;
     }
 
     /**

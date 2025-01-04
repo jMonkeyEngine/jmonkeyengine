@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ public class AnimComposer extends AbstractControl {
      * Instantiate a composer with a single layer, no actions, and no clips.
      */
     public AnimComposer() {
-        layers.put(DEFAULT_LAYER, new AnimLayer(this, DEFAULT_LAYER, null));
+        layers.put(DEFAULT_LAYER, new AnimLayer(DEFAULT_LAYER, null));
     }
 
     /**
@@ -310,21 +310,24 @@ public class AnimComposer extends AbstractControl {
     /**
      * Add a layer to this composer.
      *
-     * @param name the desired name for the new layer
-     * @param mask the desired mask for the new layer (alias created)
+     * @param name The desired name for the new layer
+     * @param mask The desired mask for the new layer (alias created)
+     * @return a new layer
      */
-    public void makeLayer(String name, AnimationMask mask) {
-        AnimLayer l = new AnimLayer(this, name, mask);
+    public AnimLayer makeLayer(String name, AnimationMask mask) {
+        AnimLayer l = new AnimLayer(name, mask);
         layers.put(name, l);
+        return l;
     }
 
     /**
      * Remove specified layer. This will stop the current action on this layer.
      *
      * @param name The name of the layer to remove.
+     * @return The removed layer.
      */
-    public void removeLayer(String name) {
-        layers.remove(name);
+    public AnimLayer removeLayer(String name) {
+        return layers.remove(name);
     }
 
     /**
@@ -399,7 +402,7 @@ public class AnimComposer extends AbstractControl {
     @Override
     protected void controlUpdate(float tpf) {
         for (AnimLayer layer : layers.values()) {
-            layer.update(tpf);
+            layer.update(tpf, globalSpeed);
         }
     }
 
@@ -542,6 +545,7 @@ public class AnimComposer extends AbstractControl {
         InputCapsule ic = im.getCapsule(this);
         animClipMap = (Map<String, AnimClip>) ic.readStringSavableMap("animClipMap", new HashMap<String, AnimClip>());
         globalSpeed = ic.readFloat("globalSpeed", 1f);
+        layers = (Map<String, AnimLayer>) ic.readStringSavableMap("layers", new HashMap<String, AnimLayer>());
     }
 
     /**
@@ -557,5 +561,6 @@ public class AnimComposer extends AbstractControl {
         OutputCapsule oc = ex.getCapsule(this);
         oc.writeStringSavableMap(animClipMap, "animClipMap", new HashMap<String, AnimClip>());
         oc.write(globalSpeed, "globalSpeed", 1f);
+        oc.writeStringSavableMap(layers, "layers", new HashMap<String, AnimLayer>());
     }
 }

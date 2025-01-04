@@ -61,6 +61,11 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
     protected String getMaterialDefPath() {
         return "Common/MatDefs/Light/PBRLighting.j3md";
     }
+    
+    @Override
+    protected void initDefaultMatParams(Material material) {
+        material.setFloat("EmissiveIntensity", 1);
+    }
 
     @Override
     protected MatParam adaptMatParam(MatParam param) {
@@ -73,9 +78,11 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
                     break;
                 case "BLEND":
                     getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-                    // Alpha is a RenderState not a Material Parameter, so return null
-                    return null;
+                    break;
             }
+
+            // Alpha mode is handled here, so return null
+            return null;
         } else if (param.getName().equals("doubleSided")) {
             boolean doubleSided = (boolean) param.getValue();
             if (doubleSided) {

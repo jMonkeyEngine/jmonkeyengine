@@ -98,5 +98,4 @@ public interface JsonElement {
      * @return the casted JsonElement
      */
     public <T extends JsonElement> T autoCast();
-
 }

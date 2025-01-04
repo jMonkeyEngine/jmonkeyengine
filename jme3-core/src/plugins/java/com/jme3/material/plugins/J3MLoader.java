@@ -51,8 +51,6 @@ import com.jme3.util.blockparser.BlockLanguageParser;
 import com.jme3.util.blockparser.Statement;
 import com.jme3.util.clone.Cloner;
 import jme3tools.shader.Preprocessor;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -76,10 +74,10 @@ public class J3MLoader implements AssetLoader {
     private Material material;
     private TechniqueDef technique;
     private RenderState renderState;
-    final private ArrayList<String> presetDefines = new ArrayList<>();
+    private final ArrayList<String> presetDefines = new ArrayList<>();
 
-    final private List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
-    final private EnumMap<Shader.ShaderType, String> shaderNames;
+    private final List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
+    private final EnumMap<Shader.ShaderType, String> shaderNames;
 
     private static final String whitespacePattern = "\\p{javaWhitespace}+";
 

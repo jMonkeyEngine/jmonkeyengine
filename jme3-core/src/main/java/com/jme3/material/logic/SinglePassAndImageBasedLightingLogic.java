@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package com.jme3.material.logic;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.*;
 import com.jme3.material.*;
+import com.jme3.material.Material.BindUnits;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.*;
 import com.jme3.renderer.*;
@@ -54,7 +55,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
 
     private boolean useAmbientLight;
     private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
-    final private List<LightProbe> lightProbes = new ArrayList<>(3);
+    private final List<LightProbe> lightProbes = new ArrayList<>(3);
 
     static {
         ADDITIVE_LIGHT.setBlendMode(BlendMode.AlphaAdditive);
@@ -262,22 +263,21 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits) {
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         int batchSize = renderManager.getSinglePassLightBatchSize();
         if (lights.size() == 0) {
-            updateLightListUniforms(shader, geometry, lights,batchSize, renderManager, 0, lastTexUnit);
+            updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, 0, lastBindUnits.textureUnit);
             renderer.setShader(shader);
             renderMeshFromGeometry(renderer, geometry);
         } else {
             while (nbRenderedLights < lights.size()) {
-                nbRenderedLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, nbRenderedLights, lastTexUnit);
+                nbRenderedLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, nbRenderedLights, lastBindUnits.textureUnit);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
             }
         }
-        return;
     }
 
     protected void extractIndirectLights(LightList lightList, boolean removeLights) {

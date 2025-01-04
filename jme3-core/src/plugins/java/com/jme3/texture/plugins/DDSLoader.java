@@ -86,6 +86,10 @@ public class DDSLoader implements AssetLoader {
     private static final int PF_DX10 = 0x30315844; // a DX10 format
     private static final int PF_BC4S = 0x53344342; // a DX9 file format for BC4 signed
     private static final int PF_BC5S = 0x53354342; // a DX9 file format for BC5 signed
+    private static final int PF_ETC2_RGBA_CSN = 0x41435445; // ETC2 RGBA format notation from Compressonator
+    private static final int PF_ETC2_RGB_CSN = 0x32435445; // ETC2 RGB format notation from Compressonator
+    private static final int PF_ETC_RGB_CSN = 0x20435445; // ETC RGB format notation from Compressonator
+    private static final int PF_ETC2_RGBA1_CSN = 0x50435445; // ETC RGB + Alpha1 format notation from Compressonator
     private static final int DX10DIM_TEXTURE3D = 0x4;
     private static final int DX10MISC_TEXTURECUBE = 0x4;
     private static final double LOG2 = Math.log(2);
@@ -341,6 +345,22 @@ public class DDSLoader implements AssetLoader {
                     bpp = 8;
                     pixelFormat = Format.SIGNED_RGTC2;
                     break;
+                case PF_ETC_RGB_CSN:
+                    bpp = 4;
+                    pixelFormat = Format.ETC1;
+                    break;
+                case PF_ETC2_RGB_CSN:
+                    bpp = 4;
+                    pixelFormat = Format.ETC1;
+                    break;
+                case PF_ETC2_RGBA1_CSN:
+                    bpp = 4;
+                    pixelFormat = Format.ETC2_ALPHA1;
+                    break;
+                case PF_ETC2_RGBA_CSN:
+                    bpp = 8;
+                    pixelFormat = Format.ETC2;
+                    break;                                
                 default:
                     throw new IOException("Unknown fourcc: " + string(fourcc) + ", " + Integer.toHexString(fourcc));
             }

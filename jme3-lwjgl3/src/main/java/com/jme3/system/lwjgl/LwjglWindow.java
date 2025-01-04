@@ -192,8 +192,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean allowSwapBuffers = false;
 
     // temp variables used for glfw calls
-    private int width[] = new int[1];
-    private int height[] = new int[1];
+    private final int width[] = new int[1];
+    private final int height[] = new int[1];
 
     // state maintained by updateSizes()
     private int oldFramebufferWidth;
@@ -696,9 +696,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         // If the canvas is not active, there's no need to waste time
         // doing that.
         if (renderable.get()) {
-            // calls swap buffers, etc.
             try {
-                if (allowSwapBuffers && autoFlush) {
+                // If type is 'Canvas'; lwjgl-awt takes care of swap buffers.
+                if ((type != Type.Canvas) && allowSwapBuffers && autoFlush) {
+                    // calls swap buffers, etc.
                     glfwSwapBuffers(window);
                 }
             } catch (Throwable ex) {

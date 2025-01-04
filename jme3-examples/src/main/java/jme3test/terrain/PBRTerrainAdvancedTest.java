@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,8 @@ import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.Texture.MagFilter;
+import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.TextureArray;
 import java.util.ArrayList;
 import java.util.List;
@@ -279,10 +281,10 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         TextureArray metallicRoughnessAoEiTextureArray = new TextureArray(metallicRoughnessAoEiMapImages);
 
         //apply wrapMode to the whole texture array, rather than each individual texture in the array
-        albedoTextureArray.setWrap(WrapMode.Repeat);
-        normalParallaxTextureArray.setWrap(WrapMode.Repeat);
-        metallicRoughnessAoEiTextureArray.setWrap(WrapMode.Repeat);
-
+        setWrapAndMipMaps(albedoTextureArray);
+        setWrapAndMipMaps(normalParallaxTextureArray);
+        setWrapAndMipMaps(metallicRoughnessAoEiTextureArray);
+        
         //assign texture array to materials
         matTerrain.setParam("AlbedoTextureArray", VarType.TextureArray, albedoTextureArray);
         matTerrain.setParam("NormalParallaxTextureArray", VarType.TextureArray, normalParallaxTextureArray);
@@ -430,6 +432,12 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         rootNode.attachChild(terrain);
     }
 
+    private void setWrapAndMipMaps(Texture texture){
+        texture.setWrap(WrapMode.Repeat);
+        texture.setMinFilter(MinFilter.Trilinear);
+        texture.setMagFilter(MagFilter.Bilinear);
+    }
+
     private void setUpLights() {
         LightProbe probe = (LightProbe) assetManager.loadAsset("Scenes/LightProbes/quarry_Probe.j3o");
 
@@ -444,7 +452,7 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         rootNode.addLight(directionalLight);
 
         ambientLight = new AmbientLight();
-        directionalLight.setColor(ColorRGBA.White);
+        ambientLight.setColor(ColorRGBA.White);
         rootNode.addLight(ambientLight);
     }
 

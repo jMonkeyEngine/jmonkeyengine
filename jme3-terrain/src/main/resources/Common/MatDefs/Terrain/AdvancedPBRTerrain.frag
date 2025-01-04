@@ -17,6 +17,14 @@ varying vec3 lightVec;
 varying vec3 inNormal;
 varying vec3 wNormal;
 
+// Specular-AA
+#ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
+  uniform float m_SpecularAASigma;
+#endif
+#ifdef SPECULAR_AA_THRESHOLD
+  uniform float m_SpecularAAKappa;
+#endif
+
 #ifdef DEBUG_VALUES_MODE
     uniform int m_DebugValuesMode;
 #endif
@@ -251,7 +259,7 @@ void main(){
                     alphaBlend = alphaBlend_2;
                 }
 
-                texChannelForAlphaBlending = int(mod($i, 4.0)); //pick the correct channel (r g b or a) based on the layer's index
+                texChannelForAlphaBlending = int(mod(float($i), 4.0)); //pick the correct channel (r g b or a) based on the layer's index
                 switch(texChannelForAlphaBlending) {
                     case 0:
                         finalAlphaBlendForLayer = alphaBlend.r;
@@ -485,6 +493,16 @@ void main(){
     
      
     float ndotv = max( dot( normal, viewDir ),0.0);
+    #ifdef SPECULAR_AA
+        float sigma = 1.0;
+        float kappa = 0.18;
+        #ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
+            sigma = m_SpecularAASigma;
+        #endif
+        #ifdef SPECULAR_AA_THRESHOLD
+            kappa = m_SpecularAAKappa;
+        #endif
+    #endif
     for( int i = 0;i < NB_LIGHTS; i+=3){
         vec4 lightColor = g_LightData[i];
         vec4 lightData1 = g_LightData[i+1];                
@@ -508,9 +526,17 @@ void main(){
         vec3 directDiffuse;
         vec3 directSpecular;
         
-        float hdotv = PBR_ComputeDirectLight(normal, lightDir.xyz, viewDir,
-                            lightColor.rgb, fZero, Roughness, ndotv,
-                            directDiffuse,  directSpecular);
+        #ifdef SPECULAR_AA
+            float hdotv = PBR_ComputeDirectLightWithSpecularAA(
+                                normal, lightDir.xyz, viewDir,
+                                lightColor.rgb, fZero, Roughness, sigma, kappa, ndotv,
+                                directDiffuse,  directSpecular);
+        #else
+            float hdotv = PBR_ComputeDirectLight(
+                                normal, lightDir.xyz, viewDir,
+                                lightColor.rgb, fZero, Roughness, ndotv,
+                                directDiffuse,  directSpecular);
+        #endif
 
         vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
             

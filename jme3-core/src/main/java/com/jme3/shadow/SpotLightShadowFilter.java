@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,45 +40,40 @@ import com.jme3.light.SpotLight;
 import java.io.IOException;
 
 /**
- *
  * This Filter does basically the same as a SpotLightShadowRenderer except it
  * renders the post shadow pass as a fullscreen quad pass instead of a geometry
  * pass. It's mostly faster than PssmShadowRenderer as long as you have more
  * than about ten shadow receiving objects. The expense is the drawback that
  * the shadow Receive mode set on spatial is ignored. So basically all and only
- * objects that render depth in the scene receive shadows. See this post for
- * more details
- * http://jmonkeyengine.org/groups/general-2/forum/topic/silly-question-about-shadow-rendering/#post-191599
+ * objects that render depth in the scene receive shadows.
  *
- * API is basically the same as the PssmShadowRenderer;
+ * API is basically the same as the PssmShadowRenderer.
  *
  * @author Rémy Bouquet aka Nehon
  */
 public class SpotLightShadowFilter extends AbstractShadowFilter<SpotLightShadowRenderer> {
 
     /**
-     * Used for serialization.
-     * Use SpotLightShadowFilter#SpotLightShadowFilter(AssetManager assetManager,
-     * int shadowMapSize)
-     * instead.
+     * For serialization only. Do not use.
+     * 
+     * @see #SpotLightShadowFilter(AssetManager assetManager, int shadowMapSize)
      */
     protected SpotLightShadowFilter() {
         super();
     }
     
     /**
-     * Creates a SpotLight Shadow Filter
+     * Creates a SpotLightShadowFilter.
      *
-     * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
-     * etc...) The more quality, the fewer fps.
+     * @param assetManager  the application's asset manager
+     * @param shadowMapSize the size of the rendered shadow maps (512, 1024, 2048, etc...)
      */
     public SpotLightShadowFilter(AssetManager assetManager, int shadowMapSize) {
         super(assetManager, shadowMapSize, new SpotLightShadowRenderer(assetManager, shadowMapSize));
     }
 
     /**
-     * return the light used to cast shadows
+     * Returns the light used to cast shadows.
      *
      * @return the SpotLight
      */
@@ -87,20 +82,19 @@ public class SpotLightShadowFilter extends AbstractShadowFilter<SpotLightShadowR
     }
 
     /**
-     * Sets the light to use to cast shadows
+     * Sets the light to use to cast shadows.
      *
-     * @param light a SpotLight
+     * @param light the SpotLight
      */
     public void setLight(SpotLight light) {
         shadowRenderer.setLight(light);
     }
-   
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(shadowRenderer, "shadowRenderer", null);
-
     }
 
     @Override
@@ -109,4 +103,5 @@ public class SpotLightShadowFilter extends AbstractShadowFilter<SpotLightShadowR
         InputCapsule ic = im.getCapsule(this);
         shadowRenderer = (SpotLightShadowRenderer) ic.readSavable("shadowRenderer", null);
     }
+    
 }

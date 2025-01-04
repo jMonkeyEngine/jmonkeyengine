@@ -108,7 +108,7 @@ public class LodGenerator {
     private List<Triangle> triangleList;
     private List<Vertex> vertexList = new ArrayList<>();
     private float meshBoundingSphereRadius;
-    final private Mesh mesh;
+    private final Mesh mesh;
 
     /**
      * Enumerate criteria for removing triangles.
@@ -235,7 +235,7 @@ public class LodGenerator {
     /**
      * Comparator used to sort vertices according to their collapse cost
      */
-    final private Comparator<Vertex> collapseComparator = new Comparator<Vertex>() {
+    private final Comparator<Vertex> collapseComparator = new Comparator<Vertex>() {
         @Override
         public int compare(Vertex o1, Vertex o2) {
             if (Float.compare(o1.collapseCost, o2.collapseCost) == 0) {
@@ -576,13 +576,22 @@ public class LodGenerator {
                 numBakedLods++;
             }
         }
-        if (numBakedLods <= lodCount) {
-            VertexBuffer[] bakedLods = new VertexBuffer[numBakedLods];
-            System.arraycopy(lods, 0, bakedLods, 0, numBakedLods);
-            return bakedLods;
-        } else {
-            return lods;
+
+        return cleanBuffer(lods, numBakedLods);
+    }
+
+    private VertexBuffer[] cleanBuffer(VertexBuffer[] lods, int numBakedLods) {
+        int index = 0;
+        VertexBuffer[] result = new VertexBuffer[numBakedLods];
+
+        for (VertexBuffer lod : lods) {
+            if (lod != null) {
+                result[index] = lod;
+                index++;
+            }
         }
+
+        return result;
     }
 
     /**

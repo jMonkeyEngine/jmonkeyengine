@@ -1,5 +1,5 @@
  /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,14 +56,6 @@ public class BoundingSphereDebug extends Mesh {
     protected int radialSamples = 32;
     protected boolean useEvenSlices;
     protected boolean interior;
-    /**
-     * the distance from the center point each point falls on
-     */
-    public float radius;
-
-    public float getRadius() {
-        return radius;
-    }
 
     public BoundingSphereDebug() {
         setGeometryData();
@@ -151,27 +143,23 @@ public class BoundingSphereDebug extends Mesh {
             if (segDone == radialSamples || segDone == radialSamples * 2) {
                 idx++;
             }
-
         }
-
     }
-
     
     /**
      * Convenience factory method that creates a debug bounding-sphere geometry
+     * 
      * @param assetManager the assetManager
      * @return the bounding sphere debug geometry.
      */
     public static Geometry createDebugSphere(AssetManager assetManager) {
-        BoundingSphereDebug b = new BoundingSphereDebug();
-        Geometry geom = new Geometry("BoundingDebug", b);
-
+        BoundingSphereDebug mesh = new BoundingSphereDebug();
+        Geometry geom = new Geometry("BoundingDebug", mesh);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setBoolean("VertexColor", true);
         mat.getAdditionalRenderState().setWireframe(true);
-        
         geom.setMaterial(mat);
         return geom;
-
     }
+    
 }
