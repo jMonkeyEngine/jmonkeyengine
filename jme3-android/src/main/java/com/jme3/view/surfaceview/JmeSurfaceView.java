@@ -430,7 +430,8 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         onRendererCompleted = null;
         onExceptionThrown = null;
         onLayoutDrawn = null;
-        /*nullifying the static memory (pushing zero to registers to prepare for a clean use)*/
+        /*nullifying the static memory*/
+        JmeAndroidSystem.setView(null);
         GameState.setLegacyApplication(null);
         GameState.setFirstUpdatePassed(false);
         jmeSurfaceViewLogger.log(Level.INFO, "Context and Game have been destructed");
