@@ -48,7 +48,7 @@ public class NullContext implements JmeContext, Runnable {
     protected static final Logger logger = Logger.getLogger(NullContext.class.getName());
 
     protected static final String THREAD_NAME = "jME3 Headless Main";
-    
+
     protected AtomicBoolean created = new AtomicBoolean(false);
     protected AtomicBoolean needClose = new AtomicBoolean(false);
     protected final Object createdLock = new Object();
@@ -75,26 +75,28 @@ public class NullContext implements JmeContext, Runnable {
     }
 
     @Override
-    public void setSystemListener(SystemListener listener){
+    public void setSystemListener(SystemListener listener) {
         this.listener = listener;
     }
 
-    protected void initInThread(){
+    protected void initInThread() {
         logger.fine("NullContext created.");
         if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
         }
 
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable thrown) {
-                listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
+        Thread.setDefaultUncaughtExceptionHandler(
+            new Thread.UncaughtExceptionHandler() {
+                @Override
+                public void uncaughtException(Thread thread, Throwable thrown) {
+                    listener.handleError("Uncaught exception thrown in " + thread.toString(), thrown);
+                }
             }
-        });
+        );
 
         timer = new NanoTimer();
         renderer = new NullRenderer();
-        synchronized (createdLock){
+        synchronized (createdLock) {
             created.set(true);
             createdLock.notifyAll();
         }
@@ -102,10 +104,10 @@ public class NullContext implements JmeContext, Runnable {
         listener.initialize();
     }
 
-    protected void deinitInThread(){
+    protected void deinitInThread() {
         listener.destroy();
         timer = null;
-        synchronized (createdLock){
+        synchronized (createdLock) {
             created.set(false);
             createdLock.notifyAll();
         }
@@ -142,7 +144,7 @@ public class NullContext implements JmeContext, Runnable {
     }
 
     @Override
-    public void run(){
+    public void run() {
         initInThread();
 
         do {
@@ -159,31 +161,27 @@ public class NullContext implements JmeContext, Runnable {
     }
 
     @Override
-    public void destroy(boolean waitFor){
+    public void destroy(boolean waitFor) {
         needClose.set(true);
-        if (waitFor)
-            waitFor(false);
+        if (waitFor) waitFor(false);
     }
 
     @Override
-    public void create(boolean waitFor){
-        if (created.get()){
+    public void create(boolean waitFor) {
+        if (created.get()) {
             logger.warning("create() called when NullContext is already created!");
             return;
         }
 
         new Thread(this, THREAD_NAME).start();
-        if (waitFor)
-            waitFor(true);
+        if (waitFor) waitFor(true);
     }
 
     @Override
-    public void restart() {
-    }
+    public void restart() {}
 
     @Override
-    public void setAutoFlushFrames(boolean enabled){
-    }
+    public void setAutoFlushFrames(boolean enabled) {}
 
     @Override
     public MouseInput getMouseInput() {
@@ -206,30 +204,28 @@ public class NullContext implements JmeContext, Runnable {
     }
 
     @Override
-    public void setTitle(String title) {
-    }
+    public void setTitle(String title) {}
 
-    public void create(){
+    public void create() {
         create(false);
     }
 
-    public void destroy(){
+    public void destroy() {
         destroy(false);
     }
 
-    protected void waitFor(boolean createdVal){
-        synchronized (createdLock){
-            while (created.get() != createdVal){
+    protected void waitFor(boolean createdVal) {
+        synchronized (createdLock) {
+            while (created.get() != createdVal) {
                 try {
                     createdLock.wait();
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
             }
         }
     }
 
     @Override
-    public boolean isCreated(){
+    public boolean isCreated() {
         return created.get();
     }
 
@@ -237,12 +233,11 @@ public class NullContext implements JmeContext, Runnable {
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
         frameRate = settings.getFrameRate();
-        if (frameRate <= 0)
-            frameRate = 60; // use default update rate.
+        if (frameRate <= 0) frameRate = 60; // use default update rate.
     }
 
     @Override
-    public AppSettings getSettings(){
+    public AppSettings getSettings() {
         return settings;
     }
 
@@ -259,7 +254,7 @@ public class NullContext implements JmeContext, Runnable {
     @Override
     public boolean isRenderable() {
         return true; // Doesn't really matter if true or false. Either way
-                     // RenderManager won't render anything.
+        // RenderManager won't render anything.
     }
 
     @Override
@@ -305,5 +300,17 @@ public class NullContext implements JmeContext, Runnable {
     @Override
     public int getWindowYPosition() {
         throw new UnsupportedOperationException("null context");
+    }
+
+    @Override
+    public Displays getDisplays() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public int getPrimaryDisplay() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

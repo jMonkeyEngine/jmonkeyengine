@@ -61,9 +61,11 @@ public class TestResizableApp extends SimpleApplication {
         super.reshape(width, height);
 
         // Need to move text relative to app height
-        txt.setLocalTranslation(0, settings.getHeight(), 0);
-        txt.setText("Drag the corners of the application to resize it.\n" +
-                    "Current Size: " + settings.getWidth() + "x" + settings.getHeight());
+        if (txt != null) {
+           txt.setLocalTranslation(0, settings.getHeight(), 0);
+           txt.setText("Drag the corners of the application to resize it.\n" +
+                       "Current Size: " + settings.getWidth() + "x" + settings.getHeight());
+        }
     }
     
     @Override
