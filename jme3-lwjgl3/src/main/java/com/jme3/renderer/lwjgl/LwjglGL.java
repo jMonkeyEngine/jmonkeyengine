@@ -81,17 +81,10 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
         GL11.glBindTexture(target, texture);
     }
     
-//    @Override
-//    public void glBindImageTexture(final int unit, final int texture, final int level,
-//                                   final boolean layered, final int layer,
-//                                   final int access, final int format) {
-//        throw new NullPointerException("lwjgl3");
-//        //GL42.glBindImageTexture(unit, texture, level, layered, layer, access, format);
-//    }
-    
-    
     @Override
-    public void glBindImageTexture(int unit, int texture, int level, boolean layered, int layer, int access, int format) {
+    public void glBindImageTexture(final int unit, final int texture, final int level,
+                                   final boolean layered, final int layer,
+                                   final int access, final int format) {
         GL42.glBindImageTexture(unit, texture, level, layered, layer, access, format);
     }
     
