@@ -42,7 +42,6 @@ import com.jme3.opencl.Context;
 import com.jme3.renderer.ios.IosGL;
 import com.jme3.renderer.opengl.*;
 import com.jme3.system.*;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,10 +62,10 @@ public class IGLESContext implements JmeContext {
     protected Timer timer;
     protected SystemListener listener;
     protected IosInputHandler input;
-    protected int minFrameDuration = 0;                   // No FPS cap
+    protected int minFrameDuration = 0; // No FPS cap
 
     public IGLESContext() {
-           logger.log(Level.FINE, "IGLESContext constructor");
+        logger.log(Level.FINE, "IGLESContext constructor");
     }
 
     @Override
@@ -123,13 +122,13 @@ public class IGLESContext implements JmeContext {
 
     @Override
     public JoyInput getJoyInput() {
-    /*
+        /*
         if (androidSensorJoyInput == null) {
             androidSensorJoyInput = new AndroidSensorJoyInput();
         }
         return androidSensorJoyInput;
         */
-        return null;//  new DummySensorJoyInput();
+        return null; //  new DummySensorJoyInput();
     }
 
     @Override
@@ -143,8 +142,7 @@ public class IGLESContext implements JmeContext {
     }
 
     @Override
-    public void setTitle(String title) {
-    }
+    public void setTitle(String title) {}
 
     @Override
     public boolean isCreated() {
@@ -160,7 +158,7 @@ public class IGLESContext implements JmeContext {
     @Override
     public boolean isRenderable() {
         logger.log(Level.FINE, "IGLESContext isRenderable");
-        return true;// renderable.get();
+        return true; // renderable.get();
     }
 
     @Override
@@ -169,18 +167,18 @@ public class IGLESContext implements JmeContext {
         IosGL gl = new IosGL();
 
         if (settings.getBoolean("GraphicsDebug")) {
-            gl = (IosGL)GLDebug.createProxy(gl, gl, GL.class, GLExt.class, GLFbo.class);
+            gl = (IosGL) GLDebug.createProxy(gl, gl, GL.class, GLExt.class, GLFbo.class);
         }
 
         renderer = new GLRenderer(gl, gl, gl);
         renderer.initialize();
-        
+
         input = new IosInputHandler();
         timer = new NanoTimer();
 
-//synchronized (createdLock){
-            created.set(true);
-            //createdLock.notifyAll();
+        //synchronized (createdLock){
+        created.set(true);
+        //createdLock.notifyAll();
         //}
 
         listener.initialize();
@@ -196,8 +194,7 @@ public class IGLESContext implements JmeContext {
     }
 
     @Override
-    public void restart() {
-    }
+    public void restart() {}
 
     @Override
     public void destroy(boolean waitFor) {
@@ -217,8 +214,7 @@ public class IGLESContext implements JmeContext {
         while (renderable.get() != createdVal) {
             try {
                 Thread.sleep(10);
-            } catch (InterruptedException ex) {
-            }
+            } catch (InterruptedException ex) {}
         }
     }
 
@@ -266,5 +262,17 @@ public class IGLESContext implements JmeContext {
     @Override
     public int getWindowYPosition() {
         throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    @Override
+    public Displays getDisplays() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public int getPrimaryDisplay() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

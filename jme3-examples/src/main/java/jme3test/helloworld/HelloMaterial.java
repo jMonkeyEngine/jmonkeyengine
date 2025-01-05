@@ -43,7 +43,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 /** Sample 6 - how to give an object's surface a material and texture.
  * How to make objects transparent. How to make bumpy and shiny surfaces.  */
@@ -81,7 +81,7 @@ public class HelloMaterial extends SimpleApplication {
     Sphere sphereMesh = new Sphere(32,32, 2f);
     Geometry sphereGeo = new Geometry("Shiny rock", sphereMesh);
     sphereMesh.setTextureMode(Sphere.TextureMode.Projected); // better quality on spheres
-    TangentBinormalGenerator.generate(sphereMesh);           // for lighting effect
+    MikktspaceTangentGenerator.generate(sphereMesh); // for lighting effect
     Material sphereMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
     sphereMat.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg"));
     sphereMat.setTexture("NormalMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond_normal.png"));
