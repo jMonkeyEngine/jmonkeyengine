@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,49 @@
 package com.jme3.plugins.json;
 
 /**
- * A generic element
+ * A generic interface in charge of representing the different types of data that 
+ * a JSON file supports (an abstraction of this).
  * 
  * @author Riccardo Balbo
+ * @author wil
  */
 public interface JsonElement {
+    
+    /**
+     * Method in charge of determining if this element is an instance or is of 
+     * type {@link JsonArray}.
+     * 
+     * @return returns <code>true</code> if it is the correct type; <code>false</code> 
+     * otherwise.
+     */
+    public boolean isJsonArray();
+    
+    /**
+     * Method in charge of determining if this element is an instance or is of 
+     * type {@link JsonObject}.
+     * 
+     * @return returns <code>true</code> if it is the correct type; <code>false</code> 
+     * otherwise.
+     */
+    public boolean isJsonObject();
+    
+    /**
+     * Method in charge of determining if this element is an instance or is of 
+     * type {@link JsonPrimitive}.
+     * 
+     * @return returns <code>true</code> if it is the correct type; <code>false</code> 
+     * otherwise.
+     */
+    public boolean isJsonPrimitive();
+    
+    /**
+     * Method in charge of determining if this element is an instance or is of 
+     * type {@link JsonNull}.
+     * 
+     * @return returns <code>true</code> if it is the correct type; <code>false</code> 
+     * otherwise.
+     */
+    public boolean isJsonNull();
 
     /**
      * Returns the object as a String
@@ -86,16 +124,31 @@ public interface JsonElement {
      */
     public Number getAsNumber();
 
-
     /**
      * Returns the object as a JsonPrimitive
      * @return the json primitive
      */
     public JsonPrimitive getAsJsonPrimitive();
-
+    
     /**
      * Cast this JsonElement to a specific type
+     * @param <T> the specific type
      * @return the casted JsonElement
+     * 
+     * @deprecated It is not necessary to call this method to obtain the data type 
+     * of a JSON element, simply check if said element is of one type or another; 
+     * For example: <pre><code>
+     * JsonElement element = parseJson(stream);
+     *   
+     * if (element.isJsonArray()) {
+     *     JsonArray array = element.getAsJsonArray();
+     *     ...
+     * } else if (element.isJsonPrimitive()) {
+     *     JsonPrimitive primitive = element.getAsJsonPrimitive();
+     *     ....
+     * }
+     * </code></pre>
      */
+    @Deprecated
     public <T extends JsonElement> T autoCast();
 }

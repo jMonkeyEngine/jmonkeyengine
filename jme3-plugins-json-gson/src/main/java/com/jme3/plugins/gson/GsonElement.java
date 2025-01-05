@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,11 +41,32 @@ import java.util.Objects;
 /**
  * GSON implementation of {@link JsonElement}
  */
-class GsonElement implements JsonElement {
-    com.google.gson.JsonElement element;
+class GsonElement<T extends com.google.gson.JsonElement> implements JsonElement {
+    
+    final T element;
 
-    GsonElement(com.google.gson.JsonElement element) {
+    GsonElement(T element) {
         this.element = element;
+    }
+
+    @Override
+    public boolean isJsonArray() {
+        return element.isJsonArray();
+    }
+
+    @Override
+    public boolean isJsonObject() {
+        return element.isJsonObject();
+    }
+
+    @Override
+    public boolean isJsonPrimitive() {
+        return element.isJsonPrimitive();
+    }
+
+    @Override
+    public boolean isJsonNull() {
+        return element.isJsonNull();
     }
 
     @Override
@@ -65,6 +86,7 @@ class GsonElement implements JsonElement {
         return Objects.equals(this.element, other.element);
     }
     
+    @Deprecated
     protected boolean isNull(com.google.gson.JsonElement element) {
         if (element == null) return true;
         if (element.isJsonNull()) return true;
@@ -73,32 +95,32 @@ class GsonElement implements JsonElement {
     
     @Override
     public String getAsString() {
-        return element.getAsString();
+        throw new UnsupportedOperationException("Class " + getClass().getSimpleName() + " does not support this option");
     }
-
-    @Override
-    public JsonObject getAsJsonObject() {
-        return new GsonObject(element.getAsJsonObject());
-    }
-
+    
     @Override
     public float getAsFloat() {
-        return element.getAsFloat();
+        throw new UnsupportedOperationException("Class " + getClass().getSimpleName() + " does not support this option");
     }
 
     @Override
     public int getAsInt() {
-        return element.getAsInt();
+        throw new UnsupportedOperationException("Class " + getClass().getSimpleName() + " does not support this option");
     }
 
     @Override
     public Number getAsNumber() {
-        return element.getAsNumber();        
+        throw new UnsupportedOperationException("Class " + getClass().getSimpleName() + " does not support this option");
     }
 
     @Override
     public boolean getAsBoolean() {
-        return element.getAsBoolean();
+        throw new UnsupportedOperationException("Class " + getClass().getSimpleName() + " does not support this option");
+    }
+    
+    @Override
+    public JsonObject getAsJsonObject() {
+        return new GsonObject(element.getAsJsonObject());
     }
 
     @Override
@@ -111,6 +133,12 @@ class GsonElement implements JsonElement {
         return new GsonPrimitive(element.getAsJsonPrimitive());
     }
 
+    @Override
+    public String toString() {
+        return Objects.toString(element);
+    }
+    
+    @Deprecated
     @SuppressWarnings("unchecked")
     public <T extends JsonElement> T autoCast() {
         if(isNull(element)) return null;
@@ -119,5 +147,4 @@ class GsonElement implements JsonElement {
         if (element.isJsonPrimitive()) return (T) new GsonPrimitive(element.getAsJsonPrimitive());
         return (T) new GsonElement(element);
     }
-    
 }

@@ -29,59 +29,24 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.plugins.gson;
-
-import java.util.Iterator;
-
-import com.jme3.plugins.json.JsonArray;
-import com.jme3.plugins.json.JsonElement;
+package com.jme3.plugins.gson.internal;
 
 /**
- * GSON implementation of {@link JsonArray}.
+ * Interface responsible for wrapping a type of data so that it can be used at a 
+ * higher level.
+ * 
+ * @param <A> the primitive type (original object)
+ * @param <B> the new type (wrapper)
+ * 
+ * @author wil
  */
-class GsonArray extends GsonElement<com.google.gson.JsonArray> implements JsonArray {
-
-    GsonArray(com.google.gson.JsonArray element) {
-        super(element);
-    }
-
-    @Override
-    public String getAsString() {
-        return element.getAsString();
-    }
+public interface Wrapper<A, B> {
     
-    @Override
-    public float getAsFloat() {
-        return element.getAsFloat();
-    }
-
-    @Override
-    public int getAsInt() {
-        return element.getAsInt();
-    }
-
-    @Override
-    public Number getAsNumber() {
-        return element.getAsNumber();
-    }
-
-    @Override
-    public boolean getAsBoolean() {
-        return element.getAsBoolean();
-    }
-    
-    @Override
-    public Iterator<JsonElement> iterator() {
-        return GsonUtils.wrap(element.iterator());
-    }
-
-    @Override
-    public JsonElement get(int i) {
-        return GsonUtils.wrap(element.get(i));
-    }
-
-    @Override
-    public int size() {
-        return element.size();
-    }
+    /**
+     * Method responsible for carrying out the exchange (wrapping) of the new object.
+     * 
+     * @param object the object to be wrapped
+     * @return the new object (already wrapped)
+     */
+    B wrap(A object);
 }

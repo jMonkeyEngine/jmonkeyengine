@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,27 +36,7 @@ package com.jme3.plugins.json;
  * 
  * @author Riccardo Balbo
  */
-public interface JsonPrimitive {
-    /**
-     * Returns the wrapped primitive as a float
-     * 
-     * @return the float value
-     */
-    public float getAsFloat();
-
-    /**
-     * Returns the wrapped primitive as an int
-     * 
-     * @return the int value
-     */
-    public int getAsInt();
-
-    /*
-     * Returns the wrapped primitive as a boolean
-     * 
-     * @return the boolean value
-     */
-    public boolean getAsBoolean();
+public interface JsonPrimitive extends JsonElement {
    
     /**
      * Check if the wrapped primitive is a number
@@ -75,16 +55,4 @@ public interface JsonPrimitive {
      * @return true if it is a string
      */
     public boolean isString();
-
-    /**
-     * Returns the wrapped primitive as a string
-     * @return the string value
-     */
-    public String getAsString();
-
-    /**
-     * Returns the wrapped primitive as a generic number 
-     * @return the number value
-     */
-    public Number getAsNumber();
 }

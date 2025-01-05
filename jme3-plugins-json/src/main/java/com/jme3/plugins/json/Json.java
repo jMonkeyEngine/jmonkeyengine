@@ -39,16 +39,38 @@ import java.util.logging.Logger;
  * 
  * @author Riccardo Balbo
  */
-public class Json {
+public final class Json {
+    
     /**
      * The property name to set the parser to use.
      * Should be set automatically by the JmeSystemDelegate.
      * Note: changing this property after the first call to Json.create() will have no effect.
      */
-    public static final String PROPERTY_JSON_PARSER_IMPLEMENTATION = "com.jme3.JsonParserImplementation";
-    private static final Logger LOGGER = Logger.getLogger(Json.class.getName());
+    public static final String PROPERTY_JSON_PARSER_IMPLEMENTATION = "com.jme3.JsonParserImplementation";    
+    /** Logger class. */
+    private static final Logger LOGGER = Logger.getLogger(Json.class.getName());    
+    /** The default implementation (abstraction) that JME3 uses to manage the JSON file. */
     private static final String DEFAULT_JSON_PARSER_IMPLEMENTATION = "com.jme3.plugins.gson.GsonParser";
-
+    
+    /**
+     * Object class used to instantiate the JSON parser; By default, it uses 
+     * {@link #PROPERTY_JSON_PARSER_IMPLEMENTATION}. If a customizer is required, 
+     * it can be done in the following ways:
+     * <ol>
+     *  <li>
+     *      Set the name of your loader in the system properties:
+     *      <pre><code>
+     *      System.setProperty(Json.PROPERTY_JSON_PARSER_IMPLEMENTATION, MyJSONLoader.class.getName());
+     *      </code></pre>
+     *  </li>
+     * <li>
+     *      Explicitly set the class as follows:
+     *      <pre><code>
+     *      son.setParser(MyJSONLoader.class);
+     *      </code></pre>
+     *  </li>
+     * </ol>
+     */
     private static Class<? extends JsonParser> clazz = null;
 
     /**
@@ -61,22 +83,27 @@ public class Json {
         Json.clazz = clazz;
     }
 
+    /**
+     * Method in charge of searching for the JSON parser to use using the class name.
+     * @param className the name of the parser class
+     * @return the parser class
+     */
     @SuppressWarnings("unchecked")
     private static Class<? extends JsonParser> findJsonParser(String className) {
-        Class<?> clazz = null;
+        Class<?> clazz0 = null;
 
         try {
-            clazz = Class.forName(className);
-        } catch (final Throwable e) {
+            clazz0 = Class.forName(className);
+        } catch (ClassNotFoundException e) {
             LOGGER.log(Level.WARNING, "Unable to access {0}", className);
         }
 
-        if (clazz != null && !JsonParser.class.isAssignableFrom(clazz)) {
+        if (clazz0 != null && !JsonParser.class.isAssignableFrom(clazz0)) {
             LOGGER.log(Level.WARNING, "{0} does not implement {1}", new Object[] { className, JsonParser.class.getName() });
-            clazz = null;
+            clazz0 = null;
         }
 
-        return (Class<? extends JsonParser>) clazz;
+        return (Class<? extends JsonParser>) clazz0;
     }
 
     /**
@@ -84,7 +111,6 @@ public class Json {
      * 
      * @return a new JsonParser instance
      */
-
     public static JsonParser create() {
         if (Json.clazz == null) {
             String userDefinedImpl = System.getProperty(PROPERTY_JSON_PARSER_IMPLEMENTATION, null);

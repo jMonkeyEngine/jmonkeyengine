@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,29 +36,49 @@ import com.jme3.plugins.json.JsonPrimitive;
 /**
  * GSON implementation of {@link JsonPrimitive}
  */
-public class GsonPrimitive extends GsonElement implements JsonPrimitive {
+public class GsonPrimitive extends GsonElement<com.google.gson.JsonPrimitive> implements JsonPrimitive {
         
     public GsonPrimitive(com.google.gson.JsonPrimitive element) {
         super(element);
     }
 
-    private com.google.gson.JsonPrimitive prim() {
-        return (com.google.gson.JsonPrimitive) element;
-    } 
-
     @Override
     public boolean isNumber() {
-        return prim().isNumber();
+        return element.isNumber();
     }
 
     @Override
     public boolean isBoolean() {
-        return prim().isBoolean();
+        return element.isBoolean();
     }
 
     @Override
     public boolean isString() {
-        return prim().isString();
+        return element.isString();
     }
     
+    @Override
+    public String getAsString() {
+        return element.getAsString();
+    }
+    
+    @Override
+    public float getAsFloat() {
+        return element.getAsFloat();
+    }
+
+    @Override
+    public int getAsInt() {
+        return element.getAsInt();
+    }
+
+    @Override
+    public Number getAsNumber() {
+        return element.getAsNumber();
+    }
+
+    @Override
+    public boolean getAsBoolean() {
+        return element.getAsBoolean();
+    }
 }
