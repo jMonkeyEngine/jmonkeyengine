@@ -159,9 +159,9 @@ public class MikktspaceTangentGenerator {
         
         if (hasTriangles) {
             MikkTSpaceImpl context = new MikkTSpaceImpl(mesh);
-            genTangSpaceDefault(context);
+            boolean results = genTangSpaceDefault(context);
             TangentUtils.generateBindPoseTangentsIfNecessary(mesh);
-            return true;
+            return results;
         }
         return false;
     }
