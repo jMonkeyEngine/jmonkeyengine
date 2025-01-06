@@ -46,6 +46,8 @@ public class TextureImage {
     
     /**
      * Enum specifying the shader access hint of the image.
+     * <p>
+     * Shader accesses that violate the hint may result in undefined behavior.
      */
     public enum Access {
         
@@ -110,12 +112,15 @@ public class TextureImage {
     public TextureImage(Texture texture) {
         this(texture, 0, -1, Access.ReadWrite);
     }
+    
     public TextureImage(Texture texture, Access access) {
         this(texture, 0, -1, access);
     }
+    
     public TextureImage(Texture texture, int level, int layer) {
         this(texture, level, layer, Access.ReadWrite);
     }
+    
     public TextureImage(Texture texture, int level, int layer, Access access) {
         this.texture = Objects.requireNonNull(texture, "Underlying texture cannot be null");
         this.level = level;
@@ -133,7 +138,7 @@ public class TextureImage {
      * to an image unit. Additionally, the image must be bound beforehand using
      * {@link GL2#glBindTexture(int, int)}.
      * 
-     * @param gl4 OpenGL4 implementation (not null)
+     * @param gl4 GL4 implementation (not null)
      * @param texUtil utility used to convert JME's image format to the corresponding GL enum (not null)
      * @param unit texture unit to bind to
      */
@@ -165,7 +170,7 @@ public class TextureImage {
     /**
      * Sets the underlying texture wrapped by this TextureImage.
      * 
-     * @param texture 
+     * @param texture wrapped texture (not null)
      */
     public void setTexture(Texture texture) {
         Objects.requireNonNull(texture, "Wrapped texture cannot be null.");
@@ -180,8 +185,10 @@ public class TextureImage {
      * <p>
      * The level controls which mipmap level will be bound to the texture unit,
      * where zero corresponds to the base level of the texture.
+     * <p>
+     * default=0
      * 
-     * @param level level to bind (cannot be negative)
+     * @param level level to bind (not negative)
      */
     public void setLevel(int level) {
         if (level < 0) {
@@ -199,6 +206,8 @@ public class TextureImage {
      * If the underlying texture is a one/two/three demensional array,
      * cube map, cube map array, two demensional multisample array, then this
      * specifies which layer of the array to bind.
+     * <p>
+     * default=-1
      * 
      * @param layer layer to bind, or negative to bind all layers
      */
