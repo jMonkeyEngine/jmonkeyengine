@@ -52,12 +52,12 @@ public class TextureImage {
     public enum Access {
         
         /**
-         * The image can only read from in a shader.
+         * The image can only be read from in a shader.
          */
         ReadOnly(true, false, GL2.GL_READ_ONLY),
         
         /**
-         * The image can written to in a shader.
+         * The image can only be written to in a shader.
          */
         WriteOnly(false, true, GL2.GL_WRITE_ONLY),
         
@@ -204,8 +204,8 @@ public class TextureImage {
      * Sets the image layer to bind.
      * <p>
      * If the underlying texture is a one/two/three demensional array,
-     * cube map, cube map array, two demensional multisample array, then this
-     * specifies which layer of the array to bind.
+     * cube map, cube map array, or two demensional multisample array,
+     * then this value specifies which layer of the array to bind.
      * <p>
      * default=-1
      * 
@@ -231,9 +231,9 @@ public class TextureImage {
     }
     
     /**
+     * Gets the underlying texture wrapped by this TextureImage.
      * 
-     * @return 
-     * @see #setTexture(com.jme3.texture.Texture)
+     * @return underlying texture
      */
     public Texture getTexture() {
         return texture;
@@ -267,6 +267,7 @@ public class TextureImage {
     }
     
     /**
+     * Gets the level.
      * 
      * @return 
      * @see #setLevel(int)
@@ -276,6 +277,7 @@ public class TextureImage {
     }
     
     /**
+     * Gets the layer.
      * 
      * @return 
      * @see #setLayer(int)
@@ -285,6 +287,7 @@ public class TextureImage {
     }
     
     /**
+     * Gets the access hint.
      * 
      * @return 
      * @see #setAccess(com.jme3.texture.TextureImage.Access)
