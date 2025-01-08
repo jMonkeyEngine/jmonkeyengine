@@ -42,6 +42,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
+import com.jme3.texture.TextureImage;
 import com.jme3.util.NativeObject;
 import java.nio.ByteBuffer;
 import java.util.EnumMap;
@@ -273,6 +274,15 @@ public interface Renderer {
      */
     public void setTexture(int unit, Texture tex)
             throws TextureUnitException;
+    
+    /**
+     * Assigns a TextureImage to the specified texture unit.
+     * 
+     * @param unit the index of the texture unit (&ge;0)
+     * @param tex the texture image to assign
+     * @throws TextureUnitException if the texture unit does not exist
+     */
+    public void setTextureImage(int unit, TextureImage tex) throws TextureUnitException;
 
     /**
      * Modifies the given Texture with the given Image.

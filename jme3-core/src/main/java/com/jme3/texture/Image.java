@@ -1299,7 +1299,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         multiSamples = capsule.readInt("multiSamples", 1);
         data = capsule.readByteBufferArrayList("data", null);
         colorSpace = capsule.readEnum("colorSpace", ColorSpace.class, null);
-
         if (mipMapSizes != null) {
             needGeneratedMips = false;
             mipsWereGenerated = true;
