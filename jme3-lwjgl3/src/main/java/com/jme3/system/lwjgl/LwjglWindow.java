@@ -424,6 +424,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      * @param settings settings for getting the icons
      */
     protected void setWindowIcon(final AppSettings settings) {
+        if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND) {
+            // Wayland doesn't support custom icons.
+            return;
+        }
 
         final Object[] icons = settings.getIcons();
         if (icons == null) return;
