@@ -298,6 +298,20 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             requestWidth = videoMode.width();
             requestHeight = videoMode.height();
         }
+        int requestX = GLFW_ANY_POSITION;
+        int requestY = GLFW_ANY_POSITION;
+        if (!settings.isFullscreen()) {
+            if (settings.getCenterWindow()) {
+                // Center the window
+                requestX = videoMode.width() - requestWidth;
+                requestY = videoMode.height() - requestWidth;
+            } else {
+                requestX = settings.getWindowXPosition();
+                requestY = settings.getWindowYPosition();
+            }
+            glfwWindowHint(GLFW_POSITION_X, requestX);
+            glfwWindowHint(GLFW_POSITION_Y, requestY);
+        }
         window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL);
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
@@ -321,17 +335,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         int platformId = glfwGetPlatform();
         if (platformId != GLFW_PLATFORM_WAYLAND && !settings.isFullscreen()) {
-            // Wayland doesn't support window positioning.
-            if (settings.getCenterWindow()) {
-                // Center the window
-                glfwSetWindowPos(window,
-                        (videoMode.width() - requestWidth) / 2,
-                        (videoMode.height() - requestHeight) / 2);
-            } else {
-                glfwSetWindowPos(window,
-                        settings.getWindowXPosition(),
-                        settings.getWindowYPosition());
-            }
+            /*
+             * in case the window positioning hints above were ignored, but not
+             * on Wayland, since Wayland doesn't support window positioning.
+             */
+            glfwSetWindowPos(window, requestX, requestY);
         }
 
         // Make the OpenGL context current
