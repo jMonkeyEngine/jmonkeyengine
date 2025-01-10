@@ -1,4 +1,4 @@
-Copyright (c) 2009-2024 jMonkeyEngine.
+Copyright (c) 2009-2025 jMonkeyEngine.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
