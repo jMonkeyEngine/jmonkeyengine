@@ -38,6 +38,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
+import com.jme3.system.Displays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,28 +55,33 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     private int height;
     private PixelFormat pixelFormat;
 
-    protected void initInThread(){
-        if ((Pbuffer.getCapabilities() & Pbuffer.PBUFFER_SUPPORTED) == 0){
+    protected void initInThread() {
+        if ((Pbuffer.getCapabilities() & Pbuffer.PBUFFER_SUPPORTED) == 0) {
             logger.severe("Offscreen surfaces are not supported.");
             return;
         }
 
         int samples = getNumSamplesToUse();
-        pixelFormat = new PixelFormat(settings.getBitsPerPixel(),
-                                      settings.getAlphaBits(),
-                                      settings.getDepthBits(),
-                                      settings.getStencilBits(),
-                                      samples);
-        
+        pixelFormat =
+            new PixelFormat(
+                settings.getBitsPerPixel(),
+                settings.getAlphaBits(),
+                settings.getDepthBits(),
+                settings.getStencilBits(),
+                samples
+            );
+
         width = settings.getWidth();
         height = settings.getHeight();
-        try{
-            Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                @Override
-                public void uncaughtException(Thread thread, Throwable thrown) {
-                    listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
+        try {
+            Thread.setDefaultUncaughtExceptionHandler(
+                new Thread.UncaughtExceptionHandler() {
+                    @Override
+                    public void uncaughtException(Thread thread, Throwable thrown) {
+                        listener.handleError("Uncaught exception thrown in " + thread.toString(), thrown);
+                    }
                 }
-            });
+            );
 
             pbuffer = new Pbuffer(width, height, pixelFormat, null, null, createContextAttribs());
             pbuffer.makeCurrent();
@@ -84,7 +90,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
 
             logger.fine("Offscreen buffer created.");
             printContextInitInfo();
-        } catch (LWJGLException ex){
+        } catch (LWJGLException ex) {
             listener.handleError("Failed to create display", ex);
         } finally {
             // TODO: It is possible to avoid "Failed to find pixel format"
@@ -94,17 +100,17 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         listener.initialize();
     }
 
-    protected boolean checkGLError(){
+    protected boolean checkGLError() {
         try {
             Util.checkGLError();
-        } catch (OpenGLException ex){
+        } catch (OpenGLException ex) {
             listener.handleError("An OpenGL error has occurred!", ex);
         }
         // NOTE: Always return true since this is used in an "assert" statement
         return true;
     }
 
-    protected void runLoop(){
+    protected void runLoop() {
         if (!created.get()) {
             throw new IllegalStateException();
         }
@@ -115,7 +121,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
             try {
                 pbuffer = new Pbuffer(width, height, pixelFormat, null);
                 pbuffer.makeCurrent();
-                
+
                 // Context MUST be reset here to avoid invalid objects!
                 renderer.invalidateState();
             } catch (LWJGLException ex) {
@@ -127,8 +133,8 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         assert checkGLError();
 
         renderer.postFrame();
-        
-        // Need to flush GL commands 
+
+        // Need to flush GL commands
         // to see any result on the pbuffer's front buffer.
         GL11.glFlush();
 
@@ -138,56 +144,52 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         }
     }
 
-    protected void deinitInThread(){
+    protected void deinitInThread() {
         renderable.set(false);
 
         listener.destroy();
         renderer.cleanup();
         pbuffer.destroy();
         logger.fine("Offscreen buffer destroyed.");
-        
+
         super.internalDestroy();
     }
 
     @Override
-    public void run(){
+    public void run() {
         loadNatives();
         if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Using LWJGL {0}", Sys.getVersion());
         }
         initInThread();
-        while (!needClose.get()){
+        while (!needClose.get()) {
             runLoop();
         }
         deinitInThread();
     }
 
     @Override
-    public void destroy(boolean waitFor){
+    public void destroy(boolean waitFor) {
         needClose.set(true);
-        if (waitFor)
-            waitFor(false);
+        if (waitFor) waitFor(false);
     }
 
     @Override
-    public void create(boolean waitFor){
-        if (created.get()){
+    public void create(boolean waitFor) {
+        if (created.get()) {
             logger.warning("create() called when pbuffer is already created!");
             return;
         }
 
         new Thread(this, THREAD_NAME).start();
-        if (waitFor)
-            waitFor(true);
+        if (waitFor) waitFor(true);
     }
 
     @Override
-    public void restart() {
-    }
+    public void restart() {}
 
     @Override
-    public void setAutoFlushFrames(boolean enabled){
-    }
+    public void setAutoFlushFrames(boolean enabled) {}
 
     @Override
     public Type getType() {
@@ -215,7 +217,17 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     }
 
     @Override
-    public void setTitle(String title) {
+    public void setTitle(String title) {}
+
+    @Override
+    public Displays getDisplays() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
+    @Override
+    public int getPrimaryDisplay() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }

@@ -1,0 +1,21 @@
+#define STRUCT_BaseStruct \
+float x0; \
+float y0;
+struct BaseStruct { 
+STRUCT_BaseStruct
+};
+#define STRUCT_BaseStruct2 \
+float x1; \
+float y1;
+struct BaseStruct2 { 
+STRUCT_BaseStruct2
+};
+//nothing
+#define STRUCT_MyStruct \
+STRUCT_BaseStruct \
+STRUCT_BaseStruct2 \
+float x; \
+float y;
+struct MyStruct { 
+STRUCT_MyStruct
+};

@@ -34,6 +34,7 @@ package com.jme3.util.mikktspace;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.*;
+import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.*;
 
 import java.util.ArrayList;
@@ -43,19 +44,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This tangent generator is highly experimental.
- * This is the Java translation of the mikktspace generator made by Morten S. Mikkelsen
- * C Source code can be found here
- * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.c
+ * Mikktspace is a common standard for tangent space used across many 3D software.
+ * 
+ * This is the Java translation of the mikktspace generator made by Morten S. Mikkelsen C Source code can be
+ * found here https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.c
  * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.h
  * 
- * Mikktspace looks like the new standard of tangent generation in 3-D software.
- * Xnormal, Blender, Substance painter, and many more use it.
- * 
- * Usage is :
- * MikktspaceTangentGenerator.generate(spatial);
- * 
- * 
+ * Usage is : <code>
+ *  MikktspaceTangentGenerator.generate(spatial);
+ * </code>
  * 
  * @author Nehon
  */
@@ -116,36 +113,57 @@ public class MikktspaceTangentGenerator {
         } else if (s instanceof Geometry) {
             Geometry g = (Geometry) s;
             Mesh mesh = g.getMesh();
-
-            Mesh.Mode mode = mesh.getMode();
-            boolean hasTriangles;
-            switch (mode) {
-                case Points:
-                case Lines:
-                case LineStrip:
-                case LineLoop:
-                    hasTriangles = false; // skip this mesh
-                    break;
-
-                case Triangles:
-                case TriangleFan:
-                case TriangleStrip:
-                    hasTriangles = true;
-                    break;
-
-                default:
-                    String message = "Tangent generation isn't implemented for mode=" + mode;
-                    throw new UnsupportedOperationException(message);
-            }
-
-            if (hasTriangles) {
-                MikkTSpaceImpl context = new MikkTSpaceImpl(mesh);
-                if (!genTangSpaceDefault(context)) {
-                    logger.log(Level.SEVERE, "Failed to generate tangents for geometry {0}", g.getName());
-                }
-                TangentUtils.generateBindPoseTangentsIfNecessary(mesh);
+            boolean success = generateTangents(mesh);
+            if (!success) {
+                logger.log(Level.SEVERE, "Failed to generate tangents for geometry {0}", g.getName());
             }
         }
+    }
+
+    public static void generate(Mesh mesh) {
+        boolean success = generateTangents(mesh);
+        if (!success) {
+            logger.log(Level.SEVERE, "Failed to generate tangents for mesh {0}", mesh);
+        }
+    }
+
+    private static boolean generateTangents(Mesh mesh) {
+        Mesh.Mode mode = mesh.getMode();
+        boolean hasTriangles;
+        
+        if (mesh.getBuffer(Type.TexCoord) == null || mesh.getBuffer(Type.Normal) == null) {
+            logger.log(Level.SEVERE, "Tangent generation requires both a normal and texCoord buffer");
+            return false;
+        }    
+        
+        switch (mode) {
+            case Points:
+            case Lines:
+            case LineStrip:
+            case LineLoop:
+                hasTriangles = false; // skip this mesh
+                logger.log(Level.SEVERE, "Tangent generation requires a mesh with Triangles", mode);
+                break;
+
+            case Triangles:
+            case TriangleFan:
+            case TriangleStrip:
+            case Patch:
+                hasTriangles = true;
+                break;
+
+            default:
+                logger.log(Level.SEVERE, "Tangent generation isn't implemented for mode={0}", mode);
+                return false;
+        }
+        
+        if (hasTriangles) {
+            MikkTSpaceImpl context = new MikkTSpaceImpl(mesh);
+            boolean results = genTangSpaceDefault(context);
+            TangentUtils.generateBindPoseTangentsIfNecessary(mesh);
+            return results;
+        }
+        return false;
     }
     
     public static boolean genTangSpaceDefault(MikkTSpaceContext mikkTSpace) {

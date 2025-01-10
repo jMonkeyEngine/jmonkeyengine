@@ -43,9 +43,10 @@ import com.jme3.texture.Texture2D;
 import com.jme3.texture.Texture3D;
 import com.jme3.texture.TextureArray;
 import com.jme3.texture.TextureCubeMap;
+import com.jme3.texture.TextureImage;
 
 public enum VarType {
-
+    
     Float("float", float.class, Float.class),
     Vector2("vec2", Vector2f.class),
     Vector3("vec3", Vector3f.class),
@@ -56,7 +57,8 @@ public enum VarType {
     Vector2Array(true, false, "vec2", Vector2f[].class),
     Vector3Array(true, false, "vec3", Vector3f[].class),
     Vector4Array(true, false, "vec4", Vector4f[].class),
-
+    
+    Int("int", int.class, Integer.class),
     Boolean("bool", Boolean.class, boolean.class),
 
     Matrix3(true, false, "mat3", Matrix3f.class),
@@ -70,12 +72,16 @@ public enum VarType {
     Texture3D(false, true, "sampler3D", Texture3D.class, Texture.class),
     TextureArray(false, true, "sampler2DArray|sampler2DArrayShadow", TextureArray.class, Texture.class),
     TextureCubeMap(false, true, "samplerCube", TextureCubeMap.class, Texture.class),
-    Int("int", int.class, Integer.class),
+    
+    Image2D(false, false, true, "image2D", TextureImage.class),
+    Image3D(false, false, true, "image3D", TextureImage.class),
+    
     UniformBufferObject(false, false, "custom", BufferObject.class),
     ShaderStorageBufferObject(false, false, "custom", BufferObject.class);
 
     private boolean usesMultiData = false;
     private boolean textureType = false;
+    private boolean imageType = false;
     private final String glslType;
     private Class<?>[] javaTypes;
 
@@ -97,6 +103,11 @@ public enum VarType {
         } else {
             this.javaTypes = new Class<?>[0];
         }
+    }
+    
+    VarType(boolean multiData, boolean textureType, boolean imageType, String glslType, Class<?>... javaTypes) {
+        this(multiData, textureType, glslType, javaTypes);
+        this.imageType = imageType;
     }
 
     /**
@@ -125,6 +136,10 @@ public enum VarType {
 
     public boolean isTextureType() {
         return textureType;
+    }
+    
+    public boolean isImageType() {
+        return imageType;
     }
 
     public boolean usesMultiData() {

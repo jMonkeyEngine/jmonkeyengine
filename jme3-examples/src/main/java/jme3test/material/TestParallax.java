@@ -44,7 +44,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.RectangleMesh;
 import com.jme3.util.SkyFactory;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestParallax extends SimpleApplication {
 
@@ -77,7 +77,7 @@ public class TestParallax extends SimpleApplication {
         rm.scaleTextureCoordinates(new Vector2f(10, 10));
 
         Geometry floorGeom = new Geometry("floorGeom", rm);
-        TangentBinormalGenerator.generate(floorGeom);
+        MikktspaceTangentGenerator.generate(floorGeom);
         floorGeom.setMaterial(mat);
 
         rootNode.attachChild(floorGeom);
@@ -86,7 +86,7 @@ public class TestParallax extends SimpleApplication {
     public void setupSignpost() {
         Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.mesh.xml");
         Material matSp = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
-        TangentBinormalGenerator.generate(signpost);
+        MikktspaceTangentGenerator.generate(signpost);
         signpost.setMaterial(matSp);
         signpost.rotate(0, FastMath.HALF_PI, 0);
         signpost.setLocalTranslation(12, 23.5f, 30);
