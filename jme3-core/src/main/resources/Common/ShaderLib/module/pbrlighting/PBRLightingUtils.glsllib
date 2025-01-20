@@ -266,6 +266,7 @@
         #if defined(NORMALMAP) || defined(PARALLAXMAP)
             vec3 tan = normalize(wTangent.xyz);
             mat3 tbnMat = mat3(tan, wTangent.w * cross( surface.geometryNormal, tan), surface.geometryNormal);
+            surface.tbnMat = tbnMat;
         #endif
         
         vec2 newTexCoord;
