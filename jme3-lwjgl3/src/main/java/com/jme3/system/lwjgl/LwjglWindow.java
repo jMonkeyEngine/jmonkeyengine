@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -353,13 +353,27 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             requestWidth = videoMode.width();
             requestHeight = videoMode.height();
         }
-
+        int requestX = GLFW_ANY_POSITION;
+        int requestY = GLFW_ANY_POSITION;
+        if (!settings.isFullscreen()) {
+            if (settings.getCenterWindow()) {
+                // Center the window
+                requestX = videoMode.width() - requestWidth;
+                requestY = videoMode.height() - requestWidth;
+            } else {
+                requestX = settings.getWindowXPosition();
+                requestY = settings.getWindowYPosition();
+            }
+            glfwWindowHint(GLFW_POSITION_X, requestX);
+            glfwWindowHint(GLFW_POSITION_Y, requestY);
+        }
         // Lets use the monitor selected from AppSettings if FullScreen is
         // set.
-        if (settings.isFullscreen()) window =
-            glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL); else window =
-            glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), NULL, NULL);
-
+        if (settings.isFullscreen()) {
+            window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL);
+        } else {
+            window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), NULL, NULL);
+        }
         if (window == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
@@ -383,17 +397,13 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 }
         );
 
-        if (!settings.isFullscreen()) {
-            if (settings.getCenterWindow()) {
-                // Center the window
-                glfwSetWindowPos(
-                    window,
-                    (videoMode.width() - requestWidth) / 2,
-                    (videoMode.height() - requestHeight) / 2
-                );
-            } else {
-                glfwSetWindowPos(window, settings.getWindowXPosition(), settings.getWindowYPosition());
-            }
+        int platformId = glfwGetPlatform();
+        if (platformId != GLFW_PLATFORM_WAYLAND && !settings.isFullscreen()) {
+            /*
+             * in case the window positioning hints above were ignored, but not
+             * on Wayland, since Wayland doesn't support window positioning
+             */
+            glfwSetWindowPos(window, requestX, requestY);
         }
 
         // Make the OpenGL context current
@@ -490,6 +500,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      * @param settings settings for getting the icons
      */
     protected void setWindowIcon(final AppSettings settings) {
+        if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND) {
+            // Wayland doesn't support custom icons.
+            return;
+        }
+
         final Object[] icons = settings.getIcons();
         if (icons == null) return;
 
