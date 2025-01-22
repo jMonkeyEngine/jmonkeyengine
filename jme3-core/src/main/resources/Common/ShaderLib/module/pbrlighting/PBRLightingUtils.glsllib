@@ -338,6 +338,8 @@
                 vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
             #endif
             surface.normal = normalize(tbnMat * normal);
+        #else 
+            surface.normal = normal;
         #endif
         
         //spec gloss tex reads:
