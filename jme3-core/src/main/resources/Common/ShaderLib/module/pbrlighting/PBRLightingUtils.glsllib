@@ -339,7 +339,7 @@
             #endif
             surface.normal = normalize(tbnMat * normal);
         #else 
-            surface.normal = normal;
+            surface.normal = surface.geometryNormal;
         #endif
         
         //spec gloss tex reads:
