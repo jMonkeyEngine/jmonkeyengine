@@ -42,7 +42,7 @@ import java.util.Objects;
  */
 public final class DisplayInfo {
 
-    /** displayID - display id that was return from Lwjgl3. */
+    /** display - display id that was return from Lwjgl3. */
     private long display;
     
     /** width - width that was return from Lwjgl3.  */
