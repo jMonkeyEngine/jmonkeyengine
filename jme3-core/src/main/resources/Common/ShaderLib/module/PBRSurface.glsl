@@ -10,6 +10,7 @@
         vec3 normal; // normals w/ normalmap
         bool frontFacing; //gl_FrontFacing
         float depth;
+        mat3 tbnMat;
 
         // from texture
         vec3 albedo;
