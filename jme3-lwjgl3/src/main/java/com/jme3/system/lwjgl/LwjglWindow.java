@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.system.lwjgl;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -947,7 +946,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         long prim = glfwGetPrimaryMonitor();
         Displays monitors = getDisplays();
         for (int i = 0; i < monitors.size(); i++) {
-            long monitorI = monitors.get(i).displayID;
+            long monitorI = monitors.get(i).getDisplay();
             if (monitorI == prim) return i;
         }
 
@@ -964,7 +963,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      */
     private long getDisplay(int pos) {
         Displays displays = getDisplays();
-        if (pos < displays.size()) return displays.get(pos).displayID;
+        if (pos < displays.size()) return displays.get(pos).getDisplay();
 
         LOGGER.log(
             Level.SEVERE,
