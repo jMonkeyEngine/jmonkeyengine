@@ -120,6 +120,7 @@
     #endif
 
     #if defined(ENABLE_PBRLightingUtils_computeDirectLight) || defined(ENABLE_PBRLightingUtils_computeDirectLightContribution)
+    
         // Specular-AA
         #ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
             uniform float m_SpecularAASigma;
@@ -137,7 +138,7 @@
         #endif
         #ifdef STATIC_SUN_EXPOSURE
             uniform float m_StaticSunIntensity;
-        #endif        
+        #endif
         
         void PBRLightingUtils_readSunLightExposureParams(inout PBRSurface surface){
             
@@ -146,7 +147,7 @@
                 surface.exposure *= texture2D(m_SunLightExposureMap, newTexCoord;
             #endif
             #ifdef STATIC_SUN_EXPOSURE
-                surface.exposure *= m_StaticSunExposure; //single float value to indicate percentage of sunlight hitting the whole model equally (only suitable for small models or models with equal sunlight exposure accross the entire model
+                surface.exposure *= m_StaticSunIntensity; //single float value to indicate percentage of sunlight hitting the model (only suitable for small models or models with equal sunlight exposure accross the entire model
             #endif
             #ifdef USE_VERTEX_COLORS_AS_SUN_EXPOSURE
                 surface.exposure *= vertColors.r;    // use red channel of vertexColors for non-uniform sunlighting accross a single model                          
