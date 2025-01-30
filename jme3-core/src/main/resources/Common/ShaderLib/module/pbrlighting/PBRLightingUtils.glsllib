@@ -120,18 +120,6 @@
     #endif
 
     #if defined(ENABLE_PBRLightingUtils_computeDirectLight) || defined(ENABLE_PBRLightingUtils_computeDirectLightContribution)
-    
-        // DirectionalLight Exposure
-        #if defined(EXPOSUREMAP)
-            uniform sampler2D m_SunLightExposureMap;
-        #endif
-        #if defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY)
-            varying vec4 vertColors;
-        #endif
-        #ifdef STATIC_SUN_INTENSITY
-            uniform float m_StaticSunIntensity;
-        #endif
-        
         // Specular-AA
         #ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
             uniform float m_SpecularAASigma;
@@ -140,17 +128,27 @@
             uniform float m_SpecularAAKappa;
         #endif
         
+        // DirectionalLight Exposure
+        #if defined(EXPOSUREMAP)
+            uniform sampler2D m_SunLightExposureMap;
+        #endif
+        #if defined(USE_VERTEX_COLORS_AS_SUN_EXPOSURE)
+            varying vec4 vertColors;
+        #endif
+        #ifdef STATIC_SUN_EXPOSURE
+            uniform float m_StaticSunIntensity;
+        #endif        
         
         void PBRLightingUtils_readSunLightExposureParams(inout PBRSurface surface){
             
             surface.exposure = 1.0; //default value
             #ifdef EXPOSUREMAP
-             //   surface.exposure *=  m_SunLightExposureMap;
+                surface.exposure *= texture2D(m_SunLightExposureMap, newTexCoord;
             #endif
-            #ifdef STATIC_SUN_INTENSITY
-                surface.exposure *= = m_StaticSunIntensity; //single float value to indicate percentage of sunlight hitting the model (only suitable for small models or models with equal sunlight exposure accross the entire model
+            #ifdef STATIC_SUN_EXPOSURE
+                surface.exposure *= m_StaticSunExposure; //single float value to indicate percentage of sunlight hitting the whole model equally (only suitable for small models or models with equal sunlight exposure accross the entire model
             #endif
-            #ifdef USE_VERTEX_COLORS_AS_SUN_INTENSITY
+            #ifdef USE_VERTEX_COLORS_AS_SUN_EXPOSURE
                 surface.exposure *= vertColors.r;    // use red channel of vertexColors for non-uniform sunlighting accross a single model                          
             #endif 
         }    
