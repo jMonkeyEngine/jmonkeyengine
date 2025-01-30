@@ -1,0 +1,21 @@
+#ifndef __TANGENT_UTILS_MODULE__
+    #define __TANGENT_UTILS_MODULE__
+
+    //used for calculating tangents in-shader
+   
+
+    //primarily used for terrains, since jme terrains do not store pre-calculated tangents by default (thus the tbnMat cannot be used for PBR light calculation like it is in jme's stock PBR shader)
+    vec3 calculateTangentsAndApplyToNormals(in vec3 normalIn, in vec3 worldNorm){
+        vec3 returnNorm = normalize((normalIn.xyz * vec3(2.0) - vec3(1.0)));
+
+        vec3 baseNorm = worldNorm.rgb + vec3(0, 0, 1);
+        returnNorm *= vec3(-1, -1, 1);
+        returnNorm = baseNorm.rgb*dot(baseNorm.rgb, returnNorm.rgb)/baseNorm.z - returnNorm.rgb;
+
+        returnNorm = normalize(returnNorm);
+
+
+        return returnNorm;
+    }
+
+#endif
