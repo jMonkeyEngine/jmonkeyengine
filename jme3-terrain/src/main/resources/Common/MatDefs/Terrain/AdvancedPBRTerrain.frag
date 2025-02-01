@@ -10,17 +10,11 @@
 
 #define ENABLE_PBRTerrainUtils_readPBRTerrainLayers 1
 
-
-#import "Common/ShaderLib/TangentUtils.glsllib"
-#import "Common/ShaderLib/TriPlanarUtils.glsllib"
-
 #import "Common/ShaderLib/module/pbrlighting/PBRLightingUtils.glsllib"
 #import "Common/MatDefs/ShaderLib/PBRTerrainUtils.glsllib"
 #ifdef AFFLICTIONTEXTURE
     #import "Common/MatDefs/ShaderLib/AfflictionLib.glsllib"
 #endif
-#import "Common/ShaderLib/NoiseLib.glsllib"
-
 
 //declare PBR Lighting vars
 uniform vec4 g_LightData[NB_LIGHTS];
