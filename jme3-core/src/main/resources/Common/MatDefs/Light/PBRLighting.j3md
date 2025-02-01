@@ -209,7 +209,11 @@ MaterialDef PBR Lighting {
             USE_VERTEX_COLORS_AS_SUN_INTENSITY : UseVertexColorsAsSunIntensity
             STATIC_SUN_INTENSITY : StaticSunIntensity
             BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
-            DEBUG_VALUES_MODE : DebugValuesMode            
+            DEBUG_VALUES_MODE : DebugValuesMode        
+            USE_FOG : UseFog
+            FOG_LINEAR : LinearFog
+            FOG_EXP : ExpFog
+            FOG_EXPSQ : ExpSqFog
         }
     }
 
