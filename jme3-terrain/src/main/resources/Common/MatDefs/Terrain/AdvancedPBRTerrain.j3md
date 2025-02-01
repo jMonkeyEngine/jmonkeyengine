@@ -1,6 +1,7 @@
 MaterialDef AdvancedPBRTerrain {
 
     MaterialParameters {
+        Int BoundDrawBuffer
 
         Texture2D SunLightExposureMap
         Boolean UseVertexColorsAsSunIntensity //set true to make the vertex color's R channel how exposed a vertex is to the sun
@@ -14,6 +15,13 @@ MaterialDef AdvancedPBRTerrain {
         TextureArray AlbedoTextureArray
         TextureArray NormalParallaxTextureArray -LINEAR
         TextureArray MetallicRoughnessAoEiTextureArray -LINEAR
+
+       // Specular-AA
+        Boolean UseSpecularAA : true
+        // screen space variance,Use the slider to set the strength of the geometric specular anti-aliasing effect between 0 and 1. Higher values produce a blurrier result with less aliasing.
+        Float SpecularAASigma
+        // clamping threshold,Use the slider to set a maximum value for the offset that HDRP subtracts from the smoothness value to reduce artifacts.
+        Float SpecularAAKappa
 
         Int AfflictionSplatScale : 8
         Float AfflictionRoughnessValue : 1.0
