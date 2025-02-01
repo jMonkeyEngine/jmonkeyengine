@@ -10,10 +10,10 @@
         uniform sampler2D m_AfflictionAlphaMap;
     #endif
     #ifdef AFFLICTIONALBEDOMAP
-        uniform sampler2D m_SplatAlbedoMap ;
+        uniform sampler2D m_SplatAlbedoMap;
     #endif
     #ifdef AFFLICTIONNORMALMAP
-        uniform sampler2D m_SplatNormalMap ;
+        uniform sampler2D m_SplatNormalMap;
     #endif
     #ifdef AFFLICTIONROUGHNESSMETALLICMAP
         uniform sampler2D m_SplatRoughnessMetallicMap;
@@ -30,15 +30,11 @@
        uniform vec3 m_TileLocation;
    #endif
 
-
     uniform int m_AfflictionSplatScale;
     uniform float m_AfflictionRoughnessValue;
     uniform float m_AfflictionMetallicValue;
     uniform float m_AfflictionEmissiveValue;
     uniform vec4 m_AfflictionEmissiveColor;
-
-
-
 
     vec4 afflictionVector;
     float noiseHash;
@@ -46,17 +42,12 @@
     float afflictionValue;
     int afflictionMode = 1;
 
-
-    //temporarily here, move triplanar import + define back to .frag shader soon:
-
     vec4 desaturate(vec4 albedo, float deathVar){
-
         vec3 gray = vec3(dot(vec3(0.2126,0.7152,0.0722), albedo.rgb));
         albedo = vec4(mix(albedo.rgb, gray, deathVar), 0.0);
 
         return albedo;
     }
-
     vec3 alterLiveliness(vec3 color, float liveVal, int mode){
 
         float deathVar = (1.0 - (liveVal));
@@ -73,12 +64,9 @@
             color.g -= color.g*hueVar;
             color.b -= color.b*hueVar * 5.0 ;
 
-
             color = desaturate(vec4(color, 1.0), deathVar).rgb;
 
         }
-
-
 
         return color;
 
@@ -87,7 +75,6 @@
 
     vec3 alterLiveliness(vec3 color, float livelinessValue){
 
-
         float deathVar = (1.0 - (livelinessValue));
 
         float hueVar = (deathVar) * 0.34;
@@ -95,9 +82,7 @@
         color.g -= color.g*hueVar;
         color.b -= color.b*hueVar*5.0 ;
 
-
         color = desaturate(vec4(color, 1.0), deathVar).rgb;
-
 
         return color;
     }
@@ -135,7 +120,6 @@
 
         float deathVar = 1.0 - livelinessValue;
 
-
         float hueVar = (deathVar);
         albedo.r += albedo.r*hueVar * 1.2;
         albedo.g += albedo.g*hueVar;
@@ -143,13 +127,10 @@
 
         albedo = desaturate(albedo, deathVar * 1.7);
 
-
-
         return albedo;
     }
 
     vec3 desaturateVec(vec3 albedo, float deathVar){
-
         vec3 gray = vec3(dot(vec3(0.2126,0.7152,0.0722), albedo.rgb));
         albedo = mix(albedo, gray, deathVar);
 
@@ -160,7 +141,6 @@
 
         float deathVar = 1.0 - livelinessValue;
 
-
         float hueVar = (deathVar);
         albedo.r += albedo.r*hueVar * 1.2;
         albedo.g += albedo.g*hueVar;
@@ -168,18 +148,13 @@
 
         albedo = desaturateVec(albedo, deathVar * 1.7);
 
-
-
         return albedo;
     }
-
-
 
     //AFFLICTION METHODS
 
     //adjusts the affliction value for the best visual representation (since 0.0 - 1.0 is not as visually linear as it is numerically)
     float getAdjustedAfflictionVar(float afflictionVar){
-
         float adjustedVar = afflictionVar;
             if(afflictionVar > 0.02){
                 adjustedVar = mix(0.02, 0.53, afflictionVar);
@@ -192,19 +167,15 @@
     }
 
     float getAfflictionEdgeTaper(float noiseVar, float afflictionVar){
-
         float amt = noiseVar - (0.4 * afflictionVar) - .04;
 
         if(amt <= 0.05){
             amt = 0.05;
         }
-
-
         return amt;
     }
 
     vec4 alterAfflictionColor(float afflictionVar, vec4 albedo, vec4 afflictionAlbedo, float noiseVar){    
-
         float originalAlpha = albedo.a;     
 
         float edgeTaper = getAfflictionEdgeTaper(noiseVar, afflictionVar);  
@@ -217,11 +188,9 @@
             float edgeDiff = noiseVar - afflictionVar;
             edgeDiff = edgeDiff / afflictionVar;
 
-
             albedo.rgba = mix(afflictionAlbedo.rgba, albedo.rgba, edgeDiff);
         }
        else{
-
             albedo.rgba = mix(albedo.rgba, afflictionAlbedo.rgba, afflictionVar);
         }
 
@@ -230,24 +199,19 @@
 
         return albedo;
     }
-    vec4 alterAfflictionGlow(float afflictionVar, vec4 emissive, vec4 afflictionGlowColor, float noiseVar){    
-
-
+    vec4 alterAfflictionGlow(float afflictionVar, vec4 emissive, vec4 afflictionGlowColor, float noiseVar){   
         emissive = mix(emissive, afflictionGlowColor, afflictionVar);
 
         return emissive;
     }
 
     float alterAfflictionEmissiveIntensity(float afflictionVar, float emissiveIntensity, float afflictionEmissiveIntensity, float noiseVar){
-
-
        emissiveIntensity = mix(emissiveIntensity, afflictionEmissiveIntensity, afflictionVar);
 
         return emissiveIntensity;
     }
 
     vec3 alterAfflictionNormals(float afflictionVar, vec3 normal, vec3 afflictionNormal, float noiseVar){
-
         vec3 originalNorm = normal;
 
         float edgeTaper = getAfflictionEdgeTaper(noiseVar, afflictionVar);      
@@ -269,11 +233,7 @@
     }
 
     vec3 alterAfflictionNormalsForTerrain(float afflictionVar, vec3 normal, vec3 afflictionNormal, float noiseVar, vec3 worldNorm){
-
-
         float edgeTaper = getAfflictionEdgeTaper(noiseVar, afflictionVar);  
-
-
         vec3 blendedNormal = normal;
 
         float blendValue = afflictionVar;
@@ -294,7 +254,6 @@
              blendAmt = min(1.0, blendAmt);
 
              blendValue = blendAmt;
-
         }
 
         afflictionNormal = calculateTangentsAndApplyToNormals(afflictionNormal, worldNorm);
@@ -324,8 +283,6 @@
     }
 
     float alterAfflictionRoughness(float afflictionVar, float originalRoughness, float afflictionRoughness, float noiseVar){
-
-
         float edgeTaper = getAfflictionEdgeTaper(noiseVar, afflictionVar);  
         if(afflictionVar >= noiseVar){
             originalRoughness = afflictionRoughness;
@@ -345,8 +302,6 @@
     }
 
     float alterAfflictionMetallic(float afflictionVar, float originalMetallic, float afflictionMetallic, float noiseVar){
-
-
         float edgeTaper = getAfflictionEdgeTaper(noiseVar, afflictionVar);  
         if(afflictionVar >= noiseVar){
             originalMetallic = afflictionMetallic;
@@ -370,8 +325,7 @@
     void AfflictionLib_readAfflictionVector(){
          #ifdef AFFLICTIONTEXTURE
         
-            afflictionVector = vec4(1.0, 0.0, 1.0, 0.0); //r channel is sturation, g channel is affliction splat texture intensity, b and a unused (might use b channel for wetness eventually)
-    
+            afflictionVector = vec4(1.0, 0.0, 1.0, 0.0); //r channel is saturation, g channel is affliction splat texture intensity, b and a unused (might use b channel for wetness eventually)    
         
             #ifdef TILELOCATION 
             //subterrains that are not centred in tile or equal to tile width in total size need to have m_TileWidth pre-set. (tileWidth is the x,z dimesnions that the AfflictionAlphaMap represents)..
@@ -404,10 +358,7 @@
         
         TriPlanarUtils_calculateBlending(surface.geometryNormal);
 
-
-        #ifdef AFFLICTIONTEXTURE
-       
-
+        #ifdef AFFLICTIONTEXTURE     
             vec4 afflictionAlbedo;    
             
             float newAfflictionScale = m_AfflictionSplatScale; 
@@ -447,7 +398,6 @@
             float afflictionMetallic = m_AfflictionMetallicValue;
             float afflictionRoughness = m_AfflictionRoughnessValue;
             float afflictionAo = 1.0;
-
 
             vec4 afflictionEmissive = m_AfflictionEmissiveColor;
             float afflictionEmissiveIntensity = m_AfflictionEmissiveValue;
@@ -503,10 +453,7 @@
             }    
 
         #endif
-
-
     }
-
 #endif
 
 
