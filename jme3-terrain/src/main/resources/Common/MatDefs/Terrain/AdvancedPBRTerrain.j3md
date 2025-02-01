@@ -285,6 +285,8 @@ MaterialDef AdvancedPBRTerrain {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+
             USE_FOG : UseFog
             FOG_LINEAR : LinearFog
             FOG_EXP : ExpFog
@@ -296,6 +298,12 @@ MaterialDef AdvancedPBRTerrain {
             BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
 
             USE_FIRST_LAYER_AS_TRANSPARENCY : FirstLayerAsTransparency;
+
+            SPECULAR_AA : UseSpecularAA
+            SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
+            SPECULAR_AA_THRESHOLD : SpecularAAKappa
+
+            DISCARD_ALPHA : AlphaDiscardThreshold
 
             TILELOCATION : TileLocation
             AFFLICTIONTEXTURE : AfflictionAlphaMap
@@ -373,8 +381,8 @@ MaterialDef AdvancedPBRTerrain {
 
     Technique PreShadow {
 
-        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100 : Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -384,6 +392,7 @@ MaterialDef AdvancedPBRTerrain {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
@@ -401,8 +410,8 @@ MaterialDef AdvancedPBRTerrain {
 
 
     Technique PostShadow{
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+        VertexShader GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -412,6 +421,7 @@ MaterialDef AdvancedPBRTerrain {
         }
 
         Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
