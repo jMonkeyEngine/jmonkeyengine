@@ -305,7 +305,7 @@ MaterialDef AdvancedPBRTerrain {
             STATIC_SUN_EXPOSURE : StaticSunIntensity
             BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
 
-            USE_FIRST_LAYER_AS_TRANSPARENCY : UseFirstLayerAsTransparency;
+            USE_FIRST_LAYER_AS_TRANSPARENCY : UseFirstLayerAsTransparency
 
             SPECULAR_AA : UseSpecularAA
             SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
