@@ -19,6 +19,10 @@
 uniform vec4 g_LightData[NB_LIGHTS];
 uniform vec3 g_CameraPosition;
 
+#ifdef USE_FOG
+    #import "MatDefs/ShaderLib/MaterialFog.glsllib"
+#endif
+
 void main(){
     vec3 wpos = PBRLightingUtils_getWorldPosition();
     vec3 worldViewDir = normalize(g_CameraPosition - wpos);
@@ -54,6 +58,10 @@ void main(){
     gl_FragColor.rgb += surface.envLightContribution;
     gl_FragColor.rgb += surface.emission;
     gl_FragColor.a = surface.alpha;    
+
+    #ifdef USE_FOG
+        gl_FragColor = MaterialFog_calculateFogColor(vec4(gl_FragColor));
+    #endif
     
    //outputs the final value of the selected layer as a color for debug purposes. 
     #ifdef DEBUG_VALUES_MODE
