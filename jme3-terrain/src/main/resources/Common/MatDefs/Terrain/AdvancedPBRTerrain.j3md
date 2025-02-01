@@ -270,8 +270,8 @@ MaterialDef AdvancedPBRTerrain {
 
         LightMode SinglePassAndImageBased
 
-        VertexShader  GLSL150:   MatDefs/vert/AfflictedPBRTerrain.vert
-        FragmentShader GLSL150: MatDefs/frag/AfflictedAdvancedPBRTerrain.frag
+        VertexShader   GLSL300 GLSL150 :   Common/MatDefs/Terrain/PBRTerrain.vert
+        FragmentShader GLSL300 GLSL150 : Common/MatDefs/Terrain/AdvancedPBRTerrain.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
