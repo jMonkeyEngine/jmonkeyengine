@@ -20,7 +20,7 @@ uniform vec4 g_LightData[NB_LIGHTS];
 uniform vec3 g_CameraPosition;
 
 #ifdef USE_FOG
-    #import "MatDefs/ShaderLib/MaterialFog.glsllib"
+    #import "Common/ShaderLib/MaterialFog.glsllib"
 #endif
 
 void main(){
