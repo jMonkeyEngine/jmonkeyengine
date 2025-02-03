@@ -1,0 +1,170 @@
+#ifndef __PBR_TERRAIN_UTILS_MODULE__
+    #define __PBR_TERRAIN_UTILS_MODULE__
+
+    #import "Common/MatDefs/ShaderLib/PBRTerrainTextureLayer.glsl"    
+
+    #import "Common/ShaderLib/TangentUtils.glsllib"
+    #import "Common/ShaderLib/TriPlanarUtils.glsllib"
+
+    #ifdef ENABLE_PBRTerrainUtils_readPBRTerrainLayers   
+
+        //texture arrays:
+        uniform sampler2DArray m_AlbedoTextureArray;
+        uniform sampler2DArray m_NormalParallaxTextureArray;
+        uniform sampler2DArray m_MetallicRoughnessAoEiTextureArray;
+
+        //texture-slot params for 12 unique texture slots (0-11) where the integer value points to the desired texture's index in the corresponding texture array:
+        #for i=0..12 (#ifdef ALBEDOMAP_$i $0 #endif)
+            uniform int m_AfflictionMode_$i;
+            uniform float m_Roughness_$i;
+            uniform float m_Metallic_$i;
+            uniform float m_AlbedoMap_$i_scale;
+            uniform vec4 m_EmissiveColor_$i;
+
+            uniform int m_AlbedoMap_$i;
+
+        #endfor 
+        #for n=0..12 (#ifdef METALLICROUGHNESSMAP_$n $0 #endif)
+            uniform int m_MetallicRoughnessMap_$n;
+        #endfor
+        #for x=0..12 (#ifdef NORMALMAP_$x $0 #endif)
+            uniform int m_NormalMap_$x;
+        #endfor
+
+        //3 alpha maps :
+        #ifdef ALPHAMAP
+          uniform sampler2D m_AlphaMap;
+        #endif
+        #ifdef ALPHAMAP_1
+          uniform sampler2D m_AlphaMap_1;
+        #endif
+        #ifdef ALPHAMAP_2
+          uniform sampler2D m_AlphaMap_2;
+        #endif
+        vec4 alphaBlend_0, alphaBlend_1, alphaBlend_2;
+
+
+        void PBRTerrainUtils_readAlphaMaps(){
+
+            #ifdef ALPHAMAP  
+                alphaBlend_0 = texture2D( m_AlphaMap, texCoord.xy );
+            #endif
+            #ifdef ALPHAMAP_1
+                alphaBlend_1 = texture2D( m_AlphaMap_1, texCoord.xy );
+            #endif
+            #ifdef ALPHAMAP_2
+                alphaBlend_2 = texture2D( m_AlphaMap_2, texCoord.xy );
+            #endif
+            
+            
+        }
+
+        float PBRTerrainUtils_getAlphaBlendFromChannel(int layer){
+            float finalAlphaBlendForLayer = 0.0;
+            vec4 alphaBlend;
+            if(layer <= 3.0){
+                alphaBlend = alphaBlend_0;       
+            }else if(layer <= 7.0){
+                alphaBlend = alphaBlend_1;
+            }else if(layer <= 11.0){
+                alphaBlend = alphaBlend_2;
+            }
+            int texChannelForAlphaBlending = int(mod(float(layer), 4.0)); //pick the correct channel (r g b or a) based on the layer's index
+            switch(texChannelForAlphaBlending) {
+                case 0:
+                    finalAlphaBlendForLayer = alphaBlend.r;
+                    break;
+                case 1:
+                    finalAlphaBlendForLayer = alphaBlend.g;
+                    break;
+                case 2:
+                    finalAlphaBlendForLayer = alphaBlend.b;
+                    break;
+                case 3:
+                    finalAlphaBlendForLayer = alphaBlend.a;
+                    break;            
+            }
+
+            return finalAlphaBlendForLayer;
+        }    
+              
+       
+        PBRTerrainTextureLayer PBRTerrainUtils_createAdvancedPBRTerrainLayer(int layerNum){
+            
+            PBRTerrainTextureLayer terrainTextureLayer;
+            terrainTextureLayer.blendValue = PBRTerrainUtils_getAlphaBlendFromChannel(layerNum);
+            
+            return terrainTextureLayer;
+        }
+        
+    //________      
+    
+        void updateLayerFromPackedAlbedoMap(inout vec4 packedAlbedoVec, inout PBRTerrainTextureLayer layer){
+            layer.albedo = packedAlbedoVec;
+            layer.alpha = packedAlbedoVec.a;
+        }
+        void updateLayerFromPackedNormalParallaxVec(inout vec4 packedNormalParallaxVec, inout PBRTerrainTextureLayer layer){
+            layer.normal = calculateTangentsAndApplyToNormals(packedNormalParallaxVec.rgb, PBRLightingUtils_getWorldNormal());
+            layer.height = packedNormalParallaxVec.a;   
+        }
+        void updateLayerFromPackedMRAoEiVec(inout vec4 packedMRAoEiVec, inout PBRTerrainTextureLayer layer){
+            layer.ao = packedMRAoEiVec.r;
+            layer.roughness = packedMRAoEiVec.g;
+            layer.metallic = packedMRAoEiVec.b;
+            layer.emission *= packedMRAoEiVec.a * layer.emission.a;            
+        }    
+    //________
+    
+        // read Triplanar Albedo from TextureArray:
+        void PBRTerrainUtils_readTriPlanarAlbedoTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){         
+            vec4 packedAlbedoVec = getTriPlanarBlendFromTexArray(lPosition, indexInTexArray, scale, texArray);
+            updateLayerFromPackedAlbedoMap(packedAlbedoVec, layer);
+        }    
+        // read Triplanar normal from TextureArray:
+        void PBRTerrainUtils_readTriPlanarNormalTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
+            vec4 packedNormalParallaxVec = getTriPlanarBlendFromTexArray(lPosition, indexInTexArray, scale, texArray);
+            updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);
+        } 
+        // read TriPlanar metallicRoughnessAoEi from TextureArray:
+        void PBRTerrainUtils_readTriPlanarMetallicRoughnessAoEiTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
+            vec4 packedMRAoEi = getTriPlanarBlendFromTexArray(lPosition, indexInTexArray, scale, texArray);
+            updateLayerFromPackedMRAoEiVec(packedMRAoEi, layer);
+        }         
+     //________ 
+        
+        // read Albedo from TextureArray:
+        void PBRTerrainUtils_readAlbedoTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
+            vec4 packedAlbedoVec = texture2DArray(texArray, vec3(texCoord * scale, indexInTexArray));
+            updateLayerFromPackedAlbedoMap(packedAlbedoVec, layer);
+           
+        }    
+        // read Normal from TextureArray:
+        void PBRTerrainUtils_readNormalTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
+            vec4 packedNormalParallaxVec = texture2DArray(texArray, vec3(texCoord * scale, indexInTexArray));
+            updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);           
+        } 
+        // read metallicRoughnessAoEi from TextureArray:
+        void PBRTerrainUtils_readMetallicRoughnessAoEiTexArray(in int indexInTexArray, float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
+            vec4 packedMRAoEi = texture2DArray(texArray, vec3(texCoord * scale, indexInTexArray));
+            updateLayerFromPackedMRAoEiVec(packedMRAoEi, layer);
+           
+        } 
+     //________
+        
+
+    
+        void PBRTerrainUtils_blendPBRTerrainLayer(inout PBRSurface surface, inout PBRTerrainTextureLayer layer){
+
+
+        //mix values from this index layer to final output values based on finalAlphaBlendForLayer 
+            surface.albedo = mix(surface.albedo, layer.albedo.rgb, layer.blendValue);        
+            surface.normal = mix(surface.normal.rgb, layer.normal, layer.blendValue);        
+            surface.metallic = mix(surface.metallic, layer.metallic, layer.blendValue);
+            surface.roughness = mix(surface.roughness, layer.roughness, layer.blendValue);
+            surface.ao = mix(surface.ao, vec3(layer.ao), layer.blendValue);
+            surface.emission = mix(surface.emission, layer.emission.rgb, layer.blendValue);
+        }  
+
+    #endif
+#endif
+
