@@ -123,18 +123,18 @@ MaterialDef AdvancedPBRTerrain {
         Float AlbedoMap_10_scale : 1
         Float AlbedoMap_11_scale : 1
 
-        Boolean TriPlanar_0
-        Boolean TriPlanar_1
-        Boolean TriPlanar_2
-        Boolean TriPlanar_3
-        Boolean TriPlanar_4
-        Boolean TriPlanar_5
-        Boolean TriPlanar_6
-        Boolean TriPlanar_7
-        Boolean TriPlanar_8
-        Boolean TriPlanar_9
-        Boolean TriPlanar_10
-        Boolean TriPlanar_11
+        Boolean UseTriPlanarMapping_0
+        Boolean UseTriPlanarMapping_1
+        Boolean UseTriPlanarMapping_2
+        Boolean UseTriPlanarMapping_3
+        Boolean UseTriPlanarMapping_4
+        Boolean UseTriPlanarMapping_5
+        Boolean UseTriPlanarMapping_6
+        Boolean UseTriPlanarMapping_7
+        Boolean UseTriPlanarMapping_8
+        Boolean UseTriPlanarMapping_9
+        Boolean UseTriPlanarMapping_10
+        Boolean UseTriPlanarMapping_11
 
 
         Int NormalMap_0
@@ -368,18 +368,18 @@ MaterialDef AdvancedPBRTerrain {
             METALLICROUGHNESSMAP_10 : MetallicRoughnessMap_10
             METALLICROUGHNESSMAP_11 : MetallicRoughnessMap_11
 
-            TRI_PLANAR_MAPPING_0 : TriPlanar_0
-            TRI_PLANAR_MAPPING_1 : TriPlanar_1
-            TRI_PLANAR_MAPPING_2 : TriPlanar_2
-            TRI_PLANAR_MAPPING_3 : TriPlanar_3
-            TRI_PLANAR_MAPPING_4 : TriPlanar_4
-            TRI_PLANAR_MAPPING_5 : TriPlanar_5
-            TRI_PLANAR_MAPPING_6 : TriPlanar_6
-            TRI_PLANAR_MAPPING_7 : TriPlanar_7
-            TRI_PLANAR_MAPPING_8 : TriPlanar_8
-            TRI_PLANAR_MAPPING_9 : TriPlanar_9
-            TRI_PLANAR_MAPPING_10 : TriPlanar_10
-            TRI_PLANAR_MAPPING_11 : TriPlanar_11
+            TRI_PLANAR_MAPPING_0 : UseTriPlanarMapping_0
+            TRI_PLANAR_MAPPING_1 : UseTriPlanarMapping_1
+            TRI_PLANAR_MAPPING_2 : UseTriPlanarMapping_2
+            TRI_PLANAR_MAPPING_3 : UseTriPlanarMapping_3
+            TRI_PLANAR_MAPPING_4 : UseTriPlanarMapping_4
+            TRI_PLANAR_MAPPING_5 : UseTriPlanarMapping_5
+            TRI_PLANAR_MAPPING_6 : UseTriPlanarMapping_6
+            TRI_PLANAR_MAPPING_7 : UseTriPlanarMapping_7
+            TRI_PLANAR_MAPPING_8 : UseTriPlanarMapping_8
+            TRI_PLANAR_MAPPING_9 : UseTriPlanarMapping_9
+            TRI_PLANAR_MAPPING_10 : UseTriPlanarMapping_10
+            TRI_PLANAR_MAPPING_11 : UseTriPlanarMapping_11
 
             DEBUG_VALUES_MODE : DebugValuesMode
 
