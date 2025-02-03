@@ -1,7 +1,7 @@
 #ifndef __PBR_TERRAIN_UTILS_MODULE__
     #define __PBR_TERRAIN_UTILS_MODULE__
 
-    #import "Common/MatDefs/ShaderLib/PBRTerrainTextureLayer.glsl"    
+    #import "Common/MatDefs/Terrain/Modular/PBRTerrainTextureLayer.glsl"    
 
     #import "Common/ShaderLib/TangentUtils.glsllib"
     #import "Common/ShaderLib/TriPlanarUtils.glsllib"
