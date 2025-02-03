@@ -11,9 +11,9 @@
 #define ENABLE_PBRTerrainUtils_readPBRTerrainLayers 1
 
 #import "Common/ShaderLib/module/pbrlighting/PBRLightingUtils.glsllib"
-#import "Common/MatDefs/ShaderLib/PBRTerrainUtils.glsllib"
+#import "Common/MatDefs/Terrain/Modular/PBRTerrainUtils.glsllib"
 #ifdef AFFLICTIONTEXTURE
-    #import "Common/MatDefs/ShaderLib/AfflictionLib.glsllib"
+    #import "Common/MatDefs/Terrain/Modular/AfflictionLib.glsllib"
 #endif
 
 //declare PBR Lighting vars
