@@ -415,14 +415,13 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
 
     @Override
     public void destroy() {
-        /*skip the destroy block if the invoking instance is null*/
         if (glSurfaceView != null) {
             removeGLSurfaceView();
         }
         if (legacyApplication != null) {
             legacyApplication.destroy();
         }
-        /*help the Dalvik Garbage collector to destruct the pointers, by making them nullptr*/
+        /*help the Dalvik Garbage collector to destruct the objects, by releasing their references*/
         /*context instances*/
         legacyApplication = null;
         appSettings = null;
