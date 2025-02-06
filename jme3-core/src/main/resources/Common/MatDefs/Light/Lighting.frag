@@ -8,23 +8,8 @@
 
 // fog - jayfella
 #ifdef USE_FOG
-#import "Common/ShaderLib/MaterialFog.glsllib"
-varying float fog_distance;
-uniform vec4 m_FogColor;
-
-#ifdef FOG_LINEAR
-uniform vec2 m_LinearFog;
-#endif
-
-#ifdef FOG_EXP
-uniform float m_ExpFog;
-#endif
-
-#ifdef FOG_EXPSQ
-uniform float m_ExpSqFog;
-#endif
-
-#endif // end fog
+    #import "Common/ShaderLib/MaterialFog.glsllib"
+#endif 
 
 varying vec2 texCoord;
 #ifdef SEPARATE_TEXCOORD
@@ -231,21 +216,11 @@ void main(){
                            SpecularSum2.rgb * specularColor.rgb * vec3(light.y);
     #endif
 
-
     // add fog after the lighting because shadows will cause the fog to darken
     // which just results in the geometry looking like it's changed color
     #ifdef USE_FOG
-        #ifdef FOG_LINEAR
-            gl_FragColor = getFogLinear(gl_FragColor, m_FogColor, m_LinearFog.x, m_LinearFog.y, fog_distance);
-        #endif
-        #ifdef FOG_EXP
-            gl_FragColor = getFogExp(gl_FragColor, m_FogColor, m_ExpFog, fog_distance);
-        #endif
-        #ifdef FOG_EXPSQ
-            gl_FragColor = getFogExpSquare(gl_FragColor, m_FogColor, m_ExpSqFog, fog_distance);
-        #endif
-    #endif // end fog
-
+        gl_FragColor = MaterialFog_calculateFogColor(vec4(gl_FragColor));
+    #endif
 
     gl_FragColor.a = alpha;
 }
