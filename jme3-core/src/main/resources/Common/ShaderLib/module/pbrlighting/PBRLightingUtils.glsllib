@@ -41,7 +41,7 @@
     #endif
     
     #if defined(ENABLE_PBRLightingUtils_getLocalPosition)
-        varying vec4 lPosition;
+        varying vec3 lPosition;
     #endif 
 
 
