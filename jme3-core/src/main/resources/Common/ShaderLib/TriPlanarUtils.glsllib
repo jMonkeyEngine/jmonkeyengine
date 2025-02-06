@@ -1,8 +1,8 @@
 #ifndef __TRIPLANAR_UTILS_MODULE__
     #define __TRIPLANAR_UTILS_MODULE__
     
-    vec3 triBlending;
-    
+    vec3 triBlending;    
+
     void TriPlanarUtils_calculateBlending(vec3 geometryNormal){
         triBlending = abs( geometryNormal );
         triBlending = (triBlending -0.2) * 0.7;
@@ -11,7 +11,8 @@
         triBlending /= vec3(b, b, b);
     }    
 
-    vec4 getTriPlanarBlend(in vec4 coords, in sampler2D map, in float scale) {
+    //  basic triplanar blend:
+    vec4 getTriPlanarBlend(in vec3 coords, in sampler2D map, in float scale) {
         vec4 col1 = texture2D( map, coords.yz * scale);
         vec4 col2 = texture2D( map, coords.xz * scale);
         vec4 col3 = texture2D( map, coords.xy * scale); 
@@ -21,7 +22,8 @@
         return tex;
     }
 
-    vec4 getTriPlanarBlendFromTexArray(in vec4 coords, in int idInTexArray, in float scale, in sampler2DArray texArray) {
+    //  basic triplanar blend for TextureArrays:
+    vec4 getTriPlanarBlendFromTexArray(in vec3 coords, in int idInTexArray, in float scale, in sampler2DArray texArray) {
         vec4 col1 = texture2DArray( texArray, vec3((coords.yz * scale), idInTexArray ) );
         vec4 col2 = texture2DArray( texArray, vec3((coords.xz * scale), idInTexArray ) );
         vec4 col3 = texture2DArray( texArray, vec3((coords.xy * scale), idInTexArray ) );
@@ -29,6 +31,38 @@
         vec4 tex = col1 * triBlending.x + col2 * triBlending.y + col3 * triBlending.z;
 
         return tex;
-    }
-
+    }    
+     
+    //  triplanar blend for Normal maps:
+    vec4 getTriPlanarNormalBlend(in vec3 coords, in sampler2D map, in float scale) {
+        vec4 col1 = texture2D( map, coords.yz * scale);
+        vec4 col2 = texture2D( map, coords.xz * scale);
+        vec4 col3 = texture2D( map, coords.xy * scale); 
+      
+        col1.xyz = col1.xyz * vec3(2.0) - vec3(1.0);
+        col2.xyz = col2.xyz * vec3(2.0) - vec3(1.0);
+        col3.xyz = col3.xyz * vec3(2.0) - vec3(1.0);
+        
+        // blend the results of the 3 planar projections.
+        vec4 tex = normalize(col1 * triBlending.x + col2 * triBlending.y + col3 * triBlending.z);
+      
+        return tex;
+    }    
+ 
+    //  triplanar blend for Normal maps in a TextureArray:
+    vec4 getTriPlanarNormalBlendFromTexArray(in vec3 coords, in int idInTexArray, in float scale, in sampler2DArray texArray) {
+        vec4 col1 = texture2DArray( texArray, vec3((coords.yz * scale), idInTexArray ) );
+        vec4 col2 = texture2DArray( texArray, vec3((coords.xz * scale), idInTexArray ) );
+        vec4 col3 = texture2DArray( texArray, vec3((coords.xy * scale), idInTexArray ) );
+      
+        col1.xyz = col1.xyz * vec3(2.0) - vec3(1.0);
+        col2.xyz = col2.xyz * vec3(2.0) - vec3(1.0);
+        col3.xyz = col3.xyz * vec3(2.0) - vec3(1.0);
+        
+        // blend the results of the 3 planar projections.
+        vec4 tex = normalize(col1 * triBlending.x + col2 * triBlending.y + col3 * triBlending.z);
+      
+        return tex;
+    }   
+    
 #endif
