@@ -6,7 +6,6 @@
     #import "Common/ShaderLib/Lighting.glsllib"
 #endif
 
-// fog - jayfella
 #ifdef USE_FOG
     #import "Common/ShaderLib/MaterialFog.glsllib"
 #endif 
