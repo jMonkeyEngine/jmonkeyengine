@@ -272,11 +272,26 @@
 
     PBRSurface PBRLightingUtils_createPBRSurface(in vec3 wViewDir){
 
-        PBRSurface surface;
+        PBRSurface surface; //creates a new PBRSurface
+        
         surface.position = wPosition;
         surface.viewDir = wViewDir;
         surface.geometryNormal = normalize(wNormal);
 
+        //set default values
+        surface.hasTangents = false;
+        surface.hasBasicLightMap = false;        
+        surface.albedo = vec3(1.0);
+        surface.normal = surface.geometryNormal;
+        surface.emission = vec3(0.0);        
+        surface.ao = vec3(1.0);
+        surface.lightMapColor = vec3(0.0);
+        surface.alpha = 1.0;
+        surface.roughness = 1.0;
+        surface.metallic = 0.0;
+        surface.alpha = 1.0;
+        surface.exposure = 1.0;        
+        
         return surface;
     }
 
