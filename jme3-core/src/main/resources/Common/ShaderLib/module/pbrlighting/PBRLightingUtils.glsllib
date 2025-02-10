@@ -650,6 +650,9 @@
         else if(debugValuesMode == 7){
             outputColorForLayer.rgb = vec3(surface.alpha);          
         } 
+        else if(debugValuesMode == 8){
+            outputColorForLayer.rgb = vec3(surface.geometryNormal);          
+        }
 
         if(debugValuesMode >= 0){
             gl_FragColor.a = 1.0;
