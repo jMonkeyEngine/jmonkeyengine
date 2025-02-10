@@ -8,7 +8,7 @@ attribute vec2 inTexCoord;
 varying vec2 texCoord;
 varying vec3 wPosition;
 varying vec3 wNormal;
-
+varying vec3 lPosition;
 
 uniform vec4 g_AmbientLightColor;
 
@@ -16,9 +16,6 @@ uniform vec4 g_AmbientLightColor;
     varying float fogDistance;
     uniform vec3 g_CameraPosition;
 #endif
-
-
-varying vec4 lPosition;
 
 void main(){
     vec4 modelSpacePos = vec4(inPosition, 1.0);
@@ -31,7 +28,7 @@ void main(){
     
     wNormal  = normalize(TransformWorldNormal(inNormal));
     
-    lPosition = vec4(inPosition, 0.0);       
+    lPosition = modelSpacePos.xyz;     
     
     #ifdef USE_FOG
         fogDistance = distance(g_CameraPosition, (g_WorldMatrix * modelSpacePos).xyz);

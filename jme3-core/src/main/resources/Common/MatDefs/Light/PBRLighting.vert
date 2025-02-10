@@ -30,7 +30,7 @@ attribute vec3 inNormal;
 varying vec3 wNormal;
 varying vec3 wPosition;
 
-varying vec4 lPosition;
+varying vec3 lPosition;
 
 attribute vec4 inTangent;
 varying vec4 wTangent;
@@ -46,7 +46,7 @@ void main(){
     vec3 modelSpaceNorm = inNormal;
     vec3 modelSpaceTan  = inTangent.xyz;
     
-    lPosition = modelSpacePos;
+    lPosition = modelSpacePos.xyz;
     
     
     #ifdef USE_VERTEX_COLORS_AS_SUN_INTENSITY
