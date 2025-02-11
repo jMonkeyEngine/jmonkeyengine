@@ -43,7 +43,6 @@ MaterialDef AdvancedPBRTerrain {
 
         Float SplatNoiseVar
 
-
         Int AfflictionMode_0 : 1
         Int AfflictionMode_1 : 1
         Int AfflictionMode_2 : 1
@@ -109,7 +108,6 @@ MaterialDef AdvancedPBRTerrain {
         Int AlbedoMap_10
         Int AlbedoMap_11
 
-
         Float AlbedoMap_0_scale : 1
         Float AlbedoMap_1_scale : 1
         Float AlbedoMap_2_scale : 1
@@ -136,7 +134,6 @@ MaterialDef AdvancedPBRTerrain {
         Boolean UseTriPlanarMapping_10
         Boolean UseTriPlanarMapping_11
 
-
         Int NormalMap_0
         Int NormalMap_1
         Int NormalMap_2
@@ -149,7 +146,6 @@ MaterialDef AdvancedPBRTerrain {
         Int NormalMap_9
         Int NormalMap_10
         Int NormalMap_11
-
 
         Int MetallicRoughnessMap_0
         Int MetallicRoughnessMap_1
@@ -164,7 +160,6 @@ MaterialDef AdvancedPBRTerrain {
         Int MetallicRoughnessMap_10
         Int MetallicRoughnessMap_11
 
-
         Float ParallaxHeight_0
         Float ParallaxHeight_1
         Float ParallaxHeight_2
@@ -177,8 +172,6 @@ MaterialDef AdvancedPBRTerrain {
         Float ParallaxHeight_9
         Float ParallaxHeight_10
         Float ParallaxHeight_11
-
-
 
         //used in order to convert world coords to tex coords so afflictionTexture accurately represents the world in cases where terrain is not scaled at a 1,1,1 value
         Float TileWidth : 0
@@ -195,6 +188,7 @@ MaterialDef AdvancedPBRTerrain {
             //   5 - emissive
             //   6 - exposure
             //   7 - alpha
+            //   8 - geometryNormals
 
         // use tri-planar mapping
         Boolean useTriPlanarMapping
@@ -308,7 +302,7 @@ MaterialDef AdvancedPBRTerrain {
             STATIC_SUN_EXPOSURE : StaticSunExposure
             BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
 
-            USE_FIRST_LAYER_AS_TRANSPARENCY : FirstLayerAsTransparency;
+            USE_FIRST_LAYER_AS_TRANSPARENCY : UseFirstLayerAsTransparency;
 
             SPECULAR_AA : UseSpecularAA
             SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
@@ -373,18 +367,18 @@ MaterialDef AdvancedPBRTerrain {
             METALLICROUGHNESSMAP_10 : MetallicRoughnessMap_10
             METALLICROUGHNESSMAP_11 : MetallicRoughnessMap_11
 
-            TRI_PLANAR_MAPPING_0 : TriPlanar_0
-            TRI_PLANAR_MAPPING_1 : TriPlanar_1
-            TRI_PLANAR_MAPPING_2 : TriPlanar_2
-            TRI_PLANAR_MAPPING_3 : TriPlanar_3
-            TRI_PLANAR_MAPPING_4 : TriPlanar_4
-            TRI_PLANAR_MAPPING_5 : TriPlanar_5
-            TRI_PLANAR_MAPPING_6 : TriPlanar_6
-            TRI_PLANAR_MAPPING_7 : TriPlanar_7
-            TRI_PLANAR_MAPPING_8 : TriPlanar_8
-            TRI_PLANAR_MAPPING_9 : TriPlanar_9
-            TRI_PLANAR_MAPPING_10 : TriPlanar_10
-            TRI_PLANAR_MAPPING_11 : TriPlanar_11
+            TRI_PLANAR_MAPPING_0 : UseTriPlanarMapping_0
+            TRI_PLANAR_MAPPING_1 : UseTriPlanarMapping_1
+            TRI_PLANAR_MAPPING_2 : UseTriPlanarMapping_2
+            TRI_PLANAR_MAPPING_3 : UseTriPlanarMapping_3
+            TRI_PLANAR_MAPPING_4 : UseTriPlanarMapping_4
+            TRI_PLANAR_MAPPING_5 : UseTriPlanarMapping_5
+            TRI_PLANAR_MAPPING_6 : UseTriPlanarMapping_6
+            TRI_PLANAR_MAPPING_7 : UseTriPlanarMapping_7
+            TRI_PLANAR_MAPPING_8 : UseTriPlanarMapping_8
+            TRI_PLANAR_MAPPING_9 : UseTriPlanarMapping_9
+            TRI_PLANAR_MAPPING_10 : UseTriPlanarMapping_10
+            TRI_PLANAR_MAPPING_11 : UseTriPlanarMapping_11
 
             DEBUG_VALUES_MODE : DebugValuesMode
 
