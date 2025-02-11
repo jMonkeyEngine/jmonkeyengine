@@ -25,7 +25,7 @@ uniform vec3 g_CameraPosition;
 #endif
 
 #ifdef USE_FOG
-    #import "MatDefs/ShaderLib/MaterialFog.glsllib"
+    #import "Common/ShaderLib/MaterialFog.glsllib"
 #endif
 
 void main(){       
