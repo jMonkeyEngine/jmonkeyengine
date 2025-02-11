@@ -4,8 +4,8 @@ MaterialDef AdvancedPBRTerrain {
         Int BoundDrawBuffer
 
         Texture2D SunLightExposureMap
-        Boolean UseVertexColorsAsSunIntensity //set true to make the vertex color's R channel how exposed a vertex is to the sun
-        Float StaticSunIntensity              //used for setting the sun exposure value for a whole material
+        Boolean UseVertexColorsAsSunExposure //set true to make the vertex color's R channel how exposed a vertex is to the sun
+        Float StaticSunExposure              //used for setting the sun exposure value for a whole material
                                              //these are usually generated at run time or setup in a level editor per-geometry, so that models indoors can have the DirectionalLight dimmed accordingly.
 
         Boolean BrightenIndoorShadows  //set true if shadows are enabled and indoor areas without full sun exposure are too dark compared to when shadows are turned off in settings
@@ -272,6 +272,9 @@ MaterialDef AdvancedPBRTerrain {
 
         // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
+
+        //do not change this or AdvancedPBRTerrain will break
+        Boolean UseTextureArrays : true 
     }
 
     Technique {
@@ -301,11 +304,11 @@ MaterialDef AdvancedPBRTerrain {
             FOG_EXPSQ : ExpSqFog
 
             EXPOSUREMAP : SunLightExposureMap
-            USE_VERTEX_COLORS_AS_SUN_EXPOSURE : UseVertexColorsAsSunIntensity
-            STATIC_SUN_EXPOSURE : StaticSunIntensity
+            USE_VERTEX_COLORS_AS_SUN_EXPOSURE : UseVertexColorsAsSunExposure
+            STATIC_SUN_EXPOSURE : StaticSunExposure
             BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
 
-            USE_FIRST_LAYER_AS_TRANSPARENCY : UseFirstLayerAsTransparency
+            USE_FIRST_LAYER_AS_TRANSPARENCY : FirstLayerAsTransparency;
 
             SPECULAR_AA : UseSpecularAA
             SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
@@ -322,6 +325,8 @@ MaterialDef AdvancedPBRTerrain {
             AFFLICTIONROUGHNESSMETALLICMAP : SplatRoughnessMetallicMap
             AFFLICTIONEMISSIVEMAP : SplatEmissiveMap
             USE_SPLAT_NOISE : SplatNoiseVar
+
+            USE_TRIPLANAR_AFFLICTION_MAPPING : UseTriplanarAfflictionMapping
 
             TRI_PLANAR_MAPPING : useTriPlanarMapping
 
@@ -368,21 +373,22 @@ MaterialDef AdvancedPBRTerrain {
             METALLICROUGHNESSMAP_10 : MetallicRoughnessMap_10
             METALLICROUGHNESSMAP_11 : MetallicRoughnessMap_11
 
-            TRI_PLANAR_MAPPING_0 : UseTriPlanarMapping_0
-            TRI_PLANAR_MAPPING_1 : UseTriPlanarMapping_1
-            TRI_PLANAR_MAPPING_2 : UseTriPlanarMapping_2
-            TRI_PLANAR_MAPPING_3 : UseTriPlanarMapping_3
-            TRI_PLANAR_MAPPING_4 : UseTriPlanarMapping_4
-            TRI_PLANAR_MAPPING_5 : UseTriPlanarMapping_5
-            TRI_PLANAR_MAPPING_6 : UseTriPlanarMapping_6
-            TRI_PLANAR_MAPPING_7 : UseTriPlanarMapping_7
-            TRI_PLANAR_MAPPING_8 : UseTriPlanarMapping_8
-            TRI_PLANAR_MAPPING_9 : UseTriPlanarMapping_9
-            TRI_PLANAR_MAPPING_10 : UseTriPlanarMapping_10
-            TRI_PLANAR_MAPPING_11 : UseTriPlanarMapping_11
+            TRI_PLANAR_MAPPING_0 : TriPlanar_0
+            TRI_PLANAR_MAPPING_1 : TriPlanar_1
+            TRI_PLANAR_MAPPING_2 : TriPlanar_2
+            TRI_PLANAR_MAPPING_3 : TriPlanar_3
+            TRI_PLANAR_MAPPING_4 : TriPlanar_4
+            TRI_PLANAR_MAPPING_5 : TriPlanar_5
+            TRI_PLANAR_MAPPING_6 : TriPlanar_6
+            TRI_PLANAR_MAPPING_7 : TriPlanar_7
+            TRI_PLANAR_MAPPING_8 : TriPlanar_8
+            TRI_PLANAR_MAPPING_9 : TriPlanar_9
+            TRI_PLANAR_MAPPING_10 : TriPlanar_10
+            TRI_PLANAR_MAPPING_11 : TriPlanar_11
 
             DEBUG_VALUES_MODE : DebugValuesMode
 
+            USE_TEXTURE_ARRAYS : UseTextureArrays
         }
     }
 
