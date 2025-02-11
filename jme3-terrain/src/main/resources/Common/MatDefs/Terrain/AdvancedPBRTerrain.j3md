@@ -177,7 +177,7 @@ MaterialDef AdvancedPBRTerrain {
         Float TileWidth : 0
         Vector3 TileLocation
 
- // debug the final value of the selected layer as a color output            
+         // debug the final value of the selected layer as a color output            
         Int DebugValuesMode
             // Layers:
             //   0 - albedo (unshaded)
@@ -302,7 +302,7 @@ MaterialDef AdvancedPBRTerrain {
             STATIC_SUN_EXPOSURE : StaticSunExposure
             BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
 
-            USE_FIRST_LAYER_AS_TRANSPARENCY : UseFirstLayerAsTransparency;
+            USE_FIRST_LAYER_AS_TRANSPARENCY : UseFirstLayerAsTransparency
 
             SPECULAR_AA : UseSpecularAA
             SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
@@ -385,7 +385,6 @@ MaterialDef AdvancedPBRTerrain {
             USE_TEXTURE_ARRAYS : UseTextureArrays
         }
     }
-
 
     Technique PreShadow {
 
