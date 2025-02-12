@@ -31,57 +31,22 @@
  */
 package com.jme3.plugins.gson;
 
-import java.util.Iterator;
-
-import com.jme3.plugins.json.JsonArray;
-import com.jme3.plugins.json.JsonElement;
+import com.jme3.plugins.json.JsonNull;
 
 /**
- * GSON implementation of {@link JsonArray}.
+ * GSON implementation of {@link JsonNull}
+ * @author wil
  */
-class GsonArray extends GsonElement<com.google.gson.JsonArray> implements JsonArray {
-
-    GsonArray(com.google.gson.JsonArray element) {
+class GsonNull extends GsonElement<com.google.gson.JsonNull> implements JsonNull {
+    
+    /** A single instance for null JSON objects. */
+    static final GsonNull NULL = new GsonNull(com.google.gson.JsonNull.INSTANCE);
+    
+    /**
+     * Class constructor
+     * @param element JSON element - GSON
+     */
+    private GsonNull(com.google.gson.JsonNull element) {
         super(element);
-    }
-
-    @Override
-    public String getAsString() {
-        return element.getAsString();
-    }
-    
-    @Override
-    public float getAsFloat() {
-        return element.getAsFloat();
-    }
-
-    @Override
-    public int getAsInt() {
-        return element.getAsInt();
-    }
-
-    @Override
-    public Number getAsNumber() {
-        return element.getAsNumber();
-    }
-
-    @Override
-    public boolean getAsBoolean() {
-        return element.getAsBoolean();
-    }
-    
-    @Override
-    public Iterator<JsonElement> iterator() {
-        return GsonUtils.wrap(element.iterator());
-    }
-
-    @Override
-    public JsonElement get(int i) {
-        return GsonUtils.wrap(element.get(i));
-    }
-
-    @Override
-    public int size() {
-        return element.size();
     }
 }

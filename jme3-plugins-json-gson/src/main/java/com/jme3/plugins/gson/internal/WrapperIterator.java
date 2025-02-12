@@ -29,59 +29,50 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.plugins.gson;
+package com.jme3.plugins.gson.internal;
 
 import java.util.Iterator;
 
-import com.jme3.plugins.json.JsonArray;
-import com.jme3.plugins.json.JsonElement;
-
 /**
- * GSON implementation of {@link JsonArray}.
+ * A class that can be used as a wrapper for an iterator, where data can be exchanged
+ * (wrapped) from the original iterator to a new one using the {@link Wrapper} interface.
+ * 
+ * @param <A> the original type of the iteraro
+ * @param <B> the wrapper type for this iterator
+ * 
+ * @author wil
  */
-class GsonArray extends GsonElement<com.google.gson.JsonArray> implements JsonArray {
+public class WrapperIterator<A, B> implements Iterator<B> {
 
-    GsonArray(com.google.gson.JsonArray element) {
-        super(element);
-    }
+    /** The object in charge of carrying out the exchange (wrapping the objects). */
+    private final Wrapper<A, B> wrapper;
+    /** The original iterator. */
+    private final Iterator<A> it;
 
-    @Override
-    public String getAsString() {
-        return element.getAsString();
+    /**
+     * Generate a new object <code>WrapperIterator</code>.
+     * 
+     * @param wrapper object wrapping
+     * @param it original iteraro
+     */
+    public WrapperIterator(Wrapper<A, B> wrapper, Iterator<A> it) {
+        this.wrapper = wrapper;
+        this.it = it;
     }
     
+    /* (non-Javadoc)
+     * @see java.util.Iterator#hasNext() 
+     */
     @Override
-    public float getAsFloat() {
-        return element.getAsFloat();
+    public boolean hasNext() {
+        return it.hasNext();
     }
 
+    /* (non-Javadoc)
+     * @see java.util.Iterator#next() 
+     */
     @Override
-    public int getAsInt() {
-        return element.getAsInt();
-    }
-
-    @Override
-    public Number getAsNumber() {
-        return element.getAsNumber();
-    }
-
-    @Override
-    public boolean getAsBoolean() {
-        return element.getAsBoolean();
-    }
-    
-    @Override
-    public Iterator<JsonElement> iterator() {
-        return GsonUtils.wrap(element.iterator());
-    }
-
-    @Override
-    public JsonElement get(int i) {
-        return GsonUtils.wrap(element.get(i));
-    }
-
-    @Override
-    public int size() {
-        return element.size();
+    public B next() {
+        return wrapper.wrap(it.next());
     }
 }
