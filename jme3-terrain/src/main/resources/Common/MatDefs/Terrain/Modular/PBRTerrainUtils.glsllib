@@ -8,12 +8,10 @@
 
     #ifdef ENABLE_PBRTerrainUtils_readPBRTerrainLayers   
 
-        #ifdef USE_TEXTURE_ARRAYS
-            //texture arrays:
-            uniform sampler2DArray m_AlbedoTextureArray;
-            uniform sampler2DArray m_NormalParallaxTextureArray;
-            uniform sampler2DArray m_MetallicRoughnessAoEiTextureArray;
-        #endif    
+        //texture arrays:
+        uniform sampler2DArray m_AlbedoTextureArray;
+        uniform sampler2DArray m_NormalParallaxTextureArray;
+        uniform sampler2DArray m_MetallicRoughnessAoEiTextureArray;
 
         //texture-slot params for 12 unique texture slots (0-11) where the integer value points to the desired texture's index in the corresponding texture array:
         #for i=0..12 (#ifdef ALBEDOMAP_$i $0 #endif)
@@ -23,25 +21,15 @@
             uniform float m_AlbedoMap_$i_scale;
             uniform vec4 m_EmissiveColor_$i;
 
+            uniform int m_AlbedoMap_$i;
 
-            #ifdef USE_TEXTURE_ARRAYS
-                uniform int m_AlbedoMap_$i;
-                #ifdef NORMALMAP_$i
-                    uniform int m_NormalMap_$i;
-                #endif
-                #ifdef METALLICROUGHNESSMAP_$i
-                    uniform int m_MetallicRoughnessMap_$i;
-                #endif
-            #else
-                uniform sampler2D m_AlbedoMap_$i;
-                #ifdef NORMALMAP_$i
-                    uniform sampler2D m_NormalMap_$i;
-                #endif
-                #ifdef METALLICROUGHNESSMAP_$i
-                    uniform sampler2D m_MetallicRoughnessMap_$i;
-                #endif
-            #endif 
         #endfor 
+        #for n=0..12 (#ifdef METALLICROUGHNESSMAP_$n $0 #endif)
+            uniform int m_MetallicRoughnessMap_$n;
+        #endfor
+        #for x=0..12 (#ifdef NORMALMAP_$x $0 #endif)
+            uniform int m_NormalMap_$x;
+        #endfor
 
         //3 alpha maps :
         #ifdef ALPHAMAP
@@ -53,8 +41,8 @@
         #ifdef ALPHAMAP_2
           uniform sampler2D m_AlphaMap_2;
         #endif
-        
         vec4 alphaBlend_0, alphaBlend_1, alphaBlend_2;
+
 
         void PBRTerrainUtils_readAlphaMaps(){
 
@@ -66,7 +54,9 @@
             #endif
             #ifdef ALPHAMAP_2
                 alphaBlend_2 = texture2D( m_AlphaMap_2, texCoord.xy );
-            #endif            
+            #endif
+            
+            
         }
 
         float PBRTerrainUtils_getAlphaBlendFromChannel(int layer){
@@ -97,118 +87,78 @@
 
             return finalAlphaBlendForLayer;
         }    
+              
        
-        PBRTerrainTextureLayer PBRTerrainUtils_createAdvancedPBRTerrainLayer(int layerNum, vec3 geometryNormal){
+        PBRTerrainTextureLayer PBRTerrainUtils_createAdvancedPBRTerrainLayer(int layerNum){
             
             PBRTerrainTextureLayer terrainTextureLayer;
             terrainTextureLayer.blendValue = PBRTerrainUtils_getAlphaBlendFromChannel(layerNum);
-            terrainTextureLayer.albedo = vec4(1.0);
-            terrainTextureLayer.emission = vec4(0.0);
-            terrainTextureLayer.normal = geometryNormal;
-            terrainTextureLayer.alpha = 1.0;
-            terrainTextureLayer.ao = 1.0;
-            terrainTextureLayer.roughness = 1.0;
-            terrainTextureLayer.metallic = 0.0;
-            terrainTextureLayer.height = 0.0;
             
             return terrainTextureLayer;
-        }       
+        }
         
-    //3 functinos to update layers from respective packed data vecs:
+    //________      
+    
         void updateLayerFromPackedAlbedoMap(inout vec4 packedAlbedoVec, inout PBRTerrainTextureLayer layer){
             layer.albedo = packedAlbedoVec;
             layer.alpha = packedAlbedoVec.a;
         }
         void updateLayerFromPackedNormalParallaxVec(inout vec4 packedNormalParallaxVec, inout PBRTerrainTextureLayer layer){
-            layer.normal = normalize(calculateTangentsAndApplyToNormals(packedNormalParallaxVec.rgb, PBRLightingUtils_getWorldNormal()));
+            layer.normal = calculateTangentsAndApplyToNormals(packedNormalParallaxVec.rgb, PBRLightingUtils_getWorldNormal());
             layer.height = packedNormalParallaxVec.a;   
         }
         void updateLayerFromPackedMRAoEiVec(inout vec4 packedMRAoEiVec, inout PBRTerrainTextureLayer layer){
-            layer.ao = packedMRAoEiVec.r; //ao only comes from texture (no float scalars) so no *= is done here
-            layer.roughness *= packedMRAoEiVec.g;
-            layer.metallic *= packedMRAoEiVec.b;
+            layer.ao = packedMRAoEiVec.r;
+            layer.roughness = packedMRAoEiVec.g;
+            layer.metallic = packedMRAoEiVec.b;
             layer.emission *= packedMRAoEiVec.a * layer.emission.a;            
-        }        
-   //________________________________    
-  //   Basic Texture Reads:
-  
-        //  Albedo:
-        void PBRTerrainUtils_readAlbedoTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){         
-            vec4 packedAlbedoVec = texture2D(tex, texCoord * scale);
-            updateLayerFromPackedAlbedoMap(packedAlbedoVec, layer);
         }    
-        //  normal:
-        void PBRTerrainUtils_readNormalTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){
-            vec4 packedNormalParallaxVec = texture2D(tex, texCoord * scale);
-            updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);
-        } 
-        //  metallicRoughnessAoEi:
-        void PBRTerrainUtils_readMetallicRoughnessAoEiTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){
-            vec4 packedMRAoEi = texture2D(tex, texCoord * scale);
-            updateLayerFromPackedMRAoEiVec(packedMRAoEi, layer);
-        }     
-   //________________________________    
-  //   Basic Triplanar Reads:
-           
-        //  Triplanar Albedo:
-        void PBRTerrainUtils_readTriPlanarAlbedoTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){         
-            vec4 packedAlbedoVec = getTriPlanarBlend(lPosition, tex, scale);
-            updateLayerFromPackedAlbedoMap(packedAlbedoVec, layer);
-        }    
-        //  Triplanar normal:
-        void PBRTerrainUtils_readTriPlanarNormalTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){
-            vec4 packedNormalParallaxVec = getTriPlanarNormalBlend(lPosition, tex, scale);
-            updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);
-        } 
-        //  TriPlanar metallicRoughnessAoEi:
-        void PBRTerrainUtils_readTriPlanarMetallicRoughnessAoEiTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){
-            vec4 packedMRAoEi = getTriPlanarBlend(lPosition, tex, scale);
-            updateLayerFromPackedMRAoEiVec(packedMRAoEi, layer);
-        }            
-   //________________________________    
-  //  Basic TexArray reads:      
-  
-       //  Albedo TextureArray:
-        void PBRTerrainUtils_readAlbedoTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
-            vec4 packedAlbedoVec = texture2DArray(texArray, vec3(texCoord * scale, indexInTexArray));
-            updateLayerFromPackedAlbedoMap(packedAlbedoVec, layer);           
-        }    
-     //  Normal TextureArray:
-        void PBRTerrainUtils_readNormalTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
-            vec4 packedNormalParallaxVec = texture2DArray(texArray, vec3(texCoord * scale, indexInTexArray));
-            updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);           
-        } 
-     //  metallicRoughnessAoEi TextureArray:
-        void PBRTerrainUtils_readMetallicRoughnessAoEiTexArray(in int indexInTexArray, float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
-            vec4 packedMRAoEi = texture2DArray(texArray, vec3(texCoord * scale, indexInTexArray));
-            updateLayerFromPackedMRAoEiVec(packedMRAoEi, layer);           
-        } 
-   //________________________________    
-  //   Triplanar TexArray reads:
-     
-       // Triplana Albedo TextureArray:
+    //________
+    
+        // read Triplanar Albedo from TextureArray:
         void PBRTerrainUtils_readTriPlanarAlbedoTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){         
             vec4 packedAlbedoVec = getTriPlanarBlendFromTexArray(lPosition, indexInTexArray, scale, texArray);
             updateLayerFromPackedAlbedoMap(packedAlbedoVec, layer);
         }    
-       // Triplanar normal TextureArray:
+        // read Triplanar normal from TextureArray:
         void PBRTerrainUtils_readTriPlanarNormalTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
-            vec4 packedNormalParallaxVec = getTriPlanarNormalBlendFromTexArray(lPosition, indexInTexArray, scale, texArray);
+            vec4 packedNormalParallaxVec = getTriPlanarBlendFromTexArray(lPosition, indexInTexArray, scale, texArray);
             updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);
         } 
-       //  TriPlanar metallicRoughnessAoEi TextureArray:
+        // read TriPlanar metallicRoughnessAoEi from TextureArray:
         void PBRTerrainUtils_readTriPlanarMetallicRoughnessAoEiTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
             vec4 packedMRAoEi = getTriPlanarBlendFromTexArray(lPosition, indexInTexArray, scale, texArray);
             updateLayerFromPackedMRAoEiVec(packedMRAoEi, layer);
         }         
-   //_______________________________      
-   
-  //blend layer function:   
+     //________ 
+        
+        // read Albedo from TextureArray:
+        void PBRTerrainUtils_readAlbedoTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
+            vec4 packedAlbedoVec = texture2DArray(texArray, vec3(texCoord * scale, indexInTexArray));
+            updateLayerFromPackedAlbedoMap(packedAlbedoVec, layer);
+           
+        }    
+        // read Normal from TextureArray:
+        void PBRTerrainUtils_readNormalTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
+            vec4 packedNormalParallaxVec = texture2DArray(texArray, vec3(texCoord * scale, indexInTexArray));
+            updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);           
+        } 
+        // read metallicRoughnessAoEi from TextureArray:
+        void PBRTerrainUtils_readMetallicRoughnessAoEiTexArray(in int indexInTexArray, float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
+            vec4 packedMRAoEi = texture2DArray(texArray, vec3(texCoord * scale, indexInTexArray));
+            updateLayerFromPackedMRAoEiVec(packedMRAoEi, layer);
+           
+        } 
+     //________
+        
+
+    
         void PBRTerrainUtils_blendPBRTerrainLayer(inout PBRSurface surface, inout PBRTerrainTextureLayer layer){
 
-        //mixes this layer's pbr vars over top of the current surface values based on the layer's blendValue 
+
+        //mix values from this index layer to final output values based on finalAlphaBlendForLayer 
             surface.albedo = mix(surface.albedo, layer.albedo.rgb, layer.blendValue);        
-            surface.normal = normalize(mix(surface.normal.rgb, layer.normal, layer.blendValue));        
+            surface.normal = mix(surface.normal.rgb, layer.normal, layer.blendValue);        
             surface.metallic = mix(surface.metallic, layer.metallic, layer.blendValue);
             surface.roughness = mix(surface.roughness, layer.roughness, layer.blendValue);
             surface.ao = mix(surface.ao, vec3(layer.ao), layer.blendValue);
