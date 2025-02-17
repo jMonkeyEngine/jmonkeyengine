@@ -1,7 +1,9 @@
 dependencies {
     api project(':jme3-core')
     api project(':jme3-desktop')
-    api libs.lwjgl3.awt
+    api (libs.lwjgl3.awt) {
+        exclude group: 'org.lwjgl', module: 'lwjgl'
+    }
 
     api libs.lwjgl3.base
     api libs.lwjgl3.glfw
