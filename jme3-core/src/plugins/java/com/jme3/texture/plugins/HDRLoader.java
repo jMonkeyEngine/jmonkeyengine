@@ -101,18 +101,6 @@ public class HDRLoader implements AssetLoader {
         rgbf[2] = (B / 256.0f) * e;
     }
 
-    public static void convertRGBEtoFloat3(byte[] rgbe, float[] rgbf){
-        int R = rgbe[0] & 0xFF,
-            G = rgbe[1] & 0xFF,
-            B = rgbe[2] & 0xFF,
-            E = rgbe[3] & 0xFF;
-
-        float e = (float) Math.pow(2f, E - (128 + 8) );
-        rgbf[0] = R * e;
-        rgbf[1] = G * e;
-        rgbf[2] = B * e;
-    }
-
     private void writeRGBE(byte[] rgbe){
         if (writeRGBE){
             dataStore.put(rgbe);
