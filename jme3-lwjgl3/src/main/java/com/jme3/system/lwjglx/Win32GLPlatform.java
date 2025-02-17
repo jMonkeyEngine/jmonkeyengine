@@ -52,8 +52,7 @@ final class Win32GLPlatform extends PlatformWin32GLCanvas implements LwjglxGLPla
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /* (non-Javadoc)
      * @see com.jme3.system.lwjglx.LwjglxGLPlatform#destroy() 
      */
     @Override
