@@ -33,6 +33,7 @@ import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.logging.Logger;
 
 /**
@@ -78,6 +79,7 @@ public class OSVR implements VRAPI {
      */
     public static byte[] OpenGLString = { 'O', 'p', 'e', 'n', 'G', 'L', (byte)0 };
 
+    private final IntBuffer lastError = IntBuffer.allocate(2);
     private final Matrix4f[] eyeMatrix = new Matrix4f[2];
 
     private PointerByReference grabRM;
@@ -180,7 +182,7 @@ public class OSVR implements VRAPI {
      */
     public void grabGLFWContext() {
         // get current context
-        wglGLFW = org.lwjgl.opengl.WGL.wglGetCurrentContext();
+        wglGLFW = org.lwjgl.opengl.WGL.wglGetCurrentContext(lastError);
         glfwContext = org.lwjgl.glfw.GLFW.glfwGetCurrentContext();
     }
 
@@ -189,7 +191,7 @@ public class OSVR implements VRAPI {
      * @return <code>true</code> if the context is successfully shared and <code>false</code> otherwise.
      */
     public boolean shareContext() {
-        if( org.lwjgl.opengl.WGL.wglShareLists(wglRM, wglGLFW)) {
+        if (org.lwjgl.opengl.WGL.wglShareLists(lastError, wglRM, wglGLFW)) {
             System.out.println("Context sharing success!");
             return true;
         } else {
@@ -216,7 +218,7 @@ public class OSVR implements VRAPI {
             openResults.setAutoSynch(false);
             retval = OsvrRenderManagerOpenGLLibrary.osvrRenderManagerOpenDisplayOpenGL(renderManager, openResults);
             if( retval == 0 ) {
-                wglRM = org.lwjgl.opengl.WGL.wglGetCurrentContext();
+                wglRM = org.lwjgl.opengl.WGL.wglGetCurrentContext(lastError);
                 renderManagerContext = org.lwjgl.glfw.GLFW.glfwGetCurrentContext();
                 shareContext();
                 OsvrClientKitLibrary.osvrClientUpdate(context);
@@ -298,7 +300,6 @@ public class OSVR implements VRAPI {
         // may need to take current position and negate it from future values
     }
 
-    @Override
     public void getRenderSize(Vector2f store) {
         if( eyeLeftInfo == null || eyeLeftInfo.viewport.width == 0.0 ) {
             store.x = 1280f; store.y = 720f;
@@ -345,7 +346,6 @@ public class OSVR implements VRAPI {
         return storePos;
     }
 
-    @Override
     public void getPositionAndOrientation(Vector3f storePos, Quaternion storeRot) {
         storePos.x = (float)-hmdPose.translation.data[0];
         storePos.y = (float)hmdPose.translation.data[1];
