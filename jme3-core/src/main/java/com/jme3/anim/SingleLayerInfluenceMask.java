@@ -34,11 +34,15 @@ package com.jme3.anim;
 import com.jme3.scene.Spatial;
 
 /**
- * Mask that excludes joints from participating in the layer
- * if a higher layer is using those joints in an animation.
+ * Mask that excludes joints from participating in the layer if a higher layer
+ * is using those joints in an animation.
+ * 
+ * @deprecated This class is deprecated because it cannot serialize its
+ *             variables as required by its superclass.
  * 
  * @author codex
  */
+@Deprecated
 public class SingleLayerInfluenceMask extends ArmatureMask {
     
     private final String layer;
