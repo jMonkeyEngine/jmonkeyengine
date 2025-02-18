@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -480,7 +480,18 @@ public class Spline implements Savable {
         oc.writeSavableArrayList((ArrayList) CRcontrolPoints, "CRControlPoints", null);
         oc.write(curveTension, "curveTension", 0.5f);
         oc.write(cycle, "cycle", false);
-        oc.writeSavableArrayList((ArrayList<Float>) knots, "knots", null);
+
+        float[] knotArray;
+        if (knots == null) {
+            knotArray = null;
+        } else {
+            knotArray = new float[knots.size()];
+            for (int i = 0; i < knotArray.length; ++i) {
+                knotArray[i] = knots.get(i);
+            }
+        }
+        oc.write(knotArray, "knots", null);
+
         oc.write(weights, "weights", null);
         oc.write(basisFunctionDegree, "basisFunctionDegree", 0);
     }
@@ -506,12 +517,22 @@ public class Spline implements Savable {
                 segmentsLength.add(list[i]);
             }
         }
-        type = in.readEnum("pathSplineType", SplineType.class, SplineType.CatmullRom);
+        type = in.readEnum("type", SplineType.class, SplineType.CatmullRom);
         totalLength = in.readFloat("totalLength", 0);
         CRcontrolPoints = in.readSavableArrayList("CRControlPoints", null);
         curveTension = in.readFloat("curveTension", 0.5f);
         cycle = in.readBoolean("cycle", false);
-        knots = in.readSavableArrayList("knots", null);
+
+        float[] knotArray = in.readFloatArray("knots", null);
+        if (knotArray == null) {
+            this.knots = null;
+        } else {
+            this.knots = new ArrayList<>(knotArray.length);
+            for (float knot : knotArray) {
+                knots.add(knot);
+            }
+        }
+
         weights = in.readFloatArray("weights", null);
         basisFunctionDegree = in.readInt("basisFunctionDegree", 0);
     }
