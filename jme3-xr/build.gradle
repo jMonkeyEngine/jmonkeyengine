@@ -1,0 +1,30 @@
+dependencies {
+    api project(':jme3-core')
+    api project(':jme3-lwjgl3')
+    api project(':jme3-desktop')
+    api project(':jme3-effects')
+	
+    // https://mvnrepository.com/artifact/net.java.dev.jna/jna
+    implementation 'net.java.dev.jna:jna:5.10.0'
+    implementation 'com.nativelibs4java:jnaerator-runtime:0.12'
+
+    // Native OpenXR/LWJGL support
+    api "org.lwjgl:lwjgl-openxr:${lwjgl3Version}"
+//    implementation "org.lwjgl:lwjgl-openxr:${lwjgl3Version}:natives-linux"
+//    implementation "org.lwjgl:lwjgl-openxr:${lwjgl3Version}:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-openxr:${lwjgl3Version}:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-openxr:${lwjgl3Version}:natives-linux"
+//    runtimeOnly "org.lwjgl:lwjgl-openxr:${lwjgl3Version}:natives-macos"
+
+    // Necessary by lwjgl-openxr
+    api "org.joml:joml:1.10.4"
+    api "org.lwjgl:lwjgl-egl:${lwjgl3Version}"
+//    api "org.lwjgl:lwjgl-vulkan:${lwjgl3Version}"
+}
+
+javadoc {
+    // Disable doclint for JDK8+.
+    if (JavaVersion.current().isJava8Compatible()){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
