@@ -87,19 +87,6 @@ public class AWTLoader implements AssetLoader {
             System.arraycopy(sln, 0,         img, y2 * scSz, scSz);
         }
     }
-    
-    private void flipImage(short[] img, int width, int height, int bpp){
-        int scSz = (width * bpp) / 8;
-        scSz /= 2; // Because shorts are 2 bytes
-        short[] sln = new short[scSz];
-        int y2 = 0;
-        for (int y1 = 0; y1 < height / 2; y1++){
-            y2 = height - y1 - 1;
-            System.arraycopy(img, y1 * scSz, sln, 0,         scSz);
-            System.arraycopy(img, y2 * scSz, img, y1 * scSz, scSz);
-            System.arraycopy(sln, 0,         img, y2 * scSz, scSz);
-        }
-    }
 
     public Image load(BufferedImage img, boolean flipY){
         int width = img.getWidth();
