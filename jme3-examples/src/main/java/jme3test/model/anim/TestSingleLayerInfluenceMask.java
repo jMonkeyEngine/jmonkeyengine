@@ -118,11 +118,9 @@ public class TestSingleLayerInfluenceMask extends SimpleApplication implements A
         skin = model.getControl(SkinningControl.class);
         
         if (useSLIMask) {
-            SingleLayerInfluenceMask walkLayer = new SingleLayerInfluenceMask("idleLayer", anim, skin);
-            walkLayer.addAll();
+            SingleLayerInfluenceMask walkLayer = SingleLayerInfluenceMask.all("idleLayer", anim, skin.getArmature());
             walkLayer.makeLayer();
-            SingleLayerInfluenceMask danceLayer = new SingleLayerInfluenceMask("danceLayer", anim, skin);
-            danceLayer.addAll();
+            SingleLayerInfluenceMask danceLayer = SingleLayerInfluenceMask.all("danceLayer", anim, skin.getArmature());
             danceLayer.makeLayer();
         } else {
             anim.makeLayer("idleLayer", ArmatureMask.createMask(skin.getArmature(), "Root"));
