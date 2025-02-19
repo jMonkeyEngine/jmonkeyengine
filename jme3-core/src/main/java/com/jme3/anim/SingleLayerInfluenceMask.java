@@ -31,7 +31,13 @@
  */
 package com.jme3.anim;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.scene.Spatial;
+
+import java.io.IOException;
 
 /**
  * Mask that excludes joints from participating in the layer
@@ -41,8 +47,13 @@ import com.jme3.scene.Spatial;
  */
 public class SingleLayerInfluenceMask extends ArmatureMask {
     
-    private final String layer;
+    private String layer;
     private AnimComposer anim;
+
+    /**
+     * Serialization only.
+     */
+    public SingleLayerInfluenceMask() {}
 
     /**
      * @param layer The layer this mask is targeted for. It is important
@@ -136,7 +147,7 @@ public class SingleLayerInfluenceMask extends ArmatureMask {
     public boolean contains(Object target) {
         return simpleContains(target) && (anim == null || !isAffectedByUpperLayers(target));
     }
-    
+
     private boolean simpleContains(Object target) {
         return super.contains(target);
     }
@@ -165,6 +176,20 @@ public class SingleLayerInfluenceMask extends ArmatureMask {
             }
         }
         return false;
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(layer, "layer", null);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule in = im.getCapsule(this);
+        layer = in.readString("layer", null);
     }
     
     /**
