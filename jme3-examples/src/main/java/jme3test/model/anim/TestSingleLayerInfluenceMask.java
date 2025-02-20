@@ -37,7 +37,7 @@ import com.jme3.anim.Armature;
 import com.jme3.anim.ArmatureMask;
 import com.jme3.anim.SingleLayerInfluenceMask;
 import com.jme3.anim.SkinningControl;
-import com.jme3.anim.tween.action.ClipAction;
+import com.jme3.anim.tween.action.BlendableAction;
 import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.SimpleApplication;
 import com.jme3.export.binary.BinaryExporter;
@@ -137,11 +137,8 @@ public class TestSingleLayerInfluenceMask extends SimpleApplication implements A
         animComposer = model.getControl(AnimComposer.class);
         skinningControl = model.getControl(SkinningControl.class);
 
-        ClipAction clip = (ClipAction) animComposer.action("Dance");
-        clip.setMaxTransitionWeight(.9f);
-
-        ClipAction clip2 = (ClipAction) animComposer.action("IdleTop");
-        clip2.setMaxTransitionWeight(.8f);
+        ((BlendableAction) animComposer.action("Dance")).setMaxTransitionWeight(.9f);
+        ((BlendableAction) animComposer.action("IdleTop")).setMaxTransitionWeight(.8f);
     }
 
     /**
