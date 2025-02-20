@@ -66,6 +66,17 @@ public class SingleLayerInfluenceMask extends ArmatureMask {
         this.targetLayer = targetLayer;
         this.animComposer = animComposer;
     }
+    
+    /**
+     * Instantiate a mask that affects no joints.
+     * 
+     * @param targetLayer  The layer this mask is targeted for.
+     * @param animComposer The animation composer associated with this mask.
+     */
+    public SingleLayerInfluenceMask(String targetLayer, AnimComposer animComposer) {
+        this.targetLayer = targetLayer;
+        this.animComposer = animComposer;
+    }
 
     /**
      * Get the layer this mask is targeted for.
