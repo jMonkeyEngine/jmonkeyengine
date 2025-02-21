@@ -156,8 +156,8 @@ public class TestSingleLayerInfluenceMask extends SimpleApplication implements A
 
         } else {
             // Create default armature masks for idle and dance layers
-            idleMask = ArmatureMask.createMask(armature, "Root");
-            danceMask = ArmatureMask.createMask(armature, "Root");
+            idleMask = new ArmatureMask(armature);
+            danceMask = new ArmatureMask(armature);
         }
 
         // Assign the masks to the respective animation layers
