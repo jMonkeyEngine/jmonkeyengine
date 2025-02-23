@@ -131,7 +131,6 @@ public class VRConstants {
      *
      * Deprecated as only the lwjgl OpenVr version has been upgraded to modern action based inputs
      *
-     * @see #SETTING_VRAPI_OSVR_VALUE
      * @see #SETTING_VRAPI_OPENVR_LWJGL_VALUE
      * @see #SETTING_VRAPI_OCULUSVR_VALUE
      */
@@ -139,22 +138,9 @@ public class VRConstants {
     public static final int SETTING_VRAPI_OPENVR_VALUE       = 1;
 
     /**
-     * The identifier of the OSVR system.
-     *
-     * Deprecated as an OpenVr system should be used instead for a non vender specific api
-     *
-     * @see #SETTING_VRAPI_OPENVR_VALUE
-     * @see #SETTING_VRAPI_OPENVR_LWJGL_VALUE
-     * @see #SETTING_VRAPI_OCULUSVR_VALUE
-     */
-    @Deprecated
-    public static final int SETTING_VRAPI_OSVR_VALUE         = 2;
-
-    /**
      * The identifier of the OpenVR from LWJGL system.
      *
      * @see #SETTING_VRAPI_OPENVR_VALUE
-     * @see #SETTING_VRAPI_OSVR_VALUE
      * @see #SETTING_VRAPI_OCULUSVR_VALUE
      */
     public static final int SETTING_VRAPI_OPENVR_LWJGL_VALUE = 3;
@@ -165,7 +151,6 @@ public class VRConstants {
      * Deprecated as an OpenVr system should be used instead (and the rift itself is discontinued)
      *
      * @see #SETTING_VRAPI_OPENVR_VALUE
-     * @see #SETTING_VRAPI_OSVR_VALUE
      * @see #SETTING_VRAPI_OPENVR_LWJGL_VALUE
      */
     @Deprecated
