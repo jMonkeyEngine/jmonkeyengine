@@ -266,9 +266,6 @@ MaterialDef AdvancedPBRTerrain {
 
         // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
-
-        //do not change this or AdvancedPBRTerrain will break
-        Boolean UseTextureArrays : true 
     }
 
     Technique {
@@ -382,7 +379,7 @@ MaterialDef AdvancedPBRTerrain {
 
             DEBUG_VALUES_MODE : DebugValuesMode
 
-            USE_TEXTURE_ARRAYS : UseTextureArrays
+            USE_TEXTURE_ARRAYS : AlbedoTextureArray
         }
     }
 
