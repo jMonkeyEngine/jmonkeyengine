@@ -23,7 +23,7 @@ jna = "net.java.dev.jna:jna:5.10.0"
 jnaerator-runtime = "com.nativelibs4java:jnaerator-runtime:0.12"
 junit4 = "junit:junit:4.13.2"
 lwjgl2 = "org.jmonkeyengine:lwjgl:2.9.5"
-lwjgl3-awt = "org.lwjglx:lwjgl3-awt:0.1.8"
+lwjgl3-awt = "org.lwjglx:lwjgl3-awt:0.2.3"
 
 lwjgl3-base     = { module = "org.lwjgl:lwjgl",          version.ref = "lwjgl3" }
 lwjgl3-glfw     = { module = "org.lwjgl:lwjgl-glfw",     version.ref = "lwjgl3" }
