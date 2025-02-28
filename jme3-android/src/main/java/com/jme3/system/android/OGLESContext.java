@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -247,10 +247,19 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             }
 
             listener.destroy();
+            // releases the view holder from the Android Input Resources
+            // releasing the view enables the context instance to be
+            // reclaimed by the GC.
+            // if not released; it leads to a weak reference leak
+            // disabling the destruction of the Context View Holder.
+            androidInput.setView(null);
 
+            // nullifying the references
+            // signals their memory to be reclaimed
             listener = null;
             renderer = null;
             timer = null;
+            androidInput = null;
 
             // do android specific cleaning here
             logger.fine("Display destroyed.");

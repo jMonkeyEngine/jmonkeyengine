@@ -1,6 +1,6 @@
+//author @jayfella
 #ifndef __MATERIAL_FOG_UTIL__
     #define __MATERIAL_FOG_UTIL__
-
 
     vec4 getFogLinear(in vec4 diffuseColor, in vec4 fogColor, in float start, in float end, in float distance) {
 
@@ -39,8 +39,7 @@
 
         #ifdef FOG_EXPSQ
             uniform float m_ExpSqFog;        
-        #endif
-        
+        #endif        
 
         vec4 MaterialFog_calculateFogColor(in vec4 fragColor){
             #ifdef FOG_LINEAR
@@ -54,7 +53,7 @@
             #endif
 
             return fragColor;
-        }           
+        }          
 
     #endif   
 #endif
