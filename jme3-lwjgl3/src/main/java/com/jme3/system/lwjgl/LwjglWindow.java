@@ -357,8 +357,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (!settings.isFullscreen()) {
             if (settings.getCenterWindow()) {
                 // Center the window
-                requestX = videoMode.width() - requestWidth;
-                requestY = videoMode.height() - requestWidth;
+                requestX = (videoMode.width() - requestWidth) / 2;
+                requestY = (videoMode.height() - requestHeight) / 2;
             } else {
                 requestX = settings.getWindowXPosition();
                 requestY = settings.getWindowYPosition();
