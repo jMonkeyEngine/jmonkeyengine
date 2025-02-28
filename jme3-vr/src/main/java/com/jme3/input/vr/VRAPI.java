@@ -7,7 +7,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 
 /**
- * An interface that represents a VR system. This interface has to be implemented in order to wrap underlying VR system (OpenVR, OSVR, ...)
+ * An interface that represents a VR system. This interface has to be implemented in order to wrap underlying VR system (OpenVR, OculusVR, ...)
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
