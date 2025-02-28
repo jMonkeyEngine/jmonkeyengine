@@ -237,7 +237,7 @@ MaterialDef PBR Terrain {
         LightMode SinglePassAndImageBased
 
         VertexShader    GLSL300 GLSL150 GLSL130 GLSL100:   Common/MatDefs/Terrain/PBRTerrain.vert
-        FragmentShader  GLSL300 GLSL150 GLSL130 GLSL100: Common/MatDefs/Terrain/PBRTerrain.frag
+        FragmentShader  GLSL300 GLSL150 GLSL130 GLSL100: Common/MatDefs/Terrain/AdvancedPBRTerrain.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
