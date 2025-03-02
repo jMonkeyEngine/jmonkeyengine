@@ -42,8 +42,17 @@ import org.lwjgl.opengl.awt.PlatformWin32GLCanvas;
  */
 final class Win32GLPlatform extends PlatformWin32GLCanvas implements LwjglxGLPlatform {
 
-    /**
-     * (non-Javadoc)
+    /* (non-Javadoc)
+     * @see com.jme3.system.lwjglx.LwjglxGLPlatform#dispose()
+     */
+    @Override
+    public void dispose() {
+        if (ds != null) {
+            super.dispose();
+        }
+    }
+
+    /* (non-Javadoc)
      * @see com.jme3.system.lwjglx.LwjglxGLPlatform#destroy() 
      */
     @Override
