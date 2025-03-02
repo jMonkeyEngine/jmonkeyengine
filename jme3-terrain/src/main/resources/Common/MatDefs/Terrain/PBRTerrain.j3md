@@ -4,13 +4,14 @@ MaterialDef PBR Terrain {
     MaterialParameters {
         Int BoundDrawBuffer
 
-
-        Boolean UseVertexColorsAsSunIntensity //set true to make the vertex color's R channel how exposed a vertex is to the sun
-        Float StaticSunIntensity              //used for setting the sun exposure value for a whole material
+        Texture2D SunLightExposureMap
+        Boolean UseVertexColorsAsSunExposure //set true to make the vertex color's R channel how exposed a vertex is to the sun
+        Float StaticSunExposure              //used for setting the sun exposure value for a whole material
                                              //these are usually generated at run time or setup in a level editor per-geometry, so that models indoors can have the DirectionalLight dimmed accordingly.
 
         Boolean BrightenIndoorShadows  //set true if shadows are enabled and indoor areas without full sun exposure are too dark compared to when shadows are turned off in settings
 
+        Boolean UseFirstLayerAsTransparency
 
         Int AfflictionSplatScale : 8
 
@@ -78,18 +79,31 @@ MaterialDef PBR Terrain {
         Float Metallic_10 : 0.0
         Float Metallic_11 : 0.0
 
+        Boolean UseTriPlanarMapping_0
+        Boolean UseTriPlanarMapping_1
+        Boolean UseTriPlanarMapping_2
+        Boolean UseTriPlanarMapping_3
+        Boolean UseTriPlanarMapping_4
+        Boolean UseTriPlanarMapping_5
+        Boolean UseTriPlanarMapping_6
+        Boolean UseTriPlanarMapping_7
+        Boolean UseTriPlanarMapping_8
+        Boolean UseTriPlanarMapping_9
+        Boolean UseTriPlanarMapping_10
+        Boolean UseTriPlanarMapping_11
 
-        // debug the final value of the selected layer as a color output            
+         // debug the final value of the selected layer as a color output            
         Int DebugValuesMode
-
             // Layers:
-            //   0 - albedo (un-shaded)
+            //   0 - albedo (unshaded)
             //   1 - normals
             //   2 - roughness
             //   3 - metallic
             //   4 - ao
-            //   5  - emissive
-
+            //   5 - emissive
+            //   6 - exposure
+            //   7 - alpha
+            //   8 - geometryNormals
 
         // use tri-planar mapping
         Boolean useTriPlanarMapping
@@ -154,20 +168,10 @@ MaterialDef PBR Terrain {
         Float AlbedoMap_11_scale
         Texture2D NormalMap_11 -LINEAR
 
-
-
         // Texture that specifies alpha values
         Texture2D AlphaMap -LINEAR
         Texture2D AlphaMap_1 -LINEAR
         Texture2D AlphaMap_2 -LINEAR
-
-        // For Spec gloss pipeline
-        Boolean UseSpecGloss
-        Texture2D SpecularMap
-        Texture2D GlossinessMap
-        Texture2D SpecularGlossinessMap
-        Color Specular : 1.0 1.0 1.0 1.0
-        Float Glossiness : 1.0
 
         Vector4 ProbeData
 
@@ -221,7 +225,6 @@ MaterialDef PBR Terrain {
 
         Boolean BackfaceShadows : false
 
-
         Boolean UseFog
         Color FogColor
         Vector2 LinearFog
@@ -247,7 +250,6 @@ MaterialDef PBR Terrain {
             ViewProjectionMatrix
             ViewMatrix
             Time
-
         }
 
         Defines {
@@ -266,7 +268,6 @@ MaterialDef PBR Terrain {
             SPECULAR_AA : UseSpecularAA
             SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
             SPECULAR_AA_THRESHOLD : SpecularAAKappa
-
 
             USE_VERTEX_COLORS_AS_SUN_INTENSITY : UseVertexColorsAsSunIntensity
             STATIC_SUN_INTENSITY : StaticSunIntensity
@@ -322,6 +323,19 @@ MaterialDef PBR Terrain {
             ALBEDOMAP_9_SCALE : AlbedoMap_9_scale
             ALBEDOMAP_10_SCALE : AlbedoMap_10_scale
             ALBEDOMAP_11_SCALE : AlbedoMap_11_scale
+
+            TRI_PLANAR_MAPPING_0 : UseTriPlanarMapping_0
+            TRI_PLANAR_MAPPING_1 : UseTriPlanarMapping_1
+            TRI_PLANAR_MAPPING_2 : UseTriPlanarMapping_2
+            TRI_PLANAR_MAPPING_3 : UseTriPlanarMapping_3
+            TRI_PLANAR_MAPPING_4 : UseTriPlanarMapping_4
+            TRI_PLANAR_MAPPING_5 : UseTriPlanarMapping_5
+            TRI_PLANAR_MAPPING_6 : UseTriPlanarMapping_6
+            TRI_PLANAR_MAPPING_7 : UseTriPlanarMapping_7
+            TRI_PLANAR_MAPPING_8 : UseTriPlanarMapping_8
+            TRI_PLANAR_MAPPING_9 : UseTriPlanarMapping_9
+            TRI_PLANAR_MAPPING_10 : UseTriPlanarMapping_10
+            TRI_PLANAR_MAPPING_11 : UseTriPlanarMapping_11
 
             DEBUG_VALUES_MODE : DebugValuesMode
             
