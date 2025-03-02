@@ -269,8 +269,9 @@ MaterialDef PBR Terrain {
             SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
             SPECULAR_AA_THRESHOLD : SpecularAAKappa
 
-            USE_VERTEX_COLORS_AS_SUN_INTENSITY : UseVertexColorsAsSunIntensity
-            STATIC_SUN_INTENSITY : StaticSunIntensity
+            EXPOSUREMAP : SunLightExposureMap
+            USE_VERTEX_COLORS_AS_SUN_EXPOSURE : UseVertexColorsAsSunExposure
+            STATIC_SUN_EXPOSURE : StaticSunExposure
             BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
 
             DISCARD_ALPHA : AlphaDiscardThreshold
