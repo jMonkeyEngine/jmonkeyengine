@@ -274,6 +274,8 @@ MaterialDef PBR Terrain {
             STATIC_SUN_EXPOSURE : StaticSunExposure
             BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
 
+            USE_FIRST_LAYER_AS_TRANSPARENCY : UseFirstLayerAsTransparency
+
             DISCARD_ALPHA : AlphaDiscardThreshold
 
             USE_FOG : UseFog
