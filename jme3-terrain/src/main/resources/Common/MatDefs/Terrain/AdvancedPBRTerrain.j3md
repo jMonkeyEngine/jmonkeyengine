@@ -28,7 +28,6 @@ MaterialDef AdvancedPBRTerrain {
         Float AfflictionMetallicValue : 0.0
         Float AfflictionEmissiveValue : 0.0   //note that this is simplified into one value, rather than 2 with power and intensity like the regular pbr values.
 
-
      // affliction texture splatting & desaturation functionality
         Boolean UseTriplanarAfflictionMapping
 
@@ -198,13 +197,6 @@ MaterialDef AdvancedPBRTerrain {
         Texture2D AlphaMap_1 -LINEAR
         Texture2D AlphaMap_2 -LINEAR
 
-        Boolean UseSpecGloss
-        Texture2D SpecularMap
-        Texture2D GlossinessMap
-        Texture2D SpecularGlossinessMap
-        Color Specular : 1.0 1.0 1.0 1.0
-        Float Glossiness : 1.0
-
         Vector4 ProbeData
 
         // Prefiltered Env Map for indirect specular lighting
@@ -215,7 +207,6 @@ MaterialDef AdvancedPBRTerrain {
 
         //integrate BRDF map for indirect Lighting
         Texture2D IntegrateBRDF -LINEAR
-
 
         //shadows
         Int FilterMode
@@ -283,7 +274,6 @@ MaterialDef AdvancedPBRTerrain {
             ViewProjectionMatrix
             ViewMatrix
             Time
-
         }
 
         Defines {
