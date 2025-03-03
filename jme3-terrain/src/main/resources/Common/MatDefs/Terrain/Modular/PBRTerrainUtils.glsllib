@@ -7,6 +7,10 @@
     #import "Common/ShaderLib/TriPlanarUtils.glsllib"
 
     #ifdef ENABLE_PBRTerrainUtils_readPBRTerrainLayers   
+    
+        #ifndef NORMAL_TYPE
+            #define NORMAL_TYPE 1.0
+        #endif
 
         #ifdef USE_TEXTURE_ARRAYS
             //texture arrays:
@@ -22,6 +26,7 @@
             uniform float m_Metallic_$i;
             uniform float m_AlbedoMap_$i_scale;
             uniform vec4 m_EmissiveColor_$i;
+
 
             #ifdef USE_TEXTURE_ARRAYS
                 uniform int m_AlbedoMap_$i;
@@ -139,6 +144,7 @@
         //  normal:
         void PBRTerrainUtils_readNormalTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){
             vec4 packedNormalParallaxVec = texture2D(tex, texCoord * scale);
+            packedNormalParallaxVec.xyz *= normalize(vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0));
             updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);
         } 
         //  metallicRoughnessAoEi:
@@ -157,6 +163,7 @@
         //  Triplanar normal:
         void PBRTerrainUtils_readTriPlanarNormalTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){
             vec4 packedNormalParallaxVec = getTriPlanarNormalBlend(lPosition, tex, scale);
+            packedNormalParallaxVec.xyz *= normalize(vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0));
             updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);
         } 
         //  TriPlanar metallicRoughnessAoEi:
@@ -175,6 +182,7 @@
      //  Normal TextureArray:
         void PBRTerrainUtils_readNormalTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
             vec4 packedNormalParallaxVec = texture2DArray(texArray, vec3(texCoord * scale, indexInTexArray));
+            packedNormalParallaxVec.xyz *= normalize(vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0));
             updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);           
         } 
      //  metallicRoughnessAoEi TextureArray:
@@ -193,6 +201,7 @@
        // Triplanar normal TextureArray:
         void PBRTerrainUtils_readTriPlanarNormalTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
             vec4 packedNormalParallaxVec = getTriPlanarNormalBlendFromTexArray(lPosition, indexInTexArray, scale, texArray);
+            packedNormalParallaxVec.xyz *= normalize(vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0));
             updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);
         } 
        //  TriPlanar metallicRoughnessAoEi TextureArray:
