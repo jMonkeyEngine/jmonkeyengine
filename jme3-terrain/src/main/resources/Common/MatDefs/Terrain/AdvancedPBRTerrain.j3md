@@ -16,6 +16,9 @@ MaterialDef AdvancedPBRTerrain {
         TextureArray NormalParallaxTextureArray -LINEAR
         TextureArray MetallicRoughnessAoEiTextureArray -LINEAR
 
+        //The type of normal map: -1.0 (DirectX), 1.0 (OpenGl)
+        Float NormalType : -1.0
+
        // Specular-AA
         Boolean UseSpecularAA : true
         // screen space variance,Use the slider to set the strength of the geometric specular anti-aliasing effect between 0 and 1. Higher values produce a blurrier result with less aliasing.
@@ -288,6 +291,8 @@ MaterialDef AdvancedPBRTerrain {
             USE_VERTEX_COLORS_AS_SUN_EXPOSURE : UseVertexColorsAsSunExposure
             STATIC_SUN_EXPOSURE : StaticSunExposure
             BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
+
+            NORMAL_TYPE: NormalType
 
             USE_FIRST_LAYER_AS_TRANSPARENCY : UseFirstLayerAsTransparency
 
