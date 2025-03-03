@@ -1,6 +1,10 @@
 #ifndef __TRIPLANAR_UTILS_MODULE__
     #define __TRIPLANAR_UTILS_MODULE__
     
+    #ifndef NORMAL_TYPE
+        #define NORMAL_TYPE -1.0
+    #endif
+    
     vec3 triBlending;    
 
     void TriPlanarUtils_calculateBlending(vec3 geometryNormal){
@@ -45,6 +49,7 @@
         
         // blend the results of the 3 planar projections.
         vec4 tex = normalize(col1 * triBlending.x + col2 * triBlending.y + col3 * triBlending.z);
+        tex.y *= NORMAL_TYPE;   
       
         return tex;
     }    
@@ -60,7 +65,8 @@
         col3.xyz = col3.xyz * vec3(2.0) - vec3(1.0);
         
         // blend the results of the 3 planar projections.
-        vec4 tex = normalize(col1 * triBlending.x + col2 * triBlending.y + col3 * triBlending.z);
+        vec4 tex = normalize(col1 * triBlending.x + col2 * triBlending.y + col3 * triBlending.z);        
+        tex.y *= NORMAL_TYPE;        
       
         return tex;
     }   
