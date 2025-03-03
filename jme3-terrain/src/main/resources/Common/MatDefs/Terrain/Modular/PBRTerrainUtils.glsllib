@@ -23,7 +23,6 @@
             uniform float m_AlbedoMap_$i_scale;
             uniform vec4 m_EmissiveColor_$i;
 
-
             #ifdef USE_TEXTURE_ARRAYS
                 uniform int m_AlbedoMap_$i;
                 #ifdef NORMALMAP_$i
