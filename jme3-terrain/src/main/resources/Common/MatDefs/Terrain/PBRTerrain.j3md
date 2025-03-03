@@ -13,6 +13,7 @@ MaterialDef PBR Terrain {
 
         Boolean UseFirstLayerAsTransparency
 
+        Boolean UseTriplanarAfflictionMapping
         Int AfflictionSplatScale : 8
 
         Float AfflictionRoughnessValue : 1.0
@@ -258,6 +259,7 @@ MaterialDef PBR Terrain {
             TILELOCATION : TileLocation
             AFFLICTIONTEXTURE : AfflictionAlphaMap
 
+            USE_TRIPLANAR_AFFLICTION_MAPPING : UseTriplanarAfflictionMapping
             AFFLICTIONALBEDOMAP: SplatAlbedoMap 
             AFFLICTIONNORMALMAP : SplatNormalMap 
             AFFLICTIONROUGHNESSMETALLICMAP : SplatRoughnessMetallicMap
