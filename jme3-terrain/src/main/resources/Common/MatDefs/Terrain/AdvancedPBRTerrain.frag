@@ -35,8 +35,6 @@ void main(){
     // Create a blank PBRSurface.
     PBRSurface surface = PBRLightingUtils_createPBRSurface(worldViewDir);
     
-    surface.alpha = 1.0;
-    surface.normal = surface.geometryNormal;
     //pre-calculate necessary values for tri-planar blending
     TriPlanarUtils_calculateBlending(surface.geometryNormal);
 
@@ -87,13 +85,13 @@ void main(){
             #endif    
         #else
             #if defined(TRI_PLANAR_MAPPING) || defined(TRI_PLANAR_MAPPING_$i)
-              //triplanar texture reads:            
+              //triplanar texture reads:    
                 PBRTerrainUtils_readTriPlanarAlbedoTexture(m_AlbedoMap_$i, m_AlbedoMap_$i_scale, terrainTextureLayer_$i);        
                 #ifdef NORMALMAP_$i
                     PBRTerrainUtils_readTriPlanarNormalTexture(m_NormalMap_$i, m_AlbedoMap_$i_scale, terrainTextureLayer_$i);
                 #endif
                 #ifdef METALLICROUGHNESSMAP_$i
-                    PBRTerrainUtils_readTriPlanarMetallicRoughnessAoEiTexture(m_MetallicRoughnessMap_$i, m_MetallicRoughnessAoEiTextureArray, terrainTextureLayer_$i);
+                    PBRTerrainUtils_readTriPlanarMetallicRoughnessAoEiTexture(m_MetallicRoughnessMap_$i, m_AlbedoMap_$i_scale, terrainTextureLayer_$i);
                 #endif
             #else 
               //non tri-planar texture reads:
@@ -104,8 +102,7 @@ void main(){
                 #ifdef METALLICROUGHNESSMAP_$i
                     PBRTerrainUtils_readMetallicRoughnessAoEiTexture(m_MetallicRoughnessMap_$i, m_AlbedoMap_$i_scale, terrainTextureLayer_$i);
                 #endif       
-            #endif    
-        
+            #endif            
         #endif
         
         //CUSTOM LIB EXAMPLE: uses a custom alpha map to desaturate albedo color for a color-removal effect
@@ -116,8 +113,7 @@ void main(){
 
         //blends this layer
         PBRTerrainUtils_blendPBRTerrainLayer(surface, terrainTextureLayer_$i);
-    #endfor  
-                   
+    #endfor                     
     
     #ifdef DISCARD_ALPHA
         if(surface.alpha < m_AlphaDiscardThreshold){
@@ -155,9 +151,8 @@ void main(){
     gl_FragColor.rgb += surface.directLightContribution;
     gl_FragColor.rgb += surface.envLightContribution;
     gl_FragColor.rgb += surface.emission;
-    gl_FragColor.a = surface.alpha;    
-  
-  
+    gl_FragColor.a = surface.alpha;  
+    
     #ifdef USE_FOG
         gl_FragColor = MaterialFog_calculateFogColor(vec4(gl_FragColor));
     #endif
@@ -166,5 +161,4 @@ void main(){
     #ifdef DEBUG_VALUES_MODE
         gl_FragColor = PBRLightingUtils_getColorOutputForDebugMode(m_DebugValuesMode, vec4(gl_FragColor.rgba), surface);
     #endif      
-
 }
