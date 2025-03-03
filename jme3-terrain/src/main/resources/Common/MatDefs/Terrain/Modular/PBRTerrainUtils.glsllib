@@ -152,17 +152,17 @@
            
         //  Triplanar Albedo:
         void PBRTerrainUtils_readTriPlanarAlbedoTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){         
-            vec4 packedAlbedoVec = getTriPlanarBlend(wPosition, tex, scale);
+            vec4 packedAlbedoVec = getTriPlanarBlend(lPosition, tex, scale);
             updateLayerFromPackedAlbedoMap(packedAlbedoVec, layer);
         }    
         //  Triplanar normal:
         void PBRTerrainUtils_readTriPlanarNormalTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){
-            vec4 packedNormalParallaxVec = getTriPlanarNormalBlend(wPosition, tex, scale);
+            vec4 packedNormalParallaxVec = getTriPlanarNormalBlend(lPosition, tex, scale);
             updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);
         } 
         //  TriPlanar metallicRoughnessAoEi:
         void PBRTerrainUtils_readTriPlanarMetallicRoughnessAoEiTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){
-            vec4 packedMRAoEi = getTriPlanarBlend(wPosition, tex, scale);
+            vec4 packedMRAoEi = getTriPlanarBlend(lPosition, tex, scale);
             updateLayerFromPackedMRAoEiVec(packedMRAoEi, layer);
         }            
    //________________________________    
