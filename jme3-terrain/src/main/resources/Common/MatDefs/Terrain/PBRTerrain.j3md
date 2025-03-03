@@ -83,6 +83,19 @@ MaterialDef PBR Terrain {
         Float Metallic_10 : 0.0
         Float Metallic_11 : 0.0
 
+        Color EmissiveColor_0 : 0.0 0.0 0.0 0.0
+        Color EmissiveColor_1 : 0.0 0.0 0.0 0.0
+        Color EmissiveColor_2 : 0.0 0.0 0.0 0.0
+        Color EmissiveColor_3 : 0.0 0.0 0.0 0.0
+        Color EmissiveColor_4 : 0.0 0.0 0.0 0.0
+        Color EmissiveColor_5 : 0.0 0.0 0.0 0.0
+        Color EmissiveColor_6 : 0.0 0.0 0.0 0.0
+        Color EmissiveColor_7 : 0.0 0.0 0.0 0.0
+        Color EmissiveColor_8 : 0.0 0.0 0.0 0.0
+        Color EmissiveColor_9 : 0.0 0.0 0.0 0.0
+        Color EmissiveColor_10 : 0.0 0.0 0.0 0.0
+        Color EmissiveColor_11 : 0.0 0.0 0.0 0.0
+
         Boolean UseTriPlanarMapping_0
         Boolean UseTriPlanarMapping_1
         Boolean UseTriPlanarMapping_2
