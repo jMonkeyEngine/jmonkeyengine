@@ -152,17 +152,17 @@
            
         //  Triplanar Albedo:
         void PBRTerrainUtils_readTriPlanarAlbedoTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){         
-            vec4 packedAlbedoVec = getTriPlanarBlend(lPosition, tex, scale);
+            vec4 packedAlbedoVec = getTriPlanarBlend(wPosition, tex, scale);
             updateLayerFromPackedAlbedoMap(packedAlbedoVec, layer);
         }    
         //  Triplanar normal:
         void PBRTerrainUtils_readTriPlanarNormalTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){
-            vec4 packedNormalParallaxVec = getTriPlanarNormalBlend(lPosition, tex, scale);
+            vec4 packedNormalParallaxVec = getTriPlanarNormalBlend(wPosition, tex, scale);
             updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);
         } 
         //  TriPlanar metallicRoughnessAoEi:
         void PBRTerrainUtils_readTriPlanarMetallicRoughnessAoEiTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){
-            vec4 packedMRAoEi = getTriPlanarBlend(lPosition, tex, scale);
+            vec4 packedMRAoEi = getTriPlanarBlend(wPosition, tex, scale);
             updateLayerFromPackedMRAoEiVec(packedMRAoEi, layer);
         }            
    //________________________________    
@@ -203,10 +203,8 @@
         }         
    //_______________________________      
    
-  //blend layer function:   
-        void PBRTerrainUtils_blendPBRTerrainLayer(inout PBRSurface surface, inout PBRTerrainTextureLayer layer){
-
-        //mixes this layer's pbr vars over top of the current surface values based on the layer's blendValue 
+  //blend layer function. This mixes each layer's pbr vars over top of the current surface values based on the layer's blendValue
+        void PBRTerrainUtils_blendPBRTerrainLayer(inout PBRSurface surface, inout PBRTerrainTextureLayer layer){       
             surface.albedo = mix(surface.albedo, layer.albedo.rgb, layer.blendValue);        
             surface.normal = normalize(mix(surface.normal.rgb, layer.normal, layer.blendValue));        
             surface.metallic = mix(surface.metallic, layer.metallic, layer.blendValue);
