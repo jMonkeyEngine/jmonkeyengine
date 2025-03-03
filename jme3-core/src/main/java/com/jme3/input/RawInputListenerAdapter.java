@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,63 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.jme3.input;
+
+import com.jme3.input.event.JoyAxisEvent;
+import com.jme3.input.event.JoyButtonEvent;
+import com.jme3.input.event.KeyInputEvent;
+import com.jme3.input.event.MouseButtonEvent;
+import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.input.event.TouchEvent;
+
 /**
- * user-input classes for devices that use the Open Source Virtual Reality
- * (OSVR) API
+ * An abstract adapter class for {@link RawInputListener}.
+ *
+ * This class provides empty implementations for all methods in the
+ * {@link RawInputListener} interface, making it easier to create custom
+ * listeners by extending this class and overriding only the methods of
+ * interest.
  */
-package com.jme3.input.vr.osvr;
+public abstract class RawInputListenerAdapter implements RawInputListener {
+
+    @Override
+    public void beginInput() {
+        // No-op implementation
+    }
+
+    @Override
+    public void endInput() {
+        // No-op implementation
+    }
+
+    @Override
+    public void onJoyAxisEvent(JoyAxisEvent evt) {
+        // No-op implementation
+    }
+
+    @Override
+    public void onJoyButtonEvent(JoyButtonEvent evt) {
+        // No-op implementation
+    }
+
+    @Override
+    public void onMouseMotionEvent(MouseMotionEvent evt) {
+        // No-op implementation
+    }
+
+    @Override
+    public void onMouseButtonEvent(MouseButtonEvent evt) {
+        // No-op implementation
+    }
+
+    @Override
+    public void onKeyEvent(KeyInputEvent evt) {
+        // No-op implementation
+    }
+
+    @Override
+    public void onTouchEvent(TouchEvent evt) {
+        // No-op implementation
+    }
+
+}

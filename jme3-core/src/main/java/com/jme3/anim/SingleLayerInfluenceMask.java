@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 jMonkeyEngine
+ * Copyright (c) 2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,188 +31,126 @@
  */
 package com.jme3.anim;
 
-import com.jme3.scene.Spatial;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import java.io.IOException;
 
 /**
- * Mask that excludes joints from participating in the layer
- * if a higher layer is using those joints in an animation.
- * 
+ * Mask that excludes joints from participating in the layer if a higher layer
+ * is using those joints in an animation.
+ *
  * @author codex
  */
 public class SingleLayerInfluenceMask extends ArmatureMask {
-    
-    private final String layer;
-    private final AnimComposer anim;
-    private final SkinningControl skin;
-    private boolean checkUpperLayers = true;
+
+    private String targetLayer;
+    private AnimComposer animComposer;
     
     /**
-     * @param layer The layer this mask is targeted for. It is important
-     * that this match the name of the layer this mask is (or will be) part of. You
-     * can use {@link makeLayer} to ensure this.
-     * @param spatial Spatial containing necessary controls ({@link AnimComposer} and {@link SkinningControl})
+     * For serialization only. Do not use
      */
-    public SingleLayerInfluenceMask(String layer, Spatial spatial) {
-        super();
-        this.layer = layer;
-        anim = spatial.getControl(AnimComposer.class);
-        skin = spatial.getControl(SkinningControl.class);
-    }
-    /**
-     * @param layer The layer this mask is targeted for. It is important
-     * that this match the name of the layer this mask is (or will be) part of. You
-     * can use {@link makeLayer} to ensure this.
-     * @param anim anim composer this mask is assigned to
-     * @param skin skinning control complimenting the anim composer.
-     */
-    public SingleLayerInfluenceMask(String layer, AnimComposer anim, SkinningControl skin) {
-        super();
-        this.layer = layer;
-        this.anim = anim;
-        this.skin = skin;
+    protected SingleLayerInfluenceMask() {
     }
     
     /**
-     * Makes a layer from this mask.
+     * Instantiate a mask that affects all joints in the specified Armature.
+     *
+     * @param targetLayer  The layer this mask is targeted for.
+     * @param animComposer The animation composer associated with this mask.
+     * @param armature     The Armature containing the joints.
      */
-    public void makeLayer() {
-        anim.makeLayer(layer, this);
+    public SingleLayerInfluenceMask(String targetLayer, AnimComposer animComposer, Armature armature) {
+        super(armature);
+        this.targetLayer = targetLayer;
+        this.animComposer = animComposer;
     }
     
     /**
-     * Adds all joints to this mask.
-     * @return this.instance
+     * Instantiate a mask that affects no joints.
+     * 
+     * @param targetLayer  The layer this mask is targeted for.
+     * @param animComposer The animation composer associated with this mask.
      */
-    public SingleLayerInfluenceMask addAll() {
-        for (Joint j : skin.getArmature().getJointList()) {
-            super.addBones(skin.getArmature(), j.getName());
-        }
-        return this;
+    public SingleLayerInfluenceMask(String targetLayer, AnimComposer animComposer) {
+        this.targetLayer = targetLayer;
+        this.animComposer = animComposer;
     }
-    
-    /**
-     * Adds the given joint and all its children to this mask.
-     * @param joint
-     * @return this instance
-     */
-    public SingleLayerInfluenceMask addFromJoint(String joint) {
-        super.addFromJoint(skin.getArmature(), joint);
-        return this;
-    }
-    
-    /**
-     * Adds the given joints to this mask.
-     * @param joints
-     * @return this instance
-     */
-    public SingleLayerInfluenceMask addJoints(String... joints) {
-        super.addBones(skin.getArmature(), joints);
-        return this;
-    }
-    
-    /**
-     * Makes this mask check if each joint is being used by a higher layer
-     * before it uses them.
-     * <p>Not checking is more efficient, but checking can avoid some
-     * interpolation issues between layers. Default=true
-     * @param check 
-     * @return this instance
-     */
-    public SingleLayerInfluenceMask setCheckUpperLayers(boolean check) {
-        checkUpperLayers = check;
-        return this;
-    }
-    
+
     /**
      * Get the layer this mask is targeted for.
-     * <p>It is extremely important that this value match the actual layer
-     * this is included in, because checking upper layers may not work if
-     * they are different.
-     * @return target layer
+     *
+     * @return The target layer
      */
     public String getTargetLayer() {
-        return layer;
+        return targetLayer;
     }
-    
+
     /**
-     * Get the {@link AnimComposer} this mask is for.
-     * @return anim composer
+     * Sets the animation composer for this mask.
+     *
+     * @param animComposer The new animation composer.
      */
-    public AnimComposer getAnimComposer() {
-        return anim;
+    public void setAnimComposer(AnimComposer animComposer) {
+        this.animComposer = animComposer;
     }
-    
+
     /**
-     * Get the {@link SkinningControl} this mask is for.
-     * @return skinning control
+     * Checks if the specified target is contained within this mask.
+     *
+     * @param target The target to check.
+     * @return True if the target is contained within this mask, false otherwise.
      */
-    public SkinningControl getSkinningControl() {
-        return skin;
-    }
-    
-    /**
-     * Returns true if this mask is checking upper layers for joint use.
-     * @return 
-     */
-    public boolean isCheckUpperLayers() {
-        return checkUpperLayers;
-    }
-    
     @Override
     public boolean contains(Object target) {
-        return simpleContains(target) && (!checkUpperLayers || !isAffectedByUpperLayers(target));
+        return simpleContains(target) && (animComposer == null || !isAffectedByUpperLayers(target));
     }
-    
+
     private boolean simpleContains(Object target) {
         return super.contains(target);
     }
-    
+
     private boolean isAffectedByUpperLayers(Object target) {
         boolean higher = false;
-        for (String name : anim.getLayerNames()) {
-            if (name.equals(layer)) {
+        for (String layerName : animComposer.getLayerNames()) {
+            if (layerName.equals(targetLayer)) {
                 higher = true;
                 continue;
             }
             if (!higher) {
                 continue;
             }
-            AnimLayer lyr = anim.getLayer(name);  
-            // if there is no action playing, no joints are used, so we can skip
-            if (lyr.getCurrentAction() == null) continue;
-            if (lyr.getMask() instanceof SingleLayerInfluenceMask) {
-                // dodge some needless recursion by calling a simpler method
-                if (((SingleLayerInfluenceMask)lyr.getMask()).simpleContains(target)) {
+            
+            AnimLayer animLayer = animComposer.getLayer(layerName);
+            if (animLayer.getCurrentAction() != null) {
+                AnimationMask mask = animLayer.getMask();
+                
+                if (mask instanceof SingleLayerInfluenceMask) {
+                    // dodge some needless recursion by calling a simpler method
+                    if (((SingleLayerInfluenceMask) mask).simpleContains(target)) {
+                        return true;
+                    }
+                } else if (mask != null && mask.contains(target)) {
                     return true;
                 }
-            }
-            else if (lyr.getMask().contains(target)) {
-                return true;
             }
         }
         return false;
     }
     
-    /**
-     * Creates an {@code SingleLayerInfluenceMask} for all joints.
-     * @param layer layer the returned mask is, or will be, be assigned to
-     * @param spatial spatial containing anim composer and skinning control
-     * @return new mask
-     */
-    public static SingleLayerInfluenceMask all(String layer, Spatial spatial) {
-        return new SingleLayerInfluenceMask(layer, spatial).addAll();
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(targetLayer, "targetLayer", null);
     }
-    
-    /**
-     * Creates an {@code SingleLayerInfluenceMask} for all joints.
-     * @param layer layer the returned mask is, or will be, assigned to
-     * @param anim anim composer
-     * @param skin skinning control
-     * @return new mask
-     */
-    public static SingleLayerInfluenceMask all(String layer, AnimComposer anim, SkinningControl skin) {
-        return new SingleLayerInfluenceMask(layer, anim, skin).addAll();
-    }
-    
-}
 
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+        targetLayer = ic.readString("targetLayer", null);
+    }
+
+}
