@@ -118,7 +118,7 @@
             return terrainTextureLayer;
         }       
         
-    //3 functinos to update layers from respective packed data vecs:
+    //3 functions to update layers from respective packed data vecs:
         void updateLayerFromPackedAlbedoMap(inout vec4 packedAlbedoVec, inout PBRTerrainTextureLayer layer){
             layer.albedo = packedAlbedoVec;
             layer.alpha = packedAlbedoVec.a;
@@ -144,7 +144,7 @@
         //  normal:
         void PBRTerrainUtils_readNormalTexture(in sampler2D tex, in float scale, inout PBRTerrainTextureLayer layer){
             vec4 packedNormalParallaxVec = texture2D(tex, texCoord * scale);
-            packedNormalParallaxVec.xyz *= normalize(vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0));
+            packedNormalParallaxVec.xyz = normalize(packedNormalParallaxVec.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0));
             updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);
         } 
         //  metallicRoughnessAoEi:
@@ -181,7 +181,7 @@
      //  Normal TextureArray:
         void PBRTerrainUtils_readNormalTexArray(in int indexInTexArray, in float scale, in sampler2DArray texArray, inout PBRTerrainTextureLayer layer){
             vec4 packedNormalParallaxVec = texture2DArray(texArray, vec3(texCoord * scale, indexInTexArray));
-            packedNormalParallaxVec.xyz *= normalize(vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0));
+            packedNormalParallaxVec.xyz = normalize(packedNormalParallaxVec.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0));
             updateLayerFromPackedNormalParallaxVec(packedNormalParallaxVec, layer);           
         } 
      //  metallicRoughnessAoEi TextureArray:
