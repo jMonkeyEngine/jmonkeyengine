@@ -39,6 +39,17 @@ import java.io.InputStream;
  * @author Riccardo Balbo
  */
 public interface JsonParser {
+    
+    /**
+     * Parse a json input stream and returns a {@link JsonElement}
+     * 
+     * @param stream the stream to parse
+     * @return the JsonElement
+     */
+    public default JsonElement parseJson(InputStream stream) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
     /**
      * Parse a json input stream and returns a {@link JsonObject}
      * 

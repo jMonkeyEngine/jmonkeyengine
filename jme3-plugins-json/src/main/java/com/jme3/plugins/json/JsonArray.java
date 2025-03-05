@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,8 @@ package com.jme3.plugins.json;
  * 
  * @author Riccardo Balbo
  */
-public interface JsonArray extends Iterable<JsonElement> {
+public interface JsonArray extends JsonElement, Iterable<JsonElement> {
+    
     /**
      * Get the element at index i
      * 
