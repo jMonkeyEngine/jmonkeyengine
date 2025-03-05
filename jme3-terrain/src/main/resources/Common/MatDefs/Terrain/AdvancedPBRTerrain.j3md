@@ -4,8 +4,8 @@ MaterialDef AdvancedPBRTerrain {
         Int BoundDrawBuffer
 
         Texture2D SunLightExposureMap
-        Boolean UseVertexColorsAsSunIntensity //set true to make the vertex color's R channel how exposed a vertex is to the sun
-        Float StaticSunIntensity              //used for setting the sun exposure value for a whole material
+        Boolean UseVertexColorsAsSunExposure //set true to make the vertex color's R channel how exposed a vertex is to the sun
+        Float StaticSunExposure              //used for setting the sun exposure value for a whole material
                                              //these are usually generated at run time or setup in a level editor per-geometry, so that models indoors can have the DirectionalLight dimmed accordingly.
 
         Boolean BrightenIndoorShadows  //set true if shadows are enabled and indoor areas without full sun exposure are too dark compared to when shadows are turned off in settings
@@ -15,6 +15,9 @@ MaterialDef AdvancedPBRTerrain {
         TextureArray AlbedoTextureArray
         TextureArray NormalParallaxTextureArray -LINEAR
         TextureArray MetallicRoughnessAoEiTextureArray -LINEAR
+
+        //The type of normal map: -1.0 (DirectX), 1.0 (OpenGl)
+        Float NormalType : -1.0
 
        // Specular-AA
         Boolean UseSpecularAA : true
@@ -27,7 +30,6 @@ MaterialDef AdvancedPBRTerrain {
         Float AfflictionRoughnessValue : 1.0
         Float AfflictionMetallicValue : 0.0
         Float AfflictionEmissiveValue : 0.0   //note that this is simplified into one value, rather than 2 with power and intensity like the regular pbr values.
-
 
      // affliction texture splatting & desaturation functionality
         Boolean UseTriplanarAfflictionMapping
@@ -42,7 +44,6 @@ MaterialDef AdvancedPBRTerrain {
         Color AfflictionEmissiveColor : 0.0 0.0 0.0 0.0
 
         Float SplatNoiseVar
-
 
         Int AfflictionMode_0 : 1
         Int AfflictionMode_1 : 1
@@ -109,7 +110,6 @@ MaterialDef AdvancedPBRTerrain {
         Int AlbedoMap_10
         Int AlbedoMap_11
 
-
         Float AlbedoMap_0_scale : 1
         Float AlbedoMap_1_scale : 1
         Float AlbedoMap_2_scale : 1
@@ -136,7 +136,6 @@ MaterialDef AdvancedPBRTerrain {
         Boolean UseTriPlanarMapping_10
         Boolean UseTriPlanarMapping_11
 
-
         Int NormalMap_0
         Int NormalMap_1
         Int NormalMap_2
@@ -149,7 +148,6 @@ MaterialDef AdvancedPBRTerrain {
         Int NormalMap_9
         Int NormalMap_10
         Int NormalMap_11
-
 
         Int MetallicRoughnessMap_0
         Int MetallicRoughnessMap_1
@@ -164,7 +162,6 @@ MaterialDef AdvancedPBRTerrain {
         Int MetallicRoughnessMap_10
         Int MetallicRoughnessMap_11
 
-
         Float ParallaxHeight_0
         Float ParallaxHeight_1
         Float ParallaxHeight_2
@@ -178,13 +175,11 @@ MaterialDef AdvancedPBRTerrain {
         Float ParallaxHeight_10
         Float ParallaxHeight_11
 
-
-
         //used in order to convert world coords to tex coords so afflictionTexture accurately represents the world in cases where terrain is not scaled at a 1,1,1 value
         Float TileWidth : 0
         Vector3 TileLocation
 
- // debug the final value of the selected layer as a color output            
+         // debug the final value of the selected layer as a color output            
         Int DebugValuesMode
             // Layers:
             //   0 - albedo (unshaded)
@@ -195,6 +190,7 @@ MaterialDef AdvancedPBRTerrain {
             //   5 - emissive
             //   6 - exposure
             //   7 - alpha
+            //   8 - geometryNormals
 
         // use tri-planar mapping
         Boolean useTriPlanarMapping
@@ -203,13 +199,6 @@ MaterialDef AdvancedPBRTerrain {
         Texture2D AlphaMap -LINEAR
         Texture2D AlphaMap_1 -LINEAR
         Texture2D AlphaMap_2 -LINEAR
-
-        Boolean UseSpecGloss
-        Texture2D SpecularMap
-        Texture2D GlossinessMap
-        Texture2D SpecularGlossinessMap
-        Color Specular : 1.0 1.0 1.0 1.0
-        Float Glossiness : 1.0
 
         Vector4 ProbeData
 
@@ -221,7 +210,6 @@ MaterialDef AdvancedPBRTerrain {
 
         //integrate BRDF map for indirect Lighting
         Texture2D IntegrateBRDF -LINEAR
-
 
         //shadows
         Int FilterMode
@@ -289,7 +277,6 @@ MaterialDef AdvancedPBRTerrain {
             ViewProjectionMatrix
             ViewMatrix
             Time
-
         }
 
         Defines {
@@ -301,9 +288,11 @@ MaterialDef AdvancedPBRTerrain {
             FOG_EXPSQ : ExpSqFog
 
             EXPOSUREMAP : SunLightExposureMap
-            USE_VERTEX_COLORS_AS_SUN_EXPOSURE : UseVertexColorsAsSunIntensity
-            STATIC_SUN_EXPOSURE : StaticSunIntensity
+            USE_VERTEX_COLORS_AS_SUN_EXPOSURE : UseVertexColorsAsSunExposure
+            STATIC_SUN_EXPOSURE : StaticSunExposure
             BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
+
+            NORMAL_TYPE: NormalType
 
             USE_FIRST_LAYER_AS_TRANSPARENCY : UseFirstLayerAsTransparency
 
@@ -322,6 +311,8 @@ MaterialDef AdvancedPBRTerrain {
             AFFLICTIONROUGHNESSMETALLICMAP : SplatRoughnessMetallicMap
             AFFLICTIONEMISSIVEMAP : SplatEmissiveMap
             USE_SPLAT_NOISE : SplatNoiseVar
+
+            USE_TRIPLANAR_AFFLICTION_MAPPING : UseTriplanarAfflictionMapping
 
             TRI_PLANAR_MAPPING : useTriPlanarMapping
 
@@ -383,9 +374,9 @@ MaterialDef AdvancedPBRTerrain {
 
             DEBUG_VALUES_MODE : DebugValuesMode
 
+            USE_TEXTURE_ARRAYS : AlbedoTextureArray
         }
     }
-
 
     Technique PreShadow {
 

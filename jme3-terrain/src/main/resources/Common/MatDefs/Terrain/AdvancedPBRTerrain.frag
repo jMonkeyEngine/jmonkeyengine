@@ -49,7 +49,7 @@ void main(){
     // read and blend up to 12 texture layers
     #for i=0..12 (#ifdef ALBEDOMAP_$i $0 #endif)
     
-        PBRTerrainTextureLayer terrainTextureLayer_$i = PBRTerrainUtils_createAdvancedPBRTerrainLayer($i);
+        PBRTerrainTextureLayer terrainTextureLayer_$i = PBRTerrainUtils_createAdvancedPBRTerrainLayer($i, surface.geometryNormal);
         
         #ifdef USE_FIRST_LAYER_AS_TRANSPARENCY
             if($i == 0){
@@ -59,29 +59,51 @@ void main(){
             }    
         #endif 
         
+        terrainTextureLayer_$i.roughness = m_Roughness_$i;
+        terrainTextureLayer_$i.metallic = m_Metallic_$i;
         terrainTextureLayer_$i.emission = m_EmissiveColor_$i;
-        
-        #if defined(TRI_PLANAR_MAPPING) || defined(TRI_PLANAR_MAPPING_$i)
-          //triplanar:
-            
-            PBRTerrainUtils_readTriPlanarAlbedoTexArray(ALBEDOMAP_$i, m_AlbedoMap_$i_scale, m_AlbedoTextureArray, terrainTextureLayer_$i);        
-            #ifdef NORMALMAP_$i
-                PBRTerrainUtils_readTriPlanarNormalTexArray(NORMALMAP_$i, m_AlbedoMap_$i_scale, m_NormalParallaxTextureArray, terrainTextureLayer_$i);
-            #endif
-            #ifdef METALLICROUGHNESSMAP_$i
-                PBRTerrainUtils_readTriPlanarMetallicRoughnessAoEiTexArray(METALLICROUGHNESSMAP_$i, m_AlbedoMap_$i_scale, m_MetallicRoughnessAoEiTextureArray, terrainTextureLayer_$i);
-            #endif
-        #else 
-          //non tri-planar:
-        
-            PBRTerrainUtils_readAlbedoTexArray(ALBEDOMAP_$i, m_AlbedoMap_$i_scale, m_AlbedoTextureArray, terrainTextureLayer_$i);        
-            #ifdef NORMALMAP_$i
-                PBRTerrainUtils_readNormalTexArray(NORMALMAP_$i, m_AlbedoMap_$i_scale, m_NormalParallaxTextureArray, terrainTextureLayer_$i);
-            #endif
-            #ifdef METALLICROUGHNESSMAP_$i
-                PBRTerrainUtils_readMetallicRoughnessAoEiTexArray(METALLICROUGHNESSMAP_$i, m_AlbedoMap_$i_scale, m_MetallicRoughnessAoEiTextureArray, terrainTextureLayer_$i);
-            #endif       
-        #endif    
+
+        #ifdef USE_TEXTURE_ARRAYS
+            #if defined(TRI_PLANAR_MAPPING) || defined(TRI_PLANAR_MAPPING_$i)
+              //triplanar for texture arrays:            
+                PBRTerrainUtils_readTriPlanarAlbedoTexArray(m_AlbedoMap_$i, m_AlbedoMap_$i_scale, m_AlbedoTextureArray, terrainTextureLayer_$i);        
+                #ifdef NORMALMAP_$i
+                    PBRTerrainUtils_readTriPlanarNormalTexArray(m_NormalMap_$i, m_AlbedoMap_$i_scale, m_NormalParallaxTextureArray, terrainTextureLayer_$i);
+                #endif
+                #ifdef METALLICROUGHNESSMAP_$i
+                    PBRTerrainUtils_readTriPlanarMetallicRoughnessAoEiTexArray(m_MetallicRoughnessMap_$i, m_AlbedoMap_$i_scale, m_MetallicRoughnessAoEiTextureArray, terrainTextureLayer_$i);
+                #endif
+            #else 
+              //non tri-planar for texture arrays:
+                PBRTerrainUtils_readAlbedoTexArray(m_AlbedoMap_$i, m_AlbedoMap_$i_scale, m_AlbedoTextureArray, terrainTextureLayer_$i);        
+                #ifdef NORMALMAP_$i
+                    PBRTerrainUtils_readNormalTexArray(m_NormalMap_$i, m_AlbedoMap_$i_scale, m_NormalParallaxTextureArray, terrainTextureLayer_$i);
+                #endif
+                #ifdef METALLICROUGHNESSMAP_$i
+                    PBRTerrainUtils_readMetallicRoughnessAoEiTexArray(m_MetallicRoughnessMap_$i, m_AlbedoMap_$i_scale, m_MetallicRoughnessAoEiTextureArray, terrainTextureLayer_$i);
+                #endif       
+            #endif    
+        #else
+            #if defined(TRI_PLANAR_MAPPING) || defined(TRI_PLANAR_MAPPING_$i)
+              //triplanar texture reads:    
+                PBRTerrainUtils_readTriPlanarAlbedoTexture(m_AlbedoMap_$i, m_AlbedoMap_$i_scale, terrainTextureLayer_$i);        
+                #ifdef NORMALMAP_$i
+                    PBRTerrainUtils_readTriPlanarNormalTexture(m_NormalMap_$i, m_AlbedoMap_$i_scale, terrainTextureLayer_$i);
+                #endif
+                #ifdef METALLICROUGHNESSMAP_$i
+                    PBRTerrainUtils_readTriPlanarMetallicRoughnessAoEiTexture(m_MetallicRoughnessMap_$i, m_AlbedoMap_$i_scale, terrainTextureLayer_$i);
+                #endif
+            #else 
+              //non tri-planar texture reads:
+                PBRTerrainUtils_readAlbedoTexture(m_AlbedoMap_$i, m_AlbedoMap_$i_scale, terrainTextureLayer_$i);        
+                #ifdef NORMALMAP_$i
+                    PBRTerrainUtils_readNormalTexture(m_NormalMap_$i, m_AlbedoMap_$i_scale, terrainTextureLayer_$i);
+                #endif
+                #ifdef METALLICROUGHNESSMAP_$i
+                    PBRTerrainUtils_readMetallicRoughnessAoEiTexture(m_MetallicRoughnessMap_$i, m_AlbedoMap_$i_scale, terrainTextureLayer_$i);
+                #endif       
+            #endif            
+        #endif
         
         //CUSTOM LIB EXAMPLE: uses a custom alpha map to desaturate albedo color for a color-removal effect
         #ifdef AFFLICTIONTEXTURE
@@ -129,8 +151,8 @@ void main(){
     gl_FragColor.rgb += surface.directLightContribution;
     gl_FragColor.rgb += surface.envLightContribution;
     gl_FragColor.rgb += surface.emission;
-    gl_FragColor.a = surface.alpha;      
-  
+    gl_FragColor.a = surface.alpha;  
+    
     #ifdef USE_FOG
         gl_FragColor = MaterialFog_calculateFogColor(vec4(gl_FragColor));
     #endif
@@ -138,5 +160,5 @@ void main(){
    //outputs the final value of the selected layer as a color for debug purposes. 
     #ifdef DEBUG_VALUES_MODE
         gl_FragColor = PBRLightingUtils_getColorOutputForDebugMode(m_DebugValuesMode, vec4(gl_FragColor.rgba), surface);
-    #endif
+    #endif      
 }
