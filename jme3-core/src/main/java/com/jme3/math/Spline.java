@@ -32,6 +32,8 @@
 package com.jme3.math;
 
 import com.jme3.export.*;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,7 +43,7 @@ import java.util.List;
  *
  * @author Nehon
  */
-public class Spline implements Savable {
+public class Spline implements JmeCloneable, Savable {
 
     public enum SplineType {
         Linear,
@@ -535,5 +537,42 @@ public class Spline implements Savable {
 
         weights = in.readFloatArray("weights", null);
         basisFunctionDegree = in.readInt("basisFunctionDegree", 0);
+    }
+
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned spline into a deep-cloned one, using the specified cloner
+     * and original to resolve copied fields.
+     *
+     * @param cloner the cloner that's cloning this spline (not null)
+     * @param original the object from which this spline was shallow-cloned (not
+     * null, unaffected)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        this.controlPoints = cloner.clone(controlPoints);
+        if (segmentsLength != null) {
+            this.segmentsLength = new ArrayList<>(segmentsLength);
+        }
+        this.CRcontrolPoints = cloner.clone(CRcontrolPoints);
+        if (knots != null) {
+            this.knots = new ArrayList<>(knots);
+        }
+        this.weights = cloner.clone(weights);
+    }
+
+    /**
+     * Creates a shallow clone for the JME cloner.
+     *
+     * @return a new object
+     */
+    @Override
+    public Spline jmeClone() {
+        try {
+            Spline clone = (Spline) clone();
+            return clone;
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 }
