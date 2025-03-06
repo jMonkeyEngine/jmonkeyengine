@@ -388,8 +388,6 @@
                 #ifdef USE_PACKED_SG
                     vec4 specularColor = texture2D(m_SpecularGlossinessMap, newTexCoord);
                     glossiness *= specularColor.a;
-                    specularColor *= m_Specular;
-                    surface.specularColor = specularColor.rgb;
                 #else
                     #ifdef SPECULARMAP
                         vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
@@ -399,10 +397,10 @@
                     #ifdef GLOSSINESSMAP
                         glossiness *= texture2D(m_GlossinesMap, newTexCoord).r;
                     #endif
-                    specularColor *= m_Specular;
-                    surface.specularColor = specularColor.rgb;
-                    surface.roughness = 1.0 - glossiness;
                 #endif
+                specularColor *= m_Specular;
+                surface.specularColor = specularColor.rgb;
+                surface.roughness = 1.0 - glossiness;
             #endif
 
             vec3 ao = vec3(1.0);
