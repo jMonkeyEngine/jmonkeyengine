@@ -384,7 +384,7 @@
             //spec gloss tex reads:
 
             #ifdef SPECGLOSSPIPELINE
-                flota glossiness = m_Glossiness;
+                float glossiness = m_Glossiness;
                 #ifdef USE_PACKED_SG
                     vec4 specularColor = texture2D(m_SpecularGlossinessMap, newTexCoord);
                     glossiness *= specularColor.a;
