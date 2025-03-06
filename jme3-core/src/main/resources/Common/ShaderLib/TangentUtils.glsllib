@@ -4,7 +4,8 @@
     //used for calculating tangents in-shader for axis-aligned quads/planes/terrains   
     //primarily used for PBR terrains, since jme terrains do not store pre-calculated tangents by default (thus the tbnMat cannot be used for PBR light calculation like it is in jme's stock PBR shader)
     vec3 calculateTangentsAndApplyToNormals(in vec3 normalIn, in vec3 worldNorm){        
-        vec3 baseNorm = worldNorm.rgb + vec3(0, 0, 1);
+        vec3 baseNorm = worldNorm.rgb + vec3(0.0, 0.0, 1.0);
+        normalIn *= vec3(-1.0, 1.0, 1.0);
         normalIn = baseNorm.rgb*dot(baseNorm.rgb, normalIn.rgb)/baseNorm.z - normalIn.rgb;
         normalIn = normalize(normalIn);
 
