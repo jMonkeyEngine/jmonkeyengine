@@ -361,10 +361,10 @@ public class BinaryExporter implements JmeExporter {
             return -1;
         }
         Class<? extends Savable> clazz = object.getClass();
-        BinaryClassObject bco = classes.get(object.getClass().getName());
+        BinaryClassObject bco = classes.get(clazz.getName());
         // is this class been looked at before? in tagTable?
         if (bco == null) {
-            bco = createClassObject(object.getClass());
+            bco = createClassObject(clazz);
         }
 
         // is object in contentTable?
