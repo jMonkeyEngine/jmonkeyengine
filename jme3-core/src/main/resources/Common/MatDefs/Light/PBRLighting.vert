@@ -88,7 +88,7 @@ void main(){
     #endif
     
     #ifdef USE_FOG
-        fogDistance = distance(g_CameraPosition, (g_WorldMatrix * modelSpacePos).xyz);
+        fogDistance = distance(g_CameraPosition, (TransformWorld(modelSpacePos)).xyz);
     #endif
 
 }
