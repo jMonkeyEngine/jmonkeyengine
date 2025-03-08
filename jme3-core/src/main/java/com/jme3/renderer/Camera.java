@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -179,22 +179,22 @@ public class Camera implements Savable, Cloneable {
     //view port coordinates
     /**
      * Percent value on display where horizontal viewing starts for this camera.
-     * Default is 0.
+     * Default is 0. Must be less than {@code viewPortRight}.
      */
     protected float viewPortLeft;
     /**
      * Percent value on display where horizontal viewing ends for this camera.
-     * Default is 1.
+     * Default is 1. Must be greater than {@code viewPortLeft}.
      */
     protected float viewPortRight;
     /**
      * Percent value on display where vertical viewing ends for this camera.
-     * Default is 1.
+     * Default is 1. Must be greater than {@code viewPortBottom}.
      */
     protected float viewPortTop;
     /**
      * Percent value on display where vertical viewing begins for this camera.
-     * Default is 0.
+     * Default is 0. Must be less than {@code viewPortTop}.
      */
     protected float viewPortBottom;
     /**
@@ -1017,7 +1017,8 @@ public class Camera implements Savable, Cloneable {
     /**
      * Sets the left boundary of the viewport.
      *
-     * @param left the left boundary of the viewport
+     * @param left the left boundary of the viewport (&lt;viewPortRight,
+     *     default: 0)
      */
     public void setViewPortLeft(float left) {
         viewPortLeft = left;
@@ -1036,7 +1037,8 @@ public class Camera implements Savable, Cloneable {
     /**
      * Sets the right boundary of the viewport.
      *
-     * @param right the right boundary of the viewport
+     * @param right the right boundary of the viewport (&gt;viewPortLeft,
+     *     default: 1)
      */
     public void setViewPortRight(float right) {
         viewPortRight = right;
@@ -1055,7 +1057,8 @@ public class Camera implements Savable, Cloneable {
     /**
      * Sets the top boundary of the viewport.
      *
-     * @param top the top boundary of the viewport
+     * @param top the top boundary of the viewport (&gt;viewPortBottom,
+     *     default: 1)
      */
     public void setViewPortTop(float top) {
         viewPortTop = top;
@@ -1074,7 +1077,8 @@ public class Camera implements Savable, Cloneable {
     /**
      * Sets the bottom boundary of the viewport.
      *
-     * @param bottom the bottom boundary of the viewport
+     * @param bottom the bottom boundary of the viewport (&lt;viewPortTop,
+     *     default: 0)
      */
     public void setViewPortBottom(float bottom) {
         viewPortBottom = bottom;
@@ -1084,10 +1088,10 @@ public class Camera implements Savable, Cloneable {
     /**
      * Sets the boundaries of the viewport.
      *
-     * @param left   the left boundary of the viewport (default: 0)
-     * @param right  the right boundary of the viewport (default: 1)
-     * @param bottom the bottom boundary of the viewport (default: 0)
-     * @param top    the top boundary of the viewport (default: 1)
+     * @param left the left boundary of the viewport (&lt;right, default: 0)
+     * @param right the right boundary of the viewport (&gt;left, default: 1)
+     * @param bottom the bottom boundary of the viewport (&lt;top, default: 0)
+     * @param top the top boundary of the viewport (&gt;bottom, default: 1)
      */
     public void setViewPort(float left, float right, float bottom, float top) {
         this.viewPortLeft = left;
@@ -1283,6 +1287,15 @@ public class Camera implements Savable, Cloneable {
      * Called when the viewport has been changed.
      */
     public void onViewPortChange() {
+        if (!(viewPortBottom < viewPortTop)) {
+            throw new IllegalArgumentException(
+                    "Viewport must have bottom < top");
+        }
+        if (!(viewPortLeft < viewPortRight)) {
+            throw new IllegalArgumentException(
+                    "Viewport must have left < right");
+        }
+
         viewportChanged = true;
         setGuiBounding();
     }
