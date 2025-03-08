@@ -384,10 +384,10 @@
             //spec gloss tex reads:
 
             #ifdef SPECGLOSSPIPELINE
+                float glossiness = m_Glossiness;
                 #ifdef USE_PACKED_SG
                     vec4 specularColor = texture2D(m_SpecularGlossinessMap, newTexCoord);
-                    float glossiness = specularColor.a * m_Glossiness;
-                    specularColor *= m_Specular;
+                    glossiness *= specularColor.a;
                 #else
                     #ifdef SPECULARMAP
                         vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
@@ -395,16 +395,13 @@
                         vec4 specularColor = vec4(1.0);
                     #endif
                     #ifdef GLOSSINESSMAP
-                        float glossiness = texture2D(m_GlossinesMap, newTexCoord).r * m_Glossiness;
-                    #else
-                        float glossiness = m_Glossiness;
+                        glossiness *= texture2D(m_GlossinesMap, newTexCoord).r;
                     #endif
-                    specularColor *= m_Specular;
-                    surface.specularColor = specularColor;
                 #endif
+                specularColor *= m_Specular;
+                surface.specularColor = specularColor.rgb;
+                surface.roughness = 1.0 - glossiness;
             #endif
-
-
 
             vec3 ao = vec3(1.0);
             #ifdef LIGHTMAP
@@ -475,7 +472,6 @@
 
             #ifdef SPECGLOSSPIPELINE      
                 surface.diffuseColor = surface.albedo;// * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
-                surface.roughness = 1.0 - m_Glossiness;
                 surface.fZero = surface.specularColor.xyz;
             #else
                 surface.specularColor = (0.04 - 0.04 * surface.metallic) + surface.albedo * surface.metallic;  // 0.04 is the standard base specular reflectance for non-metallic surfaces in PBR. While values like 0.08 can be used for different implementations, 0.04 aligns with Khronos' PBR specification.
