@@ -213,7 +213,7 @@
    
   //blend layer function. This mixes each layer's pbr vars over top of the current surface values based on the layer's blendValue
         void PBRTerrainUtils_blendPBRTerrainLayer(inout PBRSurface surface, inout PBRTerrainTextureLayer layer){      
-            layer.ao = clamp(layer.metallic, 0.0, 1.0);
+            layer.ao = clamp(layer.ao, 0.0, 1.0);
             
             surface.albedo = mix(surface.albedo, layer.albedo.rgb, layer.blendValue);        
             surface.normal = normalize(mix(surface.normal.rgb, layer.normal, layer.blendValue));        
