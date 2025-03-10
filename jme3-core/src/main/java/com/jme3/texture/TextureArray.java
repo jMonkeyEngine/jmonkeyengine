@@ -31,8 +31,14 @@
  */
 package com.jme3.texture;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.image.ColorSpace;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -150,5 +156,21 @@ public class TextureArray extends Texture {
         }
         this.wrapS = mode;
         this.wrapT = mode;
+    }
+
+    @Override
+    public void write(JmeExporter e) throws IOException {
+        super.write(e);
+        OutputCapsule capsule = e.getCapsule(this);
+        capsule.write(wrapS, "wrapS", WrapMode.EdgeClamp);
+        capsule.write(wrapT, "wrapT", WrapMode.EdgeClamp);
+    }
+
+    @Override
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
+        wrapS = capsule.readEnum("wrapS", WrapMode.class, WrapMode.EdgeClamp);
+        wrapT = capsule.readEnum("wrapT", WrapMode.class, WrapMode.EdgeClamp);
     }
 }
