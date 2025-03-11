@@ -29,59 +29,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.plugins.gson;
-
-import java.util.Iterator;
-
-import com.jme3.plugins.json.JsonArray;
-import com.jme3.plugins.json.JsonElement;
 
 /**
- * GSON implementation of {@link JsonArray}.
+ * Package that houses the different objects or classes that are used internally 
+ * to abstract the different high-level methods of module <b>jme3-plugins-json</b>.
+ * 
+ * @author wil
  */
-class GsonArray extends GsonElement<com.google.gson.JsonArray> implements JsonArray {
-
-    GsonArray(com.google.gson.JsonArray element) {
-        super(element);
-    }
-
-    @Override
-    public String getAsString() {
-        return element.getAsString();
-    }
-    
-    @Override
-    public float getAsFloat() {
-        return element.getAsFloat();
-    }
-
-    @Override
-    public int getAsInt() {
-        return element.getAsInt();
-    }
-
-    @Override
-    public Number getAsNumber() {
-        return element.getAsNumber();
-    }
-
-    @Override
-    public boolean getAsBoolean() {
-        return element.getAsBoolean();
-    }
-    
-    @Override
-    public Iterator<JsonElement> iterator() {
-        return GsonUtils.wrap(element.iterator());
-    }
-
-    @Override
-    public JsonElement get(int i) {
-        return GsonUtils.wrap(element.get(i));
-    }
-
-    @Override
-    public int size() {
-        return element.size();
-    }
-}
+package com.jme3.plugins.gson.internal;

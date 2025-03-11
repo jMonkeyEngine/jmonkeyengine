@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package com.jme3.plugins.json;
 
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * A generic object/map
@@ -81,7 +82,7 @@ public interface JsonObject extends JsonElement {
      * 
      * @return an array of key-value pairs
      */
-    public Entry<String, JsonElement>[] entrySet();
+    public Set<Entry<String, JsonElement>> entrySet();
 
     /**
      * Returns the object property as a wrapped primitive
