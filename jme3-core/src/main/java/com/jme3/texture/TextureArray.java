@@ -36,7 +36,6 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.image.ColorSpace;
 import java.io.IOException;
 import java.util.Arrays;
@@ -172,5 +171,26 @@ public class TextureArray extends Texture {
         InputCapsule capsule = importer.getCapsule(this);
         wrapS = capsule.readEnum("wrapS", WrapMode.class, WrapMode.EdgeClamp);
         wrapT = capsule.readEnum("wrapT", WrapMode.class, WrapMode.EdgeClamp);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof TextureArray)) {
+            return false;
+        }
+        TextureArray that = (TextureArray) other;
+        if (this.getWrap(WrapAxis.S) != that.getWrap(WrapAxis.S))
+            return false;
+        if (this.getWrap(WrapAxis.T) != that.getWrap(WrapAxis.T))
+            return false;
+        return super.equals(other);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 79 * hash + (this.wrapS != null ? this.wrapS.hashCode() : 0);
+        hash = 79 * hash + (this.wrapT != null ? this.wrapT.hashCode() : 0);
+        return hash;
     }
 }
