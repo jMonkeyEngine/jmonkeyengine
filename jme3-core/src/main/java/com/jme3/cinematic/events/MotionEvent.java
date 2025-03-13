@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -312,6 +312,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
 
     @Override
     public void cloneFields(Cloner cloner, Object original) {
+        this.lookAt = cloner.clone(lookAt);
+        this.path = cloner.clone(path);
+        this.rotation = cloner.clone(rotation);
         this.spatial = cloner.clone(spatial);
     }
 

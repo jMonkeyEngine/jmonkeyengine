@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Curve;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -54,7 +56,7 @@ import java.util.List;
  * Motion path is used to create a path between way points.
  * @author Nehon
  */
-public class MotionPath implements Savable {
+public class MotionPath implements JmeCloneable, Savable {
 
     private Node debugNode;
     private AssetManager assetManager;
@@ -175,6 +177,40 @@ public class MotionPath implements Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         spline = (Spline) in.readSavable("spline", null);
+    }
+
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned MotionPath into a deep-cloned one, using the specified
+     * cloner and original to resolve copied fields.
+     *
+     * @param cloner the cloner that's cloning this MotionPath (not null)
+     * @param original the object from which this MotionPath was shallow-cloned
+     * (not null, unaffected)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        this.debugNode = cloner.clone(debugNode);
+        this.spline = cloner.clone(spline);
+        /*
+         * The clone will share both the asset manager and the list of listeners
+         * of the original MotionPath.
+         */
+    }
+
+    /**
+     * Creates a shallow clone for the JME cloner.
+     *
+     * @return a new object
+     */
+    @Override
+    public MotionPath jmeClone() {
+        try {
+            MotionPath clone = (MotionPath) clone();
+            return clone;
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
     /**
