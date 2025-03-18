@@ -175,6 +175,9 @@ public class TextureArray extends Texture {
 
     @Override
     public boolean equals(Object other) {
+        if (this == obj) {
+            return true; 
+        }
         if (!(other instanceof TextureArray)) {
             return false;
         }
