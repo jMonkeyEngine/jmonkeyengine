@@ -189,6 +189,20 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
                 isNight = !isNight;
                 // Ambient and directional light are faded smoothly in update loop below.
             }
+            
+            if(name.length() == 1 && !pressed){
+                if(name.equals("-")){
+                    matTerrain.setInt("DebugValuesMode", -1);
+                }else{
+                    try{
+                        int debugValueMode = Integer.parseInt(name);
+                        matTerrain.setInt("DebugValuesMode", debugValueMode);
+                    }    
+                    catch(Exception e){
+
+                    }
+                }
+            }    
         }
     };
 
@@ -364,16 +378,52 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         inputManager.addMapping("triPlanar", new KeyTrigger(KeyInput.KEY_P));
         inputManager.addMapping("toggleNight", new KeyTrigger(KeyInput.KEY_N));
 
+        inputManager.addMapping("0", new KeyTrigger(KeyInput.KEY_0)); // toggleDebugModeForAlbedo
+        inputManager.addMapping("1", new KeyTrigger(KeyInput.KEY_1)); // toggleDebugModeForNormalMap
+        inputManager.addMapping("2", new KeyTrigger(KeyInput.KEY_2)); // toggleDebugModeForRoughness
+        inputManager.addMapping("3", new KeyTrigger(KeyInput.KEY_3)); // toggleDebugModeForMetallic
+        inputManager.addMapping("4", new KeyTrigger(KeyInput.KEY_4)); // toggleDebugModeForAo
+        inputManager.addMapping("5", new KeyTrigger(KeyInput.KEY_5)); // toggleDebugModeForEmissive
+        inputManager.addMapping("6", new KeyTrigger(KeyInput.KEY_6)); // toggleDebugModeForExposure
+        inputManager.addMapping("7", new KeyTrigger(KeyInput.KEY_7)); // toggleDebugModeForAlpha
+        inputManager.addMapping("8", new KeyTrigger(KeyInput.KEY_8)); // toggleDebugModeForGeometryNormals
+
+        inputManager.addMapping("-", new KeyTrigger(KeyInput.KEY_MINUS)); // - key will disable dbug mode
+
         inputManager.addListener(actionListener, "triPlanar");
         inputManager.addListener(actionListener, "toggleNight");
 
+        inputManager.addListener(actionListener, "0");
+        inputManager.addListener(actionListener, "1");
+        inputManager.addListener(actionListener, "2");
+        inputManager.addListener(actionListener, "3");
+        inputManager.addListener(actionListener, "4");
+        inputManager.addListener(actionListener, "5");
+        inputManager.addListener(actionListener, "6");
+        inputManager.addListener(actionListener, "7"); 
+        inputManager.addListener(actionListener, "8");
+        inputManager.addListener(actionListener, "-");
+
         keybindingsText = new BitmapText(assetManager.loadFont("Interface/Fonts/Default.fnt"));
         keybindingsText.setText("Press 'N' to toggle day/night fade (takes a moment) \nPress 'P' to toggle tri-planar mode");
+        keybindingsText.setText("Press N to toggle day/night fade (takes a moment) \n"
+                + "Press P to toggle tri-planar mode\n\n"
+                + "Press - for Final Render (disable debug view)\n"
+                + "Press 0 for Albedo debug view\n"
+                + "Press 1 for Normal Map debug view\n"
+                + "Press 2 for Roughness debug view\n"
+                + "Press 3 for Metallic debug view\n"
+                + "Press 4 for Ambient Occlusion (ao) debug view\n"
+                + "Press 5 for Emissive debug view\n"
+                + "Press 6 for Exposure debug view\n"
+                + "Press 7 for Alpha debug view\n"
+                + "Press 8 for Geoemtry Normals debug view\n");
+
 
         getGuiNode().attachChild(keybindingsText);
         keybindingsText.move(new Vector3f(200, 120, 0));
+        keybindingsText.move(new Vector3f(5, cam.getHeight() * 0.995f, 0));
     }
-
     @Override
     public void simpleUpdate(float tpf) {
         super.simpleUpdate(tpf);
