@@ -405,7 +405,6 @@ public class PBRTerrainAdvancedTest extends SimpleApplication {
         inputManager.addListener(actionListener, "-");
 
         keybindingsText = new BitmapText(assetManager.loadFont("Interface/Fonts/Default.fnt"));
-        keybindingsText.setText("Press 'N' to toggle day/night fade (takes a moment) \nPress 'P' to toggle tri-planar mode");
         keybindingsText.setText("Press N to toggle day/night fade (takes a moment) \n"
                 + "Press P to toggle tri-planar mode\n\n"
                 + "Press - for Final Render (disable debug view)\n"
