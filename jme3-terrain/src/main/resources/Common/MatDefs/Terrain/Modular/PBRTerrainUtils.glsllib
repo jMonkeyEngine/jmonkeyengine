@@ -99,6 +99,8 @@
                     break;            
             }
 
+            finalAlphaBlendForLayer = clamp(finalAlphaBlendForLayer, 0.0, 1.0);
+
             return finalAlphaBlendForLayer;
         }    
        
@@ -210,7 +212,9 @@
    //_______________________________      
    
   //blend layer function. This mixes each layer's pbr vars over top of the current surface values based on the layer's blendValue
-        void PBRTerrainUtils_blendPBRTerrainLayer(inout PBRSurface surface, inout PBRTerrainTextureLayer layer){       
+        void PBRTerrainUtils_blendPBRTerrainLayer(inout PBRSurface surface, inout PBRTerrainTextureLayer layer){      
+            layer.ao = clamp(layer.ao, 0.0, 1.0);
+            
             surface.albedo = mix(surface.albedo, layer.albedo.rgb, layer.blendValue);        
             surface.normal = normalize(mix(surface.normal.rgb, layer.normal, layer.blendValue));        
             surface.metallic = mix(surface.metallic, layer.metallic, layer.blendValue);
