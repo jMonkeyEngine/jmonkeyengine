@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
     protected List<List<Vector3f>> normals;
 
     /**
-     * Empty constructor. Sets nothing.
+     * For serialization only. Do not use.
      */
     public EmitterMeshVertexShape() {
     }
