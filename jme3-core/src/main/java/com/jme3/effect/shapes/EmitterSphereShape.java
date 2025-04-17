@@ -46,7 +46,7 @@ public class EmitterSphereShape implements EmitterShape {
     private float radius = 1;
 
     /**
-     * For serialization only. Do not use.
+     * Empty constructor. Sets nothing.
      */
     public EmitterSphereShape() {
     }
