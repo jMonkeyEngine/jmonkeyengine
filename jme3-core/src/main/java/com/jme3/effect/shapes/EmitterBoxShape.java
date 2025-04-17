@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,15 +44,24 @@ public class EmitterBoxShape implements EmitterShape {
 
     private Vector3f min, len;
 
+    /**
+     * For serialization only. Do not use.
+     */
     public EmitterBoxShape() {
     }
 
+    /**
+     * Creates a new {@code EmitterBoxShape} defined by its minimum and maximum corners.
+     *
+     * @param min The minimum corner of the box. (not null, unaffected)
+     * @param max The maximum corner of the box. (not null, unaffected)
+     */
     public EmitterBoxShape(Vector3f min, Vector3f max) {
         if (min == null || max == null) {
             throw new IllegalArgumentException("min or max cannot be null");
         }
 
-        this.min = min;
+        this.min = new Vector3f(min);
         this.len = new Vector3f();
         this.len.set(max).subtractLocal(min);
     }
@@ -113,15 +122,15 @@ public class EmitterBoxShape implements EmitterShape {
     }
 
     public void setMin(Vector3f min) {
-        this.min = min;
+        this.min.set(min);
     }
 
     public Vector3f getLen() {
         return len;
     }
 
-    public void setLen(Vector3f len) {
-        this.len = len;
+    public void setLen(Vector3f length) {
+        this.len.set(length);
     }
 
     @Override
