@@ -42,8 +42,8 @@ import java.io.IOException;
 
 public class EmitterSphereShape implements EmitterShape {
 
-    private Vector3f center;
-    private float radius;
+    private Vector3f center = new Vector3f();
+    private float radius = 1;
 
     /**
      * For serialization only. Do not use.
@@ -65,7 +65,7 @@ public class EmitterSphereShape implements EmitterShape {
             throw new IllegalArgumentException("radius must be greater than 0");
         }
 
-        this.center = new Vector3f(center);
+        this.center.set(center);
         this.radius = radius;
     }
 
