@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,19 +45,27 @@ public class EmitterSphereShape implements EmitterShape {
     private Vector3f center;
     private float radius;
 
+    /**
+     * For serialization only. Do not use.
+     */
     public EmitterSphereShape() {
     }
 
+    /**
+     * Creates a new {@code EmitterSphereShape} with the specified center and radius.
+     *
+     * @param center The center of the sphere. (not null, unaffected)
+     * @param radius The radius of the sphere. Must be greater than 0.
+     */
     public EmitterSphereShape(Vector3f center, float radius) {
         if (center == null) {
             throw new IllegalArgumentException("center cannot be null");
         }
-
         if (radius <= 0) {
-            throw new IllegalArgumentException("Radius must be greater than 0");
+            throw new IllegalArgumentException("radius must be greater than 0");
         }
 
-        this.center = center;
+        this.center = new Vector3f(center);
         this.radius = radius;
     }
 
@@ -66,6 +74,7 @@ public class EmitterSphereShape implements EmitterShape {
         try {
             EmitterSphereShape clone = (EmitterSphereShape) super.clone();
             clone.center = center.clone();
+            clone.radius = radius;
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -90,6 +99,7 @@ public class EmitterSphereShape implements EmitterShape {
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         this.center = cloner.clone(center);
+        this.radius = cloner.clone(radius);
     }
 
     @Override
@@ -113,7 +123,7 @@ public class EmitterSphereShape implements EmitterShape {
     }
 
     public void setCenter(Vector3f center) {
-        this.center = center;
+        this.center.set(center);
     }
 
     public float getRadius() {
