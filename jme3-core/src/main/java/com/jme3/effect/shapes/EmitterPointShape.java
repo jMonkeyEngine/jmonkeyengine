@@ -44,7 +44,7 @@ public class EmitterPointShape implements EmitterShape {
     private Vector3f point = new Vector3f();
 
     /**
-     * For serialization only. Do not use.
+     * Empty constructor. Sets nothing.
      */
     public EmitterPointShape() {
     }
