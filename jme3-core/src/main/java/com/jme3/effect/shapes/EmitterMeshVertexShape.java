@@ -58,7 +58,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
     protected List<List<Vector3f>> normals;
 
     /**
-     * For serialization only. Do not use.
+     * Empty constructor. Sets nothing.
      */
     public EmitterMeshVertexShape() {
     }
