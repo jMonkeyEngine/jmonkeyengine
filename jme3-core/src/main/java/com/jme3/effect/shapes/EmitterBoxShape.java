@@ -42,7 +42,8 @@ import java.io.IOException;
 
 public class EmitterBoxShape implements EmitterShape {
 
-    private Vector3f min, len;
+    private Vector3f min = new Vector3f(-1, -1, -1);
+    private Vector3f len = new Vector3f(2, 2, 2);
 
     /**
      * For serialization only. Do not use.
@@ -61,8 +62,7 @@ public class EmitterBoxShape implements EmitterShape {
             throw new IllegalArgumentException("min or max cannot be null");
         }
 
-        this.min = new Vector3f(min);
-        this.len = new Vector3f();
+        this.min.set(min);
         this.len.set(max).subtractLocal(min);
     }
 
