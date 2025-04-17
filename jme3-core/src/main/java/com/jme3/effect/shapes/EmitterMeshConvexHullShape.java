@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ import java.util.List;
 public class EmitterMeshConvexHullShape extends EmitterMeshFaceShape {
 
     /**
-     * Empty constructor. Sets nothing.
+     * For serialization only. Do not use.
      */
     public EmitterMeshConvexHullShape() {
     }
