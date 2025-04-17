@@ -45,7 +45,7 @@ import java.util.List;
 public class EmitterMeshConvexHullShape extends EmitterMeshFaceShape {
 
     /**
-     * For serialization only. Do not use.
+     * Empty constructor. Sets nothing.
      */
     public EmitterMeshConvexHullShape() {
     }
