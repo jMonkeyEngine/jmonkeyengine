@@ -41,7 +41,7 @@ import java.io.IOException;
 
 public class EmitterPointShape implements EmitterShape {
 
-    private Vector3f point;
+    private Vector3f point = new Vector3f();
 
     /**
      * For serialization only. Do not use.
@@ -58,7 +58,7 @@ public class EmitterPointShape implements EmitterShape {
         if (point == null) {
             throw new IllegalArgumentException("point cannot be null");
         }
-        this.point = new Vector3f(point);
+        this.point.set(point);
     }
 
     @Override
