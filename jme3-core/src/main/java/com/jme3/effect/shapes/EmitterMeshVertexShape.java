@@ -80,8 +80,8 @@ public class EmitterMeshVertexShape implements EmitterShape {
     public void setMeshes(List<Mesh> meshes) {
         Map<Vector3f, Vector3f> vertToNormalMap = new HashMap<>();
 
-        this.vertices = new ArrayList<List<Vector3f>>(meshes.size());
-        this.normals = new ArrayList<List<Vector3f>>(meshes.size());
+        this.vertices = new ArrayList<>(meshes.size());
+        this.normals = new ArrayList<>(meshes.size());
         for (Mesh mesh : meshes) {
             // fetching the data
             float[] vertexTable = BufferUtils.getFloatArray(mesh.getFloatBuffer(Type.Position));
