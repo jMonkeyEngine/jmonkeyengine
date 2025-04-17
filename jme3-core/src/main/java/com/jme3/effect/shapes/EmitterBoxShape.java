@@ -46,7 +46,7 @@ public class EmitterBoxShape implements EmitterShape {
     private Vector3f len = new Vector3f(2, 2, 2);
 
     /**
-     * For serialization only. Do not use.
+     * Empty constructor. Sets nothing.
      */
     public EmitterBoxShape() {
     }
