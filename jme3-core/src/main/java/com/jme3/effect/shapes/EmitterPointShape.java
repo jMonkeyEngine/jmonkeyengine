@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
  */
 package com.jme3.effect.shapes;
 
+import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
@@ -42,11 +43,22 @@ public class EmitterPointShape implements EmitterShape {
 
     private Vector3f point;
 
+    /**
+     * For serialization only. Do not use.
+     */
     public EmitterPointShape() {
     }
 
+    /**
+     * Creates a new {@code EmitterPointShape} with the specified emission point.
+     *
+     * @param point The initial emission point. (not null, unaffected)
+     */
     public EmitterPointShape(Vector3f point) {
-        this.point = point;
+        if (point == null) {
+            throw new IllegalArgumentException("point cannot be null");
+        }
+        this.point = new Vector3f(point);
     }
 
     @Override
@@ -101,7 +113,7 @@ public class EmitterPointShape implements EmitterShape {
     }
 
     public void setPoint(Vector3f point) {
-        this.point = point;
+        this.point.set(point);
     }
 
     @Override
@@ -112,6 +124,7 @@ public class EmitterPointShape implements EmitterShape {
 
     @Override
     public void read(JmeImporter im) throws IOException {
-        this.point = (Vector3f) im.getCapsule(this).readSavable("point", null);
+        InputCapsule ic = im.getCapsule(this);
+        this.point = (Vector3f) ic.readSavable("point", null);
     }
 }
