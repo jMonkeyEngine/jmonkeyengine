@@ -46,7 +46,7 @@ import java.util.List;
 public class EmitterMeshFaceShape extends EmitterMeshVertexShape {
 
     /**
-     * For serialization only. Do not use.
+     * Empty constructor. Sets nothing.
      */
     public EmitterMeshFaceShape() {
     }
