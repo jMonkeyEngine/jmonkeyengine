@@ -74,7 +74,6 @@ public class EmitterSphereShape implements EmitterShape {
         try {
             EmitterSphereShape clone = (EmitterSphereShape) super.clone();
             clone.center = center.clone();
-            clone.radius = radius;
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -99,7 +98,6 @@ public class EmitterSphereShape implements EmitterShape {
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         this.center = cloner.clone(center);
-        this.radius = cloner.clone(radius);
     }
 
     @Override
