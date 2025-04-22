@@ -30,6 +30,7 @@ public class ParticleInfluencerTest {
 
         NewtonianParticleInfluencer clone = (NewtonianParticleInfluencer) inf.clone();
         assertEquals(inf, clone);
+        Assert.assertNotSame(inf.temp, clone.temp);
 
         NewtonianParticleInfluencer copy = BinaryExporter.saveAndLoad(assetManager, inf);
         assertEquals(inf, copy);
@@ -59,6 +60,7 @@ public class ParticleInfluencerTest {
 
         RadialParticleInfluencer clone = (RadialParticleInfluencer) inf.clone();
         assertEquals(inf, clone);
+        Assert.assertNotSame(inf.temp, clone.temp);
 
         RadialParticleInfluencer copy = BinaryExporter.saveAndLoad(assetManager, inf);
         assertEquals(inf, copy);
