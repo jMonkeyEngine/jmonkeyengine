@@ -40,6 +40,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.util.clone.Cloner;
+
 import java.io.IOException;
 
 /**
@@ -101,14 +102,10 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
 
     @Override
     public DefaultParticleInfluencer clone() {
-        try {
-            DefaultParticleInfluencer clone = (DefaultParticleInfluencer) super.clone();
-            clone.initialVelocity = initialVelocity.clone();
-            clone.temp = temp.clone();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
+        // Set up the cloner for the type of cloning we want to do.
+        Cloner cloner = new Cloner();
+        DefaultParticleInfluencer clone = cloner.clone(this);
+        return clone;
     }
 
     /**
