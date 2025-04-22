@@ -61,6 +61,7 @@ public class ParticleInfluencerTest {
         RadialParticleInfluencer clone = (RadialParticleInfluencer) inf.clone();
         assertEquals(inf, clone);
         Assert.assertNotSame(inf.temp, clone.temp);
+        Assert.assertNotSame(inf.getOrigin(), clone.getOrigin());
 
         RadialParticleInfluencer copy = BinaryExporter.saveAndLoad(assetManager, inf);
         assertEquals(inf, copy);
