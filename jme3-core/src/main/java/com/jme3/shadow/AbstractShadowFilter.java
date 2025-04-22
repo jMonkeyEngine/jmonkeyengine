@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,6 @@ import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
- *
  * Generic abstract filter that holds common implementations for the different
  * shadow filters
  *
@@ -63,9 +62,9 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     protected ViewPort viewPort;
 
     /**
-     * used for serialization
+     * For serialization only. Do not use.
      */
-    protected AbstractShadowFilter(){
+    protected AbstractShadowFilter() {
     }
     
     /**
@@ -79,11 +78,8 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     @SuppressWarnings("all")
     protected AbstractShadowFilter(AssetManager manager, int shadowMapSize, T shadowRenderer) {
         super("Post Shadow");
-        material = new Material(manager, "Common/MatDefs/Shadow/PostShadowFilter.j3md");       
         this.shadowRenderer = shadowRenderer;
-        this.shadowRenderer.setPostShadowMaterial(material);
-
-        //this is legacy setting for shadows with backface shadows
+        // this is legacy setting for shadows with backface shadows
         this.shadowRenderer.setRenderBackFacesShadows(true);
     }
 
@@ -100,6 +96,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     public Material getShadowMaterial() {       
         return material;
     }
+
     Vector4f tmpv = new Vector4f();
 
     @Override
@@ -113,15 +110,15 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     @Override
     protected void postQueue(RenderQueue queue) {
         shadowRenderer.postQueue(queue);
-         if(shadowRenderer.skipPostPass){
-             //removing the shadow map so that the post pass is skipped
-             material.setTexture("ShadowMap0", null);
-         }
+        if (shadowRenderer.skipPostPass) {
+            // removing the shadow map so that the post pass is skipped
+            material.setTexture("ShadowMap0", null);
+        }
     }
 
     @Override
     protected void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
-        if(!shadowRenderer.skipPostPass){
+        if (!shadowRenderer.skipPostPass) {
             shadowRenderer.setPostShadowParams();
         }
     }
@@ -129,15 +126,17 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         shadowRenderer.needsfallBackMaterial = true;
+        material = new Material(manager, "Common/MatDefs/Shadow/PostShadowFilter.j3md");
+        shadowRenderer.setPostShadowMaterial(material);
         shadowRenderer.initialize(renderManager, vp);
         this.viewPort = vp;
     }
-    
-      /**
+
+    /**
      * How far the shadows are rendered in the view
      *
-     * @see #setShadowZExtend(float zFar)
      * @return shadowZExtend
+     * @see #setShadowZExtend(float zFar)
      */
     public float getShadowZExtend() {
         return shadowRenderer.getShadowZExtend();
