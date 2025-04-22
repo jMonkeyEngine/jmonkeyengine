@@ -104,6 +104,7 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
         try {
             DefaultParticleInfluencer clone = (DefaultParticleInfluencer) super.clone();
             clone.initialVelocity = initialVelocity.clone();
+            clone.temp = temp.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
