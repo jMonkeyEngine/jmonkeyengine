@@ -30,9 +30,12 @@ public class SeparateJointModelTransform implements JointModelTransform {
 
     @Override
     public void applyBindPose(Transform localTransform, Matrix4f inverseModelBindMatrix, Joint parent) {
-        localTransform.fromTransformMatrix(inverseModelBindMatrix.invert());
+        Matrix4f safeInverseBind = inverseModelBindMatrix.clone().invert(); // avoid mutating input
+        localTransform.fromTransformMatrix(safeInverseBind);
+
         if (parent != null) {
-            localTransform.combineWithParent(parent.getModelTransform().invert());
+            Transform safeParentTransform = parent.getModelTransform().clone().invert(); // same here
+            localTransform.combineWithParent(safeParentTransform);
         }
     }
 
