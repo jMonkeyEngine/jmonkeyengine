@@ -19,29 +19,29 @@ public class AudioNodeTest {
 
         AudioNode audio = new AudioNode(assetManager,
                 "Sound/Effects/Bang.wav", AudioData.DataType.Buffer);
-        audio.setPositional(true);
-        audio.setLocalTranslation(new Vector3f(0, 1,0));
-        audio.setMaxDistance(100);
-        audio.setRefDistance(5);
-        audio.setDirectional(true);
         audio.setDirection(new Vector3f(0, 1, 0));
         audio.setVelocity(new Vector3f(1, 1, 1));
         audio.setDryFilter(new LowPassFilter(1f, .1f));
         audio.setReverbFilter(new LowPassFilter(.5f, .5f));
 
         AudioNode clone = audio.clone();
-        Assert.assertEquals(audio.getLocalTranslation(), clone.getLocalTranslation());
 
+        Assert.assertNotNull(clone.previousWorldTranslation);
+        Assert.assertNotSame(audio.previousWorldTranslation, clone.previousWorldTranslation);
+        Assert.assertEquals(audio.previousWorldTranslation, clone.previousWorldTranslation);
+
+        Assert.assertNotNull(clone.getDirection());
         Assert.assertNotSame(audio.getDirection(), clone.getDirection());
         Assert.assertEquals(audio.getDirection(), clone.getDirection());
 
+        Assert.assertNotNull(clone.getVelocity());
         Assert.assertNotSame(audio.getVelocity(), clone.getVelocity());
         Assert.assertEquals(audio.getVelocity(), clone.getVelocity());
 
         Assert.assertNotNull(clone.getDryFilter());
-        Assert.assertNotNull(clone.getReverbFilter());
-        
         Assert.assertNotSame(audio.getDryFilter(), clone.getDryFilter());
+
+        Assert.assertNotNull(clone.getReverbFilter());
         Assert.assertNotSame(audio.getReverbFilter(), clone.getReverbFilter());
     }
 
