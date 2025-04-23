@@ -38,6 +38,9 @@ public class AudioNodeTest {
         Assert.assertNotSame(audio.getVelocity(), clone.getVelocity());
         Assert.assertEquals(audio.getVelocity(), clone.getVelocity());
 
+        Assert.assertNotNull(clone.getDryFilter());
+        Assert.assertNotNull(clone.getReverbFilter());
+        
         Assert.assertNotSame(audio.getDryFilter(), clone.getDryFilter());
         Assert.assertNotSame(audio.getReverbFilter(), clone.getReverbFilter());
     }
