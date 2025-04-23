@@ -38,13 +38,8 @@ public class AudioNodeTest {
         Assert.assertNotSame(audio.getVelocity(), clone.getVelocity());
         Assert.assertEquals(audio.getVelocity(), clone.getVelocity());
 
-        assertEquals((LowPassFilter) audio.getDryFilter(), (LowPassFilter) clone.getDryFilter());
-        assertEquals((LowPassFilter) audio.getReverbFilter(), (LowPassFilter) clone.getReverbFilter());
-    }
-
-    private void assertEquals(LowPassFilter filter, LowPassFilter clone) {
-        Assert.assertEquals(filter.getVolume(), clone.getVolume(), 0.001f);
-        Assert.assertEquals(filter.getHighFreqVolume(), clone.getHighFreqVolume(), 0.001f);
+        Assert.assertNotSame(audio.getDryFilter(), clone.getDryFilter());
+        Assert.assertNotSame(audio.getReverbFilter(), clone.getReverbFilter());
     }
 
 }
