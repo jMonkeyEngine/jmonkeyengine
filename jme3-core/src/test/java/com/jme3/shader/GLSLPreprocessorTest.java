@@ -75,4 +75,52 @@ public class GLSLPreprocessorTest {
         String sourceCheck=readAllAsString(testData.openStream());
         assertEquals(sourceCheck, processedSource);                  
     }
+
+    @Test
+    public void testStruct() throws Exception {
+            String source = "// nothing\n#struct MyStruct \n" + "  float x ;//nothing  \n" + "     float y;\n"
+                            + "#endstruct\n//nothing";
+            String processedSource = readAllAsString(
+                            Preprocessor.apply(new ByteArrayInputStream(source.getBytes("UTF-8"))));
+            System.out.println(processedSource);
+            AssetInfo testData = TestUtil.createAssetManager()
+                            .locateAsset(new AssetKey("GLSLPreprocessorTest.testStruct.validOutput"));
+            assertNotNull(testData);
+            String sourceCheck = readAllAsString(testData.openStream());
+            assertEquals(sourceCheck, processedSource);
+    }
+
+    @Test
+    public void testStructExtends() throws Exception {
+            String source = "// nothing\n#struct BaseStruct \n" + "  float x0;\n" + "  float y0;\n"
+                            + "#endstruct\n//nothing\n";
+            source += "//nothing\n#struct MyStruct extends BaseStruct \n" + "  float x;\n" + "  float y;\n"
+                            + "#endstruct\n//nothing\n";
+            String processedSource = readAllAsString(
+                            Preprocessor.apply(new ByteArrayInputStream(source.getBytes("UTF-8"))));
+            System.out.println(processedSource);
+            AssetInfo testData = TestUtil.createAssetManager()
+                            .locateAsset(new AssetKey("GLSLPreprocessorTest.testStructExtends.validOutput"));
+            assertNotNull(testData);
+            String sourceCheck = readAllAsString(testData.openStream());
+            assertEquals(sourceCheck, processedSource);
+    }
+
+    @Test
+    public void testStructExtendsMulti() throws Exception {
+            String source = "#struct BaseStruct \n" + "  float x0;\n" + "  float y0;\n" + "#endstruct\n";
+            source += "#struct BaseStruct2 \n" + "  float x1;\n" + "  float y1;\n"
+                            + "#endstruct\n//nothing\n";
+            source += "#struct MyStruct extends BaseStruct, BaseStruct2\n" + "  float x;\n" + "  float y;\n"
+                            + "#endstruct\n";
+            String processedSource = readAllAsString(
+                            Preprocessor.apply(new ByteArrayInputStream(source.getBytes("UTF-8"))));
+            System.out.println(processedSource);
+            AssetInfo testData = TestUtil.createAssetManager().locateAsset(
+                            new AssetKey("GLSLPreprocessorTest.testStructExtendsMulti.validOutput"));
+            assertNotNull(testData);
+            String sourceCheck = readAllAsString(testData.openStream());
+            assertEquals(sourceCheck, processedSource);
+    }
+
 }

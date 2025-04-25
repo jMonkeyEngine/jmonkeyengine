@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -239,11 +239,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
     }
 
     private void removeGLSurfaceView() {
-        ((Activity) getContext()).runOnUiThread(() -> {
-            if (glSurfaceView != null) {
-                JmeSurfaceView.this.removeView(glSurfaceView);
-            }
-        });
+        ((Activity) getContext()).runOnUiThread(() -> JmeSurfaceView.this.removeView(glSurfaceView));
     }
 
     @Override
@@ -265,19 +261,34 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
     public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         switch (event) {
             case ON_DESTROY:
-                /*destroy only if the policy flag is enabled*/
-                if (destructionPolicy == DestructionPolicy.DESTROY_WHEN_FINISH) {
-                    legacyApplication.stop(!isGLThreadPaused());
-                }
+                // activity is off the foreground stack
+                // activity is being destructed completely as a result of Activity#finish()
+                // this is a killable automata state!
+                jmeSurfaceViewLogger.log(Level.INFO, "Hosting Activity has been destructed.");
                 break;
             case ON_PAUSE:
-                loseFocus();
+                // activity is still on the foreground stack but not
+                // on the topmost level or before transition to stopped/hidden or destroyed state
+                // as a result of dispatch to Activity#finish()
+                // activity is no longer visible and is out of foreground
+                if (((Activity) getContext()).isFinishing()) {
+                    if (destructionPolicy == DestructionPolicy.DESTROY_WHEN_FINISH) {
+                        legacyApplication.stop(!isGLThreadPaused());
+                    } else if (destructionPolicy == DestructionPolicy.KEEP_WHEN_FINISH) {
+                        jmeSurfaceViewLogger.log(Level.INFO, "Context stops, but game is still running.");
+                    }
+                } else {
+                    loseFocus();
+                }
                 break;
             case ON_RESUME:
+                // activity is back to the topmost of the
+                // foreground stack
                 gainFocus();
                 break;
             case ON_STOP:
-                jmeSurfaceViewLogger.log(Level.INFO, "Context stops, but game is still running");
+                // activity is out off the foreground stack or being destructed by a finishing dispatch
+                // this is a killable automata state!
                 break;
         }
     }
@@ -404,13 +415,13 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
 
     @Override
     public void destroy() {
-        /*skip the destroy block if the invoking instance is null*/
-        if (legacyApplication == null) {
-            return;
+        if (glSurfaceView != null) {
+            removeGLSurfaceView();
         }
-        removeGLSurfaceView();
-        legacyApplication.destroy();
-        /*help the Dalvik Garbage collector to destruct the pointers, by making them nullptr*/
+        if (legacyApplication != null) {
+            legacyApplication.destroy();
+        }
+        /*help the Dalvik Garbage collector to destruct the objects, by releasing their references*/
         /*context instances*/
         legacyApplication = null;
         appSettings = null;
@@ -430,10 +441,10 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
         onRendererCompleted = null;
         onExceptionThrown = null;
         onLayoutDrawn = null;
-        /*nullifying the static memory (pushing zero to registers to prepare for a clean use)*/
         GameState.setLegacyApplication(null);
         GameState.setFirstUpdatePassed(false);
-        jmeSurfaceViewLogger.log(Level.INFO, "Context and Game have been destructed");
+        JmeAndroidSystem.setView(null);
+        jmeSurfaceViewLogger.log(Level.INFO, "Context and Game have been destructed.");
     }
 
     @Override
@@ -516,11 +527,13 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
             /*register this Ui Component as an observer to the context of jmeSurfaceView only if this context is a LifeCycleOwner*/
             if (getContext() instanceof LifecycleOwner) {
                 ((LifecycleOwner) getContext()).getLifecycle().addObserver(JmeSurfaceView.this);
+                jmeSurfaceViewLogger.log(Level.INFO, "Command binding SurfaceView to the Activity Lifecycle.");
             }
         } else {
             /*un-register this Ui Component as an observer to the context of jmeSurfaceView only if this context is a LifeCycleOwner*/
             if (getContext() instanceof LifecycleOwner) {
                 ((LifecycleOwner) getContext()).getLifecycle().removeObserver(JmeSurfaceView.this);
+                jmeSurfaceViewLogger.log(Level.INFO, "Command removing SurfaceView from the Activity Lifecycle.");
             }
         }
     }
@@ -917,7 +930,7 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
     }
 
     /**
-     * Determines whether the app context would be destructed
+     * Determines whether the app context would be destructed as a result of dispatching {@link Activity#finish()}
      * with the holder activity context in case of {@link DestructionPolicy#DESTROY_WHEN_FINISH} or be
      * spared for a second use in case of {@link DestructionPolicy#KEEP_WHEN_FINISH}.
      * Default value is : {@link DestructionPolicy#DESTROY_WHEN_FINISH}.
@@ -926,12 +939,14 @@ public class JmeSurfaceView extends RelativeLayout implements SystemListener, Di
      */
     public enum DestructionPolicy {
         /**
-         * Finishes the game context with the activity context (ignores the static memory {@link GameState#legacyApplication}).
+         * Finishes the game context with the activity context (ignores the static memory {@link GameState#legacyApplication})
+         * as a result of dispatching {@link Activity#finish()}.
          */
         DESTROY_WHEN_FINISH,
         /**
          * Spares the game context inside a static memory {@link GameState#legacyApplication}
-         * when the activity context is destroyed, but the app stills in the background.
+         * when the activity context is destroyed dispatching {@link Activity#finish()}, but the {@link android.app.Application}
+         * stills in the background.
          */
         KEEP_WHEN_FINISH
     }

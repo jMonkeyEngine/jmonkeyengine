@@ -12,7 +12,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.RectangleMesh;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestTransparentSSAO extends SimpleApplication {
 
@@ -42,7 +42,7 @@ public class TestTransparentSSAO extends SimpleApplication {
         geom.setMaterial(mat);
 
         geom.setShadowMode(ShadowMode.Receive);
-        TangentBinormalGenerator.generate(geom);
+        MikktspaceTangentGenerator.generate(geom);
         rootNode.attachChild(geom);
 
         // create the geometry and attach it

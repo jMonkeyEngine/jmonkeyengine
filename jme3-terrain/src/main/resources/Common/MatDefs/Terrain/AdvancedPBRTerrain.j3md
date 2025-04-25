@@ -1,38 +1,38 @@
-// NOTE: Doesn't support OpenGL1
-MaterialDef Advanced PBR Terrain {
+MaterialDef AdvancedPBRTerrain {
 
     MaterialParameters {
         Int BoundDrawBuffer
 
-    
-        Boolean UseVertexColorsAsSunIntensity //set true to make the vertex color's R channel how exposed a vertex is to the sun
-        Float StaticSunIntensity              //used for setting the sun exposure value for a whole material
+        Texture2D SunLightExposureMap
+        Boolean UseVertexColorsAsSunExposure //set true to make the vertex color's R channel how exposed a vertex is to the sun
+        Float StaticSunExposure              //used for setting the sun exposure value for a whole material
                                              //these are usually generated at run time or setup in a level editor per-geometry, so that models indoors can have the DirectionalLight dimmed accordingly.
 
         Boolean BrightenIndoorShadows  //set true if shadows are enabled and indoor areas without full sun exposure are too dark compared to when shadows are turned off in settings
 
+        Boolean UseFirstLayerAsTransparency
   
         TextureArray AlbedoTextureArray
         TextureArray NormalParallaxTextureArray -LINEAR
         TextureArray MetallicRoughnessAoEiTextureArray -LINEAR
 
+        //The type of normal map: -1.0 (DirectX), 1.0 (OpenGl)
+        Float NormalType : -1.0
 
+       // Specular-AA
+        Boolean UseSpecularAA : true
+        // screen space variance,Use the slider to set the strength of the geometric specular anti-aliasing effect between 0 and 1. Higher values produce a blurrier result with less aliasing.
+        Float SpecularAASigma
+        // clamping threshold,Use the slider to set a maximum value for the offset that HDRP subtracts from the smoothness value to reduce artifacts.
+        Float SpecularAAKappa
 
         Int AfflictionSplatScale : 8
         Float AfflictionRoughnessValue : 1.0
         Float AfflictionMetallicValue : 0.0
         Float AfflictionEmissiveValue : 0.0   //note that this is simplified into one value, rather than 2 with power and intensity like the regular pbr values.
 
-
      // affliction texture splatting & desaturation functionality
         Boolean UseTriplanarAfflictionMapping
-
-        // Specular-AA
-        Boolean UseSpecularAA : true
-        // screen space variance,Use the slider to set the strength of the geometric specular anti-aliasing effect between 0 and 1. Higher values produce a blurrier result with less aliasing.
-        Float SpecularAASigma
-        // clamping threshold,Use the slider to set a maximum value for the offset that HDRP subtracts from the smoothness value to reduce artifacts.
-        Float SpecularAAKappa
 
         Texture2D AfflictionAlphaMap
 
@@ -44,7 +44,6 @@ MaterialDef Advanced PBR Terrain {
         Color AfflictionEmissiveColor : 0.0 0.0 0.0 0.0
 
         Float SplatNoiseVar
-
 
         Int AfflictionMode_0 : 1
         Int AfflictionMode_1 : 1
@@ -111,7 +110,6 @@ MaterialDef Advanced PBR Terrain {
         Int AlbedoMap_10
         Int AlbedoMap_11
 
-
         Float AlbedoMap_0_scale : 1
         Float AlbedoMap_1_scale : 1
         Float AlbedoMap_2_scale : 1
@@ -125,6 +123,18 @@ MaterialDef Advanced PBR Terrain {
         Float AlbedoMap_10_scale : 1
         Float AlbedoMap_11_scale : 1
 
+        Boolean UseTriPlanarMapping_0
+        Boolean UseTriPlanarMapping_1
+        Boolean UseTriPlanarMapping_2
+        Boolean UseTriPlanarMapping_3
+        Boolean UseTriPlanarMapping_4
+        Boolean UseTriPlanarMapping_5
+        Boolean UseTriPlanarMapping_6
+        Boolean UseTriPlanarMapping_7
+        Boolean UseTriPlanarMapping_8
+        Boolean UseTriPlanarMapping_9
+        Boolean UseTriPlanarMapping_10
+        Boolean UseTriPlanarMapping_11
 
         Int NormalMap_0
         Int NormalMap_1
@@ -139,7 +149,6 @@ MaterialDef Advanced PBR Terrain {
         Int NormalMap_10
         Int NormalMap_11
 
-
         Int MetallicRoughnessMap_0
         Int MetallicRoughnessMap_1
         Int MetallicRoughnessMap_2
@@ -152,7 +161,6 @@ MaterialDef Advanced PBR Terrain {
         Int MetallicRoughnessMap_9 
         Int MetallicRoughnessMap_10
         Int MetallicRoughnessMap_11
-
 
         Float ParallaxHeight_0
         Float ParallaxHeight_1
@@ -167,19 +175,22 @@ MaterialDef Advanced PBR Terrain {
         Float ParallaxHeight_10
         Float ParallaxHeight_11
 
+        //used in order to convert world coords to tex coords so afflictionTexture accurately represents the world in cases where terrain is not scaled at a 1,1,1 value
+        Float TileWidth : 0
+        Vector3 TileLocation
 
-
-        // debug the final value of the selected layer as a color output            
+         // debug the final value of the selected layer as a color output            
         Int DebugValuesMode
-
             // Layers:
-            //   0 - albedo (un-shaded)
+            //   0 - albedo (unshaded)
             //   1 - normals
             //   2 - roughness
             //   3 - metallic
             //   4 - ao
-            //   5  - emissive
-
+            //   5 - emissive
+            //   6 - exposure
+            //   7 - alpha
+            //   8 - geometryNormals
 
         // use tri-planar mapping
         Boolean useTriPlanarMapping
@@ -188,13 +199,6 @@ MaterialDef Advanced PBR Terrain {
         Texture2D AlphaMap -LINEAR
         Texture2D AlphaMap_1 -LINEAR
         Texture2D AlphaMap_2 -LINEAR
-
-        Boolean UseSpecGloss
-        Texture2D SpecularMap
-        Texture2D GlossinessMap
-        Texture2D SpecularGlossinessMap
-        Color Specular : 1.0 1.0 1.0 1.0
-        Float Glossiness : 1.0
 
         Vector4 ProbeData
 
@@ -206,7 +210,6 @@ MaterialDef Advanced PBR Terrain {
 
         //integrate BRDF map for indirect Lighting
         Texture2D IntegrateBRDF -LINEAR
-
 
         //shadows
         Int FilterMode
@@ -274,11 +277,33 @@ MaterialDef Advanced PBR Terrain {
             ViewProjectionMatrix
             ViewMatrix
             Time
-
         }
 
         Defines {
             BOUND_DRAW_BUFFER: BoundDrawBuffer
+
+            USE_FOG : UseFog
+            FOG_LINEAR : LinearFog
+            FOG_EXP : ExpFog
+            FOG_EXPSQ : ExpSqFog
+
+            EXPOSUREMAP : SunLightExposureMap
+            USE_VERTEX_COLORS_AS_SUN_EXPOSURE : UseVertexColorsAsSunExposure
+            STATIC_SUN_EXPOSURE : StaticSunExposure
+            BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
+
+            NORMAL_TYPE: NormalType
+
+            USE_FIRST_LAYER_AS_TRANSPARENCY : UseFirstLayerAsTransparency
+
+            SPECULAR_AA : UseSpecularAA
+            SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
+            SPECULAR_AA_THRESHOLD : SpecularAAKappa
+
+            DISCARD_ALPHA : AlphaDiscardThreshold
+
+            TILELOCATION : TileLocation
+            AFFLICTIONTEXTURE : AfflictionAlphaMap
                 
             AFFLICTIONTEXTURE : AfflictionAlphaMap
             AFFLICTIONALBEDOMAP: SplatAlbedoMap 
@@ -287,22 +312,13 @@ MaterialDef Advanced PBR Terrain {
             AFFLICTIONEMISSIVEMAP : SplatEmissiveMap
             USE_SPLAT_NOISE : SplatNoiseVar
 
-            SPECULAR_AA : UseSpecularAA
-            SPECULAR_AA_SCREEN_SPACE_VARIANCE : SpecularAASigma
-            SPECULAR_AA_THRESHOLD : SpecularAAKappa
+            USE_TRIPLANAR_AFFLICTION_MAPPING : UseTriplanarAfflictionMapping
 
             TRI_PLANAR_MAPPING : useTriPlanarMapping
-
-            DISCARD_ALPHA : AlphaDiscardThreshold
 
             ALPHAMAP : AlphaMap
             ALPHAMAP_1 : AlphaMap_1
             ALPHAMAP_2 : AlphaMap_2
-
-            USE_FOG : UseFog
-            FOG_LINEAR : LinearFog
-            FOG_EXP : ExpFog
-            FOG_EXPSQ : ExpSqFog
 
             ALBEDOMAP_0 : AlbedoMap_0
             ALBEDOMAP_1 : AlbedoMap_1
@@ -343,18 +359,29 @@ MaterialDef Advanced PBR Terrain {
             METALLICROUGHNESSMAP_10 : MetallicRoughnessMap_10
             METALLICROUGHNESSMAP_11 : MetallicRoughnessMap_11
 
+            TRI_PLANAR_MAPPING_0 : UseTriPlanarMapping_0
+            TRI_PLANAR_MAPPING_1 : UseTriPlanarMapping_1
+            TRI_PLANAR_MAPPING_2 : UseTriPlanarMapping_2
+            TRI_PLANAR_MAPPING_3 : UseTriPlanarMapping_3
+            TRI_PLANAR_MAPPING_4 : UseTriPlanarMapping_4
+            TRI_PLANAR_MAPPING_5 : UseTriPlanarMapping_5
+            TRI_PLANAR_MAPPING_6 : UseTriPlanarMapping_6
+            TRI_PLANAR_MAPPING_7 : UseTriPlanarMapping_7
+            TRI_PLANAR_MAPPING_8 : UseTriPlanarMapping_8
+            TRI_PLANAR_MAPPING_9 : UseTriPlanarMapping_9
+            TRI_PLANAR_MAPPING_10 : UseTriPlanarMapping_10
+            TRI_PLANAR_MAPPING_11 : UseTriPlanarMapping_11
+
             DEBUG_VALUES_MODE : DebugValuesMode
 
-
-
+            USE_TEXTURE_ARRAYS : AlbedoTextureArray
         }
     }
 
-
     Technique PreShadow {
 
-        VertexShader   GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader GLSL300 GLSL150 GLSL100 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100 : Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -382,8 +409,8 @@ MaterialDef Advanced PBR Terrain {
 
 
     Technique PostShadow{
-        VertexShader    GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader  GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PostShadow.frag
+        VertexShader GLSL300 GLSL150 GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL300 GLSL150 GLSL100: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -413,7 +440,4 @@ MaterialDef Advanced PBR Terrain {
             PolyOffset -0.1 0  
         }
     }
-    
-
-    
 }

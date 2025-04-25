@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,10 @@
  */
 package com.jme3.renderer;
 
+import com.jme3.renderer.pipeline.ForwardPipeline;
+import com.jme3.renderer.pipeline.DefaultPipelineContext;
+import com.jme3.renderer.pipeline.RenderPipeline;
+import com.jme3.renderer.pipeline.PipelineContext;
 import com.jme3.light.DefaultLightFilter;
 import com.jme3.light.LightFilter;
 import com.jme3.light.LightList;
@@ -44,7 +48,6 @@ import com.jme3.math.Matrix4f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.AppStep;
-import com.jme3.profile.SpStep;
 import com.jme3.profile.VpStep;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
@@ -65,8 +68,12 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -87,6 +94,10 @@ public class RenderManager {
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
+    private final HashMap<Class, PipelineContext> contexts = new HashMap<>();
+    private final LinkedList<PipelineContext> usedContexts = new LinkedList<>();
+    private final LinkedList<RenderPipeline> usedPipelines = new LinkedList<>();
+    private RenderPipeline defaultPipeline = new ForwardPipeline();
     private Camera prevCam = null;
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
@@ -104,7 +115,7 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
-    private MatParamOverride boundDrawBufferId=new MatParamOverride(VarType.Int,"BoundDrawBuffer",0);
+    private MatParamOverride boundDrawBufferId=new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
     private Predicate<Geometry> renderFilter;
 
 
@@ -117,6 +128,115 @@ public class RenderManager {
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
         this.forcedOverrides.add(boundDrawBufferId);
+        // register default pipeline context
+        contexts.put(PipelineContext.class, new DefaultPipelineContext());
+    }
+    
+    /**
+     * Gets the default pipeline used when a ViewPort does not have a
+     * pipeline already assigned to it.
+     * 
+     * @return 
+     */
+    public RenderPipeline getPipeline() {
+        return defaultPipeline;
+    }
+    
+    /**
+     * Sets the default pipeline used when a ViewPort does not have a
+     * pipeline already assigned to it.
+     * <p>
+     * default={@link ForwardPipeline}
+     * 
+     * @param pipeline default pipeline (not null)
+     */
+    public void setPipeline(RenderPipeline pipeline) {
+        assert pipeline != null;
+        this.defaultPipeline = pipeline;
+    }
+    
+    /**
+     * Gets the default pipeline context registered under
+     * {@link PipelineContext#getClass()}.
+     * 
+     * @return 
+     */
+    public PipelineContext getDefaultContext() {
+        return getContext(PipelineContext.class);
+    }
+    
+    /**
+     * Gets the pipeline context registered under the class.
+     * 
+     * @param <T>
+     * @param type
+     * @return registered context or null
+     */
+    public <T extends PipelineContext> T getContext(Class<T> type) {
+        return (T)contexts.get(type);
+    }
+    
+    /**
+     * Gets the pipeline context registered under the class or creates
+     * and registers a new context from the supplier.
+     * 
+     * @param <T>
+     * @param type
+     * @param supplier interface for creating a new context if necessary
+     * @return registered or newly created context
+     */
+    public <T extends PipelineContext> T getOrCreateContext(Class<T> type, Supplier<T> supplier) {
+        T c = getContext(type);
+        if (c == null) {
+            c = supplier.get();
+            registerContext(type, c);
+        }
+        return c;
+    }
+    
+    /**
+     * Gets the pipeline context registered under the class or creates
+     * and registers a new context from the function.
+     * 
+     * @param <T>
+     * @param type
+     * @param function interface for creating a new context if necessary
+     * @return registered or newly created context
+     */
+    public <T extends PipelineContext> T getOrCreateContext(Class<T> type, Function<RenderManager, T> function) {
+        T c = getContext(type);
+        if (c == null) {
+            c = function.apply(this);
+            registerContext(type, c);
+        }
+        return c;
+    }
+    
+    /**
+     * Registers the pipeline context under the class.
+     * <p>
+     * If another context is already registered under the class, that
+     * context will be replaced by the given context.
+     * 
+     * @param <T>
+     * @param type class type to register the context under (not null)
+     * @param context context to register (not null)
+     */
+    public <T extends PipelineContext> void registerContext(Class<T> type, T context) {
+        assert type != null;
+        if (context == null) {
+            throw new NullPointerException("Context to register cannot be null.");
+        }
+        contexts.put(type, context);
+    }
+    
+    /**
+     * Gets the application profiler.
+     * 
+     * @return 
+     */
+    public AppProfiler getProfiler() {
+        return prof;
     }
 
     /**
@@ -402,7 +522,7 @@ public class RenderManager {
         for (ViewPort vp : preViewPorts) {
             notifyRescale(vp, x, y);
         }
-        for (ViewPort vp : viewPorts) {        
+        for (ViewPort vp : viewPorts) {      
             notifyRescale(vp, x, y);
         }
         for (ViewPort vp : postViewPorts) {
@@ -421,6 +541,15 @@ public class RenderManager {
      */
     public void setForcedMaterial(Material mat) {
         forcedMaterial = mat;
+    }
+    
+    /**
+     * Gets the forced material.
+     * 
+     * @return 
+     */
+    public Material getForcedMaterial() {
+        return forcedMaterial;
     }
 
     /**
@@ -628,7 +757,33 @@ public class RenderManager {
      * @see com.jme3.material.Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager)
      */
     public void renderGeometry(Geometry geom) {
-        if (renderFilter != null && !renderFilter.test(geom)) return;
+        
+        if (renderFilter != null && !renderFilter.test(geom)) {
+            return;
+        }
+        
+        LightList lightList = geom.getWorldLightList();
+        if (lightFilter != null) {
+            filteredLightList.clear();
+            lightFilter.filterLights(geom, filteredLightList);
+            lightList = filteredLightList;
+        }
+        
+        renderGeometry(geom, lightList);
+        
+    }
+    
+    /**
+     * 
+     * @param geom
+     * @param lightList 
+     */
+    public void renderGeometry(Geometry geom, LightList lightList) {
+        
+        if (renderFilter != null && !renderFilter.test(geom)) {
+            return;
+        }
+        
         this.renderer.pushDebugGroup(geom.getName());
         if (geom.isIgnoreTransform()) {
             setWorldMatrix(Matrix4f.IDENTITY);
@@ -636,23 +791,15 @@ public class RenderManager {
             setWorldMatrix(geom.getWorldMatrix());
         }
 
-        // Use material override to pass the current target index (used in api such as GL ES that do not support glDrawBuffer)
+        // Use material override to pass the current target index (used in api such as GL ES
+        // that do not support glDrawBuffer)
         FrameBuffer currentFb = this.renderer.getCurrentFrameBuffer();
         if (currentFb != null && !currentFb.isMultiTarget()) {
             this.boundDrawBufferId.setValue(currentFb.getTargetIndex());
         }
 
-        // Perform light filtering if we have a light filter.
-        LightList lightList = geom.getWorldLightList();
-
-        if (lightFilter != null) {
-            filteredLightList.clear();
-            lightFilter.filterLights(geom, filteredLightList);
-            lightList = filteredLightList;
-        }
-
         Material material = geom.getMaterial();
-        
+
         // If forcedTechnique exists, we try to force it for the render.
         // If it does not exist in the mat def, we check for forcedMaterial and render the geom if not null.
         // Otherwise, the geometry is not rendered.
@@ -736,7 +883,7 @@ public class RenderManager {
                 preloadScene(children.get(i));
             }
         } else if (scene instanceof Geometry) {
-            // add to the render queue
+            // addUserEvent to the render queue
             Geometry gm = (Geometry) scene;
             if (gm.getMaterial() == null) {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
@@ -755,7 +902,7 @@ public class RenderManager {
             }
         }
     }
-
+    
     /**
      * Flattens the given scene graph into the ViewPort's RenderQueue,
      * checking for culling as the call goes down the graph recursively.
@@ -786,10 +933,10 @@ public class RenderManager {
      *     contain the flattened scene graph.
      */
     public void renderScene(Spatial scene, ViewPort vp) {
-        //reset of the camera plane state for proper culling
-        //(must be 0 for the first note of the scene to be rendered)
+        // reset of the camera plane state for proper culling
+        // (must be 0 for the first note of the scene to be rendered)
         vp.getCamera().setPlaneState(0);
-        //rendering the scene
+        // queue the scene for rendering
         renderSubScene(scene, vp);
     }
 
@@ -800,12 +947,10 @@ public class RenderManager {
      * @param vp the ViewPort to render in (not null)
      */
     private void renderSubScene(Spatial scene, ViewPort vp) {
-
-        // check culling first.
+        // check culling first
         if (!scene.checkCulling(vp.getCamera())) {
             return;
         }
-
         scene.runControlRender(this, vp);
         if (scene instanceof Node) {
             // Recurse for all children
@@ -819,12 +964,11 @@ public class RenderManager {
                 renderSubScene(children.get(i), vp);
             }
         } else if (scene instanceof Geometry) {
-            // add to the render queue
+            // addUserEvent to the render queue
             Geometry gm = (Geometry) scene;
             if (gm.getMaterial() == null) {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
             }
-
             vp.getQueue().addToQueue(gm, scene.getQueueBucket());
         }
     }
@@ -1038,7 +1182,7 @@ public class RenderManager {
     }
 
     private void setViewPort(Camera cam) {
-        // this will make sure to update viewport only if needed
+        // this will make sure to clearReservations viewport only if needed
         if (cam != prevCam || cam.isViewportChanged()) {
             viewX      = (int) (cam.getViewPortLeft() * cam.getWidth());
             viewY      = (int) (cam.getViewPortBottom() * cam.getHeight());
@@ -1120,44 +1264,29 @@ public class RenderManager {
     }
 
     /**
-     * Renders the {@link ViewPort}.
-     *
-     * <p>If the ViewPort is {@link ViewPort#isEnabled() disabled}, this method
-     * returns immediately. Otherwise, the ViewPort is rendered by
-     * the following process:<br>
-     * <ul>
-     * <li>All {@link SceneProcessor scene processors} that are attached
-     * to the ViewPort are {@link SceneProcessor#initialize(com.jme3.renderer.RenderManager,
-     * com.jme3.renderer.ViewPort) initialized}.
-     * </li>
-     * <li>The SceneProcessors' {@link SceneProcessor#preFrame(float) } method
-     * is called.</li>
-     * <li>The ViewPort's {@link ViewPort#getOutputFrameBuffer() output framebuffer}
-     * is set on the Renderer</li>
-     * <li>The camera is set on the renderer, including its view port parameters.
-     * (see {@link #setCamera(com.jme3.renderer.Camera, boolean) })</li>
-     * <li>Any buffers that the ViewPort requests to be cleared are cleared
-     * and the {@link ViewPort#getBackgroundColor() background color} is set</li>
-     * <li>Every scene that is attached to the ViewPort is flattened into
-     * the ViewPort's render queue
-     * (see {@link #renderViewPortQueues(com.jme3.renderer.ViewPort, boolean) })
-     * </li>
-     * <li>The SceneProcessors' {@link SceneProcessor#postQueue(com.jme3.renderer.queue.RenderQueue) }
-     * method is called.</li>
-     * <li>The render queue is sorted and then flushed, sending
-     * rendering commands to the underlying Renderer implementation.
-     * (see {@link #flushQueue(com.jme3.renderer.ViewPort) })</li>
-     * <li>The SceneProcessors' {@link SceneProcessor#postFrame(com.jme3.texture.FrameBuffer) }
-     * method is called.</li>
-     * <li>The translucent queue of the ViewPort is sorted and then flushed
-     * (see {@link #renderTranslucentQueue(com.jme3.renderer.ViewPort) })</li>
-     * <li>If any objects remained in the render queue, they are removed
-     * from the queue. This is generally objects added to the
-     * {@link RenderQueue#renderQueue(com.jme3.renderer.queue.RenderQueue.Bucket,
-     * com.jme3.renderer.RenderManager, com.jme3.renderer.Camera)
-     * shadow queue}
-     * which were not rendered because of a missing shadow renderer.</li>
-     * </ul>
+     * Applies the ViewPort's Camera and FrameBuffer in preparation
+     * for rendering.
+     * 
+     * @param vp 
+     */
+    public void applyViewPort(ViewPort vp) {
+        renderer.setFrameBuffer(vp.getOutputFrameBuffer());
+        setCamera(vp.getCamera(), false);
+        if (vp.isClearDepth() || vp.isClearColor() || vp.isClearStencil()) {
+            if (vp.isClearColor()) {
+                renderer.setBackgroundColor(vp.getBackgroundColor());
+            }
+            renderer.clearBuffers(vp.isClearColor(), vp.isClearDepth(), vp.isClearStencil());
+        }
+    }
+    
+    /**
+     * Renders the {@link ViewPort} using the ViewPort's {@link RenderPipeline}.
+     * <p>
+     * If the ViewPort's RenderPipeline is null, the pipeline returned by
+     * {@link #getPipeline()} is used instead.
+     * <p>
+     * If the ViewPort is disabled, no rendering will occur.
      *
      * @param vp View port to render
      * @param tpf Time per frame value
@@ -1165,96 +1294,24 @@ public class RenderManager {
     public void renderViewPort(ViewPort vp, float tpf) {
         if (!vp.isEnabled()) {
             return;
+        }        
+        RenderPipeline pipeline = vp.getPipeline();
+        if (pipeline == null) {
+            pipeline = defaultPipeline;
         }
-        if (prof != null) {
-            prof.vpStep(VpStep.BeginRender, vp, null);
+        PipelineContext context = pipeline.fetchPipelineContext(this);
+        if (context == null) {
+            throw new NullPointerException("Failed to fetch pipeline context.");
         }
-
-        SafeArrayList<SceneProcessor> processors = vp.getProcessors();
-        if (processors.isEmpty()) {
-            processors = null;
+        if (!context.startViewPortRender(this, vp)) {
+            usedContexts.add(context);
         }
-
-        if (processors != null) {
-            if (prof != null) {
-                prof.vpStep(VpStep.PreFrame, vp, null);
-            }
-            for (SceneProcessor proc : processors.getArray()) {
-                if (!proc.isInitialized()) {
-                    proc.initialize(this, vp);
-                }
-                proc.setProfiler(this.prof);
-                if (prof != null) {
-                    prof.spStep(SpStep.ProcPreFrame, proc.getClass().getSimpleName());
-                }
-                proc.preFrame(tpf);
-            }
+        if (!pipeline.hasRenderedThisFrame()) {
+            usedPipelines.add(pipeline);
+            pipeline.startRenderFrame(this);
         }
-
-        renderer.setFrameBuffer(vp.getOutputFrameBuffer());
-        setCamera(vp.getCamera(), false);
-        if (vp.isClearDepth() || vp.isClearColor() || vp.isClearStencil()) {
-            if (vp.isClearColor()) {
-                renderer.setBackgroundColor(vp.getBackgroundColor());
-            }
-            renderer.clearBuffers(vp.isClearColor(),
-                    vp.isClearDepth(),
-                    vp.isClearStencil());
-        }
-
-        if (prof != null) {
-            prof.vpStep(VpStep.RenderScene, vp, null);
-        }
-        List<Spatial> scenes = vp.getScenes();
-        for (int i = scenes.size() - 1; i >= 0; i--) {
-            renderScene(scenes.get(i), vp);
-        }
-
-        if (processors != null) {
-            if (prof != null) {
-                prof.vpStep(VpStep.PostQueue, vp, null);
-            }
-            for (SceneProcessor proc : processors.getArray()) {
-                if (prof != null) {
-                    prof.spStep(SpStep.ProcPostQueue, proc.getClass().getSimpleName());
-                }
-                proc.postQueue(vp.getQueue());
-            }
-        }
-
-        if (prof != null) {
-            prof.vpStep(VpStep.FlushQueue, vp, null);
-        }
-        flushQueue(vp);
-
-        if (processors != null) {
-            if (prof != null) {
-                prof.vpStep(VpStep.PostFrame, vp, null);
-            }
-            for (SceneProcessor proc : processors.getArray()) {
-                if (prof != null) {
-                    prof.spStep(SpStep.ProcPostFrame, proc.getClass().getSimpleName());
-                }
-                proc.postFrame(vp.getOutputFrameBuffer());
-            }
-            if (prof != null) {
-                prof.vpStep(VpStep.ProcEndRender, vp, null);
-            }
-        }
-        //renders the translucent objects queue after processors have been rendered
-        renderTranslucentQueue(vp);
-        // clear any remaining spatials that were not rendered.
-        clearQueue(vp);
-
-        /*
-         * the call to setCamera will indirectly cause a clipRect to be set, must be cleared to avoid surprising results
-         * if renderer#copyFrameBuffer is used later
-         */
-        renderer.clearClipRect();
-
-        if (prof != null) {
-            prof.vpStep(VpStep.EndRender, vp, null);
-        }
+        pipeline.pipelineRender(this, context, vp, tpf);
+        context.endViewPortRender(this, vp);
     }
 
     /**
@@ -1276,7 +1333,7 @@ public class RenderManager {
         if (renderer instanceof NullRenderer) {
             return;
         }
-
+        
         uniformBindingManager.newFrame();
 
         if (prof != null) {
@@ -1308,12 +1365,22 @@ public class RenderManager {
                 renderViewPort(vp, tpf);
             }
         }
+        
+        // cleanup for used render pipelines and pipeline contexts only
+        for (PipelineContext c : usedContexts) {
+            c.endContextRenderFrame(this);
+        }
+        for (RenderPipeline p : usedPipelines) {
+            p.endRenderFrame(this);
+        }
+        usedContexts.clear();
+        usedPipelines.clear();
+        
     }
-
 
     /**
      * Returns true if the draw buffer target id is passed to the shader.
-     * 
+     *
      * @return True if the draw buffer target id is passed to the shaders.
      */
     public boolean getPassDrawBufferTargetIdToShaders() {
@@ -1324,7 +1391,7 @@ public class RenderManager {
      * Enable or disable passing the draw buffer target id to the shaders. This
      * is needed to handle FrameBuffer.setTargetIndex correctly in some
      * backends.
-     * 
+     *
      * @param v
      *            True to enable, false to disable (default is true)
      */
@@ -1337,11 +1404,12 @@ public class RenderManager {
             this.forcedOverrides.remove(boundDrawBufferId);
         }
     }
+    
     /**
      * Set a render filter. Every geometry will be tested against this filter
      * before rendering and will only be rendered if the filter returns true.
      * 
-     * @param filter
+     * @param filter the render filter
      */
     public void setRenderFilter(Predicate<Geometry> filter) {
         renderFilter = filter;
@@ -1350,7 +1418,7 @@ public class RenderManager {
     /**
      * Returns the render filter that the RenderManager is currently using
      * 
-     * @return the render filter
+     * @return the render filter 
      */
     public Predicate<Geometry> getRenderFilter() {
         return renderFilter;

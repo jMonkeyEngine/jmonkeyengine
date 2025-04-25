@@ -1,0 +1,20 @@
+MaterialDef ImageTest {
+
+    MaterialParameters {
+        
+        Image2D TargetImage
+        
+    }
+
+     Technique {
+        
+        VertexShader   GLSL400 GLSL320 GLSL150 : Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL400 GLSL320 GLSL150 : Materials/ImageTest.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+        
+    }
+
+}

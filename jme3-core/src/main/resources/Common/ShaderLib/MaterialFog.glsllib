@@ -1,25 +1,59 @@
+//author @jayfella
+#ifndef __MATERIAL_FOG_UTIL__
+    #define __MATERIAL_FOG_UTIL__
 
-vec4 getFogLinear(in vec4 diffuseColor, in vec4 fogColor, in float start, in float end, in float distance) {
+    vec4 getFogLinear(in vec4 diffuseColor, in vec4 fogColor, in float start, in float end, in float distance) {
 
-    float fogFactor = (end - distance) / (end - start);
-    fogFactor = clamp(fogFactor, 0.0, 1.0);
+        float fogFactor = (end - distance) / (end - start);
+        fogFactor = clamp(fogFactor, 0.0, 1.0);
 
-    return mix(fogColor, diffuseColor, fogFactor);
-}
+        return mix(fogColor, diffuseColor, fogFactor);
+    }
 
-vec4 getFogExp(in vec4 diffuseColor, in vec4 fogColor, in float fogDensity, in float distance) {
+    vec4 getFogExp(in vec4 diffuseColor, in vec4 fogColor, in float fogDensity, in float distance) {
 
-    float fogFactor = 1.0 / exp(distance * fogDensity);
-    fogFactor = clamp( fogFactor, 0.0, 1.0 );
+        float fogFactor = 1.0 / exp(distance * fogDensity);
+        fogFactor = clamp( fogFactor, 0.0, 1.0 );
 
-    return mix(fogColor, diffuseColor, fogFactor);
-}
+        return mix(fogColor, diffuseColor, fogFactor);
+    }
 
-vec4 getFogExpSquare(in vec4 diffuseColor, in vec4 fogColor, in float fogDensity, in float distance) {
+    vec4 getFogExpSquare(in vec4 diffuseColor, in vec4 fogColor, in float fogDensity, in float distance) {
 
-    float fogFactor = 1.0 / exp( (distance * fogDensity) * (distance * fogDensity));
-    fogFactor = clamp( fogFactor, 0.0, 1.0 );
+        float fogFactor = 1.0 / exp( (distance * fogDensity) * (distance * fogDensity));
+        fogFactor = clamp( fogFactor, 0.0, 1.0 );
 
-    vec4 finalColor = mix(fogColor, diffuseColor, fogFactor);
-    return finalColor;
-}
+        vec4 finalColor = mix(fogColor, diffuseColor, fogFactor);
+        return finalColor;
+    }
+
+    #if defined(USE_FOG)
+        uniform vec4 m_FogColor;
+        varying float fogDistance;
+
+        uniform vec2 m_LinearFog;
+
+        #ifdef FOG_EXP
+            uniform float m_ExpFog;
+        #endif
+
+        #ifdef FOG_EXPSQ
+            uniform float m_ExpSqFog;        
+        #endif        
+
+        vec4 MaterialFog_calculateFogColor(in vec4 fragColor){
+            #ifdef FOG_LINEAR
+                fragColor = getFogLinear(fragColor, m_FogColor, m_LinearFog.x, m_LinearFog.y, fogDistance);
+            #endif
+            #ifdef FOG_EXP
+                fragColor = getFogExp(fragColor, m_FogColor, m_ExpFog, fogDistance);
+            #endif
+            #ifdef FOG_EXPSQ
+                fragColor = getFogExpSquare(fragColor, m_FogColor, m_ExpSqFog, fogDistance);
+            #endif
+
+            return fragColor;
+        }          
+
+    #endif   
+#endif

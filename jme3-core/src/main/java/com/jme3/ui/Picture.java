@@ -113,7 +113,7 @@ public class Picture extends Geometry {
      */
     public void setWidth(float width){
         this.width = width;
-        setLocalScale(new Vector3f(width, height, 1f));
+        setLocalScale(width, height, 1f);
     }
 
     /**
@@ -125,7 +125,7 @@ public class Picture extends Geometry {
      */
     public void setHeight(float height){
         this.height = height;
-        setLocalScale(new Vector3f(width, height, 1f));
+        setLocalScale(width, height, 1f);
     }
 
     /**

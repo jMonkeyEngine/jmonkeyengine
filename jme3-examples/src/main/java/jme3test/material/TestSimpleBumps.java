@@ -42,7 +42,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 // phong cutoff for light to normal angle > 90?
 public class TestSimpleBumps extends SimpleApplication {
@@ -63,7 +63,7 @@ public class TestSimpleBumps extends SimpleApplication {
         Geometry sphere = new Geometry("Rock Ball", quadMesh);
         Material mat = assetManager.loadMaterial("Textures/BumpMapTest/SimpleBump.j3m");
         sphere.setMaterial(mat);
-        TangentBinormalGenerator.generate(sphere);
+        MikktspaceTangentGenerator.generate(sphere);
         rootNode.attachChild(sphere);
 
         lightMdl = new Geometry("Light", new Sphere(10, 10, 0.1f));

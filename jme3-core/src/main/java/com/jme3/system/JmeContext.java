@@ -41,7 +41,6 @@ import com.jme3.renderer.Renderer;
  * Represents a rendering context within the engine.
  */
 public interface JmeContext {
-
     /**
      * The type of context.
      */
@@ -77,7 +76,7 @@ public interface JmeContext {
          * any drawable surface. The implementation does not provide any
          * display, input, or sound support.
          */
-        Headless;
+        Headless,
     }
 
     /**
@@ -102,7 +101,7 @@ public interface JmeContext {
     /**
      * Sets the listener that will receive events relating to context
      * creation, update, and destroy.
-     * 
+     *
      * @param listener the desired listener
      */
     public void setSystemListener(SystemListener listener);
@@ -225,4 +224,20 @@ public interface JmeContext {
      * @throws IllegalStateException for a headless or null context
      */
     public int getWindowYPosition();
+
+    /**
+     * This call will return a list of Monitors that glfwGetMonitors() returns and information about
+     * the monitor, like width, height, and refresh rate.
+     *
+     * @return returns a list of monitors and their information.
+     */
+    public Displays getDisplays();
+
+    /**
+     * Use this to get the positional number of the primary monitor from the glfwGetMonitors()
+     * function call.
+     *
+     * @return the position of the value in the arraylist of the primary monitor.
+     */
+    public int getPrimaryDisplay();
 }

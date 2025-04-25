@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package com.jme3.anim;
 
 import com.jme3.anim.tween.action.Action;
+import com.jme3.util.clone.Cloner;
 import java.util.Set;
 import java.util.TreeSet;
 import org.junit.Assert;
@@ -57,34 +58,34 @@ public class AnimComposerTest {
         Assert.assertNotNull(composer.getAnimClipsNames());
         Assert.assertEquals(0, composer.getAnimClipsNames().size());
     }
-    
+
     @Test
     public void testMakeLayer() {
         AnimComposer composer = new AnimComposer();
-        
+
         final String layerName = "TestLayer";
 
         composer.makeLayer(layerName, null);
-        
+
         final Set<String> layers = new TreeSet<>();
         layers.add("Default");
         layers.add(layerName);
-        
+
         Assert.assertNotNull(composer.getLayer(layerName));
         Assert.assertEquals(layers, composer.getLayerNames());
     }
-    
+
     @Test
     public void testMakeAction() {
         AnimComposer composer = new AnimComposer();
-        
+
         final String animName = "TestClip";
-        
+
         final AnimClip anim = new AnimClip(animName);
         composer.addAnimClip(anim);
-        
+
         final Action action = composer.makeAction(animName);
-        
+
         Assert.assertNotNull(action);
     }
 
@@ -100,6 +101,28 @@ public class AnimComposerTest {
         AnimComposer composer = new AnimComposer();
 
         composer.getAnimClipsNames().add("test");
+    }
+
+    @Test
+    public void testHasDefaultLayer() {
+        AnimComposer composer = new AnimComposer();
+
+        AnimLayer defaultLayer = composer.getLayer("Default");
+        Assert.assertNotNull(defaultLayer);
+    }
+
+    @Test
+    /**
+     * https://github.com/jMonkeyEngine/jmonkeyengine/issues/2341
+     *
+     */
+    public void testMissingDefaultLayerIssue2341() {
+        AnimComposer composer = new AnimComposer();
+        composer.removeLayer(AnimComposer.DEFAULT_LAYER);
+
+        AnimComposer clone = (AnimComposer) composer.jmeClone();
+        clone.cloneFields(new Cloner(), composer);
+        Assert.assertNotNull(clone.getLayer(AnimComposer.DEFAULT_LAYER));
     }
 
 }

@@ -23,7 +23,6 @@ import com.jme3.input.vr.VRInputAPI;
 import com.jme3.input.vr.openvr.OpenVR;
 import com.jme3.input.vr.openvr.OpenVRMouseManager;
 import com.jme3.input.vr.openvr.OpenVRViewManager;
-import com.jme3.input.vr.osvr.OSVR;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -87,11 +86,6 @@ public abstract class VRApplication implements Application, SystemListener {
      * The default aspect ratio.
      */
     public float DEFAULT_ASPECT = 1f;
-
-    /**
-     * Is the application is based on OSVR (default is <code>false</code>).
-     */
-    public boolean CONSTRUCT_WITH_OSVR = false;
 
     /**
      * Is the application has not to start within VR mode (default is <code>false</code>).
@@ -272,15 +266,9 @@ public abstract class VRApplication implements Application, SystemListener {
         } else if( DISABLE_VR ) {
             logger.warning("VR disabled via code.");
         } else if( VRSupportedOS && DISABLE_VR == false ) {
-            if( CONSTRUCT_WITH_OSVR ) {
-                //FIXME: WARNING !!
-                vrHardware = new OSVR(null);
-                logger.config("Creating OSVR wrapper [SUCCESS]");
-            } else {
-                //FIXME: WARNING !!
-                vrHardware = new OpenVR(null);
-                logger.config("Creating OpenVR wrapper [SUCCESS]");
-            }
+            //FIXME: WARNING !!
+            vrHardware = new OpenVR(null);
+            logger.config("Creating OpenVR wrapper [SUCCESS]");
             if( vrHardware.initialize() ) {
                 setPauseOnLostFocus(false);
             }
@@ -364,14 +352,6 @@ public abstract class VRApplication implements Application, SystemListener {
      */
     public boolean compositorAllowed() {
         return useCompositor && compositorOS;
-    }
-
-    /**
-     * Get if the system currently support VR.
-     * @return <code>true</code> if the system currently support VR and <code>false</Code> otherwise.
-     */
-    public boolean isOSVRSupported() {
-        return VRSupportedOS;
     }
 
     /**
@@ -725,7 +705,7 @@ public abstract class VRApplication implements Application, SystemListener {
             settings.setFrequency(vrHardware.getDisplayFrequency());
             settings.setFullscreen(false);
             settings.setVSync(false); // stop vsyncing on primary monitor!
-            settings.setSwapBuffers(!disableSwapBuffers || vrHardware instanceof OSVR);
+            settings.setSwapBuffers(!disableSwapBuffers);
             settings.setTitle("Put Headset On Now: " + settings.getTitle());
             settings.setResizable(true);
         }

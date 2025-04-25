@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  * 
  * @author Kirill Vainer
  */
-final class TextureUtil {
+public final class TextureUtil {
 
     private static final Logger logger = Logger.getLogger(TextureUtil.class.getName());
 

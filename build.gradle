@@ -75,23 +75,25 @@ task libDist(dependsOn: subprojects.build, description: 'Builds and copies the e
         subprojects.each {project ->
             if(!project.hasProperty('mainClassName')){
                 project.tasks.withType(Jar).each {archiveTask ->
-                    if(archiveTask.archiveClassifier == "sources"){
+                    String classifier = archiveTask.archiveClassifier.get()
+                    String ext = archiveTask.archiveExtension.get()
+                    if (classifier == "sources") {
                         copy {
                             from archiveTask.archivePath
                                 into sourceFolder
-                                rename {project.name + '-' + archiveTask.archiveClassifier +'.'+ archiveTask.archiveExtension}
+                                rename {project.name + '-' + classifier + '.' + ext}
                         }
-                    } else if(archiveTask.archiveClassifier == "javadoc"){
+                    } else if (classifier == "javadoc") {
                         copy {
                             from archiveTask.archivePath
                                 into javadocFolder
-                                rename {project.name + '-' + archiveTask.archiveClassifier +'.'+ archiveTask.archiveExtension}
+                                rename {project.name + '-' + classifier + '.' + ext}
                         }
                     } else{
                         copy {
                             from archiveTask.archivePath
                                 into libFolder
-                                rename {project.name + '.' + archiveTask.archiveExtension}
+                                rename {project.name + '.' + ext}
                         }
                     }
                 }
