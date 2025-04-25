@@ -114,7 +114,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '1.0.26+4'
+          java-version: '11.0.26+4'
 
       - name: Setup the XCode version to 15.1.0 
         uses: maxim-lobanov/setup-xcode@v1
