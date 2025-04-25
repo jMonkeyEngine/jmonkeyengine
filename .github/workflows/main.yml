@@ -121,9 +121,6 @@ jobs:
         with:
           xcode-version: '15.1.0'
 
-      # - name: Check jni
-      #   run: find / -name jni.h
-
       - name: Clone the repo
         uses: actions/checkout@v4
         with:
@@ -137,7 +134,11 @@ jobs:
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
           :jme3-ios-native:build
 
-      # TODO: Add upload natives like done for Android?
+      - name: Upload natives
+        uses: actions/upload-artifact@master
+        with:
+          name: ios-natives
+          path: build/native
 
   # Build the natives on android
   BuildAndroidNatives:
@@ -205,6 +206,12 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: android-natives
+          path: build/native
+
+      - name: Download natives for iOS
+        uses: actions/download-artifact@master
+        with:
+          name: ios-natives
           path: build/native
 
       - name: Validate the Gradle wrapper
@@ -399,6 +406,12 @@ jobs:
           name: android-natives
           path: build/native
 
+      - name: Download natives for iOS
+        uses: actions/download-artifact@master
+        with:
+          name: ios-natives
+          path: build/native
+
       - name: Rebuild the maven artifacts and deploy them to the Sonatype repository
         run: |
           if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
@@ -454,6 +467,12 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: android-natives
+          path: build/native
+
+      - name: Download natives for iOS
+        uses: actions/download-artifact@master
+        with:
+          name: ios-natives
           path: build/native
 
       - name: Rebuild the maven artifacts and deploy them to Sonatype OSSRH
