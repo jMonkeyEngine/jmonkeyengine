@@ -138,7 +138,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: ios-natives
-          path: build/native
+          path: jme3-ios-native/build/libs
 
   # Build the natives on android
   BuildAndroidNatives:
