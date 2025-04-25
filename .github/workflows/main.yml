@@ -167,7 +167,7 @@ jobs:
 
   # Build the engine, we only deploy from ubuntu-latest jdk21
   BuildJMonkey:
-    needs: [BuildAndroidNatives]
+    needs: [BuildAndroidNatives, BuildIosNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
     runs-on: ${{ matrix.os }}
     strategy:
