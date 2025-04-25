@@ -10,8 +10,8 @@
 
 // fog - jayfella
 #ifdef USE_FOG
-varying float fog_distance;
-uniform vec3 g_CameraPosition;
+    varying float fogDistance;
+    uniform vec3 g_CameraPosition;
 #endif
 
 uniform vec4 m_Ambient;
@@ -186,6 +186,6 @@ void main(){
     #endif
 
     #ifdef USE_FOG
-    fog_distance = distance(g_CameraPosition, (TransformWorld(modelSpacePos)).xyz);
+        fogDistance = distance(g_CameraPosition, (TransformWorld(modelSpacePos)).xyz);
     #endif
 }

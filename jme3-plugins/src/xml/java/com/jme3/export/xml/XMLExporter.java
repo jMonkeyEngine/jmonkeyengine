@@ -39,8 +39,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import org.w3c.dom.Document;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * Part of the jME XML IO system as introduced in the Google Code jmexml project.
@@ -53,25 +60,52 @@ public class XMLExporter implements JmeExporter {
     public static final String ELEMENT_MAPENTRY = "MapEntry";
     public static final String ELEMENT_KEY = "Key";
     public static final String ELEMENT_VALUE = "Value";
-    public static final String ELEMENT_FLOATBUFFER = "FloatBuffer";
     public static final String ATTRIBUTE_SIZE = "size";
+    public static final String ATTRIBUTE_DATA = "data";
+    public static final String ATTRIBUTE_CLASS = "class";
+    public static final String ATTRIBUTE_REFERENCE_ID = "reference_ID";
+    public static final String ATTRIBUTE_REFERENCE = "ref";
+    public static final String ATTRIBUTE_SAVABLE_VERSIONS = "savable_versions";
 
     private DOMOutputCapsule domOut;
+
+    private int indentSpaces = 4;
     
     public XMLExporter() {
        
     }
 
     @Override
-    public void save(Savable object, OutputStream f) throws IOException {
+    public void save(Savable object, OutputStream outputStream) throws IOException {
+        Document document = null;
         try {
-            // Initialize the Document when saving, so we don't retain state of previous exports.
-            this.domOut = new DOMOutputCapsule(DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument(), this);
-            domOut.write(object, object.getClass().getName(), null);
-            DOMSerializer serializer = new DOMSerializer();
-            serializer.serialize(domOut.getDoc(), f);
-            f.flush();
+            document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         } catch (ParserConfigurationException ex) {
+            throw new IOException(ex);
+        }
+        document.setXmlStandalone(true);    // for some reason the transformer output property below doesn't work unless the document is set to standalone
+
+        // Initialize the DOMOutputCapsule when saving, so we don't retain state of previous exports.
+        domOut = new DOMOutputCapsule(document, this);
+
+        domOut.write(object, "savable", null);
+
+        DOMSource source = new DOMSource(domOut.getDoc());
+        StreamResult result = new StreamResult(outputStream);
+
+        try {
+            TransformerFactory tfFactory = TransformerFactory.newInstance();
+            tfFactory.setAttribute("indent-number", indentSpaces);
+
+            Transformer transformer = tfFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
+
+            if (indentSpaces > 0) {
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            }
+
+            transformer.transform(source, result);
+        } catch (TransformerException ex) {
             throw new IOException(ex);
         }
     }
@@ -96,8 +130,16 @@ public class XMLExporter implements JmeExporter {
         return domOut;
     }
 
-    public static XMLExporter getInstance() {
-            return new XMLExporter();
+    /**
+     * Sets the number of spaces used to indent nested tags.
+     * @param indentSpaces The number of spaces to indent for each level of nesting.  Default is 4.
+     * Pass 0 to disable pretty printing and write document without adding any whitespace.
+     */
+    public void setIndentSpaces(int indentSpaces) {
+        this.indentSpaces = indentSpaces;
     }
-    
+
+    public static XMLExporter getInstance() {
+        return new XMLExporter();
+    }
 }

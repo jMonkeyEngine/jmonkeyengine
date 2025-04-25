@@ -58,7 +58,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestDirectionalLightShadow extends SimpleApplication implements ActionListener, AnalogListener {
 
@@ -108,8 +108,8 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         obj[0].setShadowMode(ShadowMode.CastAndReceive);
         obj[1] = new Geometry("cube", new Box(1.0f, 1.0f, 1.0f));
         obj[1].setShadowMode(ShadowMode.CastAndReceive);
-        TangentBinormalGenerator.generate(obj[1]);
-        TangentBinormalGenerator.generate(obj[0]);
+        MikktspaceTangentGenerator.generate(obj[1]);
+        MikktspaceTangentGenerator.generate(obj[0]);
 
         Spatial t = obj[0].clone(false);
         t.setLocalScale(10f);

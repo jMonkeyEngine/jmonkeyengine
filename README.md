@@ -4,7 +4,7 @@ jMonkeyEngine
 [![Build Status](https://github.com/jMonkeyEngine/jmonkeyengine/workflows/Build%20jMonkeyEngine/badge.svg)](https://github.com/jMonkeyEngine/jmonkeyengine/actions)
 
 jMonkeyEngine is a 3-D game engine for adventurous Java developers. It’s open-source, cross-platform, and cutting-edge.
-v3.6.1 is the latest stable version of the engine.
+v3.7.0 is the latest stable version of the engine.
 
 The engine is used by several commercial game studios and computer-science courses. Here's a taste:
 
@@ -65,3 +65,47 @@ Read our [contribution guide](https://github.com/jMonkeyEngine/jmonkeyengine/blo
 
 [New BSD (3-clause) License](https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/LICENSE.md)
 
+### How to Build the Engine from Source
+
+1. Install a Java Development Kit (JDK),
+   if you don't already have one.
+2. Point the `JAVA_HOME` environment variable to your JDK installation:
+   (In other words, set it to the path of a directory/folder
+   containing a "bin" that contains a Java executable.
+   That path might look something like
+   "C:\Program Files\Eclipse Adoptium\jdk-17.0.3.7-hotspot"
+   or "/usr/lib/jvm/java-17-openjdk-amd64/" or
+   "/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home" .)
+  + using Bash or Zsh: `export JAVA_HOME="` *path to installation* `"`
+  + using Fish: `set -g JAVA_HOME "` *path to installation* `"`
+  + using Windows Command Prompt: `set JAVA_HOME="` *path to installation* `"`
+  + using PowerShell: `$env:JAVA_HOME = '` *path to installation* `'`
+3. Download and extract the engine source code from GitHub:
+  + using Git:
+    + `git clone https://github.com/jMonkeyEngine/jmonkeyengine.git`
+    + `cd jmonkeyengine`
+    + `git checkout -b latest v3.7.0-stable` (unless you plan to do development)
+  + using a web browser:
+    + browse to [the latest release](https://github.com/jMonkeyEngine/jmonkeyengine/releases/latest)
+    + follow the "Source code (zip)" link at the bottom of the page
+    + save the ZIP file
+    + extract the contents of the saved ZIP file
+    + `cd` to the extracted directory/folder
+4. Run the Gradle wrapper:
+  + using Bash or Fish or PowerShell or Zsh: `./gradlew build`
+  + using Windows Command Prompt: `.\gradlew build`
+
+After a successful build,
+fresh JARs will be found in "*/build/libs".
+
+You can install the JARs to your local Maven repository:
++ using Bash or Fish or PowerShell or Zsh: `./gradlew install`
++ using Windows Command Prompt: `.\gradlew install`
+
+You can run the "jme3-examples" app:
++ using Bash or Fish or PowerShell or Zsh: `./gradlew run`
++ using Windows Command Prompt: `.\gradlew run`
+
+You can restore the project to a pristine state:
++ using Bash or Fish or PowerShell or Zsh: `./gradlew clean`
++ using Windows Command Prompt: `.\gradlew clean`

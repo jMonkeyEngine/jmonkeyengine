@@ -86,7 +86,6 @@ public final class AppSettings extends HashMap<String, Object> {
     @Deprecated
     public static final String LWJGL_OPENGL3 = "LWJGL-OpenGL3";
 
-
     /**
      * Use LWJGL as the display system and force using the core OpenGL3.0 renderer.
      * <p>
@@ -266,6 +265,7 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String JOAL = "JOAL";
 
     static {
+        defaults.put("Display", 0);
         defaults.put("CenterWindow", true);
         defaults.put("Width", 640);
         defaults.put("Height", 480);
@@ -436,7 +436,9 @@ public final class AppSettings extends HashMap<String, Object> {
                             put(key.substring(2), prefs.getBoolean(key, false));
                             break;
                         default:
-                            throw new UnsupportedOperationException("Undefined setting type: " + key.charAt(0));
+                            throw new UnsupportedOperationException(
+                                "Undefined setting type: " + key.charAt(0)
+                            );
                     }
                 } else {
                     // Use old method for compatibility with older preferences
@@ -718,7 +720,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @param clazz The custom context class.
      * (Default: not set)
      */
-    public void setCustomRenderer(Class<? extends JmeContext> clazz){
+    public void setCustomRenderer(Class<? extends JmeContext> clazz) {
         put("Renderer", "CUSTOM" + clazz.getName());
     }
 
@@ -766,7 +768,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Set the size of the window
-     * 
+     *
      * @param width The width in pixels (default = width of the default framebuffer)
      * @param height The height in pixels (default = height of the default framebuffer)
      */
@@ -802,8 +804,6 @@ public final class AppSettings extends HashMap<String, Object> {
         setMinHeight(height);
     }
 
-
-
     /**
      * Set the frequency, also known as refresh rate, for the
      * rendering display.
@@ -825,7 +825,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @param value The depth bits
      */
-    public void setDepthBits(int value){
+    public void setDepthBits(int value) {
         putInteger("DepthBits", value);
     }
 
@@ -844,7 +844,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @param value The alpha bits
      */
-    public void setAlphaBits(int value){
+    public void setAlphaBits(int value) {
         putInteger("AlphaBits", value);
     }
 
@@ -859,7 +859,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @param value Number of stencil bits
      */
-    public void setStencilBits(int value){
+    public void setStencilBits(int value) {
         putInteger("StencilBits", value);
     }
 
@@ -921,7 +921,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @param value true to enable 3-D stereo, false to disable (default=false)
      */
-    public void setStereo3D(boolean value){
+    public void setStereo3D(boolean value) {
         putBoolean("Stereo3D", value);
     }
 
@@ -1180,7 +1180,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @return true if 3-D stereo is enabled, otherwise false
      * @see #setStereo3D(boolean)
      */
-    public boolean useStereo3D(){
+    public boolean useStereo3D() {
         return getBoolean("Stereo3D");
     }
 
@@ -1301,7 +1301,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * Without this, many openGL calls might fail without notice, so turning it on is recommended for development.
      * Graphics Debug mode will also label native objects and group calls on supported renderers. Compatible
      * graphics debuggers will be able to use this data to show a better outlook of your application
-     * 
+     *
      * @return whether the context will be run in Graphics Debug Mode or not
      * @see #setGraphicsDebug(boolean)
      */
@@ -1478,5 +1478,33 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void setWindowYPosition(int pos) {
         putInteger("WindowYPosition", pos);
+    }
+
+    /**
+     * Gets the display number used when creating a window.
+     *
+     * <p>
+     * This setting is used only with LWJGL3, it defines which display to use when creating a OpenGL
+     * window.
+     *
+     * @return the desired display used when creating a OpenGL window
+     */
+    public int getDisplay() {
+        return getInteger("Display");
+    }
+
+    /**
+     * Sets the display number used when creating a window. The position number is the number in the
+     * list of monitors GlfwGetMonitors returns.
+     *
+     * <p>
+     * This setting is used only with LWJGL3, it defines which display to use when creating a OpenGL
+     * window. its default value is 0.
+     *
+     * @param mon the desired display used when creating a OpenGL window
+     *
+     */
+    public void setDisplay(int mon) {
+        putInteger("Display", mon);
     }
 }

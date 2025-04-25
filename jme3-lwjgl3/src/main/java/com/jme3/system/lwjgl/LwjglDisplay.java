@@ -31,6 +31,8 @@
  */
 package com.jme3.system.lwjgl;
 
+import com.jme3.system.Displays;
+
 /**
  * @author Daniel Johansson
  */
@@ -39,4 +41,6 @@ public class LwjglDisplay extends LwjglWindow {
     public LwjglDisplay() {
         super(Type.Display);
     }
+
+
 }

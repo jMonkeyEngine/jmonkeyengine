@@ -31,15 +31,6 @@
  */
 package com.jme3.scene;
 
-import java.nio.Buffer;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.material.Material;
@@ -50,6 +41,14 @@ import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+import java.nio.Buffer;
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * BatchNode holds geometries that are a batched version of all the geometries that are in its sub scenegraph.
@@ -188,6 +187,11 @@ public class BatchNode extends GeometryGroupNode {
         Map<Material, List<Geometry>> matMap = new HashMap<>();
         int nbGeoms = 0;
 
+        // Recalculate the maxVertCount during gatherGeometries() so it's always
+        // accurate.  Keep track of what it used to be so we know if temp arrays need
+        // to be reallocated.
+        int oldMaxVertCount = maxVertCount;
+        maxVertCount = 0;
         gatherGeometries(matMap, this, needsFullRebatch);
         if (needsFullRebatch) {
             for (Batch batch : batches.getArray()) {
@@ -195,10 +199,6 @@ public class BatchNode extends GeometryGroupNode {
             }
             batches.clear();
             batchesByGeom.clear();
-        }
-        //only reset maxVertCount if there is something new to batch
-        if (matMap.size() > 0) {
-            maxVertCount = 0;
         }
 
         for (Map.Entry<Material, List<Geometry>> entry : matMap.entrySet()) {
@@ -244,8 +244,8 @@ public class BatchNode extends GeometryGroupNode {
             logger.log(Level.FINE, "Batched {0} geometries in {1} batches.", new Object[]{nbGeoms, batches.size()});
         }
 
-        //init the temp arrays if something has been batched only.
-        if (matMap.size() > 0) {
+        //init the temp arrays if the size has changed
+        if (oldMaxVertCount != maxVertCount) {
             initTempFloatArrays();
         }
     }
@@ -285,6 +285,13 @@ public class BatchNode extends GeometryGroupNode {
 
             if (!isBatch(n) && n.getBatchHint() != BatchHint.Never) {
                 Geometry g = (Geometry) n;
+
+                // Need to recalculate the max vert count whether we are rebatching this
+                // particular geometry or not.
+                if (maxVertCount < g.getVertexCount()) {
+                    maxVertCount = g.getVertexCount();
+                }
+
                 if (!g.isGrouped() || rebatch) {
                     if (g.getMaterial() == null) {
                         throw new IllegalStateException("No material is set for Geometry: " + g.getName() + " please set a material before batching");
@@ -385,11 +392,8 @@ public class BatchNode extends GeometryGroupNode {
             totalVerts += geom.getVertexCount();
             totalTris += geom.getTriangleCount();
             totalLodLevels = Math.min(totalLodLevels, geom.getMesh().getNumLodLevels());
-            if (maxVertCount < geom.getVertexCount()) {
-                maxVertCount = geom.getVertexCount();
-            }
+
             Mesh.Mode listMode;
-            //float listLineWidth = 1f;
             int components;
             switch (geom.getMesh().getMode()) {
                 case Points:
@@ -530,7 +534,6 @@ public class BatchNode extends GeometryGroupNode {
         Vector3f norm = vars.vect2;
         Vector3f tan = vars.vect3;
 
-        validateTempFloatArrays(end - start);
         int length = (end - start) * 3;
         int tanLength = (end - start) * 4;
 
@@ -608,13 +611,6 @@ public class BatchNode extends GeometryGroupNode {
         if (bindBufTangents != null) {
             bufTangents.position(tanOffset);
             bufTangents.put(tmpFloatT, 0, tanLength);
-        }
-    }
-
-    private void validateTempFloatArrays(int vertCount) {
-        if (maxVertCount < vertCount) {
-            maxVertCount = vertCount;
-            initTempFloatArrays();
         }
     }
 

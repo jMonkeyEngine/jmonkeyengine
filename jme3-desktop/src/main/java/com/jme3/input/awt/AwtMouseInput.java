@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2024 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,16 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
-import java.awt.*;
+
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
@@ -64,8 +70,8 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
 
     private Component component;
 
-    private final java.util.List<MouseButtonEvent> eventQueue = new ArrayList<>();
-    private final java.util.List<MouseButtonEvent> eventQueueCopy = new ArrayList<>();
+    private final List<MouseButtonEvent> eventQueue = new ArrayList<>();
+    private final List<MouseButtonEvent> eventQueueCopy = new ArrayList<>();
 
     private int lastEventX;
     private int lastEventY;
@@ -79,6 +85,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     private Point centerLocation;
     private Point centerLocationOnScreen;
     private Point lastKnownLocation;
+    private Point grabLocation;
     private boolean isRecentering;
     private boolean cursorMoved;
     private int eventsSinceRecenter;
@@ -88,6 +95,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         centerLocation = new Point();
         centerLocationOnScreen = new Point();
         lastKnownLocation = new Point();
+        grabLocation = new Point();
 
         try {
             robot = new Robot();
@@ -111,6 +119,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
             lastEventY = 0;
             lastEventWheel = 0;
             location = new Point();
+            grabLocation = new Point();
             centerLocation = new Point();
             centerLocationOnScreen = new Point();
             lastKnownLocation = new Point();
@@ -144,28 +153,21 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     public long getInputTimeNanos() {
         return System.nanoTime();
     }
-    
+
     @Override
     public void setCursorVisible(boolean visible) {
-//        if(JmeSystem.getPlatform() != Platform.MacOSX32 &&
-//                JmeSystem.getPlatform() != Platform.MacOSX64 &&
-//                JmeSystem.getPlatform() != Platform.MacOSX_PPC32 &&
-//                JmeSystem.getPlatform() != Platform.MacOSX_PPC64){
         if (this.visible != visible) {
-            lastKnownLocation.x = lastKnownLocation.y = 0;
+            grabLocation.x = lastKnownLocation.x;
+            grabLocation.y = lastKnownLocation.y;
 
             this.visible = visible;
             final boolean newVisible = visible;
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    component.setCursor(newVisible ? null : getTransparentCursor());
-                    if (!newVisible) {
+            SwingUtilities.invokeLater(() -> {
+                component.setCursor(newVisible ? null : getTransparentCursor());
+                if (!newVisible) {
                         recenterMouse(component);
-                    }
                 }
             });
-//        }
         }
     }
 
@@ -314,7 +316,11 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         if (robot != null) {
             eventsSinceRecenter = 0;
             isRecentering = true;
-            centerLocation.setLocation(component.getWidth() / 2, component.getHeight() / 2);
+            if (grabLocation.x == 0 && grabLocation.y == 0) {
+                centerLocation.setLocation(component.getWidth() / 2, component.getHeight() / 2);
+            } else {
+                centerLocation.setLocation(grabLocation.x, grabLocation.y);
+            }
             centerLocationOnScreen.setLocation(centerLocation);
             SwingUtilities.convertPointToScreen(centerLocationOnScreen, component);
             robot.mouseMove(centerLocationOnScreen.x, centerLocationOnScreen.y);

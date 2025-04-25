@@ -1511,6 +1511,10 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.backStencilDepthPassOperation != null ? this.backStencilDepthPassOperation.hashCode() : 0);
             hash = 79 * hash + (this.frontStencilFunction != null ? this.frontStencilFunction.hashCode() : 0);
             hash = 79 * hash + (this.backStencilFunction != null ? this.backStencilFunction.hashCode() : 0);
+            hash = 79 * hash + (this.frontStencilMask);
+            hash = 79 * hash + (this.frontStencilReference);
+            hash = 79 * hash + (this.backStencilMask);
+            hash = 79 * hash + (this.backStencilReference);
             hash = 79 * hash + Float.floatToIntBits(this.lineWidth);
             
             hash = 79 * hash + this.sfactorRGB.hashCode();
@@ -1623,6 +1627,11 @@ public class RenderState implements Cloneable, Savable {
 
             state.frontStencilFunction = additionalState.frontStencilFunction;
             state.backStencilFunction = additionalState.backStencilFunction;
+
+            state.frontStencilMask = additionalState.frontStencilMask;
+            state.frontStencilReference = additionalState.frontStencilMask;
+            state.backStencilMask = additionalState.backStencilMask;
+            state.backStencilReference = additionalState.backStencilMask;
         } else {
             state.stencilTest = stencilTest;
 
@@ -1636,6 +1645,11 @@ public class RenderState implements Cloneable, Savable {
 
             state.frontStencilFunction = frontStencilFunction;
             state.backStencilFunction = backStencilFunction;
+
+            state.frontStencilMask = frontStencilMask;
+            state.frontStencilReference = frontStencilMask;
+            state.backStencilMask = backStencilMask;
+            state.backStencilReference = backStencilMask;
         }
         if (additionalState.applyLineWidth) {
             state.lineWidth = additionalState.lineWidth;
@@ -1665,6 +1679,10 @@ public class RenderState implements Cloneable, Savable {
         backStencilDepthPassOperation = state.backStencilDepthPassOperation;
         frontStencilFunction = state.frontStencilFunction;
         backStencilFunction = state.backStencilFunction;
+        frontStencilMask = state.frontStencilMask;
+        frontStencilReference = state.frontStencilReference;
+        backStencilMask = state.backStencilMask;
+        backStencilReference = state.backStencilReference;
         blendEquationAlpha = state.blendEquationAlpha;
         blendEquation = state.blendEquation;
         depthFunc = state.depthFunc;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,8 @@
 package com.jme3.math;
 
 import com.jme3.export.*;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,7 +43,7 @@ import java.util.List;
  *
  * @author Nehon
  */
-public class Spline implements Savable {
+public class Spline implements JmeCloneable, Savable {
 
     public enum SplineType {
         Linear,
@@ -480,7 +482,18 @@ public class Spline implements Savable {
         oc.writeSavableArrayList((ArrayList) CRcontrolPoints, "CRControlPoints", null);
         oc.write(curveTension, "curveTension", 0.5f);
         oc.write(cycle, "cycle", false);
-        oc.writeSavableArrayList((ArrayList<Float>) knots, "knots", null);
+
+        float[] knotArray;
+        if (knots == null) {
+            knotArray = null;
+        } else {
+            knotArray = new float[knots.size()];
+            for (int i = 0; i < knotArray.length; ++i) {
+                knotArray[i] = knots.get(i);
+            }
+        }
+        oc.write(knotArray, "knots", null);
+
         oc.write(weights, "weights", null);
         oc.write(basisFunctionDegree, "basisFunctionDegree", 0);
     }
@@ -506,13 +519,60 @@ public class Spline implements Savable {
                 segmentsLength.add(list[i]);
             }
         }
-        type = in.readEnum("pathSplineType", SplineType.class, SplineType.CatmullRom);
+        type = in.readEnum("type", SplineType.class, SplineType.CatmullRom);
         totalLength = in.readFloat("totalLength", 0);
         CRcontrolPoints = in.readSavableArrayList("CRControlPoints", null);
         curveTension = in.readFloat("curveTension", 0.5f);
         cycle = in.readBoolean("cycle", false);
-        knots = in.readSavableArrayList("knots", null);
+
+        float[] knotArray = in.readFloatArray("knots", null);
+        if (knotArray == null) {
+            this.knots = null;
+        } else {
+            this.knots = new ArrayList<>(knotArray.length);
+            for (float knot : knotArray) {
+                knots.add(knot);
+            }
+        }
+
         weights = in.readFloatArray("weights", null);
         basisFunctionDegree = in.readInt("basisFunctionDegree", 0);
+    }
+
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned spline into a deep-cloned one, using the specified cloner
+     * and original to resolve copied fields.
+     *
+     * @param cloner the cloner that's cloning this spline (not null)
+     * @param original the object from which this spline was shallow-cloned (not
+     * null, unaffected)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        this.controlPoints = cloner.clone(controlPoints);
+        if (segmentsLength != null) {
+            this.segmentsLength = new ArrayList<>(segmentsLength);
+        }
+        this.CRcontrolPoints = cloner.clone(CRcontrolPoints);
+        if (knots != null) {
+            this.knots = new ArrayList<>(knots);
+        }
+        this.weights = cloner.clone(weights);
+    }
+
+    /**
+     * Creates a shallow clone for the JME cloner.
+     *
+     * @return a new object
+     */
+    @Override
+    public Spline jmeClone() {
+        try {
+            Spline clone = (Spline) clone();
+            return clone;
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 }

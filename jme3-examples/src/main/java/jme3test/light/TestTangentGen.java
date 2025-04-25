@@ -45,7 +45,9 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.TangentUtils;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
+
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -79,7 +81,7 @@ public class TestTangentGen extends SimpleApplication {
     }
 
     private void addMesh(String name, Mesh mesh, Vector3f translation) {
-        TangentBinormalGenerator.generate(mesh);
+        MikktspaceTangentGenerator.generate(mesh);
 
         Geometry testGeom = new Geometry(name, mesh);
         Material mat = assetManager.loadMaterial("Textures/BumpMapTest/Tangent.j3m");
@@ -89,7 +91,7 @@ public class TestTangentGen extends SimpleApplication {
 
         Geometry debug = new Geometry(
                 "Debug " + name,
-                TangentBinormalGenerator.genTbnLines(mesh, 0.08f)
+                TangentUtils.genTbnLines(mesh, 0.08f)
         );
         Material debugMat = assetManager.loadMaterial("Common/Materials/VertexColor.j3m");
         debug.setMaterial(debugMat);

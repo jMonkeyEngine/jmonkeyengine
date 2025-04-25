@@ -42,3 +42,5 @@ include 'jme3-awt-dialogs'
 if(buildAndroidExamples == "true"){
     include 'jme3-android-examples'
 }
+include 'jme3-screenshot-tests'
+

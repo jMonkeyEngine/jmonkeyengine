@@ -100,4 +100,19 @@ public interface GL4 extends GL3 {
      * @param storageBlockBinding The index storage block binding to associate with the specified storage block.
      */
     public void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding);
+    
+    /**
+     * Binds a single level of a texture to an image unit for the purpose of reading
+     * and writing it from shaders.
+     * 
+     * @param unit image unit to bind to
+     * @param texture texture to bind to the image unit
+     * @param level level of the texture to bind
+     * @param layered true to bind all array elements
+     * @param layer if not layered, the layer to bind
+     * @param access access types that may be performed
+     * @param format format to use when performing formatted stores
+     */
+    public void glBindImageTexture(int unit, int texture, int level, boolean layered, int layer, int access, int format);
+    
 }
