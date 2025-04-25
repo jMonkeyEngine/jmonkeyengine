@@ -134,6 +134,7 @@ jobs:
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
           :jme3-ios-native:build
 
+      # TODO: how to upload this jars to maven?
       - name: Upload natives
         uses: actions/upload-artifact@master
         with:
@@ -206,12 +207,6 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: android-natives
-          path: build/native
-
-      - name: Download natives for iOS
-        uses: actions/download-artifact@master
-        with:
-          name: ios-natives
           path: build/native
 
       - name: Validate the Gradle wrapper
@@ -406,12 +401,6 @@ jobs:
           name: android-natives
           path: build/native
 
-      - name: Download natives for iOS
-        uses: actions/download-artifact@master
-        with:
-          name: ios-natives
-          path: build/native
-
       - name: Rebuild the maven artifacts and deploy them to the Sonatype repository
         run: |
           if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
@@ -467,12 +456,6 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: android-natives
-          path: build/native
-
-      - name: Download natives for iOS
-        uses: actions/download-artifact@master
-        with:
-          name: ios-natives
           path: build/native
 
       - name: Rebuild the maven artifacts and deploy them to Sonatype OSSRH
