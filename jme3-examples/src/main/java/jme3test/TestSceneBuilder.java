@@ -573,10 +573,7 @@ public class TestSceneBuilder {
             System.out.println("directional light found for shadows");
             DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, shadowMapSize, splits);
             dlsr.setLight(sun);
-            dlsr.setShadowIntensity(1.0f);
-            dlsr.setLambda(0.55f);
-            dlsr.displayDebug();
-            dlsr.displayFrustum();
+            dlsr.setShadowIntensity(0.25f);
             if (config != null) {
                 config.accept(dlsr);
             }
@@ -630,7 +627,7 @@ public class TestSceneBuilder {
         if (sun != null) {
             DirectionalLightShadowFilter dlsf = new DirectionalLightShadowFilter(assetManager, shadowMapSize, splits);
             dlsf.setLight(sun);
-            dlsf.setShadowIntensity(0.5f);
+            dlsf.setShadowIntensity(0.25f);
             if (config != null) {
                 config.accept(dlsf);
             }
@@ -809,13 +806,12 @@ public class TestSceneBuilder {
 
             TestSceneBuilder scene = new TestSceneBuilder(this);
             scene.configure();
-            scene.baseScene(3, 3, false);
+            scene.baseScene();
             scene.sun();
             scene.hardwareProbe();
-            //scene.brightMountainsSky();
-            //scene.earthSky();
-            scene.stPetersSky();
+            scene.brightMountainsSky();
             scene.softBloom(b -> b.setGlowFactor(0.1f));
+            scene.antialiasing();
             scene.shadowFilter();
             scene.physics();
             scene.character();
