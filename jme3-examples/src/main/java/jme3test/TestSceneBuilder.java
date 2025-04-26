@@ -354,10 +354,20 @@ public class TestSceneBuilder {
     /**
      * Creates a skybox.
      *
-     * @param texture skybox texture
+     * @param texture skybox texture asset path
      * @param type specifies the format of the skybox texture
      */
     public void sky(String texture, SkyFactory.EnvMapType type) {
+        sky(assetManager.loadTexture(texture), type);
+    }
+
+    /**
+     * Creates a skybox.
+     *
+     * @param texture skybox texture
+     * @param type specifies the format of the skybox texture
+     */
+    public void sky(Texture texture, SkyFactory.EnvMapType type) {
         Spatial sky = SkyFactory.createSky(assetManager, texture, type);
         sky.setUserData("IgnorePhysics", true);
         EnvironmentProbeControl.tagGlobal(sky);
@@ -413,6 +423,22 @@ public class TestSceneBuilder {
      */
     public void lagoonSky() {
         skyCube("Textures/Sky/Lagoon/lagoon_%1s.jpg");
+    }
+
+    /**
+     * Creates a skybox of "Textures/Sky/Earth/Earth.jpg".
+     */
+    public void earthSky() {
+        sky("Textures/Sky/Earth/Earth.jpg", SkyFactory.EnvMapType.EquirectMap);
+    }
+
+    /**
+     * Creates a skybox of "Textures/Sky/St Peters/StPeters.jpg".
+     */
+    public void stPetersSky() {
+        TextureKey key = new TextureKey("Textures/Sky/St Peters/StPeters.jpg");
+        key.setFlipY(false);
+        sky(assetManager.loadTexture(key), SkyFactory.EnvMapType.SphereMap);
     }
 
     /**
@@ -783,10 +809,12 @@ public class TestSceneBuilder {
 
             TestSceneBuilder scene = new TestSceneBuilder(this);
             scene.configure();
-            scene.baseScene();
+            scene.baseScene(3, 3, false);
             scene.sun();
             scene.hardwareProbe();
-            scene.brightMountainsSky();
+            //scene.brightMountainsSky();
+            //scene.earthSky();
+            scene.stPetersSky();
             scene.softBloom(b -> b.setGlowFactor(0.1f));
             scene.shadowFilter();
             scene.physics();
