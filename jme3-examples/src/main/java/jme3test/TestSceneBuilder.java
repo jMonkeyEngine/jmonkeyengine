@@ -82,26 +82,16 @@ import java.util.function.Predicate;
 public class TestSceneBuilder {
 
     /**
-     * Test scene asset path.
-     */
-    private static final String BASE_SCENE = "Scenes/TestScene/base-scene.gltf";
-
-    /**
      * Cube faces for create skyboxes.
      */
     private static final String[] SKY_CUBE_FACES = {"west", "east", "north", "south", "up", "down"};
 
-    /**
-     * Represents the size of each tile.
-     * <p>
-     * The Y axis parameter is set to zero, as it is not used.
-     */
-    public static final Vector3f TILE_SIZE = new Vector3f(20, 0, 20);
-
-    /**
-     * Default background color for the scene.
-     */
-    public static final ColorRGBA BACKGROUND_COLOR = new ColorRGBA(.6f, .7f, 1f, 1f);
+    private static final String BASE_SCENE = "Scenes/TestScene/base-scene.gltf";
+    private static final Vector3f TILE_SIZE = new Vector3f(20, 0, 20);
+    private static final ColorRGBA BACKGROUND_COLOR = new ColorRGBA(.6f, .7f, 1f, 1f);
+    private static final float SHADOW_INTENSITY = 0.35f;
+    private static final float SUN_INTENSITY = 3f;
+    private static final int ANISOTROPIC_LEVEL = 20;
 
     private final Node node = new Node("Testing_Scene");
     private final Application app;
@@ -135,7 +125,6 @@ public class TestSceneBuilder {
         app.getCamera().setLocation(new Vector3f(-10, 10, -10));
         app.getCamera().lookAtDirection(new Vector3f(1, -1, 1), Vector3f.UNIT_Y);
         Renderer r = app.getRenderManager().getRenderer();
-        r.setDefaultAnisotropicFilter(Math.min(8, r.getLimits().get(Limits.TextureAnisotropy)));
         if (app instanceof SimpleApplication) {
             SimpleApplication simple = (SimpleApplication)app;
             simple.getRootNode().attachChild(node);
@@ -215,7 +204,7 @@ public class TestSceneBuilder {
      * @see #sun(Vector3f, ColorRGBA)
      */
     public void sun() {
-        sun(new Vector3f(.5f, -1, .2f), new ColorRGBA(1f, 1f, .9f, 1f).multLocal(1.5f));
+        sun(new Vector3f(.5f, -1, .2f), new ColorRGBA(1f, .9f, .85f, 1f).multLocal(SUN_INTENSITY));
     }
 
     /**
@@ -573,7 +562,7 @@ public class TestSceneBuilder {
             System.out.println("directional light found for shadows");
             DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, shadowMapSize, splits);
             dlsr.setLight(sun);
-            dlsr.setShadowIntensity(0.25f);
+            dlsr.setShadowIntensity(SHADOW_INTENSITY);
             if (config != null) {
                 config.accept(dlsr);
             }
@@ -627,7 +616,7 @@ public class TestSceneBuilder {
         if (sun != null) {
             DirectionalLightShadowFilter dlsf = new DirectionalLightShadowFilter(assetManager, shadowMapSize, splits);
             dlsf.setLight(sun);
-            dlsf.setShadowIntensity(0.25f);
+            dlsf.setShadowIntensity(SHADOW_INTENSITY);
             if (config != null) {
                 config.accept(dlsf);
             }
@@ -751,9 +740,9 @@ public class TestSceneBuilder {
         }
         Texture color = assetManager.loadTexture(new TextureKey("Scenes/TestScene/grid-grey.png", false));
         color.setWrap(Texture.WrapMode.Repeat);
-        color.setMinFilter(Texture.MinFilter.Trilinear);
+        color.setMinFilter(Texture.MinFilter.BilinearNearestMipMap);
         color.setMagFilter(Texture.MagFilter.Bilinear);
-        color.setAnisotropicFilter(6);
+        color.setAnisotropicFilter(Math.min(ANISOTROPIC_LEVEL, app.getRenderer().getLimits().get(Limits.TextureAnisotropy)));
         Material mat = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         mat.setTexture("BaseColorMap", color);
         mat.setFloat("Metallic", .3f);
