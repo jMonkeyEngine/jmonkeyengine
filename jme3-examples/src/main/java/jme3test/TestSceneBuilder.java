@@ -55,10 +55,12 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.SceneProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.BloomFilter.GlowMode;
+import com.jme3.post.filters.FXAAFilter;
 import com.jme3.post.filters.SoftBloomFilter;
 import com.jme3.renderer.Limits;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.SceneGraphIterator;
@@ -112,6 +114,7 @@ public class TestSceneBuilder {
     public TestSceneBuilder(Application app) {
         this.app = app;
         this.assetManager = this.app.getAssetManager();
+        this.node.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
     }
 
     /**
@@ -223,6 +226,7 @@ public class TestSceneBuilder {
      */
     public void sun(Vector3f direction, ColorRGBA color) {
         DirectionalLight sun = new DirectionalLight();
+        sun.setName("SunLight");
         sun.setDirection(direction);
         sun.setColor(color);
         node.addLight(sun);
@@ -400,15 +404,15 @@ public class TestSceneBuilder {
      * Creates a skybox of "Textures/Sky/Bright/BrightSky.dds".
      */
     public void brightMountainsSky() {
-        sky("Textures/Sky/Bright/BrightSky.dds", SkyFactory.EnvMapType.SphereMap);
+        sky("Textures/Sky/Bright/BrightSky.dds", SkyFactory.EnvMapType.CubeMap);
     }
 
     /**
-     * Creates a skybox of "Textures/Sky/Lagoon/lagoon_{0}.jpg", with
+     * Creates a skybox of "Textures/Sky/Lagoon/lagoon_%1.jpg", with
      * {@link #SKY_CUBE_FACES} as the faces.
      */
     public void lagoonSky() {
-        skyCube("Textures/Sky/Lagoon/lagoon_{0}.jpg");
+        skyCube("Textures/Sky/Lagoon/lagoon_%1s.jpg");
     }
 
     /**
@@ -473,6 +477,31 @@ public class TestSceneBuilder {
     }
 
     /**
+     * Creates an {@link FXAAFilter} for antialiasing.
+     *
+     * @see #antialiasing(Consumer)
+     */
+    public void antialiasing() {
+        antialiasing(null);
+    }
+
+    /**
+     * Creates an {@link FXAAFilter} for antialiasing.
+     * <p>
+     * The filter is added to an existing {@link FilterPostProcessor} if possible.
+     * Otherwise a new FilterPostProcessor is created.
+     *
+     * @param config configures the filter (can be null)
+     */
+    public void antialiasing(Consumer<FXAAFilter> config) {
+        FXAAFilter fxaa = new FXAAFilter();
+        if (config != null) {
+            config.accept(fxaa);
+        }
+        getOrCreateFpp().addFilter(fxaa);
+    }
+
+    /**
      * Creates a shadow renderer for the sun directional light.
      *
      * @see #shadowRenderer(int, int, Consumer)
@@ -513,10 +542,15 @@ public class TestSceneBuilder {
      */
     public void shadowRenderer(int shadowMapSize, int splits, Consumer<DirectionalLightShadowRenderer> config) {
         DirectionalLight sun = getSunLight();
+        System.out.println("attempting to create shadow renderer");
         if (sun != null) {
+            System.out.println("directional light found for shadows");
             DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, shadowMapSize, splits);
             dlsr.setLight(sun);
-            dlsr.setShadowIntensity(0.5f);
+            dlsr.setShadowIntensity(1.0f);
+            dlsr.setLambda(0.55f);
+            dlsr.displayDebug();
+            dlsr.displayFrustum();
             if (config != null) {
                 config.accept(dlsr);
             }
@@ -614,6 +648,15 @@ public class TestSceneBuilder {
     }
 
     /**
+     * Enables or disables debug mode for physics.
+     *
+     * @param debug true to enable, false to disable
+     */
+    public void physicsDebug(boolean debug) {
+        getOrCreateBullet().setDebugEnabled(debug);
+    }
+
+    /**
      * Creates a basic first person physical character.
      *
      * @see #character(float, float, float, Consumer)
@@ -629,7 +672,7 @@ public class TestSceneBuilder {
      * @see #character(float, float, float, Consumer)
      */
     public void character(Consumer<FirstPersonCharacter> config) {
-        character(2f, 7f, 100f, config);
+        character(1f, 7f, 100f, config);
     }
 
     /**
@@ -661,6 +704,7 @@ public class TestSceneBuilder {
             config.accept(fpc);
         }
         Node n = new Node("TestScene_FirstPersonCharacter");
+        node.attachChild(n);
         n.addControl(fpc);
         getOrCreatePhysics().add(fpc);
     }
@@ -687,20 +731,16 @@ public class TestSceneBuilder {
         color.setMinFilter(Texture.MinFilter.Trilinear);
         color.setMagFilter(Texture.MagFilter.Bilinear);
         color.setAnisotropicFilter(6);
-        Texture light = assetManager.loadTexture(new TextureKey("Scenes/TestScene/lightmapAll.png", false));
-        light.setWrap(Texture.WrapMode.Repeat);
         Material mat = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         mat.setTexture("BaseColorMap", color);
-        mat.setTexture("LightMap", light);
         mat.setFloat("Metallic", .3f);
         mat.setFloat("Roughness", .8f);
-        mat.setBoolean("SeparateTexCoord", true);
         tile.setMaterial(mat);
         return tile;
     }
     private DirectionalLight getSunLight() {
         for (Light l : node.getLocalLightList()) {
-            if (l instanceof DirectionalLight) {
+            if (l.getName().equals("SunLight") && l instanceof DirectionalLight) {
                 return (DirectionalLight)l;
             }
         }
@@ -717,13 +757,16 @@ public class TestSceneBuilder {
         vp.addProcessor(fpp);
         return fpp;
     }
-    private PhysicsSpace getOrCreatePhysics() {
+    private BulletAppState getOrCreateBullet() {
         BulletAppState bullet = app.getStateManager().getState(BulletAppState.class, false);
         if (bullet == null) {
             bullet = new BulletAppState();
             app.getStateManager().attach(bullet);
         }
-        return bullet.getPhysicsSpace();
+        return bullet;
+    }
+    private PhysicsSpace getOrCreatePhysics() {
+        return getOrCreateBullet().getPhysicsSpace();
     }
 
     /**
@@ -743,9 +786,9 @@ public class TestSceneBuilder {
             scene.baseScene();
             scene.sun();
             scene.hardwareProbe();
-            scene.lagoonSky();
-            scene.softBloom();
-            scene.shadowRenderer();
+            scene.brightMountainsSky();
+            scene.softBloom(b -> b.setGlowFactor(0.1f));
+            scene.shadowFilter();
             scene.physics();
             scene.character();
 
@@ -768,6 +811,7 @@ public class TestSceneBuilder {
         private final Vector3f walk = new Vector3f();
         private float walkSpeed = 10f;
         private float strafeSpeed = 7f;
+        private float jumpDelay = 0f;
         private Trigger forwardTrigger = new KeyTrigger(KeyInput.KEY_W);
         private Trigger backwardTrigger = new KeyTrigger(KeyInput.KEY_S);
         private Trigger leftTrigger = new KeyTrigger(KeyInput.KEY_A);
@@ -786,8 +830,9 @@ public class TestSceneBuilder {
 
         @Override
         public void update(float tpf) {
+            jumpDelay -= tpf;
             app.getCamera().getDirection(walk);
-            walk.multLocal(input.x * strafeSpeed, 0f, input.y * walkSpeed);
+            walk.multLocal(input.y * walkSpeed).addLocal(app.getCamera().getLeft().mult(input.x * strafeSpeed)).setY(0f);
             setWalkDirection(walk);
             input.set(0f, 0f);
             super.update(tpf);
@@ -823,8 +868,9 @@ public class TestSceneBuilder {
 
         @Override
         public void jump() {
-            if (isOnGround()) {
+            if (jumpDelay <= 0f && isOnGround()) {
                 super.jump();
+                jumpDelay = 0.05f;
             }
         }
 
