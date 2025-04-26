@@ -56,6 +56,7 @@ import com.jme3.post.SceneProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.BloomFilter.GlowMode;
 import com.jme3.post.filters.FXAAFilter;
+import com.jme3.post.filters.LightScatteringFilter;
 import com.jme3.post.filters.SoftBloomFilter;
 import com.jme3.renderer.Limits;
 import com.jme3.renderer.Renderer;
@@ -219,6 +220,10 @@ public class TestSceneBuilder {
         sun.setDirection(direction);
         sun.setColor(color);
         node.addLight(sun);
+    }
+
+    public void brightMountainsSun() {
+        sun(new Vector3f(-0.8f, -1, -0.8f), new ColorRGBA(1f, .9f, .85f, 1f).multLocal(SUN_INTENSITY));
     }
 
     /**
@@ -517,6 +522,32 @@ public class TestSceneBuilder {
     }
 
     /**
+     * Creates a {@link LightScatteringFilter}.
+     */
+    public void scattering() {
+        scattering(null);
+    }
+
+    /**
+     * Creates an {@link LightScatteringFilter}.
+     * <p>
+     * The filter is added to an existing {@link FilterPostProcessor} if possible.
+     * Otherwise a new FilterPostProcessor is created.
+     *
+     * @param config configures the filter (can be null)
+     */
+    public void scattering(Consumer<LightScatteringFilter> config) {
+        DirectionalLight sun = getSunLight();
+        LightScatteringFilter lsf = new LightScatteringFilter(new Vector3f(-1, 1, -1).multLocal(10f));
+        lsf.setLightDensity(.5f);
+        lsf.setBlurWidth(1.5f);
+        if (config != null) {
+            config.accept(lsf);
+        }
+        getOrCreateFpp().addFilter(lsf);
+    }
+
+    /**
      * Creates a shadow renderer for the sun directional light.
      *
      * @see #shadowRenderer(int, int, Consumer)
@@ -743,8 +774,8 @@ public class TestSceneBuilder {
         color.setAnisotropicFilter(Math.min(ANISOTROPIC_LEVEL, app.getRenderer().getLimits().get(Limits.TextureAnisotropy)));
         Material mat = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
         mat.setTexture("BaseColorMap", color);
-        mat.setFloat("Metallic", .3f);
-        mat.setFloat("Roughness", .8f);
+        mat.setFloat("Metallic", .1f);
+        mat.setFloat("Roughness", .9f);
         tile.setMaterial(mat);
         return tile;
     }
@@ -794,10 +825,11 @@ public class TestSceneBuilder {
             TestSceneBuilder scene = new TestSceneBuilder(this);
             scene.configure();
             scene.baseScene();
-            scene.sun();
+            scene.brightMountainsSun();
             scene.hardwareProbe();
             scene.brightMountainsSky();
             scene.softBloom(b -> b.setGlowFactor(0.1f));
+            scene.scattering();
             scene.antialiasing();
             scene.shadowFilter();
             scene.physics();
