@@ -557,9 +557,7 @@ public class TestSceneBuilder {
      */
     public void shadowRenderer(int shadowMapSize, int splits, Consumer<DirectionalLightShadowRenderer> config) {
         DirectionalLight sun = getSunLight();
-        System.out.println("attempting to create shadow renderer");
         if (sun != null) {
-            System.out.println("directional light found for shadows");
             DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, shadowMapSize, splits);
             dlsr.setLight(sun);
             dlsr.setShadowIntensity(SHADOW_INTENSITY);
