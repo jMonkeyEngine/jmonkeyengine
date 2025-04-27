@@ -2,7 +2,7 @@
 //  jme3_ios_native.h
 //  jme3-ios-native
 //
-//  Created by v1r7ua1 on 19/09/2024.
+//  Created by joliver82 on 19/09/2024.
 //
 
 #import <Foundation/Foundation.h>

@@ -134,12 +134,11 @@ jobs:
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
           :jme3-ios-native:build
 
-      # TODO: how to upload this jars to maven?
       - name: Upload natives
         uses: actions/upload-artifact@master
         with:
           name: ios-natives
-          path: jme3-ios-native/build/libs
+          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
   # Build the natives on android
   BuildAndroidNatives:
@@ -208,6 +207,12 @@ jobs:
         with:
           name: android-natives
           path: build/native
+
+      - name: Download natives for iOS
+        uses: actions/download-artifact@master
+        with:
+          name: ios-natives
+          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
@@ -401,6 +406,12 @@ jobs:
           name: android-natives
           path: build/native
 
+      - name: Download natives for iOS
+        uses: actions/download-artifact@master
+        with:
+          name: ios-natives
+          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
+
       - name: Rebuild the maven artifacts and deploy them to the Sonatype repository
         run: |
           if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
@@ -457,6 +468,12 @@ jobs:
         with:
           name: android-natives
           path: build/native
+
+      - name: Download natives for iOS
+        uses: actions/download-artifact@master
+        with:
+          name: ios-natives
+          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
       - name: Rebuild the maven artifacts and deploy them to Sonatype OSSRH
         run: |
