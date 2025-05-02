@@ -170,8 +170,7 @@ public class Listener {
     }
 
     /**
-     * Sets the rotation of the listener.
-     * This defines the listener's orientation in world space.
+     * Sets the rotation of the listener in world space.
      * If an {@link AudioRenderer} is set, it will be notified of the rotation change.
      *
      * @param rotation The new rotation of the listener.
