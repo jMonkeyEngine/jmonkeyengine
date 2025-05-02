@@ -194,7 +194,6 @@ public class Listener {
 
     /**
      * Updates the associated {@link AudioRenderer} with the specified listener parameter.
-     * This method checks if a renderer is set before attempting to update it.
      *
      * @param param The {@link ListenerParam} to update on the renderer.
      */
