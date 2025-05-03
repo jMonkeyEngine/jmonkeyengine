@@ -64,7 +64,7 @@ public class EmitterSphereShape implements EmitterShape {
     /**
      * Constructs an {@code EmitterSphereShape} with the given center and radius.
      *
-     * @param center The center point of the sphere. Not null.
+     * @param center The center point of the sphere.
      * @param radius The radius of the sphere.
      * @throws IllegalArgumentException If {@code center} is null, or if {@code radius} is not greater than 0.
      */
@@ -113,7 +113,6 @@ public class EmitterSphereShape implements EmitterShape {
 
     /**
      * Generates a random point within the volume of the sphere.
-     * The generated point is stored in the provided {@code store} vector.
      *
      * @param store The {@link Vector3f} to store the generated point in.
      */
