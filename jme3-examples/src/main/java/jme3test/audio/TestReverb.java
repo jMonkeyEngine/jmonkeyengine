@@ -103,10 +103,10 @@ public class TestReverb extends SimpleApplication {
     }
 
     private Vector3f getRandomPosition() {
-        Vector3f vec = new Vector3f();
-        vec.setX(FastMath.nextRandomFloat());
-        vec.setY(FastMath.nextRandomFloat());
-        vec.setZ(FastMath.nextRandomFloat());
+        float x = FastMath.nextRandomFloat();
+        float y = FastMath.nextRandomFloat();
+        float z = FastMath.nextRandomFloat();
+        Vector3f vec = new Vector3f(x, y, z);
         vec.multLocal(40, 2, 40);
         vec.subtractLocal(20, 1, 20);
         return vec;
