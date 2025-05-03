@@ -55,6 +55,7 @@ import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.TextureArray;
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -115,7 +116,13 @@ public class TestPBRTerrainAdvanced extends ScreenshotTestBase {
      */
     @ParameterizedTest(name = "{0}")
     @MethodSource("testParameters")
-    public void testPBRTerrainAdvanced(String testName, int debugMode) {
+    public void testPBRTerrainAdvanced(String testName, int debugMode, TestInfo testInfo) {
+        if(!testInfo.getTestClass().isPresent() || !testInfo.getTestMethod().isPresent()) {
+            throw new RuntimeException("Test preconditions not met");
+        }
+
+        String imageName = testInfo.getTestClass().get().getName() + "." + testInfo.getTestMethod().get().getName() + "_" + testName;
+
         screenshotTest(new BaseAppState() {
             private TerrainQuad terrain;
             private Material matTerrain;
@@ -354,8 +361,8 @@ public class TestPBRTerrainAdvanced extends ScreenshotTestBase {
             @Override
             protected void onDisable() {}
 
-        }).setBaseImageFileName(testName)
-          .setFramesToTakeScreenshotsOn(3)
+        }).setBaseImageFileName(imageName)
+          .setFramesToTakeScreenshotsOn(4)
           .run();
     }
 }
