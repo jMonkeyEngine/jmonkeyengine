@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,50 +35,80 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.Environment;
+import com.jme3.audio.LowPassFilter;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Sphere;
+import com.jme3.system.AppSettings;
 
 public class TestReverb extends SimpleApplication {
 
-  private AudioNode audioSource;
-  private float time = 0;
-  private float nextTime = 1;
-
-  public static void main(String[] args) {
-    TestReverb test = new TestReverb();
-    test.start();
-  }
-
-  @Override
-  public void simpleInitApp() {
-    audioSource = new AudioNode(assetManager, "Sound/Effects/Bang.wav",
-            AudioData.DataType.Buffer);
-
-    float[] eax = new float[]{15, 38.0f, 0.300f, -1000, -3300, 0,
-      1.49f, 0.54f, 1.00f, -2560, 0.162f, 0.00f, 0.00f, 0.00f,
-      -229, 0.088f, 0.00f, 0.00f, 0.00f, 0.125f, 1.000f, 0.250f,
-      0.000f, -5.0f, 5000.0f, 250.0f, 0.00f, 0x3f};
-    audioRenderer.setEnvironment(new Environment(eax));
-    Environment env = Environment.Cavern;
-    audioRenderer.setEnvironment(env);
-  }
-
-  @Override
-  public void simpleUpdate(float tpf) {
-    time += tpf;
-
-    if (time > nextTime) {
-      Vector3f v = new Vector3f();
-      v.setX(FastMath.nextRandomFloat());
-      v.setY(FastMath.nextRandomFloat());
-      v.setZ(FastMath.nextRandomFloat());
-      v.multLocal(40, 2, 40);
-      v.subtractLocal(20, 1, 20);
-
-      audioSource.setLocalTranslation(v);
-      audioSource.playInstance();
-      time = 0;
-      nextTime = FastMath.nextRandomFloat() * 2 + 0.5f;
+    public static void main(String[] args) {
+        TestReverb app = new TestReverb();
+        app.start();
     }
-  }
+
+    private AudioNode audio;
+    private float time = 0;
+    private float nextTime = 1;
+
+    @Override
+    public void simpleInitApp() {
+        flyCam.setMoveSpeed(25f);
+        flyCam.setDragToRotate(true);
+
+        cam.setLocation(Vector3f.UNIT_XYZ.mult(50f));
+        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
+
+        audioRenderer.setEnvironment(Environment.Cavern);
+
+        audio = new AudioNode(assetManager, "Sound/Effects/Bang.wav", AudioData.DataType.Buffer);
+        audio.setPositional(true);
+        audio.setReverbEnabled(true);
+        audio.setReverbFilter(new LowPassFilter(1, 1));
+        rootNode.attachChild(audio);
+
+        Geometry marker = makeShape("Marker", new Sphere(16, 16, .5f), ColorRGBA.Red);
+        audio.attachChild(marker);
+
+        Geometry floor = makeShape("Floor", new Box(20f, .05f, 20f), ColorRGBA.Blue);
+        rootNode.attachChild(floor);
+    }
+
+    private Geometry makeShape(String name, Mesh mesh, ColorRGBA color) {
+        Geometry geo = new Geometry(name, mesh);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", color);
+        geo.setMaterial(mat);
+        return geo;
+    }
+
+    @Override
+    public void simpleUpdate(float tpf) {
+        time += tpf;
+
+        if (time > nextTime) {
+            time = 0;
+            nextTime = FastMath.nextRandomFloat() * 2 + 0.5f;
+
+            Vector3f position = getRandomPosition();
+            audio.setLocalTranslation(position);
+            audio.playInstance();
+        }
+    }
+
+    private Vector3f getRandomPosition() {
+        Vector3f vec = new Vector3f();
+        vec.setX(FastMath.nextRandomFloat());
+        vec.setY(FastMath.nextRandomFloat());
+        vec.setZ(FastMath.nextRandomFloat());
+        vec.multLocal(40, 2, 40);
+        vec.subtractLocal(20, 1, 20);
+        return vec;
+    }
 }
