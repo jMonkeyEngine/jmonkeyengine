@@ -74,7 +74,7 @@ import com.jme3.water.WaterFilter;
  */
 public class TestPostWater extends SimpleApplication {
 
-    private static final Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
+    private final Vector3f lightDir = new Vector3f(-4.9236743f, -1.27054665f, 5.896916f);
     private WaterFilter water;
 
     public static void main(String[] args) {
