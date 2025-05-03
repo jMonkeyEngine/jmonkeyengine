@@ -102,7 +102,7 @@ public class TestPBRTerrainAdvanced extends ScreenshotTestBase {
 
     private static Stream<Arguments> testParameters() {
         return Stream.of(
-            Arguments.of("FinalRender", -1),
+            Arguments.of("FinalRender", 0),
             Arguments.of("AmbientOcclusion", 4),
             Arguments.of("Emissive", 5)
         );
@@ -362,7 +362,7 @@ public class TestPBRTerrainAdvanced extends ScreenshotTestBase {
             protected void onDisable() {}
 
         }).setBaseImageFileName(imageName)
-          .setFramesToTakeScreenshotsOn(4)
+          .setFramesToTakeScreenshotsOn(5)
           .run();
     }
 }

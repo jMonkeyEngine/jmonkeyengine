@@ -80,7 +80,7 @@ public class TestPBRTerrain extends ScreenshotTestBase {
 
     private static Stream<Arguments> testParameters() {
         return Stream.of(
-            Arguments.of("FinalRender", -1),
+            Arguments.of("FinalRender", 0),
             Arguments.of("NormalMap", 1),
             Arguments.of("RoughnessMap", 2),
             Arguments.of("MetallicMap", 3),
@@ -285,7 +285,7 @@ public class TestPBRTerrain extends ScreenshotTestBase {
             protected void onDisable() {}
 
         }).setBaseImageFileName(imageName)
-          .setFramesToTakeScreenshotsOn(4)
+          .setFramesToTakeScreenshotsOn(5)
           .run();
     }
 }
