@@ -75,7 +75,6 @@ public class TestPBRLighting extends ScreenshotTestBase {
                 cam.setLocation(new Vector3f(18, 10, 0));
                 cam.lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
 
-
                 AssetManager assetManager = app.getAssetManager();
                 assetManager.registerLoader(KTXLoader.class, "ktx");
 
