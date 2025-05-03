@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,8 +65,8 @@ public class EmitterBoxShape implements EmitterShape {
     /**
      * Constructs an {@code EmitterBoxShape} defined by a minimum and maximum corner.
      *
-     * @param min The minimum corner of the box. Not null.
-     * @param max The maximum corner of the box. Not null.
+     * @param min The minimum corner of the box.
+     * @param max The maximum corner of the box.
      * @throws IllegalArgumentException If either {@code min} or {@code max} is null.
      */
     public EmitterBoxShape(Vector3f min, Vector3f max) {
@@ -81,7 +81,6 @@ public class EmitterBoxShape implements EmitterShape {
 
     /**
      * Generates a random point within the bounds of the box.
-     * The generated point is stored in the provided {@code store} vector.
      *
      * @param store The {@link Vector3f} to store the generated point in.
      */
