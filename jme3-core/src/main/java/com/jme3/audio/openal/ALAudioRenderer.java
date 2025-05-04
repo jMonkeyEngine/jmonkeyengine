@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,25 +99,26 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             return;
         }
 
-        // Find maximum # of sources supported by this implementation
-        ArrayList<Integer> channelList = new ArrayList<>();
-        for (int i = 0; i < MAX_NUM_CHANNELS; i++) {
-            int chan = al.alGenSources();
-            if (al.alGetError() != 0) {
-                break;
-            } else {
-                channelList.add(chan);
-            }
+        enumerateAvailableChannels();
+
+        printAudioRendererInfo();
+
+        // Pause device is a feature used specifically on Android
+        // where the application could be closed but still running,
+        // thus the audio context remains open but no audio should be playing.
+        supportPauseDevice = alc.alcIsExtensionPresent("ALC_SOFT_pause_device");
+        if (!supportPauseDevice) {
+            logger.log(Level.WARNING, "Pausing audio device not supported.");
         }
 
-        channels = new int[channelList.size()];
-        for (int i = 0; i < channels.length; i++) {
-            channels[i] = channelList.get(i);
-        }
+        // Disconnected audio devices (such as USB sound cards, headphones...)
+        // never reconnect, the whole context must be re-created
+        supportDisconnect = alc.alcIsExtensionPresent("ALC_EXT_disconnect");
 
-        ib = BufferUtils.createIntBuffer(channels.length);
-        channelSources = new AudioSource[channels.length];
+        initEfx();
+    }
 
+    private void printAudioRendererInfo() {
         final String deviceName = alc.alcGetString(ALC.ALC_DEVICE_SPECIFIER);
 
         logger.log(Level.INFO, "Audio Renderer Information\n"
@@ -137,19 +138,30 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                         alc.alcGetString(ALC.ALC_EXTENSIONS),
                         al.alGetString(AL_EXTENSIONS)
                 });
+    }
 
-        // Pause device is a feature used specifically on Android
-        // where the application could be closed but still running,
-        // thus the audio context remains open but no audio should be playing.
-        supportPauseDevice = alc.alcIsExtensionPresent("ALC_SOFT_pause_device");
-        if (!supportPauseDevice) {
-            logger.log(Level.WARNING, "Pausing audio device not supported.");
+    private void enumerateAvailableChannels() {
+        // Find maximum # of sources supported by this implementation
+        ArrayList<Integer> channelList = new ArrayList<>();
+        for (int i = 0; i < MAX_NUM_CHANNELS; i++) {
+            int chan = al.alGenSources();
+            if (al.alGetError() != 0) {
+                break;
+            } else {
+                channelList.add(chan);
+            }
         }
 
-        // Disconnected audio devices (such as USB sound cards, headphones...)
-        // never reconnect, the whole context must be re-created
-        supportDisconnect = alc.alcIsExtensionPresent("ALC_EXT_disconnect");
+        channels = new int[channelList.size()];
+        for (int i = 0; i < channels.length; i++) {
+            channels[i] = channelList.get(i);
+        }
 
+        ib = BufferUtils.createIntBuffer(channels.length);
+        channelSources = new AudioSource[channels.length];
+    }
+
+    private void initEfx() {
         supportEfx = alc.alcIsExtensionPresent("ALC_EXT_EFX");
         if (supportEfx) {
             ib.position(0).limit(1);
@@ -327,7 +339,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 return 0;
             }
 
-            int id = channels[src.getChannel()];
+            int sourceId = channels[src.getChannel()];
             AudioData data = src.getAudioData();
             int playbackOffsetBytes = 0;
 
@@ -342,18 +354,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
                 // The number of unenqueued bytes that the decoder thread
                 // keeps track of.
-                int unqueuedBytes = stream.getUnqueuedBufferBytes();
-
-                // Additional processed buffers that the decoder thread
-                // did not unenqueue yet (it only updates 20 times per second).
-                int unqueuedBytesExtra = al.alGetSourcei(id, AL_BUFFERS_PROCESSED) * BUFFER_SIZE;
-
-                // Total additional bytes that need to be considered.
-                playbackOffsetBytes = unqueuedBytes; // + unqueuedBytesExtra;
+                playbackOffsetBytes = stream.getUnqueuedBufferBytes();
             }
 
             // Add byte offset from source (for both streams and buffers)
-            playbackOffsetBytes += al.alGetSourcei(id, AL_BYTE_OFFSET);
+            playbackOffsetBytes += al.alGetSourcei(sourceId, AL_BYTE_OFFSET);
 
             // Compute time value from bytes
             // E.g. for 44100 source with 2 channels and 16 bits per sample:
@@ -389,75 +394,76 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             assert src.getChannel() >= 0;
 
-            int id = channels[src.getChannel()];
+            int sourceId = channels[src.getChannel()];
+            int filterId = EFX.AL_FILTER_NULL;
+
             switch (param) {
                 case Position:
                     if (!src.isPositional()) {
                         return;
                     }
-
                     Vector3f pos = src.getPosition();
-                    al.alSource3f(id, AL_POSITION, pos.x, pos.y, pos.z);
+                    al.alSource3f(sourceId, AL_POSITION, pos.x, pos.y, pos.z);
                     break;
+
                 case Velocity:
                     if (!src.isPositional()) {
                         return;
                     }
-
                     Vector3f vel = src.getVelocity();
-                    al.alSource3f(id, AL_VELOCITY, vel.x, vel.y, vel.z);
+                    al.alSource3f(sourceId, AL_VELOCITY, vel.x, vel.y, vel.z);
                     break;
+
                 case MaxDistance:
                     if (!src.isPositional()) {
                         return;
                     }
-
-                    al.alSourcef(id, AL_MAX_DISTANCE, src.getMaxDistance());
+                    al.alSourcef(sourceId, AL_MAX_DISTANCE, src.getMaxDistance());
                     break;
+
                 case RefDistance:
                     if (!src.isPositional()) {
                         return;
                     }
-
-                    al.alSourcef(id, AL_REFERENCE_DISTANCE, src.getRefDistance());
+                    al.alSourcef(sourceId, AL_REFERENCE_DISTANCE, src.getRefDistance());
                     break;
+
                 case ReverbFilter:
                     if (!supportEfx || !src.isPositional() || !src.isReverbEnabled()) {
                         return;
                     }
-
-                    int filter = EFX.AL_FILTER_NULL;
-                    if (src.getReverbFilter() != null) {
-                        Filter f = src.getReverbFilter();
-                        if (f.isUpdateNeeded()) {
-                            updateFilter(f);
+                    Filter reverbFilter = src.getReverbFilter();
+                    if (reverbFilter != null) {
+                        if (reverbFilter.isUpdateNeeded()) {
+                            updateFilter(reverbFilter);
                         }
-                        filter = f.getId();
+                        filterId = reverbFilter.getId();
                     }
-                    al.alSource3i(id, EFX.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
+                    al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filterId);
                     break;
+
                 case ReverbEnabled:
                     if (!supportEfx || !src.isPositional()) {
                         return;
                     }
-
                     if (src.isReverbEnabled()) {
                         updateSourceParam(src, AudioParam.ReverbFilter);
                     } else {
-                        al.alSource3i(id, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
+                        al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
                     }
                     break;
+
                 case IsPositional:
                     if (!src.isPositional()) {
                         // Play in headspace
-                        al.alSourcei(id, AL_SOURCE_RELATIVE, AL_TRUE);
-                        al.alSource3f(id, AL_POSITION, 0, 0, 0);
-                        al.alSource3f(id, AL_VELOCITY, 0, 0, 0);
+                        al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_TRUE);
+                        al.alSource3f(sourceId, AL_POSITION, 0, 0, 0);
+                        al.alSource3f(sourceId, AL_VELOCITY, 0, 0, 0);
 
                         // Disable reverb
-                        al.alSource3i(id, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
+                        al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
                     } else {
-                        al.alSourcei(id, AL_SOURCE_RELATIVE, AL_FALSE);
+                        al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_FALSE);
                         updateSourceParam(src, AudioParam.Position);
                         updateSourceParam(src, AudioParam.Velocity);
                         updateSourceParam(src, AudioParam.MaxDistance);
@@ -465,131 +471,133 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                         updateSourceParam(src, AudioParam.ReverbEnabled);
                     }
                     break;
+
                 case Direction:
                     if (!src.isDirectional()) {
                         return;
                     }
-
                     Vector3f dir = src.getDirection();
-                    al.alSource3f(id, AL_DIRECTION, dir.x, dir.y, dir.z);
+                    al.alSource3f(sourceId, AL_DIRECTION, dir.x, dir.y, dir.z);
                     break;
+
                 case InnerAngle:
                     if (!src.isDirectional()) {
                         return;
                     }
-
-                    al.alSourcef(id, AL_CONE_INNER_ANGLE, src.getInnerAngle());
+                    al.alSourcef(sourceId, AL_CONE_INNER_ANGLE, src.getInnerAngle());
                     break;
+
                 case OuterAngle:
                     if (!src.isDirectional()) {
                         return;
                     }
-
-                    al.alSourcef(id, AL_CONE_OUTER_ANGLE, src.getOuterAngle());
+                    al.alSourcef(sourceId, AL_CONE_OUTER_ANGLE, src.getOuterAngle());
                     break;
+
                 case IsDirectional:
                     if (src.isDirectional()) {
                         updateSourceParam(src, AudioParam.Direction);
                         updateSourceParam(src, AudioParam.InnerAngle);
                         updateSourceParam(src, AudioParam.OuterAngle);
-                        al.alSourcef(id, AL_CONE_OUTER_GAIN, 0);
+                        al.alSourcef(sourceId, AL_CONE_OUTER_GAIN, 0);
                     } else {
-                        al.alSourcef(id, AL_CONE_INNER_ANGLE, 360);
-                        al.alSourcef(id, AL_CONE_OUTER_ANGLE, 360);
-                        al.alSourcef(id, AL_CONE_OUTER_GAIN, 1f);
+                        al.alSourcef(sourceId, AL_CONE_INNER_ANGLE, 360);
+                        al.alSourcef(sourceId, AL_CONE_OUTER_ANGLE, 360);
+                        al.alSourcef(sourceId, AL_CONE_OUTER_GAIN, 1f);
                     }
                     break;
+
                 case DryFilter:
                     if (!supportEfx) {
                         return;
                     }
                     Filter dryFilter = src.getDryFilter();
-                    int filterId;
-                    if (dryFilter == null) {
-                        filterId = EFX.AL_FILTER_NULL;
-                    } else {
+                    if (dryFilter != null) {
                         if (dryFilter.isUpdateNeeded()) {
                             updateFilter(dryFilter);
                         }
                         filterId = dryFilter.getId();
                     }
                     // NOTE: must re-attach filter for changes to apply.
-                    al.alSourcei(id, EFX.AL_DIRECT_FILTER, filterId);
+                    al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, filterId);
                     break;
+
                 case Looping:
-                    if (src.isLooping() && !(src.getAudioData() instanceof AudioStream)) {
-                        al.alSourcei(id, AL_LOOPING, AL_TRUE);
+                    if (src.getAudioData() instanceof AudioStream) {
+                        al.alSourcei(sourceId, AL_LOOPING, AL_FALSE);
                     } else {
-                        al.alSourcei(id, AL_LOOPING, AL_FALSE);
+                        // AudioData instanceof AudioBuffer
+                        al.alSourcei(sourceId, AL_LOOPING, src.isLooping() ? AL_TRUE : AL_FALSE);
                     }
                     break;
+
                 case Volume:
-                    al.alSourcef(id, AL_GAIN, src.getVolume());
+                    al.alSourcef(sourceId, AL_GAIN, src.getVolume());
                     break;
+
                 case Pitch:
-                    al.alSourcef(id, AL_PITCH, src.getPitch());
+                    al.alSourcef(sourceId, AL_PITCH, src.getPitch());
                     break;
             }
         }
     }
 
-    private void setSourceParams(int id, AudioSource src, boolean forceNonLoop) {
+    private void setSourceParams(int sourceId, AudioSource src, boolean forceNonLoop) {
         if (src.isPositional()) {
             Vector3f pos = src.getPosition();
             Vector3f vel = src.getVelocity();
-            al.alSource3f(id, AL_POSITION, pos.x, pos.y, pos.z);
-            al.alSource3f(id, AL_VELOCITY, vel.x, vel.y, vel.z);
-            al.alSourcef(id, AL_MAX_DISTANCE, src.getMaxDistance());
-            al.alSourcef(id, AL_REFERENCE_DISTANCE, src.getRefDistance());
-            al.alSourcei(id, AL_SOURCE_RELATIVE, AL_FALSE);
+            al.alSource3f(sourceId, AL_POSITION, pos.x, pos.y, pos.z);
+            al.alSource3f(sourceId, AL_VELOCITY, vel.x, vel.y, vel.z);
+            al.alSourcef(sourceId, AL_MAX_DISTANCE, src.getMaxDistance());
+            al.alSourcef(sourceId, AL_REFERENCE_DISTANCE, src.getRefDistance());
+            al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_FALSE);
 
             if (src.isReverbEnabled() && supportEfx) {
-                int filter = EFX.AL_FILTER_NULL;
+                int filterId = EFX.AL_FILTER_NULL;
                 if (src.getReverbFilter() != null) {
                     Filter f = src.getReverbFilter();
                     if (f.isUpdateNeeded()) {
                         updateFilter(f);
                     }
-                    filter = f.getId();
+                    filterId = f.getId();
                 }
-                al.alSource3i(id, EFX.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
+                al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filterId);
             }
         } else {
             // play in headspace
-            al.alSourcei(id, AL_SOURCE_RELATIVE, AL_TRUE);
-            al.alSource3f(id, AL_POSITION, 0, 0, 0);
-            al.alSource3f(id, AL_VELOCITY, 0, 0, 0);
+            al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_TRUE);
+            al.alSource3f(sourceId, AL_POSITION, 0, 0, 0);
+            al.alSource3f(sourceId, AL_VELOCITY, 0, 0, 0);
         }
 
         if (src.getDryFilter() != null && supportEfx) {
             Filter f = src.getDryFilter();
             if (f.isUpdateNeeded()) {
                 updateFilter(f);
-
                 // NOTE: must re-attach filter for changes to apply.
-                al.alSourcei(id, EFX.AL_DIRECT_FILTER, f.getId());
+                al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, f.getId());
             }
         }
 
         if (forceNonLoop || src.getAudioData() instanceof AudioStream) {
-            al.alSourcei(id, AL_LOOPING, AL_FALSE);
+            al.alSourcei(sourceId, AL_LOOPING, AL_FALSE);
         } else {
-            al.alSourcei(id, AL_LOOPING, src.isLooping() ? AL_TRUE : AL_FALSE);
+            al.alSourcei(sourceId, AL_LOOPING, src.isLooping() ? AL_TRUE : AL_FALSE);
         }
-        al.alSourcef(id, AL_GAIN, src.getVolume());
-        al.alSourcef(id, AL_PITCH, src.getPitch());
-        al.alSourcef(id, AL_SEC_OFFSET, src.getTimeOffset());
+        al.alSourcef(sourceId, AL_GAIN, src.getVolume());
+        al.alSourcef(sourceId, AL_PITCH, src.getPitch());
+        al.alSourcef(sourceId, AL_SEC_OFFSET, src.getTimeOffset());
 
         if (src.isDirectional()) {
             Vector3f dir = src.getDirection();
-            al.alSource3f(id, AL_DIRECTION, dir.x, dir.y, dir.z);
-            al.alSourcef(id, AL_CONE_INNER_ANGLE, src.getInnerAngle());
-            al.alSourcef(id, AL_CONE_OUTER_ANGLE, src.getOuterAngle());
-            al.alSourcef(id, AL_CONE_OUTER_GAIN, 0);
+            al.alSource3f(sourceId, AL_DIRECTION, dir.x, dir.y, dir.z);
+            al.alSourcef(sourceId, AL_CONE_INNER_ANGLE, src.getInnerAngle());
+            al.alSourcef(sourceId, AL_CONE_OUTER_ANGLE, src.getOuterAngle());
+            al.alSourcef(sourceId, AL_CONE_OUTER_GAIN, 0);
         } else {
-            al.alSourcef(id, AL_CONE_INNER_ANGLE, 360);
-            al.alSourcef(id, AL_CONE_OUTER_ANGLE, 360);
-            al.alSourcef(id, AL_CONE_OUTER_GAIN, 1f);
+            al.alSourcef(sourceId, AL_CONE_INNER_ANGLE, 360);
+            al.alSourcef(sourceId, AL_CONE_OUTER_ANGLE, 360);
+            al.alSourcef(sourceId, AL_CONE_OUTER_GAIN, 1f);
         }
     }
 
@@ -606,6 +614,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     Vector3f pos = listener.getLocation();
                     al.alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
                     break;
+
                 case Rotation:
                     Vector3f dir = listener.getDirection();
                     Vector3f up = listener.getUp();
@@ -615,10 +624,12 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     fb.flip();
                     al.alListener(AL_ORIENTATION, fb);
                     break;
+
                 case Velocity:
                     Vector3f vel = listener.getVelocity();
                     al.alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z);
                     break;
+
                 case Volume:
                     al.alListenerf(AL_GAIN, listener.getVolume());
                     break;
@@ -643,7 +654,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     }
 
     private int newChannel() {
-        if (freeChannels.size() > 0) {
+        if (!freeChannels.isEmpty()) {
             return freeChannels.remove(0);
         } else if (nextChan < channels.length) {
             return nextChan++;
@@ -708,7 +719,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         nativeBuf.put(arrayBuf, 0, size);
         nativeBuf.flip();
 
-        al.alBufferData(id, convertFormat(stream), nativeBuf, size, stream.getSampleRate());
+        al.alBufferData(id, getOpenALFormat(stream), nativeBuf, size, stream.getSampleRate());
 
         return true;
     }
@@ -765,10 +776,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private void attachStreamToSource(int sourceId, AudioStream stream, boolean looping) {
         boolean success = false;
 
-        // Reset the stream. Typically happens if it finished playing on
-        // its own and got reclaimed.
-        // Note that AudioNode.stop() already resets the stream
-        // since it might not be at the EOF when stopped.
+        // Reset the stream. Typically, happens if it finished playing on its own and got reclaimed.
+        // Note that AudioNode.stop() already resets the stream since it might not be at the EOF when stopped.
         if (stream.isEOF()) {
             stream.setTime(0);
         }
@@ -800,9 +809,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    private boolean attachBufferToSource(int sourceId, AudioBuffer buffer) {
+    private void attachBufferToSource(int sourceId, AudioBuffer buffer) {
         al.alSourcei(sourceId, AL_BUFFER, buffer.getId());
-        return true;
     }
 
     private void attachAudioToSource(int sourceId, AudioData data, boolean looping) {
@@ -831,8 +839,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, EFX.AL_FILTER_NULL);
             }
             if (src.isPositional()) {
-                AudioSource pas = src;
-                if (pas.isReverbEnabled() && supportEfx) {
+                if (src.isReverbEnabled() && supportEfx) {
                     al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
                 }
             }
@@ -863,7 +870,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     }
 
     private void checkDevice() {
-
         // If the device is disconnected, pick a new one
         if (isDisconnected()) {
             logger.log(Level.INFO, "Current audio device disconnected.");
@@ -1010,8 +1016,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
 
             if (this.listener != null) {
-                // previous listener no longer associated with current
-                // renderer
+                // previous listener no longer associated with current renderer
                 this.listener.setRenderer(null);
             }
 
@@ -1047,14 +1052,14 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
-            if (src.getAudioData() instanceof AudioStream) {
+            AudioData audioData = src.getAudioData();
+            if (audioData instanceof AudioStream) {
                 throw new UnsupportedOperationException(
-                        "Cannot play instances "
-                        + "of audio streams. Use play() instead.");
+                        "Cannot play instances of audio streams. Use play() instead.");
             }
 
-            if (src.getAudioData().isUpdateNeeded()) {
-                updateAudioData(src.getAudioData());
+            if (audioData.isUpdateNeeded()) {
+                updateAudioData(audioData);
             }
 
             // create a new index for an audio-channel
@@ -1064,12 +1069,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
 
             int sourceId = channels[index];
-
             clearChannel(index);
 
             // set parameters, like position and max distance
-            setSourceParams(sourceId, src, true);
-            attachAudioToSource(sourceId, src.getAudioData(), false);
+            setSourceParams(sourceId, src, true); // forceNonLoop
+            attachAudioToSource(sourceId, audioData, false); // no looping
             channelSources[index] = src;
 
             // play the channel
@@ -1101,14 +1105,14 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 clearChannel(index);
                 src.setChannel(index);
 
-                AudioData data = src.getAudioData();
-                if (data.isUpdateNeeded()) {
-                    updateAudioData(data);
+                AudioData audioData = src.getAudioData();
+                if (audioData.isUpdateNeeded()) {
+                    updateAudioData(audioData);
                 }
 
                 channelSources[index] = src;
                 setSourceParams(channels[index], src, false);
-                attachAudioToSource(channels[index], data, src.isLooping());
+                attachAudioToSource(channels[index], audioData, src.isLooping());
             }
 
             al.alSourcePlay(channels[src.getChannel()]);
@@ -1141,13 +1145,13 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
 
             if (src.getStatus() != Status.Stopped) {
-                int chan = src.getChannel();
-                assert chan != -1; // if it's not stopped, must have id
+                int channel = src.getChannel();
+                assert channel != -1; // if it's not stopped, must have id
 
                 src.setStatus(Status.Stopped);
                 src.setChannel(-1);
-                clearChannel(chan);
-                freeChannel(chan);
+                clearChannel(channel);
+                freeChannel(channel);
 
                 if (src.getAudioData() instanceof AudioStream) {
                     // If the stream is seekable, then rewind it.
@@ -1163,25 +1167,29 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    private int convertFormat(AudioData ad) {
-        switch (ad.getBitsPerSample()) {
-            case 8:
-                if (ad.getChannels() == 1) {
-                    return AL_FORMAT_MONO8;
-                } else if (ad.getChannels() == 2) {
-                    return AL_FORMAT_STEREO8;
-                }
+    private int getOpenALFormat(AudioData audioData) {
+        int channels = audioData.getChannels();
+        int bitsPerSample = audioData.getBitsPerSample();
 
-                break;
-            case 16:
-                if (ad.getChannels() == 1) {
-                    return AL_FORMAT_MONO16;
-                } else {
-                    return AL_FORMAT_STEREO16;
-                }
+        if (channels == 1) {
+            if (bitsPerSample == 8) {
+                return AL_FORMAT_MONO8;
+            } else if (bitsPerSample == 16) {
+                return AL_FORMAT_MONO16;
+            } else {
+                throw new UnsupportedOperationException("Illegal sample size: " + bitsPerSample);
+            }
+        } else if (channels == 2) {
+            if (bitsPerSample == 8) {
+                return AL_FORMAT_STEREO8;
+            } else if (bitsPerSample == 16) {
+                return AL_FORMAT_STEREO16;
+            } else {
+                throw new UnsupportedOperationException("Illegal sample size: " + bitsPerSample);
+            }
+        } else {
+            throw new UnsupportedOperationException("Only mono or stereo is supported. Channels: " + channels);
         }
-        throw new UnsupportedOperationException("Unsupported channels/bits combination: "
-                + "bits=" + ad.getBitsPerSample() + ", channels=" + ad.getChannels());
     }
 
     private void updateAudioBuffer(AudioBuffer ab) {
@@ -1196,7 +1204,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
 
         ab.getData().clear();
-        al.alBufferData(id, convertFormat(ab), ab.getData(), ab.getData().capacity(), ab.getSampleRate());
+        al.alBufferData(id, getOpenALFormat(ab), ab.getData(), ab.getData().capacity(), ab.getSampleRate());
         ab.clearUpdateNeeded();
     }
 
