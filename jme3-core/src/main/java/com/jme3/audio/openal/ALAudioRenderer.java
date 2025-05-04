@@ -56,32 +56,48 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private static final int BUFFER_SIZE = 35280;
     private static final int STREAMING_BUFFER_COUNT = 5;
     private static final int MAX_NUM_CHANNELS = 64;
-    private IntBuffer ib = BufferUtils.createIntBuffer(1);
-    private final FloatBuffer fb = BufferUtils.createVector3Buffer(2);
-    private final ByteBuffer nativeBuf = BufferUtils.createByteBuffer(BUFFER_SIZE);
-    private final byte[] arrayBuf = new byte[BUFFER_SIZE];
-    private int[] channels;
-    private AudioSource[] channelSources;
-    private int nextChan = 0;
-    private final ArrayList<Integer> freeChannels = new ArrayList<>();
+
+    // Buffers for OpenAL calls
+    private IntBuffer ib = BufferUtils.createIntBuffer(1); // Reused for single int operations
+    private final FloatBuffer fb = BufferUtils.createVector3Buffer(2); // For listener orientation
+    private final ByteBuffer nativeBuf = BufferUtils.createByteBuffer(BUFFER_SIZE); // For streaming data
+    private final byte[] arrayBuf = new byte[BUFFER_SIZE]; // Intermediate array buffer for streaming
+
+    // Channel management
+    private int[] channels; // OpenAL source IDs
+    private AudioSource[] channelSources; // jME source associated with each channel
+    private int nextChan = 0; // Next available channel index
+    private final ArrayList<Integer> freeChannels = new ArrayList<>(); // Pool of freed channels
+
+    // Listener and environment
     private Listener listener;
+    private int reverbFx = -1; // EFX reverb effect ID
+    private int reverbFxSlot = -1; // EFX effect slot ID
+
+    // State and capabilities
     private boolean audioDisabled = false;
     private boolean supportEfx = false;
     private boolean supportPauseDevice = false;
     private boolean supportDisconnect = false;
     private int auxSends = 0;
-    private int reverbFx = -1;
-    private int reverbFxSlot = -1;
 
-    // Fill streaming sources every 50 ms
-    private static final float UPDATE_RATE = 0.05f;
+    // Update thread
+    private static final float UPDATE_RATE = 0.05f; // Update streaming sources every 50ms
     private final Thread decoderThread = new Thread(this, THREAD_NAME);
-    private final Object threadLock = new Object();
+    private final Object threadLock = new Object(); // Lock for thread safety
 
+    // OpenAL API interfaces
     private final AL al;
     private final ALC alc;
     private final EFX efx;
 
+    /**
+     * Creates a new ALAudioRenderer instance.
+     *
+     * @param al  The OpenAL interface.
+     * @param alc The OpenAL Context interface.
+     * @param efx The OpenAL Effects Extension interface.
+     */
     public ALAudioRenderer(AL al, ALC alc, EFX efx) {
         this.al = al;
         this.alc = alc;
@@ -261,6 +277,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             long startTime = System.nanoTime();
 
             if (Thread.interrupted()) {
+                logger.info("Audio decoder thread interrupted, exiting.");
                 break;
             }
 
@@ -272,17 +289,20 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             long endTime = System.nanoTime();
             long diffTime = endTime - startTime;
 
+            // Sleep to maintain the desired update rate
             if (diffTime < updateRateNanos) {
                 long desiredEndTime = startTime + updateRateNanos;
                 while (System.nanoTime() < desiredEndTime) {
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException ex) {
+                        logger.info("Audio decoder thread interrupted during sleep, exiting.");
                         break mainloop;
                     }
                 }
             }
         }
+        logger.info("Audio decoder thread finished.");
     }
 
     @Override
@@ -671,6 +691,10 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    /**
+     * Configures the global reverb effect based on the Environment settings.
+     * @param env The Environment object.
+     */
     @Override
     public void setEnvironment(Environment env) {
         checkDead();
@@ -692,8 +716,13 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             efx.alEffectf(reverbFx, EFX.AL_REVERB_AIR_ABSORPTION_GAINHF, env.getAirAbsorbGainHf());
             efx.alEffectf(reverbFx, EFX.AL_REVERB_ROOM_ROLLOFF_FACTOR, env.getRoomRolloffFactor());
 
-            // attach effect to slot
+            if (checkAlError("setting reverb effect parameters")) {
+                return;
+            }
+
+            // (Re)attach the configured reverb effect to the slot
             efx.alAuxiliaryEffectSloti(reverbFxSlot, EFX.AL_EFFECTSLOT_EFFECT, reverbFx);
+            checkAlError("attaching reverb effect to slot");
         }
     }
 
@@ -994,8 +1023,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             // Keep filling data (even if we are stopped / paused)
             boolean buffersWereFilled = fillStreamingSource(sourceId, stream, src.isLooping());
 
-            if (buffersWereFilled 
-                    && oalStatus == Status.Stopped 
+            if (buffersWereFilled
+                    && oalStatus == Status.Stopped
                     && jmeStatus == Status.Playing) {
                 // The source got stopped due to buffer starvation.
                 // Start it again.
@@ -1168,7 +1197,14 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    /**
+     * Gets the corresponding OpenAL format enum for the audio data properties.
+     * @param audioData The AudioData.
+     * @return The OpenAL format enum (e.g., AL_FORMAT_STEREO16).
+     * @throws UnsupportedOperationException if the format is not supported.
+     */
     private int getOpenALFormat(AudioData audioData) {
+
         int channels = audioData.getChannels();
         int bitsPerSample = audioData.getBitsPerSample();
 
@@ -1177,20 +1213,19 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 return AL_FORMAT_MONO8;
             } else if (bitsPerSample == 16) {
                 return AL_FORMAT_MONO16;
-            } else {
-                throw new UnsupportedOperationException("Illegal sample size: " + bitsPerSample);
             }
         } else if (channels == 2) {
             if (bitsPerSample == 8) {
                 return AL_FORMAT_STEREO8;
             } else if (bitsPerSample == 16) {
                 return AL_FORMAT_STEREO16;
-            } else {
-                throw new UnsupportedOperationException("Illegal sample size: " + bitsPerSample);
             }
-        } else {
-            throw new UnsupportedOperationException("Only mono or stereo is supported. Channels: " + channels);
         }
+        // Add support for AL_EXT_MCFORMATS if needed later
+
+        // Format not supported
+        throw new UnsupportedOperationException("Unsupported audio format: "
+                + channels + " channels, " + bitsPerSample + " bits per sample.");
     }
 
     private void updateAudioBuffer(AudioBuffer ab) {
@@ -1274,5 +1309,40 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 }
             }
         }
+    }
+
+    /**
+     * Checks for OpenAL errors and logs a warning if an error occurred.
+     * @param location A string describing where the check is occurring (for logging).
+     * @return True if an error occurred, false otherwise.
+     */
+    private boolean checkAlError(String location) {
+        int error = al.alGetError();
+        if (error != AL_NO_ERROR) {
+            String errorString;
+            switch (error) {
+                case AL_INVALID_NAME:
+                    errorString = "AL_INVALID_NAME";
+                    break;
+                case AL_INVALID_ENUM:
+                    errorString = "AL_INVALID_ENUM";
+                    break;
+                case AL_INVALID_VALUE:
+                    errorString = "AL_INVALID_VALUE";
+                    break;
+                case AL_INVALID_OPERATION:
+                    errorString = "AL_INVALID_OPERATION";
+                    break;
+                case AL_OUT_OF_MEMORY:
+                    errorString = "AL_OUT_OF_MEMORY";
+                    break;
+                default:
+                    errorString = "Unknown AL error code: " + error;
+                    break;
+            }
+            logger.log(Level.WARNING, "OpenAL Error ({0}) at {1}", new Object[]{errorString, location});
+            return true;
+        }
+        return false;
     }
 }
