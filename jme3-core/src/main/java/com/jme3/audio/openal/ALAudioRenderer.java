@@ -192,33 +192,33 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         if (supportEfx) {
             ib.clear().limit(1);
             alc.alcGetInteger(EFX.ALC_EFX_MAJOR_VERSION, ib, 1);
-            int major = ib.get(0);
+            int majorVersion = ib.get(0);
 
             ib.clear().limit(1);
             alc.alcGetInteger(EFX.ALC_EFX_MINOR_VERSION, ib, 1);
-            int minor = ib.get(0);
-            logger.log(Level.INFO, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
+            int minorVersion = ib.get(0);
+            logger.log(Level.INFO, "Audio effect extension version: {0}.{1}", new Object[]{majorVersion, minorVersion});
 
             ib.clear().limit(1);
             alc.alcGetInteger(EFX.ALC_MAX_AUXILIARY_SENDS, ib, 1);
             auxSends = ib.get(0);
             logger.log(Level.INFO, "Audio max auxiliary sends: {0}", auxSends);
 
-            // Create reverb effect slot
+            // 1. Create reverb effect slot
             ib.clear().limit(1);
             efx.alGenAuxiliaryEffectSlots(1, ib);
             reverbFxSlot = ib.get(0);
 
-            // Create reverb effect
+            // 2. Create reverb effect
             ib.clear().limit(1);
             efx.alGenEffects(1, ib);
             reverbFx = ib.get(0);
 
-            // Configure effect type
+            // 3. Configure effect type
             efx.alEffecti(reverbFx, EFX.AL_EFFECT_TYPE, EFX.AL_EFFECT_REVERB);
             checkAlError("setting reverb effect type");
 
-            // attach reverb effect to effect slot
+            // 4. attach reverb effect to effect slot
             efx.alAuxiliaryEffectSloti(reverbFxSlot, EFX.AL_EFFECTSLOT_EFFECT, reverbFx);
             checkAlError("attaching reverb effect to slot");
 
@@ -937,6 +937,12 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    /**
+     * Stops the AL source on the channel, detaches buffers and filters,
+     * and clears the jME source association. Does NOT free the channel index itself.
+     *
+     * @param index The channel index to clear.
+     */
     private void clearChannel(int index) {
         // make room at this channel
         if (channelSources[index] != null) {
@@ -978,7 +984,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             case AL_PLAYING:
                 return Status.Playing;
             default:
-                throw new UnsupportedOperationException("Unrecognized OAL state: " + oalStatus);
+                throw new UnsupportedOperationException("Unrecognized OpenAL state: " + oalStatus);
         }
     }
 
@@ -1038,6 +1044,12 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    /**
+     * Internal update logic called from the render thread within the lock.
+     * Checks source statuses and reclaims finished channels.
+     *
+     * @param tpf Time per frame (currently unused).
+     */
     public void updateInRenderThread(float tpf) {
         if (audioDisabled) {
             return;
@@ -1047,69 +1059,88 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             AudioSource src = channelSources[i];
 
             if (src == null) {
-                continue;
+                continue; // No source on this channel
             }
 
             int sourceId = channels[i];
             boolean boundSource = i == src.getChannel();
             boolean reclaimChannel = false;
 
-            Status oalStatus = convertStatus(al.alGetSourcei(sourceId, AL_SOURCE_STATE));
+            // Get OpenAL status for the source
+            int oalState = al.alGetSourcei(sourceId, AL_SOURCE_STATE);
+            Status oalStatus = convertStatus(oalState);
 
+            // --- Handle Instanced Playback (Not bound to a specific channel) ---
             if (!boundSource) {
-                // Rules for instanced playback vary significantly.
-                // Handle it here.
                 if (oalStatus == Status.Stopped) {
-                    // Instanced audio stopped playing. Reclaim channel.
-                    clearChannel(i);
-                    freeChannel(i);
+                    // Instanced audio (non-looping buffer) finished playing. Reclaim channel.
+                    if (logger.isLoggable(Level.FINE)) {
+                        logger.log(Level.FINE, "Reclaiming channel {0} from finished instance.", i);
+                    }
+                    clearChannel(i); // Stop source, detach buffer/filter
+                    freeChannel(i);  // Add channel back to the free pool
                 } else if (oalStatus == Status.Paused) {
-                    throw new AssertionError("Instanced audio cannot be paused");
+                    throw new AssertionError("Instanced audio source on channel " + i + " cannot be paused.");
                 }
 
+                // If Playing, do nothing, let it finish.
                 continue;
             }
 
+            // --- Handle Bound Playback (Normal play/pause/stop) ---
             Status jmeStatus = src.getStatus();
 
             // Check if we need to sync JME status with OAL status.
             if (oalStatus != jmeStatus) {
                 if (oalStatus == Status.Stopped && jmeStatus == Status.Playing) {
-                    // Maybe we need to reclaim the channel.
+
+                    // Source stopped playing unexpectedly (finished or starved)
                     if (src.getAudioData() instanceof AudioStream) {
                         AudioStream stream = (AudioStream) src.getAudioData();
 
                         if (stream.isEOF() && !src.isLooping()) {
-                            // Stream finished playing
+                            // Stream reached EOF and is not looping.
+                            if (logger.isLoggable(Level.FINE)) {
+                                logger.log(Level.FINE, "Stream source on channel {0} finished.", i);
+                            }
                             reclaimChannel = true;
                         } else {
-                            // Stream still has data.
-                            // Buffer starvation occurred.
-                            // Audio decoder thread will fill the data
-                            // and start the channel again.
+                            // Stream still has data or is looping, but stopped.
+                            // This indicates buffer starvation. The decoder thread will handle restarting it.
+                            if (logger.isLoggable(Level.FINE)) {
+                                logger.log(Level.FINE, "Stream source on channel {0} likely starved.", i);
+                            }
+                            // Don't reclaim channel here, let decoder thread refill and restart.
                         }
                     } else {
                         // Buffer finished playing.
                         if (src.isLooping()) {
-                            // When a device is disconnected, all sources
-                            // will enter the "stopped" state.
-                            logger.warning("A looping sound has stopped playing");
+                            // This is unexpected for looping buffers unless the device was disconnected/reset.
+                            logger.log(Level.WARNING, "Looping buffer source on channel {0} stopped unexpectedly.", i);
+                        }  else {
+                            // Non-looping buffer finished normally.
+                            if (logger.isLoggable(Level.FINE)) {
+                                logger.log(Level.FINE, "Buffer source on channel {0} finished.", i);
+                            }
                         }
 
                         reclaimChannel = true;
                     }
 
                     if (reclaimChannel) {
+                        if (logger.isLoggable(Level.FINE)) {
+                            logger.log(Level.FINE, "Reclaiming channel {0} from finished source.", i);
+                        }
                         src.setStatus(Status.Stopped);
                         src.setChannel(-1);
-                        clearChannel(i);
-                        freeChannel(i);
+                        clearChannel(i); // Stop AL source, detach buffers/filters
+                        freeChannel(i);  // Add channel back to the free pool
                     }
                 } else {
                     // jME3 state does not match OAL state.
                     // This is only relevant for bound sources.
                     throw new AssertionError("Unexpected sound status. "
-                            + "OAL: " + oalStatus + ", JME: " + jmeStatus);
+                            + "OpenAL: " + oalStatus + ", JME: " + jmeStatus);
                 }
             } else {
                 // Stopped channel was not cleared correctly.
@@ -1120,6 +1151,12 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    /**
+     * Internal update logic called from the decoder thread within the lock.
+     * Fills streaming buffers and restarts starved sources. Deletes unused objects.
+     *
+     * @param tpf Time per frame (currently unused).
+     */
     public void updateInDecoderThread(float tpf) {
         if (audioDisabled) {
             return;
@@ -1128,6 +1165,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         for (int i = 0; i < channels.length; i++) {
             AudioSource src = channelSources[i];
 
+            // Only process streaming sources associated with this channel
             if (src == null || !(src.getAudioData() instanceof AudioStream)) {
                 continue;
             }
@@ -1135,23 +1173,27 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             int sourceId = channels[i];
             AudioStream stream = (AudioStream) src.getAudioData();
 
-            Status oalStatus = convertStatus(al.alGetSourcei(sourceId, AL_SOURCE_STATE));
+            // Get current AL state, primarily to check if we need to restart playback
+            int oalState = al.alGetSourcei(sourceId, AL_SOURCE_STATE);
+            Status oalStatus = convertStatus(oalState);
             Status jmeStatus = src.getStatus();
 
             // Keep filling data (even if we are stopped / paused)
             boolean buffersWereFilled = fillStreamingSource(sourceId, stream, src.isLooping());
 
+            // Check if the source stopped due to buffer starvation while it was supposed to be playing
             if (buffersWereFilled
                     && oalStatus == Status.Stopped
                     && jmeStatus == Status.Playing) {
                 // The source got stopped due to buffer starvation.
                 // Start it again.
-                logger.log(Level.WARNING, "Buffer starvation occurred while playing stream");
+                logger.log(Level.WARNING, "Buffer starvation detected for stream on channel {0}. Restarting playback.", i);
                 al.alSourcePlay(sourceId);
+                checkAlError("restarting starved source " + sourceId);
             }
         }
 
-        // Delete any unused objects.
+        // Delete any unused objects (buffers, filters) that are no longer referenced.
         objManager.deleteUnused(this);
     }
 
@@ -1323,7 +1365,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     /**
      * Gets the corresponding OpenAL format enum for the audio data properties.
      * @param audioData The AudioData.
-     * @return The OpenAL format enum (e.g., AL_FORMAT_STEREO16).
+     * @return The OpenAL format enum.
      * @throws UnsupportedOperationException if the format is not supported.
      */
     private int getOpenALFormat(AudioData audioData) {
@@ -1429,7 +1471,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     ib.position(0).limit(1);
                     al.alDeleteBuffers(1, ib);
                     checkAlError("deleting buffer " + id);
-                    ab.resetObject();
+                    ab.resetObject(); // Mark as deleted on JME side
                 }
             } else if (audioData instanceof AudioStream) {
                 AudioStream as = (AudioStream) audioData;
@@ -1439,7 +1481,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     ib.put(ids).flip();
                     al.alDeleteBuffers(ids.length, ib);
                     checkAlError("deleting " + ids.length + " buffers");
-                    as.resetObject();
+                    as.resetObject(); // Mark as deleted on JME side
                 }
             }
         }
