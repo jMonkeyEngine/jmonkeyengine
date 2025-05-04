@@ -122,13 +122,13 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         final String deviceName = alc.alcGetString(ALC.ALC_DEVICE_SPECIFIER);
 
         logger.log(Level.INFO, "Audio Renderer Information\n"
-                + " * Device: {0}\n"
-                + " * Vendor: {1}\n"
-                + " * Renderer: {2}\n"
-                + " * Version: {3}\n"
-                + " * Supported channels: {4}\n"
-                + " * ALC extensions: {5}\n"
-                + " * AL extensions: {6}",
+                        + " * Device: {0}\n"
+                        + " * Vendor: {1}\n"
+                        + " * Renderer: {2}\n"
+                        + " * Version: {3}\n"
+                        + " * Supported channels: {4}\n"
+                        + " * ALC extensions: {5}\n"
+                        + " * AL extensions: {6}",
                 new Object[] {
                         deviceName,
                         al.alGetString(AL_VENDOR),
@@ -255,7 +255,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
     @Override
     public void run() {
-        long updateRateNanos = (long) (UPDATE_RATE * 1000000000);
+        long updateRateNanos = (long) (UPDATE_RATE * 1_000_000_000);
         mainloop:
         while (true) {
             long startTime = System.nanoTime();
@@ -962,8 +962,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     // jME3 state does not match OAL state.
                     // This is only relevant for bound sources.
                     throw new AssertionError("Unexpected sound status. "
-                                            + "OAL: " + oalStatus
-                                            + ", JME: " + jmeStatus);
+                            + "OAL: " + oalStatus + ", JME: " + jmeStatus);
                 }
             } else {
                 // Stopped channel was not cleared correctly.
@@ -995,7 +994,9 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             // Keep filling data (even if we are stopped / paused)
             boolean buffersWereFilled = fillStreamingSource(sourceId, stream, src.isLooping());
 
-            if (buffersWereFilled && oalStatus == Status.Stopped && jmeStatus == Status.Playing) {
+            if (buffersWereFilled 
+                    && oalStatus == Status.Stopped 
+                    && jmeStatus == Status.Playing) {
                 // The source got stopped due to buffer starvation.
                 // Start it again.
                 logger.log(Level.WARNING, "Buffer starvation occurred while playing stream");
