@@ -44,6 +44,9 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * ALAudioRenderer is the backend implementation for OpenAL audio rendering.
+ */
 public class ALAudioRenderer implements AudioRenderer, Runnable {
 
     private static final Logger logger = Logger.getLogger(ALAudioRenderer.class.getName());
@@ -66,11 +69,12 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     // Channel management
     private int[] channels; // OpenAL source IDs
     private AudioSource[] channelSources; // jME source associated with each channel
-    private int nextChan = 0; // Next available channel index
+    private int nextChannelIndex = 0; // Next available channel index
     private final ArrayList<Integer> freeChannels = new ArrayList<>(); // Pool of freed channels
 
     // Listener and environment
     private Listener listener;
+    private Environment environment;
     private int reverbFx = -1; // EFX reverb effect ID
     private int reverbFxSlot = -1; // EFX effect slot ID
 
@@ -110,7 +114,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 alc.createALC();
             }
         } catch (UnsatisfiedLinkError ex) {
-            logger.log(Level.SEVERE, "Failed to load audio library", ex);
+            logger.log(Level.SEVERE, "Failed to load audio library (OpenAL). Audio will be disabled.", ex);
             audioDisabled = true;
             return;
         }
@@ -156,6 +160,9 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 });
     }
 
+    /**
+     * Generates OpenAL sources to determine the maximum number supported.
+     */
     private void enumerateAvailableChannels() {
         // Find maximum # of sources supported by this implementation
         ArrayList<Integer> channelList = new ArrayList<>();
@@ -177,39 +184,52 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         channelSources = new AudioSource[channels.length];
     }
 
+    /**
+     * Initializes the EFX extension if supported.
+     */
     private void initEfx() {
         supportEfx = alc.alcIsExtensionPresent("ALC_EXT_EFX");
         if (supportEfx) {
-            ib.position(0).limit(1);
+            ib.clear().limit(1);
             alc.alcGetInteger(EFX.ALC_EFX_MAJOR_VERSION, ib, 1);
             int major = ib.get(0);
-            ib.position(0).limit(1);
+
+            ib.clear().limit(1);
             alc.alcGetInteger(EFX.ALC_EFX_MINOR_VERSION, ib, 1);
             int minor = ib.get(0);
             logger.log(Level.INFO, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
 
+            ib.clear().limit(1);
             alc.alcGetInteger(EFX.ALC_MAX_AUXILIARY_SENDS, ib, 1);
             auxSends = ib.get(0);
             logger.log(Level.INFO, "Audio max auxiliary sends: {0}", auxSends);
 
-            // create slot
-            ib.position(0).limit(1);
+            // Create reverb effect slot
+            ib.clear().limit(1);
             efx.alGenAuxiliaryEffectSlots(1, ib);
             reverbFxSlot = ib.get(0);
 
-            // create effect
-            ib.position(0).limit(1);
+            // Create reverb effect
+            ib.clear().limit(1);
             efx.alGenEffects(1, ib);
             reverbFx = ib.get(0);
+
+            // Configure effect type
             efx.alEffecti(reverbFx, EFX.AL_EFFECT_TYPE, EFX.AL_EFFECT_REVERB);
+            checkAlError("setting reverb effect type");
 
             // attach reverb effect to effect slot
             efx.alAuxiliaryEffectSloti(reverbFxSlot, EFX.AL_EFFECTSLOT_EFFECT, reverbFx);
+            checkAlError("attaching reverb effect to slot");
+
         } else {
             logger.log(Level.WARNING, "OpenAL EFX not available! Audio effects won't work.");
         }
     }
 
+    /**
+     * Destroys the OpenAL context, deleting sources, buffers, filters, and effects.
+     */
     private void destroyOpenAL() {
         if (audioDisabled) {
             alc.destroyALC();
@@ -228,20 +248,28 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         ib.put(channels);
         ib.flip();
         al.alDeleteSources(channels.length, ib);
+        checkAlError("deleting sources");
 
-        // delete audio buffers and filters
+        // Delete audio buffers and filters managed by NativeObjectManager
         objManager.deleteAllObjects(this);
 
+        // Delete EFX objects if they were created
         if (supportEfx) {
-            ib.position(0).limit(1);
-            ib.put(0, reverbFx);
-            efx.alDeleteEffects(1, ib);
+            if (reverbFx != -1) {
+                ib.position(0).limit(1);
+                ib.put(0, reverbFx);
+                efx.alDeleteEffects(1, ib);
+                checkAlError("deleting reverbFx effect " + reverbFx);
+                reverbFx = -1;
+            }
 
-            // If this is not allocated, why is it deleted?
-            // Commented out to fix native crash in OpenAL.
-            ib.position(0).limit(1);
-            ib.put(0, reverbFxSlot);
-            efx.alDeleteAuxiliaryEffectSlots(1, ib);
+            if (reverbFxSlot != -1) {
+                ib.position(0).limit(1);
+                ib.put(0, reverbFxSlot);
+                efx.alDeleteAuxiliaryEffectSlots(1, ib);
+                checkAlError("deleting effect reverbFxSlot " + reverbFxSlot);
+                reverbFxSlot = -1;
+            }
         }
 
         alc.destroyALC();
@@ -263,12 +291,19 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         decoderThread.start();
     }
 
+    /**
+     * Checks if the audio thread has terminated unexpectedly.
+     * @throws IllegalStateException if the decoding thread is terminated.
+     */
     private void checkDead() {
         if (decoderThread.getState() == Thread.State.TERMINATED) {
             throw new IllegalStateException("Decoding thread is terminated");
         }
     }
 
+    /**
+     * Main loop for the audio decoder thread. Updates streaming sources.
+     */
     @Override
     public void run() {
         long updateRateNanos = (long) (UPDATE_RATE * 1_000_000_000);
@@ -305,27 +340,38 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         logger.info("Audio decoder thread finished.");
     }
 
+    /**
+     * Shuts down the audio decoder thread and destroys the OpenAL context.
+     */
     @Override
     public void cleanup() {
         // kill audio thread
-        if (!decoderThread.isAlive()) {
-            return;
+        if (decoderThread.isAlive()) {
+            decoderThread.interrupt();
+            try {
+                decoderThread.join();
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt(); // Re-interrupt thread
+                logger.log(Level.WARNING, "Interrupted while waiting for audio thread to finish.", ex);
+            }
         }
 
-        decoderThread.interrupt();
-        try {
-            decoderThread.join();
-        } catch (InterruptedException ex) {
+        // Destroy OpenAL context (only if initialized and not disabled)
+        if (!audioDisabled && alc.isCreated()) {
+            destroyOpenAL();
         }
-
-        // destroy OpenAL context
-        destroyOpenAL();
     }
 
+    /**
+     * Updates an OpenAL filter object based on the jME Filter properties.
+     * Generates the AL filter ID if necessary.
+     * @param f The Filter object.
+     */
     private void updateFilter(Filter f) {
         int id = f.getId();
         if (id == -1) {
-            ib.position(0).limit(1);
+            // Generate OpenAL filter ID
+            ib.clear().limit(1);
             efx.alGenFilters(1, ib);
             id = ib.get(0);
             f.setId(id);
@@ -334,16 +380,22 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
 
         if (f instanceof LowPassFilter) {
-            LowPassFilter lpf = (LowPassFilter) f;
+            LowPassFilter lowPass = (LowPassFilter) f;
             efx.alFilteri(id, EFX.AL_FILTER_TYPE, EFX.AL_FILTER_LOWPASS);
-            efx.alFilterf(id, EFX.AL_LOWPASS_GAIN, lpf.getVolume());
-            efx.alFilterf(id, EFX.AL_LOWPASS_GAINHF, lpf.getHighFreqVolume());
-        } else {
-            throw new UnsupportedOperationException("Filter type unsupported: "
-                    + f.getClass().getName());
+            efx.alFilterf(id, EFX.AL_LOWPASS_GAIN, lowPass.getVolume());
+            efx.alFilterf(id, EFX.AL_LOWPASS_GAINHF, lowPass.getHighFreqVolume());
+        }
+        // ** Add other filter types (HighPass, BandPass) here if implemented **
+        else {
+            logger.log(Level.WARNING, "Unsupported filter type: {0}", f.getClass().getName());
         }
 
-        f.clearUpdateNeeded();
+        if (checkAlError("updating filter " + id)) {
+            deleteFilter(f); // Try to clean up
+            f.resetObject();
+        } else {
+            f.clearUpdateNeeded(); // Mark as updated in AL
+        }
     }
 
     @Override
@@ -621,9 +673,21 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    /**
+     * Updates a specific parameter for the listener.
+     *
+     * @param listener The listener object.
+     * @param param    The parameter to update.
+     */
     @Override
     public void updateListenerParam(Listener listener, ListenerParam param) {
         checkDead();
+        // Check if this listener is the active one
+        if (this.listener != listener) {
+            logger.warning("updateListenerParam called on inactive listener.");
+            return;
+        }
+
         synchronized (threadLock) {
             if (audioDisabled) {
                 return;
@@ -631,61 +695,79 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             switch (param) {
                 case Position:
-                    Vector3f pos = listener.getLocation();
-                    al.alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
+                    applyListenerPosition(listener);
                     break;
-
                 case Rotation:
-                    Vector3f dir = listener.getDirection();
-                    Vector3f up = listener.getUp();
-                    fb.rewind();
-                    fb.put(dir.x).put(dir.y).put(dir.z);
-                    fb.put(up.x).put(up.y).put(up.z);
-                    fb.flip();
-                    al.alListener(AL_ORIENTATION, fb);
+                    applyListenerRotation(listener);
                     break;
-
                 case Velocity:
-                    Vector3f vel = listener.getVelocity();
-                    al.alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z);
+                    applyListenerVelocity(listener);
                     break;
-
                 case Volume:
-                    al.alListenerf(AL_GAIN, listener.getVolume());
+                    applyListenerVolume(listener);
+                    break;
+                default:
+                    logger.log(Level.WARNING, "Unhandled listener parameter: {0}", param);
                     break;
             }
         }
     }
 
+    /**
+     * Applies all parameters from the listener object to OpenAL.
+     * @param listener The listener object.
+     */
     private void setListenerParams(Listener listener) {
+        applyListenerPosition(listener);
+        applyListenerRotation(listener);
+        applyListenerVelocity(listener);
+        applyListenerVolume(listener);
+    }
+
+    // --- Listener Parameter Helper Methods ---
+
+    private void applyListenerPosition(Listener listener) {
         Vector3f pos = listener.getLocation();
-        Vector3f vel = listener.getVelocity();
+        al.alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
+        checkAlError("setting listener position");
+    }
+
+    private void applyListenerRotation(Listener listener) {
         Vector3f dir = listener.getDirection();
         Vector3f up = listener.getUp();
-
-        al.alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
-        al.alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z);
+        // Use the shared FloatBuffer fb
         fb.rewind();
         fb.put(dir.x).put(dir.y).put(dir.z);
         fb.put(up.x).put(up.y).put(up.z);
         fb.flip();
         al.alListener(AL_ORIENTATION, fb);
+        checkAlError("setting listener orientation");
+    }
+
+    private void applyListenerVelocity(Listener listener) {
+        Vector3f vel = listener.getVelocity();
+        al.alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z);
+        checkAlError("setting listener velocity");
+    }
+
+    private void applyListenerVolume(Listener listener) {
         al.alListenerf(AL_GAIN, listener.getVolume());
+        checkAlError("setting listener volume");
     }
 
     private int newChannel() {
         if (!freeChannels.isEmpty()) {
             return freeChannels.remove(0);
-        } else if (nextChan < channels.length) {
-            return nextChan++;
+        } else if (nextChannelIndex < channels.length) {
+            return nextChannelIndex++;
         } else {
             return -1;
         }
     }
 
     private void freeChannel(int index) {
-        if (index == nextChan - 1) {
-            nextChan--;
+        if (index == nextChannelIndex - 1) {
+            nextChannelIndex--;
         } else {
             freeChannels.add(index);
         }
@@ -703,6 +785,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
+            // Apply reverb properties from the Environment object
             efx.alEffectf(reverbFx, EFX.AL_REVERB_DENSITY, env.getDensity());
             efx.alEffectf(reverbFx, EFX.AL_REVERB_DIFFUSION, env.getDiffusion());
             efx.alEffectf(reverbFx, EFX.AL_REVERB_GAIN, env.getGain());
@@ -723,6 +806,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             // (Re)attach the configured reverb effect to the slot
             efx.alAuxiliaryEffectSloti(reverbFxSlot, EFX.AL_EFFECTSLOT_EFFECT, reverbFx);
             checkAlError("attaching reverb effect to slot");
+
+            this.environment = env;
         }
     }
 
@@ -859,17 +944,23 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             int sourceId = channels[index];
             al.alSourceStop(sourceId);
+            checkAlError("stopping source " + sourceId + " on clearChannel");
 
             // For streaming sources, this will clear all queued buffers.
             al.alSourcei(sourceId, AL_BUFFER, 0);
+            checkAlError("detaching buffer from source " + sourceId);
 
-            if (src.getDryFilter() != null && supportEfx) {
-                // detach filter
-                al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, EFX.AL_FILTER_NULL);
-            }
-            if (src.isPositional()) {
-                if (src.isReverbEnabled() && supportEfx) {
+            if (supportEfx) {
+                if (src.getDryFilter() != null) {
+                    // detach direct filter
+                    al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, EFX.AL_FILTER_NULL);
+                    checkAlError("detaching direct filter from source " + sourceId);
+                }
+
+                if (src.isPositional() && src.isReverbEnabled()) {
+                    // Detach auxiliary send filter (reverb)
                     al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
+                    checkAlError("detaching aux filter from source " + sourceId);
                 }
             }
 
@@ -916,8 +1007,35 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     }
 
     private void restartAudioRenderer() {
+        // Preserve internal state variables
+        Listener currentListener = this.listener;
+        Environment currentEnvironment = this.environment;
+
+        // Destroy existing OpenAL resources
         destroyOpenAL();
+
+        // Re-initialize OpenAL
+        // Creates new context, enumerates channels, checks caps, inits EFX
         initOpenAL();
+
+        // Restore Listener and Environment (if possible and successful init)
+        if (!audioDisabled) {
+            if (currentListener != null) {
+                setListener(currentListener); // Re-apply listener params
+            }
+            if (currentEnvironment != null) {
+                setEnvironment(currentEnvironment); // Re-apply environment
+            }
+            // TODO: What about existing AudioSource objects?
+            // Their state (Playing/Paused/Stopped) is lost.
+            // Their AudioData (buffers/streams) needs re-uploading/re-preparing.
+            // This requires iterating through all known AudioNodes, which the renderer doesn't track.
+            // The application layer would need to handle re-playing sounds after a device reset.
+            logger.warning("Audio renderer restarted. Application may need to re-play active sounds.");
+
+        } else {
+            logger.severe("Audio remained disabled after attempting restart.");
+        }
     }
 
     public void updateInRenderThread(float tpf) {
@@ -1051,8 +1169,13 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
 
             this.listener = listener;
-            this.listener.setRenderer(this);
-            setListenerParams(listener);
+
+            if (this.listener != null) {
+                this.listener.setRenderer(this);
+                setListenerParams(listener);
+            } else {
+                logger.info("Listener set to null.");
+            }
         }
     }
 
@@ -1263,14 +1386,18 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         as.clearUpdateNeeded();
     }
 
-    private void updateAudioData(AudioData ad) {
-        if (ad instanceof AudioBuffer) {
-            updateAudioBuffer((AudioBuffer) ad);
-        } else if (ad instanceof AudioStream) {
-            updateAudioStream((AudioStream) ad);
+    private void updateAudioData(AudioData audioData) {
+        if (audioData instanceof AudioBuffer) {
+            updateAudioBuffer((AudioBuffer) audioData);
+        } else if (audioData instanceof AudioStream) {
+            updateAudioStream((AudioStream) audioData);
         }
     }
 
+    /**
+     * Deletes the OpenAL filter object associated with the Filter.
+     * @param filter The Filter object.
+     */
     @Override
     public void deleteFilter(Filter filter) {
         int id = filter.getId();
@@ -1278,33 +1405,40 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             ib.position(0).limit(1);
             ib.put(id).flip();
             efx.alDeleteFilters(1, ib);
+            checkAlError("deleting filter " + id);
             filter.resetObject();
         }
     }
 
+    /**
+     * Deletes the OpenAL objects associated with the AudioData.
+     * @param audioData The AudioData to delete.
+     */
     @Override
-    public void deleteAudioData(AudioData ad) {
+    public void deleteAudioData(AudioData audioData) {
         synchronized (threadLock) {
             if (audioDisabled) {
                 return;
             }
 
-            if (ad instanceof AudioBuffer) {
-                AudioBuffer ab = (AudioBuffer) ad;
+            if (audioData instanceof AudioBuffer) {
+                AudioBuffer ab = (AudioBuffer) audioData;
                 int id = ab.getId();
                 if (id != -1) {
                     ib.put(0, id);
                     ib.position(0).limit(1);
                     al.alDeleteBuffers(1, ib);
+                    checkAlError("deleting buffer " + id);
                     ab.resetObject();
                 }
-            } else if (ad instanceof AudioStream) {
-                AudioStream as = (AudioStream) ad;
+            } else if (audioData instanceof AudioStream) {
+                AudioStream as = (AudioStream) audioData;
                 int[] ids = as.getIds();
                 if (ids != null) {
                     ib.clear();
                     ib.put(ids).flip();
                     al.alDeleteBuffers(ids.length, ib);
+                    checkAlError("deleting " + ids.length + " buffers");
                     as.resetObject();
                 }
             }
