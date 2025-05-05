@@ -35,16 +35,14 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.Environment;
-import com.jme3.audio.LowPassFilter;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.shape.Box;
+import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.system.AppSettings;
 
 public class TestReverb extends SimpleApplication {
 
@@ -59,7 +57,8 @@ public class TestReverb extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        flyCam.setMoveSpeed(25f);
+
+        flyCam.setMoveSpeed(50f);
         flyCam.setDragToRotate(true);
 
         cam.setLocation(Vector3f.UNIT_XYZ.mult(50f));
@@ -68,16 +67,14 @@ public class TestReverb extends SimpleApplication {
         audioRenderer.setEnvironment(Environment.Cavern);
 
         audio = new AudioNode(assetManager, "Sound/Effects/Bang.wav", AudioData.DataType.Buffer);
-        audio.setPositional(true);
-        audio.setReverbEnabled(true);
-        audio.setReverbFilter(new LowPassFilter(1, 1));
         rootNode.attachChild(audio);
 
         Geometry marker = makeShape("Marker", new Sphere(16, 16, .5f), ColorRGBA.Red);
         audio.attachChild(marker);
 
-        Geometry floor = makeShape("Floor", new Box(20f, .05f, 20f), ColorRGBA.Blue);
-        rootNode.attachChild(floor);
+        Geometry grid = makeShape("DebugGrid", new Grid(21, 21, 4), ColorRGBA.Blue);
+        grid.center().move(0, 0, 0);
+        rootNode.attachChild(grid);
     }
 
     private Geometry makeShape(String name, Mesh mesh, ColorRGBA color) {
@@ -111,4 +108,5 @@ public class TestReverb extends SimpleApplication {
         vec.subtractLocal(20, 1, 20);
         return vec;
     }
+
 }
