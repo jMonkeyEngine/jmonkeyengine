@@ -56,7 +56,6 @@ import com.jme3.post.filters.LightScatteringFilter;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.system.AppSettings;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
@@ -287,7 +286,7 @@ public class TestPostWater extends SimpleApplication {
     private float waterHeight = 0.0f;
     private final float initialWaterHeight = 90f;
     private boolean underWater = false;
-    
+
     private AudioNode waves;
     private final LowPassFilter aboveWaterAudioFilter = new LowPassFilter(1, 1);
     private final LowPassFilter underWaterAudioFilter = new LowPassFilter(0.5f, 0.1f);
