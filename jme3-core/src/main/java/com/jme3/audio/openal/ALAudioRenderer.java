@@ -83,7 +83,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private boolean supportEfx = false;
     private boolean supportPauseDevice = false;
     private boolean supportDisconnect = false;
-    private int auxSends = 0;
 
     // Update thread
     private static final float UPDATE_RATE = 0.05f; // Update streaming sources every 50ms
@@ -108,6 +107,9 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         this.efx = efx;
     }
 
+    /**
+     * Initializes the OpenAL and ALC context.
+     */
     private void initOpenAL() {
         try {
             if (!alc.isCreated()) {
@@ -123,17 +125,15 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
         printAudioRendererInfo();
 
-        // Pause device is a feature used specifically on Android
-        // where the application could be closed but still running,
-        // thus the audio context remains open but no audio should be playing.
+        // Check for specific ALC extensions
         supportPauseDevice = alc.alcIsExtensionPresent("ALC_SOFT_pause_device");
         if (!supportPauseDevice) {
-            logger.log(Level.WARNING, "Pausing audio device not supported.");
+            logger.log(Level.WARNING, "Pausing audio device not supported (ALC_SOFT_pause_device).");
         }
-
-        // Disconnected audio devices (such as USB sound cards, headphones...)
-        // never reconnect, the whole context must be re-created
         supportDisconnect = alc.alcIsExtensionPresent("ALC_EXT_disconnect");
+        if (!supportDisconnect) {
+            logger.log(Level.INFO, "Device disconnect detection not supported (ALC_EXT_disconnect).");
+        }
 
         initEfx();
     }
@@ -167,11 +167,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         // Find maximum # of sources supported by this implementation
         ArrayList<Integer> channelList = new ArrayList<>();
         for (int i = 0; i < MAX_NUM_CHANNELS; i++) {
-            int chan = al.alGenSources();
+            int sourceId = al.alGenSources();
             if (al.alGetError() != 0) {
                 break;
             } else {
-                channelList.add(chan);
+                channelList.add(sourceId);
             }
         }
 
@@ -201,8 +201,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             ib.clear().limit(1);
             alc.alcGetInteger(EFX.ALC_MAX_AUXILIARY_SENDS, ib, 1);
-            auxSends = ib.get(0);
-            logger.log(Level.INFO, "Audio max auxiliary sends: {0}", auxSends);
+            int maxAuxSends = ib.get(0);
+            logger.log(Level.INFO, "Audio max auxiliary sends: {0}", maxAuxSends);
 
             // 1. Create reverb effect slot
             ib.clear().limit(1);
@@ -232,11 +232,10 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
      */
     private void destroyOpenAL() {
         if (audioDisabled) {
-            alc.destroyALC();
-            return;
+            return; // Nothing to destroy if context wasn't created
         }
 
-        // stop any playing channels
+        // Stops channels and detaches buffers/filters
         for (int i = 0; i < channelSources.length; i++) {
             if (channelSources[i] != null) {
                 clearChannel(i);
@@ -256,7 +255,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         // Delete EFX objects if they were created
         if (supportEfx) {
             if (reverbFx != -1) {
-                ib.position(0).limit(1);
+                ib.clear().limit(1);
                 ib.put(0, reverbFx);
                 efx.alDeleteEffects(1, ib);
                 checkAlError("deleting reverbFx effect " + reverbFx);
@@ -264,7 +263,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
 
             if (reverbFxSlot != -1) {
-                ib.position(0).limit(1);
+                ib.clear().limit(1);
                 ib.put(0, reverbFxSlot);
                 efx.alDeleteAuxiliaryEffectSlots(1, ib);
                 checkAlError("deleting effect reverbFxSlot " + reverbFxSlot);
@@ -272,9 +271,19 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
         }
 
+        channels = null; // Force re-enumeration
+        channelSources = null;
+        freeChannels.clear();
+        nextChannelIndex = 0;
+
         alc.destroyALC();
+        logger.info("OpenAL context destroyed.");
     }
 
+    /**
+     * Initializes the OpenAL context, enumerates channels, checks capabilities,
+     * and starts the audio decoder thread.
+     */
     @Override
     public void initialize() {
         if (decoderThread.isAlive()) {
@@ -283,6 +292,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
         // Initialize OpenAL context.
         initOpenAL();
+
+        if (audioDisabled) {
+            logger.warning("Audio Disabled. Cannot start decoder thread.");
+            return;
+        }
 
         // Initialize decoder thread.
         // Set high priority to avoid buffer starvation.
@@ -356,10 +370,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
         }
 
-        // Destroy OpenAL context (only if initialized and not disabled)
-        if (!audioDisabled && alc.isCreated()) {
-            destroyOpenAL();
-        }
+        // Destroy OpenAL context
+        destroyOpenAL();
     }
 
     /**
@@ -384,20 +396,25 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             efx.alFilteri(id, EFX.AL_FILTER_TYPE, EFX.AL_FILTER_LOWPASS);
             efx.alFilterf(id, EFX.AL_LOWPASS_GAIN, lowPass.getVolume());
             efx.alFilterf(id, EFX.AL_LOWPASS_GAINHF, lowPass.getHighFreqVolume());
+
+            if (checkAlError("updating filter " + id)) {
+                deleteFilter(f); // Try to clean up
+            } else {
+                f.clearUpdateNeeded(); // Mark as updated in AL
+            }
         }
         // ** Add other filter types (HighPass, BandPass) here if implemented **
         else {
-            logger.log(Level.WARNING, "Unsupported filter type: {0}", f.getClass().getName());
-        }
-
-        if (checkAlError("updating filter " + id)) {
-            deleteFilter(f); // Try to clean up
-            f.resetObject();
-        } else {
-            f.clearUpdateNeeded(); // Mark as updated in AL
+            throw new UnsupportedOperationException("Unsupported filter type: " + f.getClass().getName());
         }
     }
 
+    /**
+     * Gets the current playback time (in seconds) for a source.
+     * For streams, includes the time represented by already processed buffers.
+     * @param src The audio source.
+     * @return The playback time in seconds, or 0 if not playing or invalid.
+     */
     @Override
     public float getSourcePlaybackTime(AudioSource src) {
         checkDead();
@@ -406,31 +423,30 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 return 0;
             }
 
-            // See comment in updateSourceParam().
             if (src.getChannel() < 0) {
-                return 0;
+                return 0; // Not playing or invalid state
             }
 
             int sourceId = channels[src.getChannel()];
             AudioData data = src.getAudioData();
+            if (data == null) {
+                return 0; // No audio data
+            }
             int playbackOffsetBytes = 0;
 
+            // For streams, add the bytes from buffers that have already been fully processed and unqueued.
             if (data instanceof AudioStream) {
-                // Because audio streams are processed in buffer chunks,
-                // we have to compute the amount of time the stream was already
-                // been playing based on the number of buffers that were processed.
                 AudioStream stream = (AudioStream) data;
-
-                // NOTE: the assumption is that all enqueued buffers are the same size.
-                //       this is currently enforced by fillBuffer().
-
-                // The number of unenqueued bytes that the decoder thread
-                // keeps track of.
+                // This value is updated by the decoder thread when buffers are unqueued.
                 playbackOffsetBytes = stream.getUnqueuedBufferBytes();
             }
 
             // Add byte offset from source (for both streams and buffers)
-            playbackOffsetBytes += al.alGetSourcei(sourceId, AL_BYTE_OFFSET);
+            int byteOffset = al.alGetSourcei(sourceId, AL_BYTE_OFFSET);
+            if (checkAlError("getting source byte offset for " + sourceId)) {
+                return 0; // Error getting offset
+            }
+            playbackOffsetBytes += byteOffset;
 
             // Compute time value from bytes
             // E.g. for 44100 source with 2 channels and 16 bits per sample:
@@ -439,10 +455,20 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     * data.getChannels()
                     * data.getBitsPerSample() / 8);
 
+            if (bytesPerSecond <= 0) {
+                logger.warning("Invalid bytesPerSecond calculated for source. Cannot get playback time.");
+                return 0; // Avoid division by zero
+            }
+
             return (float) playbackOffsetBytes / bytesPerSecond;
         }
     }
 
+    /**
+     * Updates a specific parameter for an audio source on its assigned channel.
+     * @param src The audio source.
+     * @param param The parameter to update.
+     */
     @Override
     public void updateSourceParam(AudioSource src, AudioParam param) {
         checkDead();
@@ -451,156 +477,88 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
-            // There is a race condition in AudioSource that can
-            // cause this to be called for a node that has been
-            // detached from its channel.  For example, setVolume()
-            // called from the render thread may see that the AudioSource
-            // still has a channel value but the audio thread may
-            // clear that channel before setVolume() gets to call
-            // updateSourceParam() (because the audio stopped playing
-            // on its own right as the volume was set).  In this case,
-            // it should be safe to just ignore the update.
-            if (src.getChannel() < 0) {
+            int channel = src.getChannel();
+            // Parameter updates only make sense if the source is associated with a channel
+            // and hasn't been stopped (which would set channel to -1).
+            if (channel < 0) {
+                // This can happen due to race conditions if a source stops playing
+                // right as a parameter update is requested from another thread.
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Ignoring parameter update for source {0} as it's not validly associated with channel {1}.",
+                            new Object[]{src, channel});
+                }
                 return;
             }
 
-            assert src.getChannel() >= 0;
-
-            int sourceId = channels[src.getChannel()];
-            int filterId = EFX.AL_FILTER_NULL;
+            int sourceId = channels[channel];
 
             switch (param) {
                 case Position:
-                    if (!src.isPositional()) {
-                        return;
+                    if (src.isPositional()) {
+                        Vector3f pos = src.getPosition();
+                        al.alSource3f(sourceId, AL_POSITION, pos.x, pos.y, pos.z);
                     }
-                    Vector3f pos = src.getPosition();
-                    al.alSource3f(sourceId, AL_POSITION, pos.x, pos.y, pos.z);
                     break;
 
                 case Velocity:
-                    if (!src.isPositional()) {
-                        return;
+                    if (src.isPositional()) {
+                        Vector3f vel = src.getVelocity();
+                        al.alSource3f(sourceId, AL_VELOCITY, vel.x, vel.y, vel.z);
                     }
-                    Vector3f vel = src.getVelocity();
-                    al.alSource3f(sourceId, AL_VELOCITY, vel.x, vel.y, vel.z);
                     break;
 
                 case MaxDistance:
-                    if (!src.isPositional()) {
-                        return;
+                    if (src.isPositional()) {
+                        al.alSourcef(sourceId, AL_MAX_DISTANCE, src.getMaxDistance());
                     }
-                    al.alSourcef(sourceId, AL_MAX_DISTANCE, src.getMaxDistance());
                     break;
 
                 case RefDistance:
-                    if (!src.isPositional()) {
-                        return;
-                    }
-                    al.alSourcef(sourceId, AL_REFERENCE_DISTANCE, src.getRefDistance());
-                    break;
-
-                case ReverbFilter:
-                    if (!supportEfx || !src.isPositional() || !src.isReverbEnabled()) {
-                        return;
-                    }
-                    Filter reverbFilter = src.getReverbFilter();
-                    if (reverbFilter != null) {
-                        if (reverbFilter.isUpdateNeeded()) {
-                            updateFilter(reverbFilter);
-                        }
-                        filterId = reverbFilter.getId();
-                    }
-                    al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filterId);
-                    break;
-
-                case ReverbEnabled:
-                    if (!supportEfx || !src.isPositional()) {
-                        return;
-                    }
-                    if (src.isReverbEnabled()) {
-                        updateSourceParam(src, AudioParam.ReverbFilter);
-                    } else {
-                        al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
+                    if (src.isPositional()) {
+                        al.alSourcef(sourceId, AL_REFERENCE_DISTANCE, src.getRefDistance());
                     }
                     break;
 
                 case IsPositional:
-                    if (!src.isPositional()) {
-                        // Play in headspace
-                        al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_TRUE);
-                        al.alSource3f(sourceId, AL_POSITION, 0, 0, 0);
-                        al.alSource3f(sourceId, AL_VELOCITY, 0, 0, 0);
-
-                        // Disable reverb
-                        al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
-                    } else {
-                        al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_FALSE);
-                        updateSourceParam(src, AudioParam.Position);
-                        updateSourceParam(src, AudioParam.Velocity);
-                        updateSourceParam(src, AudioParam.MaxDistance);
-                        updateSourceParam(src, AudioParam.RefDistance);
-                        updateSourceParam(src, AudioParam.ReverbEnabled);
-                    }
+                    applySourcePositionalState(sourceId, src);
                     break;
 
                 case Direction:
-                    if (!src.isDirectional()) {
-                        return;
+                    if (src.isDirectional()) {
+                        Vector3f dir = src.getDirection();
+                        al.alSource3f(sourceId, AL_DIRECTION, dir.x, dir.y, dir.z);
                     }
-                    Vector3f dir = src.getDirection();
-                    al.alSource3f(sourceId, AL_DIRECTION, dir.x, dir.y, dir.z);
                     break;
 
                 case InnerAngle:
-                    if (!src.isDirectional()) {
-                        return;
+                    if (src.isDirectional()) {
+                        al.alSourcef(sourceId, AL_CONE_INNER_ANGLE, src.getInnerAngle());
                     }
-                    al.alSourcef(sourceId, AL_CONE_INNER_ANGLE, src.getInnerAngle());
                     break;
 
                 case OuterAngle:
-                    if (!src.isDirectional()) {
-                        return;
+                    if (src.isDirectional()) {
+                        al.alSourcef(sourceId, AL_CONE_OUTER_ANGLE, src.getOuterAngle());
                     }
-                    al.alSourcef(sourceId, AL_CONE_OUTER_ANGLE, src.getOuterAngle());
                     break;
 
                 case IsDirectional:
-                    if (src.isDirectional()) {
-                        updateSourceParam(src, AudioParam.Direction);
-                        updateSourceParam(src, AudioParam.InnerAngle);
-                        updateSourceParam(src, AudioParam.OuterAngle);
-                        al.alSourcef(sourceId, AL_CONE_OUTER_GAIN, 0);
-                    } else {
-                        al.alSourcef(sourceId, AL_CONE_INNER_ANGLE, 360);
-                        al.alSourcef(sourceId, AL_CONE_OUTER_ANGLE, 360);
-                        al.alSourcef(sourceId, AL_CONE_OUTER_GAIN, 1f);
-                    }
+                    applySourceDirectionalState(sourceId, src);
                     break;
 
                 case DryFilter:
-                    if (!supportEfx) {
-                        return;
+                    applySourceDryFilter(sourceId, src);
+                    break;
+
+                case ReverbEnabled:
+                case ReverbFilter:
+                    if (src.isPositional()) {
+                        applySourceReverbFilter(sourceId, src);
                     }
-                    Filter dryFilter = src.getDryFilter();
-                    if (dryFilter != null) {
-                        if (dryFilter.isUpdateNeeded()) {
-                            updateFilter(dryFilter);
-                        }
-                        filterId = dryFilter.getId();
-                    }
-                    // NOTE: must re-attach filter for changes to apply.
-                    al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, filterId);
                     break;
 
                 case Looping:
-                    if (src.getAudioData() instanceof AudioStream) {
-                        al.alSourcei(sourceId, AL_LOOPING, AL_FALSE);
-                    } else {
-                        // AudioData instanceof AudioBuffer
-                        al.alSourcei(sourceId, AL_LOOPING, src.isLooping() ? AL_TRUE : AL_FALSE);
-                    }
+                    applySourceLooping(sourceId, src, false);
                     break;
 
                 case Volume:
@@ -610,56 +568,107 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 case Pitch:
                     al.alSourcef(sourceId, AL_PITCH, src.getPitch());
                     break;
+
+                default:
+                    logger.log(Level.WARNING, "Unhandled source parameter update: {0}", param);
+                    break;
             }
         }
     }
 
+    /**
+     * Applies all parameters from the AudioSource to the specified OpenAL source ID.
+     * Used when initially playing a source or instance.
+     *
+     * @param sourceId     The OpenAL source ID.
+     * @param src          The jME AudioSource.
+     * @param forceNonLoop If true, looping will be disabled regardless of source setting (used for instances).
+     */
     private void setSourceParams(int sourceId, AudioSource src, boolean forceNonLoop) {
-        if (src.isPositional()) {
-            Vector3f pos = src.getPosition();
-            Vector3f vel = src.getVelocity();
-            al.alSource3f(sourceId, AL_POSITION, pos.x, pos.y, pos.z);
-            al.alSource3f(sourceId, AL_VELOCITY, vel.x, vel.y, vel.z);
-            al.alSourcef(sourceId, AL_MAX_DISTANCE, src.getMaxDistance());
-            al.alSourcef(sourceId, AL_REFERENCE_DISTANCE, src.getRefDistance());
-            al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_FALSE);
 
-            if (src.isReverbEnabled() && supportEfx) {
-                int filterId = EFX.AL_FILTER_NULL;
-                if (src.getReverbFilter() != null) {
-                    Filter f = src.getReverbFilter();
-                    if (f.isUpdateNeeded()) {
-                        updateFilter(f);
-                    }
-                    filterId = f.getId();
-                }
-                al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filterId);
-            }
-        } else {
-            // play in headspace
-            al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_TRUE);
-            al.alSource3f(sourceId, AL_POSITION, 0, 0, 0);
-            al.alSource3f(sourceId, AL_VELOCITY, 0, 0, 0);
-        }
+        al.alSourcef(sourceId, AL_GAIN, src.getVolume());
+        al.alSourcef(sourceId, AL_PITCH, src.getPitch());
+        al.alSourcef(sourceId, AL_SEC_OFFSET, src.getTimeOffset());
 
-        if (src.getDryFilter() != null && supportEfx) {
+        applySourceLooping(sourceId, src, forceNonLoop);
+        applySourcePositionalState(sourceId, src);
+        applySourceDirectionalState(sourceId, src);
+        applySourceDryFilter(sourceId, src);
+    }
+
+    // --- Source Parameter Helper Methods ---
+
+    private void applySourceDryFilter(int sourceId, AudioSource src) {
+        if (supportEfx && src.getDryFilter() != null) {
             Filter f = src.getDryFilter();
             if (f.isUpdateNeeded()) {
                 updateFilter(f);
                 // NOTE: must re-attach filter for changes to apply.
                 al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, f.getId());
+                checkAlError("setting source direct filter for " + sourceId);
             }
         }
+    }
 
-        if (forceNonLoop || src.getAudioData() instanceof AudioStream) {
-            al.alSourcei(sourceId, AL_LOOPING, AL_FALSE);
-        } else {
-            al.alSourcei(sourceId, AL_LOOPING, src.isLooping() ? AL_TRUE : AL_FALSE);
+    private void applySourceReverbFilter(int sourceId, AudioSource src) {
+        if (supportEfx && src.isReverbEnabled()) {
+            int filterId = EFX.AL_FILTER_NULL;
+            if (src.getReverbFilter() != null) {
+                Filter f = src.getReverbFilter();
+                if (f.isUpdateNeeded()) {
+                    updateFilter(f);
+                }
+                filterId = f.getId();
+            }
+            al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filterId);
+            checkAlError("setting source reverb send for " + sourceId);
         }
-        al.alSourcef(sourceId, AL_GAIN, src.getVolume());
-        al.alSourcef(sourceId, AL_PITCH, src.getPitch());
-        al.alSourcef(sourceId, AL_SEC_OFFSET, src.getTimeOffset());
+    }
 
+    private void applySourceLooping(int sourceId, AudioSource src, boolean forceNonLoop) {
+        boolean looping = !forceNonLoop && src.isLooping();
+        // Streams handle looping internally by rewinding, not via AL_LOOPING.
+        if (src.getAudioData() instanceof AudioStream) {
+            looping = false;
+        }
+        al.alSourcei(sourceId, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
+        checkAlError("setting source looping for " + sourceId);
+    }
+
+    /** Sets AL_SOURCE_RELATIVE and applies position/velocity/distance accordingly */
+    private void applySourcePositionalState(int sourceId, AudioSource src) {
+        if (src.isPositional()) {
+            // Play in world space: absolute position/velocity
+            Vector3f pos = src.getPosition();
+            Vector3f vel = src.getVelocity();
+            al.alSource3f(sourceId, AL_POSITION, pos.x, pos.y, pos.z);
+            al.alSource3f(sourceId, AL_VELOCITY, vel.x, vel.y, vel.z);
+            al.alSourcef(sourceId, AL_REFERENCE_DISTANCE, src.getRefDistance());
+            al.alSourcef(sourceId, AL_MAX_DISTANCE, src.getMaxDistance());
+            al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_FALSE);
+
+            applySourceReverbFilter(sourceId, src);
+
+        } else {
+            // Play in headspace: relative to listener, fixed position/velocity
+            al.alSource3f(sourceId, AL_POSITION, 0, 0, 0);
+            al.alSource3f(sourceId, AL_VELOCITY, 0, 0, 0);
+            al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_TRUE);
+
+            // Disable distance attenuation for non-positional sounds
+            al.alSourcef(sourceId, AL_REFERENCE_DISTANCE, 1e10f);
+            al.alSourcef(sourceId, AL_MAX_DISTANCE, 2e10f);
+
+            // Disable reverb send for non-positional sounds
+            if (supportEfx) {
+                al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
+            }
+        }
+        checkAlError("setting source positional state for " + sourceId);
+    }
+
+    /** Sets cone angles/gain based on whether the source is directional */
+    private void applySourceDirectionalState(int sourceId, AudioSource src) {
         if (src.isDirectional()) {
             Vector3f dir = src.getDirection();
             al.alSource3f(sourceId, AL_DIRECTION, dir.x, dir.y, dir.z);
@@ -667,10 +676,12 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             al.alSourcef(sourceId, AL_CONE_OUTER_ANGLE, src.getOuterAngle());
             al.alSourcef(sourceId, AL_CONE_OUTER_GAIN, 0);
         } else {
-            al.alSourcef(sourceId, AL_CONE_INNER_ANGLE, 360);
-            al.alSourcef(sourceId, AL_CONE_OUTER_ANGLE, 360);
+            // Omnidirectional: 360 degree cone, full gain
+            al.alSourcef(sourceId, AL_CONE_INNER_ANGLE, 360f);
+            al.alSourcef(sourceId, AL_CONE_OUTER_ANGLE, 360f);
             al.alSourcef(sourceId, AL_CONE_OUTER_GAIN, 1f);
         }
+        checkAlError("setting source directional state for " + sourceId);
     }
 
     /**
@@ -811,33 +822,58 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    private boolean fillBuffer(AudioStream stream, int id) {
-        int size = 0;
-        int result;
+    /**
+     * Fills a single OpenAL buffer with data from the audio stream.
+     * Uses the shared nativeBuf and arrayBuf.
+     *
+     * @param stream   The AudioStream to read from.
+     * @param bufferId The OpenAL buffer ID to fill.
+     * @return True if the buffer was filled with data, false if stream EOF was reached before filling.
+     */
+    private boolean fillBuffer(AudioStream stream, int bufferId) {
+        int totalBytesRead = 0;
+        int bytesRead;
 
-        while (size < arrayBuf.length) {
-            result = stream.readSamples(arrayBuf, size, arrayBuf.length - size);
+        while (totalBytesRead < arrayBuf.length) {
+            bytesRead = stream.readSamples(arrayBuf, totalBytesRead, arrayBuf.length - totalBytesRead);
 
-            if (result > 0) {
-                size += result;
+            if (bytesRead > 0) {
+                totalBytesRead += bytesRead;
             } else {
                 break;
             }
         }
 
-        if (size == 0) {
+        if (totalBytesRead == 0) {
             return false;
         }
 
+        // Copy data from arrayBuf to nativeBuf
         nativeBuf.clear();
-        nativeBuf.put(arrayBuf, 0, size);
+        nativeBuf.put(arrayBuf, 0, totalBytesRead);
         nativeBuf.flip();
 
-        al.alBufferData(id, getOpenALFormat(stream), nativeBuf, size, stream.getSampleRate());
+        // Upload data to the OpenAL buffer
+        int format = getOpenALFormat(stream);
+        int sampleRate = stream.getSampleRate();
+        al.alBufferData(bufferId, format, nativeBuf, totalBytesRead, sampleRate);
+
+        if (checkAlError("filling buffer " + bufferId + " for stream")) {
+            return false;
+        }
 
         return true;
     }
 
+    /**
+     * Unqueues processed buffers from a streaming source and refills/requeues them.
+     * Updates the stream's internal count of processed bytes.
+     *
+     * @param sourceId The OpenAL source ID.
+     * @param stream   The AudioStream.
+     * @param looping  Whether the stream should loop internally.
+     * @return True if at least one buffer was successfully refilled and requeued.
+     */
     private boolean fillStreamingSource(int sourceId, AudioStream stream, boolean looping) {
         boolean success = false;
         int processed = al.alGetSourcei(sourceId, AL_BUFFERS_PROCESSED);
@@ -855,22 +891,22 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             // be the case...
             unqueuedBufferBytes += BUFFER_SIZE;
 
-            boolean active = fillBuffer(stream, buffer);
-
-            if (!active && !stream.isEOF()) {
+            // Try to refill the buffer
+            boolean filled = fillBuffer(stream, buffer);
+            if (!filled && !stream.isEOF()) {
                 throw new AssertionError();
             }
 
-            if (!active && looping) {
+            if (!filled && looping) {
                 stream.setTime(0);
-                active = fillBuffer(stream, buffer);
-                if (!active) {
+                filled = fillBuffer(stream, buffer); // Try filling again
+                if (!filled) {
                     throw new IllegalStateException("Looping streaming source "
                             + "was rewound but could not be filled");
                 }
             }
 
-            if (active) {
+            if (filled) {
                 ib.position(0).limit(1);
                 ib.put(0, buffer);
                 al.alSourceQueueBuffers(sourceId, 1, ib);
@@ -882,6 +918,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
         }
 
+        // Update the stream's internal counter for processed bytes
         stream.setUnqueuedBufferBytes(stream.getUnqueuedBufferBytes() + unqueuedBufferBytes);
 
         return success;
@@ -897,19 +934,22 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
 
         for (int id : stream.getIds()) {
-            boolean active = fillBuffer(stream, id);
-            if (!active && !stream.isEOF()) {
+            // Try to refill the buffer
+            boolean filled = fillBuffer(stream, id);
+            if (!filled && !stream.isEOF()) {
                 throw new AssertionError();
             }
-            if (!active && looping) {
+
+            if (!filled && looping) {
                 stream.setTime(0);
-                active = fillBuffer(stream, id);
-                if (!active) {
+                filled = fillBuffer(stream, id);
+                if (!filled) {
                     throw new IllegalStateException("Looping streaming source "
                             + "was rewound but could not be filled");
                 }
             }
-            if (active) {
+            
+            if (filled) {
                 ib.position(0).limit(1);
                 ib.put(id).flip();
                 al.alSourceQueueBuffers(sourceId, 1, ib);
@@ -974,8 +1014,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    private AudioSource.Status convertStatus(int oalStatus) {
-        switch (oalStatus) {
+    private AudioSource.Status convertStatus(int openALState) {
+        switch (openALState) {
             case AL_INITIAL:
             case AL_STOPPED:
                 return Status.Stopped;
@@ -984,7 +1024,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             case AL_PLAYING:
                 return Status.Playing;
             default:
-                throw new UnsupportedOperationException("Unrecognized OpenAL state: " + oalStatus);
+                throw new UnsupportedOperationException("Unrecognized OpenAL state: " + openALState);
         }
     }
 
@@ -995,20 +1035,30 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    /**
+     * Checks the device connection status and attempts to restart the renderer if disconnected.
+     * Called periodically from the decoder thread.
+     */
     private void checkDevice() {
-        // If the device is disconnected, pick a new one
-        if (isDisconnected()) {
-            logger.log(Level.INFO, "Current audio device disconnected.");
+        if (isDeviceDisconnected()) {
+            logger.log(Level.WARNING, "Audio device disconnected! Attempting to restart audio renderer...");
             restartAudioRenderer();
         }
     }
 
-    private boolean isDisconnected() {
-        if (!supportDisconnect) {
+    /**
+     * Checks if the audio device has been disconnected.
+     * Requires ALC_EXT_disconnect extension.
+     * @return True if disconnected, false otherwise or if not supported.
+     */
+    private boolean isDeviceDisconnected() {
+        if (audioDisabled || !supportDisconnect) {
             return false;
         }
 
+        ib.clear().limit(1);
         alc.alcGetInteger(ALC.ALC_CONNECTED, ib, 1);
+        // Returns 1 if connected, 0 if disconnected.
         return ib.get(0) == 0;
     }
 
@@ -1067,19 +1117,19 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             boolean reclaimChannel = false;
 
             // Get OpenAL status for the source
-            int oalState = al.alGetSourcei(sourceId, AL_SOURCE_STATE);
-            Status oalStatus = convertStatus(oalState);
+            int openALState = al.alGetSourcei(sourceId, AL_SOURCE_STATE);
+            Status openALStatus = convertStatus(openALState);
 
             // --- Handle Instanced Playback (Not bound to a specific channel) ---
             if (!boundSource) {
-                if (oalStatus == Status.Stopped) {
+                if (openALStatus == Status.Stopped) {
                     // Instanced audio (non-looping buffer) finished playing. Reclaim channel.
                     if (logger.isLoggable(Level.FINE)) {
                         logger.log(Level.FINE, "Reclaiming channel {0} from finished instance.", i);
                     }
                     clearChannel(i); // Stop source, detach buffer/filter
                     freeChannel(i);  // Add channel back to the free pool
-                } else if (oalStatus == Status.Paused) {
+                } else if (openALStatus == Status.Paused) {
                     throw new AssertionError("Instanced audio source on channel " + i + " cannot be paused.");
                 }
 
@@ -1090,9 +1140,9 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             // --- Handle Bound Playback (Normal play/pause/stop) ---
             Status jmeStatus = src.getStatus();
 
-            // Check if we need to sync JME status with OAL status.
-            if (oalStatus != jmeStatus) {
-                if (oalStatus == Status.Stopped && jmeStatus == Status.Playing) {
+            // Check if we need to sync JME status with OpenAL status.
+            if (openALStatus != jmeStatus) {
+                if (openALStatus == Status.Stopped && jmeStatus == Status.Playing) {
 
                     // Source stopped playing unexpectedly (finished or starved)
                     if (src.getAudioData() instanceof AudioStream) {
@@ -1137,14 +1187,14 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                         freeChannel(i);  // Add channel back to the free pool
                     }
                 } else {
-                    // jME3 state does not match OAL state.
+                    // jME3 state does not match OpenAL state.
                     // This is only relevant for bound sources.
                     throw new AssertionError("Unexpected sound status. "
-                            + "OpenAL: " + oalStatus + ", JME: " + jmeStatus);
+                            + "OpenAL: " + openALStatus + ", JME: " + jmeStatus);
                 }
             } else {
                 // Stopped channel was not cleared correctly.
-                if (oalStatus == Status.Stopped) {
+                if (openALStatus == Status.Stopped) {
                     throw new AssertionError("Channel " + i + " was not reclaimed");
                 }
             }
@@ -1174,8 +1224,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             AudioStream stream = (AudioStream) src.getAudioData();
 
             // Get current AL state, primarily to check if we need to restart playback
-            int oalState = al.alGetSourcei(sourceId, AL_SOURCE_STATE);
-            Status oalStatus = convertStatus(oalState);
+            int openALState = al.alGetSourcei(sourceId, AL_SOURCE_STATE);
+            Status openALStatus = convertStatus(openALState);
             Status jmeStatus = src.getStatus();
 
             // Keep filling data (even if we are stopped / paused)
@@ -1183,7 +1233,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             // Check if the source stopped due to buffer starvation while it was supposed to be playing
             if (buffersWereFilled
-                    && oalStatus == Status.Stopped
+                    && openALStatus == Status.Stopped
                     && jmeStatus == Status.Playing) {
                 // The source got stopped due to buffer starvation.
                 // Start it again.
@@ -1221,24 +1271,45 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    /**
+     * Pauses all audio playback by pausing the OpenAL device context.
+     * Requires ALC_SOFT_pause_device extension.
+     * @throws UnsupportedOperationException if the extension is not supported.
+     */
     @Override
     public void pauseAll() {
         if (!supportPauseDevice) {
-            throw new UnsupportedOperationException("Pause device is NOT supported!");
+            throw new UnsupportedOperationException(
+                    "Pausing the audio device is not supported by the current OpenAL driver" +
+                            " (requires ALC_SOFT_pause_device).");
         }
 
         alc.alcDevicePauseSOFT();
+        logger.info("Audio device paused.");
     }
 
+    /**
+     * Resumes all audio playback by resuming the OpenAL device context.
+     * Requires ALC_SOFT_pause_device extension.
+     * @throws UnsupportedOperationException if the extension is not supported.
+     */
     @Override
     public void resumeAll() {
         if (!supportPauseDevice) {
-            throw new UnsupportedOperationException("Pause device is NOT supported!");
+            throw new UnsupportedOperationException(
+                    "Resuming the audio device is not supported by the current OpenAL driver" +
+                            " (requires ALC_SOFT_pause_device).");
         }
 
         alc.alcDeviceResumeSOFT();
+        logger.info("Audio device resumed.");
     }
 
+    /**
+     * Plays an audio source as a one-shot instance (non-looping buffer).
+     * A free channel is allocated temporarily.
+     * @param src The audio source to play.
+     */
     @Override
     public void playSourceInstance(AudioSource src) {
         checkDead();
@@ -1248,6 +1319,10 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
 
             AudioData audioData = src.getAudioData();
+            if (audioData == null) {
+                logger.warning("playSourceInstance called with null AudioData.");
+                return;
+            }
             if (audioData instanceof AudioStream) {
                 throw new UnsupportedOperationException(
                         "Cannot play instances of audio streams. Use play() instead.");
@@ -1257,25 +1332,33 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 updateAudioData(audioData);
             }
 
-            // create a new index for an audio-channel
+            // Allocate a temporary channel
             int index = newChannel();
             if (index == -1) {
+                logger.log(Level.WARNING, "No channel available to play instance of {0}", src);
                 return;
             }
 
+            // Ensure channel is clean before use
             int sourceId = channels[index];
             clearChannel(index);
 
-            // set parameters, like position and max distance
-            setSourceParams(sourceId, src, true); // forceNonLoop
-            attachAudioToSource(sourceId, audioData, false); // no looping
+            // Set parameters for this specific instance (force non-looping)
+            setSourceParams(sourceId, src, true);
+            attachAudioToSource(sourceId, audioData, false);
             channelSources[index] = src;
 
             // play the channel
             al.alSourcePlay(sourceId);
+            checkAlError("playing source instance " + sourceId);
         }
     }
 
+    /**
+     * Plays an audio source, allocating a persistent channel for it.
+     * Handles both buffers and streams. Can be paused and stopped.
+     * @param src The audio source to play.
+     */
     @Override
     public void playSource(AudioSource src) {
         checkDead();
@@ -1291,30 +1374,46 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 // something different from -1 when first playing an AudioNode.
                 // assert src.getChannel() != -1;
 
-                // allocate channel to this source
-                int index = newChannel();
-                if (index == -1) {
-                    logger.log(Level.WARNING, "No channel available to play {0}", src);
+                AudioData audioData = src.getAudioData();
+                if (audioData == null) {
+                    logger.log(Level.WARNING, "playSource called on source with null AudioData: {0}", src);
                     return;
                 }
-                clearChannel(index);
-                src.setChannel(index);
-
-                AudioData audioData = src.getAudioData();
                 if (audioData.isUpdateNeeded()) {
                     updateAudioData(audioData);
                 }
 
+                // Allocate a temporary channel
+                int index = newChannel();
+                if (index == -1) {
+                    logger.log(Level.WARNING, "No channel available to play instance of {0}", src);
+                    return;
+                }
+
+                // Ensure channel is clean before use
+                int sourceId = channels[index];
+                clearChannel(index);
+                src.setChannel(index);
+
+                // Set all source parameters and attach the audio data
+                setSourceParams(sourceId, src, false);
+                attachAudioToSource(sourceId, audioData, src.isLooping());
                 channelSources[index] = src;
-                setSourceParams(channels[index], src, false);
-                attachAudioToSource(channels[index], audioData, src.isLooping());
             }
 
-            al.alSourcePlay(channels[src.getChannel()]);
-            src.setStatus(Status.Playing);
+            // play the channel
+            int sourceId = channels[src.getChannel()];
+            al.alSourcePlay(sourceId);
+            if (!checkAlError("playing source " + sourceId)) {
+                src.setStatus(Status.Playing); // Update JME status on success
+            }
         }
     }
 
+    /**
+     * Pauses a playing audio source.
+     * @param src The audio source to pause.
+     */
     @Override
     public void pauseSource(AudioSource src) {
         checkDead();
@@ -1326,12 +1425,20 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             if (src.getStatus() == Status.Playing) {
                 assert src.getChannel() != -1;
 
-                al.alSourcePause(channels[src.getChannel()]);
-                src.setStatus(Status.Paused);
+                int sourceId = channels[src.getChannel()];
+                al.alSourcePause(sourceId);
+                if (!checkAlError("pausing source " + sourceId)) {
+                    src.setStatus(Status.Paused); // Update JME status on success
+                }
             }
         }
     }
 
+    /**
+     * Stops a playing or paused audio source, releasing its channel.
+     * For streams, resets or closes the stream.
+     * @param src The audio source to stop.
+     */
     @Override
     public void stopSource(AudioSource src) {
         synchronized (threadLock) {
@@ -1349,8 +1456,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 freeChannel(channel);
 
                 if (src.getAudioData() instanceof AudioStream) {
-                    // If the stream is seekable, then rewind it.
-                    // Otherwise, close it, as it is no longer valid.
+                    // If the stream is seekable, rewind it to the beginning.
+                    // Otherwise (non-seekable), close it, as it might be invalid now.
                     AudioStream stream = (AudioStream) src.getAudioData();
                     if (stream.isSeekable()) {
                         stream.setTime(0);
@@ -1386,44 +1493,63 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 return AL_FORMAT_STEREO16;
             }
         }
-        // Add support for AL_EXT_MCFORMATS if needed later
 
         // Format not supported
         throw new UnsupportedOperationException("Unsupported audio format: "
                 + channels + " channels, " + bitsPerSample + " bits per sample.");
     }
 
+    /**
+     * Uploads buffer data to OpenAL. Generates buffer ID if needed.
+     * @param ab The AudioBuffer.
+     */
     private void updateAudioBuffer(AudioBuffer ab) {
         int id = ab.getId();
         if (ab.getId() == -1) {
-            ib.position(0).limit(1);
+            ib.clear().limit(1);
             al.alGenBuffers(1, ib);
+            checkAlError("generating bufferId");
             id = ib.get(0);
             ab.setId(id);
 
+            // Register for automatic cleanup if unused
             objManager.registerObject(ab);
         }
 
-        ab.getData().clear();
-        al.alBufferData(id, getOpenALFormat(ab), ab.getData(), ab.getData().capacity(), ab.getSampleRate());
-        ab.clearUpdateNeeded();
+        ByteBuffer data = ab.getData();
+
+        data.clear(); // Ensure buffer is ready for reading
+        int format = getOpenALFormat(ab);
+        int sampleRate = ab.getSampleRate();
+
+        al.alBufferData(id, format, data, data.capacity(), sampleRate);
+        if (!checkAlError("uploading buffer data for ID " + id)) {
+            ab.clearUpdateNeeded();
+        }
     }
 
+    /**
+     * Prepares OpenAL buffers for an AudioStream. Generates buffer IDs.
+     * Does not fill buffers with data yet.
+     * @param as The AudioStream.
+     */
     private void updateAudioStream(AudioStream as) {
+        // Delete old buffers if they exist (e.g., re-initializing stream)
         if (as.getIds() != null) {
             deleteAudioData(as);
         }
 
         int[] ids = new int[STREAMING_BUFFER_COUNT];
-        ib.position(0).limit(STREAMING_BUFFER_COUNT);
+        ib.clear().limit(STREAMING_BUFFER_COUNT);
+
         al.alGenBuffers(STREAMING_BUFFER_COUNT, ib);
-        ib.position(0).limit(STREAMING_BUFFER_COUNT);
+        checkAlError("generating stream buffers ids");
+
+        ib.rewind();
         ib.get(ids);
 
-        // Not registered with object manager.
-        // AudioStreams can be handled without object manager
-        // since their lifecycle is known to the audio renderer.
-
+        // Streams are managed directly, not via NativeObjectManager,
+        // because their lifecycle is tied to active playback.
         as.setIds(ids);
         as.clearUpdateNeeded();
     }
@@ -1444,7 +1570,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     public void deleteFilter(Filter filter) {
         int id = filter.getId();
         if (id != -1) {
-            ib.position(0).limit(1);
+            ib.clear().limit(1);
             ib.put(id).flip();
             efx.alDeleteFilters(1, ib);
             checkAlError("deleting filter " + id);
@@ -1468,7 +1594,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 int id = ab.getId();
                 if (id != -1) {
                     ib.put(0, id);
-                    ib.position(0).limit(1);
+                    ib.clear().limit(1);
                     al.alDeleteBuffers(1, ib);
                     checkAlError("deleting buffer " + id);
                     ab.resetObject(); // Mark as deleted on JME side
