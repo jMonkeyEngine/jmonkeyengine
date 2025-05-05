@@ -551,6 +551,16 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     break;
 
                 case ReverbEnabled:
+                    if (!supportEfx || !src.isPositional()) {
+                        return;
+                    }
+                    if (!src.isReverbEnabled()) {
+                        al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
+                    } else {
+                        applySourceReverbFilter(sourceId, src);
+                    }
+                    break;
+
                 case ReverbFilter:
                     if (src.isPositional()) {
                         applySourceReverbFilter(sourceId, src);
@@ -599,21 +609,25 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     // --- Source Parameter Helper Methods ---
 
     private void applySourceDryFilter(int sourceId, AudioSource src) {
-        if (supportEfx && src.getDryFilter() != null) {
-            Filter f = src.getDryFilter();
-            if (f.isUpdateNeeded()) {
-                updateFilter(f);
-                // NOTE: must re-attach filter for changes to apply.
-                al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, f.getId());
-                checkAlError("setting source direct filter for " + sourceId);
+        if (supportEfx) {
+            int filterId = EFX.AL_FILTER_NULL;
+            if (src.getDryFilter() != null) {
+                Filter f = src.getDryFilter();
+                if (f.isUpdateNeeded()) {
+                    updateFilter(f);
+                }
+                filterId = f.getId();
             }
+            // NOTE: must re-attach filter for changes to apply.
+            al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, filterId);
+            checkAlError("setting source direct filter for " + sourceId);
         }
     }
 
     private void applySourceReverbFilter(int sourceId, AudioSource src) {
-        if (supportEfx && src.isReverbEnabled()) {
+        if (supportEfx) {
             int filterId = EFX.AL_FILTER_NULL;
-            if (src.getReverbFilter() != null) {
+            if (src.isReverbEnabled() && src.getReverbFilter() != null) {
                 Filter f = src.getReverbFilter();
                 if (f.isUpdateNeeded()) {
                     updateFilter(f);
@@ -647,17 +661,18 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             al.alSourcef(sourceId, AL_MAX_DISTANCE, src.getMaxDistance());
             al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_FALSE);
 
-            applySourceReverbFilter(sourceId, src);
-
+            if (supportEfx) {
+                if (!src.isReverbEnabled()) {
+                    al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
+                } else {
+                    applySourceReverbFilter(sourceId, src);
+                }
+            }
         } else {
             // Play in headspace: relative to listener, fixed position/velocity
             al.alSource3f(sourceId, AL_POSITION, 0, 0, 0);
             al.alSource3f(sourceId, AL_VELOCITY, 0, 0, 0);
             al.alSourcei(sourceId, AL_SOURCE_RELATIVE, AL_TRUE);
-
-            // Disable distance attenuation for non-positional sounds
-            al.alSourcef(sourceId, AL_REFERENCE_DISTANCE, 1e10f);
-            al.alSourcef(sourceId, AL_MAX_DISTANCE, 2e10f);
 
             // Disable reverb send for non-positional sounds
             if (supportEfx) {
@@ -948,7 +963,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                             + "was rewound but could not be filled");
                 }
             }
-            
+
             if (filled) {
                 ib.position(0).limit(1);
                 ib.put(id).flip();
@@ -1368,19 +1383,16 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
 
             if (src.getStatus() == Status.Playing) {
+                // Already playing, do nothing.
                 return;
-            } else if (src.getStatus() == Status.Stopped) {
-                // Assertion removed because it seems it's not possible to have
-                // something different from -1 when first playing an AudioNode.
-                // assert src.getChannel() != -1;
+            }
+
+            if (src.getStatus() == Status.Stopped) {
 
                 AudioData audioData = src.getAudioData();
                 if (audioData == null) {
                     logger.log(Level.WARNING, "playSource called on source with null AudioData: {0}", src);
                     return;
-                }
-                if (audioData.isUpdateNeeded()) {
-                    updateAudioData(audioData);
                 }
 
                 // Allocate a temporary channel
@@ -1395,10 +1407,14 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 clearChannel(index);
                 src.setChannel(index);
 
+                if (audioData.isUpdateNeeded()) {
+                    updateAudioData(audioData);
+                }
+
                 // Set all source parameters and attach the audio data
+                channelSources[index] = src;
                 setSourceParams(sourceId, src, false);
                 attachAudioToSource(sourceId, audioData, src.isLooping());
-                channelSources[index] = src;
             }
 
             // play the channel
