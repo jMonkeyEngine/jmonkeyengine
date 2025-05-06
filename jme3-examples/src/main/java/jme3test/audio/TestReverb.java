@@ -35,6 +35,11 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.Environment;
+import com.jme3.audio.LowPassFilter;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.Trigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -44,37 +49,65 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Sphere;
 
-public class TestReverb extends SimpleApplication {
+public class TestReverb extends SimpleApplication implements ActionListener {
 
     public static void main(String[] args) {
         TestReverb app = new TestReverb();
         app.start();
     }
 
-    private AudioNode audio;
+    private AudioNode audioSource;
     private float time = 0;
     private float nextTime = 1;
+
+    /**
+     * ### Effects ###
+     * Changing a parameter value in the Effect Object after it has been attached to the Auxiliary Effect
+     * Slot will not affect the effect in the effect slot. To update the parameters of the effect in the effect
+     * slot, an application must update the parameters of an Effect object and then re-attach it to the
+     * Auxiliary Effect Slot.
+     */
+    private int index = 0;
+    private final Environment[] environments = {
+            Environment.Cavern,
+            Environment.AcousticLab,
+            Environment.Closet,
+            Environment.Dungeon,
+            Environment.Garage
+    };
 
     @Override
     public void simpleInitApp() {
 
+        configureCamera();
+
+        audioRenderer.setEnvironment(environments[index]);
+
+        audioSource = new AudioNode(assetManager, "Sound/Effects/Bang.wav", AudioData.DataType.Buffer);
+        audioSource.setLooping(false);
+        audioSource.setPositional(true);
+        audioSource.setMaxDistance(100);
+        audioSource.setRefDistance(5);
+        audioSource.setReverbFilter(new LowPassFilter(1f, 1f));
+        audioSource.setVolume(1f);
+        rootNode.attachChild(audioSource);
+
+        Geometry marker = makeShape("Marker", new Sphere(16, 16, .5f), ColorRGBA.Red);
+        audioSource.attachChild(marker);
+
+        Geometry grid = makeShape("DebugGrid", new Grid(21, 21, 4), ColorRGBA.Blue);
+        grid.center().move(0, 0, 0);
+        rootNode.attachChild(grid);
+
+        registerInputMappings();
+    }
+
+    private void configureCamera() {
         flyCam.setMoveSpeed(50f);
         flyCam.setDragToRotate(true);
 
         cam.setLocation(Vector3f.UNIT_XYZ.mult(50f));
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
-
-        audioRenderer.setEnvironment(Environment.Cavern);
-
-        audio = new AudioNode(assetManager, "Sound/Effects/Bang.wav", AudioData.DataType.Buffer);
-        rootNode.attachChild(audio);
-
-        Geometry marker = makeShape("Marker", new Sphere(16, 16, .5f), ColorRGBA.Red);
-        audio.attachChild(marker);
-
-        Geometry grid = makeShape("DebugGrid", new Grid(21, 21, 4), ColorRGBA.Blue);
-        grid.center().move(0, 0, 0);
-        rootNode.attachChild(grid);
     }
 
     private Geometry makeShape(String name, Mesh mesh, ColorRGBA color) {
@@ -94,8 +127,8 @@ public class TestReverb extends SimpleApplication {
             nextTime = FastMath.nextRandomFloat() * 2 + 0.5f;
 
             Vector3f position = getRandomPosition();
-            audio.setLocalTranslation(position);
-            audio.playInstance();
+            audioSource.setLocalTranslation(position);
+            audioSource.playInstance();
         }
     }
 
@@ -107,6 +140,32 @@ public class TestReverb extends SimpleApplication {
         vec.multLocal(40, 2, 40);
         vec.subtractLocal(20, 1, 20);
         return vec;
+    }
+
+    @Override
+    public void onAction(String name, boolean isPressed, float tpf) {
+        if (!isPressed) return;
+
+        if (name.equals("toggleReverbEnabled")) {
+            boolean reverbEnabled = audioSource.isReverbEnabled();
+            audioSource.setReverbEnabled(!reverbEnabled);
+            System.out.println("reverbEnabled: " + audioSource.isReverbEnabled());
+
+        } else if (name.equals("nextEnvironment")) {
+            index = (index + 1) % environments.length;
+            audioRenderer.setEnvironment(environments[index]);
+            System.out.println("Next Environment Index: " + index);
+        }
+    }
+
+    private void registerInputMappings() {
+        addMapping("toggleReverbEnabled", new KeyTrigger(KeyInput.KEY_SPACE));
+        addMapping("nextEnvironment", new KeyTrigger(KeyInput.KEY_N));
+    }
+
+    private void addMapping(String mappingName, Trigger... triggers) {
+        inputManager.addMapping(mappingName, triggers);
+        inputManager.addListener(this, mappingName);
     }
 
 }
