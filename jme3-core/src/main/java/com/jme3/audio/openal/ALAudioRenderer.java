@@ -31,9 +31,20 @@
  */
 package com.jme3.audio.openal;
 
-import com.jme3.audio.*;
+import com.jme3.audio.AudioBuffer;
+import com.jme3.audio.AudioData;
+import com.jme3.audio.AudioParam;
+import com.jme3.audio.AudioRenderer;
+import com.jme3.audio.AudioSource;
 import com.jme3.audio.AudioSource.Status;
 import static com.jme3.audio.openal.AL.*;
+
+import com.jme3.audio.AudioStream;
+import com.jme3.audio.Environment;
+import com.jme3.audio.Filter;
+import com.jme3.audio.Listener;
+import com.jme3.audio.ListenerParam;
+import com.jme3.audio.LowPassFilter;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObjectManager;
@@ -550,20 +561,19 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     applySourceDryFilter(sourceId, src);
                     break;
 
-                case ReverbEnabled:
-                    if (!supportEfx || !src.isPositional()) {
-                        return;
-                    }
-                    if (!src.isReverbEnabled()) {
-                        al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
-                    } else {
+                case ReverbFilter:
+                    if (src.isPositional()) {
                         applySourceReverbFilter(sourceId, src);
                     }
                     break;
 
-                case ReverbFilter:
-                    if (src.isPositional()) {
-                        applySourceReverbFilter(sourceId, src);
+                case ReverbEnabled:
+                    if (supportEfx && src.isPositional()) {
+                        if (!src.isReverbEnabled()) {
+                            al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
+                        } else {
+                            applySourceReverbFilter(sourceId, src);
+                        }
                     }
                     break;
 
@@ -876,7 +886,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         if (checkAlError("filling buffer " + bufferId + " for stream")) {
             return false;
         }
-
         return true;
     }
 
