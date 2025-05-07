@@ -1344,7 +1344,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             AudioData audioData = src.getAudioData();
             if (audioData == null) {
-                logger.warning("playSourceInstance called with null AudioData.");
+                logger.log(Level.WARNING, "playSourceInstance called on source with null AudioData: {0}", src);
                 return;
             }
             if (audioData instanceof AudioStream) {
