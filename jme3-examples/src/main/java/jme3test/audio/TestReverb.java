@@ -92,7 +92,7 @@ public class TestReverb extends SimpleApplication implements ActionListener {
         audioSource.setVolume(1f);
         rootNode.attachChild(audioSource);
 
-        Geometry marker = makeShape("Marker", new Sphere(16, 16, .5f), ColorRGBA.Red);
+        Geometry marker = makeShape("Marker", new Sphere(16, 16, 1f), ColorRGBA.Red);
         audioSource.attachChild(marker);
 
         Geometry grid = makeShape("DebugGrid", new Grid(21, 21, 4), ColorRGBA.Blue);
