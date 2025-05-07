@@ -52,7 +52,7 @@ import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Sphere;
 
 /**
- * 
+ *
  * @author capdevon
  */
 public class TestOgg extends SimpleApplication implements ActionListener {
@@ -84,8 +84,8 @@ public class TestOgg extends SimpleApplication implements ActionListener {
         bmp = createLabelText(10, 20, "<placeholder>");
 
         // just a blue sphere to mark the spot
-        Geometry geo = makeShape("Beeper", new Sphere(16, 16, 1f), ColorRGBA.Blue);
-        rootNode.attachChild(geo);
+        Geometry marker = makeShape("Marker", new Sphere(16, 16, 1f), ColorRGBA.Blue);
+        rootNode.attachChild(marker);
 
         Geometry grid = makeShape("DebugGrid", new Grid(21, 21, 2), ColorRGBA.Gray);
         grid.center().move(0, 0, 0);
@@ -126,8 +126,10 @@ public class TestOgg extends SimpleApplication implements ActionListener {
             sb.append("Positional: ").append(audioSource.isPositional()).append("\n");
             sb.append("MaxDistance: ").append(audioSource.getMaxDistance()).append("\n");
             sb.append("RefDistance: ").append(audioSource.getRefDistance()).append("\n");
-            sb.append("DryFilter: ").append(audioSource.getDryFilter() != null).append("\n");
             sb.append("Status: ").append(audioSource.getStatus()).append("\n");
+            sb.append("SourceId: ").append(audioSource.getChannel()).append("\n");
+            sb.append("DryFilter: ").append(audioSource.getDryFilter() != null).append("\n");
+            sb.append("FilterId: ").append(dryFilter.getId()).append("\n");
 
             bmp.setText(sb.toString());
             sb.setLength(0);
@@ -142,7 +144,7 @@ public class TestOgg extends SimpleApplication implements ActionListener {
             if (audioSource.getStatus() != AudioSource.Status.Playing) {
                 audioSource.play();
             } else {
-                audioSource.pause();
+                audioSource.stop();
             }
         } else if (name.equals("togglePositional")) {
             boolean positional = audioSource.isPositional();
