@@ -35,6 +35,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.Environment;
+import com.jme3.audio.LowPassFilter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -48,6 +49,9 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Sphere;
 
+/**
+ * @author capdevon
+ */
 public class TestReverb extends SimpleApplication implements ActionListener {
 
     public static void main(String[] args) {
@@ -86,10 +90,12 @@ public class TestReverb extends SimpleApplication implements ActionListener {
         // Activate 3D audio
         audioSource = new AudioNode(assetManager, "Sound/Effects/Bang.wav", AudioData.DataType.Buffer);
         audioSource.setLooping(false);
+        audioSource.setVolume(1.2f);
         audioSource.setPositional(true);
         audioSource.setMaxDistance(100);
         audioSource.setRefDistance(5);
         audioSource.setReverbEnabled(true);
+        audioSource.setReverbFilter(new LowPassFilter(1f, 1f));
         rootNode.attachChild(audioSource);
 
         Geometry marker = makeShape("Marker", new Sphere(16, 16, 1f), ColorRGBA.Red);
@@ -147,9 +153,9 @@ public class TestReverb extends SimpleApplication implements ActionListener {
         if (!isPressed) return;
 
         if (name.equals("toggleReverbEnabled")) {
-            boolean reverbEnabled = audioSource.isReverbEnabled();
-            audioSource.setReverbEnabled(!reverbEnabled);
-            System.out.println("reverbEnabled: " + audioSource.isReverbEnabled());
+            boolean reverbEnabled = !audioSource.isReverbEnabled();
+            audioSource.setReverbEnabled(reverbEnabled);
+            System.out.println("reverbEnabled: " + reverbEnabled);
 
         } else if (name.equals("nextEnvironment")) {
             index = (index + 1) % environments.length;
