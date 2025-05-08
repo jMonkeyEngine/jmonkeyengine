@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,26 +36,63 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.util.NativeObject;
+
 import java.io.IOException;
 
+/**
+ * A filter that attenuates frequencies above a specified threshold, allowing lower
+ * frequencies to pass through with less attenuation. Commonly used to simulate effects
+ * such as muffling or underwater acoustics.
+ */
 public class LowPassFilter extends Filter {
 
-    protected float volume, highFreqVolume;
+    /**
+     * The overall volume scaling of the filtered sound
+     */
+    protected float volume;
+    /**
+     * The volume scaling of the high frequencies allowed to pass through. Valid values range
+     * from 0.0 to 1.0, where 0.0 completely eliminates high frequencies and 1.0 lets them pass
+     * through unchanged.
+     */
+    protected float highFreqVolume;
 
+    /**
+     * Constructs a low-pass filter.
+     *
+     * @param volume         the overall volume scaling of the filtered sound (0.0 - 1.0).
+     * @param highFreqVolume the volume scaling of high frequencies (0.0 - 1.0).
+     * @throws IllegalArgumentException if {@code volume} or {@code highFreqVolume} is out of range.
+     */
     public LowPassFilter(float volume, float highFreqVolume) {
         super();
         setVolume(volume);
         setHighFreqVolume(highFreqVolume);
     }
 
+    /**
+     * For internal cloning
+     * @param id the native object ID
+     */
     protected LowPassFilter(int id) {
         super(id);
     }
 
+    /**
+     * Retrieves the current volume scaling of high frequencies.
+     *
+     * @return the high-frequency volume scaling.
+     */
     public float getHighFreqVolume() {
         return highFreqVolume;
     }
 
+    /**
+     * Sets the high-frequency volume.
+     *
+     * @param highFreqVolume the new high-frequency volume scaling (0.0 - 1.0).
+     * @throws IllegalArgumentException if {@code highFreqVolume} is out of range.
+     */
     public void setHighFreqVolume(float highFreqVolume) {
         if (highFreqVolume < 0 || highFreqVolume > 1)
             throw new IllegalArgumentException("High freq volume must be between 0 and 1");
@@ -64,10 +101,21 @@ public class LowPassFilter extends Filter {
         this.updateNeeded = true;
     }
 
+    /**
+     * Retrieves the current overall volume scaling of the filtered sound.
+     *
+     * @return the overall volume scaling.
+     */
     public float getVolume() {
         return volume;
     }
 
+    /**
+     * Sets the overall volume.
+     *
+     * @param volume the new overall volume scaling (0.0 - 1.0).
+     * @throws IllegalArgumentException if {@code volume} is out of range.
+     */
     public void setVolume(float volume) {
         if (volume < 0 || volume > 1)
             throw new IllegalArgumentException("Volume must be between 0 and 1");
@@ -92,11 +140,21 @@ public class LowPassFilter extends Filter {
         highFreqVolume = ic.readFloat("hf_volume", 0);
     }
 
+    /**
+     * Creates a native object clone of this filter for internal usage.
+     *
+     * @return a new {@code LowPassFilter} instance with the same native ID.
+     */
     @Override
     public NativeObject createDestructableClone() {
         return new LowPassFilter(id);
     }
 
+    /**
+     * Retrieves a unique identifier for this filter. Used internally for native object management.
+     *
+     * @return a unique long identifier.
+     */
     @Override
     public long getUniqueId() {
         return ((long) OBJTYPE_FILTER << 32) | (0xffffffffL & (long) id);
