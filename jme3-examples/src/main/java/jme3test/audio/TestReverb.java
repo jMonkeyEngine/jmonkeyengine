@@ -81,15 +81,16 @@ public class TestReverb extends SimpleApplication implements ActionListener {
 
         configureCamera();
 
+        // Activate the Environment preset
         audioRenderer.setEnvironment(environments[index]);
 
+        // Activate 3D audio
         audioSource = new AudioNode(assetManager, "Sound/Effects/Bang.wav", AudioData.DataType.Buffer);
         audioSource.setLooping(false);
         audioSource.setPositional(true);
         audioSource.setMaxDistance(100);
         audioSource.setRefDistance(5);
-        audioSource.setReverbFilter(new LowPassFilter(1f, 1f));
-        audioSource.setVolume(1f);
+        audioSource.setReverbEnabled(true);
         rootNode.attachChild(audioSource);
 
         Geometry marker = makeShape("Marker", new Sphere(16, 16, 1f), ColorRGBA.Red);
