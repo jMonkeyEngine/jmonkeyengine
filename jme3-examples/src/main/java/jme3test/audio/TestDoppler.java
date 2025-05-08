@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,11 +35,16 @@ package jme3test.audio;
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
-import com.jme3.math.FastMath;
+import com.jme3.font.BitmapText;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.scene.shape.Torus;
+
+import java.util.Locale;
 
 /**
  * Test Doppler Effect
@@ -49,23 +54,17 @@ public class TestDoppler extends SimpleApplication {
     private float pos = -5;
     private float vel = 5;
     private AudioNode ufoNode;
+    private BitmapText bmp;
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         TestDoppler test = new TestDoppler();
         test.start();
     }
 
     @Override
     public void simpleInitApp() {
-        flyCam.setMoveSpeed(10);
-
-        Torus torus = new Torus(10, 6, 1, 3);
-        Geometry g = new Geometry("Torus Geom", torus);
-        g.rotate(-FastMath.HALF_PI, 0, 0);
-        g.center();
-
-        g.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
-//        rootNode.attachChild(g);
+        configureCamera();
+        bmp = createLabelText(10, 20, "<placeholder>");
 
         ufoNode = new AudioNode(assetManager, "Sound/Effects/Beep.ogg", AudioData.DataType.Buffer);
         ufoNode.setLooping(true);
@@ -73,22 +72,50 @@ public class TestDoppler extends SimpleApplication {
         ufoNode.setRefDistance(1);
         ufoNode.setMaxDistance(100000000);
         ufoNode.setVelocityFromTranslation(true);
-        ufoNode.play();
+        rootNode.attachChild(ufoNode);
 
-        Geometry ball = new Geometry("Beeper", new Sphere(10, 10, 0.1f));
-        ball.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
+        Geometry ball = makeShape("Beeper", new Sphere(10, 10, .5f), ColorRGBA.Red);
         ufoNode.attachChild(ball);
 
-        rootNode.attachChild(ufoNode);
+        Geometry grid = makeShape("DebugGrid", new Grid(21, 21, 2), ColorRGBA.Gray);
+        grid.center().move(0, 0, 0);
+        rootNode.attachChild(grid);
+
+        ufoNode.play();
     }
 
+    private void configureCamera() {
+        flyCam.setMoveSpeed(15f);
+        flyCam.setDragToRotate(true);
+
+        cam.setLocation(Vector3f.UNIT_XYZ.mult(12));
+        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
+    }
 
     @Override
     public void simpleUpdate(float tpf) {
         pos += tpf * vel;
-        if (pos < -10 || pos > 10) {
+        if (pos < -10f || pos > 10f) {
             vel *= -1;
         }
-        ufoNode.setLocalTranslation(new Vector3f(pos, 0, 0));
+        ufoNode.setLocalTranslation(pos, 0f, 0f);
+        bmp.setText(String.format(Locale.ENGLISH, "Audio Position: (%.2f, %.1f, %.1f)", pos, 0f, 0f));
+    }
+
+    private BitmapText createLabelText(int x, int y, String text) {
+        BitmapText bmp = new BitmapText(guiFont);
+        bmp.setText(text);
+        bmp.setLocalTranslation(x, settings.getHeight() - y, 0);
+        bmp.setColor(ColorRGBA.Red);
+        guiNode.attachChild(bmp);
+        return bmp;
+    }
+
+    private Geometry makeShape(String name, Mesh mesh, ColorRGBA color) {
+        Geometry geo = new Geometry(name, mesh);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", color);
+        geo.setMaterial(mat);
+        return geo;
     }
 }
