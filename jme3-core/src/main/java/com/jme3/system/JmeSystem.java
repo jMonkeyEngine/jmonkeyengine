@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.function.BiFunction;
@@ -53,7 +53,8 @@ import java.util.logging.Logger;
 public class JmeSystem {
 
     private static final Logger logger = Logger.getLogger(JmeSystem.class.getName());
-    public static enum StorageFolderType {
+
+    public enum StorageFolderType {
         Internal,
         External,
     }
@@ -116,6 +117,7 @@ public class JmeSystem {
 
     /**
      * Displays or hides the onscreen soft keyboard
+     *
      * @param show If true, the keyboard is displayed, if false, the screen is hidden.
      */
     public static void showSoftKeyboard(boolean show) {
@@ -130,16 +132,16 @@ public class JmeSystem {
 
     /**
      * Compresses a raw image into a stream.
-     * 
+     * <p>
      * The encoding is performed via system libraries. On desktop, the encoding
-     * is performed via ImageIO, whereas on Android, is done via the 
+     * is performed via ImageIO, whereas on Android, is done via the
      * Bitmap class.
-     * 
+     *
      * @param outStream The stream where to write the image data.
-     * @param format The format to use, either "png" or "jpg".
+     * @param format    The format to use, either "png" or "jpg".
      * @param imageData The image data in {@link com.jme3.texture.Image.Format#RGBA8} format.
-     * @param width The width of the image.
-     * @param height The height of the image.
+     * @param width     The width of the image.
+     * @param height    The height of the image.
      * @throws IOException If outStream throws an exception while writing.
      */
     public static void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
@@ -156,8 +158,6 @@ public class JmeSystem {
         checkDelegate();
         return systemDelegate.newAssetManager();
     }
-
-   
 
     /**
      * Determine which Platform (operating system and architecture) the
@@ -184,42 +184,40 @@ public class JmeSystem {
         checkDelegate();
         return systemDelegate.getPlatformAssetConfigURL();
     }
-    
+
     /**
      * Displays an error message to the user in whichever way the context
      * feels is appropriate. If this is a headless or an offscreen surface
      * context, this method should do nothing.
      *
-     * @deprecated Use JmeSystem.handleErrorMessage(String) instead
      * @param message The error message to display. May contain new line
-     * characters.
+     *                characters.
+     * @deprecated Use JmeSystem.handleErrorMessage(String) instead
      */
     @Deprecated
-    public static void showErrorDialog(String message){
+    public static void showErrorDialog(String message) {
         handleErrorMessage(message);
     }
 
-    public static void handleErrorMessage(String message){
+    public static void handleErrorMessage(String message) {
         checkDelegate();
         systemDelegate.handleErrorMessage(message);
     }
 
-    public static void setErrorMessageHandler(Consumer<String> handler){
+    public static void setErrorMessageHandler(Consumer<String> handler) {
         checkDelegate();
         systemDelegate.setErrorMessageHandler(handler);
     }
 
-
-    public static void handleSettings(AppSettings sourceSettings, boolean loadFromRegistry){
+    public static void handleSettings(AppSettings sourceSettings, boolean loadFromRegistry) {
         checkDelegate();
         systemDelegate.handleSettings(sourceSettings, loadFromRegistry);
     }
 
-    public static void setSettingsHandler(BiFunction<AppSettings,Boolean,Boolean> handler){
+    public static void setSettingsHandler(BiFunction<AppSettings, Boolean, Boolean> handler) {
         checkDelegate();
         systemDelegate.setSettingsHandler(handler);
     }
-
 
     @Deprecated
     public static boolean showSettingsDialog(AppSettings sourceSettings, final boolean loadFromRegistry) {
@@ -227,40 +225,42 @@ public class JmeSystem {
         return systemDelegate.showSettingsDialog(sourceSettings, loadFromRegistry);
     }
 
-
     public static void initialize(AppSettings settings) {
         checkDelegate();
         systemDelegate.initialize(settings);
     }
 
-    private static JmeSystemDelegate tryLoadDelegate(String className) throws InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
-        try {
-            return (JmeSystemDelegate) Class.forName(className).getDeclaredConstructor().newInstance();
-        } catch (ClassNotFoundException ex) {
-            return null;
-        }
-    }
+    private static final String[] delegateClassNames = {
+            "com.jme3.system.JmeDesktopSystem",
+            "com.jme3.system.android.JmeAndroidSystem",
+            "com.jme3.system.ios.JmeIosSystem"
+    };
 
-    @SuppressWarnings("unchecked")
     private static void checkDelegate() {
         if (systemDelegate == null) {
             try {
-                systemDelegate = tryLoadDelegate("com.jme3.system.JmeDesktopSystem");
-                if (systemDelegate == null) {
-                    systemDelegate = tryLoadDelegate("com.jme3.system.android.JmeAndroidSystem");
-                    if (systemDelegate == null) {
-                        systemDelegate = tryLoadDelegate("com.jme3.system.ios.JmeIosSystem");
-                        if (systemDelegate == null) {
-                            // None of the system delegates were found.
-                            Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE,
-                                    "Failed to find a JmeSystem delegate!\n"
-                                    + "Ensure either desktop or android jME3 jar is in the classpath.");
-                        }
+                for (String className : delegateClassNames) {
+                    systemDelegate = tryLoadDelegate(className);
+                    if (systemDelegate != null) {
+                        return; // Delegate found and loaded
                     }
                 }
-            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException ex) {
-                Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE, "Failed to create JmeSystem delegate:\n{0}", ex);
+                // None of the system delegates were found.
+                logger.log(Level.SEVERE, "Failed to find a JmeSystem delegate!\n"
+                        + "Ensure either desktop or android jME3 jar is in the classpath.");
+
+            } catch (ReflectiveOperationException | IllegalArgumentException ex) {
+                logger.log(Level.SEVERE, "Failed to create JmeSystem delegate:\n{0}", ex);
             }
+        }
+    }
+
+    private static JmeSystemDelegate tryLoadDelegate(String className) throws ReflectiveOperationException, IllegalArgumentException {
+        try {
+            Constructor<?> c = Class.forName(className).getDeclaredConstructor();
+            return (JmeSystemDelegate) c.newInstance();
+        } catch (ClassNotFoundException ex) {
+            return null;
         }
     }
 }
