@@ -1447,6 +1447,12 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
+            AudioData audioData = src.getAudioData();
+            if (audioData == null) {
+                logger.log(Level.WARNING, "pauseSource called on source with null AudioData: {0}", src);
+                return;
+            }
+
             if (src.getStatus() == Status.Playing) {
                 assert src.getChannel() != -1;
 
@@ -1468,6 +1474,12 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     public void stopSource(AudioSource src) {
         synchronized (threadLock) {
             if (audioDisabled) {
+                return;
+            }
+
+            AudioData audioData = src.getAudioData();
+            if (audioData == null) {
+                logger.log(Level.WARNING, "stopSource called on source with null AudioData: {0}", src);
                 return;
             }
 
