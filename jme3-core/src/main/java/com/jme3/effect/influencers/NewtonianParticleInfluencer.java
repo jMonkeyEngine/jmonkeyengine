@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -140,17 +140,6 @@ public class NewtonianParticleInfluencer extends DefaultParticleInfluencer {
     protected void applyVelocityVariation(Particle particle) {
         temp.set(FastMath.nextRandomFloat() * velocityVariation, FastMath.nextRandomFloat() * velocityVariation, FastMath.nextRandomFloat() * velocityVariation);
         particle.velocity.addLocal(temp);
-    }
-
-    @Override
-    public NewtonianParticleInfluencer clone() {
-        NewtonianParticleInfluencer result = new NewtonianParticleInfluencer();
-        result.normalVelocity = normalVelocity;
-        result.initialVelocity = initialVelocity;
-        result.velocityVariation = velocityVariation;
-        result.surfaceTangentFactor = surfaceTangentFactor;
-        result.surfaceTangentRotation = surfaceTangentRotation;
-        return result;
     }
 
     @Override
