@@ -1,7 +1,8 @@
 # jme3-screenshot-tests
 
-This module contains tests that compare screenshots of the JME3 test applications to reference images. The tests are run using 
-the following command:
+This module contains tests that compare screenshots of the JME3 test applications to reference images. Think of these like visual unit tests
+
+The tests are run using the following command:
 
 ```
  ./gradlew :jme3-screenshot-test:screenshotTest
