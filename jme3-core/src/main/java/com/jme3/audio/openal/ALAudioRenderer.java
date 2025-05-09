@@ -51,6 +51,7 @@ import com.jme3.util.NativeObjectManager;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -81,7 +82,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private int[] channels; // OpenAL source IDs
     private AudioSource[] channelSources; // jME source associated with each channel
     private int nextChannelIndex = 0; // Next available channel index
-    private final ArrayList<Integer> freeChannels = new ArrayList<>(); // Pool of freed channels
+    private final ArrayDeque<Integer> freeChannels = new ArrayDeque<>(); // Pool of freed channels
 
     // Listener and environment
     private Listener listener;
@@ -793,7 +794,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
     private int newChannel() {
         if (!freeChannels.isEmpty()) {
-            return freeChannels.remove(0);
+            return freeChannels.removeFirst();
         } else if (nextChannelIndex < channels.length) {
             return nextChannelIndex++;
         } else {
@@ -906,7 +907,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         for (int i = 0; i < processed; i++) {
             int buffer;
 
-            ib.position(0).limit(1);
+            ib.clear().limit(1);
             al.alSourceUnqueueBuffers(sourceId, 1, ib);
             buffer = ib.get(0);
 
@@ -931,7 +932,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
 
             if (filled) {
-                ib.position(0).limit(1);
+                ib.clear().limit(1);
                 ib.put(0, buffer);
                 al.alSourceQueueBuffers(sourceId, 1, ib);
                 // At least one buffer enqueued = success.
@@ -974,7 +975,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
 
             if (filled) {
-                ib.position(0).limit(1);
+                ib.clear().limit(1);
                 ib.put(id).flip();
                 al.alSourceQueueBuffers(sourceId, 1, ib);
                 success = true;
