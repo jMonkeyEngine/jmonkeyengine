@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,50 +39,70 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Box;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.debug.Grid;
+import com.jme3.scene.shape.Sphere;
 
 public class TestAmbient extends SimpleApplication {
 
-  public static void main(String[] args) {
-    TestAmbient test = new TestAmbient();
-    test.start();
-  }
+    public static void main(String[] args) {
+        TestAmbient test = new TestAmbient();
+        test.start();
+    }
 
-  @Override
-  public void simpleInitApp() {
-    float[] eax = new float[]{15, 38.0f, 0.300f, -1000, -3300, 0,
-      1.49f, 0.54f, 1.00f, -2560, 0.162f, 0.00f, 0.00f,
-      0.00f, -229, 0.088f, 0.00f, 0.00f, 0.00f, 0.125f, 1.000f,
-      0.250f, 0.000f, -5.0f, 5000.0f, 250.0f, 0.00f, 0x3f};
-    Environment env = new Environment(eax);
-    audioRenderer.setEnvironment(env);
+    private final float[] eax = {
+            15, 38.0f, 0.300f, -1000, -3300, 0,
+            1.49f, 0.54f, 1.00f, -2560, 0.162f, 0.00f, 0.00f,
+            0.00f, -229, 0.088f, 0.00f, 0.00f, 0.00f, 0.125f, 1.000f,
+            0.250f, 0.000f, -5.0f, 5000.0f, 250.0f, 0.00f, 0x3f
+    };
 
-    AudioNode waves = new AudioNode(assetManager,
-            "Sound/Environment/Ocean Waves.ogg", DataType.Buffer);
-    waves.setPositional(true);
-    waves.setLocalTranslation(new Vector3f(0, 0,0));
-    waves.setMaxDistance(100);
-    waves.setRefDistance(5);
+    @Override
+    public void simpleInitApp() {
+        configureCamera();
 
-    AudioNode nature = new AudioNode(assetManager,
-            "Sound/Environment/Nature.ogg", DataType.Stream);
-    nature.setPositional(false);
-    nature.setVolume(3);
-    
-    waves.playInstance();
-    nature.play();
-    
-    // just a blue box to mark the spot
-    Box box1 = new Box(.5f, .5f, .5f);
-    Geometry player = new Geometry("Player", box1);
-    Material mat1 = new Material(assetManager,
-            "Common/MatDefs/Misc/Unshaded.j3md");
-    mat1.setColor("Color", ColorRGBA.Blue);
-    player.setMaterial(mat1);
-    rootNode.attachChild(player);
-  }
+        Environment env = new Environment(eax);
+        audioRenderer.setEnvironment(env);
 
-  @Override
-  public void simpleUpdate(float tpf) {
-  }
+        AudioNode waves = new AudioNode(assetManager,
+                "Sound/Environment/Ocean Waves.ogg", DataType.Buffer);
+        waves.setPositional(true);
+        waves.setLooping(true);
+        waves.setReverbEnabled(true);
+        rootNode.attachChild(waves);
+
+        AudioNode nature = new AudioNode(assetManager,
+                "Sound/Environment/Nature.ogg", DataType.Stream);
+        nature.setPositional(false);
+        nature.setLooping(true);
+        nature.setVolume(3);
+        rootNode.attachChild(nature);
+
+        waves.play();
+        nature.play();
+
+        // just a blue sphere to mark the spot
+        Geometry marker = makeShape("Marker", new Sphere(16, 16, 1f), ColorRGBA.Blue);
+        waves.attachChild(marker);
+
+        Geometry grid = makeShape("DebugGrid", new Grid(21, 21, 2), ColorRGBA.Gray);
+        grid.center().move(0, 0, 0);
+        rootNode.attachChild(grid);
+    }
+
+    private void configureCamera() {
+        flyCam.setMoveSpeed(25f);
+        flyCam.setDragToRotate(true);
+
+        cam.setLocation(Vector3f.UNIT_XYZ.mult(5f));
+        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
+    }
+
+    private Geometry makeShape(String name, Mesh mesh, ColorRGBA color) {
+        Geometry geo = new Geometry(name, mesh);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", color);
+        geo.setMaterial(mat);
+        return geo;
+    }
 }
