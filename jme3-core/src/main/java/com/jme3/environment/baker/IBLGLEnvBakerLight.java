@@ -34,6 +34,7 @@ package com.jme3.environment.baker;
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 import com.jme3.asset.AssetManager;
+import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -130,10 +131,11 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
                 int s = renderOnT;
                 renderOnT = renderOnT == 0 ? 1 : 0;
                 mat.setTexture("ShCoef", shCoefTx[s]);
-                mat.setInt("FaceId", faceId);
             } else {
                 renderOnT = 0;
             }
+
+            mat.setInt("FaceId", faceId);
 
             screen.updateLogicalState(0);
             screen.updateGeometricState();
@@ -169,7 +171,7 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
             if (remapMaxValue > 0) shCoef[i].divideLocal(remapMaxValue);
             shCoef[i].multLocal(4.0f * FastMath.PI / weightAccum);
         }
-
+        EnvMapUtils.prepareShCoefs(shCoef);
         img.dispose();
 
     }
