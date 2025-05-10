@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,19 +40,38 @@ import com.jme3.math.Vector3f;
 import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
+/**
+ * An {@link EmitterShape} that emits particles randomly from within the volume of a sphere.
+ * The sphere is defined by a center point and a radius.
+ */
 public class EmitterSphereShape implements EmitterShape {
 
+    /**
+     * The center point of the sphere.
+     */
     private Vector3f center;
+    /**
+     * The radius of the sphere.
+     */
     private float radius;
 
+    /**
+     * For serialization only. Do not use.
+     */
     public EmitterSphereShape() {
     }
 
+    /**
+     * Constructs an {@code EmitterSphereShape} with the given center and radius.
+     *
+     * @param center The center point of the sphere.
+     * @param radius The radius of the sphere.
+     * @throws IllegalArgumentException If {@code center} is null, or if {@code radius} is not greater than 0.
+     */
     public EmitterSphereShape(Vector3f center, float radius) {
         if (center == null) {
             throw new IllegalArgumentException("center cannot be null");
         }
-
         if (radius <= 0) {
             throw new IllegalArgumentException("Radius must be greater than 0");
         }
@@ -92,6 +111,11 @@ public class EmitterSphereShape implements EmitterShape {
         this.center = cloner.clone(center);
     }
 
+    /**
+     * Generates a random point within the volume of the sphere.
+     *
+     * @param store The {@link Vector3f} to store the generated point in.
+     */
     @Override
     public void getRandomPoint(Vector3f store) {
         do {
@@ -103,23 +127,50 @@ public class EmitterSphereShape implements EmitterShape {
         store.addLocal(center);
     }
 
+    /**
+     * For a sphere shape, the normal is not well-defined for points within the volume.
+     * This implementation simply calls {@link #getRandomPoint(Vector3f)} and does not modify the provided normal.
+     *
+     * @param store  The {@link Vector3f} to store the generated point in.
+     * @param normal The {@link Vector3f} to store the generated normal in (unused).
+     */
     @Override
     public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
         this.getRandomPoint(store);
     }
 
+    /**
+     * Returns the center point of the sphere.
+     *
+     * @return The center point.
+     */
     public Vector3f getCenter() {
         return center;
     }
 
+    /**
+     * Sets the center point of the sphere.
+     *
+     * @param center The new center point.
+     */
     public void setCenter(Vector3f center) {
         this.center = center;
     }
 
+    /**
+     * Returns the radius of the sphere.
+     *
+     * @return The radius.
+     */
     public float getRadius() {
         return radius;
     }
 
+    /**
+     * Sets the radius of the sphere.
+     *
+     * @param radius The new radius.
+     */
     public void setRadius(float radius) {
         this.radius = radius;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,13 +40,35 @@ import com.jme3.math.Vector3f;
 import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
+/**
+ * An {@link EmitterShape} that emits particles randomly within the bounds of an axis-aligned box.
+ * The box is defined by a minimum corner and a length vector.
+ */
 public class EmitterBoxShape implements EmitterShape {
 
-    private Vector3f min, len;
+    /**
+     * The minimum corner of the box.
+     */
+    private Vector3f min;
+    /**
+     * The length of the box along each axis.  The x, y, and z components of this
+     * vector represent the width, height, and depth of the box, respectively.
+     */
+    private Vector3f len;
 
+    /**
+     * For serialization only. Do not use.
+     */
     public EmitterBoxShape() {
     }
 
+    /**
+     * Constructs an {@code EmitterBoxShape} defined by a minimum and maximum corner.
+     *
+     * @param min The minimum corner of the box.
+     * @param max The maximum corner of the box.
+     * @throws IllegalArgumentException If either {@code min} or {@code max} is null.
+     */
     public EmitterBoxShape(Vector3f min, Vector3f max) {
         if (min == null || max == null) {
             throw new IllegalArgumentException("min or max cannot be null");
@@ -57,6 +79,11 @@ public class EmitterBoxShape implements EmitterShape {
         this.len.set(max).subtractLocal(min);
     }
 
+    /**
+     * Generates a random point within the bounds of the box.
+     *
+     * @param store The {@link Vector3f} to store the generated point in.
+     */
     @Override
     public void getRandomPoint(Vector3f store) {
         store.x = min.x + len.x * FastMath.nextRandomFloat();
@@ -65,10 +92,11 @@ public class EmitterBoxShape implements EmitterShape {
     }
 
     /**
-     * This method fills the point with data.
-     * It does not fill the normal.
-     * @param store the variable to store the point data
-     * @param normal not used in this class
+     * For a box shape, the normal is not well-defined for points within the volume.
+     * This implementation simply calls {@link #getRandomPoint(Vector3f)} and does not modify the provided normal.
+     *
+     * @param store  The {@link Vector3f} to store the generated point in.
+     * @param normal The {@link Vector3f} to store the generated normal in (unused).
      */
     @Override
     public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
@@ -108,18 +136,40 @@ public class EmitterBoxShape implements EmitterShape {
         this.len = cloner.clone(len);
     }
 
+    /**
+     * Returns the minimum corner of the emitting box.
+     *
+     * @return The minimum corner.
+     */
     public Vector3f getMin() {
         return min;
     }
 
+    /**
+     * Sets the minimum corner of the emitting box.
+     *
+     * @param min The new minimum corner.
+     */
     public void setMin(Vector3f min) {
         this.min = min;
     }
 
+    /**
+     * Returns the length vector of the emitting box. This vector represents the
+     * extent of the box along each axis (length = max - min).
+     *
+     * @return The length vector.
+     */
     public Vector3f getLen() {
         return len;
     }
 
+    /**
+     * Sets the length vector of the emitting box. This vector should represent
+     * the extent of the box along each axis (length = max - min).
+     *
+     * @param len The new length vector.
+     */
     public void setLen(Vector3f len) {
         this.len = len;
     }

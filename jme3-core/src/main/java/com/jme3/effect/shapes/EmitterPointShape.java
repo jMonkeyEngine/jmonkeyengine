@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
  */
 package com.jme3.effect.shapes;
 
+import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
@@ -38,13 +39,27 @@ import com.jme3.math.Vector3f;
 import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
+/**
+ * An {@link EmitterShape} that emits particles from a single point in space.
+ */
 public class EmitterPointShape implements EmitterShape {
 
+    /**
+     * The point in space from which particles are emitted.
+     */
     private Vector3f point;
 
+    /**
+     * For serialization only. Do not use.
+     */
     public EmitterPointShape() {
     }
 
+    /**
+     * Constructs an {@code EmitterPointShape} with the given point.
+     *
+     * @param point The point from which particles are emitted.
+     */
     public EmitterPointShape(Vector3f point) {
         this.point = point;
     }
@@ -80,26 +95,43 @@ public class EmitterPointShape implements EmitterShape {
         this.point = cloner.clone(point);
     }
 
+    /**
+     * For a point shape, the generated point is
+     * always the shape's defined point.
+     *
+     * @param store The {@link Vector3f} to store the generated point in.
+     */
     @Override
     public void getRandomPoint(Vector3f store) {
         store.set(point);
     }
 
     /**
-     * This method fills the point with data.
-     * It does not fill the normal.
-     * @param store the variable to store the point data
-     * @param normal not used in this class
+     * For a point shape, the generated point is always the shape's defined point.
+     * The normal is not defined for a point shape, so this method does not modify the normal parameter.
+     *
+     * @param store  The {@link Vector3f} to store the generated point in.
+     * @param normal The {@link Vector3f} to store the generated normal in (unused).
      */
     @Override
     public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
         store.set(point);
     }
 
+    /**
+     * Returns the point from which particles are emitted.
+     *
+     * @return The point.
+     */
     public Vector3f getPoint() {
         return point;
     }
 
+    /**
+     * Sets the point from which particles are emitted.
+     *
+     * @param point The new point.
+     */
     public void setPoint(Vector3f point) {
         this.point = point;
     }
@@ -112,6 +144,7 @@ public class EmitterPointShape implements EmitterShape {
 
     @Override
     public void read(JmeImporter im) throws IOException {
-        this.point = (Vector3f) im.getCapsule(this).readSavable("point", null);
+        InputCapsule ic = im.getCapsule(this);
+        this.point = (Vector3f) ic.readSavable("point", null);
     }
 }
