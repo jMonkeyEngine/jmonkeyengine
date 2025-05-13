@@ -49,13 +49,21 @@ public class LowPassFilter extends Filter {
     /**
      * The overall volume scaling of the filtered sound
      */
-    protected float volume;
+    protected float volume = 1.0f;
     /**
      * The volume scaling of the high frequencies allowed to pass through. Valid values range
      * from 0.0 to 1.0, where 0.0 completely eliminates high frequencies and 1.0 lets them pass
      * through unchanged.
      */
-    protected float highFreqVolume;
+    protected float highFreqVolume = 1.0f;
+
+    /**
+     * Constructs a low-pass filter with default settings.
+     * Required for jME deserialization.
+     */
+    public LowPassFilter() {
+        super();
+    }
 
     /**
      * Constructs a low-pass filter.
