@@ -136,16 +136,16 @@ public class LowPassFilter extends Filter {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(volume, "volume", 0);
-        oc.write(highFreqVolume, "hf_volume", 0);
+        oc.write(volume, "volume", 1f);
+        oc.write(highFreqVolume, "hf_volume", 1f);
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        volume = ic.readFloat("volume", 0);
-        highFreqVolume = ic.readFloat("hf_volume", 0);
+        volume = ic.readFloat("volume", 1f);
+        highFreqVolume = ic.readFloat("hf_volume", 1f);
     }
 
     /**
