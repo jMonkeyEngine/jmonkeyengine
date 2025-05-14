@@ -338,7 +338,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             long startTime = System.nanoTime();
 
             if (Thread.interrupted()) {
-                logger.info("Audio decoder thread interrupted, exiting.");
+                logger.fine("Audio decoder thread interrupted, exiting.");
                 break;
             }
 
@@ -357,13 +357,13 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException ex) {
-                        logger.info("Audio decoder thread interrupted during sleep, exiting.");
+                        logger.fine("Audio decoder thread interrupted during sleep, exiting.");
                         break mainloop;
                     }
                 }
             }
         }
-        logger.info("Audio decoder thread finished.");
+        logger.fine("Audio decoder thread finished.");
     }
 
     /**
