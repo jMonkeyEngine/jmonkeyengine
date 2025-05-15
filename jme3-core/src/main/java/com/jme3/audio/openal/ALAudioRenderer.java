@@ -228,11 +228,9 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             // 3. Configure effect type
             efx.alEffecti(reverbFx, EFX.AL_EFFECT_TYPE, EFX.AL_EFFECT_REVERB);
-            checkAlError("setting reverb effect type");
 
             // 4. attach reverb effect to effect slot
             efx.alAuxiliaryEffectSloti(reverbFxSlot, EFX.AL_EFFECTSLOT_EFFECT, reverbFx);
-            checkAlError("attaching reverb effect to slot");
 
         } else {
             logger.log(Level.WARNING, "OpenAL EFX not available! Audio effects won't work.");
@@ -259,7 +257,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         ib.put(channels);
         ib.flip();
         al.alDeleteSources(channels.length, ib);
-        checkAlError("deleting sources");
 
         // Delete audio buffers and filters managed by NativeObjectManager
         objManager.deleteAllObjects(this);
@@ -270,7 +267,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 ib.clear().limit(1);
                 ib.put(0, reverbFx);
                 efx.alDeleteEffects(1, ib);
-                checkAlError("deleting reverbFx effect " + reverbFx);
                 reverbFx = -1;
             }
 
@@ -278,7 +274,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 ib.clear().limit(1);
                 ib.put(0, reverbFxSlot);
                 efx.alDeleteAuxiliaryEffectSlots(1, ib);
-                checkAlError("deleting effect reverbFxSlot " + reverbFxSlot);
                 reverbFxSlot = -1;
             }
         }
@@ -408,15 +403,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             efx.alFilteri(id, EFX.AL_FILTER_TYPE, EFX.AL_FILTER_LOWPASS);
             efx.alFilterf(id, EFX.AL_LOWPASS_GAIN, lowPass.getVolume());
             efx.alFilterf(id, EFX.AL_LOWPASS_GAINHF, lowPass.getHighFreqVolume());
-
-            if (checkAlError("updating filter " + id)) {
-                deleteFilter(f); // Try to clean up
-            } else {
-                f.clearUpdateNeeded(); // Mark as updated in AL
-            }
-        }
-        // ** Add other filter types (HighPass, BandPass) here if implemented **
-        else {
+            f.clearUpdateNeeded();
+        } else {
             throw new UnsupportedOperationException("Unsupported filter type: " + f.getClass().getName());
         }
     }
@@ -455,9 +443,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             // Add byte offset from source (for both streams and buffers)
             int byteOffset = al.alGetSourcei(sourceId, AL_BYTE_OFFSET);
-            if (checkAlError("getting source byte offset for " + sourceId)) {
-                return 0; // Error getting offset
-            }
             playbackOffsetBytes += byteOffset;
 
             // Compute time value from bytes
@@ -631,7 +616,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
             // NOTE: must re-attach filter for changes to apply.
             al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, filterId);
-            checkAlError("setting source direct filter for " + sourceId);
         }
     }
 
@@ -646,7 +630,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 filterId = f.getId();
             }
             al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filterId);
-            checkAlError("setting source reverb send for " + sourceId);
         }
     }
 
@@ -657,7 +640,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             looping = false;
         }
         al.alSourcei(sourceId, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
-        checkAlError("setting source looping for " + sourceId);
     }
 
     /** Sets AL_SOURCE_RELATIVE and applies position/velocity/distance accordingly */
@@ -690,7 +672,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
             }
         }
-        checkAlError("setting source positional state for " + sourceId);
     }
 
     /** Sets cone angles/gain based on whether the source is directional */
@@ -707,7 +688,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             al.alSourcef(sourceId, AL_CONE_OUTER_ANGLE, 360f);
             al.alSourcef(sourceId, AL_CONE_OUTER_GAIN, 1f);
         }
-        checkAlError("setting source directional state for " + sourceId);
     }
 
     /**
@@ -766,7 +746,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private void applyListenerPosition(Listener listener) {
         Vector3f pos = listener.getLocation();
         al.alListener3f(AL_POSITION, pos.x, pos.y, pos.z);
-        checkAlError("setting listener position");
     }
 
     private void applyListenerRotation(Listener listener) {
@@ -778,18 +757,15 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         fb.put(up.x).put(up.y).put(up.z);
         fb.flip();
         al.alListener(AL_ORIENTATION, fb);
-        checkAlError("setting listener orientation");
     }
 
     private void applyListenerVelocity(Listener listener) {
         Vector3f vel = listener.getVelocity();
         al.alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z);
-        checkAlError("setting listener velocity");
     }
 
     private void applyListenerVolume(Listener listener) {
         al.alListenerf(AL_GAIN, listener.getVolume());
-        checkAlError("setting listener volume");
     }
 
     private int newChannel() {
@@ -836,14 +812,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             efx.alEffectf(reverbFx, EFX.AL_REVERB_AIR_ABSORPTION_GAINHF, env.getAirAbsorbGainHf());
             efx.alEffectf(reverbFx, EFX.AL_REVERB_ROOM_ROLLOFF_FACTOR, env.getRoomRolloffFactor());
 
-            if (checkAlError("setting reverb effect parameters")) {
-                return;
-            }
-
             // (Re)attach the configured reverb effect to the slot
             efx.alAuxiliaryEffectSloti(reverbFxSlot, EFX.AL_EFFECTSLOT_EFFECT, reverbFx);
-            checkAlError("attaching reverb effect to slot");
-
             this.environment = env;
         }
     }
@@ -884,9 +854,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         int sampleRate = stream.getSampleRate();
         al.alBufferData(bufferId, format, nativeBuf, totalBytesRead, sampleRate);
 
-        if (checkAlError("filling buffer " + bufferId + " for stream")) {
-            return false;
-        }
         return true;
     }
 
@@ -1015,23 +982,19 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             int sourceId = channels[index];
             al.alSourceStop(sourceId);
-            checkAlError("stopping source " + sourceId + " on clearChannel");
 
             // For streaming sources, this will clear all queued buffers.
             al.alSourcei(sourceId, AL_BUFFER, 0);
-            checkAlError("detaching buffer from source " + sourceId);
 
             if (supportEfx) {
                 if (src.getDryFilter() != null) {
                     // detach direct filter
                     al.alSourcei(sourceId, EFX.AL_DIRECT_FILTER, EFX.AL_FILTER_NULL);
-                    checkAlError("detaching direct filter from source " + sourceId);
                 }
 
                 if (src.isPositional() && src.isReverbEnabled()) {
                     // Detach auxiliary send filter (reverb)
                     al.alSource3i(sourceId, EFX.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX.AL_FILTER_NULL);
-                    checkAlError("detaching aux filter from source " + sourceId);
                 }
             }
 
@@ -1264,7 +1227,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 // Start it again.
                 logger.log(Level.WARNING, "Buffer starvation detected for stream on channel {0}. Restarting playback.", i);
                 al.alSourcePlay(sourceId);
-                checkAlError("restarting starved source " + sourceId);
             }
         }
 
@@ -1375,7 +1337,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             // play the channel
             al.alSourcePlay(sourceId);
-            checkAlError("playing source instance " + sourceId);
         }
     }
 
@@ -1430,9 +1391,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             // play the channel
             int sourceId = channels[src.getChannel()];
             al.alSourcePlay(sourceId);
-            if (!checkAlError("playing source " + sourceId)) {
-                src.setStatus(Status.Playing); // Update JME status on success
-            }
+            src.setStatus(Status.Playing); // Update JME status
         }
     }
 
@@ -1459,9 +1418,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
                 int sourceId = channels[src.getChannel()];
                 al.alSourcePause(sourceId);
-                if (!checkAlError("pausing source " + sourceId)) {
-                    src.setStatus(Status.Paused); // Update JME status on success
-                }
+                src.setStatus(Status.Paused); // Update JME status
             }
         }
     }
@@ -1532,7 +1489,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
         }
 
-        // Format not supported
         throw new UnsupportedOperationException("Unsupported audio format: "
                 + channels + " channels, " + bitsPerSample + " bits per sample.");
     }
@@ -1546,7 +1502,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         if (ab.getId() == -1) {
             ib.clear().limit(1);
             al.alGenBuffers(1, ib);
-            checkAlError("generating bufferId");
             id = ib.get(0);
             ab.setId(id);
 
@@ -1561,9 +1516,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         int sampleRate = ab.getSampleRate();
 
         al.alBufferData(id, format, data, data.capacity(), sampleRate);
-        if (!checkAlError("uploading buffer data for ID " + id)) {
-            ab.clearUpdateNeeded();
-        }
+        ab.clearUpdateNeeded();
     }
 
     /**
@@ -1581,7 +1534,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         ib.clear().limit(STREAMING_BUFFER_COUNT);
 
         al.alGenBuffers(STREAMING_BUFFER_COUNT, ib);
-        checkAlError("generating stream buffers ids");
 
         ib.rewind();
         ib.get(ids);
@@ -1611,7 +1563,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             ib.clear().limit(1);
             ib.put(id).flip();
             efx.alDeleteFilters(1, ib);
-            checkAlError("deleting filter " + id);
             filter.resetObject();
         }
     }
@@ -1634,7 +1585,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     ib.put(0, id);
                     ib.clear().limit(1);
                     al.alDeleteBuffers(1, ib);
-                    checkAlError("deleting buffer " + id);
                     ab.resetObject(); // Mark as deleted on JME side
                 }
             } else if (audioData instanceof AudioStream) {
@@ -1644,45 +1594,10 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     ib.clear();
                     ib.put(ids).flip();
                     al.alDeleteBuffers(ids.length, ib);
-                    checkAlError("deleting " + ids.length + " buffers");
                     as.resetObject(); // Mark as deleted on JME side
                 }
             }
         }
     }
 
-    /**
-     * Checks for OpenAL errors and logs a warning if an error occurred.
-     * @param location A string describing where the check is occurring (for logging).
-     * @return True if an error occurred, false otherwise.
-     */
-    private boolean checkAlError(String location) {
-        int error = al.alGetError();
-        if (error != AL_NO_ERROR) {
-            String errorString;
-            switch (error) {
-                case AL_INVALID_NAME:
-                    errorString = "AL_INVALID_NAME";
-                    break;
-                case AL_INVALID_ENUM:
-                    errorString = "AL_INVALID_ENUM";
-                    break;
-                case AL_INVALID_VALUE:
-                    errorString = "AL_INVALID_VALUE";
-                    break;
-                case AL_INVALID_OPERATION:
-                    errorString = "AL_INVALID_OPERATION";
-                    break;
-                case AL_OUT_OF_MEMORY:
-                    errorString = "AL_OUT_OF_MEMORY";
-                    break;
-                default:
-                    errorString = "Unknown AL error code: " + error;
-                    break;
-            }
-            logger.log(Level.WARNING, "OpenAL Error ({0}) at {1}", new Object[]{errorString, location});
-            return true;
-        }
-        return false;
-    }
 }
