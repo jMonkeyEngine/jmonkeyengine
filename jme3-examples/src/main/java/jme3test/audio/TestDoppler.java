@@ -57,8 +57,8 @@ public class TestDoppler extends SimpleApplication {
     private BitmapText bmp;
 
     public static void main(String[] args) {
-        TestDoppler test = new TestDoppler();
-        test.start();
+        TestDoppler app = new TestDoppler();
+        app.start();
     }
 
     @Override
