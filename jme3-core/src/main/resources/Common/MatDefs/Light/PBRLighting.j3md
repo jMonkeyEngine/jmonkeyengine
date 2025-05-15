@@ -147,14 +147,15 @@ MaterialDef PBR Lighting {
          // debug the final value of the selected layer as a color output            
         Int DebugValuesMode
             // Layers:
-            //   0 - albedo (un-shaded)
+            //   0 - albedo (unshaded)
             //   1 - normals
             //   2 - roughness
             //   3 - metallic
             //   4 - ao
-            //   5  - emissive
+            //   5 - emissive
             //   6 - exposure
             //   7 - alpha
+            //   8 - geometryNormals
     }
 
     Technique {
