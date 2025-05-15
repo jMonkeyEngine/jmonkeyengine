@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -677,7 +677,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             sb.append('\n')
               .append(" *  Red Size: ").append(glData.redSize);
             sb.append('\n')
-              .append(" *  Rreen Size: ").append(glData.greenSize);
+              .append(" *  Green Size: ").append(glData.greenSize);
             sb.append('\n')
               .append(" *  Blue Size: ").append(glData.blueSize);
             sb.append('\n')

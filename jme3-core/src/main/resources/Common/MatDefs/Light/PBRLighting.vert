@@ -76,7 +76,7 @@ void main(){
        texCoord2 = inTexCoord2;
     #endif
 
-    wPosition = (g_WorldMatrix * vec4(inPosition, 1.0)).xyz;
+    wPosition = TransformWorld(modelSpacePos).xyz;
     wNormal  = TransformWorldNormal(modelSpaceNorm);
     
     wTangent = vec4(TransformWorldNormal(modelSpaceTan),inTangent.w);
