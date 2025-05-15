@@ -26,8 +26,8 @@ import com.jme3.scene.shape.Line;
 public class TestAudioDirectional extends SimpleApplication implements ActionListener {
 
     public static void main(String[] args) {
-        TestAudioDirectional test = new TestAudioDirectional();
-        test.start();
+        TestAudioDirectional app = new TestAudioDirectional();
+        app.start();
     }
 
     private AudioNode audioSource;
