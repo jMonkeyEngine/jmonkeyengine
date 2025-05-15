@@ -45,8 +45,8 @@ public class TestWav extends SimpleApplication {
     private AudioNode audioSource;
 
     public static void main(String[] args) {
-        TestWav test = new TestWav();
-        test.start();
+        TestWav app = new TestWav();
+        app.start();
     }
 
     @Override
