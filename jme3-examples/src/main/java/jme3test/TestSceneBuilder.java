@@ -879,21 +879,15 @@ public class TestSceneBuilder {
             setWalkDirection(walk);
             input.set(0f, 0f);
             super.update(tpf);
-            app.getCamera().setLocation(spatial.getWorldTranslation().add(0f, getFinalHeight() - 2f, 0f));
+            app.getCamera().setLocation(getSpatial().getWorldTranslation().add(0f, getFinalHeight() - 2f, 0f));
         }
 
         @Override
         public void setSpatial(Spatial spat) {
             if (spatial == null && spat != null) {
-                InputManager in = app.getInputManager();
-                in.addMapping(FORWARD, forwardTrigger);
-                in.addMapping(BACKWARD, backwardTrigger);
-                in.addMapping(LEFT, leftTrigger);
-                in.addMapping(RIGHT, rightTrigger);
-                in.addMapping(JUMP, jumpTrigger);
-                in.addListener(this, FORWARD, BACKWARD, LEFT, RIGHT, JUMP);
+                setupInput();
             } else if (spatial != null && spat == null) {
-                app.getInputManager().removeListener(this);
+                cleanupInput();
             }
             super.setSpatial(spat);
         }
@@ -915,6 +909,26 @@ public class TestSceneBuilder {
                 super.jump();
                 jumpDelay = 0.05f;
             }
+        }
+
+        private void setupInput() {
+            InputManager in = app.getInputManager();
+            in.addMapping(FORWARD, forwardTrigger);
+            in.addMapping(BACKWARD, backwardTrigger);
+            in.addMapping(LEFT, leftTrigger);
+            in.addMapping(RIGHT, rightTrigger);
+            in.addMapping(JUMP, jumpTrigger);
+            in.addListener(this, FORWARD, BACKWARD, LEFT, RIGHT, JUMP);
+        }
+
+        private void cleanupInput() {
+            InputManager in = app.getInputManager();
+            in.removeListener(this);
+            in.deleteMapping(FORWARD);
+            in.deleteMapping(BACKWARD);
+            in.deleteMapping(LEFT);
+            in.deleteMapping(RIGHT);
+            in.deleteMapping(JUMP);
         }
 
         /**
