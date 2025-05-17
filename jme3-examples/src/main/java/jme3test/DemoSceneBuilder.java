@@ -76,11 +76,11 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * Configurable testing environment
+ * Configurable demo environment.
  *
  * @author codex
  */
-public class TestSceneBuilder {
+public class DemoSceneBuilder {
 
     /**
      * Cube faces for create skyboxes.
@@ -102,7 +102,7 @@ public class TestSceneBuilder {
      *
      * @param app jme application
      */
-    public TestSceneBuilder(Application app) {
+    public DemoSceneBuilder(Application app) {
         this.app = app;
         this.assetManager = this.app.getAssetManager();
         this.node.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
@@ -811,7 +811,7 @@ public class TestSceneBuilder {
     }
 
     /**
-     * Dedicated test application for {@link TestSceneBuilder}.
+     * Dedicated test application for {@link DemoSceneBuilder}.
      */
     private static class TestApp extends SimpleApplication {
 
@@ -822,7 +822,7 @@ public class TestSceneBuilder {
         @Override
         public void simpleInitApp() {
 
-            TestSceneBuilder scene = new TestSceneBuilder(this);
+            DemoSceneBuilder scene = new DemoSceneBuilder(this);
             scene.configure();
             scene.baseScene();
             scene.brightMountainsSun();
