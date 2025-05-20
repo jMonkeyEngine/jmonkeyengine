@@ -41,7 +41,6 @@ import java.io.IOException;
 
 /**
  * Represents an OpenAL EFX High-Pass Filter.
- * Changes to settings are applied immediately to the native OpenAL filter.
  */
 public class HighPassFilter extends Filter {
 
@@ -50,7 +49,7 @@ public class HighPassFilter extends Filter {
     protected float lowFreqVolume = 1.0f;
 
     /**
-     * Constructs a low-pass filter with default settings.
+     * Constructs a high-pass filter with default settings.
      * Required for jME deserialization
      */
     public HighPassFilter(){}
