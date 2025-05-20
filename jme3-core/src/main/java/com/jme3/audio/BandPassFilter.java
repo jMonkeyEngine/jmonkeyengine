@@ -72,7 +72,6 @@ public class BandPassFilter extends Filter {
 
     /**
      * Sets the overall gain of the Band-Pass filter.
-     * The change is immediately applied to the native OpenAL filter.
      *
      * @param volume The gain value (0.0 to 1.0).
      */
@@ -90,7 +89,6 @@ public class BandPassFilter extends Filter {
 
     /**
      * Sets the gain at high frequencies for the Band-Pass filter.
-     * The change is immediately applied to the native OpenAL filter.
      *
      * @param highFreqVolume The high-frequency gain value (0.0 to 1.0).
      */
@@ -108,7 +106,6 @@ public class BandPassFilter extends Filter {
 
     /**
      * Sets the gain at low frequencies for the Band-Pass filter.
-     * The change is immediately applied to the native OpenAL filter.
      *
      * @param lowFreqVolume The low-frequency gain value (0.0 to 1.0).
      */
