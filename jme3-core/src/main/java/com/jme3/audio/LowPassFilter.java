@@ -49,13 +49,21 @@ public class LowPassFilter extends Filter {
     /**
      * The overall volume scaling of the filtered sound
      */
-    protected float volume;
+    protected float volume = 1.0f;
     /**
      * The volume scaling of the high frequencies allowed to pass through. Valid values range
      * from 0.0 to 1.0, where 0.0 completely eliminates high frequencies and 1.0 lets them pass
      * through unchanged.
      */
-    protected float highFreqVolume;
+    protected float highFreqVolume = 1.0f;
+
+    /**
+     * Constructs a low-pass filter with default settings.
+     * Required for jME deserialization.
+     */
+    public LowPassFilter() {
+        super();
+    }
 
     /**
      * Constructs a low-pass filter.
@@ -128,16 +136,16 @@ public class LowPassFilter extends Filter {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(volume, "volume", 0);
-        oc.write(highFreqVolume, "hf_volume", 0);
+        oc.write(volume, "volume", 1f);
+        oc.write(highFreqVolume, "hf_volume", 1f);
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        volume = ic.readFloat("volume", 0);
-        highFreqVolume = ic.readFloat("hf_volume", 0);
+        volume = ic.readFloat("volume", 1f);
+        highFreqVolume = ic.readFloat("hf_volume", 1f);
     }
 
     /**
