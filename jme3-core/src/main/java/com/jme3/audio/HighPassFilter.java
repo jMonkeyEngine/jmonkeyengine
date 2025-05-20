@@ -70,7 +70,6 @@ public class HighPassFilter extends Filter {
 
     /**
      * Sets the gain of the High-Pass filter.
-     * The change is immediately applied to the native OpenAL filter.
      *
      * @param volume The gain value (0.0 to 1.0).
      */
@@ -88,7 +87,6 @@ public class HighPassFilter extends Filter {
 
     /**
      * Sets the gain at low frequencies for the High-Pass filter.
-     * The change is immediately applied to the native OpenAL filter.
      *
      * @param lowFreqVolume The low-frequency gain value (0.0 to 1.0).
      */
