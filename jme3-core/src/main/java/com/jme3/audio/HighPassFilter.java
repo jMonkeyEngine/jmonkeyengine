@@ -117,15 +117,15 @@ public class HighPassFilter extends Filter {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(this.volume, "volume", 10.f);
-        oc.write(this.lowFreqVolume, "lf_volume", 1.0f);
+        oc.write(this.volume, "volume", 1f);
+        oc.write(this.lowFreqVolume, "lf_volume", 1f);
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        this.volume = ic.readFloat("volume", 1.0f);
-        this.lowFreqVolume = ic.readFloat("lf_volume", 1.0f);
+        this.volume = ic.readFloat("volume", 1f);
+        this.lowFreqVolume = ic.readFloat("lf_volume", 1f);
     }
 }
