@@ -52,8 +52,8 @@ import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
- * A MotionEvent is a control over the spatial that manages the position and direction of the spatial while following a motion Path.
- *
+ * A MotionEvent is a control over the spatial that manages
+ * the position and direction of the spatial while following a motion Path.
  * You must first create a MotionPath and then create a MotionEvent to associate a spatial and the path.
  *
  * @author Nehon
@@ -70,6 +70,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     protected Direction directionType = Direction.None;
     protected MotionPath path;
     private boolean isControl = true;
+    private final Quaternion tempQuaternion = new Quaternion();
     /**
      * the distance traveled by the spatial on the path
      */
@@ -79,7 +80,6 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      * Enum for the different type of target direction behavior.
      */
     public enum Direction {
-
         /**
          * The target stays in the starting direction.
          */
@@ -229,18 +229,20 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
-        InputCapsule in = im.getCapsule(this);
-        lookAt = (Vector3f) in.readSavable("lookAt", null);
-        upVector = (Vector3f) in.readSavable("upVector", Vector3f.UNIT_Y);
-        rotation = (Quaternion) in.readSavable("rotation", null);
-        directionType = in.readEnum("directionType", Direction.class, Direction.None);
-        path = (MotionPath) in.readSavable("path", null);
-        spatial = (Spatial) in.readSavable("spatial", null);
+        InputCapsule ic = im.getCapsule(this);
+        lookAt = (Vector3f) ic.readSavable("lookAt", null);
+        upVector = (Vector3f) ic.readSavable("upVector", Vector3f.UNIT_Y);
+        rotation = (Quaternion) ic.readSavable("rotation", null);
+        directionType = ic.readEnum("directionType", Direction.class, Direction.None);
+        path = (MotionPath) ic.readSavable("path", null);
+        spatial = (Spatial) ic.readSavable("spatial", null);
     }
 
     /**
-     * This method is meant to be called by the motion path only.
-     * @return true if needed, otherwise false
+     * Determines if the motion path needs direction information. This method
+     * is intended to be called by the motion path only.
+     *
+     * @return True if direction information is needed, otherwise false.
      */
     public boolean needsDirection() {
         return directionType == Direction.Path || directionType == Direction.PathAndRotation;
@@ -249,9 +251,8 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     private void computeTargetDirection() {
         switch (directionType) {
             case Path:
-                Quaternion q = new Quaternion();
-                q.lookAt(direction, upVector);
-                spatial.setLocalRotation(q);
+                tempQuaternion.lookAt(direction, upVector);
+                spatial.setLocalRotation(tempQuaternion);
                 break;
             case LookAt:
                 if (lookAt != null) {
@@ -260,10 +261,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
                 break;
             case PathAndRotation:
                 if (rotation != null) {
-                    Quaternion q2 = new Quaternion();
-                    q2.lookAt(direction, upVector);
-                    q2.multLocal(rotation);
-                    spatial.setLocalRotation(q2);
+                    tempQuaternion.lookAt(direction, upVector);
+                    tempQuaternion.multLocal(rotation);
+                    spatial.setLocalRotation(tempQuaternion);
                 }
                 break;
             case Rotation:
@@ -272,6 +272,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
                 }
                 break;
             case None:
+                // no-op
                 break;
             default:
                 break;
@@ -376,8 +377,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
 
     /**
      * Sets the direction of the spatial, using the Y axis as the up vector.
-     * Use MotionEvent#setDirection((Vector3f direction,Vector3f upVector) if
-     * you want a custom up vector.
+     * If a custom up vector is desired, use {@link #setDirection(Vector3f, Vector3f)}.
      * This method is used by the motion path.
      *
      * @param direction the desired forward direction (not null, unaffected)
