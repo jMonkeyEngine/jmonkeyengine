@@ -174,7 +174,7 @@ public final class FastMath {
      * @return The interpolated value between startValue and endValue.
      */
     public static Vector3f interpolateLinear(float scale, Vector3f startValue,
-                                             Vector3f endValue, Vector3f store) {
+            Vector3f endValue, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -231,7 +231,7 @@ public final class FastMath {
      * @return an extrapolation for the given parameters
      */
     public static Vector3f extrapolateLinear(float scale, Vector3f startValue,
-                                             Vector3f endValue, Vector3f store) {
+            Vector3f endValue, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -307,7 +307,7 @@ public final class FastMath {
      * @return Catmull–Rom interpolation
      */
     public static Vector3f interpolateCatmullRom(float u, float T, Vector3f p0,
-                                                 Vector3f p1, Vector3f p2, Vector3f p3, Vector3f store) {
+            Vector3f p1, Vector3f p2, Vector3f p3, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -336,7 +336,7 @@ public final class FastMath {
      * @return Catmull–Rom interpolation
      */
     public static Vector3f interpolateCatmullRom(float u, float T, Vector3f p0,
-                                                 Vector3f p1, Vector3f p2, Vector3f p3) {
+            Vector3f p1, Vector3f p2, Vector3f p3) {
         return interpolateCatmullRom(u, T, p0, p1, p2, p3, null);
     }
 
@@ -385,7 +385,7 @@ public final class FastMath {
      * @return Bezier interpolation
      */
     public static Vector3f interpolateBezier(float u, Vector3f p0, Vector3f p1,
-                                             Vector3f p2, Vector3f p3, Vector3f store) {
+            Vector3f p2, Vector3f p3, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -429,7 +429,7 @@ public final class FastMath {
      * @return the length of the segment
      */
     public static float getCatmullRomP1toP2Length(Vector3f p0, Vector3f p1,
-                                                  Vector3f p2, Vector3f p3, float startRange, float endRange, float curveTension) {
+            Vector3f p2, Vector3f p3, float startRange, float endRange, float curveTension) {
 
         float epsilon = 0.001f;
         float middleValue = (startRange + endRange) * 0.5f;
@@ -824,9 +824,9 @@ public final class FastMath {
      * @return the determinant
      */
     public static float determinant(double m00, double m01, double m02,
-                                    double m03, double m10, double m11, double m12, double m13,
-                                    double m20, double m21, double m22, double m23, double m30,
-                                    double m31, double m32, double m33) {
+            double m03, double m10, double m11, double m12, double m13,
+            double m20, double m21, double m22, double m23, double m30,
+            double m31, double m32, double m33) {
 
         double det01 = m20 * m31 - m21 * m30;
         double det02 = m20 * m32 - m22 * m30;
