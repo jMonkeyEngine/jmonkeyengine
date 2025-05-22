@@ -850,10 +850,10 @@ public final class FastMath {
     }
 
     /**
-     * Generates a pseudorandom {@code float} in the range [min, max] (inclusive).
+     * Generates a pseudorandom {@code float} in the range [min, max)
      *
      * @param min The lower bound (inclusive).
-     * @param max The upper bound (inclusive).
+     * @param max The upper bound (exclusive).
      * @return A random {@code float} value within the specified range.
      */
     public static float nextRandomFloat(float min, float max) {
