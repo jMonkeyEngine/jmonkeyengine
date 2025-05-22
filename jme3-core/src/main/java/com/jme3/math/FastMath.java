@@ -40,9 +40,10 @@ import java.util.Random;
  * @author Various
  * @version $Id: FastMath.java,v 1.45 2007/08/26 08:44:20 irrisor Exp $
  */
-final public class FastMath {
-    private FastMath() {
-    }
+public final class FastMath {
+
+    private FastMath() {}
+
     /**
      * A "close to zero" double epsilon value for use
      */
@@ -173,7 +174,7 @@ final public class FastMath {
      * @return The interpolated value between startValue and endValue.
      */
     public static Vector3f interpolateLinear(float scale, Vector3f startValue,
-            Vector3f endValue, Vector3f store) {
+                                             Vector3f endValue, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -230,7 +231,7 @@ final public class FastMath {
      * @return an extrapolation for the given parameters
      */
     public static Vector3f extrapolateLinear(float scale, Vector3f startValue,
-            Vector3f endValue, Vector3f store) {
+                                             Vector3f endValue, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -306,7 +307,7 @@ final public class FastMath {
      * @return Catmull–Rom interpolation
      */
     public static Vector3f interpolateCatmullRom(float u, float T, Vector3f p0,
-            Vector3f p1, Vector3f p2, Vector3f p3, Vector3f store) {
+                                                 Vector3f p1, Vector3f p2, Vector3f p3, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -335,7 +336,7 @@ final public class FastMath {
      * @return Catmull–Rom interpolation
      */
     public static Vector3f interpolateCatmullRom(float u, float T, Vector3f p0,
-            Vector3f p1, Vector3f p2, Vector3f p3) {
+                                                 Vector3f p1, Vector3f p2, Vector3f p3) {
         return interpolateCatmullRom(u, T, p0, p1, p2, p3, null);
     }
 
@@ -384,7 +385,7 @@ final public class FastMath {
      * @return Bezier interpolation
      */
     public static Vector3f interpolateBezier(float u, Vector3f p0, Vector3f p1,
-            Vector3f p2, Vector3f p3, Vector3f store) {
+                                             Vector3f p2, Vector3f p3, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -428,7 +429,7 @@ final public class FastMath {
      * @return the length of the segment
      */
     public static float getCatmullRomP1toP2Length(Vector3f p0, Vector3f p1,
-            Vector3f p2, Vector3f p3, float startRange, float endRange, float curveTension) {
+                                                  Vector3f p2, Vector3f p3, float startRange, float endRange, float curveTension) {
 
         float epsilon = 0.001f;
         float middleValue = (startRange + endRange) * 0.5f;
@@ -489,10 +490,8 @@ final public class FastMath {
             if (fValue < 1.0f) {
                 return (float) Math.acos(fValue);
             }
-
             return 0.0f;
         }
-
         return PI;
     }
 
@@ -511,10 +510,8 @@ final public class FastMath {
             if (fValue < 1.0f) {
                 return (float) Math.asin(fValue);
             }
-
             return HALF_PI;
         }
-
         return -HALF_PI;
     }
 
@@ -827,9 +824,9 @@ final public class FastMath {
      * @return the determinant
      */
     public static float determinant(double m00, double m01, double m02,
-            double m03, double m10, double m11, double m12, double m13,
-            double m20, double m21, double m22, double m23, double m30,
-            double m31, double m32, double m33) {
+                                    double m03, double m10, double m11, double m12, double m13,
+                                    double m20, double m21, double m22, double m23, double m30,
+                                    double m31, double m32, double m33) {
 
         double det01 = m20 * m31 - m21 * m30;
         double det02 = m20 * m32 - m22 * m30;
@@ -844,41 +841,40 @@ final public class FastMath {
     }
 
     /**
-     * Returns a random float between 0 and 1.
+     * Generates a pseudorandom {@code float} in the range [0.0, 1.0).
      *
-     * @return a random float between 0 (inclusive) and 1 (exclusive)
+     * @return A random {@code float} value.
      */
     public static float nextRandomFloat() {
         return rand.nextFloat();
     }
 
     /**
-     * Returns a random float between min and max.
+     * Generates a pseudorandom {@code float} in the range [min, max] (inclusive).
      *
-     * @param min the desired minimum value
-     * @param max the desired maximum value
-     * @return a random float between min (inclusive) and max (inclusive)
+     * @param min The lower bound (inclusive).
+     * @param max The upper bound (inclusive).
+     * @return A random {@code float} value within the specified range.
      */
     public static float nextRandomFloat(float min, float max) {
-        return min + (max - min) * rand.nextFloat();
+        return min + (max - min) * nextRandomFloat();
     }
 
     /**
-     * Choose a pseudo-random, uniformly-distributed integer value from
-     * the shared generator.
+     * Generates a pseudorandom, uniformly-distributed {@code int} value.
      *
-     * @return the next integer value
+     * @return The next pseudorandom {@code int} value.
      */
     public static int nextRandomInt() {
         return rand.nextInt();
     }
 
     /**
-     * Returns a random integer between min and max.
+     * Generates a pseudorandom {@code int} in the range [min, max] (inclusive).
      *
-     * @param min the desired minimum value
-     * @param max the desired maximum value
-     * @return a random int between min (inclusive) and max (inclusive)
+     * @param min The lower bound (inclusive).
+     * @param max The upper bound (inclusive).
+     * @return A random {@code int} value within the specified range.
      */
     public static int nextRandomInt(int min, int max) {
         return (int) (nextRandomFloat() * (max - min + 1)) + min;
@@ -891,12 +887,12 @@ final public class FastMath {
      */
     public static Vector3f onUnitSphere() {
 
-        float u = FastMath.nextRandomFloat();
-        float v = FastMath.nextRandomFloat();
+        float u = nextRandomFloat();
+        float v = nextRandomFloat();
 
-        // azimuthal angle: The angle between x-axis in radians [0, 2pi]
+        // azimuthal angle: The angle between x-axis in radians [0, 2PI]
         float theta = FastMath.TWO_PI * u;
-        // polar angle: The angle between z-axis in radians [0, pi]
+        // polar angle: The angle between z-axis in radians [0, PI]
         float phi = (float) Math.acos(2f * v - 1f);
 
         float cosPolar = FastMath.cos(phi);
@@ -914,11 +910,11 @@ final public class FastMath {
      * @return A new {@link Vector3f} representing a random point within the unit sphere.
      */
     public static Vector3f insideUnitSphere() {
-        float u = FastMath.nextRandomFloat();
+        float u = nextRandomFloat();
         // Azimuthal angle [0, 2PI]
-        float theta = FastMath.TWO_PI * FastMath.nextRandomFloat();
+        float theta = FastMath.TWO_PI * nextRandomFloat();
         // Polar angle [0, PI] for uniform surface distribution
-        float phi = FastMath.acos(2f * FastMath.nextRandomFloat() - 1f);
+        float phi = FastMath.acos(2f * nextRandomFloat() - 1f);
 
         // For uniform distribution within the volume, radius R should be such that R^3 is uniformly distributed.
         // So, R = cbrt(random_uniform_0_to_1)
@@ -940,9 +936,9 @@ final public class FastMath {
      */
     public static Vector2f insideUnitCircle() {
         // Angle [0, 2PI]
-        float angle = FastMath.TWO_PI * FastMath.nextRandomFloat();
+        float angle = FastMath.TWO_PI * nextRandomFloat();
         // For uniform distribution, R^2 is uniform
-        float radius = FastMath.sqrt(FastMath.nextRandomFloat());
+        float radius = FastMath.sqrt(nextRandomFloat());
 
         float x = radius * FastMath.cos(angle);
         float y = radius * FastMath.sin(angle);
@@ -960,8 +956,7 @@ final public class FastMath {
      * @param store storage for the result (modified if not null)
      * @return the Cartesian coordinates (either store or a new vector)
      */
-    public static Vector3f sphericalToCartesian(Vector3f sphereCoords,
-            Vector3f store) {
+    public static Vector3f sphericalToCartesian(Vector3f sphereCoords, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -983,8 +978,7 @@ final public class FastMath {
      * @return the Cartesian coordinates: x=distance from origin, y=longitude in
      * radians, z=latitude in radians (either store or a new vector)
      */
-    public static Vector3f cartesianToSpherical(Vector3f cartCoords,
-            Vector3f store) {
+    public static Vector3f cartesianToSpherical(Vector3f cartCoords, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -1013,8 +1007,7 @@ final public class FastMath {
      * @param store storage for the result (modified if not null)
      * @return the Cartesian coordinates (either store or a new vector)
      */
-    public static Vector3f sphericalToCartesianZ(Vector3f sphereCoords,
-            Vector3f store) {
+    public static Vector3f sphericalToCartesianZ(Vector3f sphereCoords, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -1036,8 +1029,7 @@ final public class FastMath {
      * @return the Cartesian coordinates: x=distance from origin, y=latitude in
      * radians, z=longitude in radians (either store or a new vector)
      */
-    public static Vector3f cartesianZToSpherical(Vector3f cartCoords,
-            Vector3f store) {
+    public static Vector3f cartesianZToSpherical(Vector3f cartCoords, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
@@ -1059,12 +1051,9 @@ final public class FastMath {
     /**
      * Takes a value and expresses it in terms of min to max.
      *
-     * @param val -
-     *            the angle to normalize (in radians)
-     * @param min
-     *            the lower limit of the range
-     * @param max
-     *            the upper limit of the range
+     * @param val the angle to normalize (in radians)
+     * @param min the lower limit of the range
+     * @param max the upper limit of the range
      * @return the normalized angle (also in radians)
      */
     public static float normalize(float val, float min, float max) {
