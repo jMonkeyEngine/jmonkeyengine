@@ -65,7 +65,6 @@ public class CameraEvent extends AbstractCinematicEvent {
 
     /**
      * Constructs a new `CameraEvent` with the specified cinematic and camera name.
-     * This constructor is suitable for programmatic creation of the event.
      *
      * @param cinematic  The `Cinematic` instance this event belongs to (cannot be null).
      * @param cameraName The name of the camera to be activated by this event (cannot be null or empty).
@@ -146,10 +145,10 @@ public class CameraEvent extends AbstractCinematicEvent {
     }
 
     /**
-     * used internally for serialization
+     * Used internally for serialization.
      *
-     * @param ex the exporter (not null)
-     * @throws IOException from the exporter
+     * @param ex The exporter (not null).
+     * @throws IOException If an I/O error occurs during serialization.
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -159,10 +158,10 @@ public class CameraEvent extends AbstractCinematicEvent {
     }
 
     /**
-     * used internally for serialization
+     * Used internally for deserialization.
      *
-     * @param im the importer (not null)
-     * @throws IOException from the importer
+     * @param im The importer (not null).
+     * @throws IOException If an I/O error occurs during deserialization.
      */
     @Override
     public void read(JmeImporter im) throws IOException {
