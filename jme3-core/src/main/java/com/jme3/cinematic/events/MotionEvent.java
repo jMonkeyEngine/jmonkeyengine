@@ -70,7 +70,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     protected Direction directionType = Direction.None;
     protected MotionPath path;
     private boolean isControl = true;
-    private final Quaternion tempQuaternion = new Quaternion();
+    private final Quaternion tempRotation = new Quaternion();
     /**
      * the distance traveled by the spatial on the path
      */
@@ -239,10 +239,8 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * Determines if the motion path needs direction information. This method
-     * is intended to be called by the motion path only.
-     *
-     * @return True if direction information is needed, otherwise false.
+     * This method is meant to be called by the motion path only.
+     * @return true if needed, otherwise false
      */
     public boolean needsDirection() {
         return directionType == Direction.Path || directionType == Direction.PathAndRotation;
@@ -251,8 +249,8 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     private void computeTargetDirection() {
         switch (directionType) {
             case Path:
-                tempQuaternion.lookAt(direction, upVector);
-                spatial.setLocalRotation(tempQuaternion);
+                tempRotation.lookAt(direction, upVector);
+                spatial.setLocalRotation(tempRotation);
                 break;
             case LookAt:
                 if (lookAt != null) {
@@ -261,9 +259,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
                 break;
             case PathAndRotation:
                 if (rotation != null) {
-                    tempQuaternion.lookAt(direction, upVector);
-                    tempQuaternion.multLocal(rotation);
-                    spatial.setLocalRotation(tempQuaternion);
+                    tempRotation.lookAt(direction, upVector);
+                    tempRotation.multLocal(rotation);
+                    spatial.setLocalRotation(tempRotation);
                 }
                 break;
             case Rotation:
