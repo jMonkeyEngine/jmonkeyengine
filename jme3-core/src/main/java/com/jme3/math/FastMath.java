@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -853,6 +853,27 @@ final public class FastMath {
     }
 
     /**
+     * Returns a random float between min and max.
+     *
+     * @param min the desired minimum value
+     * @param max the desired maximum value
+     * @return a random float between min (inclusive) and max (inclusive)
+     */
+    public static float nextRandomFloat(float min, float max) {
+        return min + (max - min) * rand.nextFloat();
+    }
+
+    /**
+     * Choose a pseudo-random, uniformly-distributed integer value from
+     * the shared generator.
+     *
+     * @return the next integer value
+     */
+    public static int nextRandomInt() {
+        return rand.nextInt();
+    }
+
+    /**
      * Returns a random integer between min and max.
      *
      * @param min the desired minimum value
@@ -864,13 +885,69 @@ final public class FastMath {
     }
 
     /**
-     * Choose a pseudo-random, uniformly-distributed integer value from
-     * the shared generator.
+     * Returns a random point on the surface of a sphere with radius 1.0
      *
-     * @return the next integer value
+     * @return A new {@link Vector3f} representing a random point on the surface of the unit sphere.
      */
-    public static int nextRandomInt() {
-        return rand.nextInt();
+    public static Vector3f onUnitSphere() {
+
+        float u = FastMath.nextRandomFloat();
+        float v = FastMath.nextRandomFloat();
+
+        // azimuthal angle: The angle between x-axis in radians [0, 2pi]
+        float theta = FastMath.TWO_PI * u;
+        // polar angle: The angle between z-axis in radians [0, pi]
+        float phi = (float) Math.acos(2f * v - 1f);
+
+        float cosPolar = FastMath.cos(phi);
+        float sinPolar = FastMath.sin(phi);
+        float cosAzim = FastMath.cos(theta);
+        float sinAzim = FastMath.sin(theta);
+
+        return new Vector3f(cosAzim * sinPolar, sinAzim * sinPolar, cosPolar);
+    }
+
+    /**
+     * Returns a random point inside or on a sphere with radius 1.0
+     * This method uses spherical coordinates combined with a cubed-root radius.
+     *
+     * @return A new {@link Vector3f} representing a random point within the unit sphere.
+     */
+    public static Vector3f insideUnitSphere() {
+        float u = FastMath.nextRandomFloat();
+        // Azimuthal angle [0, 2PI]
+        float theta = FastMath.TWO_PI * FastMath.nextRandomFloat();
+        // Polar angle [0, PI] for uniform surface distribution
+        float phi = FastMath.acos(2f * FastMath.nextRandomFloat() - 1f);
+
+        // For uniform distribution within the volume, radius R should be such that R^3 is uniformly distributed.
+        // So, R = cbrt(random_uniform_0_to_1)
+        float radius = (float) Math.cbrt(u);
+
+        float sinPhi = FastMath.sin(phi);
+        float x = radius * sinPhi * FastMath.cos(theta);
+        float y = radius * sinPhi * FastMath.sin(theta);
+        float z = radius * FastMath.cos(phi);
+
+        return new Vector3f(x, y, z);
+    }
+
+    /**
+     * Returns a random point inside or on a circle with radius 1.0.
+     * This method uses polar coordinates combined with a square-root radius.
+     *
+     * @return A new {@link Vector2f} representing a random point within the unit circle.
+     */
+    public static Vector2f insideUnitCircle() {
+        // Angle [0, 2PI]
+        float angle = FastMath.TWO_PI * FastMath.nextRandomFloat();
+        // For uniform distribution, R^2 is uniform
+        float radius = FastMath.sqrt(FastMath.nextRandomFloat());
+
+        float x = radius * FastMath.cos(angle);
+        float y = radius * FastMath.sin(angle);
+
+        return new Vector2f(x, y);
     }
 
     /**
@@ -1142,6 +1219,5 @@ final public class FastMath {
     public static int toMultipleOf(int n, int p) {
         return ((n - 1) | (p - 1)) + 1;
     }
-
 
 }
