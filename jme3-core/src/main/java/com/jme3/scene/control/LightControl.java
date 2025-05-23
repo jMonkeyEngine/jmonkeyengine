@@ -78,6 +78,7 @@ public class LightControl extends AbstractControl {
 
     private Light light;
     private ControlDirection controlDir = ControlDirection.SpatialToLight;
+    private int axisRotation = 2; // Default to Z-axis
 
     /**
      * For serialization only. Do not use.
@@ -128,6 +129,31 @@ public class LightControl extends AbstractControl {
         this.controlDir = controlDir;
     }
 
+    /**
+     * Returns the index of the spatial's local axis (0=X, 1=Y, 2=Z) that determines
+     * the light's direction when synchronizing Spatial to Light.
+     * Defaults to 2 (Z-axis).
+     *
+     * @return The axis index (0 for X, 1 for Y, 2 for Z).
+     */
+    public int getAxisRotation() {
+        return axisRotation;
+    }
+
+    /**
+     * Sets the spatial's local axis to be used as the light's forward direction
+     * when synchronizing Spatial to Light.
+     *
+     * @param axisRotation The index of the axis (0, 1, or 2).
+     * @throws IllegalArgumentException if {@code axisRotation} is not 0, 1, or 2.
+     */
+    public void setAxisRotation(int axisRotation) {
+        if (axisRotation < 0 || axisRotation > 2) {
+            throw new IllegalArgumentException("Axis rotation must be 0 (X), 1 (Y), or 2 (Z).");
+        }
+        this.axisRotation = axisRotation;
+    }
+
     private void validateSupportedLightType(Light light) {
         switch (light.getType()) {
             case Point:
@@ -165,19 +191,19 @@ public class LightControl extends AbstractControl {
         final Vector3f worldPosition = vars.vect1;
         worldPosition.set(spatial.getWorldTranslation());
 
-        final Vector3f zDirection = vars.vect2;
-        spatial.getWorldRotation().mult(Vector3f.UNIT_Z, zDirection).negateLocal();
+        final Vector3f lightDirection = vars.vect2;
+        spatial.getWorldRotation().getRotationColumn(axisRotation, lightDirection).negateLocal();
 
         if (light instanceof PointLight) {
             ((PointLight) light).setPosition(worldPosition);
 
         } else if (light instanceof DirectionalLight) {
-            ((DirectionalLight) light).setDirection(zDirection);
+            ((DirectionalLight) light).setDirection(lightDirection);
 
         } else if (light instanceof SpotLight) {
             SpotLight sl = (SpotLight) light;
             sl.setPosition(worldPosition);
-            sl.setDirection(zDirection);
+            sl.setDirection(lightDirection);
         }
         vars.release();
     }
@@ -251,6 +277,7 @@ public class LightControl extends AbstractControl {
         InputCapsule ic = im.getCapsule(this);
         controlDir = ic.readEnum("controlDir", ControlDirection.class, ControlDirection.SpatialToLight);
         light = (Light) ic.readSavable("light", null);
+        axisRotation = ic.readInt("axisRotation", 2);
     }
 
     @Override
@@ -259,5 +286,6 @@ public class LightControl extends AbstractControl {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(controlDir, "controlDir", ControlDirection.SpatialToLight);
         oc.write(light, "light", null);
+        oc.write(axisRotation, "axisRotation", 2);
     }
 }
