@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,25 +32,51 @@
 package jme3test.stress;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.bounding.BoundingBox;
+import com.jme3.font.BitmapText;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.Trigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.Quaternion;
+import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.control.LodControl;
+import com.jme3.scene.control.UpdateControl;
+import com.jme3.scene.debug.WireBox;
 import jme3tools.optimize.GeometryBatchFactory;
 
-public class TestBatchLod extends SimpleApplication {
+import java.util.Locale;
+
+public class TestBatchLod extends SimpleApplication implements ActionListener {
 
     public static void main(String[] args) {
         TestBatchLod app = new TestBatchLod();
+        app.setPauseOnLostFocus(false);
         app.start();
     }
 
+    private BitmapText hud;
+    private Material lightMaterial;
+    private final Node debugNode = new Node("DebugNode");
+    private LodControl lodControl;
+    // Tuning parameters
+    private float trisPerPixel = 1.0f;
+    private float distTolerance = 1.0f;
+
     @Override
     public void simpleInitApp() {
-//        inputManager.registerKeyBinding("USELOD", KeyInput.KEY_L);
+
+        configureCamera();
+
+        hud = createLabelText(10, 20, "<placeholder>");
+        updateHud();
 
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
@@ -59,30 +85,126 @@ public class TestBatchLod extends SimpleApplication {
         Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.mesh.xml");
         Geometry teapot = (Geometry) teapotNode.getChild(0);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        mat.setFloat("Shininess", 16f);
-        mat.setBoolean("VertexLighting", true);
-        teapot.setMaterial(mat);
+        lightMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        lightMaterial.setFloat("Shininess", 16f);
+        lightMaterial.setBoolean("VertexLighting", true);
+        lightMaterial.getAdditionalRenderState().setWireframe(true);
+        teapot.setMaterial(lightMaterial);
 
-        // A special Material to visualize mesh normals:
-        //Material mat = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
-        flyCam.setMoveSpeed(5);
+        boolean cloneMaterial = false;
         for (int y = -5; y < 5; y++) {
             for (int x = -5; x < 5; x++) {
-                Geometry clonePot = teapot.clone();
-
-                //clonePot.setMaterial(mat);
-                clonePot.setLocalTranslation(x * .5f, 0, y * .5f);
-                clonePot.setLocalScale(.15f);
-                clonePot.setMaterial(mat);
-                rootNode.attachChild(clonePot);
+                Geometry geo = teapot.clone(cloneMaterial);
+                geo.setLocalTranslation(x * .5f, 0, y * .5f);
+                geo.setLocalScale(.15f);
+                geo.setMaterial(lightMaterial);
+                debugNode.attachChild(geo);
             }
         }
-        GeometryBatchFactory.optimize(rootNode, true);
-        LodControl control = new LodControl();
-        rootNode.getChild(0).addControl(control);
-        cam.setLocation(new Vector3f(-1.0748308f, 1.35778f, -1.5380064f));
-        cam.setRotation(new Quaternion(0.18343268f, 0.34531063f, -0.069015436f, 0.9177962f));
 
+        lodControl = new LodControl();
+        boolean useLods = true;
+        Node batchNode = GeometryBatchFactory.optimize(debugNode, useLods);
+        batchNode.depthFirstTraversal(new SceneGraphVisitorAdapter() {
+            @Override
+            public void visit(Geometry geom) {
+                if (geom.getMesh().getNumLodLevels() > 0) {
+
+                    geom.addControl(lodControl);
+                    debugWorldBound((BoundingBox) geom.getWorldBound());
+
+                    geom.addControl(new UpdateControl() {
+                        int lastLevel = -1;
+                        final BitmapText label = createLabelText(10, 50, "Updating...");
+
+                        @Override
+                        protected void controlUpdate(float tpf) {
+                            if (lastLevel != geom.getLodLevel()) {
+                                lastLevel = geom.getLodLevel();
+                                label.setText("LodLevel: " + lastLevel);
+                            }
+                        }
+                    });
+                }
+            }
+
+            private void debugWorldBound(BoundingBox bbox) {
+                Geometry geo = WireBox.makeGeometry(bbox);
+                Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+                mat.setColor("Color", ColorRGBA.Blue);
+                geo.setMaterial(mat);
+                rootNode.attachChild(geo);
+            }
+        });
+
+        rootNode.attachChild(debugNode);
+        registerInputMappings();
     }
+
+    private void updateHud() {
+        hud.setText(String.format(Locale.ENGLISH, "TrisPerPixel: %.1f, DistTolerance: %.1f",
+                trisPerPixel, distTolerance));
+    }
+
+    @Override
+    public void onAction(String name, boolean isPressed, float tpf) {
+        if (!isPressed) return;
+
+        if (name.equals("toggleWireframe")) {
+            RenderState renderState = lightMaterial.getAdditionalRenderState();
+            boolean wireframe = renderState.isWireframe();
+            renderState.setWireframe(!wireframe);
+        }
+        if (name.equals("TrisPerPixel+")) {
+            trisPerPixel = FastMath.clamp(trisPerPixel + 0.1f, 0.1f, 5f);
+            lodControl.setTrisPerPixel(trisPerPixel);
+            updateHud();
+
+        } else if (name.equals("TrisPerPixel-")) {
+            trisPerPixel = FastMath.clamp(trisPerPixel - 0.1f, 0.1f, 5f);
+            lodControl.setTrisPerPixel(trisPerPixel);
+            updateHud();
+
+        } else if (name.equals("DistTolerance+")) {
+            distTolerance = FastMath.clamp(distTolerance + 0.1f, 0.1f, 5f);
+            lodControl.setDistTolerance(distTolerance);
+            updateHud();
+
+        } else if (name.equals("DistTolerance-")) {
+            distTolerance = FastMath.clamp(distTolerance - 0.1f, 0.1f, 5f);
+            lodControl.setDistTolerance(distTolerance);
+            updateHud();
+        }
+    }
+
+    private void registerInputMappings() {
+        addMapping("toggleWireframe", new KeyTrigger(KeyInput.KEY_SPACE));
+        addMapping("TrisPerPixel+", new KeyTrigger(KeyInput.KEY_I));
+        addMapping("TrisPerPixel-", new KeyTrigger(KeyInput.KEY_K));
+        addMapping("DistTolerance+", new KeyTrigger(KeyInput.KEY_L));
+        addMapping("DistTolerance-", new KeyTrigger(KeyInput.KEY_J));
+    }
+
+    private void addMapping(String mappingName, Trigger... triggers) {
+        inputManager.addMapping(mappingName, triggers);
+        inputManager.addListener(this, mappingName);
+    }
+
+    private void configureCamera() {
+        flyCam.setMoveSpeed(25f);
+        flyCam.setDragToRotate(true);
+
+        cam.setLocation(Vector3f.UNIT_XYZ.mult(8f));
+        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
+    }
+
+    private BitmapText createLabelText(int x, int y, String text) {
+        BitmapText bmp = new BitmapText(guiFont);
+        bmp.setText(text);
+        bmp.setLocalTranslation(x, settings.getHeight() - y, 0);
+        bmp.setColor(ColorRGBA.Red);
+        guiNode.attachChild(bmp);
+        return bmp;
+    }
+
 }
