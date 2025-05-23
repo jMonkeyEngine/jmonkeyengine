@@ -137,7 +137,7 @@ public class LightControl extends AbstractControl {
                 break;
             default:
                 throw new IllegalArgumentException(
-                        "LightControl does not support unknown Light type: " + light.getType());
+                        "Unsupported Light type: " + light.getType());
         }
     }
 
