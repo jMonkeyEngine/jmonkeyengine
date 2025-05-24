@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,12 +34,20 @@ package com.jme3.material;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.CloneableSmartAsset;
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -56,7 +64,11 @@ import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,7 +89,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     public static final int SAVABLE_VERSION = 2;
     private static final Logger logger = Logger.getLogger(Material.class.getName());
 
-    private AssetKey key;
+    private AssetKey<?> key;
     private String name;
     private MaterialDef def;
     private ListMap<String, MatParam> paramValues = new ListMap<>();
@@ -90,15 +102,24 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private int sortingId = -1;
 
     /**
-     * Track bind ids for textures and buffers
-     * Used internally 
+     * Manages and tracks texture and buffer binding units for rendering.
+     * Used internally by the Material class.
      */
     public static class BindUnits {
+        /** The current texture unit counter. */
         public int textureUnit = 0;
+        /** The current buffer unit counter. */
         public int bufferUnit = 0;
     }
     private BindUnits bindUnits = new BindUnits();
 
+    /**
+     * Constructs a new Material instance based on a provided MaterialDef.
+     * The material's parameters will be initialized with default values from the definition.
+     *
+     * @param def The material definition to use (cannot be null).
+     * @throws IllegalArgumentException if def is null.
+     */
     public Material(MaterialDef def) {
         if (def == null) {
             throw new IllegalArgumentException("Material definition cannot be null");
@@ -113,40 +134,48 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
     }
 
-    public Material(AssetManager contentMan, String defName) {
-        this(contentMan.loadAsset(new AssetKey<MaterialDef>(defName)));
+    /**
+     * Constructs a new Material by loading its MaterialDef from the asset manager.
+     *
+     * @param assetManager The asset manager to load the MaterialDef from.
+     * @param defName      The asset path of the .j3md file.
+     */
+    public Material(AssetManager assetManager, String defName) {
+        this(assetManager.loadAsset(new AssetKey<MaterialDef>(defName)));
     }
 
     /**
-     * Do not use this constructor. Serialization purposes only.
+     * For serialization only. Do not use.
      */
     public Material() {
     }
 
     /**
      * Returns the asset key name of the asset from which this material was loaded.
+     * <p>This value will be null unless this material was loaded from a .j3m file.</p>
      *
-     * <p>This value will be <code>null</code> unless this material was loaded
-     * from a .j3m file.
-     *
-     * @return Asset key name of the j3m file
+     * @return Asset key name of the .j3m file, or null if not loaded from a file.
      */
     public String getAssetName() {
         return key != null ? key.getName() : null;
     }
 
     /**
-     * @return the name of the material (not the same as the asset name), the returned value can be null
+     * Returns the user-defined name of the material.
+     * This name is distinct from the asset name and may be null or not unique.
+     *
+     * @return The name of the material, or null.
      */
     public String getName() {
         return name;
     }
 
     /**
-     * This method sets the name of the material.
+     * Sets the user-defined name of the material.
      * The name is not the same as the asset name.
-     * It can be null and there is no guarantee of its uniqueness.
-     * @param name the name of the material
+     * It can be null, and there is no guarantee of its uniqueness.
+     *
+     * @param name The name of the material.
      */
     public void setName(String name) {
         this.name = name;
@@ -228,7 +257,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
-     * Compares two materials and returns true if they are equal.
+     * Compares two materials for content equality.
      * This methods compare definition, parameters, additional render states.
      * Since materials are mutable objects, implementing equals() properly is not possible,
      * hence the name contentEquals().
@@ -405,7 +434,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
-     * Get the material definition (j3md file info) that <code>this</code>
+     * Get the material definition (.j3md file info) that <code>this</code>
      * material is implementing.
      *
      * @return the material definition this material implements.
@@ -494,7 +523,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     /**
      * Pass a parameter to the material shader.
      *
-     * @param name the name of the parameter defined in the material definition (j3md)
+     * @param name the name of the parameter defined in the material definition (.j3md)
      * @param type the type of the parameter {@link VarType}
      * @param value the value of the parameter
      */
@@ -506,7 +535,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         } else {
             MatParam val = getParam(name);
             if (val == null) {
-                MatParam paramDef = def.getMaterialParam(name);
                 paramValues.put(name, new MatParam(type, name, value));
             } else {
                 val.setValue(value);
@@ -532,7 +560,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         MatParam p = getMaterialDef().getMaterialParam(name);
         setParam(name, p.getVarType(), value);
     }
-
 
     /**
      * Clear a parameter from this material. The parameter must exist
@@ -569,14 +596,17 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         checkSetParam(type, name);
-        MatParamTexture val = getTextureParam(name);
-        if (val == null) {
-            checkTextureParamColorSpace(name, value);
-            paramValues.put(name, new MatParamTexture(type, name, value, value.getImage() != null ? value.getImage().getColorSpace() : null));
+        MatParamTexture param = getTextureParam(name);
+
+        checkTextureParamColorSpace(name, value);
+        ColorSpace colorSpace = value.getImage() != null ? value.getImage().getColorSpace() : null;
+
+        if (param == null) {
+            param = new MatParamTexture(type, name, value, colorSpace);
+            paramValues.put(name, param);
         } else {
-            checkTextureParamColorSpace(name, value);
-            val.setTextureValue(value);
-            val.setColorSpace(value.getImage() != null ? value.getImage().getColorSpace() : null);
+            param.setTextureValue(value);
+            param.setColorSpace(colorSpace);
         }
 
         if (technique != null) {
@@ -613,8 +643,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     /**
      * Pass a texture to the material shader.
      *
-     * @param name the name of the texture defined in the material definition
-     * (j3md) (for example Texture for Lighting.j3md)
+     * @param name  the name of the texture defined in the material definition
+     *              (.j3md) (e.g. Texture for Lighting.j3md)
      * @param value the Texture object previously loaded by the asset manager
      */
     public void setTexture(String name, Texture value) {
@@ -707,7 +737,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
-     * Pass an uniform buffer object to the material shader.
+     * Pass a uniform buffer object to the material shader.
      *
      * @param name  the name of the buffer object defined in the material definition (j3md).
      * @param value the buffer object.
@@ -843,7 +873,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
     }
 
-
     private void updateShaderMaterialParameter(Renderer renderer, VarType type, Shader shader, MatParam param, BindUnits unit, boolean override) {
         if (type == VarType.UniformBufferObject || type == VarType.ShaderStorageBufferObject) {
             ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
@@ -862,7 +891,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             unit.bufferUnit++;
         } else {
             Uniform uniform = shader.getUniform(param.getPrefixedName());
-            if (!override && uniform.isSetByCurrentMaterial()) return;
+            if (!override && uniform.isSetByCurrentMaterial())
+                return;
 
             if (type.isTextureType() || type.isImageType()) {
                 try {
@@ -871,9 +901,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                     } else {
                         renderer.setTextureImage(unit.textureUnit, (TextureImage) param.getValue());
                     }
-                } catch (TextureUnitException exception) {
+                } catch (TextureUnitException ex) {
                     int numTexParams = unit.textureUnit + 1;
-                    String message = "Too many texture parameters (" + numTexParams + ") assigned\n to " + toString();
+                    String message = "Too many texture parameters (" + numTexParams + ") assigned\n to " + this.toString();
                     throw new IllegalStateException(message);
                 }
                 uniform.setValue(VarType.Int, unit.textureUnit);
@@ -884,11 +914,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
     }
 
-
-
-
-    private BindUnits updateShaderMaterialParameters(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> worldOverrides,
-            SafeArrayList<MatParamOverride> forcedOverrides) {
+    private BindUnits updateShaderMaterialParameters(Renderer renderer, Shader shader,
+                 SafeArrayList<MatParamOverride> worldOverrides, SafeArrayList<MatParamOverride> forcedOverrides) {
 
         bindUnits.textureUnit = 0;
         bindUnits.bufferUnit = 0;
@@ -901,19 +928,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         for (int i = 0; i < paramValues.size(); i++) {
-
             MatParam param = paramValues.getValue(i);
             VarType type = param.getVarType();
-
             updateShaderMaterialParameter(renderer, type, shader, param, bindUnits, false);
         }
 
-        // TODO HACKY HACK remove this when texture unit is handled by the
-        // uniform.
+        // TODO: HACKY HACK remove this when texture unit is handled by the uniform.
         return bindUnits;
     }
-
-
 
     private void updateRenderState(Geometry geometry, RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
         RenderState finalRenderState;
@@ -935,8 +957,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
     /**
      * Returns true if the geometry world scale indicates that normals will be backward.
-     * @param scalar geometry world scale
-     * @return 
+     *
+     * @param scalar The geometry's world scale vector.
+     * @return true if the normals are effectively backward; false otherwise.
      */
     private boolean isNormalsBackward(Vector3f scalar) {
         // count number of negative scalar vector components
@@ -1114,6 +1137,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     @Override
+    public String toString() {
+        return "Material[name=" + name +
+                ", def=" + (def != null ? def.getName() : null) +
+                ", tech=" + (technique != null && technique.getDef() != null ? technique.getDef().getName() : null) +
+                "]";
+    }
+
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(def.getAssetName(), "material_def", null);
@@ -1123,14 +1154,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         oc.writeStringSavableMap(paramValues, "parameters", null);
     }
     
-    @Override
-    public String toString() {
-        return "Material[name=" + name + 
-                ", def=" + (def != null ? def.getName() : null) + 
-                ", tech=" + (technique != null && technique.getDef() != null ? technique.getDef().getName() : null) + 
-                "]";
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
@@ -1144,7 +1167,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         String defName = ic.readString("material_def", null);
         HashMap<String, MatParam> params = (HashMap<String, MatParam>) ic.readStringSavableMap("parameters", null);
 
-        boolean enableVcolor = false;
+        boolean enableVertexColor = false;
         boolean separateTexCoord = false;
         boolean applyDefaultValues = false;
         boolean guessRenderStateApply = false;
@@ -1160,7 +1183,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             // Enable compatibility with old models
             if (defName.equalsIgnoreCase("Common/MatDefs/Misc/VertexColor.j3md")) {
                 // Using VertexColor, switch to Unshaded and set VertexColor=true
-                enableVcolor = true;
+                enableVertexColor = true;
                 defName = "Common/MatDefs/Misc/Unshaded.j3md";
             } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/SimpleTextured.j3md")
                     || defName.equalsIgnoreCase("Common/MatDefs/Misc/SolidColor.j3md")) {
@@ -1212,8 +1235,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         if (applyDefaultValues) {
-            // compatability with old versions where default vars were
-            // not available
+            // compatibility with old versions where default vars were not available
             for (MatParam param : def.getMaterialParams()) {
                 if (param.getValue() != null && paramValues.get(param.getName()) == null) {
                     setParam(param.getName(), param.getVarType(), param.getValue());
@@ -1232,7 +1254,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             additionalState.applyStencilTest = additionalState.stencilTest;
             additionalState.applyWireFrame = additionalState.wireframe;
         }
-        if (enableVcolor) {
+        if (enableVertexColor) {
             setBoolean("VertexColor", true);
         }
         if (separateTexCoord) {
