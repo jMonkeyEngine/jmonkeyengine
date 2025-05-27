@@ -550,9 +550,7 @@ public final class GLRenderer implements Renderer {
         }
 
         // Supports sRGB pipeline.
-        if ( (hasExtension("GL_ARB_framebuffer_sRGB")
-                && hasExtension("GL_EXT_framebuffer_sRGB")
-                && hasExtension("GL_EXT_texture_sRGB"))
+        if ( (hasExtension("GL_ARB_framebuffer_sRGB") && hasExtension("GL_EXT_texture_sRGB"))
                 || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
             caps.add(Caps.Srgb);
         }
@@ -3492,12 +3490,6 @@ public final class GLRenderer implements Renderer {
         setFrameBuffer(null);
 
         if (enableSrgb) {
-            if (!hasExtension("GL_EXT_framebuffer_sRGB")) {
-                logger.warning("Driver claims that default framebuffer is not sRGB capable. Enabling anyway.");
-            }
-//            if (!getBoolean(GLExt.GL_FRAMEBUFFER_SRGB_CAPABLE_EXT)) {
-//                logger.warning("Driver claims that default framebuffer is not sRGB capable. Enabling anyway.");
-//            }
             gl.glEnable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
             logger.log(Level.INFO, "SRGB FrameBuffer enabled (Gamma Correction)");
         } else {
