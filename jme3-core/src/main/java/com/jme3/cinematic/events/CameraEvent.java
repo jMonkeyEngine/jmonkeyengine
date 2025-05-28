@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,27 +40,37 @@ import com.jme3.export.OutputCapsule;
 import java.io.IOException;
 
 /**
+ * A `CameraEvent` is a cinematic event that instantly sets the active camera
+ * within a `Cinematic` sequence.
  *
  * @author Rickard (neph1 @ github)
  */
 public class CameraEvent extends AbstractCinematicEvent {
 
+    /**
+     * The name of the camera to activate.
+     */
     private String cameraName;
+    /**
+     * The `Cinematic` instance to which this event belongs and on which the
+     * camera will be set.
+     */
     private Cinematic cinematic;
 
-    public String getCameraName() {
-        return cameraName;
-    }
-
-    public void setCameraName(String cameraName) {
-        this.cameraName = cameraName;
-    }
-
+    /**
+     * For serialization only. Do not use.
+     */
     public CameraEvent() {
     }
 
-    public CameraEvent(Cinematic parentEvent, String cameraName) {
-        this.cinematic = parentEvent;
+    /**
+     * Constructs a new `CameraEvent` with the specified cinematic and camera name.
+     *
+     * @param cinematic  The `Cinematic` instance this event belongs to (cannot be null).
+     * @param cameraName The name of the camera to be activated by this event (cannot be null or empty).
+     */
+    public CameraEvent(Cinematic cinematic, String cameraName) {
+        this.cinematic = cinematic;
         this.cameraName = cameraName;
     }
 
@@ -102,33 +112,56 @@ public class CameraEvent extends AbstractCinematicEvent {
         play();
     }
 
+    /**
+     * Returns the `Cinematic` instance associated with this event.
+     * @return The `Cinematic` instance.
+     */
     public Cinematic getCinematic() {
         return cinematic;
     }
 
+    /**
+     * Sets the `Cinematic` instance for this event.
+     * @param cinematic The `Cinematic` instance to set (cannot be null).
+     */
     public void setCinematic(Cinematic cinematic) {
         this.cinematic = cinematic;
     }
 
     /**
-     * used internally for serialization
+     * Returns the name of the camera that this event will activate.
+     * @return The camera name.
+     */
+    public String getCameraName() {
+        return cameraName;
+    }
+
+    /**
+     * Sets the name of the camera that this event will activate.
+     * @param cameraName The new camera name (cannot be null or empty).
+     */
+    public void setCameraName(String cameraName) {
+        this.cameraName = cameraName;
+    }
+
+    /**
+     * Used internally for serialization.
      *
-     * @param ex the exporter (not null)
-     * @throws IOException from the exporter
+     * @param ex The exporter (not null).
+     * @throws IOException If an I/O error occurs during serialization.
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(cameraName, "cameraName", null);
-
     }
 
     /**
-     * used internally for serialization
+     * Used internally for deserialization.
      *
-     * @param im the importer (not null)
-     * @throws IOException from the importer
+     * @param im The importer (not null).
+     * @throws IOException If an I/O error occurs during deserialization.
      */
     @Override
     public void read(JmeImporter im) throws IOException {
