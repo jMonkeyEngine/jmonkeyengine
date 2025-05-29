@@ -40,8 +40,10 @@ import com.jme3.audio.AudioSource.Status;
 import static com.jme3.audio.openal.AL.*;
 
 import com.jme3.audio.AudioStream;
+import com.jme3.audio.BandPassFilter;
 import com.jme3.audio.Environment;
 import com.jme3.audio.Filter;
+import com.jme3.audio.HighPassFilter;
 import com.jme3.audio.Listener;
 import com.jme3.audio.ListenerParam;
 import com.jme3.audio.LowPassFilter;
@@ -403,10 +405,25 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             efx.alFilteri(id, EFX.AL_FILTER_TYPE, EFX.AL_FILTER_LOWPASS);
             efx.alFilterf(id, EFX.AL_LOWPASS_GAIN, lowPass.getVolume());
             efx.alFilterf(id, EFX.AL_LOWPASS_GAINHF, lowPass.getHighFreqVolume());
-            f.clearUpdateNeeded();
+
+        } else if (f instanceof HighPassFilter) {
+            HighPassFilter highPass = (HighPassFilter) f;
+            efx.alFilteri(id, EFX.AL_FILTER_TYPE, EFX.AL_FILTER_HIGHPASS);
+            efx.alFilterf(id, EFX.AL_HIGHPASS_GAIN, highPass.getVolume());
+            efx.alFilterf(id, EFX.AL_HIGHPASS_GAINLF, highPass.getLowFreqVolume());
+
+        } else if (f instanceof BandPassFilter) {
+            BandPassFilter bandPass = (BandPassFilter) f;
+            efx.alFilteri(id, EFX.AL_FILTER_TYPE, EFX.AL_FILTER_BANDPASS);
+            efx.alFilterf(id, EFX.AL_BANDPASS_GAIN, bandPass.getVolume());
+            efx.alFilterf(id, EFX.AL_BANDPASS_GAINHF, bandPass.getHighFreqVolume());
+            efx.alFilterf(id, EFX.AL_BANDPASS_GAINLF, bandPass.getLowFreqVolume());
+
         } else {
             throw new UnsupportedOperationException("Unsupported filter type: " + f.getClass().getName());
         }
+
+        f.clearUpdateNeeded();
     }
 
     /**
