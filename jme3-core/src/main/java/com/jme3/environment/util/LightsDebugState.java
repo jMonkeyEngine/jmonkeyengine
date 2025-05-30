@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -53,24 +54,31 @@ import java.util.Map;
  */
 public class LightsDebugState extends BaseAppState {
 
+    private static final String PROBE_GEOMETRY_NAME = "DebugProbeGeometry";
+    private static final String PROBE_BOUNDS_NAME = "DebugProbeBounds";
+
     private Node debugNode;
-    private final Map<LightProbe, Node> probeMapping = new HashMap<>();
-    private final List<LightProbe> garbage = new ArrayList<>();
-    private Geometry debugGeom;
-    private Geometry debugBounds;
-    private Material debugMaterial;
+    private final Map<Light, Spatial> lightGizmoMap = new HashMap<>();
+    private final List<Light> lightList = new ArrayList<>();
+    private Spatial scene;
+
+    private Geometry baseProbeGeom;
+    private Geometry baseProbeBounds;
+    private Material lightProbeMaterial;
     private float probeScale = 1.0f;
-    private Spatial scene = null;
-    private final List<LightProbe> probes = new ArrayList<>();
 
     @Override
     protected void initialize(Application app) {
-        debugNode = new Node("Environment debug Node");
+        debugNode = new Node("LightsDebugNode");
+
         Sphere s = new Sphere(16, 16, 0.15f);
-        debugGeom = new Geometry("debugEnvProbe", s);
-        debugMaterial = new Material(app.getAssetManager(), "Common/MatDefs/Misc/reflect.j3md");
-        debugGeom.setMaterial(debugMaterial);
-        debugBounds = BoundingSphereDebug.createDebugSphere(app.getAssetManager());
+        baseProbeGeom = new Geometry(PROBE_GEOMETRY_NAME, s);
+        lightProbeMaterial = new Material(app.getAssetManager(), "Common/MatDefs/Misc/reflect.j3md");
+        baseProbeGeom.setMaterial(lightProbeMaterial);
+
+        baseProbeBounds = BoundingSphereDebug.createDebugSphere(app.getAssetManager());
+        baseProbeBounds.setName(PROBE_BOUNDS_NAME);
+
         if (scene == null) {
             scene = app.getViewPort().getScenes().get(0);
         }
@@ -93,24 +101,32 @@ public class LightsDebugState extends BaseAppState {
 
                 case Probe:
                     LightProbe probe = (LightProbe) light;
-                    probes.add(probe);
-                    Node n = probeMapping.get(probe);
-                    if (n == null) {
-                        n = new Node("DebugProbe");
-                        n.attachChild(debugGeom.clone(true));
-                        n.attachChild(debugBounds.clone(false));
-                        debugNode.attachChild(n);
-                        probeMapping.put(probe, n);
+                    lightList.add(probe);
+                    Node gizmo = (Node) lightGizmoMap.get(probe);
+                    if (gizmo == null) {
+                        gizmo = new Node("DebugProbe");
+                        gizmo.attachChild(baseProbeGeom.clone(true));
+                        gizmo.attachChild(baseProbeBounds.clone(false));
+                        debugNode.attachChild(gizmo);
+                        lightGizmoMap.put(probe, gizmo);
                     }
-                    Geometry probeGeom = ((Geometry) n.getChild(0));
-                    Material m = probeGeom.getMaterial();
-                    probeGeom.setLocalScale(probeScale);
+                    Geometry probeGeom = (Geometry) gizmo.getChild(PROBE_GEOMETRY_NAME);
+                    Geometry probeBounds = (Geometry) gizmo.getChild(PROBE_BOUNDS_NAME);
+
+                    Material mat = probeGeom.getMaterial();
                     if (probe.isReady()) {
-                        m.setTexture("CubeMap", probe.getPrefilteredEnvMap());
+                        mat.setTexture("CubeMap", probe.getPrefilteredEnvMap());
                     }
-                    n.setLocalTranslation(probe.getPosition());
-                    n.getChild(1).setLocalScale(probe.getArea().getRadius());
+
+                    probeGeom.setLocalScale(probeScale);
+                    probeBounds.setLocalScale(probe.getArea().getRadius());
+                    gizmo.setLocalTranslation(probe.getPosition());
                     break;
+
+                case Point:
+                case Spot:
+                case Directional:
+                    // work in progress...
                 default:
                     break;
             }
@@ -124,27 +140,35 @@ public class LightsDebugState extends BaseAppState {
     }
 
     /**
-     * Set the scenes for which to render light gizmos.
+     * Sets the scene for which to render light gizmos.
+     * If no scene is set, it defaults to the first scene in the viewport.
      *
-     * @param scene the root of the desired scene (alias created)
+     * @param scene The root of the desired scene.
      */
     public void setScene(Spatial scene) {
         this.scene = scene;
+
+        // Clear existing gizmos when the scene changes to avoid displaying gizmos from the old scene
+        debugNode.detachAllChildren();
+        lightGizmoMap.clear();
+        lightList.clear();
     }
 
     private void cleanProbes() {
-        if (probes.size() != probeMapping.size()) {
-            for (LightProbe probe : probeMapping.keySet()) {
-                if (!probes.contains(probe)) {
-                    garbage.add(probe);
-                }
+        Iterator<Map.Entry<Light, Spatial>> iterator = lightGizmoMap.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<Light, Spatial> entry = iterator.next();
+            Light light = entry.getKey();
+
+            if (!lightList.contains(light)) {
+                Spatial gizmoToRemove = entry.getValue();
+                gizmoToRemove.removeFromParent();
+                iterator.remove();
             }
-            for (LightProbe probe : garbage) {
-                probeMapping.remove(probe);
-            }
-            garbage.clear();
-            probes.clear();
         }
+
+        lightList.clear();
     }
 
     @Override
@@ -156,17 +180,18 @@ public class LightsDebugState extends BaseAppState {
     }
 
     /**
-     * returns the scale of the probe's debug sphere
-     * @return the scale factor
+     * Returns the current scale of the light probe's debug sphere.
+     *
+     * @return The scale factor.
      */
     public float getProbeScale() {
         return probeScale;
     }
 
     /**
-     * sets the scale of the probe's debug sphere
+     * Sets the scale of the light probe's debug sphere.
      *
-     * @param probeScale the scale factor (default=1)
+     * @param probeScale The scale factor (default is 1.0).
      */
     public void setProbeScale(float probeScale) {
         this.probeScale = probeScale;
@@ -174,6 +199,13 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     protected void cleanup(Application app) {
+        debugNode.removeFromParent();
+        lightGizmoMap.clear();
+        lightList.clear();
+
+        lightProbeMaterial = null;
+        baseProbeGeom = null;
+        baseProbeBounds = null;
     }
 
     @Override
@@ -183,4 +215,5 @@ public class LightsDebugState extends BaseAppState {
     @Override
     protected void onDisable() {
     }
+
 }
