@@ -47,13 +47,15 @@ import com.jme3.scene.shape.Curve;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 /**
- * Motion path is used to create a path between way points.
+ * A motion path is used to create a path between waypoints for animating objects.
+ *
  * @author Nehon
  */
 public class MotionPath implements JmeCloneable, Savable {
@@ -65,51 +67,60 @@ public class MotionPath implements JmeCloneable, Savable {
     int prevWayPoint = 0;
 
     /**
-     * Create a motion Path
+     * Creates a new motion path.
      */
     public MotionPath() {
     }
 
     /**
-     * interpolate the path giving the time since the beginning and the motionControl
-     * this methods sets the new localTranslation to the spatial of the MotionEvent control.
-     * @param time the time since the animation started
-     * @param control the control over the moving spatial
-     * @param tpf time per frame (in seconds)
-     * @return the distance travelled (in world units)
+     * Interpolates the path based on the time elapsed since the animation began and the motion control.
+     * This method updates the local translation of the spatial associated with the {@code MotionEvent} control.
+     *
+     * @param time    The time since the animation started (in seconds).
+     * @param control The control managing the moving spatial.
+     * @param tpf     Time per frame (in seconds).
+     * @return The distance traveled (in world units).
      */
     public float interpolatePath(float time, MotionEvent control, float tpf) {
 
         float traveledDistance = 0;
         TempVars vars = TempVars.get();
-        Vector3f temp = vars.vect1;
-        Vector3f tmpVector = vars.vect2;
-        Vector2f v = vars.vect2d;
-        //computing traveled distance according to new time
+        Vector3f newPosition = vars.vect1;
+        Vector3f tempDirection = vars.vect2;
+        Vector2f waypointInfo = vars.vect2d;
+
+        // Computing traveled distance according to new time
         traveledDistance = time * (getLength() / control.getInitialDuration());
 
-        //getting waypoint index and current value from new traveled distance
-        v = getWayPointIndexForDistance(traveledDistance, v);
+        // Getting waypoint index and current value from new traveled distance
+        waypointInfo = getWayPointIndexForDistance(traveledDistance, waypointInfo);
 
-        //setting values
-        control.setCurrentWayPoint((int) v.x);
-        control.setCurrentValue(v.y);
+        // Setting values
+        control.setCurrentWayPoint((int) waypointInfo.x);
+        control.setCurrentValue(waypointInfo.y);
 
-        //interpolating new position
-        getSpline().interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
+        // Interpolating new position
+        getSpline().interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), newPosition);
         if (control.needsDirection()) {
-            tmpVector.set(temp);
-            control.setDirection(tmpVector.subtractLocal(control.getSpatial().getLocalTranslation()).normalizeLocal());
+            tempDirection.set(newPosition);
+            tempDirection.subtractLocal(control.getSpatial().getLocalTranslation()).normalizeLocal();
+            control.setDirection(tempDirection);
         }
         checkWayPoint(control, tpf);
 
-        control.getSpatial().setLocalTranslation(temp);
+        control.getSpatial().setLocalTranslation(newPosition);
         vars.release();
         return traveledDistance;
     }
 
+    /**
+     * Checks if a waypoint has been reached and triggers listeners if so.
+     *
+     * @param control The motion event control.
+     * @param tpf     Time per frame (in seconds).
+     */
     public void checkWayPoint(MotionEvent control, float tpf) {
-        //Epsilon varies with the tpf to avoid missing a waypoint on low framerate.
+        // Epsilon varies with the tpf to avoid missing a waypoint on low frame rate.
         float epsilon = tpf * 4f;
         if (control.getCurrentWayPoint() != prevWayPoint) {
             if (control.getCurrentValue() >= 0f && control.getCurrentValue() < epsilon) {
@@ -117,54 +128,6 @@ public class MotionPath implements JmeCloneable, Savable {
                 prevWayPoint = control.getCurrentWayPoint();
             }
         }
-    }
-
-    private void attachDebugNode(Node root) {
-        if (debugNode == null) {
-            debugNode = new Node();
-            Material m = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
-            for (Iterator<Vector3f> it = spline.getControlPoints().iterator(); it.hasNext();) {
-                Vector3f cp = it.next();
-                Geometry geo = new Geometry("box", new Box(0.3f, 0.3f, 0.3f));
-                geo.setLocalTranslation(cp);
-                geo.setMaterial(m);
-                debugNode.attachChild(geo);
-
-            }
-            switch (spline.getType()) {
-                case CatmullRom:
-                    debugNode.attachChild(createCatmullRomPath());
-                    break;
-                case Linear:
-                    debugNode.attachChild(createLinearPath());
-                    break;
-                default:
-                    debugNode.attachChild(createLinearPath());
-                    break;
-            }
-
-            root.attachChild(debugNode);
-        }
-    }
-
-    private Geometry createLinearPath() {
-
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.getAdditionalRenderState().setWireframe(true);
-        mat.setColor("Color", ColorRGBA.Blue);
-        Geometry lineGeometry = new Geometry("line", new Curve(spline, 0));
-        lineGeometry.setMaterial(mat);
-        return lineGeometry;
-    }
-
-    private Geometry createCatmullRomPath() {
-
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.getAdditionalRenderState().setWireframe(true);
-        mat.setColor("Color", ColorRGBA.Blue);
-        Geometry lineGeometry = new Geometry("line", new Curve(spline, 10));
-        lineGeometry.setMaterial(mat);
-        return lineGeometry;
     }
 
     @Override
@@ -175,8 +138,8 @@ public class MotionPath implements JmeCloneable, Savable {
 
     @Override
     public void read(JmeImporter im) throws IOException {
-        InputCapsule in = im.getCapsule(this);
-        spline = (Spline) in.readSavable("spline", null);
+        InputCapsule ic = im.getCapsule(this);
+        spline = (Spline) ic.readSavable("spline", null);
     }
 
     /**
@@ -184,9 +147,9 @@ public class MotionPath implements JmeCloneable, Savable {
      * shallow-cloned MotionPath into a deep-cloned one, using the specified
      * cloner and original to resolve copied fields.
      *
-     * @param cloner the cloner that's cloning this MotionPath (not null)
+     * @param cloner   the cloner that's cloning this MotionPath (not null)
      * @param original the object from which this MotionPath was shallow-cloned
-     * (not null, unaffected)
+     *                 (not null, unaffected)
      */
     @Override
     public void cloneFields(Cloner cloner, Object original) {
@@ -214,11 +177,12 @@ public class MotionPath implements JmeCloneable, Savable {
     }
 
     /**
-     * compute the index of the waypoint and the interpolation value according to a distance
-     * returns a vector 2 containing the index in the x field and the interpolation value in the y field
-     * @param distance the distance traveled on this path
-     * @param store storage for the result (not null, modified)
-     * @return the waypoint index and the interpolation value in a vector2
+     * Computes the index of the waypoint and the interpolation value according to a distance.
+     * Returns a {@code Vector2f} containing the index in the x field and the interpolation value in the y field.
+     *
+     * @param distance The distance traveled on this path.
+     * @param store    Storage for the result (not null, modified).
+     * @return The waypoint index and the interpolation value in a {@code Vector2f}.
      */
     public Vector2f getWayPointIndexForDistance(float distance, Vector2f store) {
         float sum = 0;
@@ -240,101 +204,141 @@ public class MotionPath implements JmeCloneable, Savable {
     }
 
     /**
-     * Add a waypoint to the path
-     * @param wayPoint a position in world space
+     * Adds a waypoint to the path.
+     *
+     * @param wayPoint A position in world space.
      */
     public void addWayPoint(Vector3f wayPoint) {
         spline.addControlPoint(wayPoint);
     }
 
     /**
-     * Return the length of the path in world units
-     * @return the length
-     */
-    public float getLength() {
-        return spline.getTotalLength();
-    }
-
-    /**
-     * returns the waypoint at the given index
-     * @param i the index
-     * @return returns the waypoint position
+     * Returns the waypoint at the given index.
+     *
+     * @param i The index of the waypoint.
+     * @return The waypoint position.
      */
     public Vector3f getWayPoint(int i) {
         return spline.getControlPoints().get(i);
     }
 
     /**
-     * remove the waypoint from the path
-     * @param wayPoint the waypoint to remove
+     * Removes the specified waypoint from the path.
+     *
+     * @param wayPoint The waypoint to remove.
      */
     public void removeWayPoint(Vector3f wayPoint) {
         spline.removeControlPoint(wayPoint);
     }
 
     /**
-     * remove the waypoint at the given index from the path
-     * @param i the index of the waypoint to remove
+     * Removes the waypoint at the given index from the path.
+     *
+     * @param i The index of the waypoint to remove.
      */
     public void removeWayPoint(int i) {
         removeWayPoint(spline.getControlPoints().get(i));
     }
 
     /**
-     * returns an iterator on the waypoints collection
-     * @return an iterator
+     * Clears all waypoints from the path.
+     */
+    public void clearWayPoints() {
+        spline.clearControlPoints();
+    }
+
+    /**
+     * Returns the number of waypoints on this path.
+     *
+     * @return The count of waypoints (&ge;0)
+     */
+    public int getNbWayPoints() {
+        return spline.getControlPoints().size();
+    }
+
+    /**
+     * Returns the total length of the path in world units.
+     *
+     * @return The length of the path.
+     */
+    public float getLength() {
+        return spline.getTotalLength();
+    }
+
+    /**
+     * Returns an iterator for the waypoints collection.
+     *
+     * @return An iterator for the waypoints.
      */
     public Iterator<Vector3f> iterator() {
         return spline.getControlPoints().iterator();
     }
 
     /**
-     * return the type of spline used for the path interpolation for this path
-     * @return the path interpolation spline type
+     * Disables the display of the path and waypoints.
      */
-    public SplineType getPathSplineType() {
-        return spline.getType();
-    }
-
-    /**
-     * sets the type of spline used for the path interpolation for this path
-     * @param pathSplineType the desired type
-     */
-    public void setPathSplineType(SplineType pathSplineType) {
-        spline.setType(pathSplineType);
+    public void disableDebugShape() {
         if (debugNode != null) {
-            Node parent = debugNode.getParent();
             debugNode.removeFromParent();
             debugNode.detachAllChildren();
             debugNode = null;
-            attachDebugNode(parent);
+            assetManager = null;
         }
     }
 
     /**
-     * disable the display of the path and the waypoints
-     */
-    public void disableDebugShape() {
-
-        debugNode.detachAllChildren();
-        debugNode = null;
-        assetManager = null;
-    }
-
-    /**
-     * enable the display of the path and the waypoints
-     * @param manager the assetManager
-     * @param rootNode the node where the debug shapes must be attached
+     * Enables the display of the path and waypoints.
+     *
+     * @param manager  The asset manager.
+     * @param rootNode The node where the debug shapes must be attached.
      */
     public void enableDebugShape(AssetManager manager, Node rootNode) {
         assetManager = manager;
-        // computeTotalLength();
         attachDebugNode(rootNode);
     }
 
     /**
-     * Adds a motion pathListener to the path
-     * @param listener the MotionPathListener to attach
+     * Attaches the debug node to the root node if it doesn't already exist.
+     *
+     * @param root The root node to attach the debug shapes to.
+     */
+    private void attachDebugNode(Node root) {
+        if (debugNode == null) {
+            debugNode = new Node("DebugWayPoints");
+            Material mat = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
+            for (Vector3f cp : spline.getControlPoints()) {
+                Geometry geo = new Geometry("box", new Box(0.3f, 0.3f, 0.3f));
+                geo.setLocalTranslation(cp);
+                geo.setMaterial(mat);
+                debugNode.attachChild(geo);
+            }
+
+            int nbSubSegments = (spline.getType() == SplineType.CatmullRom) ? 10 : 0;
+            debugNode.attachChild(createPathDebugGeometry(nbSubSegments));
+
+            root.attachChild(debugNode);
+        }
+    }
+
+    /**
+     * Creates the geometry for displaying the path based on the spline type.
+     *
+     * @param nbSubSegments The detail level for the curve (e.g., segments for CatmullRom).
+     * @return The {@code Geometry} representing the path.
+     */
+    private Geometry createPathDebugGeometry(int nbSubSegments) {
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.getAdditionalRenderState().setWireframe(true);
+        mat.setColor("Color", ColorRGBA.Blue);
+        Geometry geo = new Geometry("line", new Curve(spline, nbSubSegments));
+        geo.setMaterial(mat);
+        return geo;
+    }
+
+    /**
+     * Adds a motion path listener to the path.
+     *
+     * @param listener The {@code MotionPathListener} to attach.
      */
     public void addListener(MotionPathListener listener) {
         if (listeners == null) {
@@ -344,8 +348,9 @@ public class MotionPath implements JmeCloneable, Savable {
     }
 
     /**
-     * remove the given listener
-     * @param listener the listener to remove
+     * Removes the given listener.
+     *
+     * @param listener The listener to remove.
      */
     public void removeListener(MotionPathListener listener) {
         if (listeners != null) {
@@ -354,76 +359,95 @@ public class MotionPath implements JmeCloneable, Savable {
     }
 
     /**
-     * return the number of waypoints of this path
-     * @return the count (&ge;0)
+     * Triggers the waypoint reach event for all registered listeners.
+     *
+     * @param wayPointIndex The index of the waypoint that was reached.
+     * @param control       The motion event control.
      */
-    public int getNbWayPoints() {
-        return spline.getControlPoints().size();
-    }
-
     public void triggerWayPointReach(int wayPointIndex, MotionEvent control) {
         if (listeners != null) {
-            for (Iterator<MotionPathListener> it = listeners.iterator(); it.hasNext();) {
-                MotionPathListener listener = it.next();
+            for (MotionPathListener listener : listeners) {
                 listener.onWayPointReach(control, wayPointIndex);
             }
         }
     }
 
     /**
-     * Returns the curve tension
-     * @return the curve tension
+     * Helper method to update the debug node when spline properties change.
+     */
+    private void updateDebugNode() {
+        if (debugNode != null) {
+            Node parent = debugNode.getParent();
+            debugNode.removeFromParent();
+            debugNode.detachAllChildren();
+            debugNode = null;
+            attachDebugNode(parent);
+        }
+    }
+
+    /**
+     * Returns the type of spline used for path interpolation.
+     *
+     * @return The path interpolation spline type.
+     */
+    public SplineType getPathSplineType() {
+        return spline.getType();
+    }
+
+    /**
+     * Sets the type of spline used for path interpolation.
+     *
+     * @param pathSplineType The desired spline type.
+     */
+    public void setPathSplineType(SplineType pathSplineType) {
+        spline.setType(pathSplineType);
+        updateDebugNode();
+    }
+
+    /**
+     * Returns the curve tension.
+     *
+     * @return The curve tension.
      */
     public float getCurveTension() {
         return spline.getCurveTension();
     }
 
     /**
-     * sets the tension of the curve (only for catmull rom) 0.0 will give a linear curve, 1.0 a round curve
+     * Sets the tension of the curve (only applicable for Catmull-Rom splines).
+     * A value of 0.0 will result in a linear curve, while 1.0 will produce a round curve.
      *
-     * @param curveTension the desired value
+     * @param curveTension The desired tension value.
      */
     public void setCurveTension(float curveTension) {
         spline.setCurveTension(curveTension);
-        if (debugNode != null) {
-            Node parent = debugNode.getParent();
-            debugNode.removeFromParent();
-            debugNode.detachAllChildren();
-            debugNode = null;
-            attachDebugNode(parent);
-        }
-    }
-
-    public void clearWayPoints() {
-        spline.clearControlPoints();
+        updateDebugNode();
     }
 
     /**
-     * Sets the path to be a cycle
+     * Sets whether the path forms a closed cycle.
      *
-     * @param cycle true for a cycle, false for a non-cycle
+     * @param cycle {@code true} for a cycle, {@code false} for a non-cycle.
      */
     public void setCycle(boolean cycle) {
-
         spline.setCycle(cycle);
-        if (debugNode != null) {
-            Node parent = debugNode.getParent();
-            debugNode.removeFromParent();
-            debugNode.detachAllChildren();
-            debugNode = null;
-            attachDebugNode(parent);
-        }
-
+        updateDebugNode();
     }
 
     /**
-     * returns true if the path is a cycle
-     * @return true if the path is a cycle
+     * Returns {@code true} if the path is a cycle, {@code false} otherwise.
+     *
+     * @return {@code true} if the path is a cycle.
      */
     public boolean isCycle() {
         return spline.isCycle();
     }
 
+    /**
+     * Returns the underlying {@code Spline} object used by this motion path.
+     *
+     * @return The {@code Spline} instance.
+     */
     public Spline getSpline() {
         return spline;
     }
