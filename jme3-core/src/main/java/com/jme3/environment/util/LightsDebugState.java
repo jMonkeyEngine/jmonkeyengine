@@ -199,7 +199,6 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     protected void cleanup(Application app) {
-        debugNode.removeFromParent();
         lightGizmoMap.clear();
         lightList.clear();
 
