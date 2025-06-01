@@ -202,7 +202,6 @@ public class LightsDebugState extends BaseAppState {
     public void update(float tpf) {
         updateLightGizmos(scene);
         debugNode.updateLogicalState(tpf);
-        debugNode.updateGeometricState();
         cleanUpRemovedLights();
     }
 
@@ -213,6 +212,7 @@ public class LightsDebugState extends BaseAppState {
      */
     @Override
     public void render(RenderManager rm) {
+        debugNode.updateGeometricState();
         rm.renderScene(debugNode, getApplication().getViewPort());
     }
 
