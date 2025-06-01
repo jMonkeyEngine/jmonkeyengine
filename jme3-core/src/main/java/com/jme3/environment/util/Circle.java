@@ -1,0 +1,181 @@
+ /*
+  * Copyright (c) 2009-2025 jMonkeyEngine
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted provided that the following conditions are
+  * met:
+  *
+  * * Redistributions of source code must retain the above copyright
+  *   notice, this list of conditions and the following disclaimer.
+  *
+  * * Redistributions in binary form must reproduce the above copyright
+  *   notice, this list of conditions and the following disclaimer in the
+  *   documentation and/or other materials provided with the distribution.
+  *
+  * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+  *   may be used to endorse or promote products derived from this software
+  *   without specific prior written permission.
+  *
+  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+  * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+  * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  */
+package com.jme3.environment.util;
+
+import com.jme3.asset.AssetManager;
+import com.jme3.material.Material;
+import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.util.BufferUtils;
+
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
+
+/**
+ * <p>A `Circle` is a 2D mesh representing a circular outline (wireframe).
+ * It's defined by a specified number of radial samples, which determine its smoothness.</p>
+ *
+ * <p>The circle is centered at (0,0,0) in its local coordinate space and has a radius of 1.0.</p>
+ */
+public class Circle extends Mesh {
+
+    // The number of segments used to approximate the circle.
+    protected int radialSamples = 256;
+
+    /**
+     * Creates a new `Circle` mesh.
+     */
+    public Circle() {
+        setGeometryData();
+        setIndexData();
+    }
+
+    /**
+     * Creates a new `Circle` mesh with the specified number of radial samples.
+     * The circle will be centered at (0,0,0) with a radius of 1.0.
+     *
+     * @param radialSamples The number of segments (vertices) to use for the circle's perimeter.
+     * @throws IllegalArgumentException if `radialSamples` is less than 2.
+     */
+    public Circle(int radialSamples) {
+        if (radialSamples < 2) {
+            throw new IllegalArgumentException("radialSamples must be at least 2 for a valid circle.");
+        }
+        this.radialSamples = radialSamples;
+        setGeometryData();
+        setIndexData();
+    }
+
+    /**
+     * builds the vertices based on the radius.
+     */
+    private void setGeometryData() {
+        setMode(Mode.Lines);
+
+        FloatBuffer posBuf = BufferUtils.createVector3Buffer((radialSamples + 1));
+        FloatBuffer colBuf = BufferUtils.createFloatBuffer((radialSamples + 1) * 4);
+        FloatBuffer texBuf = BufferUtils.createVector2Buffer(radialSamples + 1);
+
+        setBuffer(Type.Position, 3, posBuf);
+        setBuffer(Type.Color, 4, colBuf);
+        setBuffer(Type.TexCoord, 2, texBuf);
+
+        // generate geometry
+        float fInvRS = 1.0f / radialSamples;
+
+        // Generate points on the unit circle to be used in computing the mesh
+        // points on a sphere slice.
+        float[] sin = new float[(radialSamples + 1)];
+        float[] cos = new float[(radialSamples + 1)];
+        for (int i = 0; i < radialSamples; i++) {
+            float angle = FastMath.TWO_PI * fInvRS * i;
+            cos[i] = FastMath.cos(angle);
+            sin[i] = FastMath.sin(angle);
+        }
+        sin[radialSamples] = sin[0];
+        cos[radialSamples] = cos[0];
+
+        ColorRGBA color = ColorRGBA.Orange;
+        for (int iR = 0; iR <= radialSamples; iR++) {
+            posBuf.put(cos[iR]).put(sin[iR]).put(0);
+            colBuf.put(color.r).put(color.g).put(color.b).put(color.a);
+            texBuf.put(iR % 2f).put(iR % 2f);
+        }
+
+        updateBound();
+        setStatic();
+    }
+
+    /**
+     * sets the indices for rendering the circle.
+     */
+    private void setIndexData() {
+        // allocate connectivity
+        int nbSegments = (radialSamples);
+
+        ShortBuffer idxBuf = BufferUtils.createShortBuffer(2 * nbSegments);
+        setBuffer(Type.Index, 2, idxBuf);
+
+        int idx = 0;
+        int segDone = 0;
+        while (segDone < nbSegments) {
+            idxBuf.put((short) idx);
+            idxBuf.put((short) (idx + 1));
+            idx++;
+            segDone++;
+        }
+    }
+
+    /**
+     * Creates a {@link Geometry} object representing a dashed wireframe circle.
+     *
+     * @param assetManager The application's AssetManager to load materials.
+     * @param name         The desired name for the Geometry.
+     * @return A new Geometry instance with a `Circle` mesh.
+     */
+    public static Geometry createShape(AssetManager assetManager, String name) {
+        return createShape(assetManager, name, 256);
+    }
+
+    /**
+     * Creates a {@link Geometry} object representing a dashed wireframe circle
+     * with a specified number of radial samples.
+     *
+     * @param assetManager  The application's AssetManager to load materials.
+     * @param name          The desired name for the Geometry.
+     * @param radialSamples The number of segments to use for the circle's perimeter.
+     * @return A new Geometry instance with a `Circle` mesh.
+     */
+    public static Geometry createShape(AssetManager assetManager, String name, int radialSamples) {
+        Circle mesh = new Circle(radialSamples);
+        Geometry geom = new Geometry(name, mesh);
+        geom.setQueueBucket(RenderQueue.Bucket.Transparent);
+
+        Material mat = new Material(assetManager, "Common/MatDefs/Dashed/dashed.j3md");
+        mat.getAdditionalRenderState().setWireframe(true);
+        mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+        mat.getAdditionalRenderState().setDepthWrite(false);
+        mat.getAdditionalRenderState().setDepthTest(false);
+        mat.getAdditionalRenderState().setLineWidth(2f);
+        mat.setColor("Color", ColorRGBA.Orange);
+        mat.setFloat("DashSize", 0.5f);
+        geom.setMaterial(mat);
+
+        return geom;
+    }
+
+}
