@@ -50,6 +50,8 @@ import java.nio.ShortBuffer;
  * It's defined by a specified number of radial samples, which determine its smoothness.</p>
  *
  * <p>The circle is centered at (0,0,0) in its local coordinate space and has a radius of 1.0.</p>
+ *
+ * @author capdevon
  */
 public class Circle extends Mesh {
 
@@ -81,39 +83,41 @@ public class Circle extends Mesh {
     }
 
     /**
-     * builds the vertices based on the radius.
+     * Initializes the vertex buffers for the circle mesh.
      */
     private void setGeometryData() {
         setMode(Mode.Lines);
 
-        FloatBuffer posBuf = BufferUtils.createVector3Buffer((radialSamples + 1));
-        FloatBuffer colBuf = BufferUtils.createFloatBuffer((radialSamples + 1) * 4);
-        FloatBuffer texBuf = BufferUtils.createVector2Buffer(radialSamples + 1);
+        int numVertices = radialSamples + 1;
+
+        FloatBuffer posBuf = BufferUtils.createVector3Buffer(numVertices);
+        FloatBuffer colBuf = BufferUtils.createFloatBuffer(numVertices * 4); // 4 floats per color (RGBA)
+        FloatBuffer texBuf = BufferUtils.createVector2Buffer(numVertices);
 
         setBuffer(Type.Position, 3, posBuf);
         setBuffer(Type.Color, 4, colBuf);
         setBuffer(Type.TexCoord, 2, texBuf);
 
-        // generate geometry
-        float fInvRS = 1.0f / radialSamples;
+        // --- Generate Geometry Data ---
+        float[] sin = new float[numVertices];
+        float[] cos = new float[numVertices];
+        float angleStep = FastMath.TWO_PI / radialSamples;
 
-        // Generate points on the unit circle to be used in computing the mesh
-        // points on a sphere slice.
-        float[] sin = new float[(radialSamples + 1)];
-        float[] cos = new float[(radialSamples + 1)];
-        for (int i = 0; i < radialSamples; i++) {
-            float angle = FastMath.TWO_PI * fInvRS * i;
+        // Populate sine and cosine arrays for all sample points.
+        for (int i = 0; i <= radialSamples; i++) {
+            float angle = angleStep * i;
             cos[i] = FastMath.cos(angle);
             sin[i] = FastMath.sin(angle);
         }
-        sin[radialSamples] = sin[0];
-        cos[radialSamples] = cos[0];
 
+        // Define the color for the entire circle.
         ColorRGBA color = ColorRGBA.Orange;
-        for (int iR = 0; iR <= radialSamples; iR++) {
-            posBuf.put(cos[iR]).put(sin[iR]).put(0);
+
+        // Populate the position, color, and texture coordinate buffers.
+        for (int i = 0; i < numVertices; i++) {
+            posBuf.put(cos[i]).put(sin[i]).put(0);
             colBuf.put(color.r).put(color.g).put(color.b).put(color.a);
-            texBuf.put(iR % 2f).put(iR % 2f);
+            texBuf.put(i % 2f).put(i % 2f);
         }
 
         updateBound();
@@ -121,22 +125,19 @@ public class Circle extends Mesh {
     }
 
     /**
-     * sets the indices for rendering the circle.
+     * Initializes the index buffer for the circle mesh.
      */
     private void setIndexData() {
         // allocate connectivity
-        int nbSegments = (radialSamples);
+        int numIndices = radialSamples * 2;
 
-        ShortBuffer idxBuf = BufferUtils.createShortBuffer(2 * nbSegments);
+        ShortBuffer idxBuf = BufferUtils.createShortBuffer(numIndices);
         setBuffer(Type.Index, 2, idxBuf);
 
-        int idx = 0;
-        int segDone = 0;
-        while (segDone < nbSegments) {
-            idxBuf.put((short) idx);
-            idxBuf.put((short) (idx + 1));
-            idx++;
-            segDone++;
+        // --- Generate Index Data ---
+        for (int i = 0; i < radialSamples; i++) {
+            idxBuf.put((short) i);         // Start of segment
+            idxBuf.put((short) (i + 1));   // End of segment
         }
     }
 
@@ -165,7 +166,7 @@ public class Circle extends Mesh {
         Geometry geom = new Geometry(name, mesh);
         geom.setQueueBucket(RenderQueue.Bucket.Transparent);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Dashed/dashed.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Dashed.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
         mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
         mat.getAdditionalRenderState().setDepthWrite(false);
