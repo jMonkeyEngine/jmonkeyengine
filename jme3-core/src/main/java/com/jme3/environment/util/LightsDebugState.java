@@ -163,7 +163,7 @@ public class LightsDebugState extends BaseAppState {
         Node radiusNode = new Node(SPOT_LIGHT_RADIUS_NAME);
         gizmo.attachChild(radiusNode);
 
-        Geometry inRadius = createRadiusShape(SPOT_LIGHT_INNER_RADIUS_NAME, 0.8f); //0.875f);
+        Geometry inRadius = createRadiusShape(SPOT_LIGHT_INNER_RADIUS_NAME, 0.8f); // 0.875f);
         radiusNode.attachChild(inRadius);
 
         Geometry outRadius = createRadiusShape(SPOT_LIGHT_OUTER_RADIUS_NAME, 0.325f); // 0.125f);
