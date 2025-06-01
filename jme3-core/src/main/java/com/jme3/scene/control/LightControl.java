@@ -192,7 +192,7 @@ public class LightControl extends AbstractControl {
         worldPosition.set(spatial.getWorldTranslation());
 
         final Vector3f lightDirection = vars.vect2;
-        spatial.getWorldRotation().getRotationColumn(axisRotation, lightDirection).negateLocal();
+        spatial.getWorldRotation().getRotationColumn(axisRotation, lightDirection);
 
         if (light instanceof PointLight) {
             ((PointLight) light).setPosition(worldPosition);
