@@ -137,6 +137,7 @@ public class EmitterSphereShape implements EmitterShape {
     @Override
     public void getRandomPointAndNormal(Vector3f store, Vector3f normal) {
         this.getRandomPoint(store);
+        normal.set(store).subtractLocal(center).normalizeLocal();
     }
 
     /**
