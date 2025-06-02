@@ -32,6 +32,10 @@
  package com.jme3.environment.util;
 
  import com.jme3.asset.AssetManager;
+ import com.jme3.export.InputCapsule;
+ import com.jme3.export.JmeExporter;
+ import com.jme3.export.JmeImporter;
+ import com.jme3.export.OutputCapsule;
  import com.jme3.material.Material;
  import com.jme3.math.ColorRGBA;
  import com.jme3.math.FastMath;
@@ -40,6 +44,7 @@
  import com.jme3.scene.VertexBuffer.Type;
  import com.jme3.util.BufferUtils;
 
+ import java.io.IOException;
  import java.nio.FloatBuffer;
  import java.nio.ShortBuffer;
 
@@ -69,48 +74,48 @@
      private void setGeometryData() {
          setMode(Mode.Lines);
 
+         int numVertices = radialSamples + 1;
+
          // Each circle has radialSamples + 1 vertices (to close the loop)
          // We have 3 circles, so (radialSamples + 1) * 3 vertices in total.
-         FloatBuffer posBuf = BufferUtils.createVector3Buffer((radialSamples + 1) * 3);
-         FloatBuffer colBuf = BufferUtils.createVector3Buffer((radialSamples + 1) * 4);
+         FloatBuffer posBuf = BufferUtils.createVector3Buffer(numVertices * 3);
+         FloatBuffer colBuf = BufferUtils.createVector3Buffer(numVertices * 4);
 
-         setBuffer(Type.Position, 3, posBuf);
-         setBuffer(Type.Color, 4, colBuf);
-
-         // generate geometry
-         float fInvRS = 1.0f / radialSamples;
+         // --- Generate Geometry Data ---
+         float angleStep = FastMath.TWO_PI / radialSamples;
 
          // Generate points for a unit circle
-         float[] sin = new float[(radialSamples + 1)];
-         float[] cos = new float[(radialSamples + 1)];
-         for (int i = 0; i < radialSamples; i++) {
-             float fAngle = FastMath.TWO_PI * fInvRS * i;
-             cos[i] = FastMath.cos(fAngle);
-             sin[i] = FastMath.sin(fAngle);
+         float[] sin = new float[numVertices];
+         float[] cos = new float[numVertices];
+
+         for (int i = 0; i <= radialSamples; i++) {
+             float angle = angleStep * i;
+             cos[i] = FastMath.cos(angle);
+             sin[i] = FastMath.sin(angle);
          }
-         // Close the loop by repeating the first point
-         sin[radialSamples] = sin[0];
-         cos[radialSamples] = cos[0];
 
          // XY Plane Circle (Blue)
-         for (int i = 0; i <= radialSamples; i++) {
+         for (int i = 0; i < numVertices; i++) {
              addCircleData(posBuf, colBuf, cos[i], sin[i], 0, ColorRGBA.Blue);
          }
          // XZ Plane Circle (Green)
-         for (int i = 0; i <= radialSamples; i++) {
+         for (int i = 0; i < numVertices; i++) {
              addCircleData(posBuf, colBuf, cos[i], 0, sin[i], ColorRGBA.Green);
          }
          // YZ Plane Circle (Yellow)
-         for (int i = 0; i <= radialSamples; i++) {
+         for (int i = 0; i < numVertices; i++) {
              addCircleData(posBuf, colBuf, 0, cos[i], sin[i], ColorRGBA.Yellow);
          }
+
+         setBuffer(Type.Position, 3, posBuf);
+         setBuffer(Type.Color, 4, colBuf);
 
          updateBound();
          setStatic();
      }
 
      private void addCircleData(FloatBuffer posBuf, FloatBuffer colBuf,
-                    float x, float y, float z, ColorRGBA c) {
+                                float x, float y, float z, ColorRGBA c) {
          posBuf.put(x).put(y).put(z);
          colBuf.put(c.r).put(c.g).put(c.b).put(c.a);
      }
@@ -150,6 +155,20 @@
          mat.getAdditionalRenderState().setWireframe(true);
          geom.setMaterial(mat);
          return geom;
+     }
+
+     @Override
+     public void write(JmeExporter ex) throws IOException {
+         super.write(ex);
+         OutputCapsule oc = ex.getCapsule(this);
+         oc.write(radialSamples, "radialSamples", 32);
+     }
+
+     @Override
+     public void read(JmeImporter im) throws IOException {
+         super.read(im);
+         InputCapsule ic = im.getCapsule(this);
+         radialSamples = ic.readInt("radialSamples", 32);
      }
 
  }
