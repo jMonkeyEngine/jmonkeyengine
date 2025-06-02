@@ -292,8 +292,7 @@ public class LightsDebugState extends BaseAppState {
                 // Update texture if probe is ready
                 if (probe.isReady()) {
                     Material mat = probeGeom.getMaterial();
-                    if (mat.getTextureParam("CubeMap") == null ||
-                            (!probe.getPrefilteredEnvMap().equals(mat.getTextureParam("CubeMap").getTextureValue()))) {
+                    if (mat.getTextureParam("CubeMap") == null) {
                         mat.setTexture("CubeMap", probe.getPrefilteredEnvMap());
                     }
                 }
