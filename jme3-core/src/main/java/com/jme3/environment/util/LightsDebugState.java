@@ -46,6 +46,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -80,6 +81,7 @@ public class LightsDebugState extends BaseAppState {
 
     // The scene whose lights will be debugged
     private Spatial scene;
+    private ViewPort viewPort;
     private Node debugNode;
     private final Map<Light, Spatial> lightGizmoMap = new WeakHashMap<>();
     private final ArrayDeque<Light> lightDeque = new ArrayDeque<>();
@@ -88,17 +90,18 @@ public class LightsDebugState extends BaseAppState {
     private Material debugMaterial;
 
     private float lightProbeScale = 1.0f;
+    private final ColorRGBA debugColor = ColorRGBA.DarkGray;
     private final Quaternion tempRotation = new Quaternion();
-    private final ColorRGBA GIZMO_COLOR = ColorRGBA.DarkGray;
 
     @Override
     protected void initialize(Application app) {
 
         this.assetManager = app.getAssetManager();
+        viewPort = app.getRenderManager().createMainView("EnvDebugView", app.getCamera());
         debugNode = new Node("LightsDebugNode");
 
         debugMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        debugMaterial.setColor("Color", GIZMO_COLOR);
+        debugMaterial.setColor("Color", debugColor);
         debugMaterial.getAdditionalRenderState().setWireframe(true);
 
         if (scene == null) {
@@ -128,7 +131,7 @@ public class LightsDebugState extends BaseAppState {
     private Geometry createRadiusShape(String name, float dashSize) {
         Geometry radius = Circle.createShape(assetManager, name);
         Material mat = radius.getMaterial();
-        mat.setColor("Color", GIZMO_COLOR);
+        mat.setColor("Color", debugColor);
         mat.setFloat("DashSize", dashSize);
         return radius;
     }
@@ -213,7 +216,7 @@ public class LightsDebugState extends BaseAppState {
     @Override
     public void render(RenderManager rm) {
         debugNode.updateGeometricState();
-        rm.renderScene(debugNode, getApplication().getViewPort());
+        rm.renderScene(debugNode, viewPort);
     }
 
     /**
@@ -224,7 +227,7 @@ public class LightsDebugState extends BaseAppState {
      */
     private void updateLightGizmos(Spatial spatial) {
         // Add or update gizmos for lights attached to the current spatial
-        for (Light light : spatial.getWorldLightList()) {
+        for (Light light : spatial.getLocalLightList()) {
             lightDeque.add(light);
             Spatial gizmo = lightGizmoMap.get(light);
 
@@ -401,14 +404,17 @@ public class LightsDebugState extends BaseAppState {
         lightGizmoMap.clear();
         lightDeque.clear();
         debugMaterial = null;
+        app.getRenderManager().removeMainView(viewPort);
     }
 
     @Override
     protected void onEnable() {
+        viewPort.attachScene(debugNode);
     }
 
     @Override
     protected void onDisable() {
+        viewPort.detachScene(debugNode);
     }
 
 }
