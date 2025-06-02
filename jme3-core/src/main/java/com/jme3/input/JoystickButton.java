@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,18 +38,22 @@ package com.jme3.input;
  */
 public interface JoystickButton {
 
-    public static final String BUTTON_0 = "0";
-    public static final String BUTTON_1 = "1";
-    public static final String BUTTON_2 = "2";
-    public static final String BUTTON_3 = "3";
-    public static final String BUTTON_4 = "4";
-    public static final String BUTTON_5 = "5";
-    public static final String BUTTON_6 = "6";
-    public static final String BUTTON_7 = "7";
-    public static final String BUTTON_8 = "8";
-    public static final String BUTTON_9 = "9";
-    public static final String BUTTON_10 = "10";
-    public static final String BUTTON_11 = "11";
+    public final String BUTTON_0 = "0";
+    public final String BUTTON_1 = "1";
+    public final String BUTTON_2 = "2";
+    public final String BUTTON_3 = "3";
+    public final String BUTTON_4 = "4";
+    public final String BUTTON_5 = "5";
+    public final String BUTTON_6 = "6";
+    public final String BUTTON_7 = "7";
+    public final String BUTTON_8 = "8";
+    public final String BUTTON_9 = "9";
+    public final String BUTTON_10 = "10";
+    public final String BUTTON_11 = "11";
+    public final String BUTTON_12 = "12";
+    public final String BUTTON_13 = "13";
+    public final String BUTTON_14 = "14";
+    public final String BUTTON_15 = "15";
 
     /**
      * Assign the mapping name to receive events from the given button index
