@@ -32,6 +32,10 @@
 package com.jme3.environment.util;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -42,6 +46,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
@@ -67,22 +72,6 @@ public class Circle extends Mesh {
     }
 
     /**
-     * Creates a new `Circle` mesh with the specified number of radial samples.
-     * The circle will be centered at (0,0,0) with a radius of 1.0.
-     *
-     * @param radialSamples The number of segments (vertices) to use for the circle's perimeter.
-     * @throws IllegalArgumentException if `radialSamples` is less than 2.
-     */
-    public Circle(int radialSamples) {
-        if (radialSamples < 2) {
-            throw new IllegalArgumentException("radialSamples must be at least 2 for a valid circle.");
-        }
-        this.radialSamples = radialSamples;
-        setGeometryData();
-        setIndexData();
-    }
-
-    /**
      * Initializes the vertex buffers for the circle mesh.
      */
     private void setGeometryData() {
@@ -91,34 +80,29 @@ public class Circle extends Mesh {
         int numVertices = radialSamples + 1;
 
         FloatBuffer posBuf = BufferUtils.createVector3Buffer(numVertices);
-        FloatBuffer colBuf = BufferUtils.createFloatBuffer(numVertices * 4); // 4 floats per color (RGBA)
+        FloatBuffer colBuf = BufferUtils.createFloatBuffer(numVertices * 4);
         FloatBuffer texBuf = BufferUtils.createVector2Buffer(numVertices);
 
-        setBuffer(Type.Position, 3, posBuf);
-        setBuffer(Type.Color, 4, colBuf);
-        setBuffer(Type.TexCoord, 2, texBuf);
-
         // --- Generate Geometry Data ---
-        float[] sin = new float[numVertices];
-        float[] cos = new float[numVertices];
         float angleStep = FastMath.TWO_PI / radialSamples;
-
-        // Populate sine and cosine arrays for all sample points.
-        for (int i = 0; i <= radialSamples; i++) {
-            float angle = angleStep * i;
-            cos[i] = FastMath.cos(angle);
-            sin[i] = FastMath.sin(angle);
-        }
 
         // Define the color for the entire circle.
         ColorRGBA color = ColorRGBA.Orange;
 
         // Populate the position, color, and texture coordinate buffers.
         for (int i = 0; i < numVertices; i++) {
-            posBuf.put(cos[i]).put(sin[i]).put(0);
+            float angle = angleStep * i;
+            float cos = FastMath.cos(angle);
+            float sin = FastMath.sin(angle);
+
+            posBuf.put(cos).put(sin).put(0);
             colBuf.put(color.r).put(color.g).put(color.b).put(color.a);
             texBuf.put(i % 2f).put(i % 2f);
         }
+
+        setBuffer(Type.Position, 3, posBuf);
+        setBuffer(Type.Color, 4, colBuf);
+        setBuffer(Type.TexCoord, 2, texBuf);
 
         updateBound();
         setStatic();
@@ -149,20 +133,7 @@ public class Circle extends Mesh {
      * @return A new Geometry instance with a `Circle` mesh.
      */
     public static Geometry createShape(AssetManager assetManager, String name) {
-        return createShape(assetManager, name, 256);
-    }
-
-    /**
-     * Creates a {@link Geometry} object representing a dashed wireframe circle
-     * with a specified number of radial samples.
-     *
-     * @param assetManager  The application's AssetManager to load materials.
-     * @param name          The desired name for the Geometry.
-     * @param radialSamples The number of segments to use for the circle's perimeter.
-     * @return A new Geometry instance with a `Circle` mesh.
-     */
-    public static Geometry createShape(AssetManager assetManager, String name, int radialSamples) {
-        Circle mesh = new Circle(radialSamples);
+        Circle mesh = new Circle();
         Geometry geom = new Geometry(name, mesh);
         geom.setQueueBucket(RenderQueue.Bucket.Transparent);
 
@@ -177,6 +148,20 @@ public class Circle extends Mesh {
         geom.setMaterial(mat);
 
         return geom;
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(radialSamples, "radialSamples", 256);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+        radialSamples = ic.readInt("radialSamples", 256);
     }
 
 }
