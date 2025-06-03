@@ -61,6 +61,7 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.function.Predicate;
 
 /**
  * A debug state that visualizes different types of lights in the scene with gizmos.
@@ -85,6 +86,7 @@ public class LightsDebugState extends BaseAppState {
     private Node debugNode;
     private final Map<Light, Spatial> lightGizmoMap = new WeakHashMap<>();
     private final ArrayDeque<Light> lightDeque = new ArrayDeque<>();
+    private Predicate<Light> lightFilter = x -> true; // Identity Function
 
     private AssetManager assetManager;
     private Material debugMaterial;
@@ -228,6 +230,10 @@ public class LightsDebugState extends BaseAppState {
     private void updateLightGizmos(Spatial spatial) {
         // Add or update gizmos for lights attached to the current spatial
         for (Light light : spatial.getLocalLightList()) {
+            if (!lightFilter.test(light)) {
+                continue;
+            }
+
             lightDeque.add(light);
             Spatial gizmo = lightGizmoMap.get(light);
 
@@ -390,6 +396,16 @@ public class LightsDebugState extends BaseAppState {
      */
     public void setLightProbeScale(float scale) {
         this.lightProbeScale = scale;
+    }
+
+    /**
+     * Sets a filter to control which lights are displayed by the debug state.
+     * By default, no filter is applied, meaning all lights are displayed.
+     *
+     * @param lightFilter A {@link Predicate} that tests a {@link Light} object.
+     */
+    public void setLightFilter(Predicate<Light> lightFilter) {
+        this.lightFilter = lightFilter;
     }
 
     /**
