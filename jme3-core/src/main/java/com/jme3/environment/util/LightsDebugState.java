@@ -84,11 +84,11 @@ public class LightsDebugState extends BaseAppState {
     private final ArrayDeque<Light> lightDeque = new ArrayDeque<>();
     private Predicate<Light> lightFilter = x -> true; // Identity Function
 
-    protected ViewPort viewPort;
-    protected AssetManager assetManager;
-    protected Material debugMaterial;
-    protected Node debugNode;
-    protected Spatial scene; // The scene whose lights will be debugged
+    private ViewPort viewPort;
+    private AssetManager assetManager;
+    private Material debugMaterial;
+    private Node debugNode;
+    private Spatial scene; // The scene whose lights will be debugged
 
     private boolean showOnTop = true;
     private float lightProbeScale = 1.0f;
