@@ -80,17 +80,17 @@ public class LightsDebugState extends BaseAppState {
     private static final String POINT_LIGHT_RADIUS_NAME = "PointLightRadius";
     private static final String ARROW_NAME = "Arrow";
 
-    // The scene whose lights will be debugged
-    private Spatial scene;
-    private ViewPort viewPort;
-    private Node debugNode;
     private final Map<Light, Spatial> lightGizmoMap = new WeakHashMap<>();
     private final ArrayDeque<Light> lightDeque = new ArrayDeque<>();
     private Predicate<Light> lightFilter = x -> true; // Identity Function
 
-    private AssetManager assetManager;
-    private Material debugMaterial;
+    protected ViewPort viewPort;
+    protected AssetManager assetManager;
+    protected Material debugMaterial;
+    protected Node debugNode;
+    protected Spatial scene; // The scene whose lights will be debugged
 
+    private boolean showOnTop = true;
     private float lightProbeScale = 1.0f;
     private final ColorRGBA debugColor = ColorRGBA.DarkGray;
     private final Quaternion tempRotation = new Quaternion();
@@ -98,8 +98,10 @@ public class LightsDebugState extends BaseAppState {
     @Override
     protected void initialize(Application app) {
 
-        this.viewPort = app.getRenderManager().createMainView("LightsDebugView", app.getCamera());
-        this.assetManager = app.getAssetManager();
+        viewPort = app.getRenderManager().createMainView("LightsDebugView", app.getCamera());
+        viewPort.setClearFlags(false, showOnTop, true);
+
+        assetManager = app.getAssetManager();
         debugNode = new Node("LightsDebugNode");
 
         debugMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -396,6 +398,29 @@ public class LightsDebugState extends BaseAppState {
      */
     public void setLightProbeScale(float scale) {
         this.lightProbeScale = scale;
+    }
+
+    /**
+     * Checks if the light debug gizmos are set to always
+     * render on top of other scene geometry.
+     *
+     * @return true if gizmos always render on top, false otherwise.
+     */
+    public boolean isShowOnTop() {
+        return showOnTop;
+    }
+
+    /**
+     * Sets whether light debug gizmos should always
+     * render on top of other scene geometry.
+     *
+     * @param showOnTop true to always show gizmos on top, false to respect depth.
+     */
+    public void setShowOnTop(boolean showOnTop) {
+        this.showOnTop = showOnTop;
+        if (viewPort != null) {
+            viewPort.setClearDepth(showOnTop);
+        }
     }
 
     /**
