@@ -78,7 +78,7 @@ public class LightsDebugState extends BaseAppState {
     private static final String SPOT_LIGHT_OUTER_RADIUS_NAME = "SpotLightOuterRadius";
     private static final String SPOT_LIGHT_RADIUS_NAME = "RadiusNode";
     private static final String POINT_LIGHT_RADIUS_NAME = "PointLightRadius";
-    private static final String ARROW_NAME = "Arrow";
+    private static final String LIGHT_DIR_ARROW_NAME = "LightDirection";
 
     private final Map<Light, Spatial> lightGizmoMap = new WeakHashMap<>();
     private final ArrayDeque<Light> lightDeque = new ArrayDeque<>();
@@ -156,7 +156,7 @@ public class LightsDebugState extends BaseAppState {
         gizmo.move(0, 5, 0);
         gizmo.attachChild(createBulb());
 
-        Geometry arrow = new Geometry("Arrow", new Arrow(Vector3f.UNIT_Z.mult(5f)));
+        Geometry arrow = new Geometry(LIGHT_DIR_ARROW_NAME, new Arrow(Vector3f.UNIT_Z.mult(5f)));
         arrow.setMaterial(debugMaterial);
         gizmo.attachChild(arrow);
 
@@ -170,13 +170,13 @@ public class LightsDebugState extends BaseAppState {
         Node radiusNode = new Node(SPOT_LIGHT_RADIUS_NAME);
         gizmo.attachChild(radiusNode);
 
-        Geometry inRadius = createRadiusShape(SPOT_LIGHT_INNER_RADIUS_NAME, 0.8f); // 0.875f);
+        Geometry inRadius = createRadiusShape(SPOT_LIGHT_INNER_RADIUS_NAME, 0.725f);
         radiusNode.attachChild(inRadius);
 
-        Geometry outRadius = createRadiusShape(SPOT_LIGHT_OUTER_RADIUS_NAME, 0.325f); // 0.125f);
+        Geometry outRadius = createRadiusShape(SPOT_LIGHT_OUTER_RADIUS_NAME, 0.325f);
         radiusNode.attachChild(outRadius);
 
-        Geometry arrow = new Geometry(ARROW_NAME, new Arrow(Vector3f.UNIT_Z));
+        Geometry arrow = new Geometry(LIGHT_DIR_ARROW_NAME, new Arrow(Vector3f.UNIT_Z));
         arrow.setMaterial(debugMaterial);
         gizmo.attachChild(arrow);
 
@@ -186,7 +186,7 @@ public class LightsDebugState extends BaseAppState {
     private Spatial createLightProbeGizmo() {
         Node gizmo = new Node("LightProbeNode");
 
-        Sphere sphere = new Sphere(16, 16, lightProbeScale);
+        Sphere sphere = new Sphere(32, 32, lightProbeScale);
         Geometry probeGeom = new Geometry(PROBE_GEOMETRY_NAME, sphere);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/reflect.j3md");
         probeGeom.setMaterial(mat);
@@ -332,7 +332,7 @@ public class LightsDebugState extends BaseAppState {
                 lightNode.getChild(SPOT_LIGHT_INNER_RADIUS_NAME).setLocalScale(innerRadius);
                 lightNode.getChild(SPOT_LIGHT_OUTER_RADIUS_NAME).setLocalScale(outerRadius);
                 lightNode.getChild(SPOT_LIGHT_RADIUS_NAME).setLocalTranslation(0, 0, spotRange);
-                lightNode.getChild(ARROW_NAME).setLocalScale(spotRange);
+                lightNode.getChild(LIGHT_DIR_ARROW_NAME).setLocalScale(spotRange);
                 break;
 
             case Directional:
