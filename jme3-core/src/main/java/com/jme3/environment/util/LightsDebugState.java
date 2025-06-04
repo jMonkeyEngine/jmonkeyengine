@@ -98,8 +98,8 @@ public class LightsDebugState extends BaseAppState {
     @Override
     protected void initialize(Application app) {
 
+        this.viewPort = app.getRenderManager().createMainView("LightsDebugView", app.getCamera());
         this.assetManager = app.getAssetManager();
-        viewPort = app.getRenderManager().createMainView("EnvDebugView", app.getCamera());
         debugNode = new Node("LightsDebugNode");
 
         debugMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
