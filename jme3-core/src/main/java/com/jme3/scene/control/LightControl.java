@@ -76,9 +76,26 @@ public class LightControl extends AbstractControl {
         SpatialToLight
     }
 
+    /**
+     * Represents the local axis of the spatial (X, Y, or Z) to be used
+     * for determining the light's direction when `ControlDirection` is
+     * `SpatialToLight`.
+     */
+    public enum Axis {
+        X, Y, Z
+    }
+
+    /**
+     * Represents the direction (positive or negative) along the chosen axis.
+     */
+    public enum Direction {
+        Positive, Negative
+    }
+
     private Light light;
     private ControlDirection controlDir = ControlDirection.SpatialToLight;
-    private int axisRotation = 2; // Default to Z-axis
+    private Axis axisRotation = Axis.Z;
+    private Direction axisDirection = Direction.Positive;
 
     /**
      * For serialization only. Do not use.
@@ -112,6 +129,24 @@ public class LightControl extends AbstractControl {
         this.controlDir = controlDir;
     }
 
+    /**
+     * Creates a new `LightControl` with a specified
+     * axis of rotation, and axis direction.
+     *
+     * @param light The light to be synced.
+     * @param axisRotation The spatial's local axis to be used as the light's forward direction
+     * when synchronizing Spatial to Light.
+     * @param axisDirection The direction along the chosen axis.
+     * @throws IllegalArgumentException if the light type is not supported
+     * (only Point, Directional, and Spot lights are supported).
+     */
+    public LightControl(Light light, Axis axisRotation, Direction axisDirection) {
+        validateSupportedLightType(light);
+        this.light = light;
+        this.axisRotation = axisRotation;
+        this.axisDirection = axisDirection;
+    }
+
     public Light getLight() {
         return light;
     }
@@ -129,29 +164,20 @@ public class LightControl extends AbstractControl {
         this.controlDir = controlDir;
     }
 
-    /**
-     * Returns the index of the spatial's local axis (0=X, 1=Y, 2=Z) that determines
-     * the light's direction when synchronizing Spatial to Light.
-     * Defaults to 2 (Z-axis).
-     *
-     * @return The axis index (0 for X, 1 for Y, 2 for Z).
-     */
-    public int getAxisRotation() {
+    public Axis getAxisRotation() {
         return axisRotation;
     }
 
-    /**
-     * Sets the spatial's local axis to be used as the light's forward direction
-     * when synchronizing Spatial to Light.
-     *
-     * @param axisRotation The index of the axis (0, 1, or 2).
-     * @throws IllegalArgumentException if {@code axisRotation} is not 0, 1, or 2.
-     */
-    public void setAxisRotation(int axisRotation) {
-        if (axisRotation < 0 || axisRotation > 2) {
-            throw new IllegalArgumentException("Axis rotation must be 0 (X), 1 (Y), or 2 (Z).");
-        }
+    public void setAxisRotation(Axis axisRotation) {
         this.axisRotation = axisRotation;
+    }
+
+    public Direction getAxisDirection() {
+        return axisDirection;
+    }
+
+    public void setAxisDirection(Direction axisDirection) {
+        this.axisDirection = axisDirection;
     }
 
     private void validateSupportedLightType(Light light) {
@@ -192,7 +218,10 @@ public class LightControl extends AbstractControl {
         worldPosition.set(spatial.getWorldTranslation());
 
         final Vector3f lightDirection = vars.vect2;
-        spatial.getWorldRotation().getRotationColumn(axisRotation, lightDirection);
+        spatial.getWorldRotation().getRotationColumn(axisRotation.ordinal(), lightDirection);
+        if (axisDirection == Direction.Negative) {
+            lightDirection.negateLocal();
+        }
 
         if (light instanceof PointLight) {
             ((PointLight) light).setPosition(worldPosition);
@@ -277,7 +306,8 @@ public class LightControl extends AbstractControl {
         InputCapsule ic = im.getCapsule(this);
         controlDir = ic.readEnum("controlDir", ControlDirection.class, ControlDirection.SpatialToLight);
         light = (Light) ic.readSavable("light", null);
-        axisRotation = ic.readInt("axisRotation", 2);
+        axisRotation = ic.readEnum("axisRotation", Axis.class, Axis.Z);
+        axisDirection = ic.readEnum("axisDirection", Direction.class, Direction.Positive);
     }
 
     @Override
@@ -286,6 +316,7 @@ public class LightControl extends AbstractControl {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(controlDir, "controlDir", ControlDirection.SpatialToLight);
         oc.write(light, "light", null);
-        oc.write(axisRotation, "axisRotation", 2);
+        oc.write(axisRotation, "axisRotation", Axis.Z);
+        oc.write(axisDirection, "axisDirection", Direction.Positive);
     }
 }
