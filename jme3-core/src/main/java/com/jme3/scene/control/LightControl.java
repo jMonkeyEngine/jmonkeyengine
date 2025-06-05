@@ -319,4 +319,16 @@ public class LightControl extends AbstractControl {
         oc.write(axisRotation, "axisRotation", Axis.Z);
         oc.write(axisDirection, "axisDirection", Direction.Positive);
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() +
+                "[light=" + light +
+                ", controlDir=" + controlDir +
+                ", axisRotation=" + axisRotation +
+                ", axisDirection=" + axisDirection +
+                ", enabled=" + enabled +
+                ", spatial=" + spatial +
+                "]";
+    }
 }
