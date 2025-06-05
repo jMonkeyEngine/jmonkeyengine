@@ -306,11 +306,13 @@ public class MotionPath implements JmeCloneable, Savable {
         if (debugNode == null) {
             debugNode = new Node("DebugWayPoints");
             Material mat = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
+            int i = 1;
             for (Vector3f cp : spline.getControlPoints()) {
-                Geometry geo = new Geometry("box", new Box(0.3f, 0.3f, 0.3f));
+                Geometry geo = new Geometry("ControlPoint." + i, new Box(0.3f, 0.3f, 0.3f));
                 geo.setLocalTranslation(cp);
                 geo.setMaterial(mat);
                 debugNode.attachChild(geo);
+                i++;
             }
 
             int nbSubSegments = (spline.getType() == SplineType.CatmullRom) ? 10 : 0;
