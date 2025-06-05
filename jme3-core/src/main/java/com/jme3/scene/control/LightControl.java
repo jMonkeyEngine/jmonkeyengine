@@ -60,18 +60,20 @@ import java.io.IOException;
  *
  * @author Tim
  * @author Markil 3
+ * @author capdevon
  */
 public class LightControl extends AbstractControl {
 
+    /**
+     * Defines the direction of synchronization between the light and the spatial.
+     */
     public enum ControlDirection {
         /**
-         * Means, that the Light's transform is "copied"
-         * to the Transform of the Spatial.
+         * The light's transform is copied to the spatial's transform.
          */
         LightToSpatial,
         /**
-         * Means, that the Spatial's transform is "copied"
-         * to the Transform of the light.
+         * The spatial's transform is copied to the light's transform.
          */
         SpatialToLight
     }
@@ -87,6 +89,9 @@ public class LightControl extends AbstractControl {
 
     /**
      * Represents the direction (positive or negative) along the chosen axis.
+     * This influences how the light's direction is set when `SpatialToLight`
+     * and how the spatial's rotation is derived from the light's direction
+     * when `LightToSpatial`.
      */
     public enum Direction {
         Positive, Negative
@@ -127,24 +132,6 @@ public class LightControl extends AbstractControl {
         validateSupportedLightType(light);
         this.light = light;
         this.controlDir = controlDir;
-    }
-
-    /**
-     * Creates a new `LightControl` with a specified
-     * axis of rotation, and axis direction.
-     *
-     * @param light The light to be synced.
-     * @param axisRotation The spatial's local axis to be used as the light's forward direction
-     * when synchronizing Spatial to Light.
-     * @param axisDirection The direction along the chosen axis.
-     * @throws IllegalArgumentException if the light type is not supported
-     * (only Point, Directional, and Spot lights are supported).
-     */
-    public LightControl(Light light, Axis axisRotation, Direction axisDirection) {
-        validateSupportedLightType(light);
-        this.light = light;
-        this.axisRotation = axisRotation;
-        this.axisDirection = axisDirection;
     }
 
     public Light getLight() {
@@ -245,26 +232,32 @@ public class LightControl extends AbstractControl {
      */
     private void lightToSpatial(Light light) {
         TempVars vars = TempVars.get();
-        Vector3f translation = vars.vect1;
-        Vector3f direction = vars.vect2;
+        Vector3f lightPosition = vars.vect1;
+        Vector3f lightDirection = vars.vect2;
         Quaternion rotation = vars.quat1;
         boolean rotateSpatial = false;
         boolean translateSpatial = false;
 
         if (light instanceof PointLight) {
             PointLight pl = (PointLight) light;
-            translation.set(pl.getPosition());
+            lightPosition.set(pl.getPosition());
             translateSpatial = true;
 
         } else if (light instanceof DirectionalLight) {
             DirectionalLight dl = (DirectionalLight) light;
-            direction.set(dl.getDirection()).negateLocal();
+            lightDirection.set(dl.getDirection());
+            if (axisDirection == Direction.Negative) {
+                lightDirection.negateLocal();
+            }
             rotateSpatial = true;
 
         } else if (light instanceof SpotLight) {
             SpotLight sl = (SpotLight) light;
-            translation.set(sl.getPosition());
-            direction.set(sl.getDirection()).negateLocal();
+            lightPosition.set(sl.getPosition());
+            lightDirection.set(sl.getDirection());
+            if (axisDirection == Direction.Negative) {
+                lightDirection.negateLocal();
+            }
             translateSpatial = true;
             rotateSpatial = true;
         }
@@ -273,18 +266,18 @@ public class LightControl extends AbstractControl {
         if (spatial.getParent() != null) {
             // Get inverse of parent's world matrix
             spatial.getParent().getLocalToWorldMatrix(vars.tempMat4).invertLocal();
-            vars.tempMat4.rotateVect(translation);
-            vars.tempMat4.translateVect(translation);
-            vars.tempMat4.rotateVect(direction);
+            vars.tempMat4.rotateVect(lightPosition);
+            vars.tempMat4.translateVect(lightPosition);
+            vars.tempMat4.rotateVect(lightDirection);
         }
 
         // Apply transformed properties to spatial's local transformation
         if (rotateSpatial) {
-            rotation.lookAt(direction, Vector3f.UNIT_Y).normalizeLocal();
+            rotation.lookAt(lightDirection, Vector3f.UNIT_Y).normalizeLocal();
             spatial.setLocalRotation(rotation);
         }
         if (translateSpatial) {
-            spatial.setLocalTranslation(translation);
+            spatial.setLocalTranslation(lightPosition);
         }
         vars.release();
     }
@@ -304,8 +297,8 @@ public class LightControl extends AbstractControl {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        controlDir = ic.readEnum("controlDir", ControlDirection.class, ControlDirection.SpatialToLight);
         light = (Light) ic.readSavable("light", null);
+        controlDir = ic.readEnum("controlDir", ControlDirection.class, ControlDirection.SpatialToLight);
         axisRotation = ic.readEnum("axisRotation", Axis.class, Axis.Z);
         axisDirection = ic.readEnum("axisDirection", Direction.class, Direction.Positive);
     }
@@ -314,8 +307,8 @@ public class LightControl extends AbstractControl {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(controlDir, "controlDir", ControlDirection.SpatialToLight);
         oc.write(light, "light", null);
+        oc.write(controlDir, "controlDir", ControlDirection.SpatialToLight);
         oc.write(axisRotation, "axisRotation", Axis.Z);
         oc.write(axisDirection, "axisDirection", Direction.Positive);
     }
