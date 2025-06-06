@@ -914,7 +914,7 @@ public final class AWTSettingsDialog extends JFrame {
      * Returns every possible bit depth for the given resolution.
      */
     private static String[] getDepths(String resolution, DisplayMode[] modes) {
-        List<String> depths = new ArrayList<>(4);
+        Set<String> depths = new LinkedHashSet<>(4); // Use LinkedHashSet for uniqueness and order
         for (DisplayMode mode : modes) {
             int bitDepth = mode.getBitDepth();
             if (bitDepth == DisplayMode.BIT_DEPTH_MULTI) {
@@ -927,12 +927,8 @@ public final class AWTSettingsDialog extends JFrame {
                 continue;
             }
             String res = mode.getWidth() + " x " + mode.getHeight();
-            if (!res.equals(resolution)) {
-                continue;
-            }
-            String depth = bitDepth + " bpp";
-            if (!depths.contains(depth)) {
-                depths.add(depth);
+            if (res.equals(resolution)) {
+                depths.add(bitDepth + " bpp");
             }
         }
 
