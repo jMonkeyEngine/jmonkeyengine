@@ -754,9 +754,9 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Set the graphics renderer to use, one of:<br>
      * <ul>
-     * <li>AppSettings.LWJGL_OPENGL1 - Force OpenGL1.1 compatability</li>
-     * <li>AppSettings.LWJGL_OPENGL2 - Force OpenGL2 compatability</li>
-     * <li>AppSettings.LWJGL_OPENGL3 - Force OpenGL3.3 compatability</li>
+     * <li>AppSettings.LWJGL_OPENGL1 - Force OpenGL1.1 compatibility</li>
+     * <li>AppSettings.LWJGL_OPENGL2 - Force OpenGL2 compatibility</li>
+     * <li>AppSettings.LWJGL_OPENGL3 - Force OpenGL3.3 compatibility</li>
      * <li>AppSettings.LWJGL_OPENGL_ANY - Choose an appropriate
      * OpenGL version based on system capabilities</li>
      * <li>AppSettings.JOGL_OPENGL_BACKWARD_COMPATIBLE</li>
@@ -795,7 +795,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * @param value the width for the default framebuffer.
+     * @param value the width for the default frame buffer.
      * (Default: 640)
      */
     public void setWidth(int value) {
@@ -803,7 +803,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * @param value the height for the default framebuffer.
+     * @param value the height for the default frame buffer.
      * (Default: 480)
      */
     public void setHeight(int value) {
@@ -811,7 +811,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Set the resolution for the default framebuffer
+     * Set the resolution for the default frame buffer
      * Use {@link #setWindowSize(int, int)} instead, for HiDPI display support.
      * @param width The width
      * @param height The height
@@ -825,8 +825,8 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Set the size of the window
      *
-     * @param width The width in pixels (default = width of the default framebuffer)
-     * @param height The height in pixels (default = height of the default framebuffer)
+     * @param width The width in pixels (default = width of the default frame buffer)
+     * @param height The height in pixels (default = height of the default frame buffer)
      */
     public void setWindowSize(int width, int height) {
         putInteger("WindowWidth", width);
@@ -1027,7 +1027,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Get the framerate.
+     * Get the frame rate.
      *
      * @return the maximum rate (in frames per second), or -1 for unlimited
      * @see #setFrameRate(int)
@@ -1060,7 +1060,7 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Get the width
      *
-     * @return the width of the default framebuffer (in pixels)
+     * @return the width of the default frame buffer (in pixels)
      * @see #setWidth(int)
      */
     public int getWidth() {
@@ -1070,7 +1070,7 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Get the height
      *
-     * @return the height of the default framebuffer (in pixels)
+     * @return the height of the default frame buffer (in pixels)
      * @see #setHeight(int)
      */
     public int getHeight() {
