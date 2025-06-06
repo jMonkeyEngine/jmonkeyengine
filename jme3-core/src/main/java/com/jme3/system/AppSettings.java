@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,8 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -57,6 +59,8 @@ import java.util.prefs.Preferences;
 public final class AppSettings extends HashMap<String, Object> {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger logger = Logger.getLogger(AppSettings.class.getName());
 
     private static final AppSettings defaults = new AppSettings(false);
 
@@ -507,12 +511,25 @@ public final class AppSettings extends HashMap<String, Object> {
      * @return the corresponding value, or 0 if not set
      */
     public int getInteger(String key) {
-        Integer i = (Integer) get(key);
-        if (i == null) {
-            return 0;
-        }
+        return getInteger(key, 0);
+    }
 
-        return i.intValue();
+    /**
+     * Get an integer from the settings.
+     * <p>
+     * If the key is not set, or the stored value is not an Integer, then the
+     * provided default value is returned.
+     *
+     * @param key the key of an integer setting
+     * @param defaultValue the value to return if the key is not found or the
+     * value is not an integer
+     */
+    public int getInteger(String key, int defaultValue) {
+        Object val = get(key);
+        if (val == null) {
+            return defaultValue;
+        }
+        return (Integer) val;
     }
 
     /**
@@ -524,12 +541,25 @@ public final class AppSettings extends HashMap<String, Object> {
      * @return the corresponding value, or false if not set
      */
     public boolean getBoolean(String key) {
-        Boolean b = (Boolean) get(key);
-        if (b == null) {
-            return false;
-        }
+        return getBoolean(key, false);
+    }
 
-        return b.booleanValue();
+    /**
+     * Get a boolean from the settings.
+     * <p>
+     * If the key is not set, or the stored value is not a Boolean, then the
+     * provided default value is returned.
+     *
+     * @param key the key of a boolean setting
+     * @param defaultValue the value to return if the key is not found or the
+     * value is not a boolean
+     */
+    public boolean getBoolean(String key, boolean defaultValue) {
+        Object val = get(key);
+        if (val == null) {
+            return defaultValue;
+        }
+        return (Boolean) val;
     }
 
     /**
@@ -541,12 +571,25 @@ public final class AppSettings extends HashMap<String, Object> {
      * @return the corresponding value, or null if not set
      */
     public String getString(String key) {
-        String s = (String) get(key);
-        if (s == null) {
-            return null;
-        }
+        return getString(key, null);
+    }
 
-        return s;
+    /**
+     * Get a string from the settings.
+     * <p>
+     * If the key is not set, or the stored value is not a String, then the
+     * provided default value is returned.
+     *
+     * @param key the key of a string setting
+     * @param defaultValue the value to return if the key is not found or the
+     * value is not a string
+     */
+    public String getString(String key, String defaultValue) {
+        Object val = get(key);
+        if (val == null) {
+            return defaultValue;
+        }
+        return (String) val;
     }
 
     /**
@@ -558,12 +601,25 @@ public final class AppSettings extends HashMap<String, Object> {
      * @return the corresponding value, or 0 if not set
      */
     public float getFloat(String key) {
-        Float f = (Float) get(key);
-        if (f == null) {
-            return 0f;
-        }
+        return getFloat(key, 0f);
+    }
 
-        return f.floatValue();
+    /**
+     * Get a float from the settings.
+     * <p>
+     * If the key is not set, or the stored value is not a Float, then the
+     * provided default value is returned.
+     *
+     * @param key the key of a float setting
+     * @param defaultValue the value to return if the key is not found or the
+     * value is not a float
+     */
+    public float getFloat(String key, float defaultValue) {
+        Object val = get(key);
+        if (val == null) {
+            return defaultValue;
+        }
+        return (Float) val;
     }
 
     /**
@@ -573,7 +629,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @param value the desired integer value
      */
     public void putInteger(String key, int value) {
-        put(key, Integer.valueOf(value));
+        put(key, value);
     }
 
     /**
@@ -583,7 +639,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @param value the desired boolean value
      */
     public void putBoolean(String key, boolean value) {
-        put(key, Boolean.valueOf(value));
+        put(key, value);
     }
 
     /**
@@ -603,7 +659,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @param value the desired float value
      */
     public void putFloat(String key, float value) {
-        put(key, Float.valueOf(value));
+        put(key, value);
     }
 
     /**
@@ -960,7 +1016,7 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Enable or disable gamma correction. If enabled, the main framebuffer will
      * be configured for sRGB colors, and sRGB images will be linearized.
-     *
+     * <p>
      * Gamma correction requires a GPU that supports GL_ARB_framebuffer_sRGB;
      * otherwise this setting will be ignored.
      *
@@ -1215,7 +1271,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * Allows the display window to be resized by dragging its edges.
-     *
+     * <p>
      * Only supported for {@link JmeContext.Type#Display} contexts which
      * are in windowed mode, ignored for other types.
      * The default value is <code>false</code>.
@@ -1240,7 +1296,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * When enabled the display context will swap buffers every frame.
-     *
+     * <p>
      * This may need to be disabled when integrating with an external
      * library that handles buffer swapping on its own, e.g. Oculus Rift.
      * When disabled, the engine will process window messages
@@ -1282,7 +1338,7 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Sets a custom platform chooser. This chooser specifies which platform and
      * which devices are used for the OpenCL context.
-     *
+     * <p>
      * Default: an implementation defined one.
      *
      * @param chooser the class of the chooser, must have a default constructor
@@ -1506,5 +1562,30 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void setDisplay(int mon) {
         putInteger("Display", mon);
+    }
+
+    /**
+     * Prints all key-value pairs stored under a given preferences key
+     * in the Java Preferences API to standard output.
+     *
+     * @param preferencesKey The preferences key (node path) to inspect.
+     * @throws BackingStoreException If an exception occurs while accessing the preferences.
+     */
+    public static void printPreferences(String preferencesKey) throws BackingStoreException {
+        Preferences prefs = Preferences.userRoot().node(preferencesKey);
+        String[] keys = prefs.keys();
+
+        if (keys == null || keys.length == 0) {
+            logger.log(Level.WARNING, "No Preferences found under key: {0}", preferencesKey);
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Preferences for key: ").append(preferencesKey).append("\n");
+            for (String key : keys) {
+                // Retrieve the value as a String (default fallback for Preferences API)
+                String value = prefs.get(key, "[Value Not Found]");
+                sb.append(key).append(" = ").append(value).append("\n");
+            }
+            logger.log(Level.INFO, sb.toString());
+        }
     }
 }
