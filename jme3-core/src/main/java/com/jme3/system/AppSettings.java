@@ -1579,11 +1579,11 @@ public final class AppSettings extends HashMap<String, Object> {
             logger.log(Level.WARNING, "No Preferences found under key: {0}", preferencesKey);
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append("Preferences for key: ").append(preferencesKey).append("\n");
+            sb.append("Preferences for key: ").append(preferencesKey);
             for (String key : keys) {
                 // Retrieve the value as a String (default fallback for Preferences API)
                 String value = prefs.get(key, "[Value Not Found]");
-                sb.append(key).append(" = ").append(value).append("\n");
+                sb.append("\n * ").append(key).append(" = ").append(value);
             }
             logger.log(Level.INFO, sb.toString());
         }
