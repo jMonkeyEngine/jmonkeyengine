@@ -75,7 +75,7 @@ public class WireFrustum extends Mesh {
         if (points == null || points.length != 8) {
             throw new IllegalArgumentException("Frustum points array must not be null and must contain 8 points.");
         }
-        setGeometryData(this, points);
+        setGeometryData(points);
     }
 
     /**
@@ -84,13 +84,13 @@ public class WireFrustum extends Mesh {
      *
      * @param points The 8 `Vector3f` points defining the frustum's corners.
      */
-    private void setGeometryData(Mesh m, Vector3f[] points) {
+    private void setGeometryData(Vector3f[] points) {
         // Set vertex positions
-        m.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(points));
+        setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(points));
 
         // Set indices to draw lines connecting the frustum corners
         // The indices define 12 lines: 4 for near plane, 4 for far plane, and 4 connecting near to far.
-        m.setBuffer(Type.Index, 2,
+        setBuffer(Type.Index, 2,
                 new short[]{
                         // Near plane
                         0, 1,
@@ -111,8 +111,8 @@ public class WireFrustum extends Mesh {
                         3, 7,
                 }
         );
-        m.getBuffer(Type.Index).setUsage(Usage.Static);
-        m.setMode(Mode.Lines);
+        getBuffer(Type.Index).setUsage(Usage.Static);
+        setMode(Mode.Lines);
     }
 
     /**
@@ -160,7 +160,7 @@ public class WireFrustum extends Mesh {
      * @param points An array of 8 `Vector3f` objects representing the frustum's corners.
      * @return A new `WireFrustum` instance.
      */
-    public static Mesh makeFrustum(Vector3f[] points) {
+    public static WireFrustum makeFrustum(Vector3f[] points) {
         return new WireFrustum(points);
     }
 
