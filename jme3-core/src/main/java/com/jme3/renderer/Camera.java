@@ -1576,7 +1576,7 @@ public class Camera implements Savable, Cloneable {
      * <p>
      * Resulting ray is in world space, starting on the near plane
      * of the camera and going through position's (x,y) pixel coordinates on the screen.
-     * 
+     *
      * @param click2d A {@link Vector2f} representing the 2D screen coordinates (in pixels)
      * @return A {@link Ray} object representing the picking ray in world coordinates.
      *
@@ -1625,14 +1625,10 @@ public class Camera implements Savable, Cloneable {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()
-                + "[location=" + location
-                + ", direction=" + getDirection()
-                + ", res=" + width + "x" + height
-                + ", parallel=" + parallelProjection
-                + ", near=" + frustumNear
-                + ", far=" + frustumFar
-                + "]";
+        return "Camera[location=" + location + "\n"
+                + "direction=" + getDirection() + "\n"
+                + "res=" + width + "x" + height + ", parallel=" + parallelProjection + "\n"
+                + "near=" + frustumNear + ", far=" + frustumFar + "]";
     }
 
     @Override
