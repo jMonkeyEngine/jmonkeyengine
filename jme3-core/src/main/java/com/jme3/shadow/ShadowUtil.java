@@ -79,18 +79,18 @@ public class ShadowUtil {
         int h = viewCam.getHeight();
 
         TempVars vars = TempVars.get();
-        Vector2f tempVec2D = vars.vect2d;
+        Vector2f tempVec2 = vars.vect2d;
         Vector3f tempStore = vars.vect1;
 
-        points[0].set(viewCam.getWorldCoordinates(tempVec2D.set(0, 0), 0, tempStore));
-        points[1].set(viewCam.getWorldCoordinates(tempVec2D.set(0, h), 0, tempStore));
-        points[2].set(viewCam.getWorldCoordinates(tempVec2D.set(w, h), 0, tempStore));
-        points[3].set(viewCam.getWorldCoordinates(tempVec2D.set(w, 0), 0, tempStore));
+        points[0].set(viewCam.getWorldCoordinates(tempVec2.set(0, 0), 0, tempStore));
+        points[1].set(viewCam.getWorldCoordinates(tempVec2.set(0, h), 0, tempStore));
+        points[2].set(viewCam.getWorldCoordinates(tempVec2.set(w, h), 0, tempStore));
+        points[3].set(viewCam.getWorldCoordinates(tempVec2.set(w, 0), 0, tempStore));
 
-        points[4].set(viewCam.getWorldCoordinates(tempVec2D.set(0, 0), 1, tempStore));
-        points[5].set(viewCam.getWorldCoordinates(tempVec2D.set(0, h), 1, tempStore));
-        points[6].set(viewCam.getWorldCoordinates(tempVec2D.set(w, h), 1, tempStore));
-        points[7].set(viewCam.getWorldCoordinates(tempVec2D.set(w, 0), 1, tempStore));
+        points[4].set(viewCam.getWorldCoordinates(tempVec2.set(0, 0), 1, tempStore));
+        points[5].set(viewCam.getWorldCoordinates(tempVec2.set(0, h), 1, tempStore));
+        points[6].set(viewCam.getWorldCoordinates(tempVec2.set(w, h), 1, tempStore));
+        points[7].set(viewCam.getWorldCoordinates(tempVec2.set(w, 0), 1, tempStore));
         vars.release();
     }
 
