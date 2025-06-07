@@ -160,7 +160,7 @@ public class WireFrustum extends Mesh {
      * @param points An array of 8 `Vector3f` objects representing the frustum's corners.
      * @return A new `WireFrustum` instance.
      */
-    public static WireFrustum makeFrustum(Vector3f[] points) {
+    public static Mesh makeFrustum(Vector3f[] points) {
         return new WireFrustum(points);
     }
 
