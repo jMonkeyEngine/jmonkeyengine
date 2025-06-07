@@ -142,18 +142,18 @@ public class ShadowUtil {
             far_width   = far_height * ratio;
         }
 
-        Vector3f tempVec = vars.vect2; // Reusing tempVec for calculations
+        Vector3f tempVec    = vars.vect2; // Reusing tempVec for calculations
         Vector3f nearCenter = vars.vect3;
-        Vector3f farCenter = vars.vect4;
+        Vector3f farCenter  = vars.vect4;
 
         // Calculate near and far center points
         nearCenter.set(camDir).multLocal(near).addLocal(camPos);
         farCenter.set(camDir).multLocal(far).addLocal(camPos);
 
-        Vector3f nearUp     = vars.vect5.set(camUp).multLocal(near_height).clone();
-        Vector3f farUp      = vars.vect6.set(camUp).multLocal(far_height).clone();
-        Vector3f nearRight  = vars.vect7.set(camRight).multLocal(near_width).clone();
-        Vector3f farRight   = vars.vect8.set(camRight).multLocal(far_width).clone();
+        Vector3f nearUp     = vars.vect5.set(camUp).multLocal(near_height);
+        Vector3f farUp      = vars.vect6.set(camUp).multLocal(far_height);
+        Vector3f nearRight  = vars.vect7.set(camRight).multLocal(near_width);
+        Vector3f farRight   = vars.vect8.set(camRight).multLocal(far_width);
 
         // Populate frustum points
         points[0].set(nearCenter).subtractLocal(nearUp).subtractLocal(nearRight);
