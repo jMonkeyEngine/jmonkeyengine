@@ -437,7 +437,7 @@ public class ShadowUtil {
                         && shadowMode != RenderQueue.ShadowMode.Receive
                         && !occluder.isGrouped()
                         && occluder.getWorldBound() != null) {
-                    
+
                     BoundingVolume bv = occluder.getWorldBound();
                     BoundingVolume occBox = bv.transform(viewProjMatrix, vars.bbox);
 
@@ -625,6 +625,7 @@ public class ShadowUtil {
         offsetX = -0.5f * (cropMax.x + cropMin.x) * scaleX;
         offsetY = -0.5f * (cropMax.y + cropMin.y) * scaleY;
 
+        // Shadow map stabilization approximation from ShaderX 7 (Practical Cascaded Shadow Maps adapted to PSSM)
         // Offset stabilization: Quantizes the offset to align pixel boundaries
         if (halfTextureSize != 0 && scaleX > 0 && scaleY > 0) {
             offsetX = FastMath.ceil(offsetX * halfTextureSize) / halfTextureSize;
