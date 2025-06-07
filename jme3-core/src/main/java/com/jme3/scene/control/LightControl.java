@@ -87,20 +87,10 @@ public class LightControl extends AbstractControl {
         X, Y, Z
     }
 
-    /**
-     * Represents the direction (positive or negative) along the chosen axis.
-     * This influences how the light's direction is set when `SpatialToLight`
-     * and how the spatial's rotation is derived from the light's direction
-     * when `LightToSpatial`.
-     */
-    public enum Direction {
-        Positive, Negative
-    }
-
     private Light light;
     private ControlDirection controlDir = ControlDirection.SpatialToLight;
     private Axis axisRotation = Axis.Z;
-    private Direction axisDirection = Direction.Positive;
+    private boolean invertAxisDirection = false;
 
     /**
      * For serialization only. Do not use.
@@ -159,12 +149,12 @@ public class LightControl extends AbstractControl {
         this.axisRotation = axisRotation;
     }
 
-    public Direction getAxisDirection() {
-        return axisDirection;
+    public boolean isInvertAxisDirection() {
+        return invertAxisDirection;
     }
 
-    public void setAxisDirection(Direction axisDirection) {
-        this.axisDirection = axisDirection;
+    public void setInvertAxisDirection(boolean invertAxisDirection) {
+        this.invertAxisDirection = invertAxisDirection;
     }
 
     private void validateSupportedLightType(Light light) {
@@ -206,7 +196,7 @@ public class LightControl extends AbstractControl {
 
         final Vector3f lightDirection = vars.vect2;
         spatial.getWorldRotation().getRotationColumn(axisRotation.ordinal(), lightDirection);
-        if (axisDirection == Direction.Negative) {
+        if (invertAxisDirection) {
             lightDirection.negateLocal();
         }
 
@@ -246,7 +236,7 @@ public class LightControl extends AbstractControl {
         } else if (light instanceof DirectionalLight) {
             DirectionalLight dl = (DirectionalLight) light;
             lightDirection.set(dl.getDirection());
-            if (axisDirection == Direction.Negative) {
+            if (invertAxisDirection) {
                 lightDirection.negateLocal();
             }
             rotateSpatial = true;
@@ -255,7 +245,7 @@ public class LightControl extends AbstractControl {
             SpotLight sl = (SpotLight) light;
             lightPosition.set(sl.getPosition());
             lightDirection.set(sl.getDirection());
-            if (axisDirection == Direction.Negative) {
+            if (invertAxisDirection) {
                 lightDirection.negateLocal();
             }
             translateSpatial = true;
@@ -300,7 +290,7 @@ public class LightControl extends AbstractControl {
         light = (Light) ic.readSavable("light", null);
         controlDir = ic.readEnum("controlDir", ControlDirection.class, ControlDirection.SpatialToLight);
         axisRotation = ic.readEnum("axisRotation", Axis.class, Axis.Z);
-        axisDirection = ic.readEnum("axisDirection", Direction.class, Direction.Positive);
+        invertAxisDirection = ic.readBoolean("invertAxisDirection", false);
     }
 
     @Override
@@ -310,7 +300,7 @@ public class LightControl extends AbstractControl {
         oc.write(light, "light", null);
         oc.write(controlDir, "controlDir", ControlDirection.SpatialToLight);
         oc.write(axisRotation, "axisRotation", Axis.Z);
-        oc.write(axisDirection, "axisDirection", Direction.Positive);
+        oc.write(invertAxisDirection, "invertAxisDirection", false);
     }
 
     @Override
@@ -319,7 +309,7 @@ public class LightControl extends AbstractControl {
                 "[light=" + light +
                 ", controlDir=" + controlDir +
                 ", axisRotation=" + axisRotation +
-                ", axisDirection=" + axisDirection +
+                ", invertAxisDirection=" + invertAxisDirection +
                 ", enabled=" + enabled +
                 ", spatial=" + spatial +
                 "]";
