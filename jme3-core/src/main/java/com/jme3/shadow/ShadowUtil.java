@@ -71,8 +71,7 @@ public class ShadowUtil {
      * Updates a points arrays with the frustum corners of the provided camera.
      *
      * @param viewCam the viewing Camera (not null, unaffected)
-     * @param points storage for the corner coordinates (not null, length &ge;8,
-     * modified)
+     * @param points  storage for the corner coordinates (not null, length &ge;8, modified)
      */
     public static void updateFrustumPoints2(Camera viewCam, Vector3f[] points) {
         int w = viewCam.getWidth();
@@ -80,17 +79,17 @@ public class ShadowUtil {
 
         TempVars vars = TempVars.get();
         Vector2f tempVec2 = vars.vect2d;
-        Vector3f tempStore = vars.vect1;
 
-        points[0].set(viewCam.getWorldCoordinates(tempVec2.set(0, 0), 0, tempStore));
-        points[1].set(viewCam.getWorldCoordinates(tempVec2.set(0, h), 0, tempStore));
-        points[2].set(viewCam.getWorldCoordinates(tempVec2.set(w, h), 0, tempStore));
-        points[3].set(viewCam.getWorldCoordinates(tempVec2.set(w, 0), 0, tempStore));
+        viewCam.getWorldCoordinates(tempVec2.set(0, 0), 0, points[0]);
+        viewCam.getWorldCoordinates(tempVec2.set(0, h), 0, points[1]);
+        viewCam.getWorldCoordinates(tempVec2.set(w, h), 0, points[2]);
+        viewCam.getWorldCoordinates(tempVec2.set(w, 0), 0, points[3]);
 
-        points[4].set(viewCam.getWorldCoordinates(tempVec2.set(0, 0), 1, tempStore));
-        points[5].set(viewCam.getWorldCoordinates(tempVec2.set(0, h), 1, tempStore));
-        points[6].set(viewCam.getWorldCoordinates(tempVec2.set(w, h), 1, tempStore));
-        points[7].set(viewCam.getWorldCoordinates(tempVec2.set(w, 0), 1, tempStore));
+        viewCam.getWorldCoordinates(tempVec2.set(0, 0), 1, points[4]);
+        viewCam.getWorldCoordinates(tempVec2.set(0, h), 1, points[5]);
+        viewCam.getWorldCoordinates(tempVec2.set(w, h), 1, points[6]);
+        viewCam.getWorldCoordinates(tempVec2.set(w, 0), 1, points[7]);
+        
         vars.release();
     }
 
@@ -106,10 +105,10 @@ public class ShadowUtil {
      * @param points       storage for the corner coordinates (not null, length &ge; 8, modified)
      */
     public static void updateFrustumPoints(Camera viewCam,
-            float nearOverride,
-            float farOverride,
-            float scale,
-            Vector3f[] points) {
+                                           float nearOverride,
+                                           float farOverride,
+                                           float scale,
+                                           Vector3f[] points) {
 
         TempVars vars = TempVars.get();
 
@@ -513,11 +512,11 @@ public class ShadowUtil {
      * @param shadowMapSize   the size of each edge of the shadow map texture (in pixels), used for stabilization
      */
     public static void updateShadowCamera(ViewPort viewPort,
-            GeometryList receivers,
-            Camera shadowCam,
-            Vector3f[] points,
-            GeometryList splitOccluders,
-            float shadowMapSize) {
+                                          GeometryList receivers,
+                                          Camera shadowCam,
+                                          Vector3f[] points,
+                                          GeometryList splitOccluders,
+                                          float shadowMapSize) {
 
         boolean ortho = shadowCam.isParallelProjection();
 
@@ -661,7 +660,7 @@ public class ShadowUtil {
      * @param outputGeometryList The list to which geometries within the camera frustum will be added (not null, modified)
      */
     public static void getGeometriesInCamFrustum(GeometryList inputGeometryList,
-                    Camera camera, GeometryList outputGeometryList) {
+                                                 Camera camera, GeometryList outputGeometryList) {
         int planeState = camera.getPlaneState();
         for (int i = 0; i < inputGeometryList.size(); i++) {
             Geometry g = inputGeometryList.get(i);
@@ -685,7 +684,7 @@ public class ShadowUtil {
      * @param outputGeometryList The list to which matching geometries within the camera frustum will be added (not null, modified)
      */
     public static void getGeometriesInCamFrustum(Spatial rootScene, Camera camera,
-                    RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
+                                                 RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
         if (rootScene instanceof Node) {
             int planeState = camera.getPlaneState();
             addGeometriesInCamFrustumFromNode(camera, (Node) rootScene, mode, outputGeometryList);
@@ -728,7 +727,7 @@ public class ShadowUtil {
      * @param outputGeometryList The list to add matching geometries to (not null, modified)
      */
     private static void addGeometriesInCamFrustumFromNode(Camera camera, Node scene,
-                    RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
+                                                          RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
         if (scene.getCullHint() == Spatial.CullHint.Always) {
             return;
         }
@@ -762,7 +761,7 @@ public class ShadowUtil {
      * @param outputGeometryList The list to which geometries within the light's radius will be added (not null, modified)
      */
     public static void getGeometriesInLightRadius(GeometryList inputGeometryList,
-                    Camera[] cameras, GeometryList outputGeometryList) {
+                                                  Camera[] cameras, GeometryList outputGeometryList) {
         for (int i = 0; i < inputGeometryList.size(); i++) {
             Geometry g = inputGeometryList.get(i);
             boolean inFrustum = false;
@@ -796,7 +795,7 @@ public class ShadowUtil {
      * @param outputGeometryList The list to which matching geometries will be added (not null, modified)
      */
     public static void getLitGeometriesInViewPort(Spatial rootScene, Camera vpCamera, Camera[] cameras,
-                    RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
+                                                  RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
         if (rootScene instanceof Node) {
             addGeometriesInCamFrustumAndViewPortFromNode(vpCamera, cameras, rootScene, mode, outputGeometryList);
         }
@@ -813,7 +812,7 @@ public class ShadowUtil {
      * @param outputGeometryList The list to add matching geometries to (not null, modified)
      */
     private static void addGeometriesInCamFrustumAndViewPortFromNode(Camera vpCamera, Camera[] cameras,
-                     Spatial scene, RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
+                                                                     Spatial scene, RenderQueue.ShadowMode mode, GeometryList outputGeometryList) {
         if (scene.getCullHint() == Spatial.CullHint.Always) {
             return;
         }
