@@ -305,10 +305,11 @@ public class MotionPath implements JmeCloneable, Savable {
     private void attachDebugNode(Node root) {
         if (debugNode == null) {
             debugNode = new Node("DebugWayPoints");
+            Box box = new Box(0.3f, 0.3f, 0.3f);
             Material mat = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
             int i = 1;
             for (Vector3f cp : spline.getControlPoints()) {
-                Geometry geo = new Geometry("ControlPoint." + i, new Box(0.3f, 0.3f, 0.3f));
+                Geometry geo = new Geometry("WayPoint." + i, box);
                 geo.setLocalTranslation(cp);
                 geo.setMaterial(mat);
                 debugNode.attachChild(geo);
@@ -453,4 +454,5 @@ public class MotionPath implements JmeCloneable, Savable {
     public Spline getSpline() {
         return spline;
     }
+    
 }
