@@ -1599,8 +1599,8 @@ public class Camera implements Savable, Cloneable {
 
         // Calculate direction and normalize
         Vector3f direction = farPoint.subtractLocal(nearPoint).normalizeLocal();
-
         Ray ray = new Ray(nearPoint, direction);
+
         vars.release();
         return ray;
     }
