@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -118,8 +118,7 @@ public class SpotLight extends Light {
         setPosition(position);
         setDirection(direction);
     }
-    
-    
+
     /**
      * Creates a SpotLight at the given position, with the given direction,
      * the given range and the given color.
@@ -160,7 +159,6 @@ public class SpotLight extends Light {
         setDirection(direction);
         setSpotRange(range);
     }  
-    
 
     private void computeAngleParameters() {
         float innerCos = FastMath.cos(spotInnerAngle);
@@ -458,5 +456,18 @@ public class SpotLight extends Light {
         s.position = position.clone();
         return s;
     }
-}
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()
+                + "[name=" + name
+                + ", direction=" + direction
+                + ", position=" + position
+                + ", range=" + spotRange
+                + ", innerAngle=" + spotInnerAngle
+                + ", outerAngle=" + spotOuterAngle
+                + ", color=" + color
+                + ", enabled=" + enabled
+                + "]";
+    }
+}

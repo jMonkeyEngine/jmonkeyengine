@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import java.util.logging.Logger;
 /**
  * A LightProbe is not exactly a light. It holds environment map information used for Image Based Lighting.
  * This is used for indirect lighting in the Physically Based Rendering pipeline.
- *
+ * <p>
  * A light probe has a position in world space. This is the position from where the Environment Map are rendered.
  * There are two environment data structure  held by the LightProbe :
  * - The irradiance spherical harmonics factors (used for indirect diffuse lighting in the PBR pipeline).
@@ -57,9 +57,9 @@ import java.util.logging.Logger;
  * To compute them see
  * {@link com.jme3.environment.LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Spatial)}
  * and {@link EnvironmentCamera}.
- *
+ * <p>
  * The light probe has an area of effect centered on its position. It can have a Spherical area or an Oriented Box area
- *
+ * <p>
  * A LightProbe will only be taken into account when it's marked as ready and enabled.
  * A light probe is ready when it has valid environment map data set.
  * Note that you should never call setReady yourself.
@@ -71,7 +71,8 @@ import java.util.logging.Logger;
 public class LightProbe extends Light implements Savable {
 
     private static final Logger logger = Logger.getLogger(LightProbe.class.getName());
-    public static final Matrix4f FALLBACK_MATRIX = new Matrix4f(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1);
+    public static final Matrix4f FALLBACK_MATRIX = new Matrix4f(
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1);
 
     private Vector3f[] shCoefficients;
     private TextureCubeMap prefilteredEnvMap;
@@ -149,15 +150,11 @@ public class LightProbe extends Light implements Savable {
      * @return the pre-existing matrix
      */
     public Matrix4f getUniformMatrix(){
-
         Matrix4f mat = area.getUniformMatrix();
-
         // setting the (sp) entry of the matrix
         mat.m33 = nbMipMaps + 1f / area.getRadius();
-
         return mat;
     }
-
 
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -180,7 +177,7 @@ public class LightProbe extends Light implements Savable {
         position = (Vector3f) ic.readSavable("position", null);
         area = (ProbeArea)ic.readSavable("area", null);
         if(area == null) {
-            // retro compat
+            // retro compatibility
             BoundingSphere bounds = (BoundingSphere) ic.readSavable("bounds", new BoundingSphere(1.0f, Vector3f.ZERO));
             area = new SphereProbeArea(bounds.getCenter(), bounds.getRadius());
         }
@@ -199,7 +196,6 @@ public class LightProbe extends Light implements Savable {
             }
         }
     }
-
 
     /**
      * returns the bounding volume of this LightProbe
@@ -318,8 +314,12 @@ public class LightProbe extends Light implements Savable {
 
     @Override
     public String toString() {
-        return "Light Probe : " + name + " at " + position + " / " + area;
+        return getClass().getSimpleName()
+                + "[name=" + name
+                + ", position=" + position
+                + ", area=" + area
+                + ", enabled=" + enabled
+                + "]";
     }
-
 
 }
