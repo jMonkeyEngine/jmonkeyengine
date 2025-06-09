@@ -158,6 +158,10 @@ public class LightControl extends AbstractControl {
     }
 
     private void validateSupportedLightType(Light light) {
+        if (light == null) {
+            return;
+        }
+
         switch (light.getType()) {
             case Point:
             case Directional:
@@ -172,6 +176,10 @@ public class LightControl extends AbstractControl {
 
     @Override
     protected void controlUpdate(float tpf) {
+        if (light == null) {
+            return;
+        }
+
         switch (controlDir) {
             case SpatialToLight:
                 spatialToLight(light);
