@@ -1580,8 +1580,8 @@ public class Camera implements Savable, Cloneable {
      * @param click2d A {@link Vector2f} representing the 2D screen coordinates (in pixels)
      * @return A {@link Ray} object representing the picking ray in world coordinates.
      *
-     * <h3>Usage Example:</h3>
      * <pre>{@code
+     * // Usage Example:
      * Ray pickingRay = cam.screenPointToRay(inputManager.getCursorPosition());
      *
      * // Now 'pickingRay' can be used for intersection tests with 3D objects
