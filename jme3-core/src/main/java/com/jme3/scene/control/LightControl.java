@@ -314,7 +314,7 @@ public class LightControl extends AbstractControl {
     @Override
     public String toString() {
         return getClass().getSimpleName() +
-                "[light=" + light +
+                "[light=" + (light != null ? light.getType() : null) +
                 ", controlDir=" + controlDir +
                 ", axisRotation=" + axisRotation +
                 ", invertAxisDirection=" + invertAxisDirection +
