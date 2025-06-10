@@ -109,6 +109,8 @@ public class TestMaterialWrite {
             }
         };
         Material mat2 = (Material) loader.load(info);
+        assertTrue(mat2.isReceivesShadows());
+        assertTrue(mat2.isTransparent());
 
         assertTrue(mat.contentEquals(mat2));
     }
