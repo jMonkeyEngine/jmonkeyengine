@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 import static org.junit.Assert.assertTrue;
 
@@ -58,56 +59,56 @@ public class TestMaterialWrite {
 
     @Before
     public void init() {
-        assetManager = JmeSystem.newAssetManager(
-                TestMaterialWrite.class.getResource("/com/jme3/asset/Desktop.cfg"));
-
-
+        URL configFile = TestMaterialWrite.class.getResource("/com/jme3/asset/Desktop.cfg");
+        assetManager = JmeSystem.newAssetManager(configFile);
     }
-
 
     @Test
     public void testWriteMat() throws Exception {
-
-        Material mat = new Material(assetManager,"Common/MatDefs/Light/Lighting.j3md");
-
+        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        mat.setName("TestMaterial");
         mat.setBoolean("UseMaterialColors", true);
         mat.setColor("Diffuse", ColorRGBA.White);
         mat.setColor("Ambient", ColorRGBA.DarkGray);
         mat.setFloat("AlphaDiscardThreshold", 0.5f);
-
         mat.setFloat("Shininess", 2.5f);
+        mat.setTransparent(true);
+        mat.setReceivesShadows(true);
 
         Texture tex = assetManager.loadTexture(new TextureKey("Common/Textures/MissingTexture.png", true));
         tex.setMagFilter(Texture.MagFilter.Nearest);
         tex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
         tex.setWrap(Texture.WrapAxis.S, Texture.WrapMode.Repeat);
         tex.setWrap(Texture.WrapAxis.T, Texture.WrapMode.MirroredRepeat);
-
         mat.setTexture("DiffuseMap", tex);
+
         mat.getAdditionalRenderState().setDepthWrite(false);
         mat.getAdditionalRenderState().setDepthTest(false);
+        mat.getAdditionalRenderState().setColorWrite(false);
+        mat.getAdditionalRenderState().setWireframe(true);
         mat.getAdditionalRenderState().setLineWidth(5);
+        mat.getAdditionalRenderState().setPolyOffset(-1, 1);
         mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
 
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         J3MExporter exporter = new J3MExporter();
         try {
-            exporter.save(mat, stream);
+            exporter.save(mat, baos);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        System.err.println(stream.toString());
+        System.err.println(baos);
 
         J3MLoader loader = new J3MLoader();
         AssetInfo info = new AssetInfo(assetManager, new AssetKey("test")) {
             @Override
             public InputStream openStream() {
-                return new ByteArrayInputStream(stream.toByteArray());
+                return new ByteArrayInputStream(baos.toByteArray());
             }
         };
-        Material mat2 = (Material)loader.load(info);
+        Material mat2 = (Material) loader.load(info);
 
         assertTrue(mat.contentEquals(mat2));
     }
