@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021 jMonkeyEngine
+ * Copyright (c) 2017-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,34 +39,93 @@ import com.jme3.renderer.queue.RenderQueue;
 import java.util.*;
 
 /**
- * Created by Nehon on 25/01/2017.
+ * A detailed profiler implementation that tracks CPU and GPU times for various
+ * application, viewport, and scene processing steps. It provides per-frame
+ * statistics and also maintains a history for average calculations.
+ *
+ * @author Nehon on 25/01/2017.
  */
 public class DetailedProfiler implements AppProfiler {
 
+    /**
+     * The maximum number of frames to keep statistics for average calculations.
+     */
     private static final int MAX_FRAMES = 100;
+    /**
+     * Stores the current frame's profiling data, mapping step paths to StatLine objects.
+     * This map is cleared at the beginning of each frame.
+     */
     private Map<String, StatLine> data;
+    /**
+     * A pool of StatLine objects, mapping step paths to StatLine objects.
+     * This pool is used to reuse StatLine instances across frames to reduce garbage collection.
+     */
     private Map<String, StatLine> pool;
+    /**
+     * Not currently used for timing, potentially a leftover from earlier implementation.
+     */
     private long startFrame;
+    /**
+     * The current frame number. Increments with each completed frame.
+     */
     private static int currentFrame = 0;
+    /**
+     * Stores the path of the previously processed profiling step within the current frame.
+     * Used to calculate the duration of the previous step.
+     */
     private String prevPath = null;
+    /**
+     * Flag indicating if the current frame has officially ended processing.
+     */
     private boolean frameEnded = false;
+    /**
+     * The renderer instance used for GPU profiling.
+     */
     private Renderer renderer;
+    /**
+     * Flag indicating if a GPU profiling task is currently ongoing (i.e., between startProfiling and stopProfiling).
+     */
     private boolean ongoingGpuProfiling = false;
-
-
+    /**
+     * The path component for the current application step.
+     */
     private String curAppPath = null;
+    /**
+     * The path component for the current viewport step.
+     */
     private String curVpPath = null;
+    /**
+     * The path component for the current scene processing step.
+     */
     private String curSpPath = null;
+    /**
+     * The last viewport step encountered. Used for path construction logic.
+     */
     private VpStep lastVpStep = null;
-
+    /**
+     * StringBuilder used for constructing the full profiling path for app steps.
+     */
     private final StringBuilder path = new StringBuilder(256);
+    /**
+     * StringBuilder used for constructing the viewport-specific profiling path.
+     */
     private final StringBuilder vpPath = new StringBuilder(256);
-
+    /**
+     * A pool of available GPU profiling task IDs.
+     */
     private final Deque<Integer> idsPool = new ArrayDeque<>(100);
-
+    /**
+     * StatLine object specifically for tracking the total frame time (CPU).
+     */
     StatLine frameTime;
 
 
+    /**
+     * Records the time taken for various application-level steps.
+     * This method is called at predefined points in the application lifecycle.
+     *
+     * @param step The application step being profiled.
+     */
     @Override
     public void appStep(AppStep step) {
 
@@ -115,24 +174,30 @@ public class DetailedProfiler implements AppProfiler {
             }
         }
         if (step == AppStep.EndFrame) {
-
             closeFrame();
         }
     }
-    
-    
+
+    /**
+     * Records the time taken for application sub-steps, providing additional hierarchical detail.
+     *
+     * @param additionalInfo Optional strings to further qualify the sub-step path.
+     */
     @Override
     public void appSubStep(String... additionalInfo) {
         if (data != null) {
-            String pathStep = getPath("", additionalInfo);
             path.setLength(0);
-            path.append(curAppPath).append(pathStep);
+            path.append(curAppPath);
+            appendSubPath(path, additionalInfo); // Reusing helper for sub-path append
             addStep(path.toString(), System.nanoTime());
         }
     }
 
+    /**
+     * Completes the profiling for the current frame.
+     * This involves stopping any ongoing GPU profiling and closing all active StatLine entries.
+     */
     private void closeFrame() {
-        //close frame
         if (data != null) {
             if (ongoingGpuProfiling && renderer != null) {
                 renderer.stopProfiling();
@@ -147,24 +212,37 @@ public class DetailedProfiler implements AppProfiler {
         }
     }
 
+    /**
+     * Records the time taken for viewport-specific steps, including rendering buckets.
+     *
+     * @param step   The viewport step being profiled.
+     * @param vp     The ViewPort associated with this step.
+     * @param bucket The render queue bucket, if applicable (null for non-bucket steps).
+     */
     @Override
     public void vpStep(VpStep step, ViewPort vp, RenderQueue.Bucket bucket) {
 
         if (data != null) {
             vpPath.setLength(0);
-            vpPath.append(vp.getName()).append("/")
-                    .append((bucket == null ? step.name() : bucket.name() + " Bucket"));
+            vpPath.append(vp.getName()).append("/");
+            if (bucket == null) {
+                vpPath.append(step.name());
+            } else {
+                vpPath.append(bucket.name()).append(" Bucket");
+            }
+
             path.setLength(0);
+            // Optimized path construction
+            path.append(curAppPath).append("/");
+
             if ((lastVpStep == VpStep.PostQueue || lastVpStep == VpStep.PostFrame) && bucket != null) {
-                path.append(curAppPath).append("/").append(curVpPath).append(curSpPath).append("/")
-                    .append(vpPath);
+                path.append(curVpPath).append(curSpPath).append("/").append(vpPath);
                 curVpPath = vpPath.toString();
             } else {
                 if (bucket != null) {
-                    path.append(curAppPath).append("/").append(curVpPath).append("/")
-                        .append(bucket.name() + " Bucket");
+                    path.append(curVpPath).append("/").append(bucket.name()).append(" Bucket");
                 } else {
-                    path.append(curAppPath).append("/").append(vpPath);
+                    path.append(vpPath);
                     curVpPath = vpPath.toString();
                 }
             }
@@ -174,30 +252,49 @@ public class DetailedProfiler implements AppProfiler {
         }
     }
 
+    /**
+     * Records the time taken for scene processing steps, allowing for additional detail.
+     *
+     * @param step           The scene processing step being profiled.
+     * @param additionalInfo Optional strings to further qualify the step path.
+     */
     @Override
     public void spStep(SpStep step, String... additionalInfo) {
-
         if (data != null) {
             curSpPath = getPath("", additionalInfo);
             path.setLength(0);
             path.append(curAppPath).append("/").append(curVpPath).append(curSpPath);
             addStep(path.toString(), System.nanoTime());
         }
-
     }
 
+    /**
+     * Returns a map of the collected statistics for the current frame.
+     * The keys are the hierarchical paths of the profiled steps, and the values
+     * are {@link StatLine} objects containing CPU and GPU time data.
+     *
+     * @return A Map of StatLine objects, or null if profiling has not started.
+     */
     public Map<String, StatLine> getStats() {
-        if (data != null) {
-            return data; //new LinkedHashMap<>(data);
-        }
-        return null;
+        return data;
     }
 
+    /**
+     * Calculates the average CPU time for the entire frame.
+     *
+     * @return The average frame CPU time in nanoseconds.
+     */
     public double getAverageFrameTime() {
         return frameTime.getAverageCpu();
     }
 
-
+    /**
+     * Adds a new profiling step or updates an existing one with its start time.
+     * Handles stopping the previous GPU profiling task and starting a new one.
+     *
+     * @param path  The hierarchical path of the profiling step.
+     * @param value The system nano time when this step began.
+     */
     private void addStep(String path, long value) {
         if (ongoingGpuProfiling && renderer != null) {
             renderer.stopProfiling();
@@ -225,26 +322,36 @@ public class DetailedProfiler implements AppProfiler {
         }
         ongoingGpuProfiling = true;
         prevPath = path;
-
     }
 
     private String getPath(String step, String... subPath) {
-        StringBuilder path = new StringBuilder(step);
-        if (subPath != null) {
-            for (String s : subPath) {
-                path.append("/").append(s);
-            }
-        }
-        return path.toString();
+        StringBuilder sb = new StringBuilder(step);
+        appendSubPath(sb, subPath);
+        return sb.toString();
     }
 
+    private void appendSubPath(StringBuilder pathBuilder, String... subPath) {
+        if (subPath != null) {
+            for (String s : subPath) {
+                pathBuilder.append("/").append(s);
+            }
+        }
+    }
+
+    /**
+     * Sets the {@link Renderer} instance to be used for GPU profiling.
+     * This method should be called once the renderer is available.
+     *
+     * @param renderer The renderer instance.
+     */
     public void setRenderer(Renderer renderer) {
         this.renderer = renderer;
+        // Initialize the pool of GPU profiling task IDs
         poolTaskIds(renderer);
     }
 
     private void poolTaskIds(Renderer renderer) {
-        int[] ids = renderer.generateProfilingTasks(100);
+        int[] ids = renderer.generateProfilingTasks(MAX_FRAMES);
         for (int id : ids) {
             idsPool.push(id);
         }
@@ -258,7 +365,12 @@ public class DetailedProfiler implements AppProfiler {
         return idsPool.pop();
     }
 
+    /**
+     * Represents a single line of statistics for a profiled step,
+     * tracking CPU and GPU times over a set number of frames.
+     */
     public static class StatLine {
+
         private final long[] cpuTimes = new long[MAX_FRAMES];
         private final long[] gpuTimes = new long[MAX_FRAMES];
         private int startCursor = 0;
