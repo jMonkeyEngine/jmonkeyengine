@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,8 @@ import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
+
 import com.jme3.shader.bufferobject.BufferObject;
 
 /**
@@ -222,7 +224,6 @@ public class RenderContext {
      */
     public int boundRB;
 
-  
     /**
      * Currently bound element array vertex buffer.
      *
@@ -259,15 +260,13 @@ public class RenderContext {
      *
      * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
-    public final WeakReference<Image> boundTextures[]
-            = new WeakReference[maxTextureUnits];
-
+    public final WeakReference<Image>[] boundTextures = new WeakReference[maxTextureUnits];
 
     /**
      * Current bound buffer object IDs for each buffer object unit.
      *
-     * @see Renderer#setUniformBufferObject(int, com.jme3.shader.BufferObject)
-     * @see Renderer#setShaderStorageBufferObject(int, com.jme3.shader.BufferObject)
+     * @see Renderer#setUniformBufferObject(int, com.jme3.shader.bufferobject.BufferObject)
+     * @see Renderer#setShaderStorageBufferObject(int, com.jme3.shader.bufferobject.BufferObject)
      */
     public final WeakReference<BufferObject>[] boundBO = new WeakReference[maxBufferObjectUnits];
 
@@ -364,9 +363,7 @@ public class RenderContext {
         init();
     }
 
-
     private void init() {
-        cullMode = RenderState.FaceCullMode.Off;
         depthTestEnabled = false;
         depthWriteEnabled = true;
         colorWriteEnabled = true;
@@ -421,16 +418,10 @@ public class RenderContext {
     public void reset() {
         init();
 
-        for (int i = 0; i < boundTextures.length; i++) {
-            boundTextures[i] = null;
-        }
-
+        Arrays.fill(boundTextures, null);
         textureIndexList.reset();
 
-        for (int i = 0; i < boundAttribs.length; i++) {
-            boundAttribs[i] = null;
-        }
-
+        Arrays.fill(boundAttribs, null);
         attribIndexList.reset();
     }
 }
