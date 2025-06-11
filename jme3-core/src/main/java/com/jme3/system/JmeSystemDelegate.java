@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.EnumMap;
@@ -52,43 +51,74 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * An abstract delegate class for JME system operations. This class provides
+ * a flexible way to handle platform-specific behaviors.
  *
- * @author Kirill Vainer, normenhansen
+ * @author Kirill Vainer
+ * @author normenhansen
  */
 public abstract class JmeSystemDelegate {
 
-    protected final Logger logger = Logger.getLogger(JmeSystem.class.getName());
+    protected static final Logger logger = Logger.getLogger(JmeSystemDelegate.class.getName());
+
     protected boolean initialized = false;
     protected boolean lowPermissions = false;
     protected Map<JmeSystem.StorageFolderType, File> storageFolders = new EnumMap<>(JmeSystem.StorageFolderType.class);
     protected SoftTextDialogInput softTextDialogInput = null;
 
+    /**
+     * Default error message handler. If a `JmeDialogsFactoryImpl` is available
+     * via reflection, it displays an error dialog. Otherwise, it prints the
+     * error message to `System.err`.
+     */
     protected Consumer<String> errorMessageHandler = (message) -> {
-        JmeDialogsFactory dialogFactory = null;
-        try {
-             dialogFactory = (JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
-        } catch(ClassNotFoundException e){
-            logger.warning("JmeDialogsFactory implementation not found.");    
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            e.printStackTrace();
+        JmeDialogsFactory dialogFactory = createDialogsFactory();
+        if (dialogFactory != null) {
+            dialogFactory.showErrorDialog(message);
+        } else {
+            System.err.println(message);
         }
-        if(dialogFactory != null) dialogFactory.showErrorDialog(message);
-        else System.err.println(message);
     };
 
+    /**
+     * Default settings handler. If a `JmeDialogsFactoryImpl` is available
+     * via reflection, it displays a settings dialog. Otherwise, it returns `true`.
+     */
     protected BiFunction<AppSettings,Boolean,Boolean> settingsHandler = (settings,loadFromRegistry) -> {
-        JmeDialogsFactory dialogFactory = null;
-        try {
-            dialogFactory = (JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
-        } catch(ClassNotFoundException e){
-            logger.warning("JmeDialogsFactory implementation not found.");    
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            e.printStackTrace();
+        JmeDialogsFactory dialogFactory = createDialogsFactory();
+        if (dialogFactory != null) {
+            return dialogFactory.showSettingsDialog(settings, loadFromRegistry);
         }
-        if(dialogFactory != null) return dialogFactory.showSettingsDialog(settings, loadFromRegistry);
         return true;
     };
 
+    /**
+     * Attempts to create an instance of `JmeDialogsFactoryImpl` using reflection.
+     * This allows for optional dialog functionality without a direct dependency.
+     *
+     * @return An instance of `JmeDialogsFactory` if found and instantiated, otherwise `null`.
+     */
+    private JmeDialogsFactory createDialogsFactory() {
+        try {
+            Class<?> clazz = Class.forName("com.jme3.system.JmeDialogsFactoryImpl");
+            return (JmeDialogsFactory) clazz.getConstructor().newInstance();
+
+        } catch (ClassNotFoundException e) {
+            logger.warning("JmeDialogsFactory implementation not found.");
+        } catch (ReflectiveOperationException | IllegalArgumentException | SecurityException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves the storage folder for a given type. For {@link JmeSystem.StorageFolderType#Internal}
+     * and {@link JmeSystem.StorageFolderType#External}, it defaults to a ".jme3" folder
+     * in the user's home directory if not already set.
+     *
+     * @param type The type of storage folder to retrieve.
+     * @return The {@link File} representing the storage folder.
+     */
     public synchronized File getStorageFolder(JmeSystem.StorageFolderType type) {
         File storageFolder = null;
 
@@ -103,8 +133,8 @@ public abstract class JmeSystemDelegate {
                 if (storageFolder == null) {
                     // Initialize storage folder
                     storageFolder = new File(System.getProperty("user.home"), ".jme3");
-                    if (!storageFolder.exists()) {
-                        storageFolder.mkdir();
+                    if (!storageFolder.exists() && !storageFolder.mkdir()) {
+                        logger.log(Level.WARNING, "Failed to create storage folder: {0}", storageFolder.getAbsolutePath());
                     }
                     storageFolders.put(type, storageFolder);
                 }
@@ -114,7 +144,7 @@ public abstract class JmeSystemDelegate {
         }
         if (storageFolder != null) {
             if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+                logger.log(Level.FINE, "Storage Folder Path ({0}): {1}", new Object[]{type, storageFolder.getAbsolutePath()});
             }
         } else {
             logger.log(Level.FINE, "Storage Folder not found!");
@@ -122,6 +152,11 @@ public abstract class JmeSystemDelegate {
         return storageFolder;
     }
 
+    /**
+     * Returns the full name of the JME application, including version information.
+     *
+     * @return The full name of the JME application.
+     */
     public String getFullName() {
         return JmeVersion.FULL_NAME;
     }
@@ -161,23 +196,40 @@ public abstract class JmeSystemDelegate {
     public final AssetManager newAssetManager() {
         return new DesktopAssetManager(null);
     }
-    
+
+    /**
+     * Abstract method to write image data to an output stream.
+     * Concrete implementations must provide the logic for writing images based on the format.
+     *
+     * @param outStream The {@link OutputStream} to write the image data to.
+     * @param format    The format of the image (e.g., "png", "jpg").
+     * @param imageData A {@link ByteBuffer} containing the image pixel data.
+     * @param width     The width of the image in pixels.
+     * @param height    The height of the image in pixels.
+     * @throws IOException If an I/O error occurs during writing.
+     */
     public abstract void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException;
 
     /**
-     * Set function to handle errors. 
-     * The default implementation show a dialog if available.
-     * @param handler Consumer to which the error is passed as String
+     * Sets the function to handle error messages.
+     * The default implementation attempts to show a dialog if a dialog factory is available.
+     *
+     * @param handler A {@link Consumer} that accepts a {@link String} message representing the error.
      */
-    public void setErrorMessageHandler(Consumer<String> handler){
+    public void setErrorMessageHandler(Consumer<String> handler) {
         errorMessageHandler = handler;
     }
 
     /**
-     * Internal use only: submit an error to the error message handler
+     * Internal use only: submit an error to the error message handler.
+     * If no handler is set, this method does nothing.
+     *
+     * @param message The error message {@link String} to be handled.
      */
-    public void handleErrorMessage(String message){
-        if(errorMessageHandler != null) errorMessageHandler.accept(message);
+    public void handleErrorMessage(String message) {
+        if (errorMessageHandler != null) {
+            errorMessageHandler.accept(message);
+        }
     }
 
     /**
@@ -188,32 +240,44 @@ public abstract class JmeSystemDelegate {
      * the user registry. The handler function returns false if the configuration is interrupted (eg.the the dialog was closed)
      * or true otherwise.
      */
-    public void setSettingsHandler(BiFunction<AppSettings,Boolean, Boolean> handler){
+    public void setSettingsHandler(BiFunction<AppSettings,Boolean, Boolean> handler) {
         settingsHandler = handler;
     }
 
     /**
-     * Internal use only: summon the settings handler
+     * Internal use only: summon the settings handler.
+     * If no handler is set, this method returns {@code true}.
+     *
+     * @param settings         The {@link AppSettings} instance to be handled.
+     * @param loadFromRegistry {@code true} if settings should be loaded from the user registry.
+     * @return {@code false} if the configuration was interrupted, {@code true} otherwise
      */
-    public boolean handleSettings(AppSettings settings, boolean loadFromRegistry){
-        if(settingsHandler != null) return settingsHandler.apply(settings,loadFromRegistry);
+    public boolean handleSettings(AppSettings settings, boolean loadFromRegistry) {
+        if (settingsHandler != null) {
+            return settingsHandler.apply(settings, loadFromRegistry);
+        }
         return true;
     }
 
     /**
-     * @deprecated Use JmeSystemDelegate.handleErrorMessage(String) instead
-     * @param message
+     * @param message The error message to display.
+     * @deprecated Use {@link JmeSystemDelegate#handleErrorMessage(String)} instead.
      */
     @Deprecated
-    public void showErrorDialog(String message){
+    public void showErrorDialog(String message) {
         handleErrorMessage(message);
     }
 
+    /**
+     * @param settings         The application settings.
+     * @param loadFromRegistry {@code true} if settings should be loaded from the registry.
+     * @return {@code false} if the settings dialog was cancelled, {@code true} otherwise.
+     * @deprecated Use {@link JmeSystemDelegate#handleSettings(AppSettings, boolean)} instead.
+     */
     @Deprecated
-    public boolean showSettingsDialog(AppSettings settings, boolean loadFromRegistry){
+    public boolean showSettingsDialog(AppSettings settings, boolean loadFromRegistry) {
         return handleSettings(settings, loadFromRegistry);
     }
-
 
     private boolean is64Bit(String arch) {
         if (arch.equals("x86")) {
@@ -243,6 +307,12 @@ public abstract class JmeSystemDelegate {
         }
     }
 
+    /**
+     * Determines the current platform based on operating system and architecture properties.
+     *
+     * @return The {@link Platform} enum representing the current operating system and architecture.
+     * @throws UnsupportedOperationException if the operating system is not supported.
+     */
     public Platform getPlatform() {
         String os = System.getProperty("os.name").toLowerCase();
         String arch = System.getProperty("os.arch").toLowerCase();
@@ -273,6 +343,12 @@ public abstract class JmeSystemDelegate {
         }
     }
 
+    /**
+     * Provides a string containing build information about the JME application,
+     * including branch name, Git hash, and build date.
+     *
+     * @return A {@link String} with build information.
+     */
     public String getBuildInfo() {
         StringBuilder sb = new StringBuilder();
         sb.append("Running on ").append(getFullName()).append("\n");
@@ -281,7 +357,7 @@ public abstract class JmeSystemDelegate {
         sb.append(" * Build Date: ").append(JmeVersion.BUILD_DATE);
         return sb.toString();
     }
-    
+
     public abstract URL getPlatformAssetConfigURL();
     
     public abstract JmeContext newContext(AppSettings settings, JmeContext.Type contextType);
