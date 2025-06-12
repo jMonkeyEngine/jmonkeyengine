@@ -75,7 +75,6 @@ public class Circle extends Mesh {
      * Initializes the vertex buffers for the circle mesh.
      */
     private void setGeometryData() {
-        setMode(Mode.Lines);
 
         int numVertices = radialSamples + 1;
 
@@ -104,6 +103,7 @@ public class Circle extends Mesh {
         setBuffer(Type.Color, 4, colBuf);
         setBuffer(Type.TexCoord, 2, texBuf);
 
+        setMode(Mode.Lines);
         updateBound();
         setStatic();
     }
