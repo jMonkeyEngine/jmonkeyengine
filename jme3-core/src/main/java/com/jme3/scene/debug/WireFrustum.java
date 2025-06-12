@@ -113,6 +113,7 @@ public class WireFrustum extends Mesh {
         );
         getBuffer(Type.Index).setUsage(Usage.Static);
         setMode(Mode.Lines);
+        updateBound();
     }
 
     /**
@@ -133,7 +134,7 @@ public class WireFrustum extends Mesh {
         if (vb == null) {
             // If for some reason the position buffer is missing, re-create it.
             // This case should ideally not happen if the object is constructed properly.
-            setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(points));
+            setGeometryData(points);
             return;
         }
 
