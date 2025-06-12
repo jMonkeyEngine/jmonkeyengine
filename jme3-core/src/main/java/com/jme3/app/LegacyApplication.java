@@ -121,6 +121,7 @@ public class LegacyApplication implements Application, SystemListener {
      * Create a new instance of <code>LegacyApplication</code>.
      */
     public LegacyApplication() {
+        initStateManager();
     }
 
     /**
@@ -130,8 +131,7 @@ public class LegacyApplication implements Application, SystemListener {
      * @param initialStates app states to pre-attach, or null for none
      */
     public LegacyApplication(AppState... initialStates) {
-        initStateManager();
-
+        this();
         if (initialStates != null) {
             for (AppState a : initialStates) {
                 if (a != null) {
