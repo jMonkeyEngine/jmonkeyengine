@@ -274,6 +274,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 }
         );
 
+        if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND)) {
+            glfwInitHint(GLFW_WAYLAND_LIBDECOR, settings.isFullscreen() ? GLFW_WAYLAND_DISABLE_LIBDECOR : GLFW_WAYLAND_PREFER_LIBDECOR);
+        }
+        
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
