@@ -41,9 +41,9 @@ import com.jme3.collision.CollisionResults;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
-import com.jme3.input.controls.*;
-import com.jme3.light.DirectionalLight;
-import com.jme3.math.ColorRGBA;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -56,7 +56,12 @@ import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -85,13 +90,14 @@ public class ArmatureDebugAppState extends BaseAppState {
 
     private Node debugNode = new Node("debugNode");
     private final Map<Armature, ArmatureDebugger> armatures = new HashMap<>();
-    private final Map<Armature, Joint> selectedBones = new HashMap<>();
+    private final List<Consumer<Joint>> selectionListeners = new ArrayList<>();
     private boolean displayAllJoints = false;
     private float clickDelay = -1;
     private ViewPort vp;
     private Camera cam;
     private InputManager inputManager;
     private boolean showOnTop = true;
+    private boolean enableLogging = true;
 
     @Override
     protected void initialize(Application app) {
@@ -106,9 +112,6 @@ public class ArmatureDebugAppState extends BaseAppState {
         for (ArmatureDebugger debugger : armatures.values()) {
             debugger.initialize(app.getAssetManager(), cam);
         }
-
-        debugNode.addLight(new DirectionalLight(new Vector3f(-1f, -1f, -1f).normalizeLocal()));
-        debugNode.addLight(new DirectionalLight(new Vector3f(1f, 1f, 1f).normalizeLocal(), new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f)));
 
         // Initially disable the viewport until the state is enabled
         vp.setEnabled(false);
@@ -134,7 +137,7 @@ public class ArmatureDebugAppState extends BaseAppState {
         app.getRenderManager().removeMainView(vp);
         // Clear maps to release references
         armatures.clear();
-        selectedBones.clear();
+        selectionListeners.clear();
         debugNode.detachAllChildren();
     }
 
@@ -260,7 +263,18 @@ public class ArmatureDebugAppState extends BaseAppState {
                     } else {
                         // Get the closest geometry hit by the ray
                         Geometry target = results.getClosestCollision().getGeometry();
-                        printJointInfo(target);
+                        logger.log(Level.INFO, "Pick: {0}", target);
+
+                        for (ArmatureDebugger ad : armatures.values()) {
+                            Joint selectedjoint = ad.select(target);
+
+                            if (selectedjoint != null) {
+                                // If a joint was selected, notify it and print its properties
+                                notifySelectionListeners(selectedjoint);
+                                printJointInfo(selectedjoint, ad);
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -272,30 +286,22 @@ public class ArmatureDebugAppState extends BaseAppState {
             }
         }
 
-        private void printJointInfo(Geometry target) {
-
-            for (ArmatureDebugger ad : armatures.values()) {
-                Joint selectedjoint = ad.select(target);
-
-                if (selectedjoint != null) {
-                    // If a joint was selected, store it and print its properties
-                    selectedBones.put(ad.getArmature(), selectedjoint);
-                    System.err.println("-----------------------");
-                    System.err.println("Selected Joint : " + selectedjoint.getName() + " in armature " + ad.getName());
-                    System.err.println("Root Bone : " + (selectedjoint.getParent() == null));
-                    System.err.println("-----------------------");
-                    System.err.println("Local translation: " + selectedjoint.getLocalTranslation());
-                    System.err.println("Local rotation: " + selectedjoint.getLocalRotation());
-                    System.err.println("Local scale: " + selectedjoint.getLocalScale());
-                    System.err.println("---");
-                    System.err.println("Model translation: " + selectedjoint.getModelTransform().getTranslation());
-                    System.err.println("Model rotation: " + selectedjoint.getModelTransform().getRotation());
-                    System.err.println("Model scale: " + selectedjoint.getModelTransform().getScale());
-                    System.err.println("---");
-                    System.err.println("Bind inverse Transform: ");
-                    System.err.println(selectedjoint.getInverseModelBindMatrix());
-                    break;
-                }
+        private void printJointInfo(Joint selectedjoint, ArmatureDebugger ad) {
+            if (enableLogging) {
+                System.err.println("-----------------------");
+                System.err.println("Selected Joint : " + selectedjoint.getName() + " in armature " + ad.getName());
+                System.err.println("Root Bone : " + (selectedjoint.getParent() == null));
+                System.err.println("-----------------------");
+                System.err.println("Local translation: " + selectedjoint.getLocalTranslation());
+                System.err.println("Local rotation: " + selectedjoint.getLocalRotation());
+                System.err.println("Local scale: " + selectedjoint.getLocalScale());
+                System.err.println("---");
+                System.err.println("Model translation: " + selectedjoint.getModelTransform().getTranslation());
+                System.err.println("Model rotation: " + selectedjoint.getModelTransform().getRotation());
+                System.err.println("Model scale: " + selectedjoint.getModelTransform().getScale());
+                System.err.println("---");
+                System.err.println("Bind inverse Transform: ");
+                System.err.println(selectedjoint.getInverseModelBindMatrix());
             }
         }
 
@@ -316,6 +322,42 @@ public class ArmatureDebugAppState extends BaseAppState {
             return ray;
         }
     };
+
+    /**
+     * Notifies all registered {@code Consumer<Joint>} listeners about the selected joint.
+     *
+     * @param selectedJoint The joint that was selected.
+     */
+    private void notifySelectionListeners(Joint selectedJoint) {
+        for (Consumer<Joint> listener : selectionListeners) {
+            listener.accept(selectedJoint);
+        }
+    }
+
+    /**
+     * Adds a listener that will be notified when a joint is selected.
+     *
+     * @param listener The {@code Consumer<Joint>} listener to add.
+     */
+    public void addSelectionListener(Consumer<Joint> listener) {
+        selectionListeners.add(listener);
+    }
+
+    /**
+     * Removes a previously added selection listener.
+     *
+     * @param listener The {@code Consumer<Joint>} listener to remove.
+     */
+    public void removeSelectionListener(Consumer<Joint> listener) {
+        selectionListeners.remove(listener);
+    }
+
+    /**
+     * Clears all registered selection listeners.
+     */
+    public void clearSelectionListeners() {
+        selectionListeners.clear();
+    }
 
     /**
      * Returns the root node for debug visualizations.
@@ -353,6 +395,24 @@ public class ArmatureDebugAppState extends BaseAppState {
         if (vp != null) {
             vp.setClearDepth(showOnTop);
         }
+    }
+
+    /**
+     * Returns whether logging of detailed joint information is currently enabled.
+     *
+     * @return true if logging is enabled, false otherwise.
+     */
+    public boolean isEnableLogging() {
+        return enableLogging;
+    }
+
+    /**
+     * Sets whether logging of detailed joint information should be enabled.
+     *
+     * @param enableLogging true to enable logging, false to disable.
+     */
+    public void setEnableLogging(boolean enableLogging) {
+        this.enableLogging = enableLogging;
     }
 
     /**
