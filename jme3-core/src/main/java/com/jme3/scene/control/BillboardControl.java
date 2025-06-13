@@ -119,19 +119,6 @@ public class BillboardControl extends AbstractControl {
     protected void controlRender(RenderManager rm, ViewPort vp) {
         Camera cam = vp.getCamera();
         rotateBillboard(cam);
-        updateRefreshFlags();
-    }
-
-    private void updateRefreshFlags() {
-        // force transforms to update below this node
-        spatial.updateGeometricState();
-
-        // force world bound to update
-        Spatial rootNode = spatial;
-        while (rootNode.getParent() != null) {
-            rootNode = rootNode.getParent();
-        }
-        rootNode.getWorldBound();
     }
 
     /**
