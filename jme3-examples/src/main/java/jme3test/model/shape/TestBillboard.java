@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.model.shape;
 
 import com.jme3.app.SimpleApplication;
@@ -37,77 +36,67 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.BillboardControl;
-import com.jme3.scene.shape.Box;
+import com.jme3.scene.debug.Arrow;
+import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Quad;
 
 /**
- *
- * @author Kirill Vainer
+ * @author capedvon
  */
 public class TestBillboard extends SimpleApplication {
-
-    @Override
-    public void simpleInitApp() {
-        flyCam.setMoveSpeed(10);
-
-        Quad q = new Quad(2, 2);
-        Geometry g = new Geometry("Quad", q);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.Blue);
-        g.setMaterial(mat);
-
-        Quad q2 = new Quad(1, 1);
-        Geometry g3 = new Geometry("Quad2", q2);
-        Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat2.setColor("Color", ColorRGBA.Yellow);
-        g3.setMaterial(mat2);
-        g3.setLocalTranslation(.5f, .5f, .01f);
-
-        Box b = new Box(.25f, .5f, .25f);
-        Geometry g2 = new Geometry("Box", b);
-        g2.setLocalTranslation(0, 0, 3);
-        g2.setMaterial(mat);
-
-        Node bb = new Node("billboard");
-
-        BillboardControl control=new BillboardControl();
-        
-        bb.addControl(control);
-        bb.attachChild(g);
-        bb.attachChild(g3);       
-        
-
-        n=new Node("parent");
-        n.attachChild(g2);
-        n.attachChild(bb);
-        rootNode.attachChild(n);
-
-        n2=new Node("parentParent");
-        n2.setLocalTranslation(Vector3f.UNIT_X.mult(5));
-        n2.attachChild(n);
-
-        rootNode.attachChild(n2);
-
-
-//        rootNode.attachChild(bb);
-//        rootNode.attachChild(g2);
-    }
-    private Node n;
-    private Node n2;
-    @Override
-    public void simpleUpdate(float tpf) {
-        super.simpleUpdate(tpf);
-        n.rotate(0, tpf, 0);
-        n.move(0.1f*tpf, 0, 0);
-        n2.rotate(0, 0, -tpf);
-    }
-
-
 
     public static void main(String[] args) {
         TestBillboard app = new TestBillboard();
         app.start();
     }
+
+    @Override
+    public void simpleInitApp() {
+        flyCam.setMoveSpeed(15f);
+        flyCam.setDragToRotate(true);
+
+        viewPort.setBackgroundColor(ColorRGBA.DarkGray);
+
+        Geometry grid = makeShape("DebugGrid", new Grid(21, 21, 2), ColorRGBA.Gray);
+        grid.center().move(0, 0, 0);
+        rootNode.attachChild(grid);
+
+        Node node = createBillboard(BillboardControl.Alignment.Screen, ColorRGBA.Red);
+        node.setLocalTranslation(-6f, 0, 0);
+        rootNode.attachChild(node);
+
+        node = createBillboard(BillboardControl.Alignment.Camera, ColorRGBA.Green);
+        node.setLocalTranslation(-2f, 0, 0);
+        rootNode.attachChild(node);
+
+        node = createBillboard(BillboardControl.Alignment.AxialY, ColorRGBA.Blue);
+        node.setLocalTranslation(2f, 0, 0);
+        rootNode.attachChild(node);
+
+        node = createBillboard(BillboardControl.Alignment.AxialZ, ColorRGBA.Yellow);
+        node.setLocalTranslation(6f, 0, 0);
+        rootNode.attachChild(node);
+    }
+
+    private Node createBillboard(BillboardControl.Alignment alignment, ColorRGBA color) {
+        Node node = new Node("Parent");
+        Quad quad = new Quad(2, 2);
+        Geometry g = makeShape(alignment.name(), quad, color);
+        g.addControl(new BillboardControl(alignment));
+        node.attachChild(g);
+        node.attachChild(makeShape("ZAxis", new Arrow(Vector3f.UNIT_Z), ColorRGBA.Blue));
+        return node;
+    }
+
+    private Geometry makeShape(String name, Mesh shape, ColorRGBA color) {
+        Geometry geo = new Geometry(name, shape);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", color);
+        geo.setMaterial(mat);
+        return geo;
+    }
+
 }
