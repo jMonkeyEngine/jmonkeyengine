@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,6 @@ import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.Filter;
-import com.jme3.post.Filter.Pass;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -62,23 +61,22 @@ import java.util.ArrayList;
 public class SSAOFilter extends Filter {
 
     private Pass normalPass;
-    private Vector3f frustumCorner;
-    private Vector2f frustumNearFar;
-    private Vector2f[] samples = {new Vector2f(1.0f, 0.0f), new Vector2f(-1.0f, 0.0f), new Vector2f(0.0f, 1.0f), new Vector2f(0.0f, -1.0f)};
+    private final Vector2f[] samples = {
+            new Vector2f(1.0f, 0.0f),
+            new Vector2f(-1.0f, 0.0f),
+            new Vector2f(0.0f, 1.0f),
+            new Vector2f(0.0f, -1.0f)
+    };
     private float sampleRadius = 5.1f;
     private float intensity = 1.5f;
     private float scale = 0.2f;
     private float bias = 0.1f;
+    private boolean approximateNormals = false;
     private boolean useOnlyAo = false;
     private boolean useAo = true;
     private Material ssaoMat;
-    private Pass ssaoPass;
-//    private Material downSampleMat;
-//    private Pass downSamplePass;
-    private float downSampleFactor = 1f;
     private RenderManager renderManager;
     private ViewPort viewPort;
-    private boolean approximateNormals = false;
 
     /**
      * Create a Screen Space Ambient Occlusion Filter
@@ -89,10 +87,11 @@ public class SSAOFilter extends Filter {
 
     /**
      * Create a Screen Space Ambient Occlusion Filter
+     *
      * @param sampleRadius The radius of the area where random samples will be picked. default 5.1f
-     * @param intensity intensity of the resulting AO. default 1.2f
-     * @param scale distance between occluders and occludee. default 0.2f
-     * @param bias the width of the occlusion cone considered by the occludee. default 0.1f
+     * @param intensity    intensity of the resulting AO. default 1.5f
+     * @param scale        distance between occluders and occludee. default 0.2f
+     * @param bias         the width of the occlusion cone considered by the occludee. default 0.1f
      */
     public SSAOFilter(float sampleRadius, float intensity, float scale, float bias) {
         this();
@@ -126,38 +125,32 @@ public class SSAOFilter extends Filter {
     }
 
     @Override
-    protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+    protected void initFilter(AssetManager assetManager, RenderManager renderManager, ViewPort vp, int w, int h) {
         this.renderManager = renderManager;
         this.viewPort = vp;
         int screenWidth = w;
         int screenHeight = h;
+        float downSampleFactor = 1f;
         postRenderPasses = new ArrayList<Pass>();
 
         normalPass = new Pass();
         normalPass.init(renderManager.getRenderer(), (int) (screenWidth / downSampleFactor), (int) (screenHeight / downSampleFactor), Format.RGBA8, Format.Depth);
 
-
-        frustumNearFar = new Vector2f();
-
+        Vector2f frustumNearFar = new Vector2f();
         float farY = (vp.getCamera().getFrustumTop() / vp.getCamera().getFrustumNear()) * vp.getCamera().getFrustumFar();
         float farX = farY * (screenWidth / (float) screenHeight);
-        frustumCorner = new Vector3f(farX, farY, vp.getCamera().getFrustumFar());
+        Vector3f frustumCorner = new Vector3f(farX, farY, vp.getCamera().getFrustumFar());
         frustumNearFar.x = vp.getCamera().getFrustumNear();
         frustumNearFar.y = vp.getCamera().getFrustumFar();
 
-
-
-
-
         //ssao Pass
-        ssaoMat = new Material(manager, "Common/MatDefs/SSAO/ssao.j3md");
+        ssaoMat = new Material(assetManager, "Common/MatDefs/SSAO/ssao.j3md");
         ssaoMat.setTexture("Normals", normalPass.getRenderedTexture());
-        Texture random = manager.loadTexture("Common/MatDefs/SSAO/Textures/random.png");
+        Texture random = assetManager.loadTexture("Common/MatDefs/SSAO/Textures/random.png");
         random.setWrap(Texture.WrapMode.Repeat);
         ssaoMat.setTexture("RandomMap", random);
 
-        ssaoPass = new Pass("SSAO pass") {
-
+        Pass ssaoPass = new Pass("SSAO pass") {
             @Override
             public boolean requiresDepthAsTexture() {
                 return true;
@@ -168,18 +161,18 @@ public class SSAOFilter extends Filter {
 //        ssaoPass.getRenderedTexture().setMinFilter(Texture.MinFilter.Trilinear);
 //        ssaoPass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
         postRenderPasses.add(ssaoPass);
-        material = new Material(manager, "Common/MatDefs/SSAO/ssaoBlur.j3md");
+        material = new Material(assetManager, "Common/MatDefs/SSAO/ssaoBlur.j3md");
         material.setTexture("SSAOMap", ssaoPass.getRenderedTexture());
+        material.setVector2("FrustumNearFar", frustumNearFar);
+        material.setBoolean("UseAo", useAo);
+        material.setBoolean("UseOnlyAo", useOnlyAo);
 
         ssaoMat.setVector3("FrustumCorner", frustumCorner);
         ssaoMat.setFloat("SampleRadius", sampleRadius);
         ssaoMat.setFloat("Intensity", intensity);
         ssaoMat.setFloat("Scale", scale);
         ssaoMat.setFloat("Bias", bias);
-        material.setBoolean("UseAo", useAo);
-        material.setBoolean("UseOnlyAo", useOnlyAo);
         ssaoMat.setVector2("FrustumNearFar", frustumNearFar);
-        material.setVector2("FrustumNearFar", frustumNearFar);
         ssaoMat.setParam("Samples", VarType.Vector2Array, samples);
         ssaoMat.setBoolean("ApproximateNormals", approximateNormals);
 
@@ -189,7 +182,6 @@ public class SSAOFilter extends Filter {
         float blurScale = 2f;
         material.setFloat("XScale", blurScale * xScale);
         material.setFloat("YScale", blurScale * yScale);
-
     }
 
     @Override
@@ -198,18 +190,20 @@ public class SSAOFilter extends Filter {
     }    
     
     /**
-     * Return the bias<br>
-     * see {@link  #setBias(float bias)}
-     * @return  bias
+     * Returns the bias value used in the SSAO calculation.
+     *
+     * @return The bias value.
+     * @see #setBias(float)
      */
     public float getBias() {
         return bias;
     }
 
     /**
-     * Sets the width of the occlusion cone considered by the occludee default is 0.1f
+     * Sets the width of the occlusion cone considered by the occludee.
+     * A higher bias means a wider cone, resulting in less self-occlusion.
      *
-     * @param bias the desired width (default=0.1)
+     * @param bias The desired bias value (default: 0.1f).
      */
     public void setBias(float bias) {
         this.bias = bias;
@@ -219,62 +213,65 @@ public class SSAOFilter extends Filter {
     }
 
     /**
-     * returns the ambient occlusion intensity
-     * @return intensity
+     * Returns the ambient occlusion intensity.
+     *
+     * @return The intensity value.
      */
     public float getIntensity() {
         return intensity;
     }
 
     /**
-     * Sets the Ambient occlusion intensity default is 1.5
+     * Sets the ambient occlusion intensity. A higher intensity makes the ambient
+     * occlusion effect more pronounced.
      *
-     * @param intensity the desired intensity (default=1.5)
+     * @param intensity The desired intensity (default: 1.5f).
      */
     public void setIntensity(float intensity) {
         this.intensity = intensity;
         if (ssaoMat != null) {
             ssaoMat.setFloat("Intensity", intensity);
         }
-
     }
 
     /**
-     * returns the sample radius<br>
-     * see {link setSampleRadius(float sampleRadius)}
-     * @return the sample radius
+     * Returns the sample radius used in the SSAO calculation.
+     *
+     * @return The sample radius.
+     * @see #setSampleRadius(float)
      */
     public float getSampleRadius() {
         return sampleRadius;
     }
 
     /**
-     * Sets the radius of the area where random samples will be picked default 5.1f 
+     * Sets the radius of the area where random samples will be picked for SSAO.
+     * A larger radius considers more distant occluders.
      *
-     * @param sampleRadius the desired radius (default=5.1)
+     * @param sampleRadius The desired radius (default: 5.1f).
      */
     public void setSampleRadius(float sampleRadius) {
         this.sampleRadius = sampleRadius;
         if (ssaoMat != null) {
             ssaoMat.setFloat("SampleRadius", sampleRadius);
         }
-
     }
 
     /**
-     * returns the scale<br>
-     * see {@link #setScale(float scale)}
-     * @return scale
+     * Returns the scale value used in the SSAO calculation.
+     *
+     * @return The scale value.
+     * @see #setScale(float)
      */
     public float getScale() {
         return scale;
     }
 
     /**
-     * 
-     * Returns the distance between occluders and occludee. default 0.2f
+     * Sets the distance between occluders and occludee for SSAO.
+     * This essentially controls the "thickness" of the ambient occlusion.
      *
-     * @param scale the desired distance (default=0.2)
+     * @param scale The desired distance (default: 0.2f).
      */
     public void setScale(float scale) {
         this.scale = scale;
@@ -284,7 +281,30 @@ public class SSAOFilter extends Filter {
     }
 
     /**
-     * debugging only , will be removed
+     * Sets whether to use approximate normals for the SSAO calculation.
+     * If `true`, normals are derived from the depth buffer. If `false`, a separate
+     * normal pass is rendered.
+     *
+     * @param approximateNormals `true` to use approximate normals, `false` to use a normal pass.
+     */
+    public void setApproximateNormals(boolean approximateNormals) {
+        this.approximateNormals = approximateNormals;
+        if (ssaoMat != null) {
+            ssaoMat.setBoolean("ApproximateNormals", approximateNormals);
+        }
+    }
+
+    /**
+     * Checks if approximate normals are being used for SSAO calculation.
+     *
+     * @return `true` if approximate normals are used, `false` otherwise.
+     */
+    public boolean isApproximateNormals() {
+        return approximateNormals;
+    }
+
+    /**
+     * debugging only, will be removed
      * @return true if using ambient occlusion
      */
     public boolean isUseAo() {
@@ -292,7 +312,7 @@ public class SSAOFilter extends Filter {
     }
 
     /**
-     * debugging only , will be removed
+     * debugging only, will be removed
      *
      * @param useAo true to enable, false to disable (default=true)
      */
@@ -301,22 +321,10 @@ public class SSAOFilter extends Filter {
         if (material != null) {
             material.setBoolean("UseAo", useAo);
         }
-
-    }
-
-    public void setApproximateNormals(boolean approximateNormals) {
-        this.approximateNormals = approximateNormals;
-        if (ssaoMat != null) {
-            ssaoMat.setBoolean("ApproximateNormals", approximateNormals);
-        }
-    }
-
-    public boolean isApproximateNormals() {
-        return approximateNormals;
     }
 
     /**
-     * debugging only , will be removed
+     * debugging only, will be removed
      * @return useOnlyAo
      */
     public boolean isUseOnlyAo() {
@@ -324,7 +332,7 @@ public class SSAOFilter extends Filter {
     }
 
     /**
-     * debugging only , will be removed
+     * debugging only, will be removed
      *
      * @param useOnlyAo true to enable, false to disable (default=false)
      */
@@ -343,6 +351,7 @@ public class SSAOFilter extends Filter {
         oc.write(intensity, "intensity", 1.5f);
         oc.write(scale, "scale", 0.2f);
         oc.write(bias, "bias", 0.1f);
+        oc.write(approximateNormals, "approximateNormals", false);
     }
 
     @Override
@@ -353,5 +362,6 @@ public class SSAOFilter extends Filter {
         intensity = ic.readFloat("intensity", 1.5f);
         scale = ic.readFloat("scale", 0.2f);
         bias = ic.readFloat("bias", 0.1f);
+        approximateNormals = ic.readBoolean("approximateNormals", false);
     }
 }
