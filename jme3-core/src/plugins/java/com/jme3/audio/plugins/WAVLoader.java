@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,39 +47,62 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * An {@code AssetLoader} for loading WAV audio files.
+ * This loader supports PCM (Pulse Code Modulation) WAV files,
+ * both as in-memory {@link AudioBuffer}s and streaming {@link AudioStream}s.
+ * It handles 8-bit and 16-bit audio formats.
+ *
+ * <p>The WAV file format consists of chunks. This loader specifically parses
+ * the 'RIFF', 'WAVE', 'fmt ', and 'data' chunks.
+ */
 public class WAVLoader implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(WAVLoader.class.getName());
 
-    // all these are in big endian
+    // RIFF chunk identifiers (Big-Endian representation of ASCII characters)
     private static final int i_RIFF = 0x46464952;
     private static final int i_WAVE = 0x45564157;
     private static final int i_fmt  = 0x20746D66;
     private static final int i_data = 0x61746164;
 
-    private boolean readStream = false;
-
-    private AudioBuffer audioBuffer;
-    private AudioStream audioStream;
-    private AudioData audioData;
+    /**
+     * The number of bytes per second for the audio data, calculated from the WAV header.
+     * Used to determine the duration of the audio.
+     */
     private int bytesPerSec;
+    /**
+     * The duration of the audio in seconds.
+     */
     private float duration;
-
+    /**
+     * The input stream for reading the WAV file data.
+     */
     private ResettableInputStream in;
-    private int inOffset = 0;
-    
+
+    /**
+     * A custom {@link InputStream} extension that handles little-endian byte
+     * reading and provides seek capabilities for streaming audio by reopening
+     * and skipping the input stream.
+     */
     private static class ResettableInputStream extends LittleEndien implements SeekableStream {
         
-        final private AssetInfo info;
+        private final AssetInfo info;
         private int resetOffset = 0;
         
         public ResettableInputStream(AssetInfo info, InputStream in) {
             super(in);
             this.info = info;
         }
-        
-        public void setResetOffset(int resetOffset) {
-            this.resetOffset = resetOffset;
+
+        /**
+         * Sets the offset from the beginning of the file to reset the stream to.
+         * This is typically the start of the audio data chunk.
+         *
+         * @param offset The byte offset to reset to.
+         */
+        public void setResetOffset(int offset) {
+            this.resetOffset = offset;
         }
 
         @Override
@@ -95,122 +118,170 @@ public class WAVLoader implements AssetLoader {
                 // Resource could have gotten lost, etc.
                 try {
                     newStream.close();
-                } catch (IOException ex2) {
+                } catch (IOException ignored) {
                 }
                 throw new RuntimeException(ex);
             }
         }
     }
 
-    private void readFormatChunk(int size) throws IOException{
+    /**
+     * Reads and parses the 'fmt ' (format) chunk of the WAV file.
+     * This chunk contains information about the audio format such as
+     * compression, channels, sample rate, bits per sample, etc.
+     *
+     * @param chunkSize The size of the 'fmt ' chunk in bytes.
+     * @param audioData The {@link AudioData} object to set the format information on.
+     * @throws IOException if the file is not a supported PCM WAV, or if format
+     * parameters are invalid.
+     */
+    private void readFormatChunk(int chunkSize, AudioData audioData) throws IOException {
         // if other compressions are supported, size doesn't have to be 16
 //        if (size != 16)
 //            logger.warning("Expected size of format chunk to be 16");
 
         int compression = in.readShort();
-        if (compression != 1){
+        if (compression != 1) { // 1 = PCM (Pulse Code Modulation)
             throw new IOException("WAV Loader only supports PCM wave files");
         }
 
-        int channels = in.readShort();
+        int numChannels = in.readShort();
         int sampleRate = in.readInt();
+        bytesPerSec = in.readInt(); // Average bytes per second
 
-        bytesPerSec = in.readInt(); // used to calculate duration
-
-        int bytesPerSample = in.readShort();
+        int bytesPerSample = in.readShort(); // Bytes per sample block (channels * bytesPerSample)
         int bitsPerSample = in.readShort();
 
-        int expectedBytesPerSec = (bitsPerSample * channels * sampleRate) / 8;
-        if (expectedBytesPerSec != bytesPerSec){
+        int expectedBytesPerSec = (bitsPerSample * numChannels * sampleRate) / 8;
+        if (expectedBytesPerSec != bytesPerSec) {
             logger.log(Level.WARNING, "Expected {0} bytes per second, got {1}",
                     new Object[]{expectedBytesPerSec, bytesPerSec});
         }
-        
+
         if (bitsPerSample != 8 && bitsPerSample != 16)
             throw new IOException("Only 8 and 16 bits per sample are supported!");
 
-        if ( (bitsPerSample / 8) * channels != bytesPerSample)
+        if ((bitsPerSample / 8) * numChannels != bytesPerSample)
             throw new IOException("Invalid bytes per sample value");
 
         if (bytesPerSample * sampleRate != bytesPerSec)
             throw new IOException("Invalid bytes per second value");
 
-        audioData.setupFormat(channels, bitsPerSample, sampleRate);
+        audioData.setupFormat(numChannels, bitsPerSample, sampleRate);
 
-        int remaining = size - 16;
-        if (remaining > 0){
-            in.skipBytes(remaining);
+        // Skip any extra parameters in the format chunk (e.g., for non-PCM formats)
+        int remainingChunkBytes = chunkSize - 16;
+        if (remainingChunkBytes > 0) {
+            in.skipBytes(remainingChunkBytes);
         }
     }
 
-    private void readDataChunkForBuffer(int len) throws IOException {
-        ByteBuffer data = BufferUtils.createByteBuffer(len);
-        byte[] buf = new byte[512];
+    /**
+     * Reads the 'data' chunk for an {@link AudioBuffer}. This involves loading
+     * the entire audio data into a {@link ByteBuffer} in memory.
+     *
+     * @param dataChunkSize The size of the 'data' chunk in bytes.
+     * @param audioBuffer   The {@link AudioBuffer} to update with the loaded data.
+     * @throws IOException if an error occurs while reading the data.
+     */
+    private void readDataChunkForBuffer(int dataChunkSize, AudioBuffer audioBuffer) throws IOException {
+        ByteBuffer data = BufferUtils.createByteBuffer(dataChunkSize);
+        byte[] buf = new byte[1024]; // Use a larger buffer for efficiency
         int read = 0;
-        while ( (read = in.read(buf)) > 0){
-            data.put(buf, 0, Math.min(read, data.remaining()) );
+        while ((read = in.read(buf)) > 0) {
+            data.put(buf, 0, Math.min(read, data.remaining()));
         }
         data.flip();
         audioBuffer.updateData(data);
         in.close();
     }
 
-    private void readDataChunkForStream(int offset, int len) throws IOException {
-        in.setResetOffset(offset);
+    /**
+     * Configures the {@link AudioStream} to stream data from the 'data' chunk.
+     * This involves setting the reset offset for seeking and passing the
+     * input stream and duration to the {@link AudioStream}.
+     *
+     * @param dataChunkOffset The byte offset from the start of the file where the 'data' chunk begins.
+     * @param dataChunkSize   The size of the 'data' chunk in bytes.
+     * @param audioStream     The {@link AudioStream} to configure.
+     */
+    private void readDataChunkForStream(int dataChunkOffset, int dataChunkSize, AudioStream audioStream) {
+        in.setResetOffset(dataChunkOffset);
         audioStream.updateData(in, duration);
     }
 
-    private AudioData load(AssetInfo info, InputStream inputStream, boolean stream) throws IOException{
+    /**
+     * Main loading logic for WAV files. This method parses the RIFF, WAVE, fmt,
+     * and data chunks to extract audio information and data.
+     *
+     * @param info        The {@link AssetInfo} for the WAV file.
+     * @param inputStream The initial {@link InputStream} opened for the asset.
+     * @param stream      A boolean indicating whether the audio should be loaded
+     *                    as a stream (true) or an in-memory buffer (false).
+     * @return The loaded {@link AudioData} (either {@link AudioBuffer} or {@link AudioStream}).
+     * @throws IOException if the file is not a valid WAV, or if any I/O error occurs.
+     */
+    private AudioData load(AssetInfo info, InputStream inputStream, boolean stream) throws IOException {
         this.in = new ResettableInputStream(info, inputStream);
-        inOffset = 0;
-        
-        int sig = in.readInt();
-        if (sig != i_RIFF)
+        int inOffset = 0;
+
+        // Read RIFF chunk
+        int riffId = in.readInt();
+        if (riffId != i_RIFF) {
             throw new IOException("File is not a WAVE file");
-        
-        // skip size
+        }
+
+        // Skip RIFF chunk size
         in.readInt();
-        if (in.readInt() != i_WAVE)
+
+        int waveId = in.readInt();
+        if (waveId != i_WAVE)
             throw new IOException("WAVE File does not contain audio");
 
-        inOffset += 4 * 3;
-        
-        readStream = stream;
-        if (readStream){
+        inOffset += 4 * 3; // RIFF_ID + ChunkSize + WAVE_ID
+
+        AudioData audioData;
+        AudioBuffer audioBuffer = null;
+        AudioStream audioStream = null;
+
+        if (stream) {
             audioStream = new AudioStream();
             audioData = audioStream;
-        }else{
+        } else {
             audioBuffer = new AudioBuffer();
             audioData = audioBuffer;
         }
 
         while (true) {
-            int type = in.readInt();
-            int len = in.readInt();
-            
-            inOffset += 4 * 2;
+            int chunkType = in.readInt();
+            int chunkSize = in.readInt();
 
-            switch (type) {
+            inOffset += 4 * 2; // ChunkType + ChunkSize
+
+            switch (chunkType) {
                 case i_fmt:
-                    readFormatChunk(len);
-                    inOffset += len;
+                    readFormatChunk(chunkSize, audioData);
+                    inOffset += chunkSize;
                     break;
                 case i_data:
                     // Compute duration based on data chunk size
-                    duration = len / bytesPerSec;
+                    duration = (float) (chunkSize / bytesPerSec);
 
-                    if (readStream) {
-                        readDataChunkForStream(inOffset, len);
+                    if (stream) {
+                        readDataChunkForStream(inOffset, chunkSize, audioStream);
                     } else {
-                        readDataChunkForBuffer(len);
+                        readDataChunkForBuffer(chunkSize, audioBuffer);
                     }
                     return audioData;
                 default:
-                    int skipped = in.skipBytes(len);
-                    if (skipped <= 0) {
+                    // Skip unknown chunks
+                    int skippedBytes = in.skipBytes(chunkSize);
+                    if (skippedBytes <= 0) {
+                        logger.log(Level.WARNING, "Reached end of stream prematurely while skipping unknown chunk of size {0}. Asset: {1}",
+                                new Object[]{chunkSize, info.getKey().getName()});
                         return null;
                     }
-                    inOffset += skipped;
+                    inOffset += skippedBytes;
                     break;
             }
         }
@@ -218,18 +289,28 @@ public class WAVLoader implements AssetLoader {
     
     @Override
     public Object load(AssetInfo info) throws IOException {
-        AudioData data;
-        InputStream inputStream = null;
+        InputStream is = null;
         try {
-            inputStream = info.openStream();
-            data = load(info, inputStream, ((AudioKey)info.getKey()).isStream());
-            if (data instanceof AudioStream){
-                inputStream = null;
+            is = info.openStream();
+            boolean streamAudio = ((AudioKey) info.getKey()).isStream();
+            AudioData loadedData = load(info, is, streamAudio);
+
+            // If it's an AudioStream, the internal inputStream is managed by the stream itself
+            // and should not be closed here.
+            if (loadedData instanceof AudioStream) {
+                // Prevent closing in finally block
+                is = null;
             }
-            return data;
+            return loadedData;
         } finally {
-            if (inputStream != null){
-                inputStream.close();
+            // Nullify/reset instance variables to ensure the loader instance is clean
+            // for the next load operation.
+            in = null;
+            bytesPerSec = 0;
+            duration = 0.0f;
+
+            if (is != null) {
+                is.close();
             }
         }
     }
