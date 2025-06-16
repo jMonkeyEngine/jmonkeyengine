@@ -273,7 +273,19 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                     }
                 }
         );
-
+                
+        if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND)) {
+            
+            /*
+             * Change the platform GLFW uses to enable GLX on Wayland as long as you 
+             * have XWayland (X11 compatibility)
+             */
+            if (!settings.isNativePlatform() && glfwPlatformSupported(GLFW_PLATFORM_X11)) {
+                glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+            }
+            
+        }
+        
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
