@@ -125,7 +125,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      */
     public FlyByCamera(Camera cam) {
         this.cam = cam;
-        initialUpVec.set(cam.getUp());
+        cam.getUp(initialUpVec);
     }
 
     /**
