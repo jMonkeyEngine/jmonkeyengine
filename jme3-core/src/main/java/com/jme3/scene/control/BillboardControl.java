@@ -266,7 +266,6 @@ public class BillboardControl extends AbstractControl {
         // Unitize the projection to get a normalized direction vector in the plane.
         float invLength = FastMath.invSqrt(lengthSquared);
         if (axis.y == 1) {
-            System.out.println("y1");
             tempLeft.x *= invLength;
             tempLeft.y = 0.0f; // Fix Y-component to 0 as it's axial, forcing rotation only around Y.
             tempLeft.z *= invLength;
@@ -283,7 +282,6 @@ public class BillboardControl extends AbstractControl {
             tempMat3.set(2, 2, tempLeft.z);
 
         } else if (axis.z == 1) {
-            System.out.println("z1");
             tempLeft.x *= invLength;
             tempLeft.y *= invLength;
             tempLeft.z = 0.0f; // Fix Z-component to 0 as it's axial, forcing rotation only around Z.
