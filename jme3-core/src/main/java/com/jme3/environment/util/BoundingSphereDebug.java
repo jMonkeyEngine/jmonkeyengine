@@ -72,7 +72,6 @@
       * The circles are drawn in the XY (blue), XZ (green), and YZ (yellow) planes.
       */
      private void setGeometryData() {
-         setMode(Mode.Lines);
 
          int numVertices = radialSamples + 1;
 
@@ -110,6 +109,7 @@
          setBuffer(Type.Position, 3, posBuf);
          setBuffer(Type.Color, 4, colBuf);
 
+         setMode(Mode.Lines);
          updateBound();
          setStatic();
      }
