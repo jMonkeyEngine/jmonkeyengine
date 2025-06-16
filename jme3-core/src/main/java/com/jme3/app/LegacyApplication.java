@@ -466,9 +466,11 @@ public class LegacyApplication implements Application, SystemListener {
     }
 
     /**
-     * Starts the application in {@link Type#Display display} mode.
+     * Starts the application in {@link JmeContext.Type#Display display} mode.
+     * This method creates a new rendering context and starts the main application
+     * loop in a separate thread without waiting for initialization to complete.
      *
-     * @see #start(com.jme3.system.JmeContext.Type)
+     * @see #start(com.jme3.system.JmeContext.Type, boolean)
      */
     @Override
     public void start() {
@@ -476,11 +478,15 @@ public class LegacyApplication implements Application, SystemListener {
     }
 
     /**
-     * Starts the application in {@link Type#Display display} mode.
+     * Starts the application in {@link JmeContext.Type#Display display} mode.
+     * This method creates a new rendering context and starts the main application
+     * loop in a separate thread.
      *
-     * @param waitFor true&rarr;wait for the context to be initialized,
-     * false&rarr;don't wait
-     * @see #start(com.jme3.system.JmeContext.Type)
+     * @param waitFor If true, the current thread will block until the
+     * display context is fully initialized and ready.
+     * If false, the method returns immediately and initialization
+     * continues in the background.
+     * @see #start(com.jme3.system.JmeContext.Type, boolean)
      */
     @Override
     public void start(boolean waitFor) {
@@ -488,24 +494,29 @@ public class LegacyApplication implements Application, SystemListener {
     }
 
     /**
-     * Starts the application.
-     * Creating a rendering context and executing
-     * the main loop in a separate thread.
+     * Starts the application with the specified {@link JmeContext.Type}.
+     * This method creates a rendering context and executes the main loop
+     * in a separate thread without waiting for initialization to complete.
      *
-     * @param contextType the type of context to create
+     * @param contextType The type of {@link JmeContext}.
+     * @see #start(com.jme3.system.JmeContext.Type, boolean)
      */
     public void start(JmeContext.Type contextType) {
         start(contextType, false);
     }
 
     /**
-     * Starts the application.
-     * Creating a rendering context and executing
-     * the main loop in a separate thread.
+     * Starts the application with the specified {@link JmeContext.Type}.
+     * This method creates a rendering context and executes the main loop
+     * in a separate thread.
      *
-     * @param contextType the type of context to create
-     * @param waitFor true&rarr;wait for the context to be initialized,
-     * false&rarr;don't wait
+     * @param contextType The type of {@link JmeContext} to create (e.g., {@link JmeContext.Type#Display},
+     *                    {@link JmeContext.Type#Headless}, {@link JmeContext.Type#Canvas}).
+     * @param waitFor     If true, the current thread will block until the
+     *                    context is fully initialized and ready.
+     *                    If false, the method returns immediately and initialization
+     *                    continues in the background.
+     * @throws IllegalStateException if the context is already created and running.
      */
     public void start(JmeContext.Type contextType, boolean waitFor) {
         if (context != null && context.isCreated()) {
@@ -520,6 +531,7 @@ public class LegacyApplication implements Application, SystemListener {
 
         logger.log(Level.FINE, "Starting application: {0} with context type {1}",
                 new Object[]{getClass().getName(), contextType});
+
         context = JmeSystem.newContext(settings, contextType);
         context.setSystemListener(this);
         context.create(waitFor);
@@ -879,6 +891,11 @@ public class LegacyApplication implements Application, SystemListener {
         return viewPort;
     }
 
+    /**
+     * A private wrapper class that adapts a {@link Runnable} to a {@link Callable}
+     * so it can be enqueued in the {@link LegacyApplication}'s task queue.
+     * The {@code call()} method simply executes the wrapped {@link Runnable} and returns null.
+     */
     private static class RunnableWrapper implements Callable<Object> {
 
         private final Runnable runnable;
@@ -916,22 +933,4 @@ public class LegacyApplication implements Application, SystemListener {
         return context.getPrimaryDisplay();
     }
 
-    /**
-     * Returns true if the application is currently paused.
-     *
-     * @return true if the application is paused, false otherwise.
-     */
-    public boolean isPaused() {
-        return paused;
-    }
-
-    /**
-     * Sets the paused state of the application.
-     * If true, the application's update loop will be skipped.
-     *
-     * @param paused True to pause the application, false to unpause.
-     */
-    public void setPaused(boolean paused) {
-        this.paused = paused;
-    }
 }
