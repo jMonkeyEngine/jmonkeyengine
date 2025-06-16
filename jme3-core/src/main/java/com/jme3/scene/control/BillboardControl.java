@@ -43,6 +43,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
+import com.jme3.util.TempVars;
 
 import java.io.IOException;
 
@@ -62,10 +63,9 @@ import java.io.IOException;
 public class BillboardControl extends AbstractControl {
 
     // Member variables for calculations, reused to avoid constant object allocation.
-    private final Matrix3f orient = new Matrix3f();
-    private final Vector3f look = new Vector3f();
-    private final Vector3f left = new Vector3f();
-    private final Quaternion tempQuat = new Quaternion();
+    private final Matrix3f tempMat3 = new Matrix3f();
+    private final Vector3f tempDir = new Vector3f();
+    private final Vector3f tempLeft = new Vector3f();
 
     /**
      * The current alignment mode for the billboard.
@@ -85,8 +85,8 @@ public class BillboardControl extends AbstractControl {
          */
         Camera,
         /**
-          * Aligns this Billboard to the screen, but keeps the Y axis fixed.
-          */
+         * Aligns this Billboard to the screen, but keeps the Y axis fixed.
+         */
         AxialY,
         /**
          * Aligns this Billboard to the screen, but keeps the Z axis fixed.
@@ -152,35 +152,35 @@ public class BillboardControl extends AbstractControl {
      * @param camera The current Camera.
      */
     private void rotateCameraAligned(Camera camera) {
-        look.set(camera.getLocation()).subtractLocal(
+        tempDir.set(camera.getLocation()).subtractLocal(
                 spatial.getWorldTranslation());
         // co-opt left for our own purposes.
-        Vector3f xzp = left;
+        Vector3f xzp = tempLeft;
         // The xzp vector is the projection of the look vector on the xz plane
-        xzp.set(look.x, 0, look.z);
+        xzp.set(tempDir.x, 0, tempDir.z);
 
         // check for undefined rotation...
         if (xzp.equals(Vector3f.ZERO)) {
             return;
         }
 
-        look.normalizeLocal();
+        tempDir.normalizeLocal();
         xzp.normalizeLocal();
-        float cosp = look.dot(xzp);
+        float cosp = tempDir.dot(xzp);
 
         // compute the local orientation matrix for the billboard
-        orient.set(0, 0, xzp.z);
-        orient.set(0, 1, xzp.x * -look.y);
-        orient.set(0, 2, xzp.x * cosp);
-        orient.set(1, 0, 0);
-        orient.set(1, 1, cosp);
-        orient.set(1, 2, look.y);
-        orient.set(2, 0, -xzp.x);
-        orient.set(2, 1, xzp.z * -look.y);
-        orient.set(2, 2, xzp.z * cosp);
+        tempMat3.set(0, 0, xzp.z);
+        tempMat3.set(0, 1, xzp.x * -tempDir.y);
+        tempMat3.set(0, 2, xzp.x * cosp);
+        tempMat3.set(1, 0, 0);
+        tempMat3.set(1, 1, cosp);
+        tempMat3.set(1, 2, tempDir.y);
+        tempMat3.set(2, 0, -xzp.x);
+        tempMat3.set(2, 1, xzp.z * -tempDir.y);
+        tempMat3.set(2, 2, xzp.z * cosp);
 
         // Set the billboard's local rotation based on the computed orientation matrix.
-        spatial.setLocalRotation(orient);
+        spatial.setLocalRotation(tempMat3);
     }
 
     /**
@@ -193,23 +193,30 @@ public class BillboardControl extends AbstractControl {
      * @param camera The current Camera.
      */
     private void rotateScreenAligned(Camera camera) {
+        TempVars vars = TempVars.get();
+
+        Vector3f up = camera.getUp(vars.vect1);
         // co-opt diff for our in direction:
-        look.set(camera.getDirection()).negateLocal();
+        Vector3f dir = camera.getDirection(vars.vect2).negateLocal();
         // co-opt loc for our left direction:
-        left.set(camera.getLeft()).negateLocal();
-        orient.fromAxes(left, camera.getUp(), look);
+        Vector3f left = camera.getLeft(vars.vect3).negateLocal();
+
+        Matrix3f orient = vars.tempMat3;
+        orient.fromAxes(left, up, dir);
 
         Node parent = spatial.getParent();
-        tempQuat.fromRotationMatrix(orient);
-        Quaternion rot = tempQuat;
+        Quaternion rot = vars.quat1.fromRotationMatrix(orient);
 
         if (parent != null) {
-            rot = parent.getWorldRotation().inverse().multLocal(rot);
+            Quaternion invRot = vars.quat2.set(parent.getWorldRotation()).inverseLocal();
+            rot = invRot.multLocal(rot);
             rot.normalizeLocal();
         }
 
         // Apply the calculated local rotation to the spatial.
         spatial.setLocalRotation(rot);
+
+        vars.release();
     }
 
     /**
@@ -225,12 +232,12 @@ public class BillboardControl extends AbstractControl {
         // Compute the additional rotation required for the billboard to face
         // the camera. To do this, the camera must be inverse-transformed into
         // the model space of the billboard.
-        look.set(camera.getLocation()).subtractLocal(
+        tempDir.set(camera.getLocation()).subtractLocal(
                 spatial.getWorldTranslation());
-        spatial.getParent().getWorldRotation().mult(look, left); // co-opt left for our own purposes.
-        left.x *= 1.0f / spatial.getWorldScale().x;
-        left.y *= 1.0f / spatial.getWorldScale().y;
-        left.z *= 1.0f / spatial.getWorldScale().z;
+        spatial.getParent().getWorldRotation().mult(tempDir, tempLeft); // co-opt left for our own purposes.
+        tempLeft.x *= 1.0f / spatial.getWorldScale().x;
+        tempLeft.y *= 1.0f / spatial.getWorldScale().y;
+        tempLeft.z *= 1.0f / spatial.getWorldScale().z;
 
         // squared length of the camera projection in the xz-plane
 //        float lengthSquared = left.x * left.x + left.z * left.z;
@@ -240,9 +247,9 @@ public class BillboardControl extends AbstractControl {
         // for axial rotation.
         float lengthSquared;
         if (axis.y == 1) { // AxialY: projection on XZ plane
-            lengthSquared = left.x * left.x + left.z * left.z;
+            lengthSquared = tempLeft.x * tempLeft.x + tempLeft.z * tempLeft.z;
         } else if (axis.z == 1) { // AxialZ: projection on XY plane
-            lengthSquared = left.x * left.x + left.y * left.y;
+            lengthSquared = tempLeft.x * tempLeft.x + tempLeft.y * tempLeft.y;
         } else {
             // This case should ideally not be reached with the current Alignment enum,
             // but provides robustness for unexpected 'axis' values.
@@ -259,40 +266,42 @@ public class BillboardControl extends AbstractControl {
         // Unitize the projection to get a normalized direction vector in the plane.
         float invLength = FastMath.invSqrt(lengthSquared);
         if (axis.y == 1) {
-            left.x *= invLength;
-            left.y = 0.0f; // Fix Y-component to 0 as it's axial, forcing rotation only around Y.
-            left.z *= invLength;
+            System.out.println("y1");
+            tempLeft.x *= invLength;
+            tempLeft.y = 0.0f; // Fix Y-component to 0 as it's axial, forcing rotation only around Y.
+            tempLeft.z *= invLength;
 
             // compute the local orientation matrix for the billboard
-            orient.set(0, 0, left.z);
-            orient.set(0, 1, 0);
-            orient.set(0, 2, left.x);
-            orient.set(1, 0, 0);
-            orient.set(1, 1, 1); // Y-axis remains fixed (no rotation along Y).
-            orient.set(1, 2, 0);
-            orient.set(2, 0, -left.x);
-            orient.set(2, 1, 0);
-            orient.set(2, 2, left.z);
+            tempMat3.set(0, 0, tempLeft.z);
+            tempMat3.set(0, 1, 0);
+            tempMat3.set(0, 2, tempLeft.x);
+            tempMat3.set(1, 0, 0);
+            tempMat3.set(1, 1, 1); // Y-axis remains fixed (no rotation along Y).
+            tempMat3.set(1, 2, 0);
+            tempMat3.set(2, 0, -tempLeft.x);
+            tempMat3.set(2, 1, 0);
+            tempMat3.set(2, 2, tempLeft.z);
 
         } else if (axis.z == 1) {
-            left.x *= invLength;
-            left.y *= invLength;
-            left.z = 0.0f; // Fix Z-component to 0 as it's axial, forcing rotation only around Z.
+            System.out.println("z1");
+            tempLeft.x *= invLength;
+            tempLeft.y *= invLength;
+            tempLeft.z = 0.0f; // Fix Z-component to 0 as it's axial, forcing rotation only around Z.
 
             // compute the local orientation matrix for the billboard
-            orient.set(0, 0, left.y);
-            orient.set(0, 1, left.x);
-            orient.set(0, 2, 0);
-            orient.set(1, 0, -left.y);
-            orient.set(1, 1, left.x);
-            orient.set(1, 2, 0);
-            orient.set(2, 0, 0);
-            orient.set(2, 1, 0);
-            orient.set(2, 2, 1); // Z-axis remains fixed (no rotation along Z).
+            tempMat3.set(0, 0, tempLeft.y);
+            tempMat3.set(0, 1, tempLeft.x);
+            tempMat3.set(0, 2, 0);
+            tempMat3.set(1, 0, -tempLeft.y);
+            tempMat3.set(1, 1, tempLeft.x);
+            tempMat3.set(1, 2, 0);
+            tempMat3.set(2, 0, 0);
+            tempMat3.set(2, 1, 0);
+            tempMat3.set(2, 2, 1); // Z-axis remains fixed (no rotation along Z).
         }
 
         // Apply the calculated local rotation matrix to the spatial.
-        spatial.setLocalRotation(orient);
+        spatial.setLocalRotation(tempMat3);
     }
 
     /**
