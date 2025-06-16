@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,154 +33,427 @@ package com.jme3.environment.util;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
-import com.jme3.light.*;
+import com.jme3.asset.AssetManager;
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
+import com.jme3.light.LightProbe;
+import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.BillboardControl;
+import com.jme3.scene.debug.Arrow;
+import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import com.jme3.texture.Texture;
+
+import java.util.ArrayDeque;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.function.Predicate;
 
 /**
- * A debug state that will display Light gizmos on screen.
- * Still a wip and for now it only displays light probes.
+ * A debug state that visualizes different types of lights in the scene with gizmos.
+ * This state is useful for debugging light positions, ranges, and other properties.
  *
  * @author nehon
+ * @author capdevon
  */
 public class LightsDebugState extends BaseAppState {
 
-    private Node debugNode;
-    private final Map<LightProbe, Node> probeMapping = new HashMap<>();
-    private final List<LightProbe> garbage = new ArrayList<>();
-    private Geometry debugGeom;
-    private Geometry debugBounds;
+    private static final String PROBE_GEOMETRY_NAME = "DebugProbeGeometry";
+    private static final String PROBE_BOUNDS_NAME = "DebugProbeBounds";
+    private static final String SPOT_LIGHT_INNER_RADIUS_NAME = "SpotLightInnerRadius";
+    private static final String SPOT_LIGHT_OUTER_RADIUS_NAME = "SpotLightOuterRadius";
+    private static final String SPOT_LIGHT_RADIUS_NAME = "RadiusNode";
+    private static final String POINT_LIGHT_RADIUS_NAME = "PointLightRadius";
+    private static final String LIGHT_DIR_ARROW_NAME = "LightDirection";
+
+    private final Map<Light, Spatial> lightGizmoMap = new WeakHashMap<>();
+    private final ArrayDeque<Light> lightDeque = new ArrayDeque<>();
+    private Predicate<Light> lightFilter = x -> true; // Identity Function
+
+    private ViewPort viewPort;
+    private AssetManager assetManager;
     private Material debugMaterial;
-    private float probeScale = 1.0f;
-    private Spatial scene = null;
-    private final List<LightProbe> probes = new ArrayList<>();
+    private Node debugNode;
+    private Spatial scene; // The scene whose lights will be debugged
+
+    private boolean showOnTop = true;
+    private float lightProbeScale = 1.0f;
+    private final ColorRGBA debugColor = ColorRGBA.DarkGray;
+    private final Quaternion tempRotation = new Quaternion();
 
     @Override
     protected void initialize(Application app) {
-        debugNode = new Node("Environment debug Node");
-        Sphere s = new Sphere(16, 16, 0.15f);
-        debugGeom = new Geometry("debugEnvProbe", s);
-        debugMaterial = new Material(app.getAssetManager(), "Common/MatDefs/Misc/reflect.j3md");
-        debugGeom.setMaterial(debugMaterial);
-        debugBounds = BoundingSphereDebug.createDebugSphere(app.getAssetManager());
+
+        viewPort = app.getRenderManager().createMainView("LightsDebugView", app.getCamera());
+        viewPort.setClearFlags(false, showOnTop, true);
+
+        assetManager = app.getAssetManager();
+        debugNode = new Node("LightsDebugNode");
+
+        debugMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        debugMaterial.setColor("Color", debugColor);
+        debugMaterial.getAdditionalRenderState().setWireframe(true);
+
         if (scene == null) {
             scene = app.getViewPort().getScenes().get(0);
         }
     }
 
-    @Override
-    public void update(float tpf) {
-        if (!isEnabled()) {
-            return;
-        }
-        updateLights(scene);
-        debugNode.updateLogicalState(tpf);
-        debugNode.updateGeometricState();
-        cleanProbes();
+    private Spatial createBulb() {
+        Quad q = new Quad(0.5f, 0.5f);
+        Geometry lightBulb = new Geometry("LightBulb", q);
+        lightBulb.move(-q.getHeight() / 2f, -q.getWidth() / 2f, 0);
+
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Texture tex = assetManager.loadTexture("Common/Textures/lightbulb32.png");
+        mat.setTexture("ColorMap", tex);
+        mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+        lightBulb.setMaterial(mat);
+        lightBulb.setQueueBucket(RenderQueue.Bucket.Transparent);
+
+        Node billboard = new Node("Billboard");
+        billboard.addControl(new BillboardControl());
+        billboard.attachChild(lightBulb);
+
+        return billboard;
     }
 
-    public void updateLights(Spatial scene) {
-        for (Light light : scene.getWorldLightList()) {
-            switch (light.getType()) {
+    private Geometry createRadiusShape(String name, float dashSize) {
+        Geometry radius = Circle.createShape(assetManager, name);
+        Material mat = radius.getMaterial();
+        mat.setColor("Color", debugColor);
+        mat.setFloat("DashSize", dashSize);
+        return radius;
+    }
 
-                case Probe:
-                    LightProbe probe = (LightProbe) light;
-                    probes.add(probe);
-                    Node n = probeMapping.get(probe);
-                    if (n == null) {
-                        n = new Node("DebugProbe");
-                        n.attachChild(debugGeom.clone(true));
-                        n.attachChild(debugBounds.clone(false));
-                        debugNode.attachChild(n);
-                        probeMapping.put(probe, n);
-                    }
-                    Geometry probeGeom = ((Geometry) n.getChild(0));
-                    Material m = probeGeom.getMaterial();
-                    probeGeom.setLocalScale(probeScale);
-                    if (probe.isReady()) {
-                        m.setTexture("CubeMap", probe.getPrefilteredEnvMap());
-                    }
-                    n.setLocalTranslation(probe.getPosition());
-                    n.getChild(1).setLocalScale(probe.getArea().getRadius());
-                    break;
-                default:
-                    break;
+    private Spatial createPointGizmo() {
+        Node gizmo = new Node("PointLightNode");
+        gizmo.attachChild(createBulb());
+
+        Geometry radius = new Geometry(POINT_LIGHT_RADIUS_NAME, new BoundingSphereDebug());
+        radius.setMaterial(debugMaterial);
+        gizmo.attachChild(radius);
+
+        return gizmo;
+    }
+
+    private Spatial createDirectionalGizmo() {
+        Node gizmo = new Node("DirectionalLightNode");
+        gizmo.move(0, 5, 0);
+        gizmo.attachChild(createBulb());
+
+        Geometry arrow = new Geometry(LIGHT_DIR_ARROW_NAME, new Arrow(Vector3f.UNIT_Z.mult(5f)));
+        arrow.setMaterial(debugMaterial);
+        gizmo.attachChild(arrow);
+
+        return gizmo;
+    }
+
+    private Spatial createSpotGizmo() {
+        Node gizmo = new Node("SpotLightNode");
+        gizmo.attachChild(createBulb());
+
+        Node radiusNode = new Node(SPOT_LIGHT_RADIUS_NAME);
+        gizmo.attachChild(radiusNode);
+
+        Geometry inRadius = createRadiusShape(SPOT_LIGHT_INNER_RADIUS_NAME, 0.725f);
+        radiusNode.attachChild(inRadius);
+
+        Geometry outRadius = createRadiusShape(SPOT_LIGHT_OUTER_RADIUS_NAME, 0.325f);
+        radiusNode.attachChild(outRadius);
+
+        Geometry arrow = new Geometry(LIGHT_DIR_ARROW_NAME, new Arrow(Vector3f.UNIT_Z));
+        arrow.setMaterial(debugMaterial);
+        gizmo.attachChild(arrow);
+
+        return gizmo;
+    }
+
+    private Spatial createLightProbeGizmo() {
+        Node gizmo = new Node("LightProbeNode");
+
+        Sphere sphere = new Sphere(32, 32, lightProbeScale);
+        Geometry probeGeom = new Geometry(PROBE_GEOMETRY_NAME, sphere);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/reflect.j3md");
+        probeGeom.setMaterial(mat);
+        gizmo.attachChild(probeGeom);
+
+        Geometry probeBounds = BoundingSphereDebug.createDebugSphere(assetManager);
+        probeBounds.setName(PROBE_BOUNDS_NAME);
+        gizmo.attachChild(probeBounds);
+
+        return gizmo;
+    }
+
+    /**
+     * Updates the light gizmos based on the current state of lights in the scene.
+     * This method is called every frame when the state is enabled.
+     *
+     * @param tpf The time per frame.
+     */
+    @Override
+    public void update(float tpf) {
+        updateLightGizmos(scene);
+        debugNode.updateLogicalState(tpf);
+        cleanUpRemovedLights();
+    }
+
+    /**
+     * Renders the debug gizmos onto the screen.
+     *
+     * @param rm The render manager.
+     */
+    @Override
+    public void render(RenderManager rm) {
+        debugNode.updateGeometricState();
+    }
+
+    /**
+     * Recursively traverses the scene graph to find and update light gizmos.
+     * New gizmos are created for new lights, and existing gizmos are updated.
+     *
+     * @param spatial The current spatial to process for lights.
+     */
+    private void updateLightGizmos(Spatial spatial) {
+        // Add or update gizmos for lights attached to the current spatial
+        for (Light light : spatial.getLocalLightList()) {
+            if (!lightFilter.test(light)) {
+                continue;
+            }
+
+            lightDeque.add(light);
+            Spatial gizmo = lightGizmoMap.get(light);
+
+            if (gizmo == null) {
+                gizmo = createLightGizmo(light);
+                if (gizmo != null) {
+                    debugNode.attachChild(gizmo);
+                    lightGizmoMap.put(light, gizmo);
+                    updateGizmoProperties(light, gizmo); // Set initial properties
+                }
+            } else {
+                updateGizmoProperties(light, gizmo);
             }
         }
-        if (scene instanceof Node) {
-            Node n = (Node)scene;
-            for (Spatial spatial : n.getChildren()) {
-                updateLights(spatial);
+
+        // Recursively call for children if it's a Node
+        if (spatial instanceof Node) {
+            Node node = (Node) spatial;
+            for (Spatial child : node.getChildren()) {
+                updateLightGizmos(child);
             }
         }
     }
 
     /**
-     * Set the scenes for which to render light gizmos.
+     * Creates a new gizmo spatial for a given light based on its type.
      *
-     * @param scene the root of the desired scene (alias created)
+     * @param light The light for which to create a gizmo.
+     * @return A spatial representing the gizmo, or null if the light type is not supported.
+     */
+    private Spatial createLightGizmo(Light light) {
+        switch (light.getType()) {
+            case Probe:
+                return createLightProbeGizmo();
+            case Point:
+                return createPointGizmo();
+            case Directional:
+                return createDirectionalGizmo();
+            case Spot:
+                return createSpotGizmo();
+            default:
+                // Unsupported light type
+                return null;
+        }
+    }
+
+    /**
+     * Updates the visual properties and position of a light gizmo based on its corresponding light.
+     *
+     * @param light The light whose properties are used for updating the gizmo.
+     * @param gizmo The spatial representing the light gizmo.
+     */
+    private void updateGizmoProperties(Light light, Spatial gizmo) {
+        Node lightNode = (Node) gizmo;
+
+        switch (light.getType()) {
+            case Probe:
+                LightProbe probe = (LightProbe) light;
+                Geometry probeGeom = (Geometry) lightNode.getChild(PROBE_GEOMETRY_NAME);
+                Geometry probeBounds = (Geometry) lightNode.getChild(PROBE_BOUNDS_NAME);
+
+                // Update texture if probe is ready
+                if (probe.isReady()) {
+                    Material mat = probeGeom.getMaterial();
+                    if (mat.getTextureParam("CubeMap") == null) {
+                        mat.setTexture("CubeMap", probe.getPrefilteredEnvMap());
+                    }
+                }
+                probeGeom.setLocalScale(lightProbeScale);
+                probeBounds.setLocalScale(probe.getArea().getRadius());
+                gizmo.setLocalTranslation(probe.getPosition());
+                break;
+
+            case Point:
+                PointLight pl = (PointLight) light;
+                Geometry radius = (Geometry) lightNode.getChild(POINT_LIGHT_RADIUS_NAME);
+                radius.setLocalScale(pl.getRadius());
+                gizmo.setLocalTranslation(pl.getPosition());
+                break;
+
+            case Spot:
+                SpotLight sl = (SpotLight) light;
+                gizmo.setLocalTranslation(sl.getPosition());
+
+                tempRotation.lookAt(sl.getDirection(), Vector3f.UNIT_Y);
+                gizmo.setLocalRotation(tempRotation);
+
+                float spotRange = sl.getSpotRange();
+                float innerAngle = sl.getSpotInnerAngle();
+                float outerAngle = sl.getSpotOuterAngle();
+                float innerRadius = spotRange * FastMath.tan(innerAngle);
+                float outerRadius = spotRange * FastMath.tan(outerAngle);
+
+                lightNode.getChild(SPOT_LIGHT_INNER_RADIUS_NAME).setLocalScale(innerRadius);
+                lightNode.getChild(SPOT_LIGHT_OUTER_RADIUS_NAME).setLocalScale(outerRadius);
+                lightNode.getChild(SPOT_LIGHT_RADIUS_NAME).setLocalTranslation(0, 0, spotRange);
+                lightNode.getChild(LIGHT_DIR_ARROW_NAME).setLocalScale(spotRange);
+                break;
+
+            case Directional:
+                DirectionalLight dl = (DirectionalLight) light;
+                tempRotation.lookAt(dl.getDirection(), Vector3f.UNIT_Y);
+                gizmo.setLocalRotation(tempRotation);
+                break;
+
+            default:
+                // Unsupported light type
+                break;
+        }
+    }
+
+    /**
+     * Cleans up gizmos for lights that have been removed from the scene.
+     */
+    private void cleanUpRemovedLights() {
+
+        Iterator<Map.Entry<Light, Spatial>> iterator = lightGizmoMap.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<Light, Spatial> entry = iterator.next();
+            Light light = entry.getKey();
+
+            if (!lightDeque.contains(light)) {
+                Spatial gizmo = entry.getValue();
+                gizmo.removeFromParent();
+                iterator.remove();
+            }
+        }
+
+        lightDeque.clear();
+    }
+
+    /**
+     * Sets the scene for which to render light gizmos.
+     * If no scene is set, it defaults to the first scene in the viewport.
+     *
+     * @param scene The root of the desired scene.
      */
     public void setScene(Spatial scene) {
         this.scene = scene;
-    }
-
-    private void cleanProbes() {
-        if (probes.size() != probeMapping.size()) {
-            for (LightProbe probe : probeMapping.keySet()) {
-                if (!probes.contains(probe)) {
-                    garbage.add(probe);
-                }
-            }
-            for (LightProbe probe : garbage) {
-                probeMapping.remove(probe);
-            }
-            garbage.clear();
-            probes.clear();
-        }
-    }
-
-    @Override
-    public void render(RenderManager rm) {
-        if (!isEnabled()) {
-            return;
-        }
-        rm.renderScene(debugNode, getApplication().getViewPort());
+        // Clear existing gizmos when the scene changes to avoid displaying gizmos from the old scene
+        debugNode.detachAllChildren();
+        lightGizmoMap.clear();
+        lightDeque.clear();
     }
 
     /**
-     * returns the scale of the probe's debug sphere
-     * @return the scale factor
-     */
-    public float getProbeScale() {
-        return probeScale;
-    }
-
-    /**
-     * sets the scale of the probe's debug sphere
+     * Returns the current scale of the light probe's debug sphere.
      *
-     * @param probeScale the scale factor (default=1)
+     * @return The scale factor.
      */
-    public void setProbeScale(float probeScale) {
-        this.probeScale = probeScale;
+    public float getLightProbeScale() {
+        return lightProbeScale;
     }
 
+    /**
+     * Sets the scale of the light probe's debug sphere.
+     *
+     * @param scale The scale factor (default is 1.0).
+     */
+    public void setLightProbeScale(float scale) {
+        this.lightProbeScale = scale;
+    }
+
+    /**
+     * Checks if the light debug gizmos are set to always
+     * render on top of other scene geometry.
+     *
+     * @return true if gizmos always render on top, false otherwise.
+     */
+    public boolean isShowOnTop() {
+        return showOnTop;
+    }
+
+    /**
+     * Sets whether light debug gizmos should always
+     * render on top of other scene geometry.
+     *
+     * @param showOnTop true to always show gizmos on top, false to respect depth.
+     */
+    public void setShowOnTop(boolean showOnTop) {
+        this.showOnTop = showOnTop;
+        if (viewPort != null) {
+            viewPort.setClearDepth(showOnTop);
+        }
+    }
+
+    /**
+     * Sets a filter to control which lights are displayed by the debug state.
+     * By default, no filter is applied, meaning all lights are displayed.
+     *
+     * @param lightFilter A {@link Predicate} that tests a {@link Light} object.
+     */
+    public void setLightFilter(Predicate<Light> lightFilter) {
+        this.lightFilter = lightFilter;
+    }
+
+    /**
+     * Cleans up resources when the app state is detached.
+     *
+     * @param app The application instance.
+     */
     @Override
     protected void cleanup(Application app) {
+        debugNode.detachAllChildren();
+        lightGizmoMap.clear();
+        lightDeque.clear();
+        debugMaterial = null;
+        app.getRenderManager().removeMainView(viewPort);
     }
 
     @Override
     protected void onEnable() {
+        viewPort.attachScene(debugNode);
     }
 
     @Override
     protected void onDisable() {
+        viewPort.detachScene(debugNode);
     }
+
 }
