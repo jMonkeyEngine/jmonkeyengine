@@ -273,7 +273,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                     }
                 }
         );
-                
+
         if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND)) {
 
             /*
