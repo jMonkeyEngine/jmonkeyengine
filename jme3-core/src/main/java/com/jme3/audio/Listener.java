@@ -41,19 +41,20 @@ import com.jme3.math.Vector3f;
  */
 public class Listener {
 
-    private final Vector3f location;
-    private final Vector3f velocity;
-    private final Quaternion rotation;
-    private float volume = 1;
+    private final Vector3f location = new Vector3f();
+    private final Vector3f velocity = new Vector3f();
+    private final Quaternion rotation = new Quaternion();
+    private float volume = 1f;
     private AudioRenderer renderer;
+
+    private final Vector3f left = new Vector3f();
+    private final Vector3f up = new Vector3f();
+    private final Vector3f direction = new Vector3f();
 
     /**
      * Constructs a new {@code Listener} with default parameters.
      */
     public Listener() {
-        location = new Vector3f();
-        velocity = new Vector3f();
-        rotation = new Quaternion();
     }
 
     /**
@@ -62,9 +63,9 @@ public class Listener {
      * @param source The {@code Listener} to copy the properties from.
      */
     public Listener(Listener source) {
-        this.location = source.location.clone();
-        this.velocity = source.velocity.clone();
-        this.rotation = source.rotation.clone();
+        this.location.set(source.location);
+        this.velocity.set(source.velocity);
+        this.rotation.set(source.rotation);
         this.volume = source.volume;
         this.renderer = source.renderer; // Note: Renderer is also copied
     }
@@ -130,32 +131,29 @@ public class Listener {
 
     /**
      * Gets the left direction vector of the listener.
-     * This vector is derived from the listener's rotation.
      *
      * @return The listener's left direction as a {@link Vector3f}.
      */
     public Vector3f getLeft() {
-        return rotation.getRotationColumn(0);
+        return rotation.getRotationColumn(0, left);
     }
 
     /**
      * Gets the up direction vector of the listener.
-     * This vector is derived from the listener's rotation.
      *
      * @return The listener's up direction as a {@link Vector3f}.
      */
     public Vector3f getUp() {
-        return rotation.getRotationColumn(1);
+        return rotation.getRotationColumn(1, up);
     }
 
     /**
      * Gets the forward direction vector of the listener.
-     * This vector is derived from the listener's rotation.
      *
      * @return The listener's forward direction.
      */
     public Vector3f getDirection() {
-        return rotation.getRotationColumn(2);
+        return rotation.getRotationColumn(2, direction);
     }
 
     /**
