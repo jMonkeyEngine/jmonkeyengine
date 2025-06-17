@@ -275,7 +275,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         );
                 
         if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND)) {
-            
+
             /*
              * Change the platform GLFW uses to enable GLX on Wayland as long as you 
              * have XWayland (X11 compatibility)
@@ -283,9 +283,12 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             if (settings.isX11PlatformPreferred() && glfwPlatformSupported(GLFW_PLATFORM_X11)) {
                 glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
             }
-            
+
+            // Disables the libdecor bar when creating a fullscreen context
+            // https://www.glfw.org/docs/latest/intro_guide.html#init_hints_wayland
+            glfwInitHint(GLFW_WAYLAND_LIBDECOR, settings.isFullscreen() ? GLFW_WAYLAND_DISABLE_LIBDECOR : GLFW_WAYLAND_PREFER_LIBDECOR);
         }
-        
+
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
