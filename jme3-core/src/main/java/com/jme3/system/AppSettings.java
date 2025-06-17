@@ -214,7 +214,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
     public static final String LWJGL_OPENAL = "LWJGL";
-    
+
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
      * <p>
@@ -295,7 +295,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("UseRetinaFrameBuffer", false);
         defaults.put("WindowYPosition", 0);
         defaults.put("WindowXPosition", 0);
-        defaults.put("NativePlatform", true);
+        defaults.put("X11PlatformPreferred", false);
         //  defaults.put("Icons", null);
     }
 
@@ -1522,10 +1522,10 @@ public final class AppSettings extends HashMap<String, Object> {
      * <strong>NOTE:</strong> Note that disabling this option uses GLX (native X11) instead of EGL (native WL).
      * </p>
      * 
-     * @param nplaf true when using EGL (native), otherwise false if you want to enable GLX
+     * @param nplaf true if you want to enable GLX, otherwise false when using EGL (native)
      */
-    public void setNativePlatform(boolean nplaf) {
-        put("NativePlatform", nplaf);
+    public void setX11PlatformPreferred(boolean nplaf) {
+        put("X11PlatformPreferred", nplaf);
     }
     
     /**
@@ -1535,9 +1535,9 @@ public final class AppSettings extends HashMap<String, Object> {
      * Only valid on Linux distributions or derivatives that support Wayland, where it indicates whether GLX or EGL is enabled.
      * </p>
      * 
-     * @return returns true if used in EGL (native), otherwise false if GLX is enabled
+     * @return returns true if GLX is enabled, otherwise false if used in EGL (native)
      */
-    public boolean isNativePlatform() {
-        return getBoolean("NativePlatform");
+    public boolean isX11PlatformPreferred() {
+        return getBoolean("X11PlatformPreferred");
     }
 }
