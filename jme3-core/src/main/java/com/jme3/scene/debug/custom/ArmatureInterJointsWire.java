@@ -1,7 +1,5 @@
-package com.jme3.scene.debug.custom;
-
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +29,7 @@ package com.jme3.scene.debug.custom;
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+package com.jme3.scene.debug.custom;
 
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
@@ -46,13 +44,11 @@ import java.nio.FloatBuffer;
  * @author Marcin Roguski (Kaelthas)
  */
 public class ArmatureInterJointsWire extends Mesh {
-    private final Vector3f tmp = new Vector3f();
 
-
-    public ArmatureInterJointsWire(Vector3f start, Vector3f[] ends) {
-        setMode(Mode.Lines);
-        updateGeometry(start, ends);
-    }
+    /**
+     * A temporary {@link Vector3f} used for calculations to avoid object allocation.
+     */
+    private final Vector3f tempVec = new Vector3f();
 
     /**
      * For serialization only. Do not use.
@@ -60,6 +56,26 @@ public class ArmatureInterJointsWire extends Mesh {
     protected ArmatureInterJointsWire() {
     }
 
+    /**
+     * Creates a new {@code ArmatureInterJointsWire} mesh.
+     * The mesh will be set up to draw lines from the {@code start} vector to each of the {@code ends} vectors.
+     *
+     * @param start The starting point of the lines (e.g., the bone tail's position). Not null.
+     * @param ends An array of ending points for the lines (e.g., the children's head positions). Not null.
+     */
+    public ArmatureInterJointsWire(Vector3f start, Vector3f[] ends) {
+        setMode(Mode.Lines);
+        updateGeometry(start, ends);
+    }
+
+    /**
+     * Updates the geometry of this mesh based on the provided start and end points.
+     * This method re-generates the position, texture coordinate, normal, and index buffers
+     * for the mesh.
+     *
+     * @param start The new starting point for the lines. Not null.
+     * @param ends An array of new ending points for the lines. Not null.
+     */
     protected void updateGeometry(Vector3f start, Vector3f[] ends) {
         float[] pos = new float[ends.length * 3 + 3];
         pos[0] = start.x;
@@ -78,7 +94,7 @@ public class ArmatureInterJointsWire extends Mesh {
         texCoord[0] = 0;
         texCoord[1] = 0;
         for (int i = 0; i < ends.length * 2; i++) {
-            texCoord[i + 2] = tmp.set(start).subtractLocal(ends[i / 2]).length();
+            texCoord[i + 2] = tempVec.set(start).subtractLocal(ends[i / 2]).length();
         }
         setBuffer(Type.TexCoord, 2, texCoord);
 
