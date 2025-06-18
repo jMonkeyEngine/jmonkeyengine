@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015-2016 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,11 +133,6 @@ public class DirectionalLight extends Light {
     }
 
     @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[name=" + name + ", direction=" + direction + ", color=" + color + ", enabled=" + enabled + "]";
-    }
-
-    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
@@ -156,5 +151,15 @@ public class DirectionalLight extends Light {
         DirectionalLight l = (DirectionalLight)super.clone();
         l.direction = direction.clone();
         return l;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()
+                + "[name=" + name
+                + ", direction=" + direction
+                + ", color=" + color
+                + ", enabled=" + enabled
+                + "]";
     }
 }

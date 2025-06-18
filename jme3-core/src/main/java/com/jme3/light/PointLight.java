@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015-2016, 2018 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -246,5 +246,16 @@ public class PointLight extends Light {
         PointLight p = (PointLight)super.clone();
         p.position = position.clone();
         return p;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()
+                + "[name=" + name
+                + ", position=" + position
+                + ", radius=" + radius
+                + ", color=" + color
+                + ", enabled=" + enabled
+                + "]";
     }
 }
