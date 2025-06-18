@@ -1510,32 +1510,24 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
-     * Sets the native platform to be used to create the GL context.
-     * 
+     * Sets the preferred native platform for creating the GL context on Linux distributions.
      * <p>
-     * This only affects Linux distributions or derivatives that use a Wayland session in conjunction 
-     * with X11 via the XWayland bridge, which enables or disables GLX for window positioning and/or 
-     * icon configuration.
-     * </p>
+     * This setting is relevant for Linux distributions or derivatives that utilize a Wayland session alongside an X11 via the XWayland bridge.
+     * Enabling this option allows the use of GLX for window positioning and/or icon configuration.
      *
-     * <p>
-     * <strong>NOTE:</strong> Note that disabling this option uses GLX (native X11) instead of EGL (native WL).
-     * </p>
-     * 
-     * @param nplaf true if you want to enable GLX, otherwise false when using EGL (native)
+     * @param preferred true to prefer GLX (native X11) for the GL context, false to prefer EGL (native Wayland).
      */
-    public void setX11PlatformPreferred(boolean nplaf) {
-        put("X11PlatformPreferred", nplaf);
+    public void setX11PlatformPreferred(boolean preferred) {
+        put("X11PlatformPreferred", preferred);
     }
     
     /**
-     * Gets what type of platform is being used.
-     * 
+     * Determines which native platform is preferred for GL context creation on Linux distributions.
      * <p>
-     * Only valid on Linux distributions or derivatives that support Wayland, where it indicates whether GLX or EGL is enabled.
-     * </p>
-     * 
-     * @return returns true if GLX is enabled, otherwise false if used in EGL (native)
+     * This setting is only valid on Linux distributions or derivatives that support Wayland,
+     * and it indicates whether GLX (native X11) or EGL (native Wayland) is enabled for the GL context.
+     *
+     * @return true if GLX is preferred, otherwise false if EGL is preferred (native Wayland).
      */
     public boolean isX11PlatformPreferred() {
         return getBoolean("X11PlatformPreferred");
