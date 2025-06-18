@@ -1577,7 +1577,7 @@ public class Camera implements Savable, Cloneable {
      * Resulting ray is in world space, starting on the near plane
      * of the camera and going through position's (x,y) pixel coordinates on the screen.
      *
-     * @param click2d A {@link Vector2f} representing the 2D screen coordinates (in pixels)
+     * @param pos A {@link Vector2f} representing the 2D screen coordinates (in pixels)
      * @return A {@link Ray} object representing the picking ray in world coordinates.
      *
      * <pre>{@code
@@ -1588,14 +1588,14 @@ public class Camera implements Savable, Cloneable {
      * // e.g., pickingRay.intersects(someSpatial.getWorldBound());
      * }</pre>
      */
-    public Ray screenPointToRay(Vector2f click2d) {
+    public Ray screenPointToRay(Vector2f pos) {
         TempVars vars = TempVars.get();
         Vector3f nearPoint = vars.vect1;
         Vector3f farPoint = vars.vect2;
 
         // Get the world coordinates for the near and far points
-        getWorldCoordinates(click2d, 0, nearPoint);
-        getWorldCoordinates(click2d, 1, farPoint);
+        getWorldCoordinates(pos, 0, nearPoint);
+        getWorldCoordinates(pos, 1, farPoint);
 
         // Calculate direction and normalize
         Vector3f direction = farPoint.subtractLocal(nearPoint).normalizeLocal();
