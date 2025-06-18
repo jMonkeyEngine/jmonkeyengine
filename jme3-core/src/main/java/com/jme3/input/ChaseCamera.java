@@ -225,10 +225,6 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     @Override
     public void onAnalog(String name, float value, float tpf) {
-        if (!enabled) {
-            return;
-        }
-
         if (name.equals(CameraInput.CHASECAM_MOVELEFT)) {
             rotateCamera(-value);
         } else if (name.equals(CameraInput.CHASECAM_MOVERIGHT)) {
