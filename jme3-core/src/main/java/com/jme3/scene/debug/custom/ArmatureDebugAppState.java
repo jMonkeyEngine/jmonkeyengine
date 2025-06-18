@@ -91,13 +91,13 @@ public class ArmatureDebugAppState extends BaseAppState {
     private Node debugNode = new Node("debugNode");
     private final Map<Armature, ArmatureDebugger> armatures = new HashMap<>();
     private final List<Consumer<Joint>> selectionListeners = new ArrayList<>();
-    private boolean displayAllJoints = false;
+    private boolean displayNonDeformingJoints = false;
     private float clickDelay = -1;
     private ViewPort vp;
     private Camera cam;
     private InputManager inputManager;
     private boolean showOnTop = true;
-    private boolean enableLogging = true;
+    private boolean enableJointInfoLogging = true;
 
     @Override
     protected void initialize(Application app) {
@@ -199,7 +199,7 @@ public class ArmatureDebugAppState extends BaseAppState {
         debugger.setLocalTransform(sp.getWorldTransform());
         if (sp instanceof Node) {
             List<Geometry> geoms = new ArrayList<>();
-            findGeoms((Node) sp, geoms);
+            collectGeometries((Node) sp, geoms);
             if (geoms.size() == 1) {
                 debugger.setLocalTransform(geoms.get(0).getWorldTransform());
             }
@@ -223,12 +223,18 @@ public class ArmatureDebugAppState extends BaseAppState {
      * @param node The starting Node to search from.
      * @param geoms The list to which found Geometry instances will be added.
      */
-    private void findGeoms(Node node, List<Geometry> geoms) {
+    /**
+     * Recursively finds all `Geometry` instances within a given `Node` and its children.
+     *
+     * @param node The starting `Node` to search from.
+     * @param geometries The list to which found `Geometry` instances will be added.
+     */
+    private void collectGeometries(Node node, List<Geometry> geometries) {
         for (Spatial s : node.getChildren()) {
             if (s instanceof Geometry) {
-                geoms.add((Geometry) s);
+                geometries.add((Geometry) s);
             } else if (s instanceof Node) {
-                findGeoms((Node) s, geoms);
+                collectGeometries((Node) s, geometries);
             }
         }
     }
@@ -279,15 +285,15 @@ public class ArmatureDebugAppState extends BaseAppState {
                 }
             }
             else if (name.equals(TOGGLE_JOINTS) && isPressed) {
-                displayAllJoints = !displayAllJoints;
+                displayNonDeformingJoints = !displayNonDeformingJoints;
                 for (ArmatureDebugger ad : armatures.values()) {
-                    ad.displayNonDeformingJoint(displayAllJoints);
+                    ad.displayNonDeformingJoint(displayNonDeformingJoints);
                 }
             }
         }
 
         private void printJointInfo(Joint selectedjoint, ArmatureDebugger ad) {
-            if (enableLogging) {
+            if (enableJointInfoLogging) {
                 System.err.println("-----------------------");
                 System.err.println("Selected Joint : " + selectedjoint.getName() + " in armature " + ad.getName());
                 System.err.println("Root Bone : " + (selectedjoint.getParent() == null));
@@ -305,14 +311,21 @@ public class ArmatureDebugAppState extends BaseAppState {
             }
         }
 
-        private Ray screenPointToRay(Camera cam, Vector2f click2d) {
+        /**
+         * Creates a `Ray` from a 2D screen point (e.g., mouse cursor position).
+         *
+         * @param cam The camera to use for ray projection.
+         * @param screenPoint The 2D screen coordinates.
+         * @return A `Ray` originating from the near plane and extending into the scene.
+         */
+        private Ray screenPointToRay(Camera cam, Vector2f screenPoint) {
             TempVars vars = TempVars.get();
             Vector3f nearPoint = vars.vect1;
             Vector3f farPoint = vars.vect2;
 
             // Get the world coordinates for the near and far points
-            cam.getWorldCoordinates(click2d, 0, nearPoint);
-            cam.getWorldCoordinates(click2d, 1, farPoint);
+            cam.getWorldCoordinates(screenPoint, 0, nearPoint);
+            cam.getWorldCoordinates(screenPoint, 1, farPoint);
 
             // Calculate direction and normalize
             Vector3f direction = farPoint.subtractLocal(nearPoint).normalizeLocal();
@@ -398,21 +411,21 @@ public class ArmatureDebugAppState extends BaseAppState {
     }
 
     /**
-     * Returns whether logging of detailed joint information is currently enabled.
+     * Returns whether logging of detailed joint information to `System.err` is currently enabled.
      *
      * @return true if logging is enabled, false otherwise.
      */
-    public boolean isEnableLogging() {
-        return enableLogging;
+    public boolean isJointInfoLoggingEnabled() {
+        return enableJointInfoLogging;
     }
 
     /**
-     * Sets whether logging of detailed joint information should be enabled.
+     * Sets whether logging of detailed joint information to `System.err` should be enabled.
      *
-     * @param enableLogging true to enable logging, false to disable.
+     * @param enableJointInfoLogging true to enable logging, false to disable.
      */
-    public void setEnableLogging(boolean enableLogging) {
-        this.enableLogging = enableLogging;
+    public void setJointInfoLoggingEnabled(boolean enableJointInfoLogging) {
+        this.enableJointInfoLogging = enableJointInfoLogging;
     }
 
     /**
@@ -438,13 +451,13 @@ public class ArmatureDebugAppState extends BaseAppState {
          * For each Geometry, it checks all joints in the associated armature
          * to see if they influence this mesh.
          *
-         * @param g The Geometry node being visited.
+         * @param geo The Geometry node being visited.
          */
         @Override
-        public void visit(Geometry g) {
+        public void visit(Geometry geo) {
             for (Joint joint : armature.getJointList()) {
                 int index = armature.getJointIndex(joint);
-                if (g.getMesh().isAnimatedByJoint(index)) {
+                if (geo.getMesh().isAnimatedByJoint(index)) {
                     deformingJoints.add(joint);
                 }
             }
