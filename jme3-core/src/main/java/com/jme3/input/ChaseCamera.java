@@ -298,16 +298,23 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * @param inputManager The {@link InputManager} to clean up.
      */
     public void cleanupWithInput(InputManager inputManager) {
+        inputManager.deleteMapping(CameraInput.CHASECAM_TOGGLEROTATE);
+        inputManager.deleteMapping(CameraInput.CHASECAM_DOWN);
+        inputManager.deleteMapping(CameraInput.CHASECAM_UP);
+        inputManager.deleteMapping(CameraInput.CHASECAM_MOVELEFT);
+        inputManager.deleteMapping(CameraInput.CHASECAM_MOVERIGHT);
+        inputManager.deleteMapping(CameraInput.CHASECAM_ZOOMIN);
+        inputManager.deleteMapping(CameraInput.CHASECAM_ZOOMOUT);
+        inputManager.removeListener(this);
+    }
+
+    /**
+     * Unregisters this controller from its currently associated {@link InputManager}.
+     */
+    public void unregisterInput() {
         if (inputManager != null) {
-            inputManager.deleteMapping(CameraInput.CHASECAM_TOGGLEROTATE);
-            inputManager.deleteMapping(CameraInput.CHASECAM_DOWN);
-            inputManager.deleteMapping(CameraInput.CHASECAM_UP);
-            inputManager.deleteMapping(CameraInput.CHASECAM_MOVELEFT);
-            inputManager.deleteMapping(CameraInput.CHASECAM_MOVERIGHT);
-            inputManager.deleteMapping(CameraInput.CHASECAM_ZOOMIN);
-            inputManager.deleteMapping(CameraInput.CHASECAM_ZOOMOUT);
-            inputManager.removeListener(this);
-            this.inputManager = null; // Clear reference
+            cleanupWithInput(inputManager);
+            inputManager = null;
         }
     }
 
