@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021 jMonkeyEngine
+ * Copyright (c) 2014-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,30 +29,39 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.app.state;
+
+import com.jme3.app.Application;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
+import com.jme3.util.SafeArrayList;
 
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import com.jme3.app.Application;
-import com.jme3.math.*;
-import com.jme3.util.SafeArrayList;
-
+import static java.lang.Float.NEGATIVE_INFINITY;
 import static java.lang.Float.NaN;
 import static java.lang.Float.POSITIVE_INFINITY;
-import static java.lang.Float.NEGATIVE_INFINITY;
 
 /**
- *  Checks the various JME 'constants' for drift using either asserts
- *  or straight checks.  The list of constants can also be configured
- *  but defaults to the standard JME Vector3f, Quaternion, etc. constants.
+ * An AppState that periodically checks the values of various JME math constants
+ * (e.g., `Vector3f.ZERO`, `Quaternion.IDENTITY`) against their known good values.
+ * This is useful for detecting accidental modifications or "drift" of these
+ * supposedly immutable constants during application runtime.
+ * <p>
+ * The state can be configured to report discrepancies using asserts,
+ * throwing runtime exceptions, or logging severe messages.
+ * The set of constants to check is configurable.
  *
- *  @author    Paul Speed
+ * @author Paul Speed
  */
 public class ConstantVerifierState extends BaseAppState {
 
-    private static final Logger log = Logger.getLogger(BaseAppState.class.getName());
+    private static final Logger log = Logger.getLogger(ConstantVerifierState.class.getName());
 
     // Note: I've used actual constructed objects for the good values
     //       instead of clone just to better catch cases where the values
@@ -73,7 +82,14 @@ public class ConstantVerifierState extends BaseAppState {
                     new Quaternion().fromAxes(Vector3f.UNIT_X, Vector3f.UNIT_Y, Vector3f.UNIT_Z)),
             new Checker(Quaternion.ZERO, new Quaternion(0, 0, 0, 0)),
             new Checker(Vector2f.ZERO, new Vector2f(0f, 0f)),
+            new Checker(Vector2f.NAN, new Vector2f(NaN, NaN)),
+            new Checker(Vector2f.UNIT_X, new Vector2f(1, 0)),
+            new Checker(Vector2f.UNIT_Y, new Vector2f(0, 1)),
             new Checker(Vector2f.UNIT_XY, new Vector2f(1f, 1f)),
+            new Checker(Vector2f.POSITIVE_INFINITY,
+                    new Vector2f(POSITIVE_INFINITY, POSITIVE_INFINITY)),
+            new Checker(Vector2f.NEGATIVE_INFINITY,
+                    new Vector2f(NEGATIVE_INFINITY, NEGATIVE_INFINITY)),
             new Checker(Vector4f.ZERO, new Vector4f(0, 0, 0, 0)),
             new Checker(Vector4f.NAN, new Vector4f(NaN, NaN, NaN, NaN)),
             new Checker(Vector4f.UNIT_X, new Vector4f(1, 0, 0, 0)),
@@ -91,24 +107,34 @@ public class ConstantVerifierState extends BaseAppState {
             new Checker(Matrix4f.IDENTITY, new Matrix4f())
         };
 
-    public enum ErrorType { Assert, Exception, Log };
+    /**
+     * Defines how constant value discrepancies should be reported.
+     */
+    public enum ErrorType {
+        /** Causes an `assert` failure if the constant has changed. Requires assertions to be enabled. */
+        Assert,
+        /** Throws a `RuntimeException` if the constant has changed. */
+        Exception,
+        /** Logs a severe message if the constant has changed. */
+        Log
+    }
 
-    final private SafeArrayList<Checker> checkers = new SafeArrayList<>(Checker.class);
+    private final SafeArrayList<Checker> checkers = new SafeArrayList<>(Checker.class);
     private ErrorType errorType;
 
     /**
-     *  Creates a verifier app state that will check all of the default
-     *  constant checks using asserts.
+     * Creates a verifier app state that will check all of the default
+     * JME math constants using `ErrorType.Assert`.
      */
     public ConstantVerifierState() {
         this(ErrorType.Assert);
     }
 
     /**
-     *  Creates a verifier app state that will check all of the default
-     *  constant checks using the specified error reporting mechanism.
+     * Creates a verifier app state that will check all of the default
+     * JME math constants using the specified error reporting mechanism.
      *
-     * @param errorType the mechanism to use
+     * @param errorType The mechanism to use when a constant's value drifts.
      */
     public ConstantVerifierState(ErrorType errorType) {
         this(errorType, DEFAULT_CHECKS);
@@ -126,14 +152,32 @@ public class ConstantVerifierState extends BaseAppState {
         this.checkers.addAll(Arrays.asList(checkers));
     }
 
+    /**
+     * Adds a new constant and its expected good value to the list of items to be checked.
+     * The `constant` and `goodValue` should be instances of the same class.
+     *
+     * @param constant The JME constant object to monitor for drift (e.g., `Vector3f.ZERO`).
+     * @param goodValue An independent instance representing the expected correct value of the constant.
+     * This instance should match the initial value of `constant`.
+     */
     public void addChecker(Object constant, Object goodValue) {
         checkers.add(new Checker(constant, goodValue));
     }
 
+    /**
+     * Sets the error reporting mechanism to be used when a constant's value drifts.
+     *
+     * @param errorType The desired error reporting type.
+     */
     public void setErrorType(ErrorType errorType) {
         this.errorType = errorType;
     }
 
+    /**
+     * Returns the currently configured error reporting mechanism.
+     *
+     * @return The current `ErrorType`.
+     */
     public ErrorType getErrorType() {
         return errorType;
     }
@@ -161,21 +205,26 @@ public class ConstantVerifierState extends BaseAppState {
         checkValues();
     }
 
+    /**
+     * Iterates through all registered checkers and verifies the current values
+     * of the constants against their known good values.
+     * Reports any discrepancies based on the configured `ErrorType`.
+     */
     protected void checkValues() {
         for (Checker checker : checkers.getArray()) {
             switch (errorType) {
-                default:
+                default: // Fall through to Assert if somehow null
                 case Assert:
                     assert checker.isValid() : checker.toString();
                     break;
                 case Exception:
                     if (!checker.isValid()) {
-                        throw new RuntimeException("Constant has changed, " + checker.toString());
+                        throw new RuntimeException("JME Constant has changed, " + checker.toString());
                     }
                     break;
                 case Log:
                     if (!checker.isValid()) {
-                        log.severe("Constant has changed, " + checker.toString());
+                        log.severe("JME Constant has changed, " + checker.toString());
                     }
                     break;
             }
@@ -188,8 +237,9 @@ public class ConstantVerifierState extends BaseAppState {
      *  mean anything.
      */
     private static class Checker {
-        private Object constant;
-        private Object goodValue;
+
+        private final Object constant;
+        private final Object goodValue;
 
         public Checker(Object constant, Object goodValue) {
             if (constant == null) {
@@ -197,7 +247,7 @@ public class ConstantVerifierState extends BaseAppState {
             }
             if (!constant.equals(goodValue)) {
                 throw new IllegalArgumentException(
-                        "Constant value:" + constant + " does not match value:" + goodValue);
+                        "Constant value: " + constant + " does not match value: " + goodValue);
             }
             this.constant = constant;
             this.goodValue = goodValue;
