@@ -218,12 +218,6 @@ public class ArmatureDebugAppState extends BaseAppState {
     }
 
     /**
-     * Recursively finds all Geometry instances within a given Node and its children.
-     *
-     * @param node The starting Node to search from.
-     * @param geoms The list to which found Geometry instances will be added.
-     */
-    /**
      * Recursively finds all `Geometry` instances within a given `Node` and its children.
      *
      * @param node The starting `Node` to search from.
@@ -370,21 +364,6 @@ public class ArmatureDebugAppState extends BaseAppState {
      */
     public void clearSelectionListeners() {
         selectionListeners.clear();
-    }
-
-    /**
-     * Returns the root node for debug visualizations.
-     * This node contains all the `ArmatureDebugger` instances.
-     *
-     * @return The debug Node.
-     */
-    public Node getDebugNode() {
-        return debugNode;
-    }
-
-    @Deprecated
-    public void setDebugNode(Node debugNode) {
-        this.debugNode = debugNode;
     }
 
     /**
