@@ -81,6 +81,11 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     private static final Logger logger = Logger.getLogger(SkinningControl.class.getName());
 
     /**
+     * The maximum number of bones supported for hardware skinning in common shaders.
+     */
+    private static final int MAX_BONES_HW_SKINNING_SUPPORT = 255;
+
+    /**
      * The armature of the model.
      */
     private Armature armature;
@@ -190,7 +195,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
      */
     private boolean testHardwareSupported(RenderManager renderManager) {
         // Only 255 bones max supported with hardware skinning in common shaders.
-        if (armature.getJointCount() > 255) {
+        if (armature.getJointCount() > MAX_BONES_HW_SKINNING_SUPPORT) {
             logger.log(Level.INFO, "Hardware skinning not supported for {0}: Too many bones ({1} > 255).",
                     new Object[]{spatial, armature.getJointCount()});
             return false;
