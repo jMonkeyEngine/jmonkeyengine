@@ -34,15 +34,17 @@ public class SkinningControlTest {
 
             SkinningControl sc = model.getControl(SkinningControl.class);
             validateSkinningControl(sc);
-            
+
             model.removeControl(sc);
             model.addControl(sc);
-
             validateSkinningControl(sc);
 
             Spatial copy = BinaryExporter.saveAndLoad(assetManager, model);
             SkinningControl scCopy = copy.getControl(SkinningControl.class);
+            validateSkinningControl(scCopy);
 
+            copy.removeControl(scCopy);
+            copy.addControl(scCopy);
             validateSkinningControl(scCopy);
         }
     }
@@ -54,7 +56,7 @@ public class SkinningControlTest {
 
         int numberOfBones = 0;
         int boneMatrices = 0;
-        
+
         for (MatParamOverride mpo : mpos) {
             Assert.assertTrue(mpo.isEnabled());
             Assert.assertNull(mpo.getValue());
