@@ -1518,7 +1518,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * @param preferred true to prefer GLX (native X11) for the GL context, false to prefer EGL (native Wayland).
      */
     public void setX11PlatformPreferred(boolean preferred) {
-        put("X11PlatformPreferred", preferred);
+        putBoolean("X11PlatformPreferred", preferred);
     }
     
     /**
