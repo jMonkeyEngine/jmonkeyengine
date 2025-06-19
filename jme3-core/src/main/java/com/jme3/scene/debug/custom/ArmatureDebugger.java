@@ -127,18 +127,16 @@ public class ArmatureDebugger extends Node {
         this.attachChild(wires);
 
         // Create child nodes specifically for non-deforming joints' visualization
-        Node ndJoints = new Node("NonDeformingJoints");
-        Node ndOutlines = new Node("NonDeformingOutlines");
-        Node ndWires = new Node("NonDeformingWires");
-        joints.attachChild(ndJoints);
-        outlines.attachChild(ndOutlines);
-        wires.attachChild(ndWires);
+        joints.attachChild(new Node("NonDeformingJoints"));
+        outlines.attachChild(new Node("NonDeformingOutlines"));
+        wires.attachChild(new Node("NonDeformingWires"));
 
         Node outlineDashed = new Node("DashedOutlines");
-        Node wiresDashed = new Node("DashedWires");
-        wiresDashed.attachChild(new Node("DashedNonDeformingWires"));
         outlineDashed.attachChild(new Node("DashedNonDeformingOutlines"));
         outlines.attachChild(outlineDashed);
+
+        Node wiresDashed = new Node("DashedWires");
+        wiresDashed.attachChild(new Node("DashedNonDeformingWires"));
         wires.attachChild(wiresDashed);
 
         // Initialize the core ArmatureNode which handles the actual mesh generation.
@@ -178,36 +176,48 @@ public class ArmatureDebugger extends Node {
 
         armatureNode.setCamera(camera);
 
-        // Material for joint points (billboarded dots).
-        Material matJoints = new Material(assetManager, "Common/MatDefs/Misc/Billboard.j3md");
-        Texture tex = assetManager.loadTexture("Common/Textures/dot.png");
-        matJoints.setTexture("Texture", tex);
-        matJoints.getAdditionalRenderState().setDepthTest(false);
-        matJoints.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+        // Material for joint points (billboard dots).
+        Material matJoints = getJointMaterial(assetManager);
         joints.setQueueBucket(RenderQueue.Bucket.Translucent);
         joints.setMaterial(matJoints);
 
         // Material for bone wires/lines (unshaded, vertex colored).
-        Material matWires = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        matWires.setBoolean("VertexColor", true);
-        matWires.getAdditionalRenderState().setDepthTest(false);
+        Material matWires = getUnshadedMaterial(assetManager);
         wires.setMaterial(matWires);
 
+        // Material for dashed wires ("DashedLine.j3md" shader).
+        Material matWires2 = getDashedMaterial(assetManager);
+        wires.getChild(1).setMaterial(matWires2);
+
         // Material for bone outlines (unshaded, vertex colored).
-        Material matOutline = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        matOutline.setBoolean("VertexColor", true);
-        matOutline.getAdditionalRenderState().setDepthTest(false);
+        Material matOutline = getUnshadedMaterial(assetManager);
         outlines.setMaterial(matOutline);
 
-        // Material for dashed outlines. This assumes a "DashedLine.j3md" shader.
-        Material matOutline2 = new Material(assetManager, "Common/MatDefs/Misc/DashedLine.j3md");
-        matOutline2.getAdditionalRenderState().setDepthTest(false);
+        // Material for dashed outlines ("DashedLine.j3md" shader).
+        Material matOutline2 = getDashedMaterial(assetManager);
         outlines.getChild(1).setMaterial(matOutline2);
+    }
 
-        // Material for dashed wires. This assumes a "DashedLine.j3md" shader.
-        Material matWires2 = new Material(assetManager, "Common/MatDefs/Misc/DashedLine.j3md");
-        matWires2.getAdditionalRenderState().setDepthTest(false);
-        wires.getChild(1).setMaterial(matWires2);
+    private Material getJointMaterial(AssetManager asm) {
+        Material mat = new Material(asm, "Common/MatDefs/Misc/Billboard.j3md");
+        Texture tex = asm.loadTexture("Common/Textures/dot.png");
+        mat.setTexture("Texture", tex);
+        mat.getAdditionalRenderState().setDepthTest(false);
+        mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+        return mat;
+    }
+
+    private Material getUnshadedMaterial(AssetManager asm) {
+        Material mat = new Material(asm, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setBoolean("VertexColor", true);
+        mat.getAdditionalRenderState().setDepthTest(false);
+        return mat;
+    }
+
+    private Material getDashedMaterial(AssetManager asm) {
+        Material mat = new Material(asm, "Common/MatDefs/Misc/DashedLine.j3md");
+        mat.getAdditionalRenderState().setDepthTest(false);
+        return mat;
     }
 
     /**
