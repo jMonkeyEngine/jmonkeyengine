@@ -62,13 +62,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The Skinning control deforms a model according to an armature, It handles the
- * computation of the deformation matrices and performs the transformations on
- * the mesh
- * <p>
- * It can perform software skinning or Hardware skinning
+ * The `SkinningControl` deforms a 3D model according to an {@link Armature}. It manages the
+ * computation of deformation matrices and applies these transformations to the mesh,
+ * supporting both software and hardware-accelerated skinning.
  *
- * @author Rémy Bouquet Based on SkeletonControl by Kirill Vainer
+ * <p>
+ * **Software Skinning:** Performed on the CPU, offering broader compatibility but
+ * potentially lower performance for complex models.
+ * <p>
+ * **Hardware Skinning:** Utilizes the GPU for deformation, providing significantly
+ * better performance but requiring shader support and having a limit on the number
+ * of bones (typically 255 in common shaders).
+ *
+ * @author Nehon
  */
 public class SkinningControl extends AbstractControl implements JmeCloneable {
 
@@ -80,7 +86,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     private Armature armature;
 
     /**
-     * List of geometries affected by this control.
+     * A list of geometries that this control will deform.
      */
     private SafeArrayList<Geometry> targets = new SafeArrayList<>(Geometry.class);
 
@@ -91,29 +97,32 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     private boolean meshUpdateRequired = true;
 
     /**
-     * User wishes to use hardware skinning if available.
+     * Indicates whether hardware skinning is preferred. If `true` and the GPU
+     * supports it, hardware skinning will be enabled.
      */
     private transient boolean hwSkinningPreferred = true;
 
     /**
-     * Hardware skinning is currently being used.
+     * Indicates if hardware skinning is currently active and being used.
      */
     private transient boolean hwSkinningEnabled = false;
 
     /**
-     * Hardware skinning was tested on this GPU, results
-     * are stored in {@link #hwSkinningSupported} variable.
+     * Flag indicating whether hardware skinning compatibility has been tested
+     * on the current GPU. Results are stored in {@link #hwSkinningSupported}.
      */
     private transient boolean hwSkinningTested = false;
 
     /**
-     * If hardware skinning was {@link #hwSkinningTested tested}, then
-     * this variable will be set to true if supported, and false if otherwise.
+     * Stores the result of the hardware skinning compatibility test. `true` if
+     * supported, `false` otherwise. This is only valid after
+     * {@link #hwSkinningTested} is `true`.
      */
     private transient boolean hwSkinningSupported = false;
 
     /**
-     * Bone offset matrices, recreated each frame
+     * Bone offset matrices, computed each frame to deform the mesh based on
+     * the armature's current pose.
      */
     private transient Matrix4f[] boneOffsetMatrices;
 
@@ -127,14 +136,13 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     }
 
     /**
-     * Creates an armature control. The list of targets will be acquired
-     * automatically when the control is attached to a node.
+     * Creates a new `SkinningControl` for the given armature.
      *
-     * @param armature the armature
+     * @param armature The armature that drives the deformation (not null).
      */
     public SkinningControl(Armature armature) {
         if (armature == null) {
-            throw new IllegalArgumentException("armature cannot be null");
+            throw new IllegalArgumentException("armature cannot be null.");
         }
         this.armature = armature;
     }
@@ -146,7 +154,8 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         numberOfJointsParam.setEnabled(true);
         jointMatricesParam.setEnabled(true);
 
-        // Next full 10 bones (e.g. 30 on 24 bones)
+        // Calculate the number of bones rounded up to the nearest multiple of 10.
+        // This is often required by shaders for array uniform declarations.
         int numBones = ((armature.getJointCount() / 10) + 1) * 10;
         numberOfJointsParam.setValue(numBones);
 
@@ -187,7 +196,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
             return false;
         }
 
-        // Temporarily switch to hardware to test shader compilation
+        // Temporarily enable hardware skinning to test shader compilation.
         enableHardwareSkinning();
         boolean hwSkinningEngaged = false;
 
@@ -281,7 +290,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         for (Geometry geometry : targets) {
             Mesh mesh = geometry.getMesh();
             // NOTE: This assumes code higher up has already ensured this mesh is animated.
-            // Otherwise a crash will happen in skin update.
+            // Otherwise, a crash will happen in skin update.
             applySoftwareSkinning(mesh, boneOffsetMatrices);
         }
     }
@@ -304,6 +313,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
             assert !hwSkinningEnabled || (hwSkinningEnabled && hwSkinningTested && hwSkinningSupported);
 
             if (hwSkinningPreferred && !hwSkinningTested) {
+                // If hardware skinning is preferred and hasn't been tested yet, test it.
                 hwSkinningTested = true;
                 hwSkinningSupported = testHardwareSupported(rm);
 
@@ -313,9 +323,12 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
                     enableSoftwareSkinning();
                 }
             } else if (hwSkinningPreferred && hwSkinningSupported && !hwSkinningEnabled) {
+                // If hardware skinning is preferred, supported, but not yet enabled, enable it.
                 enableHardwareSkinning();
                 hwSkinningEnabled = true;
+
             } else if (!hwSkinningPreferred && hwSkinningEnabled) {
+                // If hardware skinning is no longer preferred but is enabled, switch to software.
                 enableSoftwareSkinning();
                 hwSkinningEnabled = false;
             }
@@ -336,7 +349,12 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         armature.update();
     }
 
-    //only do this for software updates
+    /**
+     * Resets the vertex, normal, and tangent buffers of animated meshes to their
+     * original bind pose. This is crucial for software skinning to ensure
+     * transformations are applied from a consistent base.
+     * This method is only applied when performing software updates.
+     */
     void resetToBind() {
         for (Geometry geometry : targets) {
             Mesh mesh = geometry.getMesh();
@@ -400,10 +418,10 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     }
 
     /**
-     * Access the attachments node of the named bone. If the bone doesn't
-     * already have an attachments node, create one and attach it to the scene
-     * graph. Models and effects attached to the attachments node will follow
-     * the bone's motions.
+     * Provides access to the attachment node for a specific joint in the armature.
+     * If an attachment node does not already exist for the named joint, one will be
+     * created and attached to the scene graph. Models or effects attached to this
+     * node will follow the motion of the corresponding bone.
      *
      * @param jointName the name of the joint
      * @return the attachments node of the joint
@@ -419,7 +437,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         int jointIndex = armature.getJointIndex(joint);
         Node attachNode = joint.getAttachmentsNode(jointIndex, targets);
 
-        // Select a node to parent the attachments node.
+        // Determine the appropriate parent for the attachment node.
         Node parent;
         if (spatial instanceof Node) {
             parent = (Node) spatial; // the usual case
@@ -432,18 +450,19 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     }
 
     /**
-     * returns the armature of this control
+     * Returns the armature associated with this skinning control.
      *
-     * @return the pre-existing instance
+     * @return The pre-existing `Armature` instance.
      */
     public Armature getArmature() {
         return armature;
     }
 
     /**
-     * Enumerate the target meshes of this control.
+     * Returns an array containing all the target meshes that this control
+     * is currently affecting.
      *
-     * @return a new array
+     * @return A new array of `Mesh` objects.
      */
     public Mesh[] getTargets() {
         Mesh[] result = new Mesh[targets.size()];
@@ -458,10 +477,11 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     }
 
     /**
-     * Update the mesh according to the given transformation matrices
+     * Applies software skinning transformations to the given mesh using the
+     * provided bone offset matrices.
      *
-     * @param mesh           then mesh
-     * @param offsetMatrices the transformation matrices to apply
+     * @param mesh           The mesh to deform.
+     * @param offsetMatrices The array of transformation matrices for each bone.
      */
     private void applySoftwareSkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
 
@@ -476,10 +496,12 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     }
 
     /**
-     * Method to apply skinning transforms to a mesh's buffers
+     * Applies skinning transformations to a mesh's position and normal buffers.
+     * This method iterates through each vertex, applies the weighted sum of
+     * bone transformations, and updates the vertex buffers.
      *
-     * @param mesh           the mesh
-     * @param offsetMatrices the offset matrices to apply
+     * @param mesh           The mesh to apply skinning to.
+     * @param offsetMatrices The bone offset matrices to use for transformation.
      */
     private void applySkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
@@ -577,15 +599,13 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     }
 
     /**
-     * Specific method for skinning with tangents to avoid cluttering the
-     * classic skinning calculation with null checks that would slow down the
-     * process even if tangents don't have to be computed. Also the iteration
-     * has additional indexes since tangent has 4 components instead of 3 for
-     * pos and norm
+     * Applies skinning transformations to a mesh's position, normal, and tangent buffers.
+     * This method is specifically designed for meshes that include tangent data,
+     * ensuring proper deformation of tangents alongside positions and normals.
      *
-     * @param mesh           the mesh
-     * @param offsetMatrices the offsetMatrices to apply
-     * @param tb             the tangent vertexBuffer
+     * @param mesh           The mesh to apply skinning to.
+     * @param offsetMatrices The bone offset matrices to use for transformation.
+     * @param tb             The tangent `VertexBuffer`.
      */
     private void applySkinningTangents(Mesh mesh, Matrix4f[] offsetMatrices, VertexBuffer tb) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
