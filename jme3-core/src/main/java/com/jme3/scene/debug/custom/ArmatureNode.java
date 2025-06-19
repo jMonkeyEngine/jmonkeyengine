@@ -485,7 +485,7 @@ public class ArmatureNode extends Node {
     /**
      * The method updates the geometry according to the positions of the bones.
      */
-    void updateGeometry() {
+    public void updateGeometry() {
         armature.update();
         for (Joint joint : armature.getRoots()) {
             updateSkeletonGeoms(joint);
