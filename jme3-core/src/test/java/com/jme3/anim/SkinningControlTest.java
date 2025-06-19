@@ -33,6 +33,8 @@ public class SkinningControlTest {
             AnimMigrationUtils.migrate(model);
 
             SkinningControl sc = model.getControl(SkinningControl.class);
+            validateSkinningControl(sc);
+            
             model.removeControl(sc);
             model.addControl(sc);
 
@@ -52,6 +54,7 @@ public class SkinningControlTest {
 
         int numberOfBones = 0;
         int boneMatrices = 0;
+        
         for (MatParamOverride mpo : mpos) {
             Assert.assertTrue(mpo.isEnabled());
             Assert.assertNull(mpo.getValue());
