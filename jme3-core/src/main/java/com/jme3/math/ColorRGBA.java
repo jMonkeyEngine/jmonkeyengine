@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,18 +30,23 @@
  */
 package com.jme3.math;
 
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
+
 import java.io.IOException;
 
 /**
  * <code>ColorRGBA</code> defines a color made from a collection of red, green
- * and blue values stored in Linear color space. An alpha value determines is
+ * and blue values stored in Linear color space. An alpha value determines its
  * transparency.
  *
  * @author Mark Powell
- * @version $Id: ColorRGBA.java,v 1.29 2007/09/09 18:25:14 irrisor Exp $
  */
 public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable {
+
     static final float GAMMA = 2.2f;
 
     static final long serialVersionUID = 1;
@@ -153,15 +158,15 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * Copy constructor creates a new <code>ColorRGBA</code> object, based on
      * a provided color.
      *
-     * @param rgba The <code>ColorRGBA</code> object to copy.
+     * @param color The <code>ColorRGBA</code> object to copy.
      */
-    public ColorRGBA(ColorRGBA rgba) {
-        this.a = rgba.a;
-        this.r = rgba.r;
-        this.g = rgba.g;
-        this.b = rgba.b;
+    public ColorRGBA(ColorRGBA color) {
+        this.a = color.a;
+        this.r = color.r;
+        this.g = color.g;
+        this.b = color.b;
     }
-    
+
     /**
      * Constructor creates a new <code>ColorRGBA</code> object, based on
      * a provided Vector4f.
@@ -170,12 +175,9 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * values copied to this color's r, g, b, and a values respectively.
      */
     public ColorRGBA(Vector4f vec4) {
-        this.a = vec4.w;
-        this.r = vec4.x;
-        this.g = vec4.y;
-        this.b = vec4.z;
-    }    
-    
+        set(vec4);
+    }
+
     /**
      * Constructor creates a new <code>ColorRGBA</code> object, based on
      * a provided Vector3f, at full opacity with a 1.0 alpha value by default
@@ -185,10 +187,8 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      */
     public ColorRGBA(Vector3f vec3) {
         this.a = 1.0f;
-        this.r = vec3.x;
-        this.g = vec3.y;
-        this.b = vec3.z;
-    }    
+        set(vec3);
+    }
 
     /**
      * <code>set</code> sets the RGBA values of this <code>ColorRGBA</code>.
@@ -214,24 +214,24 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * <code>set</code> sets the values of this <code>ColorRGBA</code> to those
      * set by a parameter color.
      *
-     * @param rgba The color to set this <code>ColorRGBA</code> to.
+     * @param color The color to set this <code>ColorRGBA</code> to.
      * @return this
      */
-    public ColorRGBA set(ColorRGBA rgba) {
-        if (rgba == null) {
+    public ColorRGBA set(ColorRGBA color) {
+        if (color == null) {
             r = 0;
             g = 0;
             b = 0;
             a = 0;
         } else {
-            r = rgba.r;
-            g = rgba.g;
-            b = rgba.b;
-            a = rgba.a;
+            r = color.r;
+            g = color.g;
+            b = color.b;
+            a = color.a;
         }
         return this;
     }
-    
+
     /**
      * <code>set</code> sets the values of this <code>ColorRGBA</code> to those
      * set by a parameter Vector4f.
@@ -254,8 +254,8 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
             a = vec4.w;
         }
         return this;
-    }    
-    
+    }
+
     /**
      * <code>set</code> sets the values of this <code>ColorRGBA</code> to those
      * set by a parameter Vector3f.
@@ -276,7 +276,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
             b = vec3.z;
         }
         return this;
-    }       
+    }
 
     /**
      * Sets the red color to the specified value.
@@ -336,17 +336,20 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return The <code>float</code> array that contains the color components.
      */
     public float[] getColorArray() {
-        return new float[]{r, g, b, a};
+        return getColorArray(null);
     }
 
     /**
      * Stores the current r,g,b,a values into the given array.  The given array must have a
      * length of 4 or greater, or an array index out of bounds exception will be thrown.
      *
-     * @param store The <code>float</code> array to store the values into.
+     * @param store The <code>float</code> array to store the values into. If null, a new array is created.
      * @return The <code>float</code> array after storage.
      */
     public float[] getColorArray(float[] store) {
+        if (store == null) {
+            store = new float[4];
+        }
         store[0] = r;
         store[1] = g;
         store[2] = b;
@@ -401,11 +404,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return this ColorRGBA
      */
     public ColorRGBA interpolateLocal(ColorRGBA finalColor, float changeAmount) {
-        this.r = (1 - changeAmount) * this.r + changeAmount * finalColor.r;
-        this.g = (1 - changeAmount) * this.g + changeAmount * finalColor.g;
-        this.b = (1 - changeAmount) * this.b + changeAmount * finalColor.b;
-        this.a = (1 - changeAmount) * this.a + changeAmount * finalColor.a;
-        return this;
+        return interpolateLocal(this, finalColor, changeAmount);
     }
 
     /**
@@ -416,7 +415,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @param beginColor The beginning color (changeAmount=0).
      * @param finalColor The final color to interpolate towards (changeAmount=1).
      * @param changeAmount An amount between 0.0 - 1.0 representing a percentage
-     *  change from beginColor towards finalColor.
+     * change from beginColor towards finalColor.
      * @return this ColorRGBA
      */
     public ColorRGBA interpolateLocal(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmount) {
@@ -434,11 +433,11 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return a random <code>ColorRGBA</code> with an alpha set to 1.
      */
     public static ColorRGBA randomColor() {
-        ColorRGBA rVal = new ColorRGBA(0, 0, 0, 1);
-        rVal.r = FastMath.nextRandomFloat();
-        rVal.g = FastMath.nextRandomFloat();
-        rVal.b = FastMath.nextRandomFloat();
-        return rVal;
+        float r = FastMath.nextRandomFloat();
+        float g = FastMath.nextRandomFloat();
+        float b = FastMath.nextRandomFloat();
+        float a = 1.0f;
+        return new ColorRGBA(r, g, b, a);
     }
 
     /**
@@ -540,14 +539,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return The array, with r,g,b,a float values in that order.
      */
     public float[] toArray(float[] floats) {
-        if (floats == null) {
-            floats = new float[4];
-        }
-        floats[0] = r;
-        floats[1] = g;
-        floats[2] = b;
-        floats[3] = a;
-        return floats;
+        return getColorArray(floats);
     }
 
     /**
@@ -610,11 +602,11 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      */
     @Override
     public void write(JmeExporter e) throws IOException {
-        OutputCapsule capsule = e.getCapsule(this);
-        capsule.write(r, "r", 0);
-        capsule.write(g, "g", 0);
-        capsule.write(b, "b", 0);
-        capsule.write(a, "a", 0);
+        OutputCapsule oc = e.getCapsule(this);
+        oc.write(r, "r", 0);
+        oc.write(g, "g", 0);
+        oc.write(b, "b", 0);
+        oc.write(a, "a", 0);
     }
 
     /**
@@ -626,11 +618,11 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      */
     @Override
     public void read(JmeImporter importer) throws IOException {
-        InputCapsule capsule = importer.getCapsule(this);
-        r = capsule.readFloat("r", 0);
-        g = capsule.readFloat("g", 0);
-        b = capsule.readFloat("b", 0);
-        a = capsule.readFloat("a", 0);
+        InputCapsule ic = importer.getCapsule(this);
+        r = ic.readFloat("r", 0);
+        g = ic.readFloat("g", 0);
+        b = ic.readFloat("b", 0);
+        a = ic.readFloat("a", 0);
     }
 
     /**
@@ -641,10 +633,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      */
     public byte[] asBytesRGBA() {
         byte[] store = new byte[4];
-        store[0] = (byte) ((int) (r * 255) & 0xFF);
-        store[1] = (byte) ((int) (g * 255) & 0xFF);
-        store[2] = (byte) ((int) (b * 255) & 0xFF);
-        store[3] = (byte) ((int) (a * 255) & 0xFF);
+        store[0] = toByte(r);
+        store[1] = toByte(g);
+        store[2] = toByte(b);
+        store[3] = toByte(a);
         return store;
     }
 
@@ -656,11 +648,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return The integer representation of this <code>ColorRGBA</code> in a,r,g,b order.
      */
     public int asIntARGB() {
-        int argb = (((int) (a * 255) & 0xFF) << 24)
-                | (((int) (r * 255) & 0xFF) << 16)
-                | (((int) (g * 255) & 0xFF) << 8)
-                | (((int) (b * 255) & 0xFF));
-        return argb;
+        return toInt(a, r, g, b);
     }
 
     /**
@@ -671,11 +659,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return The integer representation of this <code>ColorRGBA</code> in r,g,b,a order.
      */
     public int asIntRGBA() {
-        int rgba = (((int) (r * 255) & 0xFF) << 24)
-                | (((int) (g * 255) & 0xFF) << 16)
-                | (((int) (b * 255) & 0xFF) << 8)
-                | (((int) (a * 255) & 0xFF));
-        return rgba;
+        return toInt(r, g, b, a);
     }
 
     /**
@@ -686,11 +670,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return The integer representation of this <code>ColorRGBA</code> in a,b,g,r order.
      */
     public int asIntABGR() {
-        int abgr = (((int) (a * 255) & 0xFF) << 24)
-                | (((int) (b * 255) & 0xFF) << 16)
-                | (((int) (g * 255) & 0xFF) << 8)
-                | (((int) (r * 255) & 0xFF));
-        return abgr;
+        return toInt(a, b, g, r);
     }
 
     /**
@@ -702,10 +682,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return this
      */
     public ColorRGBA fromIntARGB(int color) {
-        a = ((byte) (color >> 24) & 0xFF) / 255f;
-        r = ((byte) (color >> 16) & 0xFF) / 255f;
-        g = ((byte) (color >> 8) & 0xFF) / 255f;
-        b = ((byte) (color) & 0xFF) / 255f;
+        a = fromByte(color >> 24);
+        r = fromByte(color >> 16);
+        g = fromByte(color >> 8);
+        b = fromByte(color);
         return this;
     }
 
@@ -717,10 +697,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return this
      */
     public ColorRGBA fromIntRGBA(int color) {
-        r = ((byte) (color >> 24) & 0xFF) / 255f;
-        g = ((byte) (color >> 16) & 0xFF) / 255f;
-        b = ((byte) (color >> 8) & 0xFF) / 255f;
-        a = ((byte) (color) & 0xFF) / 255f;
+        r = fromByte(color >> 24);
+        g = fromByte(color >> 16);
+        b = fromByte(color >> 8);
+        a = fromByte(color);
         return this;
     }
 
@@ -732,10 +712,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return this
      */
     public ColorRGBA fromIntABGR(int color) {
-        a = ((byte) (color >> 24) & 0xFF) / 255f;
-        b = ((byte) (color >> 16) & 0xFF) / 255f;
-        g = ((byte) (color >> 8) & 0xFF) / 255f;
-        r = ((byte) (color) & 0xFF) / 255f;
+        a = fromByte(color >> 24);
+        b = fromByte(color >> 16);
+        g = fromByte(color >> 8);
+        r = fromByte(color);
         return this;
     }
 
@@ -824,5 +804,26 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         srgb.b = (float) Math.pow(b, invGamma);
         srgb.a = a;
         return srgb;
+    }
+
+    /**
+     * Helper method to convert a float (0-1) to a byte (0-255).
+     */
+    private byte toByte(float channel) {
+        return (byte) ((int) (channel * 255) & 0xFF);
+    }
+
+    /**
+     * Helper method to convert an int (shifted byte) to a float (0-1).
+     */
+    private float fromByte(int channelByte) {
+        return ((byte) (channelByte) & 0xFF) / 255f;
+    }
+
+    /**
+     * Helper method to combine four float channels into an int.
+     */
+    private int toInt(float c1, float c2, float c3, float c4) {
+        return (toByte(c1) << 24) | (toByte(c2) << 16) | (toByte(c3) << 8) | toByte(c4);
     }
 }
