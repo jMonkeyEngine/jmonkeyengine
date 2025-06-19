@@ -534,12 +534,12 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     /**
      * Saves this <code>ColorRGBA</code> into the given <code>float</code> array.
      *
-     * @param floats The <code>float</code> array to take this <code>ColorRGBA</code>.
+     * @param store The <code>float</code> array to take this <code>ColorRGBA</code>.
      * If null, a new <code>float[4]</code> is created.
      * @return The array, with r,g,b,a float values in that order.
      */
-    public float[] toArray(float[] floats) {
-        return getColorArray(floats);
+    public float[] toArray(float[] store) {
+        return getColorArray(store);
     }
 
     /**
