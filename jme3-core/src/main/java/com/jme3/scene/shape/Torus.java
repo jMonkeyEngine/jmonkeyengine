@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,69 +47,52 @@ import java.nio.ShortBuffer;
 /**
  * An ordinary (single holed) torus.
  * <p>
- * The center is by default the origin.
+ * The torus is centered at the origin by default, but its position and
+ * orientation can be transformed.
  * 
  * @author Mark Powell
  * @version $Revision: 4131 $, $Date: 2009-03-19 16:15:28 -0400 (Thu, 19 Mar 2009) $
  */
 public class Torus extends Mesh {
 
+    /**
+     * The number of samples around the circular cross-section of the torus.
+     */
     private int circleSamples;
-
+    /**
+     * The number of samples along the major radius of the torus.
+     */
     private int radialSamples;
     /**
-     * minor radius of the torus
+     * The minor radius of the torus.
      */
     private float innerRadius;
     /**
-     * major radius of the torus
+     * The major radius of the torus.
      */
     private float outerRadius;
 
+    /**
+     * Serialization-only constructor. Do not use.
+     */
     public Torus() {
     }
 
     /**
-     * Constructs a new Torus. Center is the origin, but the Torus may be
-     * transformed.
-     * 
-     * @param circleSamples
-     *            The number of samples along the circles.
-     * @param radialSamples
-     *            The number of samples along the radial.
-     * @param innerRadius minor radius of the torus
-     * @param outerRadius major radius of the torus
+     * Constructs a new `Torus` mesh centered at the origin.
+     *
+     * @param circleSamples The number of samples around the circular cross-section.
+     * Higher values result in a smoother tube.
+     * @param radialSamples The number of samples along the major radius (around the hole).
+     * Higher values result in a smoother overall torus shape.
+     * @param innerRadius   The minor radius of the torus (radius of the circular cross-section).
+     * @param outerRadius   The major radius of the torus (distance from the center of the hole to the center of the tube).
+     * @throws IllegalArgumentException if `circleSamples` or `radialSamples` are less than 3,
+     * or if `innerRadius` or `outerRadius` are negative.
      */
-    public Torus(int circleSamples, int radialSamples,
-            float innerRadius, float outerRadius) {
+    public Torus(int circleSamples, int radialSamples, float innerRadius, float outerRadius) {
         super();
         updateGeometry(circleSamples, radialSamples, innerRadius, outerRadius);
-    }
-
-    public int getCircleSamples() {
-        return circleSamples;
-    }
-
-    public float getInnerRadius() {
-        return innerRadius;
-    }
-
-    public float getOuterRadius() {
-        return outerRadius;
-    }
-
-    public int getRadialSamples() {
-        return radialSamples;
-    }
-
-    @Override
-    public void read(JmeImporter importer) throws IOException {
-        super.read(importer);
-        InputCapsule capsule = importer.getCapsule(this);
-        circleSamples = capsule.readInt("circleSamples", 0);
-        radialSamples = capsule.readInt("radialSamples", 0);
-        innerRadius = capsule.readFloat("innerRadius", 0);
-        outerRadius = capsule.readFloat("outerRadius", 0);
     }
 
     private void setGeometryData() {
@@ -118,7 +101,7 @@ public class Torus extends Mesh {
         FloatBuffer fpb = BufferUtils.createVector3Buffer(vertCount);
         setBuffer(Type.Position, 3, fpb);
 
-        // allocate normals if requested
+        // allocate normals
         FloatBuffer fnb = BufferUtils.createVector3Buffer(vertCount);
         setBuffer(Type.Normal, 3, fnb);
 
@@ -129,109 +112,99 @@ public class Torus extends Mesh {
         // generate geometry
         float inverseCircleSamples = 1.0f / circleSamples;
         float inverseRadialSamples = 1.0f / radialSamples;
-        int i = 0;
         // generate the cylinder itself
-        Vector3f radialAxis = new Vector3f(), torusMiddle = new Vector3f(), tempNormal = new Vector3f();
-        for (int circleCount = 0; circleCount < circleSamples; circleCount++) {
+        Vector3f radialAxis = new Vector3f();
+        Vector3f torusMiddle = new Vector3f();
+        Vector3f tempNormal = new Vector3f();
+
+        for (int circleCount = 0; circleCount <= circleSamples; circleCount++) {
             // compute center point on torus circle at specified angle
             float circleFraction = circleCount * inverseCircleSamples;
             float theta = FastMath.TWO_PI * circleFraction;
             float cosTheta = FastMath.cos(theta);
             float sinTheta = FastMath.sin(theta);
+
+            // Calculate the center point of the current circular cross-section on the major radius
             radialAxis.set(cosTheta, sinTheta, 0);
             radialAxis.mult(outerRadius, torusMiddle);
 
             // compute slice vertices with duplication at end point
-            int iSave = i;
-            for (int radialCount = 0; radialCount < radialSamples; radialCount++) {
+            for (int radialCount = 0; radialCount <= radialSamples; radialCount++) {
                 float radialFraction = radialCount * inverseRadialSamples;
                 // in [0,1)
                 float phi = FastMath.TWO_PI * radialFraction;
                 float cosPhi = FastMath.cos(phi);
                 float sinPhi = FastMath.sin(phi);
+
+                // Calculate normal vector
                 tempNormal.set(radialAxis).multLocal(cosPhi);
                 tempNormal.z += sinPhi;
-                fnb.put(tempNormal.x).put(tempNormal.y).put(
-                        tempNormal.z);
-       
+                fnb.put(tempNormal.x).put(tempNormal.y).put(tempNormal.z);
+
+                // Calculate vertex position
                 tempNormal.multLocal(innerRadius).addLocal(torusMiddle);
-                fpb.put(tempNormal.x).put(tempNormal.y).put(
-                        tempNormal.z);
+                fpb.put(tempNormal.x).put(tempNormal.y).put(tempNormal.z);
 
+                // Calculate texture coordinates
                 ftb.put(radialFraction).put(circleFraction);
-                i++;
             }
-
-            BufferUtils.copyInternalVector3(fpb, iSave, i);
-            BufferUtils.copyInternalVector3(fnb, iSave, i);
-
-            ftb.put(1.0f).put(circleFraction);
-
-            i++;
-        }
-
-        // duplicate the cylinder ends to form a torus
-        for (int iR = 0; iR <= radialSamples; iR++, i++) {
-            BufferUtils.copyInternalVector3(fpb, iR, i);
-            BufferUtils.copyInternalVector3(fnb, iR, i);
-            BufferUtils.copyInternalVector2(ftb, iR, i);
-            ftb.put(i * 2 + 1, 1.0f);
         }
     }
 
     private void setIndexData() {
-        // allocate connectivity
-        int triCount = 2 * circleSamples * radialSamples;
+        // Each quad forms two triangles, and there are radialSamples * circleSamples quads.
+        int totalTriangles = 2 * circleSamples * radialSamples;
+        ShortBuffer indexBuffer = BufferUtils.createShortBuffer(3 * totalTriangles);
+        setBuffer(Type.Index, 3, indexBuffer);
 
-        ShortBuffer sib = BufferUtils.createShortBuffer(3 * triCount);
-        setBuffer(Type.Index, 3, sib);
+        int currentQuadStartIndex = 0;
+        for (int circleIter = 0; circleIter < circleSamples; circleIter++) {
+            for (int radialIter = 0; radialIter < radialSamples; radialIter++) {
+                int i0 = currentQuadStartIndex + radialIter;
+                int i1 = i0 + 1;
+                int i2 = i0 + (radialSamples + 1);
+                int i3 = i2 + 1;
 
-        int i;
-        // generate connectivity
-        int connectionStart = 0;
-        int index = 0;
-        for (int circleCount = 0; circleCount < circleSamples; circleCount++) {
-            int i0 = connectionStart;
-            int i1 = i0 + 1;
-            connectionStart += radialSamples + 1;
-            int i2 = connectionStart;
-            int i3 = i2 + 1;
-            for (i = 0; i < radialSamples; i++, index += 6) {
-//                if (true) {
-                    sib.put((short)i0++);
-                    sib.put((short)i2);
-                    sib.put((short)i1);
-                    sib.put((short)i1++);
-                    sib.put((short)i2++);
-                    sib.put((short)i3++);
+                // First triangle of the quad
+                indexBuffer.put((short) i0);
+                indexBuffer.put((short) i2);
+                indexBuffer.put((short) i1);
 
-//                    getIndexBuffer().put(i0++);
-//                    getIndexBuffer().put(i2);
-//                    getIndexBuffer().put(i1);
-//                    getIndexBuffer().put(i1++);
-//                    getIndexBuffer().put(i2++);
-//                    getIndexBuffer().put(i3++);
-//                } else {
-//                    getIndexBuffer().put(i0++);
-//                    getIndexBuffer().put(i1);
-//                    getIndexBuffer().put(i2);
-//                    getIndexBuffer().put(i1++);
-//                    getIndexBuffer().put(i3++);
-//                    getIndexBuffer().put(i2++);
-//                }
+                // Second triangle of the quad
+                indexBuffer.put((short) i1);
+                indexBuffer.put((short) i2);
+                indexBuffer.put((short) i3);
             }
+            currentQuadStartIndex += (radialSamples + 1);
         }
     }
 
     /**
-     * Rebuilds this torus based on a new set of parameters.
-     * 
-     * @param circleSamples the number of samples along the circles.
-     * @param radialSamples the number of samples along the radial.
-     * @param innerRadius minor radius of the torus
-     * @param outerRadius major radius of the torus
+     * Rebuilds the torus mesh based on a new set of parameters.
+     * This method updates the internal parameters and then regenerates
+     * the vertex data, index data, updates the bounding volume, and counts.
+     *
+     * @param circleSamples The number of samples around the circular cross-section.
+     * @param radialSamples The number of samples along the major radius.
+     * @param innerRadius   The minor radius of the torus.
+     * @param outerRadius   The major radius of the torus.
+     * @throws IllegalArgumentException if `circleSamples` or `radialSamples` are less than 3,
+     * or if `innerRadius` or `outerRadius` are negative.
      */
     public void updateGeometry(int circleSamples, int radialSamples, float innerRadius, float outerRadius) {
+        if (circleSamples < 3) {
+            throw new IllegalArgumentException("circleSamples must be at least 3.");
+        }
+        if (radialSamples < 3) {
+            throw new IllegalArgumentException("radialSamples must be at least 3.");
+        }
+        if (innerRadius < 0) {
+            throw new IllegalArgumentException("innerRadius cannot be negative.");
+        }
+        if (outerRadius < 0) {
+            throw new IllegalArgumentException("outerRadius cannot be negative.");
+        }
+
         this.circleSamples = circleSamples;
         this.radialSamples = radialSamples;
         this.innerRadius = innerRadius;
@@ -242,14 +215,60 @@ public class Torus extends Mesh {
         updateCounts();
     }
 
+    /**
+     * Returns the number of samples around the circular cross-section of the torus.
+     *
+     * @return The number of circle samples.
+     */
+    public int getCircleSamples() {
+        return circleSamples;
+    }
+
+    /**
+     * Returns the minor radius of the torus.
+     *
+     * @return The inner radius.
+     */
+    public float getInnerRadius() {
+        return innerRadius;
+    }
+
+    /**
+     * Returns the major radius of the torus.
+     *
+     * @return The outer radius.
+     */
+    public float getOuterRadius() {
+        return outerRadius;
+    }
+
+    /**
+     * Returns the number of samples along the major radius of the torus.
+     *
+     * @return The number of radial samples.
+     */
+    public int getRadialSamples() {
+        return radialSamples;
+    }
+
     @Override
-    public void write(JmeExporter e) throws IOException {
-        super.write(e);
-        OutputCapsule capsule = e.getCapsule(this);
-        capsule.write(circleSamples, "circleSamples", 0);
-        capsule.write(radialSamples, "radialSamples", 0);
-        capsule.write(innerRadius, "innerRadius", 0);
-        capsule.write(outerRadius, "outerRadius", 0);
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(circleSamples, "circleSamples", 0);
+        oc.write(radialSamples, "radialSamples", 0);
+        oc.write(innerRadius, "innerRadius", 0);
+        oc.write(outerRadius, "outerRadius", 0);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+        circleSamples = ic.readInt("circleSamples", 0);
+        radialSamples = ic.readInt("radialSamples", 0);
+        innerRadius = ic.readFloat("innerRadius", 0);
+        outerRadius = ic.readFloat("outerRadius", 0);
     }
 
 }
