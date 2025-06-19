@@ -63,6 +63,16 @@ import java.io.IOException;
  */
 public class ChaseCamera implements ActionListener, AnalogListener, Control, JmeCloneable {
 
+    private static final String[] mappings = new String[]{
+            CameraInput.CHASECAM_TOGGLEROTATE,
+            CameraInput.CHASECAM_DOWN,
+            CameraInput.CHASECAM_UP,
+            CameraInput.CHASECAM_MOVELEFT,
+            CameraInput.CHASECAM_MOVERIGHT,
+            CameraInput.CHASECAM_ZOOMIN,
+            CameraInput.CHASECAM_ZOOMOUT
+    };
+
     // --- Camera State and Configuration Fields ---
     protected Spatial target = null;
     protected Camera cam = null;
@@ -255,15 +265,6 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * @param inputManager The {@link InputManager} instance to register inputs with.
      */
     public final void registerWithInput(InputManager inputManager) {
-        String[] inputs = {
-                CameraInput.CHASECAM_TOGGLEROTATE,
-                CameraInput.CHASECAM_DOWN,
-                CameraInput.CHASECAM_UP,
-                CameraInput.CHASECAM_MOVELEFT,
-                CameraInput.CHASECAM_MOVERIGHT,
-                CameraInput.CHASECAM_ZOOMIN,
-                CameraInput.CHASECAM_ZOOMOUT
-        };
 
         this.inputManager = inputManager;
 
@@ -287,7 +288,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
         inputManager.addMapping(CameraInput.CHASECAM_TOGGLEROTATE,
                 new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
 
-        inputManager.addListener(this, inputs);
+        inputManager.addListener(this, mappings);
     }
 
     /**
@@ -298,13 +299,11 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * @param inputManager The {@link InputManager} to clean up.
      */
     public void cleanupWithInput(InputManager inputManager) {
-        inputManager.deleteMapping(CameraInput.CHASECAM_TOGGLEROTATE);
-        inputManager.deleteMapping(CameraInput.CHASECAM_DOWN);
-        inputManager.deleteMapping(CameraInput.CHASECAM_UP);
-        inputManager.deleteMapping(CameraInput.CHASECAM_MOVELEFT);
-        inputManager.deleteMapping(CameraInput.CHASECAM_MOVERIGHT);
-        inputManager.deleteMapping(CameraInput.CHASECAM_ZOOMIN);
-        inputManager.deleteMapping(CameraInput.CHASECAM_ZOOMOUT);
+        for (String s : mappings) {
+            if (inputManager.hasMapping(s)) {
+                inputManager.deleteMapping(s);
+            }
+        }
         inputManager.removeListener(this);
     }
 
