@@ -54,6 +54,8 @@ public class NewtonianParticleInfluencer extends DefaultParticleInfluencer {
     /** Emitters tangent rotation factor. */
     protected float surfaceTangentRotation;
 
+    protected Matrix3f tempMat3 = new Matrix3f();
+
     /**
      * Constructor. Sets velocity variation to 0.0f.
      */
@@ -71,9 +73,8 @@ public class NewtonianParticleInfluencer extends DefaultParticleInfluencer {
             // calculating surface tangent (velocity contains the 'normal' value)
             temp.set(particle.velocity.z * surfaceTangentFactor, particle.velocity.y * surfaceTangentFactor, -particle.velocity.x * surfaceTangentFactor);
             if (surfaceTangentRotation != 0.0f) {// rotating the tangent
-                Matrix3f m = new Matrix3f();
-                m.fromAngleNormalAxis(FastMath.PI * surfaceTangentRotation, particle.velocity);
-                temp = m.multLocal(temp);
+                tempMat3.fromAngleNormalAxis(FastMath.PI * surfaceTangentRotation, particle.velocity);
+                temp = tempMat3.multLocal(temp);
             }
             // applying normal factor (this must be done first)
             particle.velocity.multLocal(normalVelocity);
