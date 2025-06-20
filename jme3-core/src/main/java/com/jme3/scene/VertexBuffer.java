@@ -1168,7 +1168,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         stride = ic.readInt("stride", 0);
         instanceSpan = ic.readInt("instanceSpan", 0);
         name = ic.readString("name", null);
-        
+
         componentsLength = components * format.getComponentSize();
 
         String dataName = "data" + format.name();
@@ -1194,14 +1194,28 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         }
     }
 
+    /**
+     * Returns the name of this `VertexBuffer`. If no name has been explicitly
+     * set, a default name is generated based on its class name and buffer type
+     * (e.g., "VertexBuffer(Position)").
+     *
+     * @return The name of the `VertexBuffer`.
+     */
     public String getName() {
         if (name == null) {
-            name = getClass().getSimpleName() + "(" + getBufferType().name() + ")";
+            return String.format("%s(%s)", getClass().getSimpleName(), getBufferType().name());
         }
         return name;
     }
 
+    /**
+     * Sets a custom name for this `VertexBuffer`.
+     *
+     * @param name The new name for the `VertexBuffer`. Can be null to revert
+     * to the default generated name.
+     */
     public void setName(String name) {
         this.name = name;
     }
+    
 }
