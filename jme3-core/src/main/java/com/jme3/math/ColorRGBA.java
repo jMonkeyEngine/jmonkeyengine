@@ -347,14 +347,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return The <code>float</code> array after storage.
      */
     public float[] getColorArray(float[] store) {
-        if (store == null) {
-            store = new float[4];
-        }
-        store[0] = r;
-        store[1] = g;
-        store[2] = b;
-        store[3] = a;
-        return store;
+        return toArray(store);
     }
 
     /**
@@ -539,7 +532,14 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @return The array, with r,g,b,a float values in that order.
      */
     public float[] toArray(float[] store) {
-        return getColorArray(store);
+        if (store == null) {
+            store = new float[4];
+        }
+        store[0] = r;
+        store[1] = g;
+        store[2] = b;
+        store[3] = a;
+        return store;
     }
 
     /**
@@ -597,12 +597,12 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * Serialize this color to the specified exporter, for example when
      * saving to a J3O file.
      *
-     * @param e (not null)
+     * @param ex (not null)
      * @throws IOException from the exporter
      */
     @Override
-    public void write(JmeExporter e) throws IOException {
-        OutputCapsule oc = e.getCapsule(this);
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(r, "r", 0);
         oc.write(g, "g", 0);
         oc.write(b, "b", 0);
@@ -613,12 +613,12 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * De-serialize this color from the specified importer, for example when
      * loading from a J3O file.
      *
-     * @param importer (not null)
+     * @param im (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter importer) throws IOException {
-        InputCapsule ic = importer.getCapsule(this);
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = im.getCapsule(this);
         r = ic.readFloat("r", 0);
         g = ic.readFloat("g", 0);
         b = ic.readFloat("b", 0);
@@ -824,6 +824,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * Helper method to combine four float channels into an int.
      */
     private int toInt(float c1, float c2, float c3, float c4) {
-        return (toByte(c1) << 24) | (toByte(c2) << 16) | (toByte(c3) << 8) | toByte(c4);
+        int r = ((int) (c1 * 255) & 0xFF);
+        int g = ((int) (c2 * 255) & 0xFF);
+        int b = ((int) (c3 * 255) & 0xFF);
+        int a = ((int) (c4 * 255) & 0xFF);
+        return (r << 24) | (g << 16) | (b << 8) | a;
     }
 }
