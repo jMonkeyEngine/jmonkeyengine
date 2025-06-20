@@ -3,15 +3,17 @@ package com.jme3.math;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * @author capdevon
+ */
 public class ColorRGBATest {
 
     @Test
     public void testIntColor() {
-        float r = 1,
-                g = 0.2f,
-                b = 0.6f,
-                a = 0.8f;
-
+        float r = 1;
+        float g = 0.2f;
+        float b = 0.6f;
+        float a = 0.8f;
         ColorRGBA color = new ColorRGBA(r, g, b, a);
 
         int rgba = color.asIntRGBA();
@@ -22,9 +24,9 @@ public class ColorRGBATest {
         Assert.assertEquals(-862374913, abgr);
         Assert.assertEquals(-855690343, argb);
 
-        validateColor(new ColorRGBA().fromIntRGBA(rgba), 1.0f, 0.2f, 0.6f, 0.8f);
-        validateColor(new ColorRGBA().fromIntABGR(abgr), 1.0f, 0.2f, 0.6f, 0.8f);
-        validateColor(new ColorRGBA().fromIntARGB(argb), 1.0f, 0.2f, 0.6f, 0.8f);
+        validateColor(new ColorRGBA().fromIntRGBA(rgba), r, g, b, a);
+        validateColor(new ColorRGBA().fromIntABGR(abgr), r, g, b, a);
+        validateColor(new ColorRGBA().fromIntARGB(argb), r, g, b, a);
     }
 
     private void validateColor(ColorRGBA color, float r, float g, float b, float a) {
