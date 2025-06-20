@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     /**
      * Type of buffer. Specifies the actual attribute it defines.
      */
-    public static enum Type {
+    public enum Type {
         /**
          * Position of the vertex (3 floats)
          */
@@ -233,7 +233,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * is used. This can determine if a vertex buffer is placed in VRAM
      * or held in video memory, but no guarantees are made- it's only a hint.
      */
-    public static enum Usage {
+    public enum Usage {
         /**
          * Mesh data is sent once and very rarely updated.
          */
@@ -261,7 +261,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * For the {@link Format#Half} type, {@link ByteBuffer}s should
      * be used.
      */
-    public static enum Format {
+    public enum Format {
         /**
          * Half precision floating point. 2 bytes, signed.
          */
@@ -1130,6 +1130,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         oc.write(offset, "offset", 0);
         oc.write(stride, "stride", 0);
         oc.write(instanceSpan, "instanceSpan", 0);
+        oc.write(name, "name", null);
 
         String dataName = "data" + format.name();
         Buffer roData = getDataReadOnly();
@@ -1166,6 +1167,8 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         offset = ic.readInt("offset", 0);
         stride = ic.readInt("stride", 0);
         instanceSpan = ic.readInt("instanceSpan", 0);
+        name = ic.readString("name", null);
+        
         componentsLength = components * format.getComponentSize();
 
         String dataName = "data" + format.name();
