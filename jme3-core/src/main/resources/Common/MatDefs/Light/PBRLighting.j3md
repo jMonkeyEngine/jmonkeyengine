@@ -132,6 +132,30 @@ MaterialDef PBR Lighting {
         Boolean UseVertexColor
 
         Boolean BackfaceShadows : false
+
+        Boolean UseFog
+        Color FogColor
+        Vector2 LinearFog
+        Float ExpFog
+        Float ExpSqFog
+
+        Texture2D SunLightExposureMap
+        Boolean UseVertexColorsAsSunIntensity
+        Float StaticSunIntensity
+        Boolean BrightenIndoorShadows  //should be set true when shadows are enabled, in order to prevent areas with low SunExposure from being way too dark when shadows are cast
+
+         // debug the final value of the selected layer as a color output            
+        Int DebugValuesMode
+            // Layers:
+            //   0 - albedo (unshaded)
+            //   1 - normals
+            //   2 - roughness
+            //   3 - metallic
+            //   4 - ao
+            //   5 - emissive
+            //   6 - exposure
+            //   7 - alpha
+            //   8 - geometryNormals
     }
 
     Technique {
@@ -182,6 +206,15 @@ MaterialDef PBR Lighting {
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
             HORIZON_FADE: HorizonFade
+            EXPOSUREMAP : SunLightExposureMap
+            USE_VERTEX_COLORS_AS_SUN_INTENSITY : UseVertexColorsAsSunIntensity
+            STATIC_SUN_INTENSITY : StaticSunIntensity
+            BRIGHTEN_INDOOR_SHADOWS : BrightenIndoorShadows
+            DEBUG_VALUES_MODE : DebugValuesMode        
+            USE_FOG : UseFog
+            FOG_LINEAR : LinearFog
+            FOG_EXP : ExpFog
+            FOG_EXPSQ : ExpSqFog
         }
     }
 

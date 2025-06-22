@@ -3,7 +3,7 @@
 [versions]
 
 checkstyle = "9.3"
-lwjgl3 = "3.3.3"
+lwjgl3 = "3.3.6"
 nifty = "1.4.3"
 
 [libraries]
@@ -14,7 +14,7 @@ androidx-annotation = "androidx.annotation:annotation:1.3.0"
 androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.4.0"
 gradle-git = "org.ajoberstar:gradle-git:1.2.0"
 gradle-retrolambda = "me.tatarka:gradle-retrolambda:3.7.1"
-groovy-test = "org.codehaus.groovy:groovy-test:3.0.22"
+groovy-test = "org.codehaus.groovy:groovy-test:3.0.24"
 gson = "com.google.code.gson:gson:2.9.1"
 j-ogg-vorbis = "com.github.stephengold:j-ogg-vorbis:1.0.6"
 jbullet = "com.github.stephengold:jbullet:1.0.3"
@@ -23,7 +23,7 @@ jna = "net.java.dev.jna:jna:5.10.0"
 jnaerator-runtime = "com.nativelibs4java:jnaerator-runtime:0.12"
 junit4 = "junit:junit:4.13.2"
 lwjgl2 = "org.jmonkeyengine:lwjgl:2.9.5"
-lwjgl3-awt = "org.lwjglx:lwjgl3-awt:0.1.8"
+lwjgl3-awt = "org.lwjglx:lwjgl3-awt:0.2.3"
 
 lwjgl3-base     = { module = "org.lwjgl:lwjgl",          version.ref = "lwjgl3" }
 lwjgl3-glfw     = { module = "org.lwjgl:lwjgl-glfw",     version.ref = "lwjgl3" }

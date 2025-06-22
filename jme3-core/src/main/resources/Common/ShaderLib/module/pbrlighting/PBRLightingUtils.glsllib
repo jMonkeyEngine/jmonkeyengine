@@ -1,592 +1,713 @@
 #ifndef __PBR_LIGHT_UTILS_MODULE__
-#define __PBR_LIGHT_UTILS_MODULE__
+    #define __PBR_LIGHT_UTILS_MODULE__
 
-#import "Common/ShaderLib/Math.glsllib"
-#import "Common/ShaderLib/PBR.glsllib"
-#import "Common/ShaderLib/Parallax.glsllib"
+    #import "Common/ShaderLib/Math.glsllib"
+    #import "Common/ShaderLib/PBR.glsllib"
+    #import "Common/ShaderLib/Parallax.glsllib"
 
-#import "Common/ShaderLib/module/Light.glsl"
-#import "Common/ShaderLib/module/PBRSurface.glsl"
-
-// enable all apis
-// #define ENABLE_PBRLightingUtils_getWorldPosition 1
-// #define ENABLE_PBRLightingUtils_getWorldNormal 1
-// #define ENABLE_PBRLightingUtils_getWorldTangent 1
-// #define ENABLE_PBRLightingUtils_getTexCoord 1
-// #define ENABLE_PBRLightingUtils_newLight 1
-// #define ENABLE_PBRLightingUtils_computeLightInWorldSpace 1
-// #define ENABLE_PBRLightingUtils_readPBRSurface 1
-// #define ENABLE_PBRLightingUtils_computeDirectLight 1
-// #define ENABLE_PBRLightingUtils_computeDirectLightContribution 1
-// #define ENABLE_PBRLightingUtils_computeProbesContribution 1
-
-#if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getWorldPosition)
-    varying vec3 wPosition;
-#endif 
-
-#if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getWorldNormal)
-    varying vec3 wNormal;
-#endif 
-
-#if (defined(ENABLE_PBRLightingUtils_readPBRSurface)&&(defined(NORMALMAP)||defined(PARALLAXMAP)))||defined(ENABLE_PBRLightingUtils_getWorldTangent)
-    varying vec4 wTangent;
-#endif 
-
-#if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getTexCoord)
-    varying vec2 texCoord;
-    #ifdef SEPARATE_TEXCOORD
-        varying vec2 texCoord2;
-    #endif
-#endif
-
-
-
-#ifdef ENABLE_PBRLightingUtils_readPBRSurface   
-    varying vec4 Color;
+    #import "Common/ShaderLib/module/Light.glsl"
+    #import "Common/ShaderLib/module/PBRSurface.glsl"
     
-    uniform vec4 g_AmbientLightColor;   
-    uniform float m_Roughness;
-    uniform float m_Metallic;
+    // enable all apis
+    // #define ENABLE_PBRLightingUtils_getWorldPosition 1
+    // #define ENABLE_PBRLightingUtils_getLocalPosition 1
+    // #define ENABLE_PBRLightingUtils_getWorldNormal 1
+    // #define ENABLE_PBRLightingUtils_getWorldTangent 1
+    // #define ENABLE_PBRLightingUtils_getTexCoord 1
+    // #define ENABLE_PBRLightingUtils_newLight 1
+    // #define ENABLE_PBRLightingUtils_computeLightInWorldSpace 1
+    // #define ENABLE_PBRLightingUtils_readPBRSurface 1
+    // #define ENABLE_PBRLightingUtils_computeDirectLight 1
+    // #define ENABLE_PBRLightingUtils_computeDirectLightContribution 1
+    // #define ENABLE_PBRLightingUtils_computeProbesContribution 1
 
+    #if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getWorldPosition)
+        varying vec3 wPosition;
+    #endif 
 
-    #ifdef BASECOLORMAP
-        uniform sampler2D m_BaseColorMap;
-    #endif
+    #if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getWorldNormal)
+        varying vec3 wNormal;
+    #endif 
 
-    #ifdef USE_PACKED_MR
-        uniform sampler2D m_MetallicRoughnessMap;
-    #else
-        #ifdef METALLICMAP
-            uniform sampler2D m_MetallicMap;
+    #if (defined(ENABLE_PBRLightingUtils_readPBRSurface)&&(defined(NORMALMAP)||defined(PARALLAXMAP)))||defined(ENABLE_PBRLightingUtils_getWorldTangent)
+        varying vec4 wTangent;
+    #endif 
+
+    #if defined(ENABLE_PBRLightingUtils_readPBRSurface)||defined(ENABLE_PBRLightingUtils_getTexCoord)
+        varying vec2 texCoord;
+        #ifdef SEPARATE_TEXCOORD
+            varying vec2 texCoord2;
         #endif
-        #ifdef ROUGHNESSMAP
-            uniform sampler2D m_RoughnessMap;
-        #endif
     #endif
-
-    #ifdef EMISSIVE
-        uniform vec4 m_Emissive;
-    #endif
-    #ifdef EMISSIVEMAP
-        uniform sampler2D m_EmissiveMap;
-    #endif
-    #if defined(EMISSIVE) || defined(EMISSIVEMAP)
-        uniform float m_EmissivePower;
-        uniform float m_EmissiveIntensity;
+    
+    #if defined(ENABLE_PBRLightingUtils_getLocalPosition)
+        varying vec3 lPosition;
     #endif 
 
 
 
-    #ifdef SPECGLOSSPIPELINE
-        uniform vec4 m_Specular;
-        uniform float m_Glossiness;
-        #ifdef USE_PACKED_SG
-            uniform sampler2D m_SpecularGlossinessMap;
-        #else
-            uniform sampler2D m_SpecularMap;
-            uniform sampler2D m_GlossinessMap;
+    #ifdef ENABLE_PBRLightingUtils_readPBRSurface   
+        varying vec4 Color;
+
+        uniform float m_Roughness;
+        uniform float m_Metallic;
+
+
+        #ifdef BASECOLORMAP
+            uniform sampler2D m_BaseColorMap;
         #endif
-    #endif
 
-    #ifdef PARALLAXMAP
-        uniform sampler2D m_ParallaxMap;  
-    #endif
-    #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
-        uniform float m_ParallaxHeight;
-    #endif
-
-    #ifdef LIGHTMAP
-        uniform sampler2D m_LightMap;
-    #endif
-
-    #ifdef AO_STRENGTH
-        uniform float m_AoStrength;
-    #endif
-    
-    #if defined(NORMALMAP) || defined(PARALLAXMAP)
-        uniform sampler2D m_NormalMap;       
-    #endif
-    #ifdef NORMALSCALE
-        uniform float m_NormalScale;
-    #endif
-
-    #ifdef DISCARD_ALPHA
-        uniform float m_AlphaDiscardThreshold;
-    #endif
-
-    #if defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY)
-        varying vec4 vertColors;
-    #endif
-    #ifdef STATIC_SUN_INTENSITY
-        uniform float m_StaticSunIntensity;
-    #endif
-
-#endif
-
-#if defined(ENABLE_PBRLightingUtils_computeDirectLight) || defined(ENABLE_PBRLightingUtils_computeDirectLightContribution)
-    // Specular-AA
-    #ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
-        uniform float m_SpecularAASigma;
-    #endif
-    #ifdef SPECULAR_AA_THRESHOLD
-        uniform float m_SpecularAAKappa;
-    #endif
-#endif
-
-
-
-
-#ifdef ENABLE_PBRLightingUtils_computeProbesContribution
-    #if NB_PROBES >= 1
-        uniform samplerCube g_PrefEnvMap;
-        uniform vec3 g_ShCoeffs[9];
-        uniform mat4 g_LightProbeData;
-    #endif
-    #if NB_PROBES >= 2
-        uniform samplerCube g_PrefEnvMap2;
-        uniform vec3 g_ShCoeffs2[9];
-        uniform mat4 g_LightProbeData2;
-    #endif
-    #if NB_PROBES == 3
-        uniform samplerCube g_PrefEnvMap3;
-        uniform vec3 g_ShCoeffs3[9];
-        uniform mat4 g_LightProbeData3;
-    #endif
-#endif
-
-#ifdef ENABLE_PBRLightingUtils_getWorldPosition
-    vec3 PBRLightingUtils_getWorldPosition(){
-        return wPosition.xyz;
-    }
-#endif
-
-#ifdef ENABLE_PBRLightingUtils_getWorldNormal
-    vec3 PBRLightingUtils_getWorldNormal(){
-        return normalize(wNormal.xyz);
-    }
-#endif
-
-#ifdef ENABLE_PBRLightingUtils_getWorldTangent
-    vec4 PBRLightingUtils_getWorldTangent(){
-        return wTangent;
-    }
-#endif
-
-#ifdef ENABLE_PBRLightingUtils_getTexCoord
-    vec2 PBRLightingUtils_getTexCoord(){
-        return texCoord;
-    }
-
-    #ifdef SEPARATE_TEXCOORD
-        vec2 PBRLightingUtils_getTexCoord2(){
-            return texCoord2;
-        }
-    #endif
-#endif
-
-
-
-#if defined(ENABLE_PBRLightingUtils_computeDirectLightContribution) || defined(ENABLE_PBRLightingUtils_newLight)
-    Light PBRLightingUtils_newLight(vec4 color, vec3 position, float type, float invRadius, float spotAngleCos, vec3 spotDirection){
-        Light l;
-        l.color = color;
-        l.position = position;
-        l.type = type;
-        l.invRadius = invRadius;
-        l.spotAngleCos = spotAngleCos;
-        l.spotDirection = spotDirection;
-        l.ready = false;
-        return l;
-    }
-#endif
-
-
-#if  defined(ENABLE_PBRLightingUtils_computeDirectLightContribution) || defined(ENABLE_PBRLightingUtils_computeLightInWorldSpace)
-    void PBRLightingUtils_computeLightInWorldSpace(vec3 worldPos,vec3 worldNormal, vec3 viewDir, inout Light light){
-        if(light.ready) return;
-
-        // lightComputeDir
-        float posLight = step(0.5, light.type);     
-        light.vector = light.position.xyz * sign(posLight - 0.5) - (worldPos * posLight); //tempVec lightVec
-
-        vec3 L; // lightDir
-        float dist;
-        Math_lengthAndNormalize(light.vector,dist,L);
-
-        float invRange=light.invRadius; // position.w
-        const float light_threshold=0.01;
-
-        #ifdef SRGB
-            light.fallOff = (1.0 - invRange * dist) / (1.0 + invRange * dist * dist); // lightDir.w
-            light.fallOff = clamp(light.fallOff, 1.0 - posLight, 1.0);
+        #ifdef USE_PACKED_MR
+            uniform sampler2D m_MetallicRoughnessMap;
         #else
-            light.fallOff = clamp(1.0 - invRange * dist * posLight, 0.0, 1.0);
-        #endif
-        
-        // computeSpotFalloff
-        if(light.type>1.){
-            vec3 spotdir = normalize(light.spotDirection);
-            float curAngleCos = dot(-L, spotdir);    
-            float innerAngleCos = floor(light.spotAngleCos) * 0.001;
-            float outerAngleCos = fract(light.spotAngleCos);
-            float innerMinusOuter = innerAngleCos - outerAngleCos;
-            float falloff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
-            #ifdef SRGB
-                // Use quadratic falloff (notice the ^4)
-                falloff = pow(clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0), 4.0);
+            #ifdef METALLICMAP
+                uniform sampler2D m_MetallicMap;
             #endif
-            light.fallOff*=falloff;
+            #ifdef ROUGHNESSMAP
+                uniform sampler2D m_RoughnessMap;
+            #endif
+        #endif
+
+        #ifdef EMISSIVE
+            uniform vec4 m_Emissive;
+        #endif
+        #ifdef EMISSIVEMAP
+            uniform sampler2D m_EmissiveMap;
+        #endif
+        #if defined(EMISSIVE) || defined(EMISSIVEMAP)
+            uniform float m_EmissivePower;
+            uniform float m_EmissiveIntensity;
+        #endif 
+
+
+
+        #ifdef SPECGLOSSPIPELINE
+            uniform vec4 m_Specular;
+            uniform float m_Glossiness;
+            #ifdef USE_PACKED_SG
+                uniform sampler2D m_SpecularGlossinessMap;
+            #else
+                uniform sampler2D m_SpecularMap;
+                uniform sampler2D m_GlossinessMap;
+            #endif
+        #endif
+
+        #ifdef PARALLAXMAP
+            uniform sampler2D m_ParallaxMap;  
+        #endif
+        #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
+            uniform float m_ParallaxHeight;
+        #endif
+
+        #ifdef LIGHTMAP
+            uniform sampler2D m_LightMap;
+        #endif
+
+        #ifdef AO_STRENGTH
+            uniform float m_AoStrength;
+        #endif
+
+        #if defined(NORMALMAP) || defined(PARALLAXMAP)
+            uniform sampler2D m_NormalMap;       
+        #endif
+        #ifdef NORMALSCALE
+            uniform float m_NormalScale;
+        #endif
+        
+        #ifdef DISCARD_ALPHA
+            uniform float m_AlphaDiscardThreshold;
+        #endif        
+    #endif
+
+    #if defined(ENABLE_PBRLightingUtils_computeDirectLight) || defined(ENABLE_PBRLightingUtils_computeDirectLightContribution)
+    
+        // Specular-AA
+        #ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
+            uniform float m_SpecularAASigma;
+        #endif
+        #ifdef SPECULAR_AA_THRESHOLD
+            uniform float m_SpecularAAKappa;
+        #endif
+        
+        // DirectionalLight Exposure
+        #if defined(EXPOSUREMAP)
+            uniform sampler2D m_SunLightExposureMap;
+        #endif
+        #if defined(USE_VERTEX_COLORS_AS_SUN_EXPOSURE)
+            varying vec4 vertColors;
+        #endif
+        #ifdef STATIC_SUN_EXPOSURE
+            uniform float m_StaticSunIntensity;
+        #endif
+        
+        void PBRLightingUtils_readSunLightExposureParams(inout PBRSurface surface){
+            
+            surface.exposure = 1.0; //default value
+            #ifdef EXPOSUREMAP
+                surface.exposure *= texture2D(m_SunLightExposureMap, newTexCoord;
+            #endif
+            #ifdef STATIC_SUN_EXPOSURE
+                surface.exposure *= m_StaticSunIntensity; //single float value to indicate percentage of sunlight hitting the model (only suitable for small models or models with equal sunlight exposure accross the entire model
+            #endif
+            #ifdef USE_VERTEX_COLORS_AS_SUN_EXPOSURE
+                surface.exposure *= vertColors.r;    // use red channel of vertexColors for non-uniform sunlighting accross a single model                          
+            #endif 
+        }    
+
+    #endif
+
+
+    
+    #ifdef ENABLE_PBRLightingUtils_computeProbesContribution
+        #if NB_PROBES >= 1
+            uniform samplerCube g_PrefEnvMap;
+            uniform vec3 g_ShCoeffs[9];
+            uniform mat4 g_LightProbeData;
+        #endif
+        #if NB_PROBES >= 2
+            uniform samplerCube g_PrefEnvMap2;
+            uniform vec3 g_ShCoeffs2[9];
+            uniform mat4 g_LightProbeData2;
+        #endif
+        #if NB_PROBES == 3
+            uniform samplerCube g_PrefEnvMap3;
+            uniform vec3 g_ShCoeffs3[9];
+            uniform mat4 g_LightProbeData3;
+        #endif
+    #endif
+
+    #ifdef ENABLE_PBRLightingUtils_getWorldPosition
+        vec3 PBRLightingUtils_getWorldPosition(){
+            return wPosition.xyz;
+        }
+    #endif
+
+    #ifdef ENABLE_PBRLightingUtils_getWorldNormal
+        vec3 PBRLightingUtils_getWorldNormal(){
+            return normalize(wNormal.xyz);
+        }
+    #endif
+
+    #ifdef ENABLE_PBRLightingUtils_getWorldTangent
+        vec4 PBRLightingUtils_getWorldTangent(){
+            return wTangent;
+        }
+    #endif
+
+    #ifdef ENABLE_PBRLightingUtils_getTexCoord
+        vec2 PBRLightingUtils_getTexCoord(){
+            return texCoord;
         }
 
-
-        vec3 h=normalize(L+viewDir);
-        light.dir=L;
-        light.NdotL = max(dot(worldNormal, L), 0.0);
-        light.NdotH = max(dot(worldNormal, h), 0.0);
-        light.LdotH = max(dot(L, h), 0.0);
-        light.HdotV = max(dot(viewDir,h), 0.);
-    }
-#endif
+        #ifdef SEPARATE_TEXCOORD
+            vec2 PBRLightingUtils_getTexCoord2(){
+                return texCoord2;
+            }
+        #endif
+    #endif
 
 
-#ifdef ENABLE_PBRLightingUtils_readPBRSurface
-    PBRSurface PBRLightingUtils_readPBRSurface(    
-        in vec3 wViewDir
-    ){
+
+    #if defined(ENABLE_PBRLightingUtils_computeDirectLightContribution) || defined(ENABLE_PBRLightingUtils_newLight)
+        Light PBRLightingUtils_newLight(vec4 color, vec3 position, float type, float invRadius, float spotAngleCos, vec3 spotDirection){
+            Light l;
+            l.color = color;
+            l.position = position;
+            l.type = type;
+            l.invRadius = invRadius;
+            l.spotAngleCos = spotAngleCos;
+            l.spotDirection = spotDirection;
+            l.ready = false;
+            return l;
+        }
+    #endif
+
+
+    #if  defined(ENABLE_PBRLightingUtils_computeDirectLightContribution) || defined(ENABLE_PBRLightingUtils_computeLightInWorldSpace)
+        void PBRLightingUtils_computeLightInWorldSpace(vec3 worldPos,vec3 worldNormal, vec3 viewDir, inout Light light){
+            if(light.ready) return;
+
+            // lightComputeDir
+            float posLight = step(0.5, light.type);     
+            light.vector = light.position.xyz * sign(posLight - 0.5) - (worldPos * posLight); //tempVec lightVec
+
+            vec3 L; // lightDir
+            float dist;
+            Math_lengthAndNormalize(light.vector,dist,L);
+
+            float invRange=light.invRadius; // position.w
+            const float light_threshold = 0.01;
+
+            #ifdef SRGB
+                light.fallOff = (1.0 - invRange * dist) / (1.0 + invRange * dist * dist); // lightDir.w
+                light.fallOff = clamp(light.fallOff, 1.0 - posLight, 1.0);
+            #else
+                light.fallOff = clamp(1.0 - invRange * dist * posLight, 0.0, 1.0);
+            #endif
+
+            // computeSpotFalloff
+            if(light.type>1.){
+                vec3 spotdir = normalize(light.spotDirection);
+                float curAngleCos = dot(-L, spotdir);    
+                float innerAngleCos = floor(light.spotAngleCos) * 0.001;
+                float outerAngleCos = fract(light.spotAngleCos);
+                float innerMinusOuter = innerAngleCos - outerAngleCos;
+                float falloff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
+                #ifdef SRGB
+                    // Use quadratic falloff (notice the ^4)
+                    falloff = pow(clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0), 4.0);
+                #endif
+                light.fallOff*=falloff;
+            }
+
+
+            vec3 h=normalize(L+viewDir);
+            light.dir=L;
+            light.NdotL = max(dot(worldNormal, L), 0.0);
+            light.NdotH = max(dot(worldNormal, h), 0.0);
+            light.LdotH = max(dot(L, h), 0.0);
+            light.HdotV = max(dot(viewDir,h), 0.);
+        }
+    #endif
+
+    PBRSurface PBRLightingUtils_createPBRSurface(in vec3 wViewDir){
+
+        PBRSurface surface; //creates a new PBRSurface
         
-        PBRSurface surface;
         surface.position = wPosition;
         surface.viewDir = wViewDir;
         surface.geometryNormal = normalize(wNormal);
 
-        surface.bakedLightContribution = vec3(0);
-        surface.directLightContribution = vec3(0);
-        surface.envLightContribution = vec3(0);
-
-        #if defined(NORMALMAP) || defined(PARALLAXMAP)
-            vec3 tan = normalize(wTangent.xyz);
-            mat3 tbnMat = mat3(tan, wTangent.w * cross( surface.geometryNormal, tan), surface.geometryNormal);
-        #endif
+        //set default values
+        surface.hasTangents = false;
+        surface.hasBasicLightMap = false;        
+        surface.albedo = vec3(1.0);
+        surface.normal = surface.geometryNormal;
+        surface.emission = vec3(0.0);        
+        surface.ao = vec3(1.0);
+        surface.lightMapColor = vec3(0.0);
+        surface.alpha = 1.0;
+        surface.roughness = 1.0;
+        surface.metallic = 0.0;
+        surface.alpha = 1.0;
+        surface.exposure = 1.0;        
         
-        vec2 newTexCoord;
-        #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
-            vec3 vViewDir =  wViewDir * tbnMat;  
-            #ifdef STEEP_PARALLAX
-                #ifdef NORMALMAP_PARALLAX
-                    //parallax map is stored in the alpha channel of the normal map         
-                    newTexCoord = steepParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
-                #else
-                    //parallax map is a texture
-                    newTexCoord = steepParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);         
-                #endif
-            #else
-                #ifdef NORMALMAP_PARALLAX
-                    //parallax map is stored in the alpha channel of the normal map         
-                    newTexCoord = classicParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
-                #else
-                //parallax map is a texture
-                newTexCoord = classicParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);
-            #endif
-        #endif
-        #else
-        newTexCoord = texCoord;    
-        #endif
-        
-        #ifdef BASECOLORMAP
-            vec4 baseColor = texture2D(m_BaseColorMap, newTexCoord) * Color;
-        #else
-            vec4 baseColor = Color;
-        #endif
-        
-        #ifdef DISCARD_ALPHA
-            if( baseColor.a < m_AlphaDiscardThreshold) discard;        
-        #endif
-
-        surface.albedo = baseColor.rgb;
-        surface.alpha = baseColor.a;
-
-        
-
-        //ao in r channel, roughness in green channel, metallic in blue channel!
-        vec3 aoRoughnessMetallicValue = vec3(1.0, 1.0, 0.0);
-        #ifdef USE_PACKED_MR
-            aoRoughnessMetallicValue = texture2D(m_MetallicRoughnessMap, newTexCoord).rgb;
-            surface.roughness = aoRoughnessMetallicValue.g * max(m_Roughness, 1e-4);
-            surface.metallic = aoRoughnessMetallicValue.b * max(m_Metallic, 0.0);
-        #else
-            #ifdef ROUGHNESSMAP
-                surface.roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness, 1e-4);
-            #else
-                surface.roughness =  max(m_Roughness, 1e-4);
-            #endif
-            #ifdef METALLICMAP
-                surface.metallic = texture2D(m_MetallicMap, newTexCoord).r * max(m_Metallic, 0.0);
-            #else
-                surface.metallic =  max(m_Metallic, 0.0);
-            #endif
-        #endif
-    
-
-        
-        #if defined(NORMALMAP)
-            vec4 normalHeight = texture2D(m_NormalMap, newTexCoord);
-            // Note we invert directx style normal maps to opengl style
-            #ifdef NORMALSCALE
-                vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)) * vec3(m_NormalScale, m_NormalScale, 1.0));
-            #else
-                vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
-            #endif
-            surface.normal = normalize(tbnMat * normal);
-        #else 
-            surface.normal = normal;
-        #endif
-        
-        //spec gloss tex reads:
-        
-        #ifdef SPECGLOSSPIPELINE
-            #ifdef USE_PACKED_SG
-                vec4 specularColor = texture2D(m_SpecularGlossinessMap, newTexCoord);
-                float glossiness = specularColor.a * m_Glossiness;
-                specularColor *= m_Specular;
-            #else
-                #ifdef SPECULARMAP
-                    vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
-                #else
-                    vec4 specularColor = vec4(1.0);
-                #endif
-                #ifdef GLOSSINESSMAP
-                    float glossiness = texture2D(m_GlossinesMap, newTexCoord).r * m_Glossiness;
-                #else
-                    float glossiness = m_Glossiness;
-                #endif
-                specularColor *= m_Specular;
-            #endif
-            surface.diffuseColor = surface.albedo;// * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
-            surface.roughness = 1.0 - glossiness;
-            surface.fZero = specularColor.xyz;
-            surface.specularColor = specularColor;
-        #else
-            float specular = 0.5;
-            float nonMetalSpec = 0.08 * specular;
-            surface.specularColor = (nonMetalSpec - nonMetalSpec * surface.metallic) + surface.albedo * surface.metallic;
-            surface.diffuseColor = surface.albedo - surface.albedo * surface.metallic;
-            surface.fZero = vec3(specular);
-        #endif
-        
-
-        vec3 ao=vec3(1.0);
-        #ifdef LIGHTMAP
-            vec3 lightMapColor;
-            #ifdef SEPARATE_TEXCOORD
-                lightMapColor = texture2D(m_LightMap, texCoord2).rgb;
-            #else
-                lightMapColor = texture2D(m_LightMap, texCoord).rgb;
-            #endif               
-            #ifdef AO_MAP
-                lightMapColor.gb = lightMapColor.rr; 
-                ao = lightMapColor;
-            #else  
-                surface.bakedLightContribution +=  diffuseColor.rgb * lightMapColor;
-            #endif
-            surface.specularColor.rgb *= lightMapColor;
-        #endif
-        
-        #if defined(AO_PACKED_IN_MR_MAP) && defined(USE_PACKED_MR) 
-            ao = aoRoughnessMetallicValue.rrr; //note that this will override the AO value if it was previously read from a lightMap that is being used as AO_Map above. so don't try to use an AO map packed in metallic roughness while also using lightmap as ao map
-        #endif
-
-        #ifdef AO_STRENGTH
-            ao = 1.0 + m_AoStrength * (ao - 1.0);
-            // sanity check
-            ao = clamp(ao, 0.0, 1.0);
-        #endif
-        surface.ao=ao;
-        
-        #if defined(EMISSIVE) || defined (EMISSIVEMAP)
-            #ifdef EMISSIVEMAP
-                vec4 emissive = texture2D(m_EmissiveMap, newTexCoord);
-                #ifdef EMISSIVE
-                    emissive *= m_Emissive;
-                #endif
-            #else
-                vec4 emissive = m_Emissive;
-            #endif
-            surface.emission = emissive.rgb * pow(emissive.a, m_EmissivePower) * m_EmissiveIntensity;
-        #else 
-            surface.emission = vec3(0);
-        #endif
-        
-        #if defined(STATIC_SUN_INTENSITY)
-            surface.exposure = m_StaticSunIntensity; //single float value to indicate percentage of sunlight hitting the model (only suitable for small models or models with equal sunlight exposure accross the entire model
-        #elif defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY)
-            surface.exposure = vertColors.r;    // use red channel of vertexColors for non-uniform sunlighting accross a single model
-        #else 
-            surface.exposure = 1.0; //default value
-        #endif 
-        
-        surface.frontFacing = gl_FrontFacing;
-        surface.depth = gl_FragCoord.z;
-
-
-        // surface.alphaRoughness = clamp(surface.roughness * surface.roughness, minRoughness, 1.0);
-        surface.NdotV = clamp(abs(dot(!surface.frontFacing?-surface.normal:surface.normal, surface.viewDir)), 0.001, 1.0);
-        // surface.reflectedVec = normalize(reflect(-surface.viewDir, surface.normal));
-
-        surface.brightestLightStrength=0.0;
         return surface;
     }
-#endif
 
+    #ifdef ENABLE_PBRLightingUtils_readPBRSurface
+        vec2 newTexCoord;
+        
+        void PBRLightingUtils_readPBRSurface(inout PBRSurface surface){
 
-#if defined(ENABLE_PBRLightingUtils_computeDirectLight) || defined(ENABLE_PBRLightingUtils_computeDirectLightContribution)
-    void PBRLightingUtils_computeDirectLight(in Light light, in PBRSurface surface, inout vec3 directDiffuse, inout vec3 directSpecular, out float hdotv){
+            surface.bakedLightContribution = vec3(0.0);
+            surface.directLightContribution = vec3(0.0);
+            surface.envLightContribution = vec3(0.0);
 
-        #ifdef SPECULAR_AA
-            #ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
-                float sigma = m_SpecularAASigma;
-            #else 
-                float sigma = 1.0;
+            #ifdef ENABLE_PBRLightingUtils_getWorldTangent
+                vec3 tan = normalize(wTangent.xyz); 
+                surface.tbnMat = mat3(tan, wTangent.w * cross( surface.geometryNormal, tan), surface.geometryNormal);
+                surface.hasTangents = true;
             #endif
+
             
-            #ifdef SPECULAR_AA_THRESHOLD
-                float kappa = m_SpecularAAKappa;
-            #else
-                float kappa = 0.18;
-            #endif    
-            
-            hdotv = PBR_ComputeDirectLightWithSpecularAA(
-                                    surface.normal,
-                                    light.dir.xyz, 
-                                    surface.viewDir,
-                                    light.color.rgb, 
-                                    surface.fZero, 
-                                    surface.roughness, 
-                                    sigma,
-                                    kappa, 
-                                    surface.NdotV,
-                                    directDiffuse,  
-                                    directSpecular
-                    );
-        #else
-            hdotv = PBR_ComputeDirectLight(
-                                    surface.normal, 
-                                    light.dir.xyz, 
-                                    surface.viewDir,
-                                    light.color.rgb, 
-                                    surface.fZero, 
-                                    surface.roughness, 
-                                    surface.NdotV,
-                                    directDiffuse,  
-                                    directSpecular
-                    );
-        #endif
-
-    }
-#endif
-
- 
-#ifdef ENABLE_PBRLightingUtils_computeDirectLightContribution
-    void PBRLightingUtils_computeDirectLightContribution(
-        in vec4 lightData0, 
-        in vec4 lightData1, 
-        in vec4 lightData2,
-        inout PBRSurface surface
-    ){
-        vec4 lightColor = vec4(lightData0.rgb,1.0);
-        float lightType = lightData0.w;  
-
-        vec3 lightPosition = lightData1.xyz;
-        float lightInvRadius = lightData1.w;
-        
-        vec3 spotDirection = lightData2.xyz;
-        float spotAngleCos = lightData2.w;
-
-        Light light = PBRLightingUtils_newLight(lightColor, lightPosition, lightType, lightInvRadius, spotAngleCos, spotDirection);
-        PBRLightingUtils_computeLightInWorldSpace(surface.position, surface.normal, surface.viewDir, light);
-
-        vec3 directDiffuse;
-        vec3 directSpecular;
-        float hdotv;
-        PBRLightingUtils_computeDirectLight(light, surface, directDiffuse, directSpecular, hdotv); 
-
-        vec3 directLighting = surface.diffuseColor.rgb * directDiffuse + directSpecular;
-
-        #if defined(USE_VERTEX_COLORS_AS_SUN_INTENSITY) || defined(STATIC_SUN_INTENSITY)         
-            if(light.fallOff == 1.0){
-                directLighting.rgb *= surface.exposure;//  used to scale down how intense just the sun is indoors, and so the ambientLighting can be scaled back up indoors based on nearest pointlight intensity (ambient and direct light are 1.0 fallOff)                
-            } else{
-                surface.brightestLightStrength = max(light.fallOff, surface.brightestLightStrength);
-            }
-        #endif
-
-        surface.directLightContribution.rgb += directLighting * light.fallOff;
-    }
-#endif
-
-#ifdef ENABLE_PBRLightingUtils_computeProbesContribution
-    void PBRLightingUtils_computeProbesContribution(inout PBRSurface surface){   
-
-        #ifdef BRIGHTEN_INDOOR_SHADOWS
-            float minVertLighting = 0.0833; //enable this when using shadows, in order to brighten indoor areas (which are naturally covered from the DL shadows) so that indoor areas are not way too dark when using IndoorLighting with shadows compared to when shadows are off
-        #else
-            float minVertLighting = 0.0533;
-        #endif
-        
-        float finalLightingScale=1.0;
-        finalLightingScale = max(finalLightingScale, surface.brightestLightStrength);    
-        finalLightingScale = max(finalLightingScale, minVertLighting); //essentially just the vertColors.r (aka indoor light exposure) multiplied by the time of day scale.   
-
-
-        #if NB_PROBES > 0
-            float probeNdfSum=0;
-            float invProbeNdfSum=0;    
-            
-            #for i=1..4 ( #if NB_PROBES >= $i $0 #endif )
-                vec3 probeColor$i;
-                float probeNdf$i = renderProbe(
-                    surface.viewDir, 
-                    surface.position, 
-                    surface.normal,
-                    surface.geometryNormal,
-                    surface.roughness,
-                    vec4(surface.diffuseColor,1.0),
-                    vec4(surface.specularColor,1.0), 
-                    surface.NdotV, 
-                    surface.ao, 
-                    #if $i == 1
-                        g_LightProbeData, 
-                    #else  
-                        g_LightProbeData$i,
+            #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
+                vec3 vViewDir =  surface.viewDir * surface.tbnMat;  
+                #ifdef STEEP_PARALLAX
+                    #ifdef NORMALMAP_PARALLAX
+                        //parallax map is stored in the alpha channel of the normal map         
+                        newTexCoord = steepParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
+                    #else
+                        //parallax map is a texture
+                        newTexCoord = steepParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);         
                     #endif
-                    g_ShCoeffs,
-                    g_PrefEnvMap,
-                    probeColor$i
-                );
-                float probeInvNdf$i =  max(1.0 - probeNdf$i,0.0);
-                probeNdfSum += probeNdf$i;
-                invProbeNdfSum += probeInvNdf$i;
-                #ifdef USE_AMBIENT_LIGHT
-                    probeColor$i.rgb *= g_AmbientLightColor.rgb;
+                #else
+                    #ifdef NORMALMAP_PARALLAX
+                        //parallax map is stored in the alpha channel of the normal map         
+                        newTexCoord = classicParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
+                    #else
+                    //parallax map is a texture
+                    newTexCoord = classicParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);
                 #endif
-                probeColor$i.rgb *= finalLightingScale;
-            #endfor
-
-            #if NB_PROBES > 1
-                float probeWeightSum=0;
-                #for i=1..4 ( #if NB_PROBES >= $i $0 #endif )
-                    float probeWeight$i = ((1.0 - (probeNdf$i / probeNdfSum)) / (NB_PROBES - 1)) *  ( probeInvNdf$i / invProbeNdfSum);
-                    probeWeightSum += probeWeight$i;    
-                #endfor 
-
-                #for i=1..4 ( #if NB_PROBES >= $i $0 #endif )       
-                    surface.envLightContribution.rgb += probeColor$i * clamp( probeWeight$i / probeWeightSum, 0., 1.);
-                #endfor 
-            #else
-                surface.envLightContribution.rgb += probeColor1;
             #endif
-        #endif
-    }
-#endif
+            #else
+            newTexCoord = texCoord;    
+            #endif
 
+            #ifdef BASECOLORMAP
+                vec4 baseColor = texture2D(m_BaseColorMap, newTexCoord) * Color;
+            #else
+                vec4 baseColor = Color;
+            #endif
+
+            #ifdef DISCARD_ALPHA
+                if( baseColor.a < m_AlphaDiscardThreshold) discard;        
+            #endif
+
+            surface.albedo = baseColor.rgb;
+            surface.alpha = baseColor.a;
+
+            //ao in r channel, roughness in green channel, metallic in blue channel!
+            vec3 aoRoughnessMetallicValue = vec3(1.0, 1.0, 0.0);
+            #ifdef USE_PACKED_MR
+                aoRoughnessMetallicValue = texture2D(m_MetallicRoughnessMap, newTexCoord).rgb;
+                surface.roughness = aoRoughnessMetallicValue.g * max(m_Roughness, 1e-4);
+                surface.metallic = aoRoughnessMetallicValue.b * max(m_Metallic, 0.0);
+            #else
+                #ifdef ROUGHNESSMAP
+                    surface.roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness, 1e-4);
+                #else
+                    surface.roughness =  max(m_Roughness, 1e-4);
+                #endif
+                #ifdef METALLICMAP
+                    surface.metallic = texture2D(m_MetallicMap, newTexCoord).r * max(m_Metallic, 0.0);
+                #else
+                    surface.metallic =  max(m_Metallic, 0.0);
+                #endif
+            #endif
+
+
+
+            #if defined(NORMALMAP)
+                vec4 normalHeight = texture2D(m_NormalMap, newTexCoord);
+                // Note we invert directx style normal maps to opengl style
+                #ifdef NORMALSCALE
+                    vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)) * vec3(m_NormalScale, m_NormalScale, 1.0));
+                #else
+                    vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
+                #endif
+                surface.normal = normalize(surface.tbnMat * normal);
+            #else
+                surface.normal = surface.geometryNormal;
+            #endif
+
+            //spec gloss tex reads:
+
+            #ifdef SPECGLOSSPIPELINE
+                float glossiness = m_Glossiness;
+                #ifdef USE_PACKED_SG
+                    vec4 specularColor = texture2D(m_SpecularGlossinessMap, newTexCoord);
+                    glossiness *= specularColor.a;
+                #else
+                    #ifdef SPECULARMAP
+                        vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
+                    #else
+                        vec4 specularColor = vec4(1.0);
+                    #endif
+                    #ifdef GLOSSINESSMAP
+                        glossiness *= texture2D(m_GlossinesMap, newTexCoord).r;
+                    #endif
+                #endif
+                specularColor *= m_Specular;
+                surface.specularColor = specularColor.rgb;
+                surface.roughness = 1.0 - glossiness;
+            #endif
+
+            vec3 ao = vec3(1.0);
+            #ifdef LIGHTMAP
+                vec3 lightMapColor;
+                #ifdef SEPARATE_TEXCOORD
+                    lightMapColor = texture2D(m_LightMap, texCoord2).rgb;
+                #else
+                    lightMapColor = texture2D(m_LightMap, texCoord).rgb;
+                #endif               
+                #ifdef AO_MAP
+                    ao = lightMapColor.rrr;
+                #else  
+                    surface.lightMapColor = lightMapColor;
+                    surface.hasBasicLightMap = true;
+                #endif
+            #endif
+
+            #if defined(AO_PACKED_IN_MR_MAP) && defined(USE_PACKED_MR) 
+                ao = aoRoughnessMetallicValue.rrr; //note that this will override the AO value if it was previously read from a lightMap that is being used as AO_Map above. so don't try to use an AO map packed in metallic roughness while also using lightmap as ao map
+            #endif
+
+            #ifdef AO_STRENGTH
+                ao = 1.0 + m_AoStrength * (ao - 1.0);
+                // sanity check
+                ao = clamp(ao, 0.0, 1.0);
+            #endif
+            surface.ao = ao;
+
+            #if defined(EMISSIVE) || defined (EMISSIVEMAP)
+                #ifdef EMISSIVEMAP
+                    vec4 emissive = texture2D(m_EmissiveMap, newTexCoord);
+                    #ifdef EMISSIVE
+                        emissive *= m_Emissive;
+                    #endif
+                #else
+                    vec4 emissive = m_Emissive;
+                #endif
+                surface.emission = emissive.rgb * pow(emissive.a, m_EmissivePower) * m_EmissiveIntensity;
+            #else 
+                surface.emission = vec3(0.0);
+            #endif
+
+            PBRLightingUtils_readSunLightExposureParams(surface);
+
+            surface.frontFacing = gl_FrontFacing;
+            surface.depth = gl_FragCoord.z;
+
+
+            // surface.alphaRoughness = clamp(surface.roughness * surface.roughness, minRoughness, 1.0);
+            surface.NdotV = clamp(abs(dot(!surface.frontFacing?-surface.normal:surface.normal, surface.viewDir)), 0.001, 1.0);
+            // surface.reflectedVec = normalize(reflect(-surface.viewDir, surface.normal));
+
+            surface.brightestNonGlobalLightStrength = 0.0;
+        }    
+    #endif
+
+
+    #if defined(ENABLE_PBRLightingUtils_computeDirectLight) || defined(ENABLE_PBRLightingUtils_computeDirectLightContribution)
+    
+
+        void PBRLightingUtils_calculatePreLightingValues(inout PBRSurface surface){
+
+            if(surface.hasBasicLightMap == true){ 
+                surface.bakedLightContribution += surface.diffuseColor.rgb * surface.lightMapColor;
+                surface.specularColor.rgb *= surface.lightMapColor;
+            }        
+            surface.specularColor.rgb *= surface.ao;     
+
+            #ifdef SPECGLOSSPIPELINE      
+                surface.diffuseColor = surface.albedo;// * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
+                surface.fZero = surface.specularColor.xyz;
+            #else
+                surface.specularColor = (0.04 - 0.04 * surface.metallic) + surface.albedo * surface.metallic;  // 0.04 is the standard base specular reflectance for non-metallic surfaces in PBR. While values like 0.08 can be used for different implementations, 0.04 aligns with Khronos' PBR specification.
+                surface.diffuseColor = surface.albedo - surface.albedo * surface.metallic;
+                surface.fZero = mix(vec3(0.04), surface.albedo.rgb, surface.metallic);        
+            #endif
+        }
+
+        void PBRLightingUtils_computeDirectLight(in Light light, in PBRSurface surface, inout vec3 directDiffuse, inout vec3 directSpecular, out float hdotv){
+
+            #ifdef SPECULAR_AA
+                #ifdef SPECULAR_AA_SCREEN_SPACE_VARIANCE
+                    float sigma = m_SpecularAASigma;
+                #else 
+                    float sigma = 1.0;
+                #endif
+
+                #ifdef SPECULAR_AA_THRESHOLD
+                    float kappa = m_SpecularAAKappa;
+                #else
+                    float kappa = 0.18;
+                #endif    
+
+                hdotv = PBR_ComputeDirectLightWithSpecularAA(
+                                        surface.normal,
+                                        light.dir.xyz, 
+                                        surface.viewDir,
+                                        light.color.rgb, 
+                                        surface.fZero, 
+                                        surface.roughness, 
+                                        sigma,
+                                        kappa, 
+                                        surface.NdotV,
+                                        directDiffuse,  
+                                        directSpecular
+                        );
+            #else
+                hdotv = PBR_ComputeDirectLight(
+                                        surface.normal, 
+                                        light.dir.xyz, 
+                                        surface.viewDir,
+                                        light.color.rgb, 
+                                        surface.fZero, 
+                                        surface.roughness, 
+                                        surface.NdotV,
+                                        directDiffuse,  
+                                        directSpecular
+                        );
+            #endif
+
+        }
+    #endif
+
+
+    #ifdef ENABLE_PBRLightingUtils_computeDirectLightContribution
+        void PBRLightingUtils_computeDirectLightContribution(
+            in vec4 lightData0, 
+            in vec4 lightData1, 
+            in vec4 lightData2,
+            inout PBRSurface surface
+        ){
+            vec4 lightColor = vec4(lightData0.rgb,1.0);
+            float lightType = lightData0.w;  
+
+            vec3 lightPosition = lightData1.xyz;
+            float lightInvRadius = lightData1.w;
+
+            vec3 spotDirection = lightData2.xyz;
+            float spotAngleCos = lightData2.w;
+
+            Light light = PBRLightingUtils_newLight(lightColor, lightPosition, lightType, lightInvRadius, spotAngleCos, spotDirection);
+            PBRLightingUtils_computeLightInWorldSpace(surface.position, surface.normal, surface.viewDir, light);
+
+
+            vec3 directDiffuse;
+            vec3 directSpecular;
+            float hdotv;
+            PBRLightingUtils_computeDirectLight(light, surface, directDiffuse, directSpecular, hdotv); 
+
+            vec3 directLighting = surface.diffuseColor.rgb * directDiffuse + directSpecular;
+
+            if(light.fallOff == 1.0){
+                directLighting.rgb *= surface.exposure;// is used to scale down how intense just the sun is indoors, and so the ambientLighting can be scaled back up indoors based on nearest pointlight intensity (ambient and direct light are 1.0 fallOff)                
+            }
+            else{
+                surface.brightestNonGlobalLightStrength = max(light.fallOff, surface.brightestNonGlobalLightStrength);
+            }
+
+            surface.directLightContribution.rgb += directLighting * light.fallOff;
+        }
+    #endif
+
+    #ifdef ENABLE_PBRLightingUtils_computeProbesContribution
+
+        #ifdef USE_AMBIENT_LIGHT
+            uniform vec4 g_AmbientLightColor; 
+        #endif
+
+        void PBRLightingUtils_computeProbesContribution(inout PBRSurface surface){   
+
+            #ifdef BRIGHTEN_INDOOR_SHADOWS
+                float minVertLighting = 0.0833; //enable this when using shadows, in order to brighten indoor areas (which are naturally covered from the DL shadows) so that indoor areas are not way too dark when using IndoorLighting with shadows compared to when shadows are off
+            #else
+                float minVertLighting = 0.0533;
+            #endif
+
+            float finalLightingScale = surface.exposure;
+            finalLightingScale = max(finalLightingScale, surface.brightestNonGlobalLightStrength);    
+            finalLightingScale = max(finalLightingScale, minVertLighting); //essentially just the vertColors.r (aka indoor light exposure) multiplied by the time of day scale.   
+
+            #if NB_PROBES >= 1
+                vec3 color1 = vec3(0.0);
+                vec3 color2 = vec3(0.0);
+                vec3 color3 = vec3(0.0);
+                float weight1 = 1.0;
+                float weight2 = 0.0;
+                float weight3 = 0.0;
+
+                float ndf = renderProbe(
+                        surface.viewDir, 
+                        surface.position, 
+                        surface.normal,
+                        surface.geometryNormal,
+                        surface.roughness,
+                        vec4(surface.diffuseColor, 1.0),
+                        vec4(surface.specularColor, 1.0), 
+                        surface.NdotV, 
+                        surface.ao, 
+                        g_LightProbeData, g_ShCoeffs, g_PrefEnvMap, color1);
+                #if NB_PROBES >= 2
+                    float ndf2 = renderProbe(
+                        surface.viewDir, 
+                        surface.position, 
+                        surface.normal,
+                        surface.geometryNormal,
+                        surface.roughness,
+                        vec4(surface.diffuseColor, 1.0),
+                        vec4(surface.specularColor, 1.0), 
+                        surface.NdotV, 
+                        surface.ao, 
+                        g_LightProbeData2, 
+                        g_ShCoeffs2, 
+                        g_PrefEnvMap2, 
+                        color2);
+                #endif
+                #if NB_PROBES == 3
+                    float ndf3 = renderProbe(
+                        surface.viewDir, 
+                        surface.position, 
+                        surface.normal,
+                        surface.geometryNormal,
+                        surface.roughness,
+                        vec4(surface.diffuseColor, 1.0),
+                        vec4(surface.specularColor, 1.0), 
+                        surface.NdotV, 
+                        surface.ao,  
+                        g_LightProbeData3, 
+                        g_ShCoeffs3, 
+                        g_PrefEnvMap3, 
+                        color3);
+                #endif
+
+                #if NB_PROBES >= 2
+                    float invNdf =  max(1.0 - ndf,0.0);
+                    float invNdf2 =  max(1.0 - ndf2,0.0);
+                    float sumNdf = ndf + ndf2;
+                    float sumInvNdf = invNdf + invNdf2;
+                    #if NB_PROBES == 3
+                        float invNdf3 = max(1.0 - ndf3,0.0);
+                        sumNdf += ndf3;
+                        sumInvNdf += invNdf3;
+                        weight3 =  ((1.0 - (ndf3 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf3 / sumInvNdf);
+                    #endif
+
+                    weight1 = ((1.0 - (ndf / sumNdf)) / (NB_PROBES - 1)) *  (invNdf / sumInvNdf);
+                    weight2 = ((1.0 - (ndf2 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf2 / sumInvNdf);
+
+                    float weightSum = weight1 + weight2 + weight3;
+
+                    weight1 /= weightSum;
+                    weight2 /= weightSum;
+                    weight3 /= weightSum;
+                #endif
+                
+                #ifdef USE_AMBIENT_LIGHT
+                    color1.rgb *= g_AmbientLightColor.rgb;
+                    color2.rgb *= g_AmbientLightColor.rgb;
+                    color3.rgb *= g_AmbientLightColor.rgb;
+                #endif
+                
+                color1.rgb *= finalLightingScale;
+                color2.rgb *= finalLightingScale;
+                color3.rgb *= finalLightingScale;
+
+                surface.envLightContribution.rgb += color1 * clamp(weight1,0.0,1.0) + color2 * clamp(weight2,0.0,1.0) + color3 * clamp(weight3,0.0,1.0);
+                
+            #endif
+        }
+    #endif
+
+
+    vec4 PBRLightingUtils_getColorOutputForDebugMode(in int debugValuesMode, in vec4 finalRenderColor, in PBRSurface surface){
+        vec4 outputColorForLayer = finalRenderColor;
+        if(debugValuesMode == 0){
+            outputColorForLayer.rgb = vec3(surface.albedo);
+        }
+        else if(debugValuesMode == 1){
+            outputColorForLayer.rgb = vec3(surface.normal);
+        }
+        else if(debugValuesMode == 2){
+            outputColorForLayer.rgb = vec3(surface.roughness);
+        }
+        else if(debugValuesMode == 3){
+            outputColorForLayer.rgb = vec3(surface.metallic);
+        }
+        else if(debugValuesMode == 4){
+            outputColorForLayer.rgb = surface.ao.rgb;
+        }
+        else if(debugValuesMode == 5){
+            outputColorForLayer.rgb = vec3(surface.emission.rgb);          
+        }      
+        else if(debugValuesMode == 6){
+            outputColorForLayer.rgb = vec3(surface.exposure);          
+        }  
+        else if(debugValuesMode == 7){
+            outputColorForLayer.rgb = vec3(surface.alpha);          
+        } 
+        else if(debugValuesMode == 8){
+            outputColorForLayer.rgb = vec3(surface.geometryNormal);          
+        }
+
+        if(debugValuesMode >= 0){
+            gl_FragColor.a = 1.0;
+        }
+
+        return outputColorForLayer;
+    }
 
 #endif

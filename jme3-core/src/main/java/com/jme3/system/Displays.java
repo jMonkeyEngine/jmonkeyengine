@@ -35,11 +35,18 @@ import java.util.ArrayList;
  */
 public class Displays {
 
-    private ArrayList<DisplayInfo> displays = new ArrayList<DisplayInfo>();
+    /** List of monitors. */
+    private ArrayList<DisplayInfo> displays = new ArrayList<>();
 
+    /**
+     * Add a new monitor to the list
+     * 
+     * @param displaysID the (native) pointer of the new monitor
+     * @return the position of the monitor (represents the index)
+     */
     public int addNewMonitor(long displaysID) {
         DisplayInfo info = new DisplayInfo();
-        info.displayID = displaysID;
+        info.setDisplay(displaysID);
         displays.add(info);
         return displays.size() - 1;
     }
@@ -47,7 +54,7 @@ public class Displays {
     /**
      * This function returns the size of the display ArrayList
      *
-     * @return the
+     * @return the number of monitors available.
      */
     public int size() {
         return displays.size();
@@ -78,10 +85,10 @@ public class Displays {
         if (displayPos < displays.size()) {
             DisplayInfo info = displays.get(displayPos);
             if (info != null) {
-                info.width = width;
-                info.height = height;
-                info.rate = rate;
-                info.name = name;
+                info.setWidth(width);
+                info.setHeight(height);
+                info.setRate(rate);
+                info.setName(name);
             }
         }
     }
@@ -94,7 +101,7 @@ public class Displays {
     public void setPrimaryDisplay(int displayPos) {
         if (displayPos < displays.size()) {
             DisplayInfo info = displays.get(displayPos);
-            if (info != null) info.primary = true;
+            if (info != null) info.setPrimary(true);
         }
     }
 }

@@ -31,8 +31,13 @@
  */
 package com.jme3.texture;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.image.ColorSpace;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -150,5 +155,45 @@ public class TextureArray extends Texture {
         }
         this.wrapS = mode;
         this.wrapT = mode;
+    }
+
+    @Override
+    public void write(JmeExporter e) throws IOException {
+        super.write(e);
+        OutputCapsule capsule = e.getCapsule(this);
+        capsule.write(wrapS, "wrapS", WrapMode.EdgeClamp);
+        capsule.write(wrapT, "wrapT", WrapMode.EdgeClamp);
+    }
+
+    @Override
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
+        wrapS = capsule.readEnum("wrapS", WrapMode.class, WrapMode.EdgeClamp);
+        wrapT = capsule.readEnum("wrapT", WrapMode.class, WrapMode.EdgeClamp);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true; 
+        }
+        if (!(other instanceof TextureArray)) {
+            return false;
+        }
+        TextureArray that = (TextureArray) other;
+        if (this.getWrap(WrapAxis.S) != that.getWrap(WrapAxis.S))
+            return false;
+        if (this.getWrap(WrapAxis.T) != that.getWrap(WrapAxis.T))
+            return false;
+        return super.equals(other);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 79 * hash + (this.wrapS != null ? this.wrapS.hashCode() : 0);
+        hash = 79 * hash + (this.wrapT != null ? this.wrapT.hashCode() : 0);
+        return hash;
     }
 }

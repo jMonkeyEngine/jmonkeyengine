@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import com.jme3.util.clone.JmeCloneable;
  * An interface that defines the methods to affect initial velocity of the particles.
  * @author Marcin Roguski (Kaelthas)
  */
-public interface ParticleInfluencer extends Savable, Cloneable, JmeCloneable {
+public interface ParticleInfluencer extends Savable, JmeCloneable {
 
     /**
      * This method influences the particle.
@@ -57,7 +57,7 @@ public interface ParticleInfluencer extends Savable, Cloneable, JmeCloneable {
      * This method clones the influencer instance.
      * @return cloned instance
      */
-    public ParticleInfluencer clone();
+    ParticleInfluencer clone();
 
     /**
      * @param initialVelocity

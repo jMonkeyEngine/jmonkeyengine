@@ -140,15 +140,15 @@ public class TestMonitorApp extends SimpleApplication implements ActionListener 
             String label =
                 "Selected Monitor " +
                 "Name: " +
-                monitors.get(settings.getDisplay()).name +
+                monitors.get(settings.getDisplay()).getName() +
                 " " +
                 monitorSelected +
                 " Res: " +
-                monitors.get(settings.getDisplay()).width +
+                monitors.get(settings.getDisplay()).getWidth() +
                 "," +
-                monitors.get(settings.getDisplay()).height +
+                monitors.get(settings.getDisplay()).getHeight() +
                 " refresh: " +
-                monitors.get(settings.getDisplay()).rate;
+                monitors.get(settings.getDisplay()).getRate();
             selectedMonitorTxt.setText(label);
             selectedMonitorTxt.setLocalTranslation(0, settings.getHeight() - 80, 0);
             guiNode.attachChild(selectedMonitorTxt);
@@ -160,13 +160,13 @@ public class TestMonitorApp extends SimpleApplication implements ActionListener 
                     "Mon : " +
                     i +
                     " " +
-                    monitor.name +
+                    monitor.getName() +
                     " " +
-                    monitor.width +
+                    monitor.getWidth() +
                     "," +
-                    monitor.height +
+                    monitor.getHeight() +
                     " refresh: " +
-                    monitor.rate;
+                    monitor.getRate();
                 txt = new BitmapText(loadGuiFont());
                 txt.setText(labelValue);
                 txt.setLocalTranslation(0, settings.getHeight() - 160 - (40 * i), 0);
@@ -222,13 +222,13 @@ public class TestMonitorApp extends SimpleApplication implements ActionListener 
                 "Selected Monitor " +
                 monitorSelected +
                 " " +
-                monitors.get(monitorSelected).name +
+                monitors.get(monitorSelected).getName() +
                 " Res: " +
-                monitors.get(monitorSelected).width +
+                monitors.get(monitorSelected).getWidth() +
                 "," +
-                monitors.get(monitorSelected).height +
+                monitors.get(monitorSelected).getHeight() +
                 "refresh: " +
-                monitors.get(monitorSelected).rate;
+                monitors.get(monitorSelected).getRate();
             selectedMonitorTxt.setText(label);
             if (!settings.isFullscreen()) fullScreenTxt.setText(
                 "(f) Window Screen"

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,12 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
 import com.jme3.util.NativeObject;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 
-public abstract class Filter extends NativeObject implements Savable {
+public abstract class Filter extends NativeObject implements Savable, JmeCloneable {
 
     public Filter() {
         super();
@@ -49,12 +52,28 @@ public abstract class Filter extends NativeObject implements Savable {
 
     @Override
     public void write(JmeExporter ex) throws IOException {
-        // nothing to save
+        // no-op
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
-        // nothing to read
+        // no-op
+    }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public Object jmeClone() {
+        return super.clone();
+    }
+
+    /**
+     * Called internally by com.jme3.util.clone.Cloner. Do not call directly.
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        // no-op
     }
 
     @Override
