@@ -145,12 +145,10 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
                 dev.updatePose();
                 dev.getPositionAndOrientation(hmdPos, hmdRot);
 
-                if (obs != null) {
-                    // update hmdPos based on obs rotation
-                    finalRotation.set(objRot);
-                    finalRotation.mult(hmdPos, hmdPos);
-                    finalRotation.multLocal(hmdRot);
-    }
+                // update hmdPos based on obs rotation
+                finalRotation.set(objRot);
+                finalRotation.mult(hmdPos, hmdPos);
+                finalRotation.multLocal(hmdRot);
 
                 finalizeCamera(dev.getHMDVectorPoseLeftEye(), objPos, getLeftCamera());
                 finalizeCamera(dev.getHMDVectorPoseRightEye(), objPos, getRightCamera());

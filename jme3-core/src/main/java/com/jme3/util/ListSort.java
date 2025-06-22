@@ -874,9 +874,6 @@ public class ListSort<T> {
         if (lengthA == 0 || lengthB == 1) {
             return;
         }
-        if (lengthB == 1) {
-            return;
-        }
         while (true) {
             // Number of wins by run A
             int aWins = 0;

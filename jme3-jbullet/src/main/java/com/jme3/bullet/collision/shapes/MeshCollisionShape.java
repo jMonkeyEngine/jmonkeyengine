@@ -131,7 +131,6 @@ public class MeshCollisionShape extends CollisionShape {
         bulletMesh.numTriangles = numTriangles;
         bulletMesh.vertexStride = vertexStride;
         bulletMesh.triangleIndexStride = triangleIndexStride;
-        bulletMesh.triangleIndexBase = triangleIndexBase;
         bulletMesh.vertexBase = vertexBase;
         bulletMesh.triangleIndexBase = triangleIndexBase;
         TriangleIndexVertexArray tiv = new TriangleIndexVertexArray(numTriangles, triangleIndexBase, triangleIndexStride, numVertices, vertexBase, vertexStride);

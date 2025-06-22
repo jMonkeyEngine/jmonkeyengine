@@ -75,13 +75,11 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
         // their JME versions are out of date.
         ignore.add(Boolean.class);
         ignore.add(Float.class);
-        ignore.add(Boolean.class);
         ignore.add(Byte.class);
         ignore.add(Character.class);
         ignore.add(Short.class);
         ignore.add(Integer.class);
         ignore.add(Long.class);
-        ignore.add(Float.class);
         ignore.add(Double.class);
         ignore.add(String.class);
  
