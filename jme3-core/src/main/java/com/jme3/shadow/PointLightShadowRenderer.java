@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import java.io.IOException;
 /**
  * PointLightShadowRenderer renders shadows for a point light
  *
- * @author Rémy Bouquet aka Nehon
+ * @author Nehon
  */
 public class PointLightShadowRenderer extends AbstractShadowRenderer {
 
@@ -61,23 +61,22 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
     protected PointLight light;
     protected Camera[] shadowCams;
     private Geometry[] frustums = null;
+    private final Vector3f X_NEG = Vector3f.UNIT_X.mult(-1f);
+    private final Vector3f Y_NEG = Vector3f.UNIT_Y.mult(-1f);
+    private final Vector3f Z_NEG = Vector3f.UNIT_Z.mult(-1f);
 
     /**
-     * Used for serialization.
-     * Use PointLightShadowRenderer#PointLightShadowRenderer(AssetManager
-     * assetManager, int shadowMapSize)
-     * instead.
+     * For serialization only. Do not use.
      */
     protected PointLightShadowRenderer() {
         super();
     }
 
     /**
-     * Creates a PointLightShadowRenderer
+     * Creates a PointLightShadowRenderer.
      *
-     * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
-     * etc...)
+     * @param assetManager  the application's asset manager
+     * @param shadowMapSize the size of the rendered shadow maps (512, 1024, 2048, etc...)
      */
     public PointLightShadowRenderer(AssetManager assetManager, int shadowMapSize) {
         super(assetManager, shadowMapSize, CAM_NUMBER);
@@ -95,9 +94,9 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
     protected void initFrustumCam() {
         Camera viewCam = viewPort.getCamera();
         frustumCam = viewCam.clone();
-        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride, viewCam.getFrustumLeft(), viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
+        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride,
+                viewCam.getFrustumLeft(), viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
     }
-    
 
     @Override
     protected void updateShadowCams(Camera viewCam) {
@@ -108,22 +107,17 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
         }
 
         //bottom
-        shadowCams[0].setAxes(Vector3f.UNIT_X.mult(-1f), Vector3f.UNIT_Z.mult(-1f), Vector3f.UNIT_Y.mult(-1f));
-
+        shadowCams[0].setAxes(X_NEG, Z_NEG, Y_NEG);
         //top
-        shadowCams[1].setAxes(Vector3f.UNIT_X.mult(-1f), Vector3f.UNIT_Z, Vector3f.UNIT_Y);
-
+        shadowCams[1].setAxes(X_NEG, Vector3f.UNIT_Z, Vector3f.UNIT_Y);
         //forward
-        shadowCams[2].setAxes(Vector3f.UNIT_X.mult(-1f), Vector3f.UNIT_Y, Vector3f.UNIT_Z.mult(-1f));
-
+        shadowCams[2].setAxes(X_NEG, Vector3f.UNIT_Y, Z_NEG);
         //backward
         shadowCams[3].setAxes(Vector3f.UNIT_X, Vector3f.UNIT_Y, Vector3f.UNIT_Z);
-
         //left
-        shadowCams[4].setAxes(Vector3f.UNIT_Z, Vector3f.UNIT_Y, Vector3f.UNIT_X.mult(-1f));
-
+        shadowCams[4].setAxes(Vector3f.UNIT_Z, Vector3f.UNIT_Y, X_NEG);
         //right
-        shadowCams[5].setAxes(Vector3f.UNIT_Z.mult(-1f), Vector3f.UNIT_Y, Vector3f.UNIT_X);
+        shadowCams[5].setAxes(Z_NEG, Vector3f.UNIT_Y, Vector3f.UNIT_X);
 
         for (int i = 0; i < CAM_NUMBER; i++) {
             shadowCams[i].setFrustumPerspective(90f, 1f, 0.1f, light.getRadius());
@@ -131,7 +125,6 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
             shadowCams[i].update();
             shadowCams[i].updateViewProjection();
         }
-
     }
 
     @Override
@@ -237,13 +230,13 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
         }
 
         Camera cam = viewCam;
-        if(frustumCam != null){
-            cam = frustumCam;            
+        if (frustumCam != null) {
+            cam = frustumCam;
             cam.setLocation(viewCam.getLocation());
             cam.setRotation(viewCam.getRotation());
         }
         TempVars vars = TempVars.get();
-        boolean intersects = light.intersectsFrustum(cam,vars);
+        boolean intersects = light.intersectsFrustum(cam, vars);
         vars.release();
         return intersects;
     }
