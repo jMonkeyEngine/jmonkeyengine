@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,9 +74,9 @@ import java.util.logging.Logger;
  * abstract shadow renderer that holds commons feature to have for a shadow
  * renderer
  *
- * @author Rémy Bouquet aka Nehon
+ * @author Nehon
  */
-public abstract class AbstractShadowRenderer implements SceneProcessor, Savable, JmeCloneable, Cloneable {
+public abstract class AbstractShadowRenderer implements SceneProcessor, Savable, JmeCloneable {
 
     protected static final Logger logger = Logger.getLogger(AbstractShadowRenderer.class.getName());
     private static final LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
@@ -100,6 +100,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected RenderState forcedRenderState = new RenderState();
     protected boolean renderBackFacesShadows = true;
     protected AppProfiler prof;
+    protected boolean debugfrustums = false;
 
     /**
      * true if the fallback material should be used, otherwise false
@@ -130,24 +131,23 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected boolean skipPostPass;
 
     /**
-     * used for serialization
+     * For serialization only. Do not use.
      */
     protected AbstractShadowRenderer() {
     }
 
     /**
-     * Create an abstract shadow renderer. Subclasses invoke this constructor.
+     * Creates an  AbstractShadowRenderer. Subclasses invoke this constructor.
      *
-     * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadow maps (512,1024,2048,
-     * etc...)
-     * @param nbShadowMaps the number of shadow maps rendered (the more shadow
-     * maps the more quality, the fewer fps).
+     * @param assetManager The application's asset manager.
+     * @param shadowMapSize The size of the rendered shadow maps (e.g., 512, 1024, 2048).
+     * @param nbShadowMaps The number of shadow maps to render (1 to 4). More maps
+     * improve quality but can reduce performance.
      */
     protected AbstractShadowRenderer(AssetManager assetManager, int shadowMapSize, int nbShadowMaps) {
         this.assetManager = assetManager;
-        this.nbShadowMaps = nbShadowMaps;
         this.shadowMapSize = shadowMapSize;
+        this.nbShadowMaps = nbShadowMaps;
         init(assetManager, nbShadowMaps, shadowMapSize);
     }
 
@@ -301,32 +301,33 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      */
     protected Geometry createFrustum(Vector3f[] pts, int i) {
         WireFrustum frustum = new WireFrustum(pts);
-        Geometry frustumMdl = new Geometry("f", frustum);
-        frustumMdl.setCullHint(Spatial.CullHint.Never);
-        frustumMdl.setShadowMode(ShadowMode.Off);
+        Geometry geo = new Geometry("WireFrustum" + i, frustum);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
-        frustumMdl.setMaterial(mat);
+        geo.setMaterial(mat);
+        geo.setCullHint(Spatial.CullHint.Never);
+        geo.setShadowMode(ShadowMode.Off);
+
         switch (i) {
             case 0:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Pink);
+                mat.setColor("Color", ColorRGBA.Pink);
                 break;
             case 1:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Red);
+                mat.setColor("Color", ColorRGBA.Red);
                 break;
             case 2:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Green);
+                mat.setColor("Color", ColorRGBA.Green);
                 break;
             case 3:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Blue);
+                mat.setColor("Color", ColorRGBA.Blue);
                 break;
             default:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.White);
+                mat.setColor("Color", ColorRGBA.White);
                 break;
         }
 
-        frustumMdl.updateGeometricState();
-        return frustumMdl;
+        geo.updateGeometricState();
+        return geo;
     }
 
     /**
@@ -340,7 +341,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         renderManager = rm;
         viewPort = vp;
         postTechniqueName = "PostShadow";
-        if(zFarOverride>0 && frustumCam == null){
+        if (zFarOverride > 0 && frustumCam == null) {
             initFrustumCam();
         }
     }
@@ -396,7 +397,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
     }
 
-    @SuppressWarnings("fallthrough")
     @Override
     public void postQueue(RenderQueue rq) {
         lightReceivers.clear();
@@ -413,13 +413,11 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         renderManager.setForcedTechnique("PreShadow");
 
         for (int shadowMapIndex = 0; shadowMapIndex < nbShadowMaps; shadowMapIndex++) {
-
-                if (debugfrustums) {
-                    doDisplayFrustumDebug(shadowMapIndex);
-                }
-                renderShadowMap(shadowMapIndex);
-
+            if (debugfrustums) {
+                doDisplayFrustumDebug(shadowMapIndex);
             }
+            renderShadowMap(shadowMapIndex);
+        }
 
         debugfrustums = false;
 
@@ -449,8 +447,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         renderManager.setLightFilter(tmpLightFilter);
         renderManager.setForcedRenderState(null);
     }
-
-    boolean debugfrustums = false;
 
     public void displayFrustum() {
         debugfrustums = true;
@@ -536,11 +532,11 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             //renderers
             //Note that j start at 1 because other shadow renderers will have
             //at least 1 shadow map and will set it on each frame anyway.
-            for (int j = 1; j < nbShadowMaps; j++) {
-                mat.clearParam(lightViewStringCache[j]);
+            for (int i = 1; i < nbShadowMaps; i++) {
+                mat.clearParam(lightViewStringCache[i]);
             }
-            for (int j = 1; j < nbShadowMaps; j++) {
-                mat.clearParam(shadowMapStringCache[j]);
+            for (int i = 1; i < nbShadowMaps; i++) {
+                mat.clearParam(shadowMapStringCache[i]);
             }
             mat.clearParam("FadeInfo");
             clearMaterialParameters(mat);
@@ -556,22 +552,20 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      */
     protected abstract void setMaterialParameters(Material material);
 
-    private void setMatParams(GeometryList l) {
+    private void setMatParams(GeometryList list) {
         //iterate through all the geometries of the list to gather the materials
 
-        buildMatCache(l);
+        buildMatCache(list);
 
         //iterating through the mat cache and setting the parameters
         for (Material mat : matCache) {
-
             mat.setFloat("ShadowMapSize", shadowMapSize);
 
-            for (int j = 0; j < nbShadowMaps; j++) {
-                mat.setMatrix4(lightViewStringCache[j], lightViewProjectionsMatrices[j]);
+            for (int i = 0; i < nbShadowMaps; i++) {
+                mat.setMatrix4(lightViewStringCache[i], lightViewProjectionsMatrices[i]);
             }
-
-            for (int j = 0; j < nbShadowMaps; j++) {
-                mat.setTexture(shadowMapStringCache[j], shadowMaps[j]);
+            for (int i = 0; i < nbShadowMaps; i++) {
+                mat.setTexture(shadowMapStringCache[i], shadowMaps[i]);
             }
 
             mat.setBoolean("HardwareShadows", shadowCompareMode == CompareMode.Hardware);
@@ -581,7 +575,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             mat.setBoolean("BackfaceShadows", renderBackFacesShadows);
 
             if (fadeInfo != null) {
-               mat.setVector2("FadeInfo", fadeInfo);
+                mat.setVector2("FadeInfo", fadeInfo);
             }
 
             setMaterialParameters(mat);
@@ -592,13 +586,12 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         if (needsfallBackMaterial) {
             setPostShadowParams();
         }
-
     }
 
-    private void buildMatCache(GeometryList l) {
+    private void buildMatCache(GeometryList list) {
         matCache.clear();
-        for (int i = 0; i < l.size(); i++) {
-            Material mat = l.get(i).getMaterial();
+        for (int i = 0; i < list.size(); i++) {
+            Material mat = list.get(i).getMaterial();
             //checking if the material has the post technique and adding it to the material cache
             if (mat.getMaterialDef().getTechniqueDefs(postTechniqueName) != null) {
                 if (!matCache.contains(mat)) {
