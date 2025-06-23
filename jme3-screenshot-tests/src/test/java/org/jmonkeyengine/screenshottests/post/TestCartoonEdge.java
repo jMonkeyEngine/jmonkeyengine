@@ -72,24 +72,18 @@ public class TestCartoonEdge extends ScreenshotTestBase {
                 SimpleApplication simpleApplication = (SimpleApplication) app;
                 Node rootNode = simpleApplication.getRootNode();
 
-                // Set background color
                 simpleApplication.getViewPort().setBackgroundColor(ColorRGBA.Gray);
 
-                // Set up camera
                 simpleApplication.getCamera().setLocation(new Vector3f(-1, 2, -5));
                 simpleApplication.getCamera().lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
                 simpleApplication.getCamera().setFrustumFar(300);
 
-                // Set up root node
                 rootNode.setCullHint(CullHint.Never);
 
-                // Set up lighting
                 setupLighting(rootNode);
                 
-                // Set up model
                 setupModel(simpleApplication, rootNode);
                 
-                // Set up filters
                 setupFilters(simpleApplication);
             }
 
