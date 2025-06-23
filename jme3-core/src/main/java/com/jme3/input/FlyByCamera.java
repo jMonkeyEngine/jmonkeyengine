@@ -476,9 +476,9 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         } else if (name.equals(CameraInput.FLYCAM_RIGHT)) {
             rotateCamera(-value, initialUpVec);
         } else if (name.equals(CameraInput.FLYCAM_UP)) {
-            rotateCamera(-value * (invertY ? -1 : 1), cam.getLeft());
+            rotateCamera(-value * (invertY ? -1 : 1), cam.getLeft(tempLeft));
         } else if (name.equals(CameraInput.FLYCAM_DOWN)) {
-            rotateCamera(value * (invertY ? -1 : 1), cam.getLeft());
+            rotateCamera(value * (invertY ? -1 : 1), cam.getLeft(tempLeft));
         } else if (name.equals(CameraInput.FLYCAM_FORWARD)) {
             moveCamera(value, false);
         } else if (name.equals(CameraInput.FLYCAM_BACKWARD)) {
