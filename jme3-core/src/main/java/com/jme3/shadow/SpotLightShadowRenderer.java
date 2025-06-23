@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,38 +60,37 @@ import java.io.IOException;
  * mapping.<br> for more information on this read <a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
  *
- * @author Rémy Bouquet aka Nehon
+ * @author Nehon
  */
 public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
-    protected Camera shadowCam;    
+    protected Camera shadowCam;
     protected SpotLight light;
+    protected Camera[] cameras = new Camera[1];
     protected Vector3f[] points = new Vector3f[8];
-    //Holding the info for fading shadows in the far distance 
-   
+    protected Vector3f tempVec = new Vector3f();
 
     /**
-     * Used for serialization use SpotLightShadowRenderer#SpotLightShadowRenderer(AssetManager assetManager, int shadowMapSize)
+     * For serialization only. Do not use.
      */
     protected SpotLightShadowRenderer() {
         super();
     }
     
     /**
-     * Create a SpotLightShadowRenderer This use standard shadow mapping
+     * Creates a SpotLightShadowRenderer.
      *
-     * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
-     * etc...) The more quality, the fewer fps.
+     * @param assetManager  the application's asset manager
+     * @param shadowMapSize the size of the rendered shadow maps (512, 1024, 2048, etc...)
      */
     public SpotLightShadowRenderer(AssetManager assetManager, int shadowMapSize) {
         super(assetManager, shadowMapSize, 1);
         init(shadowMapSize);
     }
 
-    
     private void init(int shadowMapSize) {
         shadowCam = new Camera(shadowMapSize, shadowMapSize);
+        cameras[0] = shadowCam;
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
         }
@@ -101,7 +100,8 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     protected void initFrustumCam() {
         Camera viewCam = viewPort.getCamera();
         frustumCam = viewCam.clone();
-        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride, viewCam.getFrustumLeft(), viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
+        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride,
+                viewCam.getFrustumLeft(), viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
     }
 
     /**
@@ -138,10 +138,9 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         //We prevent computing the frustum points and splits with zeroed or negative near clip value
         float frustumNear = Math.max(viewCam.getFrustumNear(), 0.001f);
         ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, 1.0f, points);
-        //shadowCam.setDirection(direction);
 
         shadowCam.setFrustumPerspective(light.getSpotOuterAngle() * FastMath.RAD_TO_DEG * 2.0f, 1, 1f, light.getSpotRange());
-        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp());
+        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp(tempVec));
         shadowCam.setLocation(light.getPosition());
 
         shadowCam.update();
@@ -159,8 +158,6 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     protected void getReceivers(GeometryList lightReceivers) {
         lightReceivers.clear();
-        Camera[] cameras = new Camera[1];
-        cameras[0] = shadowCam;
         for (Spatial scene : viewPort.getScenes()) {
             ShadowUtil.getLitGeometriesInViewPort(scene, viewPort.getCamera(), cameras, RenderQueue.ShadowMode.Receive, lightReceivers);
         }
@@ -174,7 +171,6 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
         Vector3f[] points2 = points.clone();
-
         ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, shadowMapIndex));
         ShadowUtil.updateFrustumPoints2(shadowCam, points2);
         ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points2, shadowMapIndex));
@@ -208,7 +204,6 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         fadeInfo = (Vector2f) ic.readSavable("fadeInfo", null);
         fadeLength = ic.readFloat("fadeLength", 0f);
         init((int) shadowMapSize);
-
     }
 
     @Override
@@ -227,18 +222,17 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
      * @return true if intersects, otherwise false
      */
     @Override
-    protected boolean checkCulling(Camera viewCam) {      
+    protected boolean checkCulling(Camera viewCam) {
         Camera cam = viewCam;
-        if(frustumCam != null){
-            cam = frustumCam;            
+        if (frustumCam != null) {
+            cam = frustumCam;
             cam.setLocation(viewCam.getLocation());
             cam.setRotation(viewCam.getRotation());
         }
         TempVars vars = TempVars.get();
-        boolean intersects = light.intersectsFrustum(cam,vars);
+        boolean intersects = light.intersectsFrustum(cam, vars);
         vars.release();
         return intersects;
-        
     }
 
 }
