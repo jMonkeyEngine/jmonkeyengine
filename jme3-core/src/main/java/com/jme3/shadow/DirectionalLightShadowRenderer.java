@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,37 +59,40 @@ import java.io.IOException;
  * shadow mapping.<br> for more information on this read <a
  * href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html</a><br>
  *
- * @author Rémy Bouquet aka Nehon
+ * @author Nehon
  */
 public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
-    protected float lambda = 0.65f;    
+    // Default lambda value, optimizing shadow partition
+    protected float lambda = 0.65f;
     protected Camera shadowCam;
+    // Stores the normalized split distances for shader use (RGBA channels)
     protected ColorRGBA splits;
+    // Stores the actual split distances in world space
     protected float[] splitsArray;
     protected DirectionalLight light;
-    protected Vector3f[] points = new Vector3f[8];
-    //Holding the info for fading shadows in the far distance   
+    // Reusable array for frustum points to avoid repeated allocations
+    protected final Vector3f[] points = new Vector3f[8];
+    // Reusable temporary vector to avoid repeated allocations
+    protected final Vector3f tempVec = new Vector3f();
+    // Flag to enable or disable shadow edge stabilization
     private boolean stabilize = true;
 
     /**
-     * Used for serialization use
-     * DirectionalLightShadowRenderer#DirectionalLightShadowRenderer(AssetManager
-     * assetManager, int shadowMapSize, int nbSplits)
+     * For serialization only. Do not use.
      */
     protected DirectionalLightShadowRenderer() {
         super();
     }
 
     /**
-     * Creates a DirectionalLight shadow renderer. More info on the technique at <a
-     * href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html</a>
+     * Creates a DirectionalLight shadow renderer. This renderer implements the
+     * Parallel Split Shadow Mapping (PSSM) technique.
      *
-     * @param assetManager the application's asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512, 1024, 2048,
-     *     etcetera)
-     * @param nbSplits the number of shadow maps rendered (More shadow maps yield
-     *     better quality, fewer fps.)
+     * @param assetManager The application's asset manager.
+     * @param shadowMapSize The size of the rendered shadow maps (e.g., 512, 1024, 2048).
+     * @param nbSplits The number of shadow maps to render (1 to 4). More maps
+     * improve quality but can reduce performance.
      */
     public DirectionalLightShadowRenderer(AssetManager assetManager, int shadowMapSize, int nbSplits) {
         super(assetManager, shadowMapSize, nbSplits);
@@ -151,16 +154,16 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
         ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, 1.0f, points);
 
         shadowCam.setFrustumFar(zFar);
-        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp());
+        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp(tempVec));
         shadowCam.update();
         shadowCam.updateViewProjection();
 
         PssmShadowUtil.updateFrustumSplits(splitsArray, frustumNear, zFar, lambda);
 
         // in parallel projection shadow position goe from 0 to 1
-        if(viewCam.isParallelProjection()){
+        if (viewCam.isParallelProjection()) {
             for (int i = 0; i < nbShadowMaps; i++) {
-                splitsArray[i] = splitsArray[i]/(zFar- frustumNear);
+                splitsArray[i] = splitsArray[i] / (zFar - frustumNear);
             }
         }
 
@@ -176,7 +179,6 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
                 splits.r = splitsArray[1];
                 break;
         }
-
     }
     
     @Override
@@ -185,20 +187,21 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
         // update frustum points based on current camera and split
         ShadowUtil.updateFrustumPoints(viewPort.getCamera(), splitsArray[shadowMapIndex], splitsArray[shadowMapIndex + 1], 1.0f, points);
 
-        //Updating shadow cam with current split frusta
-        if (lightReceivers.size()==0) {
+        // If light receivers haven't been identified yet, find them within the view frustum
+        if (lightReceivers.size() == 0) {
             for (Spatial scene : viewPort.getScenes()) {
-              ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, lightReceivers);
+                ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, lightReceivers);
             }
         }
-        ShadowUtil.updateShadowCamera(viewPort, lightReceivers, shadowCam, points, shadowMapOccluders, stabilize?shadowMapSize:0);
+        // Update the shadow camera's projection based on the occluders and stabilization setting
+        ShadowUtil.updateShadowCamera(viewPort, lightReceivers, shadowCam, points, shadowMapOccluders, stabilize ? shadowMapSize : 0);
 
         return shadowMapOccluders;
     }
 
     @Override
     protected void getReceivers(GeometryList lightReceivers) {
-        if (lightReceivers.size()==0) {
+        if (lightReceivers.size() == 0) {
             for (Spatial scene : viewPort.getScenes()) {
                 ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, lightReceivers);
             }
