@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,21 @@ package com.jme3.export.binary;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetManager;
-import com.jme3.export.*;
+import com.jme3.export.FormatVersion;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.ReadListener;
+import com.jme3.export.Savable;
+import com.jme3.export.SavableClassUtil;
 import com.jme3.math.FastMath;
-import java.io.*;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteOrder;
 import java.util.HashMap;
@@ -44,28 +56,30 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * The `BinaryImporter` class is responsible for loading jME binary object
+ * files (`.j3o` files) into Java objects.
+ *
  * @author Joshua Slack
- * @author Kirill Vainer - Version number, Fast buffer reading
+ * @author Kirill Vainer
  */
 public final class BinaryImporter implements JmeImporter {
-    private static final Logger logger = Logger.getLogger(BinaryImporter.class
-            .getName());
+
+    private static final Logger logger = Logger.getLogger(BinaryImporter.class.getName());
 
     private AssetManager assetManager;
 
-    //Key - alias, object - bco
-    private final HashMap<String, BinaryClassObject> classes
-             = new HashMap<>();
-    //Key - id, object - the savable
-    private final HashMap<Integer, Savable> contentTable
-            = new HashMap<>();
-    //Key - savable, object - capsule
-    private final IdentityHashMap<Savable, BinaryInputCapsule> capsuleTable
-             = new IdentityHashMap<>();
-    //Key - id, object - location in the file
-    private final HashMap<Integer, Integer> locationTable
-             = new HashMap<>();
+    // Key - alias, object - bco
+    private final HashMap<String, BinaryClassObject> classes = new HashMap<>();
+    // Key - id, object - the savable
+    private final HashMap<Integer, Savable> contentTable = new HashMap<>();
+    // Key - savable, object - capsule
+    private final IdentityHashMap<Savable, BinaryInputCapsule> capsuleTable = new IdentityHashMap<>();
+    // Key - id, object - location in the file
+    private final HashMap<Integer, Integer> locationTable = new HashMap<>();
 
+    /**
+     * A flag to enable debug logging for importer statistics.
+     */
     public static boolean debug = false;
 
     private byte[] dataArray;
@@ -73,7 +87,10 @@ public final class BinaryImporter implements JmeImporter {
     private int formatVersion;
 
     private static final boolean fastRead = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
-    
+
+    /**
+     * Creates a new `BinaryImporter`.
+     */
     public BinaryImporter() {
     }
     
@@ -81,121 +98,160 @@ public final class BinaryImporter implements JmeImporter {
     public int getFormatVersion(){
         return formatVersion;
     }
-    
+
+    /**
+     * Checks if fast buffer reading can be used. Fast buffer reading is possible
+     * if the native byte order is little-endian.
+     * @return true if fast buffer reading can be used, false otherwise.
+     */
     public static boolean canUseFastBuffers(){
         return fastRead;
     }
 
+    /**
+     * Returns a new instance of `BinaryImporter`.
+     * @return a new `BinaryImporter` instance.
+     */
     public static BinaryImporter getInstance() {
         return new BinaryImporter();
     }
 
-    public void setAssetManager(AssetManager manager){
-        this.assetManager = manager;
+    /**
+     * Sets the `AssetManager` to be used by this importer.
+     * @param assetManager The `AssetManager` to set.
+     */
+    public void setAssetManager(AssetManager assetManager){
+        this.assetManager = assetManager;
     }
 
+    /**
+     * Returns the `AssetManager` currently associated with this importer.
+     * @return The `AssetManager` used by this importer.
+     */
     @Override
-    public AssetManager getAssetManager(){
+    public AssetManager getAssetManager() {
         return assetManager;
     }
 
+    /**
+     * Loads a `Savable` object from the provided `AssetInfo`.
+     * This method is typically called by the `AssetManager` to load assets.
+     *
+     * @param info The `AssetInfo` containing details about the asset to load,
+     * including an `InputStream` to its data.
+     * @return The loaded `Savable` object, or `null` if an error occurred during loading.
+     */
     @Override
-    public Object load(AssetInfo info){
-//        if (!(info.getKey() instanceof ModelKey))
-//            throw new IllegalArgumentException("Model assets must be loaded using a ModelKey");
-
+    public Object load(AssetInfo info) {
         assetManager = info.getManager();
 
-        InputStream is = null;
-        try {
-            is = info.openStream();
-            Savable s = load(is);
-            
-            return s;
+        try (InputStream is = info.openStream()) {
+            return load(is);
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "An error occurred while loading jME binary object", ex);
-        } finally {
-            if (is != null){
-                try {
-                    is.close();
-                } catch (IOException ex) {}
-            }
         }
         return null;
     }
 
+    /**
+     * Loads a `Savable` object from the given `InputStream`.
+     *
+     * @param is The `InputStream` to read the binary data from.
+     * @return The loaded `Savable` object.
+     * @throws IOException If an I/O error occurs during reading.
+     */
     public Savable load(InputStream is) throws IOException {
         return load(is, null, null);
     }
 
+    /**
+     * Loads a `Savable` object from the given `InputStream`, reporting read progress.
+     *
+     * @param is       The `InputStream` to read the binary data from.
+     * @param listener An optional `ReadListener` to report read progress. Can be `null`.
+     * @return The loaded `Savable` object.
+     * @throws IOException If an I/O error occurs during reading.
+     */
     public Savable load(InputStream is, ReadListener listener) throws IOException {
         return load(is, listener, null);
     }
 
+    /**
+     * Loads a `Savable` object from the given `InputStream`, reporting read progress
+     * and optionally writing the read data to a `ByteArrayOutputStream`.
+     *
+     * @param is       The `InputStream` to read the binary data from.
+     * @param listener An optional `ReadListener` to report read progress. Can be `null`.
+     * @param baos     An optional `ByteArrayOutputStream` to which the read data will
+     *                 be copied. If `null`, the data is not copied.
+     * @return The loaded `Savable` object.
+     * @throws IOException If an I/O error occurs during reading or if the file
+     *                     format version is newer than supported by this importer.
+     */
     public Savable load(InputStream is, ReadListener listener, ByteArrayOutputStream baos) throws IOException {
         contentTable.clear();
         BufferedInputStream bis = new BufferedInputStream(is);
-        
+
         int numClasses;
-        
+
         // Try to read signature
         int maybeSignature = ByteUtils.readInt(bis);
-        if (maybeSignature == FormatVersion.SIGNATURE){
+        if (maybeSignature == FormatVersion.SIGNATURE) {
             // this is a new version J3O file
             formatVersion = ByteUtils.readInt(bis);
             numClasses = ByteUtils.readInt(bis);
-            
+
             // check if this binary is from the future
-            if (formatVersion > FormatVersion.VERSION){
-                throw new IOException("The binary file is of newer version than expected! " + 
-                                      formatVersion + " > " + FormatVersion.VERSION);
+            if (formatVersion > FormatVersion.VERSION) {
+                throw new IOException("The binary file is of newer version than expected! " +
+                        formatVersion + " > " + FormatVersion.VERSION);
             }
-        }else{
+        } else {
             // this is an old version J3O file
             // the signature was actually the class count
             numClasses = maybeSignature;
-            
+
             // 0 indicates version before we started adding
             // version numbers
-            formatVersion = 0; 
+            formatVersion = 0;
         }
-        
+
         int bytes = 4;
-        aliasWidth = ((int)FastMath.log(numClasses, 256) + 1);
+        aliasWidth = ((int) FastMath.log(numClasses, 256) + 1);
 
         classes.clear();
-        for(int i = 0; i < numClasses; i++) {
+        for (int i = 0; i < numClasses; i++) {
             String alias = readString(bis, aliasWidth);
-            
+
             // jME3 NEW: Read class version number
             int[] classHierarchyVersions;
-            if (formatVersion >= 1){
+            if (formatVersion >= 1) {
                 int classHierarchySize = bis.read();
                 classHierarchyVersions = new int[classHierarchySize];
-                for (int j = 0; j < classHierarchySize; j++){
+                for (int j = 0; j < classHierarchySize; j++) {
                     classHierarchyVersions[j] = ByteUtils.readInt(bis);
                 }
-            }else{
-                classHierarchyVersions = new int[]{ 0 };
+            } else {
+                classHierarchyVersions = new int[]{0};
             }
-            
-            // read classname and classname size
+
+            // read class name and class name size
             int classLength = ByteUtils.readInt(bis);
             String className = readString(bis, classLength);
-            
+
             BinaryClassObject bco = new BinaryClassObject();
             bco.alias = alias.getBytes();
             bco.className = className;
             bco.classHierarchyVersions = classHierarchyVersions;
-            
+
             int fields = ByteUtils.readInt(bis);
             bytes += (8 + aliasWidth + classLength);
 
             bco.nameFields = new HashMap<String, BinaryClassField>(fields);
             bco.aliasFields = new HashMap<Byte, BinaryClassField>(fields);
             for (int x = 0; x < fields; x++) {
-                byte fieldAlias = (byte)bis.read();
-                byte fieldType = (byte)bis.read();
+                byte fieldAlias = (byte) bis.read();
+                byte fieldType = (byte) bis.read();
 
                 int fieldNameLength = ByteUtils.readInt(bis);
                 String fieldName = readString(bis, fieldNameLength);
@@ -206,14 +262,16 @@ public final class BinaryImporter implements JmeImporter {
             }
             classes.put(alias, bco);
         }
-        if (listener != null) listener.readBytes(bytes);
+        if (listener != null) {
+            listener.readBytes(bytes);
+        }
 
         int numLocs = ByteUtils.readInt(bis);
         bytes = 4;
 
         capsuleTable.clear();
         locationTable.clear();
-        for(int i = 0; i < numLocs; i++) {
+        for (int i = 0; i < numLocs; i++) {
             int id = ByteUtils.readInt(bis);
             int loc = ByteUtils.readInt(bis);
             locationTable.put(id, loc);
@@ -227,56 +285,88 @@ public final class BinaryImporter implements JmeImporter {
         if (listener != null) listener.readBytes(bytes);
 
         if (baos == null) {
-                baos = new ByteArrayOutputStream(bytes);
+            baos = new ByteArrayOutputStream(bytes);
         } else {
-                baos.reset();
+            baos.reset();
         }
         int size = -1;
         byte[] cache = new byte[4096];
-        while((size = bis.read(cache)) != -1) {
+        while ((size = bis.read(cache)) != -1) {
             baos.write(cache, 0, size);
             if (listener != null) listener.readBytes(size);
         }
-        bis = null;
 
         dataArray = baos.toByteArray();
-        baos = null;
 
         Savable rVal = readObject(id);
         if (debug) {
-            logger.fine("Importer Stats: ");
-            logger.log(Level.FINE, "Tags: {0}", numClasses);
-            logger.log(Level.FINE, "Objects: {0}", numLocs);
-            logger.log(Level.FINE, "Data Size: {0}", dataArray.length);
+            logger.log(Level.INFO, "BinaryImporter Stats:");
+            logger.log(Level.INFO, "Tags: {0}", numClasses);
+            logger.log(Level.INFO, "Objects: {0}", numLocs);
+            logger.log(Level.INFO, "Data Size: {0}", dataArray.length);
         }
         dataArray = null;
         return rVal;
     }
 
-    public Savable load(URL f) throws IOException {
-        return load(f, null);
+    /**
+     * Loads a `Savable` object from the given `URL`.
+     *
+     * @param url The `URL` to the binary file.
+     * @return The loaded `Savable` object.
+     * @throws IOException If an I/O error occurs during reading from the URL.
+     */
+    public Savable load(URL url) throws IOException {
+        return load(url, null);
     }
 
-    public Savable load(URL f, ReadListener listener) throws IOException {
-        InputStream is = f.openStream();
+    /**
+     * Loads a `Savable` object from the given `URL`, reporting read progress.
+     *
+     * @param url The `URL` to the binary file.
+     * @param listener An optional `ReadListener` to report read progress. Can be `null`.
+     * @return The loaded `Savable` object.
+     * @throws IOException If an I/O error occurs during reading from the URL.
+     */
+    public Savable load(URL url, ReadListener listener) throws IOException {
+        InputStream is = url.openStream();
         Savable rVal = load(is, listener);
         is.close();
         return rVal;
     }
 
+    /**
+     * Loads a `Savable` object from the given `File`.
+     *
+     * @param f The `File` object representing the binary file.
+     * @return The loaded `Savable` object.
+     * @throws IOException If an I/O error occurs during reading from the file.
+     */
     public Savable load(File f) throws IOException {
         return load(f, null);
     }
 
+    /**
+     * Loads a `Savable` object from the given `File`, reporting read progress.
+     *
+     * @param f        The `File` object representing the binary file.
+     * @param listener An optional `ReadListener` to report read progress. Can be `null`.
+     * @return The loaded `Savable` object.
+     * @throws IOException If an I/O error occurs during reading from the file.
+     */
     public Savable load(File f, ReadListener listener) throws IOException {
-        FileInputStream fis = new FileInputStream(f);
-        try {
+        try (FileInputStream fis = new FileInputStream(f)) {
             return load(fis, listener);
-        } finally {
-            fis.close();
         }
     }
 
+    /**
+     * Loads a `Savable` object from the given byte array.
+     *
+     * @param data The byte array containing the binary data.
+     * @return The loaded `Savable` object.
+     * @throws IOException If an I/O error occurs during reading from the byte array.
+     */
     public Savable load(byte[] data) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
         Savable rVal = load(bais);
@@ -289,27 +379,34 @@ public final class BinaryImporter implements JmeImporter {
         return capsuleTable.get(id);
     }
 
-    protected String readString(InputStream f, int length) throws IOException {
+    private String readString(InputStream is, int length) throws IOException {
         byte[] data = new byte[length];
-        for(int j = 0; j < length; j++) {
-            data[j] = (byte)f.read();
+        for (int j = 0; j < length; j++) {
+            data[j] = (byte) is.read();
         }
-
         return new String(data);
     }
 
-    protected String readString(int length, int offset) throws IOException {
+    private String readString(int length, int offset) {
         byte[] data = new byte[length];
-        for(int j = 0; j < length; j++) {
-            data[j] = dataArray[j+offset];
+        for (int j = 0; j < length; j++) {
+            data[j] = dataArray[j + offset];
         }
-
         return new String(data);
     }
 
+    /**
+     * Reads and reconstructs a `Savable` object from the loaded binary data using its ID.
+     * This method handles object graph traversal and ensures that objects are
+     * only created once, using `contentTable` to store already-read objects.
+     *
+     * @param id The unique integer ID of the `Savable` object to read.
+     * @return The reconstructed `Savable` object, or `null` if an error occurs
+     * (e.g., class not found, invalid alias).
+     */
     public Savable readObject(int id) {
 
-        if(contentTable.get(id) != null) {
+        if (contentTable.get(id) != null) {
             return contentTable.get(id);
         }
 
@@ -317,22 +414,22 @@ public final class BinaryImporter implements JmeImporter {
             int loc = locationTable.get(id);
 
             String alias = readString(aliasWidth, loc);
-            loc+=aliasWidth;
+            loc += aliasWidth;
 
             BinaryClassObject bco = classes.get(alias);
 
-            if(bco == null) {
+            if (bco == null) {
                 logger.logp(Level.SEVERE, this.getClass().toString(), "readObject(int id)", "NULL class object: " + alias);
                 return null;
             }
 
             int dataLength = ByteUtils.convertIntFromBytes(dataArray, loc);
-            loc+=4;
+            loc += 4;
 
-            Savable  out = SavableClassUtil.fromName(bco.className);
+            Savable out = SavableClassUtil.fromName(bco.className);
 
             BinaryInputCapsule cap = new BinaryInputCapsule(this, out, bco);
-            cap.setContent(dataArray, loc, loc+dataLength);
+            cap.setContent(dataArray, loc, loc + dataLength);
 
             capsuleTable.put(out, cap);
             contentTable.put(id, out);
