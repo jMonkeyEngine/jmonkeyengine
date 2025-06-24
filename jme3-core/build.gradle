@@ -19,6 +19,55 @@ dependencies {
     testRuntimeOnly project(':jme3-testdata')
     testImplementation project(':jme3-desktop')
     testRuntimeOnly project(':jme3-plugins')
+
+    // Use LWJGL3 directly in core. This destroys LWJGL2 and JOGL compatibility.
+    api (libs.lwjgl3.awt) {
+        exclude group: 'org.lwjgl', module: 'lwjgl'
+    }
+    api libs.lwjgl3.base
+    api libs.lwjgl3.glfw
+    api libs.lwjgl3.jawt
+    api libs.lwjgl3.jemalloc
+    api libs.lwjgl3.openal
+    api libs.lwjgl3.opencl
+    api libs.lwjgl3.opengl
+    api libs.lwjgl3.vulkan
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-macos-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.glfw){ classifier('natives-macos-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.jemalloc){ classifier('natives-macos-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengl){ classifier('natives-macos-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos-arm64') })
+
 }
 
 task updateVersionPropertiesFile {

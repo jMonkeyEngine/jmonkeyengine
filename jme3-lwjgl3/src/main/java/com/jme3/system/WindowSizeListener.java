@@ -29,7 +29,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system.lwjgl;
+package com.jme3.system;
+
+import com.jme3.system.lwjgl.LwjglWindow;
 
 /**
  * Listen to window size changes. Note, GLFW does not support registering multiple callbacks

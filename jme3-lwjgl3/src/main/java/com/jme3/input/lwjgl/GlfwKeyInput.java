@@ -35,6 +35,7 @@ package com.jme3.input.lwjgl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.KeyInputEvent;
+import com.jme3.system.GlfwWindow;
 import com.jme3.system.lwjgl.LwjglWindow;
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -56,9 +57,9 @@ public class GlfwKeyInput implements KeyInput {
     private final Queue<KeyInputEvent> keyInputEvents = new ArrayDeque<>();
 
     /**
-     * The LWJGL context.
+     * The GLFW window.
      */
-    private final LwjglWindow context;
+    private final GlfwWindow context;
 
     /**
      * The key callback.
@@ -77,7 +78,7 @@ public class GlfwKeyInput implements KeyInput {
 
     private boolean initialized;
 
-    public GlfwKeyInput(final LwjglWindow context) {
+    public GlfwKeyInput(final GlfwWindow context) {
         this.context = context;
     }
 

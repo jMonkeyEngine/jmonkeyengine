@@ -44,7 +44,7 @@ public interface JmeContext {
     /**
      * The type of context.
      */
-    public enum Type {
+    enum Type {
         /**
          * A display can represent a windowed or a fullscreen-exclusive display.
          * If windowed, the graphics are rendered to a new on-screen surface
@@ -77,6 +77,23 @@ public interface JmeContext {
          * display, input, or sound support.
          */
         Headless,
+    }
+
+    /**
+     * Enum specifying the backend to use.
+     */
+    enum Backend {
+
+        /**
+         * Specifies the OpenGL backend.
+         */
+        OpenGL,
+
+        /**
+         * Specifies the Vulkan backend.
+         */
+        Vulkan;
+
     }
 
     /**

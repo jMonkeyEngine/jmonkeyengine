@@ -12,6 +12,7 @@ dependencies {
     api libs.lwjgl3.openal
     api libs.lwjgl3.opencl
     api libs.lwjgl3.opengl
+    api libs.lwjgl3.vulkan
 
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows-x86') })
