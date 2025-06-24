@@ -176,9 +176,11 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
+        Vector3f[] points2 = points.clone();
+
         ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, shadowMapIndex));
-        ShadowUtil.updateFrustumPoints2(shadowCam, points);
-        ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, shadowMapIndex));
+        ShadowUtil.updateFrustumPoints2(shadowCam, points2);
+        ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points2, shadowMapIndex));
     }
 
     @Override
