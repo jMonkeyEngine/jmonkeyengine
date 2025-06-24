@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.vulkan.EXTDebugUtils.*;
-import static org.lwjgl.vulkan.VK14.*;
+import static org.lwjgl.vulkan.VK10.*;
 
 public class VulkanTest extends SimpleApplication {
 
@@ -50,10 +50,10 @@ public class VulkanTest extends SimpleApplication {
             LOG.info("Validation layers: " + layers.size() + ", buffer: " + layerPtrs);
             createInstance(stack, layerPtrs);
             createDebugMessenger(stack);
-            //PhysicalDevice physDevice = findPhysicalDevice(stack);
-            //QueueFamilyIndices queues = populateQueueFamily(stack, physDevice.getDevice());
-            //device = createLogicalDevice(stack, physDevice, queues, layerPtrs);
-            //graphics = getQueue(stack, device, queues, 0);
+            PhysicalDevice physDevice = findPhysicalDevice(stack);
+            QueueFamilyIndices queues = populateQueueFamily(stack, physDevice.getDevice());
+            device = createLogicalDevice(stack, physDevice, queues, layerPtrs);
+            graphics = getQueue(stack, device, queues, 0);
         }
     }
 
@@ -84,10 +84,10 @@ public class VulkanTest extends SimpleApplication {
                 .applicationVersion(VK_MAKE_VERSION(1, 0, 0))
                 .pEngineName(stack.ASCII("JMonkeyEngine"))
                 .engineVersion(VK_MAKE_VERSION(3, 9, 0))
-                .apiVersion(VK_API_VERSION_1_4);
+                .apiVersion(VK_API_VERSION_1_0);
         VkInstanceCreateInfo create = VkInstanceCreateInfo.calloc(stack)
                 .sType(VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO)
-                .pNext(createDebugger(stack, debugCallback))
+                //.pNext(createDebugger(stack, debugCallback)) // causing native crashes when destroying instance
                 .pApplicationInfo(app);
         if (layers != null) {
             create.ppEnabledLayerNames(layers);
