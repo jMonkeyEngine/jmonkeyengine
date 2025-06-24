@@ -314,8 +314,8 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
             updateAnimationTargets(spatial);
 
             // Prevent illegal cases. These should never happen.
-            assert hwSkinningTested || (!hwSkinningTested && !hwSkinningSupported && !hwSkinningEnabled);
-            assert !hwSkinningEnabled || (hwSkinningEnabled && hwSkinningTested && hwSkinningSupported);
+            assert hwSkinningTested || (!hwSkinningSupported && !hwSkinningEnabled);
+            assert !hwSkinningEnabled || (hwSkinningTested && hwSkinningSupported);
 
             if (hwSkinningPreferred && !hwSkinningTested) {
                 // If hardware skinning is preferred and hasn't been tested yet, test it.
@@ -777,6 +777,14 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
         armature = (Armature) in.readSavable("armature", null);
+
+        for (MatParamOverride mpo : spatial.getLocalMatParamOverrides().getArray()) {
+            if (mpo.getName().equals("NumberOfBones") || mpo.getName().equals("BoneMatrices")) {
+                spatial.removeMatParamOverride(mpo);
+            }
+        }
+        spatial.addMatParamOverride(numberOfJointsParam);
+        spatial.addMatParamOverride(jointMatricesParam);
     }
 
     /**
