@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package com.jme3.material;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 
 import com.jme3.asset.TextureKey;
 import com.jme3.export.InputCapsule;
@@ -85,6 +86,11 @@ public class MatParam implements Savable, Cloneable {
     protected MatParam() {
     }
 
+    /**
+     * Checks if type checking is enabled for this material parameter.
+     *
+     * @return true if type checking is enabled, false otherwise.
+     */
     public boolean isTypeCheckEnabled() {
         return typeCheck;
     }
@@ -119,9 +125,11 @@ public class MatParam implements Savable, Cloneable {
     }
 
     /**
-     * Returns the name with "m_" prefixed to it.
+     * Returns the name of the material parameter prefixed with "m_".
+     * This prefixed name is commonly used for internal uniform naming
+     * in shaders (e.g., "m_Color" for a parameter named "Color").
      *
-     * @return the name with "m_" prefixed to it
+     * @return The prefixed name of the material parameter.
      */
     public String getPrefixedName() {
         return prefixedName;
@@ -152,30 +160,45 @@ public class MatParam implements Savable, Cloneable {
     /**
      * Sets the value of this material parameter.
      * <p>
-     * It is assumed the value is of the same {@link MatParam#getVarType() type}
-     * as this material parameter.
+     * It is generally assumed that the value's type
+     * corresponds to the {@link MatParam#getVarType() type} of this parameter.
      *
-     * @param value the value of this material parameter.
+     * @param value The new value for this material parameter. Can be null.
+     * @throws RuntimeException if type checking is enabled and the provided
+     * value's type is incompatible with the parameter's
+     * defined variable type.
      */
     public void setValue(Object value) {
         if (isTypeCheckEnabled()) {
-            if (value != null && this.type != null && this.type.getJavaType().length != 0) {
-                boolean valid = false;
-                for (Class<?> jtype : this.type.getJavaType()) {
-                    if (jtype.isAssignableFrom(value.getClass())) {
-                        valid = true;
-                        break;
-                    }
-                }
-                if (!valid) {
-                    throw new RuntimeException("Trying to assign a value of type " + value.getClass() 
-                            + " to " + this.getName() 
-                            + " of type " + type.name() 
-                            + ". Valid types are " + Arrays.deepToString(type.getJavaType()));
-                }
+            if (value != null) {
+                validateValueType(value);
             }
         }
         this.value = value;
+    }
+
+    /**
+     * Validates if the provided value is compatible with the parameter's type.
+     *
+     * @param value The value to validate.
+     * @throws RuntimeException if the value's type is not compatible.
+     */
+    private void validateValueType(Object value) {
+        if (type != null && type.getJavaType().length != 0) {
+            boolean valid = false;
+            for (Class<?> javaType : type.getJavaType()) {
+                if (javaType.isAssignableFrom(value.getClass())) {
+                    valid = true;
+                    break;
+                }
+            }
+            if (!valid) {
+                throw new RuntimeException("Trying to assign a value of type " + value.getClass()
+                        + " to " + this.getName()
+                        + " of type " + type.name()
+                        + ". Valid types are " + Arrays.deepToString(type.getJavaType()));
+            }
+        }
     }
 
     /**
@@ -199,82 +222,21 @@ public class MatParam implements Savable, Cloneable {
                 return value.toString();
             case Vector2:
                 Vector2f v2 = (Vector2f) value;
-                return v2.getX() + " " + v2.getY();
-/*
-This may get used at a later point of time
-When arrays can be inserted in J3M files
-
-            case Vector2Array:
-                Vector2f[] v2Arr = (Vector2f[]) value;
-                String v2str = "";
-                for (int i = 0; i < v2Arr.length ; i++) {
-                    v2str += v2Arr[i].getX() + " " + v2Arr[i].getY() + "\n";
-                }
-                return v2str;
-*/
+                return v2.x + " " + v2.y;
             case Vector3:
                 Vector3f v3 = (Vector3f) value;
-                return v3.getX() + " " + v3.getY() + " " + v3.getZ();
-/*
-            case Vector3Array:
-                Vector3f[] v3Arr = (Vector3f[]) value;
-                String v3str = "";
-                for (int i = 0; i < v3Arr.length ; i++) {
-                    v3str += v3Arr[i].getX() + " "
-                            + v3Arr[i].getY() + " "
-                            + v3Arr[i].getZ() + "\n";
-                }
-                return v3str;
-            case Vector4Array:
-                // can be either ColorRGBA, Vector4f or Quaternion
-                if (value instanceof Vector4f) {
-                    Vector4f[] v4arr = (Vector4f[]) value;
-                    String v4str = "";
-                    for (int i = 0; i < v4arr.length ; i++) {
-                        v4str += v4arr[i].getX() + " "
-                                + v4arr[i].getY() + " "
-                                + v4arr[i].getZ() + " "
-                                + v4arr[i].getW() + "\n";
-                    }
-                    return v4str;
-                } else if (value instanceof ColorRGBA) {
-                    ColorRGBA[] colorArr = (ColorRGBA[]) value;
-                    String colStr = "";
-                    for (int i = 0; i < colorArr.length ; i++) {
-                        colStr += colorArr[i].getRed() + " "
-                                + colorArr[i].getGreen() + " "
-                                + colorArr[i].getBlue() + " "
-                                + colorArr[i].getAlpha() + "\n";
-                    }
-                    return colStr;
-                } else if (value instanceof Quaternion) {
-                    Quaternion[] quatArr = (Quaternion[]) value;
-                    String quatStr = "";
-                    for (int i = 0; i < quatArr.length ; i++) {
-                        quatStr += quatArr[i].getX() + " "
-                                + quatArr[i].getY() + " "
-                                + quatArr[i].getZ() + " "
-                                + quatArr[i].getW() + "\n";
-                    }
-                    return quatStr;
-                } else {
-                    throw new UnsupportedOperationException("Unexpected Vector4Array type: " + value);
-                }
-*/
+                return v3.x + " " + v3.y + " " + v3.z;
             case Vector4:
                 // can be either ColorRGBA, Vector4f or Quaternion
                 if (value instanceof Vector4f) {
                     Vector4f v4 = (Vector4f) value;
-                    return v4.getX() + " " + v4.getY() + " "
-                            + v4.getZ() + " " + v4.getW();
+                    return v4.x + " " + v4.y + " " + v4.z + " " + v4.w;
                 } else if (value instanceof ColorRGBA) {
                     ColorRGBA color = (ColorRGBA) value;
-                    return color.getRed() + " " + color.getGreen() + " "
-                            + color.getBlue() + " " + color.getAlpha();
+                    return color.r + " " + color.g + " " + color.b + " " + color.a;
                 } else if (value instanceof Quaternion) {
-                    Quaternion quat = (Quaternion) value;
-                    return quat.getX() + " " + quat.getY() + " "
-                            + quat.getZ() + " " + quat.getW();
+                    Quaternion q = (Quaternion) value;
+                    return q.getX() + " " + q.getY() + " " + q.getZ() + " " + q.getW();
                 } else {
                     throw new UnsupportedOperationException("Unexpected Vector4 type: " + value);
                 }
@@ -286,10 +248,6 @@ When arrays can be inserted in J3M files
                 Texture texVal = (Texture) value;
                 TextureKey texKey = (TextureKey) texVal.getKey();
                 if (texKey == null) {
-                    // throw new UnsupportedOperationException("The specified MatParam cannot be represented in J3M");
-                    // this is used in toString and the above line causes blender materials to throw this exception.
-                    // toStrings should be very robust IMO as even debuggers often invoke toString and logging code
-                    // often does as well, even implicitly.
                     return texVal + ":returned null key";
                 }
 
@@ -377,6 +335,7 @@ When arrays can be inserted in J3M files
         type = ic.readEnum("varType", VarType.class, null);
         name = ic.readString("name", null);
         prefixedName = "m_" + name;
+
         switch (getVarType()) {
             case Boolean:
                 value = ic.readBoolean("value_bool", false);
@@ -388,38 +347,38 @@ When arrays can be inserted in J3M files
                 value = ic.readInt("value_int", 0);
                 break;
             case Vector2Array:
-                Savable[] savableArray = ic.readSavableArray("value_savable_array", null);
-                if (savableArray != null) {
-                    value = new Vector2f[savableArray.length];
-                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                Savable[] vec2Array = ic.readSavableArray("value_savable_array", null);
+                if (vec2Array != null) {
+                    value = new Vector2f[vec2Array.length];
+                    System.arraycopy(vec2Array, 0, value, 0, vec2Array.length);
                 }
                 break;
             case Vector3Array:
-                savableArray = ic.readSavableArray("value_savable_array", null);
-                if (savableArray != null) {
-                    value = new Vector3f[savableArray.length];
-                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                Savable[] vec3Array = ic.readSavableArray("value_savable_array", null);
+                if (vec3Array != null) {
+                    value = new Vector3f[vec3Array.length];
+                    System.arraycopy(vec3Array, 0, value, 0, vec3Array.length);
                 }
                 break;
             case Vector4Array:
-                savableArray = ic.readSavableArray("value_savable_array", null);
-                if (savableArray != null) {
-                    value = new Vector4f[savableArray.length];
-                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                Savable[] vec4Array = ic.readSavableArray("value_savable_array", null);
+                if (vec4Array != null) {
+                    value = new Vector4f[vec4Array.length];
+                    System.arraycopy(vec4Array, 0, value, 0, vec4Array.length);
                 }
                 break;
             case Matrix3Array:
-                savableArray = ic.readSavableArray("value_savable_array", null);
-                if (savableArray != null) {
-                    value = new Matrix3f[savableArray.length];
-                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                Savable[] mat3Array = ic.readSavableArray("value_savable_array", null);
+                if (mat3Array != null) {
+                    value = new Matrix3f[mat3Array.length];
+                    System.arraycopy(mat3Array, 0, value, 0, mat3Array.length);
                 }
                 break;
             case Matrix4Array:
-                savableArray = ic.readSavableArray("value_savable_array", null);
-                if (savableArray != null) {
-                    value = new Matrix4f[savableArray.length];
-                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                Savable[] mat4Array = ic.readSavableArray("value_savable_array", null);
+                if (mat4Array != null) {
+                    value = new Matrix4f[mat4Array.length];
+                    System.arraycopy(mat4Array, 0, value, 0, mat4Array.length);
                 }
                 break;
             default:
@@ -432,20 +391,22 @@ When arrays can be inserted in J3M files
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        // Optimization for same instance
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
+
         final MatParam other = (MatParam) obj;
         if (this.type != other.type) {
             return false;
         }
-        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+        if (!Objects.equals(this.name, other.name)) {
             return false;
         }
-        if (this.value != other.value && (this.value == null || !this.value.equals(other.value))) {
+        if (!Objects.equals(this.value, other.value)) {
             return false;
         }
         return true;
