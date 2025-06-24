@@ -51,19 +51,25 @@ import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
 /**
- * PointLightShadowRenderer renders shadows for a point light
+ * Renders shadows for a {@link PointLight}. This renderer uses six cameras,
+ * one for each face of a cube map, to capture shadows from the point light's
+ * perspective.
  *
  * @author Nehon
  */
 public class PointLightShadowRenderer extends AbstractShadowRenderer {
 
+    /**
+     * The fixed number of cameras used for rendering point light shadows (6 for a cube map).
+     */
     public static final int CAM_NUMBER = 6;
+
     protected PointLight light;
     protected Camera[] shadowCams;
-    private Geometry[] frustums = null;
-    private final Vector3f X_NEG = Vector3f.UNIT_X.mult(-1f);
-    private final Vector3f Y_NEG = Vector3f.UNIT_Y.mult(-1f);
-    private final Vector3f Z_NEG = Vector3f.UNIT_Z.mult(-1f);
+    protected Geometry[] frustums = null;
+    protected final Vector3f X_NEG = Vector3f.UNIT_X.mult(-1f);
+    protected final Vector3f Y_NEG = Vector3f.UNIT_Y.mult(-1f);
+    protected final Vector3f Z_NEG = Vector3f.UNIT_Z.mult(-1f);
 
     /**
      * For serialization only. Do not use.
@@ -73,10 +79,11 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     /**
-     * Creates a PointLightShadowRenderer.
+     * Creates a new {@code PointLightShadowRenderer} instance.
      *
-     * @param assetManager  the application's asset manager
-     * @param shadowMapSize the size of the rendered shadow maps (512, 1024, 2048, etc...)
+     * @param assetManager The application's asset manager.
+     * @param shadowMapSize The size of the rendered shadow maps (e.g., 512, 1024, 2048).
+     * Higher values produce better quality shadows but may impact performance.
      */
     public PointLightShadowRenderer(AssetManager assetManager, int shadowMapSize) {
         super(assetManager, shadowMapSize, CAM_NUMBER);
@@ -85,7 +92,7 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
 
     private void init(int shadowMapSize) {
         shadowCams = new Camera[CAM_NUMBER];
-        for (int i = 0; i < CAM_NUMBER; i++) {
+        for (int i = 0; i < shadowCams.length; i++) {
             shadowCams[i] = new Camera(shadowMapSize, shadowMapSize);
         }
     }
@@ -106,24 +113,20 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
             return;
         }
 
-        //bottom
-        shadowCams[0].setAxes(X_NEG, Z_NEG, Y_NEG);
-        //top
-        shadowCams[1].setAxes(X_NEG, Vector3f.UNIT_Z, Vector3f.UNIT_Y);
-        //forward
-        shadowCams[2].setAxes(X_NEG, Vector3f.UNIT_Y, Z_NEG);
-        //backward
-        shadowCams[3].setAxes(Vector3f.UNIT_X, Vector3f.UNIT_Y, Vector3f.UNIT_Z);
-        //left
-        shadowCams[4].setAxes(Vector3f.UNIT_Z, Vector3f.UNIT_Y, X_NEG);
-        //right
-        shadowCams[5].setAxes(Z_NEG, Vector3f.UNIT_Y, Vector3f.UNIT_X);
+        // Configure axes for each of the six cube map cameras (positive/negative X, Y, Z)
+        shadowCams[0].setAxes(X_NEG, Z_NEG, Y_NEG);                                 // -Y (bottom)
+        shadowCams[1].setAxes(X_NEG, Vector3f.UNIT_Z, Vector3f.UNIT_Y);             // +Y (top)
+        shadowCams[2].setAxes(X_NEG, Vector3f.UNIT_Y, Z_NEG);                       // +Z (forward)
+        shadowCams[3].setAxes(Vector3f.UNIT_X, Vector3f.UNIT_Y, Vector3f.UNIT_Z);   // -Z (backward)
+        shadowCams[4].setAxes(Vector3f.UNIT_Z, Vector3f.UNIT_Y, X_NEG);             // -X (left)
+        shadowCams[5].setAxes(Z_NEG, Vector3f.UNIT_Y, Vector3f.UNIT_X);             // +X (right)
 
-        for (int i = 0; i < CAM_NUMBER; i++) {
-            shadowCams[i].setFrustumPerspective(90f, 1f, 0.1f, light.getRadius());
-            shadowCams[i].setLocation(light.getPosition());
-            shadowCams[i].update();
-            shadowCams[i].updateViewProjection();
+        // Set perspective and location for all shadow cameras
+        for (Camera shadowCam : shadowCams) {
+            shadowCam.setFrustumPerspective(90f, 1f, 0.1f, light.getRadius());
+            shadowCam.setLocation(light.getPosition());
+            shadowCam.update();
+            shadowCam.updateViewProjection();
         }
     }
 
@@ -153,7 +156,7 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
         if (frustums == null) {
             frustums = new Geometry[CAM_NUMBER];
             Vector3f[] points = new Vector3f[8];
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < points.length; i++) {
                 points[i] = new Vector3f();
             }
             for (int i = 0; i < CAM_NUMBER; i++) {
@@ -161,8 +164,9 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
                 frustums[i] = createFrustum(points, i);
             }
         }
-        if (frustums[shadowMapIndex].getParent() == null) {
-            ((Node) viewPort.getScenes().get(0)).attachChild(frustums[shadowMapIndex]);
+        Geometry geo = frustums[shadowMapIndex];
+        if (geo.getParent() == null) {
+            ((Node) viewPort.getScenes().get(0)).attachChild(geo);
         }
     }
 
