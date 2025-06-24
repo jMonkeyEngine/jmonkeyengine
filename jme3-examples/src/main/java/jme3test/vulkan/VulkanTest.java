@@ -23,8 +23,8 @@ public class VulkanTest extends SimpleApplication {
     private static final Logger LOG = Logger.getLogger(VulkanTest.class.getName());
 
     private VkInstance instance;
-    private VkPhysicalDevice device;
-    private QueueFamilies queues;
+    private VkDevice device;
+    private VkQueue graphics;
     private final Collection<PointerBuffer> extensions = new ArrayList<>();
     private final List<String> layers = new ArrayList<>();
     private final Collection<DeviceEvaluator> deviceEvaluators = new ArrayList<>();
@@ -46,27 +46,38 @@ public class VulkanTest extends SimpleApplication {
         // basic validation layer from the Vulkan SDK
         //layers.add("VK_LAYER_KHRONOS_validation");
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            createInstance(stack);
+            PointerBuffer layerPtrs = createLayerBuffer(stack, layers);
+            LOG.info("Validation layers: " + layers.size() + ", buffer: " + layerPtrs);
+            createInstance(stack, layerPtrs);
             createDebugMessenger(stack);
-            device = findPhysicalDevice(stack);
-            queues = populateQueueFamily(stack, device);
+            //PhysicalDevice physDevice = findPhysicalDevice(stack);
+            //QueueFamilyIndices queues = populateQueueFamily(stack, physDevice.getDevice());
+            //device = createLogicalDevice(stack, physDevice, queues, layerPtrs);
+            //graphics = getQueue(stack, device, queues, 0);
         }
     }
 
     @Override
     public void stop() {
-        LOG.info("Destroying vulkan instance.");
+        LOG.info("Destroying vulkan device and instance.");
+        if (device != null) {
+            System.out.println("Destroy device");
+            vkDeviceWaitIdle(device);
+            vkDestroyDevice(device, null);
+        }
         if (debugMessenger != NULL) {
+            System.out.println("Destroy messenger");
             verifyExtensionMethod(instance, "vkDestroyDebugUtilsMessengerEXT");
             vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, null);
         }
         if (instance != null) {
+            System.out.println("Destroy instance");
             vkDestroyInstance(instance, null);
         }
         super.stop();
     }
 
-    private void createInstance(MemoryStack stack) {
+    private void createInstance(MemoryStack stack, PointerBuffer layers) {
         VkApplicationInfo app = VkApplicationInfo.calloc(stack)
                 .sType(VK_STRUCTURE_TYPE_APPLICATION_INFO)
                 .pApplicationName(stack.ASCII(context.getSettings().getTitle()))
@@ -78,15 +89,22 @@ public class VulkanTest extends SimpleApplication {
                 .sType(VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO)
                 .pNext(createDebugger(stack, debugCallback))
                 .pApplicationInfo(app);
-        if (!layers.isEmpty()) {
-            verifyValidationLayerSupport(stack);
-            create.ppEnabledLayerNames(toPointers(stack, layers.stream(), layers.size(), stack::UTF8));
+        if (layers != null) {
+            create.ppEnabledLayerNames(layers);
         }
         addExtension(Objects.requireNonNull(GLFWVulkan.glfwGetRequiredInstanceExtensions()));
         addExtension(stack, VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         create.ppEnabledExtensionNames(gatherPointers(stack, extensions));
         instance = new VkInstance(getPointer(stack,
                 ptr -> check(vkCreateInstance(create, null, ptr), "Failed to create instance.")), create);
+        if (instance.address() == NULL) {
+            throw new NullPointerException("Instance pointer is null.");
+        }
+    }
+
+    private PointerBuffer createLayerBuffer(MemoryStack stack, Collection<String> layers) {
+        verifyValidationLayerSupport(stack);
+        return layers.isEmpty() ? null : toPointers(stack, layers.stream(), layers.size(), stack::UTF8);
     }
 
     private void createDebugMessenger(MemoryStack stack) {
@@ -94,13 +112,13 @@ public class VulkanTest extends SimpleApplication {
         debugMessenger = getLong(stack, ptr -> vkCreateDebugUtilsMessengerEXT(instance, createDebugger(stack, debugCallback), null, ptr));
     }
 
-    private VkPhysicalDevice findPhysicalDevice(MemoryStack stack) {
+    private PhysicalDevice findPhysicalDevice(MemoryStack stack) {
         PointerBuffer devices = enumerateBuffer(stack, stack::mallocPointer, (count, buffer) -> vkEnumeratePhysicalDevices(instance, count, buffer));
-        VkPhysicalDevice device = null;
+        PhysicalDevice device = null;
         float score = 0f;
-        for (VkPhysicalDevice d : iteratePointers(devices, p -> new VkPhysicalDevice(p, instance))) {
-            Float s = evaluateDevice(stack, d);
-            if (s != null && (device == null || s > score) && populateQueueFamily(stack, d).isComplete()) {
+        for (PhysicalDevice d : iteratePointers(devices, p -> new PhysicalDevice(new VkPhysicalDevice(p, instance)))) {
+            Float s = evaluateDevice(d);
+            if (s != null && (device == null || s > score) && populateQueueFamily(stack, d.getDevice()).isComplete()) {
                 device = d;
                 score = s;
             }
@@ -111,17 +129,13 @@ public class VulkanTest extends SimpleApplication {
         return device;
     }
 
-    private Float evaluateDevice(MemoryStack stack, VkPhysicalDevice device) {
+    private Float evaluateDevice(PhysicalDevice device) {
         if (deviceEvaluators.isEmpty()) {
             return 0f;
         }
-        VkPhysicalDeviceProperties props = VkPhysicalDeviceProperties.malloc(stack);
-        VkPhysicalDeviceFeatures features = VkPhysicalDeviceFeatures.malloc(stack);
-        vkGetPhysicalDeviceProperties(device, props);
-        vkGetPhysicalDeviceFeatures(device, features);
         float score = 0f;
         for (DeviceEvaluator e : deviceEvaluators) {
-            Float s = e.evaluateDevice(device, props, features);
+            Float s = e.evaluateDevice(device.getDevice(), device.getProps(), device.getFeatures());
             if (s == null) {
                 return null;
             }
@@ -130,8 +144,8 @@ public class VulkanTest extends SimpleApplication {
         return score;
     }
 
-    private QueueFamilies populateQueueFamily(MemoryStack stack, VkPhysicalDevice device) {
-        QueueFamilies fams = new QueueFamilies();
+    private QueueFamilyIndices populateQueueFamily(MemoryStack stack, VkPhysicalDevice device) {
+        QueueFamilyIndices fams = new QueueFamilyIndices();
         VkQueueFamilyProperties.Buffer props = enumerateBuffer(stack, VkQueueFamilyProperties::malloc,
                 (count, buffer) -> vkGetPhysicalDeviceQueueFamilyProperties(device, count, buffer));
         int i = 0;
@@ -142,6 +156,27 @@ public class VulkanTest extends SimpleApplication {
             i++;
         }
         return fams;
+    }
+
+    private VkDevice createLogicalDevice(MemoryStack stack, PhysicalDevice device, QueueFamilyIndices fams, PointerBuffer layers) {
+        VkDeviceQueueCreateInfo.Buffer queueCreate = VkDeviceQueueCreateInfo.malloc(1, stack)
+                .sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO)
+                .queueFamilyIndex(fams.graphics)
+                .pQueuePriorities(stack.floats(1f));
+        VkDeviceCreateInfo deviceCreate = VkDeviceCreateInfo.malloc(stack)
+                .sType(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO)
+                .pQueueCreateInfos(queueCreate)
+                .pEnabledFeatures(device.getFeatures());
+        if (layers != null) {
+            deviceCreate.ppEnabledLayerNames(layers);
+        }
+        return new VkDevice(getPointer(stack,
+                ptr -> check(vkCreateDevice(device.getDevice(), deviceCreate, null, ptr), "Failed to create logical device.")),
+                device.getDevice(), deviceCreate);
+    }
+
+    private VkQueue getQueue(MemoryStack stack, VkDevice device, QueueFamilyIndices fams, int i) {
+        return new VkQueue(getPointer(stack, ptr -> vkGetDeviceQueue(device, fams.graphics, i, ptr)), device);
     }
 
     private void verifyValidationLayerSupport(MemoryStack stack) {
@@ -175,7 +210,7 @@ public class VulkanTest extends SimpleApplication {
         extensions.add(ext);
     }
 
-    private static class QueueFamilies {
+    private static class QueueFamilyIndices {
 
         public Integer graphics;
 
@@ -185,12 +220,46 @@ public class VulkanTest extends SimpleApplication {
 
     }
 
+    private static class PhysicalDevice {
+
+        private final VkPhysicalDevice device;
+        private final VkPhysicalDeviceProperties props;
+        private final VkPhysicalDeviceFeatures features;
+
+        private PhysicalDevice(VkPhysicalDevice device) {
+            props = VkPhysicalDeviceProperties.create();
+            features = VkPhysicalDeviceFeatures.create();
+            vkGetPhysicalDeviceProperties(device, props);
+            vkGetPhysicalDeviceFeatures(device, features);
+            this.device = device;
+        }
+        private PhysicalDevice(VkPhysicalDevice device, VkPhysicalDeviceProperties props, VkPhysicalDeviceFeatures features) {
+            this.device = device;
+            this.props = props;
+            this.features = features;
+        }
+
+        public VkPhysicalDevice getDevice() {
+            return device;
+        }
+
+        public VkPhysicalDeviceProperties getProps() {
+            return props;
+        }
+
+        public VkPhysicalDeviceFeatures getFeatures() {
+            return features;
+        }
+
+    }
+
     private static class VulkanDebugCallback extends VkDebugUtilsMessengerCallbackEXT {
 
         @Override
         public int invoke(int messageSeverity, int messageTypes, long pCallbackData, long pUserData) {
             try (VkDebugUtilsMessengerCallbackDataEXT data = VkDebugUtilsMessengerCallbackDataEXT.create(pCallbackData)) {
-                LOG.log(getLoggingLevel(messageSeverity), data.pMessageString());
+                //LOG.log(getLoggingLevel(messageSeverity), data.pMessageString());
+                System.err.println(getLoggingLevel(messageSeverity).getName() + "  " + data.pMessageString());
             }
             return VK_FALSE; // always return false, true is only really used for testing validation layers
         }
