@@ -52,13 +52,18 @@ import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
 /**
- * SpotLightShadowRenderer renderer use Parallel Split Shadow Mapping technique
- * (pssm)<br> It splits the view frustum in several parts and compute a shadow
- * map for each one.<br> splits are distributed so that the closer they are from
- * the camera, the smaller they are to maximize the resolution used of the
- * shadow map.<br> This results in a better quality shadow than standard shadow
- * mapping.<br> for more information on this read <a
- * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
+ * Implements a shadow renderer specifically for {@link SpotLight SpotLights}
+ * using the **Parallel Split Shadow Mapping (PSSM)** technique.
+ *
+ * <p>PSSM divides the camera's view frustum into multiple sections,
+ * generating a separate shadow map for each. These splits are
+ * intelligently distributed, with smaller, higher-resolution maps for areas
+ * closer to the camera and larger, lower-resolution maps for distant areas.
+ * This approach optimizes shadow map usage, leading to superior shadow quality
+ * compared to standard shadow mapping techniques.
+ *
+ * <p>For a detailed explanation of PSSM, refer to:
+ * <a href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">GPU Gems 3, Chapter 10: Parallel-Split Shadow Maps on Programmable GPUs</a>
  *
  * @author Nehon
  */
@@ -66,9 +71,9 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
     protected Camera shadowCam;
     protected SpotLight light;
-    protected Camera[] cameras = new Camera[1];
-    protected Vector3f[] points = new Vector3f[8];
-    protected Vector3f tempVec = new Vector3f();
+    protected final Camera[] cameras = new Camera[1];
+    protected final Vector3f[] points = new Vector3f[8];
+    protected final Vector3f tempVec = new Vector3f();
 
     /**
      * For serialization only. Do not use.
@@ -78,10 +83,11 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     }
     
     /**
-     * Creates a SpotLightShadowRenderer.
+     * Creates a new {@code SpotLightShadowRenderer} instance.
      *
-     * @param assetManager  the application's asset manager
-     * @param shadowMapSize the size of the rendered shadow maps (512, 1024, 2048, etc...)
+     * @param assetManager The application's asset manager.
+     * @param shadowMapSize The size of the rendered shadow maps (e.g., 512, 1024, 2048).
+     * Higher values produce better quality shadows but may impact performance.
      */
     public SpotLightShadowRenderer(AssetManager assetManager, int shadowMapSize) {
         super(assetManager, shadowMapSize, 1);
@@ -170,10 +176,9 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
-        Vector3f[] points2 = points.clone();
         ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, shadowMapIndex));
-        ShadowUtil.updateFrustumPoints2(shadowCam, points2);
-        ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points2, shadowMapIndex));
+        ShadowUtil.updateFrustumPoints2(shadowCam, points);
+        ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, shadowMapIndex));
     }
 
     @Override
