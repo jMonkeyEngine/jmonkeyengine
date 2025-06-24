@@ -37,6 +37,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.light.DirectionalLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
@@ -51,14 +52,19 @@ import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
 /**
- * DirectionalLightShadowRenderer renderer use Parallel Split Shadow Mapping
- * technique (pssm)<br> It splits the view frustum in several parts and compute
- * a shadow map for each one.<br> splits are distributed so that the closer they
- * are from the camera, the smaller they are to maximize the resolution used of
- * the shadow map.<br> This results in a better quality shadow than standard
- * shadow mapping.<br> for more information on this read <a
- * href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html</a><br>
+ * Implements a shadow renderer specifically for {@link DirectionalLight DirectionalLight}
+ * using the **Parallel Split Shadow Mapping (PSSM)** technique.
  *
+ * <p>PSSM divides the camera's view frustum into multiple sections,
+ * generating a separate shadow map for each. These splits are
+ * intelligently distributed, with smaller, higher-resolution maps for areas
+ * closer to the camera and larger, lower-resolution maps for distant areas.
+ * This approach optimizes shadow map usage, leading to superior shadow quality
+ * compared to standard shadow mapping techniques.
+ * 
+ * <p>For a detailed explanation of PSSM, refer to:
+ * <a href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">GPU Gems 3, Chapter 10: Parallel-Split Shadow Maps on Programmable GPUs</a>
+ * 
  * @author Nehon
  */
 public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
@@ -89,10 +95,11 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
      * Creates a DirectionalLight shadow renderer. This renderer implements the
      * Parallel Split Shadow Mapping (PSSM) technique.
      *
-     * @param assetManager The application's asset manager.
+     * @param assetManager  The application's asset manager.
      * @param shadowMapSize The size of the rendered shadow maps (e.g., 512, 1024, 2048).
-     * @param nbSplits The number of shadow maps to render (1 to 4). More maps
-     * improve quality but can reduce performance.
+     *                      Higher values produce better quality shadows but may impact performance.
+     * @param nbSplits      The number of shadow maps to render (1 to 4). More maps
+     *                      improve quality but can reduce performance.
      */
     public DirectionalLightShadowRenderer(AssetManager assetManager, int shadowMapSize, int nbSplits) {
         super(assetManager, shadowMapSize, nbSplits);
@@ -100,10 +107,12 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     private void init(int nbSplits, int shadowMapSize) {
-        nbShadowMaps = Math.max(Math.min(nbSplits, 4), 1);
-        if (nbShadowMaps != nbSplits) {
-            throw new IllegalArgumentException("Number of splits must be between 1 and 4. Given value : " + nbSplits);
+        // Ensure the number of shadow maps is within the valid range [1, 4]
+        if (nbSplits < 1 || nbSplits > 4) {
+            throw new IllegalArgumentException("Number of splits must be between 1 and 4. Given value: " + nbSplits);
         }
+
+        nbShadowMaps = nbSplits;
         splits = new ColorRGBA();
         splitsArray = new float[nbSplits + 1];
         shadowCam = new Camera(shadowMapSize, shadowMapSize);
