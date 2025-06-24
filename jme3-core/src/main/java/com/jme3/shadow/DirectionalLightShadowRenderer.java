@@ -37,7 +37,6 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
@@ -61,10 +60,10 @@ import java.io.IOException;
  * closer to the camera and larger, lower-resolution maps for distant areas.
  * This approach optimizes shadow map usage, leading to superior shadow quality
  * compared to standard shadow mapping techniques.
- * 
+ *
  * <p>For a detailed explanation of PSSM, refer to:
  * <a href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">GPU Gems 3, Chapter 10: Parallel-Split Shadow Maps on Programmable GPUs</a>
- * 
+ *
  * @author Nehon
  */
 public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
