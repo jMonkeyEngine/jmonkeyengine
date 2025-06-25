@@ -391,11 +391,10 @@ public class MatParam implements Savable, Cloneable {
 
     @Override
     public boolean equals(Object obj) {
-        // Optimization for same instance
-        if (this == obj) {
-            return true;
+        if (obj == null) {
+            return false;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
 
