@@ -2,11 +2,14 @@ package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
+import com.jme3.audio.AudioNodeTest;
 import com.jme3.export.binary.BinaryExporter;
+import com.jme3.system.JmeSystem;
 import com.jme3.texture.Texture;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,7 +21,8 @@ public class MaterialCompareTest {
     @Test
     public void testMaterialCloneAndSave() {
 
-        AssetManager assetManager = new DesktopAssetManager(true);
+        URL config = MaterialCompareTest.class.getResource("/com/jme3/asset/Desktop.cfg");
+        AssetManager assetManager = JmeSystem.newAssetManager(config);
 
         List<String> matDefs = Arrays.asList(Materials.UNSHADED, Materials.LIGHTING, Materials.PBR);
 
