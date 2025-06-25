@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,17 +32,33 @@
 package com.jme3.shader;
 
 import com.jme3.material.Material.BindUnits;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.*;
 
+import java.nio.Buffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.Objects;
+
+/**
+ * Represents a uniform variable in a shader program.
+ * <p>
+ * A uniform is a way to pass data from the CPU to the GPU. This class manages
+ * the value of the uniform, its type, and its binding to renderer values.
+ */
 public class Uniform extends ShaderVariable {
 
     private static final Integer ZERO_INT = 0;
-    private static final Float ZERO_FLT = Float.valueOf(0);
-    private static final FloatBuffer ZERO_BUF = BufferUtils.createFloatBuffer(4*4);
+    private static final Float ZERO_FLT = 0.0f;
+    // Pre-allocated buffer for clearing multiData to zeros efficiently.
+    private static final FloatBuffer ZERO_BUF = BufferUtils.createFloatBuffer(16); //Max 4x4 matrix elements
 
     /**
      * Currently set value of the uniform.
@@ -73,80 +89,116 @@ public class Uniform extends ShaderVariable {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 31 * hash + (this.value != null ? this.value.hashCode() : 0);
-        hash = 31 * hash + (this.varType != null ? this.varType.hashCode() : 0);
-        hash = 31 * hash + (this.binding != null ? this.binding.hashCode() : 0);
-        return hash;
+        return Objects.hash(value, varType, binding);
     }
 
     @Override
     public boolean equals(Object obj) {
+        if (!(obj instanceof Uniform)) {
+            return false;
+        }
+
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
+
         final Uniform other = (Uniform) obj;
-        if (this.value != other.value && (this.value == null || !this.value.equals(other.value))) {
-            return false;
-        }
-        return this.binding == other.binding && this.varType == other.varType;
+        return Objects.equals(this.value, other.value) &&
+                this.binding == other.binding &&
+                this.varType == other.varType;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Uniform[name=");
         sb.append(name);
-        if (varType != null){
+        if (varType != null) {
             sb.append(", type=");
             sb.append(varType);
             sb.append(", value=");
             sb.append(value);
-        }else{
+        } else {
             sb.append(", value=<not set>");
         }
         sb.append("]");
         return sb.toString();
     }
 
-    public void setBinding(UniformBinding binding){
+    /**
+     * Sets the {@link UniformBinding} for this uniform.
+     *
+     * @param binding The UniformBinding to set.
+     */
+    public void setBinding(UniformBinding binding) {
         this.binding = binding;
     }
 
-    public UniformBinding getBinding(){
+    /**
+     * Returns the {@link UniformBinding} associated with this uniform.
+     *
+     * @return The UniformBinding, or null if it's a user-defined uniform.
+     */
+    public UniformBinding getBinding() {
         return binding;
     }
 
+    /**
+     * Returns the {@link VarType} of this uniform.
+     *
+     * @return The variable type of the uniform.
+     */
     public VarType getVarType() {
         return varType;
     }
 
-    public Object getValue(){
+    /**
+     * Returns the currently set value of the uniform.
+     *
+     * @return The value of the uniform.
+     */
+    public Object getValue() {
         return value;
     }
 
+    /**
+     * Returns the {@link FloatBuffer} containing the multi-data for array or matrix uniforms.
+     *
+     * @return The FloatBuffer containing the uniform data, or null if not applicable.
+     */
     public FloatBuffer getMultiData() {
         return multiData;
     }
 
+    /**
+     * Checks if this uniform's value was set by the current material.
+     *
+     * @return true if set by the current material, false otherwise.
+     */
     public boolean isSetByCurrentMaterial() {
         return setByCurrentMaterial;
     }
 
-    public void clearSetByCurrentMaterial(){
+    /**
+     * Clears the {@code setByCurrentMaterial} flag, indicating that the uniform
+     * was not set by the current material. This is typically called when
+     * a material is unbound.
+     */
+    public void clearSetByCurrentMaterial() {
         setByCurrentMaterial = false;
     }
 
-    public void clearValue(){
+    /**
+     * Clears the current value of the uniform, resetting it to a default
+     * "zero" or identity state based on its {@link VarType}.
+     */
+    public void clearValue() {
         updateNeeded = true;
 
-        if (multiData != null){
+        if (multiData != null) {
             multiData.clear();
 
-            while (multiData.remaining() > 0){
+            while (multiData.remaining() > 0) {
                 ZERO_BUF.clear();
                 ZERO_BUF.limit(Math.min(multiData.remaining(), 16));
                 multiData.put(ZERO_BUF);
@@ -161,34 +213,34 @@ public class Uniform extends ShaderVariable {
             return;
         }
 
-        switch (varType){
+        switch (varType) {
             case Int:
-                this.value = ZERO_INT;
+                value = ZERO_INT;
                 break;
             case Boolean:
-                this.value = Boolean.FALSE;
+                value = Boolean.FALSE;
                 break;
             case Float:
-                this.value = ZERO_FLT;
+                value = ZERO_FLT;
                 break;
             case Vector2:
-                if (this.value != null) {
-                    ((Vector2f) this.value).set(Vector2f.ZERO);
+                if (value != null) {
+                    ((Vector2f) value).set(Vector2f.ZERO);
                 }
                 break;
             case Vector3:
-                if (this.value != null) {
-                    ((Vector3f) this.value).set(Vector3f.ZERO);
+                if (value != null) {
+                    ((Vector3f) value).set(Vector3f.ZERO);
                 }
                 break;
             case Vector4:
-                if (this.value != null) {
-                    if (this.value instanceof ColorRGBA) {
-                        ((ColorRGBA) this.value).set(ColorRGBA.BlackNoAlpha);
-                    } else if (this.value instanceof Vector4f) {
-                        ((Vector4f) this.value).set(Vector4f.ZERO);
+                if (value != null) {
+                    if (value instanceof ColorRGBA) {
+                        ((ColorRGBA) value).set(ColorRGBA.BlackNoAlpha);
+                    } else if (value instanceof Vector4f) {
+                        ((Vector4f) value).set(Vector4f.ZERO);
                     } else {
-                        ((Quaternion) this.value).set(Quaternion.ZERO);
+                        ((Quaternion) value).set(Quaternion.ZERO);
                     }
                 }
                 break;
@@ -198,8 +250,15 @@ public class Uniform extends ShaderVariable {
         }
     }
 
-    public void setValue(VarType type, Object value) {
-        assert !(value instanceof BindUnits);
+    /**
+     * Sets the value of the uniform.
+     * The type of the value must match the uniform's expected {@link VarType}.
+     *
+     * @param type The {@link VarType} of the value being set.
+     * @param uValue The new value for the uniform. Cannot be null.
+     */
+    public void setValue(VarType type, Object uValue) {
+        assert !(uValue instanceof BindUnits);
         if (location == LOC_NOT_DEFINED) {
             return;
         }
@@ -208,18 +267,18 @@ public class Uniform extends ShaderVariable {
             throw new IllegalArgumentException("Expected a " + varType.name() + " value!");
         }
 
-        if (value == null) {
+        if (uValue == null) {
             throw new IllegalArgumentException("for uniform " + name + ": value cannot be null");
         }
 
         setByCurrentMaterial = true;
 
-        switch (type){
+        switch (type) {
             case Matrix3:
-                if (value.equals(this.value)) {
+                if (uValue.equals(this.value)) {
                     return;
                 }
-                Matrix3f m3 = (Matrix3f) value;
+                Matrix3f m3 = (Matrix3f) uValue;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(9);
                 }
@@ -228,14 +287,14 @@ public class Uniform extends ShaderVariable {
                 if (this.value == null) {
                     this.value = new Matrix3f(m3);
                 } else {
-                    ((Matrix3f)this.value).set(m3);
+                    ((Matrix3f) this.value).set(m3);
                 }
                 break;
             case Matrix4:
-                if (value.equals(this.value)) {
+                if (uValue.equals(this.value)) {
                     return;
                 }
-                Matrix4f m4 = (Matrix4f) value;
+                Matrix4f m4 = (Matrix4f) uValue;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(16);
                 }
@@ -244,21 +303,21 @@ public class Uniform extends ShaderVariable {
                 if (this.value == null) {
                     this.value = new Matrix4f(m4);
                 } else {
-                    ((Matrix4f)this.value).copy(m4);
+                    ((Matrix4f) this.value).copy(m4);
                 }
                 break;
             case IntArray:
-                int[] ia = (int[]) value;
+                int[] ia = (int[]) uValue;
                 if (this.value == null) {
                     this.value = BufferUtils.createIntBuffer(ia);
                 } else {
-                    this.value = BufferUtils.ensureLargeEnough((IntBuffer)this.value, ia.length);
-                    ((IntBuffer)this.value).put(ia);
+                    this.value = BufferUtils.ensureLargeEnough((IntBuffer) this.value, ia.length);
+                    ((IntBuffer) this.value).put(ia);
                 }
-                ((IntBuffer)this.value).clear();
+                ((IntBuffer) this.value).clear();
                 break;
             case FloatArray:
-                float[] fa = (float[]) value;
+                float[] fa = (float[]) uValue;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(fa);
                 } else {
@@ -268,7 +327,7 @@ public class Uniform extends ShaderVariable {
                 multiData.clear();
                 break;
             case Vector2Array:
-                Vector2f[] v2a = (Vector2f[]) value;
+                Vector2f[] v2a = (Vector2f[]) uValue;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(v2a);
                 } else {
@@ -280,7 +339,7 @@ public class Uniform extends ShaderVariable {
                 multiData.clear();
                 break;
             case Vector3Array:
-                Vector3f[] v3a = (Vector3f[]) value;
+                Vector3f[] v3a = (Vector3f[]) uValue;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(v3a);
                 } else {
@@ -292,7 +351,7 @@ public class Uniform extends ShaderVariable {
                 multiData.clear();
                 break;
             case Vector4Array:
-                Vector4f[] v4a = (Vector4f[]) value;
+                Vector4f[] v4a = (Vector4f[]) uValue;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(v4a);
                 } else {
@@ -304,7 +363,7 @@ public class Uniform extends ShaderVariable {
                 multiData.clear();
                 break;
             case Matrix3Array:
-                Matrix3f[] m3a = (Matrix3f[]) value;
+                Matrix3f[] m3a = (Matrix3f[]) uValue;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(m3a.length * 9);
                 } else {
@@ -316,7 +375,7 @@ public class Uniform extends ShaderVariable {
                 multiData.clear();
                 break;
             case Matrix4Array:
-                Matrix4f[] m4a = (Matrix4f[]) value;
+                Matrix4f[] m4a = (Matrix4f[]) uValue;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(m4a.length * 16);
                 } else {
@@ -328,27 +387,27 @@ public class Uniform extends ShaderVariable {
                 multiData.clear();
                 break;
             case Vector2:
-                if (value.equals(this.value)) {
+                if (uValue.equals(this.value)) {
                     return;
                 }
                 if (this.value == null) {
-                    this.value = new Vector2f((Vector2f) value);
+                    this.value = new Vector2f((Vector2f) uValue);
                 } else {
-                    ((Vector2f) this.value).set((Vector2f) value);
+                    ((Vector2f) this.value).set((Vector2f) uValue);
                 }
                 break;
             case Vector3:
-                if (value.equals(this.value)) {
+                if (uValue.equals(this.value)) {
                     return;
                 }
                 if (this.value == null) {
-                    this.value = new Vector3f((Vector3f) value);
+                    this.value = new Vector3f((Vector3f) uValue);
                 } else {
-                    ((Vector3f) this.value).set((Vector3f) value);
+                    ((Vector3f) this.value).set((Vector3f) uValue);
                 }
                 break;
             case Vector4:
-                if (value.equals(this.value)) {
+                if (uValue.equals(this.value)) {
                     return;
                 }
 
@@ -357,21 +416,20 @@ public class Uniform extends ShaderVariable {
                 //handle the null case
                 if (this.value == null) {
                     try {
-                        this.value = value.getClass().getDeclaredConstructor().newInstance();
-                    } catch (InstantiationException | IllegalAccessException
-                            | IllegalArgumentException | InvocationTargetException
-                            | NoSuchMethodException | SecurityException e) {
-                        throw new IllegalArgumentException("Cannot instantiate param of class " + value.getClass().getCanonicalName(), e);
+                        this.value = uValue.getClass().getDeclaredConstructor().newInstance();
+                    } catch (ReflectiveOperationException | IllegalArgumentException | SecurityException e) {
+                        vars.release();
+                        throw new IllegalArgumentException("Cannot instantiate param of class " + uValue.getClass().getCanonicalName(), e);
                     }
                 }
                 //feed the pivot vec 4 with the correct value
-                if (value instanceof ColorRGBA) {
-                    ColorRGBA c = (ColorRGBA) value;
+                if (uValue instanceof ColorRGBA) {
+                    ColorRGBA c = (ColorRGBA) uValue;
                     vec4.set(c.r, c.g, c.b, c.a);
-                } else if (value instanceof Vector4f) {
-                    vec4.set((Vector4f) value);
+                } else if (uValue instanceof Vector4f) {
+                    vec4.set((Vector4f) uValue);
                 } else {
-                    Quaternion q = (Quaternion) value;
+                    Quaternion q = (Quaternion) uValue;
                     vec4.set(q.getX(), q.getY(), q.getZ(), q.getW());
                 }
 
@@ -385,17 +443,17 @@ public class Uniform extends ShaderVariable {
                 }
                 vars.release();
                 break;
-                // Only use check if equals optimization for primitive values
+            // Only use check if equals optimization for primitive values
             case Int:
             case Float:
             case Boolean:
-                if (value.equals(this.value)) {
+                if (uValue.equals(this.value)) {
                     return;
                 }
-                this.value = value;
+                this.value = uValue;
                 break;
             default:
-                this.value = value;
+                this.value = uValue;
                 break;
         }
 
@@ -407,7 +465,13 @@ public class Uniform extends ShaderVariable {
         updateNeeded = true;
     }
 
-    public void setVector4Length(int length){
+    /**
+     * Pre-allocates or resizes the {@link FloatBuffer multiData} for a {@code Vector4Array}
+     * uniform to a specified length.
+     *
+     * @param length The desired number of Vector4 elements in the array.
+     */
+    public void setVector4Length(int length) {
         if (location == -1) {
             return;
         }
@@ -419,7 +483,19 @@ public class Uniform extends ShaderVariable {
         setByCurrentMaterial = true;
     }
 
-    public void setVector4InArray(float x, float y, float z, float w, int index){
+    /**
+     * Sets the components of a specific {@code Vector4} element within a {@code Vector4Array}
+     * uniform's {@link FloatBuffer multiData}.
+     * This method requires the uniform to be of type {@code Vector4Array}.
+     *
+     * @param x The x-component of the Vector4.
+     * @param y The y-component of the Vector4.
+     * @param z The z-component of the Vector4.
+     * @param w The w-component of the Vector4.
+     * @param index The index of the Vector4 element to set within the array.
+     * @throws IllegalArgumentException if the uniform is not of type {@code Vector4Array}.
+     */
+    public void setVector4InArray(float x, float y, float z, float w, int index) {
         if (location == -1) {
             return;
         }
@@ -435,24 +511,47 @@ public class Uniform extends ShaderVariable {
         setByCurrentMaterial = true;
     }
 
-    public boolean isUpdateNeeded(){
+    /**
+     * Checks if the uniform's value needs to be updated on the GPU.
+     *
+     * @return true if an update is needed, false otherwise.
+     */
+    public boolean isUpdateNeeded() {
         return updateNeeded;
     }
 
-    public void clearUpdateNeeded(){
+    /**
+     * Clears the {@code updateNeeded} flag, indicating that the uniform's value
+     * has been successfully sent to the GPU.
+     */
+    public void clearUpdateNeeded() {
         updateNeeded = false;
     }
 
-    public void reset(){
+    /**
+     * Resets the uniform's state. This includes clearing the
+     * {@code setByCurrentMaterial} flag, setting its location to undefined,
+     * and marking it as needing an update. This is typically used when a shader
+     * is unbound or reloaded.
+     */
+    public void reset() {
         setByCurrentMaterial = false;
         location = -2;
         updateNeeded = true;
     }
 
+    /**
+     * Deletes any native direct buffers associated with this uniform's value.
+     * This is crucial for releasing native memory resources when the uniform
+     * is no longer needed.
+     */
     public void deleteNativeBuffers() {
         if (value instanceof Buffer) {
-            BufferUtils.destroyDirectBuffer((Buffer)value);
-            value = null; // ????
+            BufferUtils.destroyDirectBuffer((Buffer) value);
+            // It's important to nullify the reference after destroying the buffer
+            // to allow the Java garbage collector to reclaim the Uniform object
+            // itself if no other references exist.
+            value = null;
         }
     }
 }
