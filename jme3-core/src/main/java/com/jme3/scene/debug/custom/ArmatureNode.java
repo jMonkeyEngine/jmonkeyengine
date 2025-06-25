@@ -420,7 +420,7 @@ public class ArmatureNode extends Node {
             Vector3f[] ends = g.getUserData("end");
 
             for (Vector3f end : ends) {
-                // Calculate shortest distance from ray to bone segment
+                // Calculate the shortest distance from ray to bone segment
                 float dist = MathUtils.raySegmentShortestDistance((Ray) other, start, end, camera);
                 if (dist > 0 && dist < PIXEL_BOX) {
                     CollisionResult res = new CollisionResult();
