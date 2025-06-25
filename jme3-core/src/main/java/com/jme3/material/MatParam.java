@@ -109,7 +109,7 @@ public class MatParam implements Savable, Cloneable {
     /**
      * Returns the material parameter type.
      *
-     * @return the material parameter type.
+     * @return The {@link VarType} of this material parameter.
      */
     public VarType getVarType() {
         return type;
@@ -118,7 +118,7 @@ public class MatParam implements Savable, Cloneable {
     /**
      * Returns the name of the material parameter.
      * 
-     * @return the name of the material parameter.
+     * @return The name of the material parameter.
      */
     public String getName() {
         return name;
@@ -136,8 +136,9 @@ public class MatParam implements Savable, Cloneable {
     }
 
     /**
-     * Used internally
-     * @param name
+     * Internal use only.
+     *
+     * @param name The name for the parameter. Must not be null.
      */
     void setName(String name) {
         this.name = name;
@@ -184,7 +185,7 @@ public class MatParam implements Savable, Cloneable {
      * @throws RuntimeException if the value's type is not compatible.
      */
     private void validateValueType(Object value) {
-        if (type != null && type.getJavaType().length != 0) {
+        if (type.getJavaType().length != 0) {
             boolean valid = false;
             for (Class<?> javaType : type.getJavaType()) {
                 if (javaType.isAssignableFrom(value.getClass())) {
@@ -281,16 +282,15 @@ public class MatParam implements Savable, Cloneable {
     }
 
     private String getWrapMode(Texture texVal, Texture.WrapAxis axis) {
-        WrapMode mode = WrapMode.EdgeClamp;
         try {
-            mode = texVal.getWrap(axis);
+            WrapMode mode = texVal.getWrap(axis);
+            if (mode != WrapMode.EdgeClamp) {
+                return "Wrap" + mode.name() + "_" + axis.name() + " ";
+            }
         } catch (IllegalArgumentException ex) {
             // this axis doesn't exist on the texture
-            return "";
         }
-        if (mode != WrapMode.EdgeClamp) {
-            return "Wrap" + mode.name() + "_" + axis.name() + " ";
-        }
+
         return "";
     }
 
@@ -414,19 +414,15 @@ public class MatParam implements Savable, Cloneable {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 59 * hash + (this.type != null ? this.type.hashCode() : 0);
-        hash = 59 * hash + (this.name != null ? this.name.hashCode() : 0);
-        hash = 59 * hash + (this.value != null ? this.value.hashCode() : 0);
-        return hash;
+        return Objects.hash(type, name, value);
     }
 
     @Override
     public String toString() {
         if (value != null) {
-            return type.name() + " " + name + " : " + getValueAsString();
-        } else {
-            return type.name() + " " + name;
+            String sValue = getValueAsString();
+            return type.name() + " " + name + " : " + ((sValue != null) ? sValue : value);
         }
+        return type.name() + " " + name;
     }
 }
