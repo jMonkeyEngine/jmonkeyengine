@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,42 +31,69 @@
  */
 package com.jme3.shader;
 
+/**
+ * Represents a generic variable within a shader program.
+ * <p>
+ * This abstract class provides the fundamental properties shared by different
+ * types of shader variables, such as uniforms or attributes.
+ */
 public class ShaderVariable {
 
-    public static final int LOC_UNKNOWN = -2,
-                            LOC_NOT_DEFINED = -1;
-    
-    // if -2, location not known
-    // if -1, not defined in shader
-    // if >= 0, uniform defined and available.
-    protected int location = LOC_UNKNOWN;
+    public static final int LOC_UNKNOWN = -2;
+    public static final int LOC_NOT_DEFINED = -1;
 
+    /**
+     * <ul>
+     * <li>If {@code LOC_UNKNOWN} (-2): The location has not yet been determined.</li>
+     * <li>If {@code LOC_NOT_DEFINED} (-1): The variable does not exist in the shader.</li>
+     * <li>If {@code >= 0}: The variable is defined and available.</li>
+     * </ul>
+     */
+    protected int location = LOC_UNKNOWN;
     /**
      * Name of the uniform as was declared in the shader.
      * E.g. name = "g_WorldMatrix" if the declaration was
      * "uniform mat4 g_WorldMatrix;".
      */
     protected String name = null;
-
     /**
      * True if the shader value was changed.
      */
-    protected boolean updateNeeded = true;;
+    protected boolean updateNeeded = true;
 
-
-    public void setLocation(int location){
+    /**
+     * Sets the location of this shader variable.
+     *
+     * @param location The integer location of the variable in the shader.
+     */
+    public void setLocation(int location) {
         this.location = location;
     }
 
-    public int getLocation(){
+    /**
+     * Returns the location of this shader variable.
+     *
+     * @return The integer location of the variable.
+     */
+    public int getLocation() {
         return location;
     }
 
-    public void setName(String name){
+    /**
+     * Sets the name of this shader variable as it's defined in the shader code.
+     *
+     * @param name The string name of the variable.
+     */
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getName(){
+    /**
+     * Returns the name of this shader variable.
+     *
+     * @return The string name of the variable.
+     */
+    public String getName() {
         return name;
     }
 
