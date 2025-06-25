@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,15 @@
  */
 package com.jme3.math;
 
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.util.TempVars;
 
 import java.io.IOException;
+import java.util.Locale;
 
 /**
  * A 3-D coordinate transform composed of translation, rotation, and scaling.
@@ -490,19 +495,23 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * Returns a string representation of the transform, which is unaffected.
      * For example, the identity transform is represented by:
      * <pre>
-     * Transform[ 0.0, 0.0, 0.0]
-     * [ 0.0, 0.0, 0.0, 1.0]
-     * [ 1.0 , 1.0, 1.0]
+     * Transform[0.0, 0.0, 0.0]
+     * [0.0, 0.0, 0.0, 1.0]
+     * [1.0, 1.0, 1.0]
      * </pre>
      *
      * @return the string representation (not null, not empty)
      */
     @Override
     public String toString() {
-        return getClass().getSimpleName()
-                + "[ " + translation.x + ", " + translation.y + ", " + translation.z + "]\n"
-                + "[ " + rot.x + ", " + rot.y + ", " + rot.z + ", " + rot.w + "]\n"
-                + "[ " + scale.x + " , " + scale.y + ", " + scale.z + "]";
+        return String.format(Locale.US, "%s"
+                + "[%.4f, %.4f, %.4f]%n"
+                + "[%.4f, %.4f, %.4f, %.4f]%n"
+                + "[%.4f, %.4f, %.4f]",
+                getClass().getSimpleName(),
+                translation.x, translation.y, translation.z,
+                rot.x, rot.y, rot.z, rot.w,
+                scale.x, scale.y, scale.z);
     }
 
     /**
@@ -522,31 +531,30 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * Serializes to the argument, for example when saving to a J3O file. The
      * current instance is unaffected.
      *
-     * @param e (not null)
+     * @param ex (not null)
      * @throws IOException from the exporter
      */
     @Override
-    public void write(JmeExporter e) throws IOException {
-        OutputCapsule capsule = e.getCapsule(this);
-        capsule.write(rot, "rot", Quaternion.IDENTITY);
-        capsule.write(translation, "translation", Vector3f.ZERO);
-        capsule.write(scale, "scale", Vector3f.UNIT_XYZ);
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(rot, "rot", Quaternion.IDENTITY);
+        oc.write(translation, "translation", Vector3f.ZERO);
+        oc.write(scale, "scale", Vector3f.UNIT_XYZ);
     }
 
     /**
      * De-serializes from the argument, for example when loading from a J3O
      * file.
      *
-     * @param importer (not null)
+     * @param im (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter importer) throws IOException {
-        InputCapsule capsule = importer.getCapsule(this);
-
-        rot.set((Quaternion) capsule.readSavable("rot", Quaternion.IDENTITY));
-        translation.set((Vector3f) capsule.readSavable("translation", Vector3f.ZERO));
-        scale.set((Vector3f) capsule.readSavable("scale", Vector3f.UNIT_XYZ));
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = im.getCapsule(this);
+        rot.set((Quaternion) ic.readSavable("rot", Quaternion.IDENTITY));
+        translation.set((Vector3f) ic.readSavable("translation", Vector3f.ZERO));
+        scale.set((Vector3f) ic.readSavable("scale", Vector3f.UNIT_XYZ));
     }
 
     /**
