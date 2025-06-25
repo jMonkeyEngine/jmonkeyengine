@@ -31,10 +31,6 @@
  */
 package com.jme3.material;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Objects;
-
 import com.jme3.asset.TextureKey;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -51,6 +47,10 @@ import com.jme3.math.Vector4f;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Describes a material parameter. This is used for both defining a name and type
@@ -391,11 +391,12 @@ public class MatParam implements Savable, Cloneable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (!(obj instanceof MatParam)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
+
+        if (this == obj) {
+            return true;
         }
 
         final MatParam other = (MatParam) obj;
