@@ -155,7 +155,6 @@ public class BinaryExporter implements JmeExporter {
 
     /**
      * Saves the object into memory then loads it from memory.
-     *
      * Used by tests to check if the persistence system is working.
      *
      * @param <T> The type of savable.
@@ -207,14 +206,13 @@ public class BinaryExporter implements JmeExporter {
             BinaryClassObject bco = classes.get(key);
 
             // write alias
-            byte[] aliasBytes = fixClassAlias(bco.alias,
-                    aliasSize);
+            byte[] aliasBytes = fixClassAlias(bco.alias, aliasSize);
             os.write(aliasBytes);                     // 4. "class alias"
             classTableSize += aliasSize;
 
             // jME3 NEW: Write class hierarchy version numbers
-            os.write( bco.classHierarchyVersions.length );
-            for (int version : bco.classHierarchyVersions){
+            os.write(bco.classHierarchyVersions.length);
+            for (int version : bco.classHierarchyVersions) {
                 os.write(ByteUtils.convertToBytes(version));
             }
             classTableSize += 1 + bco.classHierarchyVersions.length * 4;
@@ -243,14 +241,12 @@ public class BinaryExporter implements JmeExporter {
         // write out data to a separate stream
         int location = 0;
         // keep track of location for each piece
-        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<>(
-                contentTable.size());
+        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<>(contentTable.size());
         for (Savable savable : contentKeys) {
             // look back at previous written data for matches
             String savableName = savable.getClass().getName();
             BinaryIdContentPair pair = contentTable.get(savable);
-            ArrayList<BinaryIdContentPair> bucket = alreadySaved
-                    .get(savableName + getChunk(pair));
+            ArrayList<BinaryIdContentPair> bucket = alreadySaved.get(savableName + getChunk(pair));
             int prevLoc = findPrevMatch(pair, bucket);
             if (prevLoc != -1) {
                 locationTable.put(pair.getId(), prevLoc);
@@ -294,12 +290,13 @@ public class BinaryExporter implements JmeExporter {
         out.writeTo(os);
 
         if (debug) {
-            logger.log(Level.INFO, "BinaryExporter Stats:");
-            logger.log(Level.INFO, "classes: {0}", classNum);
-            logger.log(Level.INFO, "class table: {0} bytes", classTableSize);
-            logger.log(Level.INFO, "objects: {0}", numLocations);
-            logger.log(Level.INFO, "location table: {0} bytes", locationTableSize);
-            logger.log(Level.INFO, "data: {0} bytes", location);
+            logger.log(Level.INFO, "BinaryExporter Stats:"
+                    + "\n * Classes: {0}"
+                    + "\n * Class Table: {1} bytes"
+                    + "\n * Objects: {2}"
+                    + "\n * Location Table: {3} bytes"
+                    + "\n * Data: {4} bytes",
+                    new Object[] {classNum, classTableSize, numLocations, locationTableSize, location});
         }
     }
 
@@ -309,8 +306,9 @@ public class BinaryExporter implements JmeExporter {
     }
 
     private int findPrevMatch(BinaryIdContentPair oldPair, ArrayList<BinaryIdContentPair> bucket) {
-        if (bucket == null)
+        if (bucket == null) {
             return -1;
+        }
         for (int x = bucket.size(); --x >= 0;) {
             BinaryIdContentPair pair = bucket.get(x);
             if (pair.getContent().equals(oldPair.getContent())) {
