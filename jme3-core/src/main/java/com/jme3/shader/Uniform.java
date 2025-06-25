@@ -411,17 +411,18 @@ public class Uniform extends ShaderVariable {
                     return;
                 }
 
-                TempVars vars = TempVars.get();
-                Vector4f vec4 = vars.vect4f1;
                 //handle the null case
                 if (this.value == null) {
                     try {
                         this.value = uValue.getClass().getDeclaredConstructor().newInstance();
                     } catch (ReflectiveOperationException | IllegalArgumentException | SecurityException e) {
-                        vars.release();
                         throw new IllegalArgumentException("Cannot instantiate param of class " + uValue.getClass().getCanonicalName(), e);
                     }
                 }
+                
+                TempVars vars = TempVars.get();
+                Vector4f vec4 = vars.vect4f1;
+                
                 //feed the pivot vec 4 with the correct value
                 if (uValue instanceof ColorRGBA) {
                     ColorRGBA c = (ColorRGBA) uValue;
@@ -472,7 +473,7 @@ public class Uniform extends ShaderVariable {
      * @param length The desired number of Vector4 elements in the array.
      */
     public void setVector4Length(int length) {
-        if (location == -1) {
+        if (location == LOC_NOT_DEFINED) {
             return;
         }
 
@@ -496,7 +497,7 @@ public class Uniform extends ShaderVariable {
      * @throws IllegalArgumentException if the uniform is not of type {@code Vector4Array}.
      */
     public void setVector4InArray(float x, float y, float z, float w, int index) {
-        if (location == -1) {
+        if (location == LOC_NOT_DEFINED) {
             return;
         }
 
