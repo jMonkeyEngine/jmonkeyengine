@@ -43,6 +43,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 
 import java.io.IOException;
@@ -119,6 +120,12 @@ public class BillboardControl extends AbstractControl {
     protected void controlRender(RenderManager rm, ViewPort vp) {
         Camera cam = vp.getCamera();
         rotateBillboard(cam);
+        fixRefreshFlags();
+    }
+
+    private void fixRefreshFlags() {
+        // force transforms to update below this node
+        spatial.updateGeometricState();
     }
 
     /**
@@ -232,8 +239,7 @@ public class BillboardControl extends AbstractControl {
         // Compute the additional rotation required for the billboard to face
         // the camera. To do this, the camera must be inverse-transformed into
         // the model space of the billboard.
-        tempDir.set(camera.getLocation()).subtractLocal(
-                spatial.getWorldTranslation());
+        tempDir.set(camera.getLocation()).subtractLocal(spatial.getWorldTranslation());
         spatial.getParent().getWorldRotation().mult(tempDir, tempLeft); // co-opt left for our own purposes.
         tempLeft.x *= 1.0f / spatial.getWorldScale().x;
         tempLeft.y *= 1.0f / spatial.getWorldScale().y;
