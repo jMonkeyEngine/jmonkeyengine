@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,39 +63,39 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * The element in row 0, column 0.
      */
-    protected float m00;
+    public float m00;
     /**
      * The element in row 0, column 1.
      */
-    protected float m01;
+    public float m01;
     /**
      * The element in row 0, column 2.
      */
-    protected float m02;
+    public float m02;
     /**
      * The element in row 1, column 0.
      */
-    protected float m10;
+    public float m10;
     /**
      * The element in row 1, column 1.
      */
-    protected float m11;
+    public float m11;
     /**
      * The element in row 1, column 2.
      */
-    protected float m12;
+    public float m12;
     /**
      * The element in row 2, column 0.
      */
-    protected float m20;
+    public float m20;
     /**
      * The element in row 2, column 1.
      */
-    protected float m21;
+    public float m21;
     /**
      * The element in row 2, column 2.
      */
-    protected float m22;
+    public float m22;
     /**
      * Shared instance of the all-zero matrix. Do not modify!
      */
