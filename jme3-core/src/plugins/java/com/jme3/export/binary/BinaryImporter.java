@@ -89,7 +89,7 @@ public final class BinaryImporter implements JmeImporter {
     private static final boolean fastRead = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
     /**
-     * Creates a new `BinaryImporter`.
+     * Creates a new {@code BinaryImporter}.
      */
     public BinaryImporter() {
     }
@@ -109,8 +109,9 @@ public final class BinaryImporter implements JmeImporter {
     }
 
     /**
-     * Returns a new instance of `BinaryImporter`.
-     * @return a new `BinaryImporter` instance.
+     * Returns a new instance of {@code BinaryImporter}.
+     *
+     * @return A new {@code BinaryImporter} instance.
      */
     public static BinaryImporter getInstance() {
         return new BinaryImporter();
@@ -278,11 +279,12 @@ public final class BinaryImporter implements JmeImporter {
             bytes += 8;
         }
 
-        @SuppressWarnings("unused")
         int numbIDs = ByteUtils.readInt(bis); // XXX: NOT CURRENTLY USED
         int id = ByteUtils.readInt(bis);
         bytes += 8;
-        if (listener != null) listener.readBytes(bytes);
+        if (listener != null) {
+            listener.readBytes(bytes);
+        }
 
         if (baos == null) {
             baos = new ByteArrayOutputStream(bytes);
@@ -300,10 +302,11 @@ public final class BinaryImporter implements JmeImporter {
 
         Savable rVal = readObject(id);
         if (debug) {
-            logger.log(Level.INFO, "BinaryImporter Stats:");
-            logger.log(Level.INFO, "Tags: {0}", numClasses);
-            logger.log(Level.INFO, "Objects: {0}", numLocs);
-            logger.log(Level.INFO, "Data Size: {0}", dataArray.length);
+            logger.log(Level.INFO, "BinaryImporter Stats:" +
+                    "\n * Tags: {0}" +
+                    "\n * Objects: {1}" +
+                    "\n * Data: {2} bytes",
+                    new Object[] {numClasses, numLocs, dataArray.length});
         }
         dataArray = null;
         return rVal;
