@@ -419,7 +419,7 @@ public class Uniform extends ShaderVariable {
                         throw new IllegalArgumentException("Cannot instantiate param of class " + uValue.getClass().getCanonicalName(), e);
                     }
                 }
-                
+
                 TempVars vars = TempVars.get();
                 Vector4f vec4 = vars.vect4f1;
                 
@@ -537,7 +537,7 @@ public class Uniform extends ShaderVariable {
      */
     public void reset() {
         setByCurrentMaterial = false;
-        location = -2;
+        location = LOC_UNKNOWN;
         updateNeeded = true;
     }
 
