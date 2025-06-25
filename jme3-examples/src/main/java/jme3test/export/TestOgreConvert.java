@@ -66,7 +66,6 @@ public class TestOgreConvert extends SimpleApplication {
     private BitmapText bmp;
     private Spatial spCopy;
     private SkinningControl skinningControl;
-    private AnimComposer animComposer;
 
     @Override
     public void simpleInitApp() {
@@ -77,14 +76,13 @@ public class TestOgreConvert extends SimpleApplication {
 
         // Load the Ogre model (Oto.mesh.xml) from the assets
         Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-
         // Save the loaded model to jME3's binary format and then reload it.
         // This tests the binary serialization/deserialization process.
         spCopy = BinaryExporter.saveAndLoad(assetManager, model);
         spCopy.setName("Oto-Copy");
         rootNode.attachChild(spCopy);
 
-        animComposer = spCopy.getControl(AnimComposer.class);
+        AnimComposer animComposer = spCopy.getControl(AnimComposer.class);
         animComposer.setCurrentAction("Walk");
 
         // Get the SkinningControl from the model to inspect skinning properties
@@ -116,7 +114,6 @@ public class TestOgreConvert extends SimpleApplication {
             sb.append("HW Skinning Preferred: ").append(skinningControl.isHardwareSkinningPreferred()).append("\n");
             sb.append("HW Skinning Enabled: ").append(skinningControl.isHardwareSkinningUsed()).append("\n");
             sb.append("Mesh Targets: ").append(skinningControl.getTargets().length).append("\n");
-            sb.append("Anim Clips: ").append(animComposer.getAnimClips().size()).append("\n");
 
             for (MatParamOverride mpo : spCopy.getLocalMatParamOverrides()) {
                 sb.append(mpo.getVarType()).append(" ");
