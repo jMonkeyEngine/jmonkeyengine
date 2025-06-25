@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,14 +59,30 @@ public class TestTransform {
          * Verify that the result matches the javadoc
          * and can be parsed using a regular expression.
          */
+        // --- Regex for matching the generated string ---
+        // Use \\R for platform-independent newline
         Pattern pattern = Pattern.compile(
-                "^Transform\\[ (\\S+), (\\S+), (\\S+)\\]\\n"
-                + "\\[ (\\S+), (\\S+), (\\S+), (\\S+)\\]\\n"
-                + "\\[ (\\S+) , (\\S+), (\\S+)\\]$"
+                "^Transform\\[(\\S+), (\\S+), (\\S+)\\]\\R"
+                        + "\\[(\\S+), (\\S+), (\\S+), (\\S+)\\]\\R"
+                        + "\\[(\\S+), (\\S+), (\\S+)\\]$"
         );
+
         Matcher matcher = pattern.matcher(result);
         boolean valid = matcher.matches();
         Assert.assertTrue(valid);
+
+//        if (valid) {
+//            System.out.println("Group 1 (Translation X): " + matcher.group(1));
+//            System.out.println("Group 2 (Translation Y): " + matcher.group(2));
+//            System.out.println("Group 3 (Translation Z): " + matcher.group(3));
+//            System.out.println("Group 4 (Rotation X): " + matcher.group(4));
+//            System.out.println("Group 5 (Rotation Y): " + matcher.group(5));
+//            System.out.println("Group 6 (Rotation Z): " + matcher.group(6));
+//            System.out.println("Group 7 (Rotation W): " + matcher.group(7));
+//            System.out.println("Group 8 (Scale X): " + matcher.group(8));
+//            System.out.println("Group 9 (Scale Y): " + matcher.group(9));
+//            System.out.println("Group 10 (Scale Z): " + matcher.group(10));
+//        }
 
         String txText = matcher.group(1);
         float tx = Float.parseFloat(txText);
