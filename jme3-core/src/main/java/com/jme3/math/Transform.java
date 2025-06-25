@@ -45,8 +45,6 @@ import java.util.Locale;
  * A 3-D coordinate transform composed of translation, rotation, and scaling.
  * The order of application is: scale, then rotate, then translate.
  *
- * <p>Started July 16, 2004
- *
  * @author Jack Lindamood
  * @author Joshua Slack
  */
@@ -479,12 +477,14 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (!(obj instanceof Transform)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
+
+        if (this == obj) {
+            return true;
         }
+
         final Transform other = (Transform) obj;
         return this.translation.equals(other.translation)
                 && this.scale.equals(other.scale)
