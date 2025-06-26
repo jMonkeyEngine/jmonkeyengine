@@ -98,7 +98,7 @@ public class MaterialCompareTest {
 
         List<String> matDefs = Arrays.asList(Materials.UNSHADED, Materials.LIGHTING, Materials.PBR);
 
-        Texture tex = assetManager.loadTexture("Common/Textures/MissingMaterial.png");
+        Texture tex = assetManager.loadTexture("Common/Textures/MissingTexture.png");
         tex.setWrap(Texture.WrapMode.Repeat);
 
         int index = 0;
