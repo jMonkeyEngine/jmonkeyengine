@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,27 +33,53 @@ package com.jme3.anim;
 
 import com.jme3.anim.util.JointModelTransform;
 import com.jme3.asset.AssetLoadException;
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.math.Matrix4f;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- * Created by Nehon on 15/12/2017.
+ * An `Armature` represents a skeletal structure composed of {@link Joint} objects.
+ * It manages the hierarchy of joints, their transformations, and provides methods
+ * for updating the armature's pose, computing skinning matrices, and handling
+ * serialization/deserialization.
+ * <p>
+ * The `Armature` is a fundamental component for character animation, allowing
+ * joints to be manipulated to deform a mesh based on their transformations.
+ *
+ * @author Nehon
  */
 public class Armature implements JmeCloneable, Savable {
 
-    private Joint[] rootJoints;
-    private Joint[] jointList;
-
     /**
-     * Contains the skinning matrices, multiplying it by a vertex effected by a bone
-     * will cause it to go to the animated position.
+     * The array of root joints in this armature. These are joints that have no parent.
      */
-    private transient Matrix4f[] skinningMatrixes;
+    private Joint[] rootJoints;
+    /**
+     * A flat list of all joints managed by this armature, indexed by their ID.
+     */
+    private Joint[] jointList;
+    /**
+     * Contains the skinning matrices. Multiplying a vertex affected by a joint
+     * by its corresponding skinning matrix will transform the vertex to the
+     * animated position.
+     */
+    private transient Matrix4f[] skinningMatrices;
+    /**
+     * The class used to instantiate {@link JointModelTransform} instances for each joint.
+     * Defaults to {@link SeparateJointModelTransform}. This allows for customization
+     * of how joint model transformations are handled (e.g., separate scale/rotation/translation
+     * or combined in a single matrix).
+     */
     private Class<? extends JointModelTransform> modelTransformClass = SeparateJointModelTransform.class;
 
     /**
@@ -63,13 +89,16 @@ public class Armature implements JmeCloneable, Savable {
     }
 
     /**
-     * Creates an armature from a joint list.
-     * The root joints are found automatically.
+     * Creates an `Armature` from a given list of joints.
+     * The root joints are automatically identified based on their parent-child relationships.
+     * Each joint is assigned an ID corresponding to its index in the `jointList`.
      * <p>
-     * Note that using this constructor will cause the joints in the list
-     * to have their bind pose recomputed based on their local transforms.
+     * Note that calling this constructor will cause the bind pose of the joints
+     * in the list to be recomputed based on their initial local transforms.
+     * The initial pose is also applied after construction.
+     * </p>
      *
-     * @param jointList The list of joints to manage by this Armature
+     * @param jointList An array of {@link Joint} objects that will be managed by this `Armature`.
      */
     public Armature(Joint[] jointList) {
         this.jointList = jointList;
@@ -83,7 +112,7 @@ public class Armature implements JmeCloneable, Savable {
                 rootJointList.add(joint);
             }
         }
-        rootJoints = rootJointList.toArray(new Joint[rootJointList.size()]);
+        rootJoints = rootJointList.toArray(new Joint[0]);
 
         createSkinningMatrices();
 
@@ -102,39 +131,56 @@ public class Armature implements JmeCloneable, Savable {
         }
     }
 
+    /**
+     * Initializes or re-initializes the array of skinning matrices.
+     * Each matrix in this array corresponds to a joint in the `jointList`
+     * and is used to transform vertices affected by that joint into their
+     * animated position.
+     */
     private void createSkinningMatrices() {
-        skinningMatrixes = new Matrix4f[jointList.length];
-        for (int i = 0; i < skinningMatrixes.length; i++) {
-            skinningMatrixes[i] = new Matrix4f();
+        skinningMatrices = new Matrix4f[jointList.length];
+        for (int i = 0; i < skinningMatrices.length; i++) {
+            skinningMatrices[i] = new Matrix4f();
         }
     }
 
     /**
-     * Sets the JointModelTransform implementation
-     * Default is {@link SeparateJointModelTransform}
+     * Sets the {@link JointModelTransform} implementation to be used by all joints
+     * in this `Armature`. This allows customizing how joint transformations
+     * (scale, rotation, translation) are managed internally.
+     * <p>
+     * By default, {@link SeparateJointModelTransform} is used.
      *
-     * @param modelTransformClass which implementation to use
+     * @param aClass The {@link Class} object representing the desired
+     *                            {@link JointModelTransform} implementation.
      * @see JointModelTransform
      * @see MatrixJointModelTransform
      * @see SeparateJointModelTransform
      */
-    public void setModelTransformClass(Class<? extends JointModelTransform> modelTransformClass) {
-        this.modelTransformClass = modelTransformClass;
-        if (jointList == null) {
-            return;
-        }
-        for (Joint joint : jointList) {
-            instantiateJointModelTransform(joint);
+    public void setModelTransformClass(Class<? extends JointModelTransform> aClass) {
+        this.modelTransformClass = aClass;
+        // Only re-instantiate if jointList is already populated
+        if (jointList != null) {
+            for (Joint joint : jointList) {
+                instantiateJointModelTransform(joint);
+            }
         }
     }
 
+    /**
+     * Instantiates a new {@link JointModelTransform} object of the type
+     * specified by `modelTransformClass` and sets it on the given joint.
+     *
+     * @param joint The {@link Joint} for which to instantiate and set the
+     * {@link JointModelTransform}.
+     */
     private void instantiateJointModelTransform(Joint joint) {
         try {
-            joint.setJointModelTransform(modelTransformClass.getDeclaredConstructor().newInstance());
-        } catch (InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
-            throw new IllegalArgumentException(e);
+            JointModelTransform transform = modelTransformClass.getDeclaredConstructor().newInstance();
+            joint.setJointModelTransform(transform);
+
+        } catch (ReflectiveOperationException | IllegalArgumentException | SecurityException ex) {
+            throw new IllegalArgumentException("Failed to instantiate JointModelTransform for joint: " + joint.getName(), ex);
         }
     }
 
@@ -173,9 +219,9 @@ public class Armature implements JmeCloneable, Savable {
      * @return the pre-existing instance or null if not found
      */
     public Joint getJoint(String name) {
-        for (int i = 0; i < jointList.length; i++) {
-            if (jointList[i].getName().equals(name)) {
-                return jointList[i];
+        for (Joint joint : jointList) {
+            if (joint.getName().equals(name)) {
+                return joint;
             }
         }
         return null;
@@ -257,15 +303,17 @@ public class Armature implements JmeCloneable, Savable {
     }
 
     /**
-     * Compute the skinning matrices for each bone of the armature that would be used to transform vertices of associated meshes
+     * Computes the skinning matrices for each joint in the `Armature`.
+     * These matrices are essential for skinning (vertex deformation), as they
+     * transform vertices from model space to the animated joint's space.
      *
      * @return the pre-existing array
      */
     public Matrix4f[] computeSkinningMatrices() {
         for (int i = 0; i < jointList.length; i++) {
-            jointList[i].getOffsetTransform(skinningMatrixes[i]);
+            jointList[i].getOffsetTransform(skinningMatrices[i]);
         }
-        return skinningMatrixes;
+        return skinningMatrices;
     }
 
     /**
@@ -291,7 +339,7 @@ public class Armature implements JmeCloneable, Savable {
     public void cloneFields(Cloner cloner, Object original) {
         this.rootJoints = cloner.clone(rootJoints);
         this.jointList = cloner.clone(jointList);
-        this.skinningMatrixes = cloner.clone(skinningMatrixes);
+        this.skinningMatrices = cloner.clone(skinningMatrices);
         for (Joint joint : jointList) {
             instantiateJointModelTransform(joint);
         }
@@ -307,21 +355,21 @@ public class Armature implements JmeCloneable, Savable {
     @Override
     @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
-        InputCapsule input = im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
 
-        Savable[] jointRootsAsSavable = input.readSavableArray("rootJoints", null);
-        rootJoints = new Joint[jointRootsAsSavable.length];
-        System.arraycopy(jointRootsAsSavable, 0, rootJoints, 0, jointRootsAsSavable.length);
+        Savable[] rootJointsSavable = ic.readSavableArray("rootJoints", null);
+        rootJoints = new Joint[rootJointsSavable.length];
+        System.arraycopy(rootJointsSavable, 0, rootJoints, 0, rootJointsSavable.length);
 
-        Savable[] jointListAsSavable = input.readSavableArray("jointList", null);
-        jointList = new Joint[jointListAsSavable.length];
-        System.arraycopy(jointListAsSavable, 0, jointList, 0, jointListAsSavable.length);
+        Savable[] jointListSavable = ic.readSavableArray("jointList", null);
+        jointList = new Joint[jointListSavable.length];
+        System.arraycopy(jointListSavable, 0, jointList, 0, jointListSavable.length);
 
-        String className = input.readString("modelTransformClass", MatrixJointModelTransform.class.getCanonicalName());
+        String className = ic.readString("modelTransformClass", MatrixJointModelTransform.class.getCanonicalName());
         try {
             modelTransformClass = (Class<? extends JointModelTransform>) Class.forName(className);
         } catch (ClassNotFoundException e) {
-            throw new AssetLoadException("Cannot find class for name " + className);
+            throw new AssetLoadException("Cannot find class for name '" + className + "' specified for JointModelTransform.", e);
         }
 
         int i = 0;
@@ -346,9 +394,9 @@ public class Armature implements JmeCloneable, Savable {
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule output = ex.getCapsule(this);
-        output.write(rootJoints, "rootJoints", null);
-        output.write(jointList, "jointList", null);
-        output.write(modelTransformClass.getCanonicalName(), "modelTransformClass", MatrixJointModelTransform.class.getCanonicalName());
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(rootJoints, "rootJoints", null);
+        oc.write(jointList, "jointList", null);
+        oc.write(modelTransformClass.getCanonicalName(), "modelTransformClass", MatrixJointModelTransform.class.getCanonicalName());
     }
 }
