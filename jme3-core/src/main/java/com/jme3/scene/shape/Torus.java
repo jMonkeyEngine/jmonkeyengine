@@ -49,7 +49,7 @@ import java.nio.ShortBuffer;
  * <p>
  * The torus is centered at the origin by default, but its position and
  * orientation can be transformed.
- * 
+ *
  * @author Mark Powell
  * @version $Revision: 4131 $, $Date: 2009-03-19 16:15:28 -0400 (Thu, 19 Mar 2009) $
  */
@@ -112,12 +112,13 @@ public class Torus extends Mesh {
         // generate geometry
         float inverseCircleSamples = 1.0f / circleSamples;
         float inverseRadialSamples = 1.0f / radialSamples;
+        int i = 0;
         // generate the cylinder itself
         Vector3f radialAxis = new Vector3f();
         Vector3f torusMiddle = new Vector3f();
         Vector3f tempNormal = new Vector3f();
 
-        for (int circleCount = 0; circleCount <= circleSamples; circleCount++) {
+        for (int circleCount = 0; circleCount < circleSamples; circleCount++) {
             // compute center point on torus circle at specified angle
             float circleFraction = circleCount * inverseCircleSamples;
             float theta = FastMath.TWO_PI * circleFraction;
@@ -129,7 +130,8 @@ public class Torus extends Mesh {
             radialAxis.mult(outerRadius, torusMiddle);
 
             // compute slice vertices with duplication at end point
-            for (int radialCount = 0; radialCount <= radialSamples; radialCount++) {
+            int iSave = i;
+            for (int radialCount = 0; radialCount < radialSamples; radialCount++) {
                 float radialFraction = radialCount * inverseRadialSamples;
                 // in [0,1)
                 float phi = FastMath.TWO_PI * radialFraction;
@@ -147,14 +149,21 @@ public class Torus extends Mesh {
 
                 // Calculate texture coordinates
                 ftb.put(radialFraction).put(circleFraction);
+                i++;
             }
+
+            BufferUtils.copyInternalVector3(fpb, iSave, i);
+            BufferUtils.copyInternalVector3(fnb, iSave, i);
+
+            ftb.put(1.0f).put(circleFraction);
+            i++;
         }
     }
 
     private void setIndexData() {
         // Each quad forms two triangles, and there are radialSamples * circleSamples quads.
-        int totalTriangles = 2 * circleSamples * radialSamples;
-        ShortBuffer indexBuffer = BufferUtils.createShortBuffer(3 * totalTriangles);
+        int triCount = 2 * circleSamples * radialSamples;
+        ShortBuffer indexBuffer = BufferUtils.createShortBuffer(3 * triCount);
         setBuffer(Type.Index, 3, indexBuffer);
 
         int currentQuadStartIndex = 0;
