@@ -50,11 +50,7 @@ import java.util.List;
 /**
  * An `Armature` represents a skeletal structure composed of {@link Joint} objects.
  * It manages the hierarchy of joints, their transformations, and provides methods
- * for updating the armature's pose, computing skinning matrices, and handling
- * serialization/deserialization.
- * <p>
- * The `Armature` is a fundamental component for character animation, allowing
- * joints to be manipulated to deform a mesh based on their transformations.
+ * for updating the armature's pose and computing skinning matrices.
  *
  * @author Nehon
  */
