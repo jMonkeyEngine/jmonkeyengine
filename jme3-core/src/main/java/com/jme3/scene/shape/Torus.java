@@ -158,6 +158,14 @@ public class Torus extends Mesh {
             ftb.put(1.0f).put(circleFraction);
             i++;
         }
+
+        // duplicate the cylinder ends to form a torus
+        for (int iR = 0; iR <= radialSamples; iR++, i++) {
+            BufferUtils.copyInternalVector3(fpb, iR, i);
+            BufferUtils.copyInternalVector3(fnb, iR, i);
+            BufferUtils.copyInternalVector2(ftb, iR, i);
+            ftb.put(i * 2 + 1, 1.0f);
+        }
     }
 
     private void setIndexData() {
