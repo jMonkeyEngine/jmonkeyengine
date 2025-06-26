@@ -218,7 +218,7 @@ public class RenderContext {
     public FrameBuffer boundFB;
 
     /**
-     * Currently bound Renderbuffer.
+     * Currently bound RenderBuffer.
      *
      * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
      */
