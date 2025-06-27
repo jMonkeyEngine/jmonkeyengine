@@ -42,6 +42,7 @@ import org.junit.Test;
  * @author Stephen Gold
  */
 public class TestTransform {
+    
     /**
      * Test the {@code toString()} method.
      */
@@ -71,18 +72,16 @@ public class TestTransform {
         boolean valid = matcher.matches();
         Assert.assertTrue(valid);
 
-//        if (valid) {
-//            System.out.println("Group 1 (Translation X): " + matcher.group(1));
-//            System.out.println("Group 2 (Translation Y): " + matcher.group(2));
-//            System.out.println("Group 3 (Translation Z): " + matcher.group(3));
-//            System.out.println("Group 4 (Rotation X): " + matcher.group(4));
-//            System.out.println("Group 5 (Rotation Y): " + matcher.group(5));
-//            System.out.println("Group 6 (Rotation Z): " + matcher.group(6));
-//            System.out.println("Group 7 (Rotation W): " + matcher.group(7));
-//            System.out.println("Group 8 (Scale X): " + matcher.group(8));
-//            System.out.println("Group 9 (Scale Y): " + matcher.group(9));
-//            System.out.println("Group 10 (Scale Z): " + matcher.group(10));
-//        }
+//        matcher.group 1 (Translation X)
+//        matcher.group 2 (Translation Y)
+//        matcher.group 3 (Translation Z)
+//        matcher.group 4 (Rotation X)
+//        matcher.group 5 (Rotation Y)
+//        matcher.group 6 (Rotation Z)
+//        matcher.group 7 (Rotation W)
+//        matcher.group 8 (Scale X)
+//        matcher.group 9 (Scale Y)
+//        matcher.group 10 (Scale Z)
 
         String txText = matcher.group(1);
         float tx = Float.parseFloat(txText);
