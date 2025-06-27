@@ -54,6 +54,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.AbstractControl;
 import com.jme3.util.TempVars;
 
 import java.util.ArrayList;
@@ -88,7 +89,7 @@ public class ArmatureDebugAppState extends BaseAppState {
      */
     public static final float CLICK_MAX_DELAY = 0.2f;
 
-    private Node debugNode = new Node("debugNode");
+    private Node debugNode = new Node("ArmaturesDebugNode");
     private final Map<Armature, ArmatureDebugger> armatures = new HashMap<>();
     private final List<Consumer<Joint>> selectionListeners = new ArrayList<>();
     private boolean displayNonDeformingJoints = false;
@@ -102,8 +103,8 @@ public class ArmatureDebugAppState extends BaseAppState {
     @Override
     protected void initialize(Application app) {
 
-        this.inputManager = app.getInputManager();
-        this.cam = app.getCamera();
+        inputManager = app.getInputManager();
+        cam = app.getCamera();
 
         vp = app.getRenderManager().createMainView("ArmatureDebugView", cam);
         vp.attachScene(debugNode);
@@ -191,19 +192,22 @@ public class ArmatureDebugAppState extends BaseAppState {
         }
 
         // Use a visitor to find joints that actually deform the mesh
-        JointInfoVisitor visitor = new JointInfoVisitor(armature);
-        sp.depthFirstTraversal(visitor);
+        JointInfoVisitor jointVisitor = new JointInfoVisitor(armature);
+        sp.depthFirstTraversal(jointVisitor);
 
-        // Create a new ArmatureDebugger
-        debugger = new ArmatureDebugger(sp.getName() + "_ArmatureDebugger", armature, visitor.deformingJoints);
-        debugger.setLocalTransform(sp.getWorldTransform());
+        Spatial target = sp;
+
         if (sp instanceof Node) {
             List<Geometry> geoms = new ArrayList<>();
             collectGeometries((Node) sp, geoms);
             if (geoms.size() == 1) {
-                debugger.setLocalTransform(geoms.get(0).getWorldTransform());
+                target = geoms.get(0);
             }
         }
+
+        // Create a new ArmatureDebugger
+        debugger = new ArmatureDebugger(sp.getName() + "_ArmatureDebugger", armature, jointVisitor.deformingJoints);
+        debugger.addControl(new ArmatureDebuggerLink(target));
 
         // Store and attach the new debugger
         armatures.put(armature, debugger);
@@ -442,5 +446,23 @@ public class ArmatureDebugAppState extends BaseAppState {
             }
         }
 
+    }
+
+    private static class ArmatureDebuggerLink extends AbstractControl {
+
+        private final Spatial target;
+
+        public ArmatureDebuggerLink(Spatial target) {
+            this.target = target;
+        }
+
+        @Override
+        protected void controlUpdate(float tpf) {
+            spatial.setLocalTransform(target.getWorldTransform());
+        }
+
+        @Override
+        protected void controlRender(RenderManager rm, ViewPort vp) {
+        }
     }
 }
