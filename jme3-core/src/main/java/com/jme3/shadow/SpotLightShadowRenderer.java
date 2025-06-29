@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,46 +52,51 @@ import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
 /**
- * SpotLightShadowRenderer renderer use Parallel Split Shadow Mapping technique
- * (pssm)<br> It splits the view frustum in several parts and compute a shadow
- * map for each one.<br> splits are distributed so that the closer they are from
- * the camera, the smaller they are to maximize the resolution used of the
- * shadow map.<br> This results in a better quality shadow than standard shadow
- * mapping.<br> for more information on this read <a
- * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
+ * Implements a shadow renderer specifically for {@link SpotLight SpotLights}
+ * using the **Parallel Split Shadow Mapping (PSSM)** technique.
  *
- * @author Rémy Bouquet aka Nehon
+ * <p>PSSM divides the camera's view frustum into multiple sections,
+ * generating a separate shadow map for each. These splits are
+ * intelligently distributed, with smaller, higher-resolution maps for areas
+ * closer to the camera and larger, lower-resolution maps for distant areas.
+ * This approach optimizes shadow map usage, leading to superior shadow quality
+ * compared to standard shadow mapping techniques.
+ *
+ * <p>For a detailed explanation of PSSM, refer to:
+ * <a href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">GPU Gems 3, Chapter 10: Parallel-Split Shadow Maps on Programmable GPUs</a>
+ *
+ * @author Nehon
  */
 public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
-    protected Camera shadowCam;    
+    protected Camera shadowCam;
     protected SpotLight light;
-    protected Vector3f[] points = new Vector3f[8];
-    //Holding the info for fading shadows in the far distance 
-   
+    protected final Camera[] cameras = new Camera[1];
+    protected final Vector3f[] points = new Vector3f[8];
+    protected final Vector3f tempVec = new Vector3f();
 
     /**
-     * Used for serialization use SpotLightShadowRenderer#SpotLightShadowRenderer(AssetManager assetManager, int shadowMapSize)
+     * For serialization only. Do not use.
      */
     protected SpotLightShadowRenderer() {
         super();
     }
     
     /**
-     * Create a SpotLightShadowRenderer This use standard shadow mapping
+     * Creates a new {@code SpotLightShadowRenderer} instance.
      *
-     * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
-     * etc...) The more quality, the fewer fps.
+     * @param assetManager The application's asset manager.
+     * @param shadowMapSize The size of the rendered shadow maps (e.g., 512, 1024, 2048).
+     * Higher values produce better quality shadows but may impact performance.
      */
     public SpotLightShadowRenderer(AssetManager assetManager, int shadowMapSize) {
         super(assetManager, shadowMapSize, 1);
         init(shadowMapSize);
     }
 
-    
     private void init(int shadowMapSize) {
         shadowCam = new Camera(shadowMapSize, shadowMapSize);
+        cameras[0] = shadowCam;
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
         }
@@ -101,7 +106,8 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     protected void initFrustumCam() {
         Camera viewCam = viewPort.getCamera();
         frustumCam = viewCam.clone();
-        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride, viewCam.getFrustumLeft(), viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
+        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride,
+                viewCam.getFrustumLeft(), viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
     }
 
     /**
@@ -138,10 +144,9 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         //We prevent computing the frustum points and splits with zeroed or negative near clip value
         float frustumNear = Math.max(viewCam.getFrustumNear(), 0.001f);
         ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, 1.0f, points);
-        //shadowCam.setDirection(direction);
 
         shadowCam.setFrustumPerspective(light.getSpotOuterAngle() * FastMath.RAD_TO_DEG * 2.0f, 1, 1f, light.getSpotRange());
-        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp());
+        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp(tempVec));
         shadowCam.setLocation(light.getPosition());
 
         shadowCam.update();
@@ -159,8 +164,6 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     protected void getReceivers(GeometryList lightReceivers) {
         lightReceivers.clear();
-        Camera[] cameras = new Camera[1];
-        cameras[0] = shadowCam;
         for (Spatial scene : viewPort.getScenes()) {
             ShadowUtil.getLitGeometriesInViewPort(scene, viewPort.getCamera(), cameras, RenderQueue.ShadowMode.Receive, lightReceivers);
         }
@@ -208,7 +211,6 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         fadeInfo = (Vector2f) ic.readSavable("fadeInfo", null);
         fadeLength = ic.readFloat("fadeLength", 0f);
         init((int) shadowMapSize);
-
     }
 
     @Override
@@ -227,18 +229,17 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
      * @return true if intersects, otherwise false
      */
     @Override
-    protected boolean checkCulling(Camera viewCam) {      
+    protected boolean checkCulling(Camera viewCam) {
         Camera cam = viewCam;
-        if(frustumCam != null){
-            cam = frustumCam;            
+        if (frustumCam != null) {
+            cam = frustumCam;
             cam.setLocation(viewCam.getLocation());
             cam.setRotation(viewCam.getRotation());
         }
         TempVars vars = TempVars.get();
-        boolean intersects = light.intersectsFrustum(cam,vars);
+        boolean intersects = light.intersectsFrustum(cam, vars);
         vars.release();
         return intersects;
-        
     }
 
 }
