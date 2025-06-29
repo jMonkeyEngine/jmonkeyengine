@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,16 @@
  */
 package com.jme3.math;
 
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.util.TempVars;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.logging.Logger;
 
 /**
@@ -77,19 +83,19 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * The first imaginary (X) component. Not an angle!
      */
-    protected float x;
+    public float x;
     /**
      * The 2nd imaginary (Y) component. Not an angle!
      */
-    protected float y;
+    public float y;
     /**
      * The 3rd imaginary (Z) component. Not an angle!
      */
-    protected float z;
+    public float z;
     /**
      * The real (W) component. Not an angle!
      */
-    protected float w;
+    public float w;
 
     /**
      * Instantiates an identity quaternion: all components zeroed except
@@ -1086,7 +1092,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      *     non-null, elements modified)
      * @throws IllegalArgumentException if {@code axes.length != 3}
      */
-    public void toAxes(Vector3f axes[]) {
+    public void toAxes(Vector3f[] axes) {
         if (axes.length != 3) {
             throw new IllegalArgumentException(
                     "Axes array must have three elements");
@@ -1460,7 +1466,6 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         hash = 37 * hash + Float.floatToIntBits(z);
         hash = 37 * hash + Float.floatToIntBits(w);
         return hash;
-
     }
 
     /**
@@ -1525,32 +1530,32 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * Serializes to the specified exporter, for example when saving to a J3O
      * file. The current instance is unaffected.
      *
-     * @param e the exporter to use (not null)
+     * @param ex the exporter to use (not null)
      * @throws IOException from the exporter
      */
     @Override
-    public void write(JmeExporter e) throws IOException {
-        OutputCapsule cap = e.getCapsule(this);
-        cap.write(x, "x", 0);
-        cap.write(y, "y", 0);
-        cap.write(z, "z", 0);
-        cap.write(w, "w", 1);
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(x, "x", 0);
+        oc.write(y, "y", 0);
+        oc.write(z, "z", 0);
+        oc.write(w, "w", 1);
     }
 
     /**
      * De-serializes from the specified importer, for example when loading from
      * a J3O file.
      *
-     * @param importer the importer to use (not null)
+     * @param im the importer to use (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter importer) throws IOException {
-        InputCapsule cap = importer.getCapsule(this);
-        x = cap.readFloat("x", 0);
-        y = cap.readFloat("y", 0);
-        z = cap.readFloat("z", 0);
-        w = cap.readFloat("w", 1);
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = im.getCapsule(this);
+        x = ic.readFloat("x", 0);
+        y = ic.readFloat("y", 0);
+        z = ic.readFloat("z", 0);
+        w = ic.readFloat("w", 1);
     }
 
     /**
