@@ -121,7 +121,7 @@ public class ArmatureDebugAppState extends BaseAppState {
     }
 
     private void registerInput() {
-        inputManager.addMapping(PICK_JOINT, new MouseButtonTrigger(MouseInput.BUTTON_LEFT), new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+        inputManager.addMapping(PICK_JOINT, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addMapping(TOGGLE_JOINTS, new KeyTrigger(KeyInput.KEY_F10));
         inputManager.addListener(actionListener, PICK_JOINT, TOGGLE_JOINTS);
     }
@@ -248,6 +248,10 @@ public class ArmatureDebugAppState extends BaseAppState {
 
         @Override
         public void onAction(String name, boolean isPressed, float tpf) {
+            if (!isEnabled()) {
+                return;
+            }
+
             if (name.equals(PICK_JOINT)) {
                 if (isPressed) {
                     // Start counting click delay on mouse press
@@ -292,20 +296,22 @@ public class ArmatureDebugAppState extends BaseAppState {
 
         private void printJointInfo(Joint selectedjoint, ArmatureDebugger ad) {
             if (enableJointInfoLogging) {
-                System.err.println("-----------------------");
-                System.err.println("Selected Joint : " + selectedjoint.getName() + " in armature " + ad.getName());
-                System.err.println("Root Bone : " + (selectedjoint.getParent() == null));
-                System.err.println("-----------------------");
-                System.err.println("Local translation: " + selectedjoint.getLocalTranslation());
-                System.err.println("Local rotation: " + selectedjoint.getLocalRotation());
-                System.err.println("Local scale: " + selectedjoint.getLocalScale());
-                System.err.println("---");
-                System.err.println("Model translation: " + selectedjoint.getModelTransform().getTranslation());
-                System.err.println("Model rotation: " + selectedjoint.getModelTransform().getRotation());
-                System.err.println("Model scale: " + selectedjoint.getModelTransform().getScale());
-                System.err.println("---");
-                System.err.println("Bind inverse Transform: ");
-                System.err.println(selectedjoint.getInverseModelBindMatrix());
+                String info = "\n-----------------------\n" +
+                        "Selected Joint : " + selectedjoint.getName() + " in armature " + ad.getName() + "\n" +
+                        "Root Bone : " + (selectedjoint.getParent() == null) + "\n" +
+                        "-----------------------\n" +
+                        "Local translation: " + selectedjoint.getLocalTranslation() + "\n" +
+                        "Local rotation: " + selectedjoint.getLocalRotation() + "\n" +
+                        "Local scale: " + selectedjoint.getLocalScale() + "\n" +
+                        "---\n" +
+                        "Model translation: " + selectedjoint.getModelTransform().getTranslation() + "\n" +
+                        "Model rotation: " + selectedjoint.getModelTransform().getRotation() + "\n" +
+                        "Model scale: " + selectedjoint.getModelTransform().getScale() + "\n" +
+                        "---\n" +
+                        "Bind inverse Transform: \n" +
+                        selectedjoint.getInverseModelBindMatrix();
+
+                logger.log(Level.INFO, info);
             }
         }
 
