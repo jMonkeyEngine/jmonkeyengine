@@ -31,9 +31,14 @@
  */
 package com.jme3.math;
 
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
+
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.logging.Logger;
@@ -63,39 +68,39 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * The element in row 0, column 0.
      */
-    public float m00;
+    protected float m00;
     /**
      * The element in row 0, column 1.
      */
-    public float m01;
+    protected float m01;
     /**
      * The element in row 0, column 2.
      */
-    public float m02;
+    protected float m02;
     /**
      * The element in row 1, column 0.
      */
-    public float m10;
+    protected float m10;
     /**
      * The element in row 1, column 1.
      */
-    public float m11;
+    protected float m11;
     /**
      * The element in row 1, column 2.
      */
-    public float m12;
+    protected float m12;
     /**
      * The element in row 2, column 0.
      */
-    public float m20;
+    protected float m20;
     /**
      * The element in row 2, column 1.
      */
-    public float m21;
+    protected float m21;
     /**
      * The element in row 2, column 2.
      */
-    public float m22;
+    protected float m22;
     /**
      * Shared instance of the all-zero matrix. Do not modify!
      */
@@ -307,7 +312,10 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
             store = new Matrix3f();
         }
 
-        float mag = 1.0f / FastMath.sqrt(
+        float mag;
+
+        // Normalize first column
+        mag = 1.0f / FastMath.sqrt(
                   m00 * m00
                 + m10 * m10
                 + m20 * m20);
@@ -316,6 +324,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
         store.m10 = m10 * mag;
         store.m20 = m20 * mag;
 
+        // Normalize second column
         mag = 1.0f / FastMath.sqrt(
                   m01 * m01
                 + m11 * m11
@@ -325,6 +334,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
         store.m11 = m11 * mag;
         store.m21 = m21 * mag;
 
+        // Compute third column as cross product of first two
         store.m02 = store.m10 * store.m21 - store.m11 * store.m20;
         store.m12 = store.m01 * store.m20 - store.m00 * store.m21;
         store.m22 = store.m00 * store.m11 - store.m01 * store.m10;
@@ -448,12 +458,16 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      */
     public FloatBuffer toFloatBuffer() {
         FloatBuffer fb = BufferUtils.createFloatBuffer(9);
-
-        fb.put(m00).put(m01).put(m02);
-        fb.put(m10).put(m11).put(m12);
-        fb.put(m20).put(m21).put(m22);
+        fillFloatBuffer(fb, false); // Row-major order
         fb.rewind();
         return fb;
+
+//        FloatBuffer fb = BufferUtils.createFloatBuffer(9);
+//        fb.put(m00).put(m01).put(m02);
+//        fb.put(m10).put(m11).put(m12);
+//        fb.put(m20).put(m21).put(m22);
+//        fb.rewind();
+//        return fb;
     }
 
     /**
@@ -467,21 +481,9 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * @return {@code fb}, its position advanced by 9
      */
     public FloatBuffer fillFloatBuffer(FloatBuffer fb, boolean columnMajor) {
-//        if (columnMajor){
-//            fb.put(m00).put(m10).put(m20);
-//            fb.put(m01).put(m11).put(m21);
-//            fb.put(m02).put(m12).put(m22);
-//        }else{
-//            fb.put(m00).put(m01).put(m02);
-//            fb.put(m10).put(m11).put(m12);
-//            fb.put(m20).put(m21).put(m22);
-//        }
-
         TempVars vars = TempVars.get();
-
         fillFloatArray(vars.matrixWrite, columnMajor);
         fb.put(vars.matrixWrite, 0, 9);
-
         vars.release();
 
         return fb;
@@ -491,32 +493,32 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * Copies the matrix to the 1st 9 elements of the specified array. The
      * matrix is unaffected.
      *
-     * @param f storage for the elements (not null, length&ge;9)
+     * @param store storage for the elements (not null, length&ge;9)
      * @param columnMajor true to store the elements in column-major order (m00,
      *     m10, ...) or false to store them in row-major order (m00, m01, ...)
      * @see #get(float[], boolean)
      */
-    public void fillFloatArray(float[] f, boolean columnMajor) {
+    public void fillFloatArray(float[] store, boolean columnMajor) {
         if (columnMajor) {
-            f[0] = m00;
-            f[1] = m10;
-            f[2] = m20;
-            f[3] = m01;
-            f[4] = m11;
-            f[5] = m21;
-            f[6] = m02;
-            f[7] = m12;
-            f[8] = m22;
+            store[0] = m00;
+            store[1] = m10;
+            store[2] = m20;
+            store[3] = m01;
+            store[4] = m11;
+            store[5] = m21;
+            store[6] = m02;
+            store[7] = m12;
+            store[8] = m22;
         } else {
-            f[0] = m00;
-            f[1] = m01;
-            f[2] = m02;
-            f[3] = m10;
-            f[4] = m11;
-            f[5] = m12;
-            f[6] = m20;
-            f[7] = m21;
-            f[8] = m22;
+            store[0] = m00;
+            store[1] = m01;
+            store[2] = m02;
+            store[3] = m10;
+            store[4] = m11;
+            store[5] = m12;
+            store[6] = m20;
+            store[7] = m21;
+            store[8] = m22;
         }
     }
 
@@ -657,7 +659,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     public Matrix3f set(float[][] matrix) {
         if (matrix.length != 3 || matrix[0].length != 3) {
             throw new IllegalArgumentException(
-                    "Array must be of size 9.");
+                    "Array must be of size 3x3.");
         }
 
         m00 = matrix[0][0];
@@ -962,9 +964,10 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
         }
         float x = vec.x;
         float y = vec.y;
-        vec.x = m00 * x + m01 * y + m02 * vec.z;
-        vec.y = m10 * x + m11 * y + m12 * vec.z;
-        vec.z = m20 * x + m21 * y + m22 * vec.z;
+        float z = vec.z;
+        vec.x = m00 * x + m01 * y + m02 * z;
+        vec.y = m10 * x + m11 * y + m12 * z;
+        vec.z = m20 * x + m21 * y + m22 * z;
         return vec;
     }
 
@@ -989,9 +992,6 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * @return the (modified) current instance
      */
     public Matrix3f transposeLocal() {
-//        float[] tmp = new float[9];
-//        get(tmp, false);
-//        set(tmp, true);
 
         float tmp = m01;
         m01 = m10;
@@ -1153,14 +1153,13 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Transposes the matrix and returns the (modified) current instance.
      *
-     * <p>This method is inconsistent with JME naming conventions, but has been
-     * preserved for backwards compatibility. To preserve the current instance,
-     * {@link #transposeNew()}.
-     *
-     * <p>TODO deprecate in favor of transposeLocal()
+     * @deprecated Use {@link #transposeLocal()} for an in-place transpose
+     * or {@link #transposeNew()} to create a new transposed matrix.
+     * This method is inconsistent with JME naming conventions.
      *
      * @return the (modified) current instance (for chaining)
      */
+    @Deprecated
     public Matrix3f transpose() {
         return transposeLocal();
     }
@@ -1253,7 +1252,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      */
     @Override
     public boolean equals(Object o) {
-        if (o == null || o.getClass() != getClass()) {
+        if (!(o instanceof Matrix3f)) {
             return false;
         }
 
@@ -1299,42 +1298,42 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * Serializes to the specified exporter, for example when saving to a J3O
      * file. The current instance is unaffected.
      *
-     * @param e the exporter to use (not null)
+     * @param ex the exporter to use (not null)
      * @throws IOException from the exporter
      */
     @Override
-    public void write(JmeExporter e) throws IOException {
-        OutputCapsule cap = e.getCapsule(this);
-        cap.write(m00, "m00", 1);
-        cap.write(m01, "m01", 0);
-        cap.write(m02, "m02", 0);
-        cap.write(m10, "m10", 0);
-        cap.write(m11, "m11", 1);
-        cap.write(m12, "m12", 0);
-        cap.write(m20, "m20", 0);
-        cap.write(m21, "m21", 0);
-        cap.write(m22, "m22", 1);
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(m00, "m00", 1);
+        oc.write(m01, "m01", 0);
+        oc.write(m02, "m02", 0);
+        oc.write(m10, "m10", 0);
+        oc.write(m11, "m11", 1);
+        oc.write(m12, "m12", 0);
+        oc.write(m20, "m20", 0);
+        oc.write(m21, "m21", 0);
+        oc.write(m22, "m22", 1);
     }
 
     /**
      * De-serializes from the specified importer, for example when loading from a
      * J3O file.
      *
-     * @param importer the importer to use (not null)
+     * @param im the importer to use (not null)
      * @throws IOException from the importer
      */
     @Override
-    public void read(JmeImporter importer) throws IOException {
-        InputCapsule cap = importer.getCapsule(this);
-        m00 = cap.readFloat("m00", 1);
-        m01 = cap.readFloat("m01", 0);
-        m02 = cap.readFloat("m02", 0);
-        m10 = cap.readFloat("m10", 0);
-        m11 = cap.readFloat("m11", 1);
-        m12 = cap.readFloat("m12", 0);
-        m20 = cap.readFloat("m20", 0);
-        m21 = cap.readFloat("m21", 0);
-        m22 = cap.readFloat("m22", 1);
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = im.getCapsule(this);
+        m00 = ic.readFloat("m00", 1);
+        m01 = ic.readFloat("m01", 0);
+        m02 = ic.readFloat("m02", 0);
+        m10 = ic.readFloat("m10", 0);
+        m11 = ic.readFloat("m11", 1);
+        m12 = ic.readFloat("m12", 0);
+        m20 = ic.readFloat("m20", 0);
+        m21 = ic.readFloat("m21", 0);
+        m22 = ic.readFloat("m22", 1);
     }
 
     /**
@@ -1453,34 +1452,35 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      * @return true if all elements are within 0.0001 of an identity matrix
      */
     static boolean equalIdentity(Matrix3f mat) {
-        if (Math.abs(mat.m00 - 1) > 1e-4) {
+        float delta = 1e-4f;
+        if (Math.abs(mat.m00 - 1) > delta) {
             return false;
         }
-        if (Math.abs(mat.m11 - 1) > 1e-4) {
+        if (Math.abs(mat.m11 - 1) > delta) {
             return false;
         }
-        if (Math.abs(mat.m22 - 1) > 1e-4) {
-            return false;
-        }
-
-        if (Math.abs(mat.m01) > 1e-4) {
-            return false;
-        }
-        if (Math.abs(mat.m02) > 1e-4) {
+        if (Math.abs(mat.m22 - 1) > delta) {
             return false;
         }
 
-        if (Math.abs(mat.m10) > 1e-4) {
+        if (Math.abs(mat.m01) > delta) {
             return false;
         }
-        if (Math.abs(mat.m12) > 1e-4) {
+        if (Math.abs(mat.m02) > delta) {
             return false;
         }
 
-        if (Math.abs(mat.m20) > 1e-4) {
+        if (Math.abs(mat.m10) > delta) {
             return false;
         }
-        if (Math.abs(mat.m21) > 1e-4) {
+        if (Math.abs(mat.m12) > delta) {
+            return false;
+        }
+
+        if (Math.abs(mat.m20) > delta) {
+            return false;
+        }
+        if (Math.abs(mat.m21) > delta) {
             return false;
         }
 
