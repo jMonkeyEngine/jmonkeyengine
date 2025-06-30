@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,6 @@ import java.util.regex.Pattern;
 public class J3MLoader implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(J3MLoader.class.getName());
-   // private ErrorLogger errors;
     private ShaderNodeLoaderDelegate nodesLoaderDelegate;
     boolean isUseNodes = false;
     int langSize = 0;
@@ -86,7 +85,6 @@ public class J3MLoader implements AssetLoader {
         shaderNames = new EnumMap<>(Shader.ShaderType.class);
     }
 
-
     // <TYPE> <LANG> : <SOURCE>
     private void readShaderStatement(String statement) throws IOException {
         String[] split = statement.split(":");
@@ -102,7 +100,6 @@ public class J3MLoader implements AssetLoader {
             }
         }
     }
-
 
     private void readShaderDefinition(Shader.ShaderType shaderType, String name, String... languages) {
         shaderNames.put(shaderType, name);
@@ -129,15 +126,15 @@ public class J3MLoader implements AssetLoader {
         LightMode lm = LightMode.valueOf(split[1]);
         technique.setLightMode(lm);
     }
-    
-    
+
+
     // LightMode <SPACE>
     private void readLightSpace(String statement) throws IOException{
         String[] split = statement.split(whitespacePattern);
         if (split.length != 2){
             throw new IOException("LightSpace statement syntax incorrect");
         }
-        TechniqueDef.LightSpace ls = TechniqueDef.LightSpace.valueOf(split[1]);        
+        TechniqueDef.LightSpace ls = TechniqueDef.LightSpace.valueOf(split[1]);
         technique.setLightSpace(ls);
     }
 
@@ -297,7 +294,7 @@ public class J3MLoader implements AssetLoader {
             for (final TextureOptionValue textureOptionValue : textureOptionValues) {
                 textureOptionValue.applyToTexture(texture);
             }
-        }        
+        }
         return texture;
     }
 
@@ -311,28 +308,28 @@ public class J3MLoader implements AssetLoader {
                     if (split.length != 1){
                         throw new IOException("Float value parameter must have 1 entry: " + value);
                     }
-                     return Float.parseFloat(split[0]);
+                    return Float.parseFloat(split[0]);
                 case Vector2:
                     if (split.length != 2){
                         throw new IOException("Vector2 value parameter must have 2 entries: " + value);
                     }
                     return new Vector2f(Float.parseFloat(split[0]),
-                                                               Float.parseFloat(split[1]));
+                            Float.parseFloat(split[1]));
                 case Vector3:
                     if (split.length != 3){
                         throw new IOException("Vector3 value parameter must have 3 entries: " + value);
                     }
                     return new Vector3f(Float.parseFloat(split[0]),
-                                                               Float.parseFloat(split[1]),
-                                                               Float.parseFloat(split[2]));
+                            Float.parseFloat(split[1]),
+                            Float.parseFloat(split[2]));
                 case Vector4:
                     if (split.length != 4){
                         throw new IOException("Vector4 value parameter must have 4 entries: " + value);
                     }
                     return new ColorRGBA(Float.parseFloat(split[0]),
-                                                                Float.parseFloat(split[1]),
-                                                                Float.parseFloat(split[2]),
-                                                                Float.parseFloat(split[3]));
+                            Float.parseFloat(split[1]),
+                            Float.parseFloat(split[2]),
+                            Float.parseFloat(split[3]));
                 case Int:
                     if (split.length != 1){
                         throw new IOException("Int value parameter must have 1 entry: " + value);
@@ -536,12 +533,12 @@ public class J3MLoader implements AssetLoader {
             MatParam param = materialDef.getMaterialParam(paramName);
             if (param == null) {
                 logger.log(Level.WARNING, "In technique ''{0}'':\n"
-                        + "Define ''{1}'' mapped to non-existent"
-                        + " material parameter ''{2}'', ignoring.",
+                                + "Define ''{1}'' mapped to non-existent"
+                                + " material parameter ''{2}'', ignoring.",
                         new Object[]{technique.getName(), defineName, paramName});
                 return;
             }
-            
+
             VarType paramType = param.getVarType();
             technique.addShaderParamDefine(paramName, paramType, defineName);
         }else{
@@ -553,7 +550,6 @@ public class J3MLoader implements AssetLoader {
         for (Statement statement : defineList){
             readDefine(statement.getLine());
         }
-
     }
 
     private void readTechniqueStatement(Statement statement) throws IOException{
@@ -600,12 +596,23 @@ public class J3MLoader implements AssetLoader {
         }
     }
 
-    private void readTransparentStatement(String statement) throws IOException{
+    private void readTransparentStatement(String statement) throws IOException {
+        boolean transparent = readBooleanStatement(statement, "Transparent");
+        material.setTransparent(transparent);
+    }
+
+    private void readReceivesShadowsStatement(String statement) throws IOException {
+        boolean receivesShadows = readBooleanStatement(statement, "ReceivesShadows");
+        material.setReceivesShadows(receivesShadows);
+    }
+    
+    private boolean readBooleanStatement(String statement, String propertyName) throws IOException {
         String[] split = statement.split(whitespacePattern);
-        if (split.length != 2){
-            throw new IOException("Transparent statement syntax incorrect");
+        if (split.length != 2) {
+            throw new IOException(propertyName + " statement syntax incorrect");
         }
-        material.setTransparent(parseBoolean(split[1]));
+        
+        return parseBoolean(split[1]);
     }
     
     private static String createShaderPrologue(List<String> presetDefines) {
@@ -665,7 +672,7 @@ public class J3MLoader implements AssetLoader {
 
         if(isUseNodes){
             //used for caching later, the shader here is not a file.
-            
+
             // KIRILL 9/19/2015
             // Not sure if this is needed anymore, since shader caching
             // is now done by TechniqueDef.
@@ -722,9 +729,11 @@ public class J3MLoader implements AssetLoader {
         boolean extending = false;
         Statement materialStat = roots.get(0);
         String materialName = materialStat.getLine();
+        
         if (materialName.startsWith("MaterialDef")){
             materialName = materialName.substring("MaterialDef ".length()).trim();
             extending = false;
+            
         }else if (materialName.startsWith("Material")){
             materialName = materialName.substring("Material ".length()).trim();
             extending = true;
@@ -753,7 +762,7 @@ public class J3MLoader implements AssetLoader {
             material = new Material(def);
             material.setKey(key);
             material.setName(split[0].trim());
-//            material.setAssetName(fileName);
+            
         }else if (split.length == 1){
             if (extending){
                 throw new MatParseException("Expected ':', got '{'", materialStat);
@@ -765,24 +774,26 @@ public class J3MLoader implements AssetLoader {
             throw new MatParseException("Cannot use colon in material name/path", materialStat);
         }
 
-        for (Statement statement : materialStat.getContents()){
+        for (Statement statement : materialStat.getContents()) {
             split = statement.getLine().split("[ \\{]");
             String statType = split[0];
-            if (extending){
-                if (statType.equals("MaterialParameters")){
+            if (extending) {
+                if (statType.equals("MaterialParameters")) {
                     readExtendingMaterialParams(statement.getContents());
-                }else if (statType.equals("AdditionalRenderState")){
+                } else if (statType.equals("AdditionalRenderState")) {
                     readAdditionalRenderState(statement.getContents());
-                }else if (statType.equals("Transparent")){
+                } else if (statType.equals("Transparent")) {
                     readTransparentStatement(statement.getLine());
+                } else if (statType.equals("ReceivesShadows")) {
+                    readReceivesShadowsStatement(statement.getLine());
                 }
-            }else{
-                if (statType.equals("Technique")){
+            } else {
+                if (statType.equals("Technique")) {
                     readTechnique(statement);
-                }else if (statType.equals("MaterialParameters")){
+                } else if (statType.equals("MaterialParameters")) {
                     readMaterialParams(statement.getContents());
-                }else{
-                    throw new MatParseException("Expected material statement, got '"+statType+"'", statement);
+                } else {
+                    throw new MatParseException("Expected material statement, got '" + statType + "'", statement);
                 }
             }
         }
@@ -797,6 +808,7 @@ public class J3MLoader implements AssetLoader {
             key = info.getKey();
             if (key.getExtension().equals("j3m") && !(key instanceof MaterialKey)) {
                 throw new IOException("Material instances must be loaded via MaterialKey");
+                
             } else if (key.getExtension().equals("j3md") && key instanceof MaterialKey) {
                 throw new IOException("Material definitions must be loaded via AssetKey");
             }
