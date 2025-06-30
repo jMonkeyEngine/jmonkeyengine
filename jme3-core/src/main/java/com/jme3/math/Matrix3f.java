@@ -461,13 +461,6 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
         fillFloatBuffer(fb, false); // Row-major order
         fb.rewind();
         return fb;
-
-//        FloatBuffer fb = BufferUtils.createFloatBuffer(9);
-//        fb.put(m00).put(m01).put(m02);
-//        fb.put(m10).put(m11).put(m12);
-//        fb.put(m20).put(m21).put(m22);
-//        fb.rewind();
-//        return fb;
     }
 
     /**
@@ -751,11 +744,11 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Configures as a rotation matrix equivalent to the argument.
      *
-     * @param quaternion the input quaternion (not null, unaffected)
+     * @param q the input quaternion (not null, unaffected)
      * @return the (modified) current instance (for chaining)
      */
-    public Matrix3f set(Quaternion quaternion) {
-        return quaternion.toRotationMatrix(this);
+    public Matrix3f set(Quaternion q) {
+        return q.toRotationMatrix(this);
     }
 
     /**
