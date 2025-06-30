@@ -83,19 +83,19 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * The first imaginary (X) component. Not an angle!
      */
-    public float x;
+    protected float x;
     /**
      * The 2nd imaginary (Y) component. Not an angle!
      */
-    public float y;
+    protected float y;
     /**
      * The 3rd imaginary (Z) component. Not an angle!
      */
-    public float z;
+    protected float z;
     /**
      * The real (W) component. Not an angle!
      */
-    public float w;
+    protected float w;
 
     /**
      * Instantiates an identity quaternion: all components zeroed except
