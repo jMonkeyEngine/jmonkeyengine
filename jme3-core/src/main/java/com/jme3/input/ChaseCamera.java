@@ -78,7 +78,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     protected Camera cam = null;
     protected InputManager inputManager;
 
-    protected float minVerticalRotation = 0.00f;
+    protected float minVerticalRotation = 0.0f;
     protected float maxVerticalRotation = FastMath.PI / 2;
     protected float minDistance = 1.0f;
     protected float maxDistance = 40.0f;
@@ -762,9 +762,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Sets the minimal vertical rotation angle in radians of the camera around the target.
-     * The default value is {@code 0.00f}.
      *
-     * @param minVerticalRotation The desired angle in radians.
+     * @param minVerticalRotation The desired angle in radians (default is 0.0f).
      */
     public void setMinVerticalRotation(float minVerticalRotation) {
         this.minVerticalRotation = minVerticalRotation;
