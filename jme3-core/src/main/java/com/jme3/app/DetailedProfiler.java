@@ -31,12 +31,22 @@
  */
 package com.jme3.app;
 
-import com.jme3.profile.*;
+import com.jme3.profile.AppProfiler;
+import com.jme3.profile.AppStep;
+import com.jme3.profile.SpStep;
+import com.jme3.profile.VpStep;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A detailed profiler implementation that tracks CPU and GPU times for various
