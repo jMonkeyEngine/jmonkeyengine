@@ -1583,9 +1583,6 @@ public class Camera implements Savable, Cloneable {
      * <pre>{@code
      * // Usage Example:
      * Ray pickingRay = cam.screenPointToRay(inputManager.getCursorPosition());
-     *
-     * // Now 'pickingRay' can be used for intersection tests with 3D objects
-     * // e.g., pickingRay.intersects(someSpatial.getWorldBound());
      * }</pre>
      */
     public Ray screenPointToRay(Vector2f pos) {
