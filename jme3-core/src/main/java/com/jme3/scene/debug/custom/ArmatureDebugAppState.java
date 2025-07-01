@@ -294,22 +294,22 @@ public class ArmatureDebugAppState extends BaseAppState {
             }
         }
 
-        private void printJointInfo(Joint selectedjoint, ArmatureDebugger ad) {
+        private void printJointInfo(Joint selectedJoint, ArmatureDebugger ad) {
             if (enableJointInfoLogging) {
                 String info = "\n-----------------------\n" +
-                        "Selected Joint : " + selectedjoint.getName() + " in armature " + ad.getName() + "\n" +
-                        "Root Bone : " + (selectedjoint.getParent() == null) + "\n" +
+                        "Selected Joint : " + selectedJoint.getName() + " in armature " + ad.getName() + "\n" +
+                        "Root Bone : " + (selectedJoint.getParent() == null) + "\n" +
                         "-----------------------\n" +
-                        "Local translation: " + selectedjoint.getLocalTranslation() + "\n" +
-                        "Local rotation: " + selectedjoint.getLocalRotation() + "\n" +
-                        "Local scale: " + selectedjoint.getLocalScale() + "\n" +
+                        "Local translation: " + selectedJoint.getLocalTranslation() + "\n" +
+                        "Local rotation: " + selectedJoint.getLocalRotation() + "\n" +
+                        "Local scale: " + selectedJoint.getLocalScale() + "\n" +
                         "---\n" +
-                        "Model translation: " + selectedjoint.getModelTransform().getTranslation() + "\n" +
-                        "Model rotation: " + selectedjoint.getModelTransform().getRotation() + "\n" +
-                        "Model scale: " + selectedjoint.getModelTransform().getScale() + "\n" +
+                        "Model translation: " + selectedJoint.getModelTransform().getTranslation() + "\n" +
+                        "Model rotation: " + selectedJoint.getModelTransform().getRotation() + "\n" +
+                        "Model scale: " + selectedJoint.getModelTransform().getScale() + "\n" +
                         "---\n" +
                         "Bind inverse Transform: \n" +
-                        selectedjoint.getInverseModelBindMatrix();
+                        selectedJoint.getInverseModelBindMatrix();
 
                 logger.log(Level.INFO, info);
             }
