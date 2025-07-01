@@ -430,6 +430,9 @@ jobs:
               -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
               -PuseCommitHashAsVersionName=true \
               --console=plain --stacktrace
+            ./uploadToCentral.sh \
+              -p '${{ secrets.CENTRAL_PASSWORD }}' \
+              -u '${{ secrets.CENTRAL_USERNAME }}'
           fi
 
       - name: Deploy to GitHub Releases
