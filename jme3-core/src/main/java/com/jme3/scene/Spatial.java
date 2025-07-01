@@ -327,11 +327,10 @@ public abstract class Spatial implements Savable, Collidable,
 
     /**
      * Propagates a given refresh flag up the parent hierarchy.
-     * This method sets the flag on the current spatial and then recursively
-     * sets it on its parents until an ancestor is found that already has the flag set,
-     * or the root is reached.
+     * This ensures that all ancestors affected by a change
+     * in a child spatial are marked for an update.
      *
-     * @param flag The refresh flag to propagate (e.g., RF_TRANSFORM, RF_BOUND, etc.).
+     * @param flag The refresh flag to propagate (e.g., {@link #RF_TRANSFORM}, {@link #RF_BOUND}, etc.).
      */
     private void propagateRefreshFlag(int flag) {
         Spatial p = parent;
