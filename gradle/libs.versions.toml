@@ -35,6 +35,7 @@ lwjgl3-opengl   = { module = "org.lwjgl:lwjgl-opengl",   version.ref = "lwjgl3" 
 lwjgl3-openvr   = { module = "org.lwjgl:lwjgl-openvr",   version.ref = "lwjgl3" }
 lwjgl3-ovr      = { module = "org.lwjgl:lwjgl-ovr",      version.ref = "lwjgl3" }
 lwjgl3-vulkan   = { module = "org.lwjgl:lwjgl-vulkan",   version.ref = "lwjgl3" }
+lwjgl3-shaderc  = { module = "org.lwjgl:lwjgl-shaderc",  version.ref = "lwjgl3" }
 
 mokito-core = "org.mockito:mockito-core:3.12.4"
 

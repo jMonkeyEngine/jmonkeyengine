@@ -3,6 +3,8 @@ package com.jme3.renderer.vulkan;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.Struct;
+import org.lwjgl.system.StructBuffer;
 import org.lwjgl.vulkan.VkInstance;
 
 import java.nio.ByteBuffer;
@@ -17,17 +19,50 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class VulkanUtils {
 
-    public static void check(int vulkanCode, String message) {
+    public static final int UINT32_MAX = 0xFFFFFFFF;
+
+    public static int check(int vulkanCode, String message) {
         if (vulkanCode != VK_SUCCESS) {
             throw new RuntimeException(message);
         }
+        return vulkanCode;
+    }
+
+    public static int check(int vulkanCode) {
+        return check(vulkanCode, "Operation unsuccessful: " + vulkanCode);
+    }
+
+    public static long nonNull(long id, String message) {
+        if (id == MemoryUtil.NULL) {
+            throw new NullPointerException(message);
+        }
+        return id;
+    }
+
+    public static long nonNull(long id) {
+        return nonNull(id, "Pointer ID is NULL.");
     }
 
     public static <T> T enumerateBuffer(MemoryStack stack, IntFunction<T> factory, BiConsumer<IntBuffer, T> fetch) {
         IntBuffer count = stack.callocInt(1);
         fetch.accept(count, null);
+        if (count.get(0) <= 0) {
+            return null;
+        }
         T buffer = factory.apply(count.get(0));
         fetch.accept(count, buffer);
+        return buffer;
+    }
+
+    public static <T> T enumerateBuffer(IntFunction<T> factory, BiConsumer<IntBuffer, T> fetch) {
+        IntBuffer count = MemoryUtil.memAllocInt(1);
+        fetch.accept(count, null);
+        if (count.get(0) <= 0) {
+            return null;
+        }
+        T buffer = factory.apply(count.get(0));
+        fetch.accept(count, buffer);
+        MemoryUtil.memFree(count);
         return buffer;
     }
 
@@ -35,6 +70,10 @@ public class VulkanUtils {
         PointerBuffer ptrs = stack.mallocPointer(count);
         stream.map(toBytes).forEach(ptrs::put);
         return ptrs.rewind();
+    }
+
+    public static <T> PointerBuffer toPointers(MemoryStack stack, Collection<T> collection, Function<T, ByteBuffer> toBytes) {
+        return toPointers(stack, collection.stream(), collection.size(), toBytes);
     }
 
     public static long getPointer(MemoryStack stack, Consumer<PointerBuffer> action) {
@@ -47,6 +86,12 @@ public class VulkanUtils {
         LongBuffer l = stack.mallocLong(1);
         action.accept(l);
         return l.get(0);
+    }
+
+    public static int getInt(MemoryStack stack, Consumer<IntBuffer> action) {
+        IntBuffer i = stack.mallocInt(1);
+        action.accept(i);
+        return i.get(0);
     }
 
     public static PointerBuffer gatherPointers(MemoryStack stack, Collection<PointerBuffer> pointers) {
@@ -80,6 +125,14 @@ public class VulkanUtils {
 
     public static boolean isBitSet(int n, int bit) {
         return (n & bit) > 0;
+    }
+
+    public static <T extends StructBuffer<E, T>, E extends Struct<E>> T accumulate(Collection<E> collection, IntFunction<T> allocate) {
+        T buffer = allocate.apply(collection.size());
+        for (E e : collection) {
+            buffer.put(e);
+        }
+        return buffer.rewind();
     }
 
     public static class NativeIterator <T> implements Iterable<T>, Iterator<T> {

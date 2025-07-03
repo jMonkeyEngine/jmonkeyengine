@@ -67,6 +67,7 @@ dependencies {
     runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux-arm64') })
     runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos') })
     runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.shaderc) { classifier('natives-linux') })
 
 }
 

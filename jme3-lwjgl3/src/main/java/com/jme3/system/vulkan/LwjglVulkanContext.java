@@ -93,9 +93,6 @@ public class LwjglVulkanContext implements JmeContext, GlfwWindow, Runnable {
     }
 
     protected void glfwInitialize() {
-        //if (!GLFWVulkan.glfwVulkanSupported()) {
-        //    throw new NullPointerException("Hardware does not support Vulkan.");
-        //}
         glfwSetErrorCallback(errorCallback = new GLFWErrorCallback() {
             @Override
             public void invoke(int error, long description) {
@@ -109,6 +106,9 @@ public class LwjglVulkanContext implements JmeContext, GlfwWindow, Runnable {
             glfwInitHint(GLFW_WAYLAND_LIBDECOR, settings.isFullscreen() ? GLFW_WAYLAND_DISABLE_LIBDECOR : GLFW_WAYLAND_PREFER_LIBDECOR);
         }
         glfwInit();
+        if (!GLFWVulkan.glfwVulkanSupported()) {
+            throw new NullPointerException("Hardware does not support Vulkan.");
+        }
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         window = glfwCreateWindow(getSettings().getWidth(), getSettings().getHeight(), getSettings().getTitle(), NULL, NULL);
@@ -173,10 +173,11 @@ public class LwjglVulkanContext implements JmeContext, GlfwWindow, Runnable {
     }
 
     protected void engineTerminate() {
+        System.out.println("terminate engine");
         engine.destroy();
         glfwDestroyWindow(window);
         glfwTerminate();
-        LOGGER.fine("Display destroyed.");
+        LOGGER.info("Display destroyed.");
     }
 
     protected void updateSizes() {
