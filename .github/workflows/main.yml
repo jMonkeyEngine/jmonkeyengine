@@ -16,8 +16,8 @@
 # >> Configure MINIO NATIVES SNAPSHOT
 #     OBJECTS_KEY=XXXXXX
 # >> Configure SONATYPE RELEASE
-#     OSSRH_PASSWORD=XXXXXX
-#     OSSRH_USERNAME=XXXXXX
+#     CENTRAL_PASSWORD=XXXXXX
+#     CENTRAL_USERNAME=XXXXXX
 # >> Configure SIGNING
 #     SIGNING_KEY=XXXXXX
 #     SIGNING_PASSWORD=XXXXXX
@@ -359,16 +359,16 @@ jobs:
           name: android-natives
           path: build/native
 
-      - name: Rebuild the maven artifacts and deploy them to the Sonatype repository
+      - name: Rebuild the maven artifacts and upload them to Sonatype's maven-snapshots repo
         run: |
-          if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
+          if [ "${{ secrets.CENTRAL_PASSWORD }}" = "" ];
           then
-            echo "Configure the following secrets to enable deployment to Sonatype:"
-            echo "OSSRH_PASSWORD, OSSRH_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
+            echo "Configure the following secrets to enable uploading to Sonatype:"
+            echo "CENTRAL_PASSWORD, CENTRAL_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
             ./gradlew publishMavenPublicationToSNAPSHOTRepository \
-            -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} \
-            -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
+            -PcentralPassword=${{ secrets.CENTRAL_PASSWORD }} \
+            -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
             -PsigningKey='${{ secrets.SIGNING_KEY }}' \
             -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
             -PuseCommitHashAsVersionName=true \
@@ -390,7 +390,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      # Setup jdk 21 used for building Sonatype OSSRH artifacts
+      # Setup jdk 21 used for building Sonatype artifacts
       - name: Setup the java environment
         uses: actions/setup-java@v4
         with:
@@ -416,20 +416,23 @@ jobs:
           name: android-natives
           path: build/native
 
-      - name: Rebuild the maven artifacts and deploy them to Sonatype OSSRH
+      - name: Rebuild the maven artifacts and upload them to Sonatype's Central Publisher Portal
         run: |
-          if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
+          if [ "${{ secrets.CENTRAL_PASSWORD }}" = "" ];
           then
-            echo "Configure the following secrets to enable deployment to Sonatype:"
-            echo "OSSRH_PASSWORD, OSSRH_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
+            echo "Configure the following secrets to enable uploading to Sonatype:"
+            echo "CENTRAL_PASSWORD, CENTRAL_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
-            ./gradlew publishMavenPublicationToOSSRHRepository \
-            -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} \
-            -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
-            -PsigningKey='${{ secrets.SIGNING_KEY }}' \
-            -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-            -PuseCommitHashAsVersionName=true \
-            --console=plain --stacktrace
+            ./gradlew publishMavenPublicationToCentralRepository \
+              -PcentralPassword=${{ secrets.CENTRAL_PASSWORD }} \
+              -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
+              -PsigningKey='${{ secrets.SIGNING_KEY }}' \
+              -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
+              -PuseCommitHashAsVersionName=true \
+              --console=plain --stacktrace
+            ./uploadToCentral.sh \
+              -p '${{ secrets.CENTRAL_PASSWORD }}' \
+              -u '${{ secrets.CENTRAL_USERNAME }}'
           fi
 
       - name: Deploy to GitHub Releases
