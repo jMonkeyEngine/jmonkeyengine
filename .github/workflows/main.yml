@@ -384,7 +384,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
 
-      # We need to clone everything again for uploadToMaven.sh ...
+      # We need to clone everything again for uploadToCentral.sh ...
       - name: Clone the repo
         uses: actions/checkout@v4
         with:
@@ -430,7 +430,7 @@ jobs:
               -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
               -PuseCommitHashAsVersionName=true \
               --console=plain --stacktrace
-            ./uploadToCentral.sh \
+            .github/actions/tools/uploadToCentral.sh \
               -p '${{ secrets.CENTRAL_PASSWORD }}' \
               -u '${{ secrets.CENTRAL_USERNAME }}'
           fi
