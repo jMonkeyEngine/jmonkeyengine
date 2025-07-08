@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,12 +57,11 @@ import java.util.prefs.BackingStoreException;
 import javax.swing.*;
 
 /**
- * <code>SettingsDialog</code> displays a Swing dialog box to interactively
- * configure the <code>AppSettings</code> of a desktop application before
- * <code>start()</code> is invoked.
- *
- * The <code>AppSettings</code> instance to be configured is passed to the
- * constructor.
+ * `AWTSettingsDialog` displays a Swing dialog box to interactively
+ * configure the `AppSettings` of a desktop application before
+ * `start()` is invoked.
+ * <p>
+ * The `AppSettings` instance to be configured is passed to the constructor.
  *
  * @see AppSettings
  * @author Mark Powell
@@ -71,14 +70,33 @@ import javax.swing.*;
  */
 public final class AWTSettingsDialog extends JFrame {
 
-    public static interface SelectionListener {
-
-        public void onSelection(int selection);
+    /**
+     * Listener interface for handling selection events from the settings dialog.
+     */
+    public interface SelectionListener {
+        /**
+         * Called when a selection is made in the settings dialog (OK or Cancel).
+         *
+         * @param selection The type of selection made: `NO_SELECTION`, `APPROVE_SELECTION`, or `CANCEL_SELECTION`.
+         */
+        void onSelection(int selection);
     }
 
     private static final Logger logger = Logger.getLogger(AWTSettingsDialog.class.getName());
     private static final long serialVersionUID = 1L;
-    public static final int NO_SELECTION = 0, APPROVE_SELECTION = 1, CANCEL_SELECTION = 2;
+
+    /**
+     * Indicates that no selection has been made yet.
+     */
+    public static final int NO_SELECTION = 0;
+    /**
+     * Indicates that the user approved the settings.
+     */
+    public static final int APPROVE_SELECTION = 1;
+    /**
+     * Indicates that the user canceled the settings dialog.
+     */
+    public static final int CANCEL_SELECTION = 2;
 
     // Resource bundle for i18n.
     ResourceBundle resourceBundle = ResourceBundle.getBundle("com.jme3.app/SettingsDialog");
@@ -86,8 +104,12 @@ public final class AWTSettingsDialog extends JFrame {
     // the instance being configured
     private final AppSettings source;
 
-    // Title Image
+    /**
+     * The URL of the image file to be displayed as a title icon in the dialog.
+     * Can be `null` if no image is desired.
+     */
     private URL imageFile = null;
+
     // Array of supported display modes
     private DisplayMode[] modes = null;
     private static final DisplayMode[] windowDefaults = new DisplayMode[] {
@@ -114,10 +136,24 @@ public final class AWTSettingsDialog extends JFrame {
     private int minWidth = 0;
     private int minHeight = 0;
 
+    /**
+     * Displays a settings dialog using the provided `AppSettings` source.
+     * Settings will be loaded from preferences.
+     *
+     * @param sourceSettings The `AppSettings` instance to configure.
+     * @return `true` if the user approved the settings, `false` otherwise.
+     */
     public static boolean showDialog(AppSettings sourceSettings) {
         return showDialog(sourceSettings, true);
     }
 
+    /**
+     * Displays a settings dialog using the provided `AppSettings` source.
+     *
+     * @param sourceSettings The `AppSettings` instance to configure.
+     * @param loadSettings   If `true`, settings will be loaded from preferences; otherwise, they will be merged.
+     * @return `true` if the user approved the settings, `false` otherwise.
+     */
     public static boolean showDialog(AppSettings sourceSettings, boolean loadSettings) {
         String iconPath = sourceSettings.getSettingsDialogImage();
         final URL iconUrl = JmeSystem.class.getResource(iconPath.startsWith("/") ? iconPath : "/" + iconPath);
@@ -127,10 +163,30 @@ public final class AWTSettingsDialog extends JFrame {
         return showDialog(sourceSettings, iconUrl, loadSettings);
     }
 
+    /**
+     * Displays a settings dialog using the provided `AppSettings` source and an image file path.
+     *
+     * @param sourceSettings The `AppSettings` instance to configure.
+     * @param imageFile      The path to the image file to use as the title of the dialog;
+     *                       `null` will result in no image being displayed.
+     * @param loadSettings   If `true`, settings will be loaded from preferences; otherwise, they will be merged.
+     * @return `true` if the user approved the settings, `false` otherwise.
+     */
     public static boolean showDialog(AppSettings sourceSettings, String imageFile, boolean loadSettings) {
         return showDialog(sourceSettings, getURL(imageFile), loadSettings);
     }
 
+    /**
+     * Displays a settings dialog using the provided `AppSettings` source and an image URL.
+     * This method blocks until the dialog is closed.
+     *
+     * @param sourceSettings The `AppSettings` instance to configure (not null).
+     * @param imageFile      The `URL` pointing to the image file to use as the title of the dialog;
+     *                       `null` will result in no image being displayed.
+     * @param loadSettings   If `true`, the dialog will copy settings from preferences. If `false`
+     *                       and preferences exist, they will be merged with the current settings.
+     * @return `true` if the user approved the settings, `false` otherwise (`CANCEL_SELECTION` or dialog close).
+     */
     public static boolean showDialog(AppSettings sourceSettings, URL imageFile, boolean loadSettings) {
         if (SwingUtilities.isEventDispatchThread()) {
             throw new IllegalStateException("Cannot run from EDT");
@@ -166,46 +222,47 @@ public final class AWTSettingsDialog extends JFrame {
         synchronized (lock) {
             while (!done.get()) {
                 try {
+                    // Wait until notified by the selection listener
                     lock.wait();
                 } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    logger.log(Level.WARNING, "Settings dialog thread interrupted while waiting.", ex);
+                    return false; // Treat as cancel if interrupted
                 }
             }
         }
 
-        sourceSettings.copyFrom(settings);
+        // If approved, copy the modified settings back to the original source
+        if (result.get() == APPROVE_SELECTION) {
+            sourceSettings.copyFrom(settings);
+        }
 
-        return result.get() == AWTSettingsDialog.APPROVE_SELECTION;
+        return result.get() == APPROVE_SELECTION;
     }
 
     /**
-     * Instantiate a <code>SettingsDialog</code> for the primary display.
+     * Constructs a `SettingsDialog` for the primary display.
      *
-     * @param source
-     *            the <code>AppSettings</code> (not null)
-     * @param imageFile
-     *            the image file to use as the title of the dialog;
-     *            <code>null</code> will result in to image being displayed
-     * @param loadSettings
-     *            if true, copy the settings, otherwise merge them
-     * @throws IllegalArgumentException
-     *             if the source is <code>null</code>
+     * @param source       The `AppSettings` instance to configure (not null).
+     * @param imageFile    The path to the image file to use as the title of the dialog;
+     *                     `null` will result in no image being displayed.
+     * @param loadSettings If `true`, the dialog will copy settings from preferences. If `false`
+     *                     and preferences exist, they will be merged with the current settings.
+     * @throws IllegalArgumentException if `source` is `null`.
      */
     protected AWTSettingsDialog(AppSettings source, String imageFile, boolean loadSettings) {
         this(source, getURL(imageFile), loadSettings);
     }
 
     /**
-     * /** Instantiate a <code>SettingsDialog</code> for the primary display.
+     * Constructs a `SettingsDialog` for the primary display.
      *
-     * @param source
-     *            the <code>AppSettings</code> object (not null)
-     * @param imageFile
-     *            the image file to use as the title of the dialog;
-     *            <code>null</code> will result in to image being displayed
-     * @param loadSettings
-     *            if true, copy the settings, otherwise merge them
-     * @throws IllegalArgumentException
-     *             if the source is <code>null</code>
+     * @param source       The `AppSettings` instance to configure (not null).
+     * @param imageFile    The `URL` pointing to the image file to use as the title of the dialog;
+     *                     `null` will result in no image being displayed.
+     * @param loadSettings If `true`, the dialog will copy settings from preferences. If `false`
+     *                     and preferences exist, they will be merged with the current settings.
+     * @throws IllegalArgumentException if `source` is `null`.
      */
     protected AWTSettingsDialog(AppSettings source, URL imageFile, boolean loadSettings) {
         if (source == null) {
@@ -232,7 +289,10 @@ public final class AWTSettingsDialog extends JFrame {
         minHeight = source.getMinHeight();
 
         try {
+            logger.log(Level.INFO, "Loading AppSettings from PreferenceKey: {0}", appTitle);
             registrySettings.load(appTitle);
+            AppSettings.printPreferences(appTitle);
+
         } catch (BackingStoreException ex) {
             logger.log(Level.WARNING, "Failed to load settings", ex);
         }
@@ -355,8 +415,6 @@ public final class AWTSettingsDialog extends JFrame {
      * <code>init</code> creates the components to use the dialog.
      */
     private void createUI() {
-        GridBagConstraints gbc;
-
         JPanel mainPanel = new JPanel(new GridBagLayout());
 
         addWindowListener(new WindowAdapter() {
@@ -368,8 +426,9 @@ public final class AWTSettingsDialog extends JFrame {
             }
         });
 
-        if (source.getIcons() != null) {
-            safeSetIconImages(Arrays.asList((BufferedImage[]) source.getIcons()));
+        Object[] sourceIcons = source.getIcons();
+        if (sourceIcons != null && sourceIcons.length > 0) {
+            safeSetIconImages(Arrays.asList((BufferedImage[]) sourceIcons));
         }
 
         setTitle(MessageFormat.format(resourceBundle.getString("frame.title"), source.getTitle()));
@@ -419,7 +478,7 @@ public final class AWTSettingsDialog extends JFrame {
         gammaBox = new JCheckBox(resourceBundle.getString("checkbox.gamma"));
         gammaBox.setSelected(source.isGammaCorrection());
 
-        gbc = new GridBagConstraints();
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.weightx = 0.5;
         gbc.gridx = 0;
         gbc.gridwidth = 2;
@@ -493,7 +552,6 @@ public final class AWTSettingsDialog extends JFrame {
         // Set the button action listeners. Cancel disposes without saving, OK
         // saves.
         ok.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (verifyAndSaveCurrentSelection()) {
@@ -501,12 +559,13 @@ public final class AWTSettingsDialog extends JFrame {
                     dispose();
 
                     // System.gc() should be called to prevent "X Error of
-                    // failed request: RenderBadPicture (invalid Picture
-                    // parameter)"
+                    // failed request: RenderBadPicture (invalid Picture parameter)"
                     // on Linux when using AWT/Swing + GLFW.
                     // For more info see:
                     // https://github.com/LWJGL/lwjgl3/issues/149,
-                    // https://hub.jmonkeyengine.org/t/experimenting-lwjgl3/37275
+
+                    //  intentional double call. see this discussion:
+                    //  https://hub.jmonkeyengine.org/t/experimenting-lwjgl3/37275/12
                     System.gc();
                     System.gc();
                 }
@@ -514,7 +573,6 @@ public final class AWTSettingsDialog extends JFrame {
         });
 
         cancel.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 setUserSelection(CANCEL_SELECTION);
@@ -568,7 +626,6 @@ public final class AWTSettingsDialog extends JFrame {
                 colorDepthCombo.setSelectedItem(source.getBitsPerPixel() + " bpp");
             }
         });
-
     }
 
     /*
@@ -577,10 +634,8 @@ public final class AWTSettingsDialog extends JFrame {
      */
     private void safeSetIconImages(List<? extends Image> icons) {
         try {
-            // Due to Java bug 6445278, we try to set icon on our shared owner
-            // frame first.
-            // Otherwise, our alt-tab icon will be the Java default under
-            // Windows.
+            // Due to Java bug 6445278, we try to set icon on our shared owner frame first.
+            // Otherwise, our alt-tab icon will be the Java default under Windows.
             Window owner = getOwner();
             if (owner != null) {
                 Method setIconImages = owner.getClass().getMethod("setIconImages", List.class);
@@ -608,9 +663,9 @@ public final class AWTSettingsDialog extends JFrame {
         boolean vsync = vsyncBox.isSelected();
         boolean gamma = gammaBox.isSelected();
 
-        int width = Integer.parseInt(display.substring(0, display.indexOf(" x ")));
-        display = display.substring(display.indexOf(" x ") + 3);
-        int height = Integer.parseInt(display);
+        String[] parts = display.split(" x ");
+        int width = Integer.parseInt(parts[0]);
+        int height = Integer.parseInt(parts[1]);
 
         String depthString = (String) colorDepthCombo.getSelectedItem();
         int depth = -1;
@@ -639,21 +694,20 @@ public final class AWTSettingsDialog extends JFrame {
         }
 
         // FIXME: Does not work in Linux
-        /*
-         * if (!fullscreen) { //query the current bit depth of the desktop int
-         * curDepth = GraphicsEnvironment.getLocalGraphicsEnvironment()
-         * .getDefaultScreenDevice().getDisplayMode().getBitDepth(); if (depth >
-         * curDepth) { showError(this,"Cannot choose a higher bit depth in
-         * windowed " + "mode than your current desktop bit depth"); return
-         * false; } }
-         */
+//        if (!fullscreen) { //query the current bit depth of the desktop int
+//            curDepth = GraphicsEnvironment.getLocalGraphicsEnvironment()
+//                    .getDefaultScreenDevice().getDisplayMode().getBitDepth();
+//            if (depth > curDepth) {
+//                showError(this, "Cannot choose a higher bit depth in
+//                        windowed" + "mode than your current desktop bit depth");
+//                return false;
+//            }
+//        }
 
-        boolean valid = false;
+        boolean valid = true;
 
         // test valid display mode when going full screen
-        if (!fullscreen) {
-            valid = true;
-        } else {
+        if (fullscreen) {
             GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
             valid = device.isFullScreenSupported();
         }
@@ -673,7 +727,10 @@ public final class AWTSettingsDialog extends JFrame {
             String appTitle = source.getTitle();
 
             try {
+                logger.log(Level.INFO, "Saving AppSettings to PreferencesKey: {0}", appTitle);
                 source.save(appTitle);
+                AppSettings.printPreferences(appTitle);
+
             } catch (BackingStoreException ex) {
                 logger.log(Level.WARNING, "Failed to save setting changes", ex);
             }
@@ -769,7 +826,9 @@ public final class AWTSettingsDialog extends JFrame {
     private void updateAntialiasChoices() {
         // maybe in the future will add support for determining this info
         // through PBuffer
-        String[] choices = new String[] { resourceBundle.getString("antialias.disabled"), "2x", "4x", "6x", "8x", "16x" };
+        String[] choices = new String[] {
+                resourceBundle.getString("antialias.disabled"), "2x", "4x", "6x", "8x", "16x"
+        };
         antialiasCombo.setModel(new DefaultComboBoxModel<>(choices));
         antialiasCombo.setSelectedItem(choices[Math.min(source.getSamples() / 2, 5)]);
     }
@@ -792,6 +851,12 @@ public final class AWTSettingsDialog extends JFrame {
         return url;
     }
 
+    /**
+     * Displays an error message dialog to the user.
+     *
+     * @param parent  The parent `Component` for the dialog.
+     * @param message The message `String` to display.
+     */
     private static void showError(java.awt.Component parent, String message) {
         JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
@@ -852,7 +917,7 @@ public final class AWTSettingsDialog extends JFrame {
      * Returns every possible bit depth for the given resolution.
      */
     private static String[] getDepths(String resolution, DisplayMode[] modes) {
-        List<String> depths = new ArrayList<>(4);
+        Set<String> depths = new LinkedHashSet<>(4); // Use LinkedHashSet for uniqueness and order
         for (DisplayMode mode : modes) {
             int bitDepth = mode.getBitDepth();
             if (bitDepth == DisplayMode.BIT_DEPTH_MULTI) {
@@ -865,12 +930,8 @@ public final class AWTSettingsDialog extends JFrame {
                 continue;
             }
             String res = mode.getWidth() + " x " + mode.getHeight();
-            if (!res.equals(resolution)) {
-                continue;
-            }
-            String depth = bitDepth + " bpp";
-            if (!depths.contains(depth)) {
-                depths.add(depth);
+            if (res.equals(resolution)) {
+                depths.add(bitDepth + " bpp");
             }
         }
 
@@ -884,10 +945,15 @@ public final class AWTSettingsDialog extends JFrame {
     }
 
     /**
-     * Returns every possible refresh rate for the given resolution.
+     * Returns every possible unique refresh rate string ("XX Hz" or "???")
+     * for the given resolution from an array of `DisplayMode`s.
+     *
+     * @param resolution The resolution string (e.g., "1280 x 720") to filter by.
+     * @param modes      The array of `DisplayMode`s to process.
+     * @return An array of unique refresh rate strings.
      */
     private static String[] getFrequencies(String resolution, DisplayMode[] modes) {
-        List<String> freqs = new ArrayList<>(4);
+        Set<String> freqs = new LinkedHashSet<>(4); // Use LinkedHashSet for uniqueness and order
         for (DisplayMode mode : modes) {
             String res = mode.getWidth() + " x " + mode.getHeight();
             String freq;
@@ -896,20 +962,19 @@ public final class AWTSettingsDialog extends JFrame {
             } else {
                 freq = mode.getRefreshRate() + " Hz";
             }
-            if (res.equals(resolution) && !freqs.contains(freq)) {
-                freqs.add(freq);
-            }
+            freqs.add(freq);
         }
 
         return freqs.toArray(new String[0]);
     }
 
     /**
-     * Chooses the closest frequency to 60 Hz.
-     * 
-     * @param resolution
-     * @param modes
-     * @return
+     * Chooses the closest known refresh rate to 60 Hz for a given resolution.
+     * If no known refresh rates are found for the resolution, returns `null`.
+     *
+     * @param resolution The resolution string (e.g., "1280 x 720") to find the best frequency for.
+     * @param modes      The array of `DisplayMode`s to search within.
+     * @return The best frequency string (e.g., "60 Hz") or `null` if no suitable frequency is found.
      */
     private static String getBestFrequency(String resolution, DisplayMode[] modes) {
         int closest = Integer.MAX_VALUE;
