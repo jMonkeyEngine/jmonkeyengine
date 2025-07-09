@@ -27,19 +27,19 @@ public interface EFX {
     /* Effect properties. */
 
     /* Reverb effect parameters */
-    public static final int AL_REVERB_DENSITY = 0x0001;
-    public static final int AL_REVERB_DIFFUSION = 0x0002;
-    public static final int AL_REVERB_GAIN = 0x0003;
-    public static final int AL_REVERB_GAINHF = 0x0004;
-    public static final int AL_REVERB_DECAY_TIME = 0x0005;
-    public static final int AL_REVERB_DECAY_HFRATIO = 0x0006;
-    public static final int AL_REVERB_REFLECTIONS_GAIN = 0x0007;
-    public static final int AL_REVERB_REFLECTIONS_DELAY = 0x0008;
-    public static final int AL_REVERB_LATE_REVERB_GAIN = 0x0009;
-    public static final int AL_REVERB_LATE_REVERB_DELAY = 0x000A;
+    public static final int AL_REVERB_DENSITY               = 0x0001;
+    public static final int AL_REVERB_DIFFUSION             = 0x0002;
+    public static final int AL_REVERB_GAIN                  = 0x0003;
+    public static final int AL_REVERB_GAINHF                = 0x0004;
+    public static final int AL_REVERB_DECAY_TIME            = 0x0005;
+    public static final int AL_REVERB_DECAY_HFRATIO         = 0x0006;
+    public static final int AL_REVERB_REFLECTIONS_GAIN      = 0x0007;
+    public static final int AL_REVERB_REFLECTIONS_DELAY     = 0x0008;
+    public static final int AL_REVERB_LATE_REVERB_GAIN      = 0x0009;
+    public static final int AL_REVERB_LATE_REVERB_DELAY     = 0x000A;
     public static final int AL_REVERB_AIR_ABSORPTION_GAINHF = 0x000B;
-    public static final int AL_REVERB_ROOM_ROLLOFF_FACTOR = 0x000C;
-    public static final int AL_REVERB_DECAY_HFLIMIT = 0x000D;
+    public static final int AL_REVERB_ROOM_ROLLOFF_FACTOR   = 0x000C;
+    public static final int AL_REVERB_DECAY_HFLIMIT         = 0x000D;
 
     /* EAX Reverb effect parameters */
     //#define AL_EAXREVERB_DENSITY                     0x0001
@@ -171,28 +171,28 @@ public interface EFX {
     ///* Filter properties. */
 
     /* Lowpass filter parameters */
-    public static final int AL_LOWPASS_GAIN = 0x0001;
-    public static final int AL_LOWPASS_GAINHF = 0x0002;
+    public static final int AL_LOWPASS_GAIN     = 0x0001;
+    public static final int AL_LOWPASS_GAINHF   = 0x0002;
 
-    ///* Highpass filter parameters */
-    //#define AL_HIGHPASS_GAIN                         0x0001
-    //#define AL_HIGHPASS_GAINLF                       0x0002
+    // * Highpass filter parameters */
+    public static final int AL_HIGHPASS_GAIN    = 0x0001;
+    public static final int AL_HIGHPASS_GAINLF  = 0x0002;
 
-    ///* Bandpass filter parameters */
-    //#define AL_BANDPASS_GAIN                         0x0001
-    //#define AL_BANDPASS_GAINLF                       0x0002
-    //#define AL_BANDPASS_GAINHF                       0x0003
+    // * Bandpass filter parameters */
+    public static final int AL_BANDPASS_GAIN    = 0x0001;
+    public static final int AL_BANDPASS_GAINLF  = 0x0002;
+    public static final int AL_BANDPASS_GAINHF  = 0x0003;
 
     /* Filter type */
     //#define AL_FILTER_FIRST_PARAMETER                0x0000
     //#define AL_FILTER_LAST_PARAMETER                 0x8000
-    public static final int AL_FILTER_TYPE = 0x8001;
+    public static final int AL_FILTER_TYPE      = 0x8001;
 
     /* Filter types, used with the AL_FILTER_TYPE property */
-    public static final int AL_FILTER_NULL = 0x0000;
-    public static final int AL_FILTER_LOWPASS = 0x0001;
-    public static final int AL_FILTER_HIGHPASS = 0x0002;
-    //#define AL_FILTER_BANDPASS                       0x0003
+    public static final int AL_FILTER_NULL      = 0x0000;
+    public static final int AL_FILTER_LOWPASS   = 0x0001;
+    public static final int AL_FILTER_HIGHPASS  = 0x0002;
+    public static final int AL_FILTER_BANDPASS  = 0x0003;
 
     ///* Filter ranges and defaults. */
     //

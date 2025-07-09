@@ -1,0 +1,119 @@
+name: Screenshot Test PR Comment
+
+# This workflow is designed to safely comment on PRs from forks
+# It uses pull_request_target which has higher permissions than pull_request
+# Security note: This workflow does NOT check out or execute code from the PR
+# It only monitors the status of the ScreenshotTests job and posts comments
+# (If this commenting was done in the main worflow it would not have the permissions
+# to create a comment)
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  monitor-screenshot-tests:
+    name: Monitor Screenshot Tests and Comment
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - name: Wait for GitHub to register the workflow run
+        run: sleep 15
+
+      - name: Wait for Screenshot Tests to complete
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: 'Run Screenshot Tests'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+          allowed-conclusions: success,skipped,failure
+      - name: Check Screenshot Tests status
+        id: check-status
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const ref = '${{ github.event.pull_request.head.sha }}';
+
+            // Get workflow runs for the PR
+            const runs = await github.rest.actions.listWorkflowRunsForRepo({
+              owner,
+              repo,
+              head_sha: ref
+            });
+
+            // Find the ScreenshotTests job
+            let screenshotTestRun = null;
+            for (const run of runs.data.workflow_runs) {
+              if (run.name === 'Build jMonkeyEngine') {
+                const jobs = await github.rest.actions.listJobsForWorkflowRun({
+                  owner,
+                  repo,
+                  run_id: run.id
+                });
+
+                for (const job of jobs.data.jobs) {
+                  if (job.name === 'Run Screenshot Tests') {
+                    screenshotTestRun = job;
+                    break;
+                  }
+                }
+
+                if (screenshotTestRun) break;
+              }
+            }
+
+            if (!screenshotTestRun) {
+              console.log('Screenshot test job not found');
+              return;
+            }
+
+            // Check if the job failed
+            if (screenshotTestRun.conclusion === 'failure') {
+              core.setOutput('failed', 'true');
+            } else {
+              core.setOutput('failed', 'false');
+            }
+      - name: Find Existing Comment
+        uses: peter-evans/find-comment@v3
+        id: existingCommentId
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Screenshot tests have failed.
+
+      - name: Comment on PR if tests fail
+        if: steps.check-status.outputs.failed == 'true'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            🖼️ **Screenshot tests have failed.** 
+
+            The purpose of these tests is to ensure that changes introduced in this PR don't break visual features. They are visual unit tests.
+
+            📄 **Where to find the report:**
+            - Go to the (failed run) > Summary > Artifacts > screenshot-test-report
+            - Download the zip and open jme3-screenshot-tests/build/reports/ScreenshotDiffReport.html
+
+            ⚠️ **If you didn't expect to change anything visual:** 
+            Fix your changes so the screenshot tests pass.
+
+            ✅ **If you did mean to change things:** 
+            Review the replacement images in jme3-screenshot-tests/build/changed-images to make sure they really are improvements and then replace and commit the replacement images at jme3-screenshot-tests/src/test/resources.
+
+            ✨ **If you are creating entirely new tests:** 
+            Find the new images in jme3-screenshot-tests/build/changed-images and commit the new images at jme3-screenshot-tests/src/test/resources.
+
+            **Note;**  it is very important that the committed reference images are created on the build pipeline, locally created images are not reliable. Similarly tests will fail locally but you can look at the report to check they are "visually similar".
+
+            See https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/jme3-screenshot-tests/README.md for more information
+            
+            Contact @richardTingle (aka richtea) for guidance if required
+          edit-mode: replace
+          comment-id: ${{ steps.existingCommentId.outputs.comment-id }}

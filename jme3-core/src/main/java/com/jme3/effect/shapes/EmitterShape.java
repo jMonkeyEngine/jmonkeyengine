@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,14 +39,14 @@ import com.jme3.util.clone.JmeCloneable;
  * This interface declares methods used by all shapes that represent particle emitters.
  * @author Kirill
  */
-public interface EmitterShape extends Savable, Cloneable, JmeCloneable {
+public interface EmitterShape extends Savable, JmeCloneable {
 
     /**
      * This method fills in the initial position of the particle.
      * @param store
      *        store variable for initial position
      */
-    public void getRandomPoint(Vector3f store);
+    void getRandomPoint(Vector3f store);
 
     /**
      * This method fills in the initial position of the particle and its normal vector.
@@ -55,11 +55,11 @@ public interface EmitterShape extends Savable, Cloneable, JmeCloneable {
      * @param normal
      *        store variable for initial normal
      */
-    public void getRandomPointAndNormal(Vector3f store, Vector3f normal);
+    void getRandomPointAndNormal(Vector3f store, Vector3f normal);
 
     /**
      * This method creates a deep clone of the current instance of the emitter shape.
      * @return deep clone of the current instance of the emitter shape
      */
-    public EmitterShape deepClone();
+    EmitterShape deepClone();
 }
