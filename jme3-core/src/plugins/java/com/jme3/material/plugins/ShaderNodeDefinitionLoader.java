@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,13 +38,14 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.asset.ShaderNodeDefinitionKey;
 import com.jme3.util.blockparser.BlockLanguageParser;
 import com.jme3.util.blockparser.Statement;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 /**
  * ShaderNodeDefinition file loader (.j3sn)
- *
+ * <p>
  * a j3sn file is a block style file like j3md or j3m. It must contain one
  * ShaderNodeDefinition{} block that contains several ShaderNodeDefinition{}
  * blocks
@@ -53,16 +54,14 @@ import java.util.List;
  */
 public class ShaderNodeDefinitionLoader implements AssetLoader {
 
-    private ShaderNodeLoaderDelegate loaderDelegate;
-
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
-        AssetKey k = assetInfo.getKey();
-        if (!(k instanceof ShaderNodeDefinitionKey)) {
+        AssetKey<?> assetKey = assetInfo.getKey();
+        if (!(assetKey instanceof ShaderNodeDefinitionKey)) {
             throw new IOException("ShaderNodeDefinition file must be loaded via ShaderNodeDefinitionKey");
         }
-        ShaderNodeDefinitionKey key = (ShaderNodeDefinitionKey) k;
-        loaderDelegate = new ShaderNodeLoaderDelegate();
+        ShaderNodeDefinitionKey key = (ShaderNodeDefinitionKey) assetKey;
+        ShaderNodeLoaderDelegate loaderDelegate = new ShaderNodeLoaderDelegate();
 
         InputStream in = assetInfo.openStream();
         List<Statement> roots = BlockLanguageParser.parse(in);
@@ -80,6 +79,5 @@ public class ShaderNodeDefinitionLoader implements AssetLoader {
         }
 
         return loaderDelegate.readNodesDefinitions(roots.get(0).getContents(), key);
-
     }
 }

@@ -287,8 +287,9 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     void rebakeNow(RenderManager renderManager) {
-        IBLHybridEnvBakerLight baker = new IBLGLEnvBakerLight(renderManager, assetManager, Format.RGB16F, Format.Depth,
-                envMapSize, envMapSize);
+        IBLHybridEnvBakerLight baker = new IBLGLEnvBakerLight(renderManager, assetManager, Format.RGB16F,
+                Format.Depth,
+                        envMapSize, envMapSize);
                     
         baker.setTexturePulling(isRequiredSavableResults());
         baker.bakeEnvironment(spatial, getPosition(), frustumNear, frustumFar, filter);

@@ -72,7 +72,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class TestDriver extends BaseAppState{
 
-    public static final String IMAGES_ARE_DIFFERENT = "Images are different.";
+    public static final String IMAGES_ARE_DIFFERENT = "Images are different. (If you are running the test locally this is expected, images only reproducible on github CI infrastructure)";
 
     public static final String IMAGES_ARE_DIFFERENT_SIZES = "Images are different sizes.";
 
@@ -197,7 +197,7 @@ public class TestDriver extends BaseAppState{
         });
 
         if(imageFiles.isEmpty()){
-            fail("No screenshot found in the temporary directory.");
+            fail("No screenshot found in the temporary directory. Did the application crash?");
         }
         if(imageFiles.size() != framesToTakeScreenshotsOn.size()){
             fail("Not all screenshots were taken, expected " + framesToTakeScreenshotsOn.size() + " but got " + imageFiles.size());
@@ -218,7 +218,7 @@ public class TestDriver extends BaseAppState{
                     try{
                         Path savedImage = saveGeneratedImageToChangedImages(generatedImage, thisFrameBaseImageFileName);
                         attachImage("New image:", thisFrameBaseImageFileName + ".png", savedImage);
-                        String message = "Expected image not found, is this a new test? If so collect the new image from the step artefacts";
+                        String message = "Expected image not found, is this a new test? If so collect the new image from the step artefacts (on github). If running locally you can see them at build/changed-images but those should not be committed";
                         if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
                             failureMessage = message;
                         }
