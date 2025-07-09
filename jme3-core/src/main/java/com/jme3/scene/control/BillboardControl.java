@@ -126,6 +126,13 @@ public class BillboardControl extends AbstractControl {
     private void fixRefreshFlags() {
         // force transforms to update below this node
         spatial.updateGeometricState();
+
+        // force world bound to update
+        Spatial rootNode = spatial;
+        while (rootNode.getParent() != null) {
+            rootNode = rootNode.getParent();
+        }
+        rootNode.getWorldBound();
     }
 
     /**
