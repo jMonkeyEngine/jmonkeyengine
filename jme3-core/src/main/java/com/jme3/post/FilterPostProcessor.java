@@ -501,7 +501,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             }
         }
 
-        if (numSamples <= 1 || !caps.contains(Caps.OpenGL32)) {
+        if (numSamples <= 1 || !caps.contains(Caps.OpenGL32) || !caps.contains(Caps.FrameBufferMultisample)) {
             renderFrameBuffer = new FrameBuffer(width, height, 1);
             renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
             filterTexture = new Texture2D(width, height, fbFormat);
