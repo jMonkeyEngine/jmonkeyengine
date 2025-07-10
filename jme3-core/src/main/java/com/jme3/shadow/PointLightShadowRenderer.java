@@ -55,7 +55,7 @@ import java.io.IOException;
  * one for each face of a cube map, to capture shadows from the point light's
  * perspective.
  *
- * @author Nehon
+ * @author Rémy Bouquet aka Nehon
  */
 public class PointLightShadowRenderer extends AbstractShadowRenderer {
 
