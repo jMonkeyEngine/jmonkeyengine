@@ -91,10 +91,10 @@ public class RenderManager {
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
-    private final HashMap<Class<?>, PipelineContext> contexts = new HashMap<>();
+    private final HashMap<Class<? extends PipelineContext>, PipelineContext> contexts = new HashMap<>();
     private final LinkedList<PipelineContext> usedContexts = new LinkedList<>();
-    private final LinkedList<RenderPipeline<?>> usedPipelines = new LinkedList<>();
-    private RenderPipeline<?> defaultPipeline = new ForwardPipeline();
+    private final LinkedList<RenderPipeline<? extends PipelineContext>> usedPipelines = new LinkedList<>();
+    private RenderPipeline<? extends PipelineContext> defaultPipeline = new ForwardPipeline();
     private Camera prevCam = null;
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
@@ -131,7 +131,7 @@ public class RenderManager {
      *
      * @return The default {@link RenderPipeline}, which is {@link ForwardPipeline} by default.
      */
-    public RenderPipeline<?> getPipeline() {
+    public RenderPipeline<? extends PipelineContext> getPipeline() {
         return defaultPipeline;
     }
 
@@ -143,7 +143,7 @@ public class RenderManager {
      *
      * @param pipeline The default rendering pipeline (not null).
      */
-    public void setPipeline(RenderPipeline<?> pipeline) {
+    public void setPipeline(RenderPipeline<? extends PipelineContext> pipeline) {
         assert pipeline != null;
         this.defaultPipeline = pipeline;
     }
@@ -291,9 +291,9 @@ public class RenderManager {
      * @see #createMainView(java.lang.String, com.jme3.renderer.Camera)
      */
     public ViewPort getMainView(String viewName) {
-        for (int i = 0; i < viewPorts.size(); i++) {
-            if (viewPorts.get(i).getName().equals(viewName)) {
-                return viewPorts.get(i);
+        for (ViewPort viewPort : viewPorts) {
+            if (viewPort.getName().equals(viewName)) {
+                return viewPort;
             }
         }
         return null;
@@ -1287,6 +1287,7 @@ public class RenderManager {
         if (pipeline == null) {
             pipeline = defaultPipeline;
         }
+
         PipelineContext context = pipeline.fetchPipelineContext(this);
         if (context == null) {
             throw new NullPointerException("Failed to fetch pipeline context.");
@@ -1298,6 +1299,7 @@ public class RenderManager {
             usedPipelines.add(pipeline);
             pipeline.startRenderFrame(this);
         }
+
         pipeline.pipelineRender(this, context, vp, tpf);
         context.endViewPortRender(this, vp);
     }
