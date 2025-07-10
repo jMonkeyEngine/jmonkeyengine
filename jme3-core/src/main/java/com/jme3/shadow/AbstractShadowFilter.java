@@ -48,7 +48,7 @@ import com.jme3.util.clone.JmeCloneable;
  * Generic abstract filter that holds common implementations for the different
  * shadow filters
  *
- * @author Nehon
+ * @author Rémy Bouquet aka Nehon
  */
 public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> extends Filter implements JmeCloneable {
 
@@ -63,7 +63,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
      */
     protected AbstractShadowFilter() {
     }
-    
+
     /**
      * Creates an AbstractShadowFilter. Subclasses invoke this constructor.
      *
