@@ -64,7 +64,7 @@ import java.io.IOException;
  * <p>For a detailed explanation of PSSM, refer to:
  * <a href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">GPU Gems 3, Chapter 10: Parallel-Split Shadow Maps on Programmable GPUs</a>
  *
- * @author Nehon
+ * @author Rémy Bouquet aka Nehon
  */
 public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
