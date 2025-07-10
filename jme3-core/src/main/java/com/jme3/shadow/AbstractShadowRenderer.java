@@ -77,7 +77,7 @@ import java.util.logging.Logger;
 /**
  * An abstract shadow renderer that provides common features for shadow rendering.
  *
- * @author Nehon
+ * @author Rémy Bouquet aka Nehon
  */
 public abstract class AbstractShadowRenderer implements SceneProcessor, Savable, JmeCloneable {
 
@@ -579,11 +579,11 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             //renderers
             //Note that j start at 1 because other shadow renderers will have
             //at least 1 shadow map and will set it on each frame anyway.
-            for (int i = 1; i < nbShadowMaps; i++) {
-                mat.clearParam(lightViewStringCache[i]);
+            for (int j = 1; j < nbShadowMaps; j++) {
+                mat.clearParam(lightViewStringCache[j]);
             }
-            for (int i = 1; i < nbShadowMaps; i++) {
-                mat.clearParam(shadowMapStringCache[i]);
+            for (int j = 1; j < nbShadowMaps; j++) {
+                mat.clearParam(shadowMapStringCache[j]);
             }
             mat.clearParam("FadeInfo");
             clearMaterialParameters(mat);
@@ -614,11 +614,12 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         for (Material mat : matCache) {
             mat.setFloat("ShadowMapSize", shadowMapSize);
 
-            for (int i = 0; i < nbShadowMaps; i++) {
-                mat.setMatrix4(lightViewStringCache[i], lightViewProjectionsMatrices[i]);
+            for (int j = 0; j < nbShadowMaps; j++) {
+                mat.setMatrix4(lightViewStringCache[j], lightViewProjectionsMatrices[j]);
             }
-            for (int i = 0; i < nbShadowMaps; i++) {
-                mat.setTexture(shadowMapStringCache[i], shadowMaps[i]);
+
+            for (int j = 0; j < nbShadowMaps; j++) {
+                mat.setTexture(shadowMapStringCache[j], shadowMaps[j]);
             }
 
             mat.setBoolean("HardwareShadows", shadowCompareMode == CompareMode.Hardware);
