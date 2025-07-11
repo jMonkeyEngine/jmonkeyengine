@@ -88,6 +88,15 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
         return true;
     }
 
+    /**
+     * @deprecated Use {@link #getMaterial()} instead.
+     * @return The Material used by this filter.
+     */
+    @Deprecated
+    public Material getShadowMaterial() {       
+        return material;
+    }
+
     @Override
     protected void preFrame(float tpf) {
         shadowRenderer.preFrame(tpf);
