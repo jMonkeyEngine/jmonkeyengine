@@ -41,6 +41,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
+import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
@@ -54,9 +55,6 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
 
     protected T shadowRenderer;
     protected ViewPort viewPort;
-
-    private final Vector4f tempVec4 = new Vector4f();
-    private final Matrix4f tempMat4 = new Matrix4f();
 
     /**
      * For serialization only. Do not use.
@@ -101,8 +99,13 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     protected void preFrame(float tpf) {
         shadowRenderer.preFrame(tpf);
         Matrix4f m = viewPort.getCamera().getViewProjectionMatrix();
-        material.setMatrix4("ViewProjectionMatrixInverse", tempMat4.set(m).invertLocal());
-        material.setVector4("ViewProjectionMatrixRow2", tempVec4.set(m.m20, m.m21, m.m22, m.m23));
+        TempVars vars = TempVars.get();
+        try {
+            material.setMatrix4("ViewProjectionMatrixInverse", vars.tempMat4.set(m).invertLocal());
+            material.setVector4("ViewProjectionMatrixRow2", vars.vect4f1.set(m.m20, m.m21, m.m22, m.m23));
+        } finally {
+            vars.release();
+        }
     }
 
     @Override
