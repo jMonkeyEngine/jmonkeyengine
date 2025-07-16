@@ -412,6 +412,14 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         );
 
         int platformId = glfwGetPlatform();
+        if (settings.isX11PlatformPreferred()) {
+            if (platformId == GLFW_PLATFORM_X11) {
+                LOGGER.log(Level.INFO, "Active X11 server for GLX management:\n * Platform: GLFW_PLATFORM_X11|XWayland ({0})", platformId);
+            } else {
+                LOGGER.log(Level.WARNING, "Can't change platform to X11 (GLX), check if you have XWayland enabled");
+            }
+        }
+        
         if (platformId != GLFW_PLATFORM_WAYLAND && !settings.isFullscreen()) {
             /*
              * in case the window positioning hints above were ignored, but not
