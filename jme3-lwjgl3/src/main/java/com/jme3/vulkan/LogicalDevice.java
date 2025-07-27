@@ -4,12 +4,8 @@ import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkDeviceCreateInfo;
-import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
-
-import java.util.Collection;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -34,9 +30,9 @@ public class LogicalDevice implements Native<VkDevice> {
                 create.ppEnabledLayerNames(layers);
             }
             PointerBuffer ptr = stack.mallocPointer(1);
-            device = new VkDevice(check(vkCreateDevice(physical.getDevice(), create, null, ptr),
-                    "Failed to create logical device."), physical.getDevice(), create);
-            MemoryUtil.memFree(ptr);
+            check(vkCreateDevice(physical.getDevice(), create, null, ptr),
+                    "Failed to create logical device.");
+            device = new VkDevice(ptr.get(0), physical.getDevice(), create);
         }
         ref = Native.get().register(this);
     }

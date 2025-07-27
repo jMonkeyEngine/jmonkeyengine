@@ -55,6 +55,10 @@ public class Fence implements Native<Long> {
         return ref;
     }
 
+    public String toString() {
+        return "Fence[" + !isBlocking() + "]";
+    }
+
     public void block(long timeoutMillis) {
         check(vkWaitForFences(device.getNativeObject(), id, true, TimeUnit.MILLISECONDS.toNanos(timeoutMillis)),
                 "Fence wait expired.");
@@ -67,6 +71,10 @@ public class Fence implements Native<Long> {
 
     public void reset() {
         vkResetFences(device.getNativeObject(), id);
+    }
+
+    public boolean isBlocking() {
+        return vkGetFenceStatus(device.getNativeObject(), id) != VK_SUCCESS;
     }
 
     public long getId() {

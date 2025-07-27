@@ -37,10 +37,12 @@ public class Surface implements Native<Long>, DeviceEvaluator {
             IntBuffer count = stack.mallocInt(1);
             KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(device.getDevice(), id, count, null);
             if (count.get(0) == 0) {
+                System.out.println("Reject device by surface support (formats)");
                 return null;
             }
             KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(device.getDevice(), id, count, null);
             if (count.get(0) == 0) {
+                System.out.println("Reject device by surface support (present modes)");
                 return null;
             }
             return 0f;

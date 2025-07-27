@@ -20,29 +20,60 @@ public class Swapchain implements Native<Long> {
     private final Surface surface;
     private final NativeReference ref;
     private final List<SwapchainImage> images = new ArrayList<>();
-    private final VkExtent2D extent;
-    private final int format;
-    private LongBuffer id = MemoryUtil.memAllocLong(1);
-    private VkSurfaceCapabilitiesKHR caps;
+    private SwapchainUpdater updater;
+    private Extent2 extent;
+    private int format;
+    private long id = VK_NULL_HANDLE;
 
     public Swapchain(LogicalDevice device, Surface surface, SwapchainSupport support) {
-        assert support.isSupported() : "Swapchain for device is not supported.";
         this.device = device;
         this.surface = surface;
-        caps = VkSurfaceCapabilitiesKHR.create();
-        KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-                device.getPhysicalDevice().getDevice(), surface.getNativeObject(), caps);
-        VkSurfaceFormatKHR fmt = support.selectFormat();
+        reload(support);
+        ref = Native.get().register(this);
+        device.getNativeReference().addDependent(ref);
+        surface.getNativeReference().addDependent(ref);
+    }
+
+    @Override
+    public Long getNativeObject() {
+        return id;
+    }
+
+    @Override
+    public Runnable createNativeDestroyer() {
+        return () -> KHRSwapchain.vkDestroySwapchainKHR(device.getNativeObject(), id, null);
+    }
+
+    @Override
+    public void prematureNativeDestruction() {}
+
+    @Override
+    public NativeReference getNativeReference() {
+        return null;
+    }
+
+    public void reload(SwapchainSupport support) {
+        assert support.isSupported() : "Swapchain for device is not supported.";
+        if (id != VK_NULL_HANDLE) {
+            createNativeDestroyer().run();
+            id = VK_NULL_HANDLE;
+        }
+        images.clear();
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkSurfaceCapabilitiesKHR caps = VkSurfaceCapabilitiesKHR.calloc(stack);
+            KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+                    device.getPhysicalDevice().getDevice(), surface.getNativeObject(), caps);
+            VkSurfaceFormatKHR fmt = support.selectFormat();
             format = fmt.format();
-            extent = support.selectExtent();
+            VkExtent2D ext = support.selectExtent();
+            extent = new Extent2(ext);
             VkSwapchainCreateInfoKHR create = VkSwapchainCreateInfoKHR.calloc(stack)
                     .sType(KHRSwapchain.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR)
                     .surface(surface.getNativeObject())
                     .minImageCount(support.selectImageCount())
                     .imageFormat(format)
                     .imageColorSpace(fmt.colorSpace())
-                    .imageExtent(extent)
+                    .imageExtent(ext)
                     .imageArrayLayers(1)
                     .imageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
                     .preTransform(caps.currentTransform())
@@ -58,54 +89,37 @@ public class Swapchain implements Native<Long> {
             } else {
                 create.imageSharingMode(VK_SHARING_MODE_EXCLUSIVE);
             }
-            check(KHRSwapchain.vkCreateSwapchainKHR(device.getNativeObject(), create, null, id),
+            LongBuffer ptr = stack.mallocLong(1);
+            check(KHRSwapchain.vkCreateSwapchainKHR(device.getNativeObject(), create, null, ptr),
                     "Failed to create swapchain.");
+            id = ptr.get(0);
+            System.out.println("swapchain handle: " + id);
             LongBuffer imgs = enumerateBuffer(stack, stack::mallocLong, (c, b) ->
-                    KHRSwapchain.vkGetSwapchainImagesKHR(device.getNativeObject(), id.get(0), c, b));
+                    check(KHRSwapchain.vkGetSwapchainImagesKHR(device.getNativeObject(), id, c, b),
+                            "Failed to get swapchain images."));
             Objects.requireNonNull(imgs, "Swapchain contains no images.");
             for (int i = 0; i < imgs.limit(); i++) {
                 images.add(new SwapchainImage(device, imgs.get(i)));
             }
         }
-        fmt.close();
-        ref = Native.get().register(this);
-        device.getNativeReference().addDependent(ref);
-        surface.getNativeReference().addDependent(ref);
     }
 
-    @Override
-    public Long getNativeObject() {
-        return id != null ? id.get(0) : null;
+    public void createFrameBuffers(RenderPass compat) {
+        for (SwapchainImage img : images) {
+            img.createFrameBuffer(compat);
+        }
     }
 
-    @Override
-    public Runnable createNativeDestroyer() {
-        return () -> {
-            KHRSwapchain.vkDestroySwapchainKHR(device.getNativeObject(), id.get(0), null);
-            MemoryUtil.memFree(id);
-            caps.free();
-        };
-    }
-
-    @Override
-    public void prematureNativeDestruction() {
-        id = null;
-        caps = null;
-    }
-
-    @Override
-    public NativeReference getNativeReference() {
-        return null;
-    }
-
-    public SwapchainImage acquireNextImage(Semaphore semaphore, Fence fence, long timeout) {
-        IntBuffer i = MemoryUtil.memAllocInt(1);
-        check(KHRSwapchain.vkAcquireNextImageKHR(device.getNativeObject(), id.get(0),
-                TimeUnit.MILLISECONDS.toNanos(timeout), Native.getId(semaphore), Native.getId(fence), i),
-                "Failed to acquire next swapchain image.");
-        SwapchainImage img = getImage(i.get(0));
-        MemoryUtil.memFree(i);
-        return img;
+    public SwapchainImage acquireNextImage(SwapchainUpdater updater, Semaphore semaphore, Fence fence, long timeout) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer i = stack.mallocInt(1);
+            int code = KHRSwapchain.vkAcquireNextImageKHR(device.getNativeObject(), id,
+                            TimeUnit.MILLISECONDS.toNanos(timeout), Native.getId(semaphore), Native.getId(fence), i);
+            if (updater.swapchainOutOfDate(this, code)) {
+                return null;
+            }
+            return images.get(i.get(0));
+        }
     }
 
     public void present(Queue presentQueue, SwapchainImage image, Semaphore wait) {
@@ -113,36 +127,13 @@ public class Swapchain implements Native<Long> {
             VkPresentInfoKHR info = VkPresentInfoKHR.calloc(stack)
                     .sType(KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR)
                     .swapchainCount(1)
-                    .pSwapchains(id)
+                    .pSwapchains(stack.longs(id))
                     .pImageIndices(stack.ints(images.indexOf(image)));
             if (wait != null) {
                 info.pWaitSemaphores(stack.longs(wait.getNativeObject()));
             }
             check(KHRSwapchain.vkQueuePresentKHR(presentQueue.getQueue(), info));
         }
-    }
-
-    public List<ImageView> createViews() {
-        List<ImageView> result = new ArrayList<>(images.size());
-        for (SwapchainImage img : images) {
-            VkImageViewCreateInfo create = VkImageViewCreateInfo.create()
-                    .sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO)
-                    .image(img.getNativeObject())
-                    .viewType(VK_IMAGE_VIEW_TYPE_2D)
-                    .format(format);
-            create.components().r(VK_COMPONENT_SWIZZLE_IDENTITY)
-                    .g(VK_COMPONENT_SWIZZLE_IDENTITY)
-                    .b(VK_COMPONENT_SWIZZLE_IDENTITY)
-                    .a(VK_COMPONENT_SWIZZLE_IDENTITY);
-            create.subresourceRange().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT)
-                    .baseMipLevel(0)
-                    .levelCount(1)
-                    .baseArrayLayer(0)
-                    .layerCount(1);
-            result.add(new ImageView(img, create));
-            create.free();
-        }
-        return result;
     }
 
     public LogicalDevice getDevice() {
@@ -157,12 +148,7 @@ public class Swapchain implements Native<Long> {
         return Collections.unmodifiableList(images);
     }
 
-    public SwapchainImage getImage(long id) {
-        return images.stream().filter(i -> i.getNativeObject() == id)
-                .findAny().orElseThrow(() -> new NoSuchElementException("Image not found."));
-    }
-
-    public VkExtent2D getExtent() {
+    public Extent2 getExtent() {
         return extent;
     }
 
@@ -170,18 +156,38 @@ public class Swapchain implements Native<Long> {
         return format;
     }
 
-    public static class SwapchainImage extends Image {
+    public class SwapchainImage extends OldImage {
+
+        private final ImageView view;
+        private FrameBuffer frameBuffer;
 
         private SwapchainImage(LogicalDevice device, long id) {
             super(device, id);
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                VkImageViewCreateInfo create = VkImageViewCreateInfo.calloc(stack)
+                        .sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO)
+                        .image(getNativeObject())
+                        .viewType(VK_IMAGE_VIEW_TYPE_2D)
+                        .format(format);
+                create.components().r(VK_COMPONENT_SWIZZLE_IDENTITY)
+                        .g(VK_COMPONENT_SWIZZLE_IDENTITY)
+                        .b(VK_COMPONENT_SWIZZLE_IDENTITY)
+                        .a(VK_COMPONENT_SWIZZLE_IDENTITY);
+                create.subresourceRange().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT)
+                        .baseMipLevel(0)
+                        .levelCount(1)
+                        .baseArrayLayer(0)
+                        .layerCount(1);
+                this.view = new ImageView(this, create);
+            }
         }
 
-        @Override
-        public Runnable createNativeDestroyer() {
-            return () -> {
-                MemoryUtil.memFree(id);
-                MemoryUtil.memFree(memory);
-            };
+        public void createFrameBuffer(RenderPass compat) {
+            this.frameBuffer = new FrameBuffer(getDevice(), compat, extent.x, extent.y, 1, view);
+        }
+
+        public FrameBuffer getFrameBuffer() {
+            return frameBuffer;
         }
 
     }

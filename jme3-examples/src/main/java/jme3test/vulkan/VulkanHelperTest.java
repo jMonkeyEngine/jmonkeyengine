@@ -2,20 +2,21 @@ package jme3test.vulkan;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.RenderState;
+import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.shaderc.ShaderType;
 import com.jme3.shaderc.ShadercLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.vulkan.LwjglVulkanContext;
 import com.jme3.vulkan.*;
+import com.jme3.vulkan.Queue;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
@@ -24,21 +25,22 @@ import static org.lwjgl.vulkan.EXTDebugUtils.*;
 import static org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 import static org.lwjgl.vulkan.VK13.*;
 
-public class VulkanHelperTest extends SimpleApplication {
+public class VulkanHelperTest extends SimpleApplication implements SwapchainUpdater {
 
     private VulkanInstance instance;
     private Surface surface;
     private LogicalDevice device;
     private SimpleQueueFamilies queues;
     private Swapchain swapchain;
-    private List<ImageView> swapchainImages;
     private ShaderModule vertModule, fragModule;
     private PipelineLayout pipelineLayout;
     private RenderPass renderPass;
     private GraphicsPipeline pipeline;
-    private final List<FrameBuffer> frameBuffers = new ArrayList<>();
-    private CommandBuffer graphicsCommands;
+    private CommandPool graphicsPool;
     private VulkanRenderManager renderer;
+    private boolean swapchainResizeFlag = false;
+
+    private final Collection<String> deviceExtensions = new ArrayList<>();
 
     private long debugMessenger = NULL;
     private final VkDebugUtilsMessengerCallbackEXT debugCallback = new VulkanDebugCallback(Level.SEVERE);
@@ -56,6 +58,8 @@ public class VulkanHelperTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        assetManager.registerLoader(ShadercLoader.class, "glsl");
+        deviceExtensions.add(KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME);
         long window = ((LwjglVulkanContext)context).getWindowHandle();
         try (InstanceBuilder inst = new InstanceBuilder(VK13.VK_API_VERSION_1_3)) {
             inst.addGlfwExtensions();
@@ -70,20 +74,20 @@ public class VulkanHelperTest extends SimpleApplication {
             surface = new Surface(instance, window);
             PhysicalDevice<SimpleQueueFamilies> physDevice = PhysicalDevice.getPhysicalDevice(
                     instance.getNativeObject(),
-                    Arrays.asList(surface, DeviceEvaluator.extensions(inst.getNamedExtensions()), DeviceEvaluator.swapchain(surface)),
+                    Arrays.asList(surface, DeviceEvaluator.extensions(deviceExtensions), DeviceEvaluator.swapchain(surface)),
                     () -> new SimpleQueueFamilies(surface));
             queues = physDevice.getQueueFamilies();
-            device = new LogicalDevice(physDevice, inst.getExtensions(), inst.getLayers());
+            PointerBuffer deviceExts = VulkanUtils.toPointers(inst.getStack(), deviceExtensions, inst.getStack()::UTF8);
+            device = new LogicalDevice(physDevice, deviceExts, inst.getLayers());
             physDevice.getQueueFamilies().createQueues(device);
             try (SimpleSwapchainSupport support = new SimpleSwapchainSupport(physDevice, surface, window)) {
                 swapchain = new Swapchain(device, surface, support);
             }
         }
-        swapchainImages = swapchain.createViews();
         vertModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
                 "Shaders/VulkanVertTest.glsl", ShaderType.Vertex)), "main");
         fragModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
-                "Shader/VulkanFragTest.glsl", ShaderType.Fragment)), "main");
+                "Shaders/VulkanFragTest.glsl", ShaderType.Fragment)), "main");
         pipelineLayout = new PipelineLayout(device);
         try (RenderPassBuilder pass = new RenderPassBuilder()) {
             int color = pass.createAttachment(a -> a
@@ -112,13 +116,10 @@ public class VulkanHelperTest extends SimpleApplication {
                     .dstAccessMask(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
             renderPass = pass.build(device);
         }
+        swapchain.createFrameBuffers(renderPass);
         pipeline = new GraphicsPipeline(device, pipelineLayout, renderPass, new RenderState(), vertModule, fragModule);
-        for (ImageView v : swapchainImages) {
-            frameBuffers.add(new FrameBuffer(device, renderPass,
-                    swapchain.getExtent().width(), swapchain.getExtent().height(), 1, v));
-        }
-        CommandPool graphicsPool = new CommandPool(device, queues.getGraphicsQueue(), false, true);
-        graphicsCommands = graphicsPool.allocateCommandBuffer();
+        graphicsPool = new CommandPool(device, queues.getGraphicsQueue(), false, true);
+        //graphicsCommands = graphicsPool.allocateCommandBuffer();
         renderer = new VulkanRenderManager(2, Frame::new);
     }
 
@@ -130,6 +131,29 @@ public class VulkanHelperTest extends SimpleApplication {
             vkDestroyDebugUtilsMessengerEXT(instance.getNativeObject(), debugMessenger, null);
         }
         super.stop();
+    }
+
+    @Override
+    public boolean swapchainOutOfDate(Swapchain swapchain, int imageAcquireCode) {
+        if (swapchainResizeFlag || imageAcquireCode == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR
+                || imageAcquireCode == KHRSwapchain.VK_SUBOPTIMAL_KHR) {
+            swapchainResizeFlag = false;
+            long window = ((LwjglVulkanContext)context).getWindowHandle();
+            try (SimpleSwapchainSupport support = new SimpleSwapchainSupport(device.getPhysicalDevice(), surface, window)) {
+                swapchain.reload(support);
+                swapchain.createFrameBuffers(renderPass);
+            }
+            return true;
+        }
+        if (imageAcquireCode != VK_SUCCESS) {
+            throw new RuntimeException("Failed to acquire swapchain image.");
+        }
+        return false;
+    }
+
+    @Override
+    public void reshape(int w, int h) {
+        swapchainResizeFlag = true;
     }
 
     @Override
@@ -159,6 +183,7 @@ public class VulkanHelperTest extends SimpleApplication {
     private class Frame implements Runnable {
 
         private final int index;
+        private final CommandBuffer graphicsCommands = graphicsPool.allocateCommandBuffer();
         private final Semaphore imageAvailable = new Semaphore(device);
         private final Semaphore renderFinished = new Semaphore(device);
         private final Fence inFlight = new Fence(device, true);
@@ -169,22 +194,26 @@ public class VulkanHelperTest extends SimpleApplication {
 
         @Override
         public void run() {
-            inFlight.blockThenReset(5000);
-            Swapchain.SwapchainImage image = swapchain.acquireNextImage(imageAvailable, null, 5000);
+            inFlight.block(5000);
+            Swapchain.SwapchainImage image = swapchain.acquireNextImage(VulkanHelperTest.this, imageAvailable, null, 5000);
+            if (image == null) {
+                return;
+            }
+            inFlight.reset();
             graphicsCommands.reset();
             graphicsCommands.begin();
-            renderPass.begin(graphicsCommands, frameBuffers.get(index));
+            renderPass.begin(graphicsCommands, image.getFrameBuffer());
             pipeline.bind(graphicsCommands);
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 VkViewport.Buffer vp = VkViewport.calloc(1, stack)
                         .x(0f).y(0f)
-                        .width(swapchain.getExtent().width())
-                        .height(swapchain.getExtent().height())
+                        .width(swapchain.getExtent().getX())
+                        .height(swapchain.getExtent().getY())
                         .minDepth(0f).maxDepth(1f);
                 vkCmdSetViewport(graphicsCommands.getBuffer(), 0, vp);
                 VkRect2D.Buffer scissor = VkRect2D.calloc(1, stack);
                 scissor.offset().set(0, 0);
-                scissor.extent(swapchain.getExtent());
+                scissor.extent(swapchain.getExtent().toStruct(stack));
                 vkCmdSetScissor(graphicsCommands.getBuffer(), 0, scissor);
             }
             vkCmdDraw(graphicsCommands.getBuffer(), 3, 1, 0, 0);
@@ -254,7 +283,13 @@ public class VulkanHelperTest extends SimpleApplication {
 
         @Override
         public IntBuffer getSwapchainConcurrentBuffers(MemoryStack stack) {
-            return null;
+            if (Objects.equals(graphicsIndex, presentIndex)) {
+                return null;
+            }
+            IntBuffer buf = stack.mallocInt(NUM_QUEUES);
+            buf.put(0, graphicsIndex);
+            buf.put(1, presentIndex);
+            return buf;
         }
 
         public Queue getGraphicsQueue() {
@@ -316,15 +351,13 @@ public class VulkanHelperTest extends SimpleApplication {
             if (caps.currentExtent().width() != UINT32_MAX) {
                 return caps.currentExtent();
             }
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                IntBuffer width = stack.mallocInt(1);
-                IntBuffer height = stack.mallocInt(1);
-                GLFW.glfwGetFramebufferSize(window, width, height);
-                VkExtent2D ext = VkExtent2D.malloc(stack);
-                ext.width(Math.min(Math.max(width.get(0), caps.minImageExtent().width()), caps.maxImageExtent().width()));
-                ext.height(Math.min(Math.max(width.get(0), caps.minImageExtent().height()), caps.maxImageExtent().height()));
-                return ext;
-            }
+            IntBuffer width = stack.mallocInt(1);
+            IntBuffer height = stack.mallocInt(1);
+            GLFW.glfwGetFramebufferSize(window, width, height);
+            VkExtent2D ext = VkExtent2D.malloc(stack);
+            ext.width(Math.min(Math.max(width.get(0), caps.minImageExtent().width()), caps.maxImageExtent().width()));
+            ext.height(Math.min(Math.max(width.get(0), caps.minImageExtent().height()), caps.maxImageExtent().height()));
+            return ext;
         }
 
         @Override

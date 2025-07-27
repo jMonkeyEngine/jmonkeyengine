@@ -66,8 +66,8 @@ public class PhysicalDevice <T extends QueueFamilies> {
         return features;
     }
 
-    public VkExtensionProperties.Buffer getExtensions() {
-        return enumerateBuffer(VkExtensionProperties::create, (count, buffer) ->
+    public VkExtensionProperties.Buffer getExtensions(MemoryStack stack) {
+        return enumerateBuffer(stack, n -> VkExtensionProperties.malloc(n, stack), (count, buffer) ->
                 vkEnumerateDeviceExtensionProperties(device, (ByteBuffer)null, count, buffer));
     }
 
@@ -97,15 +97,16 @@ public class PhysicalDevice <T extends QueueFamilies> {
     }
 
     public boolean querySwapchainSupport(Surface surface) {
-        IntBuffer count = MemoryUtil.memAllocInt(1);
-        KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface.getNativeObject(), count, null);
-        if (count.get(0) <= 0) {
-            return false;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer count = stack.mallocInt(1);
+            KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface.getNativeObject(), count, null);
+            if (count.get(0) <= 0) {
+                return false;
+            }
+            KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface.getNativeObject(), count, null);
+            int n = count.get(0);
+            return n > 0;
         }
-        KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface.getNativeObject(), count, null);
-        int n = count.get(0);
-        MemoryUtil.memFree(count);
-        return n > 0;
     }
 
     @SuppressWarnings("unchecked")
@@ -113,11 +114,12 @@ public class PhysicalDevice <T extends QueueFamilies> {
                                                                                 Collection<? extends DeviceEvaluator> evaluators,
                                                                                 Supplier<T> queueFactory) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            System.out.println("Get physical device from instance: " + instance);
             PointerBuffer devices = enumerateBuffer(stack, stack::mallocPointer,
                     (count, buffer) -> check(vkEnumeratePhysicalDevices(instance, count, buffer),
                             "Failed to enumerate physical devices."));
             PhysicalDevice<T> device = null;
-            float score = 0f;
+            float score = -1f;
             for (PhysicalDevice<T> d : iteratePointers(devices, ptr -> new PhysicalDevice(instance, queueFactory.get(), ptr))) {
                 if (!d.queues.isComplete()) {
                     continue;

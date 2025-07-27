@@ -143,4 +143,8 @@ public class InstanceBuilder implements AutoCloseable {
         return layers.size();
     }
 
+    public MemoryStack getStack() {
+        return stack;
+    }
+
 }

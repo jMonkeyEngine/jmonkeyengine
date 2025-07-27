@@ -1,5 +1,6 @@
 package com.jme3.vulkan;
 
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkExtensionProperties;
 
 import java.util.Arrays;
@@ -31,10 +32,19 @@ public interface DeviceEvaluator {
 
         @Override
         public Float evaluateDevice(PhysicalDevice device) {
-            VkExtensionProperties.Buffer exts = device.getExtensions();
-            if (extensions.stream().allMatch(e -> exts.stream().anyMatch(
-                    p -> p.extensionNameString().equals(e)))) return 0f;
-            return null;
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                VkExtensionProperties.Buffer exts = device.getExtensions(stack);
+                System.out.println("available:");
+                for (VkExtensionProperties p : exts) {
+                    System.out.println("  " + p.extensionNameString());
+                }
+                if (extensions.stream().allMatch(e -> {
+                    System.out.println("trying " + e + " extension...");
+                    return exts.stream().anyMatch(
+                        p -> p.extensionNameString().equals(e)); })) return 0f;
+                System.out.println("Reject device by extensions");
+                return null;
+            }
         }
 
     }
@@ -49,7 +59,11 @@ public interface DeviceEvaluator {
 
         @Override
         public Float evaluateDevice(PhysicalDevice device) {
-            return device.querySwapchainSupport(surface) ? 0f : null;
+            if (device.querySwapchainSupport(surface)) {
+                return 0f;
+            }
+            System.out.println("Reject device by swapchain support");
+            return null;
         }
 
     }

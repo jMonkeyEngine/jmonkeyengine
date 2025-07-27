@@ -17,7 +17,7 @@ public class GraphicsPipeline implements Native<Long> {
 
     private final LogicalDevice device;
     private final NativeReference ref;
-    private LongBuffer id = MemoryUtil.memAllocLong(1);
+    private long id;
 
     public GraphicsPipeline(LogicalDevice device, PipelineLayout layout, RenderPass compat, RenderState state, ShaderModule vert, ShaderModule frag) {
         this.device = device;
@@ -95,8 +95,11 @@ public class GraphicsPipeline implements Native<Long> {
                     .subpass(0)
                     .basePipelineHandle(VK_NULL_HANDLE)
                     .basePipelineIndex(-1);
-            check(vkCreateGraphicsPipelines(device.getNativeObject(), VK_NULL_HANDLE, pipeline, null, id),
+            System.out.println("render pass: " + compat.getNativeObject());
+            LongBuffer idBuf = stack.mallocLong(1);
+            check(vkCreateGraphicsPipelines(device.getNativeObject(), VK_NULL_HANDLE, pipeline, null, idBuf),
                     "Failed to create graphics pipeline");
+            id = idBuf.get(0);
         }
         ref = Native.get().register(this);
         device.getNativeReference().addDependent(ref);
@@ -104,20 +107,19 @@ public class GraphicsPipeline implements Native<Long> {
 
     @Override
     public Long getNativeObject() {
-        return id != null ? id.get(0) : null;
+        return id;
     }
 
     @Override
     public Runnable createNativeDestroyer() {
         return () -> {
-            vkDestroyPipeline(device.getNativeObject(), id.get(0), null);
-            MemoryUtil.memFree(id);
+            vkDestroyPipeline(device.getNativeObject(), id, null);
         };
     }
 
     @Override
     public void prematureNativeDestruction() {
-        id = null;
+        id = VK_NULL_HANDLE;
     }
 
     @Override
@@ -126,7 +128,7 @@ public class GraphicsPipeline implements Native<Long> {
     }
 
     public void bind(CommandBuffer cmd) {
-        vkCmdBindPipeline(cmd.getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, id.get(0));
+        vkCmdBindPipeline(cmd.getBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, id);
     }
 
 }

@@ -20,31 +20,35 @@ public class CommandBuffer {
 
     public CommandBuffer(CommandPool pool) {
         this.pool = pool;
-        VkCommandBufferAllocateInfo allocate = VkCommandBufferAllocateInfo.create()
-                .sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO)
-                .commandPool(pool.getNativeObject())
-                .level(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
-                .commandBufferCount(1);
-        PointerBuffer ptr = MemoryUtil.memAllocPointer(1);
-        check(vkAllocateCommandBuffers(pool.getDevice().getNativeObject(), allocate, ptr),
-                "Failed to allocate command buffer");
-        buffer = new VkCommandBuffer(ptr.get(0), pool.getDevice().getNativeObject());
-        allocate.close();
-        MemoryUtil.memFree(ptr);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkCommandBufferAllocateInfo allocate = VkCommandBufferAllocateInfo.calloc(stack)
+                    .sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO)
+                    .commandPool(pool.getNativeObject())
+                    .level(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+                    .commandBufferCount(1);
+            PointerBuffer ptr = stack.mallocPointer(1);
+            check(vkAllocateCommandBuffers(pool.getDevice().getNativeObject(), allocate, ptr),
+                    "Failed to allocate command buffer");
+            buffer = new VkCommandBuffer(ptr.get(0), pool.getDevice().getNativeObject());
+        }
     }
 
     public void begin() {
         if (recording) {
             throw new IllegalStateException("Command buffer already recording.");
         }
-        VkCommandBufferBeginInfo begin = VkCommandBufferBeginInfo.create()
-                .sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO);
-        check(vkBeginCommandBuffer(buffer, begin), "Failed to begin command buffer");
-        begin.close();
-        recording = true;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkCommandBufferBeginInfo begin = VkCommandBufferBeginInfo.calloc(stack)
+                    .sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO);
+            check(vkBeginCommandBuffer(buffer, begin), "Failed to begin command buffer");
+            recording = true;
+        }
     }
 
     public void end() {
+        if (!recording) {
+            throw new IllegalStateException("Command buffer has not begun recording.");
+        }
         check(vkEndCommandBuffer(buffer), "Failed to record command buffer");
     }
 

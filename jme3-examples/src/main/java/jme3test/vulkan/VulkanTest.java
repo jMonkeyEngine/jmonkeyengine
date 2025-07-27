@@ -594,6 +594,7 @@ public class VulkanTest extends SimpleApplication {
                         .pImageIndices(stack.ints(image));
                 check(KHRSwapchain.vkQueuePresentKHR(presentQueue, present), "Failed to present image to swapchain");
                 System.out.println("end frame render commands");
+                BufferUtils bufutils;
             }
         }
 

@@ -17,33 +17,34 @@ public class RenderPass implements Native<Long> {
 
     private final LogicalDevice device;
     private final NativeReference ref;
-    private LongBuffer id = MemoryUtil.memAllocLong(1);
+    private long id;
 
     public RenderPass(LogicalDevice device, VkRenderPassCreateInfo create) {
         this.device = device;
-        check(vkCreateRenderPass(device.getNativeObject(), create, null, id),
-                "Failed to create render pass.");
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            LongBuffer idBuf = stack.mallocLong(1);
+            check(vkCreateRenderPass(device.getNativeObject(), create, null, idBuf), "Failed to create render pass.");
+            id = idBuf.get(0);
+        }
         ref = Native.get().register(this);
         device.getNativeReference().addDependent(ref);
     }
 
     @Override
     public Long getNativeObject() {
-        return id != null ? id.get(0) : null;
+        return id;
     }
 
     @Override
     public Runnable createNativeDestroyer() {
         return () -> {
-            vkDestroyRenderPass(device.getNativeObject(), id.get(0), null);
-            MemoryUtil.memFree(id);
+            vkDestroyRenderPass(device.getNativeObject(), id, null);
+            id = VK_NULL_HANDLE;
         };
     }
 
     @Override
-    public void prematureNativeDestruction() {
-        id = null;
-    }
+    public void prematureNativeDestruction() {}
 
     @Override
     public NativeReference getNativeReference() {
@@ -56,7 +57,7 @@ public class RenderPass implements Native<Long> {
             clear.color().float32(stack.floats(0f, 0f, 0f, 1f));
             VkRenderPassBeginInfo begin = VkRenderPassBeginInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO)
-                    .renderPass(id.get(0))
+                    .renderPass(id)
                     .framebuffer(fbo.getNativeObject())
                     .clearValueCount(clear.limit())
                     .pClearValues(clear);

@@ -2,7 +2,7 @@ package com.jme3.vulkan;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
-import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkFramebufferCreateInfo;
 
 import java.nio.LongBuffer;
@@ -16,7 +16,7 @@ public class FrameBuffer implements Native<Long> {
     private final NativeReference ref;
     private final int width, height, layers;
     private final ImageView[] attachments;
-    private LongBuffer id = MemoryUtil.memAllocLong(1);
+    private long id;
 
     public FrameBuffer(LogicalDevice device, RenderPass compat, int width, int height, int layers, ImageView... attachments) {
         this.device = device;
@@ -24,39 +24,40 @@ public class FrameBuffer implements Native<Long> {
         this.height = height;
         this.layers = layers;
         this.attachments = attachments;
-        LongBuffer att = MemoryUtil.memAllocLong(attachments.length);
-        for (int i = 0; i < attachments.length; i++) {
-            att.put(i, attachments[i].getNativeObject());
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            LongBuffer att = stack.mallocLong(attachments.length);
+            for (int i = 0; i < attachments.length; i++) {
+                att.put(i, attachments[i].getNativeObject());
+            }
+            VkFramebufferCreateInfo create = VkFramebufferCreateInfo.calloc()
+                    .sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO)
+                    .renderPass(compat.getNativeObject())
+                    .pAttachments(att)
+                    .width(width).height(height)
+                    .layers(layers);
+            LongBuffer idBuf = stack.mallocLong(1);
+            check(vkCreateFramebuffer(device.getNativeObject(), create, null, idBuf));
+            id = idBuf.get(0);
         }
-        VkFramebufferCreateInfo create = VkFramebufferCreateInfo.create()
-                .sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO)
-                .renderPass(compat.getNativeObject())
-                .pAttachments(att)
-                .width(width).height(height)
-                .layers(layers);
-        check(vkCreateFramebuffer(device.getNativeObject(), create, null, id));
-        MemoryUtil.memFree(att);
-        create.close();
         ref = Native.get().register(this);
         device.getNativeReference().addDependent(ref);
     }
 
     @Override
     public Long getNativeObject() {
-        return id != null ? id.get(0) : null;
+        return id;
     }
 
     @Override
     public Runnable createNativeDestroyer() {
         return () -> {
-            vkDestroyFramebuffer(device.getNativeObject(), id.get(0), null);
-            MemoryUtil.memFree(id);
+            vkDestroyFramebuffer(device.getNativeObject(), id, null);
         };
     }
 
     @Override
     public void prematureNativeDestruction() {
-        id = null;
+        id = VK_NULL_HANDLE;
     }
 
     @Override
