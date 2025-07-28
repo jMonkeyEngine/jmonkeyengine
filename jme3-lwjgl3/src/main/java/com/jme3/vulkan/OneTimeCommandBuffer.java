@@ -22,18 +22,19 @@ public class OneTimeCommandBuffer extends CommandBuffer {
         if (active) {
             throw new IllegalStateException("Buffer already freed.");
         }
-        VkCommandBufferBeginInfo begin = VkCommandBufferBeginInfo.create()
-                .sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO)
-                .flags(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-        vkBeginCommandBuffer(buffer, begin);
-        begin.close();
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkCommandBufferBeginInfo begin = VkCommandBufferBeginInfo.calloc(stack)
+                    .sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO)
+                    .flags(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+            vkBeginCommandBuffer(buffer, begin);
+        }
         recording = true;
     }
 
     @Override
     public void submit(Semaphore wait, Semaphore signal, Fence fence) {
-        if (!recording) {
-            throw new IllegalStateException("Command buffer has not begun recording.");
+        if (recording) {
+            throw new IllegalStateException("Command buffer is still recording.");
         }
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkSubmitInfo.Buffer submit = VkSubmitInfo.calloc(1, stack)
@@ -48,8 +49,7 @@ public class OneTimeCommandBuffer extends CommandBuffer {
             }
             pool.getQueue().submit(submit, fence);
             pool.getQueue().waitIdle();
-            vkFreeCommandBuffers(pool.getDevice().getNativeObject(),
-                    pool.getNativeObject(), buffer);
+            vkFreeCommandBuffers(pool.getDevice().getNativeObject(), pool.getNativeObject(), buffer);
         }
         active = false;
         recording = false;

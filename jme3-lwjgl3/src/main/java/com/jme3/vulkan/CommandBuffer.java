@@ -50,11 +50,12 @@ public class CommandBuffer {
             throw new IllegalStateException("Command buffer has not begun recording.");
         }
         check(vkEndCommandBuffer(buffer), "Failed to record command buffer");
+        recording = false;
     }
 
     public void submit(Semaphore wait, Semaphore signal, Fence fence) {
-        if (!recording) {
-            throw new IllegalStateException("Command buffer has not begun recording.");
+        if (recording) {
+            throw new IllegalStateException("Command buffer is still recording.");
         }
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkSubmitInfo.Buffer submit = VkSubmitInfo.calloc(1, stack)
@@ -69,7 +70,6 @@ public class CommandBuffer {
             }
             pool.getQueue().submit(submit, fence);
         }
-        recording = false;
     }
 
     public void reset() {

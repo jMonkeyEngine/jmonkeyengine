@@ -71,6 +71,22 @@ public class PhysicalDevice <T extends QueueFamilies> {
                 vkEnumerateDeviceExtensionProperties(device, (ByteBuffer)null, count, buffer));
     }
 
+    public VkPhysicalDeviceMemoryProperties getMemory(MemoryStack stack) {
+        VkPhysicalDeviceMemoryProperties mem = VkPhysicalDeviceMemoryProperties.malloc(stack);
+        vkGetPhysicalDeviceMemoryProperties(device, mem);
+        return mem;
+    }
+
+    public int findMemoryType(MemoryStack stack, int types, int flags) {
+        VkPhysicalDeviceMemoryProperties mem = getMemory(stack);
+        for (int i = 0; i < mem.memoryTypeCount(); i++) {
+            if ((types & (1 << i)) != 0 && (mem.memoryTypes().get(i).propertyFlags() & flags) != 0) {
+                return i;
+            }
+        }
+        throw new NullPointerException("Suitable memory type not found.");
+    }
+
     public int findSupportedFormat(int tiling, int features, int... candidates) {
         VkFormatProperties props = VkFormatProperties.create();
         for (int f : candidates) {

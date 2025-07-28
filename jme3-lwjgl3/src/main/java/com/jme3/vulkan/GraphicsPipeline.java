@@ -19,7 +19,7 @@ public class GraphicsPipeline implements Native<Long> {
     private final NativeReference ref;
     private long id;
 
-    public GraphicsPipeline(LogicalDevice device, PipelineLayout layout, RenderPass compat, RenderState state, ShaderModule vert, ShaderModule frag) {
+    public GraphicsPipeline(LogicalDevice device, PipelineLayout layout, RenderPass compat, RenderState state, ShaderModule vert, ShaderModule frag, MeshDescription mesh) {
         this.device = device;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkPipelineShaderStageCreateInfo.Buffer stages = VkPipelineShaderStageCreateInfo.calloc(2, stack);
@@ -35,7 +35,9 @@ public class GraphicsPipeline implements Native<Long> {
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO)
                     .pDynamicStates(stack.ints(VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR));
             VkPipelineVertexInputStateCreateInfo vertInput = VkPipelineVertexInputStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO);
+                    .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
+                    .pVertexBindingDescriptions(mesh.getBindings())
+                    .pVertexAttributeDescriptions(mesh.getAttributes());
             VkPipelineInputAssemblyStateCreateInfo assembly = VkPipelineInputAssemblyStateCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO)
                     .topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)

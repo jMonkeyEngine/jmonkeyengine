@@ -7,14 +7,18 @@ import com.jme3.shaderc.ShaderType;
 import com.jme3.shaderc.ShadercLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.vulkan.LwjglVulkanContext;
+import com.jme3.util.BufferUtils;
 import com.jme3.vulkan.*;
 import com.jme3.vulkan.Queue;
+import com.jme3.vulkan.buffers.BufferArgs;
+import com.jme3.vulkan.buffers.GpuBuffer;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.*;
 import java.util.logging.Level;
@@ -37,6 +41,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private RenderPass renderPass;
     private GraphicsPipeline pipeline;
     private CommandPool graphicsPool;
+    private GpuBuffer vertexBuffer, indexBuffer;
     private VulkanRenderManager renderer;
     private boolean swapchainResizeFlag = false;
 
@@ -45,11 +50,18 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private long debugMessenger = NULL;
     private final VkDebugUtilsMessengerCallbackEXT debugCallback = new VulkanDebugCallback(Level.SEVERE);
 
+    private final FloatBuffer vertexData = BufferUtils.createFloatBuffer(
+            -0.5f, -0.5f, 1f, 0f, 0f,
+            0.5f, -0.5f, 0f, 1f, 0f,
+            0.5f, 0.5f, 0f, 0f, 1f,
+            -0.5f, 0.5f, 1f, 1f, 1f);
+    private final IntBuffer indexData = BufferUtils.createIntBuffer(0, 1, 2, 2, 3, 0);
+
     public static void main(String[] args) {
         VulkanHelperTest app = new VulkanHelperTest();
         AppSettings settings = new AppSettings(true);
-        settings.setWidth(800);
-        settings.setHeight(800);
+        settings.setWidth(768);
+        settings.setHeight(768);
         settings.setRenderer("CUSTOM" + LwjglVulkanContext.class.getName());
         app.setSettings(settings);
         app.setShowSettings(false);
@@ -58,32 +70,52 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
     @Override
     public void simpleInitApp() {
+
         assetManager.registerLoader(ShadercLoader.class, "glsl");
         deviceExtensions.add(KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME);
         long window = ((LwjglVulkanContext)context).getWindowHandle();
+
         try (InstanceBuilder inst = new InstanceBuilder(VK13.VK_API_VERSION_1_3)) {
+
+            // build instance
             inst.addGlfwExtensions();
             inst.addDebugExtension();
             inst.addLunarGLayer();
             inst.setApplicationName(VulkanHelperTest.class.getSimpleName());
             inst.setApplicationVersion(1, 0, 0);
             instance = inst.build();
+
+            // debug callbacks
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 createDebugMessenger(stack);
             }
+
+            // surface
             surface = new Surface(instance, window);
+
+            // physical device
             PhysicalDevice<SimpleQueueFamilies> physDevice = PhysicalDevice.getPhysicalDevice(
                     instance.getNativeObject(),
                     Arrays.asList(surface, DeviceEvaluator.extensions(deviceExtensions), DeviceEvaluator.swapchain(surface)),
                     () -> new SimpleQueueFamilies(surface));
+
+            // queue families
             queues = physDevice.getQueueFamilies();
+
+            // logical device
             PointerBuffer deviceExts = VulkanUtils.toPointers(inst.getStack(), deviceExtensions, inst.getStack()::UTF8);
             device = new LogicalDevice(physDevice, deviceExts, inst.getLayers());
+
+            // create queues
             physDevice.getQueueFamilies().createQueues(device);
+
+            // swapchain
             try (SimpleSwapchainSupport support = new SimpleSwapchainSupport(physDevice, surface, window)) {
                 swapchain = new Swapchain(device, surface, support);
             }
         }
+
+        // pipeline
         vertModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
                 "Shaders/VulkanVertTest.glsl", ShaderType.Vertex)), "main");
         fragModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
@@ -117,10 +149,40 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             renderPass = pass.build(device);
         }
         swapchain.createFrameBuffers(renderPass);
-        pipeline = new GraphicsPipeline(device, pipelineLayout, renderPass, new RenderState(), vertModule, fragModule);
+        pipeline = new GraphicsPipeline(device, pipelineLayout, renderPass, new RenderState(), vertModule, fragModule, new MeshDescription());
         graphicsPool = new CommandPool(device, queues.getGraphicsQueue(), false, true);
-        //graphicsCommands = graphicsPool.allocateCommandBuffer();
         renderer = new VulkanRenderManager(2, Frame::new);
+
+        CommandPool transferPool = new CommandPool(device, queues.getGraphicsQueue(), true, false);
+
+        // vertex buffers
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            GpuBuffer staging = new GpuBuffer(device, vertexData.capacity() * Float.BYTES,
+                    new BufferArgs().transferSrc().hostVisible().hostCoherent());
+            staging.copy(stack, vertexData);
+            vertexBuffer = new GpuBuffer(device, staging.getSize(),
+                    new BufferArgs().transferDst().vertexBuffer().deviceLocal());
+            CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
+            vertexBuffer.recordCopy(stack, commands, staging, 0, 0, (long)vertexData.limit() * Float.BYTES);
+            commands.submit(null, null, null);
+            transferPool.getQueue().waitIdle(); // todo: use fences to wait on transfer operations
+            staging.freeMemory(); // destroys buffer
+        }
+
+        // index buffers
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            GpuBuffer staging = new GpuBuffer(device, indexData.capacity() * Integer.BYTES,
+                    new BufferArgs().transferSrc().hostVisible().hostCoherent());
+            staging.copy(stack, indexData);
+            indexBuffer = new GpuBuffer(device, staging.getSize(),
+                    new BufferArgs().transferDst().indexBuffer().deviceLocal());
+            CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
+            indexBuffer.recordCopy(stack, commands, staging, 0, 0, (long)indexData.limit() * Integer.BYTES);
+            commands.submit(null, null, null);
+            transferPool.getQueue().waitIdle();
+            staging.freeMemory();
+        }
+
     }
 
     @Override
@@ -205,6 +267,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             renderPass.begin(graphicsCommands, image.getFrameBuffer());
             pipeline.bind(graphicsCommands);
             try (MemoryStack stack = MemoryStack.stackPush()) {
+                vkCmdBindVertexBuffers(graphicsCommands.getBuffer(), 0, stack.longs(vertexBuffer.getNativeObject()), stack.longs(0));
+                vkCmdBindIndexBuffer(graphicsCommands.getBuffer(), indexBuffer.getNativeObject(), 0, VK_INDEX_TYPE_UINT32);
                 VkViewport.Buffer vp = VkViewport.calloc(1, stack)
                         .x(0f).y(0f)
                         .width(swapchain.getExtent().getX())
@@ -216,7 +280,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 scissor.extent(swapchain.getExtent().toStruct(stack));
                 vkCmdSetScissor(graphicsCommands.getBuffer(), 0, scissor);
             }
-            vkCmdDraw(graphicsCommands.getBuffer(), 3, 1, 0, 0);
+            //vkCmdDraw(graphicsCommands.getBuffer(), vertexData.limit() / 5, 1, 0, 0);
+            vkCmdDrawIndexed(graphicsCommands.getBuffer(), indexData.limit(), 1, 0, 0, 0);
             vkCmdEndRenderPass(graphicsCommands.getBuffer());
             graphicsCommands.end();
             graphicsCommands.submit(imageAvailable, renderFinished, inFlight);
