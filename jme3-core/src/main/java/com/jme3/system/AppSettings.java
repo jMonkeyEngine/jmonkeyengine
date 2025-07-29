@@ -299,6 +299,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("UseRetinaFrameBuffer", false);
         defaults.put("WindowYPosition", 0);
         defaults.put("WindowXPosition", 0);
+        defaults.put("X11PlatformPreferred", false);
         //  defaults.put("Icons", null);
     }
 
@@ -1587,5 +1588,27 @@ public final class AppSettings extends HashMap<String, Object> {
             }
             logger.log(Level.INFO, sb.toString());
         }
+    /**
+     * Sets the preferred native platform for creating the GL context on Linux distributions.
+     * <p>
+     * This setting is relevant for Linux distributions or derivatives that utilize a Wayland session alongside an X11 via the XWayland bridge.
+     * Enabling this option allows the use of GLX for window positioning and/or icon configuration.
+     *
+     * @param preferred true to prefer GLX (native X11) for the GL context, false to prefer EGL (native Wayland).
+     */
+    public void setX11PlatformPreferred(boolean preferred) {
+        putBoolean("X11PlatformPreferred", preferred);
+    }
+    
+    /**
+     * Determines which native platform is preferred for GL context creation on Linux distributions.
+     * <p>
+     * This setting is only valid on Linux distributions or derivatives that support Wayland,
+     * and it indicates whether GLX (native X11) or EGL (native Wayland) is enabled for the GL context.
+     *
+     * @return true if GLX is preferred, otherwise false if EGL is preferred (native Wayland).
+     */
+    public boolean isX11PlatformPreferred() {
+        return getBoolean("X11PlatformPreferred");
     }
 }
