@@ -1588,6 +1588,7 @@ public final class AppSettings extends HashMap<String, Object> {
             }
             logger.log(Level.INFO, sb.toString());
         }
+    }
     /**
      * Sets the preferred native platform for creating the GL context on Linux distributions.
      * <p>
