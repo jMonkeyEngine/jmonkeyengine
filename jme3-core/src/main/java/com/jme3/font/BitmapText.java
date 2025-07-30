@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,20 +38,38 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Node;
 import com.jme3.util.clone.Cloner;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * `BitmapText` is a spatial node that displays text using a {@link BitmapFont}.
+ * It handles text layout, alignment, wrapping, coloring, and styling based on
+ * the properties set via its methods. The text is rendered as a series of
+ * quads (rectangles) with character textures from the font's pages.
+ *
  * @author YongHoon
  */
 public class BitmapText extends Node {
 
+    // The font used to render this text.
     private BitmapFont font;
+    // Stores the text content and its layout properties (size, box, alignment, etc.).
     private StringBlock block;
+    // A flag indicating whether the text needs to be re-assembled
     private boolean needRefresh = true;
+    // An array of `BitmapTextPage` instances, each corresponding to a font page.
     private BitmapTextPage[] textPages;
+    // Manages the individual letter quads, their positions, colors, and styles.
     private Letters letters;
 
+    /**
+     * Creates a new `BitmapText` instance using the specified font.
+     * The text will be rendered left-to-right by default, unless the font itself
+     * is configured for right-to-left rendering.
+     *
+     * @param font The {@link BitmapFont} to use for rendering the text (not null).
+     */
     public BitmapText(BitmapFont font) {
         this(font, font.isRightToLeft(), false);
     }
@@ -69,6 +87,15 @@ public class BitmapText extends Node {
         this(font, rightToLeft, false);
     }
 
+    /**
+     * Creates a new `BitmapText` instance with the specified font, text direction,
+     * and a flag for array-based rendering.
+     *
+     * @param font The {@link BitmapFont} to use for rendering the text (not null).
+     * @param rightToLeft true for right-to-left text rendering, false for left-to-right.
+     * @param arrayBased If true, the internal text pages will use array-based buffers for rendering.
+     * This might affect performance or compatibility depending on the renderer.
+     */
     public BitmapText(BitmapFont font, boolean rightToLeft, boolean arrayBased) {
         textPages = new BitmapTextPage[font.getPageSize()];
         for (int page = 0; page < textPages.length; page++) {
@@ -84,7 +111,7 @@ public class BitmapText extends Node {
 
     @Override
     public BitmapText clone() {
-        return (BitmapText)super.clone(false);
+        return (BitmapText) super.clone(false);
     }
 
     /**
@@ -114,13 +141,19 @@ public class BitmapText extends Node {
         // so I guess cloning doesn't come up that often.
     }
 
+    /**
+     * Returns the {@link BitmapFont} currently used by this `BitmapText` instance.
+     *
+     * @return The {@link BitmapFont} object.
+     */
     public BitmapFont getFont() {
         return font;
     }
 
     /**
-     * Changes text size
-     * @param size text size
+     * Sets the size of the text. This value scales the font's base character sizes.
+     *
+     * @param size The desired text size (e.g., in world units or pixels).
      */
     public void setSize(float size) {
         block.setSize(size);
@@ -128,13 +161,20 @@ public class BitmapText extends Node {
         letters.invalidate();
     }
 
+    /**
+     * Returns the current size of the text.
+     *
+     * @return The text size.
+     */
     public float getSize() {
         return block.getSize();
     }
 
     /**
+     * Sets the text content to be displayed.
      *
-     * @param text charsequence to change text to
+     * @param text The `CharSequence` (e.g., `String` or `StringBuilder`) to display.
+     * If null, the text will be set to an empty string.
      */
     public void setText(CharSequence text) {
         // note: text.toString() is free if text is already a java.lang.String.
@@ -142,72 +182,50 @@ public class BitmapText extends Node {
     }
 
     /**
+     * Sets the text content to be displayed.
+     * If the new text is the same as the current text, no update occurs.
+     * Otherwise, the internal `StringBlock` and `Letters` objects are updated,
+     * and a refresh is flagged to re-layout the text.
      *
-     * @param text String to change text to
+     * @param text The `String` to display. If null, the text will be set to an empty string.
      */
     public void setText(String text) {
         text = text == null ? "" : text;
-        if (text == block.getText() || block.getText().equals(text)) {
+        if (block.getText().equals(text)) {
             return;
         }
-
-        /*
-        The problem with the below block is that StringBlock carries
-        pretty much all of the text-related state of the BitmapText such
-        as size, text box, alignment, etc.
-
-        I'm not sure why this change was needed and the commit message was
-        not entirely helpful because it purports to fix a problem that I've
-        never encountered.
-
-        If block.setText("") doesn't do the right thing then that's where
-        the fix should go because StringBlock carries too much information to
-        be blown away every time.  -pspeed
-
-        Change was made:
-        http://code.google.com/p/jmonkeyengine/source/detail?spec=svn9389&r=9389
-        Diff:
-        http://code.google.com/p/jmonkeyengine/source/diff?path=/trunk/engine/src/core/com/jme3/font/BitmapText.java&format=side&r=9389&old_path=/trunk/engine/src/core/com/jme3/font/BitmapText.java&old=8843
-
-        // If the text is empty, reset
-        if (text.isEmpty()) {
-            detachAllChildren();
-
-            for (int page = 0; page < textPages.length; page++) {
-                textPages[page] = new BitmapTextPage(font, true, page);
-                attachChild(textPages[page]);
-            }
-
-            block = new StringBlock();
-            letters = new Letters(font, block, letters.getQuad().isRightToLeft());
-        }
-        */
 
         // Update the text content
         block.setText(text);
         letters.setText(text);
-
-        // Flag for refresh
         needRefresh = true;
     }
 
     /**
-     * @return returns text
+     * Returns the current text content displayed by this `BitmapText` instance.
+     *
+     * @return The text content as a `String`.
      */
     public String getText() {
         return block.getText();
     }
 
     /**
-     * @return color of the text
+     * Returns the base color applied to the entire text.
+     * Note: Substring colors set via `setColor(int, int, ColorRGBA)` or
+     * `setColor(String, ColorRGBA)` will override this base color for their respective ranges.
+     *
+     * @return The base {@link ColorRGBA} of the text.
      */
     public ColorRGBA getColor() {
         return letters.getBaseColor();
     }
 
     /**
-     * changes text color. all substring colors are deleted.
-     * @param color new color of text
+     * Sets the base color for the entire text.
+     * This operation will clear any previously set substring colors.
+     *
+     * @param color The new base {@link ColorRGBA} for the text.
      */
     public void setColor(ColorRGBA color) {
         letters.setColor(color);
@@ -216,26 +234,34 @@ public class BitmapText extends Node {
     }
 
     /**
-     *  Sets an overall alpha that will be applied to all
-     *  letters.  If the alpha passed is -1 then alpha reverts
-     *  to default... which will be 1 for anything unspecified
-     *  and color tags will be reset to 1 or their encoded
-     *  alpha.
+     * Sets an overall alpha (transparency) value that will be applied to all
+     * letters in the text.
+     * If the alpha passed is -1, the alpha reverts to its default behavior:
+     * 1.0 for unspecified parts, and the encoded alpha from any color tags.
      *
-     * @param alpha the desired alpha, or -1 to revert to the default
+     * @param alpha The desired alpha value (0.0 for fully transparent, 1.0 for fully opaque),
+     * or -1 to revert to default alpha behavior.
      */
     public void setAlpha(float alpha) {
         letters.setBaseAlpha(alpha);
         needRefresh = true;
     }
 
+    /**
+     * Returns the current base alpha value applied to the text.
+     *
+     * @return The base alpha value, or -1 if default alpha behavior is active.
+     */
     public float getAlpha() {
         return letters.getBaseAlpha();
     }
 
     /**
-     * Define the area where the BitmapText will be rendered.
-     * @param rect position and size box where text is rendered
+     * Defines a rectangular bounding box within which the text will be rendered.
+     * This box is used for text wrapping and alignment.
+     *
+     * @param rect The {@link Rectangle} defining the position (x, y) and size (width, height)
+     * of the text rendering area.
      */
     public void setBox(Rectangle rect) {
         block.setTextBox(rect);
@@ -244,14 +270,19 @@ public class BitmapText extends Node {
     }
 
     /**
-     * @return height of the line
+     * Returns the height of a single line of text, scaled by the current text size.
+     *
+     * @return The calculated line height.
      */
     public float getLineHeight() {
         return font.getLineHeight(block);
     }
 
     /**
-     * @return height of whole text block
+     * Calculates and returns the total height of the entire text block,
+     * considering all lines and the defined text box (if any).
+     *
+     * @return The total height of the text block.
      */
     public float getHeight() {
         if (needRefresh) {
@@ -266,7 +297,9 @@ public class BitmapText extends Node {
     }
 
     /**
-     * @return width of line
+     * Calculates and returns the maximum width of any line in the text block.
+     *
+     * @return The maximum line width of the text.
      */
     public float getLineWidth() {
         if (needRefresh) {
@@ -282,7 +315,9 @@ public class BitmapText extends Node {
     }
 
     /**
-     * @return line count
+     * Returns the number of lines the text currently occupies.
+     *
+     * @return The total number of lines.
      */
     public int getLineCount() {
         if (needRefresh) {
@@ -291,14 +326,21 @@ public class BitmapText extends Node {
         return block.getLineCount();
     }
 
+    /**
+     * Returns the current line wrapping mode set for this text.
+     *
+     * @return The {@link LineWrapMode} enum value.
+     */
     public LineWrapMode getLineWrapMode() {
         return block.getLineWrapMode();
     }
 
     /**
-     * Set horizontal alignment. Applicable only when text bound is set.
+     * Sets the horizontal alignment for the text within its bounding box.
+     * This is only applicable if a text bounding box has been set using {@link #setBox(Rectangle)}.
      *
-     * @param align the desired alignment (such as Align.Left)
+     * @param align The desired horizontal alignment (e.g., {@link Align#Left}, {@link Align#Center}, {@link Align#Right}).
+     * @throws RuntimeException If a bounding box is not set and `align` is not `Align.Left`.
      */
     public void setAlignment(BitmapFont.Align align) {
         if (block.getTextBox() == null && align != Align.Left) {
@@ -310,9 +352,11 @@ public class BitmapText extends Node {
     }
 
     /**
-     * Set vertical alignment. Applicable only when text bound is set.
+     * Sets the vertical alignment for the text within its bounding box.
+     * This is only applicable if a text bounding box has been set using {@link #setBox(Rectangle)}.
      *
-     * @param align the desired alignment (such as Align.Top)
+     * @param align The desired vertical alignment (e.g., {@link VAlign#Top}, {@link VAlign#Center}, {@link VAlign#Bottom}).
+     * @throws RuntimeException If a bounding box is not set and `align` is not `VAlign.Top`.
      */
     public void setVerticalAlignment(BitmapFont.VAlign align) {
         if (block.getTextBox() == null && align != VAlign.Top) {
@@ -323,28 +367,42 @@ public class BitmapText extends Node {
         needRefresh = true;
     }
 
+    /**
+     * Returns the current horizontal alignment set for the text.
+     *
+     * @return The current {@link Align} value.
+     */
     public BitmapFont.Align getAlignment() {
         return block.getAlignment();
     }
 
+    /**
+     * Returns the current vertical alignment set for the text.
+     *
+     * @return The current {@link VAlign} value.
+     */
     public BitmapFont.VAlign getVerticalAlignment() {
         return block.getVerticalAlignment();
     }
 
     /**
-     * Set the font style of substring. If font doesn't contain style, default style is used
-     * @param start start index to set style. inclusive.
-     * @param end   end index to set style. EXCLUSIVE.
-     * @param style the style to apply
+     * Sets the font style for a specific substring of the text.
+     * If the font does not contain the specified style, the default style will be used.
+     *
+     * @param start The starting index of the substring (inclusive).
+     * @param end   The ending index of the substring (exclusive).
+     * @param style The integer style identifier to apply.
      */
     public void setStyle(int start, int end, int style) {
         letters.setStyle(start, end, style);
     }
 
     /**
-     * Set the font style of substring. If font doesn't contain style, default style is applied
-     * @param regexp regular expression
-     * @param style  the style to apply
+     * Sets the font style for all substrings matching a given regular expression.
+     * If the font does not contain the specified style, the default style will be used.
+     *
+     * @param regexp The regular expression string to match against the text.
+     * @param style  The integer style identifier to apply.
      */
     public void setStyle(String regexp, int style) {
         Pattern p = Pattern.compile(regexp);
@@ -355,10 +413,11 @@ public class BitmapText extends Node {
     }
 
     /**
-     * Set the color of substring.
-     * @param start start index to set style. inclusive.
-     * @param end   end index to set style. EXCLUSIVE.
-     * @param color the desired color
+     * Sets the color for a specific substring of the text.
+     *
+     * @param start The starting index of the substring (inclusive).
+     * @param end   The ending index of the substring (exclusive).
+     * @param color The desired {@link ColorRGBA} to apply to the substring.
      */
     public void setColor(int start, int end, ColorRGBA color) {
         letters.setColor(start, end, color);
@@ -367,9 +426,10 @@ public class BitmapText extends Node {
     }
 
     /**
-     * Set the color of substring.
-     * @param regexp regular expression
-     * @param color  the desired color
+     * Sets the color for all substrings matching a given regular expression.
+     *
+     * @param regexp The regular expression string to match against the text.
+     * @param color  The desired {@link ColorRGBA} to apply.
      */
     public void setColor(String regexp, ColorRGBA color) {
         Pattern p = Pattern.compile(regexp);
@@ -382,7 +442,10 @@ public class BitmapText extends Node {
     }
 
     /**
-     * @param tabs tab positions
+     * Sets custom tab stop positions for the text.
+     * Tab characters (`\t`) will align to these specified positions.
+     *
+     * @param tabs An array of float values representing the horizontal tab stop positions.
      */
     public void setTabPosition(float... tabs) {
         block.setTabPosition(tabs);
@@ -391,8 +454,10 @@ public class BitmapText extends Node {
     }
 
     /**
-     * used for the tabs over the last tab position.
-     * @param width tab size
+     * Sets the default width for tabs that extend beyond the last defined tab position.
+     * This value is used if a tab character is encountered after all custom tab stops have been passed.
+     *
+     * @param width The default width for tabs in font units.
      */
     public void setTabWidth(float width) {
         block.setTabWidth(width);
@@ -401,10 +466,10 @@ public class BitmapText extends Node {
     }
 
     /**
-     * for setLineWrapType(LineWrapType.NoWrap),
-     * set the last character when the text exceeds the bound.
+     * When {@link LineWrapMode#NoWrap} is used and the text exceeds the bounding box,
+     * this character will be appended to indicate truncation (e.g., '...').
      *
-     * @param c the character to indicate truncated text
+     * @param c The character to use as the ellipsis.
      */
     public void setEllipsisChar(char c) {
         block.setEllipsisChar(c);
@@ -413,12 +478,18 @@ public class BitmapText extends Node {
     }
 
     /**
-     * Available only when bounding is set. <code>setBox()</code> method call is needed in advance.
-     * true when
-     * @param wrap NoWrap   : Letters over the text bound is not shown. the last character is set to '...'(0x2026)
-     *             Character: Character is split at the end of the line.
-     *             Word     : Word is split at the end of the line.
-     *             Clip     : The text is hard-clipped at the border including showing only a partial letter if it goes beyond the text bound.
+     * Sets the line wrapping mode for the text. This is only applicable when
+     * a text bounding box has been set using {@link #setBox(Rectangle)}.
+     *
+     * @param wrap The desired {@link LineWrapMode}:
+     * <ul>
+     * <li>{@link LineWrapMode#NoWrap}: Letters exceeding the text bound are not shown.
+     * The last visible character might be replaced by an ellipsis character
+     * (set via {@link #setEllipsisChar(char)}).</li>
+     * <li>{@link LineWrapMode#Character}: Text is split at the end of the line, even in the middle of a word.</li>
+     * <li>{@link LineWrapMode#Word}: Words are split at the end of the line.</li>
+     * <li>{@link LineWrapMode#Clip}: The text is hard-clipped at the border, potentially showing only a partial letter.</li>
+     * </ul>
      */
     public void setLineWrapMode(LineWrapMode wrap) {
         if (block.getLineWrapMode() != wrap) {
@@ -436,28 +507,38 @@ public class BitmapText extends Node {
         }
     }
 
+    /**
+     * Assembles the text by generating the quad list (character positions and sizes)
+     * and then populating the vertex buffers of each `BitmapTextPage`.
+     * This method is called internally when `needRefresh` is true.
+     */
     private void assemble() {
-        // first generate quad list
+        // First, generate or update the list of letter quads
+        // based on current text and layout properties.
         letters.update();
-        for (int i = 0; i < textPages.length; i++) {
-            textPages[i].assemble(letters);
+        // Then, for each font page, assemble its mesh data from the generated quads.
+        for (BitmapTextPage textPage : textPages) {
+            textPage.assemble(letters);
         }
         needRefresh = false;
     }
 
+    /**
+     * Renders the `BitmapText` spatial. This method iterates through each
+     * `BitmapTextPage`, sets its texture, and renders it using the provided
+     * `RenderManager`.
+     *
+     * @param rm The `RenderManager` responsible for drawing.
+     * @param color The base color to apply during rendering. Note that colors
+     * set per-substring will override this for those parts.
+     */
     public void render(RenderManager rm, ColorRGBA color) {
         for (BitmapTextPage page : textPages) {
             Material mat = page.getMaterial();
             mat.setTexture("ColorMap", page.getTexture());
-            //ColorRGBA original = getColor(mat, "Color");
-            //mat.setColor("Color", color);
+            // mat.setColor("Color", color); // If the material supports a "Color" parameter
             mat.render(page, rm);
-
-            //if( original == null ) {
-            //    mat.clearParam("Color");
-            //} else {
-            //    mat.setColor("Color", original);
-            //}
         }
     }
+
 }
