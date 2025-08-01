@@ -28,6 +28,7 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -560,7 +561,7 @@ public class VulkanTest extends SimpleApplication {
         instanceExtensions.add(ext);
     }
 
-    private class Frame implements Runnable {
+    private class Frame implements Consumer<Float> {
 
         private final Semaphore imageAvailable = null;
         private final Semaphore renderFinished = null;
@@ -569,7 +570,7 @@ public class VulkanTest extends SimpleApplication {
         public Frame() {}
 
         @Override
-        public void run() {
+        public void accept(Float tpf) {
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 System.out.println("start frame render commands");
                 inFlight.blockThenReset(5000);

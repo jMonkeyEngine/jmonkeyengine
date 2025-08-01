@@ -2,6 +2,7 @@ package com.jme3.vulkan;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
+import com.jme3.vulkan.images.ImageView;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkFramebufferCreateInfo;
 
@@ -29,7 +30,7 @@ public class FrameBuffer implements Native<Long> {
             for (int i = 0; i < attachments.length; i++) {
                 att.put(i, attachments[i].getNativeObject());
             }
-            VkFramebufferCreateInfo create = VkFramebufferCreateInfo.calloc()
+            VkFramebufferCreateInfo create = VkFramebufferCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO)
                     .renderPass(compat.getNativeObject())
                     .pAttachments(att)

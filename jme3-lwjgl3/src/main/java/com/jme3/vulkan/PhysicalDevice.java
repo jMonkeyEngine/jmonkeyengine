@@ -2,7 +2,6 @@ package com.jme3.vulkan;
 
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
@@ -15,15 +14,17 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class PhysicalDevice <T extends QueueFamilies> {
 
+    private final VulkanInstance instance;
     private final VkPhysicalDevice device;
     private final T queues;
     private final VkQueueFamilyProperties.Buffer queueProperties;
 
-    public PhysicalDevice(VkInstance instance, T queues, long id) {
+    public PhysicalDevice(VulkanInstance instance, T queues, long id) {
+        this.instance = instance;
+        this.device = new VkPhysicalDevice(id, instance.getNativeObject());
+        this.queues = queues;
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            this.queues = queues;
-            this.device = new VkPhysicalDevice(id, instance);
-            this.queueProperties = enumerateBuffer(stack, VkQueueFamilyProperties::malloc,
+            this.queueProperties = enumerateBuffer(stack, n -> VkQueueFamilyProperties.calloc(n, stack),
                     (count, buffer) -> vkGetPhysicalDeviceQueueFamilyProperties(device, count, buffer));
             this.queues.populate(this, getQueueFamilyProperties());
         }
@@ -42,6 +43,10 @@ public class PhysicalDevice <T extends QueueFamilies> {
         return score;
     }
 
+    public VulkanInstance getInstance() {
+        return instance;
+    }
+
     public VkPhysicalDevice getDevice() {
         return device;
     }
@@ -54,14 +59,14 @@ public class PhysicalDevice <T extends QueueFamilies> {
         return queueProperties;
     }
 
-    public VkPhysicalDeviceProperties getProperties() {
-        VkPhysicalDeviceProperties props = VkPhysicalDeviceProperties.create();
+    public VkPhysicalDeviceProperties getProperties(MemoryStack stack) {
+        VkPhysicalDeviceProperties props = VkPhysicalDeviceProperties.malloc(stack);
         vkGetPhysicalDeviceProperties(device, props);
         return props;
     }
 
-    public VkPhysicalDeviceFeatures getFeatures() {
-        VkPhysicalDeviceFeatures features = VkPhysicalDeviceFeatures.create();
+    public VkPhysicalDeviceFeatures getFeatures(MemoryStack stack) {
+        VkPhysicalDeviceFeatures features = VkPhysicalDeviceFeatures.malloc(stack);
         vkGetPhysicalDeviceFeatures(device, features);
         return features;
     }
@@ -126,13 +131,13 @@ public class PhysicalDevice <T extends QueueFamilies> {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends QueueFamilies> PhysicalDevice<T> getPhysicalDevice(VkInstance instance,
+    public static <T extends QueueFamilies> PhysicalDevice<T> getSuitableDevice(VulkanInstance instance,
                                                                                 Collection<? extends DeviceEvaluator> evaluators,
                                                                                 Supplier<T> queueFactory) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             System.out.println("Get physical device from instance: " + instance);
             PointerBuffer devices = enumerateBuffer(stack, stack::mallocPointer,
-                    (count, buffer) -> check(vkEnumeratePhysicalDevices(instance, count, buffer),
+                    (count, buffer) -> check(vkEnumeratePhysicalDevices(instance.getNativeObject(), count, buffer),
                             "Failed to enumerate physical devices."));
             PhysicalDevice<T> device = null;
             float score = -1f;

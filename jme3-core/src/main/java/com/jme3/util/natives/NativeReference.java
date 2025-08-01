@@ -6,4 +6,8 @@ public interface NativeReference {
 
     void addDependent(NativeReference reference);
 
+    boolean isDestroyed();
+
+    void refresh();
+
 }

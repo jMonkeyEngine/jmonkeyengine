@@ -1,5 +1,6 @@
 package com.jme3.renderer.vulkan;
 
+import com.jme3.util.natives.Native;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -127,12 +128,36 @@ public class VulkanUtils {
         return (n & bit) > 0;
     }
 
+    public static int sharingMode(boolean concurrent) {
+        return concurrent ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
+    }
+
     public static <T extends StructBuffer<E, T>, E extends Struct<E>> T accumulate(Collection<E> collection, IntFunction<T> allocate) {
         T buffer = allocate.apply(collection.size());
         for (E e : collection) {
             buffer.put(e);
         }
         return buffer.rewind();
+    }
+
+    public static LongBuffer accumulate(MemoryStack stack, Native<Long>... natives) {
+        LongBuffer buf = stack.mallocLong(natives.length);
+        for (int i = 0; i < buf.limit(); i++) {
+            buf.put(i, natives[i].getNativeObject());
+        }
+        return buf;
+    }
+
+    public static int[] getTransferArguments(int srcLayout, int dstLayout) {
+        // output array format: {srcAccessMask, dstAccessMask, srcStage, dstStage}
+        if (srcLayout == VK_IMAGE_LAYOUT_UNDEFINED && dstLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+            return new int[] {0, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT};
+        } else if (srcLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && dstLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+            return new int[] {VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
+                    VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT};
+        } else {
+            throw new UnsupportedOperationException("Unsupported layer transitions.");
+        }
     }
 
     public static class NativeIterator <T> implements Iterable<T>, Iterator<T> {

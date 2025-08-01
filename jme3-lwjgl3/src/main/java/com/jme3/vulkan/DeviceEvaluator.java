@@ -22,6 +22,10 @@ public interface DeviceEvaluator {
         return new DeviceSwapchainSupport(surface);
     }
 
+    static DeviceAnisotropySupport anisotropy() {
+        return new DeviceAnisotropySupport();
+    }
+
     class DeviceExtensionSupport implements DeviceEvaluator {
 
         private final Collection<String> extensions;
@@ -34,15 +38,10 @@ public interface DeviceEvaluator {
         public Float evaluateDevice(PhysicalDevice device) {
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 VkExtensionProperties.Buffer exts = device.getExtensions(stack);
-                System.out.println("available:");
-                for (VkExtensionProperties p : exts) {
-                    System.out.println("  " + p.extensionNameString());
+                if (extensions.stream().allMatch(e -> exts.stream().anyMatch(
+                    p -> p.extensionNameString().equals(e)))) {
+                    return 0f;
                 }
-                if (extensions.stream().allMatch(e -> {
-                    System.out.println("trying " + e + " extension...");
-                    return exts.stream().anyMatch(
-                        p -> p.extensionNameString().equals(e)); })) return 0f;
-                System.out.println("Reject device by extensions");
                 return null;
             }
         }
@@ -62,8 +61,21 @@ public interface DeviceEvaluator {
             if (device.querySwapchainSupport(surface)) {
                 return 0f;
             }
-            System.out.println("Reject device by swapchain support");
             return null;
+        }
+
+    }
+
+    class DeviceAnisotropySupport implements DeviceEvaluator {
+
+        @Override
+        public Float evaluateDevice(PhysicalDevice device) {
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                if (device.getFeatures(stack).samplerAnisotropy()) {
+                    return 0f;
+                }
+                return null;
+            }
         }
 
     }

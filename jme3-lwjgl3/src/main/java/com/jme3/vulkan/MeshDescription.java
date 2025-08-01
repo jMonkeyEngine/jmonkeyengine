@@ -17,10 +17,10 @@ public class MeshDescription implements Native<Object> {
         // for each vertex buffer on the mesh
         bindings = VkVertexInputBindingDescription.calloc(1)
                 .binding(0)
-                .stride(Float.BYTES * 5) // bytes per vertex
+                .stride(Float.BYTES * 7) // bytes per vertex
                 .inputRate(VK_VERTEX_INPUT_RATE_VERTEX);
         // for each attribute in each vertex buffer
-        attributes = VkVertexInputAttributeDescription.calloc(2);
+        attributes = VkVertexInputAttributeDescription.calloc(3);
         attributes.get(0).binding(0)
                 .location(0)
                 .format(VK_FORMAT_R32G32_SFLOAT)
@@ -29,6 +29,10 @@ public class MeshDescription implements Native<Object> {
                 .location(1)
                 .format(VK_FORMAT_R32G32B32_SFLOAT)
                 .offset(Float.BYTES * 2);
+        attributes.get(2).binding(0)
+                .location(2)
+                .format(VK_FORMAT_R32G32_SFLOAT)
+                .offset(Float.BYTES * 5);
         ref = Native.get().register(this);
     }
 

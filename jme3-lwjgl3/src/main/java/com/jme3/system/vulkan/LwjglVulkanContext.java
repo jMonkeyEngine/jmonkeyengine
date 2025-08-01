@@ -175,9 +175,10 @@ public class LwjglVulkanContext implements JmeContext, GlfwWindow, Runnable {
     protected void engineTerminate() {
         System.out.println("terminate engine");
         engine.destroy();
-        glfwDestroyWindow(window);
+        //glfwDestroyWindow(window);
+        glfwDestroy();
         glfwTerminate();
-        LOGGER.info("Display destroyed.");
+        System.out.println("Engine termination complete. Have a nice day.");
     }
 
     protected void updateSizes() {

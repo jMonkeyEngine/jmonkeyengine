@@ -22,7 +22,7 @@ public class LogicalDevice implements Native<VkDevice> {
             VkDeviceCreateInfo create = VkDeviceCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO)
                     .pQueueCreateInfos(physical.getQueueFamilies().createLogicalBuffers(stack))
-                    .pEnabledFeatures(physical.getFeatures());
+                    .pEnabledFeatures(physical.getFeatures(stack).samplerAnisotropy(true));
             if (extensions != null) {
                 create.ppEnabledExtensionNames(extensions);
             }
@@ -35,6 +35,7 @@ public class LogicalDevice implements Native<VkDevice> {
             device = new VkDevice(ptr.get(0), physical.getDevice(), create);
         }
         ref = Native.get().register(this);
+        physical.getInstance().getNativeReference().addDependent(ref);
     }
 
     @Override
@@ -59,6 +60,10 @@ public class LogicalDevice implements Native<VkDevice> {
 
     public PhysicalDevice getPhysicalDevice() {
         return physical;
+    }
+
+    public void waitIdle() {
+        vkDeviceWaitIdle(device);
     }
 
 }

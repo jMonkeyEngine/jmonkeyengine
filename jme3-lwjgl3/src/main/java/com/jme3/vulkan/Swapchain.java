@@ -2,8 +2,9 @@ package com.jme3.vulkan;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
+import com.jme3.vulkan.images.Image;
+import com.jme3.vulkan.images.ImageView;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.IntBuffer;
@@ -28,10 +29,10 @@ public class Swapchain implements Native<Long> {
     public Swapchain(LogicalDevice device, Surface surface, SwapchainSupport support) {
         this.device = device;
         this.surface = surface;
-        reload(support);
         ref = Native.get().register(this);
         device.getNativeReference().addDependent(ref);
         surface.getNativeReference().addDependent(ref);
+        reload(support);
     }
 
     @Override
@@ -102,6 +103,7 @@ public class Swapchain implements Native<Long> {
                 images.add(new SwapchainImage(device, imgs.get(i)));
             }
         }
+        ref.refresh(); // refresh the native destroyer
     }
 
     public void createFrameBuffers(RenderPass compat) {
@@ -156,30 +158,73 @@ public class Swapchain implements Native<Long> {
         return format;
     }
 
-    public class SwapchainImage extends OldImage {
+    public class SwapchainImage implements Image {
 
+        private final LogicalDevice device;
+        private final NativeReference ref;
+        private final long id;
         private final ImageView view;
         private FrameBuffer frameBuffer;
 
         private SwapchainImage(LogicalDevice device, long id) {
-            super(device, id);
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                VkImageViewCreateInfo create = VkImageViewCreateInfo.calloc(stack)
-                        .sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO)
-                        .image(getNativeObject())
-                        .viewType(VK_IMAGE_VIEW_TYPE_2D)
-                        .format(format);
-                create.components().r(VK_COMPONENT_SWIZZLE_IDENTITY)
-                        .g(VK_COMPONENT_SWIZZLE_IDENTITY)
-                        .b(VK_COMPONENT_SWIZZLE_IDENTITY)
-                        .a(VK_COMPONENT_SWIZZLE_IDENTITY);
-                create.subresourceRange().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT)
-                        .baseMipLevel(0)
-                        .levelCount(1)
-                        .baseArrayLayer(0)
-                        .layerCount(1);
-                this.view = new ImageView(this, create);
-            }
+            this.device = device;
+            this.id = id;
+            ref = Native.get().register(this);
+            Swapchain.this.ref.addDependent(ref);
+            view = createView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1);
+        }
+
+        @Override
+        public ImageView createView(VkImageViewCreateInfo create) {
+            return new ImageView(this, create);
+        }
+
+        @Override
+        public LogicalDevice getDevice() {
+            return device;
+        }
+
+        @Override
+        public int getType() {
+            return VK_IMAGE_TYPE_2D;
+        }
+
+        @Override
+        public int getWidth() {
+            return extent.x;
+        }
+
+        @Override
+        public int getHeight() {
+            return extent.y;
+        }
+
+        @Override
+        public int getDepth() {
+            return 1;
+        }
+
+        @Override
+        public int getFormat() {
+            return format;
+        }
+
+        @Override
+        public Long getNativeObject() {
+            return id;
+        }
+
+        @Override
+        public Runnable createNativeDestroyer() {
+            return () -> {};
+        }
+
+        @Override
+        public void prematureNativeDestruction() {}
+
+        @Override
+        public NativeReference getNativeReference() {
+            return ref;
         }
 
         public void createFrameBuffer(RenderPass compat) {

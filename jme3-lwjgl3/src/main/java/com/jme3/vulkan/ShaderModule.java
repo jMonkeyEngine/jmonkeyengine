@@ -29,6 +29,7 @@ public class ShaderModule implements Native<Long> {
                     "Failed to create shader module."));
         }
         ref = Native.get().register(this);
+        device.getNativeReference().addDependent(ref);
     }
 
     @Override

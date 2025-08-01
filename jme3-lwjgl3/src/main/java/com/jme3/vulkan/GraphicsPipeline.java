@@ -61,6 +61,7 @@ public class GraphicsPipeline implements Native<Long> {
                     .lineWidth(1f)
                     .cullMode(RenderStateToVulkan.faceCull(state.getFaceCullMode()))
                     .frontFace(VK_FRONT_FACE_CLOCKWISE)
+                    .cullMode(VK_CULL_MODE_NONE)
                     .depthBiasEnable(false);
             VkPipelineMultisampleStateCreateInfo multisample = VkPipelineMultisampleStateCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO)

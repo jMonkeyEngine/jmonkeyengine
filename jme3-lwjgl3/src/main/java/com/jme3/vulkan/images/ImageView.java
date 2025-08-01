@@ -1,9 +1,8 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.images;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkImageViewCreateInfo;
 
@@ -13,13 +12,13 @@ public class ImageView implements Native<Long> {
 
     private final Image image;
     private final NativeReference ref;
-    private long id;
+    private final long id;
 
     public ImageView(Image image, VkImageViewCreateInfo create) {
         this.image = image;
         create.sType(VK10.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO);
         create.image(image.getNativeObject());
-        System.out.println("image ID: " + image.getNativeObject());
+        System.out.println("creating imageView: " + toString());
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer idBuf = stack.mallocLong(1);
             VK10.vkCreateImageView(image.getDevice().getNativeObject(), create, null, idBuf);
@@ -37,8 +36,8 @@ public class ImageView implements Native<Long> {
     @Override
     public Runnable createNativeDestroyer() {
         return () -> {
+            System.out.println("destroying imageView: " + toString());
             VK10.vkDestroyImageView(image.getDevice().getNativeObject(), id, null);
-            id = VK10.VK_NULL_HANDLE;
         };
     }
 
