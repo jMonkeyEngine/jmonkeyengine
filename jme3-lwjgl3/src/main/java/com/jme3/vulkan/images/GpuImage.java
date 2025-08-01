@@ -26,27 +26,30 @@ public class GpuImage implements Image {
     private final NativeReference ref;
     private final long id;
     private final MemoryRegion memory;
-    private final int type, width, height, depth, format;
+    private final int type, width, height, depth;
+    private final Image.Format format;
+    private final Image.Tiling tiling;
 
-    public GpuImage(LogicalDevice device, int width, int height, int format, ImageUsageFlags usage, MemoryFlags mem) {
-        this(device, VK_IMAGE_TYPE_2D, width, height, 1, format, usage, mem);
+    public GpuImage(LogicalDevice device, int width, int height, Image.Format format, Image.Tiling tiling, ImageUsageFlags usage, MemoryFlags mem) {
+        this(device, VK_IMAGE_TYPE_2D, width, height, 1, format, tiling, usage, mem);
     }
 
-    public GpuImage(LogicalDevice device, int type, int width, int height, int depth, int format, ImageUsageFlags usage, MemoryFlags mem) {
+    public GpuImage(LogicalDevice device, int type, int width, int height, int depth, Image.Format format, Image.Tiling tiling, ImageUsageFlags usage, MemoryFlags mem) {
         this.device = device;
         this.type = type;
         this.width = width;
         this.height = height;
         this.depth = depth;
         this.format = format;
+        this.tiling = tiling;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkImageCreateInfo create = VkImageCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO)
                     .imageType(type)
                     .mipLevels(1)
                     .arrayLayers(1)
-                    .format(format)
-                    .tiling(VK_IMAGE_TILING_OPTIMAL)
+                    .format(format.getVkEnum())
+                    .tiling(tiling.getVkEnum())
                     .initialLayout(VK_IMAGE_LAYOUT_UNDEFINED)
                     .usage(usage.getUsageFlags())
                     .samples(VK_SAMPLE_COUNT_1_BIT)
@@ -97,8 +100,13 @@ public class GpuImage implements Image {
     }
 
     @Override
-    public int getFormat() {
+    public Image.Format getFormat() {
         return format;
+    }
+
+    @Override
+    public Image.Tiling getTiling() {
+        return tiling;
     }
 
     @Override
@@ -119,23 +127,34 @@ public class GpuImage implements Image {
         return ref;
     }
 
-    public void transitionLayout(CommandBuffer commands, int srcLayout, int dstLayout) {
+    public void transitionLayout(CommandBuffer commands, Image.Layout srcLayout, Image.Layout dstLayout) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            int[] args = VulkanUtils.getTransferArguments(srcLayout, dstLayout);
+            int[] args = Image.Layout.getTransferArguments(srcLayout, dstLayout);
             VkImageMemoryBarrier.Buffer barrier = VkImageMemoryBarrier.calloc(1, stack)
                     .sType(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER)
-                    .oldLayout(srcLayout)
-                    .newLayout(dstLayout)
+                    .oldLayout(srcLayout.getVkEnum())
+                    .newLayout(dstLayout.getVkEnum())
                     .srcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
                     .dstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED) // for transfering queue ownership
                     .image(id)
                     .srcAccessMask(args[0])
                     .dstAccessMask(args[1]);
-            barrier.subresourceRange().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT)
+            barrier.subresourceRange()
                     .baseMipLevel(0)
                     .levelCount(1)
                     .baseArrayLayer(0)
                     .layerCount(1);
+            int aspect = 0;
+            if (format.isColor()) {
+                aspect |= VK_IMAGE_ASPECT_COLOR_BIT;
+            }
+            if (format.isDepth()) {
+                aspect |= VK_IMAGE_ASPECT_DEPTH_BIT;
+            }
+            if (format.isStencil()) {
+                aspect |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
+            barrier.subresourceRange().aspectMask(aspect);
             vkCmdPipelineBarrier(commands.getBuffer(), args[2], args[3], 0, null, null, barrier);
         }
     }

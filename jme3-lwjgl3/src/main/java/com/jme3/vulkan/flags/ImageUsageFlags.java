@@ -21,6 +21,11 @@ public class ImageUsageFlags {
         return this;
     }
 
+    public ImageUsageFlags depthStencilAttachment() {
+        usageFlags |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+        return this;
+    }
+
     public int getUsageFlags() {
         return usageFlags;
     }

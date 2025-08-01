@@ -148,18 +148,6 @@ public class VulkanUtils {
         return buf;
     }
 
-    public static int[] getTransferArguments(int srcLayout, int dstLayout) {
-        // output array format: {srcAccessMask, dstAccessMask, srcStage, dstStage}
-        if (srcLayout == VK_IMAGE_LAYOUT_UNDEFINED && dstLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-            return new int[] {0, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT};
-        } else if (srcLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && dstLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-            return new int[] {VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
-                    VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT};
-        } else {
-            throw new UnsupportedOperationException("Unsupported layer transitions.");
-        }
-    }
-
     public static class NativeIterator <T> implements Iterable<T>, Iterator<T> {
 
         private final PointerBuffer pointers;

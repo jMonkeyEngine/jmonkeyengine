@@ -1,7 +1,6 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.asset.*;
-import com.jme3.texture.Image;
 import com.jme3.util.BufferUtils;
 
 import javax.imageio.ImageIO;
@@ -54,7 +53,7 @@ public class VulkanImageLoader implements AssetLoader {
                 }
                 ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
                 buffer.put(data);
-                return new ImageData(buffer, width, height, VK_FORMAT_A8B8G8R8_SRGB_PACK32);
+                return new ImageData(buffer, width, height, Image.Format.ABGR8_SRGB);
             }
             case BufferedImage.TYPE_3BYTE_BGR: { // most common in JPEG images
                 if (flipY) {
@@ -62,7 +61,7 @@ public class VulkanImageLoader implements AssetLoader {
                 }
                 ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 3);
                 buffer.put(data);
-                return new ImageData(buffer, width, height, VK_FORMAT_B8G8R8_SRGB);
+                return new ImageData(buffer, width, height, Image.Format.BGR8_SRGB);
             }
             case BufferedImage.TYPE_BYTE_GRAY: { // grayscale fonts
                 if (flipY) {
@@ -70,10 +69,10 @@ public class VulkanImageLoader implements AssetLoader {
                 }
                 ByteBuffer buffer = BufferUtils.createByteBuffer(width * height);
                 buffer.put(data);
-                return new ImageData(buffer, width, height, VK_FORMAT_R8_SRGB);
+                return new ImageData(buffer, width, height, Image.Format.R8_SRGB);
             }
         }
-        if (img.getTransparency() == Transparency.OPAQUE){
+        if (img.getTransparency() == Transparency.OPAQUE) {
             ByteBuffer buffer = BufferUtils.createByteBuffer(img.getWidth() * img.getHeight() * 4);
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
@@ -90,7 +89,7 @@ public class VulkanImageLoader implements AssetLoader {
                 }
             }
             buffer.flip();
-            return new ImageData(buffer, width, height, VK_FORMAT_R8G8B8A8_SRGB);
+            return new ImageData(buffer, width, height, Image.Format.RGBA8_SRGB);
         } else {
             ByteBuffer buffer = BufferUtils.createByteBuffer(img.getWidth() * img.getHeight() * 4);
             for (int y = 0; y < height; y++){
@@ -108,7 +107,7 @@ public class VulkanImageLoader implements AssetLoader {
                 }
             }
             buffer.flip();
-            return new ImageData(buffer, width, height, VK_FORMAT_R8G8B8A8_SRGB);
+            return new ImageData(buffer, width, height, Image.Format.RGBA8_SRGB);
         }
     }
 
@@ -169,9 +168,9 @@ public class VulkanImageLoader implements AssetLoader {
 
         private final ByteBuffer buffer;
         private final int width, height;
-        private final int format;
+        private final Image.Format format;
 
-        public ImageData(ByteBuffer buffer, int width, int height, int format) {
+        public ImageData(ByteBuffer buffer, int width, int height, Image.Format format) {
             this.buffer = buffer;
             this.width = width;
             this.height = height;
@@ -190,7 +189,7 @@ public class VulkanImageLoader implements AssetLoader {
             return height;
         }
 
-        public int getFormat() {
+        public Image.Format getFormat() {
             return format;
         }
 

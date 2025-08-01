@@ -6,6 +6,7 @@ import com.jme3.material.RenderState;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.opencl.CommandQueue;
 import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.shaderc.ShaderType;
 import com.jme3.shaderc.ShadercLoader;
@@ -62,14 +63,30 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
     private VulkanLogger logger;
 
+    // mesh
     private final FloatBuffer vertexData = BufferUtils.createFloatBuffer(
-            -0.5f, -0.5f,   1f, 0f, 0f,   1f, 0f,
-             0.5f, -0.5f,   0f, 1f, 0f,   0f, 0f,
-             0.5f,  0.5f,   0f, 0f, 1f,   0f, 1f,
-            -0.5f,  0.5f,   1f, 1f, 1f,   1f, 1f);
-    private final IntBuffer indexData = BufferUtils.createIntBuffer(0, 1, 2, 2, 3, 0);
+            -0.5f, -0.5f, 0f,   1f, 0f, 0f,   1f, 0f,
+             0.5f, -0.5f, 0f,   0f, 1f, 0f,   0f, 0f,
+             0.5f,  0.5f, 0f,   0f, 0f, 1f,   0f, 1f,
+            -0.5f,  0.5f, 0f,   1f, 1f, 1f,   1f, 1f,
+
+            -0.5f, -0.5f, -0.5f,   1f, 0f, 0f,   1f, 0f,
+             0.5f, -0.5f, -0.5f,   0f, 1f, 0f,   0f, 0f,
+             0.5f,  0.5f, -0.5f,   0f, 0f, 1f,   0f, 1f,
+            -0.5f,  0.5f, -0.5f,   1f, 1f, 1f,   1f, 1f
+    );
+    private final IntBuffer indexData = BufferUtils.createIntBuffer(
+            0, 1, 2, 2, 3, 0,
+            4, 5, 6, 6, 7, 4);
+
+    // geometry
     private final Transform modelTransform = new Transform();
+
+    // material
     private Texture texture;
+
+    // framebuffer
+    private ImageView depthView;
 
     public static void main(String[] args) {
         VulkanHelperTest app = new VulkanHelperTest();
@@ -145,6 +162,23 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         descriptorPool = new DescriptorPool(device, 2,
                 PoolSize.uniformBuffers(2), PoolSize.combinedImageSamplers(2));
 
+        CommandPool transferPool = new CommandPool(device, queues.getGraphicsQueue(), true, false);
+
+        // depth texture
+        Image.Format depthFormat = device.getPhysicalDevice().findSupportedFormat(
+                VK_IMAGE_TILING_OPTIMAL,
+                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                Image.Format.Depth32SFloat, Image.Format.Depth32SFloat_Stencil8UInt, Image.Format.Depth24UNorm_Stencil8UInt);
+        GpuImage depthImage = new GpuImage(device, swapchain.getExtent().x, swapchain.getExtent().y, depthFormat,
+                Image.Tiling.Optimal, new ImageUsageFlags().depthStencilAttachment(), new MemoryFlags().deviceLocal());
+        depthView = depthImage.createView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1);
+        CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
+        commands.begin();
+        depthImage.transitionLayout(commands, Image.Layout.Undefined, Image.Layout.DepthStencilAttachmentOptimal);
+        commands.end();
+        commands.submit(null, null, null);
+        commands.getPool().getQueue().waitIdle();
+
         // pipeline
         pipelineLayout = new PipelineLayout(device, descriptorLayout);
         vertModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
@@ -153,36 +187,47 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 "Shaders/VulkanFragTest.glsl", ShaderType.Fragment)), "main");
         try (RenderPassBuilder pass = new RenderPassBuilder()) {
             int color = pass.createAttachment(a -> a
-                    .format(swapchain.getFormat())
+                    .format(swapchain.getFormat().getVkEnum())
                     .samples(VK_SAMPLE_COUNT_1_BIT)
                     .loadOp(VK_ATTACHMENT_LOAD_OP_CLEAR)
                     .storeOp(VK_ATTACHMENT_STORE_OP_STORE)
                     .stencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE)
                     .stencilStoreOp(VK_ATTACHMENT_STORE_OP_DONT_CARE)
-                    .initialLayout(VK_IMAGE_LAYOUT_UNDEFINED)
-                    .finalLayout(KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR));
+                    .initialLayout(Image.Layout.Undefined.getVkEnum())
+                    .finalLayout(Image.Layout.PresentSrc.getVkEnum()));
+            int depth = pass.createAttachment(a -> a
+                    .format(depthFormat.getVkEnum())
+                    .samples(VK_SAMPLE_COUNT_1_BIT)
+                    .loadOp(VK_ATTACHMENT_LOAD_OP_CLEAR)
+                    .storeOp(VK_ATTACHMENT_STORE_OP_DONT_CARE)
+                    .stencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE)
+                    .stencilStoreOp(VK_ATTACHMENT_STORE_OP_DONT_CARE)
+                    .initialLayout(Image.Layout.Undefined.getVkEnum())
+                    .finalLayout(Image.Layout.DepthStencilAttachmentOptimal.getVkEnum()));
             int subpass = pass.createSubpass(s -> {
-                VkAttachmentReference.Buffer ref = VkAttachmentReference.calloc(1, pass.getStack())
+                VkAttachmentReference.Buffer colorRef = VkAttachmentReference.calloc(1, pass.getStack())
                         .attachment(color)
-                        .layout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+                        .layout(Image.Layout.ColorAttachmentOptimal.getVkEnum());
+                VkAttachmentReference depthRef = VkAttachmentReference.calloc(pass.getStack())
+                        .attachment(depth)
+                        .layout(Image.Layout.DepthStencilAttachmentOptimal.getVkEnum());
                 s.pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS)
                         .colorAttachmentCount(1)
-                        .pColorAttachments(ref);
+                        .pColorAttachments(colorRef)
+                        .pDepthStencilAttachment(depthRef);
             });
             pass.createDependency()
                     .srcSubpass(VK_SUBPASS_EXTERNAL)
                     .dstSubpass(subpass)
-                    .srcStageMask(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT)
+                    .srcStageMask(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT)
                     .srcAccessMask(subpass)
-                    .dstStageMask(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT)
-                    .dstAccessMask(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+                    .dstStageMask(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT)
+                    .dstAccessMask(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
             renderPass = pass.build(device);
         }
-        swapchain.createFrameBuffers(renderPass);
+        swapchain.createFrameBuffers(renderPass, depthView);
         pipeline = new GraphicsPipeline(device, pipelineLayout, renderPass, new RenderState(), vertModule, fragModule, new MeshDescription());
         graphicsPool = new CommandPool(device, queues.getGraphicsQueue(), false, true);
-
-        CommandPool transferPool = new CommandPool(device, queues.getGraphicsQueue(), true, false);
 
         // vertex buffers
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -203,6 +248,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             indexBuffer.freeStagingBuffer();
         }
 
+        // material color texture
         GpuImage image = loadImage("Common/Textures/MissingTexture.png", transferPool);
         texture = new Texture(device, image.createView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1),
                 VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_LINEAR);
@@ -227,7 +273,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             long window = ((LwjglVulkanContext)context).getWindowHandle();
             try (SimpleSwapchainSupport support = new SimpleSwapchainSupport(device.getPhysicalDevice(), surface, window)) {
                 swapchain.reload(support);
-                swapchain.createFrameBuffers(renderPass);
+                swapchain.createFrameBuffers(renderPass, depthView);
             }
             return true;
         }
@@ -254,10 +300,11 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                     new BufferUsageFlags().transferSrc(), new MemoryFlags().hostVisible().hostCoherent(), false);
             staging.copy(stack, data.getBuffer());
             GpuImage image = new GpuImage(device, data.getWidth(), data.getHeight(), data.getFormat(),
-                    new ImageUsageFlags().transferDst().sampled(), new MemoryFlags().deviceLocal());
+                    Image.Tiling.Optimal, new ImageUsageFlags().transferDst().sampled(),
+                    new MemoryFlags().deviceLocal());
             CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
             commands.begin();
-            image.transitionLayout(commands, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+            image.transitionLayout(commands, Image.Layout.Undefined, Image.Layout.TransferDstOptimal);
             VkBufferImageCopy.Buffer region = VkBufferImageCopy.calloc(1, stack)
                     .bufferOffset(0)
                     .bufferRowLength(0) // padding bytes
@@ -270,7 +317,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             region.imageExtent().set(data.getWidth(), data.getHeight(), 1);
             vkCmdCopyBufferToImage(commands.getBuffer(), staging.getNativeObject(),
                     image.getNativeObject(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
-            image.transitionLayout(commands, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            image.transitionLayout(commands, Image.Layout.TransferDstOptimal, Image.Layout.ShaderReadOnlyOptimal);
             commands.end();
             commands.submit(null, null, null);
             transferPool.getQueue().waitIdle();

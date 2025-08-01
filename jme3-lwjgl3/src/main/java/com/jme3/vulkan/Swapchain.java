@@ -23,7 +23,7 @@ public class Swapchain implements Native<Long> {
     private final List<SwapchainImage> images = new ArrayList<>();
     private SwapchainUpdater updater;
     private Extent2 extent;
-    private int format;
+    private Image.Format format;
     private long id = VK_NULL_HANDLE;
 
     public Swapchain(LogicalDevice device, Surface surface, SwapchainSupport support) {
@@ -65,14 +65,14 @@ public class Swapchain implements Native<Long> {
             KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
                     device.getPhysicalDevice().getDevice(), surface.getNativeObject(), caps);
             VkSurfaceFormatKHR fmt = support.selectFormat();
-            format = fmt.format();
+            format = Image.Format.vkEnum(fmt.format());
             VkExtent2D ext = support.selectExtent();
             extent = new Extent2(ext);
             VkSwapchainCreateInfoKHR create = VkSwapchainCreateInfoKHR.calloc(stack)
                     .sType(KHRSwapchain.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR)
                     .surface(surface.getNativeObject())
                     .minImageCount(support.selectImageCount())
-                    .imageFormat(format)
+                    .imageFormat(format.getVkEnum())
                     .imageColorSpace(fmt.colorSpace())
                     .imageExtent(ext)
                     .imageArrayLayers(1)
@@ -106,9 +106,9 @@ public class Swapchain implements Native<Long> {
         ref.refresh(); // refresh the native destroyer
     }
 
-    public void createFrameBuffers(RenderPass compat) {
+    public void createFrameBuffers(RenderPass compat, ImageView depthStencil) {
         for (SwapchainImage img : images) {
-            img.createFrameBuffer(compat);
+            img.createFrameBuffer(compat, depthStencil);
         }
     }
 
@@ -154,7 +154,7 @@ public class Swapchain implements Native<Long> {
         return extent;
     }
 
-    public int getFormat() {
+    public Image.Format getFormat() {
         return format;
     }
 
@@ -205,8 +205,13 @@ public class Swapchain implements Native<Long> {
         }
 
         @Override
-        public int getFormat() {
+        public Image.Format getFormat() {
             return format;
+        }
+
+        @Override
+        public Image.Tiling getTiling() {
+            return Tiling.Optimal;
         }
 
         @Override
@@ -227,8 +232,8 @@ public class Swapchain implements Native<Long> {
             return ref;
         }
 
-        public void createFrameBuffer(RenderPass compat) {
-            this.frameBuffer = new FrameBuffer(getDevice(), compat, extent.x, extent.y, 1, view);
+        public void createFrameBuffer(RenderPass compat, ImageView depthStencil) {
+            this.frameBuffer = new FrameBuffer(getDevice(), compat, extent.x, extent.y, 1, view, depthStencil);
         }
 
         public FrameBuffer getFrameBuffer() {

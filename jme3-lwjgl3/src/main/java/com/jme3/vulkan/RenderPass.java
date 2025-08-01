@@ -53,8 +53,9 @@ public class RenderPass implements Native<Long> {
 
     public void begin(CommandBuffer cmd, FrameBuffer fbo) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkClearValue.Buffer clear = VkClearValue.calloc(1, stack);
-            clear.color().float32(stack.floats(0f, 0f, 0f, 1f));
+            VkClearValue.Buffer clear = VkClearValue.calloc(2, stack);
+            clear.get(0).color().float32(stack.floats(0f, 0f, 0f, 1f));
+            clear.get(1).depthStencil().set(1.0f, 0);
             VkRenderPassBeginInfo begin = VkRenderPassBeginInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO)
                     .renderPass(id)

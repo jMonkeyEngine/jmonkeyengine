@@ -53,6 +53,13 @@ public class GraphicsPipeline implements Native<Long> {
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO)
                     .pViewports(viewport)
                     .pScissors(scissor);
+            VkPipelineDepthStencilStateCreateInfo depthStencil = VkPipelineDepthStencilStateCreateInfo.calloc(stack)
+                    .sType(VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO)
+                    .depthTestEnable(state.isDepthTest())
+                    .depthWriteEnable(state.isDepthWrite())
+                    .depthCompareOp(RenderStateToVulkan.depthFunc(state.getDepthFunc()))
+                    .depthBoundsTestEnable(false)
+                    .stencilTestEnable(false);
             VkPipelineRasterizationStateCreateInfo raster = VkPipelineRasterizationStateCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO)
                     .depthClampEnable(false)
@@ -89,6 +96,7 @@ public class GraphicsPipeline implements Native<Long> {
                     .pVertexInputState(vertInput)
                     .pInputAssemblyState(assembly)
                     .pViewportState(vpState)
+                    .pDepthStencilState(depthStencil)
                     .pRasterizationState(raster)
                     .pMultisampleState(multisample)
                     .pColorBlendState(blend)

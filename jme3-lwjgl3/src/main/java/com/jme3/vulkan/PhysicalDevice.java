@@ -1,5 +1,6 @@
 package com.jme3.vulkan;
 
+import com.jme3.vulkan.images.Image;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -92,10 +93,10 @@ public class PhysicalDevice <T extends QueueFamilies> {
         throw new NullPointerException("Suitable memory type not found.");
     }
 
-    public int findSupportedFormat(int tiling, int features, int... candidates) {
+    public Image.Format findSupportedFormat(int tiling, int features, Image.Format... candidates) {
         VkFormatProperties props = VkFormatProperties.create();
-        for (int f : candidates) {
-            vkGetPhysicalDeviceFormatProperties(device, f, props);
+        for (Image.Format f : candidates) {
+            vkGetPhysicalDeviceFormatProperties(device, f.getVkEnum(), props);
             if ((tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures() & features) == features)
                     || (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures() & features) == features)) {
                 return f;

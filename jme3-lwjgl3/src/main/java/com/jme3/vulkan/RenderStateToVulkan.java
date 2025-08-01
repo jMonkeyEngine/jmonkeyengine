@@ -9,6 +9,20 @@ public class RenderStateToVulkan {
         return new UnsupportedOperationException("Unrecognized: " + state);
     }
 
+    public static int depthFunc(TestFunction func) {
+        switch (func) {
+            case Always: return VK_COMPARE_OP_ALWAYS;
+            case Equal: return VK_COMPARE_OP_EQUAL;
+            case Greater: return VK_COMPARE_OP_GREATER;
+            case Less: return VK_COMPARE_OP_LESS;
+            case LessOrEqual: return VK_COMPARE_OP_LESS_OR_EQUAL;
+            case GreaterOrEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL;
+            case Never: return VK_COMPARE_OP_NEVER;
+            case NotEqual: return VK_COMPARE_OP_NOT_EQUAL;
+            default: throw unrecognized(func);
+        }
+    }
+
     public static int blendEquation(BlendEquation eq) {
         switch (eq) {
             case Add: return VK_BLEND_OP_ADD;
