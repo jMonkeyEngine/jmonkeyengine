@@ -6,7 +6,6 @@ import com.jme3.material.RenderState;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
-import com.jme3.opencl.CommandQueue;
 import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.shaderc.ShaderType;
 import com.jme3.shaderc.ShadercLoader;
@@ -25,7 +24,6 @@ import com.jme3.vulkan.images.*;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.*;
 
 import java.nio.FloatBuffer;
@@ -35,9 +33,6 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
-import static org.lwjgl.system.MemoryUtil.NULL;
-import static org.lwjgl.vulkan.EXTDebugUtils.*;
-import static org.lwjgl.vulkan.EXTDebugUtils.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 import static org.lwjgl.vulkan.VK13.*;
 
 public class VulkanHelperTest extends SimpleApplication implements SwapchainUpdater {
@@ -165,19 +160,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         CommandPool transferPool = new CommandPool(device, queues.getGraphicsQueue(), true, false);
 
         // depth texture
-        Image.Format depthFormat = device.getPhysicalDevice().findSupportedFormat(
-                VK_IMAGE_TILING_OPTIMAL,
-                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                Image.Format.Depth32SFloat, Image.Format.Depth32SFloat_Stencil8UInt, Image.Format.Depth24UNorm_Stencil8UInt);
-        GpuImage depthImage = new GpuImage(device, swapchain.getExtent().x, swapchain.getExtent().y, depthFormat,
-                Image.Tiling.Optimal, new ImageUsageFlags().depthStencilAttachment(), new MemoryFlags().deviceLocal());
-        depthView = depthImage.createView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1);
-        CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
-        commands.begin();
-        depthImage.transitionLayout(commands, Image.Layout.Undefined, Image.Layout.DepthStencilAttachmentOptimal);
-        commands.end();
-        commands.submit(null, null, null);
-        commands.getPool().getQueue().waitIdle();
+        depthView = createDepthAttachment(transferPool);
 
         // pipeline
         pipelineLayout = new PipelineLayout(device, descriptorLayout);
@@ -196,7 +179,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                     .initialLayout(Image.Layout.Undefined.getVkEnum())
                     .finalLayout(Image.Layout.PresentSrc.getVkEnum()));
             int depth = pass.createAttachment(a -> a
-                    .format(depthFormat.getVkEnum())
+                    .format(depthView.getImage().getFormat().getVkEnum())
                     .samples(VK_SAMPLE_COUNT_1_BIT)
                     .loadOp(VK_ATTACHMENT_LOAD_OP_CLEAR)
                     .storeOp(VK_ATTACHMENT_STORE_OP_DONT_CARE)
@@ -273,6 +256,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             long window = ((LwjglVulkanContext)context).getWindowHandle();
             try (SimpleSwapchainSupport support = new SimpleSwapchainSupport(device.getPhysicalDevice(), surface, window)) {
                 swapchain.reload(support);
+                depthView = createDepthAttachment(new CommandPool(device, queues.getGraphicsQueue(), true, false));
                 swapchain.createFrameBuffers(renderPass, depthView);
             }
             return true;
@@ -291,6 +275,23 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     @Override
     public void simpleUpdate(float tpf) {
         renderer.render(tpf);
+    }
+
+    private ImageView createDepthAttachment(CommandPool pool) {
+        Image.Format depthFormat = device.getPhysicalDevice().findSupportedFormat(
+                VK_IMAGE_TILING_OPTIMAL,
+                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                Image.Format.Depth32SFloat, Image.Format.Depth32SFloat_Stencil8UInt, Image.Format.Depth24UNorm_Stencil8UInt);
+        GpuImage image = new GpuImage(device, swapchain.getExtent().x, swapchain.getExtent().y, depthFormat,
+                Image.Tiling.Optimal, new ImageUsageFlags().depthStencilAttachment(), new MemoryFlags().deviceLocal());
+        ImageView view = image.createView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1);
+        CommandBuffer commands = pool.allocateOneTimeCommandBuffer();
+        commands.begin();
+        image.transitionLayout(commands, Image.Layout.Undefined, Image.Layout.DepthStencilAttachmentOptimal);
+        commands.end();
+        commands.submit(null, null, null);
+        commands.getPool().getQueue().waitIdle();
+        return view;
     }
 
     private GpuImage loadImage(String file, CommandPool transferPool) {
