@@ -1,14 +1,12 @@
 package com.jme3.vulkan.images;
 
-import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.CommandBuffer;
-import com.jme3.vulkan.LogicalDevice;
+import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.buffers.MemoryRegion;
 import com.jme3.vulkan.flags.ImageUsageFlags;
 import com.jme3.vulkan.flags.MemoryFlags;
-import com.jme3.vulkan.flags.BufferUsageFlags;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkImageCreateInfo;
 import org.lwjgl.vulkan.VkImageMemoryBarrier;
@@ -61,7 +59,7 @@ public class GpuImage implements Image {
             id = idBuf.get(0);
             VkMemoryRequirements memReq = VkMemoryRequirements.malloc(stack);
             vkGetImageMemoryRequirements(device.getNativeObject(), id, memReq);
-            memory = new MemoryRegion(device, memReq.size(), device.getPhysicalDevice().findMemoryType(
+            memory = new MemoryRegion(device, memReq.size(), device.getPhysicalDevice().findSupportedMemoryType(
                     stack, memReq.memoryTypeBits(), mem.getMemoryFlags()));
             memory.bind(this, 0);
         }

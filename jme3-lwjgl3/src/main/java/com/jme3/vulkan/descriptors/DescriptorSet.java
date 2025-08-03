@@ -1,6 +1,6 @@
 package com.jme3.vulkan.descriptors;
 
-import com.jme3.vulkan.LogicalDevice;
+import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 

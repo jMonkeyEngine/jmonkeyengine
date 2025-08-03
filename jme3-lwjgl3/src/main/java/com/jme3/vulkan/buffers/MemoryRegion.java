@@ -2,16 +2,14 @@ package com.jme3.vulkan.buffers;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
-import com.jme3.vulkan.LogicalDevice;
+import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.Image;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkMemoryAllocateInfo;
 
 import java.nio.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;

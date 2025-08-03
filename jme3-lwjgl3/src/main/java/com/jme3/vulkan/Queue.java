@@ -1,6 +1,7 @@
 package com.jme3.vulkan;
 
 import com.jme3.renderer.vulkan.VulkanUtils;
+import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkSubmitInfo;
@@ -10,11 +11,11 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class Queue {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final VkQueue queue;
     private final int familyIndex, queueIndex;
 
-    public Queue(LogicalDevice device, int familyIndex, int queueIndex) {
+    public Queue(LogicalDevice<?> device, int familyIndex, int queueIndex) {
         this.device = device;
         this.familyIndex = familyIndex;
         this.queueIndex = queueIndex;

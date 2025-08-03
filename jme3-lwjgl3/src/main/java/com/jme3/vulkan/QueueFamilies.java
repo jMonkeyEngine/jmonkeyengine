@@ -1,5 +1,7 @@
 package com.jme3.vulkan;
 
+import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.devices.PhysicalDevice;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;

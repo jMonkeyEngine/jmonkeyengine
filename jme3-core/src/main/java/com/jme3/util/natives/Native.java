@@ -2,7 +2,7 @@ package com.jme3.util.natives;
 
 import org.lwjgl.system.MemoryUtil;
 
-public interface Native <T> extends AutoCloseable {
+public interface Native <T> {
 
     T getNativeObject();
 
@@ -11,11 +11,6 @@ public interface Native <T> extends AutoCloseable {
     void prematureNativeDestruction();
 
     NativeReference getNativeReference();
-
-    @Override
-    default void close() {
-        getNativeReference().destroy();
-    }
 
     static void set(NativeManager manager) {
         BasicNativeManager.setGlobalInstance(manager);

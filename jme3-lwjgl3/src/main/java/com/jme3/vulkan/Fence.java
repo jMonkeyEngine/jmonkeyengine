@@ -2,8 +2,8 @@ package com.jme3.vulkan;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
+import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkFenceCreateInfo;
 
 import java.util.concurrent.TimeUnit;

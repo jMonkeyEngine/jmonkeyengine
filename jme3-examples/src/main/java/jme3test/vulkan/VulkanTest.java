@@ -1,28 +1,22 @@
 package jme3test.vulkan;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
-import com.jme3.asset.AssetLoader;
 import com.jme3.shaderc.ShaderType;
 import com.jme3.shaderc.ShadercLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.util.natives.Native;
-import com.jme3.vulkan.DeviceEvaluator;
+import com.jme3.vulkan.devices.DeviceFilter;
 import com.jme3.system.vulkan.LwjglVulkanContext;
 import com.jme3.vulkan.Fence;
 import com.jme3.vulkan.Semaphore;
 import com.jme3.vulkan.VulkanRenderManager;
-import jme3tools.shader.ShaderDebug;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.shaderc.Shaderc;
 import org.lwjgl.vulkan.*;
 
-import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
@@ -49,7 +43,7 @@ public class VulkanTest extends SimpleApplication {
     private final Collection<PointerBuffer> instanceExtensions = new ArrayList<>();
     private final Collection<String> deviceExtensions = new ArrayList<>();
     private final List<String> layers = new ArrayList<>();
-    private final Collection<DeviceEvaluator> deviceEvaluators = new ArrayList<>();
+    private final Collection<DeviceFilter> deviceFilters = new ArrayList<>();
     private final VkDebugUtilsMessengerCallbackEXT debugCallback = new VulkanDebugCallback(Level.SEVERE);
     private LwjglVulkanContext vulkanContext;
     private Swapchain swapchain;
@@ -259,11 +253,11 @@ public class VulkanTest extends SimpleApplication {
             if (!new SwapchainSupport(stack, device.getDevice(), surface).isSupported()) {
                 return null;
             }
-            if (deviceEvaluators.isEmpty()) {
+            if (deviceFilters.isEmpty()) {
                 return 0f;
             }
             float score = 0f;
-            for (DeviceEvaluator e : deviceEvaluators) {
+            for (DeviceFilter e : deviceFilters) {
                 //Float s = e.evaluateDevice(device.getDevice());
                 Float s = 0f;
                 if (s == null) {

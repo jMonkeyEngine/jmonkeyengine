@@ -1,9 +1,8 @@
 package com.jme3.vulkan.buffers;
 
-import com.jme3.vulkan.LogicalDevice;
+import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.flags.MemoryFlags;
 import com.jme3.vulkan.flags.BufferUsageFlags;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 

@@ -1,8 +1,8 @@
 package com.jme3.vulkan;
 
 import com.jme3.renderer.vulkan.VulkanUtils;
+import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.Struct;
 import org.lwjgl.vulkan.*;
 
 import java.util.ArrayList;

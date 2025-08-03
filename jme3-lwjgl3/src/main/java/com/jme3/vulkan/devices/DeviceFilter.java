@@ -1,12 +1,13 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.devices;
 
+import com.jme3.vulkan.Surface;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkExtensionProperties;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-public interface DeviceEvaluator {
+public interface DeviceFilter {
 
     Float evaluateDevice(PhysicalDevice device);
 
@@ -26,7 +27,7 @@ public interface DeviceEvaluator {
         return new DeviceAnisotropySupport();
     }
 
-    class DeviceExtensionSupport implements DeviceEvaluator {
+    class DeviceExtensionSupport implements DeviceFilter {
 
         private final Collection<String> extensions;
 
@@ -37,7 +38,7 @@ public interface DeviceEvaluator {
         @Override
         public Float evaluateDevice(PhysicalDevice device) {
             try (MemoryStack stack = MemoryStack.stackPush()) {
-                VkExtensionProperties.Buffer exts = device.getExtensions(stack);
+                VkExtensionProperties.Buffer exts = device.getExtensionProperties(stack);
                 if (extensions.stream().allMatch(e -> exts.stream().anyMatch(
                     p -> p.extensionNameString().equals(e)))) {
                     return 0f;
@@ -48,7 +49,7 @@ public interface DeviceEvaluator {
 
     }
 
-    class DeviceSwapchainSupport implements DeviceEvaluator {
+    class DeviceSwapchainSupport implements DeviceFilter {
 
         private final Surface surface;
 
@@ -66,7 +67,7 @@ public interface DeviceEvaluator {
 
     }
 
-    class DeviceAnisotropySupport implements DeviceEvaluator {
+    class DeviceAnisotropySupport implements DeviceFilter {
 
         @Override
         public Float evaluateDevice(PhysicalDevice device) {

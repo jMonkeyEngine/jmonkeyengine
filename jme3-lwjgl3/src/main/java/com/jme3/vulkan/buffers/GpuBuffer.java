@@ -4,7 +4,7 @@ import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.CommandBuffer;
-import com.jme3.vulkan.LogicalDevice;
+import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.flags.MemoryFlags;
 import com.jme3.vulkan.flags.BufferUsageFlags;
 import org.lwjgl.PointerBuffer;
@@ -42,7 +42,7 @@ public class GpuBuffer implements Native<Long> {
             id = idBuf.get(0);
             VkMemoryRequirements bufferMem = VkMemoryRequirements.malloc(stack);
             vkGetBufferMemoryRequirements(device.getNativeObject(), id, bufferMem);
-            memory = new MemoryRegion(device, bufferMem.size(), device.getPhysicalDevice().findMemoryType(
+            memory = new MemoryRegion(device, bufferMem.size(), device.getPhysicalDevice().findSupportedMemoryType(
                     stack, bufferMem.memoryTypeBits(), mem.getMemoryFlags()));
             memory.bind(this, 0);
         }

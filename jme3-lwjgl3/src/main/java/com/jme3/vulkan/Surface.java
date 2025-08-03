@@ -1,8 +1,9 @@
 package com.jme3.vulkan;
 
-import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
+import com.jme3.vulkan.devices.DeviceFilter;
+import com.jme3.vulkan.devices.PhysicalDevice;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -12,7 +13,7 @@ import java.nio.IntBuffer;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 
-public class Surface implements Native<Long>, DeviceEvaluator {
+public class Surface implements Native<Long>, DeviceFilter {
 
     private final VulkanInstance instance;
     private final NativeReference ref;
@@ -35,12 +36,12 @@ public class Surface implements Native<Long>, DeviceEvaluator {
     public Float evaluateDevice(PhysicalDevice device) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer count = stack.mallocInt(1);
-            KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(device.getDevice(), id, count, null);
+            KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(device.getPhysicalDevice(), id, count, null);
             if (count.get(0) == 0) {
                 System.out.println("Reject device by surface support (formats)");
                 return null;
             }
-            KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(device.getDevice(), id, count, null);
+            KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(device.getPhysicalDevice(), id, count, null);
             if (count.get(0) == 0) {
                 System.out.println("Reject device by surface support (present modes)");
                 return null;
@@ -67,6 +68,10 @@ public class Surface implements Native<Long>, DeviceEvaluator {
     @Override
     public NativeReference getNativeReference() {
         return ref;
+    }
+
+    public long getWindowHandle() {
+        return window;
     }
 
 }

@@ -4,10 +4,10 @@ public interface NativeReference {
 
     void destroy();
 
+    void refresh();
+
     void addDependent(NativeReference reference);
 
     boolean isDestroyed();
-
-    void refresh();
 
 }

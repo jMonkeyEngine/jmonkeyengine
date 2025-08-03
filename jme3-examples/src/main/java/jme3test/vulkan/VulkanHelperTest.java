@@ -6,7 +6,6 @@ import com.jme3.material.RenderState;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.shaderc.ShaderType;
 import com.jme3.shaderc.ShadercLoader;
 import com.jme3.system.AppSettings;
@@ -17,11 +16,11 @@ import com.jme3.vulkan.*;
 import com.jme3.vulkan.Queue;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.descriptors.*;
+import com.jme3.vulkan.devices.*;
 import com.jme3.vulkan.flags.ImageUsageFlags;
 import com.jme3.vulkan.flags.MemoryFlags;
 import com.jme3.vulkan.flags.BufferUsageFlags;
 import com.jme3.vulkan.images.*;
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -39,7 +38,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
     private VulkanInstance instance;
     private Surface surface;
-    private LogicalDevice device;
+    private LogicalDevice<SimplePhysicalDevice> device;
     private SimpleQueueFamilies queues;
     private Swapchain swapchain;
     private ShaderModule vertModule, fragModule;
@@ -53,8 +52,6 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private VulkanRenderManager renderer;
     private boolean swapchainResizeFlag = false;
     private boolean applicationStopped = false;
-
-    private final Collection<String> deviceExtensions = new ArrayList<>();
 
     private VulkanLogger logger;
 
@@ -106,49 +103,41 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         flyCam.setMoveSpeed(5f);
         flyCam.setDragToRotate(true);
 
-        deviceExtensions.add(KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME);
         long window = ((LwjglVulkanContext)context).getWindowHandle();
 
-        try (InstanceBuilder inst = new InstanceBuilder(VK13.VK_API_VERSION_1_3)) {
+        instance = new VulkanInstance(VK_API_VERSION_1_3);
+        try (VulkanInstance.Builder i = instance.build()) {
+            i.addGlfwExtensions();
+            i.addDebugExtension();
+            i.addLunarGLayer();
+            i.setApplicationName(VulkanHelperTest.class.getSimpleName());
+            i.setApplicationVersion(1, 0, 0);
+        }
 
-            // build instance
-            inst.addGlfwExtensions();
-            inst.addDebugExtension();
-            inst.addLunarGLayer();
-            inst.setApplicationName(VulkanHelperTest.class.getSimpleName());
-            inst.setApplicationVersion(1, 0, 0);
-            instance = inst.build();
+        // debug callbacks
+        logger = new VulkanLogger(instance, Level.SEVERE);
 
-            // debug callbacks
-            logger = new VulkanLogger(instance, Level.SEVERE);
+        // surface
+        surface = new Surface(instance, window);
 
-            // surface
-            surface = new Surface(instance, window);
+        // logical device
+        device = new LogicalDevice<>(instance);
+        try (LogicalDevice.Builder d = device.build(id -> new SimplePhysicalDevice(instance, surface, id))) {
+            d.addFilter(surface);
+            d.addFilter(DeviceFilter.swapchain(surface));
+            d.addCriticalExtension(KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+            d.addFeature(DeviceFeature.anisotropy(1f, true));
+        }
 
-            // physical device
-            PhysicalDevice<SimpleQueueFamilies> physDevice = PhysicalDevice.getSuitableDevice(
-                    instance, Arrays.asList(
-                        surface,
-                        DeviceEvaluator.extensions(deviceExtensions),
-                        DeviceEvaluator.swapchain(surface),
-                        DeviceEvaluator.anisotropy()
-                    ),
-                    () -> new SimpleQueueFamilies(surface));
-
-            // queue families
-            queues = physDevice.getQueueFamilies();
-
-            // logical device
-            PointerBuffer deviceExts = VulkanUtils.toPointers(inst.getStack(), deviceExtensions, inst.getStack()::UTF8);
-            device = new LogicalDevice(physDevice, deviceExts, inst.getLayers());
-
-            // create queues
-            physDevice.getQueueFamilies().createQueues(device);
-
-            // swapchain
-            try (SimpleSwapchainSupport support = new SimpleSwapchainSupport(physDevice, surface, window)) {
-                swapchain = new Swapchain(device, surface, support);
-            }
+        // swapchain
+        swapchain = new Swapchain(device, surface);
+        try (Swapchain.Builder s = swapchain.build()) {
+            s.addQueue(device.getPhysicalDevice().getGraphics());
+            s.addQueue(device.getPhysicalDevice().getPresent());
+            s.selectFormat(Image.Format.B8G8R8A8_SRGB.getVkEnum(), KHRSurface.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
+            s.selectMode(Swapchain.PresentMode.Mailbox);
+            s.selectExtentByWindow();
+            s.selectImageCount(2);
         }
 
         descriptorLayout = new DescriptorSetLayout(device,
@@ -415,7 +404,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                         graphicsIndex = i;
                     } else if (presentIndex == null) {
                         KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(
-                                device.getDevice(), i, surface.getNativeObject(), ibuf);
+                                device.getPhysicalDevice(), i, surface.getNativeObject(), ibuf);
                         if (ibuf.get(0) == VK13.VK_TRUE) {
                             presentIndex = i;
                         }
@@ -484,13 +473,13 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         public SimpleSwapchainSupport(PhysicalDevice device, Surface surface, long window) {
             stack = MemoryStack.stackPush();
             caps = VkSurfaceCapabilitiesKHR.malloc(stack);
-            KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getDevice(), surface.getNativeObject(), caps);
+            KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDevice(), surface.getNativeObject(), caps);
             formats = enumerateBuffer(stack, n -> VkSurfaceFormatKHR.malloc(n, stack),
                     (count, buffer) -> KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(
-                            device.getDevice(), surface.getNativeObject(), count, buffer));
+                            device.getPhysicalDevice(), surface.getNativeObject(), count, buffer));
             modes = enumerateBuffer(stack, stack::mallocInt,
                     (count, buffer) -> KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(
-                            device.getDevice(), surface.getNativeObject(), count, buffer));
+                            device.getPhysicalDevice(), surface.getNativeObject(), count, buffer));
             this.window = window;
         }
 

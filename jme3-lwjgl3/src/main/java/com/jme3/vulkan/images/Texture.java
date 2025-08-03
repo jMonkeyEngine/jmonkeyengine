@@ -1,6 +1,6 @@
 package com.jme3.vulkan.images;
 
-import com.jme3.vulkan.LogicalDevice;
+import com.jme3.vulkan.devices.LogicalDevice;
 
 public class Texture extends Sampler {
 
