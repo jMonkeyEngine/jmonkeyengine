@@ -38,6 +38,7 @@ import com.jme3.util.clone.JmeCloneable;
 import com.jme3.util.SortUtil;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * <code>LightList</code> is used internally by {@link Spatial}s to manage
@@ -230,6 +231,20 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
      * @param parent the parent's world-space LightList
      */
     public void update(LightList local, LightList parent) {
+        update(local, parent, null);
+    }
+
+
+    /**
+     * Updates a "world-space" light list, using the spatial's local-space
+     * light list, its parent's world-space light list and an optional filter.
+     *
+     * @param local the local-space LightList (not null)
+     * @param parent the parent's world-space LightList
+     * @param filter an optional filter to apply to the lights
+     *               (null means no filtering)
+     */
+    public void update(LightList local, LightList parent, Predicate<Light> filter) {
         // clear the list as it will be reconstructed
         // using the arguments
         clear();
@@ -237,30 +252,32 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         while (list.length <= local.listSize) {
             doubleSize();
         }
-
-        // add the lights from the local list
-        System.arraycopy(local.list, 0, list, 0, local.listSize);
-        for (int i = 0; i < local.listSize; i++) {
-//            list[i] = local.list[i];
-            distToOwner[i] = Float.NEGATIVE_INFINITY;
+        
+        int localListSize = 0;// local.listSize;
+        for(int i=0;i<local.listSize;i++){
+            Light l = local.list[i];
+            if (filter != null && !filter.test(l))  continue; 
+            list[localListSize] = l;
+            distToOwner[localListSize] = Float.NEGATIVE_INFINITY;
+            localListSize++;
         }
 
         // if the spatial has a parent node, add the lights
         // from the parent list as well
         if (parent != null) {
-            int sz = local.listSize + parent.listSize;
+            int sz = localListSize + parent.listSize;
             while (list.length <= sz)
                 doubleSize();
 
             for (int i = 0; i < parent.listSize; i++) {
-                int p = i + local.listSize;
+                int p = i + localListSize;
                 list[p] = parent.list[i];
                 distToOwner[p] = Float.NEGATIVE_INFINITY;
             }
 
-            listSize = local.listSize + parent.listSize;
+            listSize = localListSize + parent.listSize;
         } else {
-            listSize = local.listSize;
+            listSize = localListSize;
         }
     }
 
@@ -360,5 +377,18 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
         }
 
         Arrays.fill(distToOwner, Float.NEGATIVE_INFINITY);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("LightList[");
+        for (int i = 0; i < listSize; i++) {
+            sb.append(list[i]);
+            if (i < listSize - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
     }
 }

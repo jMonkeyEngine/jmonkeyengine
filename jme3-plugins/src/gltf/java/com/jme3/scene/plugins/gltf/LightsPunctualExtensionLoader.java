@@ -143,7 +143,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
             outerConeAngle = FastMath.HALF_PI - 0.000001f;
         }
 
-        SpotLight spotLight = new SpotLight();
+        SpotLight spotLight = new SpotLight(true);
         spotLight.setName(name);
         spotLight.setColor(color);
         spotLight.setSpotRange(range);
@@ -167,7 +167,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
         color = lumensToColor(color, intensity);
 
-        DirectionalLight directionalLight = new DirectionalLight();
+        DirectionalLight directionalLight = new DirectionalLight(true);
         directionalLight.setName(name);
         directionalLight.setColor(color);
         directionalLight.setDirection(Vector3f.UNIT_Z.negate());
@@ -189,7 +189,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         color = lumensToColor(color, intensity);
         float range = obj.has("range") ? obj.get("range").getAsFloat() : Float.POSITIVE_INFINITY;
 
-        PointLight pointLight = new PointLight();
+        PointLight pointLight = new PointLight(true);
         pointLight.setName(name);
         pointLight.setColor(color);
         pointLight.setRadius(range);

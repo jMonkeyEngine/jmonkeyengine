@@ -124,7 +124,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             RF_BOUND = 0x02,
             RF_LIGHTLIST = 0x04, // changes in light lists
             RF_CHILD_LIGHTLIST = 0x08, // some child need geometry update
-            RF_MATPARAM_OVERRIDE = 0x10;
+            RF_MATPARAM_OVERRIDE = 0x10,
+            RF_GLOBAL_LIGHTS = 0x20; // world affecting lights changed
 
     protected CullHint cullHint = CullHint.Inherit;
     protected BatchHint batchHint = BatchHint.Inherit;
@@ -282,11 +283,22 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         setBoundRefresh();
     }
 
+    protected boolean hasGlobalLights(){
+        for(int i = 0;i<localLights.size();i++){
+            Light l = localLights.get(i);
+            if (l.isGlobal()) {
+                return true;
+            }
+        }
+        return false;
+    }
+ 
     protected void setLightListRefresh() {
         refreshFlags |= RF_LIGHTLIST;
         // Make sure next updateGeometricState() visits this branch
         // to update lights.
         Spatial p = parent;
+        boolean hasGlobalLights = hasGlobalLights();
         while (p != null) {
             if ((p.refreshFlags & RF_CHILD_LIGHTLIST) != 0) {
                 // The parent already has this flag,
@@ -294,6 +306,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
                 return;
             }
             p.refreshFlags |= RF_CHILD_LIGHTLIST;
+            if (hasGlobalLights) {
+                p.refreshFlags |= RF_GLOBAL_LIGHTS;
+            }
             p = p.parent;
         }
     }
@@ -583,11 +598,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
 
     protected void updateWorldLightList() {
         if (parent == null) {
-            worldLights.update(localLights, null);
+            worldLights.update(localLights, null, l->!l.isGlobal());
             refreshFlags &= ~RF_LIGHTLIST;
         } else {
             assert (parent.refreshFlags & RF_LIGHTLIST) == 0 : "Illegal light list update. Problem spatial name: " + getName();
-            worldLights.update(localLights, parent.worldLights);
+            worldLights.update(localLights, parent.worldLights, l->!l.isGlobal());
             refreshFlags &= ~RF_LIGHTLIST;
         }
     }

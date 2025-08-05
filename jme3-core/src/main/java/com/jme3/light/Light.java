@@ -116,6 +116,7 @@ public abstract class Light implements Savable, Cloneable {
      * The light name. 
      */
     protected String name;
+    protected boolean global = false;
     
     boolean frustumCheckNeeded = true;
     boolean intersectsFrustum  = false;
@@ -123,8 +124,28 @@ public abstract class Light implements Savable, Cloneable {
     protected Light() {
     }
 
+
+    protected Light(boolean global) {
+        this.global = global;
+    }
+    
+    protected Light(ColorRGBA color, boolean global) {
+        setColor(color);
+    }
+
     protected Light(ColorRGBA color) {
         setColor(color);
+    }
+
+
+    /**
+     * Returns true if this light affects the entire tree from the root node,
+     * otherwise returns false, meaning it only affects the children of the node
+     * in which it is attached.
+     * @return true if the light is global, otherwise false.
+     */
+    public boolean isGlobal() {
+        return global;
     }
 
     /**
@@ -265,6 +286,7 @@ public abstract class Light implements Savable, Cloneable {
         oc.write(color, "color", null);
         oc.write(enabled, "enabled", true);
         oc.write(name, "name", null);
+        oc.write(global, "global", false);
     }
 
     @Override
@@ -273,6 +295,7 @@ public abstract class Light implements Savable, Cloneable {
         color = (ColorRGBA) ic.readSavable("color", null);
         enabled = ic.readBoolean("enabled", true);
         name = ic.readString("name", null);
+        global = ic.readBoolean("global", false);
     }
 
     /**

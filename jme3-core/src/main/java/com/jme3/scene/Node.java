@@ -37,6 +37,8 @@ import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.light.Light;
+import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
@@ -249,6 +251,23 @@ public class Node extends Spatial {
         if ((refreshFlags & RF_LIGHTLIST) != 0) {
             updateWorldLightList();
         }
+
+        boolean updateGlobalLights = (refreshFlags & RF_GLOBAL_LIGHTS) != 0;
+        if (updateGlobalLights){
+            refreshFlags &= ~RF_GLOBAL_LIGHTS;
+            // if root node, we collect the global lights
+            if (getParent() == null){ 
+                depthFirstTraversal(sx->{
+                    LightList childLights = sx.getLocalLightList();
+                    for (Light l : childLights) {
+                        if (l.isGlobal()) {
+                            worldLights.add(l);
+                        }
+                    }
+                });
+            }
+        }
+
         if ((refreshFlags & RF_TRANSFORM) != 0) {
             // combine with parent transforms- same for all spatial
             // subclasses.
