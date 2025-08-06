@@ -129,9 +129,44 @@ public interface Image extends Native<Long> {
 
     }
 
+    enum Load {
+
+        Clear(VK_ATTACHMENT_LOAD_OP_CLEAR),
+        Load(VK_ATTACHMENT_LOAD_OP_LOAD),
+        DontCare(VK_ATTACHMENT_LOAD_OP_DONT_CARE);
+
+        private final int vkEnum;
+
+        Load(int vkEnum) {
+            this.vkEnum = vkEnum;
+        }
+
+        public int getVkEnum() {
+            return vkEnum;
+        }
+
+    }
+
+    enum Store {
+
+        Store(VK_ATTACHMENT_STORE_OP_STORE),
+        DontCare(VK_ATTACHMENT_STORE_OP_DONT_CARE);
+
+        private final int vkEnum;
+
+        Store(int vkEnum) {
+            this.vkEnum = vkEnum;
+        }
+
+        public int getVkEnum() {
+            return vkEnum;
+        }
+
+    }
+
     ImageView createView(VkImageViewCreateInfo create);
 
-    LogicalDevice getDevice();
+    LogicalDevice<?> getDevice();
 
     int getType();
 

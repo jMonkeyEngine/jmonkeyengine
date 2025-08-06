@@ -14,11 +14,11 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class DescriptorPool implements Native<Long> {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final NativeReference ref;
     private final long id;
 
-    public DescriptorPool(LogicalDevice device, int sets, PoolSize... sizes) {
+    public DescriptorPool(LogicalDevice<?> device, int sets, PoolSize... sizes) {
         this.device = device;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkDescriptorPoolCreateInfo create = VkDescriptorPoolCreateInfo.calloc(stack)

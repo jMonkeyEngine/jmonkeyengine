@@ -16,13 +16,13 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class MemoryRegion implements Native<Long> {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final NativeReference ref;
     private final long id;
     private final long size;
     private final AtomicBoolean mapped = new AtomicBoolean(false);
 
-    public MemoryRegion(LogicalDevice device, long size, int typeIndex) {
+    public MemoryRegion(LogicalDevice<?> device, long size, int typeIndex) {
         this.device = device;
         this.size = size;
         try (MemoryStack stack = MemoryStack.stackPush()) {

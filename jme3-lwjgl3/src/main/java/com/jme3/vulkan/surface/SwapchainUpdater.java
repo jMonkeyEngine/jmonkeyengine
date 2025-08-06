@@ -1,4 +1,4 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.surface;
 
 public interface SwapchainUpdater {
 

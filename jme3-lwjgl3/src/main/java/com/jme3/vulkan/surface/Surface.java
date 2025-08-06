@@ -1,7 +1,8 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.surface;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
+import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.devices.DeviceFilter;
 import com.jme3.vulkan.devices.PhysicalDevice;
 import org.lwjgl.glfw.GLFWVulkan;

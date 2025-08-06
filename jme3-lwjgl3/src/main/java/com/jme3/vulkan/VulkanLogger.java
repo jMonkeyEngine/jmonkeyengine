@@ -54,10 +54,9 @@ public class VulkanLogger implements Native<Long> {
     public int message(int messageSeverity, int messageTypes, long pCallbackData, long pUserData) {
         VkDebugUtilsMessengerCallbackDataEXT data = VkDebugUtilsMessengerCallbackDataEXT.create(pCallbackData);
         Level lvl = getLoggingLevel(messageSeverity);
+        System.err.println(lvl.getName() + "  " + data.pMessageString());
         if (exceptionThreshold != null && lvl.intValue() >= exceptionThreshold.intValue()) {
             throw new RuntimeException(lvl.getName() + ": " + data.pMessageString());
-        } else {
-            System.err.println(lvl.getName() + "  " + data.pMessageString());
         }
         return VK_FALSE; // always return false, true is only really used for testing validation layers
     }

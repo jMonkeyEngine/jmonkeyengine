@@ -1,10 +1,10 @@
 package com.jme3.vulkan.devices;
 
 import com.jme3.util.natives.Native;
-import com.jme3.vulkan.Surface;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.VulkanObject;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.util.*;
@@ -112,39 +112,46 @@ public class LogicalDevice <T extends PhysicalDevice> extends VulkanObject<VkDev
             physical = null;
             float topWeight = Float.NEGATIVE_INFINITY;
             deviceLoop: for (T d : iteratePointers(devices, deviceFactory::apply)) {
-                float deviceWeight = 0f;
-                // extensions
-                VkExtensionProperties.Buffer supportedExts = d.getExtensionProperties(stack);
-                Set<String> extSet = new HashSet<>();
-                supportedExts.stream().forEach(e -> extSet.add(e.extensionNameString()));
-                for (DeviceExtension ext : extensions) {
-                    Float weight = ext.evaluate(extSet);
-                    if (weight == null) {
-                        continue deviceLoop;
-                    }
-                    deviceWeight += weight;
+                if (!d.populateQueueFamilyIndices()) {
+                    continue;
                 }
-                // features
-                VkPhysicalDeviceFeatures ftrs = d.getFeatures(stack);
-                for (DeviceFeature f : features) {
-                    Float weight = f.evaluateFeatureSupport(ftrs);
-                    if (DeviceWeights.isRejection(weight)) {
-                        continue deviceLoop;
+                // attempting to evaluate all devices with only one memory stack
+                // results in an out of memory error
+                try (MemoryStack stack = MemoryStack.stackPush()) {
+                    float deviceWeight = 0f;
+                    // extensions
+                    VkExtensionProperties.Buffer supportedExts = d.getExtensionProperties(stack);
+                    Set<String> extSet = new HashSet<>();
+                    supportedExts.stream().forEach(e -> extSet.add(e.extensionNameString()));
+                    for (DeviceExtension ext : extensions) {
+                        Float weight = ext.evaluate(extSet);
+                        if (weight == null) {
+                            continue deviceLoop;
+                        }
+                        deviceWeight += weight;
                     }
-                    deviceWeight += weight;
-                }
-                // miscellaneous filters
-                for (DeviceFilter f : filters) {
-                    Float weight = f.evaluateDevice(d);
-                    if (weight == null) {
-                        continue deviceLoop;
+                    // features
+                    VkPhysicalDeviceFeatures ftrs = d.getFeatures(stack);
+                    for (DeviceFeature f : features) {
+                        Float weight = f.evaluateFeatureSupport(ftrs);
+                        if (weight == null) {
+                            continue deviceLoop;
+                        }
+                        deviceWeight += weight;
                     }
-                    deviceWeight += weight;
-                }
-                // compare
-                if (deviceWeight > topWeight) {
-                    physical = d;
-                    topWeight = deviceWeight;
+                    // miscellaneous filters
+                    for (DeviceFilter f : filters) {
+                        Float weight = f.evaluateDevice(d);
+                        if (weight == null) {
+                            continue deviceLoop;
+                        }
+                        deviceWeight += weight;
+                    }
+                    // compare
+                    if (deviceWeight > topWeight) {
+                        physical = d;
+                        topWeight = deviceWeight;
+                    }
                 }
             }
             if (physical == null) {

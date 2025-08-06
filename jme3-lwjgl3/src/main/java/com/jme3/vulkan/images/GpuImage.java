@@ -20,7 +20,7 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class GpuImage implements Image {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final NativeReference ref;
     private final long id;
     private final MemoryRegion memory;
@@ -28,11 +28,11 @@ public class GpuImage implements Image {
     private final Image.Format format;
     private final Image.Tiling tiling;
 
-    public GpuImage(LogicalDevice device, int width, int height, Image.Format format, Image.Tiling tiling, ImageUsageFlags usage, MemoryFlags mem) {
+    public GpuImage(LogicalDevice<?> device, int width, int height, Image.Format format, Image.Tiling tiling, ImageUsageFlags usage, MemoryFlags mem) {
         this(device, VK_IMAGE_TYPE_2D, width, height, 1, format, tiling, usage, mem);
     }
 
-    public GpuImage(LogicalDevice device, int type, int width, int height, int depth, Image.Format format, Image.Tiling tiling, ImageUsageFlags usage, MemoryFlags mem) {
+    public GpuImage(LogicalDevice<?> device, int type, int width, int height, int depth, Image.Format format, Image.Tiling tiling, ImageUsageFlags usage, MemoryFlags mem) {
         this.device = device;
         this.type = type;
         this.width = width;
@@ -73,7 +73,7 @@ public class GpuImage implements Image {
     }
 
     @Override
-    public LogicalDevice getDevice() {
+    public LogicalDevice<?> getDevice() {
         return device;
     }
 

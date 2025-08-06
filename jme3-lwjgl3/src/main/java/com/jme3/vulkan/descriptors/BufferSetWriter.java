@@ -1,9 +1,10 @@
 package com.jme3.vulkan.descriptors;
 
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
+
+import static org.lwjgl.vulkan.VK10.*;
 
 public class BufferSetWriter extends DescriptorSetWriter {
 
@@ -26,7 +27,11 @@ public class BufferSetWriter extends DescriptorSetWriter {
     }
 
     public static BufferSetWriter uniformBuffers(int binding, int arrayElement, BufferDescriptor... descriptors) {
-        return new BufferSetWriter(VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, arrayElement, descriptors);
+        return new BufferSetWriter(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, arrayElement, descriptors);
+    }
+
+    public static BufferSetWriter storageBuffers(int binding, int arrayElement, BufferDescriptor... descriptors) {
+        return new BufferSetWriter(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, binding, arrayElement, descriptors);
     }
 
 }

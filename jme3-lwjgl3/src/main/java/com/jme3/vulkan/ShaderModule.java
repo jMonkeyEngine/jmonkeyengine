@@ -14,12 +14,12 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class ShaderModule implements Native<Long> {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final NativeReference ref;
     private final String entryPoint;
     private long id;
 
-    public ShaderModule(LogicalDevice device, ByteBuffer code, String entryPoint) {
+    public ShaderModule(LogicalDevice<?> device, ByteBuffer code, String entryPoint) {
         this.device = device;
         this.entryPoint = entryPoint;
         try (MemoryStack stack = MemoryStack.stackPush()) {

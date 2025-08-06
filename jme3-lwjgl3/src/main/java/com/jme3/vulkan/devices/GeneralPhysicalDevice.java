@@ -1,22 +1,24 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.devices;
 
-import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.devices.PhysicalDevice;
+import com.jme3.vulkan.Queue;
+import com.jme3.vulkan.VulkanInstance;
+import com.jme3.vulkan.surface.Surface;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSurface;
-import org.lwjgl.vulkan.VK13;
 import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 
 import java.nio.IntBuffer;
 
-public class SimplePhysicalDevice extends PhysicalDevice {
+import static org.lwjgl.vulkan.VK10.*;
+
+public class GeneralPhysicalDevice extends PhysicalDevice {
 
     private final Surface surface;
     private Integer graphicsIndex, presentIndex;
     private Queue graphics, present;
 
-    public SimplePhysicalDevice(VulkanInstance instance, Surface surface, long id) {
+    public GeneralPhysicalDevice(VulkanInstance instance, Surface surface, long id) {
         super(instance, id);
         this.surface = surface;
     }
@@ -28,30 +30,31 @@ public class SimplePhysicalDevice extends PhysicalDevice {
             IntBuffer ibuf = stack.callocInt(1);
             for (int i = 0; i < properties.limit(); i++) {
                 VkQueueFamilyProperties props = properties.get(i);
-                if (graphicsIndex == null && (props.queueFlags() & VK13.VK_QUEUE_GRAPHICS_BIT) > 0) {
+                int flags = props.queueFlags();
+                if (graphicsIndex == null && (flags & VK_QUEUE_GRAPHICS_BIT) > 0) {
                     graphicsIndex = i;
                 } else if (presentIndex == null) {
-                    KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(
-                            getPhysicalDevice(), i, surface.getNativeObject(), ibuf);
-                    if (ibuf.get(0) == VK13.VK_TRUE) {
+                    KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(getPhysicalDevice(),
+                            i, surface.getNativeObject(), ibuf);
+                    if (ibuf.get(0) == VK_TRUE) {
                         presentIndex = i;
                     }
                 }
-                if (graphicsIndex != null && presentIndex != null) {
+                if (allQueuesAvailable()) {
                     return true;
                 }
             }
         }
-        return false;
+        return allQueuesAvailable();
     }
 
     @Override
     protected VkDeviceQueueCreateInfo.Buffer createQueueFamilyInfo(MemoryStack stack) {
-        VkDeviceQueueCreateInfo.Buffer create = VkDeviceQueueCreateInfo.calloc(2, stack); // one element for each queue
-        create.get(0).sType(VK13.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO)
+        VkDeviceQueueCreateInfo.Buffer create = VkDeviceQueueCreateInfo.calloc(2, stack);
+        create.get(0).sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO)
                 .queueFamilyIndex(graphicsIndex)
                 .pQueuePriorities(stack.floats(1f));
-        create.get(1).sType(VK13.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO)
+        create.get(1).sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO)
                 .queueFamilyIndex(presentIndex)
                 .pQueuePriorities(stack.floats(1f));
         return create;
@@ -63,6 +66,10 @@ public class SimplePhysicalDevice extends PhysicalDevice {
         present = new Queue(device, presentIndex, 0);
     }
 
+    public boolean allQueuesAvailable() {
+        return graphicsIndex != null && presentIndex != null;
+    }
+
     public Integer getGraphicsIndex() {
         return graphicsIndex;
     }
@@ -71,12 +78,20 @@ public class SimplePhysicalDevice extends PhysicalDevice {
         return presentIndex;
     }
 
+    public Integer getComputeIndex() {
+        return graphicsIndex;
+    }
+
     public Queue getGraphics() {
         return graphics;
     }
 
     public Queue getPresent() {
         return present;
+    }
+
+    public Queue getCompute() {
+        return graphics;
     }
 
 }

@@ -1,7 +1,8 @@
 package com.jme3.vulkan.descriptors;
 
-import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
+
+import static org.lwjgl.vulkan.VK10.*;
 
 public class SetLayoutBinding {
 
@@ -40,11 +41,15 @@ public class SetLayoutBinding {
     }
 
     public static SetLayoutBinding uniformBuffer(int binding, int descriptors, int stages) {
-        return new SetLayoutBinding(VK10.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, descriptors, stages);
+        return new SetLayoutBinding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, descriptors, stages);
+    }
+
+    public static SetLayoutBinding storageBuffer(int binding, int descriptors, int stages) {
+        return new SetLayoutBinding(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, binding, descriptors, stages);
     }
 
     public static SetLayoutBinding combinedImageSampler(int binding, int descriptors, int stages) {
-        return new SetLayoutBinding(VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, binding, descriptors, stages);
+        return new SetLayoutBinding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, binding, descriptors, stages);
     }
 
 }

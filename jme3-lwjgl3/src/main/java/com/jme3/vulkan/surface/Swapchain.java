@@ -1,10 +1,14 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.surface;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
+import com.jme3.vulkan.*;
+import com.jme3.vulkan.Queue;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.Image;
 import com.jme3.vulkan.images.ImageView;
+import com.jme3.vulkan.pipelines.FrameBuffer;
+import com.jme3.vulkan.pass.RenderPass;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -40,7 +44,7 @@ public class Swapchain extends VulkanObject<Long> {
 
     private final LogicalDevice<?> device;
     private final Surface surface;
-    private final List<SwapchainImage> images = new ArrayList<>();
+    private final List<PresentImage> images = new ArrayList<>();
     private SwapchainUpdater updater;
     private Extent2 extent;
     private Image.Format format;
@@ -60,12 +64,12 @@ public class Swapchain extends VulkanObject<Long> {
     }
 
     public void createFrameBuffers(RenderPass compat, ImageView depthStencil) {
-        for (SwapchainImage img : images) {
+        for (PresentImage img : images) {
             img.createFrameBuffer(compat, depthStencil);
         }
     }
 
-    public SwapchainImage acquireNextImage(SwapchainUpdater updater, Semaphore semaphore, Fence fence, long timeout) {
+    public PresentImage acquireNextImage(SwapchainUpdater updater, Semaphore semaphore, Fence fence, long timeout) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer i = stack.mallocInt(1);
             int code = KHRSwapchain.vkAcquireNextImageKHR(device.getNativeObject(), object,
@@ -77,7 +81,7 @@ public class Swapchain extends VulkanObject<Long> {
         }
     }
 
-    public void present(Queue presentQueue, SwapchainImage image, Semaphore wait) {
+    public void present(com.jme3.vulkan.Queue presentQueue, PresentImage image, Semaphore wait) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkPresentInfoKHR info = VkPresentInfoKHR.calloc(stack)
                     .sType(KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR)
@@ -99,7 +103,7 @@ public class Swapchain extends VulkanObject<Long> {
         return surface;
     }
 
-    public List<SwapchainImage> getImages() {
+    public List<PresentImage> getImages() {
         return Collections.unmodifiableList(images);
     }
 
@@ -115,15 +119,15 @@ public class Swapchain extends VulkanObject<Long> {
         return new Builder();
     }
 
-    public class SwapchainImage implements Image {
+    public class PresentImage implements Image {
 
-        private final LogicalDevice device;
+        private final LogicalDevice<?> device;
         private final NativeReference ref;
         private final long id;
         private final ImageView view;
         private FrameBuffer frameBuffer;
 
-        private SwapchainImage(LogicalDevice device, long id) {
+        private PresentImage(LogicalDevice<?> device, long id) {
             this.device = device;
             this.id = id;
             ref = Native.get().register(this);
@@ -137,7 +141,7 @@ public class Swapchain extends VulkanObject<Long> {
         }
 
         @Override
-        public LogicalDevice getDevice() {
+        public LogicalDevice<?> getDevice() {
             return device;
         }
 
@@ -204,7 +208,7 @@ public class Swapchain extends VulkanObject<Long> {
         private final VkSurfaceCapabilitiesKHR caps;
         private final VkSurfaceFormatKHR.Buffer formats;
         private final IntBuffer modes;
-        private final Collection<Queue> queues = new ArrayList<>();
+        private final Collection<com.jme3.vulkan.Queue> queues = new ArrayList<>();
 
         private VkSurfaceFormatKHR selectedFormat;
         private VkExtent2D selectedExtent;
@@ -270,7 +274,7 @@ public class Swapchain extends VulkanObject<Long> {
             }
             if (queues.size() > 1) {
                 IntBuffer concurrent = stack.mallocInt(queues.size());
-                for (Queue q : queues) {
+                for (com.jme3.vulkan.Queue q : queues) {
                     concurrent.put(q.getFamilyIndex());
                 }
                 concurrent.flip();
@@ -290,7 +294,7 @@ public class Swapchain extends VulkanObject<Long> {
                             "Failed to get swapchain images."));
             Objects.requireNonNull(imgs, "Swapchain contains no images.");
             for (int i = 0; i < imgs.limit(); i++) {
-                images.add(new SwapchainImage(device, imgs.get(i)));
+                images.add(new PresentImage(device, imgs.get(i)));
             }
             ref.refresh();
         }

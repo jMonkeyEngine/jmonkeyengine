@@ -13,12 +13,12 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class CommandPool implements Native<Long> {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final Queue queue;
     private final NativeReference ref;
     private long id;
 
-    public CommandPool(LogicalDevice device, Queue queue, boolean isTransient, boolean reset) {
+    public CommandPool(LogicalDevice<?> device, Queue queue, boolean isTransient, boolean reset) {
         this.device = device;
         this.queue = queue;
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -65,7 +65,7 @@ public class CommandPool implements Native<Long> {
         return new OneTimeCommandBuffer(this);
     }
 
-    public LogicalDevice getDevice() {
+    public LogicalDevice<?> getDevice() {
         return device;
     }
 

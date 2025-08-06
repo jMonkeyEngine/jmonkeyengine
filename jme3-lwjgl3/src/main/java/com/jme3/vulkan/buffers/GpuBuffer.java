@@ -21,13 +21,13 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class GpuBuffer implements Native<Long> {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final NativeReference ref;
     private final int size;
     private final long id;
     protected final MemoryRegion memory;
 
-    public GpuBuffer(LogicalDevice device, int size, BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
+    public GpuBuffer(LogicalDevice<?> device, int size, BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
         this.device = device;
         this.size = size;
         try (MemoryStack stack = MemoryStack.stackPush()) {

@@ -1,6 +1,6 @@
 package com.jme3.vulkan.devices;
 
-import com.jme3.vulkan.Surface;
+import com.jme3.vulkan.surface.Surface;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkExtensionProperties;
 

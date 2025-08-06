@@ -15,12 +15,12 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class PipelineLayout implements Native<Long> {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final NativeReference ref;
     private final DescriptorSetLayout[] layouts;
     private final long id;
 
-    public PipelineLayout(LogicalDevice device, DescriptorSetLayout... layouts) {
+    public PipelineLayout(LogicalDevice<?> device, DescriptorSetLayout... layouts) {
         this.device = device;
         this.layouts = layouts;
         try (MemoryStack stack = MemoryStack.stackPush()) {

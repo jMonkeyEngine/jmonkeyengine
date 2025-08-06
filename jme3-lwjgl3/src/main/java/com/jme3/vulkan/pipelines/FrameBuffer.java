@@ -1,9 +1,10 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.pipelines;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.ImageView;
+import com.jme3.vulkan.pass.RenderPass;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkFramebufferCreateInfo;
 
@@ -14,13 +15,13 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class FrameBuffer implements Native<Long> {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final NativeReference ref;
     private final int width, height, layers;
     private final ImageView[] attachments;
     private long id;
 
-    public FrameBuffer(LogicalDevice device, RenderPass compat, int width, int height, int layers, ImageView... attachments) {
+    public FrameBuffer(LogicalDevice<?> device, RenderPass compat, int width, int height, int layers, ImageView... attachments) {
         this.device = device;
         this.width = width;
         this.height = height;

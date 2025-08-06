@@ -14,15 +14,15 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class Fence implements Native<Long> {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final NativeReference ref;
     private long id;
 
-    public Fence(LogicalDevice device) {
+    public Fence(LogicalDevice<?> device) {
         this(device, false);
     }
 
-    public Fence(LogicalDevice device, boolean signal) {
+    public Fence(LogicalDevice<?> device, boolean signal) {
         this.device = device;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkFenceCreateInfo create = VkFenceCreateInfo.calloc(stack)

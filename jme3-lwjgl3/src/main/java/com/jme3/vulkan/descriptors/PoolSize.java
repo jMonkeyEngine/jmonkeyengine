@@ -27,6 +27,10 @@ public class PoolSize {
         return new PoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, size);
     }
 
+    public static PoolSize storageBuffers(int size) {
+        return new PoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, size);
+    }
+
     public static PoolSize combinedImageSamplers(int size) {
         return new PoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, size);
     }

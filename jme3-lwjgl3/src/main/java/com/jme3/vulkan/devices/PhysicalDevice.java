@@ -1,18 +1,13 @@
 package com.jme3.vulkan.devices;
 
-import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
-import com.jme3.vulkan.Surface;
+import com.jme3.vulkan.surface.Surface;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.images.Image;
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.Collection;
-import java.util.function.Function;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;

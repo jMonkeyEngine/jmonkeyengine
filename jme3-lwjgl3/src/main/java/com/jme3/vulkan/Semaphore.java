@@ -14,11 +14,11 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class Semaphore implements Native<Long> {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final NativeReference ref;
     private long id;
 
-    public Semaphore(LogicalDevice device) {
+    public Semaphore(LogicalDevice<?> device) {
         this.device = device;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkSemaphoreCreateInfo create = VkSemaphoreCreateInfo.calloc(stack)

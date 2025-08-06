@@ -14,12 +14,12 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class DescriptorSetLayout implements Native<Long> {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final NativeReference ref;
     private final SetLayoutBinding[] bindings;
     private final long id;
 
-    public DescriptorSetLayout(LogicalDevice device, SetLayoutBinding... bindings) {
+    public DescriptorSetLayout(LogicalDevice<?> device, SetLayoutBinding... bindings) {
         this.device = device;
         this.bindings = bindings;
         try (MemoryStack stack = MemoryStack.stackPush()) {

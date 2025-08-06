@@ -2,6 +2,14 @@ package com.jme3.vulkan.images;
 
 import com.jme3.asset.*;
 import com.jme3.util.BufferUtils;
+import com.jme3.vulkan.CommandBuffer;
+import com.jme3.vulkan.CommandPool;
+import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.flags.BufferUsageFlags;
+import com.jme3.vulkan.flags.ImageUsageFlags;
+import com.jme3.vulkan.flags.MemoryFlags;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VkBufferImageCopy;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -23,14 +31,17 @@ public class VulkanImageLoader implements AssetLoader {
         if (ImageIO.getImageReadersBySuffix(info.getKey().getExtension()) != null) {
             boolean flip = ((Key)info.getKey()).isFlip();
             try (InputStream stream = info.openStream(); BufferedInputStream bin = new BufferedInputStream(stream)) {
-                ImageData img = load(bin, flip);
-                if (img == null){
+                ImageData data = load(bin, flip);
+                if (data == null) {
                     throw new AssetLoadException("The given image cannot be loaded " + info.getKey());
                 }
-                return img;
+                if (info.getKey() instanceof ImageKey) {
+                    return loadGpuImage(((ImageKey)info.getKey()).getPool(), data);
+                }
+                return data;
             }
         }
-        throw new AssetLoadException("Image extension " + info.getKey().getExtension() + " is not supported");
+        throw new AssetLoadException("Image extension " + info.getKey().getExtension() + " is not supported.");
     }
 
     public ImageData load(InputStream in, boolean flip) throws IOException {
@@ -137,11 +148,46 @@ public class VulkanImageLoader implements AssetLoader {
         }
     }
 
-    public static Key key(String name) {
-        return new Key(name);
+    private GpuImage loadGpuImage(CommandPool transferPool, ImageData data) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            GpuBuffer staging = new GpuBuffer(transferPool.getDevice(), data.getBuffer().limit(),
+                    new BufferUsageFlags().transferSrc(), new MemoryFlags().hostVisible().hostCoherent(), false);
+            staging.copy(stack, data.getBuffer());
+            GpuImage image = new GpuImage(transferPool.getDevice(), data.getWidth(), data.getHeight(), data.getFormat(),
+                    Image.Tiling.Optimal, new ImageUsageFlags().transferDst().sampled(),
+                    new MemoryFlags().deviceLocal());
+            CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
+            commands.begin();
+            image.transitionLayout(commands, Image.Layout.Undefined, Image.Layout.TransferDstOptimal);
+            VkBufferImageCopy.Buffer region = VkBufferImageCopy.calloc(1, stack)
+                    .bufferOffset(0)
+                    .bufferRowLength(0) // padding bytes
+                    .bufferImageHeight(0); // padding bytes
+            region.imageSubresource().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT)
+                    .mipLevel(0)
+                    .baseArrayLayer(0)
+                    .layerCount(1);
+            region.imageOffset().set(0, 0, 0);
+            region.imageExtent().set(data.getWidth(), data.getHeight(), 1);
+            vkCmdCopyBufferToImage(commands.getBuffer(), staging.getNativeObject(),
+                    image.getNativeObject(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
+            image.transitionLayout(commands, Image.Layout.TransferDstOptimal, Image.Layout.ShaderReadOnlyOptimal);
+            commands.end();
+            commands.submit(null, null, null);
+            transferPool.getQueue().waitIdle();
+            return image;
+        }
     }
 
-    public static class Key extends AssetKey<ImageData> {
+    public static Key<ImageData> key(String name) {
+        return new Key<>(name);
+    }
+
+    public static ImageKey key(CommandPool pool, String name) {
+        return new ImageKey(pool, name);
+    }
+
+    public static class Key <T> extends AssetKey<T> {
 
         private boolean flip;
 
@@ -160,6 +206,26 @@ public class VulkanImageLoader implements AssetLoader {
 
         public boolean isFlip() {
             return flip;
+        }
+
+    }
+
+    public static class ImageKey extends Key<GpuImage> {
+
+        private final CommandPool pool;
+
+        public ImageKey(CommandPool pool, String name) {
+            super(name);
+            this.pool = pool;
+        }
+
+        public ImageKey(CommandPool pool, String name, boolean flip) {
+            super(name, flip);
+            this.pool = pool;
+        }
+
+        public CommandPool getPool() {
+            return pool;
         }
 
     }

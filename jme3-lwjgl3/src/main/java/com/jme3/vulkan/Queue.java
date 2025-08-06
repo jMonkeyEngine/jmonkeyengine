@@ -1,7 +1,7 @@
 package com.jme3.vulkan;
 
-import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.vulkan.devices.LogicalDevice;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkSubmitInfo;
@@ -20,9 +20,9 @@ public class Queue {
         this.familyIndex = familyIndex;
         this.queueIndex = queueIndex;
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            queue = new VkQueue(VulkanUtils.getPointer(stack,
-                    ptr -> vkGetDeviceQueue(device.getNativeObject(), familyIndex, queueIndex, ptr)),
-                    device.getNativeObject());
+            PointerBuffer ptr = stack.mallocPointer(1);
+            vkGetDeviceQueue(device.getNativeObject(), familyIndex, queueIndex, ptr);
+            queue = new VkQueue(ptr.get(0), device.getNativeObject());
         }
     }
 

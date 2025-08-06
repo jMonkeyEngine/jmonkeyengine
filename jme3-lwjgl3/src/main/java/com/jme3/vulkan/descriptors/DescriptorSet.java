@@ -8,12 +8,12 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class DescriptorSet {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final DescriptorPool pool;
     private final DescriptorSetLayout layout;
     private final long id;
 
-    public DescriptorSet(LogicalDevice device, DescriptorPool pool, DescriptorSetLayout layout, long id) {
+    public DescriptorSet(LogicalDevice<?> device, DescriptorPool pool, DescriptorSetLayout layout, long id) {
         this.device = device;
         this.pool = pool;
         this.layout = layout;

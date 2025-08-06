@@ -13,11 +13,11 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class Sampler implements Native<Long> {
 
-    private final LogicalDevice device;
+    private final LogicalDevice<?> device;
     private final NativeReference ref;
     private final long id;
 
-    public Sampler(LogicalDevice device, int min, int mag, int edgeMode, int mipmapMode) {
+    public Sampler(LogicalDevice<?> device, int min, int mag, int edgeMode, int mipmapMode) {
         this.device = device;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkPhysicalDeviceProperties props = device.getPhysicalDevice().getProperties(stack);
@@ -57,13 +57,11 @@ public class Sampler implements Native<Long> {
     }
 
     @Override
-    public void prematureNativeDestruction() {
-
-    }
+    public void prematureNativeDestruction() {}
 
     @Override
     public NativeReference getNativeReference() {
-        return null;
+        return ref;
     }
 
 }
