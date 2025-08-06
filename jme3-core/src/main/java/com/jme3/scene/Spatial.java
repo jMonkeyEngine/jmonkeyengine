@@ -772,16 +772,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      * @see Spatial#removeControl(java.lang.Class)
      */
     public void addControl(Control control) {
-        boolean before = requiresUpdates();
-        controls.add(control);
-        control.setSpatial(this);
-        boolean after = requiresUpdates();
-        // If the requirement to be updated has changed,
-        // then we need to let the parent node know, so it
-        // can rebuild its update list.
-        if (parent != null && before != after) {
-            parent.invalidateUpdateList();
-        }
+        addControlAt(controls.size(), control);
     }
 
     /**
@@ -807,13 +798,17 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             throw new IllegalStateException("Control is already added here.");
         }
 
-        addControl(control); // takes care of the bookkeeping
-
-        if (index < numControls) { // re-arrange the list directly
-            boolean success = controls.remove(control);
-            assert success : "Surprising control remove failure. " + control.getClass().getSimpleName() + " from spatial " + getName();
-            controls.add(index, control);
+        boolean before = requiresUpdates();
+        controls.add(index, control);
+        control.setSpatial(this);
+        boolean after = requiresUpdates();
+        // If the requirement to be updated has changed,
+        // then we need to let the parent node know, so it
+        // can rebuild its update list.
+        if (parent != null && before != after) {
+            parent.invalidateUpdateList();
         }
+
     }
 
     /**
