@@ -131,7 +131,7 @@ public abstract class Spatial implements Savable, Collidable,
          */
         Never;
     }
-    /**
+    /*
      * Refresh flag types. These flags indicate what data of the spatial
      * needs to be updated to reflect the correct state.
      */
@@ -1647,20 +1647,20 @@ public abstract class Spatial implements Savable, Collidable,
 
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(name, "name", null);
-        oc.write(worldBound, "world_bound", null);
-        oc.write(cullHint, "cull_mode", CullHint.Inherit);
-        oc.write(batchHint, "batch_hint", BatchHint.Inherit);
-        oc.write(queueBucket, "queue", RenderQueue.Bucket.Inherit);
-        oc.write(shadowMode, "shadow_mode", ShadowMode.Inherit);
-        oc.write(localTransform, "transform", Transform.IDENTITY);
-        oc.write(localLights, "lights", null);
-        oc.writeSavableArrayList(new ArrayList<>(localOverrides), "overrides", null);
+        OutputCapsule capsule = ex.getCapsule(this);
+        capsule.write(name, "name", null);
+        capsule.write(worldBound, "world_bound", null);
+        capsule.write(cullHint, "cull_mode", CullHint.Inherit);
+        capsule.write(batchHint, "batch_hint", BatchHint.Inherit);
+        capsule.write(queueBucket, "queue", RenderQueue.Bucket.Inherit);
+        capsule.write(shadowMode, "shadow_mode", ShadowMode.Inherit);
+        capsule.write(localTransform, "transform", Transform.IDENTITY);
+        capsule.write(localLights, "lights", null);
+        capsule.writeSavableArrayList(new ArrayList<>(localOverrides), "overrides", null);
 
         // Shallow clone the controls array to convert its type.
-        oc.writeSavableArrayList(new ArrayList<>(controls), "controlsList", null);
-        oc.writeStringSavableMap(userData, "user_data", null);
+        capsule.writeSavableArrayList(new ArrayList<>(controls), "controlsList", null);
+        capsule.writeStringSavableMap(userData, "user_data", null);
     }
 
     @Override
