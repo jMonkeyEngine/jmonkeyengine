@@ -217,13 +217,13 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             // the cpu cannot directly access fast gpu memory. The solution is to
             // copy cpu-side data to a mutual staging buffer, then have the gpu copy
             // that data to faster memory. Hence, why we do two copy operations here.
-            vertexBuffer = new StageableBuffer(device, vertexData.capacity() * Float.BYTES,
+            vertexBuffer = new StageableBuffer(device, MemorySize.floats(vertexData.capacity()),
                     new BufferUsageFlags().vertexBuffer(), new MemoryFlags().deviceLocal(), false);
             vertexBuffer.copy(stack, vertexData); // copy data to staging buffer
             vertexBuffer.transfer(transferPool); // transfer staged data to vertex buffer
             vertexBuffer.freeStagingBuffer();
             // index buffer
-            indexBuffer = new StageableBuffer(device, indexData.capacity() * Integer.BYTES,
+            indexBuffer = new StageableBuffer(device, MemorySize.ints(indexData.capacity()),
                     new BufferUsageFlags().indexBuffer(), new MemoryFlags().deviceLocal(), false);
             indexBuffer.copy(stack, indexData);
             indexBuffer.transfer(transferPool);
@@ -310,7 +310,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         private final DescriptorSet descriptorSet;
 
         public Frame() {
-            uniforms = new PersistentBuffer(device, 16 * Float.BYTES,
+            // using a persistent buffer because we will be writing to the buffer very often
+            uniforms = new PersistentBuffer(device, MemorySize.floats(16),
                     new BufferUsageFlags().uniformBuffer(),
                     new MemoryFlags().hostVisible().hostCoherent(), false);
             descriptorSet = descriptorPool.allocateSets(descriptorLayout)[0];

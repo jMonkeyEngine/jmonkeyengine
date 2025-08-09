@@ -14,7 +14,7 @@ public class StageableBuffer extends GpuBuffer {
 
     private final GpuBuffer stage;
 
-    public StageableBuffer(LogicalDevice device, int size, BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
+    public StageableBuffer(LogicalDevice device, MemorySize size, BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
         super(device, size, usage.transferDst(), mem, concurrent);
         stage = new GpuBuffer(device, size, new BufferUsageFlags().transferSrc(),
                 new MemoryFlags().hostVisible().hostCoherent(), concurrent);
@@ -47,7 +47,7 @@ public class StageableBuffer extends GpuBuffer {
         }
         CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            recordCopy(stack, commands, stage, 0, 0, size());
+            recordCopy(stack, commands, stage, 0, 0, size().getBytes());
         }
         commands.submit(wait, signal, fence);
     }

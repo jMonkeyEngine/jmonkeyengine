@@ -10,10 +10,10 @@ public class PersistentBuffer extends GpuBuffer {
 
     private final long address;
 
-    public PersistentBuffer(LogicalDevice device, int size, BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
+    public PersistentBuffer(LogicalDevice device, MemorySize size, BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
         super(device, size, usage, mem, concurrent);
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            address = memory.map(stack, 0, size, 0).get(0);
+            address = memory.map(stack, 0, size.getBytes(), 0).get(0);
         }
     }
 

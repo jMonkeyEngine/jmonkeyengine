@@ -23,17 +23,17 @@ public class GpuBuffer implements Native<Long> {
 
     private final LogicalDevice<?> device;
     private final NativeReference ref;
-    private final int size;
+    private final MemorySize size;
     private final long id;
     protected final MemoryRegion memory;
 
-    public GpuBuffer(LogicalDevice<?> device, int size, BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
+    public GpuBuffer(LogicalDevice<?> device, MemorySize size, BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
         this.device = device;
         this.size = size;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkBufferCreateInfo create = VkBufferCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO)
-                    .size(size) // size in bytes
+                    .size(size.getBytes())
                     .usage(usage.getUsageFlags())
                     .sharingMode(VulkanUtils.sharingMode(concurrent));
             LongBuffer idBuf = stack.mallocLong(1);
@@ -70,7 +70,7 @@ public class GpuBuffer implements Native<Long> {
     }
 
     private void verifyBufferSize(Buffer buffer, long bytesPerElement) {
-        if (buffer.limit() * bytesPerElement > size) {
+        if (buffer.limit() * bytesPerElement > size.getBytes()) {
             throw new BufferOverflowException();
         }
     }
@@ -155,8 +155,8 @@ public class GpuBuffer implements Native<Long> {
         memory.getNativeReference().destroy();
     }
 
-    public int size() {
-        return size; // size in bytes
+    public MemorySize size() {
+        return size;
     }
 
 }
