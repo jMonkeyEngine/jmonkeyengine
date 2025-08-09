@@ -50,7 +50,7 @@ import java.util.Optional;
  */
 public class ExtentReportExtension implements BeforeAllCallback, AfterAllCallback, TestWatcher, BeforeTestExecutionCallback{
     private static ExtentReports extent;
-    private static final ThreadLocal<ExtentTest> test = new ThreadLocal<>();
+    private static ExtentTest currentTest;
 
     @Override
     public void beforeAll(ExtensionContext context) {
@@ -62,6 +62,8 @@ public class ExtentReportExtension implements BeforeAllCallback, AfterAllCallbac
             extent = new ExtentReports();
             extent.attachReporter(spark);
         }
+        // Initialize log capture to redirect console output to the report
+        ExtentReportLogCapture.initialize();
     }
 
     @Override
@@ -71,6 +73,9 @@ public class ExtentReportExtension implements BeforeAllCallback, AfterAllCallbac
         * anywhere else I can hook into the lifecycle of the end of all tests to write the report.
         */
         extent.flush();
+
+        // Restore the original System.out
+        ExtentReportLogCapture.restore();
     }
 
     @Override
@@ -96,10 +101,10 @@ public class ExtentReportExtension implements BeforeAllCallback, AfterAllCallbac
     @Override
     public void beforeTestExecution(ExtensionContext context) {
         String testName = context.getDisplayName();
-        test.set(extent.createTest(testName));
+        currentTest = extent.createTest(testName);
     }
 
     public static ExtentTest getCurrentTest() {
-        return test.get();
+        return currentTest;
     }
 }
