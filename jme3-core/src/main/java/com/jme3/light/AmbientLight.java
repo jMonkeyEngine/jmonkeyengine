@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,6 +81,15 @@ public class AmbientLight extends Light {
     @Override
     public Type getType() {
         return Type.Ambient;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()
+                + "[name=" + name
+                + ", color=" + color
+                + ", enabled=" + enabled
+                + "]";
     }
 
 }
