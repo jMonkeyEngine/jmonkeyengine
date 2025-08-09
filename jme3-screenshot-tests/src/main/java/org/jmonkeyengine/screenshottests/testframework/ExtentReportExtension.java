@@ -101,7 +101,8 @@ public class ExtentReportExtension implements BeforeAllCallback, AfterAllCallbac
     @Override
     public void beforeTestExecution(ExtensionContext context) {
         String testName = context.getDisplayName();
-        currentTest = extent.createTest(testName);
+        String className = context.getRequiredTestClass().getSimpleName();
+        currentTest = extent.createTest(className + "." + testName);
     }
 
     public static ExtentTest getCurrentTest() {
