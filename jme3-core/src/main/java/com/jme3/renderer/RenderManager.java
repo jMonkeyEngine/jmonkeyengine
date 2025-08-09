@@ -244,9 +244,9 @@ public class RenderManager {
      * @see #createPreView(java.lang.String, com.jme3.renderer.Camera)
      */
     public ViewPort getPreView(String viewName) {
-        for (ViewPort preViewPort : preViewPorts) {
-            if (preViewPort.getName().equals(viewName)) {
-                return preViewPort;
+        for (int i = 0; i < preViewPorts.size(); i++) {
+            if (preViewPorts.get(i).getName().equals(viewName)) {
+                return preViewPorts.get(i);
             }
         }
         return null;
@@ -291,9 +291,9 @@ public class RenderManager {
      * @see #createMainView(java.lang.String, com.jme3.renderer.Camera)
      */
     public ViewPort getMainView(String viewName) {
-        for (ViewPort viewPort : viewPorts) {
-            if (viewPort.getName().equals(viewName)) {
-                return viewPort;
+        for (int i = 0; i < viewPorts.size(); i++) {
+            if (viewPorts.get(i).getName().equals(viewName)) {
+                return viewPorts.get(i);
             }
         }
         return null;
@@ -338,9 +338,9 @@ public class RenderManager {
      * @see #createPostView(java.lang.String, com.jme3.renderer.Camera)
      */
     public ViewPort getPostView(String viewName) {
-        for (ViewPort postViewPort : postViewPorts) {
-            if (postViewPort.getName().equals(viewName)) {
-                return postViewPort;
+        for (int i = 0; i < postViewPorts.size(); i++) {
+            if (postViewPorts.get(i).getName().equals(viewName)) {
+                return postViewPorts.get(i);
             }
         }
         return null;
@@ -1329,7 +1329,8 @@ public class RenderManager {
         if (prof != null) {
             prof.appStep(AppStep.RenderPreviewViewPorts);
         }
-        for (ViewPort vp : preViewPorts) {
+        for (int i = 0; i < preViewPorts.size(); i++) {
+            ViewPort vp = preViewPorts.get(i);
             if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {
                 renderViewPort(vp, tpf);
             }
@@ -1338,7 +1339,8 @@ public class RenderManager {
         if (prof != null) {
             prof.appStep(AppStep.RenderMainViewPorts);
         }
-        for (ViewPort vp : viewPorts) {
+        for (int i = 0; i < viewPorts.size(); i++) {
+            ViewPort vp = viewPorts.get(i);
             if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {
                 renderViewPort(vp, tpf);
             }
@@ -1347,7 +1349,8 @@ public class RenderManager {
         if (prof != null) {
             prof.appStep(AppStep.RenderPostViewPorts);
         }
-        for (ViewPort vp : postViewPorts) {
+        for (int i = 0; i < postViewPorts.size(); i++) {
+            ViewPort vp = postViewPorts.get(i);
             if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {
                 renderViewPort(vp, tpf);
             }
@@ -1370,7 +1373,7 @@ public class RenderManager {
      * @return True if the draw buffer target id is passed to the shaders.
      */
     public boolean getPassDrawBufferTargetIdToShaders() {
-        return this.forcedOverrides.contains(boundDrawBufferId);
+        return forcedOverrides.contains(boundDrawBufferId);
     }
 
     /**
@@ -1379,15 +1382,15 @@ public class RenderManager {
      * backends. When enabled, a material parameter named "BoundDrawBuffer" of
      * type Int will be added to forced material parameters.
      *
-     * @param v True to enable, false to disable (default is true)
+     * @param enable True to enable, false to disable (default is true)
      */
-    public void setPassDrawBufferTargetIdToShaders(boolean v) {
-        if (v) {
-            if (!this.forcedOverrides.contains(boundDrawBufferId)) {
-                this.forcedOverrides.add(boundDrawBufferId);
+    public void setPassDrawBufferTargetIdToShaders(boolean enable) {
+        if (enable) {
+            if (!forcedOverrides.contains(boundDrawBufferId)) {
+                forcedOverrides.add(boundDrawBufferId);
             }
         } else {
-            this.forcedOverrides.remove(boundDrawBufferId);
+            forcedOverrides.remove(boundDrawBufferId);
         }
     }
 
