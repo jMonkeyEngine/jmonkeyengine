@@ -36,6 +36,8 @@ import com.jme3.app.state.AppState;
 import com.jme3.app.state.VideoRecorderAppState;
 import com.jme3.math.ColorRGBA;
 
+import java.util.function.Consumer;
+
 /**
  * The app used for the tests. AppState(s) are used to inject the actual test code.
  * @author Richard Tingle (aka richtea)
@@ -46,10 +48,17 @@ public class App extends SimpleApplication {
         super(initialStates);
     }
 
+    Consumer<Throwable> onError = (onError) -> {};
+
     @Override
     public void simpleInitApp(){
         getViewPort().setBackgroundColor(ColorRGBA.Black);
         setTimer(new VideoRecorderAppState.IsoTimer(60));
     }
 
+    @Override
+    public void handleError(String errMsg, Throwable t) {
+        super.handleError(errMsg, t);
+        onError.accept(t);
+    }
 }
