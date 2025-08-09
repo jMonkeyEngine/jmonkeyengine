@@ -89,7 +89,11 @@ public class Uniform extends ShaderVariable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(value, varType, binding);
+        int hash = 5;
+        hash = 31 * hash + (this.value != null ? this.value.hashCode() : 0);
+        hash = 31 * hash + (this.varType != null ? this.varType.hashCode() : 0);
+        hash = 31 * hash + (this.binding != null ? this.binding.hashCode() : 0);
+        return hash;
     }
 
     @Override
@@ -422,7 +426,7 @@ public class Uniform extends ShaderVariable {
 
                 TempVars vars = TempVars.get();
                 Vector4f vec4 = vars.vect4f1;
-                
+
                 //feed the pivot vec 4 with the correct value
                 if (uValue instanceof ColorRGBA) {
                     ColorRGBA c = (ColorRGBA) uValue;
