@@ -80,7 +80,7 @@ import java.util.logging.Logger;
  * The `RenderManager` is a high-level rendering interface that manages
  * {@link ViewPort}s, {@link SceneProcessor}s, and the overall rendering pipeline.
  * It is responsible for orchestrating the rendering of scenes into various
- * viewports and handling post-processing effects.
+ * viewports.
  */
 public class RenderManager {
 
