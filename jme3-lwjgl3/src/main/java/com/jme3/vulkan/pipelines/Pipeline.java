@@ -1,7 +1,6 @@
 package com.jme3.vulkan.pipelines;
 
-import com.jme3.vulkan.CommandBuffer;
-import com.jme3.vulkan.PipelineLayout;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.VulkanObject;
 import com.jme3.vulkan.devices.LogicalDevice;
 

@@ -1,4 +1,4 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.mesh;
 
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkVertexInputAttributeDescription;

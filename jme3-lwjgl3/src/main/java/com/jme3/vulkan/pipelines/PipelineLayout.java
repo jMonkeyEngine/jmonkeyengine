@@ -1,4 +1,4 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.pipelines;
 
 import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.util.natives.Native;

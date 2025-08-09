@@ -1,5 +1,6 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.commands;
 
+import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;

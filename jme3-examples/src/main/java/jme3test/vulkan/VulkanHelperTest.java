@@ -2,7 +2,6 @@ package jme3test.vulkan;
 
 import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.material.RenderState;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
@@ -14,6 +13,8 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.*;
 import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.*;
 import com.jme3.vulkan.flags.ImageUsageFlags;
@@ -25,11 +26,15 @@ import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pipelines.GraphicsPipeline;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.pipelines.PipelineBindPoint;
+import com.jme3.vulkan.pipelines.PipelineLayout;
 import com.jme3.vulkan.pipelines.states.ColorBlendAttachment;
 import com.jme3.vulkan.pipelines.states.DynamicState;
+import com.jme3.vulkan.shader.ShaderModule;
 import com.jme3.vulkan.surface.Surface;
 import com.jme3.vulkan.surface.Swapchain;
 import com.jme3.vulkan.surface.SwapchainUpdater;
+import com.jme3.vulkan.sync.Fence;
+import com.jme3.vulkan.sync.Semaphore;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -294,10 +299,13 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
     private class Frame implements Consumer<Float> {
 
+        // render manager
         private final CommandBuffer graphicsCommands = graphicsPool.allocateCommandBuffer();
         private final Semaphore imageAvailable = new Semaphore(device);
         private final Semaphore renderFinished = new Semaphore(device);
         private final Fence inFlight = new Fence(device, true);
+
+        // material
         private final GpuBuffer uniforms;
         private final DescriptorSet descriptorSet;
 
@@ -307,7 +315,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                     new MemoryFlags().hostVisible().hostCoherent(), false);
             descriptorSet = descriptorPool.allocateSets(descriptorLayout)[0];
             descriptorSet.write(BufferSetWriter.uniformBuffers(0, 0, new BufferDescriptor(uniforms)),
-                    ImageSetWriter.combinedImageSampler(1, 0, new ImageDescriptor(texture, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)));
+                    ImageSetWriter.combinedImageSampler(1, 0, new ImageDescriptor(texture, Image.Layout.ShaderReadOnlyOptimal)));
         }
 
         @Override

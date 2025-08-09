@@ -2,6 +2,7 @@ package com.jme3.vulkan;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
+import com.jme3.vulkan.mesh.MeshDescription;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkVertexInputAttributeDescription;
 import org.lwjgl.vulkan.VkVertexInputBindingDescription;

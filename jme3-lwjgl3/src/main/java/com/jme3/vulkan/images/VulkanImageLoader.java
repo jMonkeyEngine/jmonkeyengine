@@ -2,8 +2,8 @@ package com.jme3.vulkan.images;
 
 import com.jme3.asset.*;
 import com.jme3.util.BufferUtils;
-import com.jme3.vulkan.CommandBuffer;
-import com.jme3.vulkan.CommandPool;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.flags.BufferUsageFlags;
 import com.jme3.vulkan.flags.ImageUsageFlags;

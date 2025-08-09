@@ -71,7 +71,7 @@ public class LogicalDevice <T extends PhysicalDevice> extends VulkanObject<VkDev
             if (enableAllFeatures) {
                 enabledFeatures.set(supportedFeatures);
             } else for (DeviceFeature f : features) {
-                if (DeviceWeights.isSuccess(f.evaluateFeatureSupport(supportedFeatures))) {
+                if (f.evaluateFeatureSupport(supportedFeatures) != null) {
                     f.enableFeature(enabledFeatures);
                 }
             }

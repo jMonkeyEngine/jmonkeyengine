@@ -1,6 +1,6 @@
 package com.jme3.vulkan.pipelines.states;
 
-import com.jme3.vulkan.MeshDescription;
+import com.jme3.vulkan.mesh.MeshDescription;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkPipelineVertexInputStateCreateInfo;

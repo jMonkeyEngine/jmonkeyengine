@@ -1,7 +1,7 @@
 package com.jme3.vulkan.pass;
 
 import com.jme3.util.natives.Native;
-import com.jme3.vulkan.CommandBuffer;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.VulkanObject;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.Image;

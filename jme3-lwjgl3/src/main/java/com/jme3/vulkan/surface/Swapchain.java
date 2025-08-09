@@ -3,12 +3,14 @@ package com.jme3.vulkan.surface;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.*;
-import com.jme3.vulkan.Queue;
+import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.Image;
 import com.jme3.vulkan.images.ImageView;
 import com.jme3.vulkan.pipelines.FrameBuffer;
 import com.jme3.vulkan.pass.RenderPass;
+import com.jme3.vulkan.sync.Fence;
+import com.jme3.vulkan.sync.Semaphore;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -81,7 +83,7 @@ public class Swapchain extends VulkanObject<Long> {
         }
     }
 
-    public void present(com.jme3.vulkan.Queue presentQueue, PresentImage image, Semaphore wait) {
+    public void present(Queue presentQueue, PresentImage image, Semaphore wait) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkPresentInfoKHR info = VkPresentInfoKHR.calloc(stack)
                     .sType(KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR)
@@ -208,7 +210,7 @@ public class Swapchain extends VulkanObject<Long> {
         private final VkSurfaceCapabilitiesKHR caps;
         private final VkSurfaceFormatKHR.Buffer formats;
         private final IntBuffer modes;
-        private final Collection<com.jme3.vulkan.Queue> queues = new ArrayList<>();
+        private final Collection<Queue> queues = new ArrayList<>();
 
         private VkSurfaceFormatKHR selectedFormat;
         private VkExtent2D selectedExtent;
@@ -274,7 +276,7 @@ public class Swapchain extends VulkanObject<Long> {
             }
             if (queues.size() > 1) {
                 IntBuffer concurrent = stack.mallocInt(queues.size());
-                for (com.jme3.vulkan.Queue q : queues) {
+                for (Queue q : queues) {
                     concurrent.put(q.getFamilyIndex());
                 }
                 concurrent.flip();

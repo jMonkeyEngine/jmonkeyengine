@@ -3,7 +3,7 @@ package com.jme3.vulkan.buffers;
 import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
-import com.jme3.vulkan.CommandBuffer;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.flags.MemoryFlags;
 import com.jme3.vulkan.flags.BufferUsageFlags;

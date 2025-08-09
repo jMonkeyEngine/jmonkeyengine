@@ -1,5 +1,7 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.commands;
 
+import com.jme3.vulkan.sync.Fence;
+import com.jme3.vulkan.sync.Semaphore;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkCommandBufferBeginInfo;
 import org.lwjgl.vulkan.VkSubmitInfo;

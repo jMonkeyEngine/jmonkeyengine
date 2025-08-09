@@ -1,4 +1,4 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.commands;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;

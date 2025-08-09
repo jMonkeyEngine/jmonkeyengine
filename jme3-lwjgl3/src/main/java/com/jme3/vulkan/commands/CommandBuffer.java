@@ -1,9 +1,9 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.commands;
 
-import org.lwjgl.BufferUtils;
+import com.jme3.vulkan.sync.Fence;
+import com.jme3.vulkan.sync.Semaphore;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkCommandBuffer;
 import org.lwjgl.vulkan.VkCommandBufferAllocateInfo;
 import org.lwjgl.vulkan.VkCommandBufferBeginInfo;

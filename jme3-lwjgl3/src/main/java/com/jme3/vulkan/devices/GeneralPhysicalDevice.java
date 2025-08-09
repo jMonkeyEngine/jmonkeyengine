@@ -1,6 +1,6 @@
 package com.jme3.vulkan.devices;
 
-import com.jme3.vulkan.Queue;
+import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.surface.Surface;
 import org.lwjgl.system.MemoryStack;
