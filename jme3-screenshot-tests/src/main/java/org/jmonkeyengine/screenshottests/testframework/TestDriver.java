@@ -166,7 +166,7 @@ public class TestDriver extends BaseAppState{
         synchronized (testDriver.waitLock) {
             try {
                 testDriver.waitLock.wait(10000); // Wait for the screenshot to be taken and application to stop
-                Thread.sleep(200); //give time for openGL is fully released before starting a new test (get random JVM crashes without this)
+                Thread.sleep(1000); //give time for openGL is fully released before starting a new test (get random JVM crashes without this)
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
