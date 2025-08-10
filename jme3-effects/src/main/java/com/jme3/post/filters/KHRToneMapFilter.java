@@ -55,7 +55,7 @@ public class KHRToneMapFilter extends Filter {
     private final Vector3f gamma = new Vector3f(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
 
     /**
-     * Creates a tone-mapping filter with the default white-point.
+     * Creates a tone-mapping filter with the default exposure and gamma.
      */
     public KHRToneMapFilter() {
         super("KHRToneMapFilter");
@@ -81,6 +81,8 @@ public class KHRToneMapFilter extends Filter {
 
     /**
      * Set the exposure for the tone mapping.
+     * 
+     * @param whitePoint The exposure vector.
      */
     public void setExposure(Vector3f whitePoint) {
         this.exposure.set(whitePoint);
@@ -98,6 +100,8 @@ public class KHRToneMapFilter extends Filter {
     
     /**
      * Set the gamma for the tone mapping.
+     * 
+     * @param gamma The gamma vector.
      */
     public void setGamma(Vector3f gamma) {
         this.gamma.set(gamma);
