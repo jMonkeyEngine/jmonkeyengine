@@ -1215,8 +1215,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      * @see Spatial#addLight(com.jme3.light.Light)
      */
     public void removeLight(Light light) {
-        localLights.remove(light);
         setLightListRefresh();
+        localLights.remove(light);
     }
 
     /**
