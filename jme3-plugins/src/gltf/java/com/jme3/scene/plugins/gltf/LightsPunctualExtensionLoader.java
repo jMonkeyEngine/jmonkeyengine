@@ -315,7 +315,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
      * @return The cutoff distance where the light falls below a visible threshold
      */
     public float getCutoffDistance(ColorRGBA color, float intensity) {
-        final float visibleThreshold = 0.001f; // Lux or similar
+        final float visibleThreshold = 0.001f; 
         final float maxRange = 10000f;
 
         // Compute the max channel (R/G/B) for luminance estimation
@@ -330,7 +330,6 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
 
         // Inverse-square attenuation: intensity / d^2 = visibleThreshold
         float range = (float) Math.sqrt(effectiveIntensity / visibleThreshold);
-        System.out.println("Effective range: " + range + " for intensity: " + effectiveIntensity + " and color: " + color);
         return Math.min(range, maxRange);
     }
 
