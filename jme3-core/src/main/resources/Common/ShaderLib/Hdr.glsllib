@@ -63,3 +63,29 @@ vec3 HDR_ToneMap2(in vec3 color, in float lumAvg, in float a, in float white){
     float scale = a / (lumAvg + 0.001);
     return (vec3(scale) * color) / (color + vec3(1.0));
 }
+
+// Based on https://github.com/KhronosGroup/ToneMapping/blob/main/PBR_Neutral/pbrNeutral.glsl
+// Input color is non-negative and resides in the Linear Rec. 709 color space.
+// Output color is also Linear Rec. 709, but in the [0, 1] range.
+vec3 HDR_KHRToneMap(in vec3 color, in vec3 exposure, in vec3 gamma) {
+    color *= pow(vec3(2.0), exposure); 
+
+    const float startCompression = 0.8 - 0.04;
+    const float desaturation = 0.15;
+
+    float x = min(color.r, min(color.g, color.b));
+    float offset = x < 0.08 ? x - 6.25 * x * x : 0.04;
+    color -= offset;
+
+    float peak = max(color.r, max(color.g, color.b));
+    if (peak < startCompression) return color;
+
+    const float d = 1. - startCompression;
+    float newPeak = 1. - d * d / (peak + d - startCompression);
+    color *= newPeak / peak;
+
+    float g = 1. - 1. / (desaturation * (peak - newPeak) + 1.);
+    color = mix(color, newPeak * vec3(1, 1, 1), g);
+    color = pow(color, gamma);
+    return color;
+}
