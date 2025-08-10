@@ -56,6 +56,9 @@ import java.util.HashSet;
  * Created by Trevor Flynn - 3/23/2021
  */
 public class LightsPunctualExtensionLoader implements ExtensionLoader {
+    private static final boolean COMPUTE_LIGHT_RANGE = true;
+    private static final boolean APPLY_INTENSITY_CONVERSION = true;
+    private static final boolean SKIP_HDR_CONVERSION = true;
 
     private final HashSet<NodeNeedingLight> pendingNodes = new HashSet<>();
     private final HashMap<Integer, Light> lightDefinitions = new HashMap<>();
@@ -126,8 +129,6 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
 
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
         ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
-        color = lumensToColor(color, intensity);
-        float range = obj.has("range") ? obj.get("range").getAsFloat() : Float.POSITIVE_INFINITY;
 
         //Spot specific
         JsonObject spot = obj.getAsJsonObject("spot");
@@ -143,6 +144,15 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
             outerConeAngle = FastMath.HALF_PI - 0.000001f;
         }
 
+        if(APPLY_INTENSITY_CONVERSION)  {
+            float solidAngle = 2.0f * FastMath.PI * (1.0f - FastMath.cos(outerConeAngle));
+            intensity = intensity / solidAngle;
+        }
+
+        float range = obj.has("range") ? obj.get("range").getAsFloat() : (COMPUTE_LIGHT_RANGE ? getCutoffDistance(color, intensity) : Float.POSITIVE_INFINITY);
+
+        color = lumensToColor(color, intensity);
+      
         SpotLight spotLight = new SpotLight();
         spotLight.setName(name);
         spotLight.setColor(color);
@@ -165,7 +175,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
 
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
         ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
-        color = lumensToColor(color, intensity);
+        color = buildLinearLightColor(color, intensity);
 
         DirectionalLight directionalLight = new DirectionalLight();
         directionalLight.setName(name);
@@ -186,8 +196,11 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
 
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
         ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
-        color = lumensToColor(color, intensity);
-        float range = obj.has("range") ? obj.get("range").getAsFloat() : Float.POSITIVE_INFINITY;
+        
+        if(APPLY_INTENSITY_CONVERSION) intensity = intensity / (4.0f * FastMath.PI);
+
+        float range = obj.has("range") ? obj.get("range").getAsFloat() : (COMPUTE_LIGHT_RANGE ? getCutoffDistance(color, intensity) : Float.POSITIVE_INFINITY);
+        color = buildLinearLightColor(color, intensity);
 
         PointLight pointLight = new PointLight();
         pointLight.setName(name);
@@ -207,15 +220,16 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
     private void addLight(Node parent, Node node, int lightIndex) {
         if (lightDefinitions.containsKey(lightIndex)) {
             Light light = lightDefinitions.get(lightIndex);
+            light = light.clone();
             parent.addLight(light);
             LightControl control = new LightControl(light);
             node.addControl(control);
         } else {
             throw new AssetLoadException("KHR_lights_punctual extension accessed undefined light at index " + lightIndex);
         }
-    }
+    } 
 
-    /**
+ /**
      * Convert a floating point lumens value into a color that
      * represents both color and brightness of the light.
      *
@@ -236,6 +250,10 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
      * @return A color representing the intensity of the given lumens
      */
     private ColorRGBA lumensToColor(float lumens) {
+        if(SKIP_HDR_CONVERSION){
+            lumens = 0.003f * lumens;
+            return new ColorRGBA(lumens, lumens, lumens, 1f);
+        }
         /*
         Taken from /Common/ShaderLib/Hdr.glsllib
         vec4 HDR_EncodeLum(in float lum){
@@ -286,4 +304,34 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
             this.lightIndex = lightIndex;
         }
     }
+
+
+    /**
+     * Computes the effective cutoff distance of a light based on its raw color and intensity.
+     * Uses inverse-square attenuation and a perceptual visibility threshold.
+     *
+     * @param color     The base RGB color of the light (linear space)
+     * @param intensity The light's intensity in lumens (or equivalent)
+     * @return The cutoff distance where the light falls below a visible threshold
+     */
+    public float getCutoffDistance(ColorRGBA color, float intensity) {
+        final float visibleThreshold = 0.001f; // Lux or similar
+        final float maxRange = 10000f;
+
+        // Compute the max channel (R/G/B) for luminance estimation
+        float maxComponent = Math.max(Math.max(color.r, color.g), color.b);
+
+        if (maxComponent <= 0f || intensity <= 0f) {
+            return 0f;
+        }
+
+        // The actual light output (lux at 1 meter) per component
+        float effectiveIntensity = maxComponent * intensity;
+
+        // Inverse-square attenuation: intensity / d^2 = visibleThreshold
+        float range = (float) Math.sqrt(effectiveIntensity / visibleThreshold);
+        System.out.println("Effective range: " + range + " for intensity: " + effectiveIntensity + " and color: " + color);
+        return Math.min(range, maxRange);
+    }
+
 }
