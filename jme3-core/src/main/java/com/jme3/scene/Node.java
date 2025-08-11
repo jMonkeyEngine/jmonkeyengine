@@ -37,6 +37,8 @@ import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.light.Light;
+import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
@@ -240,6 +242,26 @@ public class Node extends Spatial {
         }
     }
 
+    private void findGlobalLights(Spatial sp, LightList list) {
+        LightList lights = sp.getLocalLightList();
+        for (Light l : lights) {
+            if (l.isGlobal()) {
+                list.add(l);
+            }
+        }
+
+        if(sp instanceof Node){
+            Node n = (Node) sp;
+            List<Spatial> children = n.getChildren();
+            for (int i = 0; i < children.size(); i++) {
+                Spatial child = children.get(i);
+                if ((child.refreshFlags & RF_GLOBAL_LIGHTS)!= 0) {
+                    findGlobalLights(child, list);       
+                }
+            }
+        }
+    }
+
     @Override
     public void updateGeometricState() {
         if (refreshFlags == 0) {
@@ -249,6 +271,16 @@ public class Node extends Spatial {
         if ((refreshFlags & RF_LIGHTLIST) != 0) {
             updateWorldLightList();
         }
+
+        boolean updateGlobalLights = (refreshFlags & RF_GLOBAL_LIGHTS) != 0;
+        if (updateGlobalLights){
+            // if root node, we collect the global lights
+            if (getParent() == null){ 
+                findGlobalLights(this, worldLights);
+            }
+            refreshFlags &= ~RF_GLOBAL_LIGHTS;
+        }
+
         if ((refreshFlags & RF_TRANSFORM) != 0) {
             // combine with parent transforms- same for all spatial
             // subclasses.

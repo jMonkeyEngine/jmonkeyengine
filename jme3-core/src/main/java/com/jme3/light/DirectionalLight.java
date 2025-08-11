@@ -59,6 +59,17 @@ public class DirectionalLight extends Light {
      * Creates a DirectionalLight
      */
     public DirectionalLight() {
+        super();
+    }
+
+    /**
+     * Creates a DirectionalLight
+     * @param global if true, the light affects the entire tree from the root node,
+     * otherwise it only affects the children of the node in which it is attached.     
+     */
+    public DirectionalLight(boolean global) {
+        this();
+        this.global = global;
     }
 
     /**
@@ -66,7 +77,19 @@ public class DirectionalLight extends Light {
      * @param direction the light's direction
      */
     public DirectionalLight(Vector3f direction) {
+        super();
         setDirection(direction);
+    }
+
+    /**
+     * Creates a DirectionalLight with the given direction
+     * @param direction the light's direction
+     * @param global if true, the light affects the entire tree from the root node,
+     * otherwise it only affects the children of the node in which it is attached.
+     */
+    public DirectionalLight(Vector3f direction, boolean global) {
+        this(direction);
+        this.global = global;
     }
 
     /**
@@ -78,6 +101,19 @@ public class DirectionalLight extends Light {
         super(color);
         setDirection(direction);
     }
+
+    /**
+     * Creates a DirectionalLight with the given direction and the given color
+     * @param direction the light's direction
+     * @param color the light's color
+     * @param global if true, the light affects the entire tree from the root node,
+     * otherwise it only affects the children of the node in which it is attached.
+     */
+    public DirectionalLight(Vector3f direction, ColorRGBA color, boolean global) {
+        this(direction, color);
+        this.global = global;
+    }
+
 
     @Override
     public void computeLastDistance(Spatial owner) {
