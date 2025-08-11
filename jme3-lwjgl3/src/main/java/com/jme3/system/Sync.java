@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system.lwjgl;
+package com.jme3.system;
 
 /**
 * A highly accurate sync method that continually adapts to the system 
@@ -38,7 +38,7 @@ package com.jme3.system.lwjgl;
 * @author Riven
 * @author kappaOne
 */
-class Sync {
+public class Sync {
 
     /** number of nanoseconds in a second */
     private static final long NANOS_IN_SECOND = 1000L * 1000L * 1000L;
