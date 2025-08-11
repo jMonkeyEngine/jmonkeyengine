@@ -242,6 +242,26 @@ public class Node extends Spatial {
         }
     }
 
+    private void findGlobalLights(Spatial sp, LightList list) {
+        LightList lights = sp.getLocalLightList();
+        for (Light l : lights) {
+            if (l.isGlobal()) {
+                list.add(l);
+            }
+        }
+
+        if(sp instanceof Node){
+            Node n = (Node) sp;
+            List<Spatial> children = n.getChildren();
+            for (int i = 0; i < children.size(); i++) {
+                Spatial child = children.get(i);
+                if ((child.refreshFlags & RF_GLOBAL_LIGHTS)!= 0) {
+                    findGlobalLights(child, list);       
+                }
+            }
+        }
+    }
+
     @Override
     public void updateGeometricState() {
         if (refreshFlags == 0) {
@@ -254,18 +274,11 @@ public class Node extends Spatial {
 
         boolean updateGlobalLights = (refreshFlags & RF_GLOBAL_LIGHTS) != 0;
         if (updateGlobalLights){
-            refreshFlags &= ~RF_GLOBAL_LIGHTS;
             // if root node, we collect the global lights
             if (getParent() == null){ 
-                depthFirstTraversal(sx->{
-                    LightList childLights = sx.getLocalLightList();
-                    for (Light l : childLights) {
-                        if (l.isGlobal()) {
-                            worldLights.add(l);
-                        }
-                    }
-                });
+                findGlobalLights(this, worldLights);
             }
+            refreshFlags &= ~RF_GLOBAL_LIGHTS;
         }
 
         if ((refreshFlags & RF_TRANSFORM) != 0) {
