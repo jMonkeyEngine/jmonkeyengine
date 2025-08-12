@@ -108,7 +108,7 @@ public class Armature implements JmeCloneable, Savable {
                 rootJointList.add(joint);
             }
         }
-        rootJoints = rootJointList.toArray(new Joint[rootJointList.size()]);
+        rootJoints = rootJointList.toArray(new Joint[0]);
 
         createSkinningMatrices();
 
@@ -215,9 +215,9 @@ public class Armature implements JmeCloneable, Savable {
      * @return the pre-existing instance or null if not found
      */
     public Joint getJoint(String name) {
-        for (Joint joint : jointList) {
-            if (joint.getName().equals(name)) {
-                return joint;
+        for (int i = 0; i < jointList.length; i++) {
+            if (jointList[i].getName().equals(name)) {
+                return jointList[i];
             }
         }
         return null;
@@ -353,13 +353,13 @@ public class Armature implements JmeCloneable, Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
 
-        Savable[] rootJointsSavable = ic.readSavableArray("rootJoints", null);
-        rootJoints = new Joint[rootJointsSavable.length];
-        System.arraycopy(rootJointsSavable, 0, rootJoints, 0, rootJointsSavable.length);
+        Savable[] jointRootsAsSavable = ic.readSavableArray("rootJoints", null);
+        rootJoints = new Joint[jointRootsAsSavable.length];
+        System.arraycopy(jointRootsAsSavable, 0, rootJoints, 0, jointRootsAsSavable.length);
 
-        Savable[] jointListSavable = ic.readSavableArray("jointList", null);
-        jointList = new Joint[jointListSavable.length];
-        System.arraycopy(jointListSavable, 0, jointList, 0, jointListSavable.length);
+        Savable[] jointListAsSavable = ic.readSavableArray("jointList", null);
+        jointList = new Joint[jointListAsSavable.length];
+        System.arraycopy(jointListAsSavable, 0, jointList, 0, jointListAsSavable.length);
 
         String className = ic.readString("modelTransformClass", MatrixJointModelTransform.class.getCanonicalName());
         try {
