@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,15 +44,21 @@ import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
- * This Control maintains a reference to a Camera,
- * which will be synched with the position (worldTranslation)
- * of the current spatial.
+ * `CameraControl` synchronizes the world transformation (position and rotation)
+ * of a `Camera` with its attached `Spatial`.
+ * This control allows a camera to follow a spatial, or a spatial to follow a camera,
+ * depending on the chosen {@link ControlDirection}.
+ * <p>
+ * This is particularly useful for attaching cameras to player characters,
+ * vehicles, or dynamically controlled objects, ensuring the camera's view
+ * or the spatial's position/orientation remains synchronized.
+ * </p>
+ *
  * @author tim
  */
 public class CameraControl extends AbstractControl {
 
-    public static enum ControlDirection {
-
+    public enum ControlDirection {
         /**
          * Means, that the Camera's transform is "copied"
          * to the Transform of the Spatial.
@@ -64,25 +70,31 @@ public class CameraControl extends AbstractControl {
          */
         SpatialToCamera;
     }
+
     private Camera camera;
     private ControlDirection controlDir = ControlDirection.SpatialToCamera;
 
     /**
-     * Constructor used for Serialization.
+     * For serialization only. Do not use.
      */
     public CameraControl() {
     }
 
     /**
-     * @param camera The Camera to be synced.
+     * Creates a new `CameraControl` that synchronizes the spatial's transform to the camera.
+     * The camera will follow the spatial.
+     *
+     * @param camera The Camera to be synced. Cannot be null.
      */
     public CameraControl(Camera camera) {
         this.camera = camera;
     }
 
     /**
-     * @param camera The Camera to be synced.
-     * @param controlDir SpatialToCamera or CameraToSpatial
+     * Creates a new `CameraControl` with a specified synchronization direction.
+     *
+     * @param camera The Camera to be synced. Cannot be null.
+     * @param controlDir The direction of synchronization (SpatialToCamera or CameraToSpatial).
      */
     public CameraControl(Camera camera, ControlDirection controlDir) {
         this.camera = camera;
@@ -105,30 +117,42 @@ public class CameraControl extends AbstractControl {
         this.controlDir = controlDir;
     }
 
-    // fields used, when inverting ControlDirection:
     @Override
     protected void controlUpdate(float tpf) {
-        if (spatial != null && camera != null) {
-            switch (controlDir) {
-                case SpatialToCamera:
-                    camera.setLocation(spatial.getWorldTranslation());
-                    camera.setRotation(spatial.getWorldRotation());
-                    break;
-                case CameraToSpatial:
-                    // Set the local transform so that the world transform would be equal to the camera's transform.
-                    // Location:
-                    TempVars vars = TempVars.get();
-
-                    Vector3f vecDiff = vars.vect1.set(camera.getLocation()).subtractLocal(spatial.getWorldTranslation());
-                    spatial.setLocalTranslation(vecDiff.addLocal(spatial.getLocalTranslation()));
-
-                    // Rotation:
-                    Quaternion worldDiff = vars.quat1.set(camera.getRotation()).subtractLocal(spatial.getWorldRotation());
-                    spatial.setLocalRotation(worldDiff.addLocal(spatial.getLocalRotation()));
-                    vars.release();
-                    break;
-            }
+        switch (controlDir) {
+            case SpatialToCamera:
+                spatialToCamera();
+                break;
+            case CameraToSpatial:
+                cameraToSpatial();
+                break;
         }
+    }
+
+    /**
+     * Updates the camera's position and rotation to match the spatial's
+     * world transformation. The camera will follow the spatial.
+     */
+    private void spatialToCamera() {
+        camera.setLocation(spatial.getWorldTranslation());
+        camera.setRotation(spatial.getWorldRotation());
+    }
+
+    /**
+     * Updates the spatial's local transformation (position and rotation)
+     * such that its world transformation matches the camera's world transformation.
+     * The spatial will follow the camera.
+     */
+    private void cameraToSpatial() {
+        TempVars vars = TempVars.get();
+
+        Vector3f position = vars.vect1.set(camera.getLocation()).subtractLocal(spatial.getWorldTranslation());
+        spatial.setLocalTranslation(position.addLocal(spatial.getLocalTranslation()));
+        
+        Quaternion rotation = vars.quat1.set(camera.getRotation()).subtractLocal(spatial.getWorldRotation());
+        spatial.setLocalRotation(rotation.addLocal(spatial.getLocalRotation()));
+
+        vars.release();
     }
 
     @Override
@@ -136,30 +160,19 @@ public class CameraControl extends AbstractControl {
         // nothing to do
     }
 
-    // default implementation from AbstractControl is equivalent
-    //@Override
-    //public Control cloneForSpatial(Spatial newSpatial) {
-    //    CameraControl control = new CameraControl(camera, controlDir);
-    //    control.setSpatial(newSpatial);
-    //    control.setEnabled(isEnabled());
-    //    return control;
-    //}
-    private static final String CONTROL_DIR_NAME = "controlDir";
-    private static final String CAMERA_NAME = "camera";
-    
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        controlDir = ic.readEnum(CONTROL_DIR_NAME, ControlDirection.class, ControlDirection.SpatialToCamera);
-        camera = (Camera)ic.readSavable(CAMERA_NAME, null);
+        controlDir = ic.readEnum("controlDir", ControlDirection.class, ControlDirection.SpatialToCamera);
+        camera = (Camera) ic.readSavable("camera", null);
     }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(controlDir, CONTROL_DIR_NAME, ControlDirection.SpatialToCamera);
-        oc.write(camera, CAMERA_NAME, null);
+        oc.write(controlDir, "controlDir", ControlDirection.SpatialToCamera);
+        oc.write(camera, "camera", null);
     }
 }
