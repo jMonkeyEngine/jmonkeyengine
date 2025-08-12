@@ -16,8 +16,8 @@
 # >> Configure MINIO NATIVES SNAPSHOT
 #     OBJECTS_KEY=XXXXXX
 # >> Configure SONATYPE RELEASE
-#     OSSRH_PASSWORD=XXXXXX
-#     OSSRH_USERNAME=XXXXXX
+#     CENTRAL_PASSWORD=XXXXXX
+#     CENTRAL_USERNAME=XXXXXX
 # >> Configure SIGNING
 #     SIGNING_KEY=XXXXXX
 #     SIGNING_PASSWORD=XXXXXX
@@ -59,46 +59,41 @@ jobs:
   ScreenshotTests:
     name: Run Screenshot Tests
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/onemillionworlds/opengl-docker-image:v1
     permissions:
       contents: read
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-    - name: Install Mesa3D
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y mesa-utils libgl1-mesa-dri libgl1 libglx-mesa0 xvfb
-    - name: Set environment variables for Mesa3D
-      run: |
-        echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
-        echo "MESA_LOADER_DRIVER_OVERRIDE=llvmpipe" >> $GITHUB_ENV
-    - name: Start xvfb
-      run: |
-        sudo Xvfb :99 -ac -screen 0 1024x768x16 &
-        export DISPLAY=:99
-        echo "DISPLAY=:99" >> $GITHUB_ENV
-    - name: Verify Mesa3D Installation
-      run: |
-        glxinfo | grep "OpenGL"
-    - name: Validate the Gradle wrapper
-      uses: gradle/actions/wrapper-validation@v3
-    - name: Test with Gradle Wrapper
-      run: |
-        ./gradlew :jme3-screenshot-test:screenshotTest
-    - name: Upload Test Reports
-      uses: actions/upload-artifact@master
-      if: always()
-      with:
-        name: screenshot-test-report
-        retention-days: 30
-        path: |
-          **/build/reports/**
-          **/build/changed-images/**
-          **/build/test-results/**
+      - uses: actions/checkout@v4
+      - name: Start xvfb
+        run: |
+          Xvfb :99 -ac -screen 0 1024x768x16 &
+          export DISPLAY=:99
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+      - name: Report GL/Vulkan
+        run: |
+          set -x
+          echo "DISPLAY=$DISPLAY"
+          glxinfo | grep -E "OpenGL version|OpenGL renderer|OpenGL vendor" || true
+          vulkaninfo --summary || true
+          echo "VK_ICD_FILENAMES=$VK_ICD_FILENAMES"
+          echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
+          echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+      - name: Test with Gradle Wrapper
+        run: |
+          ./gradlew :jme3-screenshot-test:screenshotTest
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@master
+        if: always()
+        with:
+          name: screenshot-test-report
+          retention-days: 30
+          path: |
+            **/build/reports/**
+            **/build/changed-images/**
+            **/build/test-results/**
   # Build the natives on android
   BuildAndroidNatives:
     name: Build natives for android
@@ -359,16 +354,16 @@ jobs:
           name: android-natives
           path: build/native
 
-      - name: Rebuild the maven artifacts and deploy them to the Sonatype repository
+      - name: Rebuild the maven artifacts and upload them to Sonatype's maven-snapshots repo
         run: |
-          if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
+          if [ "${{ secrets.CENTRAL_PASSWORD }}" = "" ];
           then
-            echo "Configure the following secrets to enable deployment to Sonatype:"
-            echo "OSSRH_PASSWORD, OSSRH_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
+            echo "Configure the following secrets to enable uploading to Sonatype:"
+            echo "CENTRAL_PASSWORD, CENTRAL_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
             ./gradlew publishMavenPublicationToSNAPSHOTRepository \
-            -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} \
-            -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
+            -PcentralPassword=${{ secrets.CENTRAL_PASSWORD }} \
+            -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
             -PsigningKey='${{ secrets.SIGNING_KEY }}' \
             -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
             -PuseCommitHashAsVersionName=true \
@@ -384,13 +379,13 @@ jobs:
     if: github.event_name == 'release'
     steps:
 
-      # We need to clone everything again for uploadToMaven.sh ...
+      # We need to clone everything again for uploadToCentral.sh ...
       - name: Clone the repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      # Setup jdk 21 used for building Sonatype OSSRH artifacts
+      # Setup jdk 21 used for building Sonatype artifacts
       - name: Setup the java environment
         uses: actions/setup-java@v4
         with:
@@ -416,20 +411,23 @@ jobs:
           name: android-natives
           path: build/native
 
-      - name: Rebuild the maven artifacts and deploy them to Sonatype OSSRH
+      - name: Rebuild the maven artifacts and upload them to Sonatype's Central Publisher Portal
         run: |
-          if [ "${{ secrets.OSSRH_PASSWORD }}" = "" ];
+          if [ "${{ secrets.CENTRAL_PASSWORD }}" = "" ];
           then
-            echo "Configure the following secrets to enable deployment to Sonatype:"
-            echo "OSSRH_PASSWORD, OSSRH_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
+            echo "Configure the following secrets to enable uploading to Sonatype:"
+            echo "CENTRAL_PASSWORD, CENTRAL_USERNAME, SIGNING_KEY, SIGNING_PASSWORD"
           else
-            ./gradlew publishMavenPublicationToOSSRHRepository \
-            -PossrhPassword=${{ secrets.OSSRH_PASSWORD }} \
-            -PossrhUsername=${{ secrets.OSSRH_USERNAME }} \
-            -PsigningKey='${{ secrets.SIGNING_KEY }}' \
-            -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-            -PuseCommitHashAsVersionName=true \
-            --console=plain --stacktrace
+            ./gradlew publishMavenPublicationToCentralRepository \
+              -PcentralPassword=${{ secrets.CENTRAL_PASSWORD }} \
+              -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
+              -PsigningKey='${{ secrets.SIGNING_KEY }}' \
+              -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
+              -PuseCommitHashAsVersionName=true \
+              --console=plain --stacktrace
+            .github/actions/tools/uploadToCentral.sh \
+              -p '${{ secrets.CENTRAL_PASSWORD }}' \
+              -u '${{ secrets.CENTRAL_USERNAME }}'
           fi
 
       - name: Deploy to GitHub Releases

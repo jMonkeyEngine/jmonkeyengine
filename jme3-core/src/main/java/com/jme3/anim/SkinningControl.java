@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,21 @@
  */
 package com.jme3.anim;
 
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.material.MatParamOverride;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
-import com.jme3.renderer.*;
-import com.jme3.scene.*;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.RendererException;
+import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.mesh.IndexBuffer;
@@ -53,17 +62,28 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The Skinning control deforms a model according to an armature, It handles the
- * computation of the deformation matrices and performs the transformations on
- * the mesh
- * <p>
- * It can perform software skinning or Hardware skinning
+ * The `SkinningControl` deforms a 3D model according to an {@link Armature}. It manages the
+ * computation of deformation matrices and applies these transformations to the mesh,
+ * supporting both software and hardware-accelerated skinning.
  *
- * @author Rémy Bouquet Based on SkeletonControl by Kirill Vainer
+ * <p>
+ * **Software Skinning:** Performed on the CPU, offering broader compatibility but
+ * potentially lower performance for complex models.
+ * <p>
+ * **Hardware Skinning:** Utilizes the GPU for deformation, providing significantly
+ * better performance but requiring shader support and having a limit on the number
+ * of bones (typically 255 in common shaders).
+ *
+ * @author Nehon
  */
-public class SkinningControl extends AbstractControl implements Cloneable, JmeCloneable {
+public class SkinningControl extends AbstractControl implements JmeCloneable {
 
     private static final Logger logger = Logger.getLogger(SkinningControl.class.getName());
+
+    /**
+     * The maximum number of bones supported for hardware skinning in common shaders.
+     */
+    private static final int MAX_BONES_HW_SKINNING_SUPPORT = 255;
 
     /**
      * The armature of the model.
@@ -71,46 +91,48 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
     private Armature armature;
 
     /**
-     * List of geometries affected by this control.
+     * A list of geometries that this control will deform.
      */
     private SafeArrayList<Geometry> targets = new SafeArrayList<>(Geometry.class);
 
     /**
-     * Used to track when a mesh was updated. Meshes are only updated if they
+     * Used to track when a mesh needs to be updated. Meshes are only updated if they
      * are visible in at least one camera.
      */
-    private boolean wasMeshUpdated = false;
+    private boolean meshUpdateRequired = true;
 
     /**
-     * User wishes to use hardware skinning if available.
+     * Indicates whether hardware skinning is preferred. If `true` and the GPU
+     * supports it, hardware skinning will be enabled.
      */
-    private transient boolean hwSkinningDesired = true;
+    private transient boolean hwSkinningPreferred = true;
 
     /**
-     * Hardware skinning is currently being used.
+     * Indicates if hardware skinning is currently active and being used.
      */
     private transient boolean hwSkinningEnabled = false;
 
     /**
-     * Hardware skinning was tested on this GPU, results
-     * are stored in {@link #hwSkinningSupported} variable.
+     * Flag indicating whether hardware skinning compatibility has been tested
+     * on the current GPU. Results are stored in {@link #hwSkinningSupported}.
      */
     private transient boolean hwSkinningTested = false;
 
     /**
-     * If hardware skinning was {@link #hwSkinningTested tested}, then
-     * this variable will be set to true if supported, and false if otherwise.
+     * Stores the result of the hardware skinning compatibility test. `true` if
+     * supported, `false` otherwise. This is only valid after
+     * {@link #hwSkinningTested} is `true`.
      */
     private transient boolean hwSkinningSupported = false;
 
     /**
-     * Bone offset matrices, recreated each frame
+     * Bone offset matrices, computed each frame to deform the mesh based on
+     * the armature's current pose.
      */
-    private transient Matrix4f[] offsetMatrices;
+    private transient Matrix4f[] boneOffsetMatrices;
 
-
-    private MatParamOverride numberOfJointsParam;
-    private MatParamOverride jointMatricesParam;
+    private MatParamOverride numberOfJointsParam = new MatParamOverride(VarType.Int, "NumberOfBones", null);
+    private MatParamOverride jointMatricesParam = new MatParamOverride(VarType.Matrix4Array, "BoneMatrices", null);
 
     /**
      * Serialization only. Do not use.
@@ -119,26 +141,26 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     /**
-     * Creates an armature control. The list of targets will be acquired
-     * automatically when the control is attached to a node.
+     * Creates a new `SkinningControl` for the given armature.
      *
-     * @param armature the armature
+     * @param armature The armature that drives the deformation (not null).
      */
     public SkinningControl(Armature armature) {
         if (armature == null) {
-            throw new IllegalArgumentException("armature cannot be null");
+            throw new IllegalArgumentException("armature cannot be null.");
         }
         this.armature = armature;
-        this.numberOfJointsParam = new MatParamOverride(VarType.Int, "NumberOfBones", null);
-        this.jointMatricesParam = new MatParamOverride(VarType.Matrix4Array, "BoneMatrices", null);
     }
 
-
-    private void switchToHardware() {
+    /**
+     * Configures the material parameters and meshes for hardware skinning.
+     */
+    private void enableHardwareSkinning() {
         numberOfJointsParam.setEnabled(true);
         jointMatricesParam.setEnabled(true);
 
-        // Next full 10 bones (e.g. 30 on 24 bones)
+        // Calculate the number of bones rounded up to the nearest multiple of 10.
+        // This is often required by shaders for array uniform declarations.
         int numBones = ((armature.getJointCount() / 10) + 1) * 10;
         numberOfJointsParam.setValue(numBones);
 
@@ -150,7 +172,10 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         }
     }
 
-    private void switchToSoftware() {
+    /**
+     * Configures the material parameters and meshes for software skinning.
+     */
+    private void enableSoftwareSkinning() {
         numberOfJointsParam.setEnabled(false);
         jointMatricesParam.setEnabled(false);
 
@@ -162,22 +187,34 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         }
     }
 
-    private boolean testHardwareSupported(RenderManager rm) {
-
-        //Only 255 bones max supported with hardware skinning
-        if (armature.getJointCount() > 255) {
+    /**
+     * Tests if hardware skinning is supported by the GPU for the current spatial.
+     *
+     * @param renderManager the RenderManager instance
+     * @return true if hardware skinning is supported, false otherwise
+     */
+    private boolean testHardwareSupported(RenderManager renderManager) {
+        // Only 255 bones max supported with hardware skinning in common shaders.
+        if (armature.getJointCount() > MAX_BONES_HW_SKINNING_SUPPORT) {
+            logger.log(Level.INFO, "Hardware skinning not supported for {0}: Too many bones ({1} > 255).",
+                    new Object[]{spatial, armature.getJointCount()});
             return false;
         }
 
-        switchToHardware();
+        // Temporarily enable hardware skinning to test shader compilation.
+        enableHardwareSkinning();
+        boolean hwSkinningEngaged = false;
 
         try {
-            rm.preloadScene(spatial);
-            return true;
-        } catch (RendererException e) {
-            logger.log(Level.WARNING, "Could not enable HW skinning due to shader compile error:", e);
-            return false;
+            renderManager.preloadScene(spatial);
+            logger.log(Level.INFO, "Hardware skinning engaged for {0}", spatial);
+            hwSkinningEngaged = true;
+
+        } catch (RendererException ex) {
+            logger.log(Level.WARNING, "Could not enable HW skinning due to shader compile error: ", ex);
         }
+
+        return hwSkinningEngaged;
     }
 
     /**
@@ -190,7 +227,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      * @see #isHardwareSkinningUsed()
      */
     public void setHardwareSkinningPreferred(boolean preferred) {
-        hwSkinningDesired = preferred;
+        hwSkinningPreferred = preferred;
     }
 
     /**
@@ -199,7 +236,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      * @see #setHardwareSkinningPreferred(boolean)
      */
     public boolean isHardwareSkinningPreferred() {
-        return hwSkinningDesired;
+        return hwSkinningPreferred;
     }
 
     /**
@@ -209,25 +246,21 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         return hwSkinningEnabled;
     }
 
-
     /**
-     * If specified the geometry has an animated mesh, add its mesh and material
-     * to the lists of animation targets.
+     * Recursively finds and adds animated geometries to the targets list.
+     *
+     * @param sp The spatial to search within.
      */
-    private void findTargets(Geometry geometry) {
-        Mesh mesh = geometry.getMesh();
-        if (mesh != null && mesh.isAnimated()) {
-            targets.add(geometry);
-        }
-
-    }
-
-    private void findTargets(Node node) {
-        for (Spatial child : node.getChildren()) {
-            if (child instanceof Geometry) {
-                findTargets((Geometry) child);
-            } else if (child instanceof Node) {
-                findTargets((Node) child);
+    private void collectAnimatedGeometries(Spatial sp) {
+        if (sp instanceof Geometry) {
+            Geometry geo = (Geometry) sp;
+            Mesh mesh = geo.getMesh();
+            if (mesh != null && mesh.isAnimated()) {
+                targets.add(geo);
+            }
+        } else if (sp instanceof Node) {
+            for (Spatial child : ((Node) sp).getChildren()) {
+                collectAnimatedGeometries(child);
             }
         }
     }
@@ -236,65 +269,72 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
     public void setSpatial(Spatial spatial) {
         Spatial oldSpatial = this.spatial;
         super.setSpatial(spatial);
-        updateTargetsAndMaterials(spatial);
+        updateAnimationTargets(spatial);
 
         if (oldSpatial != null) {
+            // Ensure parameters are removed from the old spatial to prevent memory leaks
             oldSpatial.removeMatParamOverride(numberOfJointsParam);
             oldSpatial.removeMatParamOverride(jointMatricesParam);
         }
 
         if (spatial != null) {
-            spatial.removeMatParamOverride(numberOfJointsParam);
-            spatial.removeMatParamOverride(jointMatricesParam);
+            // Add parameters to the new spatial. No need to remove first if they are not already present.
             spatial.addMatParamOverride(numberOfJointsParam);
             spatial.addMatParamOverride(jointMatricesParam);
         }
     }
 
+    /**
+     * Performs software skinning updates.
+     */
     private void controlRenderSoftware() {
         resetToBind(); // reset morph meshes to bind pose
 
-        offsetMatrices = armature.computeSkinningMatrices();
+        boneOffsetMatrices = armature.computeSkinningMatrices();
 
         for (Geometry geometry : targets) {
             Mesh mesh = geometry.getMesh();
-            // NOTE: This assumes code higher up has
-            // already ensured this mesh is animated.
-            // Otherwise a crash will happen in skin update.
-            softwareSkinUpdate(mesh, offsetMatrices);
+            // NOTE: This assumes code higher up has already ensured this mesh is animated.
+            // Otherwise, a crash will happen in skin update.
+            applySoftwareSkinning(mesh, boneOffsetMatrices);
         }
     }
 
+    /**
+     * Prepares parameters for hardware skinning.
+     */
     private void controlRenderHardware() {
-        offsetMatrices = armature.computeSkinningMatrices();
-        jointMatricesParam.setValue(offsetMatrices);
+        boneOffsetMatrices = armature.computeSkinningMatrices();
+        jointMatricesParam.setValue(boneOffsetMatrices);
     }
 
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
-        if (!wasMeshUpdated) {
-            updateTargetsAndMaterials(spatial);
+        if (meshUpdateRequired) {
+            updateAnimationTargets(spatial);
 
             // Prevent illegal cases. These should never happen.
-            assert hwSkinningTested || (!hwSkinningTested && !hwSkinningSupported && !hwSkinningEnabled);
-            assert !hwSkinningEnabled || (hwSkinningEnabled && hwSkinningTested && hwSkinningSupported);
+            assert hwSkinningTested || (!hwSkinningSupported && !hwSkinningEnabled);
+            assert !hwSkinningEnabled || (hwSkinningTested && hwSkinningSupported);
 
-            if (hwSkinningDesired && !hwSkinningTested) {
+            if (hwSkinningPreferred && !hwSkinningTested) {
+                // If hardware skinning is preferred and hasn't been tested yet, test it.
                 hwSkinningTested = true;
                 hwSkinningSupported = testHardwareSupported(rm);
 
                 if (hwSkinningSupported) {
                     hwSkinningEnabled = true;
-
-                    Logger.getLogger(SkinningControl.class.getName()).log(Level.INFO, "Hardware skinning engaged for {0}", spatial);
                 } else {
-                    switchToSoftware();
+                    enableSoftwareSkinning();
                 }
-            } else if (hwSkinningDesired && hwSkinningSupported && !hwSkinningEnabled) {
-                switchToHardware();
+            } else if (hwSkinningPreferred && hwSkinningSupported && !hwSkinningEnabled) {
+                // If hardware skinning is preferred, supported, but not yet enabled, enable it.
+                enableHardwareSkinning();
                 hwSkinningEnabled = true;
-            } else if (!hwSkinningDesired && hwSkinningEnabled) {
-                switchToSoftware();
+
+            } else if (!hwSkinningPreferred && hwSkinningEnabled) {
+                // If hardware skinning is no longer preferred but is enabled, switch to software.
+                enableSoftwareSkinning();
                 hwSkinningEnabled = false;
             }
 
@@ -304,17 +344,22 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
                 controlRenderSoftware();
             }
 
-            wasMeshUpdated = true;
+            meshUpdateRequired = false; // Reset flag after update
         }
     }
 
     @Override
     protected void controlUpdate(float tpf) {
-        wasMeshUpdated = false;
+        meshUpdateRequired = true; // Mark for mesh update on next render pass
         armature.update();
     }
 
-    //only do this for software updates
+    /**
+     * Resets the vertex, normal, and tangent buffers of animated meshes to their
+     * original bind pose. This is crucial for software skinning to ensure
+     * transformations are applied from a consistent base.
+     * This method is only applied when performing software updates.
+     */
     void resetToBind() {
         for (Geometry geometry : targets) {
             Mesh mesh = geometry.getMesh();
@@ -378,51 +423,51 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     /**
-     * Access the attachments node of the named bone. If the bone doesn't
-     * already have an attachments node, create one and attach it to the scene
-     * graph. Models and effects attached to the attachments node will follow
-     * the bone's motions.
+     * Provides access to the attachment node for a specific joint in the armature.
+     * If an attachment node does not already exist for the named joint, one will be
+     * created and attached to the scene graph. Models or effects attached to this
+     * node will follow the motion of the corresponding bone.
      *
      * @param jointName the name of the joint
      * @return the attachments node of the joint
      */
     public Node getAttachmentsNode(String jointName) {
-        Joint b = armature.getJoint(jointName);
-        if (b == null) {
-            throw new IllegalArgumentException("Given bone name does not exist "
-                    + "in the armature.");
+        Joint joint = armature.getJoint(jointName);
+        if (joint == null) {
+            throw new IllegalArgumentException(
+                    "Given joint name '" + jointName + "' does not exist in the armature.");
         }
 
-        updateTargetsAndMaterials(spatial);
-        int boneIndex = armature.getJointIndex(b);
-        Node n = b.getAttachmentsNode(boneIndex, targets);
-        /*
-         * Select a node to parent the attachments node.
-         */
+        updateAnimationTargets(spatial);
+        int jointIndex = armature.getJointIndex(joint);
+        Node attachNode = joint.getAttachmentsNode(jointIndex, targets);
+
+        // Determine the appropriate parent for the attachment node.
         Node parent;
         if (spatial instanceof Node) {
             parent = (Node) spatial; // the usual case
         } else {
             parent = spatial.getParent();
         }
-        parent.attachChild(n);
+        parent.attachChild(attachNode);
 
-        return n;
+        return attachNode;
     }
 
     /**
-     * returns the armature of this control
+     * Returns the armature associated with this skinning control.
      *
-     * @return the pre-existing instance
+     * @return The pre-existing `Armature` instance.
      */
     public Armature getArmature() {
         return armature;
     }
 
     /**
-     * Enumerate the target meshes of this control.
+     * Returns an array containing all the target meshes that this control
+     * is currently affecting.
      *
-     * @return a new array
+     * @return A new array of `Mesh` objects.
      */
     public Mesh[] getTargets() {
         Mesh[] result = new Mesh[targets.size()];
@@ -437,30 +482,31 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     /**
-     * Update the mesh according to the given transformation matrices
+     * Applies software skinning transformations to the given mesh using the
+     * provided bone offset matrices.
      *
-     * @param mesh           then mesh
-     * @param offsetMatrices the transformation matrices to apply
+     * @param mesh           The mesh to deform.
+     * @param offsetMatrices The array of transformation matrices for each bone.
      */
-    private void softwareSkinUpdate(Mesh mesh, Matrix4f[] offsetMatrices) {
+    private void applySoftwareSkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
 
         VertexBuffer tb = mesh.getBuffer(Type.Tangent);
         if (tb == null) {
-            //if there are no tangents use the classic skinning
+            // if there are no tangents use the classic skinning
             applySkinning(mesh, offsetMatrices);
         } else {
-            //if there are tangents use the skinning with tangents
+            // if there are tangents use the skinning with tangents
             applySkinningTangents(mesh, offsetMatrices, tb);
         }
-
-
     }
 
     /**
-     * Method to apply skinning transforms to a mesh's buffers
+     * Applies skinning transformations to a mesh's position and normal buffers.
+     * This method iterates through each vertex, applies the weighted sum of
+     * bone transformations, and updates the vertex buffers.
      *
-     * @param mesh           the mesh
-     * @param offsetMatrices the offset matrices to apply
+     * @param mesh           The mesh to apply skinning to.
+     * @param offsetMatrices The bone offset matrices to use for transformation.
      */
     private void applySkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
@@ -555,19 +601,16 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
 
         vb.updateData(fvb);
         nb.updateData(fnb);
-
     }
 
     /**
-     * Specific method for skinning with tangents to avoid cluttering the
-     * classic skinning calculation with null checks that would slow down the
-     * process even if tangents don't have to be computed. Also the iteration
-     * has additional indexes since tangent has 4 components instead of 3 for
-     * pos and norm
+     * Applies skinning transformations to a mesh's position, normal, and tangent buffers.
+     * This method is specifically designed for meshes that include tangent data,
+     * ensuring proper deformation of tangents alongside positions and normals.
      *
-     * @param mesh           the mesh
-     * @param offsetMatrices the offsetMatrices to apply
-     * @param tb             the tangent vertexBuffer
+     * @param mesh           The mesh to apply skinning to.
+     * @param offsetMatrices The bone offset matrices to use for transformation.
+     * @param tb             The tangent `VertexBuffer`.
      */
     private void applySkinningTangents(Mesh mesh, Matrix4f[] offsetMatrices, VertexBuffer tb) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
@@ -594,7 +637,6 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         FloatBuffer ftb = (FloatBuffer) tb.getData();
         ftb.rewind();
 
-
         // get boneIndexes and weights for mesh
         IndexBuffer ib = IndexBuffer.wrapIndexBuffer(mesh.getBuffer(Type.BoneIndex).getData());
         FloatBuffer wb = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
@@ -605,8 +647,6 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         int idxWeights = 0;
 
         TempVars vars = TempVars.get();
-
-
         float[] posBuf = vars.skinPositions;
         float[] normBuf = vars.skinNormals;
         float[] tanBuf = vars.skinTangents;
@@ -723,9 +763,6 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(armature, "armature", null);
-
-        oc.write(numberOfJointsParam, "numberOfBonesParam", null);
-        oc.write(jointMatricesParam, "boneMatricesParam", null);
     }
 
     /**
@@ -741,15 +778,13 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         InputCapsule in = im.getCapsule(this);
         armature = (Armature) in.readSavable("armature", null);
 
-        numberOfJointsParam = (MatParamOverride) in.readSavable("numberOfBonesParam", null);
-        jointMatricesParam = (MatParamOverride) in.readSavable("boneMatricesParam", null);
-
-        if (numberOfJointsParam == null) {
-            numberOfJointsParam = new MatParamOverride(VarType.Int, "NumberOfBones", null);
-            jointMatricesParam = new MatParamOverride(VarType.Matrix4Array, "BoneMatrices", null);
-            getSpatial().addMatParamOverride(numberOfJointsParam);
-            getSpatial().addMatParamOverride(jointMatricesParam);
+        for (MatParamOverride mpo : spatial.getLocalMatParamOverrides().getArray()) {
+            if (mpo.getName().equals("NumberOfBones") || mpo.getName().equals("BoneMatrices")) {
+                spatial.removeMatParamOverride(mpo);
+            }
         }
+        spatial.addMatParamOverride(numberOfJointsParam);
+        spatial.addMatParamOverride(jointMatricesParam);
     }
 
     /**
@@ -757,13 +792,9 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      *
      * @param spatial the controlled spatial
      */
-    private void updateTargetsAndMaterials(Spatial spatial) {
+    private void updateAnimationTargets(Spatial spatial) {
         targets.clear();
-
-        if (spatial instanceof Node) {
-            findTargets((Node) spatial);
-        } else if (spatial instanceof Geometry) {
-            findTargets((Geometry) spatial);
-        }
+        collectAnimatedGeometries(spatial);
     }
+
 }
