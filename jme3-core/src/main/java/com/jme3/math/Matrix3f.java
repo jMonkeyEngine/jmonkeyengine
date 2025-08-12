@@ -1245,7 +1245,7 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
      */
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Matrix3f)) {
+        if (o == null || o.getClass() != getClass()) {
             return false;
         }
 
