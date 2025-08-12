@@ -137,6 +137,7 @@ public class BinaryExporter implements JmeExporter {
     private final ArrayList<Savable> contentKeys = new ArrayList<>();
 
     public static boolean debug = false;
+    public static boolean useFastBufs = true;
 
     /**
      * Constructs a new {@code BinaryExporter}.
