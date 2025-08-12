@@ -382,15 +382,15 @@ public final class BinaryImporter implements JmeImporter {
         return capsuleTable.get(id);
     }
 
-    private String readString(InputStream is, int length) throws IOException {
+    protected String readString(InputStream f, int length) throws IOException {
         byte[] data = new byte[length];
-        for (int j = 0; j < length; j++) {
-            data[j] = (byte) is.read();
+        for(int j = 0; j < length; j++) {
+            data[j] = (byte)f.read();
         }
         return new String(data);
     }
 
-    private String readString(int length, int offset) {
+    protected String readString(int length, int offset) throws IOException {
         byte[] data = new byte[length];
         for (int j = 0; j < length; j++) {
             data[j] = dataArray[j + offset];
