@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,13 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.export.SavableClassUtil;
 import com.jme3.math.FastMath;
-import java.io.*;
+
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -116,39 +122,40 @@ import java.util.logging.Logger;
  *
  * @author Joshua Slack
  */
-
 public class BinaryExporter implements JmeExporter {
-    private static final Logger logger = Logger.getLogger(BinaryExporter.class
-            .getName());
+
+    private static final Logger logger = Logger.getLogger(BinaryExporter.class.getName());
 
     protected int aliasCount = 1;
     protected int idCount = 1;
 
-    private final IdentityHashMap<Savable, BinaryIdContentPair> contentTable
-             = new IdentityHashMap<>();
-
-    protected HashMap<Integer, Integer> locationTable
-             = new HashMap<>();
+    private final IdentityHashMap<Savable, BinaryIdContentPair> contentTable = new IdentityHashMap<>();
+    protected HashMap<Integer, Integer> locationTable = new HashMap<>();
 
     // key - class name, value = bco
-    private final HashMap<String, BinaryClassObject> classes
-             = new HashMap<>();
-
+    private final HashMap<String, BinaryClassObject> classes = new HashMap<>();
     private final ArrayList<Savable> contentKeys = new ArrayList<>();
 
     public static boolean debug = false;
     public static boolean useFastBufs = true;
 
+    /**
+     * Constructs a new {@code BinaryExporter}.
+     */
     public BinaryExporter() {
     }
 
+    /**
+     * Returns a new instance of {@code BinaryExporter}.
+     *
+     * @return A new {@code BinaryExporter} instance.
+     */
     public static BinaryExporter getInstance() {
         return new BinaryExporter();
     }
 
     /**
      * Saves the object into memory then loads it from memory.
-     *
      * Used by tests to check if the persistence system is working.
      *
      * @param <T> The type of savable.
@@ -163,9 +170,11 @@ public class BinaryExporter implements JmeExporter {
         try {
             BinaryExporter exporter = new BinaryExporter();
             exporter.save(object, baos);
+
             BinaryImporter importer = new BinaryImporter();
             importer.setAssetManager(assetManager);
             return (T) importer.load(baos.toByteArray());
+
         } catch (IOException ex) {
             // Should never happen.
             throw new AssertionError(ex);
@@ -191,28 +200,25 @@ public class BinaryExporter implements JmeExporter {
         // write out tag table
         int classTableSize = 0;
         int classNum = classes.keySet().size();
-        int aliasSize = ((int) FastMath.log(classNum, 256) + 1); // make all
-                                                                  // aliases a
-                                                                  // fixed width
+        int aliasSize = ((int) FastMath.log(classNum, 256) + 1); // make all aliases a fixed width
 
         os.write(ByteUtils.convertToBytes(classNum)); // 3. "number of classes"
         for (String key : classes.keySet()) {
             BinaryClassObject bco = classes.get(key);
 
             // write alias
-            byte[] aliasBytes = fixClassAlias(bco.alias,
-                    aliasSize);
+            byte[] aliasBytes = fixClassAlias(bco.alias, aliasSize);
             os.write(aliasBytes);                     // 4. "class alias"
             classTableSize += aliasSize;
 
             // jME3 NEW: Write class hierarchy version numbers
-            os.write( bco.classHierarchyVersions.length );
-            for (int version : bco.classHierarchyVersions){
+            os.write(bco.classHierarchyVersions.length);
+            for (int version : bco.classHierarchyVersions) {
                 os.write(ByteUtils.convertToBytes(version));
             }
             classTableSize += 1 + bco.classHierarchyVersions.length * 4;
 
-            // write classname size & classname
+            // write class name size & class name
             byte[] classBytes = key.getBytes();
             os.write(ByteUtils.convertToBytes(classBytes.length)); // 5. "full class-name size"
             os.write(classBytes);                                  // 6. "full class name"
@@ -236,14 +242,12 @@ public class BinaryExporter implements JmeExporter {
         // write out data to a separate stream
         int location = 0;
         // keep track of location for each piece
-        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<>(
-                contentTable.size());
+        HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<>(contentTable.size());
         for (Savable savable : contentKeys) {
             // look back at previous written data for matches
             String savableName = savable.getClass().getName();
             BinaryIdContentPair pair = contentTable.get(savable);
-            ArrayList<BinaryIdContentPair> bucket = alreadySaved
-                    .get(savableName + getChunk(pair));
+            ArrayList<BinaryIdContentPair> bucket = alreadySaved.get(savableName + getChunk(pair));
             int prevLoc = findPrevMatch(pair, bucket);
             if (prevLoc != -1) {
                 locationTable.put(pair.getId(), prevLoc);
@@ -286,17 +290,14 @@ public class BinaryExporter implements JmeExporter {
         // append stream to the output stream
         out.writeTo(os);
 
-
-        out = null;
-        os = null;
-
         if (debug) {
-            logger.fine("Stats:");
-            logger.log(Level.FINE, "classes: {0}", classNum);
-            logger.log(Level.FINE, "class table: {0} bytes", classTableSize);
-            logger.log(Level.FINE, "objects: {0}", numLocations);
-            logger.log(Level.FINE, "location table: {0} bytes", locationTableSize);
-            logger.log(Level.FINE, "data: {0} bytes", location);
+            logger.log(Level.INFO, "BinaryExporter Stats:"
+                    + "\n * Classes: {0}"
+                    + "\n * Class Table: {1} bytes"
+                    + "\n * Objects: {2}"
+                    + "\n * Location Table: {3} bytes"
+                    + "\n * Data: {4} bytes",
+                    new Object[] {classNum, classTableSize, numLocations, locationTableSize, location});
         }
     }
 
@@ -305,14 +306,15 @@ public class BinaryExporter implements JmeExporter {
                 .getContent().bytes.length));
     }
 
-    private int findPrevMatch(BinaryIdContentPair oldPair,
-            ArrayList<BinaryIdContentPair> bucket) {
-        if (bucket == null)
+    private int findPrevMatch(BinaryIdContentPair oldPair, ArrayList<BinaryIdContentPair> bucket) {
+        if (bucket == null) {
             return -1;
+        }
         for (int x = bucket.size(); --x >= 0;) {
             BinaryIdContentPair pair = bucket.get(x);
-            if (pair.getContent().equals(oldPair.getContent()))
+            if (pair.getContent().equals(oldPair.getContent())) {
                 return locationTable.get(pair.getId());
+            }
         }
         return -1;
     }
@@ -345,7 +347,7 @@ public class BinaryExporter implements JmeExporter {
         return contentTable.get(object).getContent();
     }
 
-    private BinaryClassObject createClassObject(Class<? extends Savable> clazz) throws IOException{
+    private BinaryClassObject createClassObject(Class<? extends Savable> clazz) throws IOException {
         BinaryClassObject bco = new BinaryClassObject();
         bco.alias = generateTag();
         bco.nameFields = new HashMap<>();
@@ -361,10 +363,10 @@ public class BinaryExporter implements JmeExporter {
             return -1;
         }
         Class<? extends Savable> clazz = object.getClass();
-        BinaryClassObject bco = classes.get(object.getClass().getName());
+        BinaryClassObject bco = classes.get(clazz.getName());
         // is this class been looked at before? in tagTable?
         if (bco == null) {
-            bco = createClassObject(object.getClass());
+            bco = createClassObject(clazz);
         }
 
         // is object in contentTable?
@@ -379,7 +381,6 @@ public class BinaryExporter implements JmeExporter {
         object.write(this);
         newPair.getContent().finish();
         return newPair.getId();
-
     }
 
     protected byte[] generateTag() {
