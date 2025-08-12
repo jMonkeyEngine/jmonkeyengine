@@ -95,8 +95,8 @@ public class RenderManager {
     private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
     private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
     private final HashMap<Class, PipelineContext> contexts = new HashMap<>();
-    private final LinkedList<PipelineContext> usedContexts = new LinkedList<>();
-    private final LinkedList<RenderPipeline> usedPipelines = new LinkedList<>();
+    private final ArrayList<PipelineContext> usedContexts = new ArrayList<>();
+    private final ArrayList<RenderPipeline> usedPipelines = new ArrayList<>();
     private RenderPipeline defaultPipeline = new ForwardPipeline();
     private Camera prevCam = null;
     private Material forcedMaterial = null;
@@ -1367,11 +1367,11 @@ public class RenderManager {
         }
         
         // cleanup for used render pipelines and pipeline contexts only
-        for (PipelineContext c : usedContexts) {
-            c.endContextRenderFrame(this);
+        for (int i = 0; i < usedContexts.size(); i++) {
+            usedContexts.get(i).endContextRenderFrame(this);
         }
-        for (RenderPipeline p : usedPipelines) {
-            p.endRenderFrame(this);
+        for (int i = 0; i < usedPipelines.size(); i++) {
+            usedPipelines.get(i).endRenderFrame(this);
         }
         usedContexts.clear();
         usedPipelines.clear();
