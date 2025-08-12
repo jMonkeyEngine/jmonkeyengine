@@ -209,6 +209,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
             Light light = lightDefinitions.get(lightIndex);
             parent.addLight(light);
             LightControl control = new LightControl(light);
+            control.setInvertAxisDirection(true);
             node.addControl(control);
         } else {
             throw new AssetLoadException("KHR_lights_punctual extension accessed undefined light at index " + lightIndex);
