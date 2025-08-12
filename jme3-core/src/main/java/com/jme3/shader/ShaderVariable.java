@@ -44,8 +44,8 @@ public class ShaderVariable {
 
     /**
      * <ul>
-     * <li>If {@code LOC_UNKNOWN} (-2): The location is currently unknown.</li>
-     * <li>If {@code LOC_NOT_DEFINED} (-1): The variable is not defined in the shader.</li>
+     * <li>If {@link #LOC_UNKNOWN}: The location is currently unknown.</li>
+     * <li>If {@link #LOC_NOT_DEFINED}: The variable is not defined in the shader.</li>
      * <li>If {@code >= 0}: The uniform variable is defined and available.</li>
      * </ul>
      */
