@@ -30,6 +30,14 @@ public class GraphicsPipeline extends Pipeline {
         this.mesh = mesh;
     }
 
+    public RenderPass getCompat() {
+        return compat;
+    }
+
+    public int getSubpassIndex() {
+        return subpassIndex;
+    }
+
     public Builder build() {
         return new Builder();
     }

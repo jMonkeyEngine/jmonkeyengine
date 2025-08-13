@@ -8,6 +8,8 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;

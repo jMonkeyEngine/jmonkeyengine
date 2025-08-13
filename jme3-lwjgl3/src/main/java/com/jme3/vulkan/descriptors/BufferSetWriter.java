@@ -4,13 +4,11 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-import static org.lwjgl.vulkan.VK10.*;
-
-public class BufferSetWriter extends DescriptorSetWriter {
+public class BufferSetWriter extends BaseDescriptorWriter {
 
     private final BufferDescriptor[] descriptors;
 
-    public BufferSetWriter(int type, int binding, int arrayElement, BufferDescriptor... descriptors) {
+    public BufferSetWriter(Descriptor type, int binding, int arrayElement, BufferDescriptor... descriptors) {
         super(type, binding, arrayElement, descriptors.length);
         this.descriptors = descriptors;
     }
@@ -24,14 +22,6 @@ public class BufferSetWriter extends DescriptorSetWriter {
         }
         info.flip();
         write.pBufferInfo(info);
-    }
-
-    public static BufferSetWriter uniformBuffers(int binding, int arrayElement, BufferDescriptor... descriptors) {
-        return new BufferSetWriter(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, binding, arrayElement, descriptors);
-    }
-
-    public static BufferSetWriter storageBuffers(int binding, int arrayElement, BufferDescriptor... descriptors) {
-        return new BufferSetWriter(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, binding, arrayElement, descriptors);
     }
 
 }

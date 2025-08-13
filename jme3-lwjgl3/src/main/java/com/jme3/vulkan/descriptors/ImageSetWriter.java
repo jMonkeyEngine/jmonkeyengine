@@ -1,15 +1,14 @@
 package com.jme3.vulkan.descriptors;
 
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkDescriptorImageInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-public class ImageSetWriter extends DescriptorSetWriter {
+public class ImageSetWriter extends BaseDescriptorWriter {
 
     private final ImageDescriptor[] descriptors;
 
-    public ImageSetWriter(int type, int binding, int arrayElement, ImageDescriptor... descriptors) {
+    public ImageSetWriter(Descriptor type, int binding, int arrayElement, ImageDescriptor... descriptors) {
         super(type, binding, arrayElement, descriptors.length);
         this.descriptors = descriptors;
     }
@@ -23,10 +22,6 @@ public class ImageSetWriter extends DescriptorSetWriter {
         }
         info.flip();
         write.pImageInfo(info);
-    }
-
-    public static ImageSetWriter combinedImageSampler(int binding, int arrayElement, ImageDescriptor... descriptors) {
-        return new ImageSetWriter(VK10.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, binding, arrayElement, descriptors);
     }
 
 }

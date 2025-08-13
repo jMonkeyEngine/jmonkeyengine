@@ -151,13 +151,17 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             s.selectImageCount(2);
         }
 
+        // Describes the layout of a descriptor set. The descriptor set
+        // will represent two uniforms: a uniform buffer at binding 0
+        // requiring 1 descriptor, and an image sampler at binding 1
+        // requiring 1 descriptor.
         descriptorLayout = new DescriptorSetLayout(device,
-                SetLayoutBinding.uniformBuffer(0, 1, VK_SHADER_STAGE_VERTEX_BIT),
-                SetLayoutBinding.combinedImageSampler(1, 1, VK_SHADER_STAGE_FRAGMENT_BIT));
+                new SetLayoutBinding(Descriptor.UniformBuffer, 0, 1, VK_SHADER_STAGE_VERTEX_BIT),
+                new SetLayoutBinding(Descriptor.CombinedImageSampler, 1, 1, VK_SHADER_STAGE_FRAGMENT_BIT));
         descriptorPool = new DescriptorPool(device, 3,
-                PoolSize.uniformBuffers(3),
-                PoolSize.storageBuffers(4),
-                PoolSize.combinedImageSamplers(2));
+                new PoolSize(Descriptor.UniformBuffer, 3),
+                new PoolSize(Descriptor.StorageBuffer, 4),
+                new PoolSize(Descriptor.CombinedImageSampler, 2));
 
         CommandPool transferPool = new CommandPool(device, physDevice.getGraphics(), true, false);
 
@@ -315,8 +319,9 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                     new BufferUsageFlags().uniformBuffer(),
                     new MemoryFlags().hostVisible().hostCoherent(), false);
             descriptorSet = descriptorPool.allocateSets(descriptorLayout)[0];
-            descriptorSet.write(BufferSetWriter.uniformBuffers(0, 0, new BufferDescriptor(uniforms)),
-                    ImageSetWriter.combinedImageSampler(1, 0, new ImageDescriptor(texture, Image.Layout.ShaderReadOnlyOptimal)));
+            descriptorSet.write(
+                    new BufferSetWriter(Descriptor.UniformBuffer, 0, 0, new BufferDescriptor(uniforms)),
+                    new ImageSetWriter(Descriptor.CombinedImageSampler, 1, 0, new ImageDescriptor(texture, Image.Layout.ShaderReadOnlyOptimal)));
         }
 
         @Override
@@ -346,9 +351,9 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
                 // material
                         .fillFloatBuffer(uniforms.mapFloats(stack, 0, 16, 0), true);
+                uniforms.unmap();
                 vkCmdBindDescriptorSets(graphicsCommands.getBuffer(), pipeline.getBindPoint().getVkEnum(),
                         pipelineLayout.getNativeObject(), 0, stack.longs(descriptorSet.getId()), null);
-                uniforms.unmap();
 
                 // viewport
                 VkViewport.Buffer vp = VkViewport.calloc(1, stack)

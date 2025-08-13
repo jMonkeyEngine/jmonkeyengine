@@ -6,7 +6,7 @@ import com.jme3.vulkan.devices.LogicalDevice;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public class Pipeline extends VulkanObject<Long> {
+public abstract class Pipeline extends VulkanObject<Long> {
 
     protected final LogicalDevice<?> device;
     protected final PipelineBindPoint bindPoint;

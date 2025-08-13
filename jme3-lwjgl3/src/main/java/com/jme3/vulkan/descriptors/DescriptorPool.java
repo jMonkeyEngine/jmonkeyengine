@@ -75,4 +75,6 @@ public class DescriptorPool implements Native<Long> {
         vkResetDescriptorPool(device.getNativeObject(), id, 0);
     }
 
+
+
 }

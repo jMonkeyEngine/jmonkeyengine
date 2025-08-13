@@ -9,7 +9,7 @@ public class BufferDescriptor {
     private final long offset, range;
 
     public BufferDescriptor(GpuBuffer buffer) {
-        this(buffer, 0, buffer.size());
+        this(buffer, 0, buffer.size().getBytes());
     }
 
     public BufferDescriptor(GpuBuffer buffer, long offset, long range) {
