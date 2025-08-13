@@ -10,23 +10,20 @@ public abstract class Uniform <T> implements DescriptorSetWriter {
 
     private final String name;
     private final Descriptor type;
-    private final int setIndex;
     private final int bindingIndex;
-    private SetLayoutBinding binding;
     private boolean updateFlag = true;
     protected T value;
 
-    public Uniform(String name, Descriptor type, int setIndex, int bindingIndex) {
+    public Uniform(String name, Descriptor type, int bindingIndex) {
         this.name = name;
         this.type = type;
-        this.setIndex = setIndex;
         this.bindingIndex = bindingIndex;
     }
 
     @Override
     public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
         write.descriptorType(type.getVkEnum())
-                .dstBinding(binding.getBinding())
+                .dstBinding(bindingIndex)
                 .dstArrayElement(0)
                 .descriptorCount(1);
     }
@@ -37,14 +34,9 @@ public abstract class Uniform <T> implements DescriptorSetWriter {
     }
 
     public boolean isBindingCompatible(SetLayoutBinding binding) {
-        return binding.getType() == type && binding.getBinding() == bindingIndex;
-    }
-
-    public void setBinding(SetLayoutBinding binding) {
-        if (!isBindingCompatible(binding)) {
-            throw new IllegalArgumentException("Incompatible binding provided.");
-        }
-        this.binding = binding;
+        return binding.getType() == type
+                && binding.getBinding() == bindingIndex
+                && binding.getDescriptors() == 1;
     }
 
     public void setValue(T value) {
@@ -64,14 +56,6 @@ public abstract class Uniform <T> implements DescriptorSetWriter {
 
     public Descriptor getType() {
         return type;
-    }
-
-    public SetLayoutBinding getBinding() {
-        return binding;
-    }
-
-    public int getSetIndex() {
-        return setIndex;
     }
 
     public int getBindingIndex() {

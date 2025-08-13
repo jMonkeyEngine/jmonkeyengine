@@ -19,7 +19,6 @@ public class DescriptorSet {
     private final DescriptorPool pool;
     private final DescriptorSetLayout layout;
     private final long id;
-    private final Collection<DescriptorSetWriter> writers = new ArrayList<>();
 
     public DescriptorSet(LogicalDevice<?> device, DescriptorPool pool, DescriptorSetLayout layout, long id) {
         this.device = device;
@@ -28,14 +27,9 @@ public class DescriptorSet {
         this.id = id;
     }
 
-    public void update() {
+    public void update(boolean force, DescriptorSetWriter... writers) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            int updating = 0;
-            for (DescriptorSetWriter w : writers) {
-                if (w.isUpdateNeeded()) {
-                    updating++;
-                }
-            }
+            int updating = countWritersToUpdate(force, writers);
             if (updating > 0) {
                 VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(updating, stack);
                 for (DescriptorSetWriter w : writers) {
@@ -51,17 +45,17 @@ public class DescriptorSet {
         }
     }
 
-    public void write(DescriptorSetWriter... writers) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(writers.length, stack);
-            for (DescriptorSetWriter w : writers) {
-                w.populateWrite(stack, write.get()
-                        .sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET)
-                        .dstSet(id));
-            }
-            write.flip();
-            vkUpdateDescriptorSets(device.getNativeObject(), write, null);
+    private int countWritersToUpdate(boolean force, DescriptorSetWriter... writers) {
+        if (force) {
+            return writers.length;
         }
+        int updating = 0;
+        for (DescriptorSetWriter w : writers) {
+            if (w.isUpdateNeeded()) {
+                updating++;
+            }
+        }
+        return updating;
     }
 
     public void free() {
