@@ -221,17 +221,15 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             // cpu-accessible memory is not usually fast for the gpu to access, but
             // the cpu cannot directly access fast gpu memory. The solution is to
             // copy cpu-side data to a mutual staging buffer, then have the gpu copy
-            // that data to faster memory. Hence, why we do two copy operations here.
-            vertexBuffer = new StageableBuffer(device, MemorySize.floats(vertexData.capacity()),
+            // that data to faster memory. Hence, why we use a StageableBuffer here.
+            vertexBuffer = new StageableBuffer(device, transferPool, MemorySize.floats(vertexData.capacity()),
                     new BufferUsageFlags().vertexBuffer(), new MemoryFlags().deviceLocal(), false);
             vertexBuffer.copy(stack, vertexData); // copy data to staging buffer
-            vertexBuffer.transfer(transferPool); // transfer staged data to vertex buffer
             vertexBuffer.freeStagingBuffer();
             // index buffer
-            indexBuffer = new StageableBuffer(device, MemorySize.ints(indexData.capacity()),
+            indexBuffer = new StageableBuffer(device, transferPool, MemorySize.ints(indexData.capacity()),
                     new BufferUsageFlags().indexBuffer(), new MemoryFlags().deviceLocal(), false);
             indexBuffer.copy(stack, indexData);
-            indexBuffer.transfer(transferPool);
             indexBuffer.freeStagingBuffer();
         }
 

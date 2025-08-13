@@ -72,8 +72,8 @@ public class GpuBuffer implements Native<Long> {
         return ref;
     }
 
-    private void verifyBufferSize(Buffer buffer, long bytesPerElement) {
-        if (buffer.limit() * bytesPerElement > size.getBytes()) {
+    private void verifyBufferSize(int elements, long bytesPerElement) {
+        if (elements * bytesPerElement > size.getBytes()) {
             throw new BufferOverflowException();
         }
     }
@@ -111,38 +111,45 @@ public class GpuBuffer implements Native<Long> {
     }
 
     public void copy(MemoryStack stack, ByteBuffer buffer) {
-        verifyBufferSize(buffer, Byte.BYTES);
+        verifyBufferSize(buffer.limit(), Byte.BYTES);
         MemoryUtil.memCopy(buffer, mapBytes(stack, 0, buffer.limit(), 0));
         unmap();
     }
 
     public void copy(MemoryStack stack, ShortBuffer buffer) {
-        verifyBufferSize(buffer, Short.BYTES);
+        verifyBufferSize(buffer.limit(), Short.BYTES);
         MemoryUtil.memCopy(buffer, mapShorts(stack, 0, buffer.limit(), 0));
         unmap();
     }
 
     public void copy(MemoryStack stack, IntBuffer buffer) {
-        verifyBufferSize(buffer, Integer.BYTES);
+        verifyBufferSize(buffer.limit(), Integer.BYTES);
         MemoryUtil.memCopy(buffer, mapInts(stack, 0, buffer.limit(), 0));
         unmap();
     }
 
     public void copy(MemoryStack stack, FloatBuffer buffer) {
-        verifyBufferSize(buffer, Float.BYTES);
+        verifyBufferSize(buffer.limit(), Float.BYTES);
         MemoryUtil.memCopy(buffer, mapFloats(stack, 0, buffer.limit(), 0));
         unmap();
     }
 
     public void copy(MemoryStack stack, DoubleBuffer buffer) {
-        verifyBufferSize(buffer, Double.BYTES);
+        verifyBufferSize(buffer.limit(), Double.BYTES);
         MemoryUtil.memCopy(buffer, mapDoubles(stack, 0, buffer.limit(), 0));
         unmap();
     }
 
     public void copy(MemoryStack stack, LongBuffer buffer) {
-        verifyBufferSize(buffer, Long.BYTES);
+        verifyBufferSize(buffer.limit(), Long.BYTES);
         MemoryUtil.memCopy(buffer, mapLongs(stack, 0, buffer.limit(), 0));
+        unmap();
+    }
+
+    public void copy(MemoryStack stack, Struct<?> struct) {
+        verifyBufferSize(struct.sizeof(), Byte.BYTES);
+        MemoryUtil.memCopy(MemoryUtil.memByteBuffer(struct.address(), struct.sizeof()),
+                mapBytes(stack, 0, struct.sizeof(), 0));
         unmap();
     }
 

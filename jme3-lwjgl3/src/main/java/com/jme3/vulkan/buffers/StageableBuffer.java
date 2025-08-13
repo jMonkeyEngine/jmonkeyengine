@@ -12,10 +12,13 @@ import org.lwjgl.system.MemoryStack;
 
 public class StageableBuffer extends GpuBuffer {
 
+    private final CommandPool transferPool;
     private final GpuBuffer stage;
 
-    public StageableBuffer(LogicalDevice device, MemorySize size, BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
+    public StageableBuffer(LogicalDevice device, CommandPool transferPool, MemorySize size,
+                           BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
         super(device, size, usage.transferDst(), mem, concurrent);
+        this.transferPool = transferPool;
         stage = new GpuBuffer(device, size, new BufferUsageFlags().transferSrc(),
                 new MemoryFlags().hostVisible().hostCoherent(), concurrent);
     }
@@ -28,6 +31,7 @@ public class StageableBuffer extends GpuBuffer {
     @Override
     public void unmap() {
         stage.unmap();
+        transfer();
     }
 
     @Override
@@ -36,12 +40,17 @@ public class StageableBuffer extends GpuBuffer {
         stage.freeMemory();
     }
 
-    public void transfer(CommandPool transferPool) {
-        transfer(transferPool, null, null, null);
+    public void unmap(Semaphore wait, Semaphore signal, Fence fence) {
+        stage.unmap();
+        transfer(wait, signal, fence);
+    }
+
+    public void transfer() {
+        transfer(null, null, null);
         transferPool.getQueue().waitIdle();
     }
 
-    public void transfer(CommandPool transferPool, Semaphore wait, Semaphore signal, Fence fence) {
+    public void transfer(Semaphore wait, Semaphore signal, Fence fence) {
         if (stage.getNativeReference().isDestroyed()) {
             throw new IllegalStateException("Staging buffer has already been freed.");
         }

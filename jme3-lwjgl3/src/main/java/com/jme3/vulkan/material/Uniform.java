@@ -6,7 +6,7 @@ import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-public class Uniform <T> implements DescriptorSetWriter {
+public class Uniform<T> implements DescriptorSetWriter {
 
     /**
      * Placeholder for uniforms that weren't provided with a name,

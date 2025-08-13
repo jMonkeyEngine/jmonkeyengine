@@ -4,7 +4,6 @@ import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorPool;
 import com.jme3.vulkan.images.Image;
-import com.jme3.vulkan.images.Texture;
 
 public class TestMaterial extends Material {
 
@@ -18,11 +17,11 @@ public class TestMaterial extends Material {
         addSet(matrices, baseColorMap);
     }
 
-    public Uniform<GpuBuffer> getMatrices() {
+    public BufferUniform<GpuBuffer> getMatrices() {
         return matrices;
     }
 
-    public Uniform<Texture> getBaseColorMap() {
+    public TextureUniform getBaseColorMap() {
         return baseColorMap;
     }
 
