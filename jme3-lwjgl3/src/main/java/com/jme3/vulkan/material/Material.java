@@ -3,10 +3,8 @@ package com.jme3.vulkan.material;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.pipelines.Pipeline;
-import com.jme3.vulkan.pipelines.PipelineLayout;
 import org.lwjgl.system.MemoryStack;
 
-import java.lang.ref.WeakReference;
 import java.nio.LongBuffer;
 import java.util.*;
 
@@ -25,6 +23,10 @@ public class Material {
     }
 
     public void bind(CommandBuffer cmd, Pipeline pipeline) {
+        bind(cmd, pipeline, 0);
+    }
+
+    public void bind(CommandBuffer cmd, Pipeline pipeline, int offset) {
         LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>(
                 Arrays.asList(pipeline.getLayout().getDescriptorSetLayouts()));
         ArrayList<DescriptorSetLayout> allocationLayouts = new ArrayList<>(availableLayouts.size());
@@ -56,13 +58,33 @@ public class Material {
             }
             setBuf.flip();
             vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getVkEnum(),
-                    pipeline.getLayout().getNativeObject(), 0, setBuf, null);
+                    pipeline.getLayout().getNativeObject(), offset, setBuf, null);
         }
     }
 
     protected UniformSet addSet(UniformSet set) {
         uniforms.add(set);
         return set;
+    }
+
+    protected UniformSet addSet(Uniform... uniforms) {
+        return addSet(new UniformSet(uniforms));
+    }
+
+    public List<UniformSet> getSets() {
+        return Collections.unmodifiableList(uniforms);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> Uniform<T> get(String name) {
+        for (UniformSet s : uniforms) {
+            for (Uniform u : s.getUniforms()) {
+                if (name.equals(u.getName())) {
+                    return (Uniform<T>)u;
+                }
+            }
+        }
+        return null;
     }
 
 }

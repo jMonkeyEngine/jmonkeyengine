@@ -8,6 +8,10 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 public class BufferUniform <T extends GpuBuffer> extends Uniform<T> {
 
+    public BufferUniform(Descriptor type, int bindingIndex) {
+        super(type, bindingIndex);
+    }
+
     public BufferUniform(String name, Descriptor type, int bindingIndex) {
         super(name, type, bindingIndex);
     }

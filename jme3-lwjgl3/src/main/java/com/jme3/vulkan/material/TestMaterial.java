@@ -1,0 +1,29 @@
+package com.jme3.vulkan.material;
+
+import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.descriptors.Descriptor;
+import com.jme3.vulkan.descriptors.DescriptorPool;
+import com.jme3.vulkan.images.Image;
+import com.jme3.vulkan.images.Texture;
+
+public class TestMaterial extends Material {
+
+    private final BufferUniform<GpuBuffer> matrices = new BufferUniform<>(
+            Descriptor.UniformBuffer, 0);
+    private final TextureUniform baseColorMap = new TextureUniform(
+            Image.Layout.ShaderReadOnlyOptimal, 1);
+
+    public TestMaterial(DescriptorPool pool) {
+        super(pool);
+        addSet(matrices, baseColorMap);
+    }
+
+    public Uniform<GpuBuffer> getMatrices() {
+        return matrices;
+    }
+
+    public Uniform<Texture> getBaseColorMap() {
+        return baseColorMap;
+    }
+
+}

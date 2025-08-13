@@ -2,6 +2,7 @@ package com.jme3.vulkan.images;
 
 import com.jme3.asset.*;
 import com.jme3.util.BufferUtils;
+import com.jme3.vulkan.buffers.MemorySize;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.buffers.GpuBuffer;
@@ -150,7 +151,7 @@ public class VulkanImageLoader implements AssetLoader {
 
     private GpuImage loadGpuImage(CommandPool transferPool, ImageData data) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            GpuBuffer staging = new GpuBuffer(transferPool.getDevice(), data.getBuffer().limit(),
+            GpuBuffer staging = new GpuBuffer(transferPool.getDevice(), MemorySize.bytes(data.getBuffer().limit()),
                     new BufferUsageFlags().transferSrc(), new MemoryFlags().hostVisible().hostCoherent(), false);
             staging.copy(stack, data.getBuffer());
             GpuImage image = new GpuImage(transferPool.getDevice(), data.getWidth(), data.getHeight(), data.getFormat(),

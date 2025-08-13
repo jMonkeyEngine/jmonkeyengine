@@ -5,6 +5,7 @@ import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,6 +18,13 @@ public class UniformSet {
 
     public UniformSet(Uniform... uniforms) {
         this.uniforms = uniforms;
+        // ensure duplicate binding indices are not present
+        HashSet<Integer> bindings = new HashSet<>();
+        for (Uniform u : uniforms) {
+            if (!bindings.add(u.getBindingIndex())) {
+                throw new IllegalArgumentException("Duplicate binding index in set: " + u.getBindingIndex());
+            }
+        }
     }
 
     public void addActiveSet(DescriptorSet activeSet) {

@@ -6,13 +6,23 @@ import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-public abstract class Uniform <T> implements DescriptorSetWriter {
+public class Uniform <T> implements DescriptorSetWriter {
+
+    /**
+     * Placeholder for uniforms that weren't provided with a name,
+     * usually because uniform names are unnecessary.
+     */
+    public static final String UNNAMED = "unnamed_uniform";
 
     private final String name;
     private final Descriptor type;
     private final int bindingIndex;
     private boolean updateFlag = true;
     protected T value;
+
+    public Uniform(Descriptor type, int bindingIndex) {
+        this(UNNAMED, type, bindingIndex);
+    }
 
     public Uniform(String name, Descriptor type, int bindingIndex) {
         this.name = name;

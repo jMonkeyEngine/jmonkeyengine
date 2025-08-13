@@ -67,6 +67,10 @@ public class UniformTestStruct extends Struct<UniformTestStruct> {
         return new UniformTestStruct(MemoryUtil.nmemCallocChecked(1, SIZEOF), null);
     }
 
+    public static UniformTestStruct create(long address) {
+        return new UniformTestStruct(address, null);
+    }
+
     public static class Buffer extends StructBuffer<UniformTestStruct, Buffer> implements NativeResource {
 
         private static final UniformTestStruct FACTORY = new UniformTestStruct(-1L, null);

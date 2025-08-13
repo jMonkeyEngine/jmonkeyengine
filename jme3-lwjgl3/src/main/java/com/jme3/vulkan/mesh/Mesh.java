@@ -35,7 +35,7 @@ public class Mesh {
     }
 
     public void draw(CommandBuffer cmd) {
-        vkCmdDrawIndexed(cmd.getBuffer(), indexBuffer.size() / Integer.BYTES, 1, 0, 0, 0);
+        vkCmdDrawIndexed(cmd.getBuffer(), indexBuffer.size().getElements(), 1, 0, 0, 0);
     }
 
 }

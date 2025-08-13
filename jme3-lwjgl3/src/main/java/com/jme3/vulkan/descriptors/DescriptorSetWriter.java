@@ -7,6 +7,8 @@ public interface DescriptorSetWriter {
 
     void populateWrite(MemoryStack stack, VkWriteDescriptorSet write);
 
-    boolean isUpdateNeeded();
+    default boolean isUpdateNeeded() {
+        return true;
+    }
 
 }

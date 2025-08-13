@@ -10,11 +10,14 @@ import com.jme3.vulkan.flags.BufferUsageFlags;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.Struct;
 import org.lwjgl.vulkan.VkBufferCopy;
 import org.lwjgl.vulkan.VkBufferCreateInfo;
 import org.lwjgl.vulkan.VkMemoryRequirements;
 
 import java.nio.*;
+import java.util.function.Function;
+import java.util.function.LongFunction;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -101,6 +104,10 @@ public class GpuBuffer implements Native<Long> {
 
     public LongBuffer mapLongs(MemoryStack stack, int offset, int size, int flags) {
         return map(stack, offset, size * Long.BYTES, flags).getLongBuffer(0, size);
+    }
+
+    public <T extends Struct<T>> T mapStruct(MemoryStack stack, int offset, int size, int flags, LongFunction<T> factory) {
+        return factory.apply(map(stack, offset, size, flags).get(0));
     }
 
     public void copy(MemoryStack stack, ByteBuffer buffer) {

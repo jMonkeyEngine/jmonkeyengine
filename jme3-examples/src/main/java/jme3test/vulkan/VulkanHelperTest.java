@@ -21,6 +21,7 @@ import com.jme3.vulkan.flags.ImageUsageFlags;
 import com.jme3.vulkan.flags.MemoryFlags;
 import com.jme3.vulkan.flags.BufferUsageFlags;
 import com.jme3.vulkan.images.*;
+import com.jme3.vulkan.material.TestMaterial;
 import com.jme3.vulkan.pass.Attachment;
 import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pipelines.GraphicsPipeline;
@@ -310,18 +311,24 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         private final Fence inFlight = new Fence(device, true);
 
         // material
-        private final GpuBuffer uniforms;
-        private final DescriptorSet descriptorSet;
+//        private final GpuBuffer uniforms;
+//        private final DescriptorSet descriptorSet;
+        private final TestMaterial material = new TestMaterial(descriptorPool);
 
         public Frame() {
             // using a persistent buffer because we will be writing to the buffer very often
-            uniforms = new PersistentBuffer(device, MemorySize.floats(16),
+//            uniforms = new PersistentBuffer(device, MemorySize.floats(16),
+//                    new BufferUsageFlags().uniformBuffer(),
+//                    new MemoryFlags().hostVisible().hostCoherent(), false);
+//            descriptorSet = descriptorPool.allocateSets(descriptorLayout)[0];
+//            descriptorSet.update(true,
+//                    new BufferSetWriter(Descriptor.UniformBuffer, 0, 0, new BufferDescriptor(uniforms)),
+//                    new ImageSetWriter(Descriptor.CombinedImageSampler, 1, 0, new ImageDescriptor(texture, Image.Layout.ShaderReadOnlyOptimal)));
+            material.getMatrices().setValue(new PersistentBuffer(device,
+                    MemorySize.floats(16),
                     new BufferUsageFlags().uniformBuffer(),
-                    new MemoryFlags().hostVisible().hostCoherent(), false);
-            descriptorSet = descriptorPool.allocateSets(descriptorLayout)[0];
-            descriptorSet.write(
-                    new BufferSetWriter(Descriptor.UniformBuffer, 0, 0, new BufferDescriptor(uniforms)),
-                    new ImageSetWriter(Descriptor.CombinedImageSampler, 1, 0, new ImageDescriptor(texture, Image.Layout.ShaderReadOnlyOptimal)));
+                    new MemoryFlags().hostVisible().hostCoherent(), false));
+            material.getBaseColorMap().setValue(texture);
         }
 
         @Override
@@ -348,12 +355,14 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 // geometry
                 modelTransform.getRotation().multLocal(new Quaternion().fromAngleAxis(tpf, Vector3f.UNIT_Y));
                 cam.getViewProjectionMatrix().mult(modelTransform.toTransformMatrix())
+                        .fillFloatBuffer(
 
                 // material
-                        .fillFloatBuffer(uniforms.mapFloats(stack, 0, 16, 0), true);
-                uniforms.unmap();
-                vkCmdBindDescriptorSets(graphicsCommands.getBuffer(), pipeline.getBindPoint().getVkEnum(),
-                        pipelineLayout.getNativeObject(), 0, stack.longs(descriptorSet.getId()), null);
+                material.getMatrices().getValue().mapFloats(stack, 0, 16, 0), true);
+                material.getMatrices().getValue().unmap();
+                material.bind(graphicsCommands, pipeline);
+//                vkCmdBindDescriptorSets(graphicsCommands.getBuffer(), pipeline.getBindPoint().getVkEnum(),
+//                        pipelineLayout.getNativeObject(), 0, stack.longs(descriptorSet.getId()), null);
 
                 // viewport
                 VkViewport.Buffer vp = VkViewport.calloc(1, stack)

@@ -22,11 +22,6 @@ public class BaseDescriptorWriter implements DescriptorSetWriter {
                 .descriptorCount(descriptorCount);
     }
 
-    @Override
-    public boolean isUpdateNeeded() {
-        throw new UnsupportedOperationException();
-    }
-
     public Descriptor getType() {
         return type;
     }

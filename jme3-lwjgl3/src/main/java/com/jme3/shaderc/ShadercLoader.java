@@ -45,22 +45,28 @@ public class ShadercLoader implements AssetLoader {
         synchronized (compiler) { try (MemoryStack stack = MemoryStack.stackPush()) {
             long preprocessed = Shaderc.shaderc_compile_into_preprocessed_text(compiler.getNativeObject(), code,
                     type.getShaderc(), name, entry, NULL);
+            handleCompileCodes(preprocessed, name, code);
             ByteBuffer bytecode = Objects.requireNonNull(Shaderc.shaderc_result_get_bytes(preprocessed));
             long compiled = Shaderc.shaderc_compile_into_spv(compiler.getNativeObject(), bytecode,
                     type.getShaderc(), stack.UTF8(name), stack.UTF8(entry), NULL);
-            if (Shaderc.shaderc_result_get_compilation_status(compiled) != Shaderc.shaderc_compilation_status_success) {
-                LOG.log(Level.SEVERE, "Bad compile of\n{0}", ShaderDebug.formatShaderSource(code));
-                throw new RuntimeException("Failed to compile " + name + ":\n"
-                        + Shaderc.shaderc_result_get_error_message(compiled));
-            }
-            long warnings = Shaderc.shaderc_result_get_num_warnings(compiled);
-            if (warnings > 0) {
-                LOG.warning("Compiled with " + warnings + " warning" + (warnings == 1 ? "" : "s") + ": " + name);
-            } else {
-                LOG.fine("Compiled with no warnings: " + name);
-            }
+            handleCompileCodes(compiled, name, code);
             return Shaderc.shaderc_result_get_bytes(compiled);
         }}
+    }
+
+    private static void handleCompileCodes(long result, String name, String code) {
+        int status = Shaderc.shaderc_result_get_compilation_status(result);
+        if (status != Shaderc.shaderc_compilation_status_success) {
+            LOG.log(Level.SEVERE, "Bad compile of\n{0}", ShaderDebug.formatShaderSource(code));
+            throw new RuntimeException("Failed to compile " + name + ":\n"
+                    + Shaderc.shaderc_result_get_error_message(result));
+        }
+        long warnings = Shaderc.shaderc_result_get_num_warnings(result);
+        if (warnings > 0) {
+            LOG.warning("Compiled with " + warnings + " warning" + (warnings == 1 ? "" : "s") + ": " + name);
+        } else {
+            LOG.fine("Compiled with no warnings: " + name);
+        }
     }
 
     public static AssetKey<ByteBuffer> key(String name, ShaderType type) {
