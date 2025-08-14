@@ -3,11 +3,14 @@ package com.jme3.vulkan.devices;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.VulkanObject;
+import com.jme3.vulkan.commands.CommandPool;
+import com.jme3.vulkan.commands.Queue;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
@@ -18,6 +21,7 @@ public class LogicalDevice <T extends PhysicalDevice> extends VulkanObject<VkDev
     private final VulkanInstance instance;
     private final Set<String> enabledExtensions = new HashSet<>();
     private final VkPhysicalDeviceFeatures enabledFeatures = VkPhysicalDeviceFeatures.calloc();
+    private final Map<Thread, Collection<CommandPool>> pools = new ConcurrentHashMap<>();
     private T physical;
 
     public LogicalDevice(VulkanInstance instance) {
@@ -46,6 +50,35 @@ public class LogicalDevice <T extends PhysicalDevice> extends VulkanObject<VkDev
 
     public VkPhysicalDeviceFeatures getEnabledFeatures() {
         return enabledFeatures;
+    }
+
+    public CommandPool getShortTermPool(Queue queue) {
+        return getPool(queue, true, false);
+    }
+
+    public CommandPool getLongTermPool(Queue queue) {
+        return getPool(queue, false, true);
+    }
+
+    public CommandPool getPool(Queue queue, boolean shortLived, boolean reusable) {
+        return getPool(queue, shortLived, reusable, false);
+    }
+
+    public CommandPool getPool(Queue queue, boolean shortLived, boolean reusable, boolean protect) {
+        if (queue.getDevice() != this) {
+            throw new IllegalArgumentException("Queue must belong to this device.");
+        }
+        Collection<CommandPool> p = pools.computeIfAbsent(Thread.currentThread(),
+                t -> new ArrayList<>());
+        for (CommandPool pool : p) {
+            if (pool.getQueue() == queue && pool.isShortLived() == shortLived
+                    && pool.isReusable() == reusable && pool.isProtected() == protect) {
+                return pool;
+            }
+        }
+        CommandPool pool = new CommandPool(queue, shortLived, reusable, protect);
+        p.add(pool);
+        return pool;
     }
 
     public Builder build(Function<Long, T> deviceFactory) {
@@ -96,9 +129,9 @@ public class LogicalDevice <T extends PhysicalDevice> extends VulkanObject<VkDev
                 create.ppEnabledLayerNames(lyrs.flip());
             }
             PointerBuffer ptr = stack.mallocPointer(1);
-            check(vkCreateDevice(physical.getPhysicalDevice(), create, null, ptr),
+            check(vkCreateDevice(physical.getDeviceHandle(), create, null, ptr),
                     "Failed to create logical device.");
-            object = new VkDevice(ptr.get(0), physical.getPhysicalDevice(), create);
+            object = new VkDevice(ptr.get(0), physical.getDeviceHandle(), create);
             ref = Native.get().register(LogicalDevice.this);
             physical.getInstance().getNativeReference().addDependent(ref);
             physical.createQueues(LogicalDevice.this);

@@ -6,12 +6,6 @@ import com.jme3.vulkan.images.Image;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
-import static com.jme3.renderer.vulkan.VulkanUtils.*;
-import static org.lwjgl.vulkan.VK10.*;
-
 public interface PhysicalDevice {
 
     boolean populateQueueFamilyIndices();
@@ -22,7 +16,7 @@ public interface PhysicalDevice {
 
     VulkanInstance getInstance();
 
-    VkPhysicalDevice getPhysicalDevice();
+    VkPhysicalDevice getDeviceHandle();
 
     VkQueueFamilyProperties.Buffer getQueueFamilyProperties(MemoryStack stack);
 

@@ -221,12 +221,12 @@ public class Swapchain extends VulkanObject<Long> {
 
         public Builder() {
             caps = VkSurfaceCapabilitiesKHR.malloc(stack);
-            KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDevice().getPhysicalDevice(), surface.getNativeObject(), caps);
+            KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDevice().getDeviceHandle(), surface.getNativeObject(), caps);
             formats = enumerateBuffer(stack, n -> VkSurfaceFormatKHR.malloc(n, stack), (count, buffer)
-                    -> KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(device.getPhysicalDevice().getPhysicalDevice(),
+                    -> KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(device.getPhysicalDevice().getDeviceHandle(),
                             surface.getNativeObject(), count, buffer));
             modes = enumerateBuffer(stack, stack::mallocInt, (count, buffer) ->
-                    KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(device.getPhysicalDevice().getPhysicalDevice(),
+                    KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(device.getPhysicalDevice().getDeviceHandle(),
                             surface.getNativeObject(), count, buffer));
             if (formats == null || modes == null) {
                 throw new UnsupportedOperationException("Swapchains are not supported by the device.");
@@ -253,7 +253,7 @@ public class Swapchain extends VulkanObject<Long> {
             }
             VkSurfaceCapabilitiesKHR caps = VkSurfaceCapabilitiesKHR.calloc(stack);
             KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-                    device.getPhysicalDevice().getPhysicalDevice(), surface.getNativeObject(), caps);
+                    device.getPhysicalDevice().getDeviceHandle(), surface.getNativeObject(), caps);
             format = Image.Format.vkEnum(selectedFormat.format());
             extent = new Extent2(selectedExtent);
             VkSwapchainCreateInfoKHR create = VkSwapchainCreateInfoKHR.calloc(stack)

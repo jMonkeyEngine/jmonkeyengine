@@ -35,7 +35,7 @@ public class GeneralPhysicalDevice extends AbstractPhysicalDevice
                 if (graphicsIndex == null && (flags & VK_QUEUE_GRAPHICS_BIT) > 0) {
                     graphicsIndex = i;
                 } else if (presentIndex == null) {
-                    KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(getPhysicalDevice(),
+                    KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(getDeviceHandle(),
                             i, surface.getNativeObject(), ibuf);
                     if (ibuf.get(0) == VK_TRUE) {
                         presentIndex = i;

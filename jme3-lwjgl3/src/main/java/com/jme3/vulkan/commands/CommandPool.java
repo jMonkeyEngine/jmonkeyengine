@@ -9,30 +9,34 @@ import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
 import java.nio.LongBuffer;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
-import static org.lwjgl.vulkan.VK10.*;
+import static org.lwjgl.vulkan.VK11.*;
 
 public class CommandPool implements Native<Long> {
 
-    private final LogicalDevice<?> device;
     private final Queue queue;
     private final NativeReference ref;
+    private final boolean shortLived, reusable, protect;
     private long id;
 
-    public CommandPool(LogicalDevice<?> device, Queue queue, boolean isTransient, boolean reset) {
-        this.device = device;
+    public CommandPool(Queue queue, boolean shortLived, boolean reusable, boolean protect) {
         this.queue = queue;
+        this.shortLived = shortLived;
+        this.reusable = reusable;
+        this.protect = protect;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandPoolCreateInfo create = VkCommandPoolCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO)
-                    .flags((isTransient ? VK_COMMAND_POOL_CREATE_TRANSIENT_BIT : 0)
-                            | (reset ? VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT : 0))
+                    .flags((shortLived ? VK_COMMAND_POOL_CREATE_TRANSIENT_BIT : 0)
+                            | (reusable ? VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT : 0)
+                            | (protect ? VK_COMMAND_POOL_CREATE_PROTECTED_BIT : 0))
                     .queueFamilyIndex(queue.getFamilyIndex());
             LongBuffer idBuf = stack.mallocLong(1);
-            check(vkCreateCommandPool(device.getNativeObject(), create, null, idBuf), "Failed to create command pool.");
+            check(vkCreateCommandPool(queue.getDevice().getNativeObject(), create, null, idBuf),
+                    "Failed to create command pool.");
             id = idBuf.get(0);
         }
         ref = Native.get().register(this);
-        device.getNativeReference().addDependent(ref);
+        queue.getDevice().getNativeReference().addDependent(ref);
     }
 
     @Override
@@ -43,7 +47,7 @@ public class CommandPool implements Native<Long> {
     @Override
     public Runnable createNativeDestroyer() {
         return () -> {
-            vkDestroyCommandPool(device.getNativeObject(), id, null);
+            vkDestroyCommandPool(queue.getDevice().getNativeObject(), id, null);
         };
     }
 
@@ -66,11 +70,23 @@ public class CommandPool implements Native<Long> {
     }
 
     public LogicalDevice<?> getDevice() {
-        return device;
+        return queue.getDevice();
     }
 
     public Queue getQueue() {
         return queue;
+    }
+
+    public boolean isShortLived() {
+        return shortLived;
+    }
+
+    public boolean isReusable() {
+        return reusable;
+    }
+
+    public boolean isProtected() {
+        return protect;
     }
 
 }

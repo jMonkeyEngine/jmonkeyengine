@@ -40,7 +40,7 @@ public class Queue {
         vkQueueWaitIdle(queue);
     }
 
-    public LogicalDevice getDevice() {
+    public LogicalDevice<?> getDevice() {
         return device;
     }
 

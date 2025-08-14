@@ -37,12 +37,12 @@ public class Surface implements Native<Long>, DeviceFilter {
     public Float evaluateDevice(PhysicalDevice device) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer count = stack.mallocInt(1);
-            KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(device.getPhysicalDevice(), id, count, null);
+            KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(device.getDeviceHandle(), id, count, null);
             if (count.get(0) == 0) {
                 System.out.println("Reject device by surface support (formats)");
                 return null;
             }
-            KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(device.getPhysicalDevice(), id, count, null);
+            KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(device.getDeviceHandle(), id, count, null);
             if (count.get(0) == 0) {
                 System.out.println("Reject device by surface support (present modes)");
                 return null;

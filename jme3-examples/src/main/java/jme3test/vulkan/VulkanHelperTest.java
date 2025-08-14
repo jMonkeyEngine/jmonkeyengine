@@ -165,7 +165,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 new PoolSize(Descriptor.StorageBuffer, 4),
                 new PoolSize(Descriptor.CombinedImageSampler, 2));
 
-        CommandPool transferPool = new CommandPool(device, physDevice.getGraphics(), true, false);
+        CommandPool transferPool = device.getShortTermPool(physDevice.getGraphics());
 
         // depth texture
         depthView = createDepthAttachment(transferPool);
@@ -215,7 +215,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             p.getColorBlend().addAttachment(new ColorBlendAttachment());
             p.getDynamicState().addTypes(DynamicState.Type.ViewPort, DynamicState.Type.Scissor);
         }
-        graphicsPool = new CommandPool(device, physDevice.getGraphics(), false, true);
+        graphicsPool = device.getLongTermPool(physDevice.getGraphics());
 
         // vertex buffers
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -266,7 +266,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 s.selectExtentByWindow();
                 s.selectImageCount(2);
             }
-            depthView = createDepthAttachment(new CommandPool(device, device.getPhysicalDevice().getGraphics(), true, false));
+            depthView = createDepthAttachment(device.getShortTermPool(device.getPhysicalDevice().getGraphics()));
             swapchain.createFrameBuffers(renderPass, depthView);
             return true;
         }

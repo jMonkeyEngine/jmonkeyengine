@@ -28,7 +28,7 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice {
     }
 
     @Override
-    public VkPhysicalDevice getPhysicalDevice() {
+    public VkPhysicalDevice getDeviceHandle() {
         return physicalDevice;
     }
 
