@@ -157,12 +157,11 @@ public class GpuBuffer implements Native<Long> {
         memory.unmap();
     }
 
-    public void recordCopy(MemoryStack stack, CommandBuffer commands, GpuBuffer source, long srcOffset, long dstOffset, long size) {
-        commands.begin();
+    public void recordCopy(MemoryStack stack, CommandBuffer commands, GpuBuffer source,
+                           long srcOffset, long dstOffset, long size) {
         VkBufferCopy.Buffer copy = VkBufferCopy.calloc(1, stack)
                 .srcOffset(srcOffset).dstOffset(dstOffset).size(size);
         vkCmdCopyBuffer(commands.getBuffer(), source.getNativeObject(), id, copy);
-        commands.end();
     }
 
     public void freeMemory() {

@@ -36,6 +36,7 @@ import com.jme3.vulkan.surface.Swapchain;
 import com.jme3.vulkan.surface.SwapchainUpdater;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
+import com.jme3.vulkan.sync.SyncGroup;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -222,14 +223,16 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             // the cpu cannot directly access fast gpu memory. The solution is to
             // copy cpu-side data to a mutual staging buffer, then have the gpu copy
             // that data to faster memory. Hence, why we use a StageableBuffer here.
-            vertexBuffer = new StageableBuffer(device, transferPool, MemorySize.floats(vertexData.capacity()),
+            vertexBuffer = new StageableBuffer(device, MemorySize.floats(vertexData.capacity()),
                     new BufferUsageFlags().vertexBuffer(), new MemoryFlags().deviceLocal(), false);
             vertexBuffer.copy(stack, vertexData); // copy data to staging buffer
+            vertexBuffer.transfer(transferPool);
             vertexBuffer.freeStagingBuffer();
             // index buffer
-            indexBuffer = new StageableBuffer(device, transferPool, MemorySize.ints(indexData.capacity()),
+            indexBuffer = new StageableBuffer(device, MemorySize.ints(indexData.capacity()),
                     new BufferUsageFlags().indexBuffer(), new MemoryFlags().deviceLocal(), false);
             indexBuffer.copy(stack, indexData);
+            indexBuffer.transfer(transferPool);
             indexBuffer.freeStagingBuffer();
         }
 
@@ -295,7 +298,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         commands.begin();
         image.transitionLayout(commands, Image.Layout.Undefined, Image.Layout.DepthStencilAttachmentOptimal);
         commands.end();
-        commands.submit(null, null, null);
+        commands.submit(new SyncGroup());
         commands.getPool().getQueue().waitIdle();
         return view;
     }
@@ -386,7 +389,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
             // render manager
             graphicsCommands.end();
-            graphicsCommands.submit(imageAvailable, renderFinished, inFlight);
+            graphicsCommands.submit(new SyncGroup(imageAvailable, renderFinished, inFlight));
             swapchain.present(device.getPhysicalDevice().getPresent(), image, renderFinished);
 
         }

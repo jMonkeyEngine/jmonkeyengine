@@ -12,7 +12,8 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public class GeneralPhysicalDevice extends PhysicalDevice {
+public class GeneralPhysicalDevice extends AbstractPhysicalDevice
+        implements GraphicalDevice, PresentDevice, ComputeDevice {
 
     private final Surface surface;
     private Integer graphicsIndex, presentIndex;
@@ -24,7 +25,7 @@ public class GeneralPhysicalDevice extends PhysicalDevice {
     }
 
     @Override
-    protected boolean populateQueueFamilyIndices() {
+    public boolean populateQueueFamilyIndices() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkQueueFamilyProperties.Buffer properties = getQueueFamilyProperties(stack);
             IntBuffer ibuf = stack.callocInt(1);
@@ -49,7 +50,7 @@ public class GeneralPhysicalDevice extends PhysicalDevice {
     }
 
     @Override
-    protected VkDeviceQueueCreateInfo.Buffer createQueueFamilyInfo(MemoryStack stack) {
+    public VkDeviceQueueCreateInfo.Buffer createQueueFamilyInfo(MemoryStack stack) {
         VkDeviceQueueCreateInfo.Buffer create = VkDeviceQueueCreateInfo.calloc(2, stack);
         create.get(0).sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO)
                 .queueFamilyIndex(graphicsIndex)
@@ -61,37 +62,28 @@ public class GeneralPhysicalDevice extends PhysicalDevice {
     }
 
     @Override
-    protected void createQueues(LogicalDevice device) {
+    public void createQueues(LogicalDevice device) {
         graphics = new Queue(device, graphicsIndex, 0);
         present = new Queue(device, presentIndex, 0);
     }
 
-    public boolean allQueuesAvailable() {
-        return graphicsIndex != null && presentIndex != null;
-    }
-
-    public Integer getGraphicsIndex() {
-        return graphicsIndex;
-    }
-
-    public Integer getPresentIndex() {
-        return presentIndex;
-    }
-
-    public Integer getComputeIndex() {
-        return graphicsIndex;
-    }
-
+    @Override
     public Queue getGraphics() {
         return graphics;
     }
 
+    @Override
     public Queue getPresent() {
         return present;
     }
 
+    @Override
     public Queue getCompute() {
         return graphics;
+    }
+
+    public boolean allQueuesAvailable() {
+        return graphicsIndex != null && presentIndex != null;
     }
 
 }

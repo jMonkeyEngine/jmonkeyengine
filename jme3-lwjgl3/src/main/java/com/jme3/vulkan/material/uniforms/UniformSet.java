@@ -1,20 +1,18 @@
-package com.jme3.vulkan.material;
+package com.jme3.vulkan.material.uniforms;
 
 import com.jme3.vulkan.descriptors.DescriptorSet;
 import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
+import com.jme3.vulkan.pipelines.Pipeline;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class UniformSet {
 
     private final Uniform[] uniforms;
     private final List<DescriptorSet> sets = new ArrayList<>();
+    private final Collection<DescriptorSet> outdatedSets = new ArrayList<>();
     private DescriptorSet activeSet;
-    private boolean updateFlag = true;
 
     public UniformSet(Uniform... uniforms) {
         this.uniforms = uniforms;
@@ -28,14 +26,11 @@ public class UniformSet {
     }
 
     public void addActiveSet(DescriptorSet activeSet) {
-        if (this.activeSet == activeSet) {
-            updateFlag = true;
-        }
         this.activeSet = activeSet;
         sets.add(activeSet);
     }
 
-    public DescriptorSetLayout selectActiveSet(List<DescriptorSetLayout> availableLayouts) {
+    public DescriptorSetLayout selectExistingActiveSet(List<DescriptorSetLayout> availableLayouts) {
         if (activeSet == null || !availableLayouts.remove(activeSet.getLayout())) {
             for (DescriptorSet s : sets) {
                 if (availableLayouts.remove(s.getLayout())) {
@@ -67,16 +62,13 @@ public class UniformSet {
         return null;
     }
 
-    public void update() {
-        if (activeSet == null) {
-            throw new NullPointerException("No descriptor set selected.");
+    public void update(Pipeline pipeline) {
+        for (DescriptorSet set : sets) {
+            set.update(false, uniforms);
         }
-        activeSet.update(updateFlag, uniforms);
-        updateFlag = false;
-    }
-
-    public void setActiveSet(DescriptorSet activeSet) {
-        this.activeSet = activeSet;
+        for (Uniform u : uniforms) {
+            u.clearUpdateNeeded();
+        }
     }
 
     public Uniform[] getUniforms() {

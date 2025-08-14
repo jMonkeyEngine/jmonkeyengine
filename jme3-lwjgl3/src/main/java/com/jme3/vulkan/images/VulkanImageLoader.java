@@ -9,6 +9,7 @@ import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.flags.BufferUsageFlags;
 import com.jme3.vulkan.flags.ImageUsageFlags;
 import com.jme3.vulkan.flags.MemoryFlags;
+import com.jme3.vulkan.sync.SyncGroup;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkBufferImageCopy;
 
@@ -174,7 +175,7 @@ public class VulkanImageLoader implements AssetLoader {
                     image.getNativeObject(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
             image.transitionLayout(commands, Image.Layout.TransferDstOptimal, Image.Layout.ShaderReadOnlyOptimal);
             commands.end();
-            commands.submit(null, null, null);
+            commands.submit(new SyncGroup());
             transferPool.getQueue().waitIdle();
             return image;
         }

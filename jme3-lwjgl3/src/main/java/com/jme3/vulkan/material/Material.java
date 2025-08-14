@@ -2,6 +2,8 @@ package com.jme3.vulkan.material;
 
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
+import com.jme3.vulkan.material.uniforms.Uniform;
+import com.jme3.vulkan.material.uniforms.UniformSet;
 import com.jme3.vulkan.pipelines.Pipeline;
 import org.lwjgl.system.MemoryStack;
 
@@ -32,8 +34,13 @@ public class Material {
         ArrayList<DescriptorSetLayout> allocationLayouts = new ArrayList<>(availableLayouts.size());
         ArrayList<UniformSet> allocationTargets = new ArrayList<>(availableLayouts.size());
         for (UniformSet set : uniforms) {
-            DescriptorSetLayout allocation = set.selectActiveSet(availableLayouts);
+            set.update(pipeline);
+            // Select an existing descriptor set to be active. If
+            // no existing set may be selected, a set layout is
+            // returned with which to allocate a new descriptor set.
+            DescriptorSetLayout allocation = set.selectExistingActiveSet(availableLayouts);
             if (allocation != null) {
+                // allocate all new sets at once
                 allocationLayouts.add(allocation);
                 allocationTargets.add(set);
             }
@@ -45,11 +52,10 @@ public class Material {
             DescriptorSet[] allocatedSets = pool.allocateSets(
                     allocationLayouts.toArray(new DescriptorSetLayout[0]));
             for (int i = 0; i < allocatedSets.length; i++) {
-                allocationTargets.get(i).addActiveSet(allocatedSets[i]);
+                UniformSet target = allocationTargets.get(i);
+                target.addActiveSet(allocatedSets[i]);
+                allocatedSets[i].update(true, target.getUniforms());
             }
-        }
-        for (UniformSet set : uniforms) {
-            set.update(); // write updates to the set
         }
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer setBuf = stack.mallocLong(uniforms.size());
@@ -73,18 +79,6 @@ public class Material {
 
     public List<UniformSet> getSets() {
         return Collections.unmodifiableList(uniforms);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> Uniform<T> get(String name) {
-        for (UniformSet s : uniforms) {
-            for (Uniform u : s.getUniforms()) {
-                if (name.equals(u.getName())) {
-                    return (Uniform<T>)u;
-                }
-            }
-        }
-        return null;
     }
 
 }

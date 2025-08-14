@@ -12,90 +12,32 @@ import java.nio.IntBuffer;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public abstract class PhysicalDevice {
+public interface PhysicalDevice {
 
-    private final VulkanInstance instance;
-    private final VkPhysicalDevice physicalDevice;
+    boolean populateQueueFamilyIndices();
 
-    public PhysicalDevice(VulkanInstance instance, long id) {
-        this.instance = instance;
-        this.physicalDevice = new VkPhysicalDevice(id, instance.getNativeObject());
-    }
+    VkDeviceQueueCreateInfo.Buffer createQueueFamilyInfo(MemoryStack stack);
 
-    protected abstract boolean populateQueueFamilyIndices();
+    void createQueues(LogicalDevice device);
 
-    protected abstract VkDeviceQueueCreateInfo.Buffer createQueueFamilyInfo(MemoryStack stack);
+    VulkanInstance getInstance();
 
-    protected abstract void createQueues(LogicalDevice device);
+    VkPhysicalDevice getPhysicalDevice();
 
-    public VulkanInstance getInstance() {
-        return instance;
-    }
+    VkQueueFamilyProperties.Buffer getQueueFamilyProperties(MemoryStack stack);
 
-    public VkPhysicalDevice getPhysicalDevice() {
-        return physicalDevice;
-    }
+    VkPhysicalDeviceProperties getProperties(MemoryStack stack);
 
-    public VkQueueFamilyProperties.Buffer getQueueFamilyProperties(MemoryStack stack) {
-        return enumerateBuffer(stack, n -> VkQueueFamilyProperties.calloc(n, stack), (count, buffer)
-                -> vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, count, buffer));
-    }
+    VkPhysicalDeviceFeatures getFeatures(MemoryStack stack);
 
-    public VkPhysicalDeviceProperties getProperties(MemoryStack stack) {
-        VkPhysicalDeviceProperties props = VkPhysicalDeviceProperties.malloc(stack);
-        vkGetPhysicalDeviceProperties(physicalDevice, props);
-        return props;
-    }
+    VkExtensionProperties.Buffer getExtensionProperties(MemoryStack stack);
 
-    public VkPhysicalDeviceFeatures getFeatures(MemoryStack stack) {
-        VkPhysicalDeviceFeatures features = VkPhysicalDeviceFeatures.malloc(stack);
-        vkGetPhysicalDeviceFeatures(physicalDevice, features);
-        return features;
-    }
+    VkPhysicalDeviceMemoryProperties getMemoryProperties(MemoryStack stack);
 
-    public VkExtensionProperties.Buffer getExtensionProperties(MemoryStack stack) {
-        return enumerateBuffer(stack, n -> VkExtensionProperties.malloc(n, stack), (count, buffer) ->
-                vkEnumerateDeviceExtensionProperties(physicalDevice, (ByteBuffer)null, count, buffer));
-    }
+    int findSupportedMemoryType(MemoryStack stack, int types, int flags);
 
-    public VkPhysicalDeviceMemoryProperties getMemoryProperties(MemoryStack stack) {
-        VkPhysicalDeviceMemoryProperties mem = VkPhysicalDeviceMemoryProperties.malloc(stack);
-        vkGetPhysicalDeviceMemoryProperties(physicalDevice, mem);
-        return mem;
-    }
+    Image.Format findSupportedFormat(int tiling, int features, Image.Format... candidates);
 
-    public int findSupportedMemoryType(MemoryStack stack, int types, int flags) {
-        VkPhysicalDeviceMemoryProperties mem = getMemoryProperties(stack);
-        for (int i = 0; i < mem.memoryTypeCount(); i++) {
-            if ((types & (1 << i)) != 0 && (mem.memoryTypes().get(i).propertyFlags() & flags) != 0) {
-                return i;
-            }
-        }
-        throw new NullPointerException("Suitable memory type not found.");
-    }
-
-    public Image.Format findSupportedFormat(int tiling, int features, Image.Format... candidates) {
-        VkFormatProperties props = VkFormatProperties.create();
-        for (Image.Format f : candidates) {
-            vkGetPhysicalDeviceFormatProperties(physicalDevice, f.getVkEnum(), props);
-            if ((tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures() & features) == features)
-                    || (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures() & features) == features)) {
-                return f;
-            }
-        }
-        throw new NullPointerException("Failed to find supported format.");
-    }
-
-    public boolean querySwapchainSupport(Surface surface) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            IntBuffer count = stack.mallocInt(1);
-            KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface.getNativeObject(), count, null);
-            if (count.get(0) <= 0) {
-                return false;
-            }
-            KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface.getNativeObject(), count, null);
-            return count.get(0) > 0;
-        }
-    }
+    boolean querySwapchainSupport(Surface surface);
 
 }

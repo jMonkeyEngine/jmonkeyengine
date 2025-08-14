@@ -1,7 +1,6 @@
 package com.jme3.vulkan.commands;
 
-import com.jme3.vulkan.sync.Fence;
-import com.jme3.vulkan.sync.Semaphore;
+import com.jme3.vulkan.sync.SyncGroup;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkCommandBuffer;
@@ -53,7 +52,7 @@ public class CommandBuffer {
         recording = false;
     }
 
-    public void submit(Semaphore wait, Semaphore signal, Fence fence) {
+    public void submit(SyncGroup sync) {
         if (recording) {
             throw new IllegalStateException("Command buffer is still recording.");
         }
@@ -61,15 +60,21 @@ public class CommandBuffer {
             VkSubmitInfo.Buffer submit = VkSubmitInfo.calloc(1, stack)
                     .sType(VK_STRUCTURE_TYPE_SUBMIT_INFO)
                     .pCommandBuffers(stack.pointers(buffer));
-            if (wait != null) {
-                submit.waitSemaphoreCount(1).pWaitSemaphores(stack.longs(wait.getNativeObject()))
+            if (sync.containsWaits()) {
+                submit.waitSemaphoreCount(sync.getWaits().length)
+                        .pWaitSemaphores(sync.toWaitBuffer(stack))
                         .pWaitDstStageMask(stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT));
             }
-            if (signal != null) {
-                submit.pSignalSemaphores(stack.longs(signal.getNativeObject()));
+            if (sync.containsSignals()) {
+                submit.pSignalSemaphores(sync.toSignalBuffer(stack));
             }
-            pool.getQueue().submit(submit, fence);
+            pool.getQueue().submit(submit, sync.getFence());
         }
+    }
+
+    public void endAndSubmit(SyncGroup sync) {
+        end();
+        submit(sync);
     }
 
     public void reset() {

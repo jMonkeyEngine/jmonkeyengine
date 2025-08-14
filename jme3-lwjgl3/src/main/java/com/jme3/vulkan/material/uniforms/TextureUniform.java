@@ -1,4 +1,4 @@
-package com.jme3.vulkan.material;
+package com.jme3.vulkan.material.uniforms;
 
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.images.Image;
@@ -13,11 +13,6 @@ public class TextureUniform extends Uniform<Texture> {
 
     public TextureUniform(Image.Layout layout, int bindingIndex) {
         super(Descriptor.CombinedImageSampler, bindingIndex);
-        this.layout = layout;
-    }
-
-    public TextureUniform(Image.Layout layout, String name, int bindingIndex) {
-        super(name, Descriptor.CombinedImageSampler, bindingIndex);
         this.layout = layout;
     }
 

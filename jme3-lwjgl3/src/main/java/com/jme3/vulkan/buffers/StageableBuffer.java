@@ -7,18 +7,17 @@ import com.jme3.vulkan.flags.MemoryFlags;
 import com.jme3.vulkan.flags.BufferUsageFlags;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
+import com.jme3.vulkan.sync.SyncGroup;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 
 public class StageableBuffer extends GpuBuffer {
 
-    private final CommandPool transferPool;
     private final GpuBuffer stage;
 
-    public StageableBuffer(LogicalDevice device, CommandPool transferPool, MemorySize size,
+    public StageableBuffer(LogicalDevice device, MemorySize size,
                            BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
         super(device, size, usage.transferDst(), mem, concurrent);
-        this.transferPool = transferPool;
         stage = new GpuBuffer(device, size, new BufferUsageFlags().transferSrc(),
                 new MemoryFlags().hostVisible().hostCoherent(), concurrent);
     }
@@ -31,7 +30,6 @@ public class StageableBuffer extends GpuBuffer {
     @Override
     public void unmap() {
         stage.unmap();
-        transfer();
     }
 
     @Override
@@ -40,25 +38,25 @@ public class StageableBuffer extends GpuBuffer {
         stage.freeMemory();
     }
 
-    public void unmap(Semaphore wait, Semaphore signal, Fence fence) {
+    public void unmap(SyncGroup sync) {
         stage.unmap();
-        transfer(wait, signal, fence);
     }
 
-    public void transfer() {
-        transfer(null, null, null);
+    public void transfer(CommandPool transferPool) {
+        transfer(transferPool, new SyncGroup());
         transferPool.getQueue().waitIdle();
     }
 
-    public void transfer(Semaphore wait, Semaphore signal, Fence fence) {
+    public void transfer(CommandPool transferPool, SyncGroup sync) {
         if (stage.getNativeReference().isDestroyed()) {
             throw new IllegalStateException("Staging buffer has already been freed.");
         }
         CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
+        commands.begin();
         try (MemoryStack stack = MemoryStack.stackPush()) {
             recordCopy(stack, commands, stage, 0, 0, size().getBytes());
         }
-        commands.submit(wait, signal, fence);
+        commands.endAndSubmit(sync);
     }
 
     public void freeStagingBuffer() {

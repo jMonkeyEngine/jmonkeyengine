@@ -4,6 +4,8 @@ import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorPool;
 import com.jme3.vulkan.images.Image;
+import com.jme3.vulkan.material.uniforms.BufferUniform;
+import com.jme3.vulkan.material.uniforms.TextureUniform;
 
 public class TestMaterial extends Material {
 

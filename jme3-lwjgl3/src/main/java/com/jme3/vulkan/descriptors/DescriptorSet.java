@@ -1,15 +1,8 @@
 package com.jme3.vulkan.descriptors;
 
-import com.jme3.util.natives.Native;
-import com.jme3.vulkan.VulkanObject;
 import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -33,7 +26,7 @@ public class DescriptorSet {
             if (updating > 0) {
                 VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(updating, stack);
                 for (DescriptorSetWriter w : writers) {
-                    if (w.isUpdateNeeded()) {
+                    if (force || w.isUpdateNeeded()) {
                         w.populateWrite(stack, write.get()
                                 .sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET)
                                 .dstSet(id));

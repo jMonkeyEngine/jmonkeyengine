@@ -1,4 +1,4 @@
-package com.jme3.vulkan.material;
+package com.jme3.vulkan.material.uniforms;
 
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.descriptors.Descriptor;
@@ -11,10 +11,6 @@ public class BufferUniform <T extends GpuBuffer> extends Uniform<T> {
 
     public BufferUniform(Descriptor type, int bindingIndex) {
         super(type, bindingIndex);
-    }
-
-    public BufferUniform(String name, Descriptor type, int bindingIndex) {
-        super(name, type, bindingIndex);
     }
 
     @Override
