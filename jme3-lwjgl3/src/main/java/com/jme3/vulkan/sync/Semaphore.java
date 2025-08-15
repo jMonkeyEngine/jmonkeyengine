@@ -17,9 +17,15 @@ public class Semaphore implements Native<Long> {
     private final LogicalDevice<?> device;
     private final NativeReference ref;
     private long id;
+    private int dstStageMask;
 
     public Semaphore(LogicalDevice<?> device) {
+        this(device, 0);
+    }
+
+    public Semaphore(LogicalDevice<?> device, int dstStageMask) {
         this.device = device;
+        this.dstStageMask = dstStageMask;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkSemaphoreCreateInfo create = VkSemaphoreCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO);
@@ -50,10 +56,28 @@ public class Semaphore implements Native<Long> {
         return ref;
     }
 
+    public void setDstStageMask(int dstStageMask) {
+        this.dstStageMask = dstStageMask;
+    }
+
+    public void addDstStageBit(int stageBit) {
+        this.dstStageMask |= stageBit;
+    }
+
+    public void removeDstStageBit(int stageBit) {
+        this.dstStageMask &= ~stageBit;
+    }
+
+    public int getDstStageMask() {
+        return dstStageMask;
+    }
+
+    @Deprecated
     public long getId() {
         return id;
     }
 
+    @Deprecated
     public LongBuffer toBuffer(MemoryStack stack) {
         return stack.longs(id);
     }

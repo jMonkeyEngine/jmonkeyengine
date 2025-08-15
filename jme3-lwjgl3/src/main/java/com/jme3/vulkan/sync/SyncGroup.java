@@ -3,6 +3,7 @@ package com.jme3.vulkan.sync;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 
+import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 
 public class SyncGroup {
@@ -83,6 +84,15 @@ public class SyncGroup {
         LongBuffer buf = stack.mallocLong(waits.length);
         for (Semaphore w : waits) {
             buf.put(w.getNativeObject());
+        }
+        buf.flip();
+        return buf;
+    }
+
+    public IntBuffer toDstStageBuffer(MemoryStack stack) {
+        IntBuffer buf = stack.mallocInt(waits.length);
+        for (Semaphore s : signals) {
+            buf.put(s.getDstStageMask());
         }
         buf.flip();
         return buf;

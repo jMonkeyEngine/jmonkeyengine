@@ -27,8 +27,8 @@ public class CommandPool implements Native<Long> {
             VkCommandPoolCreateInfo create = VkCommandPoolCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO)
                     .flags((shortLived ? VK_COMMAND_POOL_CREATE_TRANSIENT_BIT : 0)
-                            | (reusable ? VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT : 0)
-                            | (protect ? VK_COMMAND_POOL_CREATE_PROTECTED_BIT : 0))
+                        | (reusable ? VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT : 0)
+                        | (protect ? VK_COMMAND_POOL_CREATE_PROTECTED_BIT : 0))
                     .queueFamilyIndex(queue.getFamilyIndex());
             LongBuffer idBuf = stack.mallocLong(1);
             check(vkCreateCommandPool(queue.getDevice().getNativeObject(), create, null, idBuf),

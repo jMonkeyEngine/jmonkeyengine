@@ -297,8 +297,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         CommandBuffer commands = pool.allocateOneTimeCommandBuffer();
         commands.begin();
         image.transitionLayout(commands, Image.Layout.Undefined, Image.Layout.DepthStencilAttachmentOptimal);
-        commands.end();
-        commands.submit(new SyncGroup());
+        commands.endAndSubmit(new SyncGroup());
         commands.getPool().getQueue().waitIdle();
         return view;
     }
@@ -307,7 +306,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
         // render manager
         private final CommandBuffer graphicsCommands = graphicsPool.allocateCommandBuffer();
-        private final Semaphore imageAvailable = new Semaphore(device);
+        private final Semaphore imageAvailable = new Semaphore(device, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
         private final Semaphore renderFinished = new Semaphore(device);
         private final Fence inFlight = new Fence(device, true);
 

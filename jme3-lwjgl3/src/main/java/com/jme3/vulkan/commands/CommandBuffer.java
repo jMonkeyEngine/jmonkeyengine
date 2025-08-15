@@ -63,7 +63,7 @@ public class CommandBuffer {
             if (sync.containsWaits()) {
                 submit.waitSemaphoreCount(sync.getWaits().length)
                         .pWaitSemaphores(sync.toWaitBuffer(stack))
-                        .pWaitDstStageMask(stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT));
+                        .pWaitDstStageMask(sync.toDstStageBuffer(stack));
             }
             if (sync.containsSignals()) {
                 submit.pSignalSemaphores(sync.toSignalBuffer(stack));
