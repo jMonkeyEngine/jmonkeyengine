@@ -175,7 +175,7 @@ public class VulkanImageLoader implements AssetLoader {
                     image.getNativeObject(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
             image.transitionLayout(commands, Image.Layout.TransferDstOptimal, Image.Layout.ShaderReadOnlyOptimal);
             commands.end();
-            commands.submit(new SyncGroup());
+            commands.submit(SyncGroup.ASYNC);
             transferPool.getQueue().waitIdle();
             return image;
         }

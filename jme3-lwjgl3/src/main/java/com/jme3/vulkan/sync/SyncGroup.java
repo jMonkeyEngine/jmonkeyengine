@@ -8,6 +8,7 @@ import java.nio.LongBuffer;
 
 public class SyncGroup {
 
+    public static final SyncGroup ASYNC = new SyncGroup();
     private static final Semaphore[] EMPTY = new Semaphore[0];
 
     private static Semaphore[] toArray(Semaphore s) {
@@ -36,6 +37,10 @@ public class SyncGroup {
 
     public SyncGroup(Semaphore[] waits, Semaphore signal) {
         this(waits, toArray(signal), null);
+    }
+
+    public SyncGroup(Semaphore[] waits, Semaphore[] signals) {
+        this(waits, signals, null);
     }
 
     public SyncGroup(Semaphore wait, Semaphore signal, Fence fence) {

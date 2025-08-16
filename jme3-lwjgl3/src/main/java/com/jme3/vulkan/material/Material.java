@@ -19,6 +19,7 @@ public class Material {
 
     private final DescriptorPool pool;
     private final List<UniformSet> uniforms = new ArrayList<>();
+    private final HashMap<String, Uniform<?>> uniformLookup = new HashMap<>();
 
     public Material(DescriptorPool pool) {
         this.pool = pool;
@@ -34,7 +35,7 @@ public class Material {
         ArrayList<DescriptorSetLayout> allocationLayouts = new ArrayList<>(availableLayouts.size());
         ArrayList<UniformSet> allocationTargets = new ArrayList<>(availableLayouts.size());
         for (UniformSet set : uniforms) {
-            set.update(pipeline);
+            set.update(pipeline.getDevice());
             // Select an existing descriptor set to be active. If
             // no existing set may be selected, a set layout is
             // returned with which to allocate a new descriptor set.
@@ -54,7 +55,7 @@ public class Material {
             for (int i = 0; i < allocatedSets.length; i++) {
                 UniformSet target = allocationTargets.get(i);
                 target.addActiveSet(allocatedSets[i]);
-                allocatedSets[i].update(true, target.getUniforms());
+                allocatedSets[i].write(target.getUniforms());
             }
         }
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -79,6 +80,24 @@ public class Material {
 
     public List<UniformSet> getSets() {
         return Collections.unmodifiableList(uniforms);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Uniform> T get(String name) {
+        // Not sure if caching results are really worth it...
+        Uniform<?> uniform = uniformLookup.get(name);
+        if (uniform != null) {
+            return (T)uniform;
+        }
+        for (UniformSet set : uniforms) {
+            for (Uniform<?> u : set.getUniforms()) {
+                if (name.equals(u.getName())) {
+                    uniformLookup.put(u.getName(), u);
+                    return (T)u;
+                }
+            }
+        }
+        return null;
     }
 
 }

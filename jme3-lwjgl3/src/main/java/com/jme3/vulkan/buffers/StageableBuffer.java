@@ -18,7 +18,7 @@ public class StageableBuffer extends GpuBuffer {
     public StageableBuffer(LogicalDevice device, MemorySize size,
                            BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
         super(device, size, usage.transferDst(), mem, concurrent);
-        stage = new GpuBuffer(device, size, new BufferUsageFlags().transferSrc(),
+        this.stage = new GpuBuffer(device, size, new BufferUsageFlags().transferSrc(),
                 new MemoryFlags().hostVisible().hostCoherent(), concurrent);
     }
 
@@ -38,25 +38,24 @@ public class StageableBuffer extends GpuBuffer {
         stage.freeMemory();
     }
 
-    public void unmap(SyncGroup sync) {
-        stage.unmap();
-    }
-
     public void transfer(CommandPool transferPool) {
-        transfer(transferPool, new SyncGroup());
-        transferPool.getQueue().waitIdle();
+        transfer(transferPool, SyncGroup.ASYNC);
     }
 
     public void transfer(CommandPool transferPool, SyncGroup sync) {
         if (stage.getNativeReference().isDestroyed()) {
             throw new IllegalStateException("Staging buffer has already been freed.");
         }
-        CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
-        commands.begin();
+        CommandBuffer cmd = transferPool.allocateOneTimeCommandBuffer();
+        cmd.begin();
+        transfer(cmd);
+        cmd.endAndSubmit(sync);
+    }
+
+    public void transfer(CommandBuffer cmd) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            recordCopy(stack, commands, stage, 0, 0, size().getBytes());
+            recordCopy(stack, cmd, stage, 0, 0, size().getBytes());
         }
-        commands.endAndSubmit(sync);
     }
 
     public void freeStagingBuffer() {

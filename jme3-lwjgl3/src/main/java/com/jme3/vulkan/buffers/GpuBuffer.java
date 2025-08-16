@@ -11,6 +11,7 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Struct;
+import org.lwjgl.system.StructBuffer;
 import org.lwjgl.vulkan.VkBufferCopy;
 import org.lwjgl.vulkan.VkBufferCreateInfo;
 import org.lwjgl.vulkan.VkMemoryRequirements;
@@ -106,8 +107,8 @@ public class GpuBuffer implements Native<Long> {
         return map(stack, offset, size * Long.BYTES, flags).getLongBuffer(0, size);
     }
 
-    public <T extends Struct<T>> T mapStruct(MemoryStack stack, int offset, int size, int flags, LongFunction<T> factory) {
-        return factory.apply(map(stack, offset, size, flags).get(0));
+    public <T> T mapObject(MemoryStack stack, int offset, int size, int flags, Function<PointerBuffer, T> factory) {
+        return factory.apply(map(stack, offset, size, flags));
     }
 
     public void copy(MemoryStack stack, ByteBuffer buffer) {
@@ -153,6 +154,13 @@ public class GpuBuffer implements Native<Long> {
         unmap();
     }
 
+    public void copy(MemoryStack stack, StructBuffer<?, ?> buffer) {
+        verifyBufferSize(buffer.limit(), buffer.sizeof());
+        int size = buffer.limit() * buffer.sizeof();
+        MemoryUtil.memCopy(MemoryUtil.memByteBuffer(buffer.address(), size), mapBytes(stack, 0, size, 0));
+        unmap();
+    }
+
     public void unmap() {
         memory.unmap();
     }
@@ -170,6 +178,10 @@ public class GpuBuffer implements Native<Long> {
 
     public MemorySize size() {
         return size;
+    }
+
+    public LogicalDevice<?> getDevice() {
+        return device;
     }
 
 }

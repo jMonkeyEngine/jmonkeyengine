@@ -1,0 +1,15 @@
+{
+  "shader" : "Shaders/VulkanVertTest.glsl",
+  "type" : "vertex",
+  "platforms" : ["vulkan", "opengl"],
+  "versions" : [460, 450],
+  "parameters" : {
+    "Matrices" : {
+      "type" : "UniformBuffer",
+      "set" : 0,
+      "binding" : 0,
+      "usage" : "Stream",
+      "define" : "MATRICES"
+    }
+  }
+}

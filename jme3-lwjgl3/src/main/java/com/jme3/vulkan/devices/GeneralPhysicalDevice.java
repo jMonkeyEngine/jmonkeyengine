@@ -12,8 +12,7 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public class GeneralPhysicalDevice extends AbstractPhysicalDevice
-        implements GraphicalDevice, PresentDevice, ComputeDevice {
+public class GeneralPhysicalDevice extends AbstractPhysicalDevice implements GraphicalDevice, PresentDevice {
 
     private final Surface surface;
     private Integer graphicsIndex, presentIndex;
@@ -79,6 +78,11 @@ public class GeneralPhysicalDevice extends AbstractPhysicalDevice
 
     @Override
     public Queue getCompute() {
+        return graphics;
+    }
+
+    @Override
+    public Queue getDataTransfer() {
         return graphics;
     }
 

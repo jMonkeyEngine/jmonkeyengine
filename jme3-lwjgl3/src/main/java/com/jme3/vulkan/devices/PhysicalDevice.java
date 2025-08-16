@@ -1,5 +1,6 @@
 package com.jme3.vulkan.devices;
 
+import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.surface.Surface;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.images.Image;
@@ -33,5 +34,9 @@ public interface PhysicalDevice {
     Image.Format findSupportedFormat(int tiling, int features, Image.Format... candidates);
 
     boolean querySwapchainSupport(Surface surface);
+
+    Queue getCompute();
+
+    Queue getDataTransfer();
 
 }

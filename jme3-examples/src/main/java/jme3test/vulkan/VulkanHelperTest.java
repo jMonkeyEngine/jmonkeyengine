@@ -223,17 +223,12 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             // the cpu cannot directly access fast gpu memory. The solution is to
             // copy cpu-side data to a mutual staging buffer, then have the gpu copy
             // that data to faster memory. Hence, why we use a StageableBuffer here.
-            vertexBuffer = new StageableBuffer(device, MemorySize.floats(vertexData.capacity()),
+            vertexBuffer = new StaticBuffer(device, transferPool, MemorySize.floats(vertexData.capacity()),
                     new BufferUsageFlags().vertexBuffer(), new MemoryFlags().deviceLocal(), false);
-            vertexBuffer.copy(stack, vertexData); // copy data to staging buffer
-            vertexBuffer.transfer(transferPool);
-            vertexBuffer.freeStagingBuffer();
-            // index buffer
-            indexBuffer = new StageableBuffer(device, MemorySize.ints(indexData.capacity()),
+            vertexBuffer.copy(stack, vertexData);
+            indexBuffer = new StaticBuffer(device, transferPool, MemorySize.ints(indexData.capacity()),
                     new BufferUsageFlags().indexBuffer(), new MemoryFlags().deviceLocal(), false);
             indexBuffer.copy(stack, indexData);
-            indexBuffer.transfer(transferPool);
-            indexBuffer.freeStagingBuffer();
         }
 
         // material color texture
@@ -297,7 +292,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         CommandBuffer commands = pool.allocateOneTimeCommandBuffer();
         commands.begin();
         image.transitionLayout(commands, Image.Layout.Undefined, Image.Layout.DepthStencilAttachmentOptimal);
-        commands.endAndSubmit(new SyncGroup());
+        commands.endAndSubmit(SyncGroup.ASYNC);
         commands.getPool().getQueue().waitIdle();
         return view;
     }

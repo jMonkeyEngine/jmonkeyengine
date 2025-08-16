@@ -3,7 +3,10 @@ package com.jme3.vulkan.material.uniforms;
 import com.jme3.vulkan.descriptors.DescriptorSet;
 import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
-import com.jme3.vulkan.pipelines.Pipeline;
+import com.jme3.vulkan.devices.LogicalDevice;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VK10;
+import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 import java.util.*;
 
@@ -11,7 +14,6 @@ public class UniformSet {
 
     private final Uniform[] uniforms;
     private final List<DescriptorSet> sets = new ArrayList<>();
-    private final Collection<DescriptorSet> outdatedSets = new ArrayList<>();
     private DescriptorSet activeSet;
 
     public UniformSet(Uniform... uniforms) {
@@ -62,12 +64,20 @@ public class UniformSet {
         return null;
     }
 
-    public void update(Pipeline pipeline) {
-        for (DescriptorSet set : sets) {
-            set.update(false, uniforms);
+    public void update(LogicalDevice<?> device) {
+        ArrayList<Uniform<?>> writers = new ArrayList<>(uniforms.length);
+        for (Uniform<?> u : uniforms) {
+            if (u.update(device)) {
+                writers.add(u);
+            }
         }
-        for (Uniform u : uniforms) {
-            u.clearUpdateNeeded();
+        if (!writers.isEmpty()) try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(writers.size() * sets.size(), stack);
+            for (DescriptorSet s : sets) {
+                s.populateWriteBuffer(stack, write, writers.toArray(new Uniform[0]));
+            }
+            write.flip();
+            VK10.vkUpdateDescriptorSets(device.getNativeObject(), write, null);
         }
     }
 

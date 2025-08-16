@@ -1,67 +1,22 @@
 package com.jme3.vulkan.material.uniforms;
 
-import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VkWriteDescriptorSet;
+import com.jme3.vulkan.devices.LogicalDevice;
 
-public abstract class Uniform<T> implements DescriptorSetWriter {
+public interface Uniform <T> extends DescriptorSetWriter {
 
-    private final Descriptor type;
-    private final int bindingIndex;
-    private boolean updateFlag = true;
-    protected T value;
+    // true to trigger update of descriptor sets
+    boolean update(LogicalDevice<?> device);
 
-    public Uniform(Descriptor type, int bindingIndex) {
-        this.type = type;
-        this.bindingIndex = bindingIndex;
-    }
+    void setValue(T value);
 
-    @Override
-    public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
-        write.descriptorType(type.getVkEnum())
-                .dstBinding(bindingIndex)
-                .dstArrayElement(0)
-                .descriptorCount(1);
-    }
+    T getValue();
 
-    @Override
-    public boolean isUpdateNeeded() {
-        return updateFlag;
-    }
+    int getBindingIndex();
 
-    public boolean isBindingCompatible(SetLayoutBinding binding) {
-        return binding.getType() == type
-                && binding.getBinding() == bindingIndex
-                && binding.getDescriptors() == 1;
-    }
+    boolean isBindingCompatible(SetLayoutBinding binding);
 
-    public void setValue(T value) {
-        if (this.value != value) {
-            setUpdateNeeded();
-        }
-        this.value = value;
-    }
-
-    public void setUpdateNeeded() {
-        updateFlag = true;
-    }
-
-    public void clearUpdateNeeded() {
-        updateFlag = false;
-    }
-
-    public Descriptor getType() {
-        return type;
-    }
-
-    public int getBindingIndex() {
-        return bindingIndex;
-    }
-
-    public T getValue() {
-        return value;
-    }
+    String getName();
 
 }
