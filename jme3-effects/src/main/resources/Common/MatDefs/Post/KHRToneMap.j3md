@@ -1,0 +1,24 @@
+MaterialDef KHRToneMap {
+
+    MaterialParameters {
+        Int BoundDrawBuffer
+        Int NumSamples
+        Int NumSamplesDepth
+        Texture2D Texture
+        Vector3 Gamma
+        Vector3 Exposure
+    }
+
+    Technique {
+        VertexShader     GLSL300 GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader   GLSL300 GLSL150 GLSL100: Common/MatDefs/Post/KHRToneMap.frag
+
+        WorldParameters {
+        }
+
+        Defines {
+            BOUND_DRAW_BUFFER: BoundDrawBuffer
+            NUM_SAMPLES : NumSamples
+        }
+    }
+}
