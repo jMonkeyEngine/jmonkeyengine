@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.control;
 
+import com.jme3.util.AreaUtils;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -45,19 +46,31 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Determines what Level of Detail a spatial should be, based on how many pixels
- * on the screen the spatial is taking up. The more pixels covered, the more
- * detailed the spatial should be. It calculates the area of the screen that the
- * spatial covers by using its bounding box. When initializing, it will ask the
- * spatial for how many triangles it has for each LOD. It then uses that, along
- * with the trisPerPixel value to determine what LOD it should be at. It
- * requires the camera to do this. The controlRender method is called each frame
- * and will update the spatial's LOD if the camera has moved by a specified
- * amount.
+ * `LodControl` automatically adjusts the Level of Detail (LOD) for a
+ * {@link com.jme3.scene.Geometry Geometry} based on its projected screen area.
+ * The more pixels a spatial covers on the screen, the higher its detail level
+ * will be. This control uses the geometry's bounding volume and the active
+ * camera to estimate the screen coverage.
+ * <p>
+ * Upon attachment to a {@link com.jme3.scene.Geometry Geometry}, it queries
+ * the mesh for the triangle counts at each available LOD level. During
+ * rendering, it continuously monitors the geometry's screen size and
+ * updates the LOD level if the change in screen area (or distance)
+ * exceeds a specified tolerance.
+ * </p>
+ * <p>
+ * This control is ideal for optimizing rendering performance by ensuring
+ * that objects only use the necessary amount of detail based on their
+ * visual prominence on screen.
+ * </p>
  */
-public class LodControl extends AbstractControl implements Cloneable, JmeCloneable {
+public class LodControl extends AbstractControl implements JmeCloneable {
+
+    private static final Logger logger = Logger.getLogger(LodControl.class.getName());
 
     private float trisPerPixel = 1f;
     private float distTolerance = 1f;
@@ -67,18 +80,22 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
     private int[] numTris;
 
     /**
-     * Creates a new
-     * <code>LodControl</code>.
+     * Creates a new `LodControl`.
+     * <p>
+     * You must attach this control to a {@link com.jme3.scene.Geometry}
+     * for it to function correctly.
+     * </p>
      */
     public LodControl() {
     }
 
     /**
-     * Returns the distance tolerance for changing LOD.
+     * Returns the distance tolerance for changing LOD. The LOD level will
+     * only be changed if the geometry's distance from the camera has changed
+     * by more than this tolerance since the last update. This prevents
+     * frequent LOD flickering when the camera moves slightly.
      *
-     * @return the distance tolerance for changing LOD.
-     *
-     * @see #setDistTolerance(float)
+     * @return The distance tolerance in world units.
      */
     public float getDistTolerance() {
         return distTolerance;
@@ -87,11 +104,16 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
     /**
      * Specifies the distance tolerance for changing the LOD level on the
      * geometry. The LOD level will only get changed if the geometry has moved
-     * this distance beyond the current LOD level.
+     * this distance beyond the current LOD level. Setting a higher tolerance
+     * reduces LOD changes but might make transitions less precise.
      *
-     * @param distTolerance distance tolerance for changing LOD
+     * @param distTolerance The distance tolerance in world units (must be non-negative).
+     * @throws IllegalArgumentException if `distTolerance` is negative.
      */
     public void setDistTolerance(float distTolerance) {
+        if (distTolerance < 0) {
+            throw new IllegalArgumentException("Distance tolerance cannot be negative.");
+        }
         this.distTolerance = distTolerance;
     }
 
@@ -99,93 +121,121 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
      * Returns the triangles per pixel value.
      *
      * @return the triangles per pixel value.
-     *
-     * @see #setTrisPerPixel(float)
      */
     public float getTrisPerPixel() {
         return trisPerPixel;
     }
 
     /**
-     * Sets the triangles per pixel value. The
-     * <code>LodControl</code> will use this value as an error metric to
-     * determine which LOD level to use based on the geometry's area on the
-     * screen.
+     * Sets the triangles per pixel value. The `LodControl` uses this value
+     * as an error metric to determine which LOD level to use based on the
+     * geometry's projected area on the screen. A higher value means the
+     * object will appear more detailed for a given screen size.
      *
-     * @param trisPerPixel triangles per pixel
+     * @param trisPerPixel The desired number of triangles per screen pixel (must be positive).
+     * @throws IllegalArgumentException if `trisPerPixel` is zero or negative.
      */
     public void setTrisPerPixel(float trisPerPixel) {
+        if (trisPerPixel <= 0) {
+            throw new IllegalArgumentException("Triangles per pixel must be positive.");
+        }
         this.trisPerPixel = trisPerPixel;
     }
 
     @Override
     public void setSpatial(Spatial spatial) {
         if (spatial != null && !(spatial instanceof Geometry)) {
-            throw new IllegalArgumentException("LodControl can only be attached to Geometry!");
+            throw new IllegalArgumentException("Invalid Spatial type for LodControl. " +
+                    "Expected a Geometry, but got: " + spatial.getClass().getSimpleName());
         }
 
         super.setSpatial(spatial);
-        
-        if(spatial != null) {
+
+        if (spatial != null) {
             Geometry geom = (Geometry) spatial;
             Mesh mesh = geom.getMesh();
             numLevels = mesh.getNumLodLevels();
-            numTris = new int[numLevels];
-            for (int i = numLevels - 1; i >= 0; i--) {
-                numTris[i] = mesh.getTriangleCount(i);
+
+            logger.log(Level.INFO, "LodControl attached to Geometry ''{0}''. Detected {1} LOD levels.",
+                    new Object[]{spatial.getName(), numLevels});
+
+            if (numLevels > 0) {
+                numTris = new int[numLevels];
+                // Store triangle counts from lowest LOD (highest index) to highest LOD (index 0)
+                // This makes the lookup loop in controlRender more efficient.
+                for (int i = 0; i < numLevels; i++) {
+                    numTris[i] = mesh.getTriangleCount(i);
+                }
+            } else {
+                logger.log(Level.WARNING, "LodControl attached to Geometry {0} but its Mesh has no LOD levels defined. " +
+                        "Control will have no effect.", spatial.getName());
             }
         } else {
             numLevels = 0;
             numTris = null;
+            lastDistance = 0f;
+            lastLevel = 0;
         }
     }
 
     @Override
     public Object jmeClone() {
-        LodControl clone = (LodControl)super.jmeClone();
+        LodControl clone = (LodControl) super.jmeClone();
         clone.lastDistance = 0;
         clone.lastLevel = 0;
-        clone.numTris = numTris != null ? numTris.clone() : null;
+        clone.numTris = (numTris != null) ? numTris.clone() : null;
         return clone;
-    }     
+    }
 
     @Override
     protected void controlUpdate(float tpf) {
+        // LOD is determined during controlRender to react to camera changes
     }
 
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
+        if (numLevels == 0) {
+            return;
+        }
+
         BoundingVolume bv = spatial.getWorldBound();
 
         Camera cam = vp.getCamera();
         float atanNH = FastMath.atan(cam.getFrustumNear() * cam.getFrustumTop());
         float ratio = (FastMath.PI / (8f * atanNH));
-        float newDistance = bv.distanceTo(vp.getCamera().getLocation()) / ratio;
-        int level;
+        float currDistance = bv.distanceTo(cam.getLocation()) / ratio;
+        int newLevel;
 
-        if (Math.abs(newDistance - lastDistance) <= distTolerance) {
-            level = lastLevel; // we haven't moved relative to the model, send the old measurement back.
-        } else if (lastDistance > newDistance && lastLevel == 0) {
-            level = lastLevel; // we're already at the lowest setting and we just got closer to the model, no need to keep trying.
-        } else if (lastDistance < newDistance && lastLevel == numLevels - 1) {
-            level = lastLevel; // we're already at the highest setting and we just got further from the model, no need to keep trying.
+        if (Math.abs(currDistance - lastDistance) <= distTolerance) {
+            newLevel = lastLevel; // we haven't moved relative to the model
+        } else if (lastDistance > currDistance && lastLevel == 0) {
+            newLevel = lastLevel; // Getting closer, already at highest detail (level 0)
+        } else if (lastDistance < currDistance && lastLevel == numLevels - 1) {
+            newLevel = lastLevel; // Getting further, already at lowest detail
         } else {
-            lastDistance = newDistance;
+            // Update lastDistance for subsequent checks
+            lastDistance = currDistance;
 
             // estimate area of polygon via bounding volume
             float area = AreaUtils.calcScreenArea(bv, lastDistance, cam.getWidth());
             float trisToDraw = area * trisPerPixel;
-            level = numLevels - 1;
-            for (int i = numLevels; --i >= 0;) {
-                if (trisToDraw - numTris[i] < 0) {
-                    break;
-                }
-                level = i;
-            }
-            lastLevel = level;
-        }
 
-        spatial.setLodLevel(level);
+            // Find the appropriate LOD level
+            // Start with the lowest detail (highest index)
+            newLevel = numLevels - 1;
+            // Iterate from highest detail (index 0) to lowest, breaking when trisToDraw is enough
+            for (int i = 0; i < numLevels; i++) {
+                if (trisToDraw >= numTris[i]) {
+                    newLevel = i;
+                    break; // Found the highest detail level that satisfies the criteria
+                }
+            }
+            // Only set LOD if it's actually changing to avoid unnecessary calls
+            if (newLevel != lastLevel) {
+                spatial.setLodLevel(newLevel);
+            }
+            lastLevel = newLevel;
+        }
     }
 
     @Override
