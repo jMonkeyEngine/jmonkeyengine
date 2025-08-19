@@ -59,7 +59,7 @@ public class MemoryRegion implements Native<Long> {
     }
 
     public void bind(GpuBuffer buffer, long offset) {
-        check(vkBindBufferMemory(device.getNativeObject(), buffer.getNativeObject(), id, offset),
+        check(vkBindBufferMemory(device.getNativeObject(), buffer.getId(), id, offset),
                 "Failed to bind buffer memory.");
     }
 

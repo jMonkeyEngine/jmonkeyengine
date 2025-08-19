@@ -34,7 +34,7 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
     @Override
     public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
         VkDescriptorBufferInfo.Buffer info = VkDescriptorBufferInfo.calloc(1, stack)
-                .buffer(buffer.getNativeObject())
+                .buffer(buffer.getId())
                 .offset(0L)
                 .range(buffer.size().getBytes());
         write.pBufferInfo(info)

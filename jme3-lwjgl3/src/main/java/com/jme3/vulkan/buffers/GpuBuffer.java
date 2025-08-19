@@ -116,7 +116,7 @@ public interface GpuBuffer {
                            long srcOffset, long dstOffset, long size) {
         VkBufferCopy.Buffer copy = VkBufferCopy.calloc(1, stack)
                 .srcOffset(srcOffset).dstOffset(dstOffset).size(size);
-        vkCmdCopyBuffer(commands.getBuffer(), source.getNativeObject(), getNativeObject(), copy);
+        vkCmdCopyBuffer(commands.getBuffer(), source.getId(), getId(), copy);
     }
 
 }

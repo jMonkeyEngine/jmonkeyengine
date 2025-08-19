@@ -3,6 +3,7 @@ package com.jme3.vulkan.images;
 import com.jme3.asset.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.VulkanBuffer;
 import com.jme3.vulkan.memory.MemoryFlag;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -152,7 +153,7 @@ public class VulkanImageLoader implements AssetLoader {
 
     private GpuImage loadGpuImage(CommandPool transferPool, ImageData data) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            GpuBuffer staging = new GpuBuffer(transferPool.getDevice(), MemorySize.bytes(data.getBuffer().limit()),
+            GpuBuffer staging = new VulkanBuffer(transferPool.getDevice(), MemorySize.bytes(data.getBuffer().limit()),
                     BufferUsage.TransferSrc, Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCached), false);
             staging.copy(stack, data.getBuffer());
             GpuImage image = new GpuImage(transferPool.getDevice(), data.getWidth(), data.getHeight(), data.getFormat(),
@@ -171,7 +172,7 @@ public class VulkanImageLoader implements AssetLoader {
                     .layerCount(1);
             region.imageOffset().set(0, 0, 0);
             region.imageExtent().set(data.getWidth(), data.getHeight(), 1);
-            vkCmdCopyBufferToImage(commands.getBuffer(), staging.getNativeObject(),
+            vkCmdCopyBufferToImage(commands.getBuffer(), staging.getId(),
                     image.getNativeObject(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
             image.transitionLayout(commands, Image.Layout.TransferDstOptimal, Image.Layout.ShaderReadOnlyOptimal);
             commands.end();
