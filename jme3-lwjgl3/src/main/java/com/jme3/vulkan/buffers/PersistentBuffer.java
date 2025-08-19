@@ -1,5 +1,6 @@
 package com.jme3.vulkan.buffers;
 
+import com.jme3.vulkan.VulkanObject;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryFlag;
 import com.jme3.vulkan.memory.MemorySize;
@@ -7,7 +8,7 @@ import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 
-public class PersistentBuffer extends GpuBuffer {
+public class PersistentBuffer extends VulkanBuffer {
 
     private final long address;
 

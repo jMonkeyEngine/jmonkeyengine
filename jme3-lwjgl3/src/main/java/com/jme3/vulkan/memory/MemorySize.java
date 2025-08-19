@@ -1,5 +1,7 @@
 package com.jme3.vulkan.memory;
 
+import java.util.Objects;
+
 public class MemorySize {
 
     private final int elements;
@@ -10,6 +12,18 @@ public class MemorySize {
         this.elements = elements;
         this.bytesPerElement = bytesPerElement;
         this.bytes = this.elements * this.bytesPerElement;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        MemorySize that = (MemorySize) o;
+        return elements == that.elements && bytesPerElement == that.bytesPerElement;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(elements, bytesPerElement);
     }
 
     public int getElements() {

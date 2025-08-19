@@ -374,8 +374,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 vkCmdSetScissor(graphicsCommands.getBuffer(), 0, scissor);
 
                 // mesh
-                vkCmdBindVertexBuffers(graphicsCommands.getBuffer(), 0, stack.longs(vertexBuffer.getNativeObject()), stack.longs(0));
-                vkCmdBindIndexBuffer(graphicsCommands.getBuffer(), indexBuffer.getNativeObject(), 0, VK_INDEX_TYPE_UINT32);
+                vkCmdBindVertexBuffers(graphicsCommands.getBuffer(), 0, stack.longs(vertexBuffer.getId()), stack.longs(0));
+                vkCmdBindIndexBuffer(graphicsCommands.getBuffer(), indexBuffer.getId(), 0, VK_INDEX_TYPE_UINT32);
                 vkCmdDrawIndexed(graphicsCommands.getBuffer(), indexData.limit(), 1, 0, 0, 0);
 
             }

@@ -10,14 +10,14 @@ import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 
-public class StageableBuffer extends GpuBuffer {
+public class StageableBuffer extends VulkanBuffer {
 
-    private final GpuBuffer stage;
+    private final VulkanBuffer stage;
 
     public StageableBuffer(LogicalDevice device, MemorySize size,
                            Flag<BufferUsage> usage, Flag<MemoryFlag> mem, boolean concurrent) {
         super(device, size, usage.add(BufferUsage.TransferDst), mem, concurrent);
-        this.stage = new GpuBuffer(device, size, BufferUsage.TransferSrc,
+        this.stage = new VulkanBuffer(device, size, BufferUsage.TransferSrc,
                 Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCoherent), concurrent);
     }
 
