@@ -3,11 +3,10 @@ package com.jme3.vulkan.buffers;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.flags.MemoryFlags;
-import com.jme3.vulkan.flags.BufferUsageFlags;
-import com.jme3.vulkan.sync.Fence;
-import com.jme3.vulkan.sync.Semaphore;
+import com.jme3.vulkan.memory.MemoryFlag;
+import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.sync.SyncGroup;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 
@@ -16,10 +15,10 @@ public class StageableBuffer extends GpuBuffer {
     private final GpuBuffer stage;
 
     public StageableBuffer(LogicalDevice device, MemorySize size,
-                           BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
-        super(device, size, usage.transferDst(), mem, concurrent);
-        this.stage = new GpuBuffer(device, size, new BufferUsageFlags().transferSrc(),
-                new MemoryFlags().hostVisible().hostCoherent(), concurrent);
+                           Flag<BufferUsage> usage, Flag<MemoryFlag> mem, boolean concurrent) {
+        super(device, size, usage.add(BufferUsage.TransferDst), mem, concurrent);
+        this.stage = new GpuBuffer(device, size, BufferUsage.TransferSrc,
+                Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCoherent), concurrent);
     }
 
     @Override

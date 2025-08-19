@@ -1,7 +1,8 @@
-package com.jme3.vulkan.buffers;
+package com.jme3.vulkan.memory;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
+import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.Image;
 import org.lwjgl.PointerBuffer;

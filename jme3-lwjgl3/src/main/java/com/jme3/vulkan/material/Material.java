@@ -2,8 +2,8 @@ package com.jme3.vulkan.material;
 
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
+import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.uniforms.Uniform;
-import com.jme3.vulkan.material.uniforms.UniformSet;
 import com.jme3.vulkan.pipelines.Pipeline;
 import org.lwjgl.system.MemoryStack;
 
@@ -32,28 +32,22 @@ public class Material {
     public void bind(CommandBuffer cmd, Pipeline pipeline, int offset) {
         LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>(
                 Arrays.asList(pipeline.getLayout().getDescriptorSetLayouts()));
-        ArrayList<DescriptorSetLayout> allocationLayouts = new ArrayList<>(availableLayouts.size());
-        ArrayList<UniformSet> allocationTargets = new ArrayList<>(availableLayouts.size());
+        ArrayList<SetAllocationInfo> allocations = new ArrayList<>(availableLayouts.size());
         for (UniformSet set : uniforms) {
             set.update(pipeline.getDevice());
             // Select an existing descriptor set to be active. If
-            // no existing set may be selected, a set layout is
+            // no existing set may be selected, non-null allocation info is
             // returned with which to allocate a new descriptor set.
-            DescriptorSetLayout allocation = set.selectExistingActiveSet(availableLayouts);
-            if (allocation != null) {
-                // allocate all new sets at once
-                allocationLayouts.add(allocation);
-                allocationTargets.add(set);
+            SetAllocationInfo a = set.selectExistingActiveSet(availableLayouts);
+            if (a != null) {
+                allocations.add(a);
             }
         }
-        if (!allocationLayouts.isEmpty()) {
-            if (allocationLayouts.size() != allocationTargets.size()) {
-                throw new IllegalStateException("Each layout must have a corresponding target uniform set.");
-            }
-            DescriptorSet[] allocatedSets = pool.allocateSets(
-                    allocationLayouts.toArray(new DescriptorSetLayout[0]));
+        if (!allocations.isEmpty()) {
+            DescriptorSet[] allocatedSets = pool.allocateSets(allocations.stream()
+                    .map(SetAllocationInfo::getLayout).toArray(DescriptorSetLayout[]::new));
             for (int i = 0; i < allocatedSets.length; i++) {
-                UniformSet target = allocationTargets.get(i);
+                UniformSet target = allocations.get(i).getSet();
                 target.addActiveSet(allocatedSets[i]);
                 allocatedSets[i].write(target.getUniforms());
             }
@@ -61,12 +55,16 @@ public class Material {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer setBuf = stack.mallocLong(uniforms.size());
             for (UniformSet s : uniforms) {
-                setBuf.put(s.getActiveSet().getId());
+                setBuf.put(s.getActiveSet().getNativeObject());
             }
             setBuf.flip();
             vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getVkEnum(),
                     pipeline.getLayout().getNativeObject(), offset, setBuf, null);
         }
+    }
+
+    public DescriptorSetLayout[] createLayouts(LogicalDevice<?> device) {
+        return uniforms.stream().map(u -> u.createLayout(device)).toArray(DescriptorSetLayout[]::new);
     }
 
     protected UniformSet addSet(UniformSet set) {

@@ -4,6 +4,8 @@ import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.shader.ShaderStage;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Struct;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
@@ -14,22 +16,19 @@ import java.util.function.Function;
 
 public class BufferUniform extends AbstractUniform<GpuBuffer> {
 
+    private static final String BUFFER_NULL_ERROR = "Uniform buffer is null.";
+
     private GpuBuffer buffer;
     private boolean updateFlag = true;
     private Function<LogicalDevice<?>, GpuBuffer> bufferFactory;
 
-    public BufferUniform(String name, Descriptor type, int bindingIndex) {
-        super(name, type, bindingIndex);
+    public BufferUniform(String name, Descriptor type, int bindingIndex, Flag<ShaderStage> stages) {
+        super(name, type, bindingIndex, stages);
     }
 
-    public BufferUniform(String name, Descriptor type, int bindingIndex, GpuBuffer buffer) {
-        super(name, type, bindingIndex);
+    public BufferUniform(String name, Descriptor type, int bindingIndex, Flag<ShaderStage> stages, GpuBuffer buffer) {
+        super(name, type, bindingIndex, stages);
         this.buffer = buffer;
-    }
-
-    public BufferUniform(String name, Descriptor type, int bindingIndex, Function<LogicalDevice<?>, GpuBuffer> bufferFactory) {
-        super(name, type, bindingIndex);
-        this.bufferFactory = bufferFactory;
     }
 
     @Override
@@ -50,10 +49,10 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
     public boolean update(LogicalDevice<?> device) {
         if (buffer == null) {
             if (bufferFactory != null) {
-                buffer = bufferFactory.apply(device);
+                buffer = Objects.requireNonNull(bufferFactory.apply(device), "Buffer factory produced null.");
                 updateFlag = true;
             } else {
-                throw new NullPointerException("Uniform buffer is null.");
+                throw new NullPointerException(BUFFER_NULL_ERROR);
             }
         }
         return updateFlag;
@@ -81,12 +80,6 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
 
     public void setBufferFactory(Function<LogicalDevice<?>, GpuBuffer> bufferFactory) {
         this.bufferFactory = bufferFactory;
-    }
-
-    public void setStruct(Struct<?> struct) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            Objects.requireNonNull(buffer, "Uniform buffer is null.").copy(stack, struct);
-        }
     }
 
     public Function<LogicalDevice<?>, GpuBuffer> getBufferFactory() {

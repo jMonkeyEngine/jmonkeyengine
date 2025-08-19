@@ -97,7 +97,7 @@ public class SyncGroup {
     public IntBuffer toDstStageBuffer(MemoryStack stack) {
         IntBuffer buf = stack.mallocInt(waits.length);
         for (Semaphore s : signals) {
-            buf.put(s.getDstStageMask());
+            buf.put(s.getDstStageMask().bits());
         }
         buf.flip();
         return buf;

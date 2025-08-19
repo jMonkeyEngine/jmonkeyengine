@@ -2,7 +2,9 @@ package com.jme3.vulkan.devices;
 
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.images.Image;
+import com.jme3.vulkan.memory.MemoryFlag;
 import com.jme3.vulkan.surface.Surface;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -66,10 +68,10 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice {
     }
 
     @Override
-    public int findSupportedMemoryType(MemoryStack stack, int types, int flags) {
+    public int findSupportedMemoryType(MemoryStack stack, int types, Flag<MemoryFlag> flags) {
         VkPhysicalDeviceMemoryProperties mem = getMemoryProperties(stack);
         for (int i = 0; i < mem.memoryTypeCount(); i++) {
-            if ((types & (1 << i)) != 0 && (mem.memoryTypes().get(i).propertyFlags() & flags) != 0) {
+            if ((types & (1 << i)) != 0 && (mem.memoryTypes().get(i).propertyFlags() & flags.bits()) != 0) {
                 return i;
             }
         }
@@ -77,12 +79,12 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice {
     }
 
     @Override
-    public Image.Format findSupportedFormat(int tiling, int features, Image.Format... candidates) {
+    public Image.Format findSupportedFormat(Image.Tiling tiling, int features, Image.Format... candidates) {
         VkFormatProperties props = VkFormatProperties.create();
         for (Image.Format f : candidates) {
             vkGetPhysicalDeviceFormatProperties(physicalDevice, f.getVkEnum(), props);
-            if ((tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures() & features) == features)
-                    || (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures() & features) == features)) {
+            if ((tiling == Image.Tiling.Linear && (props.linearTilingFeatures() & features) == features)
+                    || (tiling == Image.Tiling.Optimal && (props.optimalTilingFeatures() & features) == features)) {
                 return f;
             }
         }

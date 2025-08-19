@@ -1,5 +1,8 @@
 package com.jme3.vulkan.pass;
 
+import com.jme3.vulkan.pipelines.Access;
+import com.jme3.vulkan.pipelines.PipelineStage;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkSubpassDependency;
 
@@ -11,8 +14,8 @@ import java.util.List;
 public class SubpassDependency {
 
     private final Subpass srcSubpass, dstSubpass;
-    private int srcStageMask, srcAccessMask;
-    private int dstStageMask, dstAccessMask;
+    private Flag<PipelineStage> srcStageMask, dstStageMask;
+    private Flag<Access> srcAccessMask, dstAccessMask;
 
     protected SubpassDependency(Subpass srcSubpass, Subpass dstSubpass) {
         this.srcSubpass = srcSubpass;
@@ -31,25 +34,25 @@ public class SubpassDependency {
     public void fillStruct(VkSubpassDependency struct) {
         struct.srcSubpass(srcSubpass != null ? srcSubpass.getPosition() : VK10.VK_SUBPASS_EXTERNAL)
                 .dstSubpass(dstSubpass != null ? dstSubpass.getPosition() : VK10.VK_SUBPASS_EXTERNAL)
-                .srcStageMask(srcStageMask)
-                .srcAccessMask(srcAccessMask)
-                .dstStageMask(dstStageMask)
-                .dstAccessMask(dstAccessMask);
+                .srcStageMask(srcStageMask.bits())
+                .srcAccessMask(srcAccessMask.bits())
+                .dstStageMask(dstStageMask.bits())
+                .dstAccessMask(dstAccessMask.bits());
     }
 
-    public void setSrcStageMask(int srcStageMask) {
+    public void setSrcStageMask(Flag<PipelineStage> srcStageMask) {
         this.srcStageMask = srcStageMask;
     }
 
-    public void setSrcAccessMask(int srcAccessMask) {
+    public void setSrcAccessMask(Flag<Access> srcAccessMask) {
         this.srcAccessMask = srcAccessMask;
     }
 
-    public void setDstStageMask(int dstStageMask) {
+    public void setDstStageMask(Flag<PipelineStage> dstStageMask) {
         this.dstStageMask = dstStageMask;
     }
 
-    public void setDstAccessMask(int dstAccessMask) {
+    public void setDstAccessMask(Flag<Access> dstAccessMask) {
         this.dstAccessMask = dstAccessMask;
     }
 
@@ -61,19 +64,19 @@ public class SubpassDependency {
         return dstSubpass;
     }
 
-    public int getSrcStageMask() {
+    public Flag<PipelineStage> getSrcStageMask() {
         return srcStageMask;
     }
 
-    public int getSrcAccessMask() {
+    public Flag<Access> getSrcAccessMask() {
         return srcAccessMask;
     }
 
-    public int getDstStageMask() {
+    public Flag<PipelineStage> getDstStageMask() {
         return dstStageMask;
     }
 
-    public int getDstAccessMask() {
+    public Flag<Access> getDstAccessMask() {
         return dstAccessMask;
     }
 

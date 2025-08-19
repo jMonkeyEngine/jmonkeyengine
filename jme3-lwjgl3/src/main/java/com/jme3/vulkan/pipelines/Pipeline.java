@@ -8,6 +8,8 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public abstract class Pipeline extends VulkanObject<Long> {
 
+    public static final String DEFAULT_SHADER_ENTRY_POINT = "main";
+
     protected final LogicalDevice<?> device;
     protected final PipelineBindPoint bindPoint;
     protected final PipelineLayout layout;

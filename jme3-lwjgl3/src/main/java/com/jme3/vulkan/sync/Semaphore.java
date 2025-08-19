@@ -3,6 +3,8 @@ package com.jme3.vulkan.sync;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.pipelines.PipelineStage;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
@@ -17,13 +19,13 @@ public class Semaphore implements Native<Long> {
     private final LogicalDevice<?> device;
     private final NativeReference ref;
     private long id;
-    private int dstStageMask;
+    private Flag<PipelineStage> dstStageMask;
 
     public Semaphore(LogicalDevice<?> device) {
-        this(device, 0);
+        this(device, PipelineStage.None);
     }
 
-    public Semaphore(LogicalDevice<?> device, int dstStageMask) {
+    public Semaphore(LogicalDevice<?> device, Flag<PipelineStage> dstStageMask) {
         this.device = device;
         this.dstStageMask = dstStageMask;
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -56,19 +58,19 @@ public class Semaphore implements Native<Long> {
         return ref;
     }
 
-    public void setDstStageMask(int dstStageMask) {
+    public void setDstStageMask(Flag<PipelineStage> dstStageMask) {
         this.dstStageMask = dstStageMask;
     }
 
-    public void addDstStageBit(int stageBit) {
-        this.dstStageMask |= stageBit;
+    public void addDstStage(Flag<PipelineStage> stageBit) {
+        this.dstStageMask = this.dstStageMask.add(stageBit);
     }
 
-    public void removeDstStageBit(int stageBit) {
-        this.dstStageMask &= ~stageBit;
+    public void removeDstStageBit(Flag<PipelineStage> stageBit) {
+        this.dstStageMask = this.dstStageMask.remove(stageBit);
     }
 
-    public int getDstStageMask() {
+    public Flag<PipelineStage> getDstStageMask() {
         return dstStageMask;
     }
 

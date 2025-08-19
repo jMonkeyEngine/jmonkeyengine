@@ -2,14 +2,14 @@ package com.jme3.vulkan.images;
 
 import com.jme3.asset.*;
 import com.jme3.util.BufferUtils;
-import com.jme3.vulkan.buffers.MemorySize;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.memory.MemoryFlag;
+import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.flags.BufferUsageFlags;
-import com.jme3.vulkan.flags.ImageUsageFlags;
-import com.jme3.vulkan.flags.MemoryFlags;
 import com.jme3.vulkan.sync.SyncGroup;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkBufferImageCopy;
 
@@ -153,11 +153,11 @@ public class VulkanImageLoader implements AssetLoader {
     private GpuImage loadGpuImage(CommandPool transferPool, ImageData data) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             GpuBuffer staging = new GpuBuffer(transferPool.getDevice(), MemorySize.bytes(data.getBuffer().limit()),
-                    new BufferUsageFlags().transferSrc(), new MemoryFlags().hostVisible().hostCoherent(), false);
+                    BufferUsage.TransferSrc, Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCached), false);
             staging.copy(stack, data.getBuffer());
             GpuImage image = new GpuImage(transferPool.getDevice(), data.getWidth(), data.getHeight(), data.getFormat(),
-                    Image.Tiling.Optimal, new ImageUsageFlags().transferDst().sampled(),
-                    new MemoryFlags().deviceLocal());
+                    Image.Tiling.Optimal, Flag.of(ImageUsage.TransferDst, ImageUsage.Sampled),
+                    MemoryFlag.DeviceLocal);
             CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
             commands.begin();
             image.transitionLayout(commands, Image.Layout.Undefined, Image.Layout.TransferDstOptimal);

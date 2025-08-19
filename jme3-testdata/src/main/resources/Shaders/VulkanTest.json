@@ -5,10 +5,8 @@
       "shaders" : {
         "vertex" : "Shaders/VulkanFragTest.json",
         "fragment" : "Shaders/VulkanVertTest.json"
-      },
-      "defines" : {
-        "MY_CUSTOM_DEFINE" : 1
       }
+      // more technique data...
     }
   }
 }

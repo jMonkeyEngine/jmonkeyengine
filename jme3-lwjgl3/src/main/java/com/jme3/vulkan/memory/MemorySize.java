@@ -1,4 +1,4 @@
-package com.jme3.vulkan.buffers;
+package com.jme3.vulkan.memory;
 
 public class MemorySize {
 

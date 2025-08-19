@@ -5,6 +5,8 @@ import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.Image;
 import com.jme3.vulkan.images.Texture;
+import com.jme3.vulkan.shader.ShaderStage;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorImageInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
@@ -15,8 +17,8 @@ public class TextureUniform extends AbstractUniform<Texture> {
     private Texture texture;
     private boolean updateFlag = true;
 
-    public TextureUniform(String name, Image.Layout layout, int bindingIndex) {
-        super(name, Descriptor.CombinedImageSampler, bindingIndex);
+    public TextureUniform(String name, Image.Layout layout, int bindingIndex, Flag<ShaderStage> stages) {
+        super(name, Descriptor.CombinedImageSampler, bindingIndex, stages);
         this.layout = layout;
     }
 

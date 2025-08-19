@@ -5,8 +5,10 @@ import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.flags.MemoryFlags;
-import com.jme3.vulkan.flags.BufferUsageFlags;
+import com.jme3.vulkan.memory.MemoryFlag;
+import com.jme3.vulkan.memory.MemoryRegion;
+import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -18,7 +20,6 @@ import org.lwjgl.vulkan.VkMemoryRequirements;
 
 import java.nio.*;
 import java.util.function.Function;
-import java.util.function.LongFunction;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -31,14 +32,14 @@ public class GpuBuffer implements Native<Long> {
     private final long id;
     protected final MemoryRegion memory;
 
-    public GpuBuffer(LogicalDevice<?> device, MemorySize size, BufferUsageFlags usage, MemoryFlags mem, boolean concurrent) {
+    public GpuBuffer(LogicalDevice<?> device, MemorySize size, Flag<BufferUsage> usage, Flag<MemoryFlag> mem, boolean concurrent) {
         this.device = device;
         this.size = size;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkBufferCreateInfo create = VkBufferCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO)
                     .size(size.getBytes())
-                    .usage(usage.getUsageFlags())
+                    .usage(usage.bits())
                     .sharingMode(VulkanUtils.sharingMode(concurrent));
             LongBuffer idBuf = stack.mallocLong(1);
             check(vkCreateBuffer(device.getNativeObject(), create, null, idBuf),
@@ -47,7 +48,7 @@ public class GpuBuffer implements Native<Long> {
             VkMemoryRequirements bufferMem = VkMemoryRequirements.malloc(stack);
             vkGetBufferMemoryRequirements(device.getNativeObject(), id, bufferMem);
             memory = new MemoryRegion(device, bufferMem.size(), device.getPhysicalDevice().findSupportedMemoryType(
-                    stack, bufferMem.memoryTypeBits(), mem.getMemoryFlags()));
+                    stack, bufferMem.memoryTypeBits(), mem));
             memory.bind(this, 0);
         }
         ref = Native.get().register(this);

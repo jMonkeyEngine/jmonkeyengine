@@ -27,8 +27,7 @@ public class DescriptorSet extends VulkanObject<Long> {
     public Runnable createNativeDestroyer() {
         return () -> {
             try (MemoryStack stack = MemoryStack.stackPush()) {
-                vkFreeDescriptorSets(device.getNativeObject(),
-                        pool.getNativeObject(), stack.longs(object));
+                vkFreeDescriptorSets(device.getNativeObject(), pool.getNativeObject(), stack.longs(object));
             }
         };
     }
@@ -37,7 +36,6 @@ public class DescriptorSet extends VulkanObject<Long> {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(writers.length, stack);
             populateWriteBuffer(stack, write, writers);
-            write.flip();
             vkUpdateDescriptorSets(device.getNativeObject(), write, null);
         }
     }
@@ -48,8 +46,10 @@ public class DescriptorSet extends VulkanObject<Long> {
                     .sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET)
                     .dstSet(object));
         }
+        buffer.flip();
     }
 
+    @Deprecated
     public long getId() {
         return object;
     }

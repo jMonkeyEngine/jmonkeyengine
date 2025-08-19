@@ -1,9 +1,10 @@
-package com.jme3.vulkan.material.uniforms;
+package com.jme3.vulkan.material;
 
 import com.jme3.vulkan.descriptors.DescriptorSet;
 import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.material.uniforms.Uniform;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
@@ -19,12 +20,19 @@ public class UniformSet {
     public UniformSet(Uniform... uniforms) {
         this.uniforms = uniforms;
         // ensure duplicate binding indices are not present
-        HashSet<Integer> bindings = new HashSet<>();
+        BitSet bindings = new BitSet();
         for (Uniform u : uniforms) {
-            if (!bindings.add(u.getBindingIndex())) {
+            int i = u.getBindingIndex();
+            if (bindings.get(i)) {
                 throw new IllegalArgumentException("Duplicate binding index in set: " + u.getBindingIndex());
             }
+            bindings.set(i);
         }
+    }
+
+    public DescriptorSetLayout createLayout(LogicalDevice<?> device) {
+        return new DescriptorSetLayout(device, Arrays.stream(uniforms)
+                .map(Uniform::createBinding).toArray(SetLayoutBinding[]::new));
     }
 
     public void addActiveSet(DescriptorSet activeSet) {
@@ -32,12 +40,12 @@ public class UniformSet {
         sets.add(activeSet);
     }
 
-    public DescriptorSetLayout selectExistingActiveSet(List<DescriptorSetLayout> availableLayouts) {
+    public SetAllocationInfo selectExistingActiveSet(List<DescriptorSetLayout> availableLayouts) {
         if (activeSet == null || !availableLayouts.remove(activeSet.getLayout())) {
             for (DescriptorSet s : sets) {
                 if (availableLayouts.remove(s.getLayout())) {
                     this.activeSet = s;
-                    return null;
+                    return null; // no allocation necessary
                 }
             }
             // Search for a layout that is compatible with the set definition
@@ -57,10 +65,11 @@ public class UniformSet {
                 }
                 // Layout is compatible with the set definition
                 it.remove();
-                return layout;
+                return new SetAllocationInfo(this, layout); // allocate new descriptor set
             }
             throw new IllegalStateException("Pipeline layout does not support uniform set.");
         }
+        // no allocation necessary
         return null;
     }
 
@@ -76,7 +85,6 @@ public class UniformSet {
             for (DescriptorSet s : sets) {
                 s.populateWriteBuffer(stack, write, writers.toArray(new Uniform[0]));
             }
-            write.flip();
             VK10.vkUpdateDescriptorSets(device.getNativeObject(), write, null);
         }
     }

@@ -7,6 +7,7 @@ import com.jme3.vulkan.mesh.MeshDescription;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.pipelines.states.*;
 import com.jme3.vulkan.shader.ShaderModule;
+import com.jme3.vulkan.shader.ShaderStage;
 import org.lwjgl.vulkan.*;
 
 import java.nio.LongBuffer;
@@ -15,7 +16,6 @@ import java.util.Collection;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
-import static org.lwjgl.vulkan.VK10.VK_NULL_HANDLE;
 
 public class GraphicsPipeline extends Pipeline {
 
@@ -44,7 +44,7 @@ public class GraphicsPipeline extends Pipeline {
 
     public class Builder extends VulkanObject.Builder<GraphicsPipeline> {
 
-        private final Collection<ShaderStage> stages = new ArrayList<>();
+        private final Collection<ShaderStageInfo> stages = new ArrayList<>();
         private final DynamicState dynamic = new DynamicState();
         private final VertexInputState vertexInput = new VertexInputState(mesh);
         private final InputAssemblyState inputAssembly = new InputAssemblyState();
@@ -57,11 +57,11 @@ public class GraphicsPipeline extends Pipeline {
         @Override
         protected void build() {
             VkPipelineShaderStageCreateInfo.Buffer stageBuf = VkPipelineShaderStageCreateInfo.calloc(stages.size(), stack);
-            for (ShaderStage s : stages) {
+            for (ShaderStageInfo s : stages) {
                 stageBuf.get().sType(VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO)
-                        .stage(s.stages)
+                        .stage(s.stage.bits())
                         .module(s.module.getNativeObject())
-                        .pName(stack.UTF8(s.module.getEntryPoint()));
+                        .pName(stack.UTF8(s.entryPoint));
             }
             stageBuf.flip();
             VkGraphicsPipelineCreateInfo.Buffer pipeline = VkGraphicsPipelineCreateInfo.calloc(1, stack)
@@ -91,8 +91,12 @@ public class GraphicsPipeline extends Pipeline {
             device.getNativeReference().addDependent(ref);
         }
 
-        public void addStage(ShaderModule module, int stages) {
-            this.stages.add(new ShaderStage(module, stages));
+        public void addShader(ShaderModule module, ShaderStage stage) {
+            addShader(module, stage, DEFAULT_SHADER_ENTRY_POINT);
+        }
+
+        public void addShader(ShaderModule module, ShaderStage stage, String entryPoint) {
+            this.stages.add(new ShaderStageInfo(module, stage, entryPoint));
         }
 
         public DynamicState getDynamicState() {
@@ -129,22 +133,16 @@ public class GraphicsPipeline extends Pipeline {
 
     }
 
-    public static class ShaderStage {
+    public static class ShaderStageInfo {
 
         private final ShaderModule module;
-        private final int stages;
+        private final ShaderStage stage;
+        private final String entryPoint;
 
-        public ShaderStage(ShaderModule module, int stages) {
+        public ShaderStageInfo(ShaderModule module, ShaderStage stage, String entryPoint) {
             this.module = module;
-            this.stages = stages;
-        }
-
-        public ShaderModule getModule() {
-            return module;
-        }
-
-        public int getStages() {
-            return stages;
+            this.stage = stage;
+            this.entryPoint = entryPoint;
         }
 
     }

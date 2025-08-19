@@ -1,0 +1,20 @@
+name: "VulkanTest"
+parameters:
+  Matrices:
+    type: "UniformBuffer"
+    set: 0
+    binding: 0
+    usage: "Stream"
+    define: "MATRICES"
+    stages: ["vertex"]
+  BaseColorMap:
+    type: "Texture"
+    set: 0
+    binding: 1
+    default: "Common/Textures/MissingTexture.jpg"
+    stages: ["fragment"]
+techniques:
+  main:
+    shaders:
+      vertex: "Shaders/VulkanVertTest.yml"
+      fragment: "Shaders/VulkanFragTest.yml"

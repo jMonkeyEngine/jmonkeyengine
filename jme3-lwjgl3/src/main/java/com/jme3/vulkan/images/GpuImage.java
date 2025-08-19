@@ -4,9 +4,9 @@ import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.buffers.MemoryRegion;
-import com.jme3.vulkan.flags.ImageUsageFlags;
-import com.jme3.vulkan.flags.MemoryFlags;
+import com.jme3.vulkan.memory.MemoryFlag;
+import com.jme3.vulkan.memory.MemoryRegion;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkImageCreateInfo;
 import org.lwjgl.vulkan.VkImageMemoryBarrier;
@@ -28,11 +28,13 @@ public class GpuImage implements Image {
     private final Image.Format format;
     private final Image.Tiling tiling;
 
-    public GpuImage(LogicalDevice<?> device, int width, int height, Image.Format format, Image.Tiling tiling, ImageUsageFlags usage, MemoryFlags mem) {
+    public GpuImage(LogicalDevice<?> device, int width, int height, Image.Format format,
+                    Image.Tiling tiling, Flag<ImageUsage> usage, Flag<MemoryFlag> mem) {
         this(device, VK_IMAGE_TYPE_2D, width, height, 1, format, tiling, usage, mem);
     }
 
-    public GpuImage(LogicalDevice<?> device, int type, int width, int height, int depth, Image.Format format, Image.Tiling tiling, ImageUsageFlags usage, MemoryFlags mem) {
+    public GpuImage(LogicalDevice<?> device, int type, int width, int height, int depth,
+                    Image.Format format, Image.Tiling tiling, Flag<ImageUsage> usage, Flag<MemoryFlag> mem) {
         this.device = device;
         this.type = type;
         this.width = width;
@@ -49,7 +51,7 @@ public class GpuImage implements Image {
                     .format(format.getVkEnum())
                     .tiling(tiling.getVkEnum())
                     .initialLayout(VK_IMAGE_LAYOUT_UNDEFINED)
-                    .usage(usage.getUsageFlags())
+                    .usage(usage.bits())
                     .samples(VK_SAMPLE_COUNT_1_BIT)
                     .sharingMode(VK_SHARING_MODE_EXCLUSIVE);
             create.extent().width(width).height(height).depth(depth);
@@ -60,7 +62,7 @@ public class GpuImage implements Image {
             VkMemoryRequirements memReq = VkMemoryRequirements.malloc(stack);
             vkGetImageMemoryRequirements(device.getNativeObject(), id, memReq);
             memory = new MemoryRegion(device, memReq.size(), device.getPhysicalDevice().findSupportedMemoryType(
-                    stack, memReq.memoryTypeBits(), mem.getMemoryFlags()));
+                    stack, memReq.memoryTypeBits(), mem));
             memory.bind(this, 0);
         }
         ref = Native.get().register(this);

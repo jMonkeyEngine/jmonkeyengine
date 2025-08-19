@@ -6,17 +6,18 @@ import com.jme3.vulkan.devices.LogicalDevice;
 
 public interface Uniform <T> extends DescriptorSetWriter {
 
-    // true to trigger update of descriptor sets
     boolean update(LogicalDevice<?> device);
+
+    boolean isBindingCompatible(SetLayoutBinding binding);
+
+    SetLayoutBinding createBinding();
 
     void setValue(T value);
 
     T getValue();
 
-    int getBindingIndex();
-
-    boolean isBindingCompatible(SetLayoutBinding binding);
-
     String getName();
+
+    int getBindingIndex();
 
 }

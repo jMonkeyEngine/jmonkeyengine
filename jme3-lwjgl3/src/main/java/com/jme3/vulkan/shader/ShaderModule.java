@@ -18,12 +18,10 @@ public class ShaderModule implements Native<Long> {
 
     private final LogicalDevice<?> device;
     private final NativeReference ref;
-    private final String entryPoint;
     private long id;
 
-    public ShaderModule(LogicalDevice<?> device, ByteBuffer code, String entryPoint) {
+    public ShaderModule(LogicalDevice<?> device, ByteBuffer code) {
         this.device = device;
-        this.entryPoint = entryPoint;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkShaderModuleCreateInfo create = VkShaderModuleCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO)
@@ -53,10 +51,6 @@ public class ShaderModule implements Native<Long> {
     @Override
     public NativeReference getNativeReference() {
         return ref;
-    }
-
-    public String getEntryPoint() {
-        return entryPoint;
     }
 
 }

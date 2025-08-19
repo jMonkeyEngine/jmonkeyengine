@@ -1,4 +1,4 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.util;
 
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkExtent2D;

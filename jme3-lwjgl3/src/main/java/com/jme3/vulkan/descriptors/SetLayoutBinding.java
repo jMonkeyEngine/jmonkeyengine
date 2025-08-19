@@ -1,15 +1,20 @@
 package com.jme3.vulkan.descriptors;
 
+import com.jme3.vulkan.shader.ShaderStage;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
-
-import static org.lwjgl.vulkan.VK10.*;
 
 public class SetLayoutBinding {
 
     private final Descriptor type;
-    private final int binding, descriptors, stages;
+    private final int binding, descriptors;
+    private final Flag<ShaderStage> stages;
 
-    public SetLayoutBinding(Descriptor type, int binding, int descriptors, int stages) {
+    public SetLayoutBinding(Descriptor type, int binding, int descriptors) {
+        this(type, binding, descriptors, ShaderStage.All);
+    }
+
+    public SetLayoutBinding(Descriptor type, int binding, int descriptors, Flag<ShaderStage> stages) {
         this.type = type;
         this.binding = binding;
         this.descriptors = descriptors;
@@ -21,7 +26,7 @@ public class SetLayoutBinding {
         layoutBinding.descriptorType(type.getVkEnum())
                 .binding(binding)
                 .descriptorCount(descriptors)
-                .stageFlags(stages)
+                .stageFlags(stages.bits())
                 .pImmutableSamplers(null);
     }
 
@@ -37,7 +42,7 @@ public class SetLayoutBinding {
         return descriptors;
     }
 
-    public int getStages() {
+    public Flag<ShaderStage> getStages() {
         return stages;
     }
 

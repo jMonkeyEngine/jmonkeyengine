@@ -11,6 +11,7 @@ import com.jme3.vulkan.pipelines.FrameBuffer;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
+import com.jme3.vulkan.util.Extent2;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;

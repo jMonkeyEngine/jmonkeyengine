@@ -1,4 +1,4 @@
-package com.jme3.vulkan;
+package com.jme3.vulkan.util;
 
 import com.jme3.material.RenderState.*;
 import static org.lwjgl.vulkan.VK10.*;
