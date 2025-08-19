@@ -16,7 +16,7 @@ public class ComputePipeline extends Pipeline {
 
     private final ShaderModule shader;
 
-    public ComputePipeline(LogicalDevice<?> device, PipelineBindPoint bindPoint, PipelineLayout layout, ShaderModule shader) {
+    public ComputePipeline(LogicalDevice<?> device, PipelineBindPoint bindPoint, PipelineLayout layout, ShaderModule shader, String entryPoint) {
         super(device, bindPoint, layout);
         this.shader = shader;
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -24,7 +24,7 @@ public class ComputePipeline extends Pipeline {
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO)
                     .stage(VK_SHADER_STAGE_COMPUTE_BIT)
                     .module(shader.getNativeObject())
-                    .pName(stack.UTF8(shader.getEntryPoint()));
+                    .pName(stack.UTF8(entryPoint));
             VkComputePipelineCreateInfo.Buffer pipeline = VkComputePipelineCreateInfo.calloc(1, stack)
                     .sType(VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO)
                     .stage(stage)
