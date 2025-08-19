@@ -6,7 +6,6 @@
         "vertex" : "Shaders/VulkanFragTest.json",
         "fragment" : "Shaders/VulkanVertTest.json"
       }
-      // more technique data...
     }
   }
 }
