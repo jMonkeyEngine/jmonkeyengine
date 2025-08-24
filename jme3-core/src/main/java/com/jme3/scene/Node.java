@@ -256,7 +256,7 @@ public class Node extends Spatial {
             for (int i = 0; i < children.size(); i++) {
                 Spatial child = children.get(i);
                 if ((child.refreshFlags & RF_GLOBAL_LIGHTS)!= 0) {
-                    findGlobalLights(child, list);       
+                    findGlobalLights(child, list);
                 }
             }
         }
@@ -298,6 +298,13 @@ public class Node extends Spatial {
             // NOTE 9/19/09
             // Although it does save a round trip,
             for (Spatial child : children.getArray()) {
+                if (updateGlobalLights){
+                    // we might have new global lights coming from a different
+                    // branch of the scene graph, so we need to propagate the
+                    // refresh flags down to all the children of every branch
+                    child.refreshFlags |= RF_LIGHTLIST;
+                    child.refreshFlags |= RF_GLOBAL_LIGHTS;
+                }
                 child.updateGeometricState();
             }
         }

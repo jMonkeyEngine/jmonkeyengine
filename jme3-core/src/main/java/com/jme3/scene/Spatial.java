@@ -303,7 +303,10 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             refreshFlags |= RF_GLOBAL_LIGHTS;
         }
         while (p != null) {
-            if ((p.refreshFlags & RF_CHILD_LIGHTLIST) != 0) {
+            if (
+                (p.refreshFlags & RF_CHILD_LIGHTLIST) != 0
+                && (!hasGlobalLights || (p.refreshFlags & RF_GLOBAL_LIGHTS) != 0)
+            ) {
                 // The parent already has this flag,
                 // so must all ancestors.
                 return;
@@ -311,6 +314,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             p.refreshFlags |= RF_CHILD_LIGHTLIST;
             if (hasGlobalLights) {
                 p.refreshFlags |= RF_GLOBAL_LIGHTS;
+                p.refreshFlags |= RF_LIGHTLIST;
             }
             p = p.parent;
         }
