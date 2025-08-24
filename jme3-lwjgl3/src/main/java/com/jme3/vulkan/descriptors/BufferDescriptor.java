@@ -19,7 +19,7 @@ public class BufferDescriptor {
     }
 
     public void fillDescriptorInfo(VkDescriptorBufferInfo info) {
-        info.buffer(buffer.getNativeObject()).offset(offset).range(range);
+        info.buffer(buffer.getId()).offset(offset).range(range);
     }
 
     public GpuBuffer getBuffer() {

@@ -11,7 +11,11 @@ public class PersistentBuffer extends VulkanBuffer {
 
     private final long address;
 
-    public PersistentBuffer(LogicalDevice device, MemorySize size, Flag<BufferUsage> usage, Flag<MemoryFlag> mem, boolean concurrent) {
+    public PersistentBuffer(LogicalDevice<?> device, MemorySize size, Flag<BufferUsage> usage, boolean concurrent) {
+        this(device, size, usage, Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCoherent), concurrent);
+    }
+
+    public PersistentBuffer(LogicalDevice<?> device, MemorySize size, Flag<BufferUsage> usage, Flag<MemoryFlag> mem, boolean concurrent) {
         super(device, size, usage, mem, concurrent);
         try (MemoryStack stack = MemoryStack.stackPush()) {
             address = memory.map(stack, 0, size.getBytes(), 0).get(0);

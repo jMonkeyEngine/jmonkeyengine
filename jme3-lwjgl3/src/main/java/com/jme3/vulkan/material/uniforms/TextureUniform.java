@@ -3,6 +3,7 @@ package com.jme3.vulkan.material.uniforms;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.images.Image;
 import com.jme3.vulkan.images.Texture;
 import com.jme3.vulkan.shader.ShaderStage;
@@ -14,8 +15,8 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 public class TextureUniform extends AbstractUniform<Texture> {
 
     private final Image.Layout layout;
-    private Texture texture;
-    private boolean updateFlag = true;
+    private VersionedResource<Texture> texture;
+    private long variant = 0L;
 
     public TextureUniform(String name, Image.Layout layout, int bindingIndex, Flag<ShaderStage> stages) {
         super(name, Descriptor.CombinedImageSampler, bindingIndex, stages);
@@ -24,9 +25,10 @@ public class TextureUniform extends AbstractUniform<Texture> {
 
     @Override
     public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
+        Texture tex = texture.getVersion();
         VkDescriptorImageInfo.Buffer info = VkDescriptorImageInfo.calloc(1, stack)
-                .imageView(texture.getImage().getNativeObject())
-                .sampler(texture.getNativeObject())
+                .imageView(tex.getImage().getNativeObject())
+                .sampler(tex.getNativeObject())
                 .imageLayout(layout.getVkEnum());
         write.pImageInfo(info)
                 .descriptorType(type.getVkEnum())
@@ -36,24 +38,24 @@ public class TextureUniform extends AbstractUniform<Texture> {
     }
 
     @Override
-    public boolean update(LogicalDevice<?> device) {
-        if (texture == null) {
-            throw new NullPointerException("Uniform texture is null.");
-        }
-        return updateFlag;
-    }
+    public void update(LogicalDevice<?> device) {}
 
     @Override
-    public void setValue(Texture value) {
+    public void setValue(VersionedResource<Texture> value) {
         if (this.texture != value) {
             this.texture = value;
-            updateFlag = true;
+            variant++;
         }
     }
 
     @Override
-    public Texture getValue() {
+    public VersionedResource<Texture> getValue() {
         return texture;
+    }
+
+    @Override
+    public long getVariant() {
+        return variant;
     }
 
     @Override

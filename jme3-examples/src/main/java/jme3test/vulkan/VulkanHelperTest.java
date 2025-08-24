@@ -119,8 +119,6 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         flyCam.setMoveSpeed(5f);
         flyCam.setDragToRotate(true);
 
-        frames = new UpdateFrameManager(2, n -> new Frame());
-
         long window = ((LwjglVulkanContext)context).getWindowHandle();
 
         instance = new VulkanInstance(VK_API_VERSION_1_3);
@@ -170,14 +168,6 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 new PoolSize(Descriptor.UniformBuffer, 3),
                 new PoolSize(Descriptor.StorageBuffer, 4),
                 new PoolSize(Descriptor.CombinedImageSampler, 2));
-
-        material = new TestMaterial(descriptorPool);
-        material.getMatrices().setValue(frames.wrap(n -> new PersistentBuffer(device,
-                MemorySize.floats(16),
-                BufferUsage.Uniform,
-                Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCoherent),
-                false)));
-        material.getBaseColorMap().setValue(texture); // fixme
 
         CommandPool transferPool = device.getShortTermPool(physDevice.getGraphics());
 
@@ -245,10 +235,17 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             indexBuffer.copy(stack, indexData);
         }
 
+        frames = new UpdateFrameManager(2, n -> new Frame());
+
         // material color texture
         GpuImage image = assetManager.loadAsset(VulkanImageLoader.key(transferPool, "Common/Textures/MissingTexture.png"));
         texture = new Texture(device, image.createView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1),
                 VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_LINEAR);
+
+        material = new TestMaterial(descriptorPool);
+        material.getMatrices().setValue(frames.wrap(n -> new PersistentBuffer(
+                device, MemorySize.floats(16), BufferUsage.Uniform, false)));
+        material.getBaseColorMap().setValue(frames.wrap(texture));
 
     }
 

@@ -5,11 +5,12 @@ import org.lwjgl.vulkan.VK10;
 
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.util.Objects;
 
 public class SyncGroup {
 
-    public static final SyncGroup ASYNC = new SyncGroup();
     private static final Semaphore[] EMPTY = new Semaphore[0];
+    public static final SyncGroup ASYNC = new SyncGroup();
 
     private static Semaphore[] toArray(Semaphore s) {
         return s != null ? new Semaphore[] {s} : EMPTY;
@@ -56,8 +57,8 @@ public class SyncGroup {
     }
 
     public SyncGroup(Semaphore[] waits, Semaphore[] signals, Fence fence) {
-        this.waits = waits;
-        this.signals = signals;
+        this.waits = Objects.requireNonNull(waits);
+        this.signals = Objects.requireNonNull(signals);
         this.fence = fence;
     }
 
@@ -96,7 +97,7 @@ public class SyncGroup {
 
     public IntBuffer toDstStageBuffer(MemoryStack stack) {
         IntBuffer buf = stack.mallocInt(waits.length);
-        for (Semaphore s : signals) {
+        for (Semaphore s : waits) {
             buf.put(s.getDstStageMask().bits());
         }
         buf.flip();

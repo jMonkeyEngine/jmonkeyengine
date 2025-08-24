@@ -35,7 +35,7 @@ public class Material {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer setBuf = stack.mallocLong(uniformSets.size());
             for (UniformSet set : uniformSets) {
-                setBuf.put(set.acquireSet(pipeline.getDevice(), pool, availableLayouts).getNativeObject());
+                setBuf.put(set.update(pipeline.getDevice(), pool, availableLayouts).getNativeObject());
             }
             setBuf.flip();
             vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getVkEnum(),

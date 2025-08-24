@@ -16,7 +16,7 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
     private static final String BUFFER_NULL_ERROR = "Uniform buffer is null.";
 
     private VersionedResource<GpuBuffer> resource;
-    private boolean updateFlag = true;
+    private long variant = 0L;
 
     public BufferUniform(String name, Descriptor type, int bindingIndex, Flag<ShaderStage> stages) {
         super(name, type, bindingIndex, stages);
@@ -34,16 +34,10 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
                 .dstArrayElement(0)
                 .dstBinding(bindingIndex)
                 .descriptorType(type.getVkEnum());
-        updateFlag = false;
     }
 
     @Override
-    public boolean update(LogicalDevice<?> device) {
-        if (resource == null) {
-            throw new NullPointerException(BUFFER_NULL_ERROR);
-        }
-        return updateFlag;
-    }
+    public void update(LogicalDevice<?> device) {}
 
     @Override
     public boolean isBindingCompatible(SetLayoutBinding binding) {
@@ -55,13 +49,18 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
     public void setValue(VersionedResource<GpuBuffer> value) {
         if (this.resource != value) {
             this.resource = value;
-            updateFlag = true;
+            variant++;
         }
     }
 
     @Override
     public VersionedResource<GpuBuffer> getValue() {
         return resource;
+    }
+
+    @Override
+    public long getVariant() {
+        return variant;
     }
 
 }

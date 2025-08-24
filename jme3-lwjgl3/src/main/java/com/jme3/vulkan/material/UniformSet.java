@@ -13,8 +13,8 @@ public class UniformSet implements Iterable<Uniform> {
     private final Map<FrameIndex, FrameData> frames = new HashMap<>();
 
     public UniformSet(Uniform... uniforms) {
-        this.uniforms = uniforms;
-        this.currentFrame = new FrameIndex(this.uniforms);
+        this.uniforms = Objects.requireNonNull(uniforms);
+        this.currentFrame = new FrameIndex(this.uniforms, false);
         // ensure duplicate binding indices are not present
         BitSet bindings = new BitSet();
         for (Uniform u : uniforms) {
@@ -26,9 +26,12 @@ public class UniformSet implements Iterable<Uniform> {
         }
     }
 
-    public DescriptorSet acquireSet(LogicalDevice<?> device, DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
+    public DescriptorSet update(LogicalDevice<?> device, DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
         for (Uniform<?> u : uniforms) {
             u.update(device);
+            if (u.getValue() == null) {
+                throw new NullPointerException("Uniform \"" + u.getName() + "\" contains no value.");
+            }
         }
         currentFrame.update(uniforms);
         FrameData data = frames.get(currentFrame);
@@ -84,12 +87,12 @@ public class UniformSet implements Iterable<Uniform> {
         private boolean isLayoutCompatible(DescriptorSetLayout layout) {
             for (Uniform u : uniforms) {
                 for (SetLayoutBinding b : layout.getBindings()) {
-                    if (!u.isBindingCompatible(b)) {
-                        return false;
+                    if (u.isBindingCompatible(b)) {
+                        return true;
                     }
                 }
             }
-            return true;
+            return false;
         }
 
     }
@@ -101,9 +104,11 @@ public class UniformSet implements Iterable<Uniform> {
 
         private final int[] versions;
 
-        private FrameIndex(Uniform[] uniforms) {
+        private FrameIndex(Uniform[] uniforms, boolean update) {
             versions = new int[uniforms.length];
-            update(uniforms);
+            if (update) {
+                update(uniforms);
+            }
         }
 
         private FrameIndex(FrameIndex index) {
