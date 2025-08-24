@@ -43,21 +43,15 @@ import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
 import com.jme3.math.Vector2f;
-import com.jme3.system.AppSettings;
-import com.jme3.system.Displays;
-import com.jme3.system.JmeContext;
-import com.jme3.system.JmeSystem;
-import com.jme3.system.NanoTimer;
+import com.jme3.system.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,7 +70,7 @@ import org.lwjgl.system.Platform;
  *
  * @author Daniel Johansson
  */
-public abstract class LwjglWindow extends LwjglContext implements Runnable {
+public abstract class LwjglWindow extends LwjglContext implements Runnable, GlfwWindow {
 
     private static final Logger LOGGER = Logger.getLogger(LwjglWindow.class.getName());
 
@@ -212,6 +206,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      *
      * @param listener The WindowSizeListener to register.
      */
+    @Override
     public void registerWindowSizeListener(WindowSizeListener listener) {
         windowSizeListeners.add(listener);
     }
@@ -221,6 +216,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      *
      * @param listener The WindowSizeListener to remove.
      */
+    @Override
     public void removeWindowSizeListener(WindowSizeListener listener) {
         windowSizeListeners.remove(listener);
     }
@@ -879,6 +875,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
     }
 
+    @Override
     public long getWindowHandle() {
         return window;
     }
@@ -896,6 +893,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      * @return The window content scale
      * @see <a href="https://www.glfw.org/docs/latest/window_guide.html#window_scale">Window content scale</a>
      */
+    @Override
     public Vector2f getWindowContentScale(Vector2f store) {
         if (store == null) store = new Vector2f();
 

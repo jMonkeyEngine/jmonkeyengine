@@ -1,0 +1,19 @@
+MaterialDef VulkanVertTest {
+
+    Imports {
+        UniformBuffer : com.jme3.vulkan.material.UniformBuffer
+    }
+
+    Vulkan {
+        Set {
+            UniformBuffer Camera (vertex)
+        }
+        Set {
+            UniformBuffer Material (fragment)
+        }
+        Set {
+            UniformBuffer Geometry (vertex)
+        }
+    }
+
+}
