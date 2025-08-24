@@ -41,6 +41,10 @@ public interface Flag <T extends Flag> {
         return new FlagImpl<>(bits);
     }
 
+    static <T extends Flag> Flag<T> none() {
+        return of(0);
+    }
+
     @SafeVarargs
     static <T extends Flag> Flag<T> of(Flag<T>... flags) {
         return new FlagImpl<>(flags);
