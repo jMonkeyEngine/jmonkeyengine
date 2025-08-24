@@ -1,6 +1,5 @@
 package com.jme3.vulkan.buffers;
 
-import com.jme3.vulkan.VulkanObject;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryFlag;
 import com.jme3.vulkan.memory.MemorySize;

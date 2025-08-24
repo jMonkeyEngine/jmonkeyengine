@@ -2,7 +2,7 @@ package com.jme3.vulkan.devices;
 
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.VulkanInstance;
-import com.jme3.vulkan.VulkanObject;
+import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.commands.Queue;
 import org.lwjgl.PointerBuffer;
@@ -16,7 +16,7 @@ import java.util.function.Function;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class LogicalDevice <T extends PhysicalDevice> extends VulkanObject<VkDevice> {
+public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkDevice> {
 
     private final VulkanInstance instance;
     private final Set<String> enabledExtensions = new HashSet<>();
@@ -85,7 +85,7 @@ public class LogicalDevice <T extends PhysicalDevice> extends VulkanObject<VkDev
         return new Builder(deviceFactory);
     }
 
-    public class Builder extends VulkanObject.Builder<LogicalDevice> {
+    public class Builder extends AbstractNative.Builder<LogicalDevice> {
 
         private final Function<Long, T> deviceFactory;
         private final Set<DeviceExtension> extensions = new HashSet<>();

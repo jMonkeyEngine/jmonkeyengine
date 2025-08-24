@@ -42,7 +42,7 @@ public class GraphicsPipeline extends Pipeline {
         return new Builder();
     }
 
-    public class Builder extends VulkanObject.Builder<GraphicsPipeline> {
+    public class Builder extends AbstractNative.Builder<GraphicsPipeline> {
 
         private final Collection<ShaderStageInfo> stages = new ArrayList<>();
         private final DynamicState dynamic = new DynamicState();

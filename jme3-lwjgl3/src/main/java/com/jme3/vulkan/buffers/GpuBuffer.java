@@ -1,8 +1,6 @@
 package com.jme3.vulkan.buffers;
 
-import com.jme3.util.natives.Native;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -34,8 +32,12 @@ public interface GpuBuffer {
         }
     }
 
+    default <T> T map(MemoryStack stack, int offset, int size, int flags, Function<PointerBuffer, T> factory) {
+        return factory.apply(map(stack, offset, size, flags));
+    }
+
     default ByteBuffer mapBytes(MemoryStack stack, int offset, int size, int flags) {
-        return map(stack, offset, size, flags).getByteBuffer(0, size);
+        return map(stack, offset, size * Byte.BYTES, flags).getByteBuffer(0, size);
     }
 
     default ShortBuffer mapShorts(MemoryStack stack, int offset, int size, int flags) {
@@ -56,10 +58,6 @@ public interface GpuBuffer {
 
     default LongBuffer mapLongs(MemoryStack stack, int offset, int size, int flags) {
         return map(stack, offset, size * Long.BYTES, flags).getLongBuffer(0, size);
-    }
-
-    default <T> T mapObject(MemoryStack stack, int offset, int size, int flags, Function<PointerBuffer, T> factory) {
-        return factory.apply(map(stack, offset, size, flags));
     }
 
     default void copy(MemoryStack stack, ByteBuffer buffer) {

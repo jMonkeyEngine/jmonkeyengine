@@ -2,6 +2,7 @@ package jme3test.vulkan;
 
 import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
@@ -17,9 +18,10 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.*;
+import com.jme3.vulkan.frames.UpdateFrame;
+import com.jme3.vulkan.frames.UpdateFrameManager;
 import com.jme3.vulkan.images.*;
 import com.jme3.vulkan.material.TestMaterial;
-import com.jme3.vulkan.material.uniforms.BufferUniform;
 import com.jme3.vulkan.memory.MemoryFlag;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.pass.Attachment;
@@ -42,7 +44,6 @@ import org.lwjgl.vulkan.*;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import static org.lwjgl.vulkan.VK13.*;
@@ -61,7 +62,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private StageableBuffer vertexBuffer, indexBuffer;
     private DescriptorPool descriptorPool;
     private DescriptorSetLayout descriptorLayout;
-    private VulkanRenderManager renderer;
+    private UpdateFrameManager frames;
     private boolean swapchainResizeFlag = false;
     private boolean applicationStopped = false;
 
@@ -82,6 +83,9 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private final IntBuffer indexData = BufferUtils.createIntBuffer(
             0, 1, 2, 2, 3, 0,
             4, 5, 6, 6, 7, 4);
+
+    // material
+    private TestMaterial material;
 
     // geometry
     private final Transform modelTransform = new Transform();
@@ -114,6 +118,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         assetManager.registerLoader(VulkanImageLoader.class, "png", "jpg");
         flyCam.setMoveSpeed(5f);
         flyCam.setDragToRotate(true);
+
+        frames = new UpdateFrameManager(2, n -> new Frame());
 
         long window = ((LwjglVulkanContext)context).getWindowHandle();
 
@@ -164,6 +170,14 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 new PoolSize(Descriptor.UniformBuffer, 3),
                 new PoolSize(Descriptor.StorageBuffer, 4),
                 new PoolSize(Descriptor.CombinedImageSampler, 2));
+
+        material = new TestMaterial(descriptorPool);
+        material.getMatrices().setValue(frames.wrap(n -> new PersistentBuffer(device,
+                MemorySize.floats(16),
+                BufferUsage.Uniform,
+                Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCoherent),
+                false)));
+        material.getBaseColorMap().setValue(texture); // fixme
 
         CommandPool transferPool = device.getShortTermPool(physDevice.getGraphics());
 
@@ -236,8 +250,6 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         texture = new Texture(device, image.createView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1),
                 VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_LINEAR);
 
-        renderer = new VulkanRenderManager(2, n -> new Frame());
-
     }
 
     @Override
@@ -278,7 +290,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
     @Override
     public void simpleUpdate(float tpf) {
-        renderer.render(tpf);
+        frames.update(tpf);
     }
 
     private ImageView createDepthAttachment(CommandPool pool) {
@@ -297,7 +309,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         return view;
     }
 
-    private class Frame implements Consumer<Float> {
+    private class Frame implements UpdateFrame {
 
         // render manager
         private final CommandBuffer graphicsCommands = graphicsPool.allocateCommandBuffer();
@@ -308,7 +320,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         // material
 //        private final GpuBuffer uniforms;
 //        private final DescriptorSet descriptorSet;
-        private final TestMaterial material = new TestMaterial(descriptorPool);
+        //private final TestMaterial material = new TestMaterial(descriptorPool);
 
         public Frame() {
             // using a persistent buffer because we will be writing to the buffer very often
@@ -319,16 +331,16 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 //            descriptorSet.update(true,
 //                    new BufferSetWriter(Descriptor.UniformBuffer, 0, 0, new BufferDescriptor(uniforms)),
 //                    new ImageSetWriter(Descriptor.CombinedImageSampler, 1, 0, new ImageDescriptor(texture, Image.Layout.ShaderReadOnlyOptimal)));
-            material.getMatrices().setValue(new PersistentBuffer(device,
-                    MemorySize.floats(16),
-                    BufferUsage.Uniform,
-                    Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCoherent),
-                    false));
-            material.getBaseColorMap().setValue(texture);
+//            material.getMatrices().setValue(frames.wrap(n -> new PersistentBuffer(device,
+//                    MemorySize.floats(16),
+//                    BufferUsage.Uniform,
+//                    Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCoherent),
+//                    false)));
+//            material.getBaseColorMap().setValue(texture);
         }
 
         @Override
-        public void accept(Float tpf) {
+        public void update(UpdateFrameManager frames, float tpf) {
 
             // render manager
             if (applicationStopped) return;
@@ -350,13 +362,12 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
                 // geometry
                 modelTransform.getRotation().multLocal(new Quaternion().fromAngleAxis(tpf, Vector3f.UNIT_Y));
-                cam.getViewProjectionMatrix().mult(modelTransform.toTransformMatrix())
-                        .fillFloatBuffer(
+                Matrix4f worldViewProjection = cam.getViewProjectionMatrix().mult(modelTransform.toTransformMatrix());
 
                 // material
-                material.getMatrices().getValue().mapFloats(stack, 0,
-                        material.getMatrices().getValue().size().getElements(), 0), true);
-                material.getMatrices().getValue().unmap();
+                GpuBuffer matrixBuffer = material.getMatrices().getVersion();
+                worldViewProjection.fillFloatBuffer(matrixBuffer.mapFloats(stack, 0, matrixBuffer.size().getElements(), 0), true);
+                matrixBuffer.unmap();
                 material.bind(graphicsCommands, pipeline);
 //                vkCmdBindDescriptorSets(graphicsCommands.getBuffer(), pipeline.getBindPoint().getVkEnum(),
 //                        pipelineLayout.getNativeObject(), 0, stack.longs(descriptorSet.getId()), null);

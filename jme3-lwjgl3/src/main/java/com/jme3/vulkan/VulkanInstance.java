@@ -4,7 +4,6 @@ import com.jme3.system.JmeVersion;
 import com.jme3.util.natives.Native;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
-import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.EXTDebugUtils;
 import org.lwjgl.vulkan.VkApplicationInfo;
@@ -16,7 +15,7 @@ import java.util.*;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class VulkanInstance extends VulkanObject<VkInstance> {
+public class VulkanInstance extends AbstractNative<VkInstance> {
 
     public static final String ENGINE_NAME = "jMonkeyEngine";
     public static final String LUNARG_LAYER = "VK_LAYER_KHRONOS_validation";
@@ -52,7 +51,7 @@ public class VulkanInstance extends VulkanObject<VkInstance> {
         return new Builder();
     }
 
-    public class Builder extends VulkanObject.Builder<VulkanInstance> {
+    public class Builder extends AbstractNative.Builder<VulkanInstance> {
 
         @Override
         protected void build() {

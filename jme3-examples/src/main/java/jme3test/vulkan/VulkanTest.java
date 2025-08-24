@@ -9,7 +9,7 @@ import com.jme3.vulkan.devices.DeviceFilter;
 import com.jme3.system.vulkan.LwjglVulkanContext;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
-import com.jme3.vulkan.VulkanRenderManager;
+import com.jme3.vulkan.frames.UpdateFrameManager;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
@@ -39,7 +39,7 @@ public class VulkanTest extends SimpleApplication {
     private VkDevice device;
     private VkQueue graphicsQueue, presentQueue;
     private VkCommandBuffer commandBuffer;
-    private final VulkanRenderManager renderer = new VulkanRenderManager(2, n -> new Frame());
+    private final UpdateFrameManager renderer = new UpdateFrameManager(2, n -> new Frame());
     private final Collection<PointerBuffer> instanceExtensions = new ArrayList<>();
     private final Collection<String> deviceExtensions = new ArrayList<>();
     private final List<String> layers = new ArrayList<>();
@@ -176,7 +176,7 @@ public class VulkanTest extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf) {
-        renderer.render(tpf);
+        renderer.update(tpf);
         Native.get().flush(); // flush unused native objects
     }
 

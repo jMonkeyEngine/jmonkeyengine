@@ -4,7 +4,7 @@ import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import org.lwjgl.system.MemoryStack;
 
-public abstract class VulkanObject <T> implements Native<T> {
+public abstract class AbstractNative<T> implements Native<T> {
 
     protected T object;
     protected NativeReference ref;
@@ -22,7 +22,7 @@ public abstract class VulkanObject <T> implements Native<T> {
         return ref;
     }
 
-    public static abstract class Builder <T extends VulkanObject> implements AutoCloseable {
+    public static abstract class Builder <T extends AbstractNative> implements AutoCloseable {
 
         protected final MemoryStack stack = MemoryStack.stackPush();
 

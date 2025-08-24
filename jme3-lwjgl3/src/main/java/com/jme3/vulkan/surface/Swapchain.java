@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class Swapchain extends VulkanObject<Long> {
+public class Swapchain extends AbstractNative<Long> {
 
     public enum PresentMode {
 
@@ -206,7 +206,7 @@ public class Swapchain extends VulkanObject<Long> {
 
     }
 
-    public class Builder extends VulkanObject.Builder<Swapchain> {
+    public class Builder extends AbstractNative.Builder<Swapchain> {
 
         private final VkSurfaceCapabilitiesKHR caps;
         private final VkSurfaceFormatKHR.Buffer formats;

@@ -1,14 +1,14 @@
 package com.jme3.vulkan.descriptors;
 
 import com.jme3.util.natives.Native;
-import com.jme3.vulkan.VulkanObject;
+import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public class DescriptorSet extends VulkanObject<Long> {
+public class DescriptorSet extends AbstractNative<Long> {
 
     private final LogicalDevice<?> device;
     private final DescriptorPool pool;
@@ -35,18 +35,14 @@ public class DescriptorSet extends VulkanObject<Long> {
     public void write(DescriptorSetWriter... writers) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(writers.length, stack);
-            populateWriteBuffer(stack, write, writers);
+            for (DescriptorSetWriter w : writers) {
+                w.populateWrite(stack, write.get()
+                        .sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET)
+                        .dstSet(object));
+            }
+            write.flip();
             vkUpdateDescriptorSets(device.getNativeObject(), write, null);
         }
-    }
-
-    public void populateWriteBuffer(MemoryStack stack, VkWriteDescriptorSet.Buffer buffer, DescriptorSetWriter... writers) {
-        for (DescriptorSetWriter w : writers) {
-            w.populateWrite(stack, buffer.get()
-                    .sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET)
-                    .dstSet(object));
-        }
-        buffer.flip();
     }
 
     @Deprecated

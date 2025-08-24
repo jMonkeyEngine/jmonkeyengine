@@ -1,12 +1,12 @@
 package com.jme3.vulkan.pipelines;
 
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.VulkanObject;
+import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public abstract class Pipeline extends VulkanObject<Long> {
+public abstract class Pipeline extends AbstractNative<Long> {
 
     public static final String DEFAULT_SHADER_ENTRY_POINT = "main";
 

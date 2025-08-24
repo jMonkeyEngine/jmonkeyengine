@@ -1,24 +1,20 @@
 package com.jme3.vulkan.material;
 
-import com.jme3.vulkan.descriptors.DescriptorSet;
-import com.jme3.vulkan.descriptors.DescriptorSetLayout;
-import com.jme3.vulkan.descriptors.SetLayoutBinding;
+import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.uniforms.Uniform;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VK10;
-import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 import java.util.*;
 
-public class UniformSet {
+public class UniformSet implements Iterable<Uniform> {
 
     private final Uniform[] uniforms;
-    private final List<DescriptorSet> sets = new ArrayList<>();
-    private DescriptorSet activeSet;
+    private final FrameIndex currentFrame;
+    private final Map<FrameIndex, FrameData> frames = new HashMap<>();
 
     public UniformSet(Uniform... uniforms) {
         this.uniforms = uniforms;
+        this.currentFrame = new FrameIndex(this.uniforms);
         // ensure duplicate binding indices are not present
         BitSet bindings = new BitSet();
         for (Uniform u : uniforms) {
@@ -30,75 +26,180 @@ public class UniformSet {
         }
     }
 
-    public DescriptorSetLayout createLayout(LogicalDevice<?> device) {
-        return new DescriptorSetLayout(device, Arrays.stream(uniforms)
-                .map(Uniform::createBinding).toArray(SetLayoutBinding[]::new));
-    }
-
-    public void addActiveSet(DescriptorSet activeSet) {
-        this.activeSet = activeSet;
-        sets.add(activeSet);
-    }
-
-    public SetAllocationInfo selectExistingActiveSet(List<DescriptorSetLayout> availableLayouts) {
-        if (activeSet == null || !availableLayouts.remove(activeSet.getLayout())) {
-            for (DescriptorSet s : sets) {
-                if (availableLayouts.remove(s.getLayout())) {
-                    this.activeSet = s;
-                    return null; // no allocation necessary
-                }
-            }
-            // Search for a layout that is compatible with the set definition
-            layoutLoop: for (Iterator<DescriptorSetLayout> it = availableLayouts.iterator(); it.hasNext();) {
-                DescriptorSetLayout layout = it.next();
-                requiredLoop: for (Uniform u : uniforms) {
-                    // find a layout binding that matches the requirement
-                    for (SetLayoutBinding available : layout.getBindings()) {
-                        if (u.isBindingCompatible(available)) {
-                            // compatible binding found
-                            continue requiredLoop;
-                        }
-                    }
-                    // Layout does not contain a binding at the requested index.
-                    // Layout is incompatible, try the next layout.
-                    continue layoutLoop;
-                }
-                // Layout is compatible with the set definition
-                it.remove();
-                return new SetAllocationInfo(this, layout); // allocate new descriptor set
-            }
-            throw new IllegalStateException("Pipeline layout does not support uniform set.");
-        }
-        // no allocation necessary
-        return null;
-    }
-
-    public void update(LogicalDevice<?> device) {
-        ArrayList<Uniform<?>> writers = new ArrayList<>(uniforms.length);
+    public DescriptorSet acquireSet(LogicalDevice<?> device, DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
         for (Uniform<?> u : uniforms) {
-            if (u.update(device)) {
-                writers.add(u);
+            u.update(device);
+        }
+        currentFrame.update(uniforms);
+        FrameData data = frames.get(currentFrame);
+        if (data == null) {
+            frames.put(currentFrame.copy(), data = new FrameData());
+        }
+        return data.get(pool, availableLayouts).update(uniforms);
+    }
+
+    public DescriptorSetLayout createLayout(LogicalDevice<?> device) {
+        SetLayoutBinding[] bindings = new SetLayoutBinding[uniforms.length];
+        for (int i = 0; i < uniforms.length; i++) {
+            bindings[i] = uniforms[i].createBinding();
+        }
+        return new DescriptorSetLayout(device, bindings);
+    }
+
+    @Override
+    public Iterator<Uniform> iterator() {
+        return new SetIterator();
+    }
+
+    /**
+     * Maps {@link DescriptorSetLayout DescriptorSetLayouts} to {@link SupportedSet SupportedSets}
+     * by the ID of the DescriptorSetLayout. If no available layout has a mapped set, a new set
+     * is allocated with an available compatible layout and mapped with it.
+     */
+    private class FrameData {
+
+        private final Map<Long, SupportedSet> sets = new HashMap<>();
+
+        public SupportedSet get(DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
+            for (Iterator<DescriptorSetLayout> it = availableLayouts.iterator(); it.hasNext();) {
+                DescriptorSetLayout layout = it.next();
+                SupportedSet set = sets.get(layout.getNativeObject());
+                if (set != null) {
+                    it.remove();
+                    return set;
+                }
+            }
+            for (Iterator<DescriptorSetLayout> it = availableLayouts.iterator(); it.hasNext();) {
+                DescriptorSetLayout layout = it.next();
+                if (isLayoutCompatible(layout)) {
+                    it.remove();
+                    SupportedSet set = new SupportedSet(pool.allocateSets(layout)[0]);
+                    sets.put(set.set.getLayout().getNativeObject(), set);
+                    return set;
+                }
+            }
+            throw new UnsupportedOperationException("Material is not compatible with the pipeline (uniform set not supported).");
+        }
+
+        private boolean isLayoutCompatible(DescriptorSetLayout layout) {
+            for (Uniform u : uniforms) {
+                for (SetLayoutBinding b : layout.getBindings()) {
+                    if (!u.isBindingCompatible(b)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+    }
+
+    /**
+     * Identifies a FrameData by the resource versions the uniforms are or were using.
+     */
+    private static class FrameIndex {
+
+        private final int[] versions;
+
+        private FrameIndex(Uniform[] uniforms) {
+            versions = new int[uniforms.length];
+            update(uniforms);
+        }
+
+        private FrameIndex(FrameIndex index) {
+            versions = new int[index.versions.length];
+            copy(index);
+        }
+
+        public void update(Uniform[] uniforms) {
+            if (versions.length != uniforms.length) {
+                throw new IllegalArgumentException("Index must contain one version per uniform.");
+            }
+            for (int i = 0; i < uniforms.length; i++) {
+                versions[i] = uniforms[i].getValue().getCurrentVersionIndex();
             }
         }
-        if (!writers.isEmpty()) try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(writers.size() * sets.size(), stack);
-            for (DescriptorSet s : sets) {
-                s.populateWriteBuffer(stack, write, writers.toArray(new Uniform[0]));
+
+        public void copy(FrameIndex source) {
+            if (versions.length != source.versions.length) {
+                throw new IllegalArgumentException("Copy source and target do not have the same number of versions.");
             }
-            VK10.vkUpdateDescriptorSets(device.getNativeObject(), write, null);
+            System.arraycopy(source.versions, 0, versions, 0, versions.length);
         }
+
+        public FrameIndex copy() {
+            return new FrameIndex(this);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            FrameIndex that = (FrameIndex)o;
+            if (versions == that.versions) return true;
+            if (versions.length != that.versions.length) return false;
+            for (int i = 0; i < versions.length; i++) {
+                if (versions[i] != that.versions[i]) return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(versions);
+        }
+
     }
 
-    public Uniform[] getUniforms() {
-        return uniforms;
+    private static class SupportedSet {
+
+        private final DescriptorSet set;
+        private long[] variants;
+
+        public SupportedSet(DescriptorSet set) {
+            this.set = set;
+        }
+
+        public DescriptorSet update(Uniform[] uniforms) {
+            if (variants == null) {
+                // write all uniforms
+                variants = new long[uniforms.length];
+                set.write(uniforms);
+            } else {
+                // write only uniforms that have changed since the last update with this set
+                final ArrayList<Uniform> writers = new ArrayList<>(uniforms.length);
+                for (int i = 0; i < variants.length; i++) {
+                    if (variants[i] < uniforms[i].getVariant()) {
+                        writers.add(uniforms[i]);
+                    }
+                }
+                if (!writers.isEmpty()) {
+                    set.write(writers.toArray(new Uniform[0]));
+                }
+            }
+            // update variant counters to indicate that all uniforms have been
+            // evaluated since they were last updated
+            for (int i = 0; i < variants.length; i++) {
+                variants[i] = uniforms[i].getVariant();
+            }
+            return set;
+        }
+
     }
 
-    public List<DescriptorSet> getAllocatedSets() {
-        return sets;
-    }
+    private class SetIterator implements Iterator<Uniform> {
 
-    public DescriptorSet getActiveSet() {
-        return activeSet;
+        private int index = 0;
+
+        @Override
+        public boolean hasNext() {
+            return index < uniforms.length;
+        }
+
+        @Override
+        public Uniform next() {
+            return uniforms[index++];
+        }
+
     }
 
 }

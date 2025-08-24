@@ -2,6 +2,7 @@ package com.jme3.vulkan.material.uniforms;
 
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
+import com.jme3.vulkan.frames.UpdateFrameManager;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 

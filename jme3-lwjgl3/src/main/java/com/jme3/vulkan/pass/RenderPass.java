@@ -2,7 +2,7 @@ package com.jme3.vulkan.pass;
 
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.VulkanObject;
+import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.Image;
 import com.jme3.vulkan.pipelines.FrameBuffer;
@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class RenderPass extends VulkanObject<Long> {
+public class RenderPass extends AbstractNative<Long> {
 
     private final LogicalDevice<?> device;
     private final List<Attachment> attachments = new ArrayList<>();
@@ -116,7 +116,7 @@ public class RenderPass extends VulkanObject<Long> {
         return new Builder(base);
     }
 
-    public class Builder extends VulkanObject.Builder<RenderPass> {
+    public class Builder extends AbstractNative.Builder<RenderPass> {
 
         public Builder() {}
 
