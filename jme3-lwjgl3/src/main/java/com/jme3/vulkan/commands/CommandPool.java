@@ -3,6 +3,7 @@ package com.jme3.vulkan.commands;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
 
@@ -13,22 +14,41 @@ import static org.lwjgl.vulkan.VK11.*;
 
 public class CommandPool implements Native<Long> {
 
+    public enum Create implements Flag<Create> {
+
+        Transient(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT),
+        ResetCommandBuffer(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT),
+        Protected(VK_COMMAND_POOL_CREATE_PROTECTED_BIT);
+
+        private final int vkEnum;
+
+        Create(int vkEnum) {
+            this.vkEnum = vkEnum;
+        }
+
+        @Override
+        public int bits() {
+            return vkEnum;
+        }
+
+    }
+
     private final Queue queue;
     private final NativeReference ref;
-    private final boolean shortLived, reusable, protect;
+    private final Flag<Create> flags;
     private long id;
 
-    public CommandPool(Queue queue, boolean shortLived, boolean reusable, boolean protect) {
+    public CommandPool(Queue queue) {
+        this(queue, Create.ResetCommandBuffer);
+    }
+
+    public CommandPool(Queue queue, Flag<Create> flags) {
         this.queue = queue;
-        this.shortLived = shortLived;
-        this.reusable = reusable;
-        this.protect = protect;
+        this.flags = flags;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkCommandPoolCreateInfo create = VkCommandPoolCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO)
-                    .flags((shortLived ? VK_COMMAND_POOL_CREATE_TRANSIENT_BIT : 0)
-                        | (reusable ? VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT : 0)
-                        | (protect ? VK_COMMAND_POOL_CREATE_PROTECTED_BIT : 0))
+                    .flags(this.flags.bits())
                     .queueFamilyIndex(queue.getFamilyIndex());
             LongBuffer idBuf = stack.mallocLong(1);
             check(vkCreateCommandPool(queue.getDevice().getNativeObject(), create, null, idBuf),
@@ -77,16 +97,8 @@ public class CommandPool implements Native<Long> {
         return queue;
     }
 
-    public boolean isShortLived() {
-        return shortLived;
-    }
-
-    public boolean isReusable() {
-        return reusable;
-    }
-
-    public boolean isProtected() {
-        return protect;
+    public Flag<Create> getFlags() {
+        return flags;
     }
 
 }

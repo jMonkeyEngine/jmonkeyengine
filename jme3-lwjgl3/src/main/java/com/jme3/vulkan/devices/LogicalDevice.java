@@ -5,6 +5,7 @@ import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.commands.Queue;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -53,30 +54,25 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
     }
 
     public CommandPool getShortTermPool(Queue queue) {
-        return getPool(queue, true, false);
+        return getPool(queue, CommandPool.Create.Transient);
     }
 
     public CommandPool getLongTermPool(Queue queue) {
-        return getPool(queue, false, true);
+        return getPool(queue, CommandPool.Create.ResetCommandBuffer);
     }
 
-    public CommandPool getPool(Queue queue, boolean shortLived, boolean reusable) {
-        return getPool(queue, shortLived, reusable, false);
-    }
-
-    public CommandPool getPool(Queue queue, boolean shortLived, boolean reusable, boolean protect) {
+    public CommandPool getPool(Queue queue, Flag<CommandPool.Create> flags) {
         if (queue.getDevice() != this) {
             throw new IllegalArgumentException("Queue must belong to this device.");
         }
         Collection<CommandPool> p = pools.computeIfAbsent(Thread.currentThread(),
                 t -> new ArrayList<>());
         for (CommandPool pool : p) {
-            if (pool.getQueue() == queue && pool.isShortLived() == shortLived
-                    && pool.isReusable() == reusable && pool.isProtected() == protect) {
+            if (pool.getQueue() == queue && pool.getFlags().contains(flags)) {
                 return pool;
             }
         }
-        CommandPool pool = new CommandPool(queue, shortLived, reusable, protect);
+        CommandPool pool = new CommandPool(queue, flags);
         p.add(pool);
         return pool;
     }

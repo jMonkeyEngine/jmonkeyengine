@@ -106,8 +106,8 @@ public class DescriptorPool implements Native<Long> {
         vkResetDescriptorPool(device.getNativeObject(), id, 0);
     }
 
-    public boolean isFreeSetsEnabled() {
-        return flags.contains(Create.FreeDescriptorSets);
+    public Flag<Create> getFlags() {
+        return flags;
     }
 
 }

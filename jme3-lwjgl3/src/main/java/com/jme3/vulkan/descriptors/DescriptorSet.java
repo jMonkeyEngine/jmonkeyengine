@@ -26,8 +26,10 @@ public class DescriptorSet extends AbstractNative<Long> {
     @Override
     public Runnable createNativeDestroyer() {
         return () -> {
-            if (pool.isFreeSetsEnabled()) try (MemoryStack stack = MemoryStack.stackPush()) {
-                vkFreeDescriptorSets(device.getNativeObject(), pool.getNativeObject(), stack.longs(object));
+            if (pool.getFlags().contains(DescriptorPool.Create.FreeDescriptorSets)) {
+                try (MemoryStack stack = MemoryStack.stackPush()) {
+                    vkFreeDescriptorSets(device.getNativeObject(), pool.getNativeObject(), stack.longs(object));
+                }
             }
         };
     }
