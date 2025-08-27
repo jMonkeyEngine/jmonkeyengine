@@ -175,7 +175,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
 
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
         ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
-        color = buildLinearLightColor(color, intensity);
+        color = lumensToColor(color, intensity);
 
         DirectionalLight directionalLight = new DirectionalLight();
         directionalLight.setName(name);
@@ -200,7 +200,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         if(APPLY_INTENSITY_CONVERSION) intensity = intensity / (4.0f * FastMath.PI);
 
         float range = obj.has("range") ? obj.get("range").getAsFloat() : (COMPUTE_LIGHT_RANGE ? getCutoffDistance(color, intensity) : Float.POSITIVE_INFINITY);
-        color = buildLinearLightColor(color, intensity);
+        color = lumensToColor(color, intensity);
 
         PointLight pointLight = new PointLight();
         pointLight.setName(name);
