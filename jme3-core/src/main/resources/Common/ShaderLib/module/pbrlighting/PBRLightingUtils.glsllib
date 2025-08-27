@@ -235,29 +235,23 @@
             float dist;
             Math_lengthAndNormalize(light.vector,dist,L);
 
-            float invRange=light.invRadius; // position.w
-            const float light_threshold = 0.01;
-
-            #ifdef SRGB
-                light.fallOff = (1.0 - invRange * dist) / (1.0 + invRange * dist * dist); // lightDir.w
-                light.fallOff = clamp(light.fallOff, 1.0 - posLight, 1.0);
-            #else
-                light.fallOff = clamp(1.0 - invRange * dist * posLight, 0.0, 1.0);
-            #endif
-
-            // computeSpotFalloff
-            if(light.type>1.){
-                vec3 spotdir = normalize(light.spotDirection);
-                float curAngleCos = dot(-L, spotdir);    
+            // Standard falloff
+            float radius = 1./light.invRadius;
+            float clampedDist = max(dist, 0.00001);
+            light.fallOff = clamp(1.0 / (clampedDist * clampedDist), 0.0, 1.0);
+            light.fallOff = clamp(light.fallOff, 1.0 - posLight, 1.0);
+            light.fallOff *= step(dist, radius);
+            
+            // Spot cone falloff
+            if (light.type > 1.0) {
                 float innerAngleCos = floor(light.spotAngleCos) * 0.001;
                 float outerAngleCos = fract(light.spotAngleCos);
-                float innerMinusOuter = innerAngleCos - outerAngleCos;
-                float falloff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0);
-                #ifdef SRGB
-                    // Use quadratic falloff (notice the ^4)
-                    falloff = pow(clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0), 4.0);
-                #endif
-                light.fallOff*=falloff;
+                float sharpnessFactor = 4.0; 
+
+                vec3 spotDir = normalize(light.spotDirection);
+                float cosA  = dot(-L, spotDir) ;
+                float spotAtten = clamp((cosA - outerAngleCos) / (innerAngleCos - outerAngleCos), 0.0, 1.0);
+                light.fallOff *= pow(spotAtten, sharpnessFactor);
             }
 
 
