@@ -2,9 +2,10 @@ package com.jme3.vulkan.images;
 
 import com.jme3.asset.*;
 import com.jme3.util.BufferUtils;
+import com.jme3.vulkan.Format;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.VulkanBuffer;
-import com.jme3.vulkan.memory.MemoryFlag;
+import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
@@ -67,7 +68,7 @@ public class VulkanImageLoader implements AssetLoader {
                 }
                 ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
                 buffer.put(data);
-                return new ImageData(buffer, width, height, Image.Format.ABGR8_SRGB);
+                return new ImageData(buffer, width, height, Format.ABGR8_SRGB);
             }
             case BufferedImage.TYPE_3BYTE_BGR: { // most common in JPEG images
                 if (flipY) {
@@ -75,7 +76,7 @@ public class VulkanImageLoader implements AssetLoader {
                 }
                 ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 3);
                 buffer.put(data);
-                return new ImageData(buffer, width, height, Image.Format.BGR8_SRGB);
+                return new ImageData(buffer, width, height, Format.BGR8_SRGB);
             }
             case BufferedImage.TYPE_BYTE_GRAY: { // grayscale fonts
                 if (flipY) {
@@ -83,17 +84,17 @@ public class VulkanImageLoader implements AssetLoader {
                 }
                 ByteBuffer buffer = BufferUtils.createByteBuffer(width * height);
                 buffer.put(data);
-                return new ImageData(buffer, width, height, Image.Format.R8_SRGB);
+                return new ImageData(buffer, width, height, Format.R8_SRGB);
             }
         }
         if (img.getTransparency() == Transparency.OPAQUE) {
             ByteBuffer buffer = BufferUtils.createByteBuffer(img.getWidth() * img.getHeight() * 4);
             for (int y = 0; y < height; y++) {
+                int ny = y;
+                if (flipY) {
+                    ny = height - y - 1;
+                }
                 for (int x = 0; x < width; x++) {
-                    int ny = y;
-                    if (flipY) {
-                        ny = height - y - 1;
-                    }
                     int rgb = img.getRGB(x, ny);
                     byte r = (byte) ((rgb & 0x00FF0000) >> 16);
                     byte g = (byte) ((rgb & 0x0000FF00) >> 8);
@@ -103,15 +104,15 @@ public class VulkanImageLoader implements AssetLoader {
                 }
             }
             buffer.flip();
-            return new ImageData(buffer, width, height, Image.Format.RGBA8_SRGB);
+            return new ImageData(buffer, width, height, Format.RGBA8_SRGB);
         } else {
             ByteBuffer buffer = BufferUtils.createByteBuffer(img.getWidth() * img.getHeight() * 4);
-            for (int y = 0; y < height; y++){
-                for (int x = 0; x < width; x++){
-                    int ny = y;
-                    if (flipY) {
-                        ny = height - y - 1;
-                    }
+            for (int y = 0; y < height; y++) {
+                int ny = y;
+                if (flipY) {
+                    ny = height - y - 1;
+                }
+                for (int x = 0; x < width; x++) {
                     int rgb = img.getRGB(x,ny);
                     byte a = (byte) ((rgb & 0xFF000000) >> 24);
                     byte r = (byte) ((rgb & 0x00FF0000) >> 16);
@@ -121,7 +122,7 @@ public class VulkanImageLoader implements AssetLoader {
                 }
             }
             buffer.flip();
-            return new ImageData(buffer, width, height, Image.Format.RGBA8_SRGB);
+            return new ImageData(buffer, width, height, Format.RGBA8_SRGB);
         }
     }
 
@@ -154,19 +155,24 @@ public class VulkanImageLoader implements AssetLoader {
     private GpuImage loadGpuImage(CommandPool transferPool, ImageData data) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             GpuBuffer staging = new VulkanBuffer(transferPool.getDevice(), MemorySize.bytes(data.getBuffer().limit()),
-                    BufferUsage.TransferSrc, Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCached), false);
-            staging.copy(stack, data.getBuffer());
-            GpuImage image = new GpuImage(transferPool.getDevice(), data.getWidth(), data.getHeight(), data.getFormat(),
-                    Image.Tiling.Optimal, Flag.of(ImageUsage.TransferDst, ImageUsage.Sampled),
-                    MemoryFlag.DeviceLocal);
+                    BufferUsage.TransferSrc, Flag.of(MemoryProp.HostVisible, MemoryProp.HostCached), false);
+            staging.copy(data.getBuffer());
+            GpuImage image = new GpuImage(transferPool.getDevice(), VulkanImage.Type.TwoDemensional);
+            try (GpuImage.Builder i = image.build()) {
+                i.setSize(data.getWidth(), data.getHeight());
+                i.setFormat(data.getFormat());
+                i.setTiling(VulkanImage.Tiling.Optimal);
+                i.setUsage(Flag.of(ImageUsage.TransferDst, ImageUsage.Sampled));
+                i.setMemoryProps(MemoryProp.DeviceLocal);
+            }
             CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
             commands.begin();
-            image.transitionLayout(commands, Image.Layout.Undefined, Image.Layout.TransferDstOptimal);
+            image.transitionLayout(commands, VulkanImage.Layout.Undefined, VulkanImage.Layout.TransferDstOptimal);
             VkBufferImageCopy.Buffer region = VkBufferImageCopy.calloc(1, stack)
                     .bufferOffset(0)
                     .bufferRowLength(0) // padding bytes
                     .bufferImageHeight(0); // padding bytes
-            region.imageSubresource().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT)
+            region.imageSubresource().aspectMask(VulkanImage.Aspect.Color.bits())
                     .mipLevel(0)
                     .baseArrayLayer(0)
                     .layerCount(1);
@@ -174,7 +180,7 @@ public class VulkanImageLoader implements AssetLoader {
             region.imageExtent().set(data.getWidth(), data.getHeight(), 1);
             vkCmdCopyBufferToImage(commands.getBuffer(), staging.getId(),
                     image.getNativeObject(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
-            image.transitionLayout(commands, Image.Layout.TransferDstOptimal, Image.Layout.ShaderReadOnlyOptimal);
+            image.transitionLayout(commands, VulkanImage.Layout.TransferDstOptimal, VulkanImage.Layout.ShaderReadOnlyOptimal);
             commands.end();
             commands.submit(SyncGroup.ASYNC);
             transferPool.getQueue().waitIdle();
@@ -237,9 +243,9 @@ public class VulkanImageLoader implements AssetLoader {
 
         private final ByteBuffer buffer;
         private final int width, height;
-        private final Image.Format format;
+        private final Format format;
 
-        public ImageData(ByteBuffer buffer, int width, int height, Image.Format format) {
+        public ImageData(ByteBuffer buffer, int width, int height, Format format) {
             this.buffer = buffer;
             this.width = width;
             this.height = height;
@@ -258,7 +264,7 @@ public class VulkanImageLoader implements AssetLoader {
             return height;
         }
 
-        public Image.Format getFormat() {
+        public Format getFormat() {
             return format;
         }
 

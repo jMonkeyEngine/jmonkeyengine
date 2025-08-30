@@ -4,8 +4,8 @@ import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.frames.VersionedResource;
-import com.jme3.vulkan.images.Image;
 import com.jme3.vulkan.images.Texture;
+import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
@@ -14,11 +14,11 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 public class TextureUniform extends AbstractUniform<Texture> {
 
-    private final Image.Layout layout;
+    private final VulkanImage.Layout layout;
     private VersionedResource<Texture> texture;
     private long variant = 0L;
 
-    public TextureUniform(String name, Image.Layout layout, int bindingIndex, Flag<ShaderStage> stages) {
+    public TextureUniform(String name, VulkanImage.Layout layout, int bindingIndex, Flag<ShaderStage> stages) {
         super(name, Descriptor.CombinedImageSampler, bindingIndex, stages);
         this.layout = layout;
     }
@@ -29,7 +29,7 @@ public class TextureUniform extends AbstractUniform<Texture> {
         VkDescriptorImageInfo.Buffer info = VkDescriptorImageInfo.calloc(1, stack)
                 .imageView(tex.getImage().getNativeObject())
                 .sampler(tex.getNativeObject())
-                .imageLayout(layout.getVkEnum());
+                .imageLayout(layout.getEnum());
         write.pImageInfo(info)
                 .descriptorType(type.getVkEnum())
                 .dstBinding(bindingIndex)
@@ -65,7 +65,7 @@ public class TextureUniform extends AbstractUniform<Texture> {
             && binding.getDescriptors() == 1;
     }
 
-    public Image.Layout getLayout() {
+    public VulkanImage.Layout getLayout() {
         return layout;
     }
 

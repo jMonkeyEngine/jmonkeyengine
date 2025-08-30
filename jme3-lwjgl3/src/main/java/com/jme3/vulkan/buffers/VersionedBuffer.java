@@ -1,17 +1,17 @@
 package com.jme3.vulkan.buffers;
 
+import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.frames.UpdateFrameManager;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-public class VersionedBuffer <T extends GpuBuffer> implements GpuBuffer, VersionedResource<T> {
+public class VersionedBuffer <T extends VulkanBuffer> implements VulkanBuffer, VersionedResource<T> {
 
     private final UpdateFrameManager frames;
     private final MemorySize size;
@@ -28,8 +28,8 @@ public class VersionedBuffer <T extends GpuBuffer> implements GpuBuffer, Version
     }
 
     @Override
-    public PointerBuffer map(MemoryStack stack, int offset, int size, int flags) {
-        return getVersion().map(stack, offset, size, flags);
+    public PointerBuffer map(int offset, int size) {
+        return getVersion().map(offset, size);
     }
 
     @Override
@@ -74,6 +74,11 @@ public class VersionedBuffer <T extends GpuBuffer> implements GpuBuffer, Version
 
     public List<T> getInternalBuffers() {
         return buffers;
+    }
+
+    @Override
+    public LogicalDevice<?> getDevice() {
+        return getVersion().getDevice();
     }
 
 }

@@ -33,15 +33,19 @@ public interface Flag <T extends Flag> {
         return (bits() & bits) == bits;
     }
 
-    default boolean containsOneOf(Flag<T> flag) {
+    default boolean containsAny(Flag<T> flag) {
         return (bits() & flag.bits()) > 0;
+    }
+
+    default boolean isEmpty() {
+        return bits() == 0;
     }
 
     static <T extends Flag> Flag<T> of(int bits) {
         return new FlagImpl<>(bits);
     }
 
-    static <T extends Flag> Flag<T> none() {
+    static <T extends Flag> Flag<T> empty() {
         return of(0);
     }
 

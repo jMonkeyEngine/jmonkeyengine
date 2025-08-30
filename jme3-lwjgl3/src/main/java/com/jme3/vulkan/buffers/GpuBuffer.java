@@ -16,7 +16,17 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public interface GpuBuffer {
 
-    PointerBuffer map(MemoryStack stack, int offset, int size, int flags);
+    /**
+     * Maps the memory of this buffer and returns a pointer to the mapped
+     * region. If the memory is currently mapped when this is called, an
+     * exception is thrown.
+     *
+     * @param offset offset, in bytes, of the mapping
+     * @param size size, in bytes, of the mapping, or {@link org.lwjgl.vulkan.VK10#VK_WHOLE_SIZE
+     * VK_WHOLE_SIZE} to map all buffer memory starting at {@code offset}.
+     * @return Buffer containing a pointer to the mapped memory
+     */
+    PointerBuffer map(int offset, int size);
 
     void unmap();
 
@@ -32,89 +42,81 @@ public interface GpuBuffer {
         }
     }
 
-    default <T> T map(MemoryStack stack, int offset, int size, int flags, Function<PointerBuffer, T> factory) {
-        return factory.apply(map(stack, offset, size, flags));
+    default <T> T map(int offset, int size, Function<PointerBuffer, T> factory) {
+        return factory.apply(map(offset, size));
     }
 
-    default ByteBuffer mapBytes(MemoryStack stack, int offset, int size, int flags) {
-        return map(stack, offset, size * Byte.BYTES, flags).getByteBuffer(0, size);
+    default ByteBuffer mapBytes(int offset, int size) {
+        return map(offset * Byte.BYTES, size * Byte.BYTES).getByteBuffer(0, size);
     }
 
-    default ShortBuffer mapShorts(MemoryStack stack, int offset, int size, int flags) {
-        return map(stack, offset, size * Short.BYTES, flags).getShortBuffer(0, size);
+    default ShortBuffer mapShorts(int offset, int size) {
+        return map(offset * Short.BYTES, size * Short.BYTES).getShortBuffer(0, size);
     }
 
-    default IntBuffer mapInts(MemoryStack stack, int offset, int size, int flags) {
-        return map(stack, offset, size * Integer.BYTES, flags).getIntBuffer(0, size);
+    default IntBuffer mapInts(int offset, int size) {
+        return map(offset * Integer.BYTES, size * Integer.BYTES).getIntBuffer(0, size);
     }
 
-    default FloatBuffer mapFloats(MemoryStack stack, int offset, int size, int flags) {
-        return map(stack, offset, size * Float.BYTES, flags).getFloatBuffer(0, size);
+    default FloatBuffer mapFloats(int offset, int size) {
+        return map(offset * Float.BYTES, size * Float.BYTES).getFloatBuffer(0, size);
     }
 
-    default DoubleBuffer mapDoubles(MemoryStack stack, int offset, int size, int flags) {
-        return map(stack, offset, size * Double.BYTES, flags).getDoubleBuffer(0, size);
+    default DoubleBuffer mapDoubles(int offset, int size) {
+        return map(offset * Double.BYTES, size * Double.BYTES).getDoubleBuffer(0, size);
     }
 
-    default LongBuffer mapLongs(MemoryStack stack, int offset, int size, int flags) {
-        return map(stack, offset, size * Long.BYTES, flags).getLongBuffer(0, size);
+    default LongBuffer mapLongs(int offset, int size) {
+        return map(offset * Long.BYTES, size * Long.BYTES).getLongBuffer(0, size);
     }
 
-    default void copy(MemoryStack stack, ByteBuffer buffer) {
+    default void copy(ByteBuffer buffer) {
         verifyBufferSize(buffer.limit(), Byte.BYTES);
-        MemoryUtil.memCopy(buffer, mapBytes(stack, 0, buffer.limit(), 0));
+        MemoryUtil.memCopy(buffer, mapBytes(0, buffer.limit()));
         unmap();
     }
 
-    default void copy(MemoryStack stack, ShortBuffer buffer) {
+    default void copy(ShortBuffer buffer) {
         verifyBufferSize(buffer.limit(), Short.BYTES);
-        MemoryUtil.memCopy(buffer, mapShorts(stack, 0, buffer.limit(), 0));
+        MemoryUtil.memCopy(buffer, mapShorts(0, buffer.limit()));
         unmap();
     }
 
-    default void copy(MemoryStack stack, IntBuffer buffer) {
+    default void copy(IntBuffer buffer) {
         verifyBufferSize(buffer.limit(), Integer.BYTES);
-        MemoryUtil.memCopy(buffer, mapInts(stack, 0, buffer.limit(), 0));
+        MemoryUtil.memCopy(buffer, mapInts(0, buffer.limit()));
         unmap();
     }
 
-    default void copy(MemoryStack stack, FloatBuffer buffer) {
+    default void copy(FloatBuffer buffer) {
         verifyBufferSize(buffer.limit(), Float.BYTES);
-        MemoryUtil.memCopy(buffer, mapFloats(stack, 0, buffer.limit(), 0));
+        MemoryUtil.memCopy(buffer, mapFloats(0, buffer.limit()));
         unmap();
     }
 
-    default void copy(MemoryStack stack, DoubleBuffer buffer) {
+    default void copy(DoubleBuffer buffer) {
         verifyBufferSize(buffer.limit(), Double.BYTES);
-        MemoryUtil.memCopy(buffer, mapDoubles(stack, 0, buffer.limit(), 0));
+        MemoryUtil.memCopy(buffer, mapDoubles(0, buffer.limit()));
         unmap();
     }
 
-    default void copy(MemoryStack stack, LongBuffer buffer) {
+    default void copy(LongBuffer buffer) {
         verifyBufferSize(buffer.limit(), Long.BYTES);
-        MemoryUtil.memCopy(buffer, mapLongs(stack, 0, buffer.limit(), 0));
+        MemoryUtil.memCopy(buffer, mapLongs(0, buffer.limit()));
         unmap();
     }
 
-    default void copy(MemoryStack stack, Struct<?> struct) {
+    default void copy(Struct<?> struct) {
         verifyBufferSize(struct.sizeof(), Byte.BYTES);
-        MemoryUtil.memCopy(MemoryUtil.memByteBuffer(struct.address(), struct.sizeof()),
-                mapBytes(stack, 0, struct.sizeof(), 0));
+        MemoryUtil.memCopy(MemoryUtil.memByteBuffer(struct.address(), struct.sizeof()), mapBytes(0, struct.sizeof()));
         unmap();
     }
 
-    default void copy(MemoryStack stack, StructBuffer<?, ?> buffer) {
+    default void copy(StructBuffer<?, ?> buffer) {
         verifyBufferSize(buffer.limit(), buffer.sizeof());
         int size = buffer.limit() * buffer.sizeof();
-        MemoryUtil.memCopy(MemoryUtil.memByteBuffer(buffer.address(), size), mapBytes(stack, 0, size, 0));
+        MemoryUtil.memCopy(MemoryUtil.memByteBuffer(buffer.address(), size), mapBytes(0, size));
         unmap();
-    }
-
-    default void recordCopy(MemoryStack stack, CommandBuffer commands, GpuBuffer source,
-                           long srcOffset, long dstOffset, long size) {
-        VkBufferCopy.Buffer copy = VkBufferCopy.calloc(1, stack)
-                .srcOffset(srcOffset).dstOffset(dstOffset).size(size);
-        vkCmdCopyBuffer(commands.getBuffer(), source.getId(), getId(), copy);
     }
 
 }

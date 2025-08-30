@@ -5,8 +5,10 @@ import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.Image;
+import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkMemoryAllocateInfo;
 
 import java.nio.*;
@@ -19,18 +21,21 @@ public class MemoryRegion implements Native<Long> {
 
     private final LogicalDevice<?> device;
     private final NativeReference ref;
+    private final Flag<MemoryProp> flags;
     private final long id;
     private final long size;
     private final AtomicBoolean mapped = new AtomicBoolean(false);
+    private final PointerBuffer mapping = MemoryUtil.memCallocPointer(1);
 
-    public MemoryRegion(LogicalDevice<?> device, long size, int typeIndex) {
+    public MemoryRegion(LogicalDevice<?> device, long size, Flag<MemoryProp> flags, int typeBits) {
         this.device = device;
+        this.flags = flags;
         this.size = size;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkMemoryAllocateInfo allocate = VkMemoryAllocateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO)
                     .allocationSize(size)
-                    .memoryTypeIndex(typeIndex);
+                    .memoryTypeIndex(device.getPhysicalDevice().findSupportedMemoryType(stack, typeBits, flags));
             LongBuffer idBuf = stack.mallocLong(1);
             check(vkAllocateMemory(device.getNativeObject(), allocate, null, idBuf),
                     "Failed to allocate buffer memory.");
@@ -47,7 +52,10 @@ public class MemoryRegion implements Native<Long> {
 
     @Override
     public Runnable createNativeDestroyer() {
-        return () -> vkFreeMemory(device.getNativeObject(), id, null);
+        return () -> {
+            vkFreeMemory(device.getNativeObject(), id, null);
+            MemoryUtil.memFree(mapping);
+        };
     }
 
     @Override
@@ -68,19 +76,30 @@ public class MemoryRegion implements Native<Long> {
                 "Failed to bind image memory.");
     }
 
-    public PointerBuffer map(MemoryStack stack, int offset, int size, int flags) {
+    public PointerBuffer map() {
+        return map(0L, VK_WHOLE_SIZE);
+    }
+
+    public PointerBuffer map(long offset) {
+        return map(offset, VK_WHOLE_SIZE);
+    }
+
+    public PointerBuffer map(long offset, long size) {
         if (mapped.getAndSet(true)) {
             throw new IllegalStateException("Memory already mapped.");
         }
-        PointerBuffer data = stack.mallocPointer(1);
-        vkMapMemory(device.getNativeObject(), id, offset, size, flags, data);
-        return data;
+        if (!this.flags.contains(MemoryProp.HostVisible)) {
+            throw new IllegalStateException("Cannot map memory that is not host visible.");
+        }
+        vkMapMemory(device.getNativeObject(), id, offset, size, 0, mapping);
+        return mapping;
     }
 
     public void unmap() {
         if (!mapped.getAndSet(false)) {
             throw new IllegalStateException("Memory is not mapped.");
         }
+        mapping.put(0, VK_NULL_HANDLE);
         vkUnmapMemory(device.getNativeObject(), id);
     }
 

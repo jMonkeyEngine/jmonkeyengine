@@ -1,10 +1,10 @@
 package com.jme3.vulkan.pass;
 
 import com.jme3.util.natives.Native;
+import com.jme3.vulkan.Format;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.images.Image;
 import com.jme3.vulkan.pipelines.FrameBuffer;
 import com.jme3.vulkan.pipelines.PipelineBindPoint;
 import org.lwjgl.system.MemoryStack;
@@ -164,13 +164,13 @@ public class RenderPass extends AbstractNative<Long> {
             device.getNativeReference().addDependent(ref);
         }
 
-        public Attachment createAttachment(Image.Format format, int samples) {
+        public Attachment createAttachment(Format format, int samples) {
             Attachment a = new Attachment(attachments.size(), format, samples);
             attachments.add(a);
             return a;
         }
 
-        public Attachment createAttachment(Image.Format format, int samples, Consumer<Attachment> config) {
+        public Attachment createAttachment(Format format, int samples, Consumer<Attachment> config) {
             Attachment a = createAttachment(format, samples);
             config.accept(a);
             return a;

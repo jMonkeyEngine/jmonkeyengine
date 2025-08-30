@@ -3,27 +3,27 @@ package com.jme3.vulkan.buffers;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.memory.MemoryFlag;
+import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.sync.SyncGroup;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 
-public class StageableBuffer extends VulkanBuffer {
+public class StageableBuffer extends BasicVulkanBuffer {
 
     private final VulkanBuffer stage;
 
     public StageableBuffer(LogicalDevice device, MemorySize size,
-                           Flag<BufferUsage> usage, Flag<MemoryFlag> mem, boolean concurrent) {
+                           Flag<BufferUsage> usage, Flag<MemoryProp> mem, boolean concurrent) {
         super(device, size, usage.add(BufferUsage.TransferDst), mem, concurrent);
-        this.stage = new VulkanBuffer(device, size, BufferUsage.TransferSrc,
-                Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCoherent), concurrent);
+        this.stage = new BasicVulkanBuffer(device, size, BufferUsage.TransferSrc,
+                Flag.of(MemoryProp.HostVisible, MemoryProp.HostCoherent), concurrent);
     }
 
     @Override
-    public PointerBuffer map(MemoryStack stack, int offset, int size, int flags) {
-        return stage.map(stack, offset, size, flags);
+    public PointerBuffer map(int offset, int size) {
+        return stage.map(offset, size);
     }
 
     @Override

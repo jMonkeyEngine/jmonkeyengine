@@ -1,7 +1,7 @@
 package com.jme3.vulkan.frames;
 
 /**
- * Maps resources to frame indices.
+ * Immutably maps frame indices to resources.
  *
  * @param <T> resource type
  */

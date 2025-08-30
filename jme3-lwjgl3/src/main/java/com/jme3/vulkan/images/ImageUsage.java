@@ -15,15 +15,15 @@ public enum ImageUsage implements Flag<ImageUsage> {
     InputAttachment(VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT),
     TransientAttachment(VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT);
 
-    private final int vkEnum;
+    private final int bits;
 
-    ImageUsage(int vkEnum) {
-        this.vkEnum = vkEnum;
+    ImageUsage(int bits) {
+        this.bits = bits;
     }
 
     @Override
     public int bits() {
-        return vkEnum;
+        return bits;
     }
 
 }

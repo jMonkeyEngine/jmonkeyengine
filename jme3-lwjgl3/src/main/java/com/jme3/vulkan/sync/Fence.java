@@ -73,6 +73,10 @@ public class Fence implements Native<Long> {
         vkResetFences(device.getNativeObject(), id);
     }
 
+    public SyncGroup toGroup() {
+        return new SyncGroup(this);
+    }
+
     public boolean isBlocking() {
         return vkGetFenceStatus(device.getNativeObject(), id) != VK_SUCCESS;
     }

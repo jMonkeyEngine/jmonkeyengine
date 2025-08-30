@@ -6,12 +6,17 @@ import com.jme3.vulkan.*;
 import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.Image;
+import com.jme3.vulkan.images.ImageUsage;
 import com.jme3.vulkan.images.ImageView;
+import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.pipelines.FrameBuffer;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
+import com.jme3.vulkan.sync.SyncGroup;
 import com.jme3.vulkan.util.Extent2;
+import com.jme3.vulkan.util.Flag;
+import com.jme3.vulkan.util.LibEnum;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -20,6 +25,7 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -48,9 +54,11 @@ public class Swapchain extends AbstractNative<Long> {
     private final LogicalDevice<?> device;
     private final Surface surface;
     private final List<PresentImage> images = new ArrayList<>();
-    private SwapchainUpdater updater;
+    private Consumer<Builder> builder;
     private Extent2 extent;
-    private Image.Format format;
+    private Format format;
+    private int imageLayers = 1;
+    private Flag<ImageUsage> imageUsage = ImageUsage.ColorAttachment;
 
     public Swapchain(LogicalDevice<?> device, Surface surface) {
         this.device = device;
@@ -72,11 +80,11 @@ public class Swapchain extends AbstractNative<Long> {
         }
     }
 
-    public PresentImage acquireNextImage(SwapchainUpdater updater, Semaphore semaphore, Fence fence, long timeout) {
+    public PresentImage acquireNextImage(SwapchainUpdater updater, Semaphore semaphore, Fence fence, long timeoutMillis) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer i = stack.mallocInt(1);
             int code = KHRSwapchain.vkAcquireNextImageKHR(device.getNativeObject(), object,
-                            TimeUnit.MILLISECONDS.toNanos(timeout), Native.getId(semaphore), Native.getId(fence), i);
+                            TimeUnit.MILLISECONDS.toNanos(timeoutMillis), Native.getId(semaphore), Native.getId(fence), i);
             if (updater.swapchainOutOfDate(this, code)) {
                 return null;
             }
@@ -84,18 +92,35 @@ public class Swapchain extends AbstractNative<Long> {
         }
     }
 
-    public void present(Queue presentQueue, PresentImage image, Semaphore wait) {
+    public void present(Queue presentQueue, PresentImage image, SyncGroup sync) {
+        int imageIndex = images.indexOf(image);
+        if (imageIndex < 0) {
+            throw new IllegalArgumentException("Image does not belong to this swapchain.");
+        }
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkPresentInfoKHR info = VkPresentInfoKHR.calloc(stack)
                     .sType(KHRSwapchain.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR)
                     .swapchainCount(1)
                     .pSwapchains(stack.longs(object))
-                    .pImageIndices(stack.ints(images.indexOf(image)));
-            if (wait != null) {
-                info.pWaitSemaphores(stack.longs(wait.getNativeObject()));
+                    .pImageIndices(stack.ints(imageIndex));
+            if (sync.containsWaits()) {
+                info.pWaitSemaphores(sync.toWaitBuffer(stack));
             }
             check(KHRSwapchain.vkQueuePresentKHR(presentQueue.getQueue(), info));
         }
+    }
+
+    public void build(Consumer<Builder> builder) {
+        if (builder == null) {
+            throw new NullPointerException("Builder function cannot be null.");
+        }
+        try (Builder b = new Builder()) {
+            (this.builder = builder).accept(b);
+        }
+    }
+
+    public void update() {
+        build(builder);
     }
 
     public LogicalDevice getDevice() {
@@ -114,15 +139,19 @@ public class Swapchain extends AbstractNative<Long> {
         return extent;
     }
 
-    public Image.Format getFormat() {
+    public Format getFormat() {
         return format;
     }
 
-    public Builder build() {
-        return new Builder();
+    public int getImageLayers() {
+        return imageLayers;
     }
 
-    public class PresentImage implements Image {
+    public Flag<ImageUsage> getImageUsage() {
+        return imageUsage;
+    }
+
+    public class PresentImage implements VulkanImage {
 
         private final LogicalDevice<?> device;
         private final NativeReference ref;
@@ -135,12 +164,10 @@ public class Swapchain extends AbstractNative<Long> {
             this.id = id;
             ref = Native.get().register(this);
             Swapchain.this.ref.addDependent(ref);
-            view = createView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1);
-        }
-
-        @Override
-        public ImageView createView(VkImageViewCreateInfo create) {
-            return new ImageView(this, create);
+            view = new ImageView(this, VulkanImage.View.TwoDemensional);
+            try (ImageView.Builder v = view.build()) {
+                v.setLayerCount(imageLayers);
+            }
         }
 
         @Override
@@ -149,8 +176,8 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public int getType() {
-            return VK_IMAGE_TYPE_2D;
+        public LibEnum<Image.Type> getType() {
+            return Type.TwoDemensional;
         }
 
         @Override
@@ -165,17 +192,37 @@ public class Swapchain extends AbstractNative<Long> {
 
         @Override
         public int getDepth() {
-            return 1;
+            return 1; // swapchain images are always 2D
         }
 
         @Override
-        public Image.Format getFormat() {
+        public int getMipmaps() {
+            return 1; // swapchain images always have only 1 mipmap
+        }
+
+        @Override
+        public int getLayers() {
+            return imageLayers;
+        }
+
+        @Override
+        public Flag<ImageUsage> getUsage() {
+            return imageUsage;
+        }
+
+        @Override
+        public Format getFormat() {
             return format;
         }
 
         @Override
-        public Image.Tiling getTiling() {
-            return Tiling.Optimal;
+        public VulkanImage.Tiling getTiling() {
+            return VulkanImage.Tiling.Optimal;
+        }
+
+        @Override
+        public LibEnum<SharingMode> getSharingMode() {
+            return SharingMode.Exclusive;
         }
 
         @Override
@@ -185,7 +232,7 @@ public class Swapchain extends AbstractNative<Long> {
 
         @Override
         public Runnable createNativeDestroyer() {
-            return () -> {};
+            return () -> {}; // image is implicitly destroyed by the swapchain
         }
 
         @Override
@@ -255,7 +302,7 @@ public class Swapchain extends AbstractNative<Long> {
             VkSurfaceCapabilitiesKHR caps = VkSurfaceCapabilitiesKHR.calloc(stack);
             KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
                     device.getPhysicalDevice().getDeviceHandle(), surface.getNativeObject(), caps);
-            format = Image.Format.vkEnum(selectedFormat.format());
+            format = Format.byVkEnum(selectedFormat.format());
             extent = new Extent2(selectedExtent);
             VkSwapchainCreateInfoKHR create = VkSwapchainCreateInfoKHR.calloc(stack)
                     .sType(KHRSwapchain.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR)
@@ -264,8 +311,8 @@ public class Swapchain extends AbstractNative<Long> {
                     .imageFormat(format.getVkEnum())
                     .imageColorSpace(selectedFormat.colorSpace())
                     .imageExtent(selectedExtent)
-                    .imageArrayLayers(1)
-                    .imageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
+                    .imageArrayLayers(imageLayers)
+                    .imageUsage(imageUsage.bits())
                     .preTransform(caps.currentTransform())
                     .compositeAlpha(KHRSurface.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
                     .presentMode(selectedMode.getVkEnum())
@@ -352,6 +399,14 @@ public class Swapchain extends AbstractNative<Long> {
                 preferredCount = caps.maxImageCount();
             }
             return (selectedImageCount = preferredCount);
+        }
+
+        public void setImageLayers(int layers) {
+            Swapchain.this.imageLayers = layers;
+        }
+
+        public void setImageUsage(Flag<ImageUsage> usage) {
+            Swapchain.this.imageUsage = usage;
         }
 
         public int getMinImageCount() {

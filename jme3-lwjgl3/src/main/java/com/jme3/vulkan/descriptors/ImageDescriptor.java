@@ -1,22 +1,19 @@
 package com.jme3.vulkan.descriptors;
 
-import com.jme3.vulkan.images.Image;
-import com.jme3.vulkan.images.ImageView;
-import com.jme3.vulkan.images.Sampler;
-import com.jme3.vulkan.images.Texture;
+import com.jme3.vulkan.images.*;
 import org.lwjgl.vulkan.VkDescriptorImageInfo;
 
 public class ImageDescriptor {
 
     private final ImageView view;
     private final Sampler sampler;
-    private final Image.Layout layout;
+    private final VulkanImage.Layout layout;
 
-    public ImageDescriptor(Texture texture, Image.Layout layout) {
+    public ImageDescriptor(Texture texture, VulkanImage.Layout layout) {
         this(texture.getImage(), texture, layout);
     }
 
-    public ImageDescriptor(ImageView view, Sampler sampler, Image.Layout layout) {
+    public ImageDescriptor(ImageView view, Sampler sampler, VulkanImage.Layout layout) {
         this.view = view;
         this.sampler = sampler;
         this.layout = layout;
@@ -25,7 +22,7 @@ public class ImageDescriptor {
     public void fillDescriptorInfo(VkDescriptorImageInfo info) {
         info.imageView(view.getNativeObject())
                 .sampler(sampler.getNativeObject())
-                .imageLayout(layout.getVkEnum());
+                .imageLayout(layout.getEnum());
     }
 
     public ImageView getView() {
@@ -36,7 +33,7 @@ public class ImageDescriptor {
         return sampler;
     }
 
-    public Image.Layout getLayout() {
+    public VulkanImage.Layout getLayout() {
         return layout;
     }
 

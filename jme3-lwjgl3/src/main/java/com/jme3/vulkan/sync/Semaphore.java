@@ -74,6 +74,14 @@ public class Semaphore implements Native<Long> {
         return dstStageMask;
     }
 
+    public SyncGroup toGroupWait() {
+        return new SyncGroup(this, SyncGroup.EMPTY_SEMAPHORE_ARRAY);
+    }
+
+    public SyncGroup toGroupSignal() {
+        return new SyncGroup(SyncGroup.EMPTY_SEMAPHORE_ARRAY, this);
+    }
+
     @Deprecated
     public long getId() {
         return id;

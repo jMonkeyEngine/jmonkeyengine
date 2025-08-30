@@ -38,7 +38,7 @@ public class DescriptorPool implements Native<Long> {
     private final long id;
 
     public DescriptorPool(LogicalDevice<?> device, int sets, PoolSize... sizes) {
-        this(device, sets, Flag.none(), sizes);
+        this(device, sets, Flag.empty(), sizes);
     }
 
     public DescriptorPool(LogicalDevice<?> device, int sets, Flag<Create> flags, PoolSize... sizes) {

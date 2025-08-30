@@ -9,11 +9,11 @@ import java.util.Objects;
 
 public class SyncGroup {
 
-    private static final Semaphore[] EMPTY = new Semaphore[0];
+    public static final Semaphore[] EMPTY_SEMAPHORE_ARRAY = new Semaphore[0];
     public static final SyncGroup ASYNC = new SyncGroup();
 
     private static Semaphore[] toArray(Semaphore s) {
-        return s != null ? new Semaphore[] {s} : EMPTY;
+        return s != null ? new Semaphore[] {s} : EMPTY_SEMAPHORE_ARRAY;
     }
 
     private final Semaphore[] waits;
@@ -21,11 +21,11 @@ public class SyncGroup {
     private final Fence fence;
 
     public SyncGroup() {
-        this(EMPTY, EMPTY, null);
+        this(EMPTY_SEMAPHORE_ARRAY, EMPTY_SEMAPHORE_ARRAY, null);
     }
 
     public SyncGroup(Fence fence) {
-        this(EMPTY, EMPTY, fence);
+        this(EMPTY_SEMAPHORE_ARRAY, EMPTY_SEMAPHORE_ARRAY, fence);
     }
 
     public SyncGroup(Semaphore wait, Semaphore signal) {
@@ -98,6 +98,9 @@ public class SyncGroup {
     public IntBuffer toDstStageBuffer(MemoryStack stack) {
         IntBuffer buf = stack.mallocInt(waits.length);
         for (Semaphore s : waits) {
+            if (s.getDstStageMask().isEmpty()) {
+                throw new IllegalStateException("Wait semaphore destination stage mask cannot be empty.");
+            }
             buf.put(s.getDstStageMask().bits());
         }
         buf.flip();

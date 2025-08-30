@@ -1,6 +1,7 @@
 package com.jme3.vulkan.pass;
 
-import com.jme3.vulkan.images.Image;
+import com.jme3.vulkan.Format;
+import com.jme3.vulkan.images.VulkanImage;
 import org.lwjgl.vulkan.VkAttachmentDescription;
 
 /**
@@ -9,16 +10,16 @@ import org.lwjgl.vulkan.VkAttachmentDescription;
 public class Attachment {
 
     private final int position;
-    private final Image.Format format;
+    private final Format format;
     private final int samples;
-    private Image.Load load = Image.Load.Clear;
-    private Image.Store store = Image.Store.Store;
-    private Image.Load stencilLoad = Image.Load.DontCare;
-    private Image.Store stencilStore = Image.Store.DontCare;
-    private Image.Layout initialLayout = Image.Layout.Undefined;
-    private Image.Layout finalLayout = Image.Layout.General;
+    private VulkanImage.Load load = VulkanImage.Load.Clear;
+    private VulkanImage.Store store = VulkanImage.Store.Store;
+    private VulkanImage.Load stencilLoad = VulkanImage.Load.DontCare;
+    private VulkanImage.Store stencilStore = VulkanImage.Store.DontCare;
+    private VulkanImage.Layout initialLayout = VulkanImage.Layout.Undefined;
+    private VulkanImage.Layout finalLayout = VulkanImage.Layout.General;
 
-    protected Attachment(int position, Image.Format format, int samples) {
+    protected Attachment(int position, Format format, int samples) {
         this.position = position;
         this.format = format;
         this.samples = samples;
@@ -36,42 +37,42 @@ public class Attachment {
         this.finalLayout = base.finalLayout;
     }
 
-    public AttachmentReference createReference(Image.Layout layout) {
+    public AttachmentReference createReference(VulkanImage.Layout layout) {
         return new AttachmentReference(this, layout);
     }
 
     public void fillStruct(VkAttachmentDescription struct) {
         struct.format(format.getVkEnum())
                 .samples(samples)
-                .loadOp(load.getVkEnum())
-                .storeOp(store.getVkEnum())
-                .stencilLoadOp(stencilLoad.getVkEnum())
-                .stencilStoreOp(stencilStore.getVkEnum())
-                .initialLayout(initialLayout.getVkEnum())
-                .finalLayout(finalLayout.getVkEnum());
+                .loadOp(load.getEnum())
+                .storeOp(store.getEnum())
+                .stencilLoadOp(stencilLoad.getEnum())
+                .stencilStoreOp(stencilStore.getEnum())
+                .initialLayout(initialLayout.getEnum())
+                .finalLayout(finalLayout.getEnum());
     }
 
-    public void setLoad(Image.Load load) {
+    public void setLoad(VulkanImage.Load load) {
         this.load = load;
     }
 
-    public void setStencilLoad(Image.Load stencilLoad) {
+    public void setStencilLoad(VulkanImage.Load stencilLoad) {
         this.stencilLoad = stencilLoad;
     }
 
-    public void setStore(Image.Store store) {
+    public void setStore(VulkanImage.Store store) {
         this.store = store;
     }
 
-    public void setStencilStore(Image.Store stencilStore) {
+    public void setStencilStore(VulkanImage.Store stencilStore) {
         this.stencilStore = stencilStore;
     }
 
-    public void setInitialLayout(Image.Layout initialLayout) {
+    public void setInitialLayout(VulkanImage.Layout initialLayout) {
         this.initialLayout = initialLayout;
     }
 
-    public void setFinalLayout(Image.Layout finalLayout) {
+    public void setFinalLayout(VulkanImage.Layout finalLayout) {
         this.finalLayout = finalLayout;
     }
 
@@ -79,7 +80,7 @@ public class Attachment {
         return position;
     }
 
-    public Image.Format getFormat() {
+    public Format getFormat() {
         return format;
     }
 
@@ -87,27 +88,27 @@ public class Attachment {
         return samples;
     }
 
-    public Image.Load getLoad() {
+    public VulkanImage.Load getLoad() {
         return load;
     }
 
-    public Image.Load getStencilLoad() {
+    public VulkanImage.Load getStencilLoad() {
         return stencilLoad;
     }
 
-    public Image.Store getStore() {
+    public VulkanImage.Store getStore() {
         return store;
     }
 
-    public Image.Store getStencilStore() {
+    public VulkanImage.Store getStencilStore() {
         return stencilStore;
     }
 
-    public Image.Layout getInitialLayout() {
+    public VulkanImage.Layout getInitialLayout() {
         return initialLayout;
     }
 
-    public Image.Layout getFinalLayout() {
+    public VulkanImage.Layout getFinalLayout() {
         return finalLayout;
     }
 

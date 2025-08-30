@@ -4,7 +4,7 @@ import com.jme3.vulkan.util.Flag;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public enum MemoryFlag implements Flag<MemoryFlag> {
+public enum MemoryProp implements Flag<MemoryProp> {
 
     HostVisible(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT),
     HostCoherent(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT),
@@ -14,7 +14,7 @@ public enum MemoryFlag implements Flag<MemoryFlag> {
 
     private final int vkEnum;
 
-    MemoryFlag(int vkEnum) {
+    MemoryProp(int vkEnum) {
         this.vkEnum = vkEnum;
     }
 
