@@ -237,8 +237,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         frames = new UpdateFrameManager(2, n -> new Frame());
 
         // material color texture
-        GpuImage image = assetManager.loadAsset(VulkanImageLoader.key(transferPool, "Common/Textures/MissingTexture.png"));
-        texture = new Texture(device, image.createView(VK_IMAGE_VIEW_TYPE_2D, VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1),
+        VulkanImage image = assetManager.loadAsset(VulkanImageLoader.key(transferPool, "Common/Textures/MissingTexture.png"));
+        texture = new Texture(device, new ImageView(image, VulkanImage.View.TwoDemensional),
                 VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_LINEAR);
 
         material = new TestMaterial(descriptorPool);
@@ -294,7 +294,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 VulkanImage.Tiling.Optimal,
                 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
                 Format.Depth32SFloat, Format.Depth32SFloat_Stencil8UInt, Format.Depth24UNorm_Stencil8UInt);
-        GpuImage image = new GpuImage(device, Image.Type.V2D);
+        GpuImage image = new GpuImage(device, VulkanImage.Type.TwoDemensional);
         try (GpuImage.Builder i = image.build()) {
             i.setSize(swapchain.getExtent().x, swapchain.getExtent().y);
             i.setFormat(depthFormat);
