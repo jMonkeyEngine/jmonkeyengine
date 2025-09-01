@@ -1402,8 +1402,6 @@ public class GltfLoader implements AssetLoader {
                 // no referenced buffer, specs says to pad the buffer with zeros.
                 padBuffer(buff, bufferSize);
             } else {
-                // buff = VertexBuffer.createBuffer(format, numComponents, count);
-                // buff = (Buffer) readBuffer(bufferViewIndex, byteOffset, count, buff, numComponents, originalFormat);
                 buff = (Buffer) viewBuffer(bufferViewIndex, byteOffset, count, numComponents, originalFormat, format);
             }
 
