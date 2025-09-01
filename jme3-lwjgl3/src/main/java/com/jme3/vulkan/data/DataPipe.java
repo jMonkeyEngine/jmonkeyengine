@@ -1,9 +1,9 @@
-package com.jme3.vulkan.newframes;
+package com.jme3.vulkan.data;
 
 /**
  * Transforms incoming data into a useful format.
  */
-public interface Resource <T> {
+public interface DataPipe<T> {
 
     T execute();
 

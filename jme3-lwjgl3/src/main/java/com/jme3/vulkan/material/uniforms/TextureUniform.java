@@ -1,5 +1,6 @@
 package com.jme3.vulkan.material.uniforms;
 
+import com.jme3.vulkan.data.DataPipe;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -15,7 +16,8 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 public class TextureUniform extends AbstractUniform<Texture> {
 
     private final VulkanImage.Layout layout;
-    private VersionedResource<Texture> texture;
+    private DataPipe<Texture> data;
+    private Texture texture;
     private long variant = 0L;
 
     public TextureUniform(String name, VulkanImage.Layout layout, int bindingIndex, Flag<ShaderStage> stages) {
@@ -25,10 +27,9 @@ public class TextureUniform extends AbstractUniform<Texture> {
 
     @Override
     public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
-        Texture tex = texture.getVersion();
         VkDescriptorImageInfo.Buffer info = VkDescriptorImageInfo.calloc(1, stack)
-                .imageView(tex.getImage().getNativeObject())
-                .sampler(tex.getNativeObject())
+                .imageView(texture.getImage().getNativeObject())
+                .sampler(texture.getNativeObject())
                 .imageLayout(layout.getEnum());
         write.pImageInfo(info)
                 .descriptorType(type.getVkEnum())
@@ -38,18 +39,25 @@ public class TextureUniform extends AbstractUniform<Texture> {
     }
 
     @Override
-    public void update(LogicalDevice<?> device) {}
+    public void update(LogicalDevice<?> device) {
+        texture = data.execute();
+    }
 
     @Override
-    public void setValue(VersionedResource<Texture> value) {
-        if (this.texture != value) {
-            this.texture = value;
+    public void setPipe(DataPipe<Texture> value) {
+        if (this.data != value) {
+            this.data = value;
             variant++;
         }
     }
 
     @Override
-    public VersionedResource<Texture> getResource() {
+    public DataPipe<Texture> getPipe() {
+        return data;
+    }
+
+    @Override
+    public Texture getValue() {
         return texture;
     }
 

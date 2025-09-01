@@ -152,7 +152,7 @@ public class UniformSet implements Iterable<Uniform> {
         public int getAccuracy() {
             int accuracy = 0;
             for (int i = 0; i < versions.length; i++) {
-                if (versions[i].get() != uniforms[i].getResource()) {
+                if (versions[i].get() != uniforms[i].getPipe()) {
                     accuracy++;
                 }
             }

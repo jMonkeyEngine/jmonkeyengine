@@ -4,7 +4,7 @@ import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.frames.VersionedResource;
-import com.jme3.vulkan.newframes.Resource;
+import com.jme3.vulkan.data.DataPipe;
 
 public interface Uniform <T> extends DescriptorSetWriter {
 
@@ -40,22 +40,27 @@ public interface Uniform <T> extends DescriptorSetWriter {
     SetLayoutBinding createBinding();
 
     /**
-     * Sets the {@link VersionedResource} containing the resources this
-     * uniform is to represent.
+     * Sets the {@link DataPipe} that will provide the uniform value.
      *
      * <p>Changing the value will typically result in the {@link #getVariant()
      * variant index} being increment, requiring {@link com.jme3.vulkan.descriptors.DescriptorSet
      * DescriptorSets} to be partially rewritten. Changing the value itself will
      * rarely ever require rewriting DescriptorSets.</p>
      */
-    void setResource(Resource<T> value);
+    void setPipe(DataPipe<T> value);
 
     /**
      * Returns the {@link VersionedResource} containing the resources this
      * uniform represents.
      */
-    Resource<T> getResource();
+    DataPipe<T> getPipe();
 
+    /**
+     * Gets the value extracted from {@link #setPipe(DataPipe) pipe} execution
+     * during {@link #update(LogicalDevice) update}.
+     *
+     * @return value from the data pipe
+     */
     T getValue();
 
     /**

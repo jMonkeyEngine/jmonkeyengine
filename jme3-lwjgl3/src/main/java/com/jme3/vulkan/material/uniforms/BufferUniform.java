@@ -4,7 +4,7 @@ import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.newframes.Resource;
+import com.jme3.vulkan.data.DataPipe;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
@@ -13,7 +13,7 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 public class BufferUniform extends AbstractUniform<GpuBuffer> {
 
-    private Resource<GpuBuffer> resource;
+    private DataPipe<GpuBuffer> resource;
     private GpuBuffer buffer;
     private long variant = 0L;
 
@@ -47,7 +47,7 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
     }
 
     @Override
-    public void setResource(Resource<GpuBuffer> resource) {
+    public void setPipe(DataPipe<GpuBuffer> resource) {
         if (this.resource != resource) {
             this.resource = resource;
             variant++;
@@ -55,7 +55,7 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
     }
 
     @Override
-    public Resource<GpuBuffer> getResource() {
+    public DataPipe<GpuBuffer> getPipe() {
         return resource;
     }
 

@@ -16,6 +16,7 @@ import com.jme3.vulkan.*;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
+import com.jme3.vulkan.data.Data;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.*;
 import com.jme3.vulkan.frames.UpdateFrame;
@@ -243,9 +244,9 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_LINEAR);
 
         material = new TestMaterial(descriptorPool);
-        material.getMatrices().setResource(frames.wrap(n -> new PersistentBuffer(
+        material.getMatrices().setPipe(frames.perFrame(n -> new PersistentBuffer(
                 device, MemorySize.floats(16), BufferUsage.Uniform, false)));
-        material.getBaseColorMap().setValue(frames.wrap(texture));
+        material.getBaseColorMap().setPipe(new Data<>(texture));
 
     }
 
