@@ -49,7 +49,7 @@ public class TextureUniform extends AbstractUniform<Texture> {
     }
 
     @Override
-    public VersionedResource<Texture> getValue() {
+    public VersionedResource<Texture> getResource() {
         return texture;
     }
 

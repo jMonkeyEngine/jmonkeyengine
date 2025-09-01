@@ -84,4 +84,21 @@ The second con for #1 is more serious, in my opinion. #1 is mostly an implementa
     2. Add a method to GpuBuffer indicating safety.
         CON: Weak, completely on the mutators to enforce.
 
+---------
 
+After more thought, I decided to move towards a "data pipeline" approach. The pipeline(s) transform the input data into the correct format. Pipelines, as I see them, would address several key issues:
+
+    1. Different versions per frame. Pipelines could descretely present different inputs/outputs depending on the frame.
+    2. Jankiness in the different buffer types in order to have staging buffers. Pipelines will handle transfers from the staging buffer to the GPU-side buffer(s), and it will be much more flexible, too, since pipelines can also handle per-frame versions.
+
+There are a couple issues pipelines raise or don't adequately solve:
+
+    1. How do uniforms determine what resource version is currently being dealt with?
+        - The most straightforward approach would be to store the resources themselves in the frame index rather than the resource index. This seems all right to me, except we would need to use WeakReferences to not interfere with resources getting GC'd.
+            - Done. That turned out pretty well, actually.
+    2. Name conflict: Pipeline is already a thing. DataPipeline would just seem like a vulkan pipeline that processes data.
+        - DataGraph. Since I do envision it functioning similar to a graph.
+        - Resource. Rather bland, but it does encompass the general idea.
+        - Data. Ditto.
+    3. How should internals be properly synchronized?
+        - Pipelines requiring that commands be submitted will be given a command buffer on init. Pipelines only need to submit commands to the command buffer.

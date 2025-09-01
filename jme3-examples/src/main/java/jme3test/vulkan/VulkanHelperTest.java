@@ -243,7 +243,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_LINEAR);
 
         material = new TestMaterial(descriptorPool);
-        material.getMatrices().setValue(frames.wrap(n -> new PersistentBuffer(
+        material.getMatrices().setResource(frames.wrap(n -> new PersistentBuffer(
                 device, MemorySize.floats(16), BufferUsage.Uniform, false)));
         material.getBaseColorMap().setValue(frames.wrap(texture));
 

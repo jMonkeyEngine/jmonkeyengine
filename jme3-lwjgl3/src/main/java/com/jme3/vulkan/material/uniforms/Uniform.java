@@ -4,6 +4,7 @@ import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.frames.VersionedResource;
+import com.jme3.vulkan.newframes.Resource;
 
 public interface Uniform <T> extends DescriptorSetWriter {
 
@@ -47,13 +48,15 @@ public interface Uniform <T> extends DescriptorSetWriter {
      * DescriptorSets} to be partially rewritten. Changing the value itself will
      * rarely ever require rewriting DescriptorSets.</p>
      */
-    void setValue(VersionedResource<T> value);
+    void setResource(Resource<T> value);
 
     /**
      * Returns the {@link VersionedResource} containing the resources this
      * uniform represents.
      */
-    VersionedResource<T> getValue();
+    Resource<T> getResource();
+
+    T getValue();
 
     /**
      * The binding this uniform is targeting. Should be unique among all
@@ -71,18 +74,5 @@ public interface Uniform <T> extends DescriptorSetWriter {
      * @return the variant index
      */
     long getVariant();
-
-    /**
-     * Returns the {@link VersionedResource VersionedResource's} version for the current frame.
-     *
-     * <p>Is functionally identical to</p>
-     * <pre><code>
-     * Uniform&lt;T&gt; uniform = ...
-     * T version = uniform.getValue().getVersion();
-     * </code></pre>
-     */
-    default T getVersion() {
-        return getValue().getVersion();
-    }
 
 }

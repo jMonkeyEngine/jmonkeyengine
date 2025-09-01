@@ -4,17 +4,18 @@ import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.uniforms.Uniform;
 
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.util.*;
 
 public class UniformSet implements Iterable<Uniform> {
 
     private final Uniform[] uniforms;
-    private final FrameIndex currentFrame;
-    private final Map<FrameIndex, FrameData> frames = new HashMap<>();
+    private final Collection<FrameData> activeFrames = new ArrayList<>();
+    private int frameCacheTimeout = 10;
 
     public UniformSet(Uniform... uniforms) {
-        this.uniforms = Objects.requireNonNull(uniforms);
-        this.currentFrame = new FrameIndex(this.uniforms, false);
+        this.uniforms = uniforms;
         // ensure duplicate binding indices are not present
         BitSet bindings = new BitSet();
         for (Uniform u : uniforms) {
@@ -26,6 +27,11 @@ public class UniformSet implements Iterable<Uniform> {
         }
     }
 
+    @Override
+    public Iterator<Uniform> iterator() {
+        return new IteratorImpl();
+    }
+
     public DescriptorSet update(LogicalDevice<?> device, DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
         for (Uniform<?> u : uniforms) {
             u.update(device);
@@ -33,12 +39,12 @@ public class UniformSet implements Iterable<Uniform> {
                 throw new NullPointerException("Uniform \"" + u.getName() + "\" contains no value.");
             }
         }
-        currentFrame.update(uniforms);
-        FrameData data = frames.get(currentFrame);
+        activeFrames.removeIf(FrameData::cycleTimeout);
+        FrameData data = activeFrames.stream().filter(FrameData::isCurrent).findAny().orElse(null);
         if (data == null) {
-            frames.put(currentFrame.copy(), data = new FrameData());
+            activeFrames.add(data = new FrameData());
         }
-        return data.get(pool, availableLayouts).update(uniforms);
+        return data.get(pool, availableLayouts);
     }
 
     public DescriptorSetLayout createLayout(LogicalDevice<?> device) {
@@ -49,24 +55,31 @@ public class UniformSet implements Iterable<Uniform> {
         return new DescriptorSetLayout(device, bindings);
     }
 
-    @Override
-    public Iterator<Uniform> iterator() {
-        return new SetIterator();
+    public void setFrameCacheTimeout(int frameCacheTimeout) {
+        this.frameCacheTimeout = frameCacheTimeout;
+    }
+
+    public int getFrameCacheTimeout() {
+        return frameCacheTimeout;
     }
 
     /**
-     * Maps {@link DescriptorSetLayout DescriptorSetLayouts} to {@link SupportedSet SupportedSets}
-     * by the ID of the DescriptorSetLayout. If no available layout has a mapped set, a new set
-     * is allocated with an available compatible layout and mapped with it.
+     * Maps {@link DescriptorSetLayout DescriptorSetLayouts} to {@link DescriptorSet DescriptorSets}
+     * by the ID of the DescriptorSetLayout for a particular combination of uniform values. If no
+     * available layout has a mapped set, a new set is allocated with an available compatible layout
+     * and mapped with it.
      */
     private class FrameData {
 
-        private final Map<Long, SupportedSet> sets = new HashMap<>();
+        private final FrameIndex index = new FrameIndex();
+        private final Map<Long, DescriptorSet> sets = new HashMap<>();
+        private int timeout = frameCacheTimeout;
 
-        public SupportedSet get(DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
+        public DescriptorSet get(DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
+            timeout = frameCacheTimeout;
             for (Iterator<DescriptorSetLayout> it = availableLayouts.iterator(); it.hasNext();) {
                 DescriptorSetLayout layout = it.next();
-                SupportedSet set = sets.get(layout.getNativeObject());
+                DescriptorSet set = sets.get(layout.getNativeObject());
                 if (set != null) {
                     it.remove();
                     return set;
@@ -76,12 +89,21 @@ public class UniformSet implements Iterable<Uniform> {
                 DescriptorSetLayout layout = it.next();
                 if (isLayoutCompatible(layout)) {
                     it.remove();
-                    SupportedSet set = new SupportedSet(pool.allocateSets(layout)[0]);
-                    sets.put(set.set.getLayout().getNativeObject(), set);
+                    DescriptorSet set = pool.allocateSets(layout)[0];
+                    sets.put(set.getLayout().getNativeObject(), set);
+                    set.write(uniforms);
                     return set;
                 }
             }
             throw new UnsupportedOperationException("Material is not compatible with the pipeline (uniform set not supported).");
+        }
+
+        public boolean cycleTimeout() {
+            return --timeout <= 0 || index.isOutOfDate();
+        }
+
+        public boolean isCurrent() {
+            return index.isCurrent();
         }
 
         private boolean isLayoutCompatible(DescriptorSetLayout layout) {
@@ -98,101 +120,52 @@ public class UniformSet implements Iterable<Uniform> {
     }
 
     /**
-     * Identifies a FrameData by the resource versions the uniforms are or were using.
+     * Represents a frame by the values used for that frame. If any resources have
+     * been reclaimed, the frame is considered out of date and will be removed.
      */
-    private static class FrameIndex {
+    private class FrameIndex {
 
-        private final int[] versions;
+        private final ReferenceQueue<Object> queue = new ReferenceQueue<>();
+        private final WeakReference[] versions;
 
-        private FrameIndex(Uniform[] uniforms, boolean update) {
-            versions = new int[uniforms.length];
-            if (update) {
-                update(uniforms);
-            }
+        private FrameIndex() {
+            versions = new WeakReference[uniforms.length];
+            update();
         }
 
-        private FrameIndex(FrameIndex index) {
-            versions = new int[index.versions.length];
-            copy(index);
-        }
-
-        public void update(Uniform[] uniforms) {
-            if (versions.length != uniforms.length) {
-                throw new IllegalArgumentException("Index must contain one version per uniform.");
-            }
+        public void update() {
             for (int i = 0; i < uniforms.length; i++) {
-                versions[i] = uniforms[i].getValue().getCurrentVersionIndex();
+                versions[i] = new WeakReference<>(uniforms[i].getValue(), queue);
             }
         }
 
-        public void copy(FrameIndex source) {
-            if (versions.length != source.versions.length) {
-                throw new IllegalArgumentException("Copy source and target do not have the same number of versions.");
-            }
-            System.arraycopy(source.versions, 0, versions, 0, versions.length);
-        }
-
-        public FrameIndex copy() {
-            return new FrameIndex(this);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == this) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            FrameIndex that = (FrameIndex)o;
-            if (versions == that.versions) return true;
-            if (versions.length != that.versions.length) return false;
+        public boolean isCurrent() {
             for (int i = 0; i < versions.length; i++) {
-                if (versions[i] != that.versions[i]) return false;
+                // todo: consider using refersTo() from Java 16 to not interfere with the GC
+                if (versions[i].get() != uniforms[i].getValue()) {
+                    return false;
+                }
             }
             return true;
         }
 
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(versions);
+        public int getAccuracy() {
+            int accuracy = 0;
+            for (int i = 0; i < versions.length; i++) {
+                if (versions[i].get() != uniforms[i].getResource()) {
+                    accuracy++;
+                }
+            }
+            return accuracy;
+        }
+
+        public boolean isOutOfDate() {
+            return queue.poll() != null;
         }
 
     }
 
-    private static class SupportedSet {
-
-        private final DescriptorSet set;
-        private long[] variants;
-
-        public SupportedSet(DescriptorSet set) {
-            this.set = set;
-        }
-
-        public DescriptorSet update(Uniform[] uniforms) {
-            if (variants == null) {
-                // write all uniforms
-                variants = new long[uniforms.length];
-                set.write(uniforms);
-            } else {
-                // write only uniforms that have changed since the last update with this set
-                final ArrayList<Uniform> writers = new ArrayList<>(uniforms.length);
-                for (int i = 0; i < variants.length; i++) {
-                    if (variants[i] < uniforms[i].getVariant()) {
-                        writers.add(uniforms[i]);
-                    }
-                }
-                if (!writers.isEmpty()) {
-                    set.write(writers.toArray(new Uniform[0]));
-                }
-            }
-            // update variant counters to indicate that all uniforms have been
-            // evaluated since they were last updated
-            for (int i = 0; i < variants.length; i++) {
-                variants[i] = uniforms[i].getVariant();
-            }
-            return set;
-        }
-
-    }
-
-    private class SetIterator implements Iterator<Uniform> {
+    private class IteratorImpl implements Iterator<Uniform> {
 
         private int index = 0;
 
