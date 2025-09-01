@@ -41,6 +41,10 @@ public interface Flag <T extends Flag> {
         return bits() == 0;
     }
 
+    default boolean is(Flag<T> flag) {
+        return bits() == flag.bits();
+    }
+
     static <T extends Flag> Flag<T> of(int bits) {
         return new FlagImpl<>(bits);
     }

@@ -72,7 +72,7 @@ public class MemoryRegion implements Native<Long> {
     }
 
     public void bind(Image image, long offset) {
-        check(vkBindImageMemory(device.getNativeObject(), image.getNativeObject(), id, offset),
+        check(vkBindImageMemory(device.getNativeObject(), image.getId(), id, offset),
                 "Failed to bind image memory.");
     }
 
@@ -85,11 +85,11 @@ public class MemoryRegion implements Native<Long> {
     }
 
     public PointerBuffer map(long offset, long size) {
+        if (!flags.contains(MemoryProp.HostVisible)) {
+            throw new IllegalStateException("Cannot map memory that is not host visible.");
+        }
         if (mapped.getAndSet(true)) {
             throw new IllegalStateException("Memory already mapped.");
-        }
-        if (!this.flags.contains(MemoryProp.HostVisible)) {
-            throw new IllegalStateException("Cannot map memory that is not host visible.");
         }
         vkMapMemory(device.getNativeObject(), id, offset, size, 0, mapping);
         return mapping;

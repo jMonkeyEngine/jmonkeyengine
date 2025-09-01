@@ -24,6 +24,7 @@ import com.jme3.vulkan.images.*;
 import com.jme3.vulkan.material.TestMaterial;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.mesh.IndexType;
 import com.jme3.vulkan.mesh.TestCaseMeshDescription;
 import com.jme3.vulkan.pass.Attachment;
 import com.jme3.vulkan.pass.Subpass;
@@ -261,14 +262,14 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         if (swapchainResizeFlag || imageAcquireCode == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR
                 || imageAcquireCode == KHRSwapchain.VK_SUBOPTIMAL_KHR) {
             swapchainResizeFlag = false;
-            try (Swapchain.Builder s = swapchain.build()) {
-                s.addQueue(device.getPhysicalDevice().getGraphics());
-                s.addQueue(device.getPhysicalDevice().getPresent());
-                s.selectFormat(Format.B8G8R8A8_SRGB.getVkEnum(), KHRSurface.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
-                s.selectMode(Swapchain.PresentMode.Mailbox);
-                s.selectExtentByWindow();
-                s.selectImageCount(2);
-            }
+//            try (Swapchain.Builder s = swapchain.build()) {
+//                s.addQueue(device.getPhysicalDevice().getGraphics());
+//                s.addQueue(device.getPhysicalDevice().getPresent());
+//                s.selectFormat(Format.B8G8R8A8_SRGB.getVkEnum(), KHRSurface.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
+//                s.selectMode(Swapchain.PresentMode.Mailbox);
+//                s.selectExtentByWindow();
+//                s.selectImageCount(2);
+//            }
             depthView = createDepthAttachment(device.getShortTermPool(device.getPhysicalDevice().getGraphics()));
             swapchain.createFrameBuffers(renderPass, depthView);
             return true;
@@ -370,7 +371,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
             // material
             GpuBuffer matrixBuffer = material.getMatrices().getVersion();
-            worldViewProjection.fillFloatBuffer(matrixBuffer.mapFloats(0, matrixBuffer.size().getElements()), true);
+            worldViewProjection.fillFloatBuffer(matrixBuffer.mapFloats(), true);
             matrixBuffer.unmap();
             material.bind(graphicsCommands, pipeline);
 //                vkCmdBindDescriptorSets(graphicsCommands.getBuffer(), pipeline.getBindPoint().getVkEnum(),
@@ -392,7 +393,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
                 // mesh
                 vkCmdBindVertexBuffers(graphicsCommands.getBuffer(), 0, stack.longs(vertexBuffer.getId()), stack.longs(0));
-                vkCmdBindIndexBuffer(graphicsCommands.getBuffer(), indexBuffer.getId(), 0, VK_INDEX_TYPE_UINT32);
+                vkCmdBindIndexBuffer(graphicsCommands.getBuffer(), indexBuffer.getId(), 0, IndexType.UInt32.getEnum());
                 vkCmdDrawIndexed(graphicsCommands.getBuffer(), indexBuffer.size().getElements(), 1, 0, 0, 0);
 
             }
@@ -401,8 +402,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             renderPass.end(graphicsCommands);
 
             // render manager
-            graphicsCommands.end();
-            graphicsCommands.submit(new SyncGroup(imageAvailable, renderFinished, inFlight));
+            graphicsCommands.endAndSubmit(new SyncGroup(imageAvailable, renderFinished, inFlight));
             swapchain.present(device.getPhysicalDevice().getPresent(), image, renderFinished.toGroupWait());
 
         }

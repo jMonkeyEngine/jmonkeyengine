@@ -18,7 +18,7 @@ public class VertexAttribute {
         this.offset = offset;
     }
 
-    public AttributeModifier modify() {
+    public AttributeModifier modify(Mesh mesh) {
         return new AttributeModifier(this);
     }
 

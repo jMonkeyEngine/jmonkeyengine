@@ -78,6 +78,9 @@ public class CommandBuffer {
     }
 
     public void reset() {
+        if (!pool.getFlags().contains(CommandPool.Create.ResetCommandBuffer)) {
+            throw new UnsupportedOperationException("Command buffer resetting is not supported by the allocating pool.");
+        }
         vkResetCommandBuffer(buffer, 0);
     }
 

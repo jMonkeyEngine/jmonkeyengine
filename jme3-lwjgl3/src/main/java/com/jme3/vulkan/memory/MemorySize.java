@@ -38,6 +38,26 @@ public class MemorySize {
         return bytes;
     }
 
+    public int getShorts() {
+        return bytes / Short.BYTES;
+    }
+
+    public int getInts() {
+        return bytes / Integer.BYTES;
+    }
+
+    public int getFloats() {
+        return bytes / Float.BYTES;
+    }
+
+    public int getDoubles() {
+        return bytes / Double.BYTES;
+    }
+
+    public int getLongs() {
+        return bytes / Long.BYTES;
+    }
+
     public static MemorySize bytes(int elements) {
         return new MemorySize(elements, 1);
     }

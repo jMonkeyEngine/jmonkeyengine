@@ -1,9 +1,12 @@
 package com.jme3.vulkan.mesh;
 
-import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.bounding.BoundingVolume;
+import com.jme3.vulkan.commands.CommandBuffer;
 
 public interface Mesh {
 
-    GpuBuffer getBindingBuffer(int binding);
+    void bind(CommandBuffer cmd);
+
+    void draw(CommandBuffer cmd);
 
 }

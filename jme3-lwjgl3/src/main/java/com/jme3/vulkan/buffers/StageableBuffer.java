@@ -42,9 +42,6 @@ public class StageableBuffer extends BasicVulkanBuffer {
     }
 
     public void transfer(CommandPool transferPool, SyncGroup sync) {
-        if (stage.getNativeReference().isDestroyed()) {
-            throw new IllegalStateException("Staging buffer has already been freed.");
-        }
         CommandBuffer cmd = transferPool.allocateOneTimeCommandBuffer();
         cmd.begin();
         transfer(cmd);

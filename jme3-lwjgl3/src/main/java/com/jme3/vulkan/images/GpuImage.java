@@ -44,6 +44,11 @@ public class GpuImage extends AbstractNative<Long> implements VulkanImage {
     }
 
     @Override
+    public long getId() {
+        return object;
+    }
+
+    @Override
     public LibEnum<Image.Type> getType() {
         return type;
     }

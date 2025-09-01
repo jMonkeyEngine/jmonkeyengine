@@ -21,7 +21,7 @@ public class RasterizationState implements PipelineState<VkPipelineRasterization
                 .sType(VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO)
                 .depthClampEnable(depthClamp)
                 .rasterizerDiscardEnable(rasterizerDiscard)
-                .polygonMode(VK_POLYGON_MODE_FILL)
+                .polygonMode(polygonMode)
                 .lineWidth(lineWidth)
                 .cullMode(cullMode)
                 .frontFace(frontFace)

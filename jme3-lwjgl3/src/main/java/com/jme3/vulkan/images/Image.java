@@ -7,6 +7,8 @@ public interface Image {
 
     interface Type extends LibEnum<Type> {}
 
+    long getId();
+
     LibEnum<Type> getType();
 
     int getWidth();

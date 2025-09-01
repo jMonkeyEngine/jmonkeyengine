@@ -19,8 +19,8 @@ public class VertexInputState implements PipelineState<VkPipelineVertexInputStat
     public VkPipelineVertexInputStateCreateInfo toStruct(MemoryStack stack) {
         return VkPipelineVertexInputStateCreateInfo.calloc(stack)
                 .sType(VK10.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
-                .pVertexBindingDescriptions(mesh.getBindings(stack))
-                .pVertexAttributeDescriptions(mesh.getAttributes(stack));
+                .pVertexBindingDescriptions(mesh.getBindingInfo(stack))
+                .pVertexAttributeDescriptions(mesh.getAttributeInfo(stack));
     }
 
     public void setMesh(MeshDescription mesh) {

@@ -1,7 +1,6 @@
 package com.jme3.vulkan.surface;
 
 import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.*;
 import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -154,18 +153,15 @@ public class Swapchain extends AbstractNative<Long> {
     public class PresentImage implements VulkanImage {
 
         private final LogicalDevice<?> device;
-        private final NativeReference ref;
         private final long id;
-        private final ImageView view;
+        private final ImageView colorView;
         private FrameBuffer frameBuffer;
 
         private PresentImage(LogicalDevice<?> device, long id) {
             this.device = device;
             this.id = id;
-            ref = Native.get().register(this);
-            Swapchain.this.ref.addDependent(ref);
-            view = new ImageView(this, VulkanImage.View.TwoDemensional);
-            try (ImageView.Builder v = view.build()) {
+            colorView = new ImageView(this, VulkanImage.View.TwoDemensional);
+            try (ImageView.Builder v = colorView.build()) {
                 v.setLayerCount(imageLayers);
             }
         }
@@ -173,6 +169,11 @@ public class Swapchain extends AbstractNative<Long> {
         @Override
         public LogicalDevice<?> getDevice() {
             return device;
+        }
+
+        @Override
+        public long getId() {
+            return id;
         }
 
         @Override
@@ -225,26 +226,8 @@ public class Swapchain extends AbstractNative<Long> {
             return SharingMode.Exclusive;
         }
 
-        @Override
-        public Long getNativeObject() {
-            return id;
-        }
-
-        @Override
-        public Runnable createNativeDestroyer() {
-            return () -> {}; // image is implicitly destroyed by the swapchain
-        }
-
-        @Override
-        public void prematureNativeDestruction() {}
-
-        @Override
-        public NativeReference getNativeReference() {
-            return ref;
-        }
-
         public void createFrameBuffer(RenderPass compat, ImageView depthStencil) {
-            this.frameBuffer = new FrameBuffer(getDevice(), compat, extent.x, extent.y, 1, view, depthStencil);
+            this.frameBuffer = new FrameBuffer(getDevice(), compat, extent.x, extent.y, 1, colorView, depthStencil);
         }
 
         public FrameBuffer getFrameBuffer() {

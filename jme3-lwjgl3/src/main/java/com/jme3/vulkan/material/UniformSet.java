@@ -138,6 +138,7 @@ public class UniformSet implements Iterable<Uniform> {
 
         @Override
         public boolean equals(Object o) {
+            if (o == this) return true;
             if (o == null || getClass() != o.getClass()) return false;
             FrameIndex that = (FrameIndex)o;
             if (versions == that.versions) return true;

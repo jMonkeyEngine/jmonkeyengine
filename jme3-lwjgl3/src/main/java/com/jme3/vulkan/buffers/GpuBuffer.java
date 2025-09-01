@@ -46,28 +46,84 @@ public interface GpuBuffer {
         return factory.apply(map(offset, size));
     }
 
+    default <T> T map(int offset, Function<PointerBuffer, T> factory) {
+        return factory.apply(map(offset, size().getBytes() - offset));
+    }
+
+    default <T> T map(Function<PointerBuffer, T> factory) {
+        return factory.apply(map(0, size().getBytes()));
+    }
+
     default ByteBuffer mapBytes(int offset, int size) {
         return map(offset * Byte.BYTES, size * Byte.BYTES).getByteBuffer(0, size);
+    }
+
+    default ByteBuffer mapBytes(int offset) {
+        return mapBytes(offset, size().getBytes() - offset);
+    }
+
+    default ByteBuffer mapBytes() {
+        return mapBytes(0, size().getBytes());
     }
 
     default ShortBuffer mapShorts(int offset, int size) {
         return map(offset * Short.BYTES, size * Short.BYTES).getShortBuffer(0, size);
     }
 
+    default ShortBuffer mapShorts(int offset) {
+        return mapShorts(offset, size().getShorts() - offset);
+    }
+
+    default ShortBuffer mapShorts() {
+        return mapShorts(0, size().getShorts());
+    }
+
     default IntBuffer mapInts(int offset, int size) {
         return map(offset * Integer.BYTES, size * Integer.BYTES).getIntBuffer(0, size);
+    }
+
+    default IntBuffer mapInts(int offset) {
+        return mapInts(offset, size().getInts() - offset);
+    }
+
+    default IntBuffer mapInts() {
+        return mapInts(0, size().getInts());
     }
 
     default FloatBuffer mapFloats(int offset, int size) {
         return map(offset * Float.BYTES, size * Float.BYTES).getFloatBuffer(0, size);
     }
 
+    default FloatBuffer mapFloats(int offset) {
+        return mapFloats(offset, size().getFloats() - offset);
+    }
+
+    default FloatBuffer mapFloats() {
+        return mapFloats(0, size().getFloats());
+    }
+
     default DoubleBuffer mapDoubles(int offset, int size) {
         return map(offset * Double.BYTES, size * Double.BYTES).getDoubleBuffer(0, size);
     }
 
+    default DoubleBuffer mapDoubles(int offset) {
+        return mapDoubles(offset, size().getDoubles() - offset);
+    }
+
+    default DoubleBuffer mapDoubles() {
+        return mapDoubles(0, size().getDoubles());
+    }
+
     default LongBuffer mapLongs(int offset, int size) {
         return map(offset * Long.BYTES, size * Long.BYTES).getLongBuffer(0, size);
+    }
+
+    default LongBuffer mapLongs(int offset) {
+        return mapLongs(offset, size().getLongs() - offset);
+    }
+
+    default LongBuffer mapLongs() {
+        return mapLongs(0, size().getLongs());
     }
 
     default void copy(ByteBuffer buffer) {

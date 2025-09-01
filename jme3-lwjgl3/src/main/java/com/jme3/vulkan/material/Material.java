@@ -30,8 +30,8 @@ public class Material {
     }
 
     public void bind(CommandBuffer cmd, Pipeline pipeline, int offset) {
-        LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>(
-                Arrays.asList(pipeline.getLayout().getDescriptorSetLayouts()));
+        LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>();
+        Collections.addAll(availableLayouts, pipeline.getLayout().getDescriptorSetLayouts());
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer setBuf = stack.mallocLong(uniformSets.size());
             for (UniformSet set : uniformSets) {

@@ -9,7 +9,7 @@ import org.lwjgl.vulkan.KHRSwapchain;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public interface VulkanImage extends Image, Native<Long> {
+public interface VulkanImage extends Image {
 
     enum Type implements Image.Type {
 
