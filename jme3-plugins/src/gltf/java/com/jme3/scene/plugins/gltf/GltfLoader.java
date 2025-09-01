@@ -48,11 +48,14 @@ import com.jme3.scene.mesh.MorphTarget;
 import static com.jme3.scene.plugins.gltf.GltfUtils.*;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.util.BufferInputStream;
+import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import java.io.*;
 import java.net.URLDecoder;
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.*;
 import java.util.logging.Level;
@@ -109,7 +112,6 @@ public class GltfLoader implements AssetLoader {
 
     protected Object loadFromStream(AssetInfo assetInfo, InputStream stream) throws IOException {
         try {
-            dataCache.clear();
             info = assetInfo;
             skinnedSpatials.clear();
             rootNode = new Node();
@@ -181,6 +183,27 @@ public class GltfLoader implements AssetLoader {
             throw new AssetLoadException("An error occurred loading " + assetInfo.getKey().getName(), e);
         } finally {
             stream.close();
+            dataCache.clear();
+            skinBuffers.clear();
+            skinnedSpatials.clear();
+            info = null;
+            docRoot = null;
+            rootNode = null;
+            defaultMat = null;
+            accessors = null;
+            bufferViews = null;
+            buffers = null;
+            scenes = null;
+            nodes = null;
+            meshes = null;
+            materials = null;
+            textures = null;
+            images = null;
+            samplers = null;
+            animations = null;
+            skins = null;
+            cameras = null;
+            useNormalsFlag = false;
         }
     }
 
@@ -553,11 +576,15 @@ public class GltfLoader implements AssetLoader {
         // Not sure it's useful for us, but I guess it's useful when you map data directly to the GPU.
         // int target = getAsInteger(bufferView, "target", 0);
 
-        byte[] data = readData(bufferIndex);
+        ByteBuffer data = readData(bufferIndex);
         data = customContentManager.readExtensionAndExtras("bufferView", bufferView, data);
 
+        if(!(data instanceof ByteBuffer)){
+            throw new IOException("Buffer data is not a NIO Buffer");
+        }
+
         if (store == null) {
-            store = new byte[byteLength];
+            store = BufferUtils.createByteBuffer(byteLength);
         }
 
         if (count == -1) {
@@ -569,14 +596,40 @@ public class GltfLoader implements AssetLoader {
         return store;
     }
 
-    public byte[] readData(int bufferIndex) throws IOException {
+    public Buffer viewBuffer(Integer bufferViewIndex, int byteOffset, int count,  
+            int numComponents, VertexBuffer.Format originalFormat,  VertexBuffer.Format targetFormat) throws IOException {
+        JsonObject bufferView = bufferViews.get(bufferViewIndex).getAsJsonObject();
+        Integer bufferIndex = getAsInteger(bufferView, "buffer");
+        assertNotNull(bufferIndex, "No buffer defined for bufferView " + bufferViewIndex);
+        int bvByteOffset = getAsInteger(bufferView, "byteOffset", 0);
+        Integer byteLength = getAsInteger(bufferView, "byteLength");
+        assertNotNull(byteLength, "No byte length defined for bufferView " + bufferViewIndex);
+        int byteStride = getAsInteger(bufferView, "byteStride", 0);
+
+        ByteBuffer data = readData(bufferIndex);
+        data = customContentManager.readExtensionAndExtras("bufferView", bufferView, data);
+
+        if(!(data instanceof ByteBuffer)){
+            throw new IOException("Buffer data is not a NIO Buffer");
+        }
+ 
+
+        if (count == -1) {
+            count = byteLength;
+        }
+
+        return GltfUtils.getBufferView(data, byteOffset + bvByteOffset, count, byteStride, numComponents, originalFormat, targetFormat );
+
+    }
+
+    public ByteBuffer readData(int bufferIndex) throws IOException {
         assertNotNull(buffers, "No buffer defined");
 
         JsonObject buffer = buffers.get(bufferIndex).getAsJsonObject();
         String uri = getAsString(buffer, "uri");
         Integer bufferLength = getAsInteger(buffer, "byteLength");
         assertNotNull(bufferLength, "No byteLength defined for buffer " + bufferIndex);
-        byte[] data = (byte[]) fetchFromCache("buffers", bufferIndex, Object.class);
+        ByteBuffer data = (ByteBuffer) fetchFromCache("buffers", bufferIndex, Object.class);
         if (data != null) {
             return data;
         }
@@ -588,12 +641,12 @@ public class GltfLoader implements AssetLoader {
         return data;
     }
 
-    protected byte[] getBytes(int bufferIndex, String uri, Integer bufferLength) throws IOException {
-        byte[] data;
+    protected ByteBuffer getBytes(int bufferIndex, String uri, Integer bufferLength) throws IOException {
+        ByteBuffer data;
         if (uri != null) {
             if (uri.startsWith("data:")) {
                 // base 64 embed data
-                data = Base64.getDecoder().decode(uri.substring(uri.indexOf(",") + 1));
+                data = BufferUtils.createByteBuffer(Base64.getDecoder().decode(uri.substring(uri.indexOf(",") + 1)));
             } else {
                 // external file let's load it
                 String decoded = decodeUri(uri);
@@ -603,11 +656,11 @@ public class GltfLoader implements AssetLoader {
                 }
 
                 BinDataKey key = new BinDataKey(info.getKey().getFolder() + decoded);
-                InputStream input = (InputStream) info.getManager().loadAsset(key);
-                data = new byte[bufferLength];
-                try (DataInputStream dataStream = new DataInputStream(input)) {
-                    dataStream.readFully(data);
+                try(InputStream input = (InputStream) info.getManager().loadAsset(key)){
+                    data = BufferUtils.createByteBuffer(bufferLength);
+                    GltfUtils.readToByteBuffer(input, data, bufferLength, -1);
                 }
+               
             }
         } else {
             // no URI, this should not happen in a gltf file, only in glb files.
@@ -784,19 +837,23 @@ public class GltfLoader implements AssetLoader {
         if (uri == null) {
             assertNotNull(bufferView, "Image " + sourceIndex + " should either have an uri or a bufferView");
             assertNotNull(mimeType, "Image " + sourceIndex + " should have a mimeType");
-            byte[] data = (byte[]) readBuffer(bufferView, 0, -1, null, 1, VertexBuffer.Format.Byte);
+            ByteBuffer data = (ByteBuffer) viewBuffer(bufferView, 0, -1, 1, VertexBuffer.Format.Byte, VertexBuffer.Format.Byte);
+
             String extension = mimeType.split("/")[1];
             TextureKey key = new TextureKey("image" + sourceIndex + "." + extension, flip);
-            result = (Texture2D) info.getManager().loadAssetFromStream(key, new ByteArrayInputStream(data));
-
+            try(BufferedInputStream bis = new BufferedInputStream(new BufferInputStream(data))){
+                result = (Texture2D) info.getManager().loadAssetFromStream(key, bis);
+            }
         } else if (uri.startsWith("data:")) {
             // base64 encoded image
             String[] uriInfo = uri.split(",");
-            byte[] data = Base64.getDecoder().decode(uriInfo[1]);
+            ByteBuffer data = BufferUtils.createByteBuffer(Base64.getDecoder().decode(uriInfo[1]));
             String headerInfo = uriInfo[0].split(";")[0];
             String extension = headerInfo.split("/")[1];
             TextureKey key = new TextureKey("image" + sourceIndex + "." + extension, flip);
-            result = (Texture2D) info.getManager().loadAssetFromStream(key, new ByteArrayInputStream(data));
+            try(BufferedInputStream bis = new BufferedInputStream(new BufferInputStream(data))){
+                result = (Texture2D) info.getManager().loadAssetFromStream(key, bis);
+            }
         } else {
             // external file image
             String decoded = decodeUri(uri);
@@ -1338,13 +1395,16 @@ public class GltfLoader implements AssetLoader {
             }
             int numComponents = getNumberOfComponents(type);
 
-            Buffer buff = VertexBuffer.createBuffer(format, numComponents, count);
             int bufferSize = numComponents * count;
+            Buffer buff;
             if (bufferViewIndex == null) {
+                buff = VertexBuffer.createBuffer(format, numComponents, count);
                 // no referenced buffer, specs says to pad the buffer with zeros.
                 padBuffer(buff, bufferSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, count, buff, numComponents, originalFormat);
+                // buff = VertexBuffer.createBuffer(format, numComponents, count);
+                // buff = (Buffer) readBuffer(bufferViewIndex, byteOffset, count, buff, numComponents, originalFormat);
+                buff = (Buffer) viewBuffer(bufferViewIndex, byteOffset, count, numComponents, originalFormat, format);
             }
 
             if (bufferType == VertexBuffer.Type.Index) {

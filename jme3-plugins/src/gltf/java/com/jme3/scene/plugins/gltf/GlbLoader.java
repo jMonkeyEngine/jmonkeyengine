@@ -32,9 +32,11 @@
 package com.jme3.scene.plugins.gltf;
 
 import com.jme3.asset.AssetInfo;
+import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,12 +52,12 @@ public class GlbLoader extends GltfLoader {
      */
     private static final Logger logger = Logger.getLogger(GlbLoader.class.getName());
 
-    private ArrayList<byte[]> data = new ArrayList<>();
+    private ArrayList<ByteBuffer> data = new ArrayList<>();
 
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
         data.clear();
-        LittleEndien stream = new LittleEndien(new DataInputStream(assetInfo.openStream()));
+        LittleEndien stream = new LittleEndien(new BufferedInputStream(assetInfo.openStream()));
         /* magic */ stream.readInt();
 
         int version = stream.readInt();
@@ -76,11 +78,11 @@ public class GlbLoader extends GltfLoader {
             int chunkType = stream.readInt();
             if (chunkType == JSON_TYPE) {
                 json = new byte[chunkLength];
-                stream.read(json);
+                GltfUtils.readToByteArray(stream, json, chunkLength, -1);
             } else {
-                byte[] bin = new byte[chunkLength];
-                stream.read(bin);
-                data.add(bin);
+                ByteBuffer buff = BufferUtils.createByteBuffer(chunkLength);
+                GltfUtils.readToByteBuffer(stream, buff, chunkLength, -1);
+                data.add(buff);
             }
             //8 is the byte size of the 2 ints chunkLength and chunkType.
             length -= chunkLength + 8;
@@ -93,7 +95,7 @@ public class GlbLoader extends GltfLoader {
     }
 
     @Override
-    protected byte[] getBytes(int bufferIndex, String uri, Integer bufferLength) throws IOException {
+    protected ByteBuffer getBytes(int bufferIndex, String uri, Integer bufferLength) throws IOException {
         return data.get(bufferIndex);
     }
 
