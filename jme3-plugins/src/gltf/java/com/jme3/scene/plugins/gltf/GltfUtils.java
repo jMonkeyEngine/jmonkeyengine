@@ -44,6 +44,8 @@ import com.jme3.texture.Texture;
 import com.jme3.util.*;
 import java.io.*;
 import java.nio.*;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -904,80 +906,45 @@ public class GltfUtils {
         }
     }
 
-    public static void readToByteBuffer(InputStream input, ByteBuffer dst, int bytesToRead, int chunkSize) throws IOException {
-        if(chunkSize==-1){
-            chunkSize = 1024*1024*16; // 16MB
-            if(bytesToRead>0 && bytesToRead<chunkSize){
-                chunkSize = bytesToRead;
-            }
+    public static void readToByteBuffer(InputStream input, ByteBuffer dst, int bytesToRead) throws IOException {
+        if (bytesToRead <= 0) throw new IOException("bytesToRead must be > 0");
+
+        int startPos = dst.position();
+        int remaining = dst.limit() - startPos;
+        if (remaining < bytesToRead) {
+            throw new IOException("Destination ByteBuffer too small: remaining=" + remaining + " < bytesToRead=" + bytesToRead);
         }
-        byte chunk[]=new byte[chunkSize]; // 16MB chunk
-        int totalRead=0;
-        int read = 0;
-
-        while(true){
-            int toRead = chunkSize;
-            
-            // if we have a limit on bytes to read
-            if(bytesToRead>=0){
-                // if we reached the limit, stop reading
-                if(totalRead>=bytesToRead) break;
-
-                // adjust toRead to not exceed bytesToRead
-                toRead = Math.min(chunkSize, bytesToRead - totalRead);
-            }
-            
-            read = input.read(chunk, 0, toRead);
-
-            // if we reached EOF, stop reading
-            if(read==-1) break;
-            
-            // put read bytes into dst and update totalRead
-            dst.put(chunk, 0, read);
-            totalRead+=read;
+    
+        ReadableByteChannel ch = Channels.newChannel(input); 
+        int total = 0;
+        while (total < bytesToRead) {
+            int n = ch.read(dst);
+            if (n == -1) break;
+            total += n;
         }
 
-        if (totalRead < bytesToRead) {
-            throw new IOException("Data ended prematurely "+ totalRead + " < " + bytesToRead);
+        if (total < bytesToRead) {
+            throw new IOException("Data ended prematurely " + total + " < " + bytesToRead);
         }
 
-        dst.rewind();        
+        dst.flip();
     }
 
-
-    public static void readToByteArray(InputStream input, byte[] dst, int bytesToRead, int chunkSize) throws IOException {
-        if(chunkSize==-1){
-            chunkSize = Math.min(1024*1024*16, bytesToRead); // 16MB or less
+    public static void readToByteArray(InputStream input, byte[] dst, int bytesToRead) throws IOException {
+        if (bytesToRead < 0) throw new IllegalArgumentException("bytesToRead < 0");
+        if (bytesToRead > dst.length) {
+            throw new IOException("Destination array too small: length=" + dst.length + " < bytesToRead=" + bytesToRead);
         }
-        
-        byte chunk[]=new byte[chunkSize]; 
-        int totalRead=0;
-        int read = 0;
 
-        while(true){
-            int toRead = chunkSize;
-            
-            // if we have a limit on bytes to read
-            if(bytesToRead>=0){
-                // if we reached the limit, stop reading
-                if(totalRead>=bytesToRead) break;
-
-                // adjust toRead to not exceed bytesToRead
-                toRead = Math.min(chunkSize, bytesToRead - totalRead);
-            }
-            
-            read = input.read(chunk, 0, toRead);
-
-            // if we reached EOF, stop reading
-            if(read==-1) break;
-            
-            // put read bytes into dst and update totalRead
-            System.arraycopy(chunk, 0, dst, totalRead, read);
-            totalRead+=read;
+        int totalRead = 0;
+        while (totalRead < bytesToRead) {
+            int n = input.read(dst, totalRead, bytesToRead - totalRead);
+            if (n == -1) break;
+            totalRead += n;
         }
 
         if (totalRead < bytesToRead) {
-            throw new IOException("Data ended prematurely "+ totalRead + " < " + bytesToRead);
+            throw new IOException("Data ended prematurely " + totalRead + " < " + bytesToRead);
         }
     }
 

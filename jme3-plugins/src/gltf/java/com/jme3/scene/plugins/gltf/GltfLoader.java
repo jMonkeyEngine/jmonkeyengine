@@ -658,7 +658,7 @@ public class GltfLoader implements AssetLoader {
                 BinDataKey key = new BinDataKey(info.getKey().getFolder() + decoded);
                 try(InputStream input = (InputStream) info.getManager().loadAsset(key)){
                     data = BufferUtils.createByteBuffer(bufferLength);
-                    GltfUtils.readToByteBuffer(input, data, bufferLength, -1);
+                    GltfUtils.readToByteBuffer(input, data, bufferLength);
                 }
                
             }

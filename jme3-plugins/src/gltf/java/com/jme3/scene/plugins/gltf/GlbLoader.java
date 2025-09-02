@@ -78,10 +78,10 @@ public class GlbLoader extends GltfLoader {
             int chunkType = stream.readInt();
             if (chunkType == JSON_TYPE) {
                 json = new byte[chunkLength];
-                GltfUtils.readToByteArray(stream, json, chunkLength, -1);
+                GltfUtils.readToByteArray(stream, json, chunkLength);
             } else {
                 ByteBuffer buff = BufferUtils.createByteBuffer(chunkLength);
-                GltfUtils.readToByteBuffer(stream, buff, chunkLength, -1);
+                GltfUtils.readToByteBuffer(stream, buff, chunkLength);
                 data.add(buff);
             }
             //8 is the byte size of the 2 ints chunkLength and chunkType.
