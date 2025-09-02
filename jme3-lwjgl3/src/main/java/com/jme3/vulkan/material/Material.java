@@ -73,8 +73,9 @@ public class Material {
         return Collections.unmodifiableList(uniformSets);
     }
 
-    public void registerPipe(String name, DataPipe<?> pipe) {
+    public <T extends DataPipe> T setPipe(String name, T pipe) {
         pipes.put(name, pipe);
+        return pipe;
     }
 
     @SuppressWarnings("unchecked")

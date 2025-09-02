@@ -1,10 +1,8 @@
 package com.jme3.vulkan.material.uniforms;
 
 import com.jme3.vulkan.buffers.*;
-import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
-import com.jme3.vulkan.data.DataPipe;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
@@ -13,15 +11,13 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 public class BufferUniform extends AbstractUniform<GpuBuffer> {
 
-    private DataPipe<? extends GpuBuffer> pipe;
-    private GpuBuffer buffer;
-
     public BufferUniform(String name, Descriptor type, int bindingIndex, Flag<ShaderStage> stages) {
         super(name, type, bindingIndex, stages);
     }
 
     @Override
     public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
+        GpuBuffer buffer = getValue();
         VkDescriptorBufferInfo.Buffer info = VkDescriptorBufferInfo.calloc(1, stack)
                 .buffer(buffer.getId())
                 .offset(0L)
@@ -34,30 +30,10 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
     }
 
     @Override
-    public void update(CommandBuffer cmd) {
-        buffer = pipe.execute(cmd);
-    }
-
-    @Override
     public boolean isBindingCompatible(SetLayoutBinding binding) {
         return type == binding.getType()
             && bindingIndex == binding.getBinding()
             && binding.getDescriptors() == 1;
-    }
-
-    @Override
-    public void setPipe(DataPipe<? extends GpuBuffer> pipe) {
-        this.pipe = pipe;
-    }
-
-    @Override
-    public DataPipe<? extends GpuBuffer> getPipe() {
-        return pipe;
-    }
-
-    @Override
-    public GpuBuffer getValue() {
-        return buffer;
     }
 
 }

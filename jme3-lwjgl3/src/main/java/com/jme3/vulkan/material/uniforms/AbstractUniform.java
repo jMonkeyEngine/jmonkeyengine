@@ -1,5 +1,8 @@
 package com.jme3.vulkan.material.uniforms;
 
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.data.DataPipe;
+import com.jme3.vulkan.data.PipeResult;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.frames.UpdateFrameManager;
@@ -12,6 +15,7 @@ public abstract class AbstractUniform <T> implements Uniform<T> {
     protected final Descriptor type;
     protected final int bindingIndex;
     protected final Flag<ShaderStage> stages;
+    protected final PipeResult<T> pipe = new PipeResult<>();
 
     public AbstractUniform(String name, Descriptor type, int bindingIndex, Flag<ShaderStage> stages) {
         this.name = name;
@@ -35,8 +39,32 @@ public abstract class AbstractUniform <T> implements Uniform<T> {
         return bindingIndex;
     }
 
+    @Override
+    public void update(CommandBuffer cmd) {
+        pipe.execute(cmd);
+    }
+
+    @Override
+    public void setPipe(DataPipe<? extends T> pipe) {
+        this.pipe.setInput(pipe);
+    }
+
+    @Override
+    public DataPipe<? extends T> getPipe() {
+        return pipe.getInput();
+    }
+
+    @Override
+    public T getValue() {
+        return pipe.getResult();
+    }
+
     public Descriptor getType() {
         return type;
+    }
+
+    public Flag<ShaderStage> getStages() {
+        return stages;
     }
 
 }

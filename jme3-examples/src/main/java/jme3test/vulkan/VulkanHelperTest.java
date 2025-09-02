@@ -248,8 +248,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         material = new TestMaterial(descriptorPool);
         PerFrameData<VulkanBuffer> matrixInputPipe = frames.perFrame(n ->
                 new PersistentBuffer(device, MemorySize.floats(16), BufferUsage.Uniform, false));
-        material.getMatrices().setPipe(matrixInputPipe);
-        material.registerPipe("Matrices", matrixInputPipe);
+        material.getMatrices().setPipe(material.setPipe("Matrices", matrixInputPipe));
         material.getBaseColorMap().setPipe(new Data<>(texture));
 
     }
@@ -357,7 +356,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             // update material data
             TerminalDataPipe<VulkanBuffer, ?> matrixBuffer = material.getPipe("Matrices");
             worldViewProjection.fillFloatBuffer(matrixBuffer.getInput().mapFloats(), true);
-            matrixBuffer.getInput().unmap(); // can this wait until transfer commands are submitted?
+            matrixBuffer.getInput().unmap();
             material.update(transferCommands); // use the transfer buffer for material updates
 
             // submit data transfer commands
