@@ -17,6 +17,8 @@ import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.data.Data;
+import com.jme3.vulkan.data.PerFrameData;
+import com.jme3.vulkan.data.TerminalDataPipe;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.*;
 import com.jme3.vulkan.frames.UpdateFrame;
@@ -244,8 +246,10 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_LINEAR);
 
         material = new TestMaterial(descriptorPool);
-        material.getMatrices().setPipe(frames.perFrame(n -> new PersistentBuffer(
-                device, MemorySize.floats(16), BufferUsage.Uniform, false)));
+        PerFrameData<VulkanBuffer> matrixInputPipe = frames.perFrame(n ->
+                new PersistentBuffer(device, MemorySize.floats(16), BufferUsage.Uniform, false));
+        material.getMatrices().setPipe(matrixInputPipe);
+        material.registerPipe("Matrices", matrixInputPipe);
         material.getBaseColorMap().setPipe(new Data<>(texture));
 
     }
@@ -319,32 +323,12 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private class Frame implements UpdateFrame {
 
         // render manager
+        private final CommandBuffer transferCommands = graphicsPool.allocateCommandBuffer();
         private final CommandBuffer graphicsCommands = graphicsPool.allocateCommandBuffer();
         private final Semaphore imageAvailable = new Semaphore(device, PipelineStage.ColorAttachmentOutput);
+        private final Semaphore transferFinished = new Semaphore(device, PipelineStage.TopOfPipe);
         private final Semaphore renderFinished = new Semaphore(device);
         private final Fence inFlight = new Fence(device, true);
-
-        // material
-//        private final GpuBuffer uniforms;
-//        private final DescriptorSet descriptorSet;
-        //private final TestMaterial material = new TestMaterial(descriptorPool);
-
-        public Frame() {
-            // using a persistent buffer because we will be writing to the buffer very often
-//            uniforms = new PersistentBuffer(device, MemorySize.floats(16),
-//                    new BufferUsageFlags().uniformBuffer(),
-//                    new MemoryFlags().hostVisible().hostCoherent(), false);
-//            descriptorSet = descriptorPool.allocateSets(descriptorLayout)[0];
-//            descriptorSet.update(true,
-//                    new BufferSetWriter(Descriptor.UniformBuffer, 0, 0, new BufferDescriptor(uniforms)),
-//                    new ImageSetWriter(Descriptor.CombinedImageSampler, 1, 0, new ImageDescriptor(texture, Image.Layout.ShaderReadOnlyOptimal)));
-//            material.getMatrices().setValue(frames.wrap(n -> new PersistentBuffer(device,
-//                    MemorySize.floats(16),
-//                    BufferUsage.Uniform,
-//                    Flag.of(MemoryFlag.HostVisible, MemoryFlag.HostCoherent),
-//                    false)));
-//            material.getBaseColorMap().setValue(texture);
-        }
 
         @Override
         public void update(UpdateFrameManager frames, float tpf) {
@@ -358,25 +342,35 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 return; // no image available: skip rendering this frame
             }
             inFlight.reset();
+
             renderManager.setCamera(cam, false);
-            graphicsCommands.reset();
-            graphicsCommands.begin();
 
-            // material
-            renderPass.begin(graphicsCommands, image.getFrameBuffer());
-            pipeline.bind(graphicsCommands);
-
-            // geometry
+            // compute geometry states
             modelTransform.getRotation().multLocal(new Quaternion().fromAngleAxis(tpf, Vector3f.UNIT_Y));
             Matrix4f worldViewProjection = cam.getViewProjectionMatrix().mult(modelTransform.toTransformMatrix());
 
-            // material
-            GpuBuffer matrixBuffer = material.getMatrices().getVersion();
-            worldViewProjection.fillFloatBuffer(matrixBuffer.mapFloats(), true);
-            matrixBuffer.unmap();
+            // Begin data transfer commands. Transfer and graphics commands could be put
+            // in seperate threads since they are synchronized by a semaphore.
+            transferCommands.reset();
+            transferCommands.begin();
+
+            // update material data
+            TerminalDataPipe<VulkanBuffer, ?> matrixBuffer = material.getPipe("Matrices");
+            worldViewProjection.fillFloatBuffer(matrixBuffer.getInput().mapFloats(), true);
+            matrixBuffer.getInput().unmap(); // can this wait until transfer commands are submitted?
+            material.update(transferCommands); // use the transfer buffer for material updates
+
+            // submit data transfer commands
+            transferCommands.endAndSubmit(SyncGroup.signal(transferFinished));
+
+            // begin graphics commands
+            graphicsCommands.reset();
+            graphicsCommands.begin();
+
+            // material graphics
+            renderPass.begin(graphicsCommands, image.getFrameBuffer());
+            pipeline.bind(graphicsCommands);
             material.bind(graphicsCommands, pipeline);
-//                vkCmdBindDescriptorSets(graphicsCommands.getBuffer(), pipeline.getBindPoint().getVkEnum(),
-//                        pipelineLayout.getNativeObject(), 0, stack.longs(descriptorSet.getId()), null);
 
             try (MemoryStack stack = MemoryStack.stackPush()) {
 
@@ -403,7 +397,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             renderPass.end(graphicsCommands);
 
             // render manager
-            graphicsCommands.endAndSubmit(new SyncGroup(imageAvailable, renderFinished, inFlight));
+            graphicsCommands.endAndSubmit(new SyncGroup(new Semaphore[] {imageAvailable, transferFinished}, renderFinished, inFlight));
             swapchain.present(device.getPhysicalDevice().getPresent(), image, renderFinished.toGroupWait());
 
         }

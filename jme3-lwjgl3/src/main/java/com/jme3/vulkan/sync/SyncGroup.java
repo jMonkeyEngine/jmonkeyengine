@@ -8,12 +8,11 @@ import java.nio.LongBuffer;
 import java.util.Objects;
 
 public class SyncGroup {
-
-    public static final Semaphore[] EMPTY_SEMAPHORE_ARRAY = new Semaphore[0];
+    
     public static final SyncGroup ASYNC = new SyncGroup();
 
     private static Semaphore[] toArray(Semaphore s) {
-        return s != null ? new Semaphore[] {s} : EMPTY_SEMAPHORE_ARRAY;
+        return s != null ? new Semaphore[] {s} : Semaphore.EMPTY;
     }
 
     private final Semaphore[] waits;
@@ -21,11 +20,11 @@ public class SyncGroup {
     private final Fence fence;
 
     public SyncGroup() {
-        this(EMPTY_SEMAPHORE_ARRAY, EMPTY_SEMAPHORE_ARRAY, null);
+        this(Semaphore.EMPTY, Semaphore.EMPTY, null);
     }
 
     public SyncGroup(Fence fence) {
-        this(EMPTY_SEMAPHORE_ARRAY, EMPTY_SEMAPHORE_ARRAY, fence);
+        this(Semaphore.EMPTY, Semaphore.EMPTY, fence);
     }
 
     public SyncGroup(Semaphore wait, Semaphore signal) {
@@ -118,6 +117,14 @@ public class SyncGroup {
 
     public long getFenceHandle() {
         return fence != null ? fence.getNativeObject() : VK10.VK_NULL_HANDLE;
+    }
+
+    public static SyncGroup wait(Semaphore... waits) {
+        return new SyncGroup(waits, Semaphore.EMPTY);
+    }
+
+    public static SyncGroup signal(Semaphore... signals) {
+        return new SyncGroup(Semaphore.EMPTY, signals);
     }
 
 }

@@ -1,9 +1,9 @@
 package com.jme3.vulkan.material.uniforms;
 
 import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
-import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.data.DataPipe;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
@@ -13,9 +13,8 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 public class BufferUniform extends AbstractUniform<GpuBuffer> {
 
-    private DataPipe<GpuBuffer> resource;
+    private DataPipe<? extends GpuBuffer> pipe;
     private GpuBuffer buffer;
-    private long variant = 0L;
 
     public BufferUniform(String name, Descriptor type, int bindingIndex, Flag<ShaderStage> stages) {
         super(name, type, bindingIndex, stages);
@@ -35,8 +34,8 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
     }
 
     @Override
-    public void update(LogicalDevice<?> device) {
-        buffer = resource.execute();
+    public void update(CommandBuffer cmd) {
+        buffer = pipe.execute(cmd);
     }
 
     @Override
@@ -47,26 +46,18 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
     }
 
     @Override
-    public void setPipe(DataPipe<GpuBuffer> resource) {
-        if (this.resource != resource) {
-            this.resource = resource;
-            variant++;
-        }
+    public void setPipe(DataPipe<? extends GpuBuffer> pipe) {
+        this.pipe = pipe;
     }
 
     @Override
-    public DataPipe<GpuBuffer> getPipe() {
-        return resource;
+    public DataPipe<? extends GpuBuffer> getPipe() {
+        return pipe;
     }
 
     @Override
     public GpuBuffer getValue() {
         return buffer;
-    }
-
-    @Override
-    public long getVariant() {
-        return variant;
     }
 
 }

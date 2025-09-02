@@ -102,3 +102,21 @@ There are a couple issues pipelines raise or don't adequately solve:
         - Data. Ditto.
     3. How should internals be properly synchronized?
         - Pipelines requiring that commands be submitted will be given a command buffer on init. Pipelines only need to submit commands to the command buffer.
+
+Well, that turned out much better than I anticipated. The only problem now is that I accidentally locked the input data behind an anonymous hierarchy of DataPipes.
+
+    1. Make uniforms able to store the necessary terminal data pipes.
+        - I don't like this method. The user would have to manually provide the terminal pipes, and they may not actually affect the uniform anyway.
+    2. Have a second structure (I'll call it Parameters, for now) mirroring Material which is specifically for storing the data pipes. The data pipes are configured for transfering data from slots in Parameters to corresponding uniforms.
+        - I like this method better. It's more structured than the other solution, but also allows uniforms to be informed by multiple parameter slots (or even none), if desired.
+        - I wonder if this could be transformed into something much bigger...
+
+There is actually one more problem I overlooked with DataPipes. CommandBuffers need to be passed at pipe execution time, because each frame has its own set of CommandBuffers (for the most part). I could simply pass a CommandBuffer as an argument, except I'm not sure if all the pipes in the same pipeline are gauranteed to be happy submitting under to a single CommandBuffer. It'd be perfectly fine for them to do so (and they really shouldn't care), the question is more about performance.
+
+    1. Pass one CommandBuffer through the pipeline. All pipes submit commands to only that CommandBuffer.
+        - Could possibly be missing out on performance benefits, but I really can't think of a specific case off the top of my head.
+    2. Pass a CommandBuffer manager which will return the optimal CommandBuffer for the situation.
+        - Again, I'm fuzzy on exactly what situations would warrant multiple CommandBuffers, so I'm not willing to implement this at the moment.
+        - I could do a simple version of this just out of principle. Perhaps in the future we will know enough to implement such a system.
+
+For now, I'll go with #1.

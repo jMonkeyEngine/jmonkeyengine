@@ -1,26 +1,30 @@
 package com.jme3.vulkan.data;
 
-public class Data<T> implements DataPipe<T> {
+import com.jme3.vulkan.commands.CommandBuffer;
 
-    private T data;
+public class Data<T> implements TerminalDataPipe<T, T> {
+
+    private T input;
 
     public Data() {}
 
-    public Data(T data) {
-        this.data = data;
+    public Data(T input) {
+        this.input = input;
     }
 
     @Override
-    public T execute() {
-        return data;
+    public T execute(CommandBuffer cmd) {
+        return input;
     }
 
-    public void set(T data) {
-        this.data = data;
+    @Override
+    public void setInput(T input) {
+        this.input = input;
     }
 
-    public T get() {
-        return data;
+    @Override
+    public T getInput() {
+        return input;
     }
 
 }

@@ -10,13 +10,11 @@ import java.util.function.IntFunction;
 public class PerFrameStagingPipe implements ThroughputDataPipe<VulkanBuffer, VulkanBuffer> {
 
     private final UpdateFrameManager frames;
-    private final CommandBuffer commands;
     private final VulkanBuffer[] outputs;
-    private DataPipe<VulkanBuffer> input;
+    private DataPipe<? extends VulkanBuffer> input;
 
-    public PerFrameStagingPipe(UpdateFrameManager frames, CommandBuffer commands, IntFunction<VulkanBuffer> generator) {
+    public PerFrameStagingPipe(UpdateFrameManager frames, IntFunction<VulkanBuffer> generator) {
         this.frames = frames;
-        this.commands = commands;
         this.outputs = new VulkanBuffer[frames.getTotalFrames()];
         for (int i = 0; i < outputs.length; i++) {
             outputs[i] = generator.apply(i);
@@ -24,18 +22,23 @@ public class PerFrameStagingPipe implements ThroughputDataPipe<VulkanBuffer, Vul
     }
 
     @Override
-    public VulkanBuffer execute() {
-        VulkanBuffer in = input.execute();
+    public VulkanBuffer execute(CommandBuffer cmd) {
+        VulkanBuffer in = input.execute(cmd);
         VulkanBuffer out = outputs[frames.getCurrentFrame()];
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            out.recordCopy(stack, commands, in, 0, 0, in.size().getBytes());
+            out.recordCopy(stack, cmd, in, 0, 0, Math.min(in.size().getBytes(), out.size().getBytes()));
         }
         return out;
     }
 
     @Override
-    public void setInput(DataPipe<VulkanBuffer> input) {
+    public void setInput(DataPipe<? extends VulkanBuffer> input) {
         this.input = input;
+    }
+
+    @Override
+    public DataPipe<? extends VulkanBuffer> getInput() {
+        return input;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.jme3.vulkan.material;
 
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.uniforms.Uniform;
@@ -32,13 +33,16 @@ public class UniformSet implements Iterable<Uniform> {
         return new IteratorImpl();
     }
 
-    public DescriptorSet update(LogicalDevice<?> device, DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
+    public void update(CommandBuffer cmd) {
         for (Uniform<?> u : uniforms) {
-            u.update(device);
+            u.update(cmd);
             if (u.getValue() == null) {
                 throw new NullPointerException("Uniform \"" + u.getName() + "\" contains no value.");
             }
         }
+    }
+
+    public DescriptorSet acquireSet(DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
         activeFrames.removeIf(FrameData::cycleTimeout);
         FrameData data = activeFrames.stream().filter(FrameData::isCurrent).findAny().orElse(null);
         if (data == null) {

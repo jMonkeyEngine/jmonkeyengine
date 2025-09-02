@@ -2,6 +2,7 @@ package com.jme3.vulkan.sync;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
+import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.pipelines.PipelineStage;
 import com.jme3.vulkan.util.Flag;
@@ -14,11 +15,11 @@ import java.nio.LongBuffer;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class Semaphore implements Native<Long> {
+public class Semaphore extends AbstractNative<Long> {
+
+    public static final Semaphore[] EMPTY = new Semaphore[0];
 
     private final LogicalDevice<?> device;
-    private final NativeReference ref;
-    private long id;
     private Flag<PipelineStage> dstStageMask;
 
     public Semaphore(LogicalDevice<?> device) {
@@ -31,7 +32,7 @@ public class Semaphore implements Native<Long> {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkSemaphoreCreateInfo create = VkSemaphoreCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO);
-            id = getLong(stack, ptr -> check(vkCreateSemaphore(device.getNativeObject(), create, null, ptr),
+            object = getLong(stack, ptr -> check(vkCreateSemaphore(device.getNativeObject(), create, null, ptr),
                     "Failed to create semaphore."));
             ref = Native.get().register(this);
             device.getNativeReference().addDependent(ref);
@@ -39,23 +40,8 @@ public class Semaphore implements Native<Long> {
     }
 
     @Override
-    public Long getNativeObject() {
-        return id;
-    }
-
-    @Override
     public Runnable createNativeDestroyer() {
-        return () -> vkDestroySemaphore(device.getNativeObject(), nonNull(id), null);
-    }
-
-    @Override
-    public void prematureNativeDestruction() {
-        id = MemoryUtil.NULL;
-    }
-
-    @Override
-    public NativeReference getNativeReference() {
-        return ref;
+        return () -> vkDestroySemaphore(device.getNativeObject(), nonNull(object), null);
     }
 
     public void setDstStageMask(Flag<PipelineStage> dstStageMask) {
@@ -75,21 +61,21 @@ public class Semaphore implements Native<Long> {
     }
 
     public SyncGroup toGroupWait() {
-        return new SyncGroup(this, SyncGroup.EMPTY_SEMAPHORE_ARRAY);
+        return new SyncGroup(this, EMPTY);
     }
 
     public SyncGroup toGroupSignal() {
-        return new SyncGroup(SyncGroup.EMPTY_SEMAPHORE_ARRAY, this);
+        return new SyncGroup(EMPTY, this);
     }
 
     @Deprecated
     public long getId() {
-        return id;
+        return object;
     }
 
     @Deprecated
     public LongBuffer toBuffer(MemoryStack stack) {
-        return stack.longs(id);
+        return stack.longs(object);
     }
 
 }

@@ -1,9 +1,8 @@
 package com.jme3.vulkan.material.uniforms;
 
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
-import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.data.DataPipe;
 
 public interface Uniform <T> extends DescriptorSetWriter {
@@ -14,11 +13,12 @@ public interface Uniform <T> extends DescriptorSetWriter {
     String getName();
 
     /**
-     * Updates this uniform.
+     * Updates this uniform and extracts the uniform value from the
+     * {@link #setPipe(DataPipe) data pipe}.
      *
-     * @param device the current logical device
+     * @param cmd command buffer to submit commands to
      */
-    void update(LogicalDevice<?> device);
+    void update(CommandBuffer cmd);
 
     /**
      * Tests if the {@link SetLayoutBinding} is compatible with this uniform,
@@ -41,23 +41,17 @@ public interface Uniform <T> extends DescriptorSetWriter {
 
     /**
      * Sets the {@link DataPipe} that will provide the uniform value.
-     *
-     * <p>Changing the value will typically result in the {@link #getVariant()
-     * variant index} being increment, requiring {@link com.jme3.vulkan.descriptors.DescriptorSet
-     * DescriptorSets} to be partially rewritten. Changing the value itself will
-     * rarely ever require rewriting DescriptorSets.</p>
      */
-    void setPipe(DataPipe<T> value);
+    void setPipe(DataPipe<? extends T> pipe);
 
     /**
-     * Returns the {@link VersionedResource} containing the resources this
-     * uniform represents.
+     * Returns the {@link DataPipe} supplying the uniform value.
      */
-    DataPipe<T> getPipe();
+    DataPipe<? extends T> getPipe();
 
     /**
      * Gets the value extracted from {@link #setPipe(DataPipe) pipe} execution
-     * during {@link #update(LogicalDevice) update}.
+     * during {@link #update(CommandBuffer) update}.
      *
      * @return value from the data pipe
      */
@@ -70,14 +64,5 @@ public interface Uniform <T> extends DescriptorSetWriter {
      * @return the index of the target binding
      */
     int getBindingIndex();
-
-    /**
-     * Gets the variant index of this uniform. The variant index starts at {@code 0},
-     * and be incremented each time the uniform is changed enough to require a
-     * rewrite of {@link com.jme3.vulkan.descriptors.DescriptorSet DescriptorSets}.
-     *
-     * @return the variant index
-     */
-    long getVariant();
 
 }

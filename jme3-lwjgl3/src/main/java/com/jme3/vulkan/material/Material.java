@@ -1,6 +1,7 @@
 package com.jme3.vulkan.material;
 
 import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.data.DataPipe;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.uniforms.Uniform;
@@ -20,9 +21,16 @@ public class Material {
     private final DescriptorPool pool;
     private final List<UniformSet> uniformSets = new ArrayList<>();
     private final HashMap<String, Uniform<?>> uniformLookup = new HashMap<>();
+    private final Map<String, DataPipe<?>> pipes = new HashMap<>();
 
     public Material(DescriptorPool pool) {
         this.pool = pool;
+    }
+
+    public void update(CommandBuffer cmd) {
+        for (UniformSet s : uniformSets) {
+            s.update(cmd);
+        }
     }
 
     public void bind(CommandBuffer cmd, Pipeline pipeline) {
@@ -35,7 +43,7 @@ public class Material {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer setBuf = stack.mallocLong(uniformSets.size());
             for (UniformSet set : uniformSets) {
-                setBuf.put(set.update(pipeline.getDevice(), pool, availableLayouts).getNativeObject());
+                setBuf.put(set.acquireSet(pool, availableLayouts).getNativeObject());
             }
             setBuf.flip();
             vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getVkEnum(),
@@ -65,8 +73,12 @@ public class Material {
         return Collections.unmodifiableList(uniformSets);
     }
 
+    public void registerPipe(String name, DataPipe<?> pipe) {
+        pipes.put(name, pipe);
+    }
+
     @SuppressWarnings("unchecked")
-    public <T extends Uniform> T get(String name) {
+    public <T extends Uniform> T getUniform(String name) {
         // Not sure if caching the results is really worth it...
         Uniform<?> uniform = uniformLookup.get(name);
         if (uniform != null) {
@@ -81,6 +93,11 @@ public class Material {
             }
         }
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends DataPipe> T getPipe(String name) {
+        return (T)pipes.get(name);
     }
 
 }

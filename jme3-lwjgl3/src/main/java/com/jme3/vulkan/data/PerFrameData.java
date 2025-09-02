@@ -1,12 +1,13 @@
 package com.jme3.vulkan.data;
 
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.frames.UpdateFrameManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.function.IntFunction;
 
-public class PerFrameData <T> implements DataPipe<T> {
+public class PerFrameData <T> implements TerminalDataPipe<T, T> {
 
     private final UpdateFrameManager frames;
     private final ArrayList<T> data = new ArrayList<>();
@@ -28,7 +29,17 @@ public class PerFrameData <T> implements DataPipe<T> {
     }
 
     @Override
-    public T execute() {
+    public T execute(CommandBuffer cmd) {
+        return data.get(frames.getCurrentFrame());
+    }
+
+    @Override
+    public void setInput(T input) {
+        this.data.set(frames.getCurrentFrame(), input);
+    }
+
+    @Override
+    public T getInput() {
         return data.get(frames.getCurrentFrame());
     }
 
@@ -38,22 +49,14 @@ public class PerFrameData <T> implements DataPipe<T> {
         }
     }
 
-    public void set(int frame, T data) {
+    public void setInput(int frame, T data) {
         verifyFrameInBounds(frame);
         this.data.set(frame, data);
     }
 
-    public void set(T data) {
-        this.data.set(frames.getCurrentFrame(), data);
-    }
-
-    public T get(int frame) {
+    public T getInput(int frame) {
         verifyFrameInBounds(frame);
         return data.get(frame);
-    }
-
-    public T get() {
-        return data.get(frames.getCurrentFrame());
     }
 
 }
