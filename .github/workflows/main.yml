@@ -104,7 +104,7 @@ jobs:
     name: Build natives for android
     runs-on: ubuntu-latest
     container:
-      image: jmonkeyengine/buildenv-jme3:android
+      image: ghcr.io/cirruslabs/android-sdk:35-ndk
 
     steps:
       - name: Clone the repo
