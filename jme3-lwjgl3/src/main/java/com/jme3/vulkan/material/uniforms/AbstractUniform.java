@@ -6,16 +6,17 @@ import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
+import com.jme3.vulkan.util.IntEnum;
 
 public abstract class AbstractUniform <T> implements Uniform<T> {
 
     protected final String name;
-    protected final Descriptor type;
+    protected final IntEnum<Descriptor> type;
     protected final int bindingIndex;
     protected final Flag<ShaderStage> stages;
     protected VersionedResource<? extends T> resource;
 
-    public AbstractUniform(String name, Descriptor type, int bindingIndex, Flag<ShaderStage> stages) {
+    public AbstractUniform(String name, IntEnum<Descriptor> type, int bindingIndex, Flag<ShaderStage> stages) {
         this.name = name;
         this.type = type;
         this.bindingIndex = bindingIndex;
@@ -50,7 +51,7 @@ public abstract class AbstractUniform <T> implements Uniform<T> {
         return resource;
     }
 
-    public Descriptor getType() {
+    public IntEnum<Descriptor> getType() {
         return type;
     }
 

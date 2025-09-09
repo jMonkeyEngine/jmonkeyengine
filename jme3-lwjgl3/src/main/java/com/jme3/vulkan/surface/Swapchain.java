@@ -32,7 +32,7 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class Swapchain extends AbstractNative<Long> {
 
-    public enum PresentMode {
+    public enum PresentMode implements IntEnum<PresentMode> {
 
         FirstInFirstOut(KHRSurface.VK_PRESENT_MODE_FIFO_KHR),
         FirstInFirstOutRelaxed(KHRSurface.VK_PRESENT_MODE_FIFO_RELAXED_KHR),
@@ -45,7 +45,8 @@ public class Swapchain extends AbstractNative<Long> {
             this.vkEnum = vkEnum;
         }
 
-        public int getVkEnum() {
+        @Override
+        public int getEnum() {
             return vkEnum;
         }
 
@@ -251,7 +252,7 @@ public class Swapchain extends AbstractNative<Long> {
 
         private VkSurfaceFormatKHR selectedFormat;
         private VkExtent2D selectedExtent;
-        private PresentMode selectedMode;
+        private IntEnum<PresentMode> selectedMode;
         private Integer selectedImageCount;
 
         private Swapchain base;
@@ -304,7 +305,7 @@ public class Swapchain extends AbstractNative<Long> {
                     .imageUsage(imageUsage.bits())
                     .preTransform(caps.currentTransform())
                     .compositeAlpha(KHRSurface.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
-                    .presentMode(selectedMode.getVkEnum())
+                    .presentMode(selectedMode.getEnum())
                     .clipped(true);
             if (base != null) {
                 create.oldSwapchain(base.getNativeObject());
@@ -357,10 +358,11 @@ public class Swapchain extends AbstractNative<Long> {
             return (selectedFormat = formats.get(0));
         }
 
-        public PresentMode selectMode(PresentMode... preferredModes) {
-            for (PresentMode m : preferredModes) {
+        @SafeVarargs
+        public final IntEnum<PresentMode> selectMode(IntEnum<PresentMode>... preferredModes) {
+            for (IntEnum<PresentMode> m : preferredModes) {
                 for (int i = 0; i < modes.limit(); i++) {
-                    if (modes.get(i) == m.getVkEnum()) {
+                    if (modes.get(i) == m.getEnum()) {
                         return (selectedMode = m);
                     }
                 }

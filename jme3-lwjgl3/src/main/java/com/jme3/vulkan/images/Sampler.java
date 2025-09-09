@@ -17,7 +17,6 @@ import static org.lwjgl.vulkan.VK10.*;
 public class Sampler extends AbstractNative<Long> {
 
     public static final int U = 0, V = 1, W = 2;
-    public static final float LOD_CLAMP_NONE = VK_LOD_CLAMP_NONE;
     public static final float DISABLE_ANISOTROPY = 0f;
 
     private final LogicalDevice<?> device;
@@ -30,7 +29,7 @@ public class Sampler extends AbstractNative<Long> {
     private IntEnum<CompareOp> compare = CompareOp.Always;
     private float mipLodBias = 0f;
     private float minLod = 0f;
-    private float maxLod = LOD_CLAMP_NONE;
+    private float maxLod = VK_LOD_CLAMP_NONE;
     private boolean unnormalizedCoords = false;
 
     public Sampler(LogicalDevice<?> device) {
@@ -64,6 +63,10 @@ public class Sampler extends AbstractNative<Long> {
 
     public float getAnisotropy() {
         return anisotropy;
+    }
+
+    public boolean isAnisotropyEnabled() {
+        return anisotropy > DISABLE_ANISOTROPY;
     }
 
     public IntEnum<BorderColor> getBorderColor() {
@@ -145,8 +148,8 @@ public class Sampler extends AbstractNative<Long> {
 
         public void setEdgeMode(int demension, IntEnum<AddressMode> a) {
             if (demension < 0 || demension >= edgeModes.length) {
-                throw new IndexOutOfBoundsException("Invalid edge mode demension (" + demension + "). " +
-                        "Must be between 0 (inclusive) and " + edgeModes.length + " (exclusive).");
+                throw new IndexOutOfBoundsException("Invalid demension index (" + demension + "). " +
+                        "Must be 0 (U), 1 (V), or 2 (W).");
             }
             edgeModes[demension] = Objects.requireNonNull(a);
         }
@@ -187,11 +190,11 @@ public class Sampler extends AbstractNative<Long> {
             setAnisotropy(DISABLE_ANISOTROPY);
         }
 
-        public void setBorderColor(BorderColor c) {
+        public void setBorderColor(IntEnum<BorderColor> c) {
             borderColor = Objects.requireNonNull(c);
         }
 
-        public void setCompare(CompareOp c) {
+        public void setCompare(IntEnum<CompareOp> c) {
             compare = Objects.requireNonNull(c);
         }
 
@@ -208,7 +211,7 @@ public class Sampler extends AbstractNative<Long> {
         }
 
         public void disableMaxLod() {
-            setMaxLod(LOD_CLAMP_NONE);
+            setMaxLod(VK_LOD_CLAMP_NONE);
         }
 
         public void setUnnormalizedCoords(boolean u) {

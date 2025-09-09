@@ -1,8 +1,10 @@
 package com.jme3.vulkan.descriptors;
 
+import com.jme3.vulkan.util.IntEnum;
+
 import static org.lwjgl.vulkan.VK10.*;
 
-public enum Descriptor {
+public enum Descriptor implements IntEnum<Descriptor> {
 
     UniformBuffer(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER),
     UniformBufferDynamic(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC),
@@ -22,7 +24,8 @@ public enum Descriptor {
         this.vkEnum = vkEnum;
     }
 
-    public int getVkEnum() {
+    @Override
+    public int getEnum() {
         return vkEnum;
     }
 

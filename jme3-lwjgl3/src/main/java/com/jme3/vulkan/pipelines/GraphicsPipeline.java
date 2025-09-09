@@ -21,13 +21,11 @@ public class GraphicsPipeline extends Pipeline {
 
     private final RenderPass compat;
     private final int subpassIndex;
-    private final MeshDescription mesh;
 
-    public GraphicsPipeline(LogicalDevice<?> device, PipelineLayout layout, RenderPass compat, int subpassIndex, MeshDescription mesh) {
+    public GraphicsPipeline(LogicalDevice<?> device, PipelineLayout layout, RenderPass compat, int subpassIndex) {
         super(device, PipelineBindPoint.Graphics, layout);
         this.compat = compat;
         this.subpassIndex = subpassIndex;
-        this.mesh = mesh;
     }
 
     public RenderPass getCompat() {
@@ -46,7 +44,7 @@ public class GraphicsPipeline extends Pipeline {
 
         private final Collection<ShaderStageInfo> stages = new ArrayList<>();
         private final DynamicState dynamic = new DynamicState();
-        private final VertexInputState vertexInput = new VertexInputState(mesh);
+        private final VertexInputState vertexInput = new VertexInputState();
         private final InputAssemblyState inputAssembly = new InputAssemblyState();
         private final ViewportState viewport = new ViewportState();
         private final DepthStencilState depthStencil = new DepthStencilState();

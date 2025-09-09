@@ -237,10 +237,11 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 "Shaders/VulkanVertTest.glsl", ShaderType.Vertex)));
         fragModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
                 "Shaders/VulkanFragTest.glsl", ShaderType.Fragment)));
-        pipeline = new GraphicsPipeline(device, pipelineLayout, renderPass, 0, meshDesc);
+        pipeline = new GraphicsPipeline(device, pipelineLayout, renderPass, 0);
         try (GraphicsPipeline.Builder p = pipeline.build()) {
             p.addShader(vertModule, ShaderStage.Vertex, "main");
             p.addShader(fragModule, ShaderStage.Fragment, "main");
+            p.getVertexInput().setMesh(meshDesc);
             p.getRasterization().setCullMode(CullMode.None);
             p.getViewportState().addViewport();
             p.getViewportState().addScissor();

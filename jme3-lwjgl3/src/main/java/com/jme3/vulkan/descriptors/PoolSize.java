@@ -1,21 +1,20 @@
 package com.jme3.vulkan.descriptors;
 
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorPoolSize;
 
-import static org.lwjgl.vulkan.VK10.*;
-
 public class PoolSize {
 
-    private final Descriptor type;
+    private final IntEnum<Descriptor> type;
     private final int size;
 
-    public PoolSize(Descriptor type, int size) {
+    public PoolSize(IntEnum<Descriptor> type, int size) {
         this.type = type;
         this.size = size;
     }
 
-    public Descriptor getType() {
+    public IntEnum<Descriptor> getType() {
         return type;
     }
 
@@ -26,7 +25,7 @@ public class PoolSize {
     public static VkDescriptorPoolSize.Buffer aggregate(MemoryStack stack, PoolSize... sizes) {
         VkDescriptorPoolSize.Buffer buffer = VkDescriptorPoolSize.calloc(sizes.length, stack);
         for (PoolSize poolSize : sizes) {
-            buffer.get().set(poolSize.type.getVkEnum(), poolSize.size);
+            buffer.get().set(poolSize.type.getEnum(), poolSize.size);
         }
         buffer.flip();
         return buffer;

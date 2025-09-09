@@ -17,7 +17,7 @@ public class BaseDescriptorWriter implements DescriptorSetWriter {
 
     @Override
     public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
-        write.descriptorType(type.getVkEnum()).dstBinding(binding)
+        write.descriptorType(type.getEnum()).dstBinding(binding)
                 .dstArrayElement(arrayElement)
                 .descriptorCount(descriptorCount);
     }
