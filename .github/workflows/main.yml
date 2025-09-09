@@ -111,10 +111,28 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Check java version
+        run: java -version
+
+      - name: Install CMake
+        run: |
+          apt-get update
+          apt-get install -y cmake
+          cmake --version
+
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
+
       - name: Build
         run: |
+          export ANDROID_NDK="$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION"
           ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
           :jme3-android-native:assemble
 
