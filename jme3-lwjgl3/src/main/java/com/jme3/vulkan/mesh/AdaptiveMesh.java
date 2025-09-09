@@ -69,6 +69,10 @@ public abstract class AdaptiveMesh implements Mesh {
         }
     }
 
+    protected AttributeModifier modifyAttribute(BuiltInAttribute name) {
+        return modifyAttribute(name.getName());
+    }
+
     protected abstract VersionedResource<? extends GpuBuffer> createStreamingBuffer(MemorySize size);
 
     protected abstract VersionedResource<? extends GpuBuffer> createDynamicBuffer(MemorySize size);
@@ -112,6 +116,10 @@ public abstract class AdaptiveMesh implements Mesh {
             if (attr != null) {
                 attr.setMode(mode);
             }
+        }
+
+        public void setMode(BuiltInAttribute name, VertexMode mode) {
+            setMode(name.getName(), mode);
         }
 
         private VersionedResource<? extends GpuBuffer> createVertexBuffer(VertexBinding binding, VertexMode mode) {

@@ -227,9 +227,9 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
         // mesh description
         MeshDescription meshDesc = new MeshDescription();
-        int meshBinding0 = meshDesc.addAttribute(VertexAttribute.POSITION, InputRate.Vertex, Format.RGB32SFloat, 0);
-        meshDesc.addAttribute(VertexAttribute.TEXCOORD, meshBinding0, Format.RG32SFloat, 1);
-        meshDesc.addAttribute(VertexAttribute.NORMALS, meshBinding0, Format.RGB32SFloat, 2);
+        int meshBinding0 = meshDesc.addAttribute(BuiltInAttribute.Position, InputRate.Vertex, Format.RGB32SFloat, 0);
+        meshDesc.addAttribute(BuiltInAttribute.TexCoord, meshBinding0, Format.RG32SFloat, 1);
+        meshDesc.addAttribute(BuiltInAttribute.Normal, meshBinding0, Format.RGB32SFloat, 2);
 
         // pipeline
         pipelineLayout = new PipelineLayout(device, descriptorLayout);

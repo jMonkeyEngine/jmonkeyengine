@@ -61,6 +61,14 @@ public class MeshDescription implements Iterable<VertexBinding> {
         getBinding(bindingIndex).addAttribute(name, format, location);
     }
 
+    public int addAttribute(BuiltInAttribute name, LibEnum<InputRate> rate, Format format, int location) {
+        return addAttribute(name.getName(), rate, format, location);
+    }
+
+    public void addAttribute(BuiltInAttribute name, int bindingIndex, Format format, int location) {
+        addAttribute(name.getName(), bindingIndex, format, location);
+    }
+
     public VertexBinding getBinding(int index) {
         return bindings.get(index);
     }

@@ -4,16 +4,13 @@ import com.jme3.math.Vector3f;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.frames.SingleCommand;
-import com.jme3.vulkan.frames.SingleResource;
 import com.jme3.vulkan.frames.UpdateFrameManager;
 import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.update.CommandBatch;
-import com.jme3.vulkan.util.Flag;
 
 import java.nio.ShortBuffer;
-import java.util.Objects;
 
 public class MyCustomMesh extends AdaptiveMesh {
 
@@ -37,17 +34,17 @@ public class MyCustomMesh extends AdaptiveMesh {
         indices.unmap();
         indexBuffer = updateSharedBuffers.add(new SingleCommand<>(indices));
         try (Builder m = build(4)) {
-            m.setMode(VertexAttribute.POSITION, VertexMode.Static);
-            m.setMode(VertexAttribute.NORMALS, VertexMode.Static);
-            m.setMode(VertexAttribute.TEXCOORD, VertexMode.Static);
+            m.setMode(BuiltInAttribute.Position, VertexMode.Static);
+            m.setMode(BuiltInAttribute.TexCoord, VertexMode.Static);
+            m.setMode(BuiltInAttribute.Normal, VertexMode.Static);
         }
         Vector3f x = normal.cross(up);
         Vector3f y = normal.cross(x);
         Vector3f tempX = new Vector3f();
         Vector3f tempY = new Vector3f();
-        try (AttributeModifier position = modifyAttribute(VertexAttribute.POSITION);
-             AttributeModifier normals = modifyAttribute(VertexAttribute.NORMALS);
-             AttributeModifier texCoord = modifyAttribute(VertexAttribute.TEXCOORD)) {
+        try (AttributeModifier position = modifyAttribute(BuiltInAttribute.Position);
+             AttributeModifier normals = modifyAttribute(BuiltInAttribute.Normal);
+             AttributeModifier texCoord = modifyAttribute(BuiltInAttribute.TexCoord)) {
             position.putVector3(0, 0, x.mult(-width * centerX, tempX).addLocal(y.mult(height * (1f - centerY), tempY)));
             position.putVector3(1, 0, x.mult(width * (1.0f - centerX), tempX).addLocal(y.mult(height * (1f - centerY), tempY)));
             position.putVector3(2, 0, x.mult(width * (1.0f - centerX), tempX).addLocal(y.mult(-height * centerY, tempY)));
