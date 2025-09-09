@@ -21,7 +21,7 @@ public class TextureUniform extends AbstractUniform<Texture> {
 
     @Override
     public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
-        Texture tex = getValue();
+        Texture tex = resource.get();
         VkDescriptorImageInfo.Buffer info = VkDescriptorImageInfo.calloc(1, stack)
                 .imageView(tex.getImage().getNativeObject())
                 .sampler(tex.getNativeObject())

@@ -26,6 +26,35 @@ public enum Format implements Iterable<Format.Component> {
     Depth16UNorm(VK_FORMAT_D16_UNORM, array(cf(2)), false, true, false),
     Depth16UNorm_Stencil8UInt(VK_FORMAT_D16_UNORM_S8_UINT, array(cf(2), c(1)), false, true, true);
 
+    public enum Feature implements Flag<Feature> {
+
+        DepthStencilAttachment(VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT),
+        BlitDst(VK_FORMAT_FEATURE_BLIT_DST_BIT),
+        BlitSrc(VK_FORMAT_FEATURE_BLIT_SRC_BIT),
+        ColorAttachment(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT),
+        SampledImage(VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT),
+        ColorAttachmentBlend(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT),
+        SampledImageFilterLinear(VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT),
+        StorageImageAtomic(VK_FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT),
+        StorageImage(VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT),
+        StorageTexelBufferAtomic(VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_ATOMIC_BIT),
+        StorageTexelBuffer(VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_BIT),
+        UniformTexelBuffer(VK_FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT),
+        VertexBuffer(VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT);
+
+        private final int bits;
+
+        Feature(int bits) {
+            this.bits = bits;
+        }
+
+        @Override
+        public int bits() {
+            return bits;
+        }
+
+    }
+
     private final int vkEnum, totalBytes;
     private final Component[] components;
     private final boolean color, depth, stencil;

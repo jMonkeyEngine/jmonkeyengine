@@ -1,5 +1,6 @@
 package com.jme3.vulkan.pipelines.states;
 
+import com.jme3.vulkan.util.LibEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkPipelineDynamicStateCreateInfo;
 
@@ -12,7 +13,7 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class DynamicState implements PipelineState<VkPipelineDynamicStateCreateInfo> {
 
-    public enum Type {
+    public enum Type implements LibEnum<Type> {
 
         ViewPort(VK_DYNAMIC_STATE_VIEWPORT),
         Scissor(VK_DYNAMIC_STATE_SCISSOR),
@@ -30,23 +31,25 @@ public class DynamicState implements PipelineState<VkPipelineDynamicStateCreateI
             this.vkEnum = vkEnum;
         }
 
-        public int getVkEnum() {
+        @Override
+        public int getEnum() {
             return vkEnum;
         }
 
     }
 
-    private final Set<Type> states = new HashSet<>();
+    private final Set<LibEnum<Type>> states = new HashSet<>();
 
-    public DynamicState(Type... types) {
+    @SafeVarargs
+    public DynamicState(LibEnum<Type>... types) {
         addTypes(types);
     }
 
     @Override
     public VkPipelineDynamicStateCreateInfo toStruct(MemoryStack stack) {
         IntBuffer stateBuf = stack.mallocInt(states.size());
-        for (Type t : states) {
-            stateBuf.put(t.getVkEnum());
+        for (LibEnum<Type> t : states) {
+            stateBuf.put(t.getEnum());
         }
         stateBuf.flip();
         return VkPipelineDynamicStateCreateInfo.calloc(stack)
@@ -54,7 +57,8 @@ public class DynamicState implements PipelineState<VkPipelineDynamicStateCreateI
                 .pDynamicStates(stateBuf);
     }
 
-    public void addTypes(Type... types) {
+    @SafeVarargs
+    public final void addTypes(LibEnum<Type>... types) {
         states.addAll(Arrays.asList(types));
     }
 

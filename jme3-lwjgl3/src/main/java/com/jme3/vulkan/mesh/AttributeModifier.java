@@ -10,19 +10,23 @@ import java.nio.*;
 
 public class AttributeModifier implements AutoCloseable {
     
+    private final VertexBuffer vertex;
     private final VertexAttribute attribute;
-    private final VertexBuffer vertexBuffer;
-    private final ByteBuffer buffer;
+    private ByteBuffer buffer;
 
-    public AttributeModifier(Mesh mesh, VertexAttribute attribute) {
+    public AttributeModifier(VertexBuffer vertex, VertexAttribute attribute) {
+        this.vertex = vertex;
         this.attribute = attribute;
-        this.vertexBuffer = mesh.getBuffer(attribute.getBinding().getBinding());
-        this.buffer = vertexBuffer.map();
+    }
+
+    protected AttributeModifier map() {
+        buffer = vertex.mapBytes();
+        return this;
     }
 
     @Override
     public void close() {
-        vertexBuffer.unmap();
+        vertex.unmap();
     }
     
     public int transformPosition(int vertex) {
@@ -65,8 +69,9 @@ public class AttributeModifier implements AutoCloseable {
 
     public AttributeModifier putVector2(int vertex, int baseComponent, float x, float y) {
         vertex = transformPosition(vertex);
-        attribute.getFormat().getComponent(baseComponent++).putFloat(buffer, vertex, x);
-        attribute.getFormat().getComponent(baseComponent  ).putFloat(buffer, vertex, y);
+        Format f = attribute.getFormat();
+        f.getComponent(baseComponent++).putFloat(buffer, vertex, x);
+        f.getComponent(baseComponent  ).putFloat(buffer, vertex, y);
         return this;
     }
 

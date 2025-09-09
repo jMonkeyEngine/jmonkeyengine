@@ -3,7 +3,7 @@ package com.jme3.vulkan.material.uniforms;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
-import com.jme3.vulkan.data.DataPipe;
+import com.jme3.vulkan.frames.VersionedResource;
 
 public interface Uniform <T> extends DescriptorSetWriter {
 
@@ -14,7 +14,7 @@ public interface Uniform <T> extends DescriptorSetWriter {
 
     /**
      * Updates this uniform and extracts the uniform value from the
-     * {@link #setPipe(DataPipe) data pipe}.
+     * {@link #setResource(VersionedResource) data pipe}.
      *
      * @param cmd command buffer to submit commands to
      */
@@ -40,22 +40,14 @@ public interface Uniform <T> extends DescriptorSetWriter {
     SetLayoutBinding createBinding();
 
     /**
-     * Sets the {@link DataPipe} that will provide the uniform value.
+     * Sets the {@link VersionedResource} that will provide the uniform value.
      */
-    void setPipe(DataPipe<? extends T> pipe);
+    void setResource(VersionedResource<? extends T> resource);
 
     /**
-     * Returns the {@link DataPipe} supplying the uniform value.
+     * Returns the {@link VersionedResource} supplying the uniform value.
      */
-    DataPipe<? extends T> getPipe();
-
-    /**
-     * Gets the value extracted from {@link #setPipe(DataPipe) pipe} execution
-     * during {@link #update(CommandBuffer) update}.
-     *
-     * @return value from the data pipe
-     */
-    T getValue();
+    VersionedResource<? extends T> getResource();
 
     /**
      * The binding this uniform is targeting. Should be unique among all

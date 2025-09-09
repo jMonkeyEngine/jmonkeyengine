@@ -1,5 +1,6 @@
 package com.jme3.vulkan.sync;
 
+import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 
@@ -15,9 +16,9 @@ public class SyncGroup {
         return s != null ? new Semaphore[] {s} : Semaphore.EMPTY;
     }
 
-    private final Semaphore[] waits;
-    private final Semaphore[] signals;
-    private final Fence fence;
+    private Semaphore[] waits;
+    private Semaphore[] signals;
+    private Fence fence;
 
     public SyncGroup() {
         this(Semaphore.EMPTY, Semaphore.EMPTY, null);
@@ -61,15 +62,50 @@ public class SyncGroup {
         this.fence = fence;
     }
 
+    public void setWaits(Semaphore... waits) {
+        this.waits = Objects.requireNonNull(waits);
+    }
+
+    public void setWaits(SyncGroup sync) {
+        this.waits = sync.waits;
+    }
+
     public Semaphore[] getWaits() {
         return waits;
+    }
+
+    public void setSignals(Semaphore... signals) {
+        this.signals = Objects.requireNonNull(signals);
+    }
+
+    public void setSignals(SyncGroup sync) {
+        this.signals = sync.signals;
     }
 
     public Semaphore[] getSignals() {
         return signals;
     }
 
+    public void setFence(Fence fence) {
+        this.fence = fence;
+    }
+
+    public void setFence(SyncGroup sync) {
+        this.fence = sync.fence;
+    }
+
     public Fence getFence() {
+        return fence;
+    }
+
+    public Fence getOrCreateFence(LogicalDevice<?> device) {
+        return getOrCreateFence(device, false);
+    }
+
+    public Fence getOrCreateFence(LogicalDevice<?> device, boolean signal) {
+        if (fence == null) {
+            fence = new Fence(device, signal);
+        }
         return fence;
     }
 

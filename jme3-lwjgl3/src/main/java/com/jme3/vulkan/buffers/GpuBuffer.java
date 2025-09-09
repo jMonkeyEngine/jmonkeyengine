@@ -22,8 +22,7 @@ public interface GpuBuffer {
      * exception is thrown.
      *
      * @param offset offset, in bytes, of the mapping
-     * @param size size, in bytes, of the mapping, or {@link org.lwjgl.vulkan.VK10#VK_WHOLE_SIZE
-     * VK_WHOLE_SIZE} to map all buffer memory starting at {@code offset}.
+     * @param size size, in bytes, of the mapping
      * @return Buffer containing a pointer to the mapped memory
      */
     PointerBuffer map(int offset, int size);
@@ -40,6 +39,14 @@ public interface GpuBuffer {
         if (elements * bytesPerElement > size().getBytes()) {
             throw new BufferOverflowException();
         }
+    }
+
+    default PointerBuffer map(int offset) {
+        return map(offset, size().getBytes() - offset);
+    }
+
+    default PointerBuffer map() {
+        return map(0, size().getBytes());
     }
 
     default <T> T map(int offset, int size, Function<PointerBuffer, T> factory) {

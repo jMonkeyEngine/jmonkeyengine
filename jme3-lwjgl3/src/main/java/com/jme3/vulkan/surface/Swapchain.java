@@ -1,6 +1,7 @@
 package com.jme3.vulkan.surface;
 
 import com.jme3.util.natives.Native;
+import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.*;
 import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -224,6 +225,11 @@ public class Swapchain extends AbstractNative<Long> {
         @Override
         public LibEnum<SharingMode> getSharingMode() {
             return SharingMode.Exclusive;
+        }
+
+        @Override
+        public void addNativeDependent(NativeReference ref) {
+            Swapchain.this.ref.addDependent(ref);
         }
 
         public void createFrameBuffer(RenderPass compat, ImageView depthStencil) {

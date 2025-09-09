@@ -1,6 +1,7 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.util.natives.Native;
+import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.SharingMode;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.util.Flag;
@@ -182,5 +183,7 @@ public interface VulkanImage extends Image {
     LibEnum<Tiling> getTiling();
 
     LibEnum<SharingMode> getSharingMode();
+
+    void addNativeDependent(NativeReference ref);
 
 }

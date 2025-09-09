@@ -1,7 +1,5 @@
 package com.jme3.vulkan.commands;
 
-import com.jme3.vulkan.sync.Fence;
-import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.SyncGroup;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkCommandBufferBeginInfo;
@@ -9,11 +7,11 @@ import org.lwjgl.vulkan.VkSubmitInfo;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public class OneTimeCommandBuffer extends CommandBuffer {
+public class TransientCommandBuffer extends CommandBuffer {
 
     private boolean active = false;
 
-    public OneTimeCommandBuffer(CommandPool pool) {
+    public TransientCommandBuffer(CommandPool pool) {
         super(pool);
     }
 

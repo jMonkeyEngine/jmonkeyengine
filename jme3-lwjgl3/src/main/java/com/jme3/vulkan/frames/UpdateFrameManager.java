@@ -1,6 +1,6 @@
 package com.jme3.vulkan.frames;
 
-import com.jme3.vulkan.data.PerFrameData;
+import com.jme3.vulkan.update.Command;
 
 import java.util.function.IntFunction;
 
@@ -9,10 +9,10 @@ public class UpdateFrameManager {
     private final UpdateFrame[] frames;
     private int currentFrame = 0;
 
-    public UpdateFrameManager(int frames, IntFunction<UpdateFrame> factory) {
+    public UpdateFrameManager(int frames, IntFunction<UpdateFrame> generator) {
         this.frames = new UpdateFrame[frames];
         for (int i = 0; i < frames; i++) {
-            this.frames[i] = factory.apply(i);
+            this.frames[i] = generator.apply(i);
         }
     }
 
@@ -31,8 +31,12 @@ public class UpdateFrameManager {
         return currentFrame;
     }
 
-    public <T> PerFrameData<T> perFrame(IntFunction<T> generator) {
-        return new PerFrameData<>(this, generator);
+    public <T> PerFrameResource<T> perFrame(IntFunction<T> generator) {
+        return new PerFrameResource<>(this, generator);
+    }
+
+    public <T extends Command> PerFrameCommand<T> perFrameCommand(IntFunction<T> generator) {
+        return new PerFrameCommand<>(this, generator);
     }
 
 }

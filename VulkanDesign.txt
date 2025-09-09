@@ -120,3 +120,18 @@ There is actually one more problem I overlooked with DataPipes. CommandBuffers n
         - I could do a simple version of this just out of principle. Perhaps in the future we will know enough to implement such a system.
 
 For now, I'll go with #1.
+
+-----
+
+Well, I've run into a new problem. I'm not sure what it is exactly, but the DataPipe system isn't working as smoothly as I'd hoped. It doesn't handle different forms of buffers very well (static, dynamic, adaptive). For example, in order for a static buffer to work, the staging buffer should be deleted after the transfer is complete. DataPipes have no clean way to handle that (and really, niether does any other available system). At the same time, DataPipes need a "needs update" check so that certain operations can be skipped if the incoming buffer hasn't changed.
+
+My original idea was to have a Buffer implementation that deferred to one of N internal buffers depending on the frame could still possibly work.
+
+-----
+
+Yesterday, the occured to me that there are two main issues I'm trying to combat:
+
+    1. Updating items (buffers especially) at the correct time.
+    2. Ensuring the proper items are used at any given time (i.e. per-frame versions).
+
+Now, a new solution to the first problem would be an update registry system. On creation, you register the item with a particular update batch, which will then update the item at the correct time. Furthermore, this will centralize CommandBuffer usage and make it easier to fine-tune synchronization (which would have otherwise been a fairly major problem).

@@ -17,7 +17,7 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
 
     @Override
     public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
-        GpuBuffer buffer = getValue();
+        GpuBuffer buffer = resource.get();
         VkDescriptorBufferInfo.Buffer info = VkDescriptorBufferInfo.calloc(1, stack)
                 .buffer(buffer.getId())
                 .offset(0L)

@@ -44,6 +44,11 @@ public class CommandBuffer {
         }
     }
 
+    public void resetAndBegin() {
+        reset();
+        begin();
+    }
+
     public void end() {
         if (!recording) {
             throw new IllegalStateException("Command buffer has not begun recording.");

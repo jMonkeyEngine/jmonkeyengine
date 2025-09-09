@@ -5,7 +5,6 @@ import com.jme3.util.BufferUtils;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.buffers.BasicVulkanBuffer;
 import com.jme3.vulkan.buffers.BufferUsage;
-import com.jme3.vulkan.buffers.VulkanBuffer;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -166,7 +165,7 @@ public class VulkanImageLoader implements AssetLoader {
                 i.setUsage(Flag.of(ImageUsage.TransferDst, ImageUsage.Sampled));
                 i.setMemoryProps(MemoryProp.DeviceLocal);
             }
-            CommandBuffer commands = transferPool.allocateOneTimeCommandBuffer();
+            CommandBuffer commands = transferPool.allocateTransientCommandBuffer();
             commands.begin();
             image.transitionLayout(commands, VulkanImage.Layout.Undefined, VulkanImage.Layout.TransferDstOptimal);
             VkBufferImageCopy.Buffer region = VkBufferImageCopy.calloc(1, stack)

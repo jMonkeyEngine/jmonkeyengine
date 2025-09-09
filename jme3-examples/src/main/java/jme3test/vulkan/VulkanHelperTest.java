@@ -16,19 +16,16 @@ import com.jme3.vulkan.*;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
-import com.jme3.vulkan.data.Data;
-import com.jme3.vulkan.data.PerFrameData;
-import com.jme3.vulkan.data.TerminalDataPipe;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.*;
+import com.jme3.vulkan.frames.SingleResource;
 import com.jme3.vulkan.frames.UpdateFrame;
 import com.jme3.vulkan.frames.UpdateFrameManager;
 import com.jme3.vulkan.images.*;
 import com.jme3.vulkan.material.TestMaterial;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.mesh.IndexType;
-import com.jme3.vulkan.mesh.TestCaseMeshDescription;
+import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.pass.Attachment;
 import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pipelines.*;
@@ -43,12 +40,15 @@ import com.jme3.vulkan.surface.SwapchainUpdater;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.SyncGroup;
+import com.jme3.vulkan.update.CommandBatch;
+import com.jme3.vulkan.update.BasicCommandBatch;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import static org.lwjgl.vulkan.VK13.*;
@@ -74,6 +74,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private VulkanLogger logger;
 
     // mesh
+    private Mesh mesh;
     private final FloatBuffer vertexData = BufferUtils.createFloatBuffer(
             -0.5f, -0.5f, 0f,   1f, 0f, 0f,   1f, 0f,
              0.5f, -0.5f, 0f,   0f, 1f, 0f,   0f, 0f,
@@ -101,9 +102,15 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     // framebuffer
     private ImageView depthView;
 
+    // commands
+    private CommandBatch graphics, perFrameData, sharedData;
+    private Fence sharedDataFence;
+
     public static void main(String[] args) {
         VulkanHelperTest app = new VulkanHelperTest();
         AppSettings settings = new AppSettings(true);
+        settings.setFrameRate(0);
+        settings.setVSync(false);
         settings.setWidth(768);
         settings.setHeight(768);
         settings.setRenderer("CUSTOM" + LwjglVulkanContext.class.getName());
@@ -151,6 +158,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         }
         GeneralPhysicalDevice physDevice = device.getPhysicalDevice();
 
+        graphicsPool = device.getLongTermPool(physDevice.getGraphics());
+
         // swapchain
         swapchain = new Swapchain(device, surface);
         swapchain.build(s -> {
@@ -174,17 +183,17 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 new PoolSize(Descriptor.StorageBuffer, 4),
                 new PoolSize(Descriptor.CombinedImageSampler, 2));
 
-        CommandPool transferPool = device.getShortTermPool(physDevice.getGraphics());
+        CommandPool initPool = device.getShortTermPool(physDevice.getGraphics());
+        CommandBuffer initCommands = initPool.allocateTransientCommandBuffer();
+        initCommands.begin();
 
         // depth texture
-        depthView = createDepthAttachment(transferPool);
+        depthView = createDepthAttachment(initCommands);
 
-        // pipeline
-        pipelineLayout = new PipelineLayout(device, descriptorLayout);
-        vertModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
-                "Shaders/VulkanVertTest.glsl", ShaderType.Vertex)));
-        fragModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
-                "Shaders/VulkanFragTest.glsl", ShaderType.Fragment)));
+        initCommands.endAndSubmit(SyncGroup.ASYNC);
+        initCommands.getPool().getQueue().waitIdle();
+
+        // render pass
         renderPass = new RenderPass(device);
         try (RenderPass.Builder p = renderPass.build()) {
             Attachment color = p.createAttachment(swapchain.getFormat(), VK_SAMPLE_COUNT_1_BIT, a -> {
@@ -215,41 +224,54 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             });
         }
         swapchain.createFrameBuffers(renderPass, depthView);
-        pipeline = new GraphicsPipeline(device, pipelineLayout, renderPass, 0, new TestCaseMeshDescription());
+
+        // mesh description
+        MeshDescription meshDesc = new MeshDescription();
+        int meshBinding0 = meshDesc.addAttribute(VertexAttribute.POSITION, InputRate.Vertex, Format.RGB32SFloat, 0);
+        meshDesc.addAttribute(VertexAttribute.TEXCOORD, meshBinding0, Format.RG32SFloat, 1);
+        meshDesc.addAttribute(VertexAttribute.NORMALS, meshBinding0, Format.RGB32SFloat, 2);
+
+        // pipeline
+        pipelineLayout = new PipelineLayout(device, descriptorLayout);
+        vertModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
+                "Shaders/VulkanVertTest.glsl", ShaderType.Vertex)));
+        fragModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
+                "Shaders/VulkanFragTest.glsl", ShaderType.Fragment)));
+        pipeline = new GraphicsPipeline(device, pipelineLayout, renderPass, 0, meshDesc);
         try (GraphicsPipeline.Builder p = pipeline.build()) {
             p.addShader(vertModule, ShaderStage.Vertex, "main");
             p.addShader(fragModule, ShaderStage.Fragment, "main");
+            p.getRasterization().setCullMode(VK_CULL_MODE_NONE);
             p.getViewportState().addViewport();
             p.getViewportState().addScissor();
             p.getColorBlend().addAttachment(new ColorBlendAttachment());
             p.getDynamicState().addTypes(DynamicState.Type.ViewPort, DynamicState.Type.Scissor);
         }
-        graphicsPool = device.getLongTermPool(physDevice.getGraphics());
-
-        // vertex buffers
-        // cpu-accessible memory is not usually fast for the gpu to access, but
-        // the cpu cannot directly access fast gpu memory. The solution is to
-        // copy cpu-side data to a mutual staging buffer, then have the gpu copy
-        // that data to faster memory.
-        vertexBuffer = new StaticBuffer(device, transferPool, MemorySize.floats(vertexData.capacity()),
-                BufferUsage.Vertex, MemoryProp.DeviceLocal, false);
-        vertexBuffer.copy(vertexData);
-        indexBuffer = new StaticBuffer(device, transferPool, MemorySize.ints(indexData.capacity()),
-                BufferUsage.Index, MemoryProp.DeviceLocal, false);
-        indexBuffer.copy(indexData);
 
         frames = new UpdateFrameManager(2, n -> new Frame());
 
         // material color texture
-        VulkanImage image = assetManager.loadAsset(VulkanImageLoader.key(transferPool, "Common/Textures/MissingTexture.png"));
-        texture = new Texture(device, new ImageView(image, VulkanImage.View.TwoDemensional),
-                VK_FILTER_LINEAR, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_LINEAR);
+        VulkanImage image = assetManager.loadAsset(VulkanImageLoader.key(initPool, "Common/Textures/MissingTexture.png"));
+        ImageView imgView = new ImageView(image, VulkanImage.View.TwoDemensional);
+        try (ImageView.Builder i = imgView.build()) {
+            i.setAspect(VulkanImage.Aspect.Color);
+        }
+        texture = new Texture(device, imgView, VK_FILTER_LINEAR, VK_FILTER_LINEAR,
+                VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_LINEAR);
+
+        graphics = new BasicCommandBatch();
+        perFrameData = new BasicCommandBatch();
+        sharedData = new BasicCommandBatch();
+        sharedDataFence = new Fence(device, true);
+
+        // mesh
+        mesh = new MyCustomMesh(device, frames, meshDesc, sharedData,
+                Vector3f.UNIT_Z, Vector3f.UNIT_Y, 1f, 1f, 0.5f, 0.5f);
 
         material = new TestMaterial(descriptorPool);
-        PerFrameData<VulkanBuffer> matrixInputPipe = frames.perFrame(n ->
-                new PersistentBuffer(device, MemorySize.floats(16), BufferUsage.Uniform, false));
-        material.getMatrices().setPipe(material.setPipe("Matrices", matrixInputPipe));
-        material.getBaseColorMap().setPipe(new Data<>(texture));
+        material.getMatrices().setResource(frames.perFrame(n ->
+                new PersistentBuffer(device, MemorySize.floats(16), BufferUsage.Uniform, false)));
+        material.getBaseColorMap().setResource(new SingleResource<>(texture));
 
     }
 
@@ -274,7 +296,11 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 //                s.selectExtentByWindow();
 //                s.selectImageCount(2);
 //            }
-            depthView = createDepthAttachment(device.getShortTermPool(device.getPhysicalDevice().getGraphics()));
+            CommandBuffer cmd = device.getShortTermPool(device.getPhysicalDevice().getGraphics()).allocateTransientCommandBuffer();
+            cmd.begin();
+            depthView = createDepthAttachment(cmd);
+            cmd.endAndSubmit(SyncGroup.ASYNC);
+            cmd.getPool().getQueue().waitIdle();
             swapchain.createFrameBuffers(renderPass, depthView);
             return true;
         }
@@ -294,7 +320,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         frames.update(tpf);
     }
 
-    private ImageView createDepthAttachment(CommandPool pool) {
+    private ImageView createDepthAttachment(CommandBuffer cmd) {
         Format depthFormat = device.getPhysicalDevice().findSupportedFormat(
                 VulkanImage.Tiling.Optimal,
                 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
@@ -310,70 +336,82 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         ImageView view = new ImageView(image, VulkanImage.View.TwoDemensional);
         try (ImageView.Builder v = view.build()) {
             v.allMipmaps();
+            v.setAspect(VulkanImage.Aspect.Depth);
         }
-        CommandBuffer commands = pool.allocateOneTimeCommandBuffer();
-        commands.begin();
-        image.transitionLayout(commands, VulkanImage.Layout.Undefined, VulkanImage.Layout.DepthStencilAttachmentOptimal);
-        commands.endAndSubmit(SyncGroup.ASYNC);
-        commands.getPool().getQueue().waitIdle();
+        image.transitionLayout(cmd, VulkanImage.Layout.Undefined, VulkanImage.Layout.DepthStencilAttachmentOptimal);
         return view;
     }
 
     private class Frame implements UpdateFrame {
 
         // render manager
-        private final CommandBuffer transferCommands = graphicsPool.allocateCommandBuffer();
+        private final CommandBuffer perFrameDataCommands = graphicsPool.allocateCommandBuffer();
+        private final CommandBuffer sharedDataCommands = graphicsPool.allocateCommandBuffer();
         private final CommandBuffer graphicsCommands = graphicsPool.allocateCommandBuffer();
         private final Semaphore imageAvailable = new Semaphore(device, PipelineStage.ColorAttachmentOutput);
-        private final Semaphore transferFinished = new Semaphore(device, PipelineStage.TopOfPipe);
+        private final Semaphore perFrameDataFinished = new Semaphore(device, PipelineStage.TopOfPipe);
+        private final Semaphore sharedDataFinished = new Semaphore(device, PipelineStage.TopOfPipe);
         private final Semaphore renderFinished = new Semaphore(device);
         private final Fence inFlight = new Fence(device, true);
 
         @Override
         public void update(UpdateFrameManager frames, float tpf) {
 
-            // render manager
+            // block until this frame has fully completed previous rendering commands
             if (applicationStopped) return;
             inFlight.block(5000);
             if (applicationStopped) return;
+
+            // get swapchain image to present with
             Swapchain.PresentImage image = swapchain.acquireNextImage(VulkanHelperTest.this, imageAvailable, null, 5000);
             if (image == null) {
                 return; // no image available: skip rendering this frame
             }
             inFlight.reset();
 
+            // set camera to render with
             renderManager.setCamera(cam, false);
 
-            // compute geometry states
-            modelTransform.getRotation().multLocal(new Quaternion().fromAngleAxis(tpf, Vector3f.UNIT_Y));
-            Matrix4f worldViewProjection = cam.getViewProjectionMatrix().mult(modelTransform.toTransformMatrix());
+            // update matrix uniform (geometry)
+            {
+                // compute geometry states
+                modelTransform.getRotation().multLocal(new Quaternion().fromAngleAxis(tpf, Vector3f.UNIT_Y));
+                Matrix4f worldViewProjection = cam.getViewProjectionMatrix().mult(modelTransform.toTransformMatrix());
 
-            // Begin data transfer commands. Transfer and graphics commands could be put
-            // in seperate threads since they are synchronized by a semaphore.
-            transferCommands.reset();
-            transferCommands.begin();
+                // update material uniform
+                GpuBuffer matrixBuffer = material.getMatrices().getResource().get();
+                worldViewProjection.fillFloatBuffer(matrixBuffer.mapFloats(), true);
+                matrixBuffer.unmap();
+            }
 
-            // update material data
-            TerminalDataPipe<VulkanBuffer, ?> matrixBuffer = material.getPipe("Matrices");
-            worldViewProjection.fillFloatBuffer(matrixBuffer.getInput().mapFloats(), true);
-            matrixBuffer.getInput().unmap();
-            material.update(transferCommands); // use the transfer buffer for material updates
+            // update shared data
+            {
+                sharedDataFence.block(5000);
+                sharedDataCommands.resetAndBegin();
+                SyncGroup dataSync = sharedDataFinished.toGroupSignal();
+                if (sharedData.run(sharedDataCommands, frames.getCurrentFrame())) {
+                    sharedDataFence.reset();
+                    dataSync.setFence(sharedDataFence); // force the next frame to wait
+                }
+                sharedDataCommands.endAndSubmit(dataSync);
+            }
 
-            // submit data transfer commands
-            transferCommands.endAndSubmit(SyncGroup.signal(transferFinished));
+            // update per-frame data
+            {
+                perFrameDataCommands.resetAndBegin();
+                perFrameData.run(perFrameDataCommands, frames.getCurrentFrame());
+                perFrameDataCommands.endAndSubmit(perFrameDataFinished.toGroupSignal());
+            }
 
             // begin graphics commands
-            graphicsCommands.reset();
-            graphicsCommands.begin();
+            graphicsCommands.resetAndBegin();
 
             // material graphics
             renderPass.begin(graphicsCommands, image.getFrameBuffer());
             pipeline.bind(graphicsCommands);
-            material.bind(graphicsCommands, pipeline);
 
+            // viewport and scissor
             try (MemoryStack stack = MemoryStack.stackPush()) {
-
-                // viewport
                 VkViewport.Buffer vp = VkViewport.calloc(1, stack)
                         .x(0f).y(0f)
                         .width(swapchain.getExtent().getX())
@@ -384,19 +422,22 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 scissor.offset().set(0, 0);
                 scissor.extent(swapchain.getExtent().toStruct(stack));
                 vkCmdSetScissor(graphicsCommands.getBuffer(), 0, scissor);
+            }
 
-                // mesh
-                vkCmdBindVertexBuffers(graphicsCommands.getBuffer(), 0, stack.longs(vertexBuffer.getId()), stack.longs(0));
-                vkCmdBindIndexBuffer(graphicsCommands.getBuffer(), indexBuffer.getId(), 0, IndexType.UInt32.getEnum());
-                vkCmdDrawIndexed(graphicsCommands.getBuffer(), indexBuffer.size().getElements(), 1, 0, 0, 0);
+            // run graphics commands via CommandBatch
+            graphics.run(graphicsCommands, frames.getCurrentFrame());
 
+            material.bind(graphicsCommands, pipeline);
+            mesh.bind(graphicsCommands);
+            for (int i = 0; i < 100; i++) {
+                mesh.draw(graphicsCommands);
             }
 
             // material
             renderPass.end(graphicsCommands);
 
             // render manager
-            graphicsCommands.endAndSubmit(new SyncGroup(new Semaphore[] {imageAvailable, transferFinished}, renderFinished, inFlight));
+            graphicsCommands.endAndSubmit(new SyncGroup(new Semaphore[] {imageAvailable, perFrameDataFinished, sharedDataFinished}, renderFinished, inFlight));
             swapchain.present(device.getPhysicalDevice().getPresent(), image, renderFinished.toGroupWait());
 
         }

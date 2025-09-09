@@ -7,6 +7,9 @@ import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.LibEnum;
 import org.lwjgl.vulkan.VkImageViewCreateInfo;
 
+import java.nio.LongBuffer;
+
+import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class ImageView extends AbstractNative<Long> {
@@ -88,7 +91,7 @@ public class ImageView extends AbstractNative<Long> {
         protected void build() {
             VkImageViewCreateInfo create = VkImageViewCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO)
-                    .image(image.getNativeObject())
+                    .image(image.getId())
                     .viewType(type.getEnum())
                     .format(image.getFormat().getVkEnum());
             create.components()
@@ -102,8 +105,12 @@ public class ImageView extends AbstractNative<Long> {
                     .levelCount(mipmapCount)
                     .baseArrayLayer(baseLayer)
                     .layerCount(layerCount);
+            LongBuffer idBuf = stack.mallocLong(1);
+            check(vkCreateImageView(image.getDevice().getNativeObject(), create, null, idBuf),
+                    "Failed to create image view.");
+            object = idBuf.get(0);
             ref = Native.get().register(ImageView.this);
-            image.getNativeReference().addDependent(ref);
+            image.addNativeDependent(ref);
         }
 
         public void allMipmaps() {

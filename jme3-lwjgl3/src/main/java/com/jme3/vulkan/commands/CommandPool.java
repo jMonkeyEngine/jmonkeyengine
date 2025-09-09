@@ -85,8 +85,8 @@ public class CommandPool implements Native<Long> {
         return new CommandBuffer(this);
     }
 
-    public OneTimeCommandBuffer allocateOneTimeCommandBuffer() {
-        return new OneTimeCommandBuffer(this);
+    public TransientCommandBuffer allocateTransientCommandBuffer() {
+        return new TransientCommandBuffer(this);
     }
 
     public LogicalDevice<?> getDevice() {

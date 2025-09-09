@@ -1,6 +1,7 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.util.natives.Native;
+import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.SharingMode;
@@ -36,6 +37,8 @@ public class GpuImage extends AbstractNative<Long> implements VulkanImage {
     public GpuImage(LogicalDevice<?> device, LibEnum<Image.Type> type) {
         this.device = device;
         this.type = type;
+        width = height = depth = 1;
+        mipmaps = layers = 1;
     }
 
     @Override
@@ -96,6 +99,11 @@ public class GpuImage extends AbstractNative<Long> implements VulkanImage {
     @Override
     public LibEnum<SharingMode> getSharingMode() {
         return sharing;
+    }
+
+    @Override
+    public void addNativeDependent(NativeReference ref) {
+        this.ref.addDependent(ref);
     }
 
     @Override

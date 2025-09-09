@@ -36,7 +36,7 @@ public class UniformSet implements Iterable<Uniform> {
     public void update(CommandBuffer cmd) {
         for (Uniform<?> u : uniforms) {
             u.update(cmd);
-            if (u.getValue() == null) {
+            if (u.getResource().get() == null) {
                 throw new NullPointerException("Uniform \"" + u.getName() + "\" contains no value.");
             }
         }
@@ -139,14 +139,14 @@ public class UniformSet implements Iterable<Uniform> {
 
         public void update() {
             for (int i = 0; i < uniforms.length; i++) {
-                versions[i] = new WeakReference<>(uniforms[i].getValue(), queue);
+                versions[i] = new WeakReference<>(uniforms[i].getResource().get(), queue);
             }
         }
 
         public boolean isCurrent() {
             for (int i = 0; i < versions.length; i++) {
                 // todo: consider using refersTo() from Java 16 to not interfere with the GC
-                if (versions[i].get() != uniforms[i].getValue()) {
+                if (versions[i].get() != uniforms[i].getResource().get()) {
                     return false;
                 }
             }
@@ -156,7 +156,7 @@ public class UniformSet implements Iterable<Uniform> {
         public int getAccuracy() {
             int accuracy = 0;
             for (int i = 0; i < versions.length; i++) {
-                if (versions[i].get() != uniforms[i].getPipe()) {
+                if (versions[i].get() != uniforms[i].getResource()) {
                     accuracy++;
                 }
             }

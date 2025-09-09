@@ -1,7 +1,6 @@
 package com.jme3.vulkan.material;
 
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.data.DataPipe;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.uniforms.Uniform;
@@ -21,7 +20,6 @@ public class Material {
     private final DescriptorPool pool;
     private final List<UniformSet> uniformSets = new ArrayList<>();
     private final HashMap<String, Uniform<?>> uniformLookup = new HashMap<>();
-    private final Map<String, DataPipe<?>> pipes = new HashMap<>();
 
     public Material(DescriptorPool pool) {
         this.pool = pool;
@@ -73,11 +71,6 @@ public class Material {
         return Collections.unmodifiableList(uniformSets);
     }
 
-    public <T extends DataPipe> T setPipe(String name, T pipe) {
-        pipes.put(name, pipe);
-        return pipe;
-    }
-
     @SuppressWarnings("unchecked")
     public <T extends Uniform> T getUniform(String name) {
         // Not sure if caching the results is really worth it...
@@ -94,11 +87,6 @@ public class Material {
             }
         }
         return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends DataPipe> T getPipe(String name) {
-        return (T)pipes.get(name);
     }
 
 }
