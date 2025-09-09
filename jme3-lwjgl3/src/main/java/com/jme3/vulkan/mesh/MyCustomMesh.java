@@ -24,18 +24,18 @@ public class MyCustomMesh extends AdaptiveMesh {
     public MyCustomMesh(LogicalDevice<?> device,
                         UpdateFrameManager frames,
                         MeshDescription description,
-                        CommandBatch updateStaticBuffers,
+                        CommandBatch updateSharedBuffers,
                         Vector3f normal, Vector3f up, float width, float height, float centerX, float centerY) {
         super(description);
         this.device = device;
         this.frames = frames;
-        this.updateStaticBuffers = updateStaticBuffers;
+        this.updateStaticBuffers = updateSharedBuffers;
         StaticBuffer indices = new StaticBuffer(device, MemorySize.shorts(6), BufferUsage.Index, MemoryProp.DeviceLocal, false);
         ShortBuffer iBuf = indices.mapShorts();
         iBuf.put((short)0).put((short)2).put((short)3)
             .put((short)0).put((short)1).put((short)2);
         indices.unmap();
-        indexBuffer = updateStaticBuffers.add(new SingleCommand<>(indices));
+        indexBuffer = updateSharedBuffers.add(new SingleCommand<>(indices));
         try (Builder m = build(4)) {
             m.setMode(VertexAttribute.POSITION, VertexMode.Static);
             m.setMode(VertexAttribute.NORMALS, VertexMode.Static);
