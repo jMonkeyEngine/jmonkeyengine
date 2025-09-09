@@ -1,10 +1,10 @@
 package com.jme3.vulkan;
 
-import com.jme3.vulkan.util.LibEnum;
+import com.jme3.vulkan.util.IntEnum;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public enum Swizzle implements LibEnum<Swizzle> {
+public enum Swizzle implements IntEnum<Swizzle> {
 
     Identity(VK_COMPONENT_SWIZZLE_IDENTITY),
     R(VK_COMPONENT_SWIZZLE_R),

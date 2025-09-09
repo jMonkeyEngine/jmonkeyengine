@@ -10,7 +10,7 @@ import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemoryRegion;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.LibEnum;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkImageCreateInfo;
 import org.lwjgl.vulkan.VkImageMemoryBarrier;
@@ -24,17 +24,17 @@ import static org.lwjgl.vulkan.VK10.*;
 public class GpuImage extends AbstractNative<Long> implements VulkanImage {
 
     private final LogicalDevice<?> device;
-    private final LibEnum<Image.Type> type;
+    private final IntEnum<Image.Type> type;
     private MemoryRegion memory;
 
     private int width, height, depth;
     private int mipmaps, layers;
     private Flag<ImageUsage> usage;
     private Format format = Format.RGBA8_SRGB;
-    private LibEnum<Tiling> tiling = Tiling.Optimal;
-    private LibEnum<SharingMode> sharing = SharingMode.Exclusive;
+    private IntEnum<Tiling> tiling = Tiling.Optimal;
+    private IntEnum<SharingMode> sharing = SharingMode.Exclusive;
 
-    public GpuImage(LogicalDevice<?> device, LibEnum<Image.Type> type) {
+    public GpuImage(LogicalDevice<?> device, IntEnum<Image.Type> type) {
         this.device = device;
         this.type = type;
         width = height = depth = 1;
@@ -52,7 +52,7 @@ public class GpuImage extends AbstractNative<Long> implements VulkanImage {
     }
 
     @Override
-    public LibEnum<Image.Type> getType() {
+    public IntEnum<Image.Type> getType() {
         return type;
     }
 
@@ -92,12 +92,12 @@ public class GpuImage extends AbstractNative<Long> implements VulkanImage {
     }
 
     @Override
-    public LibEnum<Tiling> getTiling() {
+    public IntEnum<Tiling> getTiling() {
         return tiling;
     }
 
     @Override
-    public LibEnum<SharingMode> getSharingMode() {
+    public IntEnum<SharingMode> getSharingMode() {
         return sharing;
     }
 
@@ -141,7 +141,7 @@ public class GpuImage extends AbstractNative<Long> implements VulkanImage {
     public class Builder extends AbstractNative.Builder<GpuImage> {
 
         private Flag<MemoryProp> mem;
-        private LibEnum<Layout> layout = Layout.Undefined;
+        private IntEnum<Layout> layout = Layout.Undefined;
 
         @Override
         protected void build() {
@@ -216,11 +216,11 @@ public class GpuImage extends AbstractNative<Long> implements VulkanImage {
             format = f;
         }
 
-        public void setTiling(LibEnum<Tiling> t) {
+        public void setTiling(IntEnum<Tiling> t) {
             tiling = t;
         }
 
-        public void setLayout(LibEnum<Layout> l) {
+        public void setLayout(IntEnum<Layout> l) {
             this.layout = l;
         }
 
@@ -228,7 +228,7 @@ public class GpuImage extends AbstractNative<Long> implements VulkanImage {
             return mem;
         }
 
-        public LibEnum<Layout> getLayout() {
+        public IntEnum<Layout> getLayout() {
             return layout;
         }
 

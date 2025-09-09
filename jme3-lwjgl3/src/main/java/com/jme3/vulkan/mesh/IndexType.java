@@ -1,11 +1,11 @@
 package com.jme3.vulkan.mesh;
 
 import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.util.LibEnum;
+import com.jme3.vulkan.util.IntEnum;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public enum IndexType implements LibEnum<IndexType> {
+public enum IndexType implements IntEnum<IndexType> {
 
     UInt32(VK_INDEX_TYPE_UINT32, 2),
     UInt16(VK_INDEX_TYPE_UINT16, 4);

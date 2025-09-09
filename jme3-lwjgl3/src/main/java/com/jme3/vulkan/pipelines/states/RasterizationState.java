@@ -1,5 +1,10 @@
 package com.jme3.vulkan.pipelines.states;
 
+import com.jme3.vulkan.pipelines.CullMode;
+import com.jme3.vulkan.pipelines.FaceWinding;
+import com.jme3.vulkan.pipelines.PolygonMode;
+import com.jme3.vulkan.util.Flag;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkPipelineRasterizationStateCreateInfo;
 
@@ -7,9 +12,9 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class RasterizationState implements PipelineState<VkPipelineRasterizationStateCreateInfo> {
 
-    private int polygonMode = VK_POLYGON_MODE_FILL;
-    private int cullMode = VK_CULL_MODE_BACK_BIT;
-    private int frontFace = VK_FRONT_FACE_CLOCKWISE;
+    private IntEnum<PolygonMode> polygonMode = PolygonMode.Fill;
+    private Flag<CullMode> cullMode = CullMode.Back;
+    private IntEnum<FaceWinding> faceWinding = FaceWinding.Clockwise;
     private float lineWidth = 1f;
     private boolean depthClamp = false;
     private boolean rasterizerDiscard = false;
@@ -21,24 +26,23 @@ public class RasterizationState implements PipelineState<VkPipelineRasterization
                 .sType(VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO)
                 .depthClampEnable(depthClamp)
                 .rasterizerDiscardEnable(rasterizerDiscard)
-                .polygonMode(polygonMode)
+                .polygonMode(polygonMode.getEnum())
                 .lineWidth(lineWidth)
-                .cullMode(cullMode)
-                .frontFace(frontFace)
-                .cullMode(cullMode)
+                .cullMode(cullMode.bits())
+                .frontFace(faceWinding.getEnum())
                 .depthBiasEnable(depthBias);
     }
 
-    public void setPolygonMode(int polygonMode) {
+    public void setPolygonMode(IntEnum<PolygonMode> polygonMode) {
         this.polygonMode = polygonMode;
     }
 
-    public void setCullMode(int cullMode) {
+    public void setCullMode(Flag<CullMode> cullMode) {
         this.cullMode = cullMode;
     }
 
-    public void setFrontFace(int frontFace) {
-        this.frontFace = frontFace;
+    public void setFaceWinding(IntEnum<FaceWinding> faceWinding) {
+        this.faceWinding = faceWinding;
     }
 
     public void setLineWidth(float lineWidth) {

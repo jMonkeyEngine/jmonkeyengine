@@ -1,7 +1,7 @@
 package com.jme3.vulkan.mesh;
 
 import com.jme3.vulkan.Format;
-import com.jme3.vulkan.util.LibEnum;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkVertexInputAttributeDescription;
 import org.lwjgl.vulkan.VkVertexInputBindingDescription;
@@ -45,13 +45,13 @@ public class MeshDescription implements Iterable<VertexBinding> {
         return attr;
     }
 
-    public int addBinding(LibEnum<InputRate> rate) {
+    public int addBinding(IntEnum<InputRate> rate) {
         VertexBinding binding = new VertexBinding(bindings.size(), rate);
         bindings.add(binding);
         return binding.getBindingIndex();
     }
 
-    public int addAttribute(String name, LibEnum<InputRate> rate, Format format, int location) {
+    public int addAttribute(String name, IntEnum<InputRate> rate, Format format, int location) {
         int binding = addBinding(rate);
         addAttribute(name, binding, format, location);
         return binding;
@@ -61,7 +61,7 @@ public class MeshDescription implements Iterable<VertexBinding> {
         getBinding(bindingIndex).addAttribute(name, format, location);
     }
 
-    public int addAttribute(BuiltInAttribute name, LibEnum<InputRate> rate, Format format, int location) {
+    public int addAttribute(BuiltInAttribute name, IntEnum<InputRate> rate, Format format, int location) {
         return addAttribute(name.getName(), rate, format, location);
     }
 

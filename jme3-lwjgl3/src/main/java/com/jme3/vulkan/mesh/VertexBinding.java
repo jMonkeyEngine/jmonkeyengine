@@ -1,18 +1,18 @@
 package com.jme3.vulkan.mesh;
 
 import com.jme3.vulkan.Format;
-import com.jme3.vulkan.util.LibEnum;
+import com.jme3.vulkan.util.IntEnum;
 
 import java.util.*;
 
 public class VertexBinding implements Iterable<VertexAttribute> {
 
     private final int binding;
-    private final LibEnum<InputRate> rate;
+    private final IntEnum<InputRate> rate;
     private final Map<String, VertexAttribute> attributes = new HashMap<>();
     private int stride;
 
-    public VertexBinding(int binding, LibEnum<InputRate> rate) {
+    public VertexBinding(int binding, IntEnum<InputRate> rate) {
         this.binding = binding;
         this.rate = rate;
     }
@@ -38,7 +38,7 @@ public class VertexBinding implements Iterable<VertexAttribute> {
         return stride;
     }
 
-    public LibEnum<InputRate> getRate() {
+    public IntEnum<InputRate> getRate() {
         return rate;
     }
 

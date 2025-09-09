@@ -1,17 +1,18 @@
-package com.jme3.vulkan.mesh;
+package com.jme3.vulkan.pipelines;
 
 import com.jme3.vulkan.util.IntEnum;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public enum InputRate implements IntEnum<InputRate> {
+public enum PolygonMode implements IntEnum<PolygonMode> {
 
-    Vertex(VK_VERTEX_INPUT_RATE_VERTEX),
-    Instance(VK_VERTEX_INPUT_RATE_INSTANCE);
+    Fill(VK_POLYGON_MODE_FILL),
+    Line(VK_POLYGON_MODE_LINE),
+    Point(VK_POLYGON_MODE_POINT);
 
     private final int vkEnum;
 
-    InputRate(int vkEnum) {
+    PolygonMode(int vkEnum) {
         this.vkEnum = vkEnum;
     }
 

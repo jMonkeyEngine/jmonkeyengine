@@ -1,10 +1,10 @@
 package com.jme3.vulkan;
 
-import com.jme3.vulkan.util.LibEnum;
+import com.jme3.vulkan.util.IntEnum;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public enum SharingMode implements LibEnum<SharingMode> {
+public enum SharingMode implements IntEnum<SharingMode> {
 
     Exclusive(VK_SHARING_MODE_EXCLUSIVE),
     Concurrent(VK_SHARING_MODE_CONCURRENT);

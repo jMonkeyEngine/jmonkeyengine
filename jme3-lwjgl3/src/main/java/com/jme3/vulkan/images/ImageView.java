@@ -4,7 +4,7 @@ import com.jme3.util.natives.Native;
 import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.Swizzle;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.LibEnum;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.VkImageViewCreateInfo;
 
 import java.nio.LongBuffer;
@@ -15,19 +15,19 @@ import static org.lwjgl.vulkan.VK10.*;
 public class ImageView extends AbstractNative<Long> {
 
     private final VulkanImage image;
-    private final LibEnum<VulkanImage.View> type;
+    private final IntEnum<VulkanImage.View> type;
 
-    private LibEnum<Swizzle> swizzleR = Swizzle.R;
-    private LibEnum<Swizzle> swizzleG = Swizzle.G;
-    private LibEnum<Swizzle> swizzleB = Swizzle.B;
-    private LibEnum<Swizzle> swizzleA = Swizzle.A;
+    private IntEnum<Swizzle> swizzleR = Swizzle.R;
+    private IntEnum<Swizzle> swizzleG = Swizzle.G;
+    private IntEnum<Swizzle> swizzleB = Swizzle.B;
+    private IntEnum<Swizzle> swizzleA = Swizzle.A;
     private Flag<VulkanImage.Aspect> aspect = VulkanImage.Aspect.Color;
     private int baseMipmap = 0;
     private int mipmapCount = 1;
     private int baseLayer = 0;
     private int layerCount = 1;
 
-    public ImageView(VulkanImage image, LibEnum<VulkanImage.View> type) {
+    public ImageView(VulkanImage image, IntEnum<VulkanImage.View> type) {
         this.image = image;
         this.type = type;
     }
@@ -41,23 +41,23 @@ public class ImageView extends AbstractNative<Long> {
         return image;
     }
 
-    public LibEnum<VulkanImage.View> getType() {
+    public IntEnum<VulkanImage.View> getType() {
         return type;
     }
 
-    public LibEnum<Swizzle> getSwizzleR() {
+    public IntEnum<Swizzle> getSwizzleR() {
         return swizzleR;
     }
 
-    public LibEnum<Swizzle> getSwizzleG() {
+    public IntEnum<Swizzle> getSwizzleG() {
         return swizzleG;
     }
 
-    public LibEnum<Swizzle> getSwizzleB() {
+    public IntEnum<Swizzle> getSwizzleB() {
         return swizzleB;
     }
 
-    public LibEnum<Swizzle> getSwizzleA() {
+    public IntEnum<Swizzle> getSwizzleA() {
         return swizzleA;
     }
 
@@ -118,19 +118,19 @@ public class ImageView extends AbstractNative<Long> {
             mipmapCount = image.getMipmaps();
         }
 
-        public void setSwizzleR(LibEnum<Swizzle> swizzleR) {
+        public void setSwizzleR(IntEnum<Swizzle> swizzleR) {
             ImageView.this.swizzleR = swizzleR;
         }
 
-        public void setSwizzleG(LibEnum<Swizzle> swizzleG) {
+        public void setSwizzleG(IntEnum<Swizzle> swizzleG) {
             ImageView.this.swizzleG = swizzleG;
         }
 
-        public void setSwizzleB(LibEnum<Swizzle> swizzleB) {
+        public void setSwizzleB(IntEnum<Swizzle> swizzleB) {
             ImageView.this.swizzleB = swizzleB;
         }
 
-        public void setSwizzleA(LibEnum<Swizzle> swizzleA) {
+        public void setSwizzleA(IntEnum<Swizzle> swizzleA) {
             ImageView.this.swizzleA = swizzleA;
         }
 

@@ -241,7 +241,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         try (GraphicsPipeline.Builder p = pipeline.build()) {
             p.addShader(vertModule, ShaderStage.Vertex, "main");
             p.addShader(fragModule, ShaderStage.Fragment, "main");
-            p.getRasterization().setCullMode(VK_CULL_MODE_NONE);
+            p.getRasterization().setCullMode(CullMode.None);
             p.getViewportState().addViewport();
             p.getViewportState().addScissor();
             p.getColorBlend().addAttachment(new ColorBlendAttachment());
@@ -256,8 +256,12 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         try (ImageView.Builder i = imgView.build()) {
             i.setAspect(VulkanImage.Aspect.Color);
         }
-        texture = new Texture(device, imgView, VK_FILTER_LINEAR, VK_FILTER_LINEAR,
-                VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_MIPMAP_MODE_LINEAR);
+        texture = new Texture(device, imgView);
+        try (Sampler.Builder t = texture.build()) {
+            t.setMinMagFilters(Filter.Linear, Filter.Linear);
+            t.setEdgeModes(AddressMode.Repeat);
+            t.setMipmapMode(MipmapMode.Linear);
+        }
 
         graphics = new BasicCommandBatch();
         perFrameData = new BasicCommandBatch();

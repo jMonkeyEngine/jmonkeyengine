@@ -17,6 +17,7 @@ public class VertexInputState implements PipelineState<VkPipelineVertexInputStat
 
     @Override
     public VkPipelineVertexInputStateCreateInfo toStruct(MemoryStack stack) {
+        Objects.requireNonNull(mesh, "Mesh description is not defined.");
         return VkPipelineVertexInputStateCreateInfo.calloc(stack)
                 .sType(VK10.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
                 .pVertexBindingDescriptions(mesh.getBindingInfo(stack))
@@ -24,7 +25,7 @@ public class VertexInputState implements PipelineState<VkPipelineVertexInputStat
     }
 
     public void setMesh(MeshDescription mesh) {
-        this.mesh = Objects.requireNonNull(mesh, "Mesh description cannot be null.");
+        this.mesh = mesh;
     }
 
 }

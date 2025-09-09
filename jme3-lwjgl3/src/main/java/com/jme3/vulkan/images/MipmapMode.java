@@ -1,17 +1,17 @@
-package com.jme3.vulkan.mesh;
+package com.jme3.vulkan.images;
 
 import com.jme3.vulkan.util.IntEnum;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public enum InputRate implements IntEnum<InputRate> {
+public enum MipmapMode implements IntEnum<MipmapMode> {
 
-    Vertex(VK_VERTEX_INPUT_RATE_VERTEX),
-    Instance(VK_VERTEX_INPUT_RATE_INSTANCE);
+    Linear(VK_SAMPLER_MIPMAP_MODE_LINEAR),
+    Nearest(VK_SAMPLER_MIPMAP_MODE_NEAREST);
 
     private final int vkEnum;
 
-    InputRate(int vkEnum) {
+    MipmapMode(int vkEnum) {
         this.vkEnum = vkEnum;
     }
 

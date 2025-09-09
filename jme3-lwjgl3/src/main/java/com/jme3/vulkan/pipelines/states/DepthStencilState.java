@@ -1,5 +1,7 @@
 package com.jme3.vulkan.pipelines.states;
 
+import com.jme3.vulkan.pipelines.CompareOp;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkPipelineDepthStencilStateCreateInfo;
@@ -10,7 +12,7 @@ public class DepthStencilState implements PipelineState<VkPipelineDepthStencilSt
     private boolean depthWrite = true;
     private boolean depthBoundsTest = false;
     private boolean stencilTest = false;
-    private int depthCompare = VK10.VK_COMPARE_OP_LESS_OR_EQUAL;
+    private IntEnum<CompareOp> depthCompare = CompareOp.LessOrEqual;
 
     @Override
     public VkPipelineDepthStencilStateCreateInfo toStruct(MemoryStack stack) {
@@ -20,7 +22,7 @@ public class DepthStencilState implements PipelineState<VkPipelineDepthStencilSt
                 .depthWriteEnable(depthWrite)
                 .depthBoundsTestEnable(depthBoundsTest)
                 .stencilTestEnable(stencilTest)
-                .depthCompareOp(depthCompare);
+                .depthCompareOp(depthCompare.getEnum());
     }
 
     public void setDepthTest(boolean depthTest) {
@@ -39,7 +41,7 @@ public class DepthStencilState implements PipelineState<VkPipelineDepthStencilSt
         this.stencilTest = stencilTest;
     }
 
-    public void setDepthCompare(int depthCompare) {
+    public void setDepthCompare(IntEnum<CompareOp> depthCompare) {
         this.depthCompare = depthCompare;
     }
 

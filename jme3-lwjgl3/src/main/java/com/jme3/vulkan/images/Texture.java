@@ -8,8 +8,8 @@ public class Texture extends Sampler {
 
     private final ImageView image;
 
-    public Texture(LogicalDevice device, ImageView image, int min, int mag, int edgeMode, int mipmapMode) {
-        super(device, min, mag, edgeMode, mipmapMode);
+    public Texture(LogicalDevice device, ImageView image) {
+        super(device);
         this.image = Objects.requireNonNull(image);
     }
 

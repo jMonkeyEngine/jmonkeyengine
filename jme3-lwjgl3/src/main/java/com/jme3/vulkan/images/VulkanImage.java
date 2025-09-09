@@ -1,11 +1,10 @@
 package com.jme3.vulkan.images;
 
-import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.SharingMode;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.LibEnum;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.KHRSwapchain;
 
 import static org.lwjgl.vulkan.VK10.*;
@@ -31,7 +30,7 @@ public interface VulkanImage extends Image {
 
     }
 
-    enum Layout implements LibEnum<Layout> {
+    enum Layout implements IntEnum<Layout> {
 
         Undefined(VK_IMAGE_LAYOUT_UNDEFINED),
         General(VK_IMAGE_LAYOUT_GENERAL),
@@ -78,7 +77,7 @@ public interface VulkanImage extends Image {
 
     }
 
-    enum Tiling implements LibEnum<Tiling> {
+    enum Tiling implements IntEnum<Tiling> {
 
         Optimal(VK_IMAGE_TILING_OPTIMAL),
         Linear(VK_IMAGE_TILING_LINEAR);
@@ -96,7 +95,7 @@ public interface VulkanImage extends Image {
 
     }
 
-    enum Load implements LibEnum<Load> {
+    enum Load implements IntEnum<Load> {
 
         Clear(VK_ATTACHMENT_LOAD_OP_CLEAR),
         Load(VK_ATTACHMENT_LOAD_OP_LOAD),
@@ -115,7 +114,7 @@ public interface VulkanImage extends Image {
 
     }
 
-    enum Store implements LibEnum<Store> {
+    enum Store implements IntEnum<Store> {
 
         Store(VK_ATTACHMENT_STORE_OP_STORE),
         DontCare(VK_ATTACHMENT_STORE_OP_DONT_CARE);
@@ -133,7 +132,7 @@ public interface VulkanImage extends Image {
 
     }
 
-    enum View implements LibEnum<View> {
+    enum View implements IntEnum<View> {
 
         OneDemensional(VK_IMAGE_VIEW_TYPE_1D),
         TwoDemensional(VK_IMAGE_VIEW_TYPE_2D),
@@ -180,9 +179,9 @@ public interface VulkanImage extends Image {
 
     Flag<ImageUsage> getUsage();
 
-    LibEnum<Tiling> getTiling();
+    IntEnum<Tiling> getTiling();
 
-    LibEnum<SharingMode> getSharingMode();
+    IntEnum<SharingMode> getSharingMode();
 
     void addNativeDependent(NativeReference ref);
 

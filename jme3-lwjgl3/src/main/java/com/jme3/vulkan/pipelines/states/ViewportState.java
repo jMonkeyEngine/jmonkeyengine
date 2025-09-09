@@ -37,11 +37,11 @@ public class ViewportState implements PipelineState<VkPipelineViewportStateCreat
     }
 
     public void addViewport() {
-        viewports.add(new ViewportInfo(0f, 0f, 128f, 128f, 0f, 1f));
+        addViewport(0f, 0f, 128f, 128f);
     }
 
     public void addViewport(float x, float y, float w, float h) {
-        viewports.add(new ViewportInfo(x, y, w, h, 0f, 1f));
+        addViewport(x, y, w, h, 0f, 1f);
     }
 
     public void addViewport(float x, float y, float w, float h, float minDepth, float maxDepth) {
@@ -49,7 +49,7 @@ public class ViewportState implements PipelineState<VkPipelineViewportStateCreat
     }
 
     public void addScissor() {
-        scissors.add(new ScissorInfo(0, 0, 128, 128));
+        addScissor(0, 0, 128, 128);
     }
 
     public void addScissor(int x, int y, int w, int h) {
@@ -58,8 +58,8 @@ public class ViewportState implements PipelineState<VkPipelineViewportStateCreat
 
     private static class ViewportInfo {
 
-        private final float x, y, w, h;
-        private final float min, max;
+        public final float x, y, w, h;
+        public final float min, max;
 
         public ViewportInfo(float x, float y, float w, float h, float min, float max) {
             this.x = x;
@@ -74,7 +74,7 @@ public class ViewportState implements PipelineState<VkPipelineViewportStateCreat
 
     private static class ScissorInfo {
 
-        private final int x, y, w, h;
+        public final int x, y, w, h;
 
         public ScissorInfo(int x, int y, int w, int h) {
             this.x = x;

@@ -1,15 +1,15 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.vulkan.Format;
-import com.jme3.vulkan.util.LibEnum;
+import com.jme3.vulkan.util.IntEnum;
 
 public interface Image {
 
-    interface Type extends LibEnum<Type> {}
+    interface Type extends IntEnum<Type> {}
 
     long getId();
 
-    LibEnum<Type> getType();
+    IntEnum<Type> getType();
 
     int getWidth();
 

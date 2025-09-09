@@ -16,7 +16,7 @@ import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.SyncGroup;
 import com.jme3.vulkan.util.Extent2;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.LibEnum;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -178,7 +178,7 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public LibEnum<Image.Type> getType() {
+        public IntEnum<Image.Type> getType() {
             return Type.TwoDemensional;
         }
 
@@ -223,7 +223,7 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public LibEnum<SharingMode> getSharingMode() {
+        public IntEnum<SharingMode> getSharingMode() {
             return SharingMode.Exclusive;
         }
 

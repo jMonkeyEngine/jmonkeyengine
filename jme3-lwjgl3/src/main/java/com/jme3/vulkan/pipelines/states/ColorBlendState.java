@@ -1,5 +1,7 @@
 package com.jme3.vulkan.pipelines.states;
 
+import com.jme3.vulkan.pipelines.LogicOp;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkPipelineColorBlendAttachmentState;
 import org.lwjgl.vulkan.VkPipelineColorBlendStateCreateInfo;
@@ -7,14 +9,13 @@ import org.lwjgl.vulkan.VkPipelineColorBlendStateCreateInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.vulkan.VK10.VK_LOGIC_OP_COPY;
 import static org.lwjgl.vulkan.VK10.VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 
 public class ColorBlendState implements PipelineState<VkPipelineColorBlendStateCreateInfo> {
 
     private final List<ColorBlendAttachment> attachments = new ArrayList<>();
     private boolean logicEnabled = false;
-    private int logic = VK_LOGIC_OP_COPY;
+    private IntEnum<LogicOp> logic = LogicOp.Copy;
 
     @Override
     public VkPipelineColorBlendStateCreateInfo toStruct(MemoryStack stack) {
@@ -26,7 +27,7 @@ public class ColorBlendState implements PipelineState<VkPipelineColorBlendStateC
         return VkPipelineColorBlendStateCreateInfo.calloc(stack)
                 .sType(VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO)
                 .logicOpEnable(logicEnabled)
-                .logicOp(logic)
+                .logicOp(logic.getEnum())
                 .pAttachments(attBuf);
     }
 
@@ -38,7 +39,7 @@ public class ColorBlendState implements PipelineState<VkPipelineColorBlendStateC
         this.logicEnabled = logicEnabled;
     }
 
-    public void setLogic(int logic) {
+    public void setLogic(IntEnum<LogicOp> logic) {
         this.logic = logic;
     }
 
