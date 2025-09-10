@@ -57,8 +57,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -71,6 +75,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  *
  */
 public class TestDriver extends BaseAppState{
+
+    private static final Logger logger = Logger.getLogger(TestDriver.class.getName());
 
     public static final String IMAGES_ARE_DIFFERENT = "Images are different. (If you are running the test locally this is expected, images only reproducible on github CI infrastructure)";
 
@@ -94,7 +100,7 @@ public class TestDriver extends BaseAppState{
 
     ScreenshotNoInputAppState screenshotAppState;
 
-    private final Object waitLock = new Object();
+    private CountDownLatch waitLatch;
 
     private final int tickToTerminateApp;
 
@@ -113,22 +119,25 @@ public class TestDriver extends BaseAppState{
         }
         if(tick >= tickToTerminateApp){
             getApplication().stop(true);
-            synchronized (waitLock) {
-                waitLock.notify(); // Release the wait
-            }
+            waitLatch.countDown();
         }
 
         tick++;
     }
 
-    @Override protected void initialize(Application app){}
+    @Override protected void initialize(Application app){
+        ((App)app).onError = error -> {
+            logger.log(Level.WARNING, "Error in test application", error);
+            waitLatch.countDown();
+        };
+
+    }
 
     @Override protected void cleanup(Application app){}
 
     @Override protected void onEnable(){}
 
     @Override protected void onDisable(){}
-
 
     /**
      * Boots up the application on a separate thread (blocks this thread) and then does the following:
@@ -161,16 +170,23 @@ public class TestDriver extends BaseAppState{
         app.setSettings(appSettings);
         app.setShowSettings(false);
 
+        testDriver.waitLatch = new CountDownLatch(1);
         executor.execute(() -> app.start(JmeContext.Type.Display));
 
-        synchronized (testDriver.waitLock) {
-            try {
-                testDriver.waitLock.wait(10000); // Wait for the screenshot to be taken and application to stop
-                Thread.sleep(200); //give time for openGL is fully released before starting a new test (get random JVM crashes without this)
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(e);
+        int maxWaitTimeMilliseconds = 45000;
+
+        try {
+            boolean exitedProperly = testDriver.waitLatch.await(maxWaitTimeMilliseconds, TimeUnit.MILLISECONDS);
+
+            if(!exitedProperly){
+                logger.warning("Test driver did not exit in " + maxWaitTimeMilliseconds + "ms. Timed out");
+                app.stop(true);
             }
+
+            Thread.sleep(1000); //give time for openGL is fully released before starting a new test (get random JVM crashes without this)
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
         }
 
         //search the imageTempDir

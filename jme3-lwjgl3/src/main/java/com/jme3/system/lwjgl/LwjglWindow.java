@@ -275,12 +275,20 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         );
 
         if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND)) {
-            
+
+            /*
+             * Change the platform GLFW uses to enable GLX on Wayland as long as you 
+             * have XWayland (X11 compatibility)
+             */
+            if (settings.isX11PlatformPreferred() && glfwPlatformSupported(GLFW_PLATFORM_X11)) {
+                glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+            }
+
             // Disables the libdecor bar when creating a fullscreen context
             // https://www.glfw.org/docs/latest/intro_guide.html#init_hints_wayland
             glfwInitHint(GLFW_WAYLAND_LIBDECOR, settings.isFullscreen() ? GLFW_WAYLAND_DISABLE_LIBDECOR : GLFW_WAYLAND_PREFER_LIBDECOR);
         }
-        
+
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
@@ -404,6 +412,14 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         );
 
         int platformId = glfwGetPlatform();
+        if (settings.isX11PlatformPreferred()) {
+            if (platformId == GLFW_PLATFORM_X11) {
+                LOGGER.log(Level.INFO, "Active X11 server for GLX management:\n * Platform: GLFW_PLATFORM_X11|XWayland ({0})", platformId);
+            } else {
+                LOGGER.log(Level.WARNING, "Can't change platform to X11 (GLX), check if you have XWayland enabled");
+            }
+        }
+        
         if (platformId != GLFW_PLATFORM_WAYLAND && !settings.isFullscreen()) {
             /*
              * in case the window positioning hints above were ignored, but not
