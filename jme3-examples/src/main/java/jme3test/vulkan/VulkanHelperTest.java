@@ -178,7 +178,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         descriptorLayout = new DescriptorSetLayout(device,
                 new SetLayoutBinding(Descriptor.UniformBuffer, 0, 1, ShaderStage.Vertex),
                 new SetLayoutBinding(Descriptor.CombinedImageSampler, 1, 1, ShaderStage.Fragment));
-        descriptorPool = new DescriptorPool(device, 3,
+        descriptorPool = new DescriptorPool(device, 10,
                 new PoolSize(Descriptor.UniformBuffer, 3),
                 new PoolSize(Descriptor.StorageBuffer, 4),
                 new PoolSize(Descriptor.CombinedImageSampler, 2));
