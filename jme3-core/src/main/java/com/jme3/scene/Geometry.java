@@ -56,7 +56,7 @@ import java.util.logging.Logger;
  * <code>Geometry</code> defines a leaf node of the scene graph. The leaf node
  * contains the geometric data for rendering objects. It manages all rendering
  * information such as a {@link Material} object to define how the surface
- * should be shaded and the {@link Mesh} data to contain the actual geometry.
+ * should be shaded and the {@link GLMesh} data to contain the actual geometry.
  *
  * @author Kirill Vainer
  */
@@ -126,7 +126,7 @@ public class Geometry extends Spatial {
      * @param name The name of this geometry
      * @param mesh The mesh data for this geometry
      */
-    public Geometry(String name, Mesh mesh) {
+    public Geometry(String name, GLMesh mesh) {
         this(name);
 
         if (mesh == null) {
@@ -143,7 +143,7 @@ public class Geometry extends Spatial {
      * @param mesh The mesh data for this geometry
      * @param material The material for this geometry
      */
-    public Geometry(String name, Mesh mesh, Material material) {
+    public Geometry(String name, GLMesh mesh, Material material) {
         this(name, mesh);
         setMaterial(material);
     }
@@ -177,7 +177,7 @@ public class Geometry extends Spatial {
      * Sets the LOD level to use when rendering the mesh of this geometry.
      * Level 0 indicates that the default index buffer should be used,
      * levels [1, LodLevels + 1] represent the levels set on the mesh
-     * with {@link Mesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
+     * with {@link GLMesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
      *
      * @param lod The lod level to set
      */
@@ -212,7 +212,7 @@ public class Geometry extends Spatial {
      *
      * @return this geometry's mesh vertex count.
      *
-     * @see Mesh#getVertexCount()
+     * @see GLMesh#getVertexCount()
      */
     @Override
     public int getVertexCount() {
@@ -224,7 +224,7 @@ public class Geometry extends Spatial {
      *
      * @return this geometry's mesh triangle count.
      *
-     * @see Mesh#getTriangleCount()
+     * @see GLMesh#getTriangleCount()
      */
     @Override
     public int getTriangleCount() {
@@ -238,7 +238,7 @@ public class Geometry extends Spatial {
      *
      * @throws IllegalArgumentException If mesh is null
      */
-    public void setMesh(Mesh mesh) {
+    public void setMesh(GLMesh mesh) {
         if (mesh == null) {
             throw new IllegalArgumentException();
         }
@@ -256,9 +256,9 @@ public class Geometry extends Spatial {
      *
      * @return the mesh to use for this geometry
      *
-     * @see #setMesh(com.jme3.scene.Mesh)
+     * @see #setMesh(GLMesh)
      */
-    public Mesh getMesh() {
+    public GLMesh getMesh() {
         return mesh;
     }
 
@@ -450,7 +450,7 @@ public class Geometry extends Spatial {
     /**
      * Sets the model bound to use for this geometry.
      * This alters the bound used on the mesh as well via
-     * {@link Mesh#setBound(com.jme3.bounding.BoundingVolume) } and
+     * {@link GLMesh#setBound(com.jme3.bounding.BoundingVolume) } and
      * forces the world bounding volume to be recomputed.
      *
      * @param modelBound The model bound to set
@@ -585,7 +585,7 @@ public class Geometry extends Spatial {
         this.cachedWorldMat = cloner.clone(cachedWorldMat);
 
         // See if we are doing a shallow clone or a deep mesh clone
-        boolean shallowClone = (cloner.getCloneFunction(Mesh.class) instanceof IdentityCloneFunction);
+        boolean shallowClone = (cloner.getCloneFunction(GLMesh.class) instanceof IdentityCloneFunction);
 
         // See if we clone the mesh using the special animation
         // semi-deep cloning
@@ -731,7 +731,7 @@ public class Geometry extends Spatial {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        mesh = (Mesh) ic.readSavable("mesh", null);
+        mesh = (GLMesh) ic.readSavable("mesh", null);
 
         material = null;
         String matName = ic.readString("materialName", null);
@@ -756,7 +756,7 @@ public class Geometry extends Spatial {
 
         if (ic.getSavableVersion(Geometry.class) == 0) {
             // Fix shared mesh (if set)
-            Mesh sharedMesh = getUserData(UserData.JME_SHAREDMESH);
+            GLMesh sharedMesh = getUserData(UserData.JME_SHAREDMESH);
             if (sharedMesh != null) {
                 getMesh().extractVertexData(sharedMesh);
                 setUserData(UserData.JME_SHAREDMESH, null);
