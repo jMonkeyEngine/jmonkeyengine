@@ -36,7 +36,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.material.MatParamOverride;
 import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.shape.Box;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
@@ -71,7 +71,7 @@ public class TestIssue37 extends SimpleApplication {
         /*
          * Attach a test geometry to the scene.
          */
-        GLMesh cubeMesh = new Box(1f, 1f, 1f);
+        Mesh cubeMesh = new Box(1f, 1f, 1f);
         Geometry cubeGeometry = new Geometry("Box", cubeMesh);
         rootNode.attachChild(cubeGeometry);
         /*

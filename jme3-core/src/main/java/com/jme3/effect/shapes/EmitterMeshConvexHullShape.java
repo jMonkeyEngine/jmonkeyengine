@@ -33,7 +33,7 @@ package com.jme3.effect.shapes;
 
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import java.util.List;
 
 /**
@@ -55,7 +55,7 @@ public class EmitterMeshConvexHullShape extends EmitterMeshFaceShape {
      * @param meshes
      *        a list of meshes that will form the emitter's shape
      */
-    public EmitterMeshConvexHullShape(List<GLMesh> meshes) {
+    public EmitterMeshConvexHullShape(List<Mesh> meshes) {
         super(meshes);
     }
 

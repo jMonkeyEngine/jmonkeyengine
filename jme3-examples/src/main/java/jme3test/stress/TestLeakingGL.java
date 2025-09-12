@@ -36,7 +36,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.shape.Sphere;
@@ -80,7 +80,7 @@ public class TestLeakingGL extends SimpleApplication {
         rootNode.detachAllChildren();
         for (int y = -15; y < 15; y++){
             for (int x = -15; x < 15; x++){
-                GLMesh sphMesh = original.deepClone();
+                Mesh sphMesh = original.deepClone();
                 Geometry sphere = new Geometry("sphere", sphMesh);
 
                 sphere.setMaterial(solidColor);

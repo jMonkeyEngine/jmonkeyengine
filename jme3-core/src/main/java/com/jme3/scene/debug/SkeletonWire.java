@@ -42,7 +42,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
@@ -55,7 +55,7 @@ import java.util.HashMap;
  * The class that displays either wires between the bones' heads if no length data is supplied and
  * full bones' shapes otherwise.
  */
-public class SkeletonWire extends GLMesh {
+public class SkeletonWire extends Mesh {
     /** The number of bones' connections. Used in non-length mode. */
     private int                 numConnections;
     /** The skeleton to be displayed. */

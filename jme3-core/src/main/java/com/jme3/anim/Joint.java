@@ -366,7 +366,7 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
          * Search for a geometry animated by this particular bone.
          */
         for (Geometry geometry : targets) {
-            GLMesh mesh = geometry.getMesh();
+            Mesh mesh = geometry.getMesh();
             if (mesh != null && mesh.isAnimatedByJoint(jointIndex)) {
                 targetGeometry = geometry;
                 break;

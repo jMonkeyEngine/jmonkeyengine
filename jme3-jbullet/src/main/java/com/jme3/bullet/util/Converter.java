@@ -34,7 +34,7 @@ package com.jme3.bullet.util;
 import com.bulletphysics.collision.shapes.IndexedMesh;
 import com.bulletphysics.dom.HeightfieldTerrainShape;
 import com.jme3.math.FastMath;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.BufferUtils;
@@ -223,7 +223,7 @@ public class Converter {
         return out;
     }
 
-    public static synchronized IndexedMesh convert(GLMesh mesh) {
+    public static synchronized IndexedMesh convert(Mesh mesh) {
         IndexedMesh jBulletIndexedMesh = new IndexedMesh();
         jBulletIndexedMesh.triangleIndexBase = ByteBuffer.allocate(mesh.getTriangleCount() * 3 * 4);
         jBulletIndexedMesh.vertexBase = ByteBuffer.allocate(mesh.getVertexCount() * 3 * 4);
@@ -253,8 +253,8 @@ public class Converter {
         return jBulletIndexedMesh;
     }
 
-    public static GLMesh convert(IndexedMesh mesh) {
-        GLMesh jmeMesh = new GLMesh();
+    public static Mesh convert(IndexedMesh mesh) {
+        Mesh jmeMesh = new Mesh();
 
         jmeMesh.setBuffer(Type.Index, 3, BufferUtils.createShortBuffer(mesh.numTriangles * 3));
         jmeMesh.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(mesh.numVertices * 3));
@@ -276,7 +276,7 @@ public class Converter {
         return jmeMesh;
     }
 
-    public static GLMesh convert(HeightfieldTerrainShape heightfieldShape) {
+    public static Mesh convert(HeightfieldTerrainShape heightfieldShape) {
         return null; //TODO!!
     }
 }

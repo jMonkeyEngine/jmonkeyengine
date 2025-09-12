@@ -39,7 +39,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Node;
 import com.jme3.scene.instancing.InstancedGeometry;
@@ -50,8 +50,8 @@ import com.jme3.system.AppSettings;
 
 public class TestInstanceNode extends SimpleApplication  {
 
-    private GLMesh mesh1;
-    private GLMesh mesh2;
+    private Mesh mesh1;
+    private Mesh mesh2;
     private final Material[] materials = new Material[6];
     private Node instancedNode;
     private float time = 0;
@@ -66,7 +66,7 @@ public class TestInstanceNode extends SimpleApplication  {
     }
 
     private Geometry createInstance(float x, float z) {
-        GLMesh mesh;
+        Mesh mesh; 
         if (FastMath.nextRandomInt(0, 1) == 1) mesh = mesh2;
         else mesh = mesh1;
         Geometry geometry = new Geometry("randomGeom", mesh);
@@ -156,7 +156,7 @@ public class TestInstanceNode extends SimpleApplication  {
                     Geometry geom = (Geometry) instance;
                     geom.setMaterial(materials[FastMath.nextRandomInt(0, materials.length - 1)]);
 
-                    GLMesh mesh;
+                    Mesh mesh; 
                     if (FastMath.nextRandomInt(0, 1) == 1) mesh = mesh2;
                     else mesh = mesh1;
                     geom.setMesh(mesh);

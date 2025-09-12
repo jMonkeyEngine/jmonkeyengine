@@ -31,7 +31,7 @@
  */
 package com.jme3.scene.mesh;
 
-import com.jme3.scene.GLMesh.Mode;
+import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer.Format;
 
 import java.nio.Buffer;

@@ -8,11 +8,11 @@ import java.util.List;
 
 import com.jme3.asset.AssetLoadException;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.plugins.fbx.SceneLoader;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
-import com.jme3.scene.GLMesh.Mode;
+import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.Node;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
@@ -257,7 +257,7 @@ public class FbxMesh extends FbxObject {
     }
 
     private List<Geometry> createGeometries() throws IOException {
-        GLMesh mesh = new GLMesh();
+        Mesh mesh = new Mesh();
         mesh.setMode(Mode.Triangles);
         // Since each vertex should contain unique texcoord and normal we should unroll vertex indexing
         // So we don't use VertexBuffer.Type.Index for elements drawing
@@ -507,7 +507,7 @@ public class FbxMesh extends FbxObject {
                 Entry<List<Integer>> e = iterator.next();
                 int materialId = e.getKey();
                 List<Integer> indexes = e.getValue();
-                GLMesh newMesh = mesh.clone();
+                Mesh newMesh = mesh.clone();
                 newMesh.setBuffer(VertexBuffer.Type.Index, 3, toArray(indexes.toArray(new Integer[indexes.size()])));
                 newMesh.setStatic();
                 newMesh.updateBound();

@@ -1,7 +1,6 @@
 package com.jme3.vulkan;
 
 import com.jme3.system.JmeVersion;
-import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
@@ -12,7 +11,6 @@ import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 
 import java.util.*;
-import java.util.logging.Level;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -27,7 +25,6 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
     private String appName = "Unnamed App";
     private int appVersion = VK_MAKE_VERSION(0, 0, 0);
     private int apiVersion;
-    private VulkanLogger logger;
 
     public VulkanInstance() {
         this(VK_API_VERSION_1_0);
@@ -40,14 +37,6 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
     @Override
     public Runnable createNativeDestroyer() {
         return () -> vkDestroyInstance(object, null);
-    }
-
-    public VulkanLogger createLogger(Level exceptionThreshold) {
-        return logger = new VulkanLogger(this, exceptionThreshold);
-    }
-
-    public VulkanLogger getLogger() {
-        return logger;
     }
 
     public Set<String> getExtensions() {

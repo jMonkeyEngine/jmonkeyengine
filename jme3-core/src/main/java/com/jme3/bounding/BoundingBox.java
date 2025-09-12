@@ -40,7 +40,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.*;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import java.io.IOException;
@@ -172,7 +172,7 @@ public class BoundingBox extends BoundingVolume {
         vars.release();
     }
 
-    public void computeFromTris(int[] indices, GLMesh mesh, int start, int end) {
+    public void computeFromTris(int[] indices, Mesh mesh, int start, int end) {
         if (end - start <= 0) {
             return;
         }

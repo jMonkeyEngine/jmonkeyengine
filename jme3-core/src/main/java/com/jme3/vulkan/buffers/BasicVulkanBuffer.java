@@ -2,7 +2,7 @@ package com.jme3.vulkan.buffers;
 
 import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.util.natives.Native;
-import com.jme3.util.natives.AbstractNative;
+import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemoryRegion;

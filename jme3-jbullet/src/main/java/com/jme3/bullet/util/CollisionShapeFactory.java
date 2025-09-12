@@ -251,9 +251,9 @@ public class CollisionShapeFactory {
      * other.
      */
     private static MeshCollisionShape createSingleMeshShape(Geometry geom, Spatial parent) {
-        GLMesh mesh = geom.getMesh();
+        Mesh mesh = geom.getMesh();
         Transform trans = getTransform(geom, parent);
-        if (mesh != null && mesh.getMode() == GLMesh.Mode.Triangles) {
+        if (mesh != null && mesh.getMode() == Mesh.Mode.Triangles) {
             MeshCollisionShape mColl = new MeshCollisionShape(mesh);
             mColl.setScale(trans.getScale());
             return mColl;
@@ -285,7 +285,7 @@ public class CollisionShapeFactory {
      * @param parent
      */
     private static HullCollisionShape createSingleDynamicMeshShape(Geometry geom, Spatial parent) {
-        GLMesh mesh = geom.getMesh();
+        Mesh mesh = geom.getMesh();
         Transform trans = getTransform(geom, parent);
         if (mesh != null) {
             HullCollisionShape dynamicShape = new HullCollisionShape(mesh);

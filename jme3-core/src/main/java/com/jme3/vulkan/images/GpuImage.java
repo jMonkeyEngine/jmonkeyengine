@@ -2,7 +2,7 @@ package com.jme3.vulkan.images;
 
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
-import com.jme3.util.natives.AbstractNative;
+import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.SharingMode;
 import com.jme3.vulkan.commands.CommandBuffer;

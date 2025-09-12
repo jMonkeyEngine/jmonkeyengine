@@ -374,7 +374,7 @@ public class GltfLoader implements AssetLoader {
             int index = 0;
             for (JsonElement primitive : primitives) {
                 JsonObject meshObject = primitive.getAsJsonObject();
-                GLMesh mesh = new GLMesh();
+                Mesh mesh = new Mesh();
                 addToCache("mesh", 0, mesh, 1);
                 Integer mode = getAsInteger(meshObject, "mode");
                 mesh.setMode(getMeshMode(mode));

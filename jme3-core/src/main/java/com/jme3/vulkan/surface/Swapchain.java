@@ -1,6 +1,5 @@
 package com.jme3.vulkan.surface;
 
-import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.*;

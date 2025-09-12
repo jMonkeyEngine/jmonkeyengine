@@ -124,7 +124,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         numberOfBonesParam.setValue(numBones);
 
         for (Geometry geometry : targets) {
-            GLMesh mesh = geometry.getMesh();
+            Mesh mesh = geometry.getMesh();
             if (mesh != null && mesh.isAnimated()) {
                 mesh.prepareForAnim(false);
             }
@@ -136,7 +136,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         boneMatricesParam.setEnabled(false);
 
         for (Geometry geometry : targets) {
-            GLMesh mesh = geometry.getMesh();
+            Mesh mesh = geometry.getMesh();
             if (mesh != null && mesh.isAnimated()) {
                 mesh.prepareForAnim(true);
             }
@@ -211,7 +211,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * to the lists of animation targets.
      */
     private void findTargets(Geometry geometry) {
-        GLMesh mesh = geometry.getMesh();
+        Mesh mesh = geometry.getMesh();
         if (mesh != null && mesh.isAnimated()) {
             targets.add(geometry);
         }
@@ -252,7 +252,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         offsetMatrices = skeleton.computeSkinningMatrices();
 
         for (Geometry geometry : targets) {
-            GLMesh mesh = geometry.getMesh();
+            Mesh mesh = geometry.getMesh();
             // NOTE: This assumes code higher up has
             // already ensured this mesh is animated.
             // Otherwise a crash will happen in skin update.
@@ -311,7 +311,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     //only do this for software updates
     void resetToBind() {
         for (Geometry geometry : targets) {
-            GLMesh mesh = geometry.getMesh();
+            Mesh mesh = geometry.getMesh();
             if (mesh != null && mesh.isAnimated()) {
                 Buffer bwBuff = mesh.getBuffer(Type.BoneWeight).getData();
                 Buffer biBuff = mesh.getBuffer(Type.BoneIndex).getData();
@@ -418,11 +418,11 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      *
      * @return a new array
      */
-    public GLMesh[] getTargets() {
-        GLMesh[] result = new GLMesh[targets.size()];
+    public Mesh[] getTargets() {
+        Mesh[] result = new Mesh[targets.size()];
         int i = 0;
         for (Geometry geometry : targets) {
-            GLMesh mesh = geometry.getMesh();
+            Mesh mesh = geometry.getMesh();
             result[i] = mesh;
             i++;
         }
@@ -436,7 +436,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * @param mesh then mesh
      * @param offsetMatrices the transformation matrices to apply
      */
-    private void softwareSkinUpdate(GLMesh mesh, Matrix4f[] offsetMatrices) {
+    private void softwareSkinUpdate(Mesh mesh, Matrix4f[] offsetMatrices) {
 
         VertexBuffer tb = mesh.getBuffer(Type.Tangent);
         if (tb == null) {
@@ -454,7 +454,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * @param mesh the mesh
      * @param offsetMatrices the offset matrices to apply
      */
-    private void applySkinning(GLMesh mesh, Matrix4f[] offsetMatrices) {
+    private void applySkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
         if (maxWeightsPerVert <= 0) {
             throw new IllegalStateException("Max weights per vert is incorrectly set!");
@@ -561,7 +561,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * @param offsetMatrices the offset matrices to apply
      * @param tb the tangent vertexBuffer
      */
-    private void applySkinningTangents(GLMesh mesh, Matrix4f[] offsetMatrices, VertexBuffer tb) {
+    private void applySkinningTangents(Mesh mesh, Matrix4f[] offsetMatrices, VertexBuffer tb) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
 
         if (maxWeightsPerVert <= 0) {

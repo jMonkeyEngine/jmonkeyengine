@@ -37,7 +37,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.plugins.IrUtils;
 import com.jme3.scene.plugins.IrBoneWeightIndex;
 import com.jme3.scene.plugins.IrMesh;
@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class FbxMesh extends FbxNodeAttribute<IntMap<GLMesh>> {
+public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
 
     private static final Logger logger = Logger.getLogger(FbxMesh.class.getName());
     
@@ -205,7 +205,7 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<GLMesh>> {
     }
     
     @Override
-    protected IntMap<GLMesh> toJmeObject() {
+    protected IntMap<Mesh> toJmeObject() {
         // Load clusters from SkinDeformer
         if (skinDeformer != null) {
             for (FbxCluster cluster : skinDeformer.getJmeObject()) {
@@ -228,9 +228,9 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<GLMesh>> {
         IntMap<IrMesh> irMeshes = IrUtils.splitByMaterial(irMesh);
         
         // Create a jME3 Mesh for each material index.
-        IntMap<GLMesh> jmeMeshes = new IntMap<>();
+        IntMap<Mesh> jmeMeshes = new IntMap<>();
         for (IntMap.Entry<IrMesh> irMeshEntry : irMeshes) {
-            GLMesh jmeMesh = IrUtils.convertIrMeshToJmeMesh(irMeshEntry.getValue());
+            Mesh jmeMesh = IrUtils.convertIrMeshToJmeMesh(irMeshEntry.getValue());
             jmeMeshes.put(irMeshEntry.getKey(), jmeMesh);
         }
        

@@ -3,7 +3,7 @@ package com.jme3.vulkan.pass;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.util.natives.AbstractNative;
+import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.pipelines.FrameBuffer;
 import com.jme3.vulkan.pipelines.PipelineBindPoint;

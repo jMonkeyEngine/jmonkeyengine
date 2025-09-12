@@ -39,7 +39,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import java.io.IOException;
 
 /**
@@ -124,7 +124,7 @@ public class HeightfieldCollisionShape extends CollisionShape {
                 cShape.setMargin(margin);
     }
 
-    public GLMesh createJmeMesh(){
+    public Mesh createJmeMesh(){
         //TODO return Converter.convert(bulletMesh);
         return null;
     }

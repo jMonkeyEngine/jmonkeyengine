@@ -33,7 +33,7 @@ package com.jme3.scene.shape;
 
 import com.jme3.math.Spline;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +47,7 @@ import java.util.List;
  *
  * @author Nehon
  */
-public class Curve extends GLMesh {
+public class Curve extends Mesh {
 
     private Spline spline;
     private Vector3f temp = new Vector3f();
@@ -132,7 +132,7 @@ public class Curve extends GLMesh {
             i++;
         }
 
-        this.setMode(GLMesh.Mode.Lines);
+        this.setMode(Mesh.Mode.Lines);
         this.setBuffer(VertexBuffer.Type.Position, 3, array);
         this.setBuffer(VertexBuffer.Type.Index, 2, indices);//(spline.getControlPoints().size() - 1) * nbSubSegments * 2
         this.updateBound();
@@ -184,7 +184,7 @@ public class Curve extends GLMesh {
             indices[i++] = (short) k;
         }
 
-        this.setMode(GLMesh.Mode.Lines);
+        this.setMode(Mesh.Mode.Lines);
         this.setBuffer(VertexBuffer.Type.Position, 3, array);
         this.setBuffer(VertexBuffer.Type.Index, 2, indices);
         this.updateBound();
@@ -228,7 +228,7 @@ public class Curve extends GLMesh {
                 indices[i++] = (short) (j + 1);
             }
 
-            this.setMode(GLMesh.Mode.Lines);
+            this.setMode(Mesh.Mode.Lines);
             this.setBuffer(VertexBuffer.Type.Position, 3, array);
             this.setBuffer(VertexBuffer.Type.Index, 2, indices);
             this.updateBound();
@@ -262,7 +262,7 @@ public class Curve extends GLMesh {
             }
         }
 
-        this.setMode(GLMesh.Mode.Lines);
+        this.setMode(Mesh.Mode.Lines);
         this.setBuffer(VertexBuffer.Type.Position, 3, array);
         this.setBuffer(VertexBuffer.Type.Index, 2, indices);
         this.updateBound();

@@ -36,7 +36,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.util.BufferUtils;
 
@@ -171,7 +170,7 @@ public abstract class IndexBuffer {
      * Returns the format of the data stored in this buffer.
      * 
      * <p>This method can be used to set an {@link IndexBuffer} to a 
-     * {@link GLMesh Mesh}:</p>
+     * {@link com.jme3.scene.Mesh Mesh}:</p>
      * <pre>
      * mesh.setBuffer(Type.Index, 3, 
      *     indexBuffer.getFormat(), indexBuffer);

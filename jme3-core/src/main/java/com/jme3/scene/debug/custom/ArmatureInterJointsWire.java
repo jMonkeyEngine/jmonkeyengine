@@ -34,7 +34,7 @@ package com.jme3.scene.debug.custom;
 
 
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 
@@ -45,7 +45,7 @@ import java.nio.FloatBuffer;
  *
  * @author Marcin Roguski (Kaelthas)
  */
-public class ArmatureInterJointsWire extends GLMesh {
+public class ArmatureInterJointsWire extends Mesh {
     private final Vector3f tmp = new Vector3f();
 
 

@@ -64,7 +64,7 @@ import java.util.ArrayList;
  *
  * @author Kirill Vainer
  */
-public class GLMesh implements Savable, Cloneable, JmeCloneable {
+public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
      * The mode of the Mesh specifies both the type of primitive represented
@@ -119,8 +119,8 @@ public class GLMesh implements Savable, Cloneable, JmeCloneable {
         /**
          * A combination of various triangle modes. It is best to avoid
          * using this mode as it may not be supported by all renderers.
-         * The {@link GLMesh#setModeStart(int[]) mode start points} and
-         * {@link GLMesh#setElementLengths(int[]) element lengths} must
+         * The {@link Mesh#setModeStart(int[]) mode start points} and
+         * {@link Mesh#setElementLengths(int[]) element lengths} must
          * be specified for this mode.
          */
         Hybrid(false),
@@ -198,7 +198,7 @@ public class GLMesh implements Savable, Cloneable, JmeCloneable {
     /**
      * Creates a new mesh with no {@link VertexBuffer vertex buffers}.
      */
-    public GLMesh() {
+    public Mesh() {
     }
 
     /**
@@ -209,9 +209,9 @@ public class GLMesh implements Savable, Cloneable, JmeCloneable {
      * @return A shallow clone of the mesh
      */
     @Override
-    public GLMesh clone() {
+    public Mesh clone() {
         try {
-            GLMesh clone = (GLMesh) super.clone();
+            Mesh clone = (Mesh) super.clone();
             clone.meshBound = meshBound.clone();
             clone.collisionTree = collisionTree != null ? collisionTree : null;
             clone.buffers = buffers.clone();
@@ -236,9 +236,9 @@ public class GLMesh implements Savable, Cloneable, JmeCloneable {
      *
      * @return a deep clone of this mesh.
      */
-    public GLMesh deepClone() {
+    public Mesh deepClone() {
         try {
-            GLMesh clone = (GLMesh) super.clone();
+            Mesh clone = (Mesh) super.clone();
             clone.meshBound = meshBound != null ? meshBound.clone() : null;
 
             // TODO: Collision tree cloning
@@ -279,8 +279,8 @@ public class GLMesh implements Savable, Cloneable, JmeCloneable {
      *
      * @return A clone of the mesh for animation use.
      */
-    public GLMesh cloneForAnim() {
-        GLMesh clone = clone();
+    public Mesh cloneForAnim() {
+        Mesh clone = clone();
         if (getBuffer(Type.BindPosePosition) != null) {
             VertexBuffer oldPos = getBuffer(Type.Position);
 
@@ -310,9 +310,9 @@ public class GLMesh implements Savable, Cloneable, JmeCloneable {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public GLMesh jmeClone() {
+    public Mesh jmeClone() {
         try {
-            GLMesh clone = (GLMesh) super.clone();
+            Mesh clone = (Mesh) super.clone();
             clone.vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
             return clone;
         } catch (CloneNotSupportedException ex) {
@@ -585,7 +585,7 @@ public class GLMesh implements Savable, Cloneable, JmeCloneable {
      *
      * @return the mesh mode
      *
-     * @see #setMode(GLMesh.Mode)
+     * @see #setMode(com.jme3.scene.Mesh.Mode)
      */
     public Mode getMode() {
         return mode;
@@ -1254,7 +1254,7 @@ public class GLMesh implements Savable, Cloneable, JmeCloneable {
      *
      * @param other The mesh to extract the vertex data from
      */
-    public void extractVertexData(GLMesh other) {
+    public void extractVertexData(Mesh other) {
         // Determine the number of unique vertices need to
         // be created. Also determine the mappings
         // between old indices to new indices (since we avoid duplicating

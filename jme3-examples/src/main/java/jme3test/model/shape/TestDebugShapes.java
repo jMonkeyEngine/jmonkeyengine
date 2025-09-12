@@ -37,7 +37,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.debug.WireBox;
@@ -50,7 +50,7 @@ public class TestDebugShapes extends SimpleApplication {
         app.start();
     }
 
-    private Geometry putShape(GLMesh shape, ColorRGBA color) {
+    private Geometry putShape(Mesh shape, ColorRGBA color) {
         Geometry g = new Geometry("shape", shape);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(true);

@@ -49,7 +49,7 @@ import com.jme3.export.Savable;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.clone.Cloner;
@@ -538,8 +538,8 @@ public class DacLinks
         /*
          * Find the target meshes and choose the transform spatial.
          */
-        List<GLMesh> targetList = RagUtils.listAnimatedMeshes(spatial, null);
-        GLMesh[] targets = new GLMesh[targetList.size()];
+        List<Mesh> targetList = RagUtils.listAnimatedMeshes(spatial, null);
+        Mesh[] targets = new Mesh[targetList.size()];
         targetList.toArray(targets);
         transformer = RagUtils.findAnimatedGeometry(spatial);
         if (transformer == null) {
@@ -1017,7 +1017,7 @@ public class DacLinks
      * @param vertexLocations the set of vertex locations (not null, not empty)
      * @param meshes array of animated meshes to use (not null, unaffected)
      */
-    private void createTorsoLink(VectorSet vertexLocations, GLMesh[] meshes) {
+    private void createTorsoLink(VectorSet vertexLocations, Mesh[] meshes) {
         if (vertexLocations == null || vertexLocations.numVectors() == 0) {
             throw new IllegalArgumentException(
                     "No mesh vertices for the torso."

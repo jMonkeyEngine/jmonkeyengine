@@ -43,7 +43,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.*;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
@@ -189,7 +189,7 @@ public class TerrainPatch extends Geometry {
         setLocalTranslation(origin);
 
         geomap = new LODGeomap(size, heightMap);
-        GLMesh m = geomap.createMesh(stepScale, new Vector2f(1,1), offset, offsetAmount, totalSize, false);
+        Mesh m = geomap.createMesh(stepScale, new Vector2f(1,1), offset, offsetAmount, totalSize, false);
         setMesh(m);
 
     }
@@ -337,7 +337,7 @@ public class TerrainPatch extends Geometry {
         getMesh().getBuffer(Type.Binormal).updateData(newBinormalBuffer);
     }
 
-    private void setInBuffer(GLMesh mesh, int index, Vector3f normal, Vector3f tangent, Vector3f binormal) {
+    private void setInBuffer(Mesh mesh, int index, Vector3f normal, Vector3f tangent, Vector3f binormal) {
         VertexBuffer NB = mesh.getBuffer(Type.Normal);
         VertexBuffer TB = mesh.getBuffer(Type.Tangent);
         VertexBuffer BB = mesh.getBuffer(Type.Binormal);
@@ -893,7 +893,7 @@ public class TerrainPatch extends Geometry {
     public void write(JmeExporter ex) throws IOException {
         // the mesh is removed, and reloaded when read() is called
         // this reduces the save size to 10% by not saving the mesh
-        GLMesh temp = getMesh();
+        Mesh temp = getMesh();
         mesh = null;
 
         super.write(ex);
@@ -928,7 +928,7 @@ public class TerrainPatch extends Geometry {
         lodEntropy = ic.readFloatArray("lodEntropy", null);
         geomap = (LODGeomap) ic.readSavable("geomap", null);
 
-        GLMesh regen = geomap.createMesh(stepScale, new Vector2f(1,1), offset, offsetAmount, totalSize, false);
+        Mesh regen = geomap.createMesh(stepScale, new Vector2f(1,1), offset, offsetAmount, totalSize, false);
         setMesh(regen);
         //TangentBinormalGenerator.generate(this); // note that this will be removed
         ensurePositiveVolumeBBox();
@@ -952,7 +952,7 @@ public class TerrainPatch extends Geometry {
         //clone.setLodCalculator(lodCalculatorFactory.clone());
         clone.geomap = new LODGeomap(size, geomap.getHeightArray());
         clone.setLocalTranslation(getLocalTranslation().clone());
-        GLMesh m = clone.geomap.createMesh(clone.stepScale, Vector2f.UNIT_XY, clone.offset, clone.offsetAmount, clone.totalSize, false);
+        Mesh m = clone.geomap.createMesh(clone.stepScale, Vector2f.UNIT_XY, clone.offset, clone.offsetAmount, clone.totalSize, false);
         clone.setMesh(m);
         clone.setMaterial(material == null ? null : material.clone());
         return clone;
@@ -976,7 +976,7 @@ public class TerrainPatch extends Geometry {
         // Don't feel like making geomap cloneable tonight,
         // so I'll copy the old logic.
         this.geomap = new LODGeomap(size, geomap.getHeightArray());
-        GLMesh m = geomap.createMesh(stepScale, Vector2f.UNIT_XY, offset, offsetAmount, totalSize, false);
+        Mesh m = geomap.createMesh(stepScale, Vector2f.UNIT_XY, offset, offsetAmount, totalSize, false);
         this.setMesh(m);
 
         // In this case, we always clone material even if the cloner is set up

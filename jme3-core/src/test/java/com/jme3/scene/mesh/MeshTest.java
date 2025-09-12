@@ -36,7 +36,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 
 /**
  * Tests selected methods of the Mesh class.
@@ -50,7 +50,7 @@ public class MeshTest {
      */
     @Test
     public void testVertexCountOfEmptyMesh() {
-        final GLMesh mesh = new GLMesh();
+        final Mesh mesh = new Mesh();
 
         assertEquals(-1, mesh.getVertexCount());
     }

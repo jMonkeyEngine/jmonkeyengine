@@ -27,15 +27,13 @@ public class MyCustomMesh extends AdaptiveMesh {
         this.device = device;
         this.frames = frames;
         this.updateStaticBuffers = updateSharedBuffers;
-        VersionedResource<? extends GpuBuffer> indices = createStaticBuffer(MemorySize.shorts(6));
-        indexBuffers.add(indices);
-        for (GpuBuffer buf : indices) {
-            ShortBuffer iBuf = buf.mapShorts();
-            iBuf.put((short)0).put((short)2).put((short)3)
-                .put((short)0).put((short)1).put((short)2);
-            buf.unmap();
-        }
-        try (Builder m = buildVertexBuffers(4)) {
+        StaticBuffer indices = new StaticBuffer(device, MemorySize.shorts(6), BufferUsage.Index, MemoryProp.DeviceLocal, false);
+        ShortBuffer iBuf = indices.mapShorts();
+        iBuf.put((short)0).put((short)2).put((short)3)
+            .put((short)0).put((short)1).put((short)2);
+        indices.unmap();
+        indexBuffer = updateSharedBuffers.add(new SingleCommand<>(indices));
+        try (Builder m = build(4)) {
             m.setMode(BuiltInAttribute.Position, VertexMode.Static);
             m.setMode(BuiltInAttribute.TexCoord, VertexMode.Static);
             m.setMode(BuiltInAttribute.Normal, VertexMode.Static);

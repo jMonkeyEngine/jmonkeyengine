@@ -1,7 +1,7 @@
 package com.jme3.vulkan.pipelines;
 
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.util.natives.AbstractNative;
+import com.jme3.vulkan.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
 
 import static org.lwjgl.vulkan.VK10.*;

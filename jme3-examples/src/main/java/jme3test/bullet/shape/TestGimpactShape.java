@@ -48,7 +48,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.PQTorus;
@@ -290,7 +290,7 @@ public class TestGimpactShape extends SimpleApplication {
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         tp.setMaterial(mat);
 
-        GLMesh mesh = tp.getMesh();
+        Mesh mesh = tp.getMesh();
         GImpactCollisionShape shape = new GImpactCollisionShape(mesh);
         shape.setScale(new Vector3f(scale, scale, scale));
 
@@ -300,7 +300,7 @@ public class TestGimpactShape extends SimpleApplication {
         return control;
     }
 
-    private void attachTestObject(GLMesh mesh, Vector3f position, float mass) {
+    private void attachTestObject(Mesh mesh, Vector3f position, float mass) {
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         material.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         Geometry g = new Geometry("mesh", mesh);

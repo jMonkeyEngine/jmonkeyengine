@@ -38,7 +38,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.TestUtil;
 import com.jme3.texture.Image;
@@ -55,7 +55,7 @@ import org.junit.Test;
 
 public class OpaqueComparatorTest {
     
-    private final GLMesh mesh = new Box(1,1,1);
+    private final Mesh mesh = new Box(1,1,1);
     final private Camera cam = new Camera(1, 1);
     private RenderManager renderManager;
     private AssetManager assetManager;
