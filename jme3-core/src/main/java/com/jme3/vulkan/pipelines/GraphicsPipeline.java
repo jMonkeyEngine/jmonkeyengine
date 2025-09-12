@@ -3,7 +3,6 @@ package com.jme3.vulkan.pipelines;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.*;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.mesh.MeshDescription;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.pipelines.states.*;
 import com.jme3.vulkan.shader.ShaderModule;

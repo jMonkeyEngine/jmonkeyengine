@@ -1,5 +1,7 @@
 package com.jme3.vulkan.mesh;
 
+import com.jme3.bounding.BoundingVolume;
+import com.jme3.math.Vector3f;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.frames.VersionedResource;
@@ -20,8 +22,9 @@ public abstract class AdaptiveMesh implements Mesh {
     }
 
     protected final MeshDescription description;
-    protected VersionedResource<? extends GpuBuffer> indexBuffer;
     private final List<VertexBuffer> vertexBuffers = new ArrayList<>();
+    protected VersionedResource<? extends GpuBuffer> indexBuffer;
+    private BoundingVolume bound;
     private int vertices;
 
     public AdaptiveMesh(MeshDescription description) {
@@ -55,8 +58,33 @@ public abstract class AdaptiveMesh implements Mesh {
         }
     }
 
-    public int getNumVertices() {
+    @Override
+    public int getVertexCount() {
         return vertices;
+    }
+
+    @Override
+    public int getTriangleCount() {
+        return indexBuffer != null ? indexBuffer.get().size().getElements() / 3 : 0;
+    }
+
+    protected void updateBound(AttributeModifier attribute) {
+        Vector3f pos = new Vector3f();
+        Vector3f min = new Vector3f();
+        Vector3f max = new Vector3f();
+        for (int i = 0; i < vertices; i++) {
+            pos = attribute.getVector3(i, 0, pos);
+            if (i == 0) {
+                min.set(max.set(pos));
+            } else {
+                min.x = Math.min(min.x, pos.x);
+                min.y = Math.min(min.y, pos.y);
+                min.z = Math.min(min.z, pos.z);
+                max.x = Math.max(max.x, pos.x);
+                max.y = Math.max(max.y, pos.y);
+                max.z = Math.max(max.z, pos.z);
+            }
+        }
     }
 
     @SuppressWarnings("resource")
@@ -107,7 +135,7 @@ public abstract class AdaptiveMesh implements Mesh {
                 }
             }
             for (int i = 0; i < modes.length; i++) {
-                vertexBuffers.add(new VertexBuffer(createVertexBuffer(description.getBinding(i), modes[i])));
+                vertexBuffers.add(new VertexBuffer(createBufferResource(description.getBinding(i), modes[i])));
             }
         }
 
@@ -122,7 +150,7 @@ public abstract class AdaptiveMesh implements Mesh {
             setMode(name.getName(), mode);
         }
 
-        private VersionedResource<? extends GpuBuffer> createVertexBuffer(VertexBinding binding, VertexMode mode) {
+        private VersionedResource<? extends GpuBuffer> createBufferResource(VertexBinding binding, VertexMode mode) {
             MemorySize size = MemorySize.bytes(binding.getStride() * vertices);
             switch (mode) {
                 case Stream: return createStreamingBuffer(size);

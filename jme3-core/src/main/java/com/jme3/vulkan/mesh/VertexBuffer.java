@@ -1,9 +1,7 @@
 package com.jme3.vulkan.mesh;
 
 import com.jme3.vulkan.buffers.*;
-import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.frames.VersionedResource;
-import com.jme3.vulkan.update.Command;
 import org.lwjgl.PointerBuffer;
 
 import java.nio.*;

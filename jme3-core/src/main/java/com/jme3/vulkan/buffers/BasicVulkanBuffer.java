@@ -3,7 +3,6 @@ package com.jme3.vulkan.buffers;
 import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.AbstractNative;
-import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemoryRegion;
@@ -11,7 +10,6 @@ import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VkBufferCopy;
 import org.lwjgl.vulkan.VkBufferCreateInfo;
 import org.lwjgl.vulkan.VkMemoryRequirements;
 

@@ -1,18 +1,13 @@
 package com.jme3.vulkan.buffers;
 
-import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Struct;
 import org.lwjgl.system.StructBuffer;
-import org.lwjgl.vulkan.VkBufferCopy;
 
 import java.nio.*;
 import java.util.function.Function;
-
-import static org.lwjgl.vulkan.VK10.*;
 
 public interface GpuBuffer {
 

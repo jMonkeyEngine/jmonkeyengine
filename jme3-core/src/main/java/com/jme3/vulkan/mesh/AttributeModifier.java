@@ -1,14 +1,10 @@
 package com.jme3.vulkan.mesh;
 
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
 import com.jme3.vulkan.Format;
 
 import java.nio.*;
 
-public class AttributeModifier implements AutoCloseable {
+public class AttributeModifier implements AutoCloseable, VertexWriter, VertexReader {
     
     private final VertexBuffer vertex;
     private final VertexAttribute attribute;
@@ -29,58 +25,78 @@ public class AttributeModifier implements AutoCloseable {
         vertex.unmap();
     }
     
-    public int transformPosition(int vertex) {
+    public int vertexToPosition(int vertex) {
         return attribute.getBinding().getStride() * vertex + attribute.getOffset();
     }
 
+    public int positionToVertex(int position) {
+        return (position - attribute.getOffset()) / attribute.getBinding().getStride();
+    }
+
+    @Override
+    public int capacity() {
+        return buffer.capacity() / attribute.getBinding().getStride();
+    }
+
+    @Override
+    public int limit() {
+        return positionToVertex(buffer.limit());
+    }
+
+    @Override
+    public AttributeModifier limit(int vertex) {
+        buffer.limit(vertexToPosition(vertex));
+        return this;
+    }
+
+    @Override
     public AttributeModifier putByte(int vertex, int component, byte value) {
-        attribute.getFormat().getComponent(component).putByte(buffer, transformPosition(vertex), value);
+        attribute.getFormat().getComponent(component).putByte(buffer, vertexToPosition(vertex), value);
         return this;
     }
 
+    @Override
     public AttributeModifier putShort(int vertex, int component, short value) {
-        attribute.getFormat().getComponent(component).putShort(buffer, transformPosition(vertex), value);
+        attribute.getFormat().getComponent(component).putShort(buffer, vertexToPosition(vertex), value);
         return this;
     }
 
+    @Override
     public AttributeModifier putInt(int vertex, int component, int value) {
-        attribute.getFormat().getComponent(component).putInt(buffer, transformPosition(vertex), value);
+        attribute.getFormat().getComponent(component).putInt(buffer, vertexToPosition(vertex), value);
         return this;
     }
 
+    @Override
     public AttributeModifier putFloat(int vertex, int component, float value) {
-        attribute.getFormat().getComponent(component).putFloat(buffer, transformPosition(vertex), value);
+        attribute.getFormat().getComponent(component).putFloat(buffer, vertexToPosition(vertex), value);
         return this;
     }
 
+    @Override
     public AttributeModifier putDouble(int vertex, int component, double value) {
-        attribute.getFormat().getComponent(component).putDouble(buffer, transformPosition(vertex), value);
+        attribute.getFormat().getComponent(component).putDouble(buffer, vertexToPosition(vertex), value);
         return this;
     }
 
+    @Override
     public AttributeModifier putLong(int vertex, int component, long value) {
-        attribute.getFormat().getComponent(component).putLong(buffer, transformPosition(vertex), value);
+        attribute.getFormat().getComponent(component).putLong(buffer, vertexToPosition(vertex), value);
         return this;
     }
 
-    public AttributeModifier putVector2(int vertex, int baseComponent, Vector2f value) {
-        return putVector2(vertex, baseComponent, value.x, value.y);
-    }
-
+    @Override
     public AttributeModifier putVector2(int vertex, int baseComponent, float x, float y) {
-        vertex = transformPosition(vertex);
+        vertex = vertexToPosition(vertex);
         Format f = attribute.getFormat();
         f.getComponent(baseComponent++).putFloat(buffer, vertex, x);
         f.getComponent(baseComponent  ).putFloat(buffer, vertex, y);
         return this;
     }
 
-    public AttributeModifier putVector3(int vertex, int baseComponent, Vector3f value) {
-        return putVector3(vertex, baseComponent, value.x, value.y, value.z);
-    }
-
+    @Override
     public AttributeModifier putVector3(int vertex, int baseComponent, float x, float y, float z) {
-        vertex = transformPosition(vertex);
+        vertex = vertexToPosition(vertex);
         Format f = attribute.getFormat();
         f.getComponent(baseComponent++).putFloat(buffer, vertex, x);
         f.getComponent(baseComponent++).putFloat(buffer, vertex, y);
@@ -88,12 +104,9 @@ public class AttributeModifier implements AutoCloseable {
         return this;
     }
 
-    public AttributeModifier putVector4(int vertex, int baseComponent, Vector4f value) {
-        return putVector4(vertex, baseComponent, value.x, value.y, value.z, value.w);
-    }
-
+    @Override
     public AttributeModifier putVector4(int vertex, int baseComponent, float x, float y, float z, float w) {
-        vertex = transformPosition(vertex);
+        vertex = vertexToPosition(vertex);
         Format f = attribute.getFormat();
         f.getComponent(baseComponent++).putFloat(buffer, vertex, x);
         f.getComponent(baseComponent++).putFloat(buffer, vertex, y);
@@ -102,241 +115,214 @@ public class AttributeModifier implements AutoCloseable {
         return this;
     }
 
-    public AttributeModifier putColor(int vertex, int baseComponent, ColorRGBA value) {
-        return putVector4(vertex, baseComponent, value.r, value.g, value.b, value.a);
-    }
-
-    public AttributeModifier putBytes(int baseVertex, int baseComponent, byte[] values) {
+    @Override
+    public AttributeModifier putBytes(int baseVertex, int baseComponent, byte... values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         for (byte v : values) {
             f.getComponent(baseComponent).putByte(buffer, vertPos, v);
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         return this;
     }
 
+    @Override
     public AttributeModifier putBytes(int baseVertex, int baseComponent, ByteBuffer values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         int bufPos = values.position();
         while (values.hasRemaining()) {
             f.getComponent(baseComponent).putByte(buffer, vertPos, values.get());
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         values.position(bufPos);
         return this;
     }
 
-    public AttributeModifier putShorts(int baseVertex, int baseComponent, short[] values) {
+    @Override
+    public AttributeModifier putShorts(int baseVertex, int baseComponent, short... values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         for (short v : values) {
             f.getComponent(baseComponent).putShort(buffer, vertPos, v);
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         return this;
     }
 
+    @Override
     public AttributeModifier putShorts(int baseVertex, int baseComponent, ShortBuffer values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         int bufPos = values.position();
         while (values.hasRemaining()) {
             f.getComponent(baseComponent).putShort(buffer, vertPos, values.get());
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         values.position(bufPos);
         return this;
     }
 
-    public AttributeModifier putInts(int baseVertex, int baseComponent, int[] values) {
+    @Override
+    public AttributeModifier putInts(int baseVertex, int baseComponent, int... values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         for (int v : values) {
             f.getComponent(baseComponent).putInt(buffer, vertPos, v);
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         return this;
     }
 
+    @Override
     public AttributeModifier putInts(int baseVertex, int baseComponent, IntBuffer values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         int bufPos = values.position();
         while (values.hasRemaining()) {
             f.getComponent(baseComponent).putInt(buffer, vertPos, values.get());
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         values.position(bufPos);
         return this;
     }
 
-    public AttributeModifier putFloats(int baseVertex, int baseComponent, float[] values) {
+    @Override
+    public AttributeModifier putFloats(int baseVertex, int baseComponent, float... values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         for (float v : values) {
             f.getComponent(baseComponent).putFloat(buffer, vertPos, v);
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         return this;
     }
 
+    @Override
     public AttributeModifier putFloats(int baseVertex, int baseComponent, FloatBuffer values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         int bufPos = values.position();
         while (values.hasRemaining()) {
             f.getComponent(baseComponent).putFloat(buffer, vertPos, values.get());
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         values.position(bufPos);
         return this;
     }
 
-    public AttributeModifier putDoubles(int baseVertex, int baseComponent, double[] values) {
+    @Override
+    public AttributeModifier putDoubles(int baseVertex, int baseComponent, double... values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         for (double v : values) {
             f.getComponent(baseComponent).putDouble(buffer, vertPos, v);
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         return this;
     }
 
+    @Override
     public AttributeModifier putDoubles(int baseVertex, int baseComponent, DoubleBuffer values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         int bufPos = values.position();
         while (values.hasRemaining()) {
             f.getComponent(baseComponent).putDouble(buffer, vertPos, values.get());
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         values.position(bufPos);
         return this;
     }
 
-    public AttributeModifier putLongs(int baseVertex, int baseComponent, long[] values) {
+    @Override
+    public AttributeModifier putLongs(int baseVertex, int baseComponent, long... values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         for (long v : values) {
             f.getComponent(baseComponent).putLong(buffer, vertPos, v);
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         return this;
     }
 
+    @Override
     public AttributeModifier putLongs(int baseVertex, int baseComponent, LongBuffer values) {
         Format f = attribute.getFormat();
-        int vertPos = transformPosition(baseVertex);
+        int vertPos = vertexToPosition(baseVertex);
         int bufPos = values.position();
         while (values.hasRemaining()) {
             f.getComponent(baseComponent).putLong(buffer, vertPos, values.get());
             if (++baseComponent >= f.getNumComponents()) {
                 baseComponent = 0;
-                vertPos = transformPosition(++baseVertex);
+                vertPos = vertexToPosition(++baseVertex);
             }
         }
         values.position(bufPos);
         return this;
     }
 
+    @Override
     public byte getByte(int vertex, int component) {
-        return attribute.getFormat().getComponent(component).getByte(buffer, transformPosition(vertex));
+        return attribute.getFormat().getComponent(component).getByte(buffer, vertexToPosition(vertex));
     }
 
+    @Override
     public short getShort(int vertex, int component) {
-        return attribute.getFormat().getComponent(component).getShort(buffer, transformPosition(vertex));
+        return attribute.getFormat().getComponent(component).getShort(buffer, vertexToPosition(vertex));
     }
 
+    @Override
     public int getInt(int vertex, int component) {
-        return attribute.getFormat().getComponent(component).getInt(buffer, transformPosition(vertex));
+        return attribute.getFormat().getComponent(component).getInt(buffer, vertexToPosition(vertex));
     }
 
+    @Override
     public float getFloat(int vertex, int component) {
-        return attribute.getFormat().getComponent(component).getFloat(buffer, transformPosition(vertex));
+        return attribute.getFormat().getComponent(component).getFloat(buffer, vertexToPosition(vertex));
     }
 
+    @Override
     public double getDouble(int vertex, int component) {
-        return attribute.getFormat().getComponent(component).getDouble(buffer, transformPosition(vertex));
+        return attribute.getFormat().getComponent(component).getDouble(buffer, vertexToPosition(vertex));
     }
 
+    @Override
     public long getLong(int vertex, int component) {
-        return attribute.getFormat().getComponent(component).getLong(buffer, transformPosition(vertex));
-    }
-
-    public Vector2f getVector2(int vertex, int baseComponent, Vector2f store) {
-        if (store == null) {
-            store = new Vector2f();
-        }
-        return store.set(
-                getFloat(vertex, baseComponent++),
-                getFloat(vertex, baseComponent  ));
-    }
-
-    public Vector3f getVector3(int vertex, int baseComponent, Vector3f store) {
-        if (store == null) {
-            store = new Vector3f();
-        }
-        return store.set(
-                getFloat(vertex, baseComponent++),
-                getFloat(vertex, baseComponent++),
-                getFloat(vertex, baseComponent  ));
-    }
-
-    public Vector4f getVector4(int vertex, int baseComponent, Vector4f store) {
-        if (store == null) {
-            store = new Vector4f();
-        }
-        return store.set(
-                getFloat(vertex, baseComponent++),
-                getFloat(vertex, baseComponent++),
-                getFloat(vertex, baseComponent++),
-                getFloat(vertex, baseComponent  ));
-    }
-
-    public ColorRGBA getColor(int vertex, int baseComponent, ColorRGBA store) {
-        if (store == null) {
-            store = new ColorRGBA();
-        }
-        return store.set(
-                getFloat(vertex, baseComponent++),
-                getFloat(vertex, baseComponent++),
-                getFloat(vertex, baseComponent++),
-                getFloat(vertex, baseComponent  ));
+        return attribute.getFormat().getComponent(component).getLong(buffer, vertexToPosition(vertex));
     }
 
 }

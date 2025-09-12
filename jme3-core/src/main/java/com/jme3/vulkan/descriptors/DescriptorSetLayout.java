@@ -3,8 +3,6 @@ package com.jme3.vulkan.descriptors;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.material.UniformSet;
-import com.jme3.vulkan.material.uniforms.Uniform;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutCreateInfo;

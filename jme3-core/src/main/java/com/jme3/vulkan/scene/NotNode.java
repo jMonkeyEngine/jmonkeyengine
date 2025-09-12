@@ -2,16 +2,16 @@ package com.jme3.vulkan.scene;
 
 import com.jme3.util.SafeArrayList;
 
-public class Node extends Spatial {
+public class NotNode extends NotSpatial {
 
-    private SafeArrayList<Spatial> children = new SafeArrayList<>(Spatial.class);
+    private SafeArrayList<NotSpatial> children = new SafeArrayList<>(NotSpatial.class);
 
-    public void attachChild(Spatial child) {
+    public void attachChild(NotSpatial child) {
         children.add(child);
         child.setParent(this);
     }
 
-    public boolean detachChild(Spatial child) {
+    public boolean detachChild(NotSpatial child) {
         if (children.remove(child)) {
             child.setParent(null);
             return true;

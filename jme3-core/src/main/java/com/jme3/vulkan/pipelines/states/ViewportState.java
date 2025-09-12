@@ -1,7 +1,6 @@
 package com.jme3.vulkan.pipelines.states;
 
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VkExtent2D;
 import org.lwjgl.vulkan.VkPipelineViewportStateCreateInfo;
 import org.lwjgl.vulkan.VkRect2D;
 import org.lwjgl.vulkan.VkViewport;

@@ -2,37 +2,37 @@ package com.jme3.vulkan.scene;
 
 import java.util.*;
 
-public abstract class Spatial implements Iterable<Spatial> {
+public abstract class NotSpatial implements Iterable<NotSpatial> {
 
-    private Node parent;
+    private NotNode parent;
 
     public void removeFromParent() {
 
     }
 
-    public Node getParent() {
+    public NotNode getParent() {
         return parent;
     }
 
-    protected void setParent(Node parent) {
+    protected void setParent(NotNode parent) {
         this.parent = parent;
     }
 
     protected abstract void findNextIteration(GraphIterator iterator);
 
     @Override
-    public Iterator<Spatial> iterator() {
+    public Iterator<NotSpatial> iterator() {
         return new GraphIterator(this);
     }
 
-    public static class GraphIterator implements Iterator<Spatial> {
+    public static class GraphIterator implements Iterator<NotSpatial> {
 
         private final Stack<Integer> childIndices = new Stack<>();
-        private Spatial current;
+        private NotSpatial current;
         private int currentIndex = 0;
         private int iteration = -1;
 
-        public GraphIterator(Spatial start) {
+        public GraphIterator(NotSpatial start) {
             current = Objects.requireNonNull(start);
         }
 
@@ -42,7 +42,7 @@ public abstract class Spatial implements Iterable<Spatial> {
         }
 
         @Override
-        public Spatial next() {
+        public NotSpatial next() {
             if (++iteration > 0) {
                 current.findNextIteration(this);
             }
@@ -70,7 +70,7 @@ public abstract class Spatial implements Iterable<Spatial> {
             }
         }
 
-        protected void moveDown(Spatial node) {
+        protected void moveDown(NotSpatial node) {
             if (node.getParent() != current) {
                 throw new IllegalArgumentException("Next node must be a child of the current node.");
             }

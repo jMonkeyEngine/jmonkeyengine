@@ -2,7 +2,6 @@ package com.jme3.vulkan.pass;
 
 import com.jme3.vulkan.pipelines.PipelineBindPoint;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkAttachmentReference;
 import org.lwjgl.vulkan.VkSubpassDescription;
 
