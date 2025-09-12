@@ -47,6 +47,8 @@ import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
+import com.jme3.vulkan.mesh.NewMesh;
+
 import java.io.IOException;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -65,7 +67,7 @@ public class Geometry extends Spatial {
     // models loaded with shared mesh will be automatically fixed.
     public static final int SAVABLE_VERSION = 1;
     private static final Logger logger = Logger.getLogger(Geometry.class.getName());
-    protected Mesh mesh;
+    protected NewMesh mesh;
     protected transient int lodLevel = 0;
     protected Material material;
     /**
@@ -126,7 +128,7 @@ public class Geometry extends Spatial {
      * @param name The name of this geometry
      * @param mesh The mesh data for this geometry
      */
-    public Geometry(String name, Mesh mesh) {
+    public Geometry(String name, NewMesh mesh) {
         this(name);
 
         if (mesh == null) {
@@ -258,7 +260,7 @@ public class Geometry extends Spatial {
      *
      * @see #setMesh(Mesh)
      */
-    public Mesh getMesh() {
+    public NewMesh getMesh() {
         return mesh;
     }
 
@@ -480,7 +482,7 @@ public class Geometry extends Spatial {
             // NOTE: BIHTree in mesh already checks collision with the
             // mesh's bound
             int prevSize = results.size();
-            int added = mesh.collideWith(other, cachedWorldMat, worldBound, results);
+            int added = mesh.collideWith(other, this, results);
             int newSize = results.size();
             for (int i = prevSize; i < newSize; i++) {
                 results.getCollisionDirect(i).setGeometry(this);

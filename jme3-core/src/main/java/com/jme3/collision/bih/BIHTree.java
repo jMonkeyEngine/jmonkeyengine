@@ -54,6 +54,8 @@ import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.VirtualIndexBuffer;
 import com.jme3.scene.mesh.WrappedIndexBuffer;
 import com.jme3.util.TempVars;
+import com.jme3.vulkan.mesh.NewMesh;
+
 import java.io.IOException;
 import static java.lang.Math.max;
 import java.nio.FloatBuffer;
@@ -62,7 +64,7 @@ public class BIHTree implements CollisionData {
 
     public static final int MAX_TREE_DEPTH = 100;
     public static final int MAX_TRIS_PER_NODE = 21;
-    private Mesh mesh;
+    private NewMesh mesh;
     private BIHNode root;
     private int maxTrisPerNode;
     private int numTris;
@@ -98,7 +100,7 @@ public class BIHTree implements CollisionData {
         }
     }
 
-    public BIHTree(Mesh mesh, int maxTrisPerNode) {
+    public BIHTree(NewMesh mesh, int maxTrisPerNode) {
         this.mesh = mesh;
         this.maxTrisPerNode = maxTrisPerNode;
 
@@ -128,7 +130,7 @@ public class BIHTree implements CollisionData {
         initTriList(vb, ib);
     }
 
-    public BIHTree(Mesh mesh) {
+    public BIHTree(NewMesh mesh) {
         this(mesh, MAX_TRIS_PER_NODE);
     }
 

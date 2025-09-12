@@ -1,7 +1,13 @@
 package com.jme3.vulkan.mesh;
 
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.collision.Collidable;
+import com.jme3.collision.CollisionResults;
+import com.jme3.collision.UnsupportedCollisionException;
+import com.jme3.collision.bih.BIHTree;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.CollisionData;
+import com.jme3.scene.Geometry;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.frames.VersionedResource;
@@ -27,6 +33,7 @@ public abstract class AdaptiveMesh implements NewMesh {
     private GpuBuffer boundIndexBuffer;
     private BoundingVolume volume;
     private int vertices;
+    private CollisionData collisionTree;
 
     public AdaptiveMesh(MeshDescription description) {
         this.description = description;
@@ -72,6 +79,25 @@ public abstract class AdaptiveMesh implements NewMesh {
         return !indexBuffers.isEmpty() ? indexBuffers.get(0).get().size().getElements() / 3 : 0;
     }
 
+    @Override
+    public int collideWith(Collidable other, Geometry geometry, CollisionResults results) {
+        if (collisionTree == null) {
+            collisionTree = createCollisionTree();
+        }
+        return collisionTree.collideWith(other, geometry.getWorldMatrix(), geometry.getWorldBound(), results);
+    }
+
+    @Override
+    public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
+        return 0;
+    }
+
+    private CollisionData createCollisionTree() {
+        BIHTree tree = new BIHTree(this);
+        tree.construct();
+        return tree;
+    }
+
     protected void updateBound(AttributeModifier attribute) {
         Vector3f pos = new Vector3f();
         Vector3f min = new Vector3f();
@@ -89,6 +115,10 @@ public abstract class AdaptiveMesh implements NewMesh {
                 max.z = Math.max(max.z, pos.z);
             }
         }
+    }
+
+    public VertexReader readAttribute(String attribute) {
+        return modifyAttribute(attribute);
     }
 
     @SuppressWarnings("resource")

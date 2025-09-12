@@ -46,6 +46,9 @@ import com.jme3.util.*;
 import com.jme3.util.IntMap.Entry;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.mesh.NewMesh;
+
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
@@ -64,7 +67,7 @@ import java.util.ArrayList;
  *
  * @author Kirill Vainer
  */
-public class Mesh implements Savable, Cloneable, JmeCloneable {
+public class Mesh implements NewMesh, Savable, Cloneable, JmeCloneable {
 
     /**
      * The mode of the Mesh specifies both the type of primitive represented
@@ -878,8 +881,19 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      *
      * @return how many triangles/elements are on this Mesh.
      */
+    @Override
     public int getTriangleCount() {
         return elementCount;
+    }
+
+    @Override
+    public void bind(CommandBuffer cmd) {
+
+    }
+
+    @Override
+    public void draw(CommandBuffer cmd) {
+
     }
 
     /**
@@ -889,6 +903,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      *
      * @return Number of vertices on the mesh
      */
+    @Override
     public int getVertexCount() {
         return vertCount;
     }

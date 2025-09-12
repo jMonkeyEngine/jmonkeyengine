@@ -22,6 +22,21 @@ public class NullAttributeModifier extends AttributeModifier {
     public void close() {}
 
     @Override
+    public int capacity() {
+        return 0;
+    }
+
+    @Override
+    public int limit() {
+        return 0;
+    }
+
+    @Override
+    public AttributeModifier limit(int vertex) {
+        return this;
+    }
+
+    @Override
     public AttributeModifier putByte(int vertex, int component, byte value) {
         return this;
     }
@@ -181,7 +196,7 @@ public class NullAttributeModifier extends AttributeModifier {
         if (store == null) {
             store = new Vector2f();
         }
-        return store;
+        return store.set(0f, 0f);
     }
 
     @Override
@@ -189,7 +204,7 @@ public class NullAttributeModifier extends AttributeModifier {
         if (store == null) {
             store = new Vector3f();
         }
-        return store;
+        return store.set(0f, 0f, 0f);
     }
 
     @Override
@@ -197,7 +212,7 @@ public class NullAttributeModifier extends AttributeModifier {
         if (store == null) {
             store = new Vector4f();
         }
-        return store;
+        return store.set(0f, 0f, 0f, 0f);
     }
 
     @Override
@@ -205,7 +220,7 @@ public class NullAttributeModifier extends AttributeModifier {
         if (store == null) {
             store = new ColorRGBA();
         }
-        return store;
+        return store.set(0f, 0f, 0f, 0f);
     }
 
 }
