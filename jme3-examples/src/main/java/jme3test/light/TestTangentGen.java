@@ -38,8 +38,8 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
-import com.jme3.scene.GLMesh.Mode;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.shape.Quad;
@@ -71,7 +71,7 @@ public class TestTangentGen extends SimpleApplication {
         quadMesh.updateGeometry(1, 1);
         addMesh("Quad", quadMesh, new Vector3f(1, 0, 0));
 
-        GLMesh strip = createTriangleStripMesh();
+        Mesh strip = createTriangleStripMesh();
         addMesh("strip", strip, new Vector3f(0, -3, 0));
         
         DirectionalLight dl = new DirectionalLight();
@@ -80,7 +80,7 @@ public class TestTangentGen extends SimpleApplication {
         rootNode.addLight(dl);
     }
 
-    private void addMesh(String name, GLMesh mesh, Vector3f translation) {
+    private void addMesh(String name, Mesh mesh, Vector3f translation) {
         MikktspaceTangentGenerator.generate(mesh);
 
         Geometry testGeom = new Geometry(name, mesh);
@@ -104,8 +104,8 @@ public class TestTangentGen extends SimpleApplication {
     public void simpleUpdate(float tpf){
     }
 
-    private GLMesh createTriangleStripMesh() {
-        GLMesh strip = new GLMesh();
+    private Mesh createTriangleStripMesh() {
+        Mesh strip = new Mesh();
         strip.setMode(Mode.TriangleStrip);
         FloatBuffer vb = BufferUtils.createFloatBuffer(3*3*3); // 3 rows * 3 columns * 3 floats
         vb.rewind();

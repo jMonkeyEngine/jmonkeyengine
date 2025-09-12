@@ -135,7 +135,7 @@ public class TangentBinormalGenerator {
         return vertices;
     }
 
-    public static void generate(GLMesh mesh) {
+    public static void generate(Mesh mesh) {
         generate(mesh, true, false);
     }
 
@@ -147,7 +147,7 @@ public class TangentBinormalGenerator {
             }
         } else {
             Geometry geom = (Geometry) scene;
-            GLMesh mesh = geom.getMesh();
+            Mesh mesh = geom.getMesh();
 
             // Check to ensure mesh has texcoords and normals before generating
             if (mesh.getBuffer(Type.TexCoord) != null
@@ -162,13 +162,13 @@ public class TangentBinormalGenerator {
     }
 
     public static void generateParallel(Spatial scene, ExecutorService executor) {
-        final Set<GLMesh> meshes = new HashSet<>();
+        final Set<Mesh> meshes = new HashSet<>();
         scene.breadthFirstTraversal(new SceneGraphVisitor() {
             @Override
             public void visit(Spatial spatial) {
                 if (spatial instanceof Geometry) {
                     Geometry geom = (Geometry) spatial;
-                    GLMesh mesh = geom.getMesh();
+                    Mesh mesh = geom.getMesh();
 
                     // Check to ensure mesh has texcoords and normals before generating
                     if (mesh.getBuffer(Type.TexCoord) != null
@@ -179,7 +179,7 @@ public class TangentBinormalGenerator {
             }
         });
         List<Future<?>> futures = new ArrayList<>();
-        for (final GLMesh m : meshes) {
+        for (final Mesh m : meshes) {
             futures.add(executor.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -196,7 +196,7 @@ public class TangentBinormalGenerator {
         }
     }
 
-    public static void generate(GLMesh mesh, boolean approxTangents, boolean splitMirrored) {
+    public static void generate(Mesh mesh, boolean approxTangents, boolean splitMirrored) {
         int[] index = new int[3];
         Vector3f[] v = new Vector3f[3];
         Vector2f[] t = new Vector2f[3];
@@ -233,11 +233,11 @@ public class TangentBinormalGenerator {
         TangentUtils.generateBindPoseTangentsIfNecessary(mesh);
     }
 
-    public static void generate(GLMesh mesh, boolean approxTangents) {
+    public static void generate(Mesh mesh, boolean approxTangents) {
         generate(mesh, approxTangents, false);
     }
 
-    private static List<VertexData> processTriangles(GLMesh mesh,
+    private static List<VertexData> processTriangles(Mesh mesh,
                                                      int[] index, Vector3f[] v, Vector2f[] t, boolean splitMirrored) {
         IndexBuffer indexBuffer = mesh.getIndexBuffer();
         FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
@@ -273,7 +273,7 @@ public class TangentBinormalGenerator {
     // Don't remove the split mirrored boolean. It's not used right now, but I intend to
     // make this method also split vertices with rotated tangent space, and I'll
     // add another splitRotated boolean.
-    private static List<VertexData> splitVertices(GLMesh mesh, List<VertexData> vertexData, boolean splitMirrored) {
+    private static List<VertexData> splitVertices(Mesh mesh, List<VertexData> vertexData, boolean splitMirrored) {
         
         int nbVertices = mesh.getBuffer(Type.Position).getNumElements();
         List<VertexData> newVertices = new ArrayList<>();
@@ -446,7 +446,7 @@ public class TangentBinormalGenerator {
         }
     }
 
-    private static List<VertexData> processTriangleStrip(GLMesh mesh,
+    private static List<VertexData> processTriangleStrip(Mesh mesh,
                                                          int[] index, Vector3f[] v, Vector2f[] t) {
         
         IndexBuffer indexBuffer = mesh.getIndexBuffer();
@@ -495,7 +495,7 @@ public class TangentBinormalGenerator {
         return vertices;
     }
 
-    private static List<VertexData> processTriangleFan(GLMesh mesh,
+    private static List<VertexData> processTriangleFan(Mesh mesh,
                                                        int[] index, Vector3f[] v, Vector2f[] t) {
         
         IndexBuffer indexBuffer = mesh.getIndexBuffer();
@@ -627,7 +627,7 @@ public class TangentBinormalGenerator {
                 && (FastMath.abs(u.y - v.y) < tolerance);
     }
 
-    private static ArrayList<VertexInfo> linkVertices(GLMesh mesh, boolean splitMirrored) {
+    private static ArrayList<VertexInfo> linkVertices(Mesh mesh, boolean splitMirrored) {
         ArrayList<VertexInfo> vertexMap = new ArrayList<>();
 
         FloatBuffer vertexBuffer = mesh.getFloatBuffer(Type.Position);
@@ -672,7 +672,7 @@ public class TangentBinormalGenerator {
         return vertexMap;
     }
 
-    private static void processTriangleData(GLMesh mesh, List<VertexData> vertices,
+    private static void processTriangleData(Mesh mesh, List<VertexData> vertices,
                                             boolean approxTangent, boolean splitMirrored) {
         ArrayList<VertexInfo> vertexMap = linkVertices(mesh, splitMirrored);
 
@@ -841,7 +841,7 @@ public class TangentBinormalGenerator {
         mesh.updateCounts();
     }
 
-    private static void writeColorBuffer(List<VertexData> vertices, ColorRGBA[] cols, GLMesh mesh) {
+    private static void writeColorBuffer(List<VertexData> vertices, ColorRGBA[] cols, Mesh mesh) {
         FloatBuffer colors = BufferUtils.createFloatBuffer(vertices.size() * 4);
         colors.rewind();
         for (ColorRGBA color : cols) {
@@ -863,18 +863,18 @@ public class TangentBinormalGenerator {
     }
 
     /**
-     * @deprecated Use {@link TangentUtils#genTbnLines(GLMesh, float) } instead.
+     * @deprecated Use {@link TangentUtils#genTbnLines(Mesh, float) } instead.
      */
     @Deprecated
-    public static GLMesh genTbnLines(GLMesh mesh, float scale) {
+    public static Mesh genTbnLines(Mesh mesh, float scale) {
         return TangentUtils.genTbnLines(mesh, scale);
     }
 
     /**
-     * @deprecated Use {@link TangentUtils#genNormalLines(GLMesh, float) } instead.
+     * @deprecated Use {@link TangentUtils#genNormalLines(Mesh, float) } instead.
      */
     @Deprecated
-    public static GLMesh genNormalLines(GLMesh mesh, float scale) {
+    public static Mesh genNormalLines(Mesh mesh, float scale) {
         return TangentUtils.genNormalLines(mesh, scale);
     }
 

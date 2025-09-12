@@ -33,7 +33,7 @@ package com.jme3.scene.debug;
 
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import java.nio.FloatBuffer;
@@ -45,7 +45,7 @@ import java.nio.FloatBuffer;
  * 
  * @author Kirill Vainer
  */
-public class Arrow extends GLMesh {
+public class Arrow extends Mesh {
     
     private final Quaternion tempQuat = new Quaternion();
     private final Vector3f tempVec = new Vector3f();

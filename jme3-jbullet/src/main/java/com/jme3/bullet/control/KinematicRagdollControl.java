@@ -43,7 +43,7 @@ import com.jme3.export.*;
 import com.jme3.math.*;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
@@ -603,7 +603,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      * shape will contain at least 1 vertex.
      */
     private void filterBoneList(SkeletonControl skeletonControl) {
-        GLMesh[] targets = skeletonControl.getTargets();
+        Mesh[] targets = skeletonControl.getTargets();
         Skeleton skel = skeletonControl.getSkeleton();
         for (int boneI = 0; boneI < skel.getBoneCount(); boneI++) {
             String boneName = skel.getBone(boneI).getName();

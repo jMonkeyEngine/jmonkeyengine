@@ -33,7 +33,7 @@ package com.jme3.renderer;
 
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
@@ -227,21 +227,21 @@ public class RenderContext {
     /**
      * Currently bound element array vertex buffer.
      *
-     * @see Renderer#renderMesh(GLMesh, int, int, com.jme3.scene.VertexBuffer[])
+     * @see Renderer#renderMesh(Mesh, int, int, com.jme3.scene.VertexBuffer[])
      */
     public int boundElementArrayVBO;
 
     /**
      * ID of the bound vertex array.
      *
-     * @see Renderer#renderMesh(GLMesh, int, int, com.jme3.scene.VertexBuffer[])
+     * @see Renderer#renderMesh(Mesh, int, int, com.jme3.scene.VertexBuffer[])
      */
     public int boundVertexArray;
 
     /**
      * Currently bound array vertex buffer.
      *
-     * @see Renderer#renderMesh(GLMesh, int, int, com.jme3.scene.VertexBuffer[])
+     * @see Renderer#renderMesh(Mesh, int, int, com.jme3.scene.VertexBuffer[])
      */
     public int boundArrayVBO;
 

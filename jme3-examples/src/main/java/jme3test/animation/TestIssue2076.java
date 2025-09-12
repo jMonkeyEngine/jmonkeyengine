@@ -38,7 +38,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.light.AmbientLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.VertexBuffer;
 
@@ -101,7 +101,7 @@ public class TestIssue2076 extends SimpleApplication {
 
         // remove its vertex normals:
         Geometry oldGeometry = (Geometry) oldJaime.getChild(0);
-        GLMesh oldMesh = oldGeometry.getMesh();
+        Mesh oldMesh = oldGeometry.getMesh();
         oldMesh.clearBuffer(VertexBuffer.Type.Normal);
         oldMesh.clearBuffer(VertexBuffer.Type.BindPoseNormal);
     }
@@ -125,7 +125,7 @@ public class TestIssue2076 extends SimpleApplication {
 
         // remove its vertex normals:
         Geometry newGeometry = (Geometry) newJaime.getChild(0);
-        GLMesh newMesh = newGeometry.getMesh();
+        Mesh newMesh = newGeometry.getMesh();
         newMesh.clearBuffer(VertexBuffer.Type.Normal);
         newMesh.clearBuffer(VertexBuffer.Type.BindPoseNormal);
     }

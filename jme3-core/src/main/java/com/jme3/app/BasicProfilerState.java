@@ -40,7 +40,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.VertexBuffer.Type;
 
@@ -116,7 +116,7 @@ public class BasicProfilerState extends BaseAppState {
     }
 
     protected void refreshBackground() {
-        GLMesh mesh = background.getMesh();
+        Mesh mesh = background.getMesh();
 
         int size = profiler.getFrameCount();
         float frameTime = 1000f / 60;
@@ -180,7 +180,7 @@ public class BasicProfilerState extends BaseAppState {
         graph.setLocalTranslation(0, 300, 0);
         graph.setLocalScale(1, scale, 1);
 
-        GLMesh mesh = new GLMesh();
+        Mesh mesh = new Mesh();
         background = new Geometry("profiler.background", mesh);
         mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setBoolean("VertexColor", true);

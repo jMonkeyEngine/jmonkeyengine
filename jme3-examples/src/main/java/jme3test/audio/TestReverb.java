@@ -45,7 +45,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Sphere;
 
@@ -116,7 +116,7 @@ public class TestReverb extends SimpleApplication implements ActionListener {
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
     }
 
-    private Geometry makeShape(String name, GLMesh mesh, ColorRGBA color) {
+    private Geometry makeShape(String name, Mesh mesh, ColorRGBA color) {
         Geometry geo = new Geometry(name, mesh);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", color);

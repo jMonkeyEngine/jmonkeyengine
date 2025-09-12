@@ -84,7 +84,7 @@ public class PhantomTrianglesTest {
      * 0). It is composed of 2 triangles.
      */
     void createRedSquare() {
-        GLMesh quadMesh = new Quad(1f, 1f);
+        Mesh quadMesh = new Quad(1f, 1f);
         Geometry redSquare = new Geometry("red square", quadMesh);
         Material red = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
         redSquare.setMaterial(red);
@@ -95,8 +95,8 @@ public class PhantomTrianglesTest {
      * Attach a pair of parallel white lines in the z=1 plane.
      */
     void createWhiteLines() {
-        GLMesh lineMesh = new GLMesh();
-        lineMesh.setMode(GLMesh.Mode.Lines);
+        Mesh lineMesh = new Mesh();
+        lineMesh.setMode(Mesh.Mode.Lines);
         float[] corners = new float[]{
             -1f, -1f, 0f,
             -1f, 1f, 0f,

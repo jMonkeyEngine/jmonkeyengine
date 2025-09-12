@@ -52,10 +52,10 @@ import java.io.IOException;
  * @deprecated use com.jme3.scene.shape.CenterQuad
  */
 @Deprecated
-public class CenterQuad extends GLMesh {
+public class CenterQuad extends Mesh {
 
     public static CenterQuad UnitQuad = new CenterQuad(0.5f, 0.5f);
-    public static GLMesh CenterSplitQuad;
+    public static Mesh CenterSplitQuad;
     
     private float width;
     private float height;

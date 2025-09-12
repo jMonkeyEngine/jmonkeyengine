@@ -40,7 +40,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -63,7 +63,7 @@ public class MeshCollisionShape extends CollisionShape {
      * @param mesh
      *            the TriMesh to use
      */
-    public MeshCollisionShape(GLMesh mesh) {
+    public MeshCollisionShape(Mesh mesh) {
         this(mesh, false);
     }
  
@@ -73,11 +73,11 @@ public class MeshCollisionShape extends CollisionShape {
      * @param mesh the TriMesh to use
      * @param dummy Unused
      */
-    public MeshCollisionShape(GLMesh mesh, boolean dummy) {
+    public MeshCollisionShape(Mesh mesh, boolean dummy) {
         createCollisionMesh(mesh, new Vector3f(1, 1, 1));
     }
     
-    private void createCollisionMesh(GLMesh mesh, Vector3f worldScale) {
+    private void createCollisionMesh(Mesh mesh, Vector3f worldScale) {
         this.scale = worldScale;
         bulletMesh = Converter.convert(mesh);
         this.numVertices = bulletMesh.numVertices;
@@ -94,7 +94,7 @@ public class MeshCollisionShape extends CollisionShape {
      *
      * @return a new Mesh
      */
-    public GLMesh createJmeMesh(){
+    public Mesh createJmeMesh(){
         return Converter.convert(bulletMesh);
     }
 

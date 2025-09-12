@@ -34,7 +34,7 @@ package com.jme3.collision;
 import com.jme3.math.Triangle;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 
 /**
  * A <code>CollisionResult</code> represents a single collision instance
@@ -90,7 +90,7 @@ public class CollisionResult implements Comparable<CollisionResult> {
         if (store == null)
             store = new Triangle();
 
-        GLMesh m = geometry.getMesh();
+        Mesh m = geometry.getMesh();
         m.getTriangle(triangleIndex, store);
         store.calculateCenter();
         store.calculateNormal();

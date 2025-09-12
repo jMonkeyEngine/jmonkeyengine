@@ -40,7 +40,7 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
@@ -97,13 +97,13 @@ public class RagUtils {
      * null, unaffected)
      * @return a new map from bone/torso names to sets of vertex coordinates
      */
-    static Map<String, VectorSet> coordsMap(GLMesh[] meshes,
+    static Map<String, VectorSet> coordsMap(Mesh[] meshes,
                                             String[] managerMap) {
         float[] wArray = new float[4];
         int[] iArray = new int[4];
         Vector3f bindPosition = new Vector3f();
         Map<String, VectorSet> coordsMap = new HashMap<>(32);
-        for (GLMesh mesh : meshes) {
+        for (Mesh mesh : meshes) {
             int numVertices = mesh.getVertexCount();
             for (int vertexI = 0; vertexI < numVertices; ++vertexI) {
                 String managerName = findManager(mesh, vertexI, iArray, wArray,
@@ -133,7 +133,7 @@ public class RagUtils {
         Geometry result = null;
         if (subtree instanceof Geometry) {
             Geometry geometry = (Geometry) subtree;
-            GLMesh mesh = geometry.getMesh();
+            Mesh mesh = geometry.getMesh();
             VertexBuffer indices = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
             boolean hasIndices = indices != null;
             VertexBuffer weights = mesh.getBuffer(VertexBuffer.Type.BoneWeight);
@@ -186,7 +186,7 @@ public class RagUtils {
      * (not null)
      * @return a root bone, or null if none found
      */
-    static Joint findMainBone(Armature skeleton, GLMesh[] targetMeshes) {
+    static Joint findMainBone(Armature skeleton, Mesh[] targetMeshes) {
         Joint[] rootBones = skeleton.getRoots();
 
         Joint result;
@@ -217,15 +217,15 @@ public class RagUtils {
      * @param storeResult (added to if not null)
      * @return an expanded list (either storeResult or a new instance)
      */
-    static List<GLMesh> listAnimatedMeshes(Spatial subtree,
-                                           List<GLMesh> storeResult) {
+    static List<Mesh> listAnimatedMeshes(Spatial subtree,
+                                         List<Mesh> storeResult) {
         if (storeResult == null) {
             storeResult = new ArrayList<>(10);
         }
 
         if (subtree instanceof Geometry) {
             Geometry geometry = (Geometry) subtree;
-            GLMesh mesh = geometry.getMesh();
+            Mesh mesh = geometry.getMesh();
             VertexBuffer indices = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
             boolean hasIndices = indices != null;
             VertexBuffer weights = mesh.getBuffer(VertexBuffer.Type.BoneWeight);
@@ -394,7 +394,7 @@ public class RagUtils {
      * @param mesh animated mesh to analyze (not null, unaffected)
      * @param totalWeights (not null, modified)
      */
-    private static void addWeights(GLMesh mesh, float[] totalWeights) {
+    private static void addWeights(Mesh mesh, float[] totalWeights) {
         assert totalWeights != null;
 
         int maxWeightsPerVert = mesh.getMaxNumWeights();
@@ -439,7 +439,7 @@ public class RagUtils {
      * unaffected)
      * @return a bone/torso name
      */
-    private static String findManager(GLMesh mesh, int vertexIndex, int[] iArray,
+    private static String findManager(Mesh mesh, int vertexIndex, int[] iArray,
                                       float[] wArray, String[] managerMap) {
         vertexBoneIndices(mesh, vertexIndex, iArray);
         vertexBoneWeights(mesh, vertexIndex, wArray);
@@ -539,10 +539,10 @@ public class RagUtils {
      * @param skeleton (not null, unaffected)
      * @return a map from bone indices to total bone weight
      */
-    private static float[] totalWeights(GLMesh[] meshes, Armature skeleton) {
+    private static float[] totalWeights(Mesh[] meshes, Armature skeleton) {
         int numBones = skeleton.getJointCount();
         float[] result = new float[numBones];
-        for (GLMesh mesh : meshes) {
+        for (Mesh mesh : meshes) {
             RagUtils.addWeights(mesh, result);
         }
 
@@ -568,7 +568,7 @@ public class RagUtils {
      * @param storeResult (modified if not null)
      * @return the data vector (either storeResult or a new instance)
      */
-    private static int[] vertexBoneIndices(GLMesh mesh,
+    private static int[] vertexBoneIndices(Mesh mesh,
                                            int vertexIndex, int[] storeResult) {
         if (storeResult == null) {
             storeResult = new int[4];
@@ -607,7 +607,7 @@ public class RagUtils {
      * @param storeResult (modified if not null)
      * @return the data vector (either storeResult or a new instance)
      */
-    private static float[] vertexBoneWeights(GLMesh mesh,
+    private static float[] vertexBoneWeights(Mesh mesh,
                                              int vertexIndex, float[] storeResult) {
         if (storeResult == null) {
             storeResult = new float[4];
@@ -650,7 +650,7 @@ public class RagUtils {
      * @param storeResult (modified if not null)
      * @return the data vector (either storeResult or a new instance)
      */
-    private static Vector3f vertexVector3f(GLMesh mesh,
+    private static Vector3f vertexVector3f(Mesh mesh,
                                            VertexBuffer.Type bufferType, int vertexIndex,
                                            Vector3f storeResult) {
         assert bufferType == VertexBuffer.Type.BindPoseNormal

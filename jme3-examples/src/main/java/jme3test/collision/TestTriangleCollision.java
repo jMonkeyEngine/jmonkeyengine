@@ -43,7 +43,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 
@@ -61,7 +61,7 @@ public class TestTriangleCollision extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         // Create two boxes
-        GLMesh mesh1 = new Box(0.5f, 0.5f, 0.5f);
+        Mesh mesh1 = new Box(0.5f, 0.5f, 0.5f);
         geom1 = new Geometry("Box", mesh1);
         geom1.move(2, 2, -.5f);
         Material m1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");

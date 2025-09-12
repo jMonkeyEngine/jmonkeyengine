@@ -46,8 +46,8 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.CollisionData;
-import com.jme3.scene.GLMesh;
-import com.jme3.scene.GLMesh.Mode;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
@@ -62,7 +62,7 @@ public class BIHTree implements CollisionData {
 
     public static final int MAX_TREE_DEPTH = 100;
     public static final int MAX_TRIS_PER_NODE = 21;
-    private GLMesh mesh;
+    private Mesh mesh;
     private BIHNode root;
     private int maxTrisPerNode;
     private int numTris;
@@ -98,7 +98,7 @@ public class BIHTree implements CollisionData {
         }
     }
 
-    public BIHTree(GLMesh mesh, int maxTrisPerNode) {
+    public BIHTree(Mesh mesh, int maxTrisPerNode) {
         this.mesh = mesh;
         this.maxTrisPerNode = maxTrisPerNode;
 
@@ -128,7 +128,7 @@ public class BIHTree implements CollisionData {
         initTriList(vb, ib);
     }
 
-    public BIHTree(GLMesh mesh) {
+    public BIHTree(Mesh mesh) {
         this(mesh, MAX_TRIS_PER_NODE);
     }
 
@@ -484,7 +484,7 @@ public class BIHTree implements CollisionData {
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        mesh = (GLMesh) ic.readSavable("mesh", null);
+        mesh = (Mesh) ic.readSavable("mesh", null);
         root = (BIHNode) ic.readSavable("root", null);
         maxTrisPerNode = ic.readInt("tris_per_node", 0);
         pointData = ic.readFloatArray("points", null);

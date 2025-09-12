@@ -33,7 +33,7 @@ package com.jme3.font;
 
 import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.texture.Texture2D;
@@ -59,7 +59,7 @@ class BitmapTextPage extends Geometry {
     private final LinkedList<LetterQuad> pageQuads = new LinkedList<>();
 
     BitmapTextPage(BitmapFont font, boolean arrayBased, int page) {
-        super("BitmapFont", new GLMesh());
+        super("BitmapFont", new Mesh());
         setRequiresUpdates(false);
         setBatchHint(BatchHint.Never);
         if (font == null) {
@@ -77,7 +77,7 @@ class BitmapTextPage extends Geometry {
         this.texture = (Texture2D) mat.getTextureParam("ColorMap").getTextureValue();
 
         // initialize buffers
-        GLMesh m = getMesh();
+        Mesh m = getMesh();
         m.setBuffer(Type.Position, 3, new float[0]);
         m.setBuffer(Type.TexCoord, 2, new float[0]);
         m.setBuffer(Type.Color, 4, new byte[0]);
@@ -130,7 +130,7 @@ class BitmapTextPage extends Geometry {
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         
-        GLMesh originalMesh = this.mesh;
+        Mesh originalMesh = this.mesh;
     
         super.cloneFields(cloner, original);
         
@@ -162,7 +162,7 @@ class BitmapTextPage extends Geometry {
             }
         }
 
-        GLMesh m = getMesh();
+        Mesh m = getMesh();
         int vertCount = pageQuads.size() * 4;
         int triCount = pageQuads.size() * 2;
 

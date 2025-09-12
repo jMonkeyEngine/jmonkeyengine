@@ -225,7 +225,7 @@ public class TestObbVsBounds extends SimpleApplication {
         points[6].set(1, 1, -1);
         points[7].set(1, -1, -1);
 
-        GLMesh box = WireFrustum.makeFrustum(points);
+        Mesh box = WireFrustum.makeFrustum(points);
         areaGeom = new Geometry("light", box);
         areaGeom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
         areaGeom.getMaterial().setColor("Color", ColorRGBA.White);

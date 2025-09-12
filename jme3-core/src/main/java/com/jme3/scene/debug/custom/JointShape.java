@@ -32,10 +32,10 @@
 
 package com.jme3.scene.debug.custom;
 
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 
-public class JointShape extends GLMesh {
+public class JointShape extends Mesh {
 
     /**
      * Serialization only. Do not use.

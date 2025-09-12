@@ -32,7 +32,7 @@
 package com.jme3.util;
 
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import java.nio.FloatBuffer;
@@ -56,7 +56,7 @@ public class TestIssue1919 {
      */
     @Test(expected = UnsupportedOperationException.class)
     public void testHybrid() {
-        Geometry testGeometry = createGeometry(GLMesh.Mode.Hybrid);
+        Geometry testGeometry = createGeometry(Mesh.Mode.Hybrid);
         MikktspaceTangentGenerator.generate(testGeometry);
     }
 
@@ -65,10 +65,10 @@ public class TestIssue1919 {
      */
     @Test
     public void testLineLoop() {
-        Geometry testGeometry = createGeometry(GLMesh.Mode.LineLoop);
+        Geometry testGeometry = createGeometry(Mesh.Mode.LineLoop);
         MikktspaceTangentGenerator.generate(testGeometry);
 
-        GLMesh mesh = testGeometry.getMesh();
+        Mesh mesh = testGeometry.getMesh();
         VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
         Assert.assertNull(tangents); /// skipped this mesh
     }
@@ -78,10 +78,10 @@ public class TestIssue1919 {
      */
     @Test
     public void testLineStrip() {
-        Geometry testGeometry = createGeometry(GLMesh.Mode.LineStrip);
+        Geometry testGeometry = createGeometry(Mesh.Mode.LineStrip);
         MikktspaceTangentGenerator.generate(testGeometry);
 
-        GLMesh mesh = testGeometry.getMesh();
+        Mesh mesh = testGeometry.getMesh();
         VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
         Assert.assertNull(tangents); /// skipped this mesh
     }
@@ -91,10 +91,10 @@ public class TestIssue1919 {
      */
     @Test
     public void testLines() {
-        Geometry testGeometry = createGeometry(GLMesh.Mode.Lines);
+        Geometry testGeometry = createGeometry(Mesh.Mode.Lines);
         MikktspaceTangentGenerator.generate(testGeometry);
 
-        GLMesh mesh = testGeometry.getMesh();
+        Mesh mesh = testGeometry.getMesh();
         VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
         Assert.assertNull(tangents); // skipped this mesh
     }
@@ -104,7 +104,7 @@ public class TestIssue1919 {
      */
     @Test(expected = UnsupportedOperationException.class)
     public void testPatch() {
-        Geometry testGeometry = createGeometry(GLMesh.Mode.Patch);
+        Geometry testGeometry = createGeometry(Mesh.Mode.Patch);
         MikktspaceTangentGenerator.generate(testGeometry);
     }
 
@@ -113,10 +113,10 @@ public class TestIssue1919 {
      */
     @Test
     public void testPoints() {
-        Geometry testGeometry = createGeometry(GLMesh.Mode.Points);
+        Geometry testGeometry = createGeometry(Mesh.Mode.Points);
         MikktspaceTangentGenerator.generate(testGeometry);
 
-        GLMesh mesh = testGeometry.getMesh();
+        Mesh mesh = testGeometry.getMesh();
         VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
         Assert.assertNull(tangents); // skipped this mesh
     }
@@ -126,10 +126,10 @@ public class TestIssue1919 {
      */
     @Test
     public void testTriangles() {
-        Geometry testGeometry = createGeometry(GLMesh.Mode.Triangles);
+        Geometry testGeometry = createGeometry(Mesh.Mode.Triangles);
         MikktspaceTangentGenerator.generate(testGeometry);
 
-        GLMesh mesh = testGeometry.getMesh();
+        Mesh mesh = testGeometry.getMesh();
         VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
         Assert.assertNotNull(tangents); // generated tangents
     }
@@ -140,7 +140,7 @@ public class TestIssue1919 {
      * @param mode the desired mode (not null)
      * @return a new geometry
      */
-    private Geometry createGeometry(GLMesh.Mode mode) {
+    private Geometry createGeometry(Mesh.Mode mode) {
         FloatBuffer normals = BufferUtils.createFloatBuffer(
                 0f, 1f, 0f,
                 0f, 1f, 0f,
@@ -167,7 +167,7 @@ public class TestIssue1919 {
                 +posRadius, 0f, -posRadius,
                 -posRadius, 0f, -posRadius
         );
-        GLMesh mesh = new GLMesh();
+        Mesh mesh = new Mesh();
         mesh.setMode(mode);
         mesh.setBuffer(VertexBuffer.Type.Normal, numAxes, normals);
         mesh.setBuffer(VertexBuffer.Type.Position, numAxes, positions);

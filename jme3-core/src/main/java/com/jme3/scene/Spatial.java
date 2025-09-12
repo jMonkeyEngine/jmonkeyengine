@@ -1403,7 +1403,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      * are shared if static, or specially cloned if animated.
      *
      * @param cloneMaterial true to clone materials, false to share them
-     * @see GLMesh#cloneForAnim()
+     * @see Mesh#cloneForAnim()
      */
     public Spatial clone(boolean cloneMaterial) {
         // Set up the cloner for the type of cloning we want to do.
@@ -1421,7 +1421,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         // By default, the meshes are not cloned.  The geometry
         // may choose to selectively force them to be cloned, but
         // normally they will be shared.
-        cloner.setCloneFunction(GLMesh.class, new IdentityCloneFunction<GLMesh>());
+        cloner.setCloneFunction(Mesh.class, new IdentityCloneFunction<Mesh>());
 
         // Clone it!
         Spatial clone = cloner.clone(this);
@@ -1453,7 +1453,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      * Note that meshes of geometries are not cloned explicitly, they
      * are shared if static, or specially cloned if animated.
      *
-     * @see GLMesh#cloneForAnim()
+     * @see Mesh#cloneForAnim()
      */
     @Override
     public Spatial clone() {

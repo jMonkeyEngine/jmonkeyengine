@@ -57,7 +57,7 @@ public abstract class GeometryGroupNode extends Node {
     
     /**
      * Called by {@link Geometry geom} to specify that its 
-     * {@link Geometry#setMesh(GLMesh) mesh}
+     * {@link Geometry#setMesh(Mesh) mesh}
      * has been changed.
      * 
      * This is also called when the geometry's 

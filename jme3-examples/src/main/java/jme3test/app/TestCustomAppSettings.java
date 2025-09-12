@@ -1,6 +1,6 @@
 package jme3test.app;
 
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.system.AppSettings;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,7 +26,7 @@ public class TestCustomAppSettings {
         settings.putInteger("TestInt", 123);
         settings.putString("TestStr", "HelloWorld");
         settings.putFloat("TestFloat", 123.567f);
-        settings.put("TestObj", new GLMesh()); // Objects not supported by preferences
+        settings.put("TestObj", new Mesh()); // Objects not supported by preferences
         
         try {
             settings.save(APPSETTINGS_KEY);
@@ -58,7 +58,7 @@ public class TestCustomAppSettings {
         settings.putInteger("TestInt", 123);
         settings.putString("TestStr", "HelloWorld");
         settings.putFloat("TestFloat", 123.567f);
-        settings.put("TestObj", new GLMesh()); // Objects not supported by file settings
+        settings.put("TestObj", new Mesh()); // Objects not supported by file settings
         
         try {
             settings.save(baos);

@@ -34,7 +34,7 @@ package com.jme3.terrain;
 import com.jme3.export.*;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
@@ -308,12 +308,12 @@ public class GeoMap implements Savable {
         return store;
     }
     
-    public GLMesh createMesh(Vector3f scale, Vector2f tcScale, boolean center){
+    public Mesh createMesh(Vector3f scale, Vector2f tcScale, boolean center){
         FloatBuffer pb = writeVertexArray(null, scale, center);
         FloatBuffer tb = writeTexCoordArray(null, Vector2f.ZERO, tcScale);
         FloatBuffer nb = writeNormalArray(null, scale);
         IntBuffer ib = writeIndexArray(null);
-        GLMesh m = new GLMesh();
+        Mesh m = new Mesh();
         m.setBuffer(Type.Position, 3, pb);
         m.setBuffer(Type.Normal, 3, nb);
         m.setBuffer(Type.TexCoord, 2, tb);

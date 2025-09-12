@@ -35,7 +35,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.light.LightProbe;
 import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GLMesh;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.shape.CenterQuad;
 import com.jme3.system.AppSettings;
 
@@ -74,7 +74,7 @@ public class TestIssue1903Compat extends SimpleApplication {
         flyCam.setEnabled(false);
 
         // Attach a 9x9 quad at the origin.
-        GLMesh mesh = new CenterQuad(9f, 9f);
+        Mesh mesh = new CenterQuad(9f, 9f);
         Geometry quad = new Geometry("quad", mesh);
         rootNode.attachChild(quad);
 
