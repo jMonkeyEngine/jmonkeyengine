@@ -14,7 +14,6 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.VulkanInstance;
-import com.jme3.vulkan.VulkanLogger;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.buffers.PersistentBuffer;
@@ -79,7 +78,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private boolean applicationStopped = false;
 
     // mesh
-    private Mesh mesh;
+    private NewMesh mesh;
     private final FloatBuffer vertexData = BufferUtils.createFloatBuffer(
             -0.5f, -0.5f, 0f,   1f, 0f, 0f,   1f, 0f,
              0.5f, -0.5f, 0f,   0f, 1f, 0f,   0f, 0f,

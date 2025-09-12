@@ -13,7 +13,7 @@ import java.util.*;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public abstract class AdaptiveMesh implements Mesh {
+public abstract class AdaptiveMesh implements NewMesh {
 
     protected enum VertexMode {
 

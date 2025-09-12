@@ -2,7 +2,7 @@ package com.jme3.vulkan.mesh;
 
 import com.jme3.vulkan.commands.CommandBuffer;
 
-public interface Mesh {
+public interface NewMesh {
 
     void bind(CommandBuffer cmd);
 
