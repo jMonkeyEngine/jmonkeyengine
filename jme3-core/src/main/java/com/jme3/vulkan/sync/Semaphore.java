@@ -1,7 +1,7 @@
 package com.jme3.vulkan.sync;
 
 import com.jme3.util.natives.Native;
-import com.jme3.vulkan.AbstractNative;
+import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.pipelines.PipelineStage;
 import com.jme3.vulkan.util.Flag;

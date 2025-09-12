@@ -59,11 +59,11 @@ public class InstancedNode extends GeometryGroupNode {
 
     private static final class InstanceTypeKey implements Cloneable, JmeCloneable {
 
-        Mesh mesh;
+        GLMesh mesh;
         Material material;
         int lodLevel;
 
-        public InstanceTypeKey(Mesh mesh, Material material, int lodLevel) {
+        public InstanceTypeKey(GLMesh mesh, Material material, int lodLevel) {
             this.mesh = mesh;
             this.material = material;
             this.lodLevel = lodLevel;

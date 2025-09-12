@@ -191,7 +191,7 @@ public class TestBaseAnimSerialization extends SimpleApplication {
         }, "bind");
     }
 
-    private Mesh createMesh() {
+    private GLMesh createMesh() {
         Cylinder c = new Cylinder(30, 16, 0.1f, 1, true);
 
         ShortBuffer jointIndex = (ShortBuffer) VertexBuffer.createBuffer(VertexBuffer.Format.UnsignedShort, 4, c.getVertexCount());

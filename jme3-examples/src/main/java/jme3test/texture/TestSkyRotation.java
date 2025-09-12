@@ -40,7 +40,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.SkyFactory;
@@ -94,7 +94,7 @@ public class TestSkyRotation extends SimpleApplication implements ActionListener
         /*
          * Attach a "floor" geometry to the scene graph.
          */
-        Mesh floorMesh = new Box(10f, 0.1f, 10f);
+        GLMesh floorMesh = new Box(10f, 0.1f, 10f);
         floor = new Geometry("floor", floorMesh);
         Material floorMaterial = new Material(assetManager,
                 "Common/MatDefs/Misc/Unshaded.j3md");

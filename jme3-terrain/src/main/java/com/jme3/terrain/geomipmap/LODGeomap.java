@@ -37,8 +37,8 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Triangle;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.Mesh.Mode;
+import com.jme3.scene.GLMesh;
+import com.jme3.scene.GLMesh.Mode;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.terrain.GeoMap;
@@ -73,11 +73,11 @@ public class LODGeomap extends GeoMap {
         super(heightMap, size, size, 1);
     }
 
-    public Mesh createMesh(Vector3f scale, Vector2f tcScale, Vector2f tcOffset, float offsetAmount, int totalSize, boolean center) {
+    public GLMesh createMesh(Vector3f scale, Vector2f tcScale, Vector2f tcOffset, float offsetAmount, int totalSize, boolean center) {
         return this.createMesh(scale, tcScale, tcOffset, offsetAmount, totalSize, center, 1, false, false, false, false);
     }
 
-    public Mesh createMesh(Vector3f scale, Vector2f tcScale, Vector2f tcOffset, float offsetAmount, int totalSize, boolean center, int lod, boolean rightLod, boolean topLod, boolean leftLod, boolean bottomLod) {
+    public GLMesh createMesh(Vector3f scale, Vector2f tcScale, Vector2f tcOffset, float offsetAmount, int totalSize, boolean center, int lod, boolean rightLod, boolean topLod, boolean leftLod, boolean bottomLod) {
         FloatBuffer pb = writeVertexArray(null, scale, center);
         FloatBuffer texb = writeTexCoordArray(null, tcOffset, tcScale, offsetAmount, totalSize);
         FloatBuffer nb = writeNormalArray(null, scale);
@@ -85,7 +85,7 @@ public class LODGeomap extends GeoMap {
         FloatBuffer bb = BufferUtils.createFloatBuffer(getWidth() * getHeight() * 3);
         FloatBuffer tanb = BufferUtils.createFloatBuffer(getWidth() * getHeight() * 3);
         writeTangentArray(nb, tanb, bb, texb, scale);
-        Mesh m = new Mesh();
+        GLMesh m = new GLMesh();
         m.setMode(Mode.TriangleStrip);
         m.setBuffer(Type.Position, 3, pb);
         m.setBuffer(Type.Normal, 3, nb);

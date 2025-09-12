@@ -49,7 +49,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.shape.Box;
@@ -301,7 +301,7 @@ public class PhysicsTestHelper {
         return floor;
     }
 
-    private static Mesh createFloorMesh(int meshDetail, float floorDimensions) {
+    private static GLMesh createFloorMesh(int meshDetail, float floorDimensions) {
         if (meshDetail < 10) {
             meshDetail = 10;
         }
@@ -351,7 +351,7 @@ public class PhysicsTestHelper {
             }
         }
 
-        Mesh m = new Mesh();
+        GLMesh m = new GLMesh();
         m.setBuffer(VertexBuffer.Type.Index, 1, BufferUtils.createIntBuffer(indexBuf));
         m.setBuffer(VertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(vertBuf));
         m.updateBound();

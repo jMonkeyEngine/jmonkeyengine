@@ -1,6 +1,7 @@
 package com.jme3.vulkan.frames;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.IntFunction;
 
@@ -40,6 +41,11 @@ public class PerFrameResource <T> implements VersionedResource<T> {
     @Override
     public int getNumResources() {
         return resources.size();
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return resources.iterator();
     }
 
 }

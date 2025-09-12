@@ -38,7 +38,7 @@ import org.junit.Test;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
@@ -113,8 +113,8 @@ public class LodGeneratorTest {
     /**
      * Returns the mesh of a node.
      */
-    private Mesh getMesh(Node node) {
-        Mesh m = null;
+    private GLMesh getMesh(Node node) {
+        GLMesh m = null;
         for (Spatial spatial : node.getChildren()) {
             if (spatial instanceof Geometry) {
                 m = ((Geometry) spatial).getMesh();
@@ -131,7 +131,7 @@ public class LodGeneratorTest {
      * Returns the Monkey mesh used in the TestLodGeneration stresstest. Note: Doesn't work durring gradle
      * build.
      */
-    private Mesh monkey() {
+    private GLMesh monkey() {
         Node model = (Node) assetManager.loadModel("Models/Jaime/Jaime.j3o");
         return getMesh(model);
     }
@@ -139,7 +139,7 @@ public class LodGeneratorTest {
     /**
      * Returns a 12x12 Sphere mesh.
      */
-    private Mesh sphere() {
+    private GLMesh sphere() {
         return new Sphere(12, 12, 1, false, false);
     }
 

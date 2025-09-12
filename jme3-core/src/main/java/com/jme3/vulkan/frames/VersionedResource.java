@@ -5,7 +5,7 @@ package com.jme3.vulkan.frames;
  *
  * @param <T> resource type
  */
-public interface VersionedResource<T> {
+public interface VersionedResource<T> extends Iterable<T> {
 
     /**
      * Sets the resource for the current frame.

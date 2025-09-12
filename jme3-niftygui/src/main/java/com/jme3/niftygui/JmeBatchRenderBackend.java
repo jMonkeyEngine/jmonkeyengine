@@ -40,7 +40,7 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
@@ -495,7 +495,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         private final VertexBuffer vertexColor = new VertexBuffer(Type.Color);
         private final VertexBuffer indexBuffer = new VertexBuffer(Type.Index);
 
-        private final Mesh mesh = new Mesh();
+        private final GLMesh mesh = new GLMesh();
         private final Geometry meshGeometry = new Geometry("nifty-quad", mesh);
         private final RenderState renderState = new RenderState();
 

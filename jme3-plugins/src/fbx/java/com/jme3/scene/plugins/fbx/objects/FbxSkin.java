@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jme3.asset.AssetLoadException;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
@@ -43,10 +43,10 @@ public class FbxSkin extends FbxObject {
         for(FbxMesh fbxMesh : toSkin) {
             if(fbxMesh.geometries == null)
                 continue;
-            Mesh firstMesh = fbxMesh.geometries.get(0).getMesh();
+            GLMesh firstMesh = fbxMesh.geometries.get(0).getMesh();
             int maxWeightsPerVert = generateBoneData(firstMesh, fbxMesh);
             for(int i = 0; i < fbxMesh.geometries.size(); ++i) {
-                Mesh mesh = fbxMesh.geometries.get(i).getMesh();
+                GLMesh mesh = fbxMesh.geometries.get(i).getMesh();
                 if(mesh != firstMesh) {
                     mesh.setBuffer(firstMesh.getBuffer(VertexBuffer.Type.BoneWeight));
                     mesh.setBuffer(firstMesh.getBuffer(VertexBuffer.Type.BoneIndex));
@@ -59,7 +59,7 @@ public class FbxSkin extends FbxObject {
         }
     }
     
-    private int generateBoneData(Mesh mesh, FbxMesh fbxMesh) {
+    private int generateBoneData(GLMesh mesh, FbxMesh fbxMesh) {
         // Create bone buffers
         FloatBuffer boneWeightData = BufferUtils.createFloatBuffer(fbxMesh.vCount * 4);
         ByteBuffer boneIndicesData = BufferUtils.createByteBuffer(fbxMesh.vCount * 4);

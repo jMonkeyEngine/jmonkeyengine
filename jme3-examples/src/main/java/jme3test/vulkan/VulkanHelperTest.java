@@ -12,17 +12,32 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.vulkan.LwjglVulkanContext;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.natives.Native;
+import com.jme3.vulkan.Format;
+import com.jme3.vulkan.VulkanInstance;
+import com.jme3.vulkan.VulkanLogger;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.buffers.PersistentBuffer;
+import com.jme3.vulkan.buffers.StageableBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
+import com.jme3.vulkan.descriptors.*;
+import com.jme3.vulkan.devices.DeviceFeature;
+import com.jme3.vulkan.devices.DeviceFilter;
+import com.jme3.vulkan.devices.GeneralPhysicalDevice;
+import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.frames.SingleResource;
 import com.jme3.vulkan.frames.UpdateFrame;
 import com.jme3.vulkan.frames.UpdateFrameManager;
+import com.jme3.vulkan.images.*;
 import com.jme3.vulkan.material.TestMaterial;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.pass.Attachment;
 import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pass.RenderPass;
+import com.jme3.vulkan.pipelines.*;
 import com.jme3.vulkan.pipelines.states.ColorBlendAttachment;
 import com.jme3.vulkan.pipelines.states.DynamicState;
 import com.jme3.vulkan.shader.ShaderModule;
@@ -62,8 +77,6 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private UpdateFrameManager frames;
     private boolean swapchainResizeFlag = false;
     private boolean applicationStopped = false;
-
-    private VulkanLogger logger;
 
     // mesh
     private Mesh mesh;
@@ -133,9 +146,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             i.setApplicationName(VulkanHelperTest.class.getSimpleName());
             i.setApplicationVersion(1, 0, 0);
         }
-
-        // debug callbacks
-        logger = new VulkanLogger(instance, Level.SEVERE);
+        instance.createLogger(Level.SEVERE);
 
         // surface
         surface = new Surface(instance, window);

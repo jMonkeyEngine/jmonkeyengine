@@ -34,7 +34,7 @@ package com.jme3.scene.debug;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
@@ -52,7 +52,7 @@ import java.nio.FloatBuffer;
  * and four for the far plane. These points are connected by lines
  * to form a wireframe cube-like structure.
  */
-public class WireFrustum extends Mesh {
+public class WireFrustum extends GLMesh {
 
     /**
      * For Serialization only. Do not use.
@@ -161,7 +161,7 @@ public class WireFrustum extends Mesh {
      * @param points An array of 8 `Vector3f` objects representing the frustum's corners.
      * @return A new `WireFrustum` instance.
      */
-    public static Mesh makeFrustum(Vector3f[] points) {
+    public static GLMesh makeFrustum(Vector3f[] points) {
         return new WireFrustum(points);
     }
 

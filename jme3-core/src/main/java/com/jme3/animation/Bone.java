@@ -722,7 +722,7 @@ public final class Bone implements Savable, JmeCloneable {
          * Search for a geometry animated by this particular bone.
          */
         for (Geometry geometry : targets) {
-            Mesh mesh = geometry.getMesh();
+            GLMesh mesh = geometry.getMesh();
             if (mesh != null && mesh.isAnimatedByBone(boneIndex)) {
                 targetGeometry = geometry;
                 break;

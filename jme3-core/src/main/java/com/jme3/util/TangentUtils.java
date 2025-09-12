@@ -53,7 +53,7 @@ public class TangentUtils {
     private TangentUtils() {
     }
 
-    public static void generateBindPoseTangentsIfNecessary(Mesh mesh){
+    public static void generateBindPoseTangentsIfNecessary(GLMesh mesh){
         if (mesh.getBuffer(VertexBuffer.Type.BindPosePosition) != null) {
 
             VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
@@ -73,7 +73,7 @@ public class TangentUtils {
         }
     }
 
-    public static Mesh genTbnLines(Mesh mesh, float scale) {
+    public static GLMesh genTbnLines(GLMesh mesh, float scale) {
         if (mesh.getBuffer(Type.Tangent) == null) {
             return genNormalLines(mesh, scale);
         } else {
@@ -81,15 +81,15 @@ public class TangentUtils {
         }
     }
 
-    public static Mesh genNormalLines(Mesh mesh, float scale) {
+    public static GLMesh genNormalLines(GLMesh mesh, float scale) {
         FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
         FloatBuffer normalBuffer = (FloatBuffer) mesh.getBuffer(Type.Normal).getData();
 
         ColorRGBA originColor = ColorRGBA.White;
         ColorRGBA normalColor = ColorRGBA.Blue;
 
-        Mesh lineMesh = new Mesh();
-        lineMesh.setMode(Mesh.Mode.Lines);
+        GLMesh lineMesh = new GLMesh();
+        lineMesh.setMode(GLMesh.Mode.Lines);
 
         Vector3f origin = new Vector3f();
         Vector3f point = new Vector3f();
@@ -120,7 +120,7 @@ public class TangentUtils {
         return lineMesh;
     }
 
-    public static Mesh genTangentLines(Mesh mesh, float scale) {
+    public static GLMesh genTangentLines(GLMesh mesh, float scale) {
         FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
         FloatBuffer normalBuffer = (FloatBuffer) mesh.getBuffer(Type.Normal).getData();
         FloatBuffer tangentBuffer = (FloatBuffer) mesh.getBuffer(Type.Tangent).getData();
@@ -135,8 +135,8 @@ public class TangentUtils {
         ColorRGBA binormalColor = ColorRGBA.Green;
         ColorRGBA normalColor = ColorRGBA.Blue;
 
-        Mesh lineMesh = new Mesh();
-        lineMesh.setMode(Mesh.Mode.Lines);
+        GLMesh lineMesh = new GLMesh();
+        lineMesh.setMode(GLMesh.Mode.Lines);
 
         Vector3f origin = new Vector3f();
         Vector3f point = new Vector3f();

@@ -36,7 +36,7 @@ import com.jme3.collision.CollisionResults;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
@@ -61,7 +61,7 @@ public class EntropyComputeUtil {
     private EntropyComputeUtil() {
     }
 
-    public static float computeLodEntropy(Mesh terrainBlock, Buffer lodIndices){
+    public static float computeLodEntropy(GLMesh terrainBlock, Buffer lodIndices){
         // Bounding box for the terrain block
         BoundingBox bbox = (BoundingBox) terrainBlock.getBound();
 

@@ -50,7 +50,7 @@ import com.jme3.export.binary.BinaryExporter;
 import com.jme3.export.binary.BinaryImporter;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
@@ -179,7 +179,7 @@ public class PreventBulletIssueRegressions {
         Node sinbad = (Node)new DesktopAssetManager(true).loadModel("Models/Sinbad/SinbadOldAnim.j3o");
 
         Geometry geometry = (Geometry) sinbad.getChild(0);
-        Mesh mesh = geometry.getMesh();
+        GLMesh mesh = geometry.getMesh();
         VertexBuffer.Type bufferType = VertexBuffer.Type.BoneIndex;
         VertexBuffer vertexBuffer = mesh.getBuffer(bufferType);
 

@@ -50,7 +50,7 @@ package jme3tools.optimize;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
@@ -108,7 +108,7 @@ public class LodGenerator {
     private List<Triangle> triangleList;
     private List<Vertex> vertexList = new ArrayList<>();
     private float meshBoundingSphereRadius;
-    private final Mesh mesh;
+    private final GLMesh mesh;
 
     /**
      * Enumerate criteria for removing triangles.
@@ -253,7 +253,7 @@ public class LodGenerator {
      *
      * @param mesh the mesh for which to generate LODs.
      */
-    public LodGenerator(Mesh mesh) {
+    public LodGenerator(GLMesh mesh) {
         this.mesh = mesh;
         build();
     }
@@ -282,7 +282,7 @@ public class LodGenerator {
         
     }
     
-    private void gatherVertexData(Mesh mesh, List<Vertex> vertexLookup) {
+    private void gatherVertexData(GLMesh mesh, List<Vertex> vertexLookup) {
 
         //in case the model is currently animating with software animation
         //attempting to retrieve the bind position instead of the position.
@@ -321,7 +321,7 @@ public class LodGenerator {
         return null;
     }
     
-    private void gatherIndexData(Mesh mesh, List<Vertex> vertexLookup) {
+    private void gatherIndexData(GLMesh mesh, List<Vertex> vertexLookup) {
         VertexBuffer indexBuffer = mesh.getBuffer(VertexBuffer.Type.Index);
         indexCount = indexBuffer.getNumElements() * 3;
         Buffer b = indexBuffer.getDataReadOnly();
@@ -611,7 +611,7 @@ public class LodGenerator {
         mesh.setLodLevels(computeLods(reductionMethod, reductionValues));
     }
     
-    private VertexBuffer makeLod(Mesh mesh) {
+    private VertexBuffer makeLod(GLMesh mesh) {
         VertexBuffer indexBuffer = mesh.getBuffer(VertexBuffer.Type.Index);
         
         boolean isShortBuffer = indexBuffer.getFormat() == VertexBuffer.Format.UnsignedShort;

@@ -31,7 +31,7 @@
  */
 package com.jme3.renderer;
 
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
@@ -172,7 +172,7 @@ public class Statistics {
      * @param lod which level of detail
      * @param count multiplier for triangles and vertices
      */
-    public void onMeshDrawn(Mesh mesh, int lod, int count) {
+    public void onMeshDrawn(GLMesh mesh, int lod, int count) {
         if (!enabled) {
             return;
         }
@@ -188,7 +188,7 @@ public class Statistics {
      * @param mesh the Mesh that was drawn (not null)
      * @param lod which level of detail
      */
-    public void onMeshDrawn(Mesh mesh, int lod) {
+    public void onMeshDrawn(GLMesh mesh, int lod) {
         onMeshDrawn(mesh, lod, 1);
     }
 

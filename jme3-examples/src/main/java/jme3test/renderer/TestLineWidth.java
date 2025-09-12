@@ -39,7 +39,7 @@ import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.shape.Line;
 import com.jme3.system.AppSettings;
 
@@ -95,7 +95,7 @@ public class TestLineWidth extends SimpleApplication {
         float viewportHeight = cam.getHeight();
         Vector3f startLocation = new Vector3f(x, 0.1f * viewportHeight, 0f);
         Vector3f endLocation = new Vector3f(x, 0.9f * viewportHeight, 0f);
-        Mesh wireMesh = new Line(startLocation, endLocation);
+        GLMesh wireMesh = new Line(startLocation, endLocation);
         Geometry wire = new Geometry("wire", wireMesh);
         wire.setMaterial(material);
         guiNode.attachChild(wire);

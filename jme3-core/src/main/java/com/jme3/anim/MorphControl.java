@@ -107,7 +107,7 @@ public class MorphControl extends AbstractControl implements Savable {
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
         for (Geometry geom : targets.getArray()) {
-            Mesh mesh = geom.getMesh();
+            GLMesh mesh = geom.getMesh();
             if (!geom.isDirtyMorph()) {
                 continue;
             }
@@ -236,7 +236,7 @@ public class MorphControl extends AbstractControl implements Savable {
         return maxGPUTargets;
     }
 
-    private int bindMorphTargetBuffer(Mesh mesh, int targetNumBuffers, int boundBufferIdx, MorphTarget t) {
+    private int bindMorphTargetBuffer(GLMesh mesh, int targetNumBuffers, int boundBufferIdx, MorphTarget t) {
         int start = VertexBuffer.Type.MorphTarget0.ordinal();
         if (targetNumBuffers >= 1) {
             activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Position));
@@ -305,7 +305,7 @@ public class MorphControl extends AbstractControl implements Savable {
         }
     }
 
-    private void activateBuffer(Mesh mesh, int idx, int start, FloatBuffer b) {
+    private void activateBuffer(GLMesh mesh, int idx, int start, FloatBuffer b) {
         VertexBuffer.Type t = bufferTypes[start + idx];
         VertexBuffer vb = mesh.getBuffer(t);
         // only set the buffer if it's different
@@ -364,7 +364,7 @@ public class MorphControl extends AbstractControl implements Savable {
      * @param renderer
      * @return
      */
-    private int getRemainingBuffers(Mesh mesh, Renderer renderer) {
+    private int getRemainingBuffers(GLMesh mesh, Renderer renderer) {
         int nbUsedBuffers = 0;
         for (VertexBuffer vb : mesh.getBufferList().getArray()) {
             boolean isMorphBuffer = vb.getBufferType().ordinal() >= VertexBuffer.Type.MorphTarget0.ordinal() && vb.getBufferType().ordinal() <= VertexBuffer.Type.MorphTarget9.ordinal();
@@ -471,7 +471,7 @@ public class MorphControl extends AbstractControl implements Savable {
             if (p == null) {
                 return;
             }
-            Mesh mesh = geom.getMesh();
+            GLMesh mesh = geom.getMesh();
             if (mesh != null && mesh.hasMorphTargets()) {
                 targets.add(geom);
                 // If the mesh is in a subgraph of a node with a SkinningControl it might have hardware skinning activated through mat param override even if it's not skinned.

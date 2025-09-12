@@ -41,7 +41,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Spatial;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
@@ -128,7 +128,7 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
         
         if(spatial != null) {
             Geometry geom = (Geometry) spatial;
-            Mesh mesh = geom.getMesh();
+            GLMesh mesh = geom.getMesh();
             numLevels = mesh.getNumLodLevels();
             numTris = new int[numLevels];
             for (int i = numLevels - 1; i >= 0; i--) {

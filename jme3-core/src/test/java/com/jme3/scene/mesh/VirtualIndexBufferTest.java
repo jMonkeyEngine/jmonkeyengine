@@ -1,6 +1,6 @@
 package com.jme3.scene.mesh;
 
-import com.jme3.scene.Mesh.Mode;
+import com.jme3.scene.GLMesh.Mode;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
