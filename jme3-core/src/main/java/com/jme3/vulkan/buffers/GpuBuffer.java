@@ -1,5 +1,9 @@
 package com.jme3.vulkan.buffers;
 
+import com.jme3.scene.mesh.IndexBuffer;
+import com.jme3.scene.mesh.IndexByteBuffer;
+import com.jme3.scene.mesh.IndexIntBuffer;
+import com.jme3.scene.mesh.IndexShortBuffer;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
@@ -126,6 +130,16 @@ public interface GpuBuffer {
 
     default LongBuffer mapLongs() {
         return mapLongs(0, size().getLongs());
+    }
+
+    default IndexBuffer mapIndices() {
+        switch (size().getBytesPerElement()) {
+            case Byte.BYTES: return new IndexByteBuffer(mapBytes());
+            case Short.BYTES: return new IndexShortBuffer(mapShorts());
+            case Integer.BYTES: return new IndexIntBuffer(mapInts());
+            default: throw new UnsupportedOperationException("Cannot map to index buffer with "
+                    + size().getBytesPerElement() + " bytes per element.");
+        }
     }
 
     default void copy(ByteBuffer buffer) {

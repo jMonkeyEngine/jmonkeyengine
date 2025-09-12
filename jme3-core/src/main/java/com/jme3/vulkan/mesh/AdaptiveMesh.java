@@ -93,9 +93,11 @@ public abstract class AdaptiveMesh implements NewMesh {
     }
 
     private CollisionData createCollisionTree() {
-        BIHTree tree = new BIHTree(this);
-        tree.construct();
-        return tree;
+        try (AttributeModifier positions = modifyAttribute(BuiltInAttribute.Position)) {
+            BIHTree tree = new BIHTree(positions, indexBuffers.get(0).get().mapIndices());
+            tree.construct();
+            return tree;
+        }
     }
 
     protected void updateBound(AttributeModifier attribute) {
@@ -115,10 +117,6 @@ public abstract class AdaptiveMesh implements NewMesh {
                 max.z = Math.max(max.z, pos.z);
             }
         }
-    }
-
-    public VertexReader readAttribute(String attribute) {
-        return modifyAttribute(attribute);
     }
 
     @SuppressWarnings("resource")

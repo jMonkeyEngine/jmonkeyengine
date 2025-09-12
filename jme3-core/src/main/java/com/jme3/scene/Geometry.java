@@ -553,6 +553,7 @@ public class Geometry extends Spatial {
         return super.deepClone();
     }
 
+    @Deprecated
     public Spatial oldDeepClone() {
         Geometry geomClone = clone(true);
         geomClone.mesh = mesh.deepClone();
