@@ -50,7 +50,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.system.AppSettings;
@@ -184,7 +184,7 @@ public class TestIssue1120 extends SimpleApplication {
         attachTestObject(new Cylinder(2, 16, 0.2f, 2f, true), new Vector3f(-3f, 2f, -5f), 2);
     }
 
-    private void attachTestObject(Mesh mesh, Vector3f position, float mass) {
+    private void attachTestObject(GLMesh mesh, Vector3f position, float mass) {
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         Geometry g = new Geometry("mesh", mesh);
         g.setLocalTranslation(position);

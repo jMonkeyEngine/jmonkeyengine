@@ -84,7 +84,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private IntBuffer ib;
     private FloatBuffer fb;
     private VertexBuffer vb;
-    private Mesh mesh;
+    private GLMesh mesh;
     private Geometry geom;
     private ByteBuffer indicesData;
     private FloatBuffer weightsFloatData;
@@ -94,7 +94,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private boolean usesBigIndices;
     private boolean submeshNamesHack;
     // Global data
-    private Mesh sharedMesh;
+    private GLMesh sharedMesh;
     private int meshIndex = 0;
     private int texCoordIndex = 0;
     private String ignoreUntilEnd = null;
@@ -241,15 +241,15 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void startSubMesh(String matName, String usesharedvertices, String use32bitIndices, String opType) throws SAXException {
-        mesh = new Mesh();
+        mesh = new GLMesh();
         if (opType == null || opType.equals("triangle_list")) {
-            mesh.setMode(Mesh.Mode.Triangles);
+            mesh.setMode(GLMesh.Mode.Triangles);
             //} else if (opType.equals("triangle_strip")) {
             //    mesh.setMode(Mesh.Mode.TriangleStrip);
             //} else if (opType.equals("triangle_fan")) {
             //    mesh.setMode(Mesh.Mode.TriangleFan);
         } else if (opType.equals("line_list")) {
-            mesh.setMode(Mesh.Mode.Lines);
+            mesh.setMode(GLMesh.Mode.Lines);
         } else {
             throw new SAXException("Unsupported operation type: " + opType);
         }
@@ -286,7 +286,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void startSharedGeom(String vertexCount) throws SAXException {
-        sharedMesh = new Mesh();
+        sharedMesh = new GLMesh();
         vertCount = parseInt(vertexCount);
         usesSharedVerts = false;
 
@@ -556,7 +556,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private void endLevelOfDetail() {
         // set the lod data for each mesh
         for (Entry<List<VertexBuffer>> entry : lodLevels) {
-            Mesh m = geoms.get(entry.getKey()).getMesh();
+            GLMesh m = geoms.get(entry.getKey()).getMesh();
             List<VertexBuffer> levels = entry.getValue();
             VertexBuffer[] levelArray = new VertexBuffer[levels.size()];
             levels.toArray(levelArray);
@@ -772,7 +772,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
         for (int i = 0; i < geoms.size(); i++) {
             Geometry g = geoms.get(i);
-            Mesh m = g.getMesh();
+            GLMesh m = g.getMesh();
 
             // New code for buffer extract
             if (sharedMesh != null && usesSharedMesh.get(i)) {
@@ -789,7 +789,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
             for (int i = 0; i < geoms.size(); i++) {
                 Geometry g = geoms.get(i);
-                Mesh m = geoms.get(i).getMesh();
+                GLMesh m = geoms.get(i).getMesh();
                 m.generateBindPose();
             }
 

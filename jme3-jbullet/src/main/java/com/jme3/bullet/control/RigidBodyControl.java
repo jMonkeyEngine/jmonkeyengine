@@ -46,7 +46,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.jme3.scene.shape.Box;
@@ -225,7 +225,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
         }
         if (spatial instanceof Geometry) {
             Geometry geom = (Geometry) spatial;
-            Mesh mesh = geom.getMesh();
+            GLMesh mesh = geom.getMesh();
             if (mesh instanceof Sphere) {
                 collisionShape = new SphereCollisionShape(((Sphere) mesh).getRadius());
                 return;

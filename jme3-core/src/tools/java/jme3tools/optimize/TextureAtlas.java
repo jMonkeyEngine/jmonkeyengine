@@ -37,7 +37,7 @@ import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
@@ -433,8 +433,8 @@ public class TextureAtlas {
      * @param outMesh The mesh to set the coords in (can be same as input).
      * @return true if texture has been found and coords have been changed, false otherwise.
      */
-    public boolean applyCoords(Geometry geom, int offset, Mesh outMesh) {
-        Mesh inMesh = geom.getMesh();
+    public boolean applyCoords(Geometry geom, int offset, GLMesh outMesh) {
+        GLMesh inMesh = geom.getMesh();
         geom.computeWorldMatrix();
 
         VertexBuffer inBuf = inMesh.getBuffer(Type.TexCoord);
@@ -499,7 +499,7 @@ public class TextureAtlas {
             return null;
         }
         Geometry geom = new Geometry();
-        Mesh mesh = new Mesh();
+        GLMesh mesh = new GLMesh();
         GeometryBatchFactory.mergeGeometries(geometries, mesh);
         applyAtlasCoords(geometries, mesh, atlas);
         mesh.updateCounts();
@@ -525,11 +525,11 @@ public class TextureAtlas {
         return geom;
     }
 
-    private static void applyAtlasCoords(List<Geometry> geometries, Mesh outMesh, TextureAtlas atlas) {
+    private static void applyAtlasCoords(List<Geometry> geometries, GLMesh outMesh, TextureAtlas atlas) {
         int globalVertIndex = 0;
 
         for (Geometry geom : geometries) {
-            Mesh inMesh = geom.getMesh();
+            GLMesh inMesh = geom.getMesh();
             geom.computeWorldMatrix();
 
             int geomVertCount = inMesh.getVertexCount();

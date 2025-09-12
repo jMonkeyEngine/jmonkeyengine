@@ -35,7 +35,7 @@ import com.jme3.animation.Skeleton;
 import com.jme3.export.JmeImporter;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import com.jme3.util.clone.Cloner;
 
@@ -151,7 +151,7 @@ public class SkeletonDebugger extends Node {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Mesh> T getMesh(String suffix) {
+    private <T extends GLMesh> T getMesh(String suffix) {
         Geometry child = (Geometry)getChild(getGeometryName(suffix));
         if(child != null) {
             return (T) child.getMesh();

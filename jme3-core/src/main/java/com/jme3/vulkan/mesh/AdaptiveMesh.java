@@ -23,8 +23,9 @@ public abstract class AdaptiveMesh implements Mesh {
 
     protected final MeshDescription description;
     private final List<VertexBuffer> vertexBuffers = new ArrayList<>();
-    protected VersionedResource<? extends GpuBuffer> indexBuffer;
-    private BoundingVolume bound;
+    protected final List<VersionedResource<? extends GpuBuffer>> indexBuffers = new ArrayList<>();
+    private GpuBuffer boundIndexBuffer;
+    private BoundingVolume volume;
     private int vertices;
 
     public AdaptiveMesh(MeshDescription description) {
@@ -44,15 +45,18 @@ public abstract class AdaptiveMesh implements Mesh {
             offsets.flip();
             vkCmdBindVertexBuffers(cmd.getBuffer(), 0, verts, offsets);
         }
-        if (indexBuffer != null) {
-            vkCmdBindIndexBuffer(cmd.getBuffer(), indexBuffer.get().getId(), 0, IndexType.of(indexBuffer.get()).getEnum());
+        if (!indexBuffers.isEmpty()) {
+            boundIndexBuffer = indexBuffers.get(0).get();
+            vkCmdBindIndexBuffer(cmd.getBuffer(), boundIndexBuffer.getId(), 0, IndexType.of(boundIndexBuffer).getEnum());
+        } else {
+            boundIndexBuffer = null;
         }
     }
 
     @Override
     public void draw(CommandBuffer cmd) {
-        if (indexBuffer != null) {
-            vkCmdDrawIndexed(cmd.getBuffer(), indexBuffer.get().size().getElements(), 1, 0, 0, 0);
+        if (boundIndexBuffer != null) {
+            vkCmdDrawIndexed(cmd.getBuffer(), boundIndexBuffer.size().getElements(), 1, 0, 0, 0);
         } else {
             vkCmdDraw(cmd.getBuffer(), vertices, 1, 0, 0);
         }
@@ -65,7 +69,7 @@ public abstract class AdaptiveMesh implements Mesh {
 
     @Override
     public int getTriangleCount() {
-        return indexBuffer != null ? indexBuffer.get().size().getElements() / 3 : 0;
+        return !indexBuffers.isEmpty() ? indexBuffers.get(0).get().size().getElements() / 3 : 0;
     }
 
     protected void updateBound(AttributeModifier attribute) {
@@ -107,7 +111,7 @@ public abstract class AdaptiveMesh implements Mesh {
 
     protected abstract VersionedResource<? extends GpuBuffer> createStaticBuffer(MemorySize size);
 
-    protected Builder build(int vertices) {
+    protected Builder buildVertexBuffers(int vertices) {
         return new Builder(vertices);
     }
 

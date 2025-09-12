@@ -2,7 +2,7 @@ package com.jme3.vulkan.devices;
 
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.VulkanInstance;
-import com.jme3.vulkan.AbstractNative;
+import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.util.Flag;

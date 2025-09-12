@@ -38,7 +38,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer.Type;
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -51,7 +51,7 @@ public class HullCollisionShape extends CollisionShape {
     protected HullCollisionShape() {
     }
 
-    public HullCollisionShape(Mesh mesh) {
+    public HullCollisionShape(GLMesh mesh) {
         this.points = getPoints(mesh);
         createShape(this.points);
     }
@@ -75,7 +75,7 @@ public class HullCollisionShape extends CollisionShape {
         InputCapsule capsule = im.getCapsule(this);
 
         // for backwards compatability
-        Mesh mesh = (Mesh) capsule.readSavable("hullMesh", null);
+        GLMesh mesh = (GLMesh) capsule.readSavable("hullMesh", null);
         if (mesh != null) {
             this.points = getPoints(mesh);
         } else {
@@ -95,7 +95,7 @@ public class HullCollisionShape extends CollisionShape {
         cShape.setMargin(margin);
     }
 
-    protected float[] getPoints(Mesh mesh) {
+    protected float[] getPoints(GLMesh mesh) {
         FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
         vertices.rewind();
         int components = mesh.getVertexCount() * 3;

@@ -51,7 +51,7 @@ import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
@@ -189,7 +189,7 @@ public class TestLodGeneration extends SimpleApplication implements ActionListen
     private int computeNbTri() {
         int nbTri = 0;
         for (Geometry geom : listGeoms) {
-            Mesh mesh = geom.getMesh();
+            GLMesh mesh = geom.getMesh();
             // Check if the mesh has LOD levels
             if (mesh.getNumLodLevels() > 0) {
                 nbTri += mesh.getLodLevel(lodLevel).getNumElements();

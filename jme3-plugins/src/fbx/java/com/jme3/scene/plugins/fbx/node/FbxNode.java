@@ -45,7 +45,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
@@ -318,7 +318,7 @@ public class FbxNode extends FbxObject<Spatial> {
         }
     }
     
-    private Spatial tryCreateGeometry(int materialIndex, Mesh jmeMesh, boolean single) {
+    private Spatial tryCreateGeometry(int materialIndex, GLMesh jmeMesh, boolean single) {
         // Map meshes without material indices to material 0.
         if (materialIndex == -1) {
             materialIndex = 0;
@@ -396,7 +396,7 @@ public class FbxNode extends FbxObject<Spatial> {
         
         if (nodeAttribute instanceof FbxMesh) {
             FbxMesh fbxMesh = (FbxMesh) nodeAttribute;
-            IntMap<Mesh> jmeMeshes = fbxMesh.getJmeObject();
+            IntMap<GLMesh> jmeMeshes = fbxMesh.getJmeObject();
             
             if (jmeMeshes == null || jmeMeshes.size() == 0) {
                 // No meshes found on FBXMesh (??)
@@ -412,7 +412,7 @@ public class FbxNode extends FbxObject<Spatial> {
                 }
                 Node node = new Node(nodeName);
                 boolean singleMesh = jmeMeshes.size() == 1;
-                for (IntMap.Entry<Mesh> meshInfo : jmeMeshes) {
+                for (IntMap.Entry<GLMesh> meshInfo : jmeMeshes) {
                     node.attachChild(tryCreateGeometry(meshInfo.getKey(), meshInfo.getValue(), singleMesh));
                 }
                 spatial = node;

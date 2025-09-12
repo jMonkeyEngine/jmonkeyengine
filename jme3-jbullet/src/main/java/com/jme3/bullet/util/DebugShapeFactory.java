@@ -41,7 +41,7 @@ import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.collision.shapes.infos.ChildCollisionShape;
 import com.jme3.math.Matrix3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer.Type;
@@ -126,14 +126,14 @@ public class DebugShapeFactory {
         return geom;
     }
 
-    public static Mesh getDebugMesh(CollisionShape shape) {
-        Mesh mesh = null;
+    public static GLMesh getDebugMesh(CollisionShape shape) {
+        GLMesh mesh = null;
         if (shape.getCShape() instanceof ConvexShape) {
-            mesh = new Mesh();
+            mesh = new GLMesh();
             mesh.setBuffer(Type.Position, 3, getVertices((ConvexShape) shape.getCShape()));
             mesh.getFloatBuffer(Type.Position).clear();
         } else if (shape.getCShape() instanceof ConcaveShape) {
-            mesh = new Mesh();
+            mesh = new GLMesh();
             mesh.setBuffer(Type.Position, 3, getVertices((ConcaveShape) shape.getCShape()));
             mesh.getFloatBuffer(Type.Position).clear();
         }

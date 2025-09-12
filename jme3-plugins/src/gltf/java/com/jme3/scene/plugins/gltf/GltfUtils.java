@@ -71,29 +71,29 @@ public class GltfUtils {
         return parser.parse(stream);
     }
 
-    public static Mesh.Mode getMeshMode(Integer mode) {
+    public static GLMesh.Mode getMeshMode(Integer mode) {
         if (mode == null) {
-            return Mesh.Mode.Triangles;
+            return GLMesh.Mode.Triangles;
         }
         //too bad, we could have returned the enum value from the ordinal
         //but LineLoop and LineStrip are inverted in the Mesh.Mode Enum declaration.
         switch (mode) {
             case 0:
-                return Mesh.Mode.Points;
+                return GLMesh.Mode.Points;
             case 1:
-                return Mesh.Mode.Lines;
+                return GLMesh.Mode.Lines;
             case 2:
-                return Mesh.Mode.LineLoop;
+                return GLMesh.Mode.LineLoop;
             case 3:
-                return Mesh.Mode.LineStrip;
+                return GLMesh.Mode.LineStrip;
             case 4:
-                return Mesh.Mode.Triangles;
+                return GLMesh.Mode.Triangles;
             case 5:
-                return Mesh.Mode.TriangleStrip;
+                return GLMesh.Mode.TriangleStrip;
             case 6:
-                return Mesh.Mode.TriangleFan;
+                return GLMesh.Mode.TriangleFan;
         }
-        return Mesh.Mode.Triangles;
+        return GLMesh.Mode.Triangles;
     }
 
     public static VertexBuffer.Format getVertexBufferFormat(int componentType) {
@@ -488,7 +488,7 @@ public class GltfUtils {
     }
 
 
-    public static void handleSkinningBuffers(Mesh mesh, IntMap<GltfLoader.SkinBuffers> skinBuffers) {
+    public static void handleSkinningBuffers(GLMesh mesh, IntMap<GltfLoader.SkinBuffers> skinBuffers) {
         if (skinBuffers.size() > 0) {
             int length = skinBuffers.get(0).joints.length;
             short[] jointsArray = new short[length];
@@ -546,7 +546,7 @@ public class GltfUtils {
     }
 
 
-    public static void setSkinBuffers(Mesh mesh, short[] jointsArray, float[] weightsArray, int componentSize) {
+    public static void setSkinBuffers(GLMesh mesh, short[] jointsArray, float[] weightsArray, int componentSize) {
         if (componentSize == 1) {
             mesh.setBuffer(VertexBuffer.Type.BoneIndex, 4, BufferUtils.createByteBuffer(toByteArray(jointsArray)));
         } else {
@@ -858,7 +858,7 @@ public class GltfUtils {
 
     }
 
-    public static void dumpMesh(Mesh m) {
+    public static void dumpMesh(GLMesh m) {
         for (VertexBuffer vertexBuffer : m.getBufferList().getArray()) {
             System.err.println(vertexBuffer.getBufferType());
             System.err.println(vertexBuffer.getFormat());

@@ -128,8 +128,8 @@ public class BatchNode extends GeometryGroupNode {
     protected void updateSubBatch(Geometry bg) {
         Batch batch = batchesByGeom.get(bg);
         if (batch != null) {
-            Mesh mesh = batch.geometry.getMesh();
-            Mesh origMesh = bg.getMesh();
+            GLMesh mesh = batch.geometry.getMesh();
+            GLMesh origMesh = bg.getMesh();
 
             VertexBuffer pvb = mesh.getBuffer(VertexBuffer.Type.Position);
             VertexBuffer nvb = mesh.getBuffer(VertexBuffer.Type.Normal);
@@ -202,7 +202,7 @@ public class BatchNode extends GeometryGroupNode {
         }
 
         for (Map.Entry<Material, List<Geometry>> entry : matMap.entrySet()) {
-            Mesh m = new Mesh();
+            GLMesh m = new GLMesh();
             Material material = entry.getKey();
             List<Geometry> list = entry.getValue();
             nbGeoms += list.size();
@@ -377,7 +377,7 @@ public class BatchNode extends GeometryGroupNode {
      * @param geometries
      * @param outMesh
      */
-    private void mergeGeometries(Mesh outMesh, List<Geometry> geometries) {
+    private void mergeGeometries(GLMesh outMesh, List<Geometry> geometries) {
         int[] compsForBuf = new int[VertexBuffer.Type.values().length];
         VertexBuffer.Format[] formatForBuf = new VertexBuffer.Format[compsForBuf.length];
         boolean[] normForBuf = new boolean[VertexBuffer.Type.values().length];
@@ -387,30 +387,30 @@ public class BatchNode extends GeometryGroupNode {
         int totalLodLevels = 0;
         int maxWeights = -1;
 
-        Mesh.Mode mode = null;
+        GLMesh.Mode mode = null;
         for (Geometry geom : geometries) {
             totalVerts += geom.getVertexCount();
             totalTris += geom.getTriangleCount();
             totalLodLevels = Math.min(totalLodLevels, geom.getMesh().getNumLodLevels());
 
-            Mesh.Mode listMode;
+            GLMesh.Mode listMode;
             int components;
             switch (geom.getMesh().getMode()) {
                 case Points:
-                    listMode = Mesh.Mode.Points;
+                    listMode = GLMesh.Mode.Points;
                     components = 1;
                     break;
                 case LineLoop:
                 case LineStrip:
                 case Lines:
-                    listMode = Mesh.Mode.Lines;
+                    listMode = GLMesh.Mode.Lines;
                     //listLineWidth = geom.getMesh().getLineWidth();
                     components = 2;
                     break;
                 case TriangleFan:
                 case TriangleStrip:
                 case Triangles:
-                    listMode = Mesh.Mode.Triangles;
+                    listMode = GLMesh.Mode.Triangles;
                     components = 3;
                     break;
                 default:
@@ -472,7 +472,7 @@ public class BatchNode extends GeometryGroupNode {
         int globalTriIndex = 0;
 
         for (Geometry geom : geometries) {
-            Mesh inMesh = geom.getMesh();
+            GLMesh inMesh = geom.getMesh();
             if (!isBatch(geom)) {
                 geom.associateWithGroupNode(this, globalVertIndex);
             }

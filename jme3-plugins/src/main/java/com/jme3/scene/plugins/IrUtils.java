@@ -32,7 +32,7 @@
 package com.jme3.scene.plugins;
 
 import com.jme3.math.Vector4f;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.IndexIntBuffer;
@@ -258,7 +258,7 @@ public final class IrUtils {
      * @param mesh the input IrMesh (not null)
      * @return a new Mesh
      */
-    public static Mesh convertIrMeshToJmeMesh(IrMesh mesh) {
+    public static GLMesh convertIrMeshToJmeMesh(IrMesh mesh) {
         Map<IrVertex, Integer> vertexToVertexIndex = new HashMap<>();
         List<IrVertex> vertices = new ArrayList<>();
         List<Integer> indexes = new ArrayList<>();
@@ -284,8 +284,8 @@ public final class IrUtils {
             }
         }
         
-        Mesh jmeMesh = new Mesh();
-        jmeMesh.setMode(Mesh.Mode.Triangles);
+        GLMesh jmeMesh = new GLMesh();
+        jmeMesh.setMode(GLMesh.Mode.Triangles);
         
         FloatBuffer posBuf = null;
         FloatBuffer normBuf = null;

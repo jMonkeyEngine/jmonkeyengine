@@ -36,7 +36,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer.Type;
 
@@ -58,7 +58,7 @@ public class TestRayCasting extends SimpleApplication {
         // load material
         Material mat = assetManager.loadMaterial("Interface/Logo/Logo.j3m");
 
-        Mesh q = new Mesh();
+        GLMesh q = new GLMesh();
         q.setBuffer(Type.Position, 3, new float[]
         {
             1, 0, 0,

@@ -31,8 +31,8 @@
  */
 package com.jme3.scene.mesh;
 
-import com.jme3.scene.Mesh;
-import com.jme3.scene.Mesh.Mode;
+import com.jme3.scene.GLMesh;
+import com.jme3.scene.GLMesh.Mode;
 import com.jme3.scene.VertexBuffer.Type;
 import java.nio.Buffer;
 
@@ -50,7 +50,7 @@ public class WrappedIndexBuffer extends VirtualIndexBuffer {
 
     private final IndexBuffer ib;
 
-    public WrappedIndexBuffer(Mesh mesh){
+    public WrappedIndexBuffer(GLMesh mesh){
         super(mesh.getVertexCount(), mesh.getMode());
         this.ib = mesh.getIndexBuffer();
         switch (meshMode){
@@ -83,7 +83,7 @@ public class WrappedIndexBuffer extends VirtualIndexBuffer {
         return ib.getBuffer();
     }
     
-    public static void convertToList(Mesh mesh){
+    public static void convertToList(GLMesh mesh){
         IndexBuffer inBuf = mesh.getIndicesAsList();
         IndexBuffer outBuf = IndexBuffer.createIndexBuffer(mesh.getVertexCount(),
                                                            inBuf.size());

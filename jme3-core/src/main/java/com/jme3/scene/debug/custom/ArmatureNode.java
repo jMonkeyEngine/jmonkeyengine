@@ -117,8 +117,8 @@ public class ArmatureNode extends Node {
         if (ends == null) {
             geomToJoint.put(jGeom, joint);
         } else {
-            Mesh m = null;
-            Mesh mO = null;
+            GLMesh m = null;
+            GLMesh mO = null;
             Node wireAttach = wires;
             Node outlinesAttach = outlines;
             if (ends.length == 1) {

@@ -6,7 +6,7 @@ import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Caps;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
@@ -40,7 +40,7 @@ public class TestTextureArray extends SimpleApplication
        tex3.setMinFilter(Texture.MinFilter.Trilinear);
        mat.setTexture("ColorMap", tex3);
 
-       Mesh m = new Mesh();
+       GLMesh m = new GLMesh();
        Vector3f[] vertices = new Vector3f[8];
        vertices[0] = new Vector3f(0, 0, 0);
        vertices[1] = new Vector3f(3, 0, 0);

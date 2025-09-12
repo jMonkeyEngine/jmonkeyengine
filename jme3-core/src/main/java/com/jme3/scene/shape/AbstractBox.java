@@ -33,7 +33,7 @@ package com.jme3.scene.shape;
 
 import com.jme3.export.*;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 
 import java.io.IOException;
 
@@ -50,7 +50,7 @@ import java.io.IOException;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision: 4131 $, $Date: 2009-03-19 16:15:28 -0400 (Thu, 19 Mar 2009) $
  */
-public abstract class AbstractBox extends Mesh {
+public abstract class AbstractBox extends GLMesh {
 
     public final Vector3f center = new Vector3f(0f, 0f, 0f);
 

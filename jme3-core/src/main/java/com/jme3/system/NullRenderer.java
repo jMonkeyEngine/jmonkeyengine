@@ -40,7 +40,7 @@ import com.jme3.renderer.Limits;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.Statistics;
 import com.jme3.renderer.TextureUnitException;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
@@ -195,7 +195,7 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+    public void renderMesh(GLMesh mesh, int lod, int count, VertexBuffer[] instanceData) {
     }
 
     @Override

@@ -43,7 +43,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
@@ -95,7 +95,7 @@ public class TestBackgroundImage extends SimpleApplication {
 
         float quadHeight = backgroundCamera.getHeight();
         float quadWidth = backgroundCamera.getWidth();
-        Mesh quadMesh = new Quad(quadWidth, quadHeight);
+        GLMesh quadMesh = new Quad(quadWidth, quadHeight);
 
         Spatial quadGeometry = new Geometry("quad geometry", quadMesh);
         quadGeometry.setMaterial(quadMaterial);

@@ -1,7 +1,5 @@
-package com.jme3.vulkan;
+package com.jme3.util.natives;
 
-import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
 import org.lwjgl.system.MemoryStack;
 
 public abstract class AbstractNative<T> implements Native<T> {

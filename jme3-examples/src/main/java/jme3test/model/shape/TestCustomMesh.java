@@ -38,7 +38,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 
@@ -58,7 +58,7 @@ public class TestCustomMesh extends SimpleApplication {
     @Override
     public void simpleInitApp() {
       
-        Mesh m = new Mesh();
+        GLMesh m = new GLMesh();
 
         // Vertex positions in space
         Vector3f [] vertices = new Vector3f[4];
@@ -99,7 +99,7 @@ public class TestCustomMesh extends SimpleApplication {
         // *************************************************************************
         // Second mesh uses vertex colors to color each vertex
         // *************************************************************************
-        Mesh cMesh = m.clone();
+        GLMesh cMesh = m.clone();
         Geometry coloredMesh = new Geometry ("ColoredMesh", cMesh);
         Material matVC = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         matVC.setBoolean("VertexColor", true);
@@ -140,7 +140,7 @@ public class TestCustomMesh extends SimpleApplication {
         // *************************************************************************
         // Third mesh will use a wireframe shader to show wireframe
         // *************************************************************************
-        Mesh wfMesh = m.clone();
+        GLMesh wfMesh = m.clone();
         Geometry wfGeom = new Geometry("wireframeGeometry", wfMesh);
         Material matWireframe = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         matWireframe.setColor("Color", ColorRGBA.Green);

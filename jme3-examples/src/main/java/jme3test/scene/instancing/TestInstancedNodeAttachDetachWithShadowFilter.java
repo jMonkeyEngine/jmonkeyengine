@@ -41,7 +41,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.instancing.InstancedNode;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
@@ -87,8 +87,8 @@ public class TestInstancedNodeAttachDetachWithShadowFilter extends SimpleApplica
         rootNode.attachChild(instancedNode);
 
         // create 10 spheres & boxes, along the z-axis, successively further from the camera
-        Mesh sphereMesh = new Sphere(32, 32, 1f);
-        Mesh boxMesh = new Box(0.7f, 0.7f, 0.7f);
+        GLMesh sphereMesh = new Sphere(32, 32, 1f);
+        GLMesh boxMesh = new Box(0.7f, 0.7f, 0.7f);
         for (int z = 0; z < 10; z++) {
             Vector3f location = new Vector3f(0, -3, -(z * 4));
             locations[z] = location;

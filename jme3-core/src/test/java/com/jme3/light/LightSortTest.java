@@ -33,7 +33,7 @@ package com.jme3.light;
 
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import org.junit.Test;
 
@@ -46,7 +46,7 @@ public class LightSortTest {
     
     @Test
     public void testSimpleSort() {
-        Geometry g = new Geometry("test", new Mesh());
+        Geometry g = new Geometry("test", new GLMesh());
         LightList list = new LightList(g);
         
         list.add(new SpotLight(Vector3f.ZERO, Vector3f.UNIT_X));
@@ -65,7 +65,7 @@ public class LightSortTest {
     @Test
     public void testSceneGraphSort() {
         Node n = new Node("node");
-        Geometry g = new Geometry("geom", new Mesh());
+        Geometry g = new Geometry("geom", new GLMesh());
         SpotLight spot = new SpotLight(Vector3f.ZERO, Vector3f.UNIT_X);
         PointLight point = new PointLight(Vector3f.UNIT_X);
         DirectionalLight directional = new DirectionalLight(Vector3f.UNIT_X);

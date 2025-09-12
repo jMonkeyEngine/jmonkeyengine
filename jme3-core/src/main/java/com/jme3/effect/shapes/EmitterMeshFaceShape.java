@@ -33,7 +33,7 @@ package com.jme3.effect.shapes;
 
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import java.util.ArrayList;
@@ -56,15 +56,15 @@ public class EmitterMeshFaceShape extends EmitterMeshVertexShape {
      * @param meshes
      *        a list of meshes that will form the emitter's shape
      */
-    public EmitterMeshFaceShape(List<Mesh> meshes) {
+    public EmitterMeshFaceShape(List<GLMesh> meshes) {
         super(meshes);
     }
 
     @Override
-    public void setMeshes(List<Mesh> meshes) {
+    public void setMeshes(List<GLMesh> meshes) {
         this.vertices = new ArrayList<List<Vector3f>>(meshes.size());
         this.normals = new ArrayList<List<Vector3f>>(meshes.size());
-        for (Mesh mesh : meshes) {
+        for (GLMesh mesh : meshes) {
             Vector3f[] vertexTable = BufferUtils.getVector3Array(mesh.getFloatBuffer(Type.Position));
             int[] indices = new int[3];
             List<Vector3f> vertices = new ArrayList<>(mesh.getTriangleCount() * 3);

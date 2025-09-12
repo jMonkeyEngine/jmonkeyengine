@@ -54,7 +54,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
@@ -890,7 +890,7 @@ public class RenderManager {
             }
 
             gm.getMaterial().preload(this, gm);
-            Mesh mesh = gm.getMesh();
+            GLMesh mesh = gm.getMesh();
             if (mesh != null
                     && mesh.getVertexCount() != 0
                     && mesh.getTriangleCount() != 0) {

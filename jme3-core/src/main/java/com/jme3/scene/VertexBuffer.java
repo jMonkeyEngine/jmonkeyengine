@@ -41,7 +41,7 @@ import java.nio.*;
 
 /**
  * A <code>VertexBuffer</code> contains a particular type of geometry
- * data used by {@link Mesh}es. Every VertexBuffer set on a <code>Mesh</code>
+ * data used by {@link GLMesh}es. Every VertexBuffer set on a <code>Mesh</code>
  * is sent as an attribute to the vertex shader to be processed.
  * <p>
  * Several terms are used throughout the javadoc for this class, explanation:

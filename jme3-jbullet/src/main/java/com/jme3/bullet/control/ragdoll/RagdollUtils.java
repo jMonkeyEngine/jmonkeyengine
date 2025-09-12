@@ -39,7 +39,7 @@ import com.jme3.bullet.joints.SixDofJoint;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
@@ -95,15 +95,15 @@ public class RagdollUtils {
         Map<Integer, List<Float>> map = new HashMap<>();
 
         SkeletonControl skeletonCtrl = model.getControl(SkeletonControl.class);
-        Mesh[] targetMeshes = skeletonCtrl.getTargets();
-        for (Mesh mesh : targetMeshes) {
+        GLMesh[] targetMeshes = skeletonCtrl.getTargets();
+        for (GLMesh mesh : targetMeshes) {
             buildPointMapForMesh(mesh, map);
         }
 
         return map;
     }
 
-    private static Map<Integer, List<Float>> buildPointMapForMesh(Mesh mesh, Map<Integer, List<Float>> map) {
+    private static Map<Integer, List<Float>> buildPointMapForMesh(GLMesh mesh, Map<Integer, List<Float>> map) {
 
         FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
         ByteBuffer boneIndices = (ByteBuffer) mesh.getBuffer(Type.BoneIndex).getData();
@@ -222,8 +222,8 @@ public class RagdollUtils {
         List<Float> points = new ArrayList<>(100);
 
         SkeletonControl skeletonCtrl = model.getControl(SkeletonControl.class);
-        Mesh[] targetMeshes = skeletonCtrl.getTargets();
-        for (Mesh mesh : targetMeshes) {
+        GLMesh[] targetMeshes = skeletonCtrl.getTargets();
+        for (GLMesh mesh : targetMeshes) {
             for (Integer index : boneIndices) {
                 List<Float> bonePoints = getPoints(mesh, index, initialScale,
                         initialPosition, weightThreshold);
@@ -254,7 +254,7 @@ public class RagdollUtils {
      * @return a new list of vertex coordinates (not null, length a multiple of
      * 3)
      */
-    private static List<Float> getPoints(Mesh mesh, int boneIndex, Vector3f initialScale, Vector3f offset, float weightThreshold) {
+    private static List<Float> getPoints(GLMesh mesh, int boneIndex, Vector3f initialScale, Vector3f offset, float weightThreshold) {
 
         FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
         VertexBuffer biBuf = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
@@ -351,9 +351,9 @@ public class RagdollUtils {
      * @param weightThreshold the threshold (&ge;0, &le;1)
      * @return true if at least 1 vertex found, otherwise false
      */
-    public static boolean hasVertices(int boneIndex, Mesh[] targets,
+    public static boolean hasVertices(int boneIndex, GLMesh[] targets,
             float weightThreshold) {
-        for (Mesh mesh : targets) {
+        for (GLMesh mesh : targets) {
             VertexBuffer biBuf = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
             Buffer boneIndices = biBuf.getDataReadOnly();
             FloatBuffer boneWeight

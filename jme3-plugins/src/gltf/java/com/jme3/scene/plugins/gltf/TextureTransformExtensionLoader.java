@@ -37,7 +37,7 @@ import com.jme3.plugins.json.JsonObject;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsInteger;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getVertexBufferType;
@@ -69,7 +69,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
      * @param transform The matrix containing the scale/rotate/translate transformations
      * @param verType The vertex buffer type from which to retrieve the UV coordinates
      */    
-    private void uvTransform(Mesh mesh, Matrix3f transform, VertexBuffer.Type verType) {
+    private void uvTransform(GLMesh mesh, Matrix3f transform, VertexBuffer.Type verType) {
         if (!transform.isIdentity()) { // if transform is the identity matrix, there's nothing to do
             VertexBuffer tc = mesh.getBuffer(verType);
             if (tc == null) {
@@ -102,7 +102,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
         if (!(input instanceof Texture2D)) {
             logger.log(Level.WARNING, "KHR_texture_transform extension added on an unsupported element, the loaded scene result will be unexpected.");
         }
-        Mesh mesh = loader.fetchFromCache("mesh", 0, Mesh.class);
+        GLMesh mesh = loader.fetchFromCache("mesh", 0, GLMesh.class);
         if (mesh != null) {
             Matrix3f translation = new Matrix3f();
             Matrix3f rotation = new Matrix3f();
@@ -131,7 +131,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
                 texCoord = jsonObject.get("texCoord").getAsInt(); // it overrides the parent's texCoord value
             }                 
             Matrix3f transform = translation.mult(rotation).mult(scale);
-            Mesh meshLast = loader.fetchFromCache("textureTransformData", 0, Mesh.class);
+            GLMesh meshLast = loader.fetchFromCache("textureTransformData", 0, GLMesh.class);
             Map<Integer, Matrix3f> transformMap = loader.fetchFromCache("textureTransformData", 1, HashMap.class);
             if (mesh != meshLast || (transformMap != null && transformMap.get(texCoord) == null)) {
                 // at this point, we're processing a new mesh or the same mesh as before but for a different UV set

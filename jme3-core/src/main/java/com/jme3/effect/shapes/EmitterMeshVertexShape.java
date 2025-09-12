@@ -37,7 +37,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.clone.Cloner;
@@ -68,7 +68,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
      * @param meshes
      *        a list of meshes that will form the emitter's shape
      */
-    public EmitterMeshVertexShape(List<Mesh> meshes) {
+    public EmitterMeshVertexShape(List<GLMesh> meshes) {
         this.setMeshes(meshes);
     }
 
@@ -77,12 +77,12 @@ public class EmitterMeshVertexShape implements EmitterShape {
      * @param meshes
      *        a list of meshes that will form the emitter's shape
      */
-    public void setMeshes(List<Mesh> meshes) {
+    public void setMeshes(List<GLMesh> meshes) {
         Map<Vector3f, Vector3f> vertToNormalMap = new HashMap<>();
 
         this.vertices = new ArrayList<List<Vector3f>>(meshes.size());
         this.normals = new ArrayList<List<Vector3f>>(meshes.size());
-        for (Mesh mesh : meshes) {
+        for (GLMesh mesh : meshes) {
             // fetching the data
             float[] vertexTable = BufferUtils.getFloatArray(mesh.getFloatBuffer(Type.Position));
             float[] normalTable = BufferUtils.getFloatArray(mesh.getFloatBuffer(Type.Normal));

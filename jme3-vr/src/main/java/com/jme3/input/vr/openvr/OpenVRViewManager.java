@@ -12,7 +12,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
@@ -644,8 +644,8 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * @param api the underlying VR api
      * @return the distorted mesh.
      */
-    public static Mesh setupDistortionMesh(int eye, VRAPI api) {
-        Mesh distortionMesh = new Mesh();
+    public static GLMesh setupDistortionMesh(int eye, VRAPI api) {
+        GLMesh distortionMesh = new GLMesh();
         float m_iLensGridSegmentCountH = 43, m_iLensGridSegmentCountV = 43;
 
         float w = 1f / (m_iLensGridSegmentCountH - 1f);

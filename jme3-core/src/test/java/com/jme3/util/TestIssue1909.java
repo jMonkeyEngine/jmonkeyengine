@@ -32,7 +32,7 @@
 package com.jme3.util;
 
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import java.nio.FloatBuffer;
@@ -81,7 +81,7 @@ public class TestIssue1909 {
                 +posRadius, 0f, -posRadius,
                 -posRadius, 0f, -posRadius
         );
-        Mesh mesh = new Mesh();
+        GLMesh mesh = new GLMesh();
         int numAxes = 3;
         mesh.setBuffer(VertexBuffer.Type.Normal, numAxes, normals);
         mesh.setBuffer(VertexBuffer.Type.Position, numAxes, positions);

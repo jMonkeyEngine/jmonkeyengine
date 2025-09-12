@@ -112,7 +112,7 @@ public class MikktspaceTangentGenerator {
 
         } else if (s instanceof Geometry) {
             Geometry g = (Geometry) s;
-            Mesh mesh = g.getMesh();
+            GLMesh mesh = g.getMesh();
             boolean success = generateTangents(mesh);
             if (!success) {
                 logger.log(Level.SEVERE, "Failed to generate tangents for geometry {0}", g.getName());
@@ -120,15 +120,15 @@ public class MikktspaceTangentGenerator {
         }
     }
 
-    public static void generate(Mesh mesh) {
+    public static void generate(GLMesh mesh) {
         boolean success = generateTangents(mesh);
         if (!success) {
             logger.log(Level.SEVERE, "Failed to generate tangents for mesh {0}", mesh);
         }
     }
 
-    private static boolean generateTangents(Mesh mesh) {
-        Mesh.Mode mode = mesh.getMode();
+    private static boolean generateTangents(GLMesh mesh) {
+        GLMesh.Mode mode = mesh.getMode();
         boolean hasTriangles;
         
         if (mesh.getBuffer(Type.TexCoord) == null || mesh.getBuffer(Type.Normal) == null) {

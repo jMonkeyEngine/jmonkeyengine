@@ -39,7 +39,7 @@ import com.jme3.material.plugins.J3MLoader;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Quad;
 import com.jme3.system.JmeSystem;
@@ -77,7 +77,7 @@ public class CollideIgnoreTransformTest {
      * 0). It is composed of 2 triangles.
      */
     void createRedSquare() {
-        Mesh quadMesh = new Quad(1f, 1f);
+        GLMesh quadMesh = new Quad(1f, 1f);
         Geometry redSquare = new Geometry("red square", quadMesh);
         Material red = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
         redSquare.setMaterial(red);

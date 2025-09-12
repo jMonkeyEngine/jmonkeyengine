@@ -31,7 +31,7 @@
  */
 package com.jme3.util.mikktspace;
 
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GLMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.BufferUtils;
@@ -43,10 +43,10 @@ import java.nio.FloatBuffer;
  */
 public class MikkTSpaceImpl implements MikkTSpaceContext {
 
-    Mesh mesh;
+    GLMesh mesh;
     final private IndexBuffer index;
 
-    public MikkTSpaceImpl(Mesh mesh) {
+    public MikkTSpaceImpl(GLMesh mesh) {
         this.mesh = mesh;
 
         // If the mesh lacks indices, generate a virtual index buffer.
