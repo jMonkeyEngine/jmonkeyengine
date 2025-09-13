@@ -5,6 +5,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.shaderc.ShaderType;
 import com.jme3.shaderc.ShadercLoader;
@@ -249,7 +250,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         TestMaterial material = new TestMaterial(descriptorPool);
         material.getBaseColorMap().setResource(new SingleResource<>(texture));
 
-        NewMesh m = new MyCustomMesh(device, frames, meshDesc, sharedData,
+        Mesh m = new MyCustomMesh(device, frames, meshDesc, sharedData,
                 Vector3f.UNIT_Z, Vector3f.UNIT_Y, 1f, 1f, 0.5f, 0.5f);
         MatrixTransformMaterial t = new MatrixTransformMaterial(descriptorPool);
         t.getTransforms().setResource(frames.perFrame(n ->

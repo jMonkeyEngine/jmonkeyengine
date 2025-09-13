@@ -50,11 +50,9 @@ import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.material.MatrixTransformMaterial;
 import com.jme3.vulkan.material.NewMaterial;
-import com.jme3.vulkan.mesh.NewMesh;
 import com.jme3.vulkan.pipelines.Pipeline;
 
 import java.io.IOException;
-import java.nio.FloatBuffer;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,7 +70,7 @@ public class Geometry extends Spatial {
     // models loaded with shared mesh will be automatically fixed.
     public static final int SAVABLE_VERSION = 1;
     private static final Logger logger = Logger.getLogger(Geometry.class.getName());
-    protected NewMesh mesh;
+    protected Mesh mesh;
     protected transient int lodLevel = 0;
     protected NewMaterial material;
     protected MatrixTransformMaterial transforms; // stores the matrices unique to this geometry
@@ -134,7 +132,7 @@ public class Geometry extends Spatial {
      * @param name The name of this geometry
      * @param mesh The mesh data for this geometry
      */
-    public Geometry(String name, NewMesh mesh) {
+    public Geometry(String name, Mesh mesh) {
         this(name);
 
         if (mesh == null) {
@@ -144,7 +142,7 @@ public class Geometry extends Spatial {
         this.mesh = mesh;
     }
 
-    public Geometry(String name, NewMesh mesh, MatrixTransformMaterial transforms) {
+    public Geometry(String name, Mesh mesh, MatrixTransformMaterial transforms) {
         this(name, mesh);
         this.transforms = transforms;
     }
@@ -156,7 +154,7 @@ public class Geometry extends Spatial {
      * @param mesh The mesh data for this geometry
      * @param material The material for this geometry
      */
-    public Geometry(String name, NewMesh mesh, NewMaterial material) {
+    public Geometry(String name, Mesh mesh, NewMaterial material) {
         this(name, mesh);
         setMaterial(material);
     }
@@ -265,7 +263,7 @@ public class Geometry extends Spatial {
      *
      * @throws IllegalArgumentException If mesh is null
      */
-    public void setMesh(NewMesh mesh) {
+    public void setMesh(Mesh mesh) {
         if (mesh == null) {
             throw new IllegalArgumentException();
         }
@@ -283,9 +281,9 @@ public class Geometry extends Spatial {
      *
      * @return the mesh to use for this geometry
      *
-     * @see #setMesh(NewMesh)
+     * @see #setMesh(Mesh)
      */
-    public NewMesh getMesh() {
+    public Mesh getMesh() {
         return mesh;
     }
 
@@ -770,7 +768,7 @@ public class Geometry extends Spatial {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        mesh = (NewMesh) ic.readSavable("mesh", null);
+        mesh = (Mesh) ic.readSavable("mesh", null);
         material = null;
         String matName = ic.readString("materialName", null);
         if (matName != null) {

@@ -227,7 +227,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
 
 
-        fsQuad.setMaterial(mat);
+        // fixme
+        //fsQuad.setMaterial(mat);
         fsQuad.updateGeometricState();
 
         r.setFrameBuffer(buff);

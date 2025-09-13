@@ -57,7 +57,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.shader.UniformBinding;
 import com.jme3.shader.UniformBindingManager;
@@ -66,6 +65,7 @@ import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -798,7 +798,9 @@ public class RenderManager {
             this.boundDrawBufferId.setValue(currentFb.getTargetIndex());
         }
 
-        Material material = geom.getMaterial();
+        // fixme
+        //Material material = geom.getMaterial();
+        Material material = null;
 
         // If forcedTechnique exists, we try to force it for the render.
         // If it does not exist in the mat def, we check for forcedMaterial and render the geom if not null.
@@ -813,14 +815,15 @@ public class RenderManager {
                         ? activeTechnique.getDef().getName()
                         : TechniqueDef.DEFAULT_TECHNIQUE_NAME;
 
-                geom.getMaterial().selectTechnique(forcedTechnique, this);
+                // fixme
+                //geom.getMaterial().selectTechnique(forcedTechnique, this);
                 //saving forcedRenderState for future calls
                 RenderState tmpRs = forcedRenderState;
-                if (geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
+                //if (geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
                     //forcing forced technique renderState
-                    forcedRenderState
-                            = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
-                }
+                //    forcedRenderState
+                //            = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
+                //}
                 // use geometry's material
                 material.render(geom, lightList, this);
                 material.selectTechnique(previousTechniqueName, this);
@@ -889,16 +892,18 @@ public class RenderManager {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
             }
 
-            gm.getMaterial().preload(this, gm);
+            // fixme
+            //gm.getMaterial().preload(this, gm);
             Mesh mesh = gm.getMesh();
             if (mesh != null
                     && mesh.getVertexCount() != 0
                     && mesh.getTriangleCount() != 0) {
-                for (VertexBuffer vb : mesh.getBufferList().getArray()) {
-                    if (vb.getData() != null && vb.getUsage() != VertexBuffer.Usage.CpuOnly) {
-                        renderer.updateBufferData(vb);
-                    }
-                }
+                // fixme
+//                for (VertexBuffer vb : mesh.getBufferList().getArray()) {
+//                    if (vb.getData() != null && vb.getUsage() != VertexBuffer.Usage.CpuOnly) {
+//                        renderer.updateBufferData(vb);
+//                    }
+//                }
             }
         }
     }

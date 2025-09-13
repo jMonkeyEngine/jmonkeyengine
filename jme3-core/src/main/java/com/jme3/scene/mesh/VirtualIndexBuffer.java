@@ -31,23 +31,23 @@
  */
 package com.jme3.scene.mesh;
 
-import com.jme3.scene.Mesh.Mode;
+import com.jme3.scene.OldMesh;
 import com.jme3.scene.VertexBuffer.Format;
 
 import java.nio.Buffer;
 
 /**
  * IndexBuffer implementation that generates vertex indices sequentially
- * based on a specific Mesh {@link Mode}.
+ * based on a specific Mesh {@link OldMesh.Mode}.
  * The generated indices are as if the mesh is in the given mode
  * but contains no index buffer, thus this implementation will
  * return the indices if the index buffer was there and contained sequential
  * triangles.
  * Example:
  * <ul>
- * <li>{@link Mode#Triangles}: 0, 1, 2 | 3, 4, 5 | 6, 7, 8 | ...</li>
- * <li>{@link Mode#TriangleStrip}: 0, 1, 2 | 2, 1, 3 | 2, 3, 4 | ...</li>
- * <li>{@link Mode#TriangleFan}: 0, 1, 2 | 0, 2, 3 | 0, 3, 4 | ...</li>
+ * <li>{@link OldMesh.Mode#Triangles}: 0, 1, 2 | 3, 4, 5 | 6, 7, 8 | ...</li>
+ * <li>{@link OldMesh.Mode#TriangleStrip}: 0, 1, 2 | 2, 1, 3 | 2, 3, 4 | ...</li>
+ * <li>{@link OldMesh.Mode#TriangleFan}: 0, 1, 2 | 0, 2, 3 | 0, 3, 4 | ...</li>
  * </ul>
  *
  * @author Kirill Vainer
@@ -56,10 +56,10 @@ public class VirtualIndexBuffer extends IndexBuffer {
 
     protected int numVerts = 0;
     protected int numIndices = 0;
-    protected Mode meshMode;
+    protected OldMesh.Mode meshMode;
     protected int position = 0;
 
-    public VirtualIndexBuffer(int numVerts, Mode meshMode) {
+    public VirtualIndexBuffer(int numVerts, OldMesh.Mode meshMode) {
         this.numVerts = numVerts;
         this.meshMode = meshMode;
         switch (meshMode) {
@@ -108,13 +108,13 @@ public class VirtualIndexBuffer extends IndexBuffer {
 
     @Override
     public int get(int i) {
-        if (meshMode == Mode.Triangles || meshMode == Mode.Lines || meshMode == Mode.Points) {
+        if (meshMode == OldMesh.Mode.Triangles || meshMode == OldMesh.Mode.Lines || meshMode == OldMesh.Mode.Points) {
             return i;
-        } else if (meshMode == Mode.LineStrip) {
+        } else if (meshMode == OldMesh.Mode.LineStrip) {
             return (i + 1) / 2;
-        } else if (meshMode == Mode.LineLoop) {
+        } else if (meshMode == OldMesh.Mode.LineLoop) {
             return (i == (numIndices - 1)) ? 0 : ((i + 1) / 2);
-        } else if (meshMode == Mode.TriangleStrip) {
+        } else if (meshMode == OldMesh.Mode.TriangleStrip) {
             int triIndex = i / 3;
             int vertIndex = i % 3;
             boolean isBack = (i / 3) % 2 == 1;
@@ -132,7 +132,7 @@ public class VirtualIndexBuffer extends IndexBuffer {
                         throw new AssertionError();
                 }
             }
-        } else if (meshMode == Mode.TriangleFan) {
+        } else if (meshMode == OldMesh.Mode.TriangleFan) {
             int vertIndex = i % 3;
             if (vertIndex == 0) {
                 return 0;

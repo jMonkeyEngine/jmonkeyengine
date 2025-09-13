@@ -301,29 +301,31 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      */
     protected Geometry createFrustum(Vector3f[] pts, int i) {
         WireFrustum frustum = new WireFrustum(pts);
-        Geometry frustumMdl = new Geometry("f", frustum);
+        // fixme
+        Geometry frustumMdl = new Geometry("f"/*, frustum*/);
         frustumMdl.setCullHint(Spatial.CullHint.Never);
         frustumMdl.setShadowMode(ShadowMode.Off);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
-        frustumMdl.setMaterial(mat);
-        switch (i) {
-            case 0:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Pink);
-                break;
-            case 1:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Red);
-                break;
-            case 2:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Green);
-                break;
-            case 3:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Blue);
-                break;
-            default:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.White);
-                break;
-        }
+        // fixme
+        //frustumMdl.setMaterial(mat);
+//        switch (i) {
+//            case 0:
+//                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Pink);
+//                break;
+//            case 1:
+//                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Red);
+//                break;
+//            case 2:
+//                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Green);
+//                break;
+//            case 3:
+//                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Blue);
+//                break;
+//            default:
+//                frustumMdl.getMaterial().setColor("Color", ColorRGBA.White);
+//                break;
+//        }
 
         frustumMdl.updateGeometricState();
         return frustumMdl;

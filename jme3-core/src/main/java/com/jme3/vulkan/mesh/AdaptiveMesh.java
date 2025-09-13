@@ -13,6 +13,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.math.Matrix4f;
 import com.jme3.scene.CollisionData;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.frames.VersionedResource;
@@ -25,7 +26,7 @@ import java.util.*;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public abstract class AdaptiveMesh implements NewMesh {
+public abstract class AdaptiveMesh implements Mesh {
 
     protected enum VertexMode {
 
