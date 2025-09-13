@@ -33,6 +33,7 @@ package com.jme3.material.logic;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.light.*;
+import com.jme3.material.OldMaterial;
 import com.jme3.material.TechniqueDef;
 import com.jme3.material.Material.BindUnits;
 import com.jme3.math.ColorRGBA;
@@ -92,7 +93,7 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
 
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, OldMaterial.BindUnits lastBindUnits) {
         Renderer renderer = renderManager.getRenderer();
         renderer.setShader(shader);
         renderMeshFromGeometry(renderer, geometry);

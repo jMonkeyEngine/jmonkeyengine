@@ -33,7 +33,7 @@ package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
-import com.jme3.material.Material.BindUnits;
+import com.jme3.material.OldMaterial.BindUnits;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.renderer.Caps;
@@ -52,7 +52,7 @@ import java.util.EnumSet;
 public final class Technique {
 
     private final TechniqueDef def;
-    private final Material owner;
+    private final OldMaterial owner;
     private final DefineList paramDefines;
     private final DefineList dynamicDefines;
 
@@ -63,7 +63,7 @@ public final class Technique {
      * @param owner The material that will own this technique
      * @param def The technique definition being implemented.
      */
-    public Technique(Material owner, TechniqueDef def) {
+    public Technique(OldMaterial owner, TechniqueDef def) {
         this.owner = owner;
         this.def = def;
         this.paramDefines = def.createDefineList();
@@ -161,7 +161,7 @@ public final class Technique {
      * {@link #makeCurrent(RenderManager, SafeArrayList, SafeArrayList, LightList, EnumSet)}.
      * @param geometry The geometry to render
      * @param lights Lights which influence the geometry.
-     * @param lastTexUnit the index of the most recently used texture unit
+     * @param lastBindUnits the index of the most recently used texture unit
      */
     void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits) {
         TechniqueDefLogic logic = def.getLogic();

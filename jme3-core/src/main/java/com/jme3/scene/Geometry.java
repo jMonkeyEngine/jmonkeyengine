@@ -72,7 +72,7 @@ public class Geometry extends Spatial {
     private static final Logger logger = Logger.getLogger(Geometry.class.getName());
     protected Mesh mesh;
     protected transient int lodLevel = 0;
-    protected NewMaterial material;
+    protected Material material;
     protected MatrixTransformMaterial transforms; // stores the matrices unique to this geometry
     /**
      * When true, the geometry's transform will not be applied.
@@ -167,8 +167,8 @@ public class Geometry extends Spatial {
     }
 
     public void draw(CommandBuffer cmd, Pipeline pipeline) {
-        int offset = transforms.bind(cmd, pipeline);
-        material.bind(cmd, pipeline, offset);
+        transforms.bind(cmd, pipeline);
+        material.bind(cmd, pipeline, transforms.getSets().size());
         mesh.bind(cmd);
         mesh.draw(cmd);
     }
@@ -202,7 +202,7 @@ public class Geometry extends Spatial {
      * Sets the LOD level to use when rendering the mesh of this geometry.
      * Level 0 indicates that the default index buffer should be used,
      * levels [1, LodLevels + 1] represent the levels set on the mesh
-     * with {@link Mesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
+     * with {@link OldMesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
      *
      * @param lod The lod level to set
      */
@@ -293,7 +293,7 @@ public class Geometry extends Spatial {
      * @param material the material to use for this geometry
      */
     @Override
-    public void setMaterial(NewMaterial material) {
+    public void setMaterial(Material material) {
         this.material = material;
         nbSimultaneousGPUMorph = -1;
         if (isGrouped()) {
@@ -308,7 +308,7 @@ public class Geometry extends Spatial {
      *
      * @see #setMaterial(NewMaterial)
      */
-    public NewMaterial getMaterial() {
+    public Material getMaterial() {
         return material;
     }
 

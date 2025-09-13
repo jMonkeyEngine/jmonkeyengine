@@ -12,6 +12,7 @@ import org.lwjgl.system.StructBuffer;
 
 import java.nio.*;
 import java.util.function.Function;
+import java.util.function.LongFunction;
 
 public interface GpuBuffer {
 
@@ -58,6 +59,18 @@ public interface GpuBuffer {
 
     default <T> T map(Function<PointerBuffer, T> factory) {
         return factory.apply(map(0, size().getBytes()));
+    }
+
+    default <T> T map(int offset, int size, LongFunction<T> factory) {
+        return factory.apply(map(offset, size).get(0));
+    }
+
+    default <T> T map(int offset, LongFunction<T> factory) {
+        return factory.apply(map(offset, size().getBytes() - offset).get(0));
+    }
+
+    default <T> T map(LongFunction<T> factory) {
+        return factory.apply(map(0, size().getBytes()).get(0));
     }
 
     default ByteBuffer mapBytes(int offset, int size) {

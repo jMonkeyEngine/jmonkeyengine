@@ -36,6 +36,7 @@ import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
+import com.jme3.material.OldMaterial;
 import com.jme3.material.RenderState;
 import com.jme3.material.TechniqueDef;
 import com.jme3.material.Material.BindUnits;
@@ -68,7 +69,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, OldMaterial.BindUnits lastBindUnits) {
         Renderer r = renderManager.getRenderer();
         Uniform lightDir = shader.getUniform("g_LightDirection");
         Uniform lightColor = shader.getUniform("g_LightColor");

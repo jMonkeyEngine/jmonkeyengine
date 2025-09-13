@@ -33,7 +33,7 @@ package com.jme3.material.logic;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
-import com.jme3.material.Material.BindUnits;
+import com.jme3.material.OldMaterial;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
@@ -73,7 +73,7 @@ public interface TechniqueDefLogic {
      * 
      * @return The shader to use for rendering.
      */
-    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager, 
+    Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
             EnumSet<Caps> rendererCaps, LightList lights, DefineList defines);
     
     /**
@@ -91,7 +91,7 @@ public interface TechniqueDefLogic {
      * {@link #makeCurrent(com.jme3.asset.AssetManager, com.jme3.renderer.RenderManager, java.util.EnumSet, com.jme3.light.LightList, com.jme3.shader.DefineList)}.
      * @param geometry The geometry to render
      * @param lights Lights which influence the geometry.
-     * @param lastTexUnit the index of the most recently used texture unit
+     * @param lastBindUnits the index of the most recently used texture unit
      */
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits);
+    void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, OldMaterial.BindUnits lastBindUnits);
 }

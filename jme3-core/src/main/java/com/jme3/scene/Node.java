@@ -563,7 +563,7 @@ public class Node extends Spatial {
     }
 
     @Override
-    public void setMaterial(NewMaterial mat) {
+    public void setMaterial(Material mat) {
         for (int i = 0; i < children.size(); i++) {
             children.get(i).setMaterial(mat);
         }

@@ -1,12 +1,18 @@
 package com.jme3.vulkan.material;
 
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.material.Material;
+import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.uniforms.Uniform;
 import com.jme3.vulkan.pipelines.Pipeline;
+import com.jme3.vulkan.struct.Structure;
 import org.lwjgl.system.MemoryStack;
 
+import java.io.IOException;
 import java.nio.LongBuffer;
 import java.util.*;
 
@@ -15,7 +21,7 @@ import static org.lwjgl.vulkan.VK10.*;
 /**
  * Relates shader uniform values to sets and bindings.
  */
-public class NewMaterial {
+public class NewMaterial implements Material {
 
     private final DescriptorPool pool;
     private final List<UniformSet> uniformSets = new ArrayList<>();
@@ -31,11 +37,8 @@ public class NewMaterial {
         }
     }
 
-    public int bind(CommandBuffer cmd, Pipeline pipeline) {
-        return bind(cmd, pipeline, 0);
-    }
-
-    public int bind(CommandBuffer cmd, Pipeline pipeline, int offset) {
+    @Override
+    public void bind(CommandBuffer cmd, Pipeline pipeline, int offset) {
         LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>();
         Collections.addAll(availableLayouts, pipeline.getLayout().getDescriptorSetLayouts());
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -47,7 +50,33 @@ public class NewMaterial {
             vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getVkEnum(),
                     pipeline.getLayout().getNativeObject(), offset, setBuf, null);
         }
-        return uniformSets.size(); // number of descriptor slots filled
+    }
+
+    @Override
+    public void setParam(String uniform, String param, Object value) {
+        Uniform<? extends GpuBuffer> u = getUniform(uniform);
+        GpuBuffer buffer = u.getResource().get();
+        buffer.map(Structure::new).set(param, value);
+        buffer.unmap();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends Uniform> T getUniform(String name) {
+        // Not sure if caching the results is really worth it...
+        Uniform<?> uniform = uniformLookup.get(name);
+        if (uniform != null) {
+            return (T)uniform;
+        }
+        for (UniformSet set : uniformSets) {
+            for (Uniform<?> u : set) {
+                if (name.equals(u.getName())) {
+                    uniformLookup.put(u.getName(), u);
+                    return (T)u;
+                }
+            }
+        }
+        return null;
     }
 
     public DescriptorSetLayout[] createLayouts(LogicalDevice<?> device) {
@@ -72,22 +101,14 @@ public class NewMaterial {
         return Collections.unmodifiableList(uniformSets);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends Uniform> T getUniform(String name) {
-        // Not sure if caching the results is really worth it...
-        Uniform<?> uniform = uniformLookup.get(name);
-        if (uniform != null) {
-            return (T)uniform;
-        }
-        for (UniformSet set : uniformSets) {
-            for (Uniform<?> u : set) {
-                if (name.equals(u.getName())) {
-                    uniformLookup.put(u.getName(), u);
-                    return (T)u;
-                }
-            }
-        }
-        return null;
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        throw new UnsupportedOperationException("Exporting not yet supported.");
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        throw new UnsupportedOperationException("Importing not yet supported.");
     }
 
 }

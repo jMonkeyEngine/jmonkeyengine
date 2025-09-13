@@ -1181,7 +1181,7 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
      *
      * @param material The material to set.
      */
-    public void setMaterial(NewMaterial material) {
+    public void setMaterial(Material material) {
     }
 
     /**
