@@ -41,6 +41,7 @@ import com.jme3.math.Rectangle;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.OldMesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.clone.Cloner;
@@ -71,7 +72,7 @@ import com.jme3.util.clone.Cloner;
  *
  * @author Francivan Bezerra
  */
-public class RectangleMesh extends Mesh {
+public class RectangleMesh extends OldMesh {
 
     /**
      * Used to locate the vertices and calculate a default normal.

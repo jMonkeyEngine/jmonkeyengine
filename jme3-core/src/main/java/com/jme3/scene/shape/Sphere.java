@@ -39,6 +39,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.OldMesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
@@ -53,7 +54,7 @@ import java.nio.ShortBuffer;
  * @author Joshua Slack
  * @version $Revision: 4163 $, $Date: 2009-03-24 21:14:55 -0400 (Tue, 24 Mar 2009) $
  */
-public class Sphere extends Mesh {
+public class Sphere extends OldMesh {
 
     public enum TextureMode {
 

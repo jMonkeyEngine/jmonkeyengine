@@ -36,6 +36,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.OldMesh;
 import com.jme3.scene.VertexBuffer.Type;
 import java.io.IOException;
 
@@ -51,7 +52,7 @@ import java.io.IOException;
  *
  * @author Kirill Vainer
  */
-public class CenterQuad extends Mesh {
+public class CenterQuad extends OldMesh {
 
     private float width;
     private float height;

@@ -34,6 +34,7 @@ package com.jme3.font;
 import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.OldMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.texture.Texture2D;
@@ -59,7 +60,7 @@ class BitmapTextPage extends Geometry {
     private final LinkedList<LetterQuad> pageQuads = new LinkedList<>();
 
     BitmapTextPage(BitmapFont font, boolean arrayBased, int page) {
-        super("BitmapFont", new Mesh());
+        super("BitmapFont", new OldMesh());
         setRequiresUpdates(false);
         setBatchHint(BatchHint.Never);
         if (font == null) {
