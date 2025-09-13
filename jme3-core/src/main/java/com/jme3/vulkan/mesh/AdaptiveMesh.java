@@ -37,7 +37,7 @@ public abstract class AdaptiveMesh implements NewMesh {
     private final List<VertexBuffer> vertexBuffers = new ArrayList<>();
     protected final List<VersionedResource<? extends GpuBuffer>> indexBuffers = new ArrayList<>();
     private GpuBuffer boundIndexBuffer;
-    protected BoundingVolume volume;
+    protected BoundingVolume volume = new BoundingBox();
     private int vertices;
     private CollisionData collisionTree;
 

@@ -2,8 +2,6 @@ package jme3test.vulkan;
 
 import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -17,7 +15,6 @@ import com.jme3.util.natives.Native;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.buffers.BufferUsage;
-import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.buffers.PersistentBuffer;
 import com.jme3.vulkan.buffers.StageableBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -31,6 +28,7 @@ import com.jme3.vulkan.frames.SingleResource;
 import com.jme3.vulkan.frames.UpdateFrame;
 import com.jme3.vulkan.frames.UpdateFrameManager;
 import com.jme3.vulkan.images.*;
+import com.jme3.vulkan.material.MatrixTransformMaterial;
 import com.jme3.vulkan.material.TestMaterial;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
@@ -78,32 +76,6 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private UpdateFrameManager frames;
     private boolean swapchainResizeFlag = false;
     private boolean applicationStopped = false;
-
-    // mesh
-    private NewMesh mesh;
-    private final FloatBuffer vertexData = BufferUtils.createFloatBuffer(
-            -0.5f, -0.5f, 0f,   1f, 0f, 0f,   1f, 0f,
-             0.5f, -0.5f, 0f,   0f, 1f, 0f,   0f, 0f,
-             0.5f,  0.5f, 0f,   0f, 0f, 1f,   0f, 1f,
-            -0.5f,  0.5f, 0f,   1f, 1f, 1f,   1f, 1f,
-
-            -0.5f, -0.5f, -0.5f,   1f, 0f, 0f,   1f, 0f,
-             0.5f, -0.5f, -0.5f,   0f, 1f, 0f,   0f, 0f,
-             0.5f,  0.5f, -0.5f,   0f, 0f, 1f,   0f, 1f,
-            -0.5f,  0.5f, -0.5f,   1f, 1f, 1f,   1f, 1f
-    );
-    private final IntBuffer indexData = BufferUtils.createIntBuffer(
-            0, 1, 2, 2, 3, 0,
-            4, 5, 6, 6, 7, 4);
-
-    // material
-    private TestMaterial material;
-
-    // geometry
-    private final Transform modelTransform = new Transform();
-
-    // material
-    private Texture texture;
 
     // framebuffer
     private ImageView depthView;
@@ -261,7 +233,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         try (ImageView.Builder i = imgView.build()) {
             i.setAspect(VulkanImage.Aspect.Color);
         }
-        texture = new Texture(device, imgView);
+        // material
+        Texture texture = new Texture(device, imgView);
         try (Sampler.Builder t = texture.build()) {
             t.setMinMagFilters(Filter.Linear, Filter.Linear);
             t.setEdgeModes(AddressMode.Repeat);
@@ -273,14 +246,17 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         sharedData = new BasicCommandBatch();
         sharedDataFence = new Fence(device, true);
 
-        // mesh
-        mesh = new MyCustomMesh(device, frames, meshDesc, sharedData,
-                Vector3f.UNIT_Z, Vector3f.UNIT_Y, 1f, 1f, 0.5f, 0.5f);
-
-        material = new TestMaterial(descriptorPool);
-        material.getMatrices().setResource(frames.perFrame(n ->
-                new PersistentBuffer(device, MemorySize.floats(16), BufferUsage.Uniform, false)));
+        TestMaterial material = new TestMaterial(descriptorPool);
         material.getBaseColorMap().setResource(new SingleResource<>(texture));
+
+        NewMesh m = new MyCustomMesh(device, frames, meshDesc, sharedData,
+                Vector3f.UNIT_Z, Vector3f.UNIT_Y, 1f, 1f, 0.5f, 0.5f);
+        MatrixTransformMaterial t = new MatrixTransformMaterial(descriptorPool);
+        t.getTransforms().setResource(frames.perFrame(n ->
+                new PersistentBuffer(device, MemorySize.floats(16), BufferUsage.Uniform, false)));
+        Geometry geometry = new Geometry("geometry", m, t);
+        geometry.setMaterial(material);
+        rootNode.attachChild(geometry);
 
     }
 
@@ -382,15 +358,10 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             renderManager.setCamera(cam, false);
 
             // update matrix uniform (geometry)
-            {
-                // compute geometry states
-                modelTransform.getRotation().multLocal(new Quaternion().fromAngleAxis(tpf, Vector3f.UNIT_Y));
-                Matrix4f worldViewProjection = cam.getViewProjectionMatrix().mult(modelTransform.toTransformMatrix());
-
-                // update material uniform
-                GpuBuffer matrixBuffer = material.getMatrices().getResource().get();
-                worldViewProjection.fillFloatBuffer(matrixBuffer.mapFloats(), true);
-                matrixBuffer.unmap();
+            for (Spatial s : rootNode) {
+                if (s instanceof Geometry) {
+                    ((Geometry)s).updateTransformMaterial(cam);
+                }
             }
 
             // update shared data
@@ -436,17 +407,11 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             // run graphics commands via CommandBatch
             graphics.run(graphicsCommands, frames.getCurrentFrame());
 
-//            material.bind(graphicsCommands, pipeline);
-//            mesh.bind(graphicsCommands);
-//            mesh.draw(graphicsCommands);
-
             // draw all geometries in the rootNode
             for (Spatial s : rootNode) {
                 if (s instanceof Geometry) {
                     Geometry g = (Geometry)s;
-                    g.getMaterial().bind(graphicsCommands, pipeline);
-                    g.getMesh().bind(graphicsCommands);
-                    g.getMesh().draw(graphicsCommands);
+                    g.draw(graphicsCommands, pipeline);
                 }
             }
 
@@ -454,7 +419,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             renderPass.end(graphicsCommands);
 
             // render manager
-            graphicsCommands.endAndSubmit(new SyncGroup(new Semaphore[] {imageAvailable, perFrameDataFinished, sharedDataFinished}, renderFinished, inFlight));
+            graphicsCommands.endAndSubmit(new SyncGroup(new Semaphore[]
+                    {imageAvailable, perFrameDataFinished, sharedDataFinished}, renderFinished, inFlight));
             swapchain.present(device.getPhysicalDevice().getPresent(), image, renderFinished.toGroupWait());
 
         }

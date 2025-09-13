@@ -42,16 +42,19 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
+import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.material.MatrixTransformMaterial;
 import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.mesh.NewMesh;
-import com.jme3.vulkan.scene.NotSpatial;
+import com.jme3.vulkan.pipelines.Pipeline;
 
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,6 +75,7 @@ public class Geometry extends Spatial {
     protected NewMesh mesh;
     protected transient int lodLevel = 0;
     protected NewMaterial material;
+    protected MatrixTransformMaterial transforms; // stores the matrices unique to this geometry
     /**
      * When true, the geometry's transform will not be applied.
      */
@@ -140,6 +144,11 @@ public class Geometry extends Spatial {
         this.mesh = mesh;
     }
 
+    public Geometry(String name, NewMesh mesh, MatrixTransformMaterial transforms) {
+        this(name, mesh);
+        this.transforms = transforms;
+    }
+
     /**
      * Create a geometry node with mesh data and material.
      *
@@ -150,6 +159,20 @@ public class Geometry extends Spatial {
     public Geometry(String name, NewMesh mesh, NewMaterial material) {
         this(name, mesh);
         setMaterial(material);
+    }
+
+    public void updateTransformMaterial(Camera cam) {
+        Matrix4f worldViewProjection = cam.getViewProjectionMatrix().mult(worldTransform.toTransformMatrix());
+        GpuBuffer matBuffer = transforms.getTransforms().getResource().get();
+        worldViewProjection.fillFloatBuffer(matBuffer.mapFloats(), true);
+        matBuffer.unmap();
+    }
+
+    public void draw(CommandBuffer cmd, Pipeline pipeline) {
+        int offset = transforms.bind(cmd, pipeline);
+        material.bind(cmd, pipeline, offset);
+        mesh.bind(cmd);
+        mesh.draw(cmd);
     }
 
     @Override

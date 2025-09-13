@@ -80,7 +80,7 @@ public class MyCustomMesh extends AdaptiveMesh {
 
     @Override
     protected VersionedResource<? extends GpuBuffer> createStaticBuffer(MemorySize size) {
-        return updateStaticBuffers.add(new SingleCommand<>(new StaticBuffer(
+        return updateStaticBuffers.add(new SingleCommand<>(new BackedStaticBuffer(
                 device, size, BufferUsage.Vertex, MemoryProp.DeviceLocal, false)));
     }
 

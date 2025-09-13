@@ -31,11 +31,11 @@ public class NewMaterial {
         }
     }
 
-    public void bind(CommandBuffer cmd, Pipeline pipeline) {
-        bind(cmd, pipeline, 0);
+    public int bind(CommandBuffer cmd, Pipeline pipeline) {
+        return bind(cmd, pipeline, 0);
     }
 
-    public void bind(CommandBuffer cmd, Pipeline pipeline, int offset) {
+    public int bind(CommandBuffer cmd, Pipeline pipeline, int offset) {
         LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>();
         Collections.addAll(availableLayouts, pipeline.getLayout().getDescriptorSetLayouts());
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -47,6 +47,7 @@ public class NewMaterial {
             vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getVkEnum(),
                     pipeline.getLayout().getNativeObject(), offset, setBuf, null);
         }
+        return uniformSets.size(); // number of descriptor slots filled
     }
 
     public DescriptorSetLayout[] createLayouts(LogicalDevice<?> device) {
