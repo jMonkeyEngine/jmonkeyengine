@@ -47,6 +47,7 @@ import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
+import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.mesh.NewMesh;
 
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class Geometry extends Spatial {
     private static final Logger logger = Logger.getLogger(Geometry.class.getName());
     protected NewMesh mesh;
     protected transient int lodLevel = 0;
-    protected Material material;
+    protected NewMaterial material;
     /**
      * When true, the geometry's transform will not be applied.
      */
@@ -145,7 +146,7 @@ public class Geometry extends Spatial {
      * @param mesh The mesh data for this geometry
      * @param material The material for this geometry
      */
-    public Geometry(String name, NewMesh mesh, Material material) {
+    public Geometry(String name, NewMesh mesh, NewMaterial material) {
         this(name, mesh);
         setMaterial(material);
     }
@@ -270,7 +271,7 @@ public class Geometry extends Spatial {
      * @param material the material to use for this geometry
      */
     @Override
-    public void setMaterial(Material material) {
+    public void setMaterial(NewMaterial material) {
         this.material = material;
         nbSimultaneousGPUMorph = -1;
         if (isGrouped()) {
@@ -283,9 +284,9 @@ public class Geometry extends Spatial {
      *
      * @return the material that is used for this geometry
      *
-     * @see #setMaterial(com.jme3.material.Material)
+     * @see #setMaterial(NewMaterial)
      */
-    public Material getMaterial() {
+    public NewMaterial getMaterial() {
         return material;
     }
 
@@ -733,10 +734,11 @@ public class Geometry extends Spatial {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(mesh, "mesh", null);
-        if (material != null) {
-            oc.write(material.getAssetName(), "materialName", null);
-        }
-        oc.write(material, "material", null);
+        // fixme
+//        if (material != null) {
+//            oc.write(material.getAssetName(), "materialName", null);
+//        }
+//        oc.write(material, "material", null);
         oc.write(ignoreTransform, "ignoreTransform", false);
     }
 
@@ -745,14 +747,14 @@ public class Geometry extends Spatial {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         mesh = (NewMesh) ic.readSavable("mesh", null);
-
         material = null;
         String matName = ic.readString("materialName", null);
         if (matName != null) {
             // Material name is set,
             // Attempt to load material via J3M
             try {
-                material = im.getAssetManager().loadMaterial(matName);
+                // fixme
+                //material = im.getAssetManager().loadMaterial(matName);
             } catch (AssetNotFoundException ex) {
                 // Cannot find J3M file.
                 if (logger.isLoggable(Level.FINE)) {
@@ -763,7 +765,8 @@ public class Geometry extends Spatial {
         }
         // If material is NULL, try to load it from the geometry
         if (material == null) {
-            material = (Material) ic.readSavable("material", null);
+            // fixme
+            material = (NewMaterial) ic.readSavable("material", null);
         }
         ignoreTransform = ic.readBoolean("ignoreTransform", false);
 

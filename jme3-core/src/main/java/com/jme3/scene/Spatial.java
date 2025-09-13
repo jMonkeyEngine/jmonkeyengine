@@ -54,6 +54,8 @@ import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.util.clone.JmeCloneable;
+import com.jme3.vulkan.material.NewMaterial;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -1179,7 +1181,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
      *
      * @param material The material to set.
      */
-    public void setMaterial(Material material) {
+    public void setMaterial(NewMaterial material) {
     }
 
     /**

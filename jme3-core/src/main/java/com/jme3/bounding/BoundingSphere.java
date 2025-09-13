@@ -39,11 +39,9 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.*;
 import com.jme3.scene.Spatial;
-import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
-import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.mesh.VertexModifier;
 import com.jme3.vulkan.mesh.VertexReader;
+import com.jme3.vulkan.mesh.VertexWriter;
 import com.jme3.vulkan.util.FloatBufferModifier;
 import org.lwjgl.system.MemoryStack;
 
@@ -223,7 +221,7 @@ public class BoundingSphere extends BoundingVolume {
      *            A variable simulating pointer arithmetic from C++, and offset
      *            in <code>points</code>.
      */
-    private void recurseMini(VertexModifier points, int p, int b, int ap) {
+    private void recurseMini(VertexWriter points, int p, int b, int ap) {
         //TempVars vars = TempVars.get();
 
         Vector3f tempA = new Vector3f(); //vars.vect1;

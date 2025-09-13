@@ -4,7 +4,7 @@ import com.jme3.vulkan.Format;
 
 import java.nio.*;
 
-public class AttributeModifier implements AutoCloseable, VertexModifier {
+public class AttributeModifier implements AutoCloseable, VertexReader, VertexWriter {
     
     private final VertexBuffer vertex;
     private final VertexAttribute attribute;

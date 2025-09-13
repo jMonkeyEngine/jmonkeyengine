@@ -499,7 +499,7 @@ public class BIHTree implements CollisionData {
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        mesh = (Mesh) ic.readSavable("mesh", null);
+        mesh = (NewMesh) ic.readSavable("mesh", null);
         root = (BIHNode) ic.readSavable("root", null);
         maxTrisPerNode = ic.readInt("tris_per_node", 0);
         pointData = ic.readFloatArray("points", null);

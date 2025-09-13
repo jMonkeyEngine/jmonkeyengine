@@ -7,13 +7,7 @@ import com.jme3.math.Vector4f;
 
 import java.nio.*;
 
-public interface VertexWriter {
-
-    int capacity();
-
-    int limit();
-
-    int components();
+public interface VertexWriter extends VertexReader {
 
     VertexWriter limit(int vertex);
 
