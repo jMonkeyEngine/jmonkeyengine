@@ -92,6 +92,11 @@ public abstract class AdaptiveMesh implements NewMesh {
         return 0;
     }
 
+    @Override
+    public BoundingVolume getBound() {
+        return volume;
+    }
+
     private CollisionData createCollisionTree() {
         try (AttributeModifier positions = modifyAttribute(BuiltInAttribute.Position)) {
             BIHTree tree = new BIHTree(positions, indexBuffers.get(0).get().mapIndices());

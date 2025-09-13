@@ -13,6 +13,8 @@ public interface VertexWriter {
 
     int limit();
 
+    int components();
+
     VertexWriter limit(int vertex);
 
     VertexWriter putByte(int vertex, int component, byte value);
@@ -27,11 +29,26 @@ public interface VertexWriter {
 
     VertexWriter putLong(int vertex, int component, long value);
 
-    VertexWriter putVector2(int vertex, int baseComponent, float x, float y);
+    default VertexWriter putVector2(int vertex, int baseComponent, float x, float y) {
+        putFloat(vertex, baseComponent++, x);
+        putFloat(vertex, baseComponent  , y);
+        return this;
+    }
 
-    VertexWriter putVector3(int vertex, int baseComponent, float x, float y, float z);
+    default VertexWriter putVector3(int vertex, int baseComponent, float x, float y, float z) {
+        putFloat(vertex, baseComponent++, x);
+        putFloat(vertex, baseComponent++, y);
+        putFloat(vertex, baseComponent  , z);
+        return this;
+    }
 
-    VertexWriter putVector4(int vertex, int baseComponent, float x, float y, float z, float w);
+    default VertexWriter putVector4(int vertex, int baseComponent, float x, float y, float z, float w) {
+        putFloat(vertex, baseComponent++, x);
+        putFloat(vertex, baseComponent++, y);
+        putFloat(vertex, baseComponent++, z);
+        putFloat(vertex, baseComponent  , w);
+        return this;
+    }
 
     default VertexWriter putVector2(int vertex, int baseComponent, Vector2f value) {
         return putVector2(vertex, baseComponent, value.x, value.y);
@@ -48,29 +65,137 @@ public interface VertexWriter {
     default VertexWriter putColor(int vertex, int baseComponent, ColorRGBA value) {
         return putVector4(vertex, baseComponent, value.r, value.g, value.b, value.a);
     }
+    
+    default VertexWriter putBytes(int baseVertex, int baseComponent, byte... values) {
+        for (byte v : values) {
+            putByte(baseVertex, baseComponent, v);
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
 
-    VertexWriter putBytes(int baseVertex, int baseComponent, byte... values);
+    default VertexWriter putBytes(int baseVertex, int baseComponent, ByteBuffer values) {
+        for (int i = 0; i < values.limit(); i++) {
+            putByte(baseVertex, baseComponent, values.get(i));
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
 
-    VertexWriter putBytes(int baseVertex, int baseComponent, ByteBuffer values);
+    default VertexWriter putShorts(int baseVertex, int baseComponent, short... values) {
+        for (short v : values) {
+            putShort(baseVertex, baseComponent, v);
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
 
-    VertexWriter putShorts(int baseVertex, int baseComponent, short... values);
+    default VertexWriter putShorts(int baseVertex, int baseComponent, ShortBuffer values) {
+        for (int i = 0; i < values.limit(); i++) {
+            putShort(baseVertex, baseComponent, values.get(i));
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
 
-    VertexWriter putShorts(int baseVertex, int baseComponent, ShortBuffer values);
+    default VertexWriter putInts(int baseVertex, int baseComponent, int... values) {
+        for (int v : values) {
+            putInt(baseVertex, baseComponent, v);
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
 
-    VertexWriter putInts(int baseVertex, int baseComponent, int... values);
+    default VertexWriter putInts(int baseVertex, int baseComponent, IntBuffer values) {
+        for (int i = 0; i < values.limit(); i++) {
+            putInt(baseVertex, baseComponent, values.get(i));
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
 
-    VertexWriter putInts(int baseVertex, int baseComponent, IntBuffer values);
+    default VertexWriter putFloats(int baseVertex, int baseComponent, float... values) {
+        for (float v : values) {
+            putFloat(baseVertex, baseComponent, v);
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
 
-    VertexWriter putFloats(int baseVertex, int baseComponent, float... values);
+    default VertexWriter putFloats(int baseVertex, int baseComponent, FloatBuffer values) {
+        for (int i = 0; i < values.limit(); i++) {
+            putFloat(baseVertex, baseComponent, values.get(i));
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
 
-    VertexWriter putFloats(int baseVertex, int baseComponent, FloatBuffer values);
+    default VertexWriter putDoubles(int baseVertex, int baseComponent, double... values) {
+        for (double v : values) {
+            putDouble(baseVertex, baseComponent, v);
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
 
-    VertexWriter putDoubles(int baseVertex, int baseComponent, double... values);
+    default VertexWriter putDoubles(int baseVertex, int baseComponent, DoubleBuffer values) {
+        for (int i = 0; i < values.limit(); i++) {
+            putDouble(baseVertex, baseComponent, values.get(i));
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
 
-    VertexWriter putDoubles(int baseVertex, int baseComponent, DoubleBuffer values);
+    default VertexWriter putLongs(int baseVertex, int baseComponent, long... values) {
+        for (long v : values) {
+            putLong(baseVertex, baseComponent, v);
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
 
-    VertexWriter putLongs(int baseVertex, int baseComponent, long... values);
-
-    VertexWriter putLongs(int baseVertex, int baseComponent, LongBuffer values);
+    default VertexWriter putLongs(int baseVertex, int baseComponent, LongBuffer values) {
+        for (int i = 0; i < values.limit(); i++) {
+            putLong(baseVertex, baseComponent, values.get(i));
+            if (++baseComponent >= components()) {
+                baseComponent = 0;
+                baseVertex++;
+            }
+        }
+        return this;
+    }
     
 }

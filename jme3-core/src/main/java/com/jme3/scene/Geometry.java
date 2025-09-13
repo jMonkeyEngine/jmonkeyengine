@@ -603,18 +603,20 @@ public class Geometry extends Spatial {
         this.material = cloner.clone(material);
     }
 
+    // todo: fix morph animations
+
     public void setMorphState(float[] state) {
-        if (mesh == null || mesh.getMorphTargets().length == 0) {
-            return;
-        }
-
-        int nbMorphTargets = mesh.getMorphTargets().length;
-
-        if (morphState == null) {
-            morphState = new float[nbMorphTargets];
-        }
-        System.arraycopy(state, 0, morphState, 0, morphState.length);
-        this.dirtyMorph = true;
+//        if (mesh == null || mesh.getMorphTargets().length == 0) {
+//            return;
+//        }
+//
+//        int nbMorphTargets = mesh.getMorphTargets().length;
+//
+//        if (morphState == null) {
+//            morphState = new float[nbMorphTargets];
+//        }
+//        System.arraycopy(state, 0, morphState, 0, morphState.length);
+//        this.dirtyMorph = true;
     }
 
     /**
@@ -626,11 +628,11 @@ public class Geometry extends Spatial {
      * @param state The state to set the morph to
      */
     public void setMorphState(String morphTarget, float state) {
-        int index = mesh.getMorphIndex(morphTarget);
-        if (index >= 0) {
-            morphState[index] = state;
-            this.dirtyMorph = true;
-        }
+//        int index = mesh.getMorphIndex(morphTarget);
+//        if (index >= 0) {
+//            morphState[index] = state;
+//            this.dirtyMorph = true;
+//        }
     }
 
     /**
@@ -659,10 +661,10 @@ public class Geometry extends Spatial {
      * @return an array
      */
     public float[] getMorphState() {
-        if (morphState == null) {
-            morphState = new float[mesh.getMorphTargets().length];
-        }
-        return morphState;
+//        if (morphState == null) {
+//            morphState = new float[mesh.getMorphTargets().length];
+//        }
+//        return morphState;
     }
 
     /**

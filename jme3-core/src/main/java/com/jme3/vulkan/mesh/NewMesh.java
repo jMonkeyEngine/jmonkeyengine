@@ -1,5 +1,6 @@
 package com.jme3.vulkan.mesh;
 
+import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.scene.Geometry;
@@ -16,5 +17,7 @@ public interface NewMesh extends Collidable {
     int getTriangleCount();
 
     int collideWith(Collidable other, Geometry geometry, CollisionResults results);
+
+    BoundingVolume getBound();
 
 }
