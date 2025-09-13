@@ -1,0 +1,11 @@
+{
+  "name" : "VulkanTest",
+  "techniques" : {
+    "main" : {
+      "shaders" : {
+        "vertex" : "Shaders/VulkanFragTest.json",
+        "fragment" : "Shaders/VulkanVertTest.json"
+      }
+    }
+  }
+}

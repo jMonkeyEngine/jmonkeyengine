@@ -98,7 +98,7 @@ public class RagUtils {
      * @return a new map from bone/torso names to sets of vertex coordinates
      */
     static Map<String, VectorSet> coordsMap(Mesh[] meshes,
-            String[] managerMap) {
+                                            String[] managerMap) {
         float[] wArray = new float[4];
         int[] iArray = new int[4];
         Vector3f bindPosition = new Vector3f();
@@ -218,7 +218,7 @@ public class RagUtils {
      * @return an expanded list (either storeResult or a new instance)
      */
     static List<Mesh> listAnimatedMeshes(Spatial subtree,
-            List<Mesh> storeResult) {
+                                         List<Mesh> storeResult) {
         if (storeResult == null) {
             storeResult = new ArrayList<>(10);
         }
@@ -440,7 +440,7 @@ public class RagUtils {
      * @return a bone/torso name
      */
     private static String findManager(Mesh mesh, int vertexIndex, int[] iArray,
-            float[] wArray, String[] managerMap) {
+                                      float[] wArray, String[] managerMap) {
         vertexBoneIndices(mesh, vertexIndex, iArray);
         vertexBoneWeights(mesh, vertexIndex, wArray);
         Map<String, Float> weightMap = weightMap(iArray, wArray, managerMap);
@@ -569,7 +569,7 @@ public class RagUtils {
      * @return the data vector (either storeResult or a new instance)
      */
     private static int[] vertexBoneIndices(Mesh mesh,
-            int vertexIndex, int[] storeResult) {
+                                           int vertexIndex, int[] storeResult) {
         if (storeResult == null) {
             storeResult = new int[4];
         } else {
@@ -608,7 +608,7 @@ public class RagUtils {
      * @return the data vector (either storeResult or a new instance)
      */
     private static float[] vertexBoneWeights(Mesh mesh,
-            int vertexIndex, float[] storeResult) {
+                                             int vertexIndex, float[] storeResult) {
         if (storeResult == null) {
             storeResult = new float[4];
         } else {
@@ -651,8 +651,8 @@ public class RagUtils {
      * @return the data vector (either storeResult or a new instance)
      */
     private static Vector3f vertexVector3f(Mesh mesh,
-            VertexBuffer.Type bufferType, int vertexIndex,
-            Vector3f storeResult) {
+                                           VertexBuffer.Type bufferType, int vertexIndex,
+                                           Vector3f storeResult) {
         assert bufferType == VertexBuffer.Type.BindPoseNormal
                 || bufferType == VertexBuffer.Type.BindPosePosition
                 || bufferType == VertexBuffer.Type.Binormal

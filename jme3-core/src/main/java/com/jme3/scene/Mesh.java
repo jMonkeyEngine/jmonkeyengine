@@ -46,6 +46,9 @@ import com.jme3.util.*;
 import com.jme3.util.IntMap.Entry;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.mesh.NewMesh;
+
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
@@ -64,6 +67,7 @@ import java.util.ArrayList;
  *
  * @author Kirill Vainer
  */
+@Deprecated
 public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
@@ -585,7 +589,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      *
      * @return the mesh mode
      *
-     * @see #setMode(com.jme3.scene.Mesh.Mode)
+     * @see #setMode(Mesh.Mode)
      */
     public Mode getMode() {
         return mode;
@@ -1001,9 +1005,10 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * com.jme3.collision.CollisionResults) }.
      */
     public void createCollisionData() {
-        BIHTree tree = new BIHTree(this);
-        tree.construct();
-        collisionTree = tree;
+        throw new UnsupportedOperationException("Collision tree not supported.");
+//        BIHTree tree = new BIHTree(this);
+//        tree.construct();
+//        collisionTree = tree;
     }
 
     /**

@@ -1,0 +1,6 @@
+shader: "Shaders/VulkanVertTest.glsl"
+type: "vertex"
+platforms: ["vulkan", "opengl", "gles"]
+versions: [460, 450]
+parameters:
+    Matrices: "MATRICES"

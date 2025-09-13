@@ -238,7 +238,7 @@ public class TangentBinormalGenerator {
     }
 
     private static List<VertexData> processTriangles(Mesh mesh,
-            int[] index, Vector3f[] v, Vector2f[] t, boolean splitMirrored) {
+                                                     int[] index, Vector3f[] v, Vector2f[] t, boolean splitMirrored) {
         IndexBuffer indexBuffer = mesh.getIndexBuffer();
         FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
         if (mesh.getBuffer(Type.TexCoord) == null) {
@@ -447,7 +447,7 @@ public class TangentBinormalGenerator {
     }
 
     private static List<VertexData> processTriangleStrip(Mesh mesh,
-            int[] index, Vector3f[] v, Vector2f[] t) {
+                                                         int[] index, Vector3f[] v, Vector2f[] t) {
         
         IndexBuffer indexBuffer = mesh.getIndexBuffer();
         FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
@@ -496,7 +496,7 @@ public class TangentBinormalGenerator {
     }
 
     private static List<VertexData> processTriangleFan(Mesh mesh,
-            int[] index, Vector3f[] v, Vector2f[] t) {
+                                                       int[] index, Vector3f[] v, Vector2f[] t) {
         
         IndexBuffer indexBuffer = mesh.getIndexBuffer();
         FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
@@ -673,7 +673,7 @@ public class TangentBinormalGenerator {
     }
 
     private static void processTriangleData(Mesh mesh, List<VertexData> vertices,
-            boolean approxTangent, boolean splitMirrored) {
+                                            boolean approxTangent, boolean splitMirrored) {
         ArrayList<VertexInfo> vertexMap = linkVertices(mesh, splitMirrored);
 
         FloatBuffer tangents = BufferUtils.createFloatBuffer(vertices.size() * 4);
@@ -863,7 +863,7 @@ public class TangentBinormalGenerator {
     }
 
     /**
-     * @deprecated Use {@link TangentUtils#genTbnLines(com.jme3.scene.Mesh, float) } instead.
+     * @deprecated Use {@link TangentUtils#genTbnLines(Mesh, float) } instead.
      */
     @Deprecated
     public static Mesh genTbnLines(Mesh mesh, float scale) {
@@ -871,7 +871,7 @@ public class TangentBinormalGenerator {
     }
 
     /**
-     * @deprecated Use {@link TangentUtils#genNormalLines(com.jme3.scene.Mesh, float) } instead.
+     * @deprecated Use {@link TangentUtils#genNormalLines(Mesh, float) } instead.
      */
     @Deprecated
     public static Mesh genNormalLines(Mesh mesh, float scale) {

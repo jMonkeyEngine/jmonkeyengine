@@ -54,6 +54,10 @@ import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.VirtualIndexBuffer;
 import com.jme3.scene.mesh.WrappedIndexBuffer;
 import com.jme3.util.TempVars;
+import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.mesh.NewMesh;
+import com.jme3.vulkan.mesh.VertexReader;
+
 import java.io.IOException;
 import static java.lang.Math.max;
 import java.nio.FloatBuffer;
@@ -62,7 +66,7 @@ public class BIHTree implements CollisionData {
 
     public static final int MAX_TREE_DEPTH = 100;
     public static final int MAX_TRIS_PER_NODE = 21;
-    private Mesh mesh;
+    private NewMesh mesh;
     private BIHNode root;
     private int maxTrisPerNode;
     private int numTris;
@@ -72,24 +76,25 @@ public class BIHTree implements CollisionData {
     // private transient CollisionResults boundResults = new CollisionResults();
     private transient float[] bihSwapTmp;
 
-    private void initTriList(FloatBuffer vb, IndexBuffer ib) {
+    private void initTriList(VertexReader vb, IndexBuffer ib) {
         pointData = new float[numTris * 3 * 3];
         int p = 0;
+
         for (int i = 0; i < numTris * 3; i += 3) {
             int vert = ib.get(i) * 3;
-            pointData[p++] = vb.get(vert++);
-            pointData[p++] = vb.get(vert++);
-            pointData[p++] = vb.get(vert);
+            pointData[p++] = vb.getFloat(vert, 0);
+            pointData[p++] = vb.getFloat(vert, 1);
+            pointData[p++] = vb.getFloat(vert, 2);
 
             vert = ib.get(i + 1) * 3;
-            pointData[p++] = vb.get(vert++);
-            pointData[p++] = vb.get(vert++);
-            pointData[p++] = vb.get(vert);
+            pointData[p++] = vb.getFloat(vert, 0);
+            pointData[p++] = vb.getFloat(vert, 1);
+            pointData[p++] = vb.getFloat(vert, 2);
 
             vert = ib.get(i + 2) * 3;
-            pointData[p++] = vb.get(vert++);
-            pointData[p++] = vb.get(vert++);
-            pointData[p++] = vb.get(vert);
+            pointData[p++] = vb.getFloat(vert, 0);
+            pointData[p++] = vb.getFloat(vert, 1);
+            pointData[p++] = vb.getFloat(vert, 2);
         }
 
         triIndices = new int[numTris];
@@ -98,7 +103,15 @@ public class BIHTree implements CollisionData {
         }
     }
 
-    public BIHTree(Mesh mesh, int maxTrisPerNode) {
+    public BIHTree(VertexReader positions, IndexBuffer indices) {
+        maxTrisPerNode = MAX_TRIS_PER_NODE;
+        bihSwapTmp = new float[9];
+        numTris = indices.size() / 3;
+        initTriList(positions, indices);
+    }
+
+    @Deprecated
+    public BIHTree(NewMesh mesh, int maxTrisPerNode) {
         this.mesh = mesh;
         this.maxTrisPerNode = maxTrisPerNode;
 
@@ -111,24 +124,26 @@ public class BIHTree implements CollisionData {
 
         bihSwapTmp = new float[9];
 
-        VertexBuffer vBuffer = mesh.getBuffer(Type.Position);
-        if (vBuffer == null) {
-            throw new IllegalArgumentException("A mesh should at least contain a Position buffer");
-        }
-        IndexBuffer ib = mesh.getIndexBuffer();
-        FloatBuffer vb = (FloatBuffer) vBuffer.getData();
+        // Code incompatible with new Mesh interface
 
-        if (ib == null) {
-            ib = new VirtualIndexBuffer(mesh.getVertexCount(), mesh.getMode());
-        } else if (mesh.getMode() != Mode.Triangles) {
-            ib = new WrappedIndexBuffer(mesh);
-        }
+//        VertexBuffer vBuffer = mesh.getBuffer(Type.Position);
+//        if (vBuffer == null) {
+//            throw new IllegalArgumentException("A mesh should at least contain a Position buffer");
+//        }
+//        IndexBuffer ib = mesh.getIndexBuffer();
+//        FloatBuffer vb = (FloatBuffer) vBuffer.getData();
 
-        numTris = ib.size() / 3;
-        initTriList(vb, ib);
+//        if (ib == null) {
+//            ib = new VirtualIndexBuffer(mesh.getVertexCount(), mesh.getMode());
+//        } else if (mesh.getMode() != Mode.Triangles) {
+//            ib = new WrappedIndexBuffer(mesh);
+//        }
+
+        //numTris = ib.size() / 3;
+        //initTriList(vb, ib);
     }
 
-    public BIHTree(Mesh mesh) {
+    public BIHTree(NewMesh mesh) {
         this(mesh, MAX_TRIS_PER_NODE);
     }
 
@@ -484,7 +499,7 @@ public class BIHTree implements CollisionData {
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        mesh = (Mesh) ic.readSavable("mesh", null);
+        mesh = (NewMesh) ic.readSavable("mesh", null);
         root = (BIHNode) ic.readSavable("root", null);
         maxTrisPerNode = ic.readInt("tris_per_node", 0);
         pointData = ic.readFloatArray("points", null);

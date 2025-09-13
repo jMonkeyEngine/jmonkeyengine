@@ -1,0 +1,40 @@
+package com.jme3.vulkan.material.uniforms;
+
+import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.descriptors.Descriptor;
+import com.jme3.vulkan.descriptors.SetLayoutBinding;
+import com.jme3.vulkan.shader.ShaderStage;
+import com.jme3.vulkan.util.Flag;
+import com.jme3.vulkan.util.IntEnum;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VkDescriptorBufferInfo;
+import org.lwjgl.vulkan.VkWriteDescriptorSet;
+
+public class BufferUniform extends AbstractUniform<GpuBuffer> {
+
+    public BufferUniform(String name, IntEnum<Descriptor> type, int bindingIndex, Flag<ShaderStage> stages) {
+        super(name, type, bindingIndex, stages);
+    }
+
+    @Override
+    public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
+        GpuBuffer buffer = resource.get();
+        VkDescriptorBufferInfo.Buffer info = VkDescriptorBufferInfo.calloc(1, stack)
+                .buffer(buffer.getId())
+                .offset(0L)
+                .range(buffer.size().getBytes());
+        write.pBufferInfo(info)
+                .descriptorCount(1)
+                .dstArrayElement(0)
+                .dstBinding(bindingIndex)
+                .descriptorType(type.getEnum());
+    }
+
+    @Override
+    public boolean isBindingCompatible(SetLayoutBinding binding) {
+        return type.is(binding.getType())
+            && bindingIndex == binding.getBinding()
+            && binding.getDescriptors() == 1;
+    }
+
+}

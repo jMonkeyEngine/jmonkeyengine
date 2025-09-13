@@ -1,0 +1,94 @@
+package com.jme3.vulkan.buffers;
+
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.commands.CommandPool;
+import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.memory.MemoryProp;
+import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.sync.SyncGroup;
+import com.jme3.vulkan.update.Command;
+import com.jme3.vulkan.util.Flag;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryStack;
+
+public class StageableBuffer extends BasicVulkanBuffer implements Command {
+
+    protected VulkanBuffer stage;
+    protected BufferRegion dirtyRegion;
+
+    public StageableBuffer(LogicalDevice device, MemorySize size,
+                           Flag<BufferUsage> usage, Flag<MemoryProp> mem, boolean concurrent) {
+        super(device, size, usage.add(BufferUsage.TransferDst), mem, concurrent);
+    }
+
+    @Override
+    public boolean run(CommandBuffer cmd, int frame) {
+        return transfer(cmd);
+    }
+
+    @Override
+    public PointerBuffer map(int offset, int size) {
+        if (dirtyRegion != null) {
+            dirtyRegion.unionLocal(offset, size);
+        } else {
+            dirtyRegion = new BufferRegion(offset, size);
+        }
+        if (stage == null) {
+            stage = createStagingBuffer();
+        }
+        return stage.map(offset, size);
+    }
+
+    @Override
+    public void unmap() {
+        stage.unmap();
+    }
+
+    @Override
+    public void freeMemory() {
+        super.freeMemory();
+        stage.freeMemory();
+        dirtyRegion = null;
+    }
+
+    protected VulkanBuffer createStagingBuffer() {
+        return new BasicVulkanBuffer(getDevice(), size(), BufferUsage.TransferSrc,
+                Flag.of(MemoryProp.HostVisible, MemoryProp.HostCoherent), false);
+    }
+
+    public void transfer(CommandPool transferPool) {
+        transfer(transferPool, SyncGroup.ASYNC);
+    }
+
+    public void transfer(CommandPool transferPool, SyncGroup sync) {
+        if (stage != null && dirtyRegion != null) {
+            CommandBuffer cmd = transferPool.allocateTransientCommandBuffer();
+            cmd.begin();
+            transfer(cmd);
+            cmd.endAndSubmit(sync);
+        }
+    }
+
+    public boolean transfer(CommandBuffer cmd) {
+        if (stage != null && dirtyRegion != null) {
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                recordCopy(stack, cmd, stage, dirtyRegion.getOffset(), dirtyRegion.getOffset(), dirtyRegion.getSize());
+            }
+            dirtyRegion = null;
+            return true;
+        }
+        return false;
+    }
+
+    public void freeStagingBuffer() {
+        if (stage != null) {
+            stage.freeMemory();
+            stage = null;
+        }
+    }
+
+    public GpuBuffer getStagingBuffer() {
+        return stage;
+    }
+
+}

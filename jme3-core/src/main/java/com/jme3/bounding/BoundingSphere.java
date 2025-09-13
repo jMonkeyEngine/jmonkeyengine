@@ -39,8 +39,12 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.*;
 import com.jme3.scene.Spatial;
-import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
+import com.jme3.vulkan.mesh.VertexReader;
+import com.jme3.vulkan.mesh.VertexWriter;
+import com.jme3.vulkan.util.FloatBufferModifier;
+import org.lwjgl.system.MemoryStack;
+
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.Objects;
@@ -120,6 +124,11 @@ public class BoundingSphere extends BoundingVolume {
      */
     @Override
     public void computeFromPoints(FloatBuffer points) {
+        calcWelzl(new FloatBufferModifier(points, 3));
+    }
+
+    @Override
+    public void computeFromPoints(VertexReader points) {
         calcWelzl(points);
     }
 
@@ -184,15 +193,17 @@ public class BoundingSphere extends BoundingVolume {
      * @param points
      *            The points to calculate the minimum bounds from.
      */
-    public void calcWelzl(FloatBuffer points) {
+    public void calcWelzl(VertexReader points) {
         if (center == null) {
             center = new Vector3f();
         }
-        FloatBuffer buf = BufferUtils.createFloatBuffer(points.limit());
-        points.rewind();
-        buf.put(points);
-        buf.flip();
-        recurseMini(buf, buf.limit() / 3, 0, 0);
+        assert points.components() == 3;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer buf = stack.mallocFloat(points.limit() * 3);
+            points.getFloats(0, 0, buf);
+            FloatBufferModifier bufMod = new FloatBufferModifier(buf, 3);
+            recurseMini(bufMod, bufMod.limit(), 0, 0);
+        }
     }
 
     /**
@@ -210,7 +221,7 @@ public class BoundingSphere extends BoundingVolume {
      *            A variable simulating pointer arithmetic from C++, and offset
      *            in <code>points</code>.
      */
-    private void recurseMini(FloatBuffer points, int p, int b, int ap) {
+    private void recurseMini(VertexWriter points, int p, int b, int ap) {
         //TempVars vars = TempVars.get();
 
         Vector3f tempA = new Vector3f(); //vars.vect1;
@@ -225,36 +236,51 @@ public class BoundingSphere extends BoundingVolume {
                 break;
             case 1:
                 this.radius = 1f - RADIUS_EPSILON;
-                BufferUtils.populateFromBuffer(center, points, ap - 1);
+                //BufferUtils.populateFromBuffer(center, points, ap - 1);
+                points.getVector3(ap - 1, 0, center);
                 break;
             case 2:
-                BufferUtils.populateFromBuffer(tempA, points, ap - 1);
-                BufferUtils.populateFromBuffer(tempB, points, ap - 2);
+                //BufferUtils.populateFromBuffer(tempA, points, ap - 1);
+                //BufferUtils.populateFromBuffer(tempB, points, ap - 2);
+                points.getVector3(ap - 1, 0, tempA);
+                points.getVector3(ap - 2, 0, tempB);
                 setSphere(tempA, tempB);
                 break;
             case 3:
-                BufferUtils.populateFromBuffer(tempA, points, ap - 1);
-                BufferUtils.populateFromBuffer(tempB, points, ap - 2);
-                BufferUtils.populateFromBuffer(tempC, points, ap - 3);
+//                BufferUtils.populateFromBuffer(tempA, points, ap - 1);
+//                BufferUtils.populateFromBuffer(tempB, points, ap - 2);
+//                BufferUtils.populateFromBuffer(tempC, points, ap - 3);
+                points.getVector3(ap - 1, 0, tempA);
+                points.getVector3(ap - 2, 0, tempB);
+                points.getVector3(ap - 3, 0, tempC);
                 setSphere(tempA, tempB, tempC);
                 break;
             case 4:
-                BufferUtils.populateFromBuffer(tempA, points, ap - 1);
-                BufferUtils.populateFromBuffer(tempB, points, ap - 2);
-                BufferUtils.populateFromBuffer(tempC, points, ap - 3);
-                BufferUtils.populateFromBuffer(tempD, points, ap - 4);
+//                BufferUtils.populateFromBuffer(tempA, points, ap - 1);
+//                BufferUtils.populateFromBuffer(tempB, points, ap - 2);
+//                BufferUtils.populateFromBuffer(tempC, points, ap - 3);
+//                BufferUtils.populateFromBuffer(tempD, points, ap - 4);
+                points.getVector3(ap - 1, 0, tempA);
+                points.getVector3(ap - 2, 0, tempB);
+                points.getVector3(ap - 3, 0, tempC);
+                points.getVector3(ap - 4, 0, tempD);
                 setSphere(tempA, tempB, tempC, tempD);
                 //vars.release();
                 return;
         }
         for (int i = 0; i < p; i++) {
-            BufferUtils.populateFromBuffer(tempA, points, i + ap);
+            //BufferUtils.populateFromBuffer(tempA, points, i + ap);
+            points.getVector3(i + ap, 0, tempA);
             if (tempA.distanceSquared(center) - (radius * radius) > RADIUS_EPSILON - 1f) {
                 for (int j = i; j > 0; j--) {
-                    BufferUtils.populateFromBuffer(tempB, points, j + ap);
-                    BufferUtils.populateFromBuffer(tempC, points, j - 1 + ap);
-                    BufferUtils.setInBuffer(tempC, points, j + ap);
-                    BufferUtils.setInBuffer(tempB, points, j - 1 + ap);
+//                    BufferUtils.populateFromBuffer(tempB, points, j + ap);
+//                    BufferUtils.populateFromBuffer(tempC, points, j - 1 + ap);
+                    points.getVector3(j + ap, 0, tempB);
+                    points.getVector3(j - 1 + ap, 0, tempC);
+//                    BufferUtils.setInBuffer(tempC, points, j + ap);
+//                    BufferUtils.setInBuffer(tempB, points, j - 1 + ap);
+                    points.putVector3(j + ap, 0, tempC);
+                    points.putVector3(j - 1 + ap, 0, tempB);
                 }
                 recurseMini(points, i, b + 1, ap + 1);
             }
@@ -274,7 +300,7 @@ public class BoundingSphere extends BoundingVolume {
      *            The 3rd point inside the sphere.
      * @param C
      *            The 4th point inside the sphere.
-     * @see #calcWelzl(java.nio.FloatBuffer)
+     * @see #calcWelzl(VertexReader) 
      */
     private void setSphere(Vector3f O, Vector3f A, Vector3f B, Vector3f C) {
         Vector3f a = A.subtract(O);
@@ -307,7 +333,7 @@ public class BoundingSphere extends BoundingVolume {
      *            The 2nd point inside the sphere.
      * @param B
      *            The 3rd point inside the sphere.
-     * @see #calcWelzl(java.nio.FloatBuffer)
+     * @see #calcWelzl(VertexReader) 
      */
     private void setSphere(Vector3f O, Vector3f A, Vector3f B) {
         Vector3f a = A.subtract(O);
@@ -335,7 +361,7 @@ public class BoundingSphere extends BoundingVolume {
      *            The 1st point inside the sphere.
      * @param A
      *            The 2nd point inside the sphere.
-     * @see #calcWelzl(java.nio.FloatBuffer)
+     * @see #calcWelzl(VertexReader) 
      */
     private void setSphere(Vector3f O, Vector3f A) {
         radius = FastMath.sqrt(((A.x - O.x) * (A.x - O.x) + (A.y - O.y)

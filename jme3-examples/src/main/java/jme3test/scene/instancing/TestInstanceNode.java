@@ -66,7 +66,7 @@ public class TestInstanceNode extends SimpleApplication  {
     }
 
     private Geometry createInstance(float x, float z) {
-        Mesh mesh; 
+        Mesh mesh;
         if (FastMath.nextRandomInt(0, 1) == 1) mesh = mesh2;
         else mesh = mesh1;
         Geometry geometry = new Geometry("randomGeom", mesh);
@@ -156,7 +156,7 @@ public class TestInstanceNode extends SimpleApplication  {
                     Geometry geom = (Geometry) instance;
                     geom.setMaterial(materials[FastMath.nextRandomInt(0, materials.length - 1)]);
 
-                    Mesh mesh; 
+                    Mesh mesh;
                     if (FastMath.nextRandomInt(0, 1) == 1) mesh = mesh2;
                     else mesh = mesh1;
                     geom.setMesh(mesh);

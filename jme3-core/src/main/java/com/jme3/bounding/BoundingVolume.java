@@ -38,6 +38,8 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
 import com.jme3.math.*;
 import com.jme3.util.TempVars;
+import com.jme3.vulkan.mesh.VertexReader;
+
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.Objects;
@@ -148,6 +150,8 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
      *            the points to contain.
      */
     public abstract void computeFromPoints(FloatBuffer points);
+
+    public abstract void computeFromPoints(VertexReader points);
 
     /**
      * <code>merge</code> combines two bounding volumes into a single bounding

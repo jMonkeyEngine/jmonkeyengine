@@ -43,6 +43,9 @@ import com.jme3.math.*;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
+import com.jme3.vulkan.mesh.VertexReader;
+import com.jme3.vulkan.util.FloatBufferModifier;
+
 import java.io.IOException;
 import java.nio.FloatBuffer;
 //import com.jme.scene.TriMesh;
@@ -129,6 +132,11 @@ public class BoundingBox extends BoundingVolume {
      */
     @Override
     public void computeFromPoints(FloatBuffer points) {
+        containAABB(new FloatBufferModifier(points, 3));
+    }
+
+    @Override
+    public void computeFromPoints(VertexReader points) {
         containAABB(points);
     }
 
@@ -236,20 +244,18 @@ public class BoundingBox extends BoundingVolume {
      * @param points
      *            the list of points.
      */
-    public void containAABB(FloatBuffer points) {
+    public void containAABB(VertexReader points) {
         if (points == null) {
             return;
         }
 
-        points.rewind();
-        if (points.remaining() <= 2) // we need at least a 3 float vector
+        //points.rewind();
+        if (points.limit() == 0) // we need at least a 3 float vector
         {
             return;
         }
 
         TempVars vars = TempVars.get();
-
-        float[] tmpArray = vars.skinPositions;
 
         float minX = Float.POSITIVE_INFINITY,
                 minY = Float.POSITIVE_INFINITY,
@@ -258,37 +264,17 @@ public class BoundingBox extends BoundingVolume {
                 maxY = Float.NEGATIVE_INFINITY,
                 maxZ = Float.NEGATIVE_INFINITY;
 
-        int iterations = (int) FastMath.ceil(points.limit() / ((float) tmpArray.length));
-        for (int i = iterations - 1; i >= 0; i--) {
-            int bufLength = Math.min(tmpArray.length, points.remaining());
-            points.get(tmpArray, 0, bufLength);
-
-            for (int j = 0; j < bufLength; j += 3) {
-                vars.vect1.x = tmpArray[j];
-                vars.vect1.y = tmpArray[j + 1];
-                vars.vect1.z = tmpArray[j + 2];
-
-                if (vars.vect1.x < minX) {
-                    minX = vars.vect1.x;
-                }
-                if (vars.vect1.x > maxX) {
-                    maxX = vars.vect1.x;
-                }
-
-                if (vars.vect1.y < minY) {
-                    minY = vars.vect1.y;
-                }
-                if (vars.vect1.y > maxY) {
-                    maxY = vars.vect1.y;
-                }
-
-                if (vars.vect1.z < minZ) {
-                    minZ = vars.vect1.z;
-                }
-                if (vars.vect1.z > maxZ) {
-                    maxZ = vars.vect1.z;
-                }
-            }
+        for (int i = 0, l = points.limit(); i < l; i++) {
+//                vars.vect1.x = tmpArray[j];
+//                vars.vect1.y = tmpArray[j + 1];
+//                vars.vect1.z = tmpArray[j + 2];
+            points.getVector3(i, 0, vars.vect1);
+            minX = Math.min(minX, vars.vect1.x);
+            minY = Math.min(minY, vars.vect1.y);
+            minZ = Math.min(minZ, vars.vect1.z);
+            maxX = Math.max(maxX, vars.vect1.x);
+            maxY = Math.max(maxY, vars.vect1.y);
+            maxZ = Math.max(maxZ, vars.vect1.z);
         }
 
         vars.release();

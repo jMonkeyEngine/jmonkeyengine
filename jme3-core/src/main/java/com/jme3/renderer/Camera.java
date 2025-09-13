@@ -1248,7 +1248,6 @@ public class Camera implements Savable, Cloneable {
         if (overrideProjection) {
             viewProjectionMatrix.set(projectionMatrixOverride).multLocal(viewMatrix);
         } else {
-            //viewProjectionMatrix.set(viewMatrix).multLocal(projectionMatrix);
             viewProjectionMatrix.set(projectionMatrix).multLocal(viewMatrix);
         }
     }
@@ -1358,7 +1357,9 @@ public class Camera implements Savable, Cloneable {
 
         projectionMatrix.fromFrustum(frustumNear, frustumFar, frustumLeft, frustumRight,
                 frustumTop, frustumBottom, parallelProjection);
-//        projectionMatrix.transposeLocal();
+
+        // for Vulkan rendering
+        projectionMatrix.flipYScalarForVulkan();
 
         // The frame is affected by the frustum values
         // update it as well

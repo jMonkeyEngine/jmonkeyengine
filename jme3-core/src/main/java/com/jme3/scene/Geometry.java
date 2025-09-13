@@ -42,12 +42,19 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
+import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.material.MatrixTransformMaterial;
+import com.jme3.vulkan.material.NewMaterial;
+import com.jme3.vulkan.mesh.NewMesh;
+import com.jme3.vulkan.pipelines.Pipeline;
+
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,9 +72,10 @@ public class Geometry extends Spatial {
     // models loaded with shared mesh will be automatically fixed.
     public static final int SAVABLE_VERSION = 1;
     private static final Logger logger = Logger.getLogger(Geometry.class.getName());
-    protected Mesh mesh;
+    protected NewMesh mesh;
     protected transient int lodLevel = 0;
-    protected Material material;
+    protected NewMaterial material;
+    protected MatrixTransformMaterial transforms; // stores the matrices unique to this geometry
     /**
      * When true, the geometry's transform will not be applied.
      */
@@ -126,7 +134,7 @@ public class Geometry extends Spatial {
      * @param name The name of this geometry
      * @param mesh The mesh data for this geometry
      */
-    public Geometry(String name, Mesh mesh) {
+    public Geometry(String name, NewMesh mesh) {
         this(name);
 
         if (mesh == null) {
@@ -136,6 +144,11 @@ public class Geometry extends Spatial {
         this.mesh = mesh;
     }
 
+    public Geometry(String name, NewMesh mesh, MatrixTransformMaterial transforms) {
+        this(name, mesh);
+        this.transforms = transforms;
+    }
+
     /**
      * Create a geometry node with mesh data and material.
      *
@@ -143,9 +156,23 @@ public class Geometry extends Spatial {
      * @param mesh The mesh data for this geometry
      * @param material The material for this geometry
      */
-    public Geometry(String name, Mesh mesh, Material material) {
+    public Geometry(String name, NewMesh mesh, NewMaterial material) {
         this(name, mesh);
         setMaterial(material);
+    }
+
+    public void updateTransformMaterial(Camera cam) {
+        Matrix4f worldViewProjection = cam.getViewProjectionMatrix().mult(worldTransform.toTransformMatrix());
+        GpuBuffer matBuffer = transforms.getTransforms().getResource().get();
+        worldViewProjection.fillFloatBuffer(matBuffer.mapFloats(), true);
+        matBuffer.unmap();
+    }
+
+    public void draw(CommandBuffer cmd, Pipeline pipeline) {
+        int offset = transforms.bind(cmd, pipeline);
+        material.bind(cmd, pipeline, offset);
+        mesh.bind(cmd);
+        mesh.draw(cmd);
     }
 
     @Override
@@ -238,7 +265,7 @@ public class Geometry extends Spatial {
      *
      * @throws IllegalArgumentException If mesh is null
      */
-    public void setMesh(Mesh mesh) {
+    public void setMesh(NewMesh mesh) {
         if (mesh == null) {
             throw new IllegalArgumentException();
         }
@@ -256,9 +283,9 @@ public class Geometry extends Spatial {
      *
      * @return the mesh to use for this geometry
      *
-     * @see #setMesh(com.jme3.scene.Mesh)
+     * @see #setMesh(NewMesh)
      */
-    public Mesh getMesh() {
+    public NewMesh getMesh() {
         return mesh;
     }
 
@@ -268,7 +295,7 @@ public class Geometry extends Spatial {
      * @param material the material to use for this geometry
      */
     @Override
-    public void setMaterial(Material material) {
+    public void setMaterial(NewMaterial material) {
         this.material = material;
         nbSimultaneousGPUMorph = -1;
         if (isGrouped()) {
@@ -281,9 +308,9 @@ public class Geometry extends Spatial {
      *
      * @return the material that is used for this geometry
      *
-     * @see #setMaterial(com.jme3.material.Material)
+     * @see #setMaterial(NewMaterial)
      */
-    public Material getMaterial() {
+    public NewMaterial getMaterial() {
         return material;
     }
 
@@ -480,7 +507,7 @@ public class Geometry extends Spatial {
             // NOTE: BIHTree in mesh already checks collision with the
             // mesh's bound
             int prevSize = results.size();
-            int added = mesh.collideWith(other, cachedWorldMat, worldBound, results);
+            int added = mesh.collideWith(other, this, results);
             int newSize = results.size();
             for (int i = prevSize; i < newSize; i++) {
                 results.getCollisionDirect(i).setGeometry(this);
@@ -551,10 +578,13 @@ public class Geometry extends Spatial {
         return super.deepClone();
     }
 
+    @Deprecated
     public Spatial oldDeepClone() {
         Geometry geomClone = clone(true);
-        geomClone.mesh = mesh.deepClone();
-        return geomClone;
+        // fixme
+        //geomClone.mesh = mesh.deepClone();
+        //return geomClone;
+        throw new UnsupportedOperationException("Mesh deep clone not yet supported.");
     }
 
     /**
@@ -589,9 +619,11 @@ public class Geometry extends Spatial {
 
         // See if we clone the mesh using the special animation
         // semi-deep cloning
-        if (shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null) {
+        // fixme
+        if (shallowClone && mesh != null && false /*mesh.getBuffer(Type.BindPosePosition) != null*/) {
             // Then we need to clone the mesh a little deeper
-            this.mesh = mesh.cloneForAnim();
+            //this.mesh = mesh.cloneForAnim();
+            throw new UnsupportedOperationException("Animation cloning not yet supported.");
         } else {
             // Do whatever the cloner wants to do about it
             this.mesh = cloner.clone(mesh);
@@ -600,18 +632,20 @@ public class Geometry extends Spatial {
         this.material = cloner.clone(material);
     }
 
+    // todo: fix morph animations
+
     public void setMorphState(float[] state) {
-        if (mesh == null || mesh.getMorphTargets().length == 0) {
-            return;
-        }
-
-        int nbMorphTargets = mesh.getMorphTargets().length;
-
-        if (morphState == null) {
-            morphState = new float[nbMorphTargets];
-        }
-        System.arraycopy(state, 0, morphState, 0, morphState.length);
-        this.dirtyMorph = true;
+//        if (mesh == null || mesh.getMorphTargets().length == 0) {
+//            return;
+//        }
+//
+//        int nbMorphTargets = mesh.getMorphTargets().length;
+//
+//        if (morphState == null) {
+//            morphState = new float[nbMorphTargets];
+//        }
+//        System.arraycopy(state, 0, morphState, 0, morphState.length);
+//        this.dirtyMorph = true;
     }
 
     /**
@@ -623,11 +657,11 @@ public class Geometry extends Spatial {
      * @param state The state to set the morph to
      */
     public void setMorphState(String morphTarget, float state) {
-        int index = mesh.getMorphIndex(morphTarget);
-        if (index >= 0) {
-            morphState[index] = state;
-            this.dirtyMorph = true;
-        }
+//        int index = mesh.getMorphIndex(morphTarget);
+//        if (index >= 0) {
+//            morphState[index] = state;
+//            this.dirtyMorph = true;
+//        }
     }
 
     /**
@@ -656,8 +690,10 @@ public class Geometry extends Spatial {
      * @return an array
      */
     public float[] getMorphState() {
+        // fixme
         if (morphState == null) {
-            morphState = new float[mesh.getMorphTargets().length];
+            //morphState = new float[mesh.getMorphTargets().length];
+            morphState = new float[0];
         }
         return morphState;
     }
@@ -669,7 +705,9 @@ public class Geometry extends Spatial {
      * @return the state of the morph, or -1 if the morph is not found
      */
     public float getMorphState(String morphTarget) {
-        int index = mesh.getMorphIndex(morphTarget);
+        // fixme
+        //int index = mesh.getMorphIndex(morphTarget);
+        int index = -1;
         if (index < 0) {
             return -1;
         } else {
@@ -720,10 +758,11 @@ public class Geometry extends Spatial {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(mesh, "mesh", null);
-        if (material != null) {
-            oc.write(material.getAssetName(), "materialName", null);
-        }
-        oc.write(material, "material", null);
+        // fixme
+//        if (material != null) {
+//            oc.write(material.getAssetName(), "materialName", null);
+//        }
+//        oc.write(material, "material", null);
         oc.write(ignoreTransform, "ignoreTransform", false);
     }
 
@@ -731,15 +770,15 @@ public class Geometry extends Spatial {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        mesh = (Mesh) ic.readSavable("mesh", null);
-
+        mesh = (NewMesh) ic.readSavable("mesh", null);
         material = null;
         String matName = ic.readString("materialName", null);
         if (matName != null) {
             // Material name is set,
             // Attempt to load material via J3M
             try {
-                material = im.getAssetManager().loadMaterial(matName);
+                // fixme
+                //material = im.getAssetManager().loadMaterial(matName);
             } catch (AssetNotFoundException ex) {
                 // Cannot find J3M file.
                 if (logger.isLoggable(Level.FINE)) {
@@ -750,7 +789,8 @@ public class Geometry extends Spatial {
         }
         // If material is NULL, try to load it from the geometry
         if (material == null) {
-            material = (Material) ic.readSavable("material", null);
+            // fixme
+            material = (NewMaterial) ic.readSavable("material", null);
         }
         ignoreTransform = ic.readBoolean("ignoreTransform", false);
 
@@ -758,9 +798,17 @@ public class Geometry extends Spatial {
             // Fix shared mesh (if set)
             Mesh sharedMesh = getUserData(UserData.JME_SHAREDMESH);
             if (sharedMesh != null) {
-                getMesh().extractVertexData(sharedMesh);
+                // fixme
+                //getMesh().extractVertexData(sharedMesh);
                 setUserData(UserData.JME_SHAREDMESH, null);
+                throw new UnsupportedOperationException("Shared meshes not yet supported.");
             }
         }
     }
+
+    @Override
+    protected void findNextIteration(GraphIterator iterator) {
+        iterator.moveUp();
+    }
+
 }

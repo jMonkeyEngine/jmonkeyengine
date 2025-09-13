@@ -2560,4 +2560,16 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
             throw new AssertionError(); // can not happen
         }
     }
+
+    /**
+     * Flips the sign of the Y scalar component (m11) to make Vulkan renderings
+     * appear upright in clip space.
+     *
+     * @return this instance
+     */
+    public Matrix4f flipYScalarForVulkan() {
+        m11 = -m11;
+        return this;
+    }
+
 }

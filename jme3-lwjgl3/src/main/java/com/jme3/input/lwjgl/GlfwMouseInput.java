@@ -37,8 +37,8 @@ import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.math.Vector2f;
-import com.jme3.system.lwjgl.LwjglWindow;
-import com.jme3.system.lwjgl.WindowSizeListener;
+import com.jme3.system.GlfwWindow;
+import com.jme3.system.WindowSizeListener;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -114,7 +114,7 @@ public class GlfwMouseInput implements MouseInput {
     private final Queue<MouseMotionEvent> mouseMotionEvents = new ArrayDeque<>();
     private final Queue<MouseButtonEvent> mouseButtonEvents = new ArrayDeque<>();
 
-    private final LwjglWindow context;
+    private final GlfwWindow context;
 
     private WindowSizeListener windowSizeListener;
     private RawInputListener listener;
@@ -138,7 +138,7 @@ public class GlfwMouseInput implements MouseInput {
     private boolean initialized;
     private final Vector2f inputScale = new Vector2f();
   
-    public GlfwMouseInput(final LwjglWindow context) {
+    public GlfwMouseInput(final GlfwWindow context) {
         this.context = context;
         this.cursorVisible = true;
     }
