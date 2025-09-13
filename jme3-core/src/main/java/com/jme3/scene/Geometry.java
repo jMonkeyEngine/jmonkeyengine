@@ -145,7 +145,7 @@ public class Geometry extends Spatial {
      * @param mesh The mesh data for this geometry
      * @param material The material for this geometry
      */
-    public Geometry(String name, Mesh mesh, Material material) {
+    public Geometry(String name, NewMesh mesh, Material material) {
         this(name, mesh);
         setMaterial(material);
     }
@@ -240,7 +240,7 @@ public class Geometry extends Spatial {
      *
      * @throws IllegalArgumentException If mesh is null
      */
-    public void setMesh(Mesh mesh) {
+    public void setMesh(NewMesh mesh) {
         if (mesh == null) {
             throw new IllegalArgumentException();
         }
@@ -258,7 +258,7 @@ public class Geometry extends Spatial {
      *
      * @return the mesh to use for this geometry
      *
-     * @see #setMesh(Mesh)
+     * @see #setMesh(NewMesh)
      */
     public NewMesh getMesh() {
         return mesh;
@@ -744,7 +744,7 @@ public class Geometry extends Spatial {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        mesh = (Mesh) ic.readSavable("mesh", null);
+        mesh = (NewMesh) ic.readSavable("mesh", null);
 
         material = null;
         String matName = ic.readString("materialName", null);
