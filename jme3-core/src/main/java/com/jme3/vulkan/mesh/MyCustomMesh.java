@@ -60,6 +60,12 @@ public class MyCustomMesh extends AdaptiveMesh {
             texCoord.putVector2(2, 0, 1f, 1f);
             texCoord.putVector2(3, 0, 0f, 1f);
         }
+        updateBound();
+    }
+
+    @Override
+    protected AttributeModifier modifyPosition() {
+        return modifyAttribute(BuiltInAttribute.Position);
     }
 
     @Override

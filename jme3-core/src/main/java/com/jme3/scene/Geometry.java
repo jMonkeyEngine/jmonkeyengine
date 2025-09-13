@@ -556,8 +556,10 @@ public class Geometry extends Spatial {
     @Deprecated
     public Spatial oldDeepClone() {
         Geometry geomClone = clone(true);
-        geomClone.mesh = mesh.deepClone();
-        return geomClone;
+        // fixme
+        //geomClone.mesh = mesh.deepClone();
+        //return geomClone;
+        throw new UnsupportedOperationException("Mesh deep clone not yet supported.");
     }
 
     /**
@@ -592,9 +594,11 @@ public class Geometry extends Spatial {
 
         // See if we clone the mesh using the special animation
         // semi-deep cloning
-        if (shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null) {
+        // fixme
+        if (shallowClone && mesh != null && false /*mesh.getBuffer(Type.BindPosePosition) != null*/) {
             // Then we need to clone the mesh a little deeper
-            this.mesh = mesh.cloneForAnim();
+            //this.mesh = mesh.cloneForAnim();
+            throw new UnsupportedOperationException("Animation cloning not yet supported.");
         } else {
             // Do whatever the cloner wants to do about it
             this.mesh = cloner.clone(mesh);
@@ -661,10 +665,12 @@ public class Geometry extends Spatial {
      * @return an array
      */
     public float[] getMorphState() {
-//        if (morphState == null) {
-//            morphState = new float[mesh.getMorphTargets().length];
-//        }
-//        return morphState;
+        // fixme
+        if (morphState == null) {
+            //morphState = new float[mesh.getMorphTargets().length];
+            morphState = new float[0];
+        }
+        return morphState;
     }
 
     /**
@@ -674,7 +680,9 @@ public class Geometry extends Spatial {
      * @return the state of the morph, or -1 if the morph is not found
      */
     public float getMorphState(String morphTarget) {
-        int index = mesh.getMorphIndex(morphTarget);
+        // fixme
+        //int index = mesh.getMorphIndex(morphTarget);
+        int index = -1;
         if (index < 0) {
             return -1;
         } else {
@@ -763,8 +771,10 @@ public class Geometry extends Spatial {
             // Fix shared mesh (if set)
             Mesh sharedMesh = getUserData(UserData.JME_SHAREDMESH);
             if (sharedMesh != null) {
-                getMesh().extractVertexData(sharedMesh);
+                // fixme
+                //getMesh().extractVertexData(sharedMesh);
                 setUserData(UserData.JME_SHAREDMESH, null);
+                throw new UnsupportedOperationException("Shared meshes not yet supported.");
             }
         }
     }

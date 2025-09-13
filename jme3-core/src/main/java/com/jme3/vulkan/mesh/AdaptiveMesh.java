@@ -1,11 +1,16 @@
 package com.jme3.vulkan.mesh;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.collision.bih.BIHTree;
-import com.jme3.math.Vector3f;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.math.Matrix4f;
 import com.jme3.scene.CollisionData;
 import com.jme3.scene.Geometry;
 import com.jme3.vulkan.buffers.*;
@@ -14,6 +19,7 @@ import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.system.MemoryStack;
 
+import java.io.IOException;
 import java.nio.LongBuffer;
 import java.util.*;
 
@@ -31,7 +37,7 @@ public abstract class AdaptiveMesh implements NewMesh {
     private final List<VertexBuffer> vertexBuffers = new ArrayList<>();
     protected final List<VersionedResource<? extends GpuBuffer>> indexBuffers = new ArrayList<>();
     private GpuBuffer boundIndexBuffer;
-    private BoundingVolume volume;
+    protected BoundingVolume volume;
     private int vertices;
     private CollisionData collisionTree;
 
@@ -88,8 +94,23 @@ public abstract class AdaptiveMesh implements NewMesh {
     }
 
     @Override
-    public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
-        return 0;
+    public int collideWith(Collidable other, CollisionResults results) {
+        if (collisionTree == null) {
+            collisionTree = createCollisionTree();
+        }
+        return collisionTree.collideWith(other, Matrix4f.IDENTITY, volume, results);
+    }
+
+    @Override
+    public void updateBound() {
+        try (AttributeModifier position = modifyPosition()) {
+            volume.computeFromPoints(position);
+        }
+    }
+
+    @Override
+    public void setBound(BoundingVolume volume) {
+        this.volume = volume;
     }
 
     @Override
@@ -97,35 +118,14 @@ public abstract class AdaptiveMesh implements NewMesh {
         return volume;
     }
 
-    private CollisionData createCollisionTree() {
-        try (AttributeModifier positions = modifyAttribute(BuiltInAttribute.Position)) {
-            BIHTree tree = new BIHTree(positions, indexBuffers.get(0).get().mapIndices());
-            tree.construct();
-            return tree;
-        }
+    @Override
+    public int getNumLodLevels() {
+        return indexBuffers.size();
     }
 
-    protected void updateBound(AttributeModifier attribute) {
-        Vector3f pos = new Vector3f();
-        Vector3f min = new Vector3f();
-        Vector3f max = new Vector3f();
-        for (int i = 0; i < vertices; i++) {
-            pos = attribute.getVector3(i, 0, pos);
-            if (i == 0) {
-                min.set(max.set(pos));
-            } else {
-                min.x = Math.min(min.x, pos.x);
-                min.y = Math.min(min.y, pos.y);
-                min.z = Math.min(min.z, pos.z);
-                max.x = Math.max(max.x, pos.x);
-                max.y = Math.max(max.y, pos.y);
-                max.z = Math.max(max.z, pos.z);
-            }
-        }
-    }
-
+    @Override
     @SuppressWarnings("resource")
-    protected AttributeModifier modifyAttribute(String attribute) {
+    public AttributeModifier modifyAttribute(String attribute) {
         VertexAttribute attr = description.getAttribute(attribute);
         if (attr != null) {
             return new AttributeModifier(vertexBuffers.get(attr.getBinding().getBindingIndex()), attr).map();
@@ -134,9 +134,27 @@ public abstract class AdaptiveMesh implements NewMesh {
         }
     }
 
-    protected AttributeModifier modifyAttribute(BuiltInAttribute name) {
-        return modifyAttribute(name.getName());
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        throw new UnsupportedOperationException("Exporting not yet supported.");
     }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        throw new UnsupportedOperationException("Importing not yet supported.");
+    }
+
+    private CollisionData createCollisionTree() {
+        try (AttributeModifier positions = modifyPosition()) {
+            BIHTree tree = new BIHTree(positions, indexBuffers.get(0).get().mapIndices());
+            tree.construct();
+            return tree;
+        }
+    }
+
+    protected abstract AttributeModifier modifyPosition();
 
     protected abstract VersionedResource<? extends GpuBuffer> createStreamingBuffer(MemorySize size);
 

@@ -67,7 +67,8 @@ import java.util.ArrayList;
  *
  * @author Kirill Vainer
  */
-public class Mesh implements NewMesh, Savable, Cloneable, JmeCloneable {
+@Deprecated
+public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
      * The mode of the Mesh specifies both the type of primitive represented
@@ -881,19 +882,8 @@ public class Mesh implements NewMesh, Savable, Cloneable, JmeCloneable {
      *
      * @return how many triangles/elements are on this Mesh.
      */
-    @Override
     public int getTriangleCount() {
         return elementCount;
-    }
-
-    @Override
-    public void bind(CommandBuffer cmd) {
-
-    }
-
-    @Override
-    public void draw(CommandBuffer cmd) {
-
     }
 
     /**
@@ -903,7 +893,6 @@ public class Mesh implements NewMesh, Savable, Cloneable, JmeCloneable {
      *
      * @return Number of vertices on the mesh
      */
-    @Override
     public int getVertexCount() {
         return vertCount;
     }
@@ -1016,9 +1005,10 @@ public class Mesh implements NewMesh, Savable, Cloneable, JmeCloneable {
      * com.jme3.collision.CollisionResults) }.
      */
     public void createCollisionData() {
-        BIHTree tree = new BIHTree(this);
-        tree.construct();
-        collisionTree = tree;
+        throw new UnsupportedOperationException("Collision tree not supported.");
+//        BIHTree tree = new BIHTree(this);
+//        tree.construct();
+//        collisionTree = tree;
     }
 
     /**
