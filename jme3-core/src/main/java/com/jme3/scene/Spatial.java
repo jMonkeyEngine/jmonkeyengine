@@ -1881,7 +1881,7 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
     protected abstract void findNextIteration(GraphIterator iterator);
 
     @Override
-    public Iterator<Spatial> iterator() {
+    public GraphIterator iterator() {
         return new GraphIterator(this);
     }
 

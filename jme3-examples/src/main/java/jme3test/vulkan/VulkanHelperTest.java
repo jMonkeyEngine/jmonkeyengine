@@ -6,6 +6,8 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
 import com.jme3.shaderc.ShaderType;
 import com.jme3.shaderc.ShadercLoader;
 import com.jme3.system.AppSettings;
@@ -434,10 +436,18 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             // run graphics commands via CommandBatch
             graphics.run(graphicsCommands, frames.getCurrentFrame());
 
-            material.bind(graphicsCommands, pipeline);
-            mesh.bind(graphicsCommands);
-            for (int i = 0; i < 100; i++) {
-                mesh.draw(graphicsCommands);
+//            material.bind(graphicsCommands, pipeline);
+//            mesh.bind(graphicsCommands);
+//            mesh.draw(graphicsCommands);
+
+            // draw all geometries in the rootNode
+            for (Spatial s : rootNode) {
+                if (s instanceof Geometry) {
+                    Geometry g = (Geometry)s;
+                    g.getMaterial().bind(graphicsCommands, pipeline);
+                    g.getMesh().bind(graphicsCommands);
+                    g.getMesh().draw(graphicsCommands);
+                }
             }
 
             // material
