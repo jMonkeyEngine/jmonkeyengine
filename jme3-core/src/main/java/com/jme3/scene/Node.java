@@ -40,6 +40,8 @@ import com.jme3.export.JmeImporter;
 import com.jme3.material.Material;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
+import com.jme3.vulkan.material.NewMaterial;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -561,7 +563,7 @@ public class Node extends Spatial {
     }
 
     @Override
-    public void setMaterial(Material mat) {
+    public void setMaterial(NewMaterial mat) {
         for (int i = 0; i < children.size(); i++) {
             children.get(i).setMaterial(mat);
         }
@@ -813,4 +815,15 @@ public class Node extends Spatial {
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
         queue.addAll(children);
     }
+
+    @Override
+    protected void findNextIteration(GraphIterator iterator) {
+        int i = iterator.advanceIndex();
+        if (i >= children.size()) {
+            iterator.moveUp();
+        } else {
+            iterator.moveDown(children.get(i));
+        }
+    }
+
 }

@@ -49,6 +49,7 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.mesh.NewMesh;
+import com.jme3.vulkan.scene.NotSpatial;
 
 import java.io.IOException;
 import java.util.Queue;
@@ -781,4 +782,10 @@ public class Geometry extends Spatial {
             }
         }
     }
+
+    @Override
+    protected void findNextIteration(GraphIterator iterator) {
+        iterator.moveUp();
+    }
+
 }

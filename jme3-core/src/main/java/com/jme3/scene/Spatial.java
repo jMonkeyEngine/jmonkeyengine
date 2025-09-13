@@ -55,6 +55,7 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.util.clone.JmeCloneable;
 import com.jme3.vulkan.material.NewMaterial;
+import com.jme3.vulkan.scene.NotSpatial;
 
 import java.io.IOException;
 import java.util.*;
@@ -70,7 +71,7 @@ import java.util.logging.Logger;
  * @author Joshua Slack
  * @version $Revision: 4075 $, $Data$
  */
-public abstract class Spatial implements Savable, Cloneable, Collidable,
+public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, Collidable,
         CloneableSmartAsset, JmeCloneable, HasLocalTransform {
     private static final Logger logger = Logger.getLogger(Spatial.class.getName());
 
@@ -1876,4 +1877,88 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     }
 
     protected abstract void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue);
+
+    protected abstract void findNextIteration(GraphIterator iterator);
+
+    @Override
+    public Iterator<Spatial> iterator() {
+        return new GraphIterator(this);
+    }
+
+    public static class GraphIterator implements Iterator<Spatial> {
+
+        private final Stack<Integer> childIndices = new Stack<>();
+        private Spatial current;
+        private int currentIndex = 0;
+        private int iteration = -1;
+
+        public GraphIterator(Spatial start) {
+            current = Objects.requireNonNull(start);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        public Spatial next() {
+            if (++iteration > 0) {
+                current.findNextIteration(this);
+            }
+            return current;
+        }
+
+        @Override
+        public void remove() {
+            if (current.getParent() != null) {
+                current.removeFromParent();
+                moveUp();
+                currentIndex--;
+            }
+        }
+
+        protected void moveUp() {
+            if (!childIndices.isEmpty()) {
+                current = current.getParent();
+                currentIndex = childIndices.pop();
+                if (current != null) {
+                    current.findNextIteration(this);
+                }
+            } else {
+                current = null;
+            }
+        }
+
+        protected void moveDown(Spatial node) {
+            if (node.getParent() != current) {
+                throw new IllegalArgumentException("Next node must be a child of the current node.");
+            }
+            current = node;
+            childIndices.push(currentIndex);
+            currentIndex = 0;
+        }
+
+        protected int advanceIndex() {
+            return currentIndex++;
+        }
+
+        protected int getCurrentIndex() {
+            return currentIndex;
+        }
+
+        public void skipChildren() {
+            moveUp();
+        }
+
+        public int getDepth() {
+            return childIndices.size();
+        }
+
+        public int getIteration() {
+            return iteration;
+        }
+
+    }
+
 }
