@@ -15,13 +15,13 @@ import static org.lwjgl.vulkan.VK10.*;
 /**
  * Relates shader uniform values to sets and bindings.
  */
-public class Material {
+public class NewMaterial {
 
     private final DescriptorPool pool;
     private final List<UniformSet> uniformSets = new ArrayList<>();
     private final HashMap<String, Uniform<?>> uniformLookup = new HashMap<>();
 
-    public Material(DescriptorPool pool) {
+    public NewMaterial(DescriptorPool pool) {
         this.pool = pool;
     }
 

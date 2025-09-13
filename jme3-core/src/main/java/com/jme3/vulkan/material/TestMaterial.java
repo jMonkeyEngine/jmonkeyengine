@@ -7,7 +7,7 @@ import com.jme3.vulkan.material.uniforms.BufferUniform;
 import com.jme3.vulkan.material.uniforms.TextureUniform;
 import com.jme3.vulkan.shader.ShaderStage;
 
-public class TestMaterial extends Material {
+public class TestMaterial extends NewMaterial {
 
     private final BufferUniform matrices = new BufferUniform(
             "Matrices", Descriptor.UniformBuffer, 0, ShaderStage.Vertex);
