@@ -32,8 +32,8 @@
 package jme3tools.converters;
 
 import com.jme3.math.FastMath;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.plugins.AWTLoader;
 import com.jme3.util.BufferUtils;
 import java.awt.Graphics2D;
@@ -64,7 +64,7 @@ public class MipMapGenerator {
         return targetImage;
     }
 
-    public static void resizeToPowerOf2(Image image){
+    public static void resizeToPowerOf2(GlImage image){
         BufferedImage original = ImageToAwt.convert(image, false, true, 0);
         int potWidth = FastMath.nearestPowerOfTwo(image.getWidth());
         int potHeight = FastMath.nearestPowerOfTwo(image.getHeight());
@@ -73,17 +73,17 @@ public class MipMapGenerator {
         BufferedImage scaled = scaleDown(original, potSize, potSize);
 
         AWTLoader loader = new AWTLoader();
-        Image output = loader.load(scaled, false);
+        GlImage output = loader.load(scaled, false);
 
         image.setWidth(potSize);
         image.setHeight(potSize);
         image.setDepth(0);
         image.setData(output.getData(0));
-        image.setFormat(output.getFormat());
+        image.setFormat(output.getGlFormat());
         image.setMipMapSizes(null);
     }
 
-    public static void generateMipMaps(Image image){
+    public static void generateMipMaps(GlImage image){
         BufferedImage original = ImageToAwt.convert(image, false, true, 0);
         int width = original.getWidth();
         int height = original.getHeight();
@@ -96,8 +96,8 @@ public class MipMapGenerator {
         Format format = null;
         
         while (height >= 1 || width >= 1){
-            Image converted = loader.load(current, false);
-            format = converted.getFormat();
+            GlImage converted = loader.load(current, false);
+            format = converted.getGlFormat();
             output.add(converted.getData(0));
             totalSize += converted.getData(0).capacity();
 

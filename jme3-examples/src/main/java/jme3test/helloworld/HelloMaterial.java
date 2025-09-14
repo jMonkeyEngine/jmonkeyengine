@@ -42,7 +42,7 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 /** Sample 6 - how to give an object's surface a material and texture.
@@ -62,7 +62,7 @@ public class HelloMaterial extends SimpleApplication {
     Geometry cube1Geo = new Geometry("My Textured Box", cube1Mesh);
     cube1Geo.setLocalTranslation(new Vector3f(-3f,1.1f,0f));
     Material cube1Mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    Texture cube1Tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
+    GlTexture cube1Tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
     cube1Mat.setTexture("ColorMap", cube1Tex);
     cube1Geo.setMaterial(cube1Mat);
     rootNode.attachChild(cube1Geo);

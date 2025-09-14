@@ -38,8 +38,8 @@ import com.jme3.terrain.noise.filter.PerturbFilter;
 import com.jme3.terrain.noise.filter.SmoothFilter;
 import com.jme3.terrain.noise.fractal.FractalSum;
 import com.jme3.terrain.noise.modulator.NoiseModulator;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import java.io.File;
 
 public class TerrainGridAlphaMapTest extends SimpleApplication {
@@ -86,19 +86,19 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         material.setFloat("Shininess", 0.0f);
 
         // GRASS texture
-        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        GlTexture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         material.setTexture("DiffuseMap", grass);
         material.setFloat("DiffuseMap_0_scale", grassScale);
 
         // DIRT texture
-        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        GlTexture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
         material.setTexture("DiffuseMap_1", dirt);
         material.setFloat("DiffuseMap_1_scale", dirtScale);
 
         // ROCK texture
-        Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
+        GlTexture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
         rock.setWrap(WrapMode.Repeat);
         material.setTexture("DiffuseMap_2", rock);
         material.setFloat("DiffuseMap_2_scale", rockScale);
@@ -185,7 +185,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
             @Override
             public void tileAttached(Vector3f cell, TerrainQuad quad) {
-                Texture alpha = null;
+                GlTexture alpha = null;
                 try {
                     alpha = assetManager.loadTexture("TerrainAlphaTest/alpha_" + (int)cell.x+ "_" + (int)cell.z + ".png");
                 } catch (Exception e) {

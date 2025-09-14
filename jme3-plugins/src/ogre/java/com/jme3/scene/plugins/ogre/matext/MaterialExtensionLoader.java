@@ -38,8 +38,8 @@ import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
 import com.jme3.scene.plugins.ogre.MaterialLoader;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.PlaceholderAssets;
 import com.jme3.util.blockparser.Statement;
@@ -74,7 +74,7 @@ public class MaterialExtensionLoader {
 
             TextureKey texKey = new TextureKey(texturePath, false);
             texKey.setGenerateMips(true);
-            Texture tex;
+            GlTexture tex;
             
             try {
                 tex = assetManager.loadTexture(texKey);

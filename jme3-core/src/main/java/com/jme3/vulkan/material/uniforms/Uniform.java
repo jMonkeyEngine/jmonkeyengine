@@ -1,6 +1,7 @@
 package com.jme3.vulkan.material.uniforms;
 
-import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.material.GlMaterial;
+import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.frames.VersionedResource;
@@ -12,13 +13,7 @@ public interface Uniform <T> extends DescriptorSetWriter {
      */
     String getName();
 
-    /**
-     * Updates this uniform and extracts the uniform value from the
-     * {@link #setResource(VersionedResource) data pipe}.
-     *
-     * @param cmd command buffer to submit commands to
-     */
-    void update(CommandBuffer cmd);
+    void uploadToProgram(GLRenderer renderer, GlMaterial.BindUnits units);
 
     /**
      * Tests if the {@link SetLayoutBinding} is compatible with this uniform,

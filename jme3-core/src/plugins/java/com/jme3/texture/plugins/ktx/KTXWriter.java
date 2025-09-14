@@ -34,8 +34,8 @@ package com.jme3.texture.plugins.ktx;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.opengl.GLImageFormat;
 import com.jme3.renderer.opengl.GLImageFormats;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.Texture3D;
 import com.jme3.texture.TextureArray;
@@ -83,7 +83,7 @@ public class KTXWriter {
      * @param image the image to write
      * @param fileName the name of the file to write
      */
-    public void write(Image image, String fileName) {
+    public void write(GlImage image, String fileName) {
         write(image, Texture2D.class, fileName);
     }
 
@@ -97,7 +97,7 @@ public class KTXWriter {
      * @param textureType the texture type
      * @param fileName the name of the file to write
      */
-    public void write(Image image, Class<? extends Texture> textureType, String fileName) {
+    public void write(GlImage image, Class<? extends GlTexture> textureType, String fileName) {
 
         FileOutputStream outs = null;
         try {
@@ -110,7 +110,7 @@ public class KTXWriter {
             out.write(fileIdentifier);
             //endianness
             out.writeInt(0x04030201);
-            GLImageFormat format = getGlFormat(image.getFormat());
+            GLImageFormat format = getGlFormat(image.getGlFormat());
             //glType
             out.writeInt(format.dataType);
             //glTypeSize
@@ -181,7 +181,7 @@ public class KTXWriter {
                 if (image.hasMipmaps()) {
                     imageSize = image.getMipMapSizes()[mipLevel];
                 } else {
-                    imageSize = width * height * image.getFormat().getBitsPerPixel() / 8;
+                    imageSize = width * height * image.getGlFormat().getBitsPerPixel() / 8;
                 }
                 out.writeInt(imageSize);
 
@@ -263,7 +263,7 @@ public class KTXWriter {
      * @param format
      * @return 
      */
-    private GLImageFormat getGlFormat(Image.Format format) {
+    private GLImageFormat getGlFormat(GlImage.Format format) {
         EnumSet<Caps> caps = EnumSet.allOf(Caps.class);
         GLImageFormat[][] formats = GLImageFormats.getFormatsForCaps(caps);
         return formats[0][format.ordinal()];

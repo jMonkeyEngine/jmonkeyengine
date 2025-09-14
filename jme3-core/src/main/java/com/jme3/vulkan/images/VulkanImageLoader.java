@@ -152,13 +152,13 @@ public class VulkanImageLoader implements AssetLoader {
         }
     }
 
-    private GpuImage loadGpuImage(CommandPool transferPool, ImageData data) {
+    private BasicVulkanImage loadGpuImage(CommandPool transferPool, ImageData data) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             GpuBuffer staging = new BasicVulkanBuffer(transferPool.getDevice(), MemorySize.bytes(data.getBuffer().limit()),
                     BufferUsage.TransferSrc, Flag.of(MemoryProp.HostVisible, MemoryProp.HostCached), false);
             staging.copy(data.getBuffer());
-            GpuImage image = new GpuImage(transferPool.getDevice(), VulkanImage.Type.TwoDemensional);
-            try (GpuImage.Builder i = image.build()) {
+            BasicVulkanImage image = new BasicVulkanImage(transferPool.getDevice(), VulkanImage.Type.TwoDemensional);
+            try (BasicVulkanImage.Builder i = image.build()) {
                 i.setSize(data.getWidth(), data.getHeight());
                 i.setFormat(data.getFormat());
                 i.setTiling(VulkanImage.Tiling.Optimal);

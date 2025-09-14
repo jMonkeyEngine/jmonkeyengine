@@ -32,7 +32,7 @@
 package com.jme3.texture.image;
 
 import com.jme3.renderer.Renderer;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 /**
  * Stores/caches texture-state parameters so the {@link Renderer} doesn't have to
@@ -42,11 +42,11 @@ import com.jme3.texture.Texture;
  */
 public final class LastTextureState {
     
-    public Texture.WrapMode sWrap, tWrap, rWrap;
-    public Texture.MagFilter magFilter;
-    public Texture.MinFilter minFilter;
+    public GlTexture.WrapMode sWrap, tWrap, rWrap;
+    public GlTexture.MagFilter magFilter;
+    public GlTexture.MinFilter minFilter;
     public int anisoFilter;
-    public Texture.ShadowCompareMode shadowCompareMode;
+    public GlTexture.ShadowCompareMode shadowCompareMode;
     
     public LastTextureState() {
         reset();
@@ -62,6 +62,6 @@ public final class LastTextureState {
         
         // The default in OpenGL is OFF, so we avoid setting this per texture
         // if it's not used.
-        shadowCompareMode = Texture.ShadowCompareMode.Off;
+        shadowCompareMode = GlTexture.ShadowCompareMode.Off;
     }
 }

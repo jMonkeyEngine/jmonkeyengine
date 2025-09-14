@@ -1,8 +1,8 @@
 package com.jme3.scene.plugins.fbx.objects;
 
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.scene.plugins.fbx.SceneLoader;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 
@@ -11,7 +11,7 @@ public class FbxTexture extends FbxObject {
     String bindType;
     String filename;
 
-    public Texture texture;
+    public GlTexture texture;
 
     public FbxTexture(SceneLoader scene, FbxElement element) {
         super(scene, element);

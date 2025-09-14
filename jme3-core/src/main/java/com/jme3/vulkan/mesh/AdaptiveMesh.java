@@ -11,6 +11,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Matrix4f;
+import com.jme3.renderer.Renderer;
 import com.jme3.scene.CollisionData;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -37,7 +38,6 @@ public abstract class AdaptiveMesh implements Mesh {
     protected final MeshDescription description;
     private final List<VertexBuffer> vertexBuffers = new ArrayList<>();
     protected final List<VersionedResource<? extends GpuBuffer>> indexBuffers = new ArrayList<>();
-    private GpuBuffer boundIndexBuffer;
     protected BoundingVolume volume = new BoundingBox();
     private int vertices;
     private CollisionData collisionTree;
@@ -47,7 +47,7 @@ public abstract class AdaptiveMesh implements Mesh {
     }
 
     @Override
-    public void bind(CommandBuffer cmd) {
+    public void draw(CommandBuffer cmd, Geometry geometry) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer verts = stack.mallocLong(vertexBuffers.size());
             LongBuffer offsets = stack.mallocLong(vertexBuffers.size());
@@ -60,20 +60,18 @@ public abstract class AdaptiveMesh implements Mesh {
             vkCmdBindVertexBuffers(cmd.getBuffer(), 0, verts, offsets);
         }
         if (!indexBuffers.isEmpty()) {
-            boundIndexBuffer = indexBuffers.get(0).get();
-            vkCmdBindIndexBuffer(cmd.getBuffer(), boundIndexBuffer.getId(), 0, IndexType.of(boundIndexBuffer).getEnum());
+            GpuBuffer indices = indexBuffers.get(0).get();
+            vkCmdBindIndexBuffer(cmd.getBuffer(), indices.getId(), 0, IndexType.of(indices).getEnum());
+            vkCmdDrawIndexed(cmd.getBuffer(), indices.size().getElements(), 1, 0, 0, 0);
         } else {
-            boundIndexBuffer = null;
+            vkCmdDraw(cmd.getBuffer(), vertices, 1, 0, 0);
         }
     }
 
     @Override
-    public void draw(CommandBuffer cmd) {
-        if (boundIndexBuffer != null) {
-            vkCmdDrawIndexed(cmd.getBuffer(), boundIndexBuffer.size().getElements(), 1, 0, 0, 0);
-        } else {
-            vkCmdDraw(cmd.getBuffer(), vertices, 1, 0, 0);
-        }
+    public void draw(Renderer renderer, Geometry geometry, int instances, com.jme3.scene.VertexBuffer[] instanceData) {
+        // todo: figure out how to possibly implement this
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

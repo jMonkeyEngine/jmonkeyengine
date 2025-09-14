@@ -40,7 +40,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGridTileLoader;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.*;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -112,7 +112,7 @@ public class ImageTileLoader implements TerrainGridTileLoader{
         try {
             name = namer.getName(x, z);
             logger.log(Level.FINE, "Loading heightmap from file: {0}", name);
-            final Texture texture = assetManager.loadTexture(new TextureKey(name));
+            final GlTexture texture = assetManager.loadTexture(new TextureKey(name));
             heightmap = new ImageBasedHeightMap(texture.getImage());
             /*if (assetInfo != null){
                 InputStream in = assetInfo.openStream();

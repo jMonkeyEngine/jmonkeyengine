@@ -41,7 +41,7 @@ import java.io.IOException;
 /**
  * @author Joshua Slack
  */
-public class Texture2D extends Texture {
+public class Texture2D extends GlTexture {
 
     private WrapMode wrapS = WrapMode.EdgeClamp;
     private WrapMode wrapT = WrapMode.EdgeClamp;
@@ -57,7 +57,7 @@ public class Texture2D extends Texture {
      * Creates a new two-dimensional texture using the given image.
      * @param img The image to use.
      */
-    public Texture2D(Image img){
+    public Texture2D(GlImage img){
         super();
         setImage(img);
         if (img.getData(0) == null) {
@@ -76,8 +76,8 @@ public class Texture2D extends Texture {
      * @param height the desired height (in pixels)
      * @param format the desired format
      */
-    public Texture2D(int width, int height, Image.Format format){
-        this(new Image(format, width, height, null, ColorSpace.Linear));
+    public Texture2D(int width, int height, GlImage.Format format){
+        this(new GlImage(format, width, height, null, ColorSpace.Linear));
     }
 
     /**
@@ -91,20 +91,20 @@ public class Texture2D extends Texture {
      * @param numSamples the desired degree of multi-sampling (&ge;1)
      * @param format the desired format
      */
-    public Texture2D(int width, int height, int numSamples, Image.Format format){
-        this(new Image(format, width, height, null, ColorSpace.Linear));
+    public Texture2D(int width, int height, int numSamples, GlImage.Format format){
+        this(new GlImage(format, width, height, null, ColorSpace.Linear));
         getImage().setMultiSamples(numSamples);
     }
 
     @Override
-    public Texture createSimpleClone() {
+    public GlTexture createSimpleClone() {
         Texture2D clone = new Texture2D();
         createSimpleClone(clone);
         return clone;
     }
 
     @Override
-    public Texture createSimpleClone(Texture rVal) {
+    public GlTexture createSimpleClone(GlTexture rVal) {
         rVal.setWrap(WrapAxis.S, wrapS);
         rVal.setWrap(WrapAxis.T, wrapT);
         return super.createSimpleClone(rVal);

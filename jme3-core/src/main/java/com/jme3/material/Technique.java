@@ -33,7 +33,7 @@ package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
-import com.jme3.material.OldMaterial.BindUnits;
+import com.jme3.material.GlMaterial.BindUnits;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.renderer.Caps;
@@ -52,7 +52,7 @@ import java.util.EnumSet;
 public final class Technique {
 
     private final TechniqueDef def;
-    private final OldMaterial owner;
+    private final GlMaterial owner;
     private final DefineList paramDefines;
     private final DefineList dynamicDefines;
 
@@ -63,7 +63,7 @@ public final class Technique {
      * @param owner The material that will own this technique
      * @param def The technique definition being implemented.
      */
-    public Technique(OldMaterial owner, TechniqueDef def) {
+    public Technique(GlMaterial owner, TechniqueDef def) {
         this.owner = owner;
         this.def = def;
         this.paramDefines = def.createDefineList();

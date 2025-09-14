@@ -47,8 +47,8 @@ import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -143,7 +143,7 @@ public class TestPBRTerrain extends ScreenshotTestBase {
                 matTerrain.setTexture("AlphaMap_1", assetManager.loadTexture("Textures/Terrain/splat/alpha2.png"));
 
                 // DIRT texture
-                Texture dirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
+                GlTexture dirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
                 dirt.setWrap(WrapMode.Repeat);
                 matTerrain.setTexture("AlbedoMap_0", dirt);
                 matTerrain.setFloat("AlbedoMap_0_scale", dirtScale);
@@ -151,7 +151,7 @@ public class TestPBRTerrain extends ScreenshotTestBase {
                 matTerrain.setFloat("Metallic_0", 0);
 
                 // DARK ROCK texture
-                Texture darkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Color.png");
+                GlTexture darkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Color.png");
                 darkRock.setWrap(WrapMode.Repeat);
                 matTerrain.setTexture("AlbedoMap_1", darkRock);
                 matTerrain.setFloat("AlbedoMap_1_scale", darkRockScale);
@@ -159,7 +159,7 @@ public class TestPBRTerrain extends ScreenshotTestBase {
                 matTerrain.setFloat("Metallic_1", 0.02f);
 
                 // SNOW texture
-                Texture snow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Color.png");
+                GlTexture snow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Color.png");
                 snow.setWrap(WrapMode.Repeat);
                 matTerrain.setTexture("AlbedoMap_2", snow);
                 matTerrain.setFloat("AlbedoMap_2_scale", snowScale);
@@ -167,7 +167,7 @@ public class TestPBRTerrain extends ScreenshotTestBase {
                 matTerrain.setFloat("Metallic_2", 0.12f);
 
                 // TILES texture
-                Texture tiles = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Color.png");
+                GlTexture tiles = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Color.png");
                 tiles.setWrap(WrapMode.Repeat);
                 matTerrain.setTexture("AlbedoMap_3", tiles);
                 matTerrain.setFloat("AlbedoMap_3_scale", tileRoadScale);
@@ -175,7 +175,7 @@ public class TestPBRTerrain extends ScreenshotTestBase {
                 matTerrain.setFloat("Metallic_3", 0.08f);
 
                 // GRASS texture
-                Texture grass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
+                GlTexture grass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
                 grass.setWrap(WrapMode.Repeat);
                 matTerrain.setTexture("AlbedoMap_4", grass);
                 matTerrain.setFloat("AlbedoMap_4_scale", grassScale);
@@ -183,7 +183,7 @@ public class TestPBRTerrain extends ScreenshotTestBase {
                 matTerrain.setFloat("Metallic_4", 0);
 
                 // MARBLE texture
-                Texture marble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Color.png");
+                GlTexture marble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Color.png");
                 marble.setWrap(WrapMode.Repeat);
                 matTerrain.setTexture("AlbedoMap_5", marble);
                 matTerrain.setFloat("AlbedoMap_5_scale", marbleScale);
@@ -191,7 +191,7 @@ public class TestPBRTerrain extends ScreenshotTestBase {
                 matTerrain.setFloat("Metallic_5", 0.8f);
 
                 // Gravel texture
-                Texture gravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Color.png");
+                GlTexture gravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Color.png");
                 gravel.setWrap(WrapMode.Repeat);
                 matTerrain.setTexture("AlbedoMap_6", gravel);
                 matTerrain.setFloat("AlbedoMap_6_scale", gravelScale);
@@ -199,22 +199,22 @@ public class TestPBRTerrain extends ScreenshotTestBase {
                 matTerrain.setFloat("Metallic_6", 0.07f);
 
                 // NORMAL MAPS
-                Texture normalMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_1K_Normal.png");
+                GlTexture normalMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_1K_Normal.png");
                 normalMapDirt.setWrap(WrapMode.Repeat);
 
-                Texture normalMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Normal.png");
+                GlTexture normalMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Normal.png");
                 normalMapDarkRock.setWrap(WrapMode.Repeat);
 
-                Texture normalMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Normal.png");
+                GlTexture normalMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Normal.png");
                 normalMapSnow.setWrap(WrapMode.Repeat);
 
-                Texture normalMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Normal.png");
+                GlTexture normalMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Normal.png");
                 normalMapGravel.setWrap(WrapMode.Repeat);
 
-                Texture normalMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Normal.png");
+                GlTexture normalMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Normal.png");
                 normalMapGrass.setWrap(WrapMode.Repeat);
 
-                Texture normalMapTiles = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Normal.png");
+                GlTexture normalMapTiles = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Normal.png");
                 normalMapTiles.setWrap(WrapMode.Repeat);
 
                 matTerrain.setTexture("NormalMap_0", normalMapDirt);
@@ -230,7 +230,7 @@ public class TestPBRTerrain extends ScreenshotTestBase {
             private void setUpTerrain(SimpleApplication simpleApp, AssetManager assetManager) {
                 // HEIGHTMAP image (for the terrain heightmap)
                 TextureKey hmKey = new TextureKey("Textures/Terrain/splat/mountains512.png", false);
-                Texture heightMapImage = assetManager.loadTexture(hmKey);
+                GlTexture heightMapImage = assetManager.loadTexture(hmKey);
 
                 // CREATE HEIGHTMAP
                 AbstractHeightMap heightmap;

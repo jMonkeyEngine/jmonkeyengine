@@ -38,11 +38,11 @@ import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.*;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.MagFilter;
-import com.jme3.texture.Texture.MinFilter;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.MagFilter;
+import com.jme3.texture.GlTexture.MinFilter;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 import java.util.Collection;
@@ -91,7 +91,7 @@ public class HDRRenderer implements SceneProcessor {
     private float whiteLevel = 100f;
     private float throttle = -1;
     private int maxIterations = -1;
-    private Image.Format bufFormat = Format.RGB8;
+    private GlImage.Format bufFormat = Format.RGB8;
 
     private MinFilter fbMinFilter = MinFilter.BilinearNoMipMaps;
     private MagFilter fbMagFilter = MagFilter.Bilinear;
@@ -172,7 +172,7 @@ public class HDRRenderer implements SceneProcessor {
     }
 
     private Material createLumShader(int srcW, int srcH, int bufW, int bufH, int mode,
-                                int iters, Texture tex) {
+                                int iters, GlTexture tex) {
         Material mat = new Material(manager, "Common/MatDefs/Hdr/LogLum.j3md");
 
         Vector2f blockSize = new Vector2f(1f / bufW, 1f / bufH);

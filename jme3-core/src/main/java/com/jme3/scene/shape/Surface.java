@@ -40,8 +40,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Spline.SplineType;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.OldMesh;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
@@ -57,7 +56,7 @@ import java.util.Map;
  * a) NURBS
  * @author Marcin Roguski (Kealthas)
  */
-public class Surface extends OldMesh {
+public class Surface extends GlMesh {
     private SplineType           type;                // the type of the surface
     private List<List<Vector4f>> controlPoints;       // space control points and their weights
     private List<Float>[]        knots;               // knots of the surface

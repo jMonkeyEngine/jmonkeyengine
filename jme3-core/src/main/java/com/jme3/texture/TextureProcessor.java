@@ -41,13 +41,13 @@ public class TextureProcessor implements AssetProcessor {
     @Override
     public Object postProcess(AssetKey key, Object obj) {
         TextureKey texKey = (TextureKey) key;
-        Image img = (Image) obj;
+        GlImage img = (GlImage) obj;
         if (img == null) {
             return null;
         }
 
-        Texture tex;
-        if (texKey.getTextureTypeHint() == Texture.Type.CubeMap) {
+        GlTexture tex;
+        if (texKey.getTextureTypeHint() == GlTexture.Type.CubeMap) {
             if (texKey.isFlipY()) {
                 // also flip -y and +y image in cubemap
                 ByteBuffer pos_y = img.getData(2);
@@ -55,7 +55,7 @@ public class TextureProcessor implements AssetProcessor {
                 img.setData(3, pos_y);
             }
             tex = new TextureCubeMap();
-        } else if (texKey.getTextureTypeHint() == Texture.Type.ThreeDimensional) {
+        } else if (texKey.getTextureTypeHint() == GlTexture.Type.ThreeDimensional) {
             tex = new Texture3D();
         } else {
             tex = new Texture2D();
@@ -64,7 +64,7 @@ public class TextureProcessor implements AssetProcessor {
         // enable mipmaps if image has them
         // or generate them if requested by user
         if (img.hasMipmaps() || texKey.isGenerateMips()) {
-            tex.setMinFilter(Texture.MinFilter.Trilinear);
+            tex.setMinFilter(GlTexture.MinFilter.Trilinear);
         }
 
         tex.setAnisotropicFilter(texKey.getAnisotropy());
@@ -75,7 +75,7 @@ public class TextureProcessor implements AssetProcessor {
 
     @Override
     public Object createClone(Object obj) {
-        Texture tex = (Texture) obj;
+        GlTexture tex = (GlTexture) obj;
         return tex.clone();
     }
     

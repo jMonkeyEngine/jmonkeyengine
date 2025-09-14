@@ -42,7 +42,7 @@ import com.jme3.post.filters.BloomFilter;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.util.SkyFactory;
 
 /**
@@ -62,8 +62,8 @@ public class TestEnvironmentMapping extends SimpleApplication {
 
         TextureKey key = new TextureKey("Textures/Sky/Bright/BrightSky.dds", true);
         key.setGenerateMips(true);
-        key.setTextureTypeHint(Texture.Type.CubeMap);
-        final Texture tex = assetManager.loadTexture(key);
+        key.setTextureTypeHint(GlTexture.Type.CubeMap);
+        final GlTexture tex = assetManager.loadTexture(key);
 
         for (Spatial geom : buggy.getChildren()) {
             if (geom instanceof Geometry) {

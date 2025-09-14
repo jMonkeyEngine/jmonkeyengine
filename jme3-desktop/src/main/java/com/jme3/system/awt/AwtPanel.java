@@ -37,6 +37,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlImage;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
 import java.awt.*;
@@ -243,8 +244,8 @@ public class AwtPanel extends Canvas implements SceneProcessor {
         }
 
         fb = new FrameBuffer(width, height, 1);
-        fb.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(com.jme3.texture.Image.Format.Depth));
-        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(com.jme3.texture.Image.Format.RGB8));
+        fb.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(GlImage.Format.Depth));
+        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(GlImage.Format.RGB8));
         fb.setSrgb(srgb);
 
         if (attachAsMain) {

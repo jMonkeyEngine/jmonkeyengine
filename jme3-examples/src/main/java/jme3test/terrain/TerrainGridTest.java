@@ -24,8 +24,8 @@ import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.grid.ImageTileLoader;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.Namer;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 
 public class TerrainGridTest extends SimpleApplication {
 
@@ -64,19 +64,19 @@ public class TerrainGridTest extends SimpleApplication {
         // slopeTileFactor: the texture scale for slopes
         // terrainSize: the total size of the terrain (used for scaling the texture)
         // GRASS texture
-        Texture grass = this.assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        GlTexture grass = this.assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         mat_terrain.setTexture("region1ColorMap", grass);
         mat_terrain.setVector3("region1", new Vector3f(88, 200, this.grassScale));
 
         // DIRT texture
-        Texture dirt = this.assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        GlTexture dirt = this.assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
         mat_terrain.setTexture("region2ColorMap", dirt);
         mat_terrain.setVector3("region2", new Vector3f(0, 90, this.dirtScale));
 
         // ROCK texture
-        Texture rock = this.assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
+        GlTexture rock = this.assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
         rock.setWrap(WrapMode.Repeat);
         mat_terrain.setTexture("region3ColorMap", rock);
         mat_terrain.setVector3("region3", new Vector3f(198, 260, this.rockScale));

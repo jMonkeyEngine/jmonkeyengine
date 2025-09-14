@@ -36,8 +36,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.OldMesh;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import java.io.IOException;
@@ -48,7 +47,7 @@ import java.nio.FloatBuffer;
  * 
  * @author Brent Owens
  */
-public class Line extends OldMesh {
+public class Line extends GlMesh {
 
     private Vector3f start = new Vector3f();
     private Vector3f end = new Vector3f();

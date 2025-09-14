@@ -57,8 +57,8 @@ import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -275,25 +275,25 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
 
         // GRASS texture
-        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        GlTexture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap", grass);
         matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
 
         // DIRT texture
-        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        GlTexture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap_1", dirt);
         matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
 
         // ROCK texture
-        Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
+        GlTexture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
         rock.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap_2", rock);
         matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
 
         // HEIGHTMAP image (for the terrain heightmap)
-        Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
+        GlTexture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
         AbstractHeightMap heightmap = null;
         try {
             heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 0.5f);

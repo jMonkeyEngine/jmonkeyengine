@@ -41,6 +41,7 @@ import com.jme3.export.*;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.*;
+import com.jme3.renderer.Renderer;
 import com.jme3.scene.VertexBuffer.*;
 import com.jme3.scene.mesh.*;
 import com.jme3.util.*;
@@ -68,8 +69,7 @@ import java.util.ArrayList;
  *
  * @author Kirill Vainer
  */
-@Deprecated
-public class OldMesh implements Mesh, Savable, Cloneable, JmeCloneable {
+public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
 
     @Override
     public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
@@ -129,8 +129,8 @@ public class OldMesh implements Mesh, Savable, Cloneable, JmeCloneable {
         /**
          * A combination of various triangle modes. It is best to avoid
          * using this mode as it may not be supported by all renderers.
-         * The {@link OldMesh#setModeStart(int[]) mode start points} and
-         * {@link OldMesh#setElementLengths(int[]) element lengths} must
+         * The {@link GlMesh#setModeStart(int[]) mode start points} and
+         * {@link GlMesh#setElementLengths(int[]) element lengths} must
          * be specified for this mode.
          */
         Hybrid(false),
@@ -208,7 +208,7 @@ public class OldMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     /**
      * Creates a new mesh with no {@link VertexBuffer vertex buffers}.
      */
-    public OldMesh() {
+    public GlMesh() {
     }
 
     /**
@@ -219,9 +219,9 @@ public class OldMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * @return A shallow clone of the mesh
      */
     @Override
-    public OldMesh clone() {
+    public GlMesh clone() {
         try {
-            OldMesh clone = (OldMesh) super.clone();
+            GlMesh clone = (GlMesh) super.clone();
             clone.meshBound = meshBound.clone();
             clone.collisionTree = collisionTree != null ? collisionTree : null;
             clone.buffers = buffers.clone();
@@ -246,9 +246,9 @@ public class OldMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @return a deep clone of this mesh.
      */
-    public OldMesh deepClone() {
+    public GlMesh deepClone() {
         try {
-            OldMesh clone = (OldMesh) super.clone();
+            GlMesh clone = (GlMesh) super.clone();
             clone.meshBound = meshBound != null ? meshBound.clone() : null;
 
             // TODO: Collision tree cloning
@@ -289,8 +289,8 @@ public class OldMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @return A clone of the mesh for animation use.
      */
-    public OldMesh cloneForAnim() {
-        OldMesh clone = clone();
+    public GlMesh cloneForAnim() {
+        GlMesh clone = clone();
         if (getBuffer(Type.BindPosePosition) != null) {
             VertexBuffer oldPos = getBuffer(Type.Position);
 
@@ -320,9 +320,9 @@ public class OldMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public OldMesh jmeClone() {
+    public GlMesh jmeClone() {
         try {
-            OldMesh clone = (OldMesh) super.clone();
+            GlMesh clone = (GlMesh) super.clone();
             clone.vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
             return clone;
         } catch (CloneNotSupportedException ex) {
@@ -596,7 +596,7 @@ public class OldMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @return the mesh mode
      *
-     * @see #setMode(OldMesh.Mode)
+     * @see #setMode(GlMesh.Mode)
      */
     public Mode getMode() {
         return mode;
@@ -665,7 +665,7 @@ public class OldMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * the default value is 1.0.
      *
      * @param lineWidth The line width
-     * @deprecated use {@link Material#getAdditionalRenderState()}
+     * @deprecated use {@link GlMesh#getAdditionalRenderState()}
      *             and {@link RenderState#setLineWidth(float)}
      */
     @Deprecated
@@ -900,13 +900,13 @@ public class OldMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     }
 
     @Override
-    public void bind(CommandBuffer cmd) {
+    public void draw(CommandBuffer cmd, Geometry geometry) {
 
     }
 
     @Override
-    public void draw(CommandBuffer cmd) {
-
+    public void draw(Renderer renderer, Geometry geometry, int instances, VertexBuffer[] instanceData) {
+        renderer.renderMesh(this, geometry.getLodLevel(), instances, instanceData);
     }
 
     @Override
@@ -1288,7 +1288,7 @@ public class OldMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @param other The mesh to extract the vertex data from
      */
-    public void extractVertexData(OldMesh other) {
+    public void extractVertexData(GlMesh other) {
         // Determine the number of unique vertices need to
         // be created. Also determine the mappings
         // between old indices to new indices (since we avoid duplicating

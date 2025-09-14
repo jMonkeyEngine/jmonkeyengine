@@ -3,3 +3,5 @@ Spatial: Current problems:
     * The transform refresh only works when transform setter methods are used. I propose that the world transform should be recalculated on every frame. It will make the system a lot simpler, I think.
     * An explicit world light list is unnecessary. All that needs to be done to capture all lights affecting a spatial is to iterate up the hierarchy and collect lights from the local light lists. Iterating up the hierarchy is extremely cheap and I want to take more advantage of it.
     * There should be at most one method in Spatial for iterating over an entire tree. It should use depth-first traversal. Breadth-first traversal isn't used within the engine and is obviously more expensive. collideWith() is also counted as a traversal method. If possible, I'd like to take more advantage of SceneGraphIterator, since I think it is the most powerful traversal available.
+
+

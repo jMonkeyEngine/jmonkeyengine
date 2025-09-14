@@ -31,7 +31,7 @@
  */
 package com.jme3.scene.debug;
 
-import com.jme3.scene.OldMesh;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 
@@ -43,7 +43,7 @@ import java.nio.ShortBuffer;
  *
  * @author Kirill Vainer
  */
-public class Grid extends OldMesh {
+public class Grid extends GlMesh {
 
     public Grid() {
     }

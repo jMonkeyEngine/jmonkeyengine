@@ -32,7 +32,7 @@
 package com.jme3.environment.util;
 
 import com.jme3.math.*;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.image.DefaultImageRaster;
 import com.jme3.texture.image.MipMapImageRaster;
@@ -53,7 +53,7 @@ public class CubeMapWrapper {
     private final DefaultImageRaster raster;
     private int[] sizes;
     private final Vector2f uvs = new Vector2f();
-    private final Image image;
+    private final GlImage image;
 
     private final ColorRGBA tmpColor = new ColorRGBA();
 
@@ -245,7 +245,7 @@ public class CubeMapWrapper {
         int totalSize = 0;
         for (int i = 0; i < nbMipMaps; i++) {
             int size = (int) pow(2, maxMipMap - 1 - i);
-            sizes[i] = size * size * image.getFormat().getBitsPerPixel() / 8;
+            sizes[i] = size * size * image.getGlFormat().getBitsPerPixel() / 8;
             totalSize += sizes[i];
         }
         

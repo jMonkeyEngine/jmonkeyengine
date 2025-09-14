@@ -37,9 +37,10 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import java.lang.ref.WeakReference;
 import com.jme3.shader.bufferobject.BufferObject;
+import com.jme3.texture.GlTexture;
 
 /**
  * Represents the current state of the graphics library. This class is used
@@ -258,9 +259,9 @@ public class RenderContext {
     /**
      * Current bound texture IDs for each texture unit.
      *
-     * @see Renderer#setTexture(int, com.jme3.texture.Texture)
+     * @see Renderer#setTexture(int, GlTexture)
      */
-    public final WeakReference<Image> boundTextures[]
+    public final WeakReference<GlImage> boundTextures[]
             = new WeakReference[maxTextureUnits];
 
 
@@ -275,14 +276,14 @@ public class RenderContext {
     /**
      * IDList for texture units.
      *
-     * @see Renderer#setTexture(int, com.jme3.texture.Texture)
+     * @see Renderer#setTexture(int, GlTexture)
      */
     public final IDList textureIndexList = new IDList();
 
     /**
      * Currently bound texture unit.
      *
-     * @see Renderer#setTexture(int, com.jme3.texture.Texture)
+     * @see Renderer#setTexture(int, GlTexture)
      */
     public int boundTextureUnit;
 

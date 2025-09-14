@@ -37,7 +37,7 @@ import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.TextureKey;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.plugins.fbx.obj.FbxObject;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import com.jme3.util.PlaceholderAssets;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -86,7 +86,7 @@ public final class FbxImage extends FbxObject {
         }
     }
     
-    private Image loadImageSafe(AssetManager assetManager, TextureKey texKey) {
+    private GlImage loadImageSafe(AssetManager assetManager, TextureKey texKey) {
         try {
             return assetManager.loadTexture(texKey).getImage();
         } catch (AssetNotFoundException ex) {
@@ -123,7 +123,7 @@ public final class FbxImage extends FbxObject {
     
     @Override
     protected Object toJmeObject() {
-        Image image = null;
+        GlImage image = null;
         String fileName = null;
         String relativeFilePathJme;
 

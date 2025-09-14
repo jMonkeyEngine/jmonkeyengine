@@ -54,8 +54,8 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
@@ -134,7 +134,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
 
 
         matGroundL = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        GlTexture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         matGroundL.setTexture("DiffuseMap", grass);
 

@@ -49,12 +49,12 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture.MagFilter;
-import com.jme3.texture.Texture.MinFilter;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture.MagFilter;
+import com.jme3.texture.GlTexture.MinFilter;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
@@ -236,10 +236,10 @@ public abstract class GenericEnvBaker implements EnvBaker {
      *            id of face if cubemap or 0 otherwise
      * @return the ByteBuffer containing the pulled data
      */
-    protected ByteBuffer pull(FrameBuffer fb, Texture env, int faceId) {
+    protected ByteBuffer pull(FrameBuffer fb, GlTexture env, int faceId) {
 
-        if (fb.getColorTarget().getFormat() != env.getImage().getFormat())
-            throw new IllegalArgumentException("Format mismatch: " + fb.getColorTarget().getFormat() + "!=" + env.getImage().getFormat());
+        if (fb.getColorTarget().getFormat() != env.getImage().getGlFormat())
+            throw new IllegalArgumentException("Format mismatch: " + fb.getColorTarget().getFormat() + "!=" + env.getImage().getGlFormat());
 
         ByteBuffer face = BufferUtils.createByteBuffer(fb.getWidth() * fb.getHeight() * (fb.getColorTarget().getFormat().getBitsPerPixel() / 8));
         renderManager.getRenderer().readFrameBufferWithFormat(fb, face, fb.getColorTarget().getFormat());
@@ -269,7 +269,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
      * @param tx
      *            the texture to pull into
      */
-    protected void endPulling(Texture tx) {
+    protected void endPulling(GlTexture tx) {
         for (int i = 0; i < bos.size(); i++) {
             ByteArrayOutputStream bo = bos.get(i);
             if (bo != null) {

@@ -39,7 +39,7 @@ import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 /**
  * Load an image and display it from the internet using the UrlLocator.
@@ -64,7 +64,7 @@ public class TestUrlLoading extends SimpleApplication {
                                 UrlLocator.class);
         TextureKey key = new TextureKey("mucha-window.png", false);
         key.setGenerateMips(true);
-        Texture tex = assetManager.loadTexture(key);
+        GlTexture tex = assetManager.loadTexture(key);
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setTexture("ColorMap", tex);

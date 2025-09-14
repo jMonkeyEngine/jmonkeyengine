@@ -33,8 +33,7 @@ package com.jme3.effect;
 
 import com.jme3.math.Matrix3f;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.OldMesh;
+import com.jme3.scene.GlMesh;
 
 /**
  * The <code>ParticleMesh</code> is the underlying visual implementation of a 
@@ -42,7 +41,7 @@ import com.jme3.scene.OldMesh;
  * 
  * @author Kirill Vainer
  */
-public abstract class ParticleMesh extends OldMesh {
+public abstract class ParticleMesh extends GlMesh {
 
     /**
      * Type of particle mesh

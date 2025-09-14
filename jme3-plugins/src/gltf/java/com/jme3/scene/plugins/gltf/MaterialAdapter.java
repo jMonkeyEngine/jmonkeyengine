@@ -37,7 +37,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.*;
 import com.jme3.math.*;
 import com.jme3.shader.VarType;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +94,7 @@ public abstract class MaterialAdapter {
             return;
         }
         MatParam param;
-        if (value instanceof Texture) {
+        if (value instanceof GlTexture) {
             MatParam defParam = getMaterial().getMaterialDef().getMaterialParam(name);
             if (defParam == null) {
                 throw new AssetLoadException("Material definition " + getMaterialDefPath() + " has not param with name" + name);
@@ -102,10 +102,10 @@ public abstract class MaterialAdapter {
             if (!(defParam instanceof MatParamTexture)) {
                 throw new AssetLoadException("param with name" + name + "in material definition " + getMaterialDefPath() + " should be a texture param");
             }
-            param = new MatParamTexture(VarType.Texture2D, name, (Texture) value, ((MatParamTexture) defParam).getColorSpace());
+            param = new MatParamTexture(VarType.Texture2D, name, (GlTexture) value, ((MatParamTexture) defParam).getColorSpace());
             param = adaptMatParam(param);
             if (param != null) {
-                getMaterial().setTextureParam(param.getName(), param.getVarType(), (Texture) param.getValue());
+                getMaterial().setTextureParam(param.getName(), param.getVarType(), (GlTexture) param.getValue());
             }
         } else {
             param = new MatParam(getVarType(value), name, value);

@@ -41,7 +41,7 @@ import java.io.IOException;
 /**
  * @author Maarten Steur
  */
-public class Texture3D extends Texture {
+public class Texture3D extends GlTexture {
 
     private WrapMode wrapS = WrapMode.EdgeClamp;
     private WrapMode wrapT = WrapMode.EdgeClamp;
@@ -58,10 +58,10 @@ public class Texture3D extends Texture {
      * Creates a new three-dimensional texture using the given image.
      * @param img The image to use.
      */
-    public Texture3D(Image img) {
+    public Texture3D(GlImage img) {
         super();
         setImage(img);
-        if (img.getFormat().isDepthFormat()) {
+        if (img.getGlFormat().isDepthFormat()) {
             setMagFilter(MagFilter.Nearest);
             setMinFilter(MinFilter.NearestNoMipMaps);
         }
@@ -78,8 +78,8 @@ public class Texture3D extends Texture {
      * @param depth the desired depth
      * @param format the desired format
      */
-    public Texture3D(int width, int height, int depth, Image.Format format) {
-        this(new Image(format, width, height, depth, null, ColorSpace.Linear));
+    public Texture3D(int width, int height, int depth, GlImage.Format format) {
+        this(new GlImage(format, width, height, depth, null, ColorSpace.Linear));
     }
 
     /**
@@ -94,20 +94,20 @@ public class Texture3D extends Texture {
      * @param numSamples the desired degree of multi-sampling (&ge;1)
      * @param format the desired format
      */
-    public Texture3D(int width, int height, int depth, int numSamples, Image.Format format) {
-        this(new Image(format, width, height, depth, null, ColorSpace.Linear));
+    public Texture3D(int width, int height, int depth, int numSamples, GlImage.Format format) {
+        this(new GlImage(format, width, height, depth, null, ColorSpace.Linear));
         getImage().setMultiSamples(numSamples);
     }
 
     @Override
-    public Texture createSimpleClone() {
+    public GlTexture createSimpleClone() {
         Texture3D clone = new Texture3D();
         createSimpleClone(clone);
         return clone;
     }
 
     @Override
-    public Texture createSimpleClone(Texture rVal) {
+    public GlTexture createSimpleClone(GlTexture rVal) {
         rVal.setWrap(WrapAxis.S, wrapS);
         rVal.setWrap(WrapAxis.T, wrapT);
         rVal.setWrap(WrapAxis.R, wrapR);

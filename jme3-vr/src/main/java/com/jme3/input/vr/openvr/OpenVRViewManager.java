@@ -23,8 +23,8 @@ import com.jme3.system.jopenvr.Texture_t;
 import com.jme3.system.jopenvr.VRTextureBounds_t;
 import com.jme3.system.jopenvr.VR_IVRSystem_FnTable;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 import com.jme3.util.VRGUIPositioningMode;
@@ -70,7 +70,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * @see #getFullTexId()
      */
     protected int getLeftTexId() {
-        return getLeftTexture().getImage().getId();
+        return getLeftTexture().getImage().getNativeObject();
     }
 
     /**
@@ -80,7 +80,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * @see #getFullTexId()
      */
     protected int getRightTexId() {
-        return getRightTexture().getImage().getId();
+        return getRightTexture().getImage().getNativeObject();
     }
 
     /**
@@ -90,7 +90,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * @see #getRightTexId()
      */
     private int getFullTexId() {
-        return dualEyeTex.getImage().getId();
+        return dualEyeTex.getImage().getNativeObject();
     }
 
     /**
@@ -216,11 +216,11 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                         logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(leftTextureType.eType));
                         logger.severe("  Texture handle: "+leftTextureType.handle);
 
-                        logger.severe("  Left eye texture "+leftEyeTexture.getName()+" ("+leftEyeTexture.getImage().getId()+")");
+                        logger.severe("  Left eye texture "+leftEyeTexture.getName()+" ("+leftEyeTexture.getImage().getNativeObject()+")");
                         logger.severe("                 Type: "+leftEyeTexture.getType());
                         logger.severe("                 Size: "+leftEyeTexture.getImage().getWidth()+"x"+leftEyeTexture.getImage().getHeight());
                         logger.severe("          Image depth: "+leftEyeTexture.getImage().getDepth());
-                        logger.severe("         Image format: "+leftEyeTexture.getImage().getFormat());
+                        logger.severe("         Image format: "+leftEyeTexture.getImage().getGlFormat());
                         logger.severe("    Image color space: "+leftEyeTexture.getImage().getColorSpace());
                     }
 
@@ -230,11 +230,11 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                         logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
                         logger.severe("  Texture handle: "+rightTextureType.handle);
 
-                        logger.severe("  Right eye texture "+rightEyeTexture.getName()+" ("+rightEyeTexture.getImage().getId()+")");
+                        logger.severe("  Right eye texture "+rightEyeTexture.getName()+" ("+rightEyeTexture.getImage().getNativeObject()+")");
                         logger.severe("                 Type: "+rightEyeTexture.getType());
                         logger.severe("                 Size: "+rightEyeTexture.getImage().getWidth()+"x"+rightEyeTexture.getImage().getHeight());
                         logger.severe("          Image depth: "+rightEyeTexture.getImage().getDepth());
-                        logger.severe("         Image format: "+rightEyeTexture.getImage().getFormat());
+                        logger.severe("         Image format: "+rightEyeTexture.getImage().getGlFormat());
                         logger.severe("    Image color space: "+rightEyeTexture.getImage().getColorSpace());
                     }
                 }
@@ -536,7 +536,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
         }
     }
 
-    private ViewPort setupMirrorBuffers(Camera cam, Texture tex, boolean expand) {
+    private ViewPort setupMirrorBuffers(Camera cam, GlTexture tex, boolean expand) {
         if (environment != null){
             if (environment.getApplication() != null){
                 Camera cloneCam = cam.clone();
@@ -575,19 +575,19 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                 //offBuffer.setSrgb(true);
 
                 //setup framebuffer's texture
-                dualEyeTex = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
-                dualEyeTex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-                dualEyeTex.setMagFilter(Texture.MagFilter.Bilinear);
+                dualEyeTex = new Texture2D(cam.getWidth(), cam.getHeight(), GlImage.Format.RGBA8);
+                dualEyeTex.setMinFilter(GlTexture.MinFilter.BilinearNoMipMaps);
+                dualEyeTex.setMagFilter(GlTexture.MagFilter.Bilinear);
 
-                logger.config("Dual eye texture "+dualEyeTex.getName()+" ("+dualEyeTex.getImage().getId()+")");
+                logger.config("Dual eye texture "+dualEyeTex.getName()+" ("+dualEyeTex.getImage().getNativeObject()+")");
                 logger.config("               Type: "+dualEyeTex.getType());
                 logger.config("               Size: "+dualEyeTex.getImage().getWidth()+"x"+dualEyeTex.getImage().getHeight());
                 logger.config("        Image depth: "+dualEyeTex.getImage().getDepth());
-                logger.config("       Image format: "+dualEyeTex.getImage().getFormat());
+                logger.config("       Image format: "+dualEyeTex.getImage().getGlFormat());
                 logger.config("  Image color space: "+dualEyeTex.getImage().getColorSpace());
 
                 //setup framebuffer to use texture
-                out.setDepthBuffer(Image.Format.Depth);
+                out.setDepthBuffer(GlImage.Format.Depth);
                 out.setColorTexture(dualEyeTex);
 
                 ViewPort viewPort = environment.getApplication().getViewPort();
@@ -610,12 +610,12 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                 //offBufferLeft.setSrgb(true);
 
                 //setup framebuffer's texture
-                Texture2D offTex = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
-                offTex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-                offTex.setMagFilter(Texture.MagFilter.Bilinear);
+                Texture2D offTex = new Texture2D(cam.getWidth(), cam.getHeight(), GlImage.Format.RGBA8);
+                offTex.setMinFilter(GlTexture.MinFilter.BilinearNoMipMaps);
+                offTex.setMagFilter(GlTexture.MagFilter.Bilinear);
 
                 //setup framebuffer to use texture
-                offBufferLeft.setDepthBuffer(Image.Format.Depth);
+                offBufferLeft.setDepthBuffer(GlImage.Format.Depth);
                 offBufferLeft.setColorTexture(offTex);
 
                 ViewPort viewPort = environment.getApplication().getRenderManager().createPreView(viewName, cam);

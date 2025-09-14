@@ -1,6 +1,6 @@
 package com.jme3.vulkan.util;
 
-public interface IntEnum <T extends IntEnum> {
+public interface IntEnum<T extends IntEnum> {
 
     int getEnum();
 
@@ -22,15 +22,15 @@ public interface IntEnum <T extends IntEnum> {
 
     class EnumImpl <T extends IntEnum> implements IntEnum<T> {
 
-        private final int libEnum;
+        private final int intEnum;
 
-        public EnumImpl(int libEnum) {
-            this.libEnum = libEnum;
+        public EnumImpl(int intEnum) {
+            this.intEnum = intEnum;
         }
 
         @Override
         public int getEnum() {
-            return libEnum;
+            return intEnum;
         }
 
     }

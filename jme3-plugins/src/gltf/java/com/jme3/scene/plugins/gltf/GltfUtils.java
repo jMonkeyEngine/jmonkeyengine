@@ -40,7 +40,7 @@ import com.jme3.math.*;
 import com.jme3.plugins.json.Json;
 import com.jme3.plugins.json.JsonParser;
 import com.jme3.scene.*;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.util.*;
 import java.io.*;
 import java.nio.*;
@@ -178,52 +178,52 @@ public class GltfUtils {
         return Integer.parseInt(num);
     }
 
-    public static Texture.MagFilter getMagFilter(Integer value) {
+    public static GlTexture.MagFilter getMagFilter(Integer value) {
         if (value == null) {
             return null;
         }
         switch (value) {
             case 9728:
-                return Texture.MagFilter.Nearest;
+                return GlTexture.MagFilter.Nearest;
             case 9729:
-                return Texture.MagFilter.Bilinear;
+                return GlTexture.MagFilter.Bilinear;
         }
         return null;
     }
 
-    public static Texture.MinFilter getMinFilter(Integer value) {
+    public static GlTexture.MinFilter getMinFilter(Integer value) {
         if (value == null) {
             return null;
         }
         switch (value) {
             case 9728:
-                return Texture.MinFilter.NearestNoMipMaps;
+                return GlTexture.MinFilter.NearestNoMipMaps;
             case 9729:
-                return Texture.MinFilter.BilinearNoMipMaps;
+                return GlTexture.MinFilter.BilinearNoMipMaps;
             case 9984:
-                return Texture.MinFilter.NearestNearestMipMap;
+                return GlTexture.MinFilter.NearestNearestMipMap;
             case 9985:
-                return Texture.MinFilter.BilinearNearestMipMap;
+                return GlTexture.MinFilter.BilinearNearestMipMap;
             case 9986:
-                return Texture.MinFilter.NearestLinearMipMap;
+                return GlTexture.MinFilter.NearestLinearMipMap;
             case 9987:
-                return Texture.MinFilter.Trilinear;
+                return GlTexture.MinFilter.Trilinear;
 
         }
         return null;
     }
 
-    public static Texture.WrapMode getWrapMode(Integer value) {
+    public static GlTexture.WrapMode getWrapMode(Integer value) {
         if (value == null) {
-            return Texture.WrapMode.Repeat;
+            return GlTexture.WrapMode.Repeat;
         }
         switch (value) {
             case 33071:
-                return Texture.WrapMode.EdgeClamp;
+                return GlTexture.WrapMode.EdgeClamp;
             case 33648:
-                return Texture.WrapMode.MirroredRepeat;
+                return GlTexture.WrapMode.MirroredRepeat;
             default:
-                return Texture.WrapMode.Repeat;
+                return GlTexture.WrapMode.Repeat;
         }
     }
 

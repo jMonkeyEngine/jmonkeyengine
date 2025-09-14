@@ -38,9 +38,9 @@ import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.image.ColorSpace;
 import java.nio.ByteBuffer;
 
@@ -78,20 +78,20 @@ public class PlaceholderAssets {
     }
 
     @Deprecated
-    public static Image getPlaceholderImage(){
+    public static GlImage getPlaceholderImage(){
         ByteBuffer tempData = BufferUtils.createByteBuffer(3 * 4 * 4);
         tempData.put(imageData).flip();
-        return new Image(Format.RGB8, 4, 4, tempData, null, ColorSpace.Linear);
+        return new GlImage(Format.RGB8, 4, 4, tempData, null, ColorSpace.Linear);
     }
     
-    public static Image getPlaceholderImage(AssetManager assetManager){
+    public static GlImage getPlaceholderImage(AssetManager assetManager){
         return assetManager.loadTexture("Common/Textures/MissingTexture.png").getImage();
     }
     
     public static Material getPlaceholderMaterial(AssetManager assetManager){
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        Texture tex = assetManager.loadTexture("Common/Textures/MissingMaterial.png");
-        tex.setWrap(Texture.WrapMode.Repeat);
+        GlTexture tex = assetManager.loadTexture("Common/Textures/MissingMaterial.png");
+        tex.setWrap(GlTexture.WrapMode.Repeat);
         mat.setTexture("ColorMap", tex);
         return mat;
     }
@@ -102,8 +102,8 @@ public class PlaceholderAssets {
         Box box = new Box(1, 1, 1);
         Geometry geom = new Geometry("placeholder", box);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        Texture tex = assetManager.loadTexture("Common/Textures/MissingModel.png");
-        tex.setWrap(Texture.WrapMode.Repeat);
+        GlTexture tex = assetManager.loadTexture("Common/Textures/MissingModel.png");
+        tex.setWrap(GlTexture.WrapMode.Repeat);
         mat.setTexture("ColorMap", tex);
         geom.setMaterial(mat);
         return geom;

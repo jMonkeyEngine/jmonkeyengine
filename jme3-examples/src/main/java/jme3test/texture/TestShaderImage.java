@@ -11,7 +11,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.shader.VarType;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.TextureImage;
 
@@ -37,7 +37,7 @@ public class TestShaderImage extends SimpleApplication {
         
         int width = context.getFramebufferWidth();
         int height = context.getFramebufferHeight();
-        Texture2D target = new Texture2D(width, height, Image.Format.RGBA8);
+        Texture2D target = new Texture2D(width, height, GlImage.Format.RGBA8);
         TextureImage targetImage = new TextureImage(target, TextureImage.Access.WriteOnly);
         mat.setParam("TargetImage", VarType.Image2D, targetImage);
         

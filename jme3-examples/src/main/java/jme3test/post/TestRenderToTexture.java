@@ -46,8 +46,8 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 
@@ -66,7 +66,7 @@ public class TestRenderToTexture extends SimpleApplication implements ActionList
         app.start();
     }
 
-    public Texture setupOffscreenView(){
+    public GlTexture setupOffscreenView(){
         Camera offCamera = new Camera(512, 512);
 
         offView = renderManager.createPreView("Offscreen View", offCamera);
@@ -83,8 +83,8 @@ public class TestRenderToTexture extends SimpleApplication implements ActionList
 
         //setup framebuffer's texture
         Texture2D offTex = new Texture2D(512, 512, Format.RGBA8);
-        offTex.setMinFilter(Texture.MinFilter.Trilinear);
-        offTex.setMagFilter(Texture.MagFilter.Bilinear);
+        offTex.setMinFilter(GlTexture.MinFilter.Trilinear);
+        offTex.setMagFilter(GlTexture.MagFilter.Bilinear);
 
         //setup framebuffer to use texture
         offBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
@@ -113,7 +113,7 @@ public class TestRenderToTexture extends SimpleApplication implements ActionList
         //setup main scene
         Geometry quad = new Geometry("box", new Box(1, 1, 1));
 
-        Texture offTex = setupOffscreenView();
+        GlTexture offTex = setupOffscreenView();
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setTexture("ColorMap", offTex);

@@ -48,11 +48,11 @@ import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
-import com.jme3.texture.Texture.MagFilter;
-import com.jme3.texture.Texture.MinFilter;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
+import com.jme3.texture.GlTexture.MagFilter;
+import com.jme3.texture.GlTexture.MinFilter;
 import com.jme3.texture.TextureArray;
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
 import org.junit.jupiter.api.TestInfo;
@@ -167,36 +167,36 @@ public class TestPBRTerrainAdvanced extends ScreenshotTestBase {
                 // load textures for texture arrays
                 // These MUST all have the same dimensions and format in order to be put into a texture array.
                 //ALBEDO MAPS
-                Texture dirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
-                Texture darkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Color.png");
-                Texture snow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Color.png");
-                Texture tileRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Color.png");
-                Texture grass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
-                Texture marble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Color.png");
-                Texture gravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Color.png");
+                GlTexture dirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
+                GlTexture darkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Color.png");
+                GlTexture snow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Color.png");
+                GlTexture tileRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Color.png");
+                GlTexture grass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Color.png");
+                GlTexture marble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Color.png");
+                GlTexture gravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Color.png");
 
                 // NORMAL MAPS
-                Texture normalMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_1K_Normal.png");
-                Texture normalMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Normal.png");
-                Texture normalMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Normal.png");
-                Texture normalMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Normal.png");
-                Texture normalMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Normal.png");
-                Texture normalMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Normal.png");
-                Texture normalMapRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Normal.png");
+                GlTexture normalMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_1K_Normal.png");
+                GlTexture normalMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_1K_Normal.png");
+                GlTexture normalMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_1K_Normal.png");
+                GlTexture normalMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel015_1K_Normal.png");
+                GlTexture normalMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_1K_Normal.png");
+                GlTexture normalMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_1K_Normal.png");
+                GlTexture normalMapRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_1K_Normal.png");
 
                 //PACKED METALLIC/ROUGHNESS / AMBIENT OCCLUSION / EMISSIVE INTENSITY MAPS
-                Texture metallicRoughnessAoEiMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_PackedMetallicRoughnessMap.png");
-                Texture metallicRoughnessAoEiMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_PackedMetallicRoughnessMap.png");
-                Texture metallicRoughnessAoEiMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_PackedMetallicRoughnessMap.png");
-                Texture metallicRoughnessAoEiMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel_015_PackedMetallicRoughnessMap.png");
-                Texture metallicRoughnessAoEiMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_PackedMetallicRoughnessMap.png");
-                Texture metallicRoughnessAoEiMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_PackedMetallicRoughnessMap.png");
-                Texture metallicRoughnessAoEiMapRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_PackedMetallicRoughnessMap.png");
+                GlTexture metallicRoughnessAoEiMapDirt = assetManager.loadTexture("Textures/Terrain/PBR/Ground036_PackedMetallicRoughnessMap.png");
+                GlTexture metallicRoughnessAoEiMapDarkRock = assetManager.loadTexture("Textures/Terrain/PBR/Rock035_PackedMetallicRoughnessMap.png");
+                GlTexture metallicRoughnessAoEiMapSnow = assetManager.loadTexture("Textures/Terrain/PBR/Snow006_PackedMetallicRoughnessMap.png");
+                GlTexture metallicRoughnessAoEiMapGravel = assetManager.loadTexture("Textures/Terrain/PBR/Gravel_015_PackedMetallicRoughnessMap.png");
+                GlTexture metallicRoughnessAoEiMapGrass = assetManager.loadTexture("Textures/Terrain/PBR/Ground037_PackedMetallicRoughnessMap.png");
+                GlTexture metallicRoughnessAoEiMapMarble = assetManager.loadTexture("Textures/Terrain/PBR/Marble013_PackedMetallicRoughnessMap.png");
+                GlTexture metallicRoughnessAoEiMapRoad = assetManager.loadTexture("Textures/Terrain/PBR/Tiles083_PackedMetallicRoughnessMap.png");
 
                 // put all images into lists to create texture arrays.
-                List<Image> albedoImages = new ArrayList<>();
-                List<Image> normalMapImages = new ArrayList<>();
-                List<Image> metallicRoughnessAoEiMapImages = new ArrayList<>();
+                List<GlImage> albedoImages = new ArrayList<>();
+                List<GlImage> normalMapImages = new ArrayList<>();
+                List<GlImage> metallicRoughnessAoEiMapImages = new ArrayList<>();
 
                 albedoImages.add(dirt.getImage());  //0
                 albedoImages.add(darkRock.getImage()); //1
@@ -298,7 +298,7 @@ public class TestPBRTerrainAdvanced extends ScreenshotTestBase {
                 terrain.setMaterial(matTerrain);
             }
 
-            private void setWrapAndMipMaps(Texture texture) {
+            private void setWrapAndMipMaps(GlTexture texture) {
                 texture.setWrap(WrapMode.Repeat);
                 texture.setMinFilter(MinFilter.Trilinear);
                 texture.setMagFilter(MagFilter.Bilinear);
@@ -307,7 +307,7 @@ public class TestPBRTerrainAdvanced extends ScreenshotTestBase {
             private void setUpTerrain(SimpleApplication simpleApp, AssetManager assetManager) {
                 // HEIGHTMAP image (for the terrain heightmap)
                 TextureKey hmKey = new TextureKey("Textures/Terrain/splat/mountains512.png", false);
-                Texture heightMapImage = assetManager.loadTexture(hmKey);
+                GlTexture heightMapImage = assetManager.loadTexture(hmKey);
 
                 // CREATE HEIGHTMAP
                 AbstractHeightMap heightmap;

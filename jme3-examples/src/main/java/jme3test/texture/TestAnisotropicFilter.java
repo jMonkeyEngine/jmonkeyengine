@@ -13,9 +13,9 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Limits;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.RectangleMesh;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.ImageRaster;
@@ -52,16 +52,16 @@ public class TestAnisotropicFilter extends SimpleApplication implements ActionLi
     
     private static Material createCheckerBoardMaterial(AssetManager assetManager) {
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        Texture tex = createCheckerBoardTexture(); // assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.dds");
-        tex.setMagFilter(Texture.MagFilter.Bilinear);
-        tex.setMinFilter(Texture.MinFilter.Trilinear);
-        tex.setWrap(Texture.WrapMode.Repeat);
+        GlTexture tex = createCheckerBoardTexture(); // assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.dds");
+        tex.setMagFilter(GlTexture.MagFilter.Bilinear);
+        tex.setMinFilter(GlTexture.MinFilter.Trilinear);
+        tex.setWrap(GlTexture.WrapMode.Repeat);
         mat.setTexture("ColorMap", tex);
         return mat;
     }
     
     private static Texture2D createCheckerBoardTexture() {
-        Image image = new Image(Format.RGBA8, 1024, 1024, BufferUtils.createByteBuffer(1024 * 1024 * 4), ColorSpace.sRGB);
+        GlImage image = new GlImage(Format.RGBA8, 1024, 1024, BufferUtils.createByteBuffer(1024 * 1024 * 4), ColorSpace.sRGB);
         
         ImageRaster raster = ImageRaster.create(image);
         for (int y = 0; y < 1024; y++) {

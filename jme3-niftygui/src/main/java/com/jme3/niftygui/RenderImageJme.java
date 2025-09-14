@@ -32,16 +32,16 @@
 package com.jme3.niftygui;
 
 import com.jme3.asset.TextureKey;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture.MagFilter;
-import com.jme3.texture.Texture.MinFilter;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture.MagFilter;
+import com.jme3.texture.GlTexture.MinFilter;
 import com.jme3.texture.Texture2D;
 import de.lessvoid.nifty.spi.render.RenderImage;
 
 public class RenderImageJme implements RenderImage {
 
     private Texture2D texture;
-    private Image image;
+    private GlImage image;
     private int width;
     private int height;
 

@@ -3,7 +3,7 @@ package com.jme3.texture.plugins;
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage.Format;
 
 /**
  * A place-holder for future implementation of ETC texture flipping.

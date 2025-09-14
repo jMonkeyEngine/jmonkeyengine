@@ -41,9 +41,9 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.TestUtil;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
@@ -188,9 +188,9 @@ public class OpaqueComparatorTest {
         testSort(sameMat1, sameMat2);
     }
     
-    private Texture createTexture(String name) {
+    private GlTexture createTexture(String name) {
         ByteBuffer bb = BufferUtils.createByteBuffer(3);
-        Image image = new Image(Format.RGB8, 1, 1, bb, ColorSpace.sRGB);
+        GlImage image = new GlImage(Format.RGB8, 1, 1, bb, ColorSpace.sRGB);
         Texture2D texture = new Texture2D(image);
         texture.setName(name);
         return texture;
@@ -202,13 +202,13 @@ public class OpaqueComparatorTest {
         Material texture2Mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         Material texture3Mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         
-        Texture tex1 = createTexture("A");
+        GlTexture tex1 = createTexture("A");
         tex1.getImage().setId(1);
         
-        Texture tex2 = createTexture("B");
+        GlTexture tex2 = createTexture("B");
         tex2.getImage().setId(2);
         
-        Texture tex3 = createTexture("C");
+        GlTexture tex3 = createTexture("C");
         tex3.getImage().setId(3);
         
         texture1Mat.setName("TexA");
@@ -261,11 +261,11 @@ public class OpaqueComparatorTest {
         Material matBase1 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         Material matBase2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         
-        Texture texBase = createTexture("BASE");
+        GlTexture texBase = createTexture("BASE");
         texBase.getImage().setId(1);
-        Texture tex1 = createTexture("1");
+        GlTexture tex1 = createTexture("1");
         tex1.getImage().setId(2);
-        Texture tex2 = createTexture("2");
+        GlTexture tex2 = createTexture("2");
         tex2.getImage().setId(3);
         
         matBase1.setName("BASE");

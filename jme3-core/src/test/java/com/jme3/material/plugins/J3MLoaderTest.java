@@ -9,7 +9,7 @@ import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
 import com.jme3.renderer.Caps;
 import com.jme3.shader.VarType;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import java.io.IOException;
 import java.util.EnumSet;
 import org.junit.Before;
@@ -84,8 +84,8 @@ public class J3MLoaderTest {
     public void oldStyleTextureParameters_shouldBeSupported() throws Exception {
         when(assetInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/texture-parameters-oldstyle.j3m"));
 
-        final Texture textureOldStyle = Mockito.mock(Texture.class);
-        final Texture textureOldStyleUsingQuotes = Mockito.mock(Texture.class);
+        final GlTexture textureOldStyle = Mockito.mock(GlTexture.class);
+        final GlTexture textureOldStyleUsingQuotes = Mockito.mock(GlTexture.class);
 
         final TextureKey textureKeyUsingQuotes = setupMockForTexture("OldStyleUsingQuotes", "old style using quotes/texture.png", true, true, textureOldStyleUsingQuotes);
         final TextureKey textureKeyOldStyle = setupMockForTexture("OldStyle", "old style/texture.png", true, true, textureOldStyle);
@@ -94,22 +94,22 @@ public class J3MLoaderTest {
 
         verify(assetManager).loadTexture(textureKeyUsingQuotes);
         verify(assetManager).loadTexture(textureKeyOldStyle);
-        verify(textureOldStyle).setWrap(Texture.WrapMode.Repeat);
-        verify(textureOldStyleUsingQuotes).setWrap(Texture.WrapMode.Repeat);
+        verify(textureOldStyle).setWrap(GlTexture.WrapMode.Repeat);
+        verify(textureOldStyleUsingQuotes).setWrap(GlTexture.WrapMode.Repeat);
     }
 
     @Test
     public void newStyleTextureParameters_shouldBeSupported() throws Exception {
         when(assetInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/texture-parameters-newstyle.j3m"));
 
-        final Texture textureNoParameters = Mockito.mock(Texture.class);
-        final Texture textureFlip = Mockito.mock(Texture.class);
-        final Texture textureRepeat = Mockito.mock(Texture.class);
-        final Texture textureRepeatAxis = Mockito.mock(Texture.class);
-        final Texture textureMin = Mockito.mock(Texture.class);
-        final Texture textureMag = Mockito.mock(Texture.class);
-        final Texture textureCombined = Mockito.mock(Texture.class);
-        final Texture textureLooksLikeOldStyle = Mockito.mock(Texture.class);
+        final GlTexture textureNoParameters = Mockito.mock(GlTexture.class);
+        final GlTexture textureFlip = Mockito.mock(GlTexture.class);
+        final GlTexture textureRepeat = Mockito.mock(GlTexture.class);
+        final GlTexture textureRepeatAxis = Mockito.mock(GlTexture.class);
+        final GlTexture textureMin = Mockito.mock(GlTexture.class);
+        final GlTexture textureMag = Mockito.mock(GlTexture.class);
+        final GlTexture textureCombined = Mockito.mock(GlTexture.class);
+        final GlTexture textureLooksLikeOldStyle = Mockito.mock(GlTexture.class);
 
         final TextureKey textureKeyNoParameters = setupMockForTexture("Empty", "empty.png", false, true, textureNoParameters);
         final TextureKey textureKeyFlip = setupMockForTexture("Flip", "flip.png", true, true, textureFlip);
@@ -125,17 +125,17 @@ public class J3MLoaderTest {
         verify(assetManager).loadTexture(textureKeyNoParameters);
         verify(assetManager).loadTexture(textureKeyFlip);
 
-        verify(textureRepeat).setWrap(Texture.WrapMode.Repeat);
-        verify(textureRepeatAxis).setWrap(Texture.WrapAxis.T, Texture.WrapMode.Repeat);
-        verify(textureMin).setMinFilter(Texture.MinFilter.Trilinear);
-        verify(textureMag).setMagFilter(Texture.MagFilter.Bilinear);
+        verify(textureRepeat).setWrap(GlTexture.WrapMode.Repeat);
+        verify(textureRepeatAxis).setWrap(GlTexture.WrapAxis.T, GlTexture.WrapMode.Repeat);
+        verify(textureMin).setMinFilter(GlTexture.MinFilter.Trilinear);
+        verify(textureMag).setMagFilter(GlTexture.MagFilter.Bilinear);
 
-        verify(textureCombined).setMagFilter(Texture.MagFilter.Nearest);
-        verify(textureCombined).setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-        verify(textureCombined).setWrap(Texture.WrapMode.Repeat);
+        verify(textureCombined).setMagFilter(GlTexture.MagFilter.Nearest);
+        verify(textureCombined).setMinFilter(GlTexture.MinFilter.BilinearNoMipMaps);
+        verify(textureCombined).setWrap(GlTexture.WrapMode.Repeat);
     }
 
-    private TextureKey setupMockForTexture(final String paramName, final String path, final boolean flipY, boolean generateMips, final Texture texture) {
+    private TextureKey setupMockForTexture(final String paramName, final String path, final boolean flipY, boolean generateMips, final GlTexture texture) {
         when(materialDef.getMaterialParam(paramName)).thenReturn(new MatParamTexture(VarType.Texture2D, paramName, texture, null));
 
         final TextureKey textureKey = new TextureKey(path, flipY);

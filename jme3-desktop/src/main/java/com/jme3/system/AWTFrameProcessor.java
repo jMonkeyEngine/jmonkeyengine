@@ -49,7 +49,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 
 /**
  * A frame processor that enables to render JMonkey frame buffer onto an AWT component.
@@ -620,8 +620,8 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
         if (found) {
 
             FrameBuffer frameBuffer = new FrameBuffer(width, height, 1);
-            frameBuffer.setDepthBuffer(Image.Format.Depth);
-            frameBuffer.setColorBuffer(Image.Format.RGBA8);
+            frameBuffer.setDepthBuffer(GlImage.Format.Depth);
+            frameBuffer.setColorBuffer(GlImage.Format.RGBA8);
             frameBuffer.setSrgb(true);
 
             viewPort.setOutputFrameBuffer(frameBuffer);

@@ -44,10 +44,10 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture.MagFilter;
-import com.jme3.texture.Texture.MinFilter;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture.MagFilter;
+import com.jme3.texture.GlTexture.MinFilter;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
@@ -98,7 +98,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
         int[] sizes = new int[nbMipMaps];
         for (int i = 0; i < nbMipMaps; i++) {
             int size = (int) FastMath.pow(2, nbMipMaps - 1 - i);
-            sizes[i] = size * size * (specular.getImage().getFormat().getBitsPerPixel() / 8);
+            sizes[i] = size * size * (specular.getImage().getGlFormat().getBitsPerPixel() / 8);
         }
         specular.getImage().setMipMapSizes(sizes);
 

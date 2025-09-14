@@ -49,7 +49,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage.Format;
 
 /**
  * A control that automatically handles environment bake and rebake including

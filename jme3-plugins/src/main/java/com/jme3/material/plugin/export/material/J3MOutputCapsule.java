@@ -38,8 +38,8 @@ import com.jme3.material.MatParam;
 import com.jme3.material.MatParamTexture;
 import com.jme3.math.*;
 import com.jme3.shader.VarType;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.util.IntMap;
 import java.io.IOException;
 import java.io.Writer;
@@ -157,7 +157,7 @@ public class J3MOutputCapsule implements OutputCapsule {
 
     protected static String formatMatParamTexture(MatParamTexture param) {
         StringBuilder ret = new StringBuilder();
-        Texture tex = (Texture) param.getValue();
+        GlTexture tex = (GlTexture) param.getValue();
         TextureKey key;
         if (tex != null) {
             key = (TextureKey) tex.getKey();
@@ -166,16 +166,16 @@ public class J3MOutputCapsule implements OutputCapsule {
                 ret.append("Flip ");
             }
 
-            ret.append(formatWrapMode(tex, Texture.WrapAxis.S));
-            ret.append(formatWrapMode(tex, Texture.WrapAxis.T));
-            ret.append(formatWrapMode(tex, Texture.WrapAxis.R));
+            ret.append(formatWrapMode(tex, GlTexture.WrapAxis.S));
+            ret.append(formatWrapMode(tex, GlTexture.WrapAxis.T));
+            ret.append(formatWrapMode(tex, GlTexture.WrapAxis.R));
 
             //Min and Mag filter
-            if (tex.getMinFilter() != Texture.MinFilter.Trilinear) {
+            if (tex.getMinFilter() != GlTexture.MinFilter.Trilinear) {
                 ret.append("Min").append(tex.getMinFilter().name()).append(" ");
             }
 
-            if (tex.getMagFilter() != Texture.MagFilter.Bilinear) {
+            if (tex.getMagFilter() != GlTexture.MagFilter.Bilinear) {
                 ret.append("Mag").append(tex.getMagFilter().name()).append(" ");
             }
 
@@ -185,7 +185,7 @@ public class J3MOutputCapsule implements OutputCapsule {
         return ret.toString();
     }
 
-    protected static String formatWrapMode(Texture texVal, Texture.WrapAxis axis) {
+    protected static String formatWrapMode(GlTexture texVal, GlTexture.WrapAxis axis) {
         WrapMode mode;
         try {
             mode = texVal.getWrap(axis);

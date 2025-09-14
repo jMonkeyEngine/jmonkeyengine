@@ -41,6 +41,7 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.math.Vector2f;
 import com.jme3.opencl.*;
 import com.jme3.system.AppSettings;
+import com.jme3.texture.GlImage;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 import java.util.logging.Logger;
@@ -80,7 +81,7 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
     public void simpleInitApp() {
         initOpenCL1();
         
-        tex = new Texture2D(settings.getWidth(), settings.getHeight(), 1, com.jme3.texture.Image.Format.RGBA8);
+        tex = new Texture2D(settings.getWidth(), settings.getHeight(), 1, GlImage.Format.RGBA8);
         Picture pic = new Picture("julia");
         pic.setTexture(assetManager, tex, true);
         pic.setPosition(0, 0);

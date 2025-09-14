@@ -34,6 +34,7 @@ package com.jme3.system;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.SoftTextDialogInput;
+import com.jme3.texture.GlImage;
 
 import java.io.File;
 import java.io.IOException;
@@ -137,7 +138,7 @@ public class JmeSystem {
      * 
      * @param outStream The stream where to write the image data.
      * @param format The format to use, either "png" or "jpg".
-     * @param imageData The image data in {@link com.jme3.texture.Image.Format#RGBA8} format.
+     * @param imageData The image data in {@link GlImage.Format#RGBA8} format.
      * @param width The width of the image.
      * @param height The height of the image.
      * @throws IOException If outStream throws an exception while writing.

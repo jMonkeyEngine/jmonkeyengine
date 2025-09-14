@@ -4,11 +4,10 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage.Format;
 
 /**
  * A Cartoon Screen Space Ambient Occlusion filter with instance rendering capabilities.

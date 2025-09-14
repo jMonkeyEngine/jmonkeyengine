@@ -5,15 +5,15 @@ import org.lwjgl.vulkan.VkDescriptorImageInfo;
 
 public class ImageDescriptor {
 
-    private final ImageView view;
+    private final VulkanImageView view;
     private final Sampler sampler;
     private final VulkanImage.Layout layout;
 
-    public ImageDescriptor(Texture texture, VulkanImage.Layout layout) {
+    public ImageDescriptor(VulkanTexture texture, VulkanImage.Layout layout) {
         this(texture.getImage(), texture, layout);
     }
 
-    public ImageDescriptor(ImageView view, Sampler sampler, VulkanImage.Layout layout) {
+    public ImageDescriptor(VulkanImageView view, Sampler sampler, VulkanImage.Layout layout) {
         this.view = view;
         this.sampler = sampler;
         this.layout = layout;
@@ -25,7 +25,7 @@ public class ImageDescriptor {
                 .imageLayout(layout.getEnum());
     }
 
-    public ImageView getView() {
+    public VulkanImageView getView() {
         return view;
     }
 

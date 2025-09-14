@@ -40,7 +40,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;

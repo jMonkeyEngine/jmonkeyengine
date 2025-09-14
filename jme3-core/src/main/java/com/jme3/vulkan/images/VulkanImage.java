@@ -9,9 +9,9 @@ import org.lwjgl.vulkan.KHRSwapchain;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public interface VulkanImage extends Image {
+public interface VulkanImage extends GpuImage {
 
-    enum Type implements Image.Type {
+    enum Type implements GpuImage.Type {
 
         OneDemensional(VK_IMAGE_TYPE_1D),
         TwoDemensional(VK_IMAGE_TYPE_2D),

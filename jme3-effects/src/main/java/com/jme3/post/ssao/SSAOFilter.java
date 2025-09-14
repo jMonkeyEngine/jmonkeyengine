@@ -45,8 +45,8 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.shader.VarType;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -146,8 +146,8 @@ public class SSAOFilter extends Filter {
         //ssao Pass
         ssaoMat = new Material(assetManager, "Common/MatDefs/SSAO/ssao.j3md");
         ssaoMat.setTexture("Normals", normalPass.getRenderedTexture());
-        Texture random = assetManager.loadTexture("Common/MatDefs/SSAO/Textures/random.png");
-        random.setWrap(Texture.WrapMode.Repeat);
+        GlTexture random = assetManager.loadTexture("Common/MatDefs/SSAO/Textures/random.png");
+        random.setWrap(GlTexture.WrapMode.Repeat);
         ssaoMat.setTexture("RandomMap", random);
 
         Pass ssaoPass = new Pass("SSAO pass") {

@@ -1,5 +1,6 @@
 package com.jme3.vulkan.images;
 
+import com.jme3.texture.GlTexture;
 import com.jme3.vulkan.util.IntEnum;
 
 import static org.lwjgl.vulkan.VK10.*;
@@ -18,6 +19,14 @@ public enum MipmapMode implements IntEnum<MipmapMode> {
     @Override
     public int getEnum() {
         return vkEnum;
+    }
+
+    public static MipmapMode of(GlTexture.MinFilter min) {
+        switch (min) {
+            case NearestLinearMipMap:
+            case Trilinear: return Linear;
+            default: return Nearest;
+        }
     }
 
 }

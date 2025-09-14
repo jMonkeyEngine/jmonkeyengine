@@ -54,8 +54,8 @@ public class TestIssue2250 {
         int height = 8;
         int numBytes = 4 * width * height;
         ByteBuffer data = BufferUtils.createByteBuffer(numBytes);
-        Image image1 = new Image(
-                Image.Format.RGBA8, width, height, data, ColorSpace.Linear);
+        GlImage image1 = new GlImage(
+                GlImage.Format.RGBA8, width, height, data, ColorSpace.Linear);
 
         image1.setMultiSamples(1);
     }
@@ -71,7 +71,7 @@ public class TestIssue2250 {
         int[] mipMapSizes = {256, 64, 16, 4};
 
         ArrayList<ByteBuffer> data = new ArrayList<>();
-        Image image2 = new Image(Image.Format.RGBA8, width, height, depth, data,
+        GlImage image2 = new GlImage(GlImage.Format.RGBA8, width, height, depth, data,
                 mipMapSizes, ColorSpace.Linear);
 
         image2.setMultiSamples(1);

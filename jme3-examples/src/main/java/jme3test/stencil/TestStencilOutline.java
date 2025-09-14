@@ -15,7 +15,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -131,7 +131,7 @@ public class TestStencilOutline extends SimpleApplication {
 
         //This is to make sure a depth stencil format is used in the TestChooser app.
         FilterPostProcessor postProcessor=new FilterPostProcessor(assetManager);
-        postProcessor.setFrameBufferDepthFormat(Image.Format.Depth24Stencil8);
+        postProcessor.setFrameBufferDepthFormat(GlImage.Format.Depth24Stencil8);
         viewPort.addProcessor(postProcessor);
         postProcessor.addFilter(new BloomFilter());
     }

@@ -11,11 +11,11 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.MagFilter;
-import com.jme3.texture.Texture.MinFilter;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.MagFilter;
+import com.jme3.texture.GlTexture.MinFilter;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ImageRaster;
 import com.jme3.util.BufferUtils;
@@ -23,11 +23,11 @@ import java.nio.ByteBuffer;
 
 public class TestImageRaster extends SimpleApplication {
     
-    private Image convertImage(Image image, Format newFormat) {
+    private GlImage convertImage(GlImage image, Format newFormat) {
         int width = image.getWidth();
         int height = image.getHeight();
         ByteBuffer data = BufferUtils.createByteBuffer( (int)Math.ceil(newFormat.getBitsPerPixel() / 8.0) * width * height);
-        Image convertedImage = new Image(newFormat, width, height, data,null, image.getColorSpace());
+        GlImage convertedImage = new GlImage(newFormat, width, height, data,null, image.getColorSpace());
         
         ImageRaster sourceReader = ImageRaster.create(image);
         ImageRaster targetWriter = ImageRaster.create(convertedImage);
@@ -41,8 +41,8 @@ public class TestImageRaster extends SimpleApplication {
         return convertedImage;
     }
     
-    private void convertAndPutImage(Image image, float posX, float posY) {
-        Texture tex = new Texture2D(image);
+    private void convertAndPutImage(GlImage image, float posX, float posY) {
+        GlTexture tex = new Texture2D(image);
         tex.setMagFilter(MagFilter.Nearest);
         tex.setMinFilter(MinFilter.NearestNoMipMaps);
         tex.setAnisotropicFilter(16);
@@ -60,7 +60,7 @@ public class TestImageRaster extends SimpleApplication {
         txt.setBox(new Rectangle(0, 0, 5, 5));
         txt.setQueueBucket(RenderQueue.Bucket.Transparent);
         txt.setSize(0.5f);
-        txt.setText(image.getFormat().name());
+        txt.setText(image.getGlFormat().name());
         txt.setLocalTranslation(posX, posY, 0);
         rootNode.attachChild(txt);
     }
@@ -70,11 +70,11 @@ public class TestImageRaster extends SimpleApplication {
         cam.setLocation(new Vector3f(16, 6, 36));
         flyCam.setMoveSpeed(10);
         
-        Texture tex = assetManager.loadTexture("com/jme3/app/Monkey.png");
+        GlTexture tex = assetManager.loadTexture("com/jme3/app/Monkey.png");
 //        Texture tex = assetManager.loadTexture("Textures/HdrTest/Memorial.hdr");
-        Image originalImage = tex.getImage();
+        GlImage originalImage = tex.getImage();
         
-        Image image = convertImage(originalImage, Format.RGBA32F);
+        GlImage image = convertImage(originalImage, Format.RGBA32F);
         convertAndPutImage(image, 0, 0);
         
         image = convertImage(image, Format.RGB32F);

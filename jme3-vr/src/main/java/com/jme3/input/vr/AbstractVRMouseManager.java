@@ -11,7 +11,7 @@ import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
 import com.jme3.system.lwjgl.LwjglWindow;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 
@@ -115,7 +115,7 @@ public abstract class AbstractVRMouseManager implements VRMouseManager {
 
             if (environment.getApplication() != null){
                 if( environment.isInVR() == false ){
-                    Texture tex = environment.getApplication().getAssetManager().loadTexture(texture);
+                    GlTexture tex = environment.getApplication().getAssetManager().loadTexture(texture);
                     mouseImage.setTexture(environment.getApplication().getAssetManager(), (Texture2D)tex, true);
                     ySize = tex.getImage().getHeight();
                     mouseImage.setHeight(ySize);
@@ -123,7 +123,7 @@ public abstract class AbstractVRMouseManager implements VRMouseManager {
                     mouseImage.getMaterial().getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
                     mouseImage.getMaterial().getAdditionalRenderState().setDepthWrite(false);
                 } else {
-                    Texture tex = environment.getApplication().getAssetManager().loadTexture(texture);
+                    GlTexture tex = environment.getApplication().getAssetManager().loadTexture(texture);
                     mouseImage.setTexture(environment.getApplication().getAssetManager(), (Texture2D)tex, true);
                     ySize = tex.getImage().getHeight();
                     mouseImage.setHeight(ySize);

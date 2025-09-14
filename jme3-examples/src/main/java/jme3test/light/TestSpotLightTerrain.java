@@ -46,8 +46,8 @@ import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.util.SkyFactory;
 
 /**
@@ -112,45 +112,45 @@ public class TestSpotLightTerrain extends SimpleApplication {
         matTerrain.setTexture("AlphaMap_1", assetManager.loadTexture("Textures/Terrain/splat/alpha2.png"));
 
         // HEIGHTMAP image (for the terrain heightmap)
-        Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
+        GlTexture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
 
 
         // GRASS texture
-        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        GlTexture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap", grass);
         matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
 
         // DIRT texture
-        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        GlTexture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap_1", dirt);
         matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
 
         // ROCK texture
-        Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
+        GlTexture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
         rock.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap_2", rock);
         matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
 
         // BRICK texture
-        Texture brick = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
+        GlTexture brick = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
         brick.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap_3", brick);
         matTerrain.setFloat("DiffuseMap_3_scale", rockScale);
 
         // RIVER ROCK texture
-        Texture riverRock = assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg");
+        GlTexture riverRock = assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg");
         riverRock.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap_4", riverRock);
         matTerrain.setFloat("DiffuseMap_4_scale", rockScale);
 
 
-        Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.jpg");
+        GlTexture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.jpg");
         normalMap0.setWrap(WrapMode.Repeat);
-        Texture normalMap1 = assetManager.loadTexture("Textures/Terrain/splat/dirt_normal.png");
+        GlTexture normalMap1 = assetManager.loadTexture("Textures/Terrain/splat/dirt_normal.png");
         normalMap1.setWrap(WrapMode.Repeat);
-        Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
+        GlTexture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
         normalMap2.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("NormalMap", normalMap0);
         matTerrain.setTexture("NormalMap_1", normalMap1);
@@ -191,12 +191,12 @@ public class TestSpotLightTerrain extends SimpleApplication {
     }
 
     private void createSky() {
-        Texture west = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");
-        Texture east = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_east.jpg");
-        Texture north = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_north.jpg");
-        Texture south = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_south.jpg");
-        Texture up = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_up.jpg");
-        Texture down = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_down.jpg");
+        GlTexture west = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");
+        GlTexture east = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_east.jpg");
+        GlTexture north = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_north.jpg");
+        GlTexture south = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_south.jpg");
+        GlTexture up = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_up.jpg");
+        GlTexture down = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_down.jpg");
 
         Spatial sky = SkyFactory.createSky(assetManager, west, east, north, south, up, down);
         rootNode.attachChild(sky);

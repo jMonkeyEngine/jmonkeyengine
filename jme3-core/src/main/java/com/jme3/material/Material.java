@@ -33,7 +33,10 @@ package com.jme3.material;
 
 import com.jme3.export.Savable;
 import com.jme3.scene.Geometry;
+import com.jme3.texture.Texture;
 import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.frames.SingleResource;
+import com.jme3.vulkan.material.uniforms.TextureUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
 import com.jme3.vulkan.pipelines.Pipeline;
 
@@ -58,6 +61,11 @@ public interface Material extends Savable {
 
     default void bind(CommandBuffer cmd, Pipeline pipeline) {
         bind(cmd, pipeline, 0);
+    }
+
+    default void setTexture(String name, Texture texture) {
+        TextureUniform u = getUniform(name);
+        u.setResource(new SingleResource<>(texture));
     }
 
 }

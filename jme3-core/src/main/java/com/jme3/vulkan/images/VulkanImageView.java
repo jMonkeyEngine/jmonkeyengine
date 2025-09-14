@@ -1,5 +1,6 @@
 package com.jme3.vulkan.images;
 
+import com.jme3.texture.ImageView;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.Swizzle;
@@ -12,7 +13,7 @@ import java.nio.LongBuffer;
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class ImageView extends AbstractNative<Long> {
+public class VulkanImageView extends AbstractNative<Long> implements ImageView<VulkanImage> {
 
     private final VulkanImage image;
     private final IntEnum<VulkanImage.View> type;
@@ -27,7 +28,7 @@ public class ImageView extends AbstractNative<Long> {
     private int baseLayer = 0;
     private int layerCount = 1;
 
-    public ImageView(VulkanImage image, IntEnum<VulkanImage.View> type) {
+    public VulkanImageView(VulkanImage image, IntEnum<VulkanImage.View> type) {
         this.image = image;
         this.type = type;
     }
@@ -37,6 +38,12 @@ public class ImageView extends AbstractNative<Long> {
         return () -> vkDestroyImageView(image.getDevice().getNativeObject(), object, null);
     }
 
+    @Override
+    public long getId() {
+        return object;
+    }
+
+    @Override
     public VulkanImage getImage() {
         return image;
     }
@@ -65,18 +72,22 @@ public class ImageView extends AbstractNative<Long> {
         return aspect;
     }
 
+    @Override
     public int getBaseMipmap() {
         return baseMipmap;
     }
 
+    @Override
     public int getMipmapCount() {
         return mipmapCount;
     }
 
+    @Override
     public int getBaseLayer() {
         return baseLayer;
     }
 
+    @Override
     public int getLayerCount() {
         return layerCount;
     }
@@ -85,7 +96,7 @@ public class ImageView extends AbstractNative<Long> {
         return new Builder();
     }
 
-    public class Builder extends AbstractNative.Builder<ImageView> {
+    public class Builder extends AbstractNative.Builder<VulkanImageView> {
 
         @Override
         protected void build() {
@@ -109,7 +120,7 @@ public class ImageView extends AbstractNative<Long> {
             check(vkCreateImageView(image.getDevice().getNativeObject(), create, null, idBuf),
                     "Failed to create image view.");
             object = idBuf.get(0);
-            ref = Native.get().register(ImageView.this);
+            ref = Native.get().register(VulkanImageView.this);
             image.addNativeDependent(ref);
         }
 
@@ -119,39 +130,39 @@ public class ImageView extends AbstractNative<Long> {
         }
 
         public void setSwizzleR(IntEnum<Swizzle> swizzleR) {
-            ImageView.this.swizzleR = swizzleR;
+            VulkanImageView.this.swizzleR = swizzleR;
         }
 
         public void setSwizzleG(IntEnum<Swizzle> swizzleG) {
-            ImageView.this.swizzleG = swizzleG;
+            VulkanImageView.this.swizzleG = swizzleG;
         }
 
         public void setSwizzleB(IntEnum<Swizzle> swizzleB) {
-            ImageView.this.swizzleB = swizzleB;
+            VulkanImageView.this.swizzleB = swizzleB;
         }
 
         public void setSwizzleA(IntEnum<Swizzle> swizzleA) {
-            ImageView.this.swizzleA = swizzleA;
+            VulkanImageView.this.swizzleA = swizzleA;
         }
 
         public void setAspect(Flag<VulkanImage.Aspect> aspect) {
-            ImageView.this.aspect = aspect;
+            VulkanImageView.this.aspect = aspect;
         }
 
         public void setBaseMipmap(int baseMipmap) {
-            ImageView.this.baseMipmap = baseMipmap;
+            VulkanImageView.this.baseMipmap = baseMipmap;
         }
 
         public void setMipmapCount(int mipmapCount) {
-            ImageView.this.mipmapCount = mipmapCount;
+            VulkanImageView.this.mipmapCount = mipmapCount;
         }
 
         public void setBaseLayer(int baseLayer) {
-            ImageView.this.baseLayer = baseLayer;
+            VulkanImageView.this.baseLayer = baseLayer;
         }
 
         public void setLayerCount(int layerCount) {
-            ImageView.this.layerCount = layerCount;
+            VulkanImageView.this.layerCount = layerCount;
         }
 
     }

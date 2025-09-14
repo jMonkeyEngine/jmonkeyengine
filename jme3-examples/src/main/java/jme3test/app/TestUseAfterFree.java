@@ -35,7 +35,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -49,7 +49,7 @@ public class TestUseAfterFree extends SimpleApplication {
 
     private float time = 0;
     private Material mat;
-    private Texture deletedTex;
+    private GlTexture deletedTex;
     
     public static void main(String[] args) {
         TestUseAfterFree app = new TestUseAfterFree();

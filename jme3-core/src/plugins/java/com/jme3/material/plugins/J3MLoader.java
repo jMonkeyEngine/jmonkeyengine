@@ -43,7 +43,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.shader.*;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.PlaceholderAssets;
@@ -211,7 +211,7 @@ public class J3MLoader implements AssetLoader {
         return false;
     }
 
-    private Texture parseTextureType(final VarType type, final String value) {
+    private GlTexture parseTextureType(final VarType type, final String value) {
         final List<String> textureValues = tokenizeTextureValue(value);
         final List<TextureOptionValue> textureOptionValues = parseTextureOptions(textureValues);
 
@@ -267,17 +267,17 @@ public class J3MLoader implements AssetLoader {
 
         switch (type) {
             case Texture3D:
-                textureKey.setTextureTypeHint(Texture.Type.ThreeDimensional);
+                textureKey.setTextureTypeHint(GlTexture.Type.ThreeDimensional);
                 break;
             case TextureArray:
-                textureKey.setTextureTypeHint(Texture.Type.TwoDimensionalArray);
+                textureKey.setTextureTypeHint(GlTexture.Type.TwoDimensionalArray);
                 break;
             case TextureCubeMap:
-                textureKey.setTextureTypeHint(Texture.Type.CubeMap);
+                textureKey.setTextureTypeHint(GlTexture.Type.CubeMap);
                 break;
         }
 
-        Texture texture;
+        GlTexture texture;
 
         try {
             texture = assetManager.loadTexture(textureKey);
@@ -403,7 +403,7 @@ public class J3MLoader implements AssetLoader {
             defaultValObj = readValue(type, defaultVal);
         }
         if(type.isTextureType()){
-            materialDef.addMaterialParamTexture(type, name, colorSpace,(Texture)defaultValObj);
+            materialDef.addMaterialParamTexture(type, name, colorSpace,(GlTexture)defaultValObj);
         }else{
             materialDef.addMaterialParam(type, name, defaultValObj);
         }
@@ -426,7 +426,7 @@ public class J3MLoader implements AssetLoader {
 
         Object valueObj = readValue(p.getVarType(), split[1]);
         if (p.getVarType().isTextureType()){
-            material.setTextureParam(name, p.getVarType(), (Texture) valueObj);
+            material.setTextureParam(name, p.getVarType(), (GlTexture) valueObj);
         }else{
             material.setParam(name, p.getVarType(), valueObj);
         }
@@ -857,60 +857,60 @@ public class J3MLoader implements AssetLoader {
     private enum TextureOption {
 
         /**
-         * Applies a {@link com.jme3.texture.Texture.MinFilter} to the texture.
+         * Applies a {@link GlTexture.MinFilter} to the texture.
          */
         Min {
 
             @Override
             public void applyToTextureKey(final String option, final TextureKey textureKey) {
-                Texture.MinFilter minFilter = Texture.MinFilter.valueOf(option);
+                GlTexture.MinFilter minFilter = GlTexture.MinFilter.valueOf(option);
                 textureKey.setGenerateMips(minFilter.usesMipMapLevels());
             }
 
             @Override
-            public void applyToTexture(final String option, final Texture texture) {
-                texture.setMinFilter(Texture.MinFilter.valueOf(option));
+            public void applyToTexture(final String option, final GlTexture texture) {
+                texture.setMinFilter(GlTexture.MinFilter.valueOf(option));
             }
         },
 
         /**
-         * Applies a {@link com.jme3.texture.Texture.MagFilter} to the texture.
+         * Applies a {@link GlTexture.MagFilter} to the texture.
          */
         Mag {
             @Override
-            public void applyToTexture(final String option, final Texture texture) {
-                texture.setMagFilter(Texture.MagFilter.valueOf(option));
+            public void applyToTexture(final String option, final GlTexture texture) {
+                texture.setMagFilter(GlTexture.MagFilter.valueOf(option));
             }
         },
 
         /**
-         * Applies a {@link com.jme3.texture.Texture.WrapMode} to the texture. This also supports {@link com.jme3.texture.Texture.WrapAxis}
+         * Applies a {@link GlTexture.WrapMode} to the texture. This also supports {@link GlTexture.WrapAxis}
          * by adding "_AXIS" to the texture option. For instance if you wanted to repeat on the S (horizontal) axis, you
          * would use <pre>WrapRepeat_S</pre> as a texture option.
          */
         Wrap {
             @Override
-            public void applyToTexture(final String option, final Texture texture) {
+            public void applyToTexture(final String option, final GlTexture texture) {
                 final int separatorPosition = option.indexOf("_");
 
                 if (separatorPosition >= option.length() - 2) {
                     final String axis = option.substring(separatorPosition + 1);
                     final String mode = option.substring(0, separatorPosition);
-                    final Texture.WrapAxis wrapAxis = Texture.WrapAxis.valueOf(axis);
-                    texture.setWrap(wrapAxis, Texture.WrapMode.valueOf(mode));
+                    final GlTexture.WrapAxis wrapAxis = GlTexture.WrapAxis.valueOf(axis);
+                    texture.setWrap(wrapAxis, GlTexture.WrapMode.valueOf(mode));
                 } else {
-                    texture.setWrap(Texture.WrapMode.valueOf(option));
+                    texture.setWrap(GlTexture.WrapMode.valueOf(option));
                 }
             }
         },
 
         /**
-         * Applies a {@link com.jme3.texture.Texture.WrapMode#Repeat} to the texture. This is simply an alias for
+         * Applies a {@link GlTexture.WrapMode#Repeat} to the texture. This is simply an alias for
          * WrapRepeat, please use WrapRepeat instead if possible as this may become deprecated later on.
          */
         Repeat {
             @Override
-            public void applyToTexture(final String option, final Texture texture) {
+            public void applyToTexture(final String option, final GlTexture texture) {
                 Wrap.applyToTexture("Repeat", texture);
             }
         },
@@ -929,7 +929,7 @@ public class J3MLoader implements AssetLoader {
             return option.substring(name().length());
         }
 
-        public void applyToTexture(final String option, final Texture texture) {
+        public void applyToTexture(final String option, final GlTexture texture) {
         }
 
         public void applyToTextureKey(final String option, final TextureKey textureKey) {
@@ -964,7 +964,7 @@ public class J3MLoader implements AssetLoader {
             textureOption.applyToTextureKey(value, textureKey);
         }
 
-        public void applyToTexture(final Texture texture) {
+        public void applyToTexture(final GlTexture texture) {
             textureOption.applyToTexture(value, texture);
         }
     }

@@ -33,14 +33,14 @@ package com.jme3.texture.image;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import java.nio.ByteBuffer;
 
 public class MipMapImageRaster extends ImageRaster {
 
     private final int[] components = new int[4];
     private ByteBuffer buffer;
-    private final Image image;
+    private final GlImage image;
     private final ImageCodec codec;
     private int width[];
     private int height[];
@@ -55,11 +55,11 @@ public class MipMapImageRaster extends ImageRaster {
         }
     }
 
-    public MipMapImageRaster(Image image, int slice) {
+    public MipMapImageRaster(GlImage image, int slice) {
         this.image = image;
         this.slice = slice;
         this.buffer = image.getData(slice);
-        this.codec = ImageCodec.lookup(image.getFormat());
+        this.codec = ImageCodec.lookup(image.getGlFormat());
         if (image.hasMipmaps()) {
             int nbMipMap = image.getMipMapSizes().length;
             this.width = new int[nbMipMap];

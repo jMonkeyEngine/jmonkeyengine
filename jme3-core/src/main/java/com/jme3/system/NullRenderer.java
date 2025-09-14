@@ -40,14 +40,14 @@ import com.jme3.renderer.Limits;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.Statistics;
 import com.jme3.renderer.TextureUnitException;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.TextureImage;
 
 import java.nio.ByteBuffer;
@@ -168,7 +168,7 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void setTexture(int unit, Texture tex) throws TextureUnitException {
+    public void setTexture(int unit, GlTexture tex) throws TextureUnitException {
         // do nothing
     }
     
@@ -178,7 +178,7 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void modifyTexture(Texture tex, Image pixels, int x, int y) {
+    public void modifyTexture(GlTexture tex, GlImage pixels, int x, int y) {
     }
 
     @Override
@@ -195,7 +195,7 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+    public void renderMesh(GlMesh mesh, int lod, int count, VertexBuffer[] instanceData) {
     }
 
     @Override
@@ -207,7 +207,7 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void deleteImage(Image image) {
+    public void deleteImage(GlImage image) {
     }
 
     @Override
@@ -248,7 +248,7 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {        
+    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, GlImage.Format format) {
     }
 
     @Override
@@ -302,6 +302,7 @@ public class NullRenderer implements Renderer {
         return null;
     }
     
+    @Override
     public void updateShaderStorageBufferObjectData(BufferObject bo) {
 
     }

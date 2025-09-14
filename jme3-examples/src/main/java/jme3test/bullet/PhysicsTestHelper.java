@@ -55,7 +55,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -237,7 +237,7 @@ public class PhysicsTestHelper {
                 Material mat2 = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
                 TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
                 key2.setGenerateMips(true);
-                Texture tex2 = app.getAssetManager().loadTexture(key2);
+                GlTexture tex2 = app.getAssetManager().loadTexture(key2);
                 mat2.setTexture("ColorMap", tex2);
                 if (name.equals("shoot") && !keyPressed) {
                     Geometry bulletGeometry = new Geometry("bullet", bullet);

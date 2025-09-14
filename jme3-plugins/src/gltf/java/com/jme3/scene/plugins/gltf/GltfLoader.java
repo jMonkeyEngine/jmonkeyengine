@@ -46,7 +46,7 @@ import com.jme3.scene.*;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.mesh.MorphTarget;
 import static com.jme3.scene.plugins.gltf.GltfUtils.*;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.IntMap;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
@@ -761,7 +761,7 @@ public class GltfLoader implements AssetLoader {
         if (samplerIndex != null) {
             texture2d = readSampler(samplerIndex, texture2d);
         } else {
-            texture2d.setWrap(Texture.WrapMode.Repeat);
+            texture2d.setWrap(GlTexture.WrapMode.Repeat);
         }
 
         texture2d = customContentManager.readExtensionAndExtras("texture", texture, texture2d);
@@ -801,7 +801,7 @@ public class GltfLoader implements AssetLoader {
             // external file image
             String decoded = decodeUri(uri);
             TextureKey key = new TextureKey(info.getKey().getFolder() + decoded, flip);
-            Texture tex = info.getManager().loadTexture(key);
+            GlTexture tex = info.getManager().loadTexture(key);
             result = (Texture2D) tex;
         }
         return result;
@@ -1016,10 +1016,10 @@ public class GltfLoader implements AssetLoader {
             throw new AssetLoadException("No samplers defined");
         }
         JsonObject sampler = samplers.get(samplerIndex).getAsJsonObject();
-        Texture.MagFilter magFilter = getMagFilter(getAsInteger(sampler, "magFilter"));
-        Texture.MinFilter minFilter = getMinFilter(getAsInteger(sampler, "minFilter"));
-        Texture.WrapMode wrapS = getWrapMode(getAsInteger(sampler, "wrapS"));
-        Texture.WrapMode wrapT = getWrapMode(getAsInteger(sampler, "wrapT"));
+        GlTexture.MagFilter magFilter = getMagFilter(getAsInteger(sampler, "magFilter"));
+        GlTexture.MinFilter minFilter = getMinFilter(getAsInteger(sampler, "minFilter"));
+        GlTexture.WrapMode wrapS = getWrapMode(getAsInteger(sampler, "wrapS"));
+        GlTexture.WrapMode wrapT = getWrapMode(getAsInteger(sampler, "wrapT"));
 
         if (magFilter != null) {
             texture.setMagFilter(magFilter);
@@ -1027,8 +1027,8 @@ public class GltfLoader implements AssetLoader {
         if (minFilter != null) {
             texture.setMinFilter(minFilter);
         }
-        texture.setWrap(Texture.WrapAxis.S, wrapS);
-        texture.setWrap(Texture.WrapAxis.T, wrapT);
+        texture.setWrap(GlTexture.WrapAxis.S, wrapS);
+        texture.setWrap(GlTexture.WrapAxis.T, wrapT);
 
         texture = customContentManager.readExtensionAndExtras("texture.sampler", sampler, texture);
 

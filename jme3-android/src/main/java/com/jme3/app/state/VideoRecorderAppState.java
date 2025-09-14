@@ -43,7 +43,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.Timer;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import com.jme3.util.AndroidScreenshots;
 import com.jme3.util.BufferUtils;
 import java.io.File;
@@ -241,7 +241,7 @@ public class VideoRecorderAppState extends AbstractAppState {
                 final WorkItem item = freeItems.take();
                 usedItems.add(item);
                 item.buffer.clear();
-                renderer.readFrameBufferWithFormat(out, item.buffer, Image.Format.BGRA8);
+                renderer.readFrameBufferWithFormat(out, item.buffer, GlImage.Format.BGRA8);
                 executor.submit(new Callable<Void>() {
 
                     @Override

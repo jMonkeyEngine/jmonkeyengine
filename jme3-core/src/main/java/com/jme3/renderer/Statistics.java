@@ -34,7 +34,7 @@ package com.jme3.renderer;
 import com.jme3.scene.Mesh;
 import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import com.jme3.util.IntMap;
 
 /**
@@ -235,15 +235,15 @@ public class Statistics {
      * @param image The image that was set
      * @param wasSwitched If true, the texture has required a state switch
      */
-    public void onTextureUse(Image image, boolean wasSwitched) {
-        assert image.getId() >= 1;
+    public void onTextureUse(GlImage image, boolean wasSwitched) {
+        assert image.getNativeObject() >= 1;
 
         if (!enabled) {
             return;
         }
 
-        if (!texturesUsed.containsKey(image.getId())) {
-            texturesUsed.put(image.getId(), null);
+        if (!texturesUsed.containsKey(image.getNativeObject())) {
+            texturesUsed.put(image.getNativeObject(), null);
         }
 
         if (wasSwitched) {

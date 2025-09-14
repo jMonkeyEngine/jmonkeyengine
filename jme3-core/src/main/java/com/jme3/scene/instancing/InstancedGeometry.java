@@ -45,6 +45,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.Camera.FrustumIntersect;
+import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
@@ -54,6 +55,9 @@ import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.pipelines.Pipeline;
+
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -112,6 +116,20 @@ public class InstancedGeometry extends Geometry {
      */
     public static BiFunction<Camera, Geometry, Boolean> getInstanceCullingFunction() {
         return instanceCullingFunction;
+    }
+
+    @Override
+    public void draw(CommandBuffer cmd, Pipeline pipeline) {
+        super.draw(cmd, pipeline);
+        // todo: implement correctly
+    }
+
+    @Override
+    public void draw(Renderer renderer) {
+        int instances = getNumVisibleInstances();
+        if (instances > 0) {
+            mesh.draw(renderer, this, instances, getAllInstanceData());
+        }
     }
 
     /**

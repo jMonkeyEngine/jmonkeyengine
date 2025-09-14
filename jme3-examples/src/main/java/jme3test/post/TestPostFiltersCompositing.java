@@ -41,10 +41,10 @@ import com.jme3.post.filters.ColorOverlayFilter;
 import com.jme3.post.filters.ComposeFilter;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage.Format;
 import com.jme3.util.SkyFactory;
 
 /**
@@ -79,7 +79,7 @@ public class TestPostFiltersCompositing extends SimpleApplication {
 
         //creating a frame buffer for the main viewport
         FrameBuffer mainVPFrameBuffer = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
-        Texture2D mainVPTexture = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
+        Texture2D mainVPTexture = new Texture2D(cam.getWidth(), cam.getHeight(), GlImage.Format.RGBA8);
         mainVPFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
         mainVPFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(mainVPTexture));
 
@@ -87,7 +87,7 @@ public class TestPostFiltersCompositing extends SimpleApplication {
 
         // Create the post processor for the GUI viewport.
         final FilterPostProcessor guiFpp = new FilterPostProcessor(assetManager);
-        guiFpp.setFrameBufferFormat(Image.Format.RGBA8);
+        guiFpp.setFrameBufferFormat(GlImage.Format.RGBA8);
         guiFpp.addFilter(new ColorOverlayFilter(ColorRGBA.Red));
         // This will compose the main viewport texture with the GUI-viewport back buffer.
         // Note that you can switch the order of the filters so that GUI-viewport filters are applied or not to the main viewport texture

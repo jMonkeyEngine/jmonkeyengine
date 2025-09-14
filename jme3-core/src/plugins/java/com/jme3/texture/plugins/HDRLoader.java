@@ -35,8 +35,8 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
 import com.jme3.math.FastMath;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
@@ -215,7 +215,7 @@ public class HDRLoader implements AssetLoader {
         }
     }
 
-    public Image load(InputStream in, boolean flipY) throws IOException{
+    public GlImage load(InputStream in, boolean flipY) throws IOException{
         float gamma = -1f;
         float exposure = -1f;
 
@@ -305,7 +305,7 @@ public class HDRLoader implements AssetLoader {
 
         dataStore.rewind();        
         //HDR files color data is actually stored in linear space.
-        return new Image(pixelFormat, width, height, dataStore, ColorSpace.Linear);
+        return new GlImage(pixelFormat, width, height, dataStore, ColorSpace.Linear);
     }
 
     @Override
@@ -317,7 +317,7 @@ public class HDRLoader implements AssetLoader {
         InputStream in = null;
         try {
             in = info.openStream();
-            Image img = load(in, flip);
+            GlImage img = load(in, flip);
             return img;
         } finally {
             if (in != null){

@@ -35,9 +35,9 @@ import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import java.util.Collection;
 
 /**
@@ -378,12 +378,12 @@ public enum Caps {
      *
      * <p>Use of NPOT textures is allowed iff:
      * <ul>
-     * <li>The {@link com.jme3.texture.Texture.WrapMode} is set to
-     * {@link com.jme3.texture.Texture.WrapMode#EdgeClamp}.</li>
+     * <li>The {@link GlTexture.WrapMode} is set to
+     * {@link GlTexture.WrapMode#EdgeClamp}.</li>
      * <li>Mip-mapping is not used, meaning
-     * {@link com.jme3.texture.Texture.MinFilter} is set to
-     * {@link com.jme3.texture.Texture.MinFilter#BilinearNoMipMaps} or
-     * {@link com.jme3.texture.Texture.MinFilter#NearestNoMipMaps}</li>
+     * {@link GlTexture.MinFilter} is set to
+     * {@link GlTexture.MinFilter#BilinearNoMipMaps} or
+     * {@link GlTexture.MinFilter#NearestNoMipMaps}</li>
      * </ul>
      */
     PartialNonPowerOfTwoTextures,
@@ -474,18 +474,18 @@ public enum Caps {
      * @param tex The texture to check
      * @return True if it is supported, false otherwise.
      */
-    public static boolean supports(Collection<Caps> caps, Texture tex) {
-        if (tex.getType() == Texture.Type.TwoDimensionalArray
+    public static boolean supports(Collection<Caps> caps, GlTexture tex) {
+        if (tex.getType() == GlTexture.Type.TwoDimensionalArray
                 && !caps.contains(Caps.TextureArray)) {
             return false;
         }
 
-        Image img = tex.getImage();
+        GlImage img = tex.getImage();
         if (img == null) {
             return true;
         }
 
-        Format fmt = img.getFormat();
+        Format fmt = img.getGlFormat();
         switch (fmt) {
             case Depth24Stencil8:
                 return caps.contains(Caps.PackedDepthStencilBuffer);

@@ -2,7 +2,6 @@ package jme3test.vulkan;
 
 import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -11,7 +10,6 @@ import com.jme3.shaderc.ShaderType;
 import com.jme3.shaderc.ShadercLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.vulkan.LwjglVulkanContext;
-import com.jme3.util.BufferUtils;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.VulkanInstance;
@@ -54,8 +52,6 @@ import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.logging.Level;
 
 import static org.lwjgl.vulkan.VK13.*;
@@ -79,7 +75,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private boolean applicationStopped = false;
 
     // framebuffer
-    private ImageView depthView;
+    private VulkanImageView depthView;
 
     // commands
     private CommandBatch graphics, perFrameData, sharedData;
@@ -230,12 +226,12 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
         // material color texture
         VulkanImage image = assetManager.loadAsset(VulkanImageLoader.key(initPool, "Common/Textures/MissingTexture.png"));
-        ImageView imgView = new ImageView(image, VulkanImage.View.TwoDemensional);
-        try (ImageView.Builder i = imgView.build()) {
+        VulkanImageView imgView = new VulkanImageView(image, VulkanImage.View.TwoDemensional);
+        try (VulkanImageView.Builder i = imgView.build()) {
             i.setAspect(VulkanImage.Aspect.Color);
         }
         // material
-        Texture texture = new Texture(device, imgView);
+        VulkanTexture texture = new VulkanTexture(device, imgView);
         try (Sampler.Builder t = texture.build()) {
             t.setMinMagFilters(Filter.Linear, Filter.Linear);
             t.setEdgeModes(AddressMode.Repeat);
@@ -306,21 +302,21 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         frames.update(tpf);
     }
 
-    private ImageView createDepthAttachment(CommandBuffer cmd) {
+    private VulkanImageView createDepthAttachment(CommandBuffer cmd) {
         Format depthFormat = device.getPhysicalDevice().findSupportedFormat(
                 VulkanImage.Tiling.Optimal,
                 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
                 Format.Depth32SFloat, Format.Depth32SFloat_Stencil8UInt, Format.Depth24UNorm_Stencil8UInt);
-        GpuImage image = new GpuImage(device, VulkanImage.Type.TwoDemensional);
-        try (GpuImage.Builder i = image.build()) {
+        BasicVulkanImage image = new BasicVulkanImage(device, VulkanImage.Type.TwoDemensional);
+        try (BasicVulkanImage.Builder i = image.build()) {
             i.setSize(swapchain.getExtent().x, swapchain.getExtent().y);
             i.setFormat(depthFormat);
             i.setTiling(VulkanImage.Tiling.Optimal);
             i.setUsage(ImageUsage.DepthStencilAttachment);
             i.setMemoryProps(MemoryProp.DeviceLocal);
         }
-        ImageView view = new ImageView(image, VulkanImage.View.TwoDemensional);
-        try (ImageView.Builder v = view.build()) {
+        VulkanImageView view = new VulkanImageView(image, VulkanImage.View.TwoDemensional);
+        try (VulkanImageView.Builder v = view.build()) {
             v.allMipmaps();
             v.setAspect(VulkanImage.Aspect.Depth);
         }

@@ -34,8 +34,8 @@ package com.jme3.texture.plugins;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
@@ -73,7 +73,7 @@ public class PFMLoader implements AssetLoader {
         }
     }
     
-    private Image load(InputStream in, boolean needYFlip) throws IOException{
+    private GlImage load(InputStream in, boolean needYFlip) throws IOException{
         Format format = null;
 
         String fmtStr = readString(in);
@@ -130,7 +130,7 @@ public class PFMLoader implements AssetLoader {
         }
         imageData.rewind();
 
-        return new Image(format, width, height, imageData, null, ColorSpace.Linear);
+        return new GlImage(format, width, height, imageData, null, ColorSpace.Linear);
     }
 
     @Override

@@ -43,7 +43,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ContrastAdjustmentFilter;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 /**
  * A {@link ContrastAdjustmentFilter} with user-controlled exponents, scales, and input range.
@@ -74,7 +74,7 @@ public class TestContrastAdjustment extends SimpleApplication {
         final Geometry earth = new Geometry("Earth", globe);
         earth.rotate(-FastMath.HALF_PI, 0f, 0f);
         final Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        final Texture texture = assetManager.loadTexture("Textures/Sky/Earth/Earth.jpg");
+        final GlTexture texture = assetManager.loadTexture("Textures/Sky/Earth/Earth.jpg");
         material.setTexture("ColorMap", texture);
         earth.setMaterial(material);
         rootNode.attachChild(earth);

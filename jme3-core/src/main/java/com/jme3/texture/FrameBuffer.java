@@ -33,7 +33,7 @@ package com.jme3.texture;
 
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage.Format;
 import com.jme3.util.NativeObject;
 import java.util.ArrayList;
 
@@ -45,7 +45,7 @@ import java.util.ArrayList;
  * FrameBuffer, the result can be either a texture or a buffer.
  * <p>
  * A <code>FrameBuffer</code> supports two methods of rendering,
- * using a {@link Texture} or using a buffer.
+ * using a {@link GlTexture} or using a buffer.
  * When using a texture, the result of the rendering will be rendered
  * onto the texture, after which the texture can be placed on an object
  * and rendered as if the texture was uploaded from disk.
@@ -94,8 +94,8 @@ public class FrameBuffer extends NativeObject {
      */
     public static class RenderBuffer {
 
-        Texture tex;
-        Image.Format format;
+        GlTexture tex;
+        GlImage.Format format;
         int id = -1;
         int slot = SLOT_UNDEF;
         int face = -1;
@@ -118,7 +118,7 @@ public class FrameBuffer extends NativeObject {
          * @return The texture to render to for this <code>RenderBuffer</code>
          * or null if content should be rendered into a buffer.
          */
-        public Texture getTexture() {
+        public GlTexture getTexture() {
             return tex;
         }
 
@@ -182,9 +182,9 @@ public class FrameBuffer extends NativeObject {
     
     public static class FrameBufferTextureTarget extends RenderBuffer {
         private FrameBufferTextureTarget(){}
-        void setTexture(Texture tx){
+        void setTexture(GlTexture tx){
             this.tex=tx;
-            this.format=tx.getImage().getFormat();
+            this.format=tx.getImage().getGlFormat();
         }
 
         void setFormat(Format f){
@@ -221,7 +221,7 @@ public class FrameBuffer extends NativeObject {
 
     public static class FrameBufferTarget {
         private FrameBufferTarget(){}
-        public static FrameBufferTextureTarget newTarget(Texture tx){
+        public static FrameBufferTextureTarget newTarget(GlTexture tx){
             FrameBufferTextureTarget t=new FrameBufferTextureTarget();
             t.setTexture(tx);
             return t;
@@ -241,7 +241,7 @@ public class FrameBuffer extends NativeObject {
          * @param face face to add to the color buffer to
          * @return FrameBufferTexture Target
          */
-        public static FrameBufferTextureTarget newTarget(Texture tx, TextureCubeMap.Face face) {
+        public static FrameBufferTextureTarget newTarget(GlTexture tx, TextureCubeMap.Face face) {
             FrameBufferTextureTarget t = new FrameBufferTextureTarget();
             t.face = face.ordinal();
             t.setTexture(tx);
@@ -322,7 +322,7 @@ public class FrameBuffer extends NativeObject {
     public void setDepthTarget(FrameBufferTextureTarget depthBuf){
         checkSetTexture(depthBuf.getTexture(), true);
         this.depthBuf = depthBuf;
-        this.depthBuf.slot = depthBuf.getTexture().getImage().getFormat().isDepthStencilFormat() ?  SLOT_DEPTH_STENCIL : SLOT_DEPTH;
+        this.depthBuf.slot = depthBuf.getTexture().getImage().getGlFormat().isDepthStencilFormat() ?  SLOT_DEPTH_STENCIL : SLOT_DEPTH;
     }
 
     public int getNumColorTargets(){
@@ -398,7 +398,7 @@ public class FrameBuffer extends NativeObject {
      * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferBufferTarget)}
      */
     @Deprecated
-    public void setDepthBuffer(Image.Format format) {
+    public void setDepthBuffer(GlImage.Format format) {
         if (id != -1) {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
@@ -420,7 +420,7 @@ public class FrameBuffer extends NativeObject {
      * @deprecated Use addColorTarget
      */
     @Deprecated 
-    public void setColorBuffer(Image.Format format) {
+    public void setColorBuffer(GlImage.Format format) {
         if (id != -1) {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
@@ -437,15 +437,15 @@ public class FrameBuffer extends NativeObject {
         colorBufs.add(colorBuf);
     }
 
-    private void checkSetTexture(Texture tex, boolean depth) {
-        Image img = tex.getImage();
+    private void checkSetTexture(GlTexture tex, boolean depth) {
+        GlImage img = tex.getImage();
         if (img == null) {
             throw new IllegalArgumentException("Texture not initialized with RTT.");
         }
 
-        if (depth && !img.getFormat().isDepthFormat()) {
+        if (depth && !img.getGlFormat().isDepthFormat()) {
             throw new IllegalArgumentException("Texture image format must be depth.");
-        } else if (!depth && img.getFormat().isDepthFormat()) {
+        } else if (!depth && img.getGlFormat().isDepthFormat()) {
             throw new IllegalArgumentException("Texture image format must be color/luminance.");
         }
 
@@ -582,7 +582,7 @@ public class FrameBuffer extends NativeObject {
      * @deprecated Use addColorTarget
      */
     @Deprecated
-    public void addColorBuffer(Image.Format format) {
+    public void addColorBuffer(GlImage.Format format) {
         if (id != -1) {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
@@ -606,7 +606,7 @@ public class FrameBuffer extends NativeObject {
      * is rendered to by the shader.
      *
      * @param tex The texture to add.
-     * @see #addColorBuffer(com.jme3.texture.Image.Format)
+     * @see #addColorBuffer(GlImage.Format)
      * @deprecated Use addColorTarget
      */
     @Deprecated
@@ -615,13 +615,13 @@ public class FrameBuffer extends NativeObject {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
-        Image img = tex.getImage();
+        GlImage img = tex.getImage();
         checkSetTexture(tex, false);
 
         RenderBuffer colorBuf = new RenderBuffer();
         colorBuf.slot = colorBufs.size();
         colorBuf.tex = tex;
-        colorBuf.format = img.getFormat();
+        colorBuf.format = img.getGlFormat();
 
         colorBufs.add(colorBuf);
     }
@@ -643,13 +643,13 @@ public class FrameBuffer extends NativeObject {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
-        Image img = tex.getImage();
+        GlImage img = tex.getImage();
         checkSetTexture(tex, false);
 
         RenderBuffer colorBuf = new RenderBuffer();
         colorBuf.slot = colorBufs.size();
         colorBuf.tex = tex;
-        colorBuf.format = img.getFormat();
+        colorBuf.format = img.getGlFormat();
         colorBuf.layer = layer;
 
         colorBufs.add(colorBuf);
@@ -672,13 +672,13 @@ public class FrameBuffer extends NativeObject {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
-        Image img = tex.getImage();
+        GlImage img = tex.getImage();
         checkSetTexture(tex, false);
 
         RenderBuffer colorBuf = new RenderBuffer();
         colorBuf.slot = colorBufs.size();
         colorBuf.tex = tex;
-        colorBuf.format = img.getFormat();
+        colorBuf.format = img.getGlFormat();
         colorBuf.face = face.ordinal();
 
         colorBufs.add(colorBuf);
@@ -697,13 +697,13 @@ public class FrameBuffer extends NativeObject {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
-        Image img = tex.getImage();
+        GlImage img = tex.getImage();
         checkSetTexture(tex, true);
 
         depthBuf = new RenderBuffer();
-        depthBuf.slot = img.getFormat().isDepthStencilFormat() ? SLOT_DEPTH_STENCIL : SLOT_DEPTH;
+        depthBuf.slot = img.getGlFormat().isDepthStencilFormat() ? SLOT_DEPTH_STENCIL : SLOT_DEPTH;
         depthBuf.tex = tex;
-        depthBuf.format = img.getFormat();
+        depthBuf.format = img.getGlFormat();
     }
 
     /**
@@ -719,13 +719,13 @@ public class FrameBuffer extends NativeObject {
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
         }
 
-        Image img = tex.getImage();
+        GlImage img = tex.getImage();
         checkSetTexture(tex, true);
 
         depthBuf = new RenderBuffer();
-        depthBuf.slot = img.getFormat().isDepthStencilFormat() ? SLOT_DEPTH_STENCIL : SLOT_DEPTH;
+        depthBuf.slot = img.getGlFormat().isDepthStencilFormat() ? SLOT_DEPTH_STENCIL : SLOT_DEPTH;
         depthBuf.tex = tex;
-        depthBuf.format = img.getFormat();
+        depthBuf.format = img.getGlFormat();
         depthBuf.layer = layer;
     }
 

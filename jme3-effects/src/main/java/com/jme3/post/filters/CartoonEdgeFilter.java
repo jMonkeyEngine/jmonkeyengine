@@ -45,7 +45,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage.Format;
 
 /**
  * Applies a cartoon-style edge detection filter to all objects in the scene.

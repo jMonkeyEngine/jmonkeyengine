@@ -51,7 +51,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.AWTFrameProcessor.TransferMode;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import com.jme3.util.BufferUtils;
 
 
@@ -186,8 +186,8 @@ public class AWTComponentRenderer {
       this.frameBuffer = frameBuffer;
     } else {
       this.frameBuffer = new FrameBuffer(width, height, 1);
-      this.frameBuffer.setDepthBuffer(Image.Format.Depth);
-      this.frameBuffer.setColorBuffer(Image.Format.RGBA8);
+      this.frameBuffer.setDepthBuffer(GlImage.Format.Depth);
+      this.frameBuffer.setColorBuffer(GlImage.Format.RGBA8);
       this.frameBuffer.setSrgb(true);
     }
 
@@ -270,7 +270,7 @@ public class AWTComponentRenderer {
       frameByteBuffer.clear();
 
       final Renderer renderer = renderManager.getRenderer();
-      renderer.readFrameBufferWithFormat(frameBuffer, frameByteBuffer, Image.Format.RGBA8);
+      renderer.readFrameBufferWithFormat(frameBuffer, frameByteBuffer, GlImage.Format.RGBA8);
 
     } finally {
       if (!frameState.compareAndSet(RUNNING_STATE, WAITING_STATE)) {

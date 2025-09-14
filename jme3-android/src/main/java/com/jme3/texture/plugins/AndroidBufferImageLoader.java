@@ -37,7 +37,7 @@ import android.graphics.Matrix;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
@@ -72,7 +72,7 @@ public class AndroidBufferImageLoader implements AssetLoader {
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
         Bitmap bitmap;
-        Image.Format format;
+        GlImage.Format format;
         int bpp;
         
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -102,15 +102,15 @@ public class AndroidBufferImageLoader implements AssetLoader {
 
         switch (bitmap.getConfig()) {
             case ALPHA_8:
-                format = Image.Format.Alpha8;
+                format = GlImage.Format.Alpha8;
                 bpp = 1;
                 break;
             case ARGB_8888:
-                format = Image.Format.RGBA8;
+                format = GlImage.Format.RGBA8;
                 bpp = 4;
                 break;
             case RGB_565:
-                format = Image.Format.RGB565;
+                format = GlImage.Format.RGB565;
                 bpp = 2;
                 break;
             default:
@@ -124,7 +124,7 @@ public class AndroidBufferImageLoader implements AssetLoader {
         
         ByteBuffer data = BufferUtils.createByteBuffer(bitmap.getWidth() * bitmap.getHeight() * bpp);
         
-        if (format == Image.Format.RGBA8) {
+        if (format == GlImage.Format.RGBA8) {
             int[] pixelData = new int[width * height];
             bitmap.getPixels(pixelData, 0,  width, 0, 0,          width,  height);
 
@@ -163,7 +163,7 @@ public class AndroidBufferImageLoader implements AssetLoader {
         
         bitmap.recycle();
         
-        Image image = new Image(format, width, height, data, ColorSpace.sRGB);
+        GlImage image = new GlImage(format, width, height, data, ColorSpace.sRGB);
         
         return image;
     }

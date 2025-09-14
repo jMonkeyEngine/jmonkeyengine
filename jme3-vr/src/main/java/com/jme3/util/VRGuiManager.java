@@ -17,8 +17,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.shape.CenterQuad;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import java.awt.GraphicsEnvironment;
 import java.util.Iterator;
@@ -427,8 +427,8 @@ public class VRGuiManager {
 
                     //setup framebuffer's texture
                     guiTexture = new Texture2D((int)guiCanvasSize.x, (int)guiCanvasSize.y, Format.RGBA8);
-                    guiTexture.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-                    guiTexture.setMagFilter(Texture.MagFilter.Bilinear);
+                    guiTexture.setMinFilter(GlTexture.MinFilter.BilinearNoMipMaps);
+                    guiTexture.setMagFilter(GlTexture.MagFilter.Bilinear);
 
                     //setup framebuffer to use texture
                     offBuffer.setDepthBuffer(Format.Depth);

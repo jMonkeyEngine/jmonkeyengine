@@ -38,7 +38,7 @@ import com.jme3.terrain.collision.BaseAWTTest;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,7 +55,7 @@ public class TestTerrainExporting extends BaseAWTTest {
     @Test
     public void testTerrainExporting() {
 
-        Texture heightMapImage = getAssetManager().loadTexture("Textures/Terrain/splat/mountains512.png");
+        GlTexture heightMapImage = getAssetManager().loadTexture("Textures/Terrain/splat/mountains512.png");
         AbstractHeightMap map = new ImageBasedHeightMap(heightMapImage.getImage(), 0.25f);
         map.load();
 

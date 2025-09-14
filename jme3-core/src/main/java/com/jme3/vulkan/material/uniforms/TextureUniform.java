@@ -1,8 +1,10 @@
 package com.jme3.vulkan.material.uniforms;
 
+import com.jme3.material.GlMaterial;
+import com.jme3.renderer.opengl.GLRenderer;
+import com.jme3.texture.Texture;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
-import com.jme3.vulkan.images.Texture;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
@@ -21,11 +23,16 @@ public class TextureUniform extends AbstractUniform<Texture> {
     }
 
     @Override
+    public void uploadToProgram(GLRenderer renderer, GlMaterial.BindUnits units) {
+        renderer.setTexture(units.textureUnit++, resource.get());
+    }
+
+    @Override
     public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
         Texture tex = resource.get();
         VkDescriptorImageInfo.Buffer info = VkDescriptorImageInfo.calloc(1, stack)
-                .imageView(tex.getImage().getNativeObject())
-                .sampler(tex.getNativeObject())
+                .imageView(tex.getView().getId())
+                .sampler(tex.getId())
                 .imageLayout(layout.getEnum());
         write.pImageInfo(info)
                 .descriptorType(type.getEnum())

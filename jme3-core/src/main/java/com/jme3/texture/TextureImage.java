@@ -104,24 +104,24 @@ public class TextureImage {
         
     }
     
-    private Texture texture;
+    private GlTexture texture;
     private int level, layer;
     private Access access;
     private boolean updateFlag = true;
     
-    public TextureImage(Texture texture) {
+    public TextureImage(GlTexture texture) {
         this(texture, 0, -1, Access.ReadWrite);
     }
     
-    public TextureImage(Texture texture, Access access) {
+    public TextureImage(GlTexture texture, Access access) {
         this(texture, 0, -1, access);
     }
     
-    public TextureImage(Texture texture, int level, int layer) {
+    public TextureImage(GlTexture texture, int level, int layer) {
         this(texture, level, layer, Access.ReadWrite);
     }
     
-    public TextureImage(Texture texture, int level, int layer, Access access) {
+    public TextureImage(GlTexture texture, int level, int layer, Access access) {
         this.texture = Objects.requireNonNull(texture, "Underlying texture cannot be null");
         this.level = level;
         this.layer = layer;
@@ -143,9 +143,9 @@ public class TextureImage {
      * @param unit texture unit to bind to
      */
     public void bindImage(GL4 gl4, TextureUtil texUtil, int unit) {
-        Image img = texture.getImage();
-        gl4.glBindImageTexture(unit, img.getId(), level, isLayered(), Math.max(layer, 0),
-                access.getGlEnum(), texUtil.getImageFormat(img.getFormat(), false).internalFormat);
+        GlImage img = texture.getImage();
+        gl4.glBindImageTexture(unit, img.getNativeObject(), level, isLayered(), Math.max(layer, 0),
+                access.getGlEnum(), texUtil.getImageFormat(img.getGlFormat(), false).internalFormat);
     }
     
     /**
@@ -172,7 +172,7 @@ public class TextureImage {
      * 
      * @param texture wrapped texture (not null)
      */
-    public void setTexture(Texture texture) {
+    public void setTexture(GlTexture texture) {
         Objects.requireNonNull(texture, "Wrapped texture cannot be null.");
         if (this.texture != texture) {
             this.texture = texture;
@@ -235,7 +235,7 @@ public class TextureImage {
      * 
      * @return underlying texture
      */
-    public Texture getTexture() {
+    public GlTexture getTexture() {
         return texture;
     }
     
@@ -244,7 +244,7 @@ public class TextureImage {
      * 
      * @return 
      */
-    public Image getImage() {
+    public GlImage getImage() {
         return texture.getImage();
     }
     
@@ -253,8 +253,8 @@ public class TextureImage {
      * 
      * @return 
      */
-    public Image.Format getFormat() {
-        return texture.getImage().getFormat();
+    public GlImage.Format getFormat() {
+        return texture.getImage().getGlFormat();
     }
     
     /**
@@ -263,7 +263,7 @@ public class TextureImage {
      * @return 
      */
     public int getImageId() {
-        return texture.getImage().getId();
+        return texture.getImage().getNativeObject();
     }
     
     /**

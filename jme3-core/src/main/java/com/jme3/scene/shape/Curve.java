@@ -34,7 +34,7 @@ package com.jme3.scene.shape;
 import com.jme3.math.Spline;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.OldMesh;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.VertexBuffer;
 import java.util.Iterator;
 import java.util.List;
@@ -48,7 +48,7 @@ import java.util.List;
  *
  * @author Nehon
  */
-public class Curve extends OldMesh {
+public class Curve extends GlMesh {
 
     private Spline spline;
     private Vector3f temp = new Vector3f();

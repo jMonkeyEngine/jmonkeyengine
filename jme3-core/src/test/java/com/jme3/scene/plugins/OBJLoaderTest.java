@@ -39,7 +39,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.system.TestUtil;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -100,7 +100,7 @@ public class OBJLoaderTest {
     public static class PngLoaderStub implements AssetLoader {
         @Override
         public Object load(final AssetInfo assetInfo) {
-            return new Image();
+            return new GlImage();
         }
     }
 }

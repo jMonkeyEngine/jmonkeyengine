@@ -41,7 +41,7 @@ import com.jme3.material.plugin.export.material.J3MExporter;
 import com.jme3.material.plugins.J3MLoader;
 import com.jme3.math.ColorRGBA;
 import com.jme3.system.JmeSystem;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -77,11 +77,11 @@ public class TestMaterialWrite {
 
         mat.setFloat("Shininess", 2.5f);
 
-        Texture tex = assetManager.loadTexture(new TextureKey("Common/Textures/MissingTexture.png", true));
-        tex.setMagFilter(Texture.MagFilter.Nearest);
-        tex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-        tex.setWrap(Texture.WrapAxis.S, Texture.WrapMode.Repeat);
-        tex.setWrap(Texture.WrapAxis.T, Texture.WrapMode.MirroredRepeat);
+        GlTexture tex = assetManager.loadTexture(new TextureKey("Common/Textures/MissingTexture.png", true));
+        tex.setMagFilter(GlTexture.MagFilter.Nearest);
+        tex.setMinFilter(GlTexture.MinFilter.BilinearNoMipMaps);
+        tex.setWrap(GlTexture.WrapAxis.S, GlTexture.WrapMode.Repeat);
+        tex.setWrap(GlTexture.WrapAxis.T, GlTexture.WrapMode.MirroredRepeat);
 
         mat.setTexture("DiffuseMap", tex);
         mat.getAdditionalRenderState().setDepthWrite(false);

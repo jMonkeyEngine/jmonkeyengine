@@ -54,7 +54,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 /**
  * @author normenhansen
@@ -197,7 +197,7 @@ public class TestRagdollCharacter
         Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey key = new TextureKey("Textures/Terrain/BrickWall/BrickWall.jpg");
         key.setGenerateMips(true);
-        Texture tex = assetManager.loadTexture(key);
+        GlTexture tex = assetManager.loadTexture(key);
         mat2.setTexture("ColorMap", tex);
 
         float startpt = bLength / 4f;

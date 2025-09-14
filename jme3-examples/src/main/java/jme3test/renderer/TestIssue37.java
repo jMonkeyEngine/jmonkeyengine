@@ -39,7 +39,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.shape.Box;
 import com.jme3.shader.VarType;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 /**
  * Test a Material with increasing numbers of texture parameters, to see what
@@ -59,7 +59,7 @@ public class TestIssue37 extends SimpleApplication {
 
     private int numTextures;
     private Material manyTexturesMaterial;
-    private Texture testTexture;
+    private GlTexture testTexture;
 
     public static void main(String[] args) {
         Application application = new TestIssue37();

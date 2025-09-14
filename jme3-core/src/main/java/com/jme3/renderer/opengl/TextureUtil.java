@@ -33,8 +33,8 @@ package com.jme3.renderer.opengl;
 
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RendererException;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.image.ColorSpace;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
@@ -242,13 +242,13 @@ public final class TextureUtil {
         }
     }
 
-    public void uploadTexture(Image image,
+    public void uploadTexture(GlImage image,
                               int target,
                               int index,
                               boolean linearizeSrgb) {
 
         boolean getSrgbFormat = image.getColorSpace() == ColorSpace.sRGB && linearizeSrgb;
-        Image.Format jmeFormat = image.getFormat();
+        GlImage.Format jmeFormat = image.getGlFormat();
         GLImageFormat oglFormat = getImageFormatWithError(jmeFormat, getSrgbFormat);
 
         ByteBuffer data = null;
@@ -304,7 +304,7 @@ public final class TextureUtil {
      * @deprecated Use uploadSubTexture(int target,  Image src, int index,int targetX, int targetY,int srcX,int srcY,  int areaWidth,int areaHeight, boolean linearizeSrgb) 
      */
     @Deprecated
-    public void uploadSubTexture(Image image, int target, int index, int x, int y, boolean linearizeSrgb) {
+    public void uploadSubTexture(GlImage image, int target, int index, int x, int y, boolean linearizeSrgb) {
         if (target != GL.GL_TEXTURE_2D || image.getDepth() > 1) {
             throw new UnsupportedOperationException("Updating non-2D texture is not supported");
         }
@@ -317,7 +317,7 @@ public final class TextureUtil {
             throw new UnsupportedOperationException("Updating multisampled images is not supported");
         }
         
-        Image.Format jmeFormat = image.getFormat();
+        GlImage.Format jmeFormat = image.getGlFormat();
         
         if (jmeFormat.isCompressed()) {
             throw new UnsupportedOperationException("Updating compressed images is not supported");
@@ -345,7 +345,7 @@ public final class TextureUtil {
                            oglFormat.format, oglFormat.dataType, data);
     }
 
-    public void uploadSubTexture(int target, Image src, int index, int targetX, int targetY, int areaX, int areaY, int areaWidth, int areaHeight, boolean linearizeSrgb) {
+    public void uploadSubTexture(int target, GlImage src, int index, int targetX, int targetY, int areaX, int areaY, int areaWidth, int areaHeight, boolean linearizeSrgb) {
         if (target != GL.GL_TEXTURE_2D || src.getDepth() > 1) {
             throw new UnsupportedOperationException("Updating non-2D texture is not supported");
         }
@@ -358,7 +358,7 @@ public final class TextureUtil {
             throw new UnsupportedOperationException("Updating multisampled images is not supported");
         }
 
-        Image.Format jmeFormat = src.getFormat();
+        GlImage.Format jmeFormat = src.getGlFormat();
 
         if (jmeFormat.isCompressed()) {
             throw new UnsupportedOperationException("Updating compressed images is not supported");
@@ -375,7 +375,7 @@ public final class TextureUtil {
             throw new IndexOutOfBoundsException("The image index " + index + " is not valid for the given image");
         }
 
-        int Bpp = src.getFormat().getBitsPerPixel() / 8;
+        int Bpp = src.getGlFormat().getBitsPerPixel() / 8;
 
         int srcWidth = src.getWidth();
         int cpos = data.position();

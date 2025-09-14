@@ -42,7 +42,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 /**
  * Test case for JME issue #1798: filtered scenes are squeezed by resizable
@@ -98,7 +98,7 @@ public class TestIssue1798 extends SimpleApplication {
             Geometry g = (Geometry) spatial;
             Material m = g.getMaterial();
             if (m.getMaterialDef().getMaterialParam("UseMaterialColors") != null) {
-                Texture t = assetManager.loadTexture("Textures/ColorRamp/toon.png");
+                GlTexture t = assetManager.loadTexture("Textures/ColorRamp/toon.png");
                 m.setTexture("ColorRamp", t);
                 m.setBoolean("UseMaterialColors", true);
                 m.setColor("Specular", ColorRGBA.Black);

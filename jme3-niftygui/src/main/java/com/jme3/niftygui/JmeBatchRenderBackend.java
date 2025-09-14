@@ -44,9 +44,10 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture.MagFilter;
-import com.jme3.texture.Texture.MinFilter;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture.MagFilter;
+import com.jme3.texture.GlTexture.MinFilter;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.ImageRaster;
@@ -223,11 +224,11 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         // Fix GLES format incompatibility issue with glTexSubImage
         Renderer renderer = display.getRenderer();
         if (renderer == null || renderer.getCaps().contains(Caps.OpenGLES20)) {
-            if (texture.getImage().getFormat() != Format.RGBA8) {
-                com.jme3.texture.Image sourceImage = texture.getImage();
+            if (texture.getImage().getGlFormat() != Format.RGBA8) {
+                GlImage sourceImage = texture.getImage();
                 int size = sourceImage.getWidth() * sourceImage.getHeight() * 4;
                 ByteBuffer buffer = BufferUtils.createByteBuffer(size);
-                com.jme3.texture.Image rgba8Image = new com.jme3.texture.Image(Format.RGBA8,
+                GlImage rgba8Image = new GlImage(Format.RGBA8,
                         sourceImage.getWidth(),
                         sourceImage.getHeight(),
                         buffer,
@@ -250,7 +251,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     @Override
     public Image loadImage(final ByteBuffer imageData, final int imageWidth, final int imageHeight) {
-        return new ImageImpl(new com.jme3.texture.Image(Format.RGBA8, imageWidth, imageHeight, imageData, ColorSpace.Linear));
+        return new ImageImpl(new GlImage(Format.RGBA8, imageWidth, imageHeight, imageData, ColorSpace.Linear));
     }
 
     @Override
@@ -334,7 +335,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         initialData.rewind();
         modifyTexture(
                 getTextureAtlas(atlasTextureId),
-                new com.jme3.texture.Image(Format.RGBA8, image.getWidth(), image.getHeight(), initialData, ColorSpace.sRGB),
+                new GlImage(Format.RGBA8, image.getWidth(), image.getHeight(), initialData, ColorSpace.sRGB),
                 x,
                 y);
     }
@@ -376,7 +377,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         // re-use pre-defined initial data instead of creating a new buffer
         initialData.rewind();
 
-        Texture2D texture = new Texture2D(new com.jme3.texture.Image(Format.RGBA8, width, height, initialData, ColorSpace.sRGB));
+        Texture2D texture = new Texture2D(new GlImage(Format.RGBA8, width, height, initialData, ColorSpace.sRGB));
         texture.setMinFilter(MinFilter.NearestNoMipMaps);
         texture.setMagFilter(MagFilter.Nearest);
         return texture;
@@ -384,7 +385,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     private void modifyTexture(
             final Texture2D textureAtlas,
-            final com.jme3.texture.Image image,
+            final GlImage image,
             final int x,
             final int y) {
         Renderer renderer = display.getRenderer();
@@ -417,9 +418,9 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
      */
     private static class ImageImpl implements BatchRenderBackend.Image {
 
-        private final com.jme3.texture.Image image;
+        private final GlImage image;
 
-        public ImageImpl(final com.jme3.texture.Image image) {
+        public ImageImpl(final GlImage image) {
             this.image = image;
         }
 
@@ -451,11 +452,11 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     private static class ModifyTexture {
 
         private final Texture2D atlas;
-        private final com.jme3.texture.Image image;
+        private final GlImage image;
         private final int x;
         private final int y;
 
-        private ModifyTexture(final Texture2D atlas, final com.jme3.texture.Image image, final int x, final int y) {
+        private ModifyTexture(final Texture2D atlas, final GlImage image, final int x, final int y) {
             this.atlas = atlas;
             this.image = image;
             this.x = x;

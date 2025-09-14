@@ -39,9 +39,6 @@ public abstract class AbstractUniform <T> implements Uniform<T> {
     }
 
     @Override
-    public void update(CommandBuffer cmd) {}
-
-    @Override
     public void setResource(VersionedResource<? extends T> resource) {
         this.resource = resource;
     }

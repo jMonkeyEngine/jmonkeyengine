@@ -37,11 +37,10 @@ import com.jme3.light.Light;
 import com.jme3.light.LightList;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
-import com.jme3.material.OldMaterial;
+import com.jme3.material.GlMaterial;
 import com.jme3.material.RenderState;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.TechniqueDef;
-import com.jme3.material.Material.BindUnits;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
@@ -208,7 +207,7 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, OldMaterial.BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, GlMaterial.BindUnits lastBindUnits) {
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         int batchSize = renderManager.getSinglePassLightBatchSize();

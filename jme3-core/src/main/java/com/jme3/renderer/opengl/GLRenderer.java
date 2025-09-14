@@ -39,8 +39,8 @@ import com.jme3.material.RenderState.TestFunction;
 import com.jme3.math.*;
 import com.jme3.opencl.OpenCLObjectManager;
 import com.jme3.renderer.*;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.OldMesh.Mode;
+import com.jme3.scene.GlMesh;
+import com.jme3.scene.GlMesh.Mode;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
@@ -56,11 +56,11 @@ import com.jme3.shader.bufferobject.BufferRegion;
 import com.jme3.shader.bufferobject.DirtyRegionsIterator;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.Texture.ShadowCompareMode;
-import com.jme3.texture.Texture.WrapAxis;
+import com.jme3.texture.GlTexture.ShadowCompareMode;
+import com.jme3.texture.GlTexture.WrapAxis;
 import com.jme3.texture.TextureImage;
 import com.jme3.texture.image.LastTextureState;
 import com.jme3.util.BufferUtils;
@@ -1977,8 +1977,8 @@ public final class GLRenderer implements Renderer {
     }
 
     public void updateRenderTexture(FrameBuffer fb, RenderBuffer rb) {
-        Texture tex = rb.getTexture();
-        Image image = tex.getImage();
+        GlTexture tex = rb.getTexture();
+        GlImage image = tex.getImage();
         if (image.isUpdateNeeded()) {
             // Check NPOT requirements
             checkNonPowerOfTwo(tex);
@@ -1995,12 +1995,12 @@ public final class GLRenderer implements Renderer {
             glfbo.glFramebufferTexture2DEXT(GLFbo.GL_FRAMEBUFFER_EXT,
                     convertAttachmentSlot(rb.getSlot()),
                     convertTextureType(tex.getType(), image.getMultiSamples(), rb.getFace()),
-                    image.getId(),
+                    image.getNativeObject(),
                     rb.getLevel());
         } else {
             glfbo.glFramebufferTextureLayerEXT(GLFbo.GL_FRAMEBUFFER_EXT,
                     convertAttachmentSlot(rb.getSlot()),
-                    image.getId(),
+                    image.getNativeObject(),
                     rb.getLevel(),
                     rb.getLayer());
         }
@@ -2191,7 +2191,7 @@ public final class GLRenderer implements Renderer {
         if (context.boundFB != null && (context.boundFB.getMipMapsGenerationHint()!=null?context.boundFB.getMipMapsGenerationHint():generateMipmapsForFramebuffers)) {
             for (int i = 0; i < context.boundFB.getNumColorBuffers(); i++) {
                 RenderBuffer rb = context.boundFB.getColorBuffer(i);
-                Texture tex = rb.getTexture();
+                GlTexture tex = rb.getTexture();
                 if (tex != null && tex.getMinFilter().usesMipMapLevels()) {
                     try {
                         final int textureUnitIndex = 0;
@@ -2199,7 +2199,7 @@ public final class GLRenderer implements Renderer {
                     } catch (TextureUnitException exception) {
                         throw new RuntimeException("Renderer lacks texture units?");
                     }
-                    if (tex.getType() == Texture.Type.CubeMap) {
+                    if (tex.getType() == GlTexture.Type.CubeMap) {
                         glfbo.glGenerateMipmapEXT(GL.GL_TEXTURE_CUBE_MAP);
                     } else {
                         int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
@@ -2255,7 +2255,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
+    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, GlImage.Format format) {
         GLImageFormat glFormat = texUtil.getImageFormatWithError(format, false);
         readFrameBufferWithGLFormat(fb, byteBuf, glFormat.format, glFormat.dataType);
     }
@@ -2291,7 +2291,7 @@ public final class GLRenderer implements Renderer {
     /*********************************************************************\
      |* Textures                                                          *|
      \*********************************************************************/
-    private int convertTextureType(Texture.Type type, int samples, int face) {
+    private int convertTextureType(GlTexture.Type type, int samples, int face) {
         if (samples > 1 && !caps.contains(Caps.TextureMultisample)) {
             throw new RendererException("Multisample textures are not supported" +
                     " by the video hardware.");
@@ -2333,7 +2333,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private int convertMagFilter(Texture.MagFilter filter) {
+    private int convertMagFilter(GlTexture.MagFilter filter) {
         switch (filter) {
             case Bilinear:
                 return GL.GL_LINEAR;
@@ -2344,7 +2344,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private int convertMinFilter(Texture.MinFilter filter, boolean haveMips) {
+    private int convertMinFilter(GlTexture.MinFilter filter, boolean haveMips) {
         if (haveMips){
             switch (filter) {
                 case Trilinear:
@@ -2378,7 +2378,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private int convertWrapMode(Texture.WrapMode mode) {
+    private int convertWrapMode(GlTexture.WrapMode mode) {
         switch (mode) {
             case BorderClamp:
             case Clamp:
@@ -2395,8 +2395,8 @@ public final class GLRenderer implements Renderer {
     }
 
     @SuppressWarnings("fallthrough")
-    private void setupTextureParams(int unit, Texture tex) {
-        Image image = tex.getImage();
+    private void setupTextureParams(int unit, GlTexture tex) {
+        GlImage image = tex.getImage();
         int samples = image != null ? image.getMultiSamples() : 1;
         int target = convertTextureType(tex.getType(), samples, -1);
 
@@ -2492,7 +2492,7 @@ public final class GLRenderer implements Renderer {
      * @param tex The texture to validate.
      * @throws RendererException If the texture is not supported by the hardware
      */
-    private void checkNonPowerOfTwo(Texture tex) {
+    private void checkNonPowerOfTwo(GlTexture tex) {
         if (!tex.getImage().isNPOT()) {
             // Texture is power-of-2, safe to use.
             return;
@@ -2519,15 +2519,15 @@ public final class GLRenderer implements Renderer {
         switch (tex.getType()) {
             case CubeMap:
             case ThreeDimensional:
-                if (tex.getWrap(WrapAxis.R) != Texture.WrapMode.EdgeClamp) {
+                if (tex.getWrap(WrapAxis.R) != GlTexture.WrapMode.EdgeClamp) {
                     throw new RendererException("repeating non-power-of-2 textures "
                             + "are not supported by the video hardware");
                 }
                 // fallthrough intentional!!!
             case TwoDimensionalArray:
             case TwoDimensional:
-                if (tex.getWrap(WrapAxis.S) != Texture.WrapMode.EdgeClamp
-                        || tex.getWrap(WrapAxis.T) != Texture.WrapMode.EdgeClamp) {
+                if (tex.getWrap(WrapAxis.S) != GlTexture.WrapMode.EdgeClamp
+                        || tex.getWrap(WrapAxis.T) != GlTexture.WrapMode.EdgeClamp) {
                     throw new RendererException("repeating non-power-of-2 textures "
                             + "are not supported by the video hardware");
                 }
@@ -2545,13 +2545,13 @@ public final class GLRenderer implements Renderer {
      * @param img The image texture to bind
      * @param unit At what unit to bind the texture.
      */
-    private void bindTextureAndUnit(int target, Image img, int unit) {
+    private void bindTextureAndUnit(int target, GlImage img, int unit) {
         if (context.boundTextureUnit != unit) {
             gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
             context.boundTextureUnit = unit;
         }
         if (context.boundTextures[unit]==null||context.boundTextures[unit].get() != img.getWeakRef().get()) {
-            gl.glBindTexture(target, img.getId());
+            gl.glBindTexture(target, img.getNativeObject());
             context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
@@ -2567,13 +2567,13 @@ public final class GLRenderer implements Renderer {
      * @param img The image texture to bind
      * @param unit At what unit to bind the texture.
      */
-    private void bindTextureOnly(int target, Image img, int unit) {
+    private void bindTextureOnly(int target, GlImage img, int unit) {
         if (context.boundTextures[unit] == null || context.boundTextures[unit].get() != img.getWeakRef().get()) {
             if (context.boundTextureUnit != unit) {
                 gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
                 context.boundTextureUnit = unit;
             }
-            gl.glBindTexture(target, img.getId());
+            gl.glBindTexture(target, img.getNativeObject());
             context.boundTextures[unit] = img.getWeakRef();
             statistics.onTextureUse(img, true);
         } else {
@@ -2590,14 +2590,14 @@ public final class GLRenderer implements Renderer {
      * @param scaleToPot If true, the image will be scaled to power-of-2 dimensions
      * before being uploaded.
      */
-    public void updateTexImageData(Image img, Texture.Type type, int unit, boolean scaleToPot) {
-        int texId = img.getId();
+    public void updateTexImageData(GlImage img, GlTexture.Type type, int unit, boolean scaleToPot) {
+        int texId = img.getNativeObject();
         if (texId == -1) {
             // create texture
             gl.glGenTextures(intBuf1);
             texId = intBuf1.get(0);
-            img.setId(texId);
-            objManager.registerObject(img);
+            img.setId(this, texId); // setId automatically updates the native state
+            //objManager.registerObject(img);
 
             statistics.onNewTexture();
         }
@@ -2640,7 +2640,7 @@ public final class GLRenderer implements Renderer {
                 throw new RendererException("Multisample textures do not support mipmaps");
             }
 
-            if (img.getFormat().isDepthFormat()) {
+            if (img.getGlFormat().isDepthFormat()) {
                 img.setMultiSamples(Math.min(limits.get(Limits.DepthTextureSamples), imageSamples));
             } else {
                 img.setMultiSamples(Math.min(limits.get(Limits.ColorTextureSamples), imageSamples));
@@ -2650,7 +2650,7 @@ public final class GLRenderer implements Renderer {
         }
 
         // Check if graphics card doesn't support depth textures
-        if (img.getFormat().isDepthFormat() && !caps.contains(Caps.DepthTexture)) {
+        if (img.getGlFormat().isDepthFormat() && !caps.contains(Caps.DepthTexture)) {
             throw new RendererException("Depth textures are not supported by the video hardware");
         }
 
@@ -2670,7 +2670,7 @@ public final class GLRenderer implements Renderer {
             }
         }
 
-        Image imageForUpload;
+        GlImage imageForUpload;
         if (scaleToPot) {
             imageForUpload = MipMapGenerator.resizeToPowerOf2(img);
         } else {
@@ -2720,12 +2720,12 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void setTexture(int unit, Texture tex) throws TextureUnitException {
+    public void setTexture(int unit, GlTexture tex) throws TextureUnitException {
         if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
             throw new TextureUnitException();
         }
         
-        Image image = tex.getImage();
+        GlImage image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
             // Check NPOT requirements
             boolean scaleToPot = false;
@@ -2747,12 +2747,12 @@ public final class GLRenderer implements Renderer {
             updateTexImageData(image, tex.getType(), unit, scaleToPot);
         }
 
-        int texId = image.getId();
+        int texId = image.getNativeObject();
         assert texId != -1;
 
         setupTextureParams(unit, tex);
         if (debug && caps.contains(Caps.GLDebug)) {
-            if (tex.getName() != null) glext.glObjectLabel(GL.GL_TEXTURE, tex.getImage().getId(), tex.getName());
+            if (tex.getName() != null) glext.glObjectLabel(GL.GL_TEXTURE, tex.getImage().getNativeObject(), tex.getName());
         }
     }
     
@@ -2761,7 +2761,7 @@ public final class GLRenderer implements Renderer {
         if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
             throw new TextureUnitException();
         }
-        WeakReference<Image> ref = context.boundTextures[unit];
+        WeakReference<GlImage> ref = context.boundTextures[unit];
         boolean bindRequired = tex.clearUpdateNeeded() || ref == null || ref.get() != tex.getImage().getWeakRef().get();
         setTexture(unit, tex.getTexture());
         if (gl4 != null && bindRequired) {
@@ -2811,7 +2811,7 @@ public final class GLRenderer implements Renderer {
      */
     @Deprecated
     @Override
-    public void modifyTexture(Texture tex, Image pixels, int x, int y) {
+    public void modifyTexture(GlTexture tex, GlImage pixels, int x, int y) {
         final int textureUnitIndex = 0;
         try {
             setTexture(textureUnitIndex, tex);
@@ -2819,7 +2819,7 @@ public final class GLRenderer implements Renderer {
             throw new RuntimeException("Renderer lacks texture units?");
         }
 
-        if(caps.contains(Caps.OpenGLES20) && pixels.getFormat()!=tex.getImage().getFormat()) {
+        if(caps.contains(Caps.OpenGLES20) && pixels.getGlFormat()!=tex.getImage().getGlFormat()) {
             logger.log(Level.WARNING, "Incompatible texture subimage");
         }
         int target = convertTextureType(tex.getType(), pixels.getMultiSamples(), -1);
@@ -2838,8 +2838,8 @@ public final class GLRenderer implements Renderer {
      * @param areaW Width of the area to copy
      * @param areaH Height of the area to copy
      */
-    public void modifyTexture(Texture2D dest, Image src, int destX, int destY,
-            int srcX, int srcY, int areaW, int areaH) {
+    public void modifyTexture(Texture2D dest, GlImage src, int destX, int destY,
+                              int srcX, int srcY, int areaW, int areaH) {
         final int textureUnitIndex = 0;
         try {
             setTexture(textureUnitIndex, dest);
@@ -2847,7 +2847,7 @@ public final class GLRenderer implements Renderer {
             throw new RuntimeException("Renderer lacks texture units?");
         }
 
-        if(caps.contains(Caps.OpenGLES20) && src.getFormat()!=dest.getImage().getFormat()) {
+        if(caps.contains(Caps.OpenGLES20) && src.getGlFormat()!=dest.getImage().getGlFormat()) {
             logger.log(Level.WARNING, "Incompatible texture subimage");
         }
         int target = convertTextureType(dest.getType(), src.getMultiSamples(), -1);
@@ -2856,8 +2856,8 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void deleteImage(Image image) {
-        int texId = image.getId();
+    public void deleteImage(GlImage image) {
+        int texId = image.getNativeObject();
         if (texId != -1) {
             intBuf1.put(0, texId);
             intBuf1.position(0).limit(1);
@@ -3227,7 +3227,7 @@ public final class GLRenderer implements Renderer {
         setVertexAttrib(vb, null);
     }
 
-    public void drawTriangleArray(Mesh.Mode mode, int count, int vertCount) {
+    public void drawTriangleArray(GlMesh.Mode mode, int count, int vertCount) {
         boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
         if (useInstancing) {
             glext.glDrawArraysInstancedARB(convertElementMode(mode), 0,
@@ -3237,7 +3237,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    public void drawTriangleList(VertexBuffer indexBuf, Mesh mesh, int count) {
+    public void drawTriangleList(VertexBuffer indexBuf, GlMesh mesh, int count) {
         if (indexBuf.getBufferType() != VertexBuffer.Type.Index) {
             throw new IllegalArgumentException("Only index buffers are allowed as triangle lists.");
         }
@@ -3340,7 +3340,7 @@ public final class GLRenderer implements Renderer {
      * @param mode input enum value (not null)
      * @return the corresponding GL value
      */
-    public int convertElementMode(Mesh.Mode mode) {
+    public int convertElementMode(GlMesh.Mode mode) {
         switch (mode) {
             case Points:
                 return GL.GL_POINTS;
@@ -3363,7 +3363,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    public void updateVertexArray(Mesh mesh, VertexBuffer instanceData) {
+    public void updateVertexArray(GlMesh mesh, VertexBuffer instanceData) {
         int id = mesh.getId();
         if (id == -1) {
             IntBuffer temp = intBuf1;
@@ -3403,7 +3403,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+    private void renderMeshDefault(GlMesh mesh, int lod, int count, VertexBuffer[] instanceData) {
 
         // Here while count is still passed in.  Can be removed when/if
         // the method is collapsed again.  -pspeed
@@ -3453,7 +3453,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+    public void renderMesh(GlMesh mesh, int lod, int count, VertexBuffer[] instanceData) {
         if (mesh.getVertexCount() == 0 || mesh.getTriangleCount() == 0 || count == 0) {
             return;
         }

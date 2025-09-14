@@ -37,7 +37,7 @@ import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.system.JmeSystem;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 public class TestMaterialCompare {
 
@@ -79,16 +79,16 @@ public class TestMaterialCompare {
             System.out.println("TEXTURE KEYS ARE NOT EQUAL");
         }
         
-        Texture tex1 = assetManager.loadTexture(tex1key);
+        GlTexture tex1 = assetManager.loadTexture(tex1key);
         mat4.setTexture("DiffuseMap", tex1);
         testEquality(mat4, mat5, true);
         
         // Change some stuff on the texture and compare, materials no longer equal
-        tex1.setWrap(Texture.WrapMode.MirroredRepeat);
+        tex1.setWrap(GlTexture.WrapMode.MirroredRepeat);
         testEquality(mat4, mat5, false);
         
         // Comparing different textures
-        Texture tex2 = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
+        GlTexture tex2 = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
         mat4.setTexture("DiffuseMap", tex2);
         testEquality(mat4, mat5, false);
 

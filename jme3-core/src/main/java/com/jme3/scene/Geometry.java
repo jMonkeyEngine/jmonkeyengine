@@ -42,6 +42,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.Renderer;
 import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
@@ -169,8 +170,11 @@ public class Geometry extends Spatial {
     public void draw(CommandBuffer cmd, Pipeline pipeline) {
         transforms.bind(cmd, pipeline);
         material.bind(cmd, pipeline, transforms.getSets().size());
-        mesh.bind(cmd);
-        mesh.draw(cmd);
+        mesh.draw(cmd, this);
+    }
+
+    public void draw(Renderer renderer) {
+        mesh.draw(renderer, this, 1, null);
     }
 
     @Override
@@ -202,7 +206,7 @@ public class Geometry extends Spatial {
      * Sets the LOD level to use when rendering the mesh of this geometry.
      * Level 0 indicates that the default index buffer should be used,
      * levels [1, LodLevels + 1] represent the levels set on the mesh
-     * with {@link OldMesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
+     * with {@link GlMesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
      *
      * @param lod The lod level to set
      */

@@ -34,7 +34,7 @@ package jme3test.texture;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.util.SkyFactory;
 
 public class TestSkyLoading extends SimpleApplication {
@@ -46,12 +46,12 @@ public class TestSkyLoading extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        Texture west = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");
-        Texture east = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_east.jpg");
-        Texture north = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_north.jpg");
-        Texture south = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_south.jpg");
-        Texture up = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_up.jpg");
-        Texture down = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_down.jpg");
+        GlTexture west = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");
+        GlTexture east = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_east.jpg");
+        GlTexture north = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_north.jpg");
+        GlTexture south = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_south.jpg");
+        GlTexture up = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_up.jpg");
+        GlTexture down = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_down.jpg");
 
         Spatial sky = SkyFactory.createSky(assetManager, west, east, north, south, up, down);
         rootNode.attachChild(sky);

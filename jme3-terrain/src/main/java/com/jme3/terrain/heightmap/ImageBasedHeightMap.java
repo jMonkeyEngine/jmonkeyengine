@@ -32,7 +32,7 @@
 package com.jme3.terrain.heightmap;
 
 import com.jme3.math.ColorRGBA;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import com.jme3.texture.image.ImageRaster;
 
 /**
@@ -47,11 +47,11 @@ import com.jme3.texture.image.ImageRaster;
 public class ImageBasedHeightMap extends AbstractHeightMap {
     
     
-    protected Image colorImage;
+    protected GlImage colorImage;
     private float backwardsCompScale = 255f;
 
     
-    public void setImage(Image image) {
+    public void setImage(GlImage image) {
         this.colorImage = image;
     }
     
@@ -66,11 +66,11 @@ public class ImageBasedHeightMap extends AbstractHeightMap {
      * @param colorImage
      *            Image to map to the height map.
      */
-    public ImageBasedHeightMap(Image colorImage) {
+    public ImageBasedHeightMap(GlImage colorImage) {
         this.colorImage = colorImage;
     }
     
-    public ImageBasedHeightMap(Image colorImage, float heightScale) {
+    public ImageBasedHeightMap(GlImage colorImage, float heightScale) {
         this.colorImage = colorImage;
         this.heightScale = heightScale;
     }

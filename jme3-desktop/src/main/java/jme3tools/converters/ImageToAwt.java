@@ -31,8 +31,8 @@
  */
 package jme3tools.converters;
 
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.plugins.AWTLoader;
 import com.jme3.util.BufferUtils;
 import java.awt.Transparency;
@@ -279,8 +279,8 @@ public class ImageToAwt {
 
     private static final double LOG2 = Math.log(2);
 
-    public static void createData(Image image, boolean mipmaps){
-        int bpp = image.getFormat().getBitsPerPixel();
+    public static void createData(GlImage image, boolean mipmaps){
+        int bpp = image.getGlFormat().getBitsPerPixel();
         int w = image.getWidth();
         int h = image.getHeight();
         if (!mipmaps){
@@ -309,9 +309,9 @@ public class ImageToAwt {
      * @param input the input image (not null, unaffected)
      * @param output the output image (not null, modified)
      */
-    public static void convert(Image input, Image output){
-        DecodeParams inParams  = params.get(input.getFormat());
-        DecodeParams outParams = params.get(output.getFormat());
+    public static void convert(GlImage input, GlImage output){
+        DecodeParams inParams  = params.get(input.getGlFormat());
+        DecodeParams outParams = params.get(output.getGlFormat());
 
         if (inParams == null || outParams == null)
             throw new UnsupportedOperationException();
@@ -375,9 +375,9 @@ public class ImageToAwt {
         }
     }
 
-    public static BufferedImage convert(Image image, boolean do16bit, boolean fullAlpha, int mipLevel){
-        Format format = image.getFormat();
-        DecodeParams p = params.get(image.getFormat());
+    public static BufferedImage convert(GlImage image, boolean do16bit, boolean fullAlpha, int mipLevel){
+        Format format = image.getGlFormat();
+        DecodeParams p = params.get(image.getGlFormat());
         if (p == null)
             throw new UnsupportedOperationException();
 

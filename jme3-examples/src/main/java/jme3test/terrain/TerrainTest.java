@@ -46,8 +46,8 @@ import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 
 /**
  * Demonstrates how to use terrain.
@@ -105,22 +105,22 @@ public class TerrainTest extends SimpleApplication {
         matRock.setTexture("Alpha", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
 
         // HEIGHTMAP image (for the terrain heightmap)
-        Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
+        GlTexture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
 
         // GRASS texture
-        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        GlTexture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         matRock.setTexture("Tex1", grass);
         matRock.setFloat("Tex1Scale", grassScale);
 
         // DIRT texture
-        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        GlTexture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
         matRock.setTexture("Tex2", dirt);
         matRock.setFloat("Tex2Scale", dirtScale);
 
         // ROCK texture
-        Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
+        GlTexture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
         rock.setWrap(WrapMode.Repeat);
         matRock.setTexture("Tex3", rock);
         matRock.setFloat("Tex3Scale", rockScale);

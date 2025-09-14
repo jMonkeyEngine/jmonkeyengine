@@ -55,7 +55,7 @@ import com.jme3.scene.debug.WireFrustum;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
 import com.jme3.shadow.ShadowUtil;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.util.TempVars;
 
 public class TestConeVSFrustum extends SimpleApplication {
@@ -221,7 +221,7 @@ public class TestConeVSFrustum extends SimpleApplication {
         Box boxMesh = new Box(1f, 1f, 1f);
         Geometry boxGeo = new Geometry("A Textured Box", boxMesh);
         Material boxMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        Texture monkeyTex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
+        GlTexture monkeyTex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
         boxMat.setTexture("ColorMap", monkeyTex);
         boxGeo.setMaterial(boxMat);
         System.err.println("light " + spotLight.getPosition());

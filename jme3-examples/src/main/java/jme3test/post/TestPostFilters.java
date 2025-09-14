@@ -45,7 +45,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
@@ -80,7 +80,7 @@ public class TestPostFilters extends SimpleApplication implements ActionListener
     }
 
     public void setupSkyBox() {
-        Texture envMap;
+        GlTexture envMap;
         if (renderer.getCaps().contains(Caps.FloatTexture)) {
             envMap = assetManager.loadTexture("Textures/Sky/St Peters/StPeters.hdr");
         } else {

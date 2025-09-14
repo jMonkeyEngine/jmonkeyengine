@@ -39,7 +39,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 public class TestTexture3DLoading extends SimpleApplication {
 
@@ -60,9 +60,9 @@ public class TestTexture3DLoading extends SimpleApplication {
         Material material = new Material(assetManager, "jme3test/texture/tex3DThumb.j3md");
         TextureKey key = new TextureKey("Textures/3D/flame.dds");
         key.setGenerateMips(true);
-        key.setTextureTypeHint(Texture.Type.ThreeDimensional);
+        key.setTextureTypeHint(GlTexture.Type.ThreeDimensional);
 
-        Texture t = assetManager.loadTexture(key);
+        GlTexture t = assetManager.loadTexture(key);
 
         int rows = 4;//4 * 4
 

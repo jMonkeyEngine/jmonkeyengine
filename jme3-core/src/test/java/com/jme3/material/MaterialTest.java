@@ -39,9 +39,9 @@ import com.jme3.scene.shape.Box;
 import com.jme3.shader.VarType;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.TestUtil;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 
@@ -130,8 +130,8 @@ public class MaterialTest {
     @Test
     public void testForcedColorSpace(){
        
-        Image img=new Image(Format.RGBA8,2,2,BufferUtils.createByteBuffer(16),null,ColorSpace.sRGB);
-        Image img2=new Image(Format.RGBA8,2,2,BufferUtils.createByteBuffer(16),null,ColorSpace.sRGB);
+        GlImage img=new GlImage(Format.RGBA8,2,2,BufferUtils.createByteBuffer(16),null,ColorSpace.sRGB);
+        GlImage img2=new GlImage(Format.RGBA8,2,2,BufferUtils.createByteBuffer(16),null,ColorSpace.sRGB);
         Texture2D tx=new Texture2D(img);
         Texture2D tx2=new Texture2D(img2);
 

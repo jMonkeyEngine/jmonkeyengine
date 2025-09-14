@@ -33,15 +33,15 @@ package com.jme3.renderer;
 
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
-import com.jme3.scene.Mesh;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.TextureImage;
 import com.jme3.util.NativeObject;
 import java.nio.ByteBuffer;
@@ -256,7 +256,7 @@ public interface Renderer {
      * @param byteBuf The bytebuffer to transfer color data to
      * @param format the image format to use when reading the frameBuffer.
      */
-    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format);
+    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, GlImage.Format format);
 
     /**
      * Deletes a framebuffer and all attached renderbuffers.
@@ -272,7 +272,7 @@ public interface Renderer {
      * @param tex the Texture to assign
      * @throws TextureUnitException if the texture unit doesn't exist
      */
-    public void setTexture(int unit, Texture tex)
+    public void setTexture(int unit, GlTexture tex)
             throws TextureUnitException;
     
     /**
@@ -295,14 +295,14 @@ public interface Renderer {
      * @param x the x position to put the image into the texture
      * @param y the y position to put the image into the texture
      */
-    public void modifyTexture(Texture tex, Image pixels, int x, int y);
+    public void modifyTexture(GlTexture tex, GlImage pixels, int x, int y);
 
     /**
      * Deletes a texture from the GPU.
      *
      * @param image the texture to delete
      */
-    public void deleteImage(Image image);
+    public void deleteImage(GlImage image);
 
     /**
      * Uploads a vertex buffer to the GPU.
@@ -356,7 +356,7 @@ public interface Renderer {
      * @param instanceData When count is greater than 1, these buffers provide
      *     the per-instance attributes.
      */
-    public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData);
+    public void renderMesh(GlMesh mesh, int lod, int count, VertexBuffer[] instanceData);
 
     /**
      * Resets all previously used {@link NativeObject Native Objects} on this Renderer.
@@ -381,7 +381,7 @@ public interface Renderer {
      * Sets the default anisotropic filter level for textures.
      *
      * <p>If the
-     * {@link Texture#setAnisotropicFilter(int) texture anisotropic filter} is
+     * {@link GlTexture#setAnisotropicFilter(int) texture anisotropic filter} is
      * set to 0, then the default level is used. Otherwise, if the texture level
      * is 1 or greater, then the texture's value overrides the default value.
      *
@@ -432,19 +432,19 @@ public interface Renderer {
     public void setMainFrameBufferSrgb(boolean srgb);
 
     /**
-     * If enabled, all {@link Image images} with the
-     * {@link Image#setColorSpace(com.jme3.texture.image.ColorSpace) sRGB flag}
+     * If enabled, all {@link GlImage images} with the
+     * {@link GlImage#setColorSpace(com.jme3.texture.image.ColorSpace) sRGB flag}
      * set shall undergo an sRGB to linear RGB color conversion when read by a shader.
      *
      * <p>The conversion is performed for the following formats:
-     *  - {@link com.jme3.texture.Image.Format#RGB8}
-     *  - {@link com.jme3.texture.Image.Format#RGBA8}
-     *  - {@link com.jme3.texture.Image.Format#Luminance8}
-     *  - {@link com.jme3.texture.Image.Format#Luminance8Alpha8}
-     *  - {@link com.jme3.texture.Image.Format#DXT1}
-     *  - {@link com.jme3.texture.Image.Format#DXT1A}
-     *  - {@link com.jme3.texture.Image.Format#DXT3}
-     *  - {@link com.jme3.texture.Image.Format#DXT5}
+     *  - {@link GlImage.Format#RGB8}
+     *  - {@link GlImage.Format#RGBA8}
+     *  - {@link GlImage.Format#Luminance8}
+     *  - {@link GlImage.Format#Luminance8Alpha8}
+     *  - {@link GlImage.Format#DXT1}
+     *  - {@link GlImage.Format#DXT1A}
+     *  - {@link GlImage.Format#DXT3}
+     *  - {@link GlImage.Format#DXT5}
      *
      * <p>For all other formats, no conversion is performed.
      *

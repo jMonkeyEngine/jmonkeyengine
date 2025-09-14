@@ -66,7 +66,7 @@ public class EnvironmentCamera extends BaseAppState {
     protected static Vector3f[] axisY = new Vector3f[6];
     protected static Vector3f[] axisZ = new Vector3f[6];
 
-    protected Image.Format imageFormat = Image.Format.RGB16F;
+    protected GlImage.Format imageFormat = GlImage.Format.RGB16F;
 
     public TextureCubeMap debugEnv;
 
@@ -98,7 +98,7 @@ public class EnvironmentCamera extends BaseAppState {
         axisZ[5] = Vector3f.UNIT_Z.mult(-1f);
 
     }
-    protected Image images[];
+    protected GlImage images[];
     protected ViewPort[] viewports;
     protected FrameBuffer[] framebuffers;
     protected ByteBuffer[] buffers;
@@ -146,7 +146,7 @@ public class EnvironmentCamera extends BaseAppState {
      * @param position the position of the camera.
      * @param imageFormat the ImageFormat to use for the resulting texture.
      */
-    public EnvironmentCamera(int size, Vector3f position, Image.Format imageFormat) {
+    public EnvironmentCamera(int size, Vector3f position, GlImage.Format imageFormat) {
         this.size = size;
         this.position.set(position);
         this.imageFormat = imageFormat;
@@ -183,7 +183,7 @@ public class EnvironmentCamera extends BaseAppState {
                         size * size * imageFormat.getBitsPerPixel() / 8);
                 renderManager.getRenderer().readFrameBufferWithFormat(
                         framebuffers[i], buffers[i], imageFormat);
-                images[i] = new Image(imageFormat, size, size, buffers[i],
+                images[i] = new GlImage(imageFormat, size, size, buffers[i],
                         ColorSpace.Linear);
                 MipMapGenerator.generateMipMaps(images[i]);
             }
@@ -299,7 +299,7 @@ public class EnvironmentCamera extends BaseAppState {
         viewports = new ViewPort[6];
         framebuffers = new FrameBuffer[6];
         buffers = new ByteBuffer[6];
-        images = new Image[6];
+        images = new GlImage[6];
 
         for (int i = 0; i < 6; i++) {
             cameras[i] = createOffCamera(size, position, axisX[i], axisY[i], axisZ[i]);
@@ -318,7 +318,7 @@ public class EnvironmentCamera extends BaseAppState {
             frameBuffer.dispose();
         }
 
-        for (final Image image : images) {
+        for (final GlImage image : images) {
             if (image != null) {
                 image.dispose();
             }
@@ -330,7 +330,7 @@ public class EnvironmentCamera extends BaseAppState {
      *
      * @return the enum value
      */
-    public Image.Format getImageFormat() {
+    public GlImage.Format getImageFormat() {
         return imageFormat;
     }
 
@@ -386,7 +386,7 @@ public class EnvironmentCamera extends BaseAppState {
     protected FrameBuffer createOffScreenFrameBuffer(int mapSize, ViewPort offView) {
         // create offscreen framebuffer
         final FrameBuffer offBuffer = new FrameBuffer(mapSize, mapSize, 1);
-        offBuffer.setDepthBuffer(Image.Format.Depth);
+        offBuffer.setDepthBuffer(GlImage.Format.Depth);
         offView.setOutputFrameBuffer(offBuffer);
         return offBuffer;
     }

@@ -41,7 +41,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 /**
  * Changes a material's texture from another thread while it is rendered.
@@ -51,7 +51,7 @@ import com.jme3.texture.Texture;
  */
 public class TestInconsistentCompareDetection extends SimpleApplication {
 
-    private static Texture t1, t2;
+    private static GlTexture t1, t2;
     
     public static void main(String[] args){
         TestInconsistentCompareDetection app = new TestInconsistentCompareDetection();
@@ -104,7 +104,7 @@ public class TestInconsistentCompareDetection extends SimpleApplication {
                     for (Spatial child : rootNode.getChildren()) {
                         Geometry g = (Geometry) (((Node)child).getChild(0));
                         Material m = g.getMaterial();
-                        Texture curTex = m.getTextureParam("ColorMap").getTextureValue();
+                        GlTexture curTex = m.getTextureParam("ColorMap").getTextureValue();
                         if (curTex == t1) {
                             m.setTexture("ColorMap", t2);
                         } else {

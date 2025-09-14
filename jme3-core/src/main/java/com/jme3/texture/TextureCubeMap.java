@@ -55,7 +55,7 @@ import java.util.ArrayList;
  *
  * @author Joshua Slack
  */
-public class TextureCubeMap extends Texture {
+public class TextureCubeMap extends GlTexture {
 
     private WrapMode wrapS = WrapMode.EdgeClamp;
     private WrapMode wrapT = WrapMode.EdgeClamp;
@@ -74,32 +74,32 @@ public class TextureCubeMap extends Texture {
         super();
     }
 
-    public TextureCubeMap(Image img) {
+    public TextureCubeMap(GlImage img) {
         super();
         setImage(img);
     }
 
-    public TextureCubeMap(int width, int height, Image.Format format) {
+    public TextureCubeMap(int width, int height, GlImage.Format format) {
         this(createEmptyLayeredImage(width, height, 6, format));
     }
 
-    private static Image createEmptyLayeredImage(int width, int height,
-            int layerCount, Image.Format format) {
+    private static GlImage createEmptyLayeredImage(int width, int height,
+                                                   int layerCount, GlImage.Format format) {
         ArrayList<ByteBuffer> layers = new ArrayList<>();
         for (int i = 0; i < layerCount; i++) {
             layers.add(null);
         }
-        Image image = new Image(format, width, height, 0, layers, ColorSpace.Linear);
+        GlImage image = new GlImage(format, width, height, 0, layers, ColorSpace.Linear);
         return image;
     }
 
     @Override
-    public Texture createSimpleClone() {
+    public GlTexture createSimpleClone() {
         return createSimpleClone(new TextureCubeMap());
     }
 
     @Override
-    public Texture createSimpleClone(Texture rVal) {
+    public GlTexture createSimpleClone(GlTexture rVal) {
         rVal.setWrap(WrapAxis.S, wrapS);
         rVal.setWrap(WrapAxis.T, wrapT);
         rVal.setWrap(WrapAxis.R, wrapR);

@@ -31,12 +31,6 @@ public class NewMaterial implements Material {
         this.pool = pool;
     }
 
-    public void update(CommandBuffer cmd) {
-        for (UniformSet s : uniformSets) {
-            s.update(cmd);
-        }
-    }
-
     @Override
     public void bind(CommandBuffer cmd, Pipeline pipeline, int offset) {
         LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>();

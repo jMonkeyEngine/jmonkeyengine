@@ -61,8 +61,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.*;
 import com.jme3.scene.debug.WireBox;
 import com.jme3.scene.shape.*;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.plugins.AWTLoader;
 
@@ -109,7 +109,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         }
     }
     
-    private Texture renderAwtFont( TestConfig test, int width, int height, BitmapFont bitmapFont ) {
+    private GlTexture renderAwtFont(TestConfig test, int width, int height, BitmapFont bitmapFont ) {
  
         BitmapCharacterSet charset = bitmapFont.getCharSet();
           
@@ -152,7 +152,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         
         g2.dispose();
         
-        Image jmeImage = new AWTLoader().load(image, true);
+        GlImage jmeImage = new AWTLoader().load(image, true);
         return new Texture2D(jmeImage);
     }
     
@@ -243,7 +243,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         int width = Math.round(x2 - Math.min(0, x1));
         int height = Math.round(y2 - Math.min(0, y1)); 
         
-        Texture awtText = renderAwtFont(test, width, height, bitmapFont);
+        GlTexture awtText = renderAwtFont(test, width, height, bitmapFont);
         Quad quad = new Quad(width, height);
         geom = new Geometry(test.name + " awt1", quad);
         geom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));

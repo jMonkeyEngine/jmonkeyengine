@@ -38,7 +38,7 @@ import com.jme3.input.event.*;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 
@@ -99,7 +99,7 @@ public class TestSoftwareMouse extends SimpleApplication {
         flyCam.setEnabled(false);
 //        inputManager.setCursorVisible(false);
 
-        Texture tex = assetManager.loadTexture("Interface/Logo/Cursor.png");
+        GlTexture tex = assetManager.loadTexture("Interface/Logo/Cursor.png");
 
         cursor = new Picture("cursor");
         cursor.setTexture(assetManager, (Texture2D) tex, true);

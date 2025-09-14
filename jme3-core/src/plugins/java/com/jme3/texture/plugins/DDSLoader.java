@@ -34,9 +34,9 @@ package com.jme3.texture.plugins;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
@@ -125,20 +125,20 @@ public class DDSLoader implements AssetLoader {
             in = new LittleEndien(stream);
             loadHeader();
             if (texture3D) {
-                textureKey.setTextureTypeHint(Texture.Type.ThreeDimensional);
+                textureKey.setTextureTypeHint(GlTexture.Type.ThreeDimensional);
             } else if (depth > 1) {
-                textureKey.setTextureTypeHint(Texture.Type.CubeMap);
+                textureKey.setTextureTypeHint(GlTexture.Type.CubeMap);
             }
             ArrayList<ByteBuffer> data = readData(textureKey.isFlipY());
-            return new Image(pixelFormat, width, height, depth, data, sizes, ColorSpace.sRGB);
+            return new GlImage(pixelFormat, width, height, depth, data, sizes, ColorSpace.sRGB);
         }
     }
 
-    public Image load(InputStream stream) throws IOException {
+    public GlImage load(InputStream stream) throws IOException {
         in = new LittleEndien(stream);
         loadHeader();
         ArrayList<ByteBuffer> data = readData(false);
-        return new Image(pixelFormat, width, height, depth, data, sizes, ColorSpace.sRGB);
+        return new GlImage(pixelFormat, width, height, depth, data, sizes, ColorSpace.sRGB);
     }
 
     private void loadDX10Header() throws IOException {
@@ -178,16 +178,16 @@ public class DDSLoader implements AssetLoader {
                 pixelFormat = Format.DXT5;
                 break;
             case DXGIFormat.DXGI_FORMAT_BC4_UNORM:
-                pixelFormat = Image.Format.RGTC1;
+                pixelFormat = GlImage.Format.RGTC1;
                 break;
             case DXGIFormat.DXGI_FORMAT_BC4_SNORM:
                 pixelFormat = Format.SIGNED_RGTC1;
                 break;
             case DXGIFormat.DXGI_FORMAT_BC5_UNORM:
-                pixelFormat = Image.Format.RGTC2;
+                pixelFormat = GlImage.Format.RGTC2;
                 break;
             case DXGIFormat.DXGI_FORMAT_BC5_SNORM:
-                pixelFormat = Image.Format.SIGNED_RGTC2;
+                pixelFormat = GlImage.Format.SIGNED_RGTC2;
                 break;
             case DXGIFormat.DXGI_FORMAT_BC6H_UF16:
                 pixelFormat = Format.BC6H_UF16;
@@ -298,26 +298,26 @@ public class DDSLoader implements AssetLoader {
                 case PF_DXT1:
                     bpp = 4;
                     if (is(pfFlags, DDPF_ALPHAPIXELS)) {
-                        pixelFormat = Image.Format.DXT1A;
+                        pixelFormat = GlImage.Format.DXT1A;
                     } else {
-                        pixelFormat = Image.Format.DXT1;
+                        pixelFormat = GlImage.Format.DXT1;
                     }
                     break;
                 case PF_DXT3:
                     bpp = 8;
-                    pixelFormat = Image.Format.DXT3;
+                    pixelFormat = GlImage.Format.DXT3;
                     break;
                 case PF_DXT5:
                     bpp = 8;
-                    pixelFormat = Image.Format.DXT5;
+                    pixelFormat = GlImage.Format.DXT5;
                     break;
                 case PF_ATI1:
                     bpp = 4;
-                    pixelFormat = Image.Format.RGTC1;
+                    pixelFormat = GlImage.Format.RGTC1;
                     break;
                 case PF_ATI2:
                     bpp = 8;
-                    pixelFormat = Image.Format.RGTC2;
+                    pixelFormat = GlImage.Format.RGTC2;
                     break;
                 case PF_DX10:
                     compressed = false;
@@ -329,7 +329,7 @@ public class DDSLoader implements AssetLoader {
                 case 113:
                     compressed = false;
                     bpp = 64;
-                    pixelFormat = Image.Format.RGBA16F;
+                    pixelFormat = GlImage.Format.RGBA16F;
                     break;
                 case 111:
                     compressed = false;

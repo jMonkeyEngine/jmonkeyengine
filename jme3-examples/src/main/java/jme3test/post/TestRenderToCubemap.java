@@ -44,8 +44,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.util.SkyFactory;
@@ -65,7 +65,7 @@ public class TestRenderToCubemap  extends SimpleApplication {
         app.start();
     }
  
-    public Texture setupOffscreenView(){
+    public GlTexture setupOffscreenView(){
         Camera offCamera = new Camera(512, 512);
  
         ViewPort offView
@@ -83,8 +83,8 @@ public class TestRenderToCubemap  extends SimpleApplication {
  
         //setup framebuffer's texture
         TextureCubeMap offTex = new TextureCubeMap(512, 512, Format.RGBA8);
-        offTex.setMinFilter(Texture.MinFilter.Trilinear);
-        offTex.setMagFilter(Texture.MagFilter.Bilinear);
+        offTex.setMinFilter(GlTexture.MinFilter.Trilinear);
+        offTex.setMagFilter(GlTexture.MagFilter.Bilinear);
  
         //setup framebuffer to use texture
         offBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
@@ -116,7 +116,7 @@ public class TestRenderToCubemap  extends SimpleApplication {
         cam.setLocation(new Vector3f(3, 3, 3));
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
  
-        Texture offTex = setupOffscreenView();
+        GlTexture offTex = setupOffscreenView();
         Spatial sky = SkyFactory.createSky(assetManager, offTex, 
                 EnvMapType.CubeMap);
         rootNode.attachChild(sky);

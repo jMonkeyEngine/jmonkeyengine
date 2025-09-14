@@ -31,7 +31,7 @@
  */
 package com.jme3.shader;
 
-import com.jme3.material.OldMaterial.BindUnits;
+import com.jme3.material.GlMaterial.BindUnits;
 import com.jme3.math.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;

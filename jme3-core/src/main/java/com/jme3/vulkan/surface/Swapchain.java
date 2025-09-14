@@ -6,9 +6,9 @@ import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.*;
 import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.images.Image;
+import com.jme3.vulkan.images.GpuImage;
 import com.jme3.vulkan.images.ImageUsage;
-import com.jme3.vulkan.images.ImageView;
+import com.jme3.vulkan.images.VulkanImageView;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.pipelines.FrameBuffer;
 import com.jme3.vulkan.pass.RenderPass;
@@ -76,7 +76,7 @@ public class Swapchain extends AbstractNative<Long> {
         return () -> KHRSwapchain.vkDestroySwapchainKHR(device.getNativeObject(), object, null);
     }
 
-    public void createFrameBuffers(RenderPass compat, ImageView depthStencil) {
+    public void createFrameBuffers(RenderPass compat, VulkanImageView depthStencil) {
         for (PresentImage img : images) {
             img.createFrameBuffer(compat, depthStencil);
         }
@@ -157,14 +157,14 @@ public class Swapchain extends AbstractNative<Long> {
 
         private final LogicalDevice<?> device;
         private final long id;
-        private final ImageView colorView;
+        private final VulkanImageView colorView;
         private FrameBuffer frameBuffer;
 
         private PresentImage(LogicalDevice<?> device, long id) {
             this.device = device;
             this.id = id;
-            colorView = new ImageView(this, VulkanImage.View.TwoDemensional);
-            try (ImageView.Builder v = colorView.build()) {
+            colorView = new VulkanImageView(this, VulkanImage.View.TwoDemensional);
+            try (VulkanImageView.Builder v = colorView.build()) {
                 v.setLayerCount(imageLayers);
             }
         }
@@ -180,7 +180,7 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public IntEnum<Image.Type> getType() {
+        public IntEnum<GpuImage.Type> getType() {
             return Type.TwoDemensional;
         }
 
@@ -234,7 +234,7 @@ public class Swapchain extends AbstractNative<Long> {
             Swapchain.this.ref.addDependent(ref);
         }
 
-        public void createFrameBuffer(RenderPass compat, ImageView depthStencil) {
+        public void createFrameBuffer(RenderPass compat, VulkanImageView depthStencil) {
             this.frameBuffer = new FrameBuffer(getDevice(), compat, extent.x, extent.y, 1, colorView, depthStencil);
         }
 

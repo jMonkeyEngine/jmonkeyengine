@@ -32,6 +32,9 @@
 package com.jme3.opencl;
 
 import com.jme3.math.ColorRGBA;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
+
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
@@ -48,7 +51,7 @@ import java.util.Objects;
  * An image is created from scratch using
  * {@link Context#createImage(com.jme3.opencl.MemoryAccess, com.jme3.opencl.Image.ImageFormat, com.jme3.opencl.Image.ImageDescriptor) }
  * or from OpenGL by
- * {@link Context#bindImage(com.jme3.texture.Image, com.jme3.texture.Texture.Type, int, com.jme3.opencl.MemoryAccess) }
+ * {@link Context#bindImage(GlImage, GlTexture.Type, int, com.jme3.opencl.MemoryAccess) }
  * (and alternative versions).
  *
  * <p>
@@ -504,7 +507,7 @@ public abstract class Image extends AbstractOpenCLObject {
     /**
      * Acquires this image object for using. Only call this method if this image
      * represents a shared object from OpenGL, created with e.g.
-     * {@link Context#bindImage(com.jme3.texture.Image, com.jme3.texture.Texture.Type, int, com.jme3.opencl.MemoryAccess) }
+     * {@link Context#bindImage(GlImage, GlTexture.Type, int, com.jme3.opencl.MemoryAccess) }
      * or variations.
      * This method must be called before the image is used. After the work is
      * done, the image must be released by calling
@@ -519,7 +522,7 @@ public abstract class Image extends AbstractOpenCLObject {
     /**
      * Acquires this image object for using. Only call this method if this image
      * represents a shared object from OpenGL, created with e.g.
-     * {@link Context#bindImage(com.jme3.texture.Image, com.jme3.texture.Texture.Type, int, com.jme3.opencl.MemoryAccess) }
+     * {@link Context#bindImage(GlImage, GlTexture.Type, int, com.jme3.opencl.MemoryAccess) }
      * or variations.
      * This method must be called before the image is used. After the work is
      * done, the image must be released by calling

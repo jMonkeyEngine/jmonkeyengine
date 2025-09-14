@@ -31,22 +31,22 @@
  */
 package com.jme3.asset;
 
-import com.jme3.texture.Texture.Type;
+import com.jme3.texture.GlTexture.Type;
 import com.jme3.asset.cache.AssetCache;
 import com.jme3.asset.cache.WeakRefCloneAssetCache;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.TextureProcessor;
 import java.io.IOException;
 
 /**
  * Used to load textures from image files such as JPG or PNG.
- * Note that texture loaders actually load the asset as an {@link Image}
- * object, which is then converted to a {@link Texture} in the
+ * Note that texture loaders actually load the asset as an {@link GlImage}
+ * object, which is then converted to a {@link GlTexture} in the
  * {@link TextureProcessor#postProcess(com.jme3.asset.AssetKey, java.lang.Object)}
  * method. Since textures are cloneable smart assets, the texture stored
  * in the cache will be collected when all clones of the texture become
@@ -54,12 +54,12 @@ import java.io.IOException;
  *
  * @author Kirill Vainer
  */
-public class TextureKey extends AssetKey<Texture> {
+public class TextureKey extends AssetKey<GlTexture> {
 
     private boolean generateMips;
     private boolean flipY;
     private int anisotropy;
-    private Texture.Type textureTypeHint = Texture.Type.TwoDimensional;
+    private GlTexture.Type textureTypeHint = GlTexture.Type.TwoDimensional;
 
     public TextureKey(String name, boolean flipY) {
         super(name);
@@ -213,7 +213,7 @@ public class TextureKey extends AssetKey<Texture> {
             // Backwards compat
             textureTypeHint = Type.CubeMap;
         } else {
-            textureTypeHint = ic.readEnum("tex_type", Texture.Type.class, Type.TwoDimensional);
+            textureTypeHint = ic.readEnum("tex_type", GlTexture.Type.class, Type.TwoDimensional);
         }
     }
 }

@@ -51,8 +51,8 @@ import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -100,33 +100,33 @@ public class TerrainTestReadWrite extends SimpleApplication {
         matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
 
         // HEIGHTMAP image (for the terrain heightmap)
-        Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
+        GlTexture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
 
         // GRASS texture
-        Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+        GlTexture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap", grass);
         matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
 
 
         // DIRT texture
-        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        GlTexture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
         dirt.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap_1", dirt);
         matTerrain.setFloat("DiffuseMap_1_scale", dirtScale);
 
         // ROCK texture
-        Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
+        GlTexture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
         rock.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap_2", rock);
         matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
 
 
-        Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.jpg");
+        GlTexture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.jpg");
         normalMap0.setWrap(WrapMode.Repeat);
-        Texture normalMap1 = assetManager.loadTexture("Textures/Terrain/splat/dirt_normal.png");
+        GlTexture normalMap1 = assetManager.loadTexture("Textures/Terrain/splat/dirt_normal.png");
         normalMap1.setWrap(WrapMode.Repeat);
-        Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
+        GlTexture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
         normalMap2.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("NormalMap", normalMap0);
         matTerrain.setTexture("NormalMap_1", normalMap1);

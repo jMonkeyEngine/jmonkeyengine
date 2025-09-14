@@ -37,6 +37,7 @@ import com.jme3.collision.CollisionResults;
 import com.jme3.export.*;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
+import com.jme3.renderer.Renderer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.mesh.AttributeModifier;
 import com.jme3.vulkan.mesh.BuiltInAttribute;
@@ -57,9 +58,9 @@ import com.jme3.vulkan.mesh.BuiltInAttribute;
  */
 public interface Mesh extends Collidable, Savable {
 
-    void bind(CommandBuffer cmd);
+    void draw(CommandBuffer cmd, Geometry geometry);
 
-    void draw(CommandBuffer cmd);
+    void draw(Renderer renderer, Geometry geometry, int instances, VertexBuffer[] instanceData);
 
     AttributeModifier modifyAttribute(String name);
 

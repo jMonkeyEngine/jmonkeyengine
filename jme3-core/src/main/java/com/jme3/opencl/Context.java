@@ -40,7 +40,8 @@ import com.jme3.opencl.Image.ImageFormat;
 import com.jme3.opencl.Image.ImageType;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -229,7 +230,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * @param access the allowed memory access for kernels
      * @return the OpenCL image
      */
-    public abstract Image bindImage(com.jme3.texture.Image image, Texture.Type textureType, int miplevel, MemoryAccess access);
+    public abstract Image bindImage(GlImage image, GlTexture.Type textureType, int miplevel, MemoryAccess access);
 
     /**
      * Creates a shared image object from a jME3 texture.
@@ -254,19 +255,19 @@ public abstract class Context extends AbstractOpenCLObject {
      * @param access the allowed memory access for kernels
      * @return the OpenCL image
      */
-    public Image bindImage(Texture texture, int miplevel, MemoryAccess access) {
+    public Image bindImage(GlTexture texture, int miplevel, MemoryAccess access) {
         return bindImage(texture.getImage(), texture.getType(), miplevel, access);
     }
 
     /**
-     * Alternative version to {@link #bindImage(com.jme3.texture.Texture, int, com.jme3.opencl.MemoryAccess) },
+     * Alternative version to {@link #bindImage(GlTexture, int, com.jme3.opencl.MemoryAccess) },
      * uses {@code miplevel=0}.
      *
      * @param texture the jME3 texture
      * @param access the allowed memory access for kernels
      * @return the OpenCL image
      */
-    public Image bindImage(Texture texture, MemoryAccess access) {
+    public Image bindImage(GlTexture texture, MemoryAccess access) {
         return bindImage(texture, 0, access);
     }
 

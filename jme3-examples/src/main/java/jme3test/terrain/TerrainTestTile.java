@@ -51,8 +51,8 @@ import com.jme3.terrain.geomipmap.MultiTerrainLodControl;
 import com.jme3.terrain.geomipmap.NeighbourFinder;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import java.util.List;
 
 /**
@@ -179,7 +179,7 @@ public class TerrainTestTile extends SimpleApplication {
             matTerrain.setFloat("Shininess", 0);
 
             // GRASS texture
-            Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+            GlTexture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
             grass.setWrap(WrapMode.Repeat);
             matTerrain.setTexture("DiffuseMap", grass);
             matTerrain.setFloat("DiffuseMap_0_scale", grassScale);

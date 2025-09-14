@@ -540,16 +540,16 @@ public class OculusVR implements VRAPI {
             int textureId = textureIdB.get();
 
             // TODO less hacky way of getting our texture into JMonkeyEngine
-            Image img = new Image();
+            GlImage img = new GlImage();
             img.setId(textureId);
-            img.setFormat(Image.Format.RGBA8);
+            img.setFormat(GlImage.Format.RGBA8);
             img.setWidth(textureW);
             img.setHeight(textureH);
 
             Texture2D tex = new Texture2D(img);
 
             FrameBuffer buffer = new FrameBuffer(textureW, textureH, 1);
-            buffer.setDepthBuffer(Image.Format.Depth);
+            buffer.setDepthBuffer(GlImage.Format.Depth);
             buffer.setColorTexture(tex);
 
             framebuffers[eye][i] = buffer;

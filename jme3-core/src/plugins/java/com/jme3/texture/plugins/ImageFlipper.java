@@ -31,7 +31,7 @@
  */
 package com.jme3.texture.plugins;
 
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 
@@ -50,8 +50,8 @@ public class ImageFlipper {
     private ImageFlipper() {
     }
 
-    public static void flipImage(Image img, int index){
-        if (img.getFormat().isCompressed())
+    public static void flipImage(GlImage img, int index){
+        if (img.getGlFormat().isCompressed())
             throw new UnsupportedOperationException("Flipping compressed " +
                                                     "images is unsupported.");
 
@@ -60,7 +60,7 @@ public class ImageFlipper {
         int halfH = h / 2;
 
         // bytes per pixel
-        int bpp = img.getFormat().getBitsPerPixel() / 8;
+        int bpp = img.getGlFormat().getBitsPerPixel() / 8;
         int scanline = w * bpp;
 
         ByteBuffer data = img.getData(index);

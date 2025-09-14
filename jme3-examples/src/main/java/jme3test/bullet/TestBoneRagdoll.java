@@ -61,7 +61,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 /**
  * @author normenhansen
@@ -218,7 +218,7 @@ public class TestBoneRagdoll
                 "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
         key2.setGenerateMips(true);
-        Texture tex2 = assetManager.loadTexture(key2);
+        GlTexture tex2 = assetManager.loadTexture(key2);
         matBullet.setTexture("ColorMap", tex2);
     }
 

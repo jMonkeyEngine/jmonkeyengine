@@ -49,8 +49,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 
 /**
  *
@@ -177,19 +177,19 @@ public class TestBrickTower extends SimpleApplication {
         mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey key = new TextureKey("Textures/Terrain/BrickWall/BrickWall.jpg");
         key.setGenerateMips(true);
-        Texture tex = assetManager.loadTexture(key);
+        GlTexture tex = assetManager.loadTexture(key);
         mat.setTexture("ColorMap", tex);
 
         mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
         key2.setGenerateMips(true);
-        Texture tex2 = assetManager.loadTexture(key2);
+        GlTexture tex2 = assetManager.loadTexture(key2);
         mat2.setTexture("ColorMap", tex2);
 
         mat3 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey key3 = new TextureKey("Textures/Terrain/Pond/Pond.jpg");
         key3.setGenerateMips(true);
-        Texture tex3 = assetManager.loadTexture(key3);
+        GlTexture tex3 = assetManager.loadTexture(key3);
         tex3.setWrap(WrapMode.Repeat);
         mat3.setTexture("ColorMap", tex3);
     }

@@ -6,7 +6,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class TerrainCollisionTest extends BaseAWTTest {
 
     @Before
     public void initQuad() {
-        Texture heightMapImage = getAssetManager().loadTexture("Textures/Terrain/splat/mountains512.png");
+        GlTexture heightMapImage = getAssetManager().loadTexture("Textures/Terrain/splat/mountains512.png");
         AbstractHeightMap map = new ImageBasedHeightMap(heightMapImage.getImage(), 0.25f);
         map.load();
         quad = new TerrainQuad("terrain", 65, 513, map.getHeightMap());

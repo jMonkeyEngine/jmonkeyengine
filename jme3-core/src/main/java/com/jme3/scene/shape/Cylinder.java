@@ -38,8 +38,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.OldMesh;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
@@ -51,7 +50,7 @@ import java.io.IOException;
  * @author Mark Powell
  * @version $Revision: 4131 $, $Date: 2009-03-19 16:15:28 -0400 (Thu, 19 Mar 2009) $
  */
-public class Cylinder extends OldMesh {
+public class Cylinder extends GlMesh {
 
     private int axisSamples;
 

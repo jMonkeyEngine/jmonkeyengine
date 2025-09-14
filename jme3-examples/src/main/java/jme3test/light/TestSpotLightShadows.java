@@ -48,7 +48,7 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.shadow.SpotLightShadowFilter;
 import com.jme3.shadow.SpotLightShadowRenderer;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestSpotLightShadows extends SimpleApplication {

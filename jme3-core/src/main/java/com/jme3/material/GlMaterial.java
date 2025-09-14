@@ -56,8 +56,8 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.*;
 import com.jme3.shader.bufferobject.BufferObject;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.TextureImage;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.ListMap;
@@ -86,11 +86,11 @@ import java.util.logging.Logger;
  *
  * @author Kirill Vainer
  */
-public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Savable {
+public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Savable {
 
     // Version #2: Fixed issue with RenderState.apply*** flags not getting exported
     public static final int SAVABLE_VERSION = 2;
-    private static final Logger logger = Logger.getLogger(Material.class.getName());
+    private static final Logger logger = Logger.getLogger(GlMaterial.class.getName());
 
     private AssetKey<?> key;
     private String name;
@@ -142,7 +142,7 @@ public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Sa
      * @param def The material definition to use (cannot be null).
      * @throws IllegalArgumentException if def is null.
      */
-    public OldMaterial(MaterialDef def) {
+    public GlMaterial(MaterialDef def) {
         if (def == null) {
             throw new IllegalArgumentException("Material definition cannot be null");
         }
@@ -162,14 +162,14 @@ public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Sa
      * @param assetManager The asset manager to load the MaterialDef from.
      * @param defName      The asset path of the .j3md file.
      */
-    public OldMaterial(AssetManager assetManager, String defName) {
+    public GlMaterial(AssetManager assetManager, String defName) {
         this(assetManager.loadAsset(new AssetKey<MaterialDef>(defName)));
     }
 
     /**
      * For serialization only. Do not use.
      */
-    public OldMaterial() {
+    public GlMaterial() {
     }
 
     /**
@@ -231,15 +231,15 @@ public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Sa
                 if (!param.getVarType().isTextureType()) {
                     continue;
                 }
-                Texture texture = (Texture) param.getValue();
+                GlTexture texture = (GlTexture) param.getValue();
                 if (texture == null) {
                     continue;
                 }
-                Image image = texture.getImage();
+                GlImage image = texture.getImage();
                 if (image == null) {
                     continue;
                 }
-                int textureId = image.getId();
+                int textureId = image.getNativeObject();
                 if (textureId == -1) {
                     textureId = 0;
                 }
@@ -254,9 +254,9 @@ public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Sa
      * Clones this material. The result is returned.
      */
     @Override
-    public OldMaterial clone() {
+    public GlMaterial clone() {
         try {
-            OldMaterial mat = (OldMaterial) super.clone();
+            GlMaterial mat = (GlMaterial) super.clone();
 
             if (additionalState != null) {
                 mat.additionalState = additionalState.clone();
@@ -288,11 +288,11 @@ public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Sa
      * @return true if the materials are equal.
      */
     public boolean contentEquals(Object otherObj) {
-        if (!(otherObj instanceof OldMaterial)) {
+        if (!(otherObj instanceof GlMaterial)) {
             return false;
         }
 
-        OldMaterial other = (OldMaterial) otherObj;
+        GlMaterial other = (GlMaterial) otherObj;
 
         // Early exit if the material are the same object
         if (this == other) {
@@ -416,7 +416,7 @@ public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Sa
      *
      * @return True if the material should receive shadows.
      *
-     * @see OldMaterial#setReceivesShadows(boolean)
+     * @see GlMaterial#setReceivesShadows(boolean)
      */
     public boolean isReceivesShadows() {
         return receivesShadows;
@@ -553,7 +553,7 @@ public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Sa
         checkSetParam(type, name);
 
         if (type.isTextureType()) {
-            setTextureParam(name, type, (Texture)value);
+            setTextureParam(name, type, (GlTexture)value);
         } else {
             MatParam val = getParam(name);
             if (val == null) {
@@ -612,7 +612,7 @@ public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Sa
      *
      * @throws IllegalArgumentException is value is null
      */
-    public void setTextureParam(String name, VarType type, Texture value) {
+    public void setTextureParam(String name, VarType type, GlTexture value) {
         if (value == null) {
             throw new IllegalArgumentException();
         }
@@ -639,7 +639,7 @@ public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Sa
         sortingId = -1;
     }
 
-    private void checkTextureParamColorSpace(String name, Texture value) {
+    private void checkTextureParamColorSpace(String name, GlTexture value) {
         MatParamTexture paramDef = (MatParamTexture) def.getMaterialParam(name);
         if (paramDef.getColorSpace() != null && paramDef.getColorSpace() != value.getImage().getColorSpace()) {
             value.getImage().setColorSpace(paramDef.getColorSpace());
@@ -669,7 +669,7 @@ public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Sa
      *              (.j3md) (e.g. Texture for Lighting.j3md)
      * @param value the Texture object previously loaded by the asset manager
      */
-    public void setTexture(String name, Texture value) {
+    public void setTexture(String name, GlTexture value) {
         if (value == null) {
             // clear it
             clearParam(name);
@@ -919,7 +919,7 @@ public class OldMaterial implements Material, CloneableSmartAsset, Cloneable, Sa
             if (type.isTextureType() || type.isImageType()) {
                 try {
                     if (type.isTextureType()) {
-                        renderer.setTexture(unit.textureUnit, (Texture) param.getValue());
+                        renderer.setTexture(unit.textureUnit, (GlTexture) param.getValue());
                     } else {
                         renderer.setTextureImage(unit.textureUnit, (TextureImage) param.getValue());
                     }

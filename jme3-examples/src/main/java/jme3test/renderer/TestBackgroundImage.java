@@ -47,7 +47,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import java.util.List;
 
 /**
@@ -88,7 +88,7 @@ public class TestBackgroundImage extends SimpleApplication {
          * assign it to the Gui bucket,
          * and attach it to the background viewport.
          */
-        Texture quadTexture
+        GlTexture quadTexture
                 = assetManager.loadTexture("Interface/Logo/Monkey.png");
         Material quadMaterial = new Material(assetManager, Materials.UNSHADED);
         quadMaterial.setTexture("ColorMap", quadTexture);

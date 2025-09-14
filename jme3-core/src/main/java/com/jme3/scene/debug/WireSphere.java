@@ -35,8 +35,7 @@ import com.jme3.bounding.BoundingSphere;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.OldMesh;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
@@ -46,7 +45,7 @@ import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-public class WireSphere extends OldMesh {
+public class WireSphere extends GlMesh {
 
     private static final int samples = 30;
     private static final int zSamples = 10;

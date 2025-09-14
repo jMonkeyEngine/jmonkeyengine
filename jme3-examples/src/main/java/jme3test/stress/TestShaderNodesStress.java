@@ -10,7 +10,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,7 +33,7 @@ public class TestShaderNodesStress extends SimpleApplication {
         cam.setLocation(new Vector3f(0.0f, 0.0f, 0.40647888f));
         cam.setRotation(new Quaternion(0.0f, 1.0f, 0.0f, 0.0f));
 
-        Texture tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
+        GlTexture tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/UnshadedNodes.j3md");
       //Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");

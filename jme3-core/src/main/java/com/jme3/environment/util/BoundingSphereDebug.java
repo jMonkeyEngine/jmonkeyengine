@@ -36,8 +36,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.OldMesh;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
@@ -50,7 +49,7 @@ import java.nio.ShortBuffer;
  * 
  * @author nehon
  */
-public class BoundingSphereDebug extends OldMesh {
+public class BoundingSphereDebug extends GlMesh {
 
     protected int vertCount;
     protected int triCount;

@@ -35,8 +35,8 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
 import com.jme3.util.BufferUtils;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
@@ -101,7 +101,7 @@ public class AWTLoader implements AssetLoader {
         }
     }
 
-    public Image load(BufferedImage img, boolean flipY){
+    public GlImage load(BufferedImage img, boolean flipY){
         int width = img.getWidth();
         int height = img.getHeight();
 
@@ -113,7 +113,7 @@ public class AWTLoader implements AssetLoader {
                 
                ByteBuffer data1 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight()*4);
                data1.put(dataBuf1);
-               return new Image(Format.ABGR8, width, height, data1, null, com.jme3.texture.image.ColorSpace.sRGB);
+               return new GlImage(Format.ABGR8, width, height, data1, null, com.jme3.texture.image.ColorSpace.sRGB);
             case BufferedImage.TYPE_3BYTE_BGR: // most common in JPEG images
                byte[] dataBuf2 = (byte[]) extractImageData(img);
                if (flipY)
@@ -121,14 +121,14 @@ public class AWTLoader implements AssetLoader {
                
                ByteBuffer data2 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight()*3);
                data2.put(dataBuf2);
-               return new Image(Format.BGR8, width, height, data2, null, com.jme3.texture.image.ColorSpace.sRGB);
+               return new GlImage(Format.BGR8, width, height, data2, null, com.jme3.texture.image.ColorSpace.sRGB);
             case BufferedImage.TYPE_BYTE_GRAY: // grayscale fonts
                 byte[] dataBuf3 = (byte[]) extractImageData(img);
                 if (flipY)
                     flipImage(dataBuf3, width, height, 8);
                 ByteBuffer data3 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight());
                 data3.put(dataBuf3);
-                return new Image(Format.Luminance8, width, height, data3, null, com.jme3.texture.image.ColorSpace.sRGB);
+                return new GlImage(Format.Luminance8, width, height, data3, null, com.jme3.texture.image.ColorSpace.sRGB);
             default:
                 break;
         }
@@ -151,7 +151,7 @@ public class AWTLoader implements AssetLoader {
                 }
             }
             data.flip();
-            return new Image(Format.RGB8, width, height, data, null, com.jme3.texture.image.ColorSpace.sRGB);
+            return new GlImage(Format.RGB8, width, height, data, null, com.jme3.texture.image.ColorSpace.sRGB);
         }else{
             ByteBuffer data = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight()*4);
             // alpha
@@ -171,11 +171,11 @@ public class AWTLoader implements AssetLoader {
                 }
             }
             data.flip();
-            return new Image(Format.RGBA8, width, height, data, null, com.jme3.texture.image.ColorSpace.sRGB);
+            return new GlImage(Format.RGBA8, width, height, data, null, com.jme3.texture.image.ColorSpace.sRGB);
         }
     }
 
-    public Image load(InputStream in, boolean flipY) throws IOException{
+    public GlImage load(InputStream in, boolean flipY) throws IOException{
         ImageIO.setUseCache(false);
         BufferedImage img = ImageIO.read(in);
         if (img == null){
@@ -190,7 +190,7 @@ public class AWTLoader implements AssetLoader {
             boolean flip = ((TextureKey) info.getKey()).isFlipY();
             try (InputStream in = info.openStream();
                     BufferedInputStream bin = new BufferedInputStream(in)) {
-                Image img = load(bin, flip);
+                GlImage img = load(bin, flip);
                 if (img == null){
                     throw new AssetLoadException("The given image cannot be loaded " + info.getKey());
                 }

@@ -8,8 +8,8 @@ import com.jme3.renderer.Caps;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.TextureArray;
 import com.jme3.util.BufferUtils;
 import java.util.ArrayList;
@@ -31,13 +31,13 @@ public class TestTextureArray extends SimpleApplication
        }
        
        
-       Texture tex1 = assetManager.loadTexture( "Textures/Terrain/Pond/Pond.jpg");
-       Texture tex2 = assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
-       List<Image> images = new ArrayList<>();
+       GlTexture tex1 = assetManager.loadTexture( "Textures/Terrain/Pond/Pond.jpg");
+       GlTexture tex2 = assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
+       List<GlImage> images = new ArrayList<>();
        images.add(tex1.getImage());
        images.add(tex2.getImage());
        TextureArray tex3 = new TextureArray(images);
-       tex3.setMinFilter(Texture.MinFilter.Trilinear);
+       tex3.setMinFilter(GlTexture.MinFilter.Trilinear);
        mat.setTexture("ColorMap", tex3);
 
        Mesh m = new Mesh();

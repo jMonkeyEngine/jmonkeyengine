@@ -8,7 +8,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.shader.Shader;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +25,7 @@ public class TestShaderNodes extends SimpleApplication {
         Logger.getLogger("com.jme3").setLevel(Level.WARNING);
         Box boxShape1 = new Box(1f, 1f, 1f);
         Geometry cube_tex = new Geometry("A Textured Box", boxShape1);
-        Texture tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
+        GlTexture tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/UnshadedNodes.j3md");
         mat.selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);

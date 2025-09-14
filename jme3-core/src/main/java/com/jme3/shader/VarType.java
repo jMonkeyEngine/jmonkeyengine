@@ -38,7 +38,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.shader.bufferobject.BufferObject;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.Texture3D;
 import com.jme3.texture.TextureArray;
@@ -68,10 +68,10 @@ public enum VarType {
     Matrix4Array(true, false, "mat4", Matrix4f[].class),
 
     TextureBuffer(false, true, "sampler1D|sampler1DShadow"),
-    Texture2D(false, true, "sampler2D|sampler2DShadow", Texture2D.class, Texture.class),
-    Texture3D(false, true, "sampler3D", Texture3D.class, Texture.class),
-    TextureArray(false, true, "sampler2DArray|sampler2DArrayShadow", TextureArray.class, Texture.class),
-    TextureCubeMap(false, true, "samplerCube", TextureCubeMap.class, Texture.class),
+    Texture2D(false, true, "sampler2D|sampler2DShadow", Texture2D.class, GlTexture.class),
+    Texture3D(false, true, "sampler3D", Texture3D.class, GlTexture.class),
+    TextureArray(false, true, "sampler2DArray|sampler2DArrayShadow", TextureArray.class, GlTexture.class),
+    TextureCubeMap(false, true, "samplerCube", TextureCubeMap.class, GlTexture.class),
     
     Image2D(false, false, true, "image2D", TextureImage.class),
     Image3D(false, false, true, "image3D", TextureImage.class),

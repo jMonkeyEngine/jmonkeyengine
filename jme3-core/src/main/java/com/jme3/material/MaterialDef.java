@@ -38,7 +38,7 @@ import com.jme3.texture.image.ColorSpace;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 /**
  * Describes a J3MD (Material definition).
@@ -133,7 +133,7 @@ public class MaterialDef{
      * @param value Default value of the parameter
      * @see ColorSpace
      */
-    public void addMaterialParamTexture(VarType type, String name, ColorSpace colorSpace,Texture value) {
+    public void addMaterialParamTexture(VarType type, String name, ColorSpace colorSpace, GlTexture value) {
         matParams.put(name, new MatParamTexture(type, name, value, colorSpace));
     }
     

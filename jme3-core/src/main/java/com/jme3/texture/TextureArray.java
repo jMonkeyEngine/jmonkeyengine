@@ -35,7 +35,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.image.ColorSpace;
 import java.io.IOException;
 import java.util.Arrays;
@@ -48,7 +48,7 @@ import java.util.List;
  * renderManager.getRenderer().getCaps().contains(Caps.TextureArray)
  * @author phate666
  */
-public class TextureArray extends Texture {
+public class TextureArray extends GlTexture {
 
     private WrapMode wrapS = WrapMode.EdgeClamp;
     private WrapMode wrapT = WrapMode.EdgeClamp;
@@ -70,22 +70,22 @@ public class TextureArray extends Texture {
      *
      * @param images the images to use (not null)
      */
-    public TextureArray(List<Image> images) {
+    public TextureArray(List<GlImage> images) {
         super();
         
         int width = images.get(0).getWidth();
         int height = images.get(0).getHeight();
-        Format format = images.get(0).getFormat();
+        Format format = images.get(0).getGlFormat();
         ColorSpace colorSpace = images.get(0).getColorSpace();
         int[] mipMapSizes = images.get(0).getMipMapSizes();
-        Image arrayImage = new Image(format, width, height, null, colorSpace);
+        GlImage arrayImage = new GlImage(format, width, height, null, colorSpace);
         arrayImage.setMipMapSizes(mipMapSizes);
         
-        for (Image img : images) {
+        for (GlImage img : images) {
             if (img.getHeight() != height || img.getWidth() != width) {
                 throw new IllegalArgumentException("Images in texture array must have same dimensions");
             }
-            if (img.getFormat() != format) {
+            if (img.getGlFormat() != format) {
                 throw new IllegalArgumentException("Images in texture array must have same format");
             }
             if (!Arrays.equals(mipMapSizes, img.getMipMapSizes())) {
@@ -99,14 +99,14 @@ public class TextureArray extends Texture {
     }
 
     @Override
-    public Texture createSimpleClone() {
+    public GlTexture createSimpleClone() {
         TextureArray clone = new TextureArray();
         createSimpleClone(clone);
         return clone;
     }
 
     @Override
-    public Texture createSimpleClone(Texture rVal) {
+    public GlTexture createSimpleClone(GlTexture rVal) {
         rVal.setWrap(WrapAxis.S, wrapS);
         rVal.setWrap(WrapAxis.T, wrapT);
         return super.createSimpleClone(rVal);

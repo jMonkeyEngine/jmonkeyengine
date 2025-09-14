@@ -41,7 +41,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.scene.Geometry;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 public class TestSSAO extends SimpleApplication {
 
@@ -59,10 +59,10 @@ public class TestSSAO extends SimpleApplication {
         flyCam.setMoveSpeed(50);
 
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Texture diff = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
-        diff.setWrap(Texture.WrapMode.Repeat);
-        Texture norm = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall_normal.jpg");
-        norm.setWrap(Texture.WrapMode.Repeat);
+        GlTexture diff = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
+        diff.setWrap(GlTexture.WrapMode.Repeat);
+        GlTexture norm = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall_normal.jpg");
+        norm.setWrap(GlTexture.WrapMode.Repeat);
         mat.setTexture("DiffuseMap", diff);
         mat.setTexture("NormalMap", norm);
         mat.setFloat("Shininess", 2.0f);

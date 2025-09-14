@@ -37,8 +37,8 @@ import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import com.jme3.util.MipMapGenerator;
 
 public class TestMipMapGen extends SimpleApplication {
@@ -66,11 +66,11 @@ public class TestMipMapGen extends SimpleApplication {
         Geometry quad1 = new Geometry("Textured Quad", quadMesh);
         Geometry quad2 = new Geometry("Textured Quad 2", quadMesh);
 
-        Texture tex = assetManager.loadTexture("Interface/Logo/Monkey.png");
-        tex.setMinFilter(Texture.MinFilter.Trilinear);
+        GlTexture tex = assetManager.loadTexture("Interface/Logo/Monkey.png");
+        tex.setMinFilter(GlTexture.MinFilter.Trilinear);
 
-        Texture texCustomMip = tex.clone();
-        Image imageCustomMip = texCustomMip.getImage().clone();
+        GlTexture texCustomMip = tex.clone();
+        GlImage imageCustomMip = texCustomMip.getImage().clone();
         MipMapGenerator.generateMipMaps(imageCustomMip);
         texCustomMip.setImage(imageCustomMip);
 

@@ -39,8 +39,8 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.plugins.ogre.matext.MaterialExtensionLoader;
 import com.jme3.scene.plugins.ogre.matext.MaterialExtensionSet;
 import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.PlaceholderAssets;
 import com.jme3.util.blockparser.BlockLanguageParser;
@@ -60,7 +60,7 @@ public class MaterialLoader implements AssetLoader {
     private String folderName;
     private AssetManager assetManager;
     private ColorRGBA ambient, diffuse, specular, emissive;
-    private Texture[] textures = new Texture[4];
+    private GlTexture[] textures = new GlTexture[4];
     private String texName;
     private String matName;
     private float shininess;
@@ -132,11 +132,11 @@ public class MaterialLoader implements AssetLoader {
         TextureKey texKey = new TextureKey(folderName + path, false);
         texKey.setGenerateMips(genMips);
         if (cubic) {
-            texKey.setTextureTypeHint(Texture.Type.CubeMap);
+            texKey.setTextureTypeHint(GlTexture.Type.CubeMap);
         }
 
         try {
-            Texture loadedTexture = assetManager.loadTexture(texKey);
+            GlTexture loadedTexture = assetManager.loadTexture(texKey);
             
             textures[texUnit].setImage(loadedTexture.getImage());
             textures[texUnit].setMinFilter(loadedTexture.getMinFilter());

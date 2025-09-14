@@ -50,8 +50,8 @@ import com.jme3.scene.Node;
 import com.jme3.shader.DefineList;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.TestUtil;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
@@ -445,7 +445,7 @@ public class MaterialMatParamTest {
         }
 
         @Override
-        public void setTexture(int unit, Texture texture) {
+        public void setTexture(int unit, GlTexture texture) {
             MaterialMatParamTest.this.usedTextures[unit] = texture;
         }
     };
@@ -453,7 +453,7 @@ public class MaterialMatParamTest {
 
     private boolean evaluated = false;
     private Shader usedShader = null;
-    private final Texture[] usedTextures = new Texture[32];
+    private final GlTexture[] usedTextures = new GlTexture[32];
 
     private void inputMp(MatParam... params) {
         if (evaluated) {
@@ -530,7 +530,7 @@ public class MaterialMatParamTest {
         Assert.assertTrue(evaluated);
     }
 
-    private void outTextures(Texture... textures) {
+    private void outTextures(GlTexture... textures) {
         for (int i = 0; i < usedTextures.length; i++) {
             if (i < textures.length) {
                 Assert.assertSame(textures[i], usedTextures[i]);

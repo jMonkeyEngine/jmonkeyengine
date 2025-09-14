@@ -49,11 +49,11 @@ public class Sampler extends AbstractNative<Long> {
         return mipmapMode;
     }
 
-    public IntEnum<Filter> getMin() {
+    public IntEnum<Filter> getMinFilter() {
         return min;
     }
 
-    public IntEnum<Filter> getMag() {
+    public IntEnum<Filter> getMagFilter() {
         return mag;
     }
 
@@ -146,12 +146,12 @@ public class Sampler extends AbstractNative<Long> {
             setMagFilter(mag);
         }
 
-        public void setEdgeMode(int demension, IntEnum<AddressMode> a) {
-            if (demension < 0 || demension >= edgeModes.length) {
-                throw new IndexOutOfBoundsException("Invalid demension index (" + demension + "). " +
+        public void setEdgeMode(int axis, IntEnum<AddressMode> a) {
+            if (axis < 0 || axis >= edgeModes.length) {
+                throw new IndexOutOfBoundsException("Invalid axis index (" + axis + "). " +
                         "Must be 0 (U), 1 (V), or 2 (W).");
             }
-            edgeModes[demension] = Objects.requireNonNull(a);
+            edgeModes[axis] = Objects.requireNonNull(a);
         }
 
         public void setEdgeModeU(IntEnum<AddressMode> u) {

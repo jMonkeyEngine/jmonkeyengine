@@ -51,7 +51,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Cylinder;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 /**
  * Tests attaching/detaching nodes via joints
@@ -107,8 +107,8 @@ public class TestAttachDriver extends SimpleApplication implements ActionListene
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey key = new TextureKey("Interface/Logo/Monkey.jpg", true);
         key.setGenerateMips(true);
-        Texture tex = assetManager.loadTexture(key);
-        tex.setMinFilter(Texture.MinFilter.Trilinear);
+        GlTexture tex = assetManager.loadTexture(key);
+        tex.setMinFilter(GlTexture.MinFilter.Trilinear);
         mat.setTexture("ColorMap", tex);
 
         Box floor = new Box(100, 1f, 100);

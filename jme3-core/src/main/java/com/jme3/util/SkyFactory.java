@@ -41,9 +41,9 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.TextureCubeMap;
 import java.nio.ByteBuffer;
 
@@ -108,11 +108,11 @@ public class SkyFactory {
      * </ul>
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
-     * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture,
+     * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, GlTexture,
      * com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType)}
      */
     @Deprecated
-    public static Spatial createSky(AssetManager assetManager, Texture texture,
+    public static Spatial createSky(AssetManager assetManager, GlTexture texture,
             Vector3f normalScale, boolean sphereMap) {
         return createSky(assetManager, texture, normalScale, sphereMap, 10);
     }
@@ -132,7 +132,7 @@ public class SkyFactory {
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
      */
-    public static Spatial createSky(AssetManager assetManager, Texture texture,
+    public static Spatial createSky(AssetManager assetManager, GlTexture texture,
             Vector3f normalScale, EnvMapType envMapType) {
         return createSky(assetManager, texture, normalScale, envMapType, 10);
     }
@@ -159,11 +159,11 @@ public class SkyFactory {
      * frustum
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
-     * @deprecated use {@link #createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture,
+     * @deprecated use {@link #createSky(com.jme3.asset.AssetManager, GlTexture,
      * com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType, float)}
      */
     @Deprecated
-    public static Spatial createSky(AssetManager assetManager, Texture texture,
+    public static Spatial createSky(AssetManager assetManager, GlTexture texture,
             Vector3f normalScale, boolean sphereMap, int sphereRadius) {
         return createSky(assetManager, texture, normalScale,
                 sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap, sphereRadius);
@@ -184,7 +184,7 @@ public class SkyFactory {
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
      */
-    public static Spatial createSky(AssetManager assetManager, Texture texture,
+    public static Spatial createSky(AssetManager assetManager, GlTexture texture,
             Vector3f normalScale, EnvMapType envMapType, float sphereRadius) {
         if (texture == null) {
             throw new IllegalArgumentException("texture cannot be null");
@@ -202,7 +202,7 @@ public class SkyFactory {
             case CubeMap:
                 // make sure it's a cubemap
                 if (!(texture instanceof TextureCubeMap)) {
-                    Image img = texture.getImage();
+                    GlImage img = texture.getImage();
                     texture = new TextureCubeMap();
                     texture.setImage(img);
                 }
@@ -223,10 +223,10 @@ public class SkyFactory {
                 throw new IllegalArgumentException("envMapType=" + envMapType);
         }
         skyMat.setVector3("NormalScale", normalScale);
-        texture.setMagFilter(Texture.MagFilter.Bilinear);
-        texture.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+        texture.setMagFilter(GlTexture.MagFilter.Bilinear);
+        texture.setMinFilter(GlTexture.MinFilter.BilinearNoMipMaps);
         texture.setAnisotropicFilter(0);
-        texture.setWrap(Texture.WrapMode.EdgeClamp);
+        texture.setWrap(GlTexture.WrapMode.EdgeClamp);
         skyMat.setTexture("Texture", texture);
         sky.setMaterial(skyMat);
 
@@ -249,11 +249,11 @@ public class SkyFactory {
      * </ul>
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
-     * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture,
+     * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, GlTexture,
      * com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType)}
      */
     @Deprecated
-    public static Spatial createSky(AssetManager assetManager, Texture texture, boolean sphereMap) {
+    public static Spatial createSky(AssetManager assetManager, GlTexture texture, boolean sphereMap) {
         return createSky(assetManager, texture, Vector3f.UNIT_XYZ,
                 sphereMap ? EnvMapType.SphereMap : EnvMapType.CubeMap);
     }
@@ -291,7 +291,7 @@ public class SkyFactory {
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
      */
-    public static Spatial createSky(AssetManager assetManager, Texture texture, EnvMapType envMapType) {
+    public static Spatial createSky(AssetManager assetManager, GlTexture texture, EnvMapType envMapType) {
         return createSky(assetManager, texture, Vector3f.UNIT_XYZ, envMapType);
     }
 
@@ -308,13 +308,13 @@ public class SkyFactory {
         TextureKey key = new TextureKey(textureName, true);
         key.setGenerateMips(false);
         if (envMapType == EnvMapType.CubeMap) {
-            key.setTextureTypeHint(Texture.Type.CubeMap);
+            key.setTextureTypeHint(GlTexture.Type.CubeMap);
         }
-        Texture tex = assetManager.loadTexture(key);
+        GlTexture tex = assetManager.loadTexture(key);
         return createSky(assetManager, tex, envMapType);
     }
 
-    private static void checkImage(Image image) {
+    private static void checkImage(GlImage image) {
 //        if (image.getDepth() != 1)
 //            throw new IllegalArgumentException("3D/Array images not allowed");
 
@@ -327,12 +327,12 @@ public class SkyFactory {
         }
     }
 
-    private static void checkImagesForCubeMap(Image... images) {
+    private static void checkImagesForCubeMap(GlImage... images) {
         if (images.length == 1) {
             return;
         }
 
-        Format fmt = images[0].getFormat();
+        Format fmt = images[0].getGlFormat();
         int width = images[0].getWidth();
         int height = images[0].getHeight();
 
@@ -342,9 +342,9 @@ public class SkyFactory {
         checkImage(images[0]);
 
         for (int i = 1; i < images.length; i++) {
-            Image image = images[i];
+            GlImage image = images[i];
             checkImage(images[i]);
-            if (image.getFormat() != fmt) {
+            if (image.getGlFormat() != fmt) {
                 throw new IllegalArgumentException("Images must have same format");
             }
             if (image.getWidth() != width || image.getHeight() != height) {
@@ -378,9 +378,9 @@ public class SkyFactory {
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
      */
-    public static Spatial createSky(AssetManager assetManager, Texture west,
-            Texture east, Texture north, Texture south, Texture up,
-            Texture down, Vector3f normalScale) {
+    public static Spatial createSky(AssetManager assetManager, GlTexture west,
+                                    GlTexture east, GlTexture north, GlTexture south, GlTexture up,
+                                    GlTexture down, Vector3f normalScale) {
         return createSky(assetManager, west, east, north, south, up, down,
                 normalScale, 10);
     }
@@ -404,20 +404,20 @@ public class SkyFactory {
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
      */
-    public static Spatial createSky(AssetManager assetManager, Texture west,
-            Texture east, Texture north, Texture south, Texture up,
-            Texture down, Vector3f normalScale, float sphereRadius) {
+    public static Spatial createSky(AssetManager assetManager, GlTexture west,
+                                    GlTexture east, GlTexture north, GlTexture south, GlTexture up,
+                                    GlTexture down, Vector3f normalScale, float sphereRadius) {
 
-        Image westImg = west.getImage();
-        Image eastImg = east.getImage();
-        Image northImg = north.getImage();
-        Image southImg = south.getImage();
-        Image upImg = up.getImage();
-        Image downImg = down.getImage();
+        GlImage westImg = west.getImage();
+        GlImage eastImg = east.getImage();
+        GlImage northImg = north.getImage();
+        GlImage southImg = south.getImage();
+        GlImage upImg = up.getImage();
+        GlImage downImg = down.getImage();
 
         checkImagesForCubeMap(westImg, eastImg, northImg, southImg, upImg, downImg);
 
-        Image cubeImage = new Image(westImg.getFormat(), westImg.getWidth(), westImg.getHeight(),
+        GlImage cubeImage = new GlImage(westImg.getGlFormat(), westImg.getWidth(), westImg.getHeight(),
                 null, westImg.getColorSpace());
 
         cubeImage.addData(westImg.getData(0));
@@ -445,7 +445,7 @@ public class SkyFactory {
      * scene graph
      */
     public static Spatial createSky(AssetManager assetManager,
-            Texture west, Texture east, Texture north, Texture south, Texture up, Texture down) {
+                                    GlTexture west, GlTexture east, GlTexture north, GlTexture south, GlTexture up, GlTexture down) {
         return createSky(assetManager, west, east, north, south, up, down, Vector3f.UNIT_XYZ);
     }
 }

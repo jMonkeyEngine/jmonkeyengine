@@ -33,15 +33,6 @@ public class UniformSet implements Iterable<Uniform> {
         return new IteratorImpl();
     }
 
-    public void update(CommandBuffer cmd) {
-        for (Uniform<?> u : uniforms) {
-            u.update(cmd);
-            if (u.getResource().get() == null) {
-                throw new NullPointerException("Uniform \"" + u.getName() + "\" contains no value.");
-            }
-        }
-    }
-
     public DescriptorSet acquireSet(DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
         activeFrames.removeIf(FrameData::cycleTimeout);
         FrameData data = activeFrames.stream().filter(FrameData::isCurrent).findAny().orElse(null);

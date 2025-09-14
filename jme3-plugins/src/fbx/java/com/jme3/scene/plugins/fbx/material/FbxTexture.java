@@ -35,16 +35,16 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.plugins.fbx.obj.FbxObject;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.MagFilter;
-import com.jme3.texture.Texture.MinFilter;
-import com.jme3.texture.Texture.WrapAxis;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.MagFilter;
+import com.jme3.texture.GlTexture.MinFilter;
+import com.jme3.texture.GlTexture.WrapAxis;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.PlaceholderAssets;
 
-public class FbxTexture extends FbxObject<Texture> {
+public class FbxTexture extends FbxObject<GlTexture> {
 
     private static enum AlphaSource {
         None,
@@ -65,11 +65,11 @@ public class FbxTexture extends FbxObject<Texture> {
     }
     
     @Override
-    protected Texture toJmeObject() {
-        Image image = null;
+    protected GlTexture toJmeObject() {
+        GlImage image = null;
         TextureKey key = null;
         if (media != null) {
-            image = (Image) media.getJmeObject();
+            image = (GlImage) media.getJmeObject();
             key = media.getTextureKey();
         }
         if (image == null) {

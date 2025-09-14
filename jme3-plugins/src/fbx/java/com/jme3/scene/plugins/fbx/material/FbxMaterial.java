@@ -38,7 +38,7 @@ import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.plugins.fbx.obj.FbxObject;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.image.ColorSpace;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -108,12 +108,12 @@ public class FbxMaterial extends FbxObject<Material> {
         float shininess    = 1f;
         boolean separateTexCoord = false;
         
-        Texture diffuseMap  = null;
-        Texture specularMap = null;
-        Texture normalMap   = null;
-        Texture transpMap   = null;
-        Texture emitMap     = null;
-        Texture aoMap       = null;
+        GlTexture diffuseMap  = null;
+        GlTexture specularMap = null;
+        GlTexture normalMap   = null;
+        GlTexture transpMap   = null;
+        GlTexture emitMap     = null;
+        GlTexture aoMap       = null;
         
         FbxTexture fbxDiffuseMap = null;
         

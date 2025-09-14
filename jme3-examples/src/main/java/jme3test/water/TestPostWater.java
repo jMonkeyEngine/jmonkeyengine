@@ -61,8 +61,8 @@ import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
@@ -231,7 +231,7 @@ public class TestPostWater extends SimpleApplication {
     private void createTerrain(Node mainScene) {
         Material matRock = createTerrainMaterial();
 
-        Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
+        GlTexture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
         AbstractHeightMap heightmap = null;
         try {
             heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 0.25f);
@@ -276,7 +276,7 @@ public class TestPostWater extends SimpleApplication {
     }
 
     private void setTexture(String texture, Material mat, String param) {
-        Texture tex = assetManager.loadTexture(texture);
+        GlTexture tex = assetManager.loadTexture(texture);
         tex.setWrap(WrapMode.Repeat);
         mat.setTexture(param, tex);
     }

@@ -37,7 +37,8 @@ import com.jme3.opencl.Image.ImageDescriptor;
 import com.jme3.opencl.Image.ImageFormat;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
@@ -174,9 +175,9 @@ public class LwjglContext extends Context {
     }
 
     @Override
-    public Image bindImage(com.jme3.texture.Image image, Texture.Type textureType, int mipLevel, MemoryAccess access) {
+    public Image bindImage(GlImage image, GlTexture.Type textureType, int mipLevel, MemoryAccess access) {
         Utils.assertSharingPossible();
-        int imageID = image.getId();
+        int imageID = image.getNativeObject();
         if (imageID == -1) {
             throw new IllegalArgumentException("image was not yet uploaded to the GPU");
         }
@@ -202,7 +203,7 @@ public class LwjglContext extends Context {
         return new LwjglImage(mem);
     }
     
-    private int convertTextureType(Texture.Type textureType) {
+    private int convertTextureType(GlTexture.Type textureType) {
         switch (textureType) {
             case TwoDimensional: return GL11.GL_TEXTURE_2D;
             case TwoDimensionalArray: return GL30.GL_TEXTURE_2D_ARRAY;

@@ -33,14 +33,14 @@ package com.jme3.texture.image;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.texture.Image;
+import com.jme3.texture.GlImage;
 import java.nio.ByteBuffer;
 
 public class DefaultImageRaster extends ImageRaster {
 
     private final int[] components = new int[4];
     private ByteBuffer buffer;
-    private final Image image;
+    private final GlImage image;
     private final ImageCodec codec;
     private final int width;
     private final int height;
@@ -56,7 +56,7 @@ public class DefaultImageRaster extends ImageRaster {
         }
     }
 
-    public DefaultImageRaster(Image image, int slice, int mipMapLevel, boolean convertToLinear) {
+    public DefaultImageRaster(GlImage image, int slice, int mipMapLevel, boolean convertToLinear) {
         int[] mipMapSizes = image.getMipMapSizes();
         int availableMips = mipMapSizes != null ? mipMapSizes.length : 1;
 
@@ -88,7 +88,7 @@ public class DefaultImageRaster extends ImageRaster {
         this.convertToLinear = convertToLinear && image.getColorSpace() == ColorSpace.sRGB;
 
         this.buffer = image.getData(slice);
-        this.codec = ImageCodec.lookup(image.getFormat());
+        this.codec = ImageCodec.lookup(image.getGlFormat());
 
         if (codec instanceof ByteAlignedImageCodec || codec instanceof ByteOffsetImageCodec) {
             this.temp = new byte[codec.bpp];

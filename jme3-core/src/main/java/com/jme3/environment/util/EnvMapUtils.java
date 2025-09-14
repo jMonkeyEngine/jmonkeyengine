@@ -113,8 +113,8 @@ public class EnvMapUtils {
      * @param format the format of the image
      * @return a cube map
      */
-    public static TextureCubeMap makeCubeMap(Image rightImg, Image leftImg, Image upImg, Image downImg, Image backImg, Image frontImg, Image.Format format) {
-        Image cubeImage = new Image(format, leftImg.getWidth(), leftImg.getHeight(), null, ColorSpace.Linear);
+    public static TextureCubeMap makeCubeMap(GlImage rightImg, GlImage leftImg, GlImage upImg, GlImage downImg, GlImage backImg, GlImage frontImg, GlImage.Format format) {
+        GlImage cubeImage = new GlImage(format, leftImg.getWidth(), leftImg.getHeight(), null, ColorSpace.Linear);
 
         cubeImage.addData(rightImg.getData(0));
         cubeImage.addData(leftImg.getData(0));
@@ -129,9 +129,9 @@ public class EnvMapUtils {
 
         TextureCubeMap cubeMap = new TextureCubeMap(cubeImage);
         cubeMap.setAnisotropicFilter(0);
-        cubeMap.setMagFilter(Texture.MagFilter.Bilinear);
-        cubeMap.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-        cubeMap.setWrap(Texture.WrapMode.EdgeClamp);
+        cubeMap.setMagFilter(GlTexture.MagFilter.Bilinear);
+        cubeMap.setMinFilter(GlTexture.MinFilter.BilinearNoMipMaps);
+        cubeMap.setWrap(GlTexture.WrapMode.EdgeClamp);
 
         return cubeMap;
     }
@@ -151,8 +151,8 @@ public class EnvMapUtils {
      * @return a new instance
      */
     public static TextureCubeMap duplicateCubeMap(TextureCubeMap sourceMap) {
-        Image srcImg = sourceMap.getImage();
-        Image cubeImage = new Image(srcImg.getFormat(), srcImg.getWidth(), srcImg.getHeight(), null, srcImg.getColorSpace());
+        GlImage srcImg = sourceMap.getImage();
+        GlImage cubeImage = new GlImage(srcImg.getGlFormat(), srcImg.getWidth(), srcImg.getHeight(), null, srcImg.getColorSpace());
 
         for (ByteBuffer d : srcImg.getData()) {
             cubeImage.addData(d.duplicate());
@@ -164,7 +164,7 @@ public class EnvMapUtils {
         cubeMap.setAnisotropicFilter(sourceMap.getAnisotropicFilter());
         cubeMap.setMagFilter(sourceMap.getMagFilter());
         cubeMap.setMinFilter(sourceMap.getMinFilter());
-        cubeMap.setWrap(sourceMap.getWrap(Texture.WrapAxis.S));
+        cubeMap.setWrap(sourceMap.getWrap(GlTexture.WrapAxis.S));
 
         return cubeMap;
     }
@@ -621,7 +621,7 @@ public class EnvMapUtils {
 
         for (int i = 0; i < 6; i++) {
             pics[i] = new Picture("bla");
-            Texture2D tex = new Texture2D(new Image(cubeMap.getImage().getFormat(), size, size, cubeMap.getImage().getData(i), cubeMap.getImage().getColorSpace()));
+            Texture2D tex = new Texture2D(new GlImage(cubeMap.getImage().getGlFormat(), size, size, cubeMap.getImage().getData(i), cubeMap.getImage().getColorSpace()));
 
             pics[i].setTexture(assetManager, tex, true);
             pics[i].setWidth(size);
@@ -678,7 +678,7 @@ public class EnvMapUtils {
                 ByteBuffer data = BufferUtils.createByteBuffer(dataArray);
 
                 pics[i] = new Picture("bla");
-                Texture2D tex = new Texture2D(new Image(cubeMap.getImage().getFormat(), size, size, data, cubeMap.getImage().getColorSpace()));
+                Texture2D tex = new Texture2D(new GlImage(cubeMap.getImage().getGlFormat(), size, size, data, cubeMap.getImage().getColorSpace()));
 
                 pics[i].setTexture(assetManager, tex, true);
                 pics[i].setWidth(size);
@@ -721,11 +721,11 @@ public class EnvMapUtils {
      * @param imageFormat the format of the image
      * @return the initialized Irradiance map
      */
-    public static TextureCubeMap createIrradianceMap(int size, Image.Format imageFormat) {
+    public static TextureCubeMap createIrradianceMap(int size, GlImage.Format imageFormat) {
 
         TextureCubeMap irrMap = new TextureCubeMap(size, size, imageFormat);
-        irrMap.setMagFilter(Texture.MagFilter.Bilinear);
-        irrMap.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+        irrMap.setMagFilter(GlTexture.MagFilter.Bilinear);
+        irrMap.setMinFilter(GlTexture.MinFilter.BilinearNoMipMaps);
         irrMap.getImage().setColorSpace(ColorSpace.Linear);
         return irrMap;
     }
@@ -736,11 +736,11 @@ public class EnvMapUtils {
      * @param imageFormat the format of the image
      * @return the initialized prefiltered env map
      */
-    public static TextureCubeMap createPrefilteredEnvMap(int size, Image.Format imageFormat) {
+    public static TextureCubeMap createPrefilteredEnvMap(int size, GlImage.Format imageFormat) {
 
         TextureCubeMap pem = new TextureCubeMap(size, size, imageFormat);
-        pem.setMagFilter(Texture.MagFilter.Bilinear);
-        pem.setMinFilter(Texture.MinFilter.Trilinear);
+        pem.setMagFilter(GlTexture.MagFilter.Bilinear);
+        pem.setMinFilter(GlTexture.MinFilter.Trilinear);
         pem.getImage().setColorSpace(ColorSpace.Linear);
         int nbMipMap = Math.min(6, (int) (Math.log(size) / Math.log(2)));
         CubeMapWrapper targetWrapper = new CubeMapWrapper(pem);

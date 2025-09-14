@@ -36,8 +36,8 @@ import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.PlaceholderAssets;
 import java.io.File;
@@ -60,7 +60,7 @@ public class MTLLoader implements AssetLoader {
     protected String folderName;
     protected AssetKey key;
     
-    protected Texture diffuseMap, normalMap, specularMap, alphaMap;
+    protected GlTexture diffuseMap, normalMap, specularMap, alphaMap;
     protected ColorRGBA ambient = new ColorRGBA();
     protected ColorRGBA diffuse = new ColorRGBA();
     protected ColorRGBA specular = new ColorRGBA();
@@ -167,7 +167,7 @@ public class MTLLoader implements AssetLoader {
         matName = name;
     }
     
-    protected Texture loadTexture(String path){
+    protected GlTexture loadTexture(String path){
         String[] split = path.trim().split("\\p{javaWhitespace}+");
         
         // will crash if path is an empty string
@@ -176,7 +176,7 @@ public class MTLLoader implements AssetLoader {
         String name = new File(path).getName();
         TextureKey texKey = new TextureKey(folderName + name);
         texKey.setGenerateMips(true);
-        Texture texture;
+        GlTexture texture;
         try {
             texture = assetManager.loadTexture(texKey);
             texture.setWrap(WrapMode.Repeat);

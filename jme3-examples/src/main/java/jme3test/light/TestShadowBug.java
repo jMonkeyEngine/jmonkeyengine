@@ -50,8 +50,8 @@ import com.jme3.scene.shape.Box;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.shadow.PointLightShadowRenderer;
 import com.jme3.shadow.SpotLightShadowRenderer;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 
 
 public class TestShadowBug extends SimpleApplication {
@@ -119,7 +119,7 @@ public class TestShadowBug extends SimpleApplication {
     Geometry floor = new Geometry("the Floor", box);
     floor.setLocalTranslation(200, -9, 200);
     Material matGroundL = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-    Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
+    GlTexture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
     grass.setWrap(WrapMode.Repeat);
     matGroundL.setTexture("DiffuseMap", grass);
     floor.setMaterial(matGroundL);

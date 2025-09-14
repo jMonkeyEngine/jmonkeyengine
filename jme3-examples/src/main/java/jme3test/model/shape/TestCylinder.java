@@ -37,7 +37,7 @@ import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Cylinder;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 public class TestCylinder extends SimpleApplication {
 
@@ -54,8 +54,8 @@ public class TestCylinder extends SimpleApplication {
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey key = new TextureKey("Interface/Logo/Monkey.jpg", true);
         key.setGenerateMips(true);
-        Texture tex = assetManager.loadTexture(key);
-        tex.setMinFilter(Texture.MinFilter.Trilinear);
+        GlTexture tex = assetManager.loadTexture(key);
+        tex.setMinFilter(GlTexture.MinFilter.Trilinear);
         mat.setTexture("ColorMap", tex);
 
         geom.setMaterial(mat);

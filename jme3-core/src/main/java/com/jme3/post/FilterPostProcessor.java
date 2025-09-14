@@ -38,8 +38,8 @@ import com.jme3.profile.*;
 import com.jme3.renderer.*;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
@@ -308,8 +308,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
                 boolean wantsBilinear = filter.isRequiresBilinear();
                 if (wantsBilinear) {
-                    tex.setMagFilter(Texture.MagFilter.Bilinear);
-                    tex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+                    tex.setMagFilter(GlTexture.MagFilter.Bilinear);
+                    tex.setMinFilter(GlTexture.MinFilter.BilinearNoMipMaps);
                 }
 
                 buff = outputBuffer;
@@ -324,8 +324,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 filter.postFilter(r, buff);
 
                 if (wantsBilinear) {
-                    tex.setMagFilter(Texture.MagFilter.Nearest);
-                    tex.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+                    tex.setMagFilter(GlTexture.MagFilter.Nearest);
+                    tex.setMinFilter(GlTexture.MinFilter.NearestNoMipMaps);
                 }
             }
         }

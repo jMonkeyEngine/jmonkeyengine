@@ -13,7 +13,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.RectangleMesh;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 
 public class TestTransparentCartoonEdge extends SimpleApplication {
 
@@ -84,7 +84,7 @@ public class TestTransparentCartoonEdge extends SimpleApplication {
             Geometry g = (Geometry) spatial;
             Material m = g.getMaterial();
             if (m.getMaterialDef().getName().equals("Phong Lighting")){
-                Texture t = assetManager.loadTexture("Textures/ColorRamp/toon.png");
+                GlTexture t = assetManager.loadTexture("Textures/ColorRamp/toon.png");
 //                t.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
 //                t.setMagFilter(Texture.MagFilter.Nearest);
                 m.setTexture("ColorRamp", t);

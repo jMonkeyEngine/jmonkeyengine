@@ -41,9 +41,9 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
@@ -143,9 +143,9 @@ public class TextureAtlas {
      * @return false if the atlas is full.
      */
     public boolean addGeometry(Geometry geometry) {
-        Texture diffuse = getMaterialTexture(geometry, "DiffuseMap");
-        Texture normal = getMaterialTexture(geometry, "NormalMap");
-        Texture specular = getMaterialTexture(geometry, "SpecularMap");
+        GlTexture diffuse = getMaterialTexture(geometry, "DiffuseMap");
+        GlTexture normal = getMaterialTexture(geometry, "NormalMap");
+        GlTexture specular = getMaterialTexture(geometry, "SpecularMap");
         if (diffuse == null) {
             diffuse = getMaterialTexture(geometry, "ColorMap");
 
@@ -173,7 +173,7 @@ public class TextureAtlas {
      * @param mapName A freely chosen map name that can be later retrieved as a Texture. The first map name supplied will be the master map.
      * @return false if the atlas is full.
      */
-    public boolean addTexture(Texture texture, String mapName) {
+    public boolean addTexture(GlTexture texture, String mapName) {
         if (texture == null) {
             throw new IllegalStateException("Texture cannot be null!");
         }
@@ -191,7 +191,7 @@ public class TextureAtlas {
      * @param mapName A freely chosen map name that can be later retrieved as a Texture.
      * @param masterTexture The master texture for determining the location, it has to exist in tha master map.
      */
-    public void addTexture(Texture texture, String mapName, Texture masterTexture) {
+    public void addTexture(GlTexture texture, String mapName, GlTexture masterTexture) {
         String sourceTextureName = textureName(masterTexture);
         if (sourceTextureName == null) {
             throw new IllegalStateException("Supplied master map texture has no asset key name!");
@@ -206,7 +206,7 @@ public class TextureAtlas {
      * @param mapName A freely chosen map name that can be later retrieved as a Texture.
      * @param sourceTextureName Name of the master map used for the location.
      */
-    public void addTexture(Texture texture, String mapName, String sourceTextureName) {
+    public void addTexture(GlTexture texture, String mapName, String sourceTextureName) {
         if (texture == null) {
             throw new IllegalStateException("Texture cannot be null!");
         }
@@ -218,7 +218,7 @@ public class TextureAtlas {
         }
     }
 
-    private String textureName(Texture texture) {
+    private String textureName(GlTexture texture) {
         if (texture == null) {
             return null;
         }
@@ -230,7 +230,7 @@ public class TextureAtlas {
         }
     }
 
-    private boolean addImage(Image image, String name, String mapName, String sourceTextureName) {
+    private boolean addImage(GlImage image, String name, String mapName, String sourceTextureName) {
         if (rootMapName == null) {
             rootMapName = mapName;
         }
@@ -270,7 +270,7 @@ public class TextureAtlas {
         return true;
     }
 
-    private void drawImage(Image source, int x, int y, String mapName) {
+    private void drawImage(GlImage source, int x, int y, String mapName) {
         if (images == null) {
             images = new HashMap<String, byte[]>();
         }
@@ -286,41 +286,41 @@ public class TextureAtlas {
         ByteBuffer sourceData = source.getData(0);
         int height = source.getHeight();
         int width = source.getWidth();
-        Image newImage = null;
+        GlImage newImage = null;
         for (int yPos = 0; yPos < height; yPos++) {
             for (int xPos = 0; xPos < width; xPos++) {
                 int i = ((xPos + x) + (yPos + y) * atlasWidth) * 4;
-                if (source.getFormat() == Format.ABGR8) {
+                if (source.getGlFormat() == Format.ABGR8) {
                     int j = (xPos + yPos * width) * 4;
                     image[i] = sourceData.get(j); //a
                     image[i + 1] = sourceData.get(j + 1); //b
                     image[i + 2] = sourceData.get(j + 2); //g
                     image[i + 3] = sourceData.get(j + 3); //r
-                } else if (source.getFormat() == Format.BGR8) {
+                } else if (source.getGlFormat() == Format.BGR8) {
                     int j = (xPos + yPos * width) * 3;
                     image[i] = 1; //a
                     image[i + 1] = sourceData.get(j); //b
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j + 2); //r
-                } else if (source.getFormat() == Format.RGB8) {
+                } else if (source.getGlFormat() == Format.RGB8) {
                     int j = (xPos + yPos * width) * 3;
                     image[i] = 1; //a
                     image[i + 1] = sourceData.get(j + 2); //b
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j); //r
-                } else if (source.getFormat() == Format.RGBA8) {
+                } else if (source.getGlFormat() == Format.RGBA8) {
                     int j = (xPos + yPos * width) * 4;
                     image[i] = sourceData.get(j + 3); //a
                     image[i + 1] = sourceData.get(j + 2); //b
                     image[i + 2] = sourceData.get(j + 1); //g
                     image[i + 3] = sourceData.get(j); //r
-                } else if (source.getFormat() == Format.Luminance8) {
+                } else if (source.getGlFormat() == Format.Luminance8) {
                     int j = (xPos + yPos * width) * 1;
                     image[i] = 1; //a
                     image[i + 1] = sourceData.get(j); //b
                     image[i + 2] = sourceData.get(j); //g
                     image[i + 3] = sourceData.get(j); //r
-                } else if (source.getFormat() == Format.Luminance8Alpha8) {
+                } else if (source.getGlFormat() == Format.Luminance8Alpha8) {
                     int j = (xPos + yPos * width) * 2;
                     image[i] = sourceData.get(j + 1); //a
                     image[i + 1] = sourceData.get(j); //b
@@ -339,10 +339,10 @@ public class TextureAtlas {
                             image[i + 2] = sourceData.get(j + 2); //g
                             image[i + 3] = sourceData.get(j + 3); //r
                         }else{
-                            throw new UnsupportedOperationException("Cannot draw or convert textures with format " + source.getFormat());
+                            throw new UnsupportedOperationException("Cannot draw or convert textures with format " + source.getGlFormat());
                         }
                     } else {
-                        throw new UnsupportedOperationException("Cannot draw textures with format " + source.getFormat());
+                        throw new UnsupportedOperationException("Cannot draw textures with format " + source.getGlFormat());
                     }
                 }
             }
@@ -350,15 +350,15 @@ public class TextureAtlas {
     }
 
     @SuppressWarnings("unchecked")
-    private Image convertImageToAwt(Image source) {
+    private GlImage convertImageToAwt(GlImage source) {
         //use awt dependent classes without actual dependency via reflection
         try {
             Class clazz = Class.forName("jme3tools.converters.ImageToAwt");
             if (clazz == null) {
                 return null;
             }
-            Image newImage = new Image(format, source.getWidth(), source.getHeight(), BufferUtils.createByteBuffer(source.getWidth() * source.getHeight() * 4), null, ColorSpace.Linear);
-            clazz.getMethod("convert", Image.class, Image.class).invoke(clazz.getDeclaredConstructor().newInstance(), source, newImage);
+            GlImage newImage = new GlImage(format, source.getWidth(), source.getHeight(), BufferUtils.createByteBuffer(source.getWidth() * source.getHeight() * 4), null, ColorSpace.Linear);
+            clazz.getMethod("convert", GlImage.class, GlImage.class).invoke(clazz.getDeclaredConstructor().newInstance(), source, newImage);
             return newImage;
         } catch (InstantiationException
                 | IllegalAccessException
@@ -376,7 +376,7 @@ public class TextureAtlas {
      * @param texture The texture to retrieve the <code>TextureAtlasTile</code> for.
      * @return the atlas tile
      */
-    public TextureAtlasTile getAtlasTile(Texture texture) {
+    public TextureAtlasTile getAtlasTile(GlTexture texture) {
         String sourceTextureName = textureName(texture);
         if (sourceTextureName != null) {
             return getAtlasTile(sourceTextureName);
@@ -399,17 +399,17 @@ public class TextureAtlas {
      * @param mapName the desired name
      * @return the atlas texture
      */
-    public Texture getAtlasTexture(String mapName) {
+    public GlTexture getAtlasTexture(String mapName) {
         if (images == null) {
             return null;
         }
         byte[] image = images.get(mapName);
         if (image != null) {
             //TODO check if color space shouldn't be sRGB
-            Texture2D tex = new Texture2D(new Image(format, atlasWidth, atlasHeight, BufferUtils.createByteBuffer(image), null, ColorSpace.Linear));
-            tex.setMagFilter(Texture.MagFilter.Bilinear);
-            tex.setMinFilter(Texture.MinFilter.BilinearNearestMipMap);
-            tex.setWrap(Texture.WrapMode.EdgeClamp);
+            Texture2D tex = new Texture2D(new GlImage(format, atlasWidth, atlasHeight, BufferUtils.createByteBuffer(image), null, ColorSpace.Linear));
+            tex.setMagFilter(GlTexture.MagFilter.Bilinear);
+            tex.setMinFilter(GlTexture.MinFilter.BilinearNearestMipMap);
+            tex.setWrap(GlTexture.WrapMode.EdgeClamp);
             return tex;
         }
         return null;
@@ -444,7 +444,7 @@ public class TextureAtlas {
             throw new IllegalStateException("Geometry mesh has no texture coordinate buffer.");
         }
 
-        Texture tex = getMaterialTexture(geom, "DiffuseMap");
+        GlTexture tex = getMaterialTexture(geom, "DiffuseMap");
         if (tex == null) {
             tex = getMaterialTexture(geom, "ColorMap");
 
@@ -507,9 +507,9 @@ public class TextureAtlas {
         geom.setMesh(mesh);
 
         Material mat = new Material(mgr, "Common/MatDefs/Light/Lighting.j3md");
-        Texture diffuseMap = atlas.getAtlasTexture("DiffuseMap");
-        Texture normalMap = atlas.getAtlasTexture("NormalMap");
-        Texture specularMap = atlas.getAtlasTexture("SpecularMap");
+        GlTexture diffuseMap = atlas.getAtlasTexture("DiffuseMap");
+        GlTexture normalMap = atlas.getAtlasTexture("NormalMap");
+        GlTexture specularMap = atlas.getAtlasTexture("SpecularMap");
         if (diffuseMap != null) {
             mat.setTexture("DiffuseMap", diffuseMap);
         }
@@ -547,13 +547,13 @@ public class TextureAtlas {
         }
     }
 
-    private static Texture getMaterialTexture(Geometry geometry, String mapName) {
+    private static GlTexture getMaterialTexture(Geometry geometry, String mapName) {
         Material mat = geometry.getMaterial();
         if (mat == null || mat.getParam(mapName) == null || !(mat.getParam(mapName) instanceof MatParamTexture)) {
             return null;
         }
         MatParamTexture param = (MatParamTexture) mat.getParam(mapName);
-        Texture texture = param.getTextureValue();
+        GlTexture texture = param.getTextureValue();
         if (texture == null) {
             return null;
         }
@@ -581,7 +581,7 @@ public class TextureAtlas {
         }
 
         // Algorithm from http://www.blackpawn.com/texts/lightmaps/
-        public Node insert(Image image) {
+        public Node insert(GlImage image) {
             if (!isLeaf()) {
                 Node newNode = child[0].insert(image);
 

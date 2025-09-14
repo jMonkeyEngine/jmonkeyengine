@@ -36,7 +36,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.shader.VarType;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.image.ColorSpace;
 import java.io.IOException;
 
@@ -57,7 +57,7 @@ public class MatParamTexture extends MatParam {
      * @param texture    the texture associated with this parameter
      * @param colorSpace the required color space for the texture
      */
-    public MatParamTexture(VarType type, String name, Texture texture, ColorSpace colorSpace) {
+    public MatParamTexture(VarType type, String name, GlTexture texture, ColorSpace colorSpace) {
         super(type, name, texture);
         this.colorSpace = colorSpace;
     }
@@ -73,17 +73,17 @@ public class MatParamTexture extends MatParam {
      *
      * @return the texture object
      */
-    public Texture getTextureValue() {
-        return (Texture) getValue();
+    public GlTexture getTextureValue() {
+        return (GlTexture) getValue();
     }
 
     /**
      * Sets the texture associated with this material parameter.
      *
      * @param value the texture object to set
-     * @throws RuntimeException if the provided value is not a {@link Texture}
+     * @throws RuntimeException if the provided value is not a {@link GlTexture}
      */
-    public void setTextureValue(Texture value) {
+    public void setTextureValue(GlTexture value) {
         setValue(value);
     }
 
@@ -113,7 +113,7 @@ public class MatParamTexture extends MatParam {
         oc.write(colorSpace, "colorSpace", null);
         // For backwards compatibility
         oc.write(0, "texture_unit", -1);
-        oc.write((Texture) value, "texture", null);
+        oc.write((GlTexture) value, "texture", null);
     }
 
     @Override

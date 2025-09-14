@@ -43,8 +43,8 @@ import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import java.io.IOException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -77,7 +77,7 @@ public class SoftBloomFilter extends Filter {
     private int height;
     private Pass[] downsamplingPasses;
     private Pass[] upsamplingPasses;
-    private final Image.Format format = Image.Format.RGBA16F;
+    private final GlImage.Format format = GlImage.Format.RGBA16F;
     private boolean initialized = false;
     private int numSamplingPasses = 5;
     private float glowFactor = 0.05f;
@@ -120,7 +120,7 @@ public class SoftBloomFilter extends Filter {
                 downsampleMat.setVector2("TexelSize", initTexelSize);
             }
         };
-        initialPass.init(renderer, w, h, format, Image.Format.Depth, 1, downsampleMat);
+        initialPass.init(renderer, w, h, format, GlImage.Format.Depth, 1, downsampleMat);
         postRenderPasses.add(initialPass);
         downsamplingPasses[0] = initialPass;
         for (int i = 1; i < downsamplingPasses.length; i++) {
@@ -134,9 +134,9 @@ public class SoftBloomFilter extends Filter {
                     downsampleMat.setVector2("TexelSize", texelSize);
                 }
             };
-            pass.init(renderer, w, h, format, Image.Format.Depth, 1, downsampleMat);
+            pass.init(renderer, w, h, format, GlImage.Format.Depth, 1, downsampleMat);
             if (bilinearFiltering) {
-                pass.getRenderedTexture().setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+                pass.getRenderedTexture().setMinFilter(GlTexture.MinFilter.BilinearNoMipMaps);
             }
             postRenderPasses.add(pass);
             downsamplingPasses[i] = pass;
@@ -160,9 +160,9 @@ public class SoftBloomFilter extends Filter {
                     upsampleMat.setVector2("TexelSize", texelSize);
                 }
             };
-            pass.init(renderer, w, h, format, Image.Format.Depth, 1, upsampleMat);
+            pass.init(renderer, w, h, format, GlImage.Format.Depth, 1, upsampleMat);
             if (bilinearFiltering) {
-                pass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
+                pass.getRenderedTexture().setMagFilter(GlTexture.MagFilter.Bilinear);
             }
             postRenderPasses.add(pass);
             upsamplingPasses[i] = pass;
@@ -249,16 +249,16 @@ public class SoftBloomFilter extends Filter {
             if (initialized) {
                 for (Pass p : downsamplingPasses) {
                     if (this.bilinearFiltering) {
-                        p.getRenderedTexture().setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+                        p.getRenderedTexture().setMinFilter(GlTexture.MinFilter.BilinearNoMipMaps);
                     } else {
-                        p.getRenderedTexture().setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+                        p.getRenderedTexture().setMinFilter(GlTexture.MinFilter.NearestNoMipMaps);
                     }
                 }
                 for (Pass p : upsamplingPasses) {
                     if (this.bilinearFiltering) {
-                        p.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
+                        p.getRenderedTexture().setMagFilter(GlTexture.MagFilter.Bilinear);
                     } else {
-                        p.getRenderedTexture().setMagFilter(Texture.MagFilter.Nearest);
+                        p.getRenderedTexture().setMagFilter(GlTexture.MagFilter.Nearest);
                     }
                 }
             }

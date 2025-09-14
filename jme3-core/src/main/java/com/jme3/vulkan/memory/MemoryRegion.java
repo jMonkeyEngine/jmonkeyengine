@@ -4,7 +4,7 @@ import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.images.Image;
+import com.jme3.vulkan.images.GpuImage;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -71,7 +71,7 @@ public class MemoryRegion implements Native<Long> {
                 "Failed to bind buffer memory.");
     }
 
-    public void bind(Image image, long offset) {
+    public void bind(GpuImage image, long offset) {
         check(vkBindImageMemory(device.getNativeObject(), image.getId(), id, offset),
                 "Failed to bind image memory.");
     }

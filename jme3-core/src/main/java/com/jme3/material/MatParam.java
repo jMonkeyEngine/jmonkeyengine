@@ -48,8 +48,8 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.shader.VarType;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
+import com.jme3.texture.GlTexture;
+import com.jme3.texture.GlTexture.WrapMode;
 
 /**
  * Describes a material parameter. This is used for both defining a name and type
@@ -283,7 +283,7 @@ When arrays can be inserted in J3M files
             case TextureArray:
             case TextureBuffer:
             case TextureCubeMap:
-                Texture texVal = (Texture) value;
+                GlTexture texVal = (GlTexture) value;
                 TextureKey texKey = (TextureKey) texVal.getKey();
                 if (texKey == null) {
                     // throw new UnsupportedOperationException("The specified MatParam cannot be represented in J3M");
@@ -299,20 +299,20 @@ When arrays can be inserted in J3M files
                 }
 
                 // Wrap mode
-                ret += getWrapMode(texVal, Texture.WrapAxis.S);
-                ret += getWrapMode(texVal, Texture.WrapAxis.T);
-                ret += getWrapMode(texVal, Texture.WrapAxis.R);
+                ret += getWrapMode(texVal, GlTexture.WrapAxis.S);
+                ret += getWrapMode(texVal, GlTexture.WrapAxis.T);
+                ret += getWrapMode(texVal, GlTexture.WrapAxis.R);
 
                 // Min and Mag filter
-                Texture.MinFilter def = Texture.MinFilter.BilinearNoMipMaps;
+                GlTexture.MinFilter def = GlTexture.MinFilter.BilinearNoMipMaps;
                 if (texVal.getImage().hasMipmaps() || texKey.isGenerateMips()) {
-                    def = Texture.MinFilter.Trilinear;
+                    def = GlTexture.MinFilter.Trilinear;
                 }
                 if (texVal.getMinFilter() != def) {
                     ret += "Min" + texVal.getMinFilter().name() + " ";
                 }
 
-                if (texVal.getMagFilter() != Texture.MagFilter.Bilinear) {
+                if (texVal.getMagFilter() != GlTexture.MagFilter.Bilinear) {
                     ret += "Mag" + texVal.getMagFilter().name() + " ";
                 }
 
@@ -322,7 +322,7 @@ When arrays can be inserted in J3M files
         }
     }
 
-    private String getWrapMode(Texture texVal, Texture.WrapAxis axis) {
+    private String getWrapMode(GlTexture texVal, GlTexture.WrapAxis axis) {
         WrapMode mode = WrapMode.EdgeClamp;
         try {
             mode = texVal.getWrap(axis);

@@ -3,8 +3,8 @@ package com.jme3.scene.plugins.fbx.objects;
 import java.io.File;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import com.jme3.scene.plugins.fbx.ContentTextureKey;
@@ -19,7 +19,7 @@ public class FbxImage extends FbxObject {
     byte[] content;
     String imageType;
 
-    public Image image;
+    public GlImage image;
 
     public FbxImage(SceneLoader scene, FbxElement element) {
         super(scene, element);
@@ -47,16 +47,16 @@ public class FbxImage extends FbxObject {
     }
 
 
-    private Image createImage() {
+    private GlImage createImage() {
         AssetManager assetManager = scene.assetManager;
-        Image image = null;
+        GlImage image = null;
         if(filename != null) {
             // Try load by absolute path
             File file = new File(filename);
             if(file.exists() && file.isFile()) {
                 File dir = new File(file.getParent());
                 String locatorPath = dir.getAbsolutePath();
-                Texture tex = null;
+                GlTexture tex = null;
                 try {
                     assetManager.registerLocator(locatorPath, com.jme3.asset.plugins.FileLocator.class);
                     tex = assetManager.loadTexture(file.getName());
@@ -71,7 +71,7 @@ public class FbxImage extends FbxObject {
             // Try load by relative path
             File dir = new File(scene.sceneFolderName);
             String locatorPath = dir.getAbsolutePath();
-            Texture tex = null;
+            GlTexture tex = null;
             try {
                 assetManager.registerLocator(locatorPath, com.jme3.asset.plugins.FileLocator.class);
                 tex = assetManager.loadTexture(relativeFilename);
@@ -92,7 +92,7 @@ public class FbxImage extends FbxObject {
             if(filename != null) {
                 String locatorPath = scene.sceneFilename;
                 filename = scene.sceneFilename + File.separatorChar + filename; // Unique path
-                Texture tex = null;
+                GlTexture tex = null;
                 try {
                     assetManager.registerLocator(locatorPath, ContentTextureLocator.class);
                     tex = assetManager.loadTexture(new ContentTextureKey(filename, content));
@@ -108,7 +108,7 @@ public class FbxImage extends FbxObject {
             if(relativeFilename != null) {
                 String[] split = relativeFilename.split("[\\\\/]");
                 String filename = split[split.length - 1];
-                Texture tex = null;
+                GlTexture tex = null;
                 try {
                     tex = assetManager.loadTexture(new ContentTextureKey(scene.currentAssetInfo.getKey().getFolder() + filename, content));
                 } catch(Exception e) {}
@@ -117,7 +117,7 @@ public class FbxImage extends FbxObject {
             }
         }
         if(image == null)
-            return new Image(Image.Format.RGB8, 1, 1, BufferUtils.createByteBuffer((int) (Image.Format.RGB8.getBitsPerPixel() / 8L)), ColorSpace.Linear);
+            return new GlImage(GlImage.Format.RGB8, 1, 1, BufferUtils.createByteBuffer((int) (GlImage.Format.RGB8.getBitsPerPixel() / 8L)), ColorSpace.Linear);
         return image;
     }
 }

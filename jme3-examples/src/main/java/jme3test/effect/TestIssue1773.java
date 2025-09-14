@@ -62,7 +62,7 @@ import com.jme3.scene.shape.CenterQuad;
 import com.jme3.scene.shape.Torus;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.system.AppSettings;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import java.util.Arrays;
 
 /**
@@ -249,8 +249,8 @@ public class TestIssue1773 extends SimpleApplication implements ActionListener {
         quad.scaleTextureCoordinates(new Vector2f(2, 2));
         Geometry floor = new Geometry("Floor", quad);
         Material mat = new Material(assetManager, Materials.LIGHTING);
-        Texture tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
-        tex.setWrap(Texture.WrapMode.Repeat);
+        GlTexture tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
+        tex.setWrap(GlTexture.WrapMode.Repeat);
         mat.setTexture("DiffuseMap", tex);
         floor.setMaterial(mat);
         floor.rotate(-FastMath.HALF_PI, 0, 0);

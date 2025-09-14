@@ -33,14 +33,14 @@ package com.jme3.material.logic;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
-import com.jme3.material.OldMaterial;
+import com.jme3.material.GlMaterial;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlTexture;
 import java.util.EnumSet;
 
 /**
@@ -83,7 +83,7 @@ public interface TechniqueDefLogic {
      * {@link com.jme3.material.MatParam material parameters}, and 
      * {@link com.jme3.shader.UniformBinding uniform bindings}
      * have already been applied by the material, however, 
-     * {@link com.jme3.material.RenderState}, {@link Uniform uniforms}, {@link Texture textures},
+     * {@link com.jme3.material.RenderState}, {@link Uniform uniforms}, {@link GlTexture textures},
      * can still be overridden.
      * 
      * @param renderManager The render manager to perform the rendering against.
@@ -93,5 +93,5 @@ public interface TechniqueDefLogic {
      * @param lights Lights which influence the geometry.
      * @param lastBindUnits the index of the most recently used texture unit
      */
-    void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, OldMaterial.BindUnits lastBindUnits);
+    void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, GlMaterial.BindUnits lastBindUnits);
 }

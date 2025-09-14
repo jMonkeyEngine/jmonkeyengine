@@ -42,9 +42,9 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
+import com.jme3.texture.GlImage;
+import com.jme3.texture.GlImage.Format;
+import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture3D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
@@ -91,7 +91,7 @@ public class TestTexture3D extends SimpleApplication {
         Geometry g = new Geometry("sphere", sphere);
         Material material = new Material(assetManager, "jme3test/texture/tex3D.j3md");
         try {
-            Texture texture = this.getTexture();
+            GlTexture texture = this.getTexture();
             material.setTexture("Texture", texture);
         } catch (IOException e) {
             e.printStackTrace();
@@ -114,7 +114,7 @@ public class TestTexture3D extends SimpleApplication {
     /**
          * This method creates an RGB8 texture with the sizes of 10x10x10 pixels.
          */
-    private Texture getTexture() throws IOException {
+    private GlTexture getTexture() throws IOException {
         ArrayList<ByteBuffer> data = new ArrayList<>(1);
         ByteBuffer bb = BufferUtils.createByteBuffer(10 * 10 * 10 * 3);//all data must be inside one buffer
         for (int i = 0; i < 10; ++i) {
@@ -126,6 +126,6 @@ public class TestTexture3D extends SimpleApplication {
         }
         bb.rewind();
         data.add(bb);
-        return new Texture3D(new Image(Format.RGB8, 10, 10, 10, data, null, ColorSpace.Linear));
+        return new Texture3D(new GlImage(Format.RGB8, 10, 10, 10, data, null, ColorSpace.Linear));
     }
 }
