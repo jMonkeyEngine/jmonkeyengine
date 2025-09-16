@@ -1,7 +1,5 @@
 package com.jme3.vulkan.material.uniforms;
 
-import com.jme3.material.GlMaterial;
-import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
@@ -20,11 +18,6 @@ public class TextureUniform extends AbstractUniform<Texture> {
     public TextureUniform(String name, IntEnum<VulkanImage.Layout> layout, int bindingIndex, Flag<ShaderStage> stages) {
         super(name, Descriptor.CombinedImageSampler, bindingIndex, stages);
         this.layout = layout;
-    }
-
-    @Override
-    public void uploadToProgram(GLRenderer renderer, GlMaterial.BindUnits units) {
-        renderer.setTexture(units.textureUnit++, resource.get());
     }
 
     @Override

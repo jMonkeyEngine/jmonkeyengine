@@ -43,7 +43,6 @@ import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.LastTextureState;
 import com.jme3.util.natives.GlNative;
 import com.jme3.vulkan.images.GpuImage;
-import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.util.IntEnum;
 
 import java.io.IOException;
@@ -62,33 +61,11 @@ import java.util.List;
  * @author Joshua Slack
  * @version $Id: Image.java 4131 2009-03-19 20:15:28Z blaine.dev $
  */
-public class GlImage extends GlNative<Integer> implements GpuImage, ImageView<GlImage>, Savable /*, Cloneable*/ {
+public class GlImage extends GlNative<Integer> implements GpuImage, Savable /*, Cloneable*/ {
 
     @Override
-    public GlImage getImage() {
-        return this;
-    }
-
-    @Override
-    public int getBaseMipmap() {
-        return 0;
-    }
-
-    @Override
-    public int getMipmapCount() {
-        // todo: determine if this is correct
-        return mipMapSizes.length;
-    }
-
-    @Override
-    public int getBaseLayer() {
-        return 0;
-    }
-
-    @Override
-    public int getLayerCount() {
-        // todo: determine if this is correct
-        return 1;
+    public IntEnum<Type> getType() {
+        return Type.TwoDemensional;
     }
 
     public enum Format {
@@ -1112,11 +1089,6 @@ public class GlImage extends GlNative<Integer> implements GpuImage, ImageView<Gl
     @Override
     public long getId() {
         return object;
-    }
-
-    @Override
-    public IntEnum<Type> getType() {
-        return VulkanImage.Type.TwoDemensional;
     }
 
     /**

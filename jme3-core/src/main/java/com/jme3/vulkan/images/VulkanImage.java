@@ -11,25 +11,6 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public interface VulkanImage extends GpuImage {
 
-    enum Type implements GpuImage.Type {
-
-        OneDemensional(VK_IMAGE_TYPE_1D),
-        TwoDemensional(VK_IMAGE_TYPE_2D),
-        ThreeDemensional(VK_IMAGE_TYPE_3D);
-
-        private final int vkEnum;
-
-        Type(int vkEnum) {
-            this.vkEnum = vkEnum;
-        }
-
-        @Override
-        public int getEnum() {
-            return vkEnum;
-        }
-
-    }
-
     enum Layout implements IntEnum<Layout> {
 
         Undefined(VK_IMAGE_LAYOUT_UNDEFINED),
@@ -122,29 +103,6 @@ public interface VulkanImage extends GpuImage {
         private final int vkEnum;
 
         Store(int vkEnum) {
-            this.vkEnum = vkEnum;
-        }
-
-        @Override
-        public int getEnum() {
-            return vkEnum;
-        }
-
-    }
-
-    enum View implements IntEnum<View> {
-
-        OneDemensional(VK_IMAGE_VIEW_TYPE_1D),
-        TwoDemensional(VK_IMAGE_VIEW_TYPE_2D),
-        ThreeDemensional(VK_IMAGE_VIEW_TYPE_3D),
-        OneDemensionalArray(VK_IMAGE_VIEW_TYPE_1D_ARRAY),
-        TwoDemensionalArray(VK_IMAGE_VIEW_TYPE_2D_ARRAY),
-        Cube(VK_IMAGE_VIEW_TYPE_CUBE),
-        CubeArray(VK_IMAGE_VIEW_TYPE_CUBE_ARRAY);
-
-        private final int vkEnum;
-
-        View(int vkEnum) {
             this.vkEnum = vkEnum;
         }
 

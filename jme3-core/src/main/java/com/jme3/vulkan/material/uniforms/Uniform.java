@@ -13,8 +13,6 @@ public interface Uniform <T> extends DescriptorSetWriter {
      */
     String getName();
 
-    void uploadToProgram(GLRenderer renderer, GlMaterial.BindUnits units);
-
     /**
      * Tests if the {@link SetLayoutBinding} is compatible with this uniform,
      * indicating that this uniform may be bound to the binding which it represents.

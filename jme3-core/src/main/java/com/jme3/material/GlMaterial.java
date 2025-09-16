@@ -56,13 +56,13 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.*;
 import com.jme3.shader.bufferobject.BufferObject;
-import com.jme3.texture.GlImage;
-import com.jme3.texture.GlTexture;
-import com.jme3.texture.TextureImage;
+import com.jme3.texture.*;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
+import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.pipelines.Pipeline;
 import org.lwjgl.opengl.GL45;
 
@@ -105,22 +105,8 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
     private int sortingId = -1;
 
     @Override
-    public void bind(CommandBuffer cmd, Pipeline pipeline, int offset) {
-        // todo: implement properly
-        int loc = GL45.glGetUniformLocation(pipeline.getNativeObject().intValue(), "MyUniformName");
-        GL45.glUniform1f(loc, 123.4f);
-    }
-
-    @Override
     public void setParam(String uniform, String param, Object value) {
-        // todo: implement
-        throw new UnsupportedOperationException("Not implemented yet.");
-    }
-
-    @Override
-    public <T extends com.jme3.vulkan.material.uniforms.Uniform> T getUniform(String name) {
-        // todo: implement
-        throw new UnsupportedOperationException("Not implemented yet.");
+        setParam(param, value);
     }
 
     /**
@@ -578,6 +564,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param name the name of the parameter defined in the material definition (j3md)
      * @param value the value of the parameter
      */
+    @Override
     public void setParam(String name, Object value) {
         MatParam p = getMaterialDef().getMaterialParam(name);
         setParam(name, p.getVarType(), value);
@@ -669,15 +656,20 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      *              (.j3md) (e.g. Texture for Lighting.j3md)
      * @param value the Texture object previously loaded by the asset manager
      */
-    public void setTexture(String name, GlTexture value) {
+    @Override
+    public void setTexture(String name, VersionedResource<? extends Texture> value) {
         if (value == null) {
             // clear it
             clearParam(name);
             return;
         }
+        if (!(value.get() instanceof GlTexture)) {
+            throw new IllegalArgumentException("Must be a GlTexture.");
+        }
 
         VarType paramType = null;
-        switch (value.getType()) {
+        GlTexture.Type type = ((GlTexture)value.get()).getType();
+        switch (type) {
             case TwoDimensional:
                 paramType = VarType.Texture2D;
                 break;
@@ -691,10 +683,10 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
                 paramType = VarType.TextureCubeMap;
                 break;
             default:
-                throw new UnsupportedOperationException("Unknown texture type: " + value.getType());
+                throw new UnsupportedOperationException("Unknown texture type: " + type);
         }
 
-        setTextureParam(name, paramType, value);
+        setTextureParam(name, paramType, (GlTexture)value);
     }
 
     /**
@@ -703,6 +695,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param name the name of the matrix defined in the material definition (j3md)
      * @param value the Matrix4f object
      */
+    @Override
     public void setMatrix4(String name, Matrix4f value) {
         setParam(name, VarType.Matrix4, value);
     }
@@ -713,6 +706,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param name the name of the boolean defined in the material definition (j3md)
      * @param value the boolean value
      */
+    @Override
     public void setBoolean(String name, boolean value) {
         setParam(name, VarType.Boolean, value);
     }
@@ -723,6 +717,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param name the name of the float defined in the material definition (j3md)
      * @param value the float value
      */
+    @Override
     public void setFloat(String name, float value) {
         setParam(name, VarType.Float, value);
     }
@@ -734,6 +729,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param name the name of the float defined in the material definition (j3md)
      * @param value the float value
      */
+    @Override
     public void setFloat(String name, Float value) {
         setParam(name, VarType.Float, value);
     }
@@ -744,6 +740,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param name the name of the int defined in the material definition (j3md)
      * @param value the int value
      */
+    @Override
     public void setInt(String name, int value) {
         setParam(name, VarType.Int, value);
     }
@@ -754,6 +751,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param name the name of the color defined in the material definition (j3md)
      * @param value the ColorRGBA value
      */
+    @Override
     public void setColor(String name, ColorRGBA value) {
         setParam(name, VarType.Vector4, value);
     }
@@ -778,12 +776,18 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         setParam(name, VarType.ShaderStorageBufferObject, value);
     }
 
+    @Override
+    public void setUniform(String name, VersionedResource<? extends GpuBuffer> buffer) {
+
+    }
+
     /**
      * Pass a Vector2f to the material shader.
      *
      * @param name the name of the Vector2f defined in the material definition (j3md)
      * @param value the Vector2f value
      */
+    @Override
     public void setVector2(String name, Vector2f value) {
         setParam(name, VarType.Vector2, value);
     }
@@ -794,6 +798,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param name the name of the Vector3f defined in the material definition (j3md)
      * @param value the Vector3f value
      */
+    @Override
     public void setVector3(String name, Vector3f value) {
         setParam(name, VarType.Vector3, value);
     }
@@ -804,6 +809,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param name the name of the Vector4f defined in the material definition (j3md)
      * @param value the Vector4f value
      */
+    @Override
     public void setVector4(String name, Vector4f value) {
         setParam(name, VarType.Vector4, value);
     }
@@ -1106,6 +1112,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param lights Presorted and filtered light list to use for rendering
      * @param renderManager The render manager requesting the rendering
      */
+    @Override
     public void render(Geometry geometry, LightList lights, RenderManager renderManager) {
         if (technique == null) {
             selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);

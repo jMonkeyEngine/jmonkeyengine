@@ -32,13 +32,13 @@
 package com.jme3.material;
 
 import com.jme3.export.Savable;
+import com.jme3.light.LightList;
+import com.jme3.math.*;
+import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.Texture;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.frames.SingleResource;
-import com.jme3.vulkan.material.uniforms.TextureUniform;
-import com.jme3.vulkan.material.uniforms.Uniform;
-import com.jme3.vulkan.pipelines.Pipeline;
+import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.frames.VersionedResource;
 
 /**
  * <code>Material</code> describes the rendering style for a given
@@ -53,19 +53,56 @@ import com.jme3.vulkan.pipelines.Pipeline;
  */
 public interface Material extends Savable {
 
-    void bind(CommandBuffer cmd, Pipeline pipeline, int offset);
+    String DEFAULT_UNIFORM_BUFFER = "DefaultUniformBuffer";
+
+    void render(Geometry geometry, LightList lights, RenderManager renderManager);
+
+    void setUniform(String name, VersionedResource<? extends GpuBuffer> buffer);
+
+    void setTexture(String name, VersionedResource<? extends Texture> texture);
 
     void setParam(String uniform, String param, Object value);
 
-    <T extends Uniform> T getUniform(String name);
+    /* ----- COMPATABILITY WITH OLD MATERIAL ----- */
 
-    default void bind(CommandBuffer cmd, Pipeline pipeline) {
-        bind(cmd, pipeline, 0);
+    default void setParam(String param, Object value) {
+        setParam(DEFAULT_UNIFORM_BUFFER, param, value);
     }
 
-    default void setTexture(String name, Texture texture) {
-        TextureUniform u = getUniform(name);
-        u.setResource(new SingleResource<>(texture));
+    default void setBoolean(String param, boolean value) {
+        setParam(param, value);
+    }
+
+    default void setInt(String param, int value) {
+        setParam(param, value);
+    }
+
+    default void setFloat(String param, float value) {
+        setParam(param, value);
+    }
+
+    default void setFloat(String param, Float value) {
+        setParam(param, value);
+    }
+
+    default void setColor(String param, ColorRGBA value) {
+        setParam(param, value);
+    }
+
+    default void setVector2(String param, Vector2f value) {
+        setParam(param, value);
+    }
+
+    default void setVector3(String param, Vector3f value) {
+        setParam(param, value);
+    }
+
+    default void setVector4(String param, Vector4f value) {
+        setParam(param, value);
+    }
+
+    default void setMatrix4(String param, Matrix4f value) {
+        setParam(param, value);
     }
 
 }

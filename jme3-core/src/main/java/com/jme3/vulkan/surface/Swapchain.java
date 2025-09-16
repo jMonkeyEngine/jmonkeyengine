@@ -1,5 +1,6 @@
 package com.jme3.vulkan.surface;
 
+import com.jme3.texture.ImageView;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
@@ -163,7 +164,7 @@ public class Swapchain extends AbstractNative<Long> {
         private PresentImage(LogicalDevice<?> device, long id) {
             this.device = device;
             this.id = id;
-            colorView = new VulkanImageView(this, VulkanImage.View.TwoDemensional);
+            colorView = new VulkanImageView(this, ImageView.Type.TwoDemensional);
             try (VulkanImageView.Builder v = colorView.build()) {
                 v.setLayerCount(imageLayers);
             }
@@ -181,7 +182,7 @@ public class Swapchain extends AbstractNative<Long> {
 
         @Override
         public IntEnum<GpuImage.Type> getType() {
-            return Type.TwoDemensional;
+            return GpuImage.Type.TwoDemensional;
         }
 
         @Override

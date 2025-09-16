@@ -16,7 +16,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public class VulkanImageView extends AbstractNative<Long> implements ImageView<VulkanImage> {
 
     private final VulkanImage image;
-    private final IntEnum<VulkanImage.View> type;
+    private final IntEnum<Type> type;
 
     private IntEnum<Swizzle> swizzleR = Swizzle.R;
     private IntEnum<Swizzle> swizzleG = Swizzle.G;
@@ -28,7 +28,7 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
     private int baseLayer = 0;
     private int layerCount = 1;
 
-    public VulkanImageView(VulkanImage image, IntEnum<VulkanImage.View> type) {
+    public VulkanImageView(VulkanImage image, IntEnum<Type> type) {
         this.image = image;
         this.type = type;
     }
@@ -48,7 +48,8 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
         return image;
     }
 
-    public IntEnum<VulkanImage.View> getType() {
+    @Override
+    public IntEnum<Type> getViewType() {
         return type;
     }
 

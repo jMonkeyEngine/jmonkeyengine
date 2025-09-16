@@ -36,6 +36,9 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.texture.image.ColorSpace;
+import com.jme3.vulkan.images.GpuImage;
+import com.jme3.vulkan.util.IntEnum;
+
 import java.io.IOException;
 
 /**

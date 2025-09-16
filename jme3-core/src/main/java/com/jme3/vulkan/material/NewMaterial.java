@@ -2,7 +2,10 @@ package com.jme3.vulkan.material;
 
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.light.LightList;
 import com.jme3.material.Material;
+import com.jme3.renderer.RenderManager;
+import com.jme3.scene.Geometry;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
@@ -31,7 +34,10 @@ public class NewMaterial implements Material {
         this.pool = pool;
     }
 
-    @Override
+    public void bind(CommandBuffer cmd, Pipeline pipeline) {
+        bind(cmd, pipeline, 0);
+    }
+
     public void bind(CommandBuffer cmd, Pipeline pipeline, int offset) {
         LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>();
         Collections.addAll(availableLayouts, pipeline.getLayout().getDescriptorSetLayouts());
@@ -44,6 +50,12 @@ public class NewMaterial implements Material {
             vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getVkEnum(),
                     pipeline.getLayout().getNativeObject(), offset, setBuf, null);
         }
+    }
+
+    @Override
+    public void render(Geometry geometry, LightList lights, RenderManager renderManager) {
+        bind(cmd, pipeline);
+        geometry.getMesh().draw(cmd, geometry);
     }
 
     @Override

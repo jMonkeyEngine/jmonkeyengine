@@ -10,6 +10,7 @@ import com.jme3.shaderc.ShaderType;
 import com.jme3.shaderc.ShadercLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.vulkan.LwjglVulkanContext;
+import com.jme3.texture.ImageView;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.VulkanInstance;
@@ -226,7 +227,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
         // material color texture
         VulkanImage image = assetManager.loadAsset(VulkanImageLoader.key(initPool, "Common/Textures/MissingTexture.png"));
-        VulkanImageView imgView = new VulkanImageView(image, VulkanImage.View.TwoDemensional);
+        VulkanImageView imgView = new VulkanImageView(image, ImageView.Type.TwoDemensional);
         try (VulkanImageView.Builder i = imgView.build()) {
             i.setAspect(VulkanImage.Aspect.Color);
         }
@@ -315,7 +316,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             i.setUsage(ImageUsage.DepthStencilAttachment);
             i.setMemoryProps(MemoryProp.DeviceLocal);
         }
-        VulkanImageView view = new VulkanImageView(image, VulkanImage.View.TwoDemensional);
+        VulkanImageView view = new VulkanImageView(image, ImageView.Type.TwoDemensional);
         try (VulkanImageView.Builder v = view.build()) {
             v.allMipmaps();
             v.setAspect(VulkanImage.Aspect.Depth);
