@@ -35,28 +35,17 @@ import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.export.*;
-import com.jme3.material.Material;
-import com.jme3.material.RenderState;
 import com.jme3.renderer.Renderer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.mesh.AttributeModifier;
-import com.jme3.vulkan.mesh.BuiltInAttribute;
 
 /**
- * <code>Mesh</code> is used to store rendering data.
- * <p>
- * All visible elements in a scene are represented by meshes.
- * Meshes may contain three types of geometric primitives:
- * <ul>
- * <li>Points - Every vertex represents a single point in space.
- * <li>Lines - 2 vertices represent a line segment, with the width specified
- * via {@link Material#getAdditionalRenderState()} and {@link RenderState#setLineWidth(float)}.</li>
- * <li>Triangles - 3 vertices represent a solid triangle primitive. </li>
- * </ul>
  *
- * @author Kirill Vainer
+ * @author codex
  */
 public interface Mesh extends Collidable, Savable {
+
+
 
     void draw(CommandBuffer cmd, Geometry geometry);
 
@@ -78,8 +67,20 @@ public interface Mesh extends Collidable, Savable {
 
     int getNumLodLevels();
 
-    default AttributeModifier modifyAttribute(BuiltInAttribute name) {
+    default AttributeModifier modifyAttribute(VertexBuffer.Type name) {
         return modifyAttribute(name.getName());
+    }
+
+    /* ----- COMPATIBILITY WITH OLD MESH ----- */
+
+    // todo: determine what to do with this method
+    // It's used only seriously by Joint, and only then for attachment nodes.
+    // I hope it can be replaced by something else or attachment nodes could
+    // be refactored to remove that dependency, because the GlMesh implementation
+    // for this is concerning.
+    @Deprecated
+    default boolean isAnimatedByJoint(int i) {
+        return false;
     }
 
 }

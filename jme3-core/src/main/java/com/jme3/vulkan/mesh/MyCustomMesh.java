@@ -1,6 +1,7 @@
 package com.jme3.vulkan.mesh;
 
 import com.jme3.math.Vector3f;
+import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.frames.SingleCommand;
@@ -36,17 +37,17 @@ public class MyCustomMesh extends AdaptiveMesh {
             buf.unmap();
         }
         try (Builder m = buildVertexBuffers(4)) {
-            m.setMode(BuiltInAttribute.Position, VertexMode.Static);
-            m.setMode(BuiltInAttribute.TexCoord, VertexMode.Static);
-            m.setMode(BuiltInAttribute.Normal, VertexMode.Static);
+            m.setMode(Type.Position.getName(), VertexMode.Static);
+            m.setMode(Type.TexCoord.getName(), VertexMode.Static);
+            m.setMode(Type.Normal.getName(), VertexMode.Static);
         }
         Vector3f x = normal.cross(up);
         Vector3f y = normal.cross(x);
         Vector3f tempX = new Vector3f();
         Vector3f tempY = new Vector3f();
-        try (AttributeModifier position = modifyAttribute(BuiltInAttribute.Position);
-             AttributeModifier normals = modifyAttribute(BuiltInAttribute.Normal);
-             AttributeModifier texCoord = modifyAttribute(BuiltInAttribute.TexCoord)) {
+        try (AttributeModifier position = modifyAttribute(Type.Position);
+             AttributeModifier normals = modifyAttribute(Type.Normal);
+             AttributeModifier texCoord = modifyAttribute(Type.TexCoord)) {
             position.putVector3(0, 0, x.mult(-width * centerX, tempX).addLocal(y.mult(height * (1f - centerY), tempY)));
             position.putVector3(1, 0, x.mult(width * (1.0f - centerX), tempX).addLocal(y.mult(height * (1f - centerY), tempY)));
             position.putVector3(2, 0, x.mult(width * (1.0f - centerX), tempX).addLocal(y.mult(-height * centerY, tempY)));
@@ -65,7 +66,7 @@ public class MyCustomMesh extends AdaptiveMesh {
 
     @Override
     protected AttributeModifier modifyPosition() {
-        return modifyAttribute(BuiltInAttribute.Position);
+        return modifyAttribute(Type.Position.getName());
     }
 
     @Override

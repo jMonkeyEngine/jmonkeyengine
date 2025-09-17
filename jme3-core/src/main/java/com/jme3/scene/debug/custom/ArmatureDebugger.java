@@ -37,6 +37,7 @@ import com.jme3.anim.Joint;
 import com.jme3.asset.AssetManager;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
+import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.renderer.Camera;
@@ -125,7 +126,7 @@ public class ArmatureDebugger extends Node {
 
         armatureNode.setCamera(camera);
 
-        Material matJoints = new Material(assetManager, "Common/MatDefs/Misc/Billboard.j3md");
+        GlMaterial matJoints = new GlMaterial(assetManager, "Common/MatDefs/Misc/Billboard.j3md");
         GlTexture t = assetManager.loadTexture("Common/Textures/dot.png");
         matJoints.setTexture("Texture", t);
         matJoints.getAdditionalRenderState().setDepthTest(false);
@@ -133,21 +134,21 @@ public class ArmatureDebugger extends Node {
         joints.setQueueBucket(RenderQueue.Bucket.Translucent);
         joints.setMaterial(matJoints);
 
-        Material matWires = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        GlMaterial matWires = new GlMaterial(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         matWires.setBoolean("VertexColor", true);
         matWires.getAdditionalRenderState().setLineWidth(1f);
         wires.setMaterial(matWires);
 
-        Material matOutline = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        GlMaterial matOutline = new GlMaterial(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         matOutline.setBoolean("VertexColor", true);
         matOutline.getAdditionalRenderState().setLineWidth(1f);
         outlines.setMaterial(matOutline);
 
-        Material matOutline2 = new Material(assetManager, "Common/MatDefs/Misc/DashedLine.j3md");
+        GlMaterial matOutline2 = new GlMaterial(assetManager, "Common/MatDefs/Misc/DashedLine.j3md");
         matOutline2.getAdditionalRenderState().setLineWidth(1);
         outlines.getChild(1).setMaterial(matOutline2);
 
-        Material matWires2 = new Material(assetManager, "Common/MatDefs/Misc/DashedLine.j3md");
+        GlMaterial matWires2 = new GlMaterial(assetManager, "Common/MatDefs/Misc/DashedLine.j3md");
         matWires2.getAdditionalRenderState().setLineWidth(1);
         wires.getChild(1).setMaterial(matWires2);
 

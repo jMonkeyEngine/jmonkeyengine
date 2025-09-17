@@ -6,10 +6,14 @@ import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
+import com.jme3.texture.Texture;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.frames.VersionedResource;
+import com.jme3.vulkan.material.uniforms.BufferUniform;
+import com.jme3.vulkan.material.uniforms.TextureUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
 import com.jme3.vulkan.pipelines.Pipeline;
 import com.jme3.vulkan.struct.Structure;
@@ -54,8 +58,24 @@ public class NewMaterial implements Material {
 
     @Override
     public void render(Geometry geometry, LightList lights, RenderManager renderManager) {
-        bind(cmd, pipeline);
-        geometry.getMesh().draw(cmd, geometry);
+        throw new UnsupportedOperationException("Unable to render in an OpenGL context.");
+    }
+
+    @Override
+    public void render(Geometry geometry, LightList lights, CommandBuffer cmd, Pipeline pipeline) {
+
+    }
+
+    @Override
+    public void setUniform(String name, VersionedResource<? extends GpuBuffer> buffer) {
+        BufferUniform u = getUniform(name);
+        u.setResource(buffer);
+    }
+
+    @Override
+    public void setTexture(String name, VersionedResource<? extends Texture> texture) {
+        TextureUniform u = getUniform(name);
+        u.setResource(texture);
     }
 
     @Override
@@ -66,7 +86,6 @@ public class NewMaterial implements Material {
         buffer.unmap();
     }
 
-    @Override
     @SuppressWarnings("unchecked")
     public <T extends Uniform> T getUniform(String name) {
         // Not sure if caching the results is really worth it...

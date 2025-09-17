@@ -63,7 +63,7 @@ import java.util.ArrayList;
  * <ul>
  * <li>Points - Every vertex represents a single point in space.
  * <li>Lines - 2 vertices represent a line segment, with the width specified
- * via {@link Material#getAdditionalRenderState()} and {@link RenderState#setLineWidth(float)}.</li>
+ * via {@link com.jme3.material.GlMaterial#getAdditionalRenderState()} and {@link RenderState#setLineWidth(float)}.</li>
  * <li>Triangles - 3 vertices represent a solid triangle primitive. </li>
  * </ul>
  *
@@ -88,7 +88,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
         Points(true),
         /**
          * A primitive is a line segment. Every two vertices specify
-         * a single line. {@link Material#getAdditionalRenderState()}
+         * a single line. {@link com.jme3.material.GlMaterial#getAdditionalRenderState()}
          * and {@link RenderState#setLineWidth(float)} can be used
          * to set the width of the lines.
          */
@@ -96,7 +96,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
         /**
          * A primitive is a line segment. The first two vertices specify
          * a single line, while subsequent vertices are combined with the
-         * previous vertex to make a line. {@link Material#getAdditionalRenderState()}
+         * previous vertex to make a line. {@link com.jme3.material.GlMaterial#getAdditionalRenderState()}
          * and {@link RenderState#setLineWidth(float)} can
          * be used to set the width of the lines.
          */
@@ -104,7 +104,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
         /**
          * Identical to {@link #LineStrip} except that at the end
          * the last vertex is connected with the first to form a line.
-         * {@link Material#getAdditionalRenderState()}
+         * {@link com.jme3.material.GlMaterial#getAdditionalRenderState()}
          * and {@link RenderState#setLineWidth(float)} can be used
          * to set the width of the lines.
          */
@@ -202,7 +202,6 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     private int[] modeStart;
 
     private Mode mode = Mode.Triangles;
-
     private SafeArrayList<MorphTarget> morphTargets;
 
     /**
@@ -651,7 +650,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * Returns the line width for line meshes.
      *
      * @return the line width
-     * @deprecated use {@link Material#getAdditionalRenderState()}
+     * @deprecated use {@link com.jme3.material.GlMaterial#getAdditionalRenderState()}
      *             and {@link RenderState#getLineWidth()}
      */
     @Deprecated
@@ -665,7 +664,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * the default value is 1.0.
      *
      * @param lineWidth The line width
-     * @deprecated use {@link GlMesh#getAdditionalRenderState()}
+     * @deprecated use {@link com.jme3.material.GlMaterial#getAdditionalRenderState()}
      *             and {@link RenderState#setLineWidth(float)}
      */
     @Deprecated
@@ -1527,6 +1526,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * @param jointIndex the bone's index in its skeleton
      * @return true if the specified bone animates this mesh, otherwise false
      */
+    @Override
     public boolean isAnimatedByJoint(int jointIndex) {
         VertexBuffer biBuf = getBuffer(VertexBuffer.Type.BoneIndex);
         VertexBuffer wBuf = getBuffer(VertexBuffer.Type.BoneWeight);

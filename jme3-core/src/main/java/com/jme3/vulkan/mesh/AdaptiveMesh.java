@@ -200,10 +200,6 @@ public abstract class AdaptiveMesh implements Mesh {
             }
         }
 
-        public void setMode(BuiltInAttribute name, VertexMode mode) {
-            setMode(name.getName(), mode);
-        }
-
         private VersionedResource<? extends GpuBuffer> createBufferResource(VertexBinding binding, VertexMode mode) {
             MemorySize size = MemorySize.bytes(binding.getStride() * vertices);
             switch (mode) {

@@ -57,7 +57,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     /**
      * Type of buffer. Specifies the actual attribute it defines.
      */
-    public static enum Type {
+    public enum Type {
         /**
          * Position of the vertex (3 floats)
          */
@@ -225,7 +225,22 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         MorphTarget10,
         MorphTarget11,
         MorphTarget12,
-        MorphTarget13,
+        MorphTarget13;
+
+        private final String name;
+
+        Type() {
+            this.name = name();
+        }
+
+        Type(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
     }
 
     /**

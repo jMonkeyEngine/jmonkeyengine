@@ -76,7 +76,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <code>Material</code> describes the rendering style for a given
+ * <code>GlMaterial</code> describes the rendering style for a given
  * {@link Geometry}.
  * <p>A material is essentially a list of {@link MatParam parameters},
  * those parameters map to uniforms which are defined in a shader.
@@ -649,6 +649,11 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         }
     }
 
+    @Override
+    public void setTexture(String name, VersionedResource<? extends Texture> value) {
+        setTexture(name, value.get());
+    }
+
     /**
      * Pass a texture to the material shader.
      *
@@ -657,18 +662,18 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param value the Texture object previously loaded by the asset manager
      */
     @Override
-    public void setTexture(String name, VersionedResource<? extends Texture> value) {
+    public void setTexture(String name, Texture value) {
         if (value == null) {
             // clear it
             clearParam(name);
             return;
         }
-        if (!(value.get() instanceof GlTexture)) {
+        if (!(value instanceof GlTexture)) {
             throw new IllegalArgumentException("Must be a GlTexture.");
         }
 
         VarType paramType = null;
-        GlTexture.Type type = ((GlTexture)value.get()).getType();
+        GlTexture.Type type = ((GlTexture)value).getType();
         switch (type) {
             case TwoDimensional:
                 paramType = VarType.Texture2D;
@@ -1151,18 +1156,9 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         technique.render(renderManager, shader, geometry, lights, units);
     }
 
-    /**
-     * Called by {@link RenderManager} to render the geometry by
-     * using this material.
-     *
-     * Note that this version of the render method
-     * does not perform light filtering.
-     *
-     * @param geom The geometry to render
-     * @param rm The render manager requesting the rendering
-     */
-    public void render(Geometry geom, RenderManager rm) {
-        render(geom, geom.getWorldLightList(), rm);
+    @Override
+    public void render(Geometry geometry, LightList lights, CommandBuffer cmd, Pipeline pipeline) {
+        throw new UnsupportedOperationException("Unable to render in a Vulkan context.");
     }
 
     @Override
