@@ -60,7 +60,8 @@ public class ByteUtils {
             bytesRead += read;
         }
         if (bytesRead < b.length) {
-            throw new IOException("End of stream reached before reading fully.");
+            throw new IOException(
+                    "End of stream reached prematurely after " + bytesRead + " of " + b.length + " bytes.");
         }
     }
 
@@ -80,7 +81,8 @@ public class ByteUtils {
                     n--;
                 }
             } else {
-                throw new IOException("Unable to skip exactly " + n + " bytes, actually skipped " + skipped + " bytes." );
+                throw new IOException(
+                        "Unable to skip exactly " + n + " bytes. Only " + skipped + " bytes were skipped.");
             }
         }
     }
@@ -95,7 +97,8 @@ public class ByteUtils {
                 in.readByte();
                 n--;
             } else {
-                throw new IOException("Unable to skip exactly " + n + " bytes, actually skipped " + skipped + " bytes." );
+                throw new IOException(
+                        "Unable to skip exactly " + n + " bytes. Only " + skipped + " bytes were skipped.");
             }
         }
     }
