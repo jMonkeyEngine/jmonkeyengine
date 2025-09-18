@@ -65,9 +65,12 @@ public class ByteUtils {
         }
     }
 
- 
 
     public static void skipFully(InputStream in, long n) throws IOException {
+        skipFully(in, n, true);
+    }
+
+    public static void skipFully(InputStream in, long n, boolean throwOnEOF) throws IOException {
         while (n > 0) {
             long skipped = in.skip(n);
             if (skipped > 0 && skipped <= n) { // skipped some bytes
@@ -75,7 +78,11 @@ public class ByteUtils {
             } else if (skipped == 0) { // skipped nothing
                 // distinguish between EOF and no bytes available
                 if (in.read() == -1) {
-                    throw new EOFException();
+                    if (throwOnEOF) {
+                        throw new EOFException();
+                    } else {
+                        return;
+                    }
                 } else {
                     // stream was just hangling 
                     n--;
@@ -88,13 +95,25 @@ public class ByteUtils {
     }
 
     public static void skipFully(DataInput in, int n) throws IOException {
+        skipFully(in, n, true);
+    }
+
+    public static void skipFully(DataInput in, int n, boolean throwOnEOF) throws IOException {
         while (n > 0) {
             long skipped = in.skipBytes(n);
             if (skipped > 0 && skipped <= n) { // skipped some bytes
                 n -= skipped;
             } else if (skipped == 0) { // skipped nothing
                 // distinguish between EOF and no bytes available
-                in.readByte();
+                try {
+                    in.readByte();
+                } catch (EOFException e) {
+                    if (throwOnEOF) {
+                        throw e;
+                    } else {
+                        return;
+                    }
+                }
                 n--;
             } else {
                 throw new IOException(
@@ -102,6 +121,7 @@ public class ByteUtils {
             }
         }
     }
+
 
     /**
      * Takes an InputStream and returns the complete byte content of it
