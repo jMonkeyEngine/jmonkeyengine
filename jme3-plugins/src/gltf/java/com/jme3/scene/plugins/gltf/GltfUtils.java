@@ -328,6 +328,11 @@ public class GltfUtils {
             populateMatrix4fArray((Matrix4f[]) store, source, count, byteOffset, byteStride, numComponents, format);
         }
     }
+
+    private static void skip(ByteBuffer buff, int n) {
+        buff.position(Math.min(buff.position() + n, buff.limit()));
+    }
+
     private static void populateByteBuffer(ByteBuffer buffer, ByteBuffer source, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) {
         int componentSize = format.getComponentSize();
         int index = byteOffset;
@@ -355,7 +360,7 @@ public class GltfUtils {
             }
 
             if (dataLength < stride) {
-                source.position(source.position() + (stride - dataLength));
+                skip(source, stride - dataLength);
             }
             index += stride;
         }
@@ -374,7 +379,7 @@ public class GltfUtils {
                 buffer.put(source.getInt());
             }
             if (dataLength < stride) {
-                source.position(source.position() + (stride - dataLength));
+                skip(source, stride - dataLength);
             }
             index += stride;
         }
@@ -392,7 +397,7 @@ public class GltfUtils {
                 buffer.put(readAsFloat(source, format));
             }
             if (dataLength < stride) {
-                source.position(source.position() + (stride - dataLength));
+                skip(source, stride - dataLength);
             }
             index += stride;
         }
@@ -448,7 +453,7 @@ public class GltfUtils {
             System.arraycopy(buffer, 0, array, arrayIndex, numComponents);
             arrayIndex += numComponents;
             if (dataLength < stride) {
-                source.position(source.position() + (stride - dataLength));
+                skip(source, stride - dataLength);
             }
             index += stride;
         }
@@ -484,7 +489,7 @@ public class GltfUtils {
                 arrayIndex++;
             }
             if (dataLength < stride) {
-                source.position(source.position() + (stride - dataLength));
+                skip(source, stride - dataLength);
             }
             index += stride;
         }
@@ -582,7 +587,7 @@ public class GltfUtils {
                 arrayIndex++;
             }
             if (dataLength < stride) {
-                source.position(source.position() + (stride - dataLength));
+                skip(source, stride - dataLength);
             }
             index += stride;
         }
@@ -605,7 +610,7 @@ public class GltfUtils {
 
             arrayIndex++;
             if (dataLength < stride) {
-                source.position(source.position() + (stride - dataLength));
+                skip(source, stride - dataLength);
             }
             index += stride;
         }
@@ -629,7 +634,7 @@ public class GltfUtils {
 
             arrayIndex++;
             if (dataLength < stride) {
-                source.position(source.position() + (stride - dataLength));
+                skip(source, stride - dataLength);
             }
             index += stride;
         }
@@ -667,7 +672,7 @@ public class GltfUtils {
 
             arrayIndex++;
             if (dataLength < stride) {
-                source.position(source.position() + (stride - dataLength));
+                skip(source, stride - dataLength);
             }
 
             index += stride;
