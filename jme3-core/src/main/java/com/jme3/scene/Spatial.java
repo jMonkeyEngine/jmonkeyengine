@@ -997,6 +997,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         checkDoTransformUpdate();
         if(store == null){
             store=new Quaternion(in);
+        }else{
+            store.set(in);
         }
         store.multLocal(worldTransform.getRotation().inverse());
         return store;
