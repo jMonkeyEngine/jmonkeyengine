@@ -31,6 +31,9 @@
  */
 package com.jme3.scene;
 
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.control.UpdateControl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -118,5 +121,33 @@ public class SpatialTest {
         Assert.assertEquals(testSpatial, control0.getSpatial());
         Assert.assertEquals(testSpatial, control1.getSpatial());
         Assert.assertEquals(testSpatial, control2.getSpatial());
+    }
+
+    @Test
+    public void testTransferToOtherNode(){
+        Node nodeA = new Node("nodeA");
+        Node nodeB = new Node("nodeB");
+        Node testNode=new Node("testNode");
+        nodeA.setLocalTranslation(-1,0,0);
+        nodeB.setLocalTranslation(1,0,0);
+        nodeB.rotate(0,90* FastMath.DEG_TO_RAD,0);
+        testNode.setLocalTranslation(1,0,0);
+        nodeA.attachChild(testNode);
+        Vector3f worldTranslation = testNode.getWorldTranslation().clone();
+        Quaternion worldRotation = testNode.getWorldRotation().clone();
+
+        Assert.assertEquals(worldTranslation,testNode.getWorldTranslation());
+        Assert.assertEquals(worldRotation,testNode.getWorldRotation());
+
+        nodeB.attachChild(testNode);
+
+        Assert.assertNotEquals(worldTranslation,testNode.getWorldTranslation());
+        Assert.assertNotEquals(worldRotation,testNode.getWorldRotation());
+
+        testNode.setLocalTranslation(nodeB.worldToLocal(worldTranslation,null));
+        Assert.assertEquals(worldTranslation,testNode.getWorldTranslation());
+
+        testNode.setLocalRotation(nodeB.worldToLocal(worldRotation,null));
+        Assert.assertEquals(worldRotation,testNode.getWorldRotation());
     }
 }
