@@ -1007,9 +1007,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
 
         //Second option is to normalize manually
         float norm = rotation.norm();
-        store.multLocal(
-                rotation.getX()*-norm, rotation.getY()*-norm,
-                rotation.getZ()*-norm, rotation.getW()*norm);
+        store.multLocal(rotation.getX()*-norm, rotation.getY()*-norm,
+                        rotation.getZ()*-norm, rotation.getW()*norm);
         return store;
 
         //Third option is to temporarily change the parent's quaternion. More expensive then option 2,
