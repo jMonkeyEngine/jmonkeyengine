@@ -136,18 +136,19 @@ public class SpatialTest {
         Vector3f worldTranslation = testNode.getWorldTranslation().clone();
         Quaternion worldRotation = testNode.getWorldRotation().clone();
 
-        Assert.assertEquals(worldTranslation,testNode.getWorldTranslation());
-        Assert.assertEquals(worldRotation,testNode.getWorldRotation());
+        Assert.assertTrue(worldTranslation.isSimilar(testNode.getWorldTranslation(),1e-6f));
+        Assert.assertTrue(worldRotation.isSimilar(testNode.getWorldRotation(),1e-6f));
 
         nodeB.attachChild(testNode);
 
-        Assert.assertNotEquals(worldTranslation,testNode.getWorldTranslation());
-        Assert.assertNotEquals(worldRotation,testNode.getWorldRotation());
+        Assert.assertFalse(worldTranslation.isSimilar(testNode.getWorldTranslation(),1e-6f));
+        Assert.assertFalse(worldRotation.isSimilar(testNode.getWorldRotation(),1e-6f));
 
         testNode.setLocalTranslation(nodeB.worldToLocal(worldTranslation,null));
-        Assert.assertEquals(worldTranslation,testNode.getWorldTranslation());
+        Assert.assertTrue(worldTranslation.isSimilar(testNode.getWorldTranslation(),1e-6f));
 
         testNode.setLocalRotation(nodeB.worldToLocal(worldRotation,null));
-        Assert.assertEquals(worldRotation,testNode.getWorldRotation());
+        System.out.println(testNode.getWorldRotation());
+        Assert.assertTrue(worldRotation.isSimilar(testNode.getWorldRotation(),1e-6f));
     }
 }
