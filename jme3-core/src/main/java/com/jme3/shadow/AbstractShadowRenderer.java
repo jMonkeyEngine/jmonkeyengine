@@ -52,6 +52,7 @@ import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
 import com.jme3.texture.FrameBuffer;
@@ -396,6 +397,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
     }
 
+    protected Node getMainScene() {
+        return (Node) viewPort.getScenes().get(0);
+    }
+
     @SuppressWarnings("fallthrough")
     @Override
     public void postQueue(RenderQueue rq) {
@@ -413,15 +418,16 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         renderManager.setForcedTechnique("PreShadow");
 
         for (int shadowMapIndex = 0; shadowMapIndex < nbShadowMaps; shadowMapIndex++) {
-
-                if (debugfrustums) {
-                    doDisplayFrustumDebug(shadowMapIndex);
-                }
-                renderShadowMap(shadowMapIndex);
-
+            if (debugfrustums) {
+                doDisplayFrustumDebug(shadowMapIndex);
             }
+            renderShadowMap(shadowMapIndex);
+        }
 
-        debugfrustums = false;
+        if (debugfrustums) {
+            debugfrustums = false;
+            getMainScene().updateGeometricState();
+        }
 
         //restore setting for future rendering
         r.setFrameBuffer(viewPort.getOutputFrameBuffer());
