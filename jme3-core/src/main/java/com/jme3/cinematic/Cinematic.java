@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,46 +54,50 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * An appstate for composing and playing cutscenes in a game. The cinematic
- * schedules CinematicEvents over a timeline. Once the Cinematic created it has
- * to be attached to the stateManager.
+ * An AppState for composing and playing cutscenes in a game.
  *
- * You can add various CinematicEvents to a Cinematic, see package
- * com.jme3.cinematic.events
+ * <p>A cinematic schedules and plays {@link CinematicEvent}s over a timeline.
+ * Once a Cinematic is created, you must attach it to the `AppStateManager` to
+ * run it. You can add various `CinematicEvent`s, see the `com.jme3.cinematic.events`
+ * package for built-in event types.
  *
- * Two main methods can be used to add an event :
+ * <p>Events can be added in two main ways:
+ * <ul>
+ * <li>{@link Cinematic#addCinematicEvent(float, CinematicEvent)} adds an event
+ * at a specific time from the cinematic's start.</li>
+ * <li>{@link Cinematic#enqueueCinematicEvent(CinematicEvent)} adds events
+ * one after another, with each starting at the end of the previous one.</li>
+ * </ul>
  *
- * @see Cinematic#addCinematicEvent(float,
- * com.jme3.cinematic.events.CinematicEvent) , that adds an event at the given
- * time form the cinematic start.
+ * <p>Playback can be controlled with methods like:
+ * <ul>
+ * <li>{@link Cinematic#play()}</li>
+ * <li>{@link Cinematic#pause()}</li>
+ * <li>{@link Cinematic#stop()}</li>
+ * </ul>
  *
- * @see
- * Cinematic#enqueueCinematicEvent(com.jme3.cinematic.events.CinematicEvent)
- * that enqueue events one after the other according to their initialDuration
+ * <p>Since `Cinematic` itself extends `CinematicEvent`, you can nest cinematics
+ * within each other. Nested cinematics should not be attached to the `AppStateManager`.
  *
- * A Cinematic has convenient methods to manage playback:
- * @see Cinematic#play()
- * @see Cinematic#pause()
- * @see Cinematic#stop()
- *
- * A Cinematic is itself a CinematicEvent, meaning you can embed several
- * cinematics. Embedded cinematics must not be added to the stateManager though.
- *
- * Cinematic can handle several points of view by creating camera nodes
- * and activating them on schedule.
- * @see Cinematic#bindCamera(java.lang.String, com.jme3.renderer.Camera)
- * @see Cinematic#activateCamera(float, java.lang.String)
- * @see Cinematic#setActiveCamera(java.lang.String)
+ * <p>This class also handles multiple camera points of view by creating and
+ * activating camera nodes on a schedule.
+ * <ul>
+ * <li>{@link Cinematic#bindCamera(java.lang.String, com.jme3.renderer.Camera)}</li>
+ * <li>{@link Cinematic#activateCamera(float, java.lang.String)}</li>
+ * <li>{@link Cinematic#setActiveCamera(java.lang.String)}</li>
+ * </ul>
  *
  * @author Nehon
  */
 public class Cinematic extends AbstractCinematicEvent implements AppState {
 
     private static final Logger logger = Logger.getLogger(Cinematic.class.getName());
+
+    private Application app;
     private Node scene;
     protected TimeLine timeLine = new TimeLine();
     private int lastFetchedKeyFrame = -1;
-    private final List<CinematicEvent> cinematicEvents = new ArrayList<>();
+    private List<CinematicEvent> cinematicEvents = new ArrayList<>();
     private Map<String, CameraNode> cameras = new HashMap<>();
     private CameraNode currentCam;
     private boolean initialized = false;
@@ -109,14 +113,30 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         super();
     }
 
+    /**
+     * Creates a cinematic with a specific duration.
+     *
+     * @param initialDuration The total duration of the cinematic in seconds.
+     */
     public Cinematic(float initialDuration) {
         super(initialDuration);
     }
 
+    /**
+     * Creates a cinematic that loops based on the provided loop mode.
+     *
+     * @param loopMode The loop mode. See {@link LoopMode}.
+     */
     public Cinematic(LoopMode loopMode) {
         super(loopMode);
     }
 
+    /**
+     * Creates a cinematic with a specific duration and loop mode.
+     *
+     * @param initialDuration The total duration of the cinematic in seconds.
+     * @param loopMode The loop mode. See {@link LoopMode}.
+     */
     public Cinematic(float initialDuration, LoopMode loopMode) {
         super(initialDuration, loopMode);
     }
@@ -221,10 +241,9 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(cinematicEvents.toArray(new CinematicEvent[cinematicEvents.size()]), "cinematicEvents", null);
+        oc.writeSavableArrayList((ArrayList) cinematicEvents, "cinematicEvents", null);
         oc.writeStringSavableMap(cameras, "cameras", null);
         oc.write(timeLine, "timeLine", null);
-
     }
 
     /**
@@ -238,12 +257,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-
-        Savable[] events = ic.readSavableArray("cinematicEvents", null);
-        for (Savable c : events) {
-//            addCinematicEvent(((CinematicEvent) c).getTime(), (CinematicEvent) c)
-            cinematicEvents.add((CinematicEvent) c);
-        }
+        cinematicEvents = ic.readSavableArrayList("cinematicEvents", null);
         cameras = (Map<String, CameraNode>) ic.readStringSavableMap("cameras", null);
         timeLine = (TimeLine) ic.readSavable("timeLine", null);
     }
@@ -273,6 +287,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      */
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
+        this.app = app;
         initEvent(app, this);
         for (CinematicEvent cinematicEvent : cinematicEvents) {
             cinematicEvent.initEvent(app, this);
@@ -443,7 +458,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         keyFrame.cinematicEvents.add(cinematicEvent);
         cinematicEvents.add(cinematicEvent);
         if (isInitialized()) {
-            cinematicEvent.initEvent(null, this);
+            cinematicEvent.initEvent(app, this);
         }
         return keyFrame;
     }
@@ -488,7 +503,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @return true if the element has been removed
      */
     public boolean removeCinematicEvent(float timeStamp, CinematicEvent cinematicEvent) {
-        cinematicEvent.dispose();
         KeyFrame keyFrame = timeLine.getKeyFrameAtTime(timeStamp);
         return removeCinematicEvent(keyFrame, cinematicEvent);
     }
@@ -536,6 +550,9 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      */
     @Override
     public void cleanup() {
+        initialized = false;
+        clear();
+        clearCameras();
     }
 
     /**
@@ -591,9 +608,9 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
-     * enable/disable the camera control of the cameraNode of the current cam
+     * Enables or disables the camera control of the cameraNode of the current cam.
      *
-     * @param enabled
+     * @param enabled `true` to enable, `false` to disable.
      */
     private void setEnableCurrentCam(boolean enabled) {
         if (currentCam != null) {
@@ -714,6 +731,15 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
+     * Gets the application instance associated with this cinematic.
+     *
+     * @return The application.
+     */
+    public Application getApplication() {
+        return app;
+    }
+
+    /**
      * Remove all events from the Cinematic.
      */
     public void clear() {
@@ -723,6 +749,18 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         if (eventsData != null) {
             eventsData.clear();
         }
+    }
+
+    /**
+     * Clears all camera nodes bound to the cinematic from the scene node.
+     * This method removes all previously bound CameraNodes and clears the
+     * internal camera map, effectively detaching all cameras from the scene.
+     */
+    public void clearCameras() {
+        for (CameraNode cameraNode : cameras.values()) {
+            scene.detachChild(cameraNode);
+        }
+        cameras.clear();
     }
 
     /**
