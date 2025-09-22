@@ -152,20 +152,21 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
-        frustums = new Geometry[CAM_NUMBER];
-        Vector3f[] points = new Vector3f[8];
-
-        for (int i = 0; i < points.length; i++) {
-            points[i] = new Vector3f();
+        if (frustums == null) {
+            frustums = new Geometry[CAM_NUMBER];
+            Vector3f[] points = new Vector3f[8];
+            for (int i = 0; i < points.length; i++) {
+                points[i] = new Vector3f();
+            }
+            for (int i = 0; i < CAM_NUMBER; i++) {
+                ShadowUtil.updateFrustumPoints2(shadowCams[i], points);
+                frustums[i] = createFrustum(points, i);
+            }
         }
-
-        for (int i = 0; i < CAM_NUMBER; i++) {
-            ShadowUtil.updateFrustumPoints2(shadowCams[i], points);
-            frustums[i] = createFrustum(points, i);
-        }
-
         Geometry geo = frustums[shadowMapIndex];
-        getMainScene().attachChild(geo);
+        if (geo.getParent() == null) {
+            getMainScene().attachChild(geo);
+        }
     }
 
     @Override
