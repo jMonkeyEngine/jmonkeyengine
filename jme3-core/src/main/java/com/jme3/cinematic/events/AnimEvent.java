@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,9 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,6 +59,7 @@ public class AnimEvent extends AbstractCinematicEvent {
     public static final Logger logger
             = Logger.getLogger(AnimEvent.class.getName());
 
+    private Spatial model;
     /*
      * Control that will play the animation
      */
@@ -74,6 +78,17 @@ public class AnimEvent extends AbstractCinematicEvent {
     private String layerName;
 
     /**
+     * Instantiate a non-looping event to play the named action on the default
+     * layer of the specified AnimComposer.
+     *
+     * @param composer the Control that will play the animation (not null)
+     * @param actionName the name of the animation action to be played
+     */
+    public AnimEvent(AnimComposer composer, String actionName) {
+        this(composer, actionName, AnimComposer.DEFAULT_LAYER);
+    }
+
+    /**
      * Instantiate a non-looping event to play the named action on the named
      * layer of the specified AnimComposer.
      *
@@ -84,6 +99,7 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     public AnimEvent(AnimComposer composer, String actionName,
             String layerName) {
+        this.model = composer.getSpatial();
         this.composer = composer;
         this.actionName = actionName;
         this.layerName = layerName;
@@ -111,6 +127,26 @@ public class AnimEvent extends AbstractCinematicEvent {
     public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
         this.cinematic = cinematic;
+
+        if (composer == null) {
+            if (model != null) {
+                if (cinematic.getScene() != null) {
+                    Spatial sceneModel = cinematic.getScene().getChild(model.getName());
+                    if (sceneModel != null) {
+                        Node parent = sceneModel.getParent();
+                        parent.detachChild(sceneModel);
+                        sceneModel = model;
+                        parent.attachChild(sceneModel);
+                    } else {
+                        cinematic.getScene().attachChild(model);
+                    }
+                }
+                composer = model.getControl(AnimComposer.class);
+
+            } else {
+                throw new UnsupportedOperationException("model should not be null");
+            }
+        }
     }
 
     /**
@@ -180,6 +216,13 @@ public class AnimEvent extends AbstractCinematicEvent {
         // do nothing
     }
 
+    @Override
+    public void dispose() {
+        super.dispose();
+        cinematic = null;
+        composer = null;
+    }
+
     /**
      * De-serialize this event from the specified importer, for example when
      * loading from a J3O file.
@@ -192,9 +235,8 @@ public class AnimEvent extends AbstractCinematicEvent {
         super.read(importer);
         InputCapsule capsule = importer.getCapsule(this);
 
+        model = (Spatial) capsule.readSavable("model", null);
         actionName = capsule.readString("actionName", "");
-        cinematic = (Cinematic) capsule.readSavable("cinematic", null);
-        composer = (AnimComposer) capsule.readSavable("composer", null);
         layerName = capsule.readString("layerName", AnimComposer.DEFAULT_LAYER);
     }
 
@@ -269,10 +311,8 @@ public class AnimEvent extends AbstractCinematicEvent {
     public void write(JmeExporter exporter) throws IOException {
         super.write(exporter);
         OutputCapsule capsule = exporter.getCapsule(this);
-
+        capsule.write(model, "model", null);
         capsule.write(actionName, "actionName", "");
-        capsule.write(cinematic, "cinematic", null);
-        capsule.write(composer, "composer", null);
         capsule.write(layerName, "layerName", AnimComposer.DEFAULT_LAYER);
     }
 }
