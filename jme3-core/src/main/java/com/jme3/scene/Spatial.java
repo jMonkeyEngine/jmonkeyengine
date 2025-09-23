@@ -1000,22 +1000,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
         }else{
             store.set(in);
         }
-        Quaternion rotation = worldTransform.getRotation();
-        //can we be sure if the quaternion is normalized?
-        //if yes, the conjugate could be used, and the normalizing procedure skipped
-        //store.multLocal(-rotation.getX(), -rotation.getY(), -rotation.getZ(), rotation.getW();
-
-        //Second option is to normalize manually
-        float norm = rotation.norm();
-        store.multLocal(rotation.getX()*-norm, rotation.getY()*-norm,
-                        rotation.getZ()*-norm, rotation.getW()*norm);
+        TempVars tempVars = TempVars.get();
+        Quaternion worldRotation = tempVars.quat1.set(getWorldRotation());
+        worldRotation.inverseLocal();
+        store.multLocal(worldRotation);
+        tempVars.release();
         return store;
-
-        //Third option is to temporarily change the parent's quaternion. More expensive then option 2,
-        //but produces more accurate results. compared to option 2. (Error still below 1e-6f)
-        //store.multLocal(rotation.inverseLocal());
-        //rotation.inverseLocal();
-        //return store;
     }
 
     /**
