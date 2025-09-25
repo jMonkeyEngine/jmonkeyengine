@@ -28,17 +28,15 @@ public class SceneGraphThreadWardenTest {
 
     private static ExecutorService executorService;
     
+    @SuppressWarnings({"ReassignedVariable", "AssertWithSideEffects"})
     @BeforeClass
     public static void setupClass() {
         // Make sure assertions are enabled
         boolean assertsEnabled = false;
         assert assertsEnabled = true;
         if (!assertsEnabled) {
-            System.err.println("WARNING: Assertions are not enabled! Tests may not work correctly.");
+            throw new RuntimeException("WARNING: Assertions are not enabled! Tests may not work correctly.");
         }
-        
-        // Ensure thread warden is enabled
-        SceneGraphThreadWarden.THREAD_WARDEN_ENABLED = true;
     }
     
     @Before
@@ -51,7 +49,7 @@ public class SceneGraphThreadWardenTest {
         executorService.shutdown();
         SceneGraphThreadWarden.reset();
     }
-    
+
     /**
      * Test that normal node mutation is fine on the main thread.
      */
@@ -75,6 +73,9 @@ public class SceneGraphThreadWardenTest {
     
     /**
      * Test that node mutation on nodes not connected to the root node is fine even on a non main thread.
+     * <p>
+     *     This is a use case where a thread is preparing things for later attachment to the scene graph.
+     * </p>
      */
     @Test
     public void testNodeMutationOnNonConnectedNodesOnNonMainThread() throws ExecutionException, InterruptedException {
@@ -102,7 +103,8 @@ public class SceneGraphThreadWardenTest {
     }
     
     /**
-     * Test that adding a node to the scene graph connected to the root node isn't fine on a non main thread.
+     * Test that adding a node to the scene graph connected to the root node in a non main thread leads to an
+     * exception.
      */
     @Test
     public void testAddingNodeToSceneGraphOnNonMainThread() throws InterruptedException {
@@ -114,7 +116,7 @@ public class SceneGraphThreadWardenTest {
         rootNode.attachChild(child);
         
         Future<Void> illegalMutationFuture = executorService.submit(() -> {
-            // This should fail because we're trying to add a node to a node that's connected to the root node
+            // This should fail because we're trying to add a node to a node that's connected to the scene graph
             Node grandchild = new Node("grandchild");
             child.attachChild(grandchild);
             return null;
@@ -131,7 +133,12 @@ public class SceneGraphThreadWardenTest {
     }
     
     /**
-     * Test that adding a node currently attached to a root node to a different node isn't fine on a non main thread.
+     * Test that adding a node currently attached to a root node to a different node leads to an exception.
+     * <p>
+     *     This is testing an edge case where you think you'd working with non-connected nodes, but in reality
+     *     one of your nodes is already attached to the scene graph (and you're attaching it to a different node which will
+     *     detach it from the scene graph).
+     * </p>
      */
     @Test
     public void testMovingNodeAttachedToRootOnNonMainThread() throws InterruptedException {
@@ -141,7 +148,7 @@ public class SceneGraphThreadWardenTest {
         // Create two child nodes and attach them to the root node
         Node child1 = new Node("child1");
         Node child2 = new Node("child2");
-        rootNode.attachChild(child1);
+
         rootNode.attachChild(child2);
         
         Future<Void> illegalMutationFuture = executorService.submit(() -> {
@@ -185,7 +192,9 @@ public class SceneGraphThreadWardenTest {
         // This should complete without exceptions
         legalMutationFuture.get();
     }
-    
+
+
+
     /**
      * Creates a single-threaded executor service with daemon threads.
      */
