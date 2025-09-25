@@ -45,6 +45,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
+import com.jme3.scene.threadwarden.SceneGraphThreadWarden;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.system.JmeSystem;
@@ -196,6 +197,9 @@ public abstract class SimpleApplication extends LegacyApplication {
     @Override
     public void initialize() {
         super.initialize();
+
+        SceneGraphThreadWarden.setup(rootNode);
+        SceneGraphThreadWarden.setup(guiNode);
 
         // Several things rely on having this
         guiFont = loadGuiFont();
