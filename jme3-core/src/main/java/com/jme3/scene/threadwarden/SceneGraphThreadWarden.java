@@ -116,9 +116,10 @@ public class SceneGraphThreadWarden {
         if(checksDisabled()){
             return true;
         }
-
-        if(Thread.currentThread() != mainThread){
-            throw new IllegalThreadSceneGraphMutation("The spatial " + spatial + " was mutated on a thread other than the main thread, was mutated on " + Thread.currentThread().getName());
+        if(nodesThatAreMainThreadReserved.contains(spatial)){
+            if(Thread.currentThread() != mainThread){
+                throw new IllegalThreadSceneGraphMutation("The spatial " + spatial + " was mutated on a thread other than the main thread, was mutated on " + Thread.currentThread().getName());
+            }
         }
         return true; // return true so can be a "side effect" of an assert
     }
