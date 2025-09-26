@@ -1,10 +1,10 @@
 package com.jme3.scene.threadwarden;
 
 import com.jme3.material.Material;
-import com.jme3.material.MatParamOverride;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.shader.VarType;
+import com.jme3.scene.shape.Box;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -26,16 +26,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Parameterized tests for SceneGraphThreadWarden class.
+ * Parameterized tests for SceneGraphThreadWarden class with Geometry objects.
  * These tests verify that various scene graph mutations are properly checked for thread safety.
  */
 @RunWith(Parameterized.class)
-public class SceneGraphThreadWardenExtendedTest {
+public class SceneGraphThreadWardenGeometryExtendedTest {
 
     private static ExecutorService executorService;
 
     private final String testName;
-    private final Consumer<Spatial> action;
+    private final Consumer<Geometry> action;
 
     @SuppressWarnings({"ReassignedVariable", "AssertWithSideEffects"})
     @BeforeClass
@@ -65,7 +65,7 @@ public class SceneGraphThreadWardenExtendedTest {
      * @param testName A descriptive name for the test
      * @param action The action to perform on the spatial
      */
-    public SceneGraphThreadWardenExtendedTest(String testName, Consumer<Spatial> action) {
+    public SceneGraphThreadWardenGeometryExtendedTest(String testName, Consumer<Geometry> action) {
         this.testName = testName;
         this.action = action;
     }
@@ -77,28 +77,32 @@ public class SceneGraphThreadWardenExtendedTest {
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
         Material mockMaterial = Mockito.mock(Material.class);
-        MatParamOverride override = new MatParamOverride(VarType.Float, "TestParam", 1.0f);
+        Box box = new Box(1, 1, 1);
 
         return Arrays.asList(new Object[][] {
             { 
                 "setMaterial", 
-                (Consumer<Spatial>) spatial -> spatial.setMaterial(mockMaterial) 
+                (Consumer<Geometry>) spatial -> spatial.setMaterial(mockMaterial)
+            },
+            { 
+                "setMesh", 
+                (Consumer<Geometry>) spatial -> spatial.setMesh(box)
             },
             { 
                 "setLodLevel", 
-                (Consumer<Spatial>) spatial -> spatial.setLodLevel(1) 
+                (Consumer<Geometry>) spatial -> {
+                    // Need to set a mesh with LOD levels first
+                    Mesh mesh = new Box(1, 1, 1);
+                    mesh.setLodLevels(new com.jme3.scene.VertexBuffer[]{
+                        mesh.getBuffer(com.jme3.scene.VertexBuffer.Type.Index)
+                    });
+                    spatial.setMesh(mesh);
+                    spatial.setLodLevel(0);
+                }
             },
             { 
-                "addMatParamOverride", 
-                (Consumer<Spatial>) spatial -> spatial.addMatParamOverride(override) 
-            },
-            { 
-                "removeMatParamOverride", 
-                (Consumer<Spatial>) spatial -> spatial.removeMatParamOverride(override) 
-            },
-            { 
-                "clearMatParamOverrides", 
-                (Consumer<Spatial>) Spatial::clearMatParamOverrides
+                "removeFromParent", 
+                (Consumer<Geometry>) Geometry::removeFromParent
             }
         });
     }
@@ -111,12 +115,12 @@ public class SceneGraphThreadWardenExtendedTest {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
-        // Create a child node and attach it to the root node
-        Node child = new Node("child");
-        rootNode.attachChild(child);
+        // Create a geometry and attach it to the root node
+        Geometry geometry = new Geometry("geometry", new Box(1, 1, 1));
+        rootNode.attachChild(geometry);
 
         // This should work fine since we're on the main thread
-        action.accept(child);
+        action.accept(geometry);
     }
 
     /**
@@ -127,11 +131,11 @@ public class SceneGraphThreadWardenExtendedTest {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
-        // Create a child node but don't attach it to the root node
-        Node child = new Node("child");
+        // Create a geometry but don't attach it to the root node
+        Geometry geometry = new Geometry("geometry", new Box(1, 1, 1));
 
         // This should work fine since we're on the main thread
-        action.accept(child);
+        action.accept(geometry);
     }
 
     /**
@@ -142,12 +146,12 @@ public class SceneGraphThreadWardenExtendedTest {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
-        // Create a child node but don't attach it to the root node
-        Node child = new Node("child");
+        // Create a geometry but don't attach it to the root node
+        Geometry geometry = new Geometry("geometry", new Box(1, 1, 1));
 
         Future<Void> future = executorService.submit(() -> {
-            // This should work fine since the node is not connected to the root node
-            action.accept(child);
+            // This should work fine since the geometry is not connected to the root node
+            action.accept(geometry);
             return null;
         });
 
@@ -163,13 +167,13 @@ public class SceneGraphThreadWardenExtendedTest {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
-        // Create a child node and attach it to the root node
-        Node child = new Node("child");
-        rootNode.attachChild(child);
+        // Create a geometry and attach it to the root node
+        Geometry geometry = new Geometry("geometry", new Box(1, 1, 1));
+        rootNode.attachChild(geometry);
 
         Future<Void> future = executorService.submit(() -> {
-            // This should fail because we're trying to modify a node that's connected to the scene graph
-            action.accept(child);
+            // This should fail because we're trying to modify a geometry that's connected to the scene graph
+            action.accept(geometry);
             return null;
         });
 
