@@ -21,7 +21,7 @@ public class SceneGraphThreadWarden {
      * If THREAD_WARDEN_ENABLED is true AND asserts are on the checks are made.
      * This parameter is here to allow asserts to run without thread warden checks (by setting this parameter to false)
      */
-    public static boolean THREAD_WARDEN_ENABLED = true;
+    public static boolean THREAD_WARDEN_ENABLED = !Boolean.getBoolean("nothreadwarden");
 
     public static boolean ASSERTS_ENABLED = false;
 
@@ -31,7 +31,7 @@ public class SceneGraphThreadWarden {
     }
 
     public static Thread mainThread;
-    public static final Set<Object> nodesThatAreMainThreadReserved = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
+    public static final Set<Spatial> spatialsThatAreMainThreadReserved = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
     /**
      * Marks the given node as being reserved for the main thread.
@@ -52,11 +52,21 @@ public class SceneGraphThreadWarden {
     }
 
     /**
+     * Disables the thread warden checks (even when other asserts are on).
+     * <p>
+     * Alternatively can be disabled by adding the -Dnothreadwarden=true parameter
+     * </p>
+     */
+    public static void disableChecks(){
+        THREAD_WARDEN_ENABLED = false;
+    }
+
+    /**
      * Runs through the entire tree and sets the restriction state of all nodes below the given node
      * @param spatial the node (and children) to set the restriction state of
      */
     private static void setTreeRestricted(Spatial spatial){
-        nodesThatAreMainThreadReserved.add(spatial);
+        spatialsThatAreMainThreadReserved.add(spatial);
         if(spatial instanceof Node){
             for(Spatial child : ((Node) spatial).getChildren()){
                 setTreeRestricted(child);
@@ -69,7 +79,7 @@ public class SceneGraphThreadWarden {
      * @param spatial the node (and children) to release the restriction state of.
      */
     private static void setTreeNotRestricted(Spatial spatial){
-        nodesThatAreMainThreadReserved.remove(spatial);
+        spatialsThatAreMainThreadReserved.remove(spatial);
         if(spatial instanceof Node){
             for(Spatial child : ((Node) spatial).getChildren()){
                 setTreeNotRestricted(child);
@@ -83,8 +93,8 @@ public class SceneGraphThreadWarden {
             return true;
         }
 
-        boolean shouldNowBeRestricted = newParent !=null && nodesThatAreMainThreadReserved.contains(newParent);
-        boolean wasPreviouslyRestricted = nodesThatAreMainThreadReserved.contains(spatial);
+        boolean shouldNowBeRestricted = newParent !=null && spatialsThatAreMainThreadReserved.contains(newParent);
+        boolean wasPreviouslyRestricted = spatialsThatAreMainThreadReserved.contains(spatial);
 
         if(shouldNowBeRestricted || wasPreviouslyRestricted ){
             assertOnCorrectThread(spatial);
@@ -103,7 +113,7 @@ public class SceneGraphThreadWarden {
     }
 
     public static void reset(){
-        nodesThatAreMainThreadReserved.clear();
+        spatialsThatAreMainThreadReserved.clear();
         mainThread = null;
     }
 
@@ -116,7 +126,7 @@ public class SceneGraphThreadWarden {
         if(checksDisabled()){
             return true;
         }
-        if(nodesThatAreMainThreadReserved.contains(spatial)){
+        if(spatialsThatAreMainThreadReserved.contains(spatial)){
             if(Thread.currentThread() != mainThread){
                 throw new IllegalThreadSceneGraphMutation("The spatial " + spatial + " was mutated on a thread other than the main thread, was mutated on " + Thread.currentThread().getName());
             }
