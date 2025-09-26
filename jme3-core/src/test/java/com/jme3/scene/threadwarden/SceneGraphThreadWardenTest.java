@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -264,6 +263,34 @@ public class SceneGraphThreadWardenTest {
 
         // This should complete without exceptions
         legalMutationFuture.get();
+    }
+
+    /**
+     * Test that an otherwise illegal scene graph mutation won't throw an exception
+     * if the checks have been disabled by calling disableChecks().
+     */
+    @Test
+    public void testDisableChecksAllowsIllegalMutation() throws ExecutionException, InterruptedException {
+        Node rootNode = new Node("root");
+        SceneGraphThreadWarden.setup(rootNode);
+
+        // Create a child node and attach it to the root node
+        Node child = new Node("child");
+        rootNode.attachChild(child);
+
+        // Disable the thread warden checks
+        SceneGraphThreadWarden.disableChecks();
+
+        // Try to make a change to the child on a non-main thread
+        // This would normally be illegal, but should succeed because checks are disabled
+        Future<Void> mutationFuture = executorService.submit(() -> {
+            Node grandchild = new Node("grandchild");
+            child.attachChild(grandchild);
+            return null;
+        });
+
+        // This should complete without exceptions
+        mutationFuture.get();
     }
 
 

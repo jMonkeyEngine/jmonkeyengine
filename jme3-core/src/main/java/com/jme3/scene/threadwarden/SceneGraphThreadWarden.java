@@ -115,6 +115,7 @@ public class SceneGraphThreadWarden {
     public static void reset(){
         spatialsThatAreMainThreadReserved.clear();
         mainThread = null;
+        THREAD_WARDEN_ENABLED = !Boolean.getBoolean("nothreadwarden");
     }
 
     private static boolean checksDisabled(){
