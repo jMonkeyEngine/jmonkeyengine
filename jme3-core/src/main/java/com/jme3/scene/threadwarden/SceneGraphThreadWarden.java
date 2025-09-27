@@ -6,6 +6,8 @@ import com.jme3.scene.Spatial;
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Thread warden keeps track of mutations to the scene graph and ensures that they are only done on the main thread.
@@ -17,6 +19,8 @@ import java.util.WeakHashMap;
  */
 public class SceneGraphThreadWarden {
 
+    private static final Logger logger = Logger.getLogger(SceneGraphThreadWarden.class.getName());
+    
     /**
      * If THREAD_WARDEN_ENABLED is true AND asserts are on the checks are made.
      * This parameter is here to allow asserts to run without thread warden checks (by setting this parameter to false)
@@ -129,7 +133,13 @@ public class SceneGraphThreadWarden {
         }
         if(spatialsThatAreMainThreadReserved.contains(spatial)){
             if(Thread.currentThread() != mainThread){
-                throw new IllegalThreadSceneGraphMutation("The spatial " + spatial + " was mutated on a thread other than the main thread, was mutated on " + Thread.currentThread().getName());
+                // log as well as throw an exception because we are running in a thread, if we are in an executor service the exception
+                // might not make itself known until `get` is called on the future (and JME might crash before that happens).
+                String message = "The spatial " + spatial + " was mutated on a thread other than the main thread, was mutated on " + Thread.currentThread().getName();
+                IllegalThreadSceneGraphMutation ex = new IllegalThreadSceneGraphMutation(message);
+                logger.log(Level.WARNING, message, ex);
+
+                throw ex;
             }
         }
         return true; // return true so can be a "side effect" of an assert
