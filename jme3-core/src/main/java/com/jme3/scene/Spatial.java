@@ -369,7 +369,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
             throw new IllegalStateException("Scene graph is not properly updated for rendering.\n"
                     + "State was changed after rootNode.updateGeometricState() call. \n"
                     + "Make sure you do not modify the scene from another thread!\n"
-                    + "Problem spatial name: " + getName());
+                    + "Problem spatial name: " + getName() + "\n" +
+                    SceneGraphThreadWarden.getTurnOnAssertsPrompt());
         }
 
         CullHint cm = getCullHint();

@@ -33,6 +33,7 @@ public class SceneGraphThreadWardenTest {
         // Make sure assertions are enabled
         boolean assertsEnabled = false;
         assert assertsEnabled = true;
+        //noinspection ConstantValue
         if (!assertsEnabled) {
             throw new RuntimeException("WARNING: Assertions are not enabled! Tests may not work correctly.");
         }

@@ -135,5 +135,13 @@ public class SceneGraphThreadWarden {
         return true; // return true so can be a "side effect" of an assert
     }
 
+    public static String getTurnOnAssertsPrompt(){
+        if(ASSERTS_ENABLED){
+            return "";
+        } else{
+            return "To get more accurate debug consider turning on asserts. This will allow JME to do additional checks which *may* find the source of the problem. To do so, add -ea to the JVM arguments.";
+        }
+    }
+
 }
 
