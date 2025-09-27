@@ -43,9 +43,9 @@ public class SceneGraphThreadWarden {
      * @param rootNode the root node of the scene graph. This is used to determine if a spatial is a child of the root node.
      *                 (Can add multiple "root" nodes, e.g. gui nodes or overlay nodes)
      */
-    public static void setup(Node rootNode){
+    public static boolean setup(Node rootNode){
         if(checksDisabled()){
-            return;
+            return true;
         }
         Thread thisThread = Thread.currentThread();
         if(mainThread != null && mainThread != thisThread ){
@@ -53,6 +53,8 @@ public class SceneGraphThreadWarden {
         }
         mainThread = thisThread;
         setTreeRestricted(rootNode);
+
+        return true; // return true so can be a "side effect" of an assert
     }
 
     /**
@@ -116,10 +118,11 @@ public class SceneGraphThreadWarden {
         return true; // return true so can be a "side effect" of an assert
     }
 
-    public static void reset(){
+    public static boolean reset(){
         spatialsThatAreMainThreadReserved.clear();
         mainThread = null;
         THREAD_WARDEN_ENABLED = !Boolean.getBoolean("nothreadwarden");
+        return true; // return true so can be a "side effect" of an assert
     }
 
     private static boolean checksDisabled(){

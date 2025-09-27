@@ -198,8 +198,10 @@ public abstract class SimpleApplication extends LegacyApplication {
     public void initialize() {
         super.initialize();
 
-        SceneGraphThreadWarden.setup(rootNode);
-        SceneGraphThreadWarden.setup(guiNode);
+        //noinspection AssertWithSideEffects
+        assert SceneGraphThreadWarden.setup(rootNode);
+        //noinspection AssertWithSideEffects
+        assert SceneGraphThreadWarden.setup(guiNode);
 
         // Several things rely on having this
         guiFont = loadGuiFont();
@@ -246,7 +248,8 @@ public abstract class SimpleApplication extends LegacyApplication {
 
     @Override
     public void stop(boolean waitFor) {
-        SceneGraphThreadWarden.reset();
+        //noinspection AssertWithSideEffects
+        assert SceneGraphThreadWarden.reset();
         super.stop(waitFor);
     }
 

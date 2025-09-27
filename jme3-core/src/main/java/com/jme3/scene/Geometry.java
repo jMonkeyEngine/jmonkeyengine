@@ -184,7 +184,7 @@ public class Geometry extends Spatial {
      */
     @Override
     public void setLodLevel(int lod) {
-        SceneGraphThreadWarden.assertOnCorrectThread(this);
+        assert SceneGraphThreadWarden.assertOnCorrectThread(this);
         if (mesh.getNumLodLevels() == 0) {
             throw new IllegalStateException("LOD levels are not set on this mesh");
         }
@@ -241,7 +241,7 @@ public class Geometry extends Spatial {
      * @throws IllegalArgumentException If mesh is null
      */
     public void setMesh(Mesh mesh) {
-        SceneGraphThreadWarden.assertOnCorrectThread(this);
+        assert SceneGraphThreadWarden.assertOnCorrectThread(this);
         if (mesh == null) {
             throw new IllegalArgumentException();
         }
@@ -272,7 +272,7 @@ public class Geometry extends Spatial {
      */
     @Override
     public void setMaterial(Material material) {
-        SceneGraphThreadWarden.assertOnCorrectThread(this);
+        assert SceneGraphThreadWarden.assertOnCorrectThread(this);
         this.material = material;
         nbSimultaneousGPUMorph = -1;
         if (isGrouped()) {
