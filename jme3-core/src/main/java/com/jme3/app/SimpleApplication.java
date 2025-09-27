@@ -245,6 +245,12 @@ public abstract class SimpleApplication extends LegacyApplication {
     }
 
     @Override
+    public void stop(boolean waitFor) {
+        SceneGraphThreadWarden.reset();
+        super.stop(waitFor);
+    }
+
+    @Override
     public void update() {
         if (prof != null) {
             prof.appStep(AppStep.BeginFrame);
