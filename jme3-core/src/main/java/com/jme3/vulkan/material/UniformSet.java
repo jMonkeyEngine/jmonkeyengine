@@ -1,6 +1,6 @@
 package com.jme3.vulkan.material;
 
-import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.util.IntMap;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.uniforms.Uniform;
@@ -11,11 +11,13 @@ import java.util.*;
 
 public class UniformSet implements Iterable<Uniform> {
 
+    private final int setIndex;
     private final Uniform[] uniforms;
     private final Collection<FrameData> activeFrames = new ArrayList<>();
     private int frameCacheTimeout = 10;
 
-    public UniformSet(Uniform... uniforms) {
+    public UniformSet(int setIndex, Uniform... uniforms) {
+        this.setIndex = setIndex;
         this.uniforms = uniforms;
         // ensure duplicate binding indices are not present
         BitSet bindings = new BitSet();
@@ -33,7 +35,7 @@ public class UniformSet implements Iterable<Uniform> {
         return new IteratorImpl();
     }
 
-    public DescriptorSet acquireSet(DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
+    public DescriptorSet acquire(DescriptorPool pool, List<DescriptorSetLayout> availableLayouts) {
         activeFrames.removeIf(FrameData::cycleTimeout);
         FrameData data = activeFrames.stream().filter(FrameData::isCurrent).findAny().orElse(null);
         if (data == null) {
@@ -52,6 +54,10 @@ public class UniformSet implements Iterable<Uniform> {
 
     public void setFrameCacheTimeout(int frameCacheTimeout) {
         this.frameCacheTimeout = frameCacheTimeout;
+    }
+
+    public int getSetIndex() {
+        return setIndex;
     }
 
     public int getFrameCacheTimeout() {
@@ -90,7 +96,7 @@ public class UniformSet implements Iterable<Uniform> {
                     return set;
                 }
             }
-            throw new UnsupportedOperationException("Material is not compatible with the pipeline (uniform set not supported).");
+            return null;
         }
 
         public boolean cycleTimeout() {
@@ -103,8 +109,8 @@ public class UniformSet implements Iterable<Uniform> {
 
         private boolean isLayoutCompatible(DescriptorSetLayout layout) {
             for (Uniform u : uniforms) {
-                for (SetLayoutBinding b : layout.getBindings()) {
-                    if (u.isBindingCompatible(b)) {
+                for (IntMap.Entry<SetLayoutBinding> b : layout.getBindings()) {
+                    if (u.isBindingCompatible(b.getValue())) {
                         return true;
                     }
                 }

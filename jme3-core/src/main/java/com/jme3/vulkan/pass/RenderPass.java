@@ -1,5 +1,7 @@
 package com.jme3.vulkan.pass;
 
+import com.jme3.renderer.ViewPort;
+import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -41,10 +43,15 @@ public class RenderPass extends AbstractNative<Long> {
     }
 
     public void begin(CommandBuffer cmd, FrameBuffer fbo, boolean inline) {
+        assert fbo.getAttachments().size() < attachments.size() : "FrameBuffer does not contain enough attachments.";
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkClearValue.Buffer clear = VkClearValue.calloc(2, stack);
-            clear.get(0).color().float32(stack.floats(0f, 0f, 0f, 1f));
-            clear.get(1).depthStencil().set(1.0f, 0);
+            VkClearValue.Buffer clear = VkClearValue.calloc(attachments.size(), stack);
+            for (Attachment a : attachments) {
+                VkClearValue clr = clear.get();
+                clr.color().float32(a.getClearColor().toBuffer(stack));
+                clr.depthStencil().set(a.getClearDepth(), a.getClearStencil());
+            }
+            clear.flip();
             VkRenderPassBeginInfo begin = VkRenderPassBeginInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO)
                     .renderPass(object)
@@ -71,6 +78,18 @@ public class RenderPass extends AbstractNative<Long> {
 
     public LogicalDevice getDevice() {
         return device;
+    }
+
+    public List<Attachment> getAttachments() {
+        return Collections.unmodifiableList(attachments);
+    }
+
+    public List<Subpass> getSubpasses() {
+        return Collections.unmodifiableList(subpasses);
+    }
+
+    public List<SubpassDependency> getDependencies() {
+        return Collections.unmodifiableList(dependencies);
     }
 
     public boolean isCompatible(RenderPass pass) {
@@ -116,7 +135,7 @@ public class RenderPass extends AbstractNative<Long> {
         return new Builder(base);
     }
 
-    public class Builder extends AbstractNative.Builder<RenderPass> {
+    public class Builder extends AbstractBuilder {
 
         public Builder() {}
 
@@ -125,7 +144,7 @@ public class RenderPass extends AbstractNative<Long> {
                 attachments.add(new Attachment(attachments.size(), a));
             }
             for (Subpass s : base.subpasses) {
-                subpasses.add(new Subpass(subpasses.size(), s, attachments));
+                subpasses.add(new Subpass(RenderPass.this, subpasses.size(), s, attachments));
             }
             for (SubpassDependency d : base.dependencies) {
                 dependencies.add(new SubpassDependency(d, subpasses));
@@ -191,7 +210,7 @@ public class RenderPass extends AbstractNative<Long> {
         }
 
         public Subpass createSubpass(PipelineBindPoint bindPoint) {
-            Subpass p = new Subpass(subpasses.size(), bindPoint);
+            Subpass p = new Subpass(RenderPass.this, subpasses.size(), bindPoint);
             subpasses.add(p);
             return p;
         }

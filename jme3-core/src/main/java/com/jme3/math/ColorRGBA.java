@@ -31,7 +31,10 @@
 package com.jme3.math;
 
 import com.jme3.export.*;
+import org.lwjgl.system.MemoryStack;
+
 import java.io.IOException;
+import java.nio.FloatBuffer;
 
 /**
  * <code>ColorRGBA</code> defines a color made from a collection of red, green
@@ -825,4 +828,16 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         srgb.a = a;
         return srgb;
     }
+
+    /**
+     * Creates a new FloatBuffer under the MemoryStack containing
+     * 4 floats for R, G, B, and A.
+     *
+     * @param stack stack to allocate from
+     * @return FloatBuffer containing the color data
+     */
+    public FloatBuffer toBuffer(MemoryStack stack) {
+        return stack.floats(r, g, b, a);
+    }
+
 }

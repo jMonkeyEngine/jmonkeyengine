@@ -36,7 +36,7 @@ import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -147,9 +147,9 @@ public class ShapeBoundsTest {
         Assert.assertNotNull(bv);
 
         for (int e = 0; e < geometry.getVertexCount(); e++) {
-            float x = (Float) geometry.getMesh().getBuffer(VertexBuffer.Type.Position).getElementComponent(e, 0);
-            float y = (Float) geometry.getMesh().getBuffer(VertexBuffer.Type.Position).getElementComponent(e, 1);
-            float z = (Float) geometry.getMesh().getBuffer(VertexBuffer.Type.Position).getElementComponent(e, 2);
+            float x = (Float) geometry.getMesh().getBuffer(GlVertexBuffer.Type.Position).getElementComponent(e, 0);
+            float y = (Float) geometry.getMesh().getBuffer(GlVertexBuffer.Type.Position).getElementComponent(e, 1);
+            float z = (Float) geometry.getMesh().getBuffer(GlVertexBuffer.Type.Position).getElementComponent(e, 2);
             Vector3f vertex = new Vector3f(x, y, z);
             Assert.assertTrue("Vertex outside world bound: " + vertex, bv.intersects(vertex));
         }

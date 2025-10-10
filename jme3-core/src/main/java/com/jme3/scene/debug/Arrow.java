@@ -34,8 +34,8 @@ package com.jme3.scene.debug;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
 import java.nio.FloatBuffer;
 
 /**
@@ -119,7 +119,7 @@ public class Arrow extends GlMesh {
         tempQuat.lookAt(extent, Vector3f.UNIT_Y);
         tempQuat.normalizeLocal();
 
-        VertexBuffer pvb = getBuffer(Type.Position);
+        GlVertexBuffer pvb = getBuffer(Type.Position);
         FloatBuffer buffer = (FloatBuffer)pvb.getData(); 
         buffer.rewind();
         for (int i = 0; i < positions.length; i += 3) {

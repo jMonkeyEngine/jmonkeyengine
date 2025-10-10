@@ -1,6 +1,7 @@
 package com.jme3.vulkan.devices;
 
 import com.jme3.vulkan.Format;
+import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.memory.MemoryProp;
@@ -34,7 +35,7 @@ public interface PhysicalDevice {
 
     int findSupportedMemoryType(MemoryStack stack, int types, Flag<MemoryProp> flags);
 
-    Format findSupportedFormat(VulkanImage.Tiling tiling, int features, Format... candidates);
+    Format findSupportedFormat(VulkanImage.Tiling tiling, Flag<FormatFeature> features, Format... candidates);
 
     boolean querySwapchainSupport(Surface surface);
 

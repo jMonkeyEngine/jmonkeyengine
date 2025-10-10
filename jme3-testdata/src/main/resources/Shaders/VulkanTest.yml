@@ -1,20 +1,62 @@
 name: "VulkanTest"
 parameters:
   Matrices:
-    type: "UniformBuffer"
+    type: UniformBuffer
     set: 0
     binding: 0
-    usage: "Stream"
-    define: "MATRICES"
-    stages: ["vertex"]
+    usage: Stream # default is dynamic
+    stages: [Vertex] # default is All
+    layout:
+      worldViewProjection:
+        type: Matrix4f
+        default: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   BaseColorMap:
-    type: "Texture"
+    type: Texture
     set: 0
     binding: 1
+    define: "MATRICES" # default is no define
     default: "Common/Textures/MissingTexture.jpg"
-    stages: ["fragment"]
-techniques:
+pipelines:
   main:
     shaders:
-      vertex: "Shaders/VulkanVertTest.yml"
-      fragment: "Shaders/VulkanFragTest.yml"
+      - stage: Vertex
+        file: "Shaders/VulkanVertTest.yml"
+        entry: "main"
+      - stage: Fragment
+        file: "Shaders/VulkanFragTest.yml"
+        # entry is "main" by default
+    dynamic: [ViewPort, Scissor]
+    vertexInput:
+      mesh:
+        - - name: "position"
+            format: R32G32B32_SFloat
+          - name: "texCoord"
+            format: R32G32_SFloat
+          - name: "normal"
+            format: R32G32B32_SFloat
+        - - name: "color"
+            format: R8B8G8A8_SRGB
+    raster:
+      cullMode: None
+    colorBlend:
+      attachments:
+        - colorWriteMask: [R, G, B, A]
+          blend: false
+          srcColorFactor: One
+          dstColorFactor: Zero
+          colorOp: Add
+          srcAlphaFactor: One
+          dstAlphaFactor: Zero
+          alphaOp: Add
+    viewPort:
+      viewPorts:
+        - x: 0
+          y: 0
+          w: 128
+          h: 128
+      scissors:
+        - x: 0.0
+          y: 0.0
+          w: 1.0
+          h: 1.0
+

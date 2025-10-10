@@ -36,7 +36,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -60,7 +60,7 @@ public class MorphTarget implements Savable {
      * Stores the `FloatBuffer` instances for each `VertexBuffer.Type` that
      * this morph target affects.
      */
-    private final EnumMap<VertexBuffer.Type, FloatBuffer> buffers = new EnumMap<>(VertexBuffer.Type.class);
+    private final EnumMap<GlVertexBuffer.Type, FloatBuffer> buffers = new EnumMap<>(GlVertexBuffer.Type.class);
     /**
      * An optional name for this morph target, useful for identification
      * and targeting in animations.
@@ -107,7 +107,7 @@ public class MorphTarget implements Savable {
      * @param type The type of vertex buffer (e.g., `POSITION`, `NORMAL`).
      * @param buffer The `FloatBuffer` containing the delta data for the given type.
      */
-    public void setBuffer(VertexBuffer.Type type, FloatBuffer buffer) {
+    public void setBuffer(GlVertexBuffer.Type type, FloatBuffer buffer) {
         buffers.put(type, buffer);
     }
 
@@ -117,7 +117,7 @@ public class MorphTarget implements Savable {
      * @param type The type of vertex buffer.
      * @return The `FloatBuffer` for the given type, or null if not set.
      */
-    public FloatBuffer getBuffer(VertexBuffer.Type type) {
+    public FloatBuffer getBuffer(GlVertexBuffer.Type type) {
         return buffers.get(type);
     }
 
@@ -127,7 +127,7 @@ public class MorphTarget implements Savable {
      *
      * @return An `EnumMap` of vertex buffer types to their corresponding `FloatBuffer`s.
      */
-    public EnumMap<VertexBuffer.Type, FloatBuffer> getBuffers() {
+    public EnumMap<GlVertexBuffer.Type, FloatBuffer> getBuffers() {
         return buffers;
     }
 
@@ -144,8 +144,8 @@ public class MorphTarget implements Savable {
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
-        for (Map.Entry<VertexBuffer.Type, FloatBuffer> entry : buffers.entrySet()) {
-            VertexBuffer.Type type = entry.getKey();
+        for (Map.Entry<GlVertexBuffer.Type, FloatBuffer> entry : buffers.entrySet()) {
+            GlVertexBuffer.Type type = entry.getKey();
             FloatBuffer roData = entry.getValue().asReadOnlyBuffer();
             oc.write(roData, type.name(), null);
         }
@@ -155,7 +155,7 @@ public class MorphTarget implements Savable {
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        for (VertexBuffer.Type type : VertexBuffer.Type.values()) {
+        for (GlVertexBuffer.Type type : GlVertexBuffer.Type.values()) {
             FloatBuffer fb = ic.readFloatBuffer(type.name(), null);
             if (fb != null) {
                 setBuffer(type, fb);

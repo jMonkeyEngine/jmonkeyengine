@@ -42,7 +42,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.Renderer;
+import com.jme3.renderer.RenderManager;
 import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
@@ -160,21 +160,29 @@ public class Geometry extends Spatial {
         setMaterial(material);
     }
 
-    public void updateTransformMaterial(Camera cam) {
+    public void updateMatrixTransforms(Camera cam) {
         Matrix4f worldViewProjection = cam.getViewProjectionMatrix().mult(worldTransform.toTransformMatrix());
         GpuBuffer matBuffer = transforms.getTransforms().getResource().get();
         worldViewProjection.fillFloatBuffer(matBuffer.mapFloats(), true);
         matBuffer.unmap();
     }
 
-    public void draw(CommandBuffer cmd, Pipeline pipeline) {
-        transforms.bind(cmd, pipeline);
-        material.bind(cmd, pipeline, transforms.getSets().size());
-        mesh.draw(cmd, this);
-    }
-
-    public void draw(Renderer renderer) {
-        mesh.draw(renderer, this, 1, null);
+    /**
+     * Binds this geometry's material and mesh data according to the currently
+     * bound pipeline and material, and then renders the mesh. If this geometry's
+     * material is the bound material, then the material does not have to be
+     * bound again.
+     *
+     * @param rm render manager for OpenGL rendering
+     * @param cmd command buffer for Vulkan rendering
+     * @param boundPipeline the pipeline that is currently bound
+     * @param boundMaterial the material that is currently bound
+     */
+    public void render(RenderManager rm, CommandBuffer cmd, Pipeline boundPipeline, Material boundMaterial) {
+        if (boundMaterial != material) {
+            material.bind(cmd, boundPipeline);
+        }
+        mesh.render(rm, cmd, this, lod);
     }
 
     @Override
@@ -206,7 +214,7 @@ public class Geometry extends Spatial {
      * Sets the LOD level to use when rendering the mesh of this geometry.
      * Level 0 indicates that the default index buffer should be used,
      * levels [1, LodLevels + 1] represent the levels set on the mesh
-     * with {@link GlMesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
+     * with {@link GlMesh#setLodLevels(GlVertexBuffer[]) }.
      *
      * @param lod The lod level to set
      */
@@ -310,7 +318,7 @@ public class Geometry extends Spatial {
      *
      * @return the material that is used for this geometry
      *
-     * @see #setMaterial(NewMaterial)
+     * @see #setMaterial(Material)
      */
     public Material getMaterial() {
         return material;

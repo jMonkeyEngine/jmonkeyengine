@@ -96,20 +96,20 @@ public class GltfUtils {
         return Mesh.Mode.Triangles;
     }
 
-    public static VertexBuffer.Format getVertexBufferFormat(int componentType) {
+    public static GlVertexBuffer.Format getVertexBufferFormat(int componentType) {
         switch (componentType) {
             case 5120:
-                return VertexBuffer.Format.Byte;
+                return GlVertexBuffer.Format.Byte;
             case 5121:
-                return VertexBuffer.Format.UnsignedByte;
+                return GlVertexBuffer.Format.UnsignedByte;
             case 5122:
-                return VertexBuffer.Format.Short;
+                return GlVertexBuffer.Format.Short;
             case 5123:
-                return VertexBuffer.Format.UnsignedShort;
+                return GlVertexBuffer.Format.UnsignedShort;
             case 5125:
-                return VertexBuffer.Format.UnsignedInt;
+                return GlVertexBuffer.Format.UnsignedInt;
             case 5126:
-                return VertexBuffer.Format.Float;
+                return GlVertexBuffer.Format.Float;
             default:
                 throw new AssetLoadException("Illegal component type: " + componentType);
         }
@@ -136,36 +136,36 @@ public class GltfUtils {
         }
     }
 
-    public static VertexBuffer.Type getVertexBufferType(String attribute) {
+    public static GlVertexBuffer.Type getVertexBufferType(String attribute) {
         switch (attribute) {
             case "POSITION":
-                return VertexBuffer.Type.Position;
+                return GlVertexBuffer.Type.Position;
             case "NORMAL":
-                return VertexBuffer.Type.Normal;
+                return GlVertexBuffer.Type.Normal;
             case "TANGENT":
-                return VertexBuffer.Type.Tangent;
+                return GlVertexBuffer.Type.Tangent;
             case "TEXCOORD_0":
-                return VertexBuffer.Type.TexCoord;
+                return GlVertexBuffer.Type.TexCoord;
             case "TEXCOORD_1":
-                return VertexBuffer.Type.TexCoord2;
+                return GlVertexBuffer.Type.TexCoord2;
             case "TEXCOORD_2":
-                return VertexBuffer.Type.TexCoord3;
+                return GlVertexBuffer.Type.TexCoord3;
             case "TEXCOORD_3":
-                return VertexBuffer.Type.TexCoord4;
+                return GlVertexBuffer.Type.TexCoord4;
             case "TEXCOORD_4":
-                return VertexBuffer.Type.TexCoord5;
+                return GlVertexBuffer.Type.TexCoord5;
             case "TEXCOORD_5":
-                return VertexBuffer.Type.TexCoord6;
+                return GlVertexBuffer.Type.TexCoord6;
             case "TEXCOORD_6":
-                return VertexBuffer.Type.TexCoord7;
+                return GlVertexBuffer.Type.TexCoord7;
             case "TEXCOORD_7":
-                return VertexBuffer.Type.TexCoord8;
+                return GlVertexBuffer.Type.TexCoord8;
             case "COLOR_0":
-                return VertexBuffer.Type.Color;
+                return GlVertexBuffer.Type.Color;
             case "JOINTS_0":
-                return VertexBuffer.Type.BoneIndex;
+                return GlVertexBuffer.Type.BoneIndex;
             case "WEIGHTS_0":
-                return VertexBuffer.Type.BoneWeight;
+                return GlVertexBuffer.Type.BoneWeight;
             default:
                 logger.log(Level.WARNING, "Unsupported Vertex Buffer type " + attribute);
                 return null;
@@ -282,7 +282,7 @@ public class GltfUtils {
         }
     }
 
-    public static void populateBuffer(Object store, byte[] source, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {
+    public static void populateBuffer(Object store, byte[] source, int count, int byteOffset, int byteStride, int numComponents, GlVertexBuffer.Format format) throws IOException {
 
         if (store instanceof Buffer) {
             Buffer buffer = (Buffer) store;
@@ -318,7 +318,7 @@ public class GltfUtils {
         }
     }
 
-    private static void populateByteBuffer(ByteBuffer buffer, byte[] source, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) {
+    private static void populateByteBuffer(ByteBuffer buffer, byte[] source, int count, int byteOffset, int byteStride, int numComponents, GlVertexBuffer.Format format) {
         int componentSize = format.getComponentSize();
         int index = byteOffset;
         int dataLength = componentSize * numComponents;
@@ -332,7 +332,7 @@ public class GltfUtils {
         }
     }
 
-    private static void populateShortBuffer(ShortBuffer buffer, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {
+    private static void populateShortBuffer(ShortBuffer buffer, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, GlVertexBuffer.Format format) throws IOException {
         int componentSize = format.getComponentSize();
         int index = byteOffset;
         int dataLength = componentSize * numComponents;
@@ -352,7 +352,7 @@ public class GltfUtils {
     }
 
 
-    private static void populateIntBuffer(IntBuffer buffer, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {
+    private static void populateIntBuffer(IntBuffer buffer, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, GlVertexBuffer.Format format) throws IOException {
         int componentSize = format.getComponentSize();
         int index = byteOffset;
         int dataLength = componentSize * numComponents;
@@ -370,7 +370,7 @@ public class GltfUtils {
         }
     }
 
-    private static void populateFloatBuffer(FloatBuffer buffer, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {
+    private static void populateFloatBuffer(FloatBuffer buffer, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, GlVertexBuffer.Format format) throws IOException {
         int componentSize = format.getComponentSize();
         int index = byteOffset;
         int dataLength = componentSize * numComponents;
@@ -388,7 +388,7 @@ public class GltfUtils {
         }
     }
 
-    public static float readAsFloat(LittleEndien stream, VertexBuffer.Format format) throws IOException {
+    public static float readAsFloat(LittleEndien stream, GlVertexBuffer.Format format) throws IOException {
         //We may have packed data so depending on the format, we need to read data differently and unpack it
         // Implementations must use following equations to get corresponding floating-point value f from a normalized integer c and vise-versa:
         // accessor.componentType    int-to-float                float-to-int
@@ -417,7 +417,7 @@ public class GltfUtils {
 
     }
 
-    private static void populateByteArray(byte[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {
+    private static void populateByteArray(byte[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, GlVertexBuffer.Format format) throws IOException {
         int componentSize = format.getComponentSize();
         int index = byteOffset;
         int dataLength = componentSize * numComponents;
@@ -455,7 +455,7 @@ public class GltfUtils {
         }
     }
 
-    private static void populateShortArray(short[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {
+    private static void populateShortArray(short[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, GlVertexBuffer.Format format) throws IOException {
         int componentSize = format.getComponentSize();
         int index = byteOffset;
         int dataLength = componentSize * numComponents;
@@ -548,16 +548,16 @@ public class GltfUtils {
 
     public static void setSkinBuffers(Mesh mesh, short[] jointsArray, float[] weightsArray, int componentSize) {
         if (componentSize == 1) {
-            mesh.setBuffer(VertexBuffer.Type.BoneIndex, 4, BufferUtils.createByteBuffer(toByteArray(jointsArray)));
+            mesh.setBuffer(GlVertexBuffer.Type.BoneIndex, 4, BufferUtils.createByteBuffer(toByteArray(jointsArray)));
         } else {
-            mesh.setBuffer(VertexBuffer.Type.BoneIndex, 4, BufferUtils.createShortBuffer(jointsArray));
+            mesh.setBuffer(GlVertexBuffer.Type.BoneIndex, 4, BufferUtils.createShortBuffer(jointsArray));
         }
-        mesh.setBuffer(VertexBuffer.Type.BoneWeight, 4, BufferUtils.createFloatBuffer(weightsArray));
-        mesh.getBuffer(VertexBuffer.Type.BoneIndex).setUsage(VertexBuffer.Usage.CpuOnly);
-        mesh.getBuffer(VertexBuffer.Type.BoneWeight).setUsage(VertexBuffer.Usage.CpuOnly);
+        mesh.setBuffer(GlVertexBuffer.Type.BoneWeight, 4, BufferUtils.createFloatBuffer(weightsArray));
+        mesh.getBuffer(GlVertexBuffer.Type.BoneIndex).setUsage(GlVertexBuffer.Usage.CpuOnly);
+        mesh.getBuffer(GlVertexBuffer.Type.BoneWeight).setUsage(GlVertexBuffer.Usage.CpuOnly);
     }
 
-    private static void populateFloatArray(float[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {
+    private static void populateFloatArray(float[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, GlVertexBuffer.Format format) throws IOException {
         int componentSize = format.getComponentSize();
         int index = byteOffset;
         int dataLength = componentSize * numComponents;
@@ -577,7 +577,7 @@ public class GltfUtils {
         }
     }
 
-    private static void populateVector3fArray(Vector3f[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {
+    private static void populateVector3fArray(Vector3f[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, GlVertexBuffer.Format format) throws IOException {
         int componentSize = format.getComponentSize();
         int index = byteOffset;
         int dataLength = componentSize * numComponents;
@@ -601,7 +601,7 @@ public class GltfUtils {
         }
     }
 
-    private static void populateQuaternionArray(Quaternion[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {
+    private static void populateQuaternionArray(Quaternion[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, GlVertexBuffer.Format format) throws IOException {
         int componentSize = format.getComponentSize();
         int index = byteOffset;
         int dataLength = componentSize * numComponents;
@@ -625,7 +625,7 @@ public class GltfUtils {
         }
     }
 
-    private static void populateMatrix4fArray(Matrix4f[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {
+    private static void populateMatrix4fArray(Matrix4f[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, GlVertexBuffer.Format format) throws IOException {
         int componentSize = format.getComponentSize();
         int index = byteOffset;
         int dataLength = componentSize * numComponents;
@@ -859,7 +859,7 @@ public class GltfUtils {
     }
 
     public static void dumpMesh(Mesh m) {
-        for (VertexBuffer vertexBuffer : m.getBufferList().getArray()) {
+        for (GlVertexBuffer vertexBuffer : m.getBufferList().getArray()) {
             System.err.println(vertexBuffer.getBufferType());
             System.err.println(vertexBuffer.getFormat());
             if (vertexBuffer.getData() instanceof FloatBuffer) {

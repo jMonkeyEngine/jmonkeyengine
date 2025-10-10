@@ -34,7 +34,7 @@ package com.jme3.scene.mesh;
 import java.nio.Buffer;
 import java.nio.ShortBuffer;
 
-import com.jme3.scene.VertexBuffer.Format;
+import com.jme3.scene.GlVertexBuffer.Format;
 
 /**
  * IndexBuffer implementation for {@link ShortBuffer}s.

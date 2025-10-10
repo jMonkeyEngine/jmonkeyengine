@@ -40,10 +40,10 @@ import com.jme3.math.Matrix4f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Format;
+import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
@@ -70,9 +70,9 @@ public class RenderDeviceJme implements RenderDevice {
     private final Quad quad = new Quad(1, -1, true);
     private final Geometry quadGeom = new Geometry("nifty-quad", quad);
     private boolean clipWasSet = false;
-    private final VertexBuffer quadDefaultTC = quad.getBuffer(Type.TexCoord);
-    private final VertexBuffer quadModTC = quadDefaultTC.clone();
-    private final VertexBuffer quadColor;
+    private final GlVertexBuffer quadDefaultTC = quad.getBuffer(Type.TexCoord);
+    private final GlVertexBuffer quadModTC = quadDefaultTC.clone();
+    private final GlVertexBuffer quadColor;
     private final Matrix4f tempMat = new Matrix4f();
     private final ColorRGBA tempColor = new ColorRGBA();
     private final RenderState renderState = new RenderState();
@@ -141,7 +141,7 @@ public class RenderDeviceJme implements RenderDevice {
         this.display = display;
         this.colorSpace = colorSpace;
 
-        quadColor = new VertexBuffer(Type.Color);
+        quadColor = new GlVertexBuffer(Type.Color);
         quadColor.setNormalized(true);
         ByteBuffer bb = BufferUtils.createByteBuffer(4 * 4);
         quadColor.setupData(Usage.Stream, 4, Format.UnsignedByte, bb);

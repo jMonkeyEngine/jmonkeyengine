@@ -39,7 +39,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.*;
-import com.jme3.scene.VertexBuffer.*;
+import com.jme3.scene.GlVertexBuffer.*;
 import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
 import com.jme3.util.*;
 import com.jme3.util.IntMap.Entry;
@@ -83,7 +83,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private ShortBuffer sb;
     private IntBuffer ib;
     private FloatBuffer fb;
-    private VertexBuffer vb;
+    private GlVertexBuffer vb;
     private Mesh mesh;
     private Geometry geom;
     private ByteBuffer indicesData;
@@ -100,7 +100,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private String ignoreUntilEnd = null;
     private List<Geometry> geoms = new ArrayList<>();
     private ArrayList<Boolean> usesSharedMesh = new ArrayList<>();
-    private IntMap<List<VertexBuffer>> lodLevels = new IntMap<>();
+    private IntMap<List<GlVertexBuffer>> lodLevels = new IntMap<>();
     private AnimData animData;
 
     public MeshLoader() {
@@ -189,7 +189,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
         int numIndices = indicesPerFace * numFaces;
 
-        vb = new VertexBuffer(VertexBuffer.Type.Index);
+        vb = new GlVertexBuffer(GlVertexBuffer.Type.Index);
         if (!usesBigIndices) {
             sb = BufferUtils.createShortBuffer(numIndices);
             ib = null;
@@ -373,8 +373,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         weightsFloatData = FloatBuffer.allocate(vertCount * 4);
         indicesData = ByteBuffer.allocate(vertCount * 4);
 
-        VertexBuffer weights = new VertexBuffer(Type.BoneWeight);
-        VertexBuffer indices = new VertexBuffer(Type.BoneIndex);
+        GlVertexBuffer weights = new GlVertexBuffer(Type.BoneWeight);
+        GlVertexBuffer indices = new GlVertexBuffer(Type.BoneIndex);
 
         weights.setupData(Usage.CpuOnly, 4, Format.Float, weightsFloatData);
         indices.setupData(Usage.CpuOnly, 4, Format.UnsignedByte, indicesData);
@@ -384,8 +384,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         
         //creating empty buffers for HW skinning 
         //the buffers will be setup if ever used.
-        VertexBuffer weightsHW = new VertexBuffer(Type.HWBoneWeight);
-        VertexBuffer indicesHW = new VertexBuffer(Type.HWBoneIndex);
+        GlVertexBuffer weightsHW = new GlVertexBuffer(Type.HWBoneWeight);
+        GlVertexBuffer indicesHW = new GlVertexBuffer(Type.HWBoneIndex);
         //setting usage to cpuOnly so that the buffer is not send empty to the GPU
         indicesHW.setUsage(Usage.CpuOnly);
         weightsHW.setUsage(Usage.CpuOnly);
@@ -395,32 +395,32 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private void startVertexBuffer(Attributes attribs) throws SAXException {
         if (parseBool(attribs.getValue("positions"), false)) {
-            vb = new VertexBuffer(Type.Position);
+            vb = new GlVertexBuffer(Type.Position);
             fb = BufferUtils.createFloatBuffer(vertCount * 3);
             vb.setupData(Usage.Static, 3, Format.Float, fb);
             mesh.setBuffer(vb);
         }
         if (parseBool(attribs.getValue("normals"), false)) {
-            vb = new VertexBuffer(Type.Normal);
+            vb = new GlVertexBuffer(Type.Normal);
             fb = BufferUtils.createFloatBuffer(vertCount * 3);
             vb.setupData(Usage.Static, 3, Format.Float, fb);
             mesh.setBuffer(vb);
         }
         if (parseBool(attribs.getValue("colours_diffuse"), false)) {
-            vb = new VertexBuffer(Type.Color);
+            vb = new GlVertexBuffer(Type.Color);
             fb = BufferUtils.createFloatBuffer(vertCount * 4);
             vb.setupData(Usage.Static, 4, Format.Float, fb);
             mesh.setBuffer(vb);
         }
         if (parseBool(attribs.getValue("tangents"), false)) {
             int dimensions = parseInt(attribs.getValue("tangent_dimensions"), 3);
-            vb = new VertexBuffer(Type.Tangent);
+            vb = new GlVertexBuffer(Type.Tangent);
             fb = BufferUtils.createFloatBuffer(vertCount * dimensions);
             vb.setupData(Usage.Static, dimensions, Format.Float, fb);
             mesh.setBuffer(vb);
         }
         if (parseBool(attribs.getValue("binormals"), false)) {
-            vb = new VertexBuffer(Type.Binormal);
+            vb = new GlVertexBuffer(Type.Binormal);
             fb = BufferUtils.createFloatBuffer(vertCount * 3);
             vb.setupData(Usage.Static, 3, Format.Float, fb);
             mesh.setBuffer(vb);
@@ -438,7 +438,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             }
 
             if (i <= 7) {
-                vb = new VertexBuffer(TEXCOORD_TYPES[i]);
+                vb = new GlVertexBuffer(TEXCOORD_TYPES[i]);
             } else {
                 // more than 8 texture coordinates are not supported by ogre.
                 throw new SAXException("More than 8 texture coordinates not supported");
@@ -464,7 +464,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private void pushTangent(Attributes attribs) throws SAXException {
         try {
-            VertexBuffer tangentBuf = mesh.getBuffer(Type.Tangent);
+            GlVertexBuffer tangentBuf = mesh.getBuffer(Type.Tangent);
             FloatBuffer buf = (FloatBuffer) tangentBuf.getData();
             buf.put(parseFloat(attribs.getValue("x"))).put(parseFloat(attribs.getValue("y"))).put(parseFloat(attribs.getValue("z")));
             if (tangentBuf.getNumComponents() == 4) {
@@ -481,7 +481,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         }
         Type type = TEXCOORD_TYPES[texCoordIndex];
 
-        VertexBuffer tcvb = mesh.getBuffer(type);
+        GlVertexBuffer tcvb = mesh.getBuffer(type);
         FloatBuffer buf = (FloatBuffer) tcvb.getData();
 
         buf.put(parseFloat(attribs.getValue("u")));
@@ -524,8 +524,8 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         mesh = geoms.get(index).getMesh();
         int faceCount = Integer.parseInt(numFaces);
 
-        VertexBuffer originalIndexBuffer = mesh.getBuffer(Type.Index);
-        vb = new VertexBuffer(VertexBuffer.Type.Index);
+        GlVertexBuffer originalIndexBuffer = mesh.getBuffer(Type.Index);
+        vb = new GlVertexBuffer(GlVertexBuffer.Type.Index);
         if (originalIndexBuffer.getFormat() == Format.UnsignedInt) {
             // LOD buffer should also be integer
             ib = BufferUtils.createIntBuffer(faceCount * 3);
@@ -537,10 +537,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             vb.setupData(Usage.Static, 3, Format.UnsignedShort, sb);
         }
 
-        List<VertexBuffer> levels = lodLevels.get(index);
+        List<GlVertexBuffer> levels = lodLevels.get(index);
         if (levels == null) {
             // Create the LOD levels list
-            levels = new ArrayList<VertexBuffer>();
+            levels = new ArrayList<GlVertexBuffer>();
 
             // Add the first LOD level (always the original index buffer)
             levels.add(originalIndexBuffer);
@@ -555,10 +555,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private void endLevelOfDetail() {
         // set the lod data for each mesh
-        for (Entry<List<VertexBuffer>> entry : lodLevels) {
+        for (Entry<List<GlVertexBuffer>> entry : lodLevels) {
             Mesh m = geoms.get(entry.getKey()).getMesh();
-            List<VertexBuffer> levels = entry.getValue();
-            VertexBuffer[] levelArray = new VertexBuffer[levels.size()];
+            List<GlVertexBuffer> levels = entry.getValue();
+            GlVertexBuffer[] levelArray = new GlVertexBuffer[levels.size()];
             levels.toArray(levelArray);
             m.setLodLevels(levelArray);
         }
@@ -736,7 +736,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         } else if (qName.equals("geometry")
                 || qName.equals("sharedgeometry")) {
             // finish writing to buffers
-            for (VertexBuffer buf : mesh.getBufferList().getArray()) {
+            for (GlVertexBuffer buf : mesh.getBufferList().getArray()) {
                 Buffer data = buf.getData();
                 if (data.position() != 0) {
                     data.flip();

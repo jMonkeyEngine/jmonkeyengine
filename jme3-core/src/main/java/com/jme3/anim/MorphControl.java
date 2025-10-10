@@ -79,7 +79,7 @@ public class MorphControl extends AbstractControl implements Savable {
     private float[] tmpNormArray;
     private float[] tmpTanArray;
 
-    private static final VertexBuffer.Type bufferTypes[] = VertexBuffer.Type.values();
+    private static final GlVertexBuffer.Type bufferTypes[] = GlVertexBuffer.Type.values();
 
     @Override
     public void setSpatial(Spatial spatial) {
@@ -237,17 +237,17 @@ public class MorphControl extends AbstractControl implements Savable {
     }
 
     private int bindMorphTargetBuffer(Mesh mesh, int targetNumBuffers, int boundBufferIdx, MorphTarget t) {
-        int start = VertexBuffer.Type.MorphTarget0.ordinal();
+        int start = GlVertexBuffer.Type.MorphTarget0.ordinal();
         if (targetNumBuffers >= 1) {
-            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Position));
+            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(GlVertexBuffer.Type.Position));
             boundBufferIdx++;
         }
         if (targetNumBuffers >= 2) {
-            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Normal));
+            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(GlVertexBuffer.Type.Normal));
             boundBufferIdx++;
         }
         if (!approximateTangents && targetNumBuffers == 3) {
-            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Tangent));
+            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(GlVertexBuffer.Type.Tangent));
             boundBufferIdx++;
         }
         return boundBufferIdx;
@@ -255,17 +255,17 @@ public class MorphControl extends AbstractControl implements Savable {
 
     private void writeCpuBuffer(int targetNumBuffers, MorphTarget mt) {
         if (targetNumBuffers >= 1) {
-            FloatBuffer dest = mt.getBuffer(VertexBuffer.Type.Position);
+            FloatBuffer dest = mt.getBuffer(GlVertexBuffer.Type.Position);
             dest.rewind();
             dest.put(tmpPosArray, 0, dest.capacity());
         }
         if (targetNumBuffers >= 2) {
-            FloatBuffer dest = mt.getBuffer(VertexBuffer.Type.Normal);
+            FloatBuffer dest = mt.getBuffer(GlVertexBuffer.Type.Normal);
             dest.rewind();
             dest.put(tmpNormArray, 0, dest.capacity());
         }
         if (!approximateTangents && targetNumBuffers == 3) {
-            FloatBuffer dest = mt.getBuffer(VertexBuffer.Type.Tangent);
+            FloatBuffer dest = mt.getBuffer(GlVertexBuffer.Type.Tangent);
             dest.rewind();
             dest.put(tmpTanArray, 0, dest.capacity());
         }
@@ -273,13 +273,13 @@ public class MorphControl extends AbstractControl implements Savable {
 
     private void mergeMorphTargets(int targetNumBuffers, float weight, MorphTarget t, boolean init) {
         if (targetNumBuffers >= 1) {
-            mergeTargetBuffer(tmpPosArray, weight, t.getBuffer(VertexBuffer.Type.Position), init);
+            mergeTargetBuffer(tmpPosArray, weight, t.getBuffer(GlVertexBuffer.Type.Position), init);
         }
         if (targetNumBuffers >= 2) {
-            mergeTargetBuffer(tmpNormArray, weight, t.getBuffer(VertexBuffer.Type.Normal), init);
+            mergeTargetBuffer(tmpNormArray, weight, t.getBuffer(GlVertexBuffer.Type.Normal), init);
         }
         if (!approximateTangents && targetNumBuffers == 3) {
-            mergeTargetBuffer(tmpTanArray, weight, t.getBuffer(VertexBuffer.Type.Tangent), init);
+            mergeTargetBuffer(tmpTanArray, weight, t.getBuffer(GlVertexBuffer.Type.Tangent), init);
         }
     }
 
@@ -306,8 +306,8 @@ public class MorphControl extends AbstractControl implements Savable {
     }
 
     private void activateBuffer(Mesh mesh, int idx, int start, FloatBuffer b) {
-        VertexBuffer.Type t = bufferTypes[start + idx];
-        VertexBuffer vb = mesh.getBuffer(t);
+        GlVertexBuffer.Type t = bufferTypes[start + idx];
+        GlVertexBuffer vb = mesh.getBuffer(t);
         // only set the buffer if it's different
         if (vb == null || vb.getData() != b) {
             mesh.setBuffer(t, 3, b);
@@ -324,18 +324,18 @@ public class MorphControl extends AbstractControl implements Savable {
     private MorphTarget initCpuMorphTarget(Geometry geom) {
         MorphTarget res = new MorphTarget();
         MorphTarget mt = geom.getMesh().getMorphTargets()[0];
-        FloatBuffer b = mt.getBuffer(VertexBuffer.Type.Position);
+        FloatBuffer b = mt.getBuffer(GlVertexBuffer.Type.Position);
         if (b != null) {
-            res.setBuffer(VertexBuffer.Type.Position, BufferUtils.createFloatBuffer(b.capacity()));
+            res.setBuffer(GlVertexBuffer.Type.Position, BufferUtils.createFloatBuffer(b.capacity()));
         }
-        b = mt.getBuffer(VertexBuffer.Type.Normal);
+        b = mt.getBuffer(GlVertexBuffer.Type.Normal);
         if (b != null) {
-            res.setBuffer(VertexBuffer.Type.Normal, BufferUtils.createFloatBuffer(b.capacity()));
+            res.setBuffer(GlVertexBuffer.Type.Normal, BufferUtils.createFloatBuffer(b.capacity()));
         }
         if (!approximateTangents) {
-            b = mt.getBuffer(VertexBuffer.Type.Tangent);
+            b = mt.getBuffer(GlVertexBuffer.Type.Tangent);
             if (b != null) {
-                res.setBuffer(VertexBuffer.Type.Tangent, BufferUtils.createFloatBuffer(b.capacity()));
+                res.setBuffer(GlVertexBuffer.Type.Tangent, BufferUtils.createFloatBuffer(b.capacity()));
             }
         }
         return res;
@@ -343,11 +343,11 @@ public class MorphControl extends AbstractControl implements Savable {
 
     private int getTargetNumBuffers(MorphTarget morphTarget) {
         int num = 0;
-        if (morphTarget.getBuffer(VertexBuffer.Type.Position) != null) num++;
-        if (morphTarget.getBuffer(VertexBuffer.Type.Normal) != null) num++;
+        if (morphTarget.getBuffer(GlVertexBuffer.Type.Position) != null) num++;
+        if (morphTarget.getBuffer(GlVertexBuffer.Type.Normal) != null) num++;
 
         // if tangents are not needed we don't count the tangent buffer
-        if (!approximateTangents && morphTarget.getBuffer(VertexBuffer.Type.Tangent) != null) {
+        if (!approximateTangents && morphTarget.getBuffer(GlVertexBuffer.Type.Tangent) != null) {
             num++;
         }
         return num;
@@ -366,10 +366,10 @@ public class MorphControl extends AbstractControl implements Savable {
      */
     private int getRemainingBuffers(Mesh mesh, Renderer renderer) {
         int nbUsedBuffers = 0;
-        for (VertexBuffer vb : mesh.getBufferList().getArray()) {
-            boolean isMorphBuffer = vb.getBufferType().ordinal() >= VertexBuffer.Type.MorphTarget0.ordinal() && vb.getBufferType().ordinal() <= VertexBuffer.Type.MorphTarget9.ordinal();
-            if (vb.getBufferType() == VertexBuffer.Type.Index || isMorphBuffer) continue;
-            if (vb.getUsage() != VertexBuffer.Usage.CpuOnly) {
+        for (GlVertexBuffer vb : mesh.getBufferList().getArray()) {
+            boolean isMorphBuffer = vb.getBufferType().ordinal() >= GlVertexBuffer.Type.MorphTarget0.ordinal() && vb.getBufferType().ordinal() <= GlVertexBuffer.Type.MorphTarget9.ordinal();
+            if (vb.getBufferType() == GlVertexBuffer.Type.Index || isMorphBuffer) continue;
+            if (vb.getUsage() != GlVertexBuffer.Usage.CpuOnly) {
                 nbUsedBuffers++;
             }
         }
@@ -478,7 +478,7 @@ public class MorphControl extends AbstractControl implements Savable {
                 // this code makes sure that if the mesh has no hardware skinning buffers hardware skinning won't be activated.
                 // this is important, because if HW skinning is activated the shader will declare 2 additional useless attributes,
                 // and we desperately need all the attributes we can find for Morph animation.
-                if (mesh.getBuffer(VertexBuffer.Type.HWBoneIndex) == null && !geom.getLocalMatParamOverrides().contains(nullNumberOfBones)) {
+                if (mesh.getBuffer(GlVertexBuffer.Type.HWBoneIndex) == null && !geom.getLocalMatParamOverrides().contains(nullNumberOfBones)) {
                     geom.addMatParamOverride(nullNumberOfBones);
                 }
             }

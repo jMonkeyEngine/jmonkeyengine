@@ -103,9 +103,9 @@ public class PhantomTrianglesTest {
             1f, 1f, 0f,
             1f, -1f, 0f
         };
-        lineMesh.setBuffer(VertexBuffer.Type.Position, 3, corners);
+        lineMesh.setBuffer(GlVertexBuffer.Type.Position, 3, corners);
         short[] indices = new short[]{0, 1, 2, 3};
-        lineMesh.setBuffer(VertexBuffer.Type.Index, 2, indices);
+        lineMesh.setBuffer(GlVertexBuffer.Type.Index, 2, indices);
         lineMesh.updateBound();
         Geometry whiteLines = new Geometry("white lines", lineMesh);
         Material white = assetManager.loadMaterial("Common/Materials/WhiteColor.j3m");

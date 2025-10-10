@@ -35,9 +35,9 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Format;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.nio.ByteBuffer;
@@ -64,22 +64,22 @@ public class ParticleTriMesh extends ParticleMesh {
         // set positions
         FloatBuffer pb = BufferUtils.createVector3Buffer(numParticles * 4);
         // if the buffer is already set only update the data
-        VertexBuffer buf = getBuffer(VertexBuffer.Type.Position);
+        GlVertexBuffer buf = getBuffer(GlVertexBuffer.Type.Position);
         if (buf != null) {
             buf.updateData(pb);
         } else {
-            VertexBuffer pvb = new VertexBuffer(VertexBuffer.Type.Position);
+            GlVertexBuffer pvb = new GlVertexBuffer(GlVertexBuffer.Type.Position);
             pvb.setupData(Usage.Stream, 3, Format.Float, pb);
             setBuffer(pvb);
         }
 
         // set colors
         ByteBuffer cb = BufferUtils.createByteBuffer(numParticles * 4 * 4);
-        buf = getBuffer(VertexBuffer.Type.Color);
+        buf = getBuffer(GlVertexBuffer.Type.Color);
         if (buf != null) {
             buf.updateData(cb);
         } else {
-            VertexBuffer cvb = new VertexBuffer(VertexBuffer.Type.Color);
+            GlVertexBuffer cvb = new GlVertexBuffer(GlVertexBuffer.Type.Color);
             cvb.setupData(Usage.Stream, 4, Format.UnsignedByte, cb);
             cvb.setNormalized(true);
             setBuffer(cvb);
@@ -96,11 +96,11 @@ public class ParticleTriMesh extends ParticleMesh {
         }
         tb.flip();
 
-        buf = getBuffer(VertexBuffer.Type.TexCoord);
+        buf = getBuffer(GlVertexBuffer.Type.TexCoord);
         if (buf != null) {
             buf.updateData(tb);
         } else {
-            VertexBuffer tvb = new VertexBuffer(VertexBuffer.Type.TexCoord);
+            GlVertexBuffer tvb = new GlVertexBuffer(GlVertexBuffer.Type.TexCoord);
             tvb.setupData(Usage.Static, 2, Format.Float, tb);
             setBuffer(tvb);
         }
@@ -122,11 +122,11 @@ public class ParticleTriMesh extends ParticleMesh {
         }
         ib.flip();
 
-        buf = getBuffer(VertexBuffer.Type.Index);
+        buf = getBuffer(GlVertexBuffer.Type.Index);
         if (buf != null) {
             buf.updateData(ib);
         } else {
-            VertexBuffer ivb = new VertexBuffer(VertexBuffer.Type.Index);
+            GlVertexBuffer ivb = new GlVertexBuffer(GlVertexBuffer.Type.Index);
             ivb.setupData(Usage.Static, 3, Format.UnsignedShort, ib);
             setBuffer(ivb);
         }
@@ -140,7 +140,7 @@ public class ParticleTriMesh extends ParticleMesh {
         this.imagesY = imagesY;
         if (imagesX != 1 || imagesY != 1) {
             uniqueTexCoords = true;
-            getBuffer(VertexBuffer.Type.TexCoord).setUsage(Usage.Stream);
+            getBuffer(GlVertexBuffer.Type.TexCoord).setUsage(Usage.Stream);
         }
     }
 
@@ -153,13 +153,13 @@ public class ParticleTriMesh extends ParticleMesh {
 //        SortUtil.msort(particles, particlesCopy, comparator);
 //        particles = particlesCopy;
 
-        VertexBuffer pvb = getBuffer(VertexBuffer.Type.Position);
+        GlVertexBuffer pvb = getBuffer(GlVertexBuffer.Type.Position);
         FloatBuffer positions = (FloatBuffer) pvb.getData();
 
-        VertexBuffer cvb = getBuffer(VertexBuffer.Type.Color);
+        GlVertexBuffer cvb = getBuffer(GlVertexBuffer.Type.Color);
         ByteBuffer colors = (ByteBuffer) cvb.getData();
 
-        VertexBuffer tvb = getBuffer(VertexBuffer.Type.TexCoord);
+        GlVertexBuffer tvb = getBuffer(GlVertexBuffer.Type.TexCoord);
         FloatBuffer texcoords = (FloatBuffer) tvb.getData();
 
         Vector3f camUp = cam.getUp();

@@ -33,7 +33,7 @@
 package com.jme3.scene.debug.custom;
 
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Type;
 
 public class JointShape extends GlMesh {
 

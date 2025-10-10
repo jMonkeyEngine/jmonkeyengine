@@ -41,7 +41,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.Statistics;
 import com.jme3.renderer.TextureUnitException;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.shader.bufferobject.BufferObject;
@@ -182,11 +182,11 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void updateBufferData(VertexBuffer vb) {
+    public void updateBufferData(GlVertexBuffer vb) {
     }
 
     @Override
-    public void deleteBuffer(VertexBuffer vb) {
+    public void deleteBuffer(GlVertexBuffer vb) {
     }
 
     @Override
@@ -195,7 +195,7 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void renderMesh(GlMesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+    public void renderMesh(GlMesh mesh, int lod, int count, GlVertexBuffer[] instanceData) {
     }
 
     @Override

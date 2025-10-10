@@ -1,5 +1,6 @@
 package com.jme3.vulkan.images;
 
+import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -97,7 +98,7 @@ public class Sampler extends AbstractNative<Long> {
         return new Builder();
     }
 
-    public class Builder extends AbstractNative.Builder<Sampler> {
+    public class Builder extends AbstractBuilder {
 
         private Builder() {}
 

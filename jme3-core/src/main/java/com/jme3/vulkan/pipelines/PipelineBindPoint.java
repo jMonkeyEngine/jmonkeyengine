@@ -1,8 +1,10 @@
 package com.jme3.vulkan.pipelines;
 
+import com.jme3.vulkan.util.IntEnum;
+
 import static org.lwjgl.vulkan.VK10.*;
 
-public enum PipelineBindPoint {
+public enum PipelineBindPoint implements IntEnum<PipelineBindPoint> {
 
     Graphics(VK_PIPELINE_BIND_POINT_GRAPHICS),
     Compute(VK_PIPELINE_BIND_POINT_COMPUTE);
@@ -13,7 +15,8 @@ public enum PipelineBindPoint {
         this.vkEnum = vkEnum;
     }
 
-    public int getVkEnum() {
+    @Override
+    public int getEnum() {
         return vkEnum;
     }
 

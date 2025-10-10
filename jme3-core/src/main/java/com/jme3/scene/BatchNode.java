@@ -41,6 +41,10 @@ import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+import com.jme3.vulkan.mesh.AttributeModifier;
+import com.jme3.vulkan.mesh.VertexReader;
+import com.jme3.vulkan.mesh.VertexWriter;
+
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -130,40 +134,20 @@ public class BatchNode extends GeometryGroupNode {
         if (batch != null) {
             Mesh mesh = batch.geometry.getMesh();
             Mesh origMesh = bg.getMesh();
-
-            VertexBuffer pvb = mesh.getBuffer(VertexBuffer.Type.Position);
-            VertexBuffer nvb = mesh.getBuffer(VertexBuffer.Type.Normal);
-            VertexBuffer tvb = mesh.getBuffer(VertexBuffer.Type.Tangent);
-
-            VertexBuffer opvb = origMesh.getBuffer(VertexBuffer.Type.Position);
-            VertexBuffer onvb = origMesh.getBuffer(VertexBuffer.Type.Normal);
-            VertexBuffer otvb = origMesh.getBuffer(VertexBuffer.Type.Tangent);
-
-            FloatBuffer posBuf = getFloatBuffer(pvb);
-            FloatBuffer normBuf = getFloatBuffer(nvb);
-            FloatBuffer tanBuf = getFloatBuffer(tvb);
-
-            FloatBuffer oposBuf = getFloatBuffer(opvb);
-            FloatBuffer onormBuf = getFloatBuffer(onvb);
-            FloatBuffer otanBuf = getFloatBuffer(otvb);
-
             Matrix4f transformMat = getTransformMatrix(bg);
-            doTransforms(oposBuf, onormBuf, otanBuf, posBuf, normBuf, tanBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), transformMat);
-
-            pvb.updateData(posBuf);
-
-            if (nvb != null) {
-                nvb.updateData(normBuf);
+            try (AttributeModifier position = mesh.modify(GlVertexBuffer.Type.Position);
+                 AttributeModifier normal = mesh.modify(GlVertexBuffer.Type.Normal);
+                 AttributeModifier tangent = mesh.modify(GlVertexBuffer.Type.Tangent);
+                 AttributeModifier bindPos = origMesh.modify(GlVertexBuffer.Type.Position);
+                 AttributeModifier bindNorm = origMesh.modify(GlVertexBuffer.Type.Normal);
+                 AttributeModifier bindTan = origMesh.modify(GlVertexBuffer.Type.Tangent)) {
+                doTransforms(bindPos, bindNorm, bindTan, position, normal, tangent, bg.startIndex, bg.startIndex + bg.getVertexCount(), transformMat);
             }
-            if (tvb != null) {
-                tvb.updateData(tanBuf);
-            }
-
             batch.geometry.updateModelBound();
         }
     }
 
-    private FloatBuffer getFloatBuffer(VertexBuffer vb) {
+    private FloatBuffer getFloatBuffer(GlVertexBuffer vb) {
         if (vb == null) {
             return null;
         }
@@ -202,7 +186,7 @@ public class BatchNode extends GeometryGroupNode {
         }
 
         for (Map.Entry<Material, List<Geometry>> entry : matMap.entrySet()) {
-            Mesh m = new Mesh();
+            GlMesh m = new GlMesh();
             Material material = entry.getKey();
             List<Geometry> list = entry.getValue();
             nbGeoms += list.size();
@@ -229,13 +213,12 @@ public class BatchNode extends GeometryGroupNode {
             batch.geometry.setMaterial(material);
             this.attachChild(batch.geometry);
 
-
+            m.updateCounts();
             batch.geometry.setMesh(m);
-            batch.geometry.getMesh().updateCounts();
             batch.geometry.updateModelBound();
             batches.add(batch);
         }
-        if (batches.size() > 0) {
+        if (!batches.isEmpty()) {
             needsFullRebatch = false;
         }
 
@@ -306,7 +289,7 @@ public class BatchNode extends GeometryGroupNode {
                         }
                     }
                     if (list == null) {
-                        list = new ArrayList<Geometry>();
+                        list = new ArrayList<>();
                         map.put(g.getMaterial(), list);
                     }
                     g.setTransformRefresh();
@@ -378,22 +361,22 @@ public class BatchNode extends GeometryGroupNode {
      * @param outMesh
      */
     private void mergeGeometries(Mesh outMesh, List<Geometry> geometries) {
-        int[] compsForBuf = new int[VertexBuffer.Type.values().length];
-        VertexBuffer.Format[] formatForBuf = new VertexBuffer.Format[compsForBuf.length];
-        boolean[] normForBuf = new boolean[VertexBuffer.Type.values().length];
+        int[] compsForBuf = new int[GlVertexBuffer.Type.values().length];
+        GlVertexBuffer.Format[] formatForBuf = new GlVertexBuffer.Format[compsForBuf.length];
+        boolean[] normForBuf = new boolean[GlVertexBuffer.Type.values().length];
 
         int totalVerts = 0;
         int totalTris = 0;
         int totalLodLevels = 0;
         int maxWeights = -1;
 
-        Mesh.Mode mode = null;
+        GlMesh.Mode mode = null;
         for (Geometry geom : geometries) {
             totalVerts += geom.getVertexCount();
             totalTris += geom.getTriangleCount();
             totalLodLevels = Math.min(totalLodLevels, geom.getMesh().getNumLodLevels());
 
-            Mesh.Mode listMode;
+            GlMesh.Mode listMode;
             int components;
             switch (geom.getMesh().getMode()) {
                 case Points:
@@ -410,16 +393,16 @@ public class BatchNode extends GeometryGroupNode {
                 case TriangleFan:
                 case TriangleStrip:
                 case Triangles:
-                    listMode = Mesh.Mode.Triangles;
+                    listMode = GlMesh.Mode.Triangles;
                     components = 3;
                     break;
                 default:
                     throw new UnsupportedOperationException();
             }
 
-            for (VertexBuffer vb : geom.getMesh().getBufferList().getArray()) {
+            for (GlVertexBuffer vb : geom.getMesh().getBufferList().getArray()) {
                 int currentCompsForBuf = compsForBuf[vb.getBufferType().ordinal()];
-                if (vb.getBufferType() != VertexBuffer.Type.Index && currentCompsForBuf != 0 && currentCompsForBuf != vb.getNumComponents()) {
+                if (vb.getBufferType() != GlVertexBuffer.Type.Index && currentCompsForBuf != 0 && currentCompsForBuf != vb.getNumComponents()) {
                     throw new UnsupportedOperationException("The geometry " + geom + " buffer " + vb.getBufferType()
                             + " has different number of components than the rest of the meshes "
                             + "(this: " + vb.getNumComponents() + ", expected: " + currentCompsForBuf + ")");
@@ -436,7 +419,7 @@ public class BatchNode extends GeometryGroupNode {
                         + " primitive types: " + mode + " != " + listMode);
             }
             mode = listMode;
-            compsForBuf[VertexBuffer.Type.Index.ordinal()] = components;
+            compsForBuf[GlVertexBuffer.Type.Index.ordinal()] = components;
         }
 
         outMesh.setMaxNumWeights(maxWeights);
@@ -444,9 +427,9 @@ public class BatchNode extends GeometryGroupNode {
         //outMesh.setLineWidth(lineWidth);
         if (totalVerts >= 65536) {
             // Make sure we create an UnsignedInt buffer, so we can fit all of the meshes.
-            formatForBuf[VertexBuffer.Type.Index.ordinal()] = VertexBuffer.Format.UnsignedInt;
+            formatForBuf[GlVertexBuffer.Type.Index.ordinal()] = GlVertexBuffer.Format.UnsignedInt;
         } else {
-            formatForBuf[VertexBuffer.Type.Index.ordinal()] = VertexBuffer.Format.UnsignedShort;
+            formatForBuf[GlVertexBuffer.Type.Index.ordinal()] = GlVertexBuffer.Format.UnsignedShort;
         }
 
         // generate output buffers based on retrieved info
@@ -456,14 +439,14 @@ public class BatchNode extends GeometryGroupNode {
             }
 
             Buffer data;
-            if (i == VertexBuffer.Type.Index.ordinal()) {
-                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalTris);
+            if (i == GlVertexBuffer.Type.Index.ordinal()) {
+                data = GlVertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalTris);
             } else {
-                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalVerts);
+                data = GlVertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalVerts);
             }
 
-            VertexBuffer vb = new VertexBuffer(VertexBuffer.Type.values()[i]);
-            vb.setupData(VertexBuffer.Usage.Dynamic, compsForBuf[i], formatForBuf[i], data);
+            GlVertexBuffer vb = new GlVertexBuffer(GlVertexBuffer.Type.values()[i]);
+            vb.setupData(GlVertexBuffer.Usage.Dynamic, compsForBuf[i], formatForBuf[i], data);
             vb.setNormalized(normForBuf[i]);
             outMesh.setBuffer(vb);
         }
@@ -481,15 +464,15 @@ public class BatchNode extends GeometryGroupNode {
             int geomTriCount = inMesh.getTriangleCount();
 
             for (int bufType = 0; bufType < compsForBuf.length; bufType++) {
-                VertexBuffer inBuf = inMesh.getBuffer(VertexBuffer.Type.values()[bufType]);
+                GlVertexBuffer inBuf = inMesh.getBuffer(GlVertexBuffer.Type.values()[bufType]);
 
-                VertexBuffer outBuf = outMesh.getBuffer(VertexBuffer.Type.values()[bufType]);
+                GlVertexBuffer outBuf = outMesh.getBuffer(GlVertexBuffer.Type.values()[bufType]);
 
                 if (outBuf == null) {
                     continue;
                 }
 
-                if (VertexBuffer.Type.Index.ordinal() == bufType) {
+                if (GlVertexBuffer.Type.Index.ordinal() == bufType) {
                     int components = compsForBuf[bufType];
 
                     IndexBuffer inIdx = inMesh.getIndicesAsList();
@@ -501,15 +484,15 @@ public class BatchNode extends GeometryGroupNode {
                             outIdx.put((globalTriIndex + tri) * components + comp, idx);
                         }
                     }
-                } else if (VertexBuffer.Type.Position.ordinal() == bufType) {
+                } else if (GlVertexBuffer.Type.Position.ordinal() == bufType) {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getData();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doCopyBuffer(inPos, globalVertIndex, outPos, 3);
-                } else if (VertexBuffer.Type.Normal.ordinal() == bufType || VertexBuffer.Type.Tangent.ordinal() == bufType) {
+                } else if (GlVertexBuffer.Type.Normal.ordinal() == bufType || GlVertexBuffer.Type.Tangent.ordinal() == bufType) {
                     FloatBuffer inPos = (FloatBuffer) inBuf.getData();
                     FloatBuffer outPos = (FloatBuffer) outBuf.getData();
                     doCopyBuffer(inPos, globalVertIndex, outPos, compsForBuf[bufType]);
-                    if (VertexBuffer.Type.Tangent.ordinal() == bufType) {
+                    if (GlVertexBuffer.Type.Tangent.ordinal() == bufType) {
                         useTangents = true;
                     }
                 } else {
@@ -528,7 +511,9 @@ public class BatchNode extends GeometryGroupNode {
         }
     }
 
-    private void doTransforms(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bindBufTangents, FloatBuffer bufPos, FloatBuffer bufNorm, FloatBuffer bufTangents, int start, int end, Matrix4f transform) {
+    private void doTransforms(VertexReader bindBufPos, VertexReader bindBufNorm, VertexReader bindBufTangents,
+                              VertexWriter bufPos, VertexWriter bufNorm, VertexWriter bufTangents,
+                              int start, int end, Matrix4f transform) {
         TempVars vars = TempVars.get();
         Vector3f pos = vars.vect1;
         Vector3f norm = vars.vect2;

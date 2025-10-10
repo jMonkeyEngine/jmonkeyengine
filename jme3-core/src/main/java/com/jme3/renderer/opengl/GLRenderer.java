@@ -41,10 +41,10 @@ import com.jme3.opencl.OpenCLObjectManager;
 import com.jme3.renderer.*;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.GlMesh.Mode;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Format;
+import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.shader.*;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.shader.Shader.ShaderType;
@@ -70,6 +70,7 @@ import com.jme3.util.NativeObject;
 import com.jme3.util.NativeObjectManager;
 
 import jme3tools.shader.ShaderDebug;
+import org.lwjgl.opengl.GL45;
 
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
@@ -108,6 +109,7 @@ public final class GLRenderer implements Renderer {
     private boolean linearizeSrgbImages;
     private HashSet<String> extensions;
     private boolean generateMipmapsForFramebuffers = true;
+    //private boolean mainFbSrgb = false;
 
     private final GL gl;
     private final GL2 gl2;
@@ -2182,6 +2184,12 @@ public final class GLRenderer implements Renderer {
             }
         }
 
+//        if (!mainFbSrgb && fb == null && context.boundFB != null) {
+//            gl.glDisable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+//        } else {
+//            gl.glDisable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+//        }
+
         if (!caps.contains(Caps.FrameBuffer)) {
             throw new RendererException("Framebuffer objects are not supported"
                     + " by the video hardware");
@@ -2909,40 +2917,28 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void updateBufferData(VertexBuffer vb) {
-        int bufId = vb.getId();
-        boolean created = false;
+    public void updateBufferData(GlVertexBuffer vb) {
+        int bufId = vb.getNativeObject();
         if (bufId == -1) {
             // create buffer
             gl.glGenBuffers(intBuf1);
             bufId = intBuf1.get(0);
-            vb.setId(bufId);
-            objManager.registerObject(vb);
-
-            //statistics.onNewVertexBuffer();
-
-            created = true;
+            vb.setId(this, bufId);
         }
 
         // bind buffer
         int target;
-        if (vb.getBufferType() == VertexBuffer.Type.Index) {
+        if (vb.getBufferType() == GlVertexBuffer.Type.Index) {
             target = GL.GL_ELEMENT_ARRAY_BUFFER;
             if (context.boundElementArrayVBO != bufId) {
                 gl.glBindBuffer(target, bufId);
                 context.boundElementArrayVBO = bufId;
-                //statistics.onVertexBufferUse(vb, true);
-            } else {
-                //statistics.onVertexBufferUse(vb, false);
             }
         } else {
             target = GL.GL_ARRAY_BUFFER;
             if (context.boundArrayVBO != bufId) {
                 gl.glBindBuffer(target, bufId);
                 context.boundArrayVBO = bufId;
-                //statistics.onVertexBufferUse(vb, true);
-            } else {
-                //statistics.onVertexBufferUse(vb, false);
             }
         }
 
@@ -3068,16 +3064,14 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void deleteBuffer(VertexBuffer vb) {
-        int bufId = vb.getId();
+    public void deleteBuffer(GlVertexBuffer vb) {
+        int bufId = vb.getNativeObject();
         if (bufId != -1) {
             // delete buffer
             intBuf1.put(0, bufId);
             intBuf1.position(0).limit(1);
             gl.glDeleteBuffers(intBuf1);
             vb.resetObject();
-
-            //statistics.onDeleteVertexBuffer();
         }
     }
 
@@ -3103,9 +3097,9 @@ public final class GLRenderer implements Renderer {
         for (int i = 0; i < attribList.oldLen; i++) {
             int idx = attribList.oldList[i];
             gl.glDisableVertexAttribArray(idx);
-            WeakReference<VertexBuffer> ref = context.boundAttribs[idx];
+            WeakReference<GlVertexBuffer> ref = context.boundAttribs[idx];
             if (ref != null) {
-                VertexBuffer buffer = ref.get();
+                GlVertexBuffer buffer = ref.get();
                 if (buffer != null && buffer.isInstanced()) {
                     glext.glVertexAttribDivisorARB(idx, 0);
                 }
@@ -3115,8 +3109,8 @@ public final class GLRenderer implements Renderer {
         attribList.copyNewToOld();
     }
 
-    public void setVertexAttrib(VertexBuffer vb, VertexBuffer idb) {
-        if (vb.getBufferType() == VertexBuffer.Type.Index) {
+    public void setVertexAttrib(GlVertexBuffer vb, GlVertexBuffer idb) {
+        if (vb.getBufferType() == GlVertexBuffer.Type.Index) {
             throw new IllegalArgumentException("Index buffers not allowed to be set to vertex attrib");
         }
 
@@ -3162,7 +3156,7 @@ public final class GLRenderer implements Renderer {
             updateBufferData(vb);
         }
 
-        WeakReference<VertexBuffer>[] attribs = context.boundAttribs;
+        WeakReference<GlVertexBuffer>[] attribs = context.boundAttribs;
         for (int i = 0; i < slotsRequired; i++) {
             if (!context.attribIndexList.moveToNew(loc + i)) {
                 gl.glEnableVertexAttribArray(loc + i);
@@ -3170,7 +3164,7 @@ public final class GLRenderer implements Renderer {
         }
         if (attribs[loc]==null||attribs[loc].get() != vb) {
             // NOTE: Use id from interleaved buffer if specified
-            int bufId = idb != null ? idb.getId() : vb.getId();
+            int bufId = idb != null ? idb.getNativeObject() : vb.getNativeObject();
             assert bufId != -1;
             if (context.boundArrayVBO != bufId) {
                 gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufId);
@@ -3219,11 +3213,11 @@ public final class GLRenderer implements Renderer {
             }
         }
         if (debug && caps.contains(Caps.GLDebug)) {
-            if (vb.getName() != null) glext.glObjectLabel(GLExt.GL_BUFFER, vb.getId(), vb.getName());
+            if (vb.getName() != null) glext.glObjectLabel(GLExt.GL_BUFFER, vb.getNativeObject(), vb.getName());
         }
     }
 
-    public void setVertexAttrib(VertexBuffer vb) {
+    public void setVertexAttrib(GlVertexBuffer vb) {
         setVertexAttrib(vb, null);
     }
 
@@ -3237,8 +3231,8 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    public void drawTriangleList(VertexBuffer indexBuf, GlMesh mesh, int count) {
-        if (indexBuf.getBufferType() != VertexBuffer.Type.Index) {
+    public void drawTriangleList(GlVertexBuffer indexBuf, GlMesh mesh, int count) {
+        if (indexBuf.getBufferType() != GlVertexBuffer.Type.Index) {
             throw new IllegalArgumentException("Only index buffers are allowed as triangle lists.");
         }
 
@@ -3262,7 +3256,7 @@ public final class GLRenderer implements Renderer {
             updateBufferData(indexBuf);
         }
 
-        int bufId = indexBuf.getId();
+        int bufId = indexBuf.getNativeObject();
         assert bufId != -1;
 
         if (context.boundElementArrayVBO != bufId) {
@@ -3363,7 +3357,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    public void updateVertexArray(GlMesh mesh, VertexBuffer instanceData) {
+    public void updateVertexArray(GlMesh mesh, GlVertexBuffer instanceData) {
         int id = mesh.getId();
         if (id == -1) {
             IntBuffer temp = intBuf1;
@@ -3377,7 +3371,7 @@ public final class GLRenderer implements Renderer {
             context.boundVertexArray = id;
         }
 
-        VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
+        GlVertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);
         }
@@ -3386,7 +3380,7 @@ public final class GLRenderer implements Renderer {
             setVertexAttrib(instanceData, null);
         }
 
-        for (VertexBuffer vb : mesh.getBufferList().getArray()) {
+        for (GlVertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {
@@ -3403,18 +3397,18 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private void renderMeshDefault(GlMesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+    private void renderMeshDefault(GlMesh mesh, int lod, int count, GlVertexBuffer[] instanceData) {
 
         // Here while count is still passed in.  Can be removed when/if
         // the method is collapsed again.  -pspeed
         count = Math.max(mesh.getInstanceCount(), count);
 
-        VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
+        GlVertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);
         }
 
-        VertexBuffer indices;
+        GlVertexBuffer indices;
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
         } else {
@@ -3422,12 +3416,12 @@ public final class GLRenderer implements Renderer {
         }
 
         if (instanceData != null) {
-            for (VertexBuffer vb : instanceData) {
+            for (GlVertexBuffer vb : instanceData) {
                 setVertexAttrib(vb, null);
             }
         }
 
-        for (VertexBuffer vb : mesh.getBufferList().getArray()) {
+        for (GlVertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {
@@ -3453,7 +3447,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void renderMesh(GlMesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+    public void renderMesh(GlMesh mesh, int lod, int count, GlVertexBuffer[] instanceData) {
         if (mesh.getVertexCount() == 0 || mesh.getTriangleCount() == 0 || count == 0) {
             return;
         }
@@ -3499,12 +3493,13 @@ public final class GLRenderer implements Renderer {
             ) {
                 logger.warning("Driver claims that default framebuffer " + "is not sRGB capable. Enabling anyway.");
             }
-
             gl.glEnable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+            //mainFbSrgb = true;
 
             logger.log(Level.FINER, "SRGB FrameBuffer enabled (Gamma Correction)");
         } else {
-            gl.glDisable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+            gl.glDisable(GLExt.GL_FRAMEBUFFER_SRGB_EXT); 
+            //mainFbSrgb = false;
         }
     }
 

@@ -7,9 +7,9 @@ import java.util.List;
 
 import com.jme3.asset.AssetLoadException;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
 import com.jme3.scene.plugins.fbx.SceneLoader;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
@@ -48,10 +48,10 @@ public class FbxSkin extends FbxObject {
             for(int i = 0; i < fbxMesh.geometries.size(); ++i) {
                 Mesh mesh = fbxMesh.geometries.get(i).getMesh();
                 if(mesh != firstMesh) {
-                    mesh.setBuffer(firstMesh.getBuffer(VertexBuffer.Type.BoneWeight));
-                    mesh.setBuffer(firstMesh.getBuffer(VertexBuffer.Type.BoneIndex));
-                    mesh.setBuffer(firstMesh.getBuffer(VertexBuffer.Type.HWBoneWeight));
-                    mesh.setBuffer(firstMesh.getBuffer(VertexBuffer.Type.HWBoneIndex));
+                    mesh.setBuffer(firstMesh.getBuffer(GlVertexBuffer.Type.BoneWeight));
+                    mesh.setBuffer(firstMesh.getBuffer(GlVertexBuffer.Type.BoneIndex));
+                    mesh.setBuffer(firstMesh.getBuffer(GlVertexBuffer.Type.HWBoneWeight));
+                    mesh.setBuffer(firstMesh.getBuffer(GlVertexBuffer.Type.HWBoneIndex));
                 }
                 mesh.setMaxNumWeights(maxWeightsPerVert);
                 mesh.generateBindPose(true);
@@ -63,12 +63,12 @@ public class FbxSkin extends FbxObject {
         // Create bone buffers
         FloatBuffer boneWeightData = BufferUtils.createFloatBuffer(fbxMesh.vCount * 4);
         ByteBuffer boneIndicesData = BufferUtils.createByteBuffer(fbxMesh.vCount * 4);
-        mesh.setBuffer(VertexBuffer.Type.BoneWeight, 4, boneWeightData);
-        mesh.setBuffer(VertexBuffer.Type.BoneIndex, 4, boneIndicesData);
-        mesh.getBuffer(VertexBuffer.Type.BoneWeight).setUsage(Usage.CpuOnly);
-        mesh.getBuffer(VertexBuffer.Type.BoneIndex).setUsage(Usage.CpuOnly);
-        VertexBuffer weightsHW = new VertexBuffer(Type.HWBoneWeight);
-        VertexBuffer indicesHW = new VertexBuffer(Type.HWBoneIndex);
+        mesh.setBuffer(GlVertexBuffer.Type.BoneWeight, 4, boneWeightData);
+        mesh.setBuffer(GlVertexBuffer.Type.BoneIndex, 4, boneIndicesData);
+        mesh.getBuffer(GlVertexBuffer.Type.BoneWeight).setUsage(Usage.CpuOnly);
+        mesh.getBuffer(GlVertexBuffer.Type.BoneIndex).setUsage(Usage.CpuOnly);
+        GlVertexBuffer weightsHW = new GlVertexBuffer(Type.HWBoneWeight);
+        GlVertexBuffer indicesHW = new GlVertexBuffer(Type.HWBoneIndex);
         indicesHW.setUsage(Usage.CpuOnly); // Setting usage to CpuOnly so that the buffer is not send empty to the GPU
         weightsHW.setUsage(Usage.CpuOnly);
         mesh.setBuffer(weightsHW);

@@ -37,8 +37,8 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
@@ -91,7 +91,7 @@ public class Line extends GlMesh {
         this.start.set(start);
         this.end.set(end);
 
-        VertexBuffer posBuf = getBuffer(Type.Position);
+        GlVertexBuffer posBuf = getBuffer(Type.Position);
         
         FloatBuffer fb = (FloatBuffer) posBuf.getData();
         fb.rewind();

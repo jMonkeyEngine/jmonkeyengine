@@ -38,11 +38,11 @@ import com.jme3.collision.CollisionResults;
 import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.collision.bih.BIHTree;
 import com.jme3.export.*;
-import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.*;
+import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
-import com.jme3.scene.VertexBuffer.*;
+import com.jme3.scene.GlVertexBuffer.*;
 import com.jme3.scene.mesh.*;
 import com.jme3.util.*;
 import com.jme3.util.IntMap.Entry;
@@ -50,6 +50,7 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.mesh.AttributeModifier;
+import com.jme3.vulkan.meshnew.AccessRate;
 
 import java.io.IOException;
 import java.nio.*;
@@ -70,11 +71,6 @@ import java.util.ArrayList;
  * @author Kirill Vainer
  */
 public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
-
-    @Override
-    public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
-        return 0;
-    }
 
     /**
      * The mode of the Mesh specifies both the type of primitive represented
@@ -183,9 +179,9 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
 
     private CollisionData collisionTree = DEFAULT_COLLISION_TREE;
 
-    private SafeArrayList<VertexBuffer> buffersList = new SafeArrayList<>(VertexBuffer.class);
-    private IntMap<VertexBuffer> buffers = new IntMap<>();
-    private VertexBuffer[] lodLevels;
+    private SafeArrayList<GlVertexBuffer> buffersList = new SafeArrayList<>(GlVertexBuffer.class);
+    private IntMap<GlVertexBuffer> buffers = new IntMap<>();
+    private GlVertexBuffer[] lodLevels;
 
     private float pointSize = DEFAULT_POINT_SIZE;
     private float lineWidth = DEFAULT_LINE_WIDTH;
@@ -205,13 +201,13 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     private SafeArrayList<MorphTarget> morphTargets;
 
     /**
-     * Creates a new mesh with no {@link VertexBuffer vertex buffers}.
+     * Creates a new mesh with no {@link GlVertexBuffer vertex buffers}.
      */
     public GlMesh() {
     }
 
     /**
-     * Create a shallow clone of this Mesh. The {@link VertexBuffer vertex
+     * Create a shallow clone of this Mesh. The {@link GlVertexBuffer vertex
      * buffers} are shared between this and the clone mesh, the rest
      * of the data is cloned.
      *
@@ -224,7 +220,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             clone.meshBound = meshBound.clone();
             clone.collisionTree = collisionTree != null ? collisionTree : null;
             clone.buffers = buffers.clone();
-            clone.buffersList = new SafeArrayList<>(VertexBuffer.class, buffersList);
+            clone.buffersList = new SafeArrayList<>(GlVertexBuffer.class, buffersList);
             clone.vertexArrayID = DEFAULT_VERTEX_ARRAY_ID;
             if (elementLengths != null) {
                 clone.elementLengths = elementLengths.clone();
@@ -240,7 +236,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
 
     /**
      * Creates a deep clone of this mesh.
-     * The {@link VertexBuffer vertex buffers} and the data inside them
+     * The {@link GlVertexBuffer vertex buffers} and the data inside them
      * is cloned.
      *
      * @return a deep clone of this mesh.
@@ -255,9 +251,9 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             clone.collisionTree = DEFAULT_COLLISION_TREE; // it will get re-generated in any case
 
             clone.buffers = new IntMap<>();
-            clone.buffersList = new SafeArrayList<>(VertexBuffer.class);
-            for (VertexBuffer vb : buffersList.getArray()) {
-                VertexBuffer bufClone = vb.clone();
+            clone.buffersList = new SafeArrayList<>(GlVertexBuffer.class);
+            for (GlVertexBuffer vb : buffersList.getArray()) {
+                GlVertexBuffer bufClone = vb.clone();
                 clone.buffers.put(vb.getBufferType().ordinal(), bufClone);
                 clone.buffersList.add(bufClone);
             }
@@ -282,7 +278,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     /**
      * Clone the mesh for animation use.
      * This creates a shallow clone of the mesh, sharing most
-     * of the {@link VertexBuffer vertex buffer} data, however the
+     * of the {@link GlVertexBuffer vertex buffer} data, however the
      * {@link Type#Position}, {@link Type#Normal}, and {@link Type#Tangent} buffers
      * are deeply cloned.
      *
@@ -291,22 +287,22 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     public GlMesh cloneForAnim() {
         GlMesh clone = clone();
         if (getBuffer(Type.BindPosePosition) != null) {
-            VertexBuffer oldPos = getBuffer(Type.Position);
+            GlVertexBuffer oldPos = getBuffer(Type.Position);
 
             // NOTE: creates deep clone
-            VertexBuffer newPos = oldPos.clone();
+            GlVertexBuffer newPos = oldPos.clone();
             clone.clearBuffer(Type.Position);
             clone.setBuffer(newPos);
 
             if (getBuffer(Type.BindPoseNormal) != null) {
-                VertexBuffer oldNorm = getBuffer(Type.Normal);
-                VertexBuffer newNorm = oldNorm.clone();
+                GlVertexBuffer oldNorm = getBuffer(Type.Normal);
+                GlVertexBuffer newNorm = oldNorm.clone();
                 clone.clearBuffer(Type.Normal);
                 clone.setBuffer(newNorm);
 
                 if (getBuffer(Type.BindPoseTangent) != null) {
-                    VertexBuffer oldTang = getBuffer(Type.Tangent);
-                    VertexBuffer newTang = oldTang.clone();
+                    GlVertexBuffer oldTang = getBuffer(Type.Tangent);
+                    GlVertexBuffer newTang = oldTang.clone();
                     clone.clearBuffer(Type.Tangent);
                     clone.setBuffer(newTang);
                 }
@@ -363,14 +359,14 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * buffers.
      */
     public void generateBindPose() {
-        VertexBuffer pos = getBuffer(Type.Position);
+        GlVertexBuffer pos = getBuffer(Type.Position);
         if (pos == null || getBuffer(Type.BoneIndex) == null) {
             // ignore, this mesh doesn't have positional data
             // or it doesn't have bone-vertex assignments, so it's not animated
             return;
         }
 
-        VertexBuffer bindPos = new VertexBuffer(Type.BindPosePosition);
+        GlVertexBuffer bindPos = new GlVertexBuffer(Type.BindPosePosition);
         bindPos.setupData(Usage.CpuOnly,
                 pos.getNumComponents(),
                 pos.getFormat(),
@@ -381,9 +377,9 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
         // so that animation is faster. this is not needed for hardware skinning
         pos.setUsage(Usage.Stream);
 
-        VertexBuffer norm = getBuffer(Type.Normal);
+        GlVertexBuffer norm = getBuffer(Type.Normal);
         if (norm != null) {
-            VertexBuffer bindNorm = new VertexBuffer(Type.BindPoseNormal);
+            GlVertexBuffer bindNorm = new GlVertexBuffer(Type.BindPoseNormal);
             bindNorm.setupData(Usage.CpuOnly,
                     norm.getNumComponents(),
                     norm.getFormat(),
@@ -392,9 +388,9 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             norm.setUsage(Usage.Stream);
         }
 
-        VertexBuffer tangents = getBuffer(Type.Tangent);
+        GlVertexBuffer tangents = getBuffer(Type.Tangent);
         if (tangents != null) {
-            VertexBuffer bindTangents = new VertexBuffer(Type.BindPoseTangent);
+            GlVertexBuffer bindTangents = new GlVertexBuffer(Type.BindPoseTangent);
             bindTangents.setupData(Usage.CpuOnly,
                     tangents.getNumComponents(),
                     tangents.getFormat(),
@@ -414,7 +410,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     public void prepareForAnim(boolean forSoftwareAnim) {
         if (forSoftwareAnim) {
             // convert indices to ubytes on the heap
-            VertexBuffer indices = getBuffer(Type.BoneIndex);
+            GlVertexBuffer indices = getBuffer(Type.BoneIndex);
             if (!indices.getData().hasArray()) {
                 if (indices.getFormat() == Format.UnsignedByte) {
                     ByteBuffer originalIndex = (ByteBuffer) indices.getData();
@@ -434,7 +430,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             indices.setUsage(Usage.CpuOnly);
 
             // convert weights on the heap
-            VertexBuffer weights = getBuffer(Type.BoneWeight);
+            GlVertexBuffer weights = getBuffer(Type.BoneWeight);
             if (!weights.getData().hasArray()) {
                 FloatBuffer originalWeight = (FloatBuffer) weights.getData();
                 FloatBuffer arrayWeight = FloatBuffer.allocate(originalWeight.capacity());
@@ -444,9 +440,9 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             }
             weights.setUsage(Usage.CpuOnly);
             // position, normal, and tangent buffers to be in "Stream" mode
-            VertexBuffer positions = getBuffer(Type.Position);
-            VertexBuffer normals = getBuffer(Type.Normal);
-            VertexBuffer tangents = getBuffer(Type.Tangent);
+            GlVertexBuffer positions = getBuffer(Type.Position);
+            GlVertexBuffer normals = getBuffer(Type.Normal);
+            GlVertexBuffer tangents = getBuffer(Type.Tangent);
             positions.setUsage(Usage.Stream);
             if (normals != null) {
                 normals.setUsage(Usage.Stream);
@@ -457,10 +453,10 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
         } else {
             //if HWBoneIndex and HWBoneWeight are empty, we setup them as direct
             //buffers with software anim buffers data
-            VertexBuffer indicesHW = getBuffer(Type.HWBoneIndex);
+            GlVertexBuffer indicesHW = getBuffer(Type.HWBoneIndex);
             Buffer result;
             if (indicesHW.getData() == null) {
-                VertexBuffer indices = getBuffer(Type.BoneIndex);
+                GlVertexBuffer indices = getBuffer(Type.BoneIndex);
                 if (indices.getFormat() == Format.UnsignedByte) {
                     ByteBuffer originalIndex = (ByteBuffer) indices.getData();
                     ByteBuffer directIndex
@@ -481,9 +477,9 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
                         indices.getFormat(), result);
             }
 
-            VertexBuffer weightsHW = getBuffer(Type.HWBoneWeight);
+            GlVertexBuffer weightsHW = getBuffer(Type.HWBoneWeight);
             if (weightsHW.getData() == null) {
-                VertexBuffer weights = getBuffer(Type.BoneWeight);
+                GlVertexBuffer weights = getBuffer(Type.BoneWeight);
                 FloatBuffer originalWeight = (FloatBuffer) weights.getData();
                 FloatBuffer directWeight
                         = BufferUtils.createFloatBuffer(originalWeight.capacity());
@@ -494,13 +490,13 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             }
 
             // position, normal, and tangent buffers to be in "Static" mode
-            VertexBuffer positions = getBuffer(Type.Position);
-            VertexBuffer normals = getBuffer(Type.Normal);
-            VertexBuffer tangents = getBuffer(Type.Tangent);
+            GlVertexBuffer positions = getBuffer(Type.Position);
+            GlVertexBuffer normals = getBuffer(Type.Normal);
+            GlVertexBuffer tangents = getBuffer(Type.Tangent);
 
-            VertexBuffer positionsBP = getBuffer(Type.BindPosePosition);
-            VertexBuffer normalsBP = getBuffer(Type.BindPoseNormal);
-            VertexBuffer tangentsBP = getBuffer(Type.BindPoseTangent);
+            GlVertexBuffer positionsBP = getBuffer(Type.BindPosePosition);
+            GlVertexBuffer normalsBP = getBuffer(Type.BindPoseNormal);
+            GlVertexBuffer tangentsBP = getBuffer(Type.BindPoseTangent);
 
             positions.setUsage(Usage.Static);
             positionsBP.copyElements(0, positions, 0, positionsBP.getNumElements());
@@ -525,7 +521,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @param lodLevels The LOD levels to set
      */
-    public void setLodLevels(VertexBuffer[] lodLevels) {
+    public void setLodLevels(GlVertexBuffer[] lodLevels) {
         this.lodLevels = lodLevels;
     }
 
@@ -548,9 +544,9 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * @throws IndexOutOfBoundsException If the index is outside of the
      * range [0, {@link #getNumLodLevels()}].
      *
-     * @see #setLodLevels(com.jme3.scene.VertexBuffer[])
+     * @see #setLodLevels(GlVertexBuffer[])
      */
-    public VertexBuffer getLodLevel(int lod) {
+    public GlVertexBuffer getLodLevel(int lod) {
         return lodLevels[lod];
     }
 
@@ -678,10 +674,10 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     /**
      * Indicates to the GPU that this mesh will not be modified (a hint).
      * Sets the usage mode to {@link Usage#Static}
-     * for all {@link VertexBuffer vertex buffers} on this Mesh.
+     * for all {@link GlVertexBuffer vertex buffers} on this Mesh.
      */
     public void setStatic() {
-        for (VertexBuffer vb : buffersList.getArray()) {
+        for (GlVertexBuffer vb : buffersList.getArray()) {
             vb.setUsage(Usage.Static);
         }
     }
@@ -689,10 +685,10 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     /**
      * Indicates to the GPU that this mesh will be modified occasionally (a hint).
      * Sets the usage mode to {@link Usage#Dynamic}
-     * for all {@link VertexBuffer vertex buffers} on this Mesh.
+     * for all {@link GlVertexBuffer vertex buffers} on this Mesh.
      */
     public void setDynamic() {
-        for (VertexBuffer vb : buffersList.getArray()) {
+        for (GlVertexBuffer vb : buffersList.getArray()) {
             vb.setUsage(Usage.Dynamic);
         }
     }
@@ -700,10 +696,10 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     /**
      * Indicates to the GPU that this mesh will be modified every frame (a hint).
      * Sets the usage mode to {@link Usage#Stream}
-     * for all {@link VertexBuffer vertex buffers} on this Mesh.
+     * for all {@link GlVertexBuffer vertex buffers} on this Mesh.
      */
     public void setStreamed() {
-        for (VertexBuffer vb : buffersList.getArray()) {
+        for (GlVertexBuffer vb : buffersList.getArray()) {
             vb.setUsage(Usage.Stream);
         }
     }
@@ -715,7 +711,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      */
     @Deprecated
     public void setInterleaved() {
-        ArrayList<VertexBuffer> vbs = new ArrayList<>();
+        ArrayList<GlVertexBuffer> vbs = new ArrayList<>();
         vbs.addAll(buffersList);
 
 //        ArrayList<VertexBuffer> vbs = new ArrayList<VertexBuffer>(buffers.values());
@@ -724,7 +720,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
 
         int stride = 0; // aka bytes per vertex
         for (int i = 0; i < vbs.size(); i++) {
-            VertexBuffer vb = vbs.get(i);
+            GlVertexBuffer vb = vbs.get(i);
 //            if (vb.getFormat() != Format.Float){
 //                throw new UnsupportedOperationException("Cannot interleave vertex buffer.\n" +
 //                                                        "Contains not-float data.");
@@ -733,7 +729,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             vb.getData().clear(); // reset position & limit (used later)
         }
 
-        VertexBuffer allData = new VertexBuffer(Type.InterleavedData);
+        GlVertexBuffer allData = new GlVertexBuffer(Type.InterleavedData);
         ByteBuffer dataBuf = BufferUtils.createByteBuffer(stride * getVertexCount());
         allData.setupData(Usage.Static, 1, Format.UnsignedByte, dataBuf);
 
@@ -743,7 +739,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
 
         for (int vert = 0; vert < getVertexCount(); vert++) {
             for (int i = 0; i < vbs.size(); i++) {
-                VertexBuffer vb = vbs.get(i);
+                GlVertexBuffer vb = vbs.get(i);
                 switch (vb.getFormat()) {
                     case Float:
                         FloatBuffer fb = (FloatBuffer) vb.getData();
@@ -784,7 +780,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
         }
 
         int offset = 0;
-        for (VertexBuffer vb : vbs) {
+        for (GlVertexBuffer vb : vbs) {
             vb.setOffset(offset);
             vb.setStride(stride);
 
@@ -819,7 +815,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     private int computeInstanceCount() {
         // Whatever the max of the base instance counts
         int max = 0;
-        for (VertexBuffer vb : buffersList) {
+        for (GlVertexBuffer vb : buffersList) {
             if (vb.getBaseInstanceCount() > max) {
                 max = vb.getBaseInstanceCount();
             }
@@ -832,7 +828,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * {@link #getTriangleCount() triangle} counts for this mesh
      * based on the current data. This method should be called
      * after the {@link Buffer#capacity() capacities} of the mesh's
-     * {@link VertexBuffer vertex buffers} has been altered.
+     * {@link GlVertexBuffer vertex buffers} has been altered.
      *
      * @throws IllegalStateException If this mesh is in
      * {@link #setInterleaved() interleaved} format.
@@ -842,8 +838,8 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             throw new IllegalStateException("Should update counts before interleave");
         }
 
-        VertexBuffer pb = getBuffer(Type.Position);
-        VertexBuffer ib = getBuffer(Type.Index);
+        GlVertexBuffer pb = getBuffer(Type.Position);
+        GlVertexBuffer ib = getBuffer(Type.Index);
         if (pb != null) {
             vertCount = pb.getData().limit() / pb.getNumComponents();
         }
@@ -861,6 +857,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * @param lod The lod level to look up
      * @return The triangle count for that LOD level
      */
+    @Override
     public int getTriangleCount(int lod) {
         if (lodLevels != null) {
             if (lod < 0) {
@@ -888,29 +885,39 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @return how many triangles/elements are on this Mesh.
      */
-    @Override
     public int getTriangleCount() {
         return elementCount;
     }
 
     @Override
-    public int collideWith(Collidable other, Geometry geometry, CollisionResults results) {
-        return 0;
+    public void render(RenderManager renderManager, CommandBuffer cmd, Geometry geometry, int lod) {
+        renderManager.getRenderer().renderMesh(this, lod, elementCount, );
+        renderManager.renderGeometry();
     }
 
     @Override
-    public void draw(CommandBuffer cmd, Geometry geometry) {
-
-    }
-
-    @Override
-    public void draw(Renderer renderer, Geometry geometry, int instances, VertexBuffer[] instanceData) {
-        renderer.renderMesh(this, geometry.getLodLevel(), instances, instanceData);
-    }
-
-    @Override
-    public AttributeModifier modifyAttribute(String name) {
+    public AttributeModifier modify(String attributeName) {
         return null;
+    }
+
+    @Override
+    public void setAccessFrequency(String attributeName, AccessRate hint) {
+
+    }
+
+    @Override
+    public void setVertexCount(int vertices) {
+
+    }
+
+    @Override
+    public void setTriangleCount(int lod, int triangles) {
+
+    }
+
+    @Override
+    public void setInstanceCount(int instances) {
+
     }
 
     /**
@@ -931,8 +938,14 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @return the number of instances
      */
+    @Override
     public int getInstanceCount() {
         return instanceCount;
+    }
+
+    @Override
+    public int collideWith(Collidable other, Geometry geometry, CollisionResults results) {
+        return 0;
     }
 
     /**
@@ -947,7 +960,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * @param v3 Vector to contain third vertex position
      */
     public void getTriangle(int index, Vector3f v1, Vector3f v2, Vector3f v3) {
-        VertexBuffer pb = getBuffer(Type.Position);
+        GlVertexBuffer pb = getBuffer(Type.Position);
         IndexBuffer ib = getIndicesAsList();
         if (pb != null && pb.getFormat() == Format.Float && pb.getNumComponents() == 3) {
             FloatBuffer fpb = (FloatBuffer) pb.getData();
@@ -1088,13 +1101,13 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * Sets the {@link VertexBuffer} on the mesh.
+     * Sets the {@link GlVertexBuffer} on the mesh.
      * This will update the vertex/triangle counts if needed.
      *
      * @param vb The buffer to set
      * @throws IllegalArgumentException If the buffer type is already set
      */
-    public void setBuffer(VertexBuffer vb) {
+    public void setBuffer(GlVertexBuffer vb) {
         if (buffers.containsKey(vb.getBufferType().ordinal())) {
             throw new IllegalArgumentException("Buffer type already set: " + vb.getBufferType());
         }
@@ -1105,14 +1118,14 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * Unsets the {@link VertexBuffer} set on this mesh
+     * Unsets the {@link GlVertexBuffer} set on this mesh
      * with the given type. Does nothing if the vertex buffer type is not set
      * initially.
      *
      * @param type The buffer type to remove
      */
-    public void clearBuffer(VertexBuffer.Type type) {
-        VertexBuffer vb = buffers.remove(type.ordinal());
+    public void clearBuffer(GlVertexBuffer.Type type) {
+        GlVertexBuffer vb = buffers.remove(type.ordinal());
         if (vb != null) {
             buffersList.remove(vb);
             updateCounts();
@@ -1120,7 +1133,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * Creates a {@link VertexBuffer} for the mesh or modifies
+     * Creates a {@link GlVertexBuffer} for the mesh or modifies
      * the existing one per the parameters given.
      *
      * @param type The type of the buffer
@@ -1132,9 +1145,9 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * incompatible with the parameters given.
      */
     public void setBuffer(Type type, int components, Format format, Buffer buf) {
-        VertexBuffer vb = buffers.get(type.ordinal());
+        GlVertexBuffer vb = buffers.get(type.ordinal());
         if (vb == null) {
-            vb = new VertexBuffer(type);
+            vb = new GlVertexBuffer(type);
             vb.setupData(Usage.Dynamic, components, format, buf);
             setBuffer(vb);
         } else {
@@ -1148,9 +1161,9 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * Set a floating point {@link VertexBuffer} on the mesh.
+     * Set a floating point {@link GlVertexBuffer} on the mesh.
      *
-     * @param type The type of {@link VertexBuffer},
+     * @param type The type of {@link GlVertexBuffer},
      * e.g. {@link Type#Position}, {@link Type#Normal}, etc.
      *
      * @param components Number of components on the vertex buffer, should
@@ -1191,25 +1204,25 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * Get the {@link VertexBuffer} stored on this mesh with the given
+     * Get the {@link GlVertexBuffer} stored on this mesh with the given
      * type.
      *
      * @param type The type of VertexBuffer
      * @return the VertexBuffer data, or null if not set
      */
-    public VertexBuffer getBuffer(Type type) {
+    public GlVertexBuffer getBuffer(Type type) {
         return buffers.get(type.ordinal());
     }
 
     /**
-     * Get the {@link VertexBuffer} data stored on this mesh in float
+     * Get the {@link GlVertexBuffer} data stored on this mesh in float
      * format.
      *
      * @param type The type of VertexBuffer
      * @return the VertexBuffer data, or null if not set
      */
     public FloatBuffer getFloatBuffer(Type type) {
-        VertexBuffer vb = getBuffer(type);
+        GlVertexBuffer vb = getBuffer(type);
         if (vb == null) {
             return null;
         }
@@ -1218,14 +1231,14 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * Get the {@link VertexBuffer} data stored on this mesh in short
+     * Get the {@link GlVertexBuffer} data stored on this mesh in short
      * format.
      *
      * @param type The type of VertexBuffer
      * @return the VertexBuffer data, or null if not set
      */
     public ShortBuffer getShortBuffer(Type type) {
-        VertexBuffer vb = getBuffer(type);
+        GlVertexBuffer vb = getBuffer(type);
         if (vb == null) {
             return null;
         }
@@ -1270,7 +1283,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * @see Type#Index
      */
     public IndexBuffer getIndexBuffer() {
-        VertexBuffer vb = getBuffer(Type.Index);
+        GlVertexBuffer vb = getBuffer(Type.Index);
         if (vb == null) {
             return null;
         }
@@ -1292,7 +1305,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
         // be created. Also determine the mappings
         // between old indices to new indices (since we avoid duplicating
         // vertices, this is a map and not an array).
-        VertexBuffer oldIdxBuf = getBuffer(Type.Index);
+        GlVertexBuffer oldIdxBuf = getBuffer(Type.Index);
         IndexBuffer indexBuf = getIndexBuffer();
         int numIndices = indexBuf.size();
 
@@ -1339,7 +1352,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             newIndexBuf.put(i, newIndex);
         }
 
-        VertexBuffer newIdxBuf = new VertexBuffer(Type.Index);
+        GlVertexBuffer newIdxBuf = new GlVertexBuffer(Type.Index);
         newIdxBuf.setupData(oldIdxBuf.getUsage(),
                 oldIdxBuf.getNumComponents(),
                 newIndexBuf instanceof IndexIntBuffer ? Format.UnsignedInt : Format.UnsignedShort,
@@ -1348,14 +1361,14 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
         setBuffer(newIdxBuf);
 
         // Now, create the vertex buffers
-        SafeArrayList<VertexBuffer> oldVertexData = other.getBufferList();
-        for (VertexBuffer oldVb : oldVertexData) {
-            if (oldVb.getBufferType() == VertexBuffer.Type.Index) {
+        SafeArrayList<GlVertexBuffer> oldVertexData = other.getBufferList();
+        for (GlVertexBuffer oldVb : oldVertexData) {
+            if (oldVb.getBufferType() == GlVertexBuffer.Type.Index) {
                 // ignore the index buffer
                 continue;
             }
 
-            VertexBuffer newVb = new VertexBuffer(oldVb.getBufferType());
+            GlVertexBuffer newVb = new GlVertexBuffer(oldVb.getBufferType());
             newVb.setNormalized(oldVb.isNormalized());
             //check for data before copying, some buffers are just empty shells
             //for caching purpose (HW skinning buffers), and will be filled when
@@ -1363,7 +1376,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             if (oldVb.getData() != null) {
                 // Create a new vertex buffer with similar configuration, but
                 // with the capacity of number of unique vertices
-                Buffer buffer = VertexBuffer.createBuffer(oldVb.getFormat(),
+                Buffer buffer = GlVertexBuffer.createBuffer(oldVb.getFormat(),
                         oldVb.getNumComponents(), newNumVerts);
                 newVb.setupData(oldVb.getUsage(), oldVb.getNumComponents(),
                         oldVb.getFormat(), buffer);
@@ -1409,12 +1422,12 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * buffer is not in 2D float format.
      */
     public void scaleTextureCoordinates(Vector2f scaleFactor) {
-        VertexBuffer tc = getBuffer(Type.TexCoord);
+        GlVertexBuffer tc = getBuffer(Type.TexCoord);
         if (tc == null) {
             throw new IllegalStateException("The mesh has no texture coordinates");
         }
 
-        if (tc.getFormat() != VertexBuffer.Format.Float) {
+        if (tc.getFormat() != GlVertexBuffer.Format.Float) {
             throw new UnsupportedOperationException("Only float texture coord format is supported");
         }
 
@@ -1443,7 +1456,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      */
     @Override
     public void updateBound() {
-        VertexBuffer posBuf = getBuffer(VertexBuffer.Type.Position);
+        GlVertexBuffer posBuf = getBuffer(GlVertexBuffer.Type.Position);
         if (meshBound != null && posBuf != null) {
             meshBound.computeFromPoints((FloatBuffer) posBuf.getData());
         }
@@ -1472,7 +1485,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * Returns a map of all {@link VertexBuffer vertex buffers} on this Mesh.
+     * Returns a map of all {@link GlVertexBuffer vertex buffers} on this Mesh.
      * The integer key for the map is the {@link Enum#ordinal() ordinal}
      * of the vertex buffer's {@link Type}.
      * Note that the returned map is a reference to the map used internally,
@@ -1480,12 +1493,12 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @return map of vertex buffers on this mesh.
      */
-    public IntMap<VertexBuffer> getBuffers() {
+    public IntMap<GlVertexBuffer> getBuffers() {
         return buffers;
     }
 
     /**
-     * Returns a list of all {@link VertexBuffer vertex buffers} on this Mesh.
+     * Returns a list of all {@link GlVertexBuffer vertex buffers} on this Mesh.
      * Using a list instead an IntMap via the {@link #getBuffers() } method is
      * better for iteration as there's no need to create an iterator instance.
      * Note that the returned list is a reference to the list used internally,
@@ -1493,7 +1506,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @return list of vertex buffers on this mesh.
      */
-    public SafeArrayList<VertexBuffer> getBufferList() {
+    public SafeArrayList<GlVertexBuffer> getBufferList() {
         return buffersList;
     }
 
@@ -1528,8 +1541,8 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      */
     @Override
     public boolean isAnimatedByJoint(int jointIndex) {
-        VertexBuffer biBuf = getBuffer(VertexBuffer.Type.BoneIndex);
-        VertexBuffer wBuf = getBuffer(VertexBuffer.Type.BoneWeight);
+        GlVertexBuffer biBuf = getBuffer(GlVertexBuffer.Type.BoneIndex);
+        GlVertexBuffer wBuf = getBuffer(GlVertexBuffer.Type.BoneWeight);
         if (biBuf == null || wBuf == null) {
             return false; // no bone animation data
         }
@@ -1685,8 +1698,8 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
         out.write(pointSize, "pointSize", DEFAULT_POINT_SIZE);
 
         //Removing HW skinning buffers to not save them
-        VertexBuffer hwBoneIndex = null;
-        VertexBuffer hwBoneWeight = null;
+        GlVertexBuffer hwBoneIndex = null;
+        GlVertexBuffer hwBoneWeight = null;
         hwBoneIndex = getBuffer(Type.HWBoneIndex);
         if (hwBoneIndex != null) {
             buffers.remove(Type.HWBoneIndex.ordinal());
@@ -1730,24 +1743,24 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
         pointSize = in.readFloat("pointSize", DEFAULT_POINT_SIZE);
 
 //        in.readStringSavableMap("buffers", null);
-        buffers = (IntMap<VertexBuffer>) in.readIntSavableMap("buffers", null);
-        for (Entry<VertexBuffer> entry : buffers) {
+        buffers = (IntMap<GlVertexBuffer>) in.readIntSavableMap("buffers", null);
+        for (Entry<GlVertexBuffer> entry : buffers) {
             buffersList.add(entry.getValue());
         }
 
         //creating hw animation buffers empty so that they are put in the cache
         if (isAnimated()) {
-            VertexBuffer hwBoneIndex = new VertexBuffer(Type.HWBoneIndex);
+            GlVertexBuffer hwBoneIndex = new GlVertexBuffer(Type.HWBoneIndex);
             hwBoneIndex.setUsage(Usage.CpuOnly);
             setBuffer(hwBoneIndex);
-            VertexBuffer hwBoneWeight = new VertexBuffer(Type.HWBoneWeight);
+            GlVertexBuffer hwBoneWeight = new GlVertexBuffer(Type.HWBoneWeight);
             hwBoneWeight.setUsage(Usage.CpuOnly);
             setBuffer(hwBoneWeight);
         }
 
         Savable[] lodLevelsSavable = in.readSavableArray("lodLevels", null);
         if (lodLevelsSavable != null) {
-            lodLevels = new VertexBuffer[lodLevelsSavable.length];
+            lodLevels = new GlVertexBuffer[lodLevelsSavable.length];
             System.arraycopy(lodLevelsSavable, 0, lodLevels, 0, lodLevels.length);
         }
 

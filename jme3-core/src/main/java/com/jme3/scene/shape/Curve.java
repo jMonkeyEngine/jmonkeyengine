@@ -35,7 +35,7 @@ import com.jme3.math.Spline;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import java.util.Iterator;
 import java.util.List;
 
@@ -134,8 +134,8 @@ public class Curve extends GlMesh {
         }
 
         this.setMode(Mesh.Mode.Lines);
-        this.setBuffer(VertexBuffer.Type.Position, 3, array);
-        this.setBuffer(VertexBuffer.Type.Index, 2, indices);//(spline.getControlPoints().size() - 1) * nbSubSegments * 2
+        this.setBuffer(GlVertexBuffer.Type.Position, 3, array);
+        this.setBuffer(GlVertexBuffer.Type.Index, 2, indices);//(spline.getControlPoints().size() - 1) * nbSubSegments * 2
         this.updateBound();
         this.updateCounts();
     }
@@ -186,8 +186,8 @@ public class Curve extends GlMesh {
         }
 
         this.setMode(Mesh.Mode.Lines);
-        this.setBuffer(VertexBuffer.Type.Position, 3, array);
-        this.setBuffer(VertexBuffer.Type.Index, 2, indices);
+        this.setBuffer(GlVertexBuffer.Type.Position, 3, array);
+        this.setBuffer(GlVertexBuffer.Type.Index, 2, indices);
         this.updateBound();
         this.updateCounts();
     }
@@ -230,8 +230,8 @@ public class Curve extends GlMesh {
             }
 
             this.setMode(Mesh.Mode.Lines);
-            this.setBuffer(VertexBuffer.Type.Position, 3, array);
-            this.setBuffer(VertexBuffer.Type.Index, 2, indices);
+            this.setBuffer(GlVertexBuffer.Type.Position, 3, array);
+            this.setBuffer(GlVertexBuffer.Type.Index, 2, indices);
             this.updateBound();
             this.updateCounts();
         }
@@ -264,8 +264,8 @@ public class Curve extends GlMesh {
         }
 
         this.setMode(Mesh.Mode.Lines);
-        this.setBuffer(VertexBuffer.Type.Position, 3, array);
-        this.setBuffer(VertexBuffer.Type.Index, 2, indices);
+        this.setBuffer(GlVertexBuffer.Type.Position, 3, array);
+        this.setBuffer(GlVertexBuffer.Type.Index, 2, indices);
         this.updateBound();
         this.updateCounts();
     }

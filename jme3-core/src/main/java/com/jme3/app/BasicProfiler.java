@@ -40,7 +40,7 @@ import com.jme3.profile.VpStep;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
 

@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class Subpass {
 
+    private final RenderPass pass;
     private final int position;
     private final PipelineBindPoint bindPoint;
     private final List<AttachmentReference> color = new ArrayList<>();
@@ -23,12 +24,14 @@ public class Subpass {
     private final List<AttachmentReference> preserve = new ArrayList<>();
     private AttachmentReference depthStencil;
 
-    protected Subpass(int position, PipelineBindPoint bindPoint) {
+    protected Subpass(RenderPass pass, int position, PipelineBindPoint bindPoint) {
+        this.pass = pass;
         this.position = position;
         this.bindPoint = bindPoint;
     }
 
-    protected Subpass(int position, Subpass base, List<Attachment> attachments) {
+    protected Subpass(RenderPass pass, int position, Subpass base, List<Attachment> attachments) {
+        this.pass = pass;
         this.position = position;
         this.bindPoint = base.bindPoint;
         transferRefs(base.color, color, attachments);
@@ -56,7 +59,7 @@ public class Subpass {
     }
 
     public void fillStruct(MemoryStack stack, VkSubpassDescription struct) {
-        struct.pipelineBindPoint(bindPoint.getVkEnum());
+        struct.pipelineBindPoint(bindPoint.getEnum());
         if (!color.isEmpty()) {
             struct.colorAttachmentCount(color.size());
             struct.pColorAttachments(getColorReferences(stack));
@@ -93,6 +96,10 @@ public class Subpass {
 
     public void setDepthStencilAttachment(AttachmentReference depthStencil) {
         this.depthStencil = depthStencil;
+    }
+
+    public RenderPass getPass() {
+        return pass;
     }
 
     public AttachmentReference getDepthStencil() {

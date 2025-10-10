@@ -36,7 +36,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.*;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 
 import static com.jme3.util.BufferUtils.*;
@@ -325,12 +325,12 @@ public class TangentBinormalGenerator {
         if (!newVertices.isEmpty()) {
 
             //we have new vertices, we need to update the mesh's buffers.
-            for (Type type : VertexBuffer.Type.values()) {
+            for (Type type : GlVertexBuffer.Type.values()) {
                 //skip tangent buffer as we're gonna overwrite it later
                 if (type == Type.Tangent || type == Type.BindPoseTangent) {
                     continue;
                 }
-                VertexBuffer vb = mesh.getBuffer(type);
+                GlVertexBuffer vb = mesh.getBuffer(type);
                 //Some buffer (hardware skinning ones) can be there but not 
                 //initialized, they must be skipped. 
                 //They'll be initialized when Hardware Skinning is engaged
@@ -341,7 +341,7 @@ public class TangentBinormalGenerator {
                 Buffer buffer = vb.getData();
                 //IndexBuffer has special treatment, only swapping the vertex indices is needed
                 if (type == Type.Index) {
-                    boolean isShortBuffer = vb.getFormat() == VertexBuffer.Format.UnsignedShort;
+                    boolean isShortBuffer = vb.getFormat() == GlVertexBuffer.Format.UnsignedShort;
                     for (VertexData vertex : newVertices) {
                         for (TriangleData tri : vertex.triangles) {
                             for (int i = 0; i < tri.index.length; i++) {
@@ -356,7 +356,7 @@ public class TangentBinormalGenerator {
                     vb.setUpdateNeeded();
                 } else {
                     //copy the buffer in a bigger one and append nex vertices to the end
-                    Buffer newVerts = VertexBuffer.createBuffer(vb.getFormat(), vb.getNumComponents(), nbVertices);
+                    Buffer newVerts = GlVertexBuffer.createBuffer(vb.getFormat(), vb.getNumComponents(), nbVertices);
                     if (buffer != null) {
                         buffer.rewind();
                         bulkPut(vb.getFormat(), newVerts, buffer);
@@ -384,7 +384,7 @@ public class TangentBinormalGenerator {
         return vertexData;
     }
 
-    private static void bulkPut(VertexBuffer.Format format, Buffer buf1, Buffer buf2) {
+    private static void bulkPut(GlVertexBuffer.Format format, Buffer buf1, Buffer buf2) {
         switch (format) {
             case Byte:
             case Half:
@@ -414,7 +414,7 @@ public class TangentBinormalGenerator {
         }
     }
 
-    private static void putValue(VertexBuffer.Format format, Buffer buf1, Buffer buf2, int index) {
+    private static void putValue(GlVertexBuffer.Format format, Buffer buf1, Buffer buf2, int index) {
         switch (format) {
             case Byte:
             case Half:

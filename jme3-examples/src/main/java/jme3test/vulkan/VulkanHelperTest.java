@@ -2,12 +2,20 @@ package jme3test.vulkan;
 
 import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
-import com.jme3.shaderc.ShaderType;
-import com.jme3.shaderc.ShadercLoader;
+import com.jme3.vulkan.ColorSpace;
+import com.jme3.vulkan.FormatFeature;
+import com.jme3.vulkan.buffers.VersionedBuffer;
+import com.jme3.vulkan.buffers.generate.MeshBufferGenerator;
+import com.jme3.vulkan.shaderc.ShaderType;
+import com.jme3.vulkan.shaderc.ShadercLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.vulkan.LwjglVulkanContext;
 import com.jme3.texture.ImageView;
@@ -37,8 +45,7 @@ import com.jme3.vulkan.pass.Attachment;
 import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.pipelines.*;
-import com.jme3.vulkan.pipelines.states.ColorBlendAttachment;
-import com.jme3.vulkan.pipelines.states.DynamicState;
+import com.jme3.vulkan.pipelines.states.*;
 import com.jme3.vulkan.shader.ShaderModule;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.surface.Surface;
@@ -48,11 +55,15 @@ import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.SyncGroup;
 import com.jme3.vulkan.update.CommandBatch;
-import com.jme3.vulkan.update.BasicCommandBatch;
+import com.jme3.vulkan.update.PerFrameCommandBatch;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import static org.lwjgl.vulkan.VK13.*;
@@ -63,15 +74,11 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private Surface surface;
     private LogicalDevice<GeneralPhysicalDevice> device;
     private Swapchain swapchain;
-    private ShaderModule vertModule, fragModule;
-    private PipelineLayout pipelineLayout;
     private RenderPass renderPass;
     private GraphicsPipeline pipeline;
     private CommandPool graphicsPool;
     private StageableBuffer vertexBuffer, indexBuffer;
-    private DescriptorPool descriptorPool;
-    private DescriptorSetLayout descriptorLayout;
-    private UpdateFrameManager frames;
+    private UpdateFrameManager<Frame> frames;
     private boolean swapchainResizeFlag = false;
     private boolean applicationStopped = false;
 
@@ -139,20 +146,13 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         swapchain.build(s -> {
             s.addQueue(physDevice.getGraphics());
             s.addQueue(physDevice.getPresent());
-            s.selectFormat(Format.B8G8R8A8_SRGB.getVkEnum(), KHRSurface.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
+            s.selectFormat(Swapchain.format(Format.B8G8R8A8_SRGB, ColorSpace.KhrSrgbNonlinear));
             s.selectMode(Swapchain.PresentMode.Mailbox);
             s.selectExtentByWindow();
             s.selectImageCount(2);
         });
 
-        // Describes the layout of a descriptor set. The descriptor set
-        // will represent two uniforms: a uniform buffer at binding 0
-        // requiring 1 descriptor, and an image sampler at binding 1
-        // requiring 1 descriptor.
-        descriptorLayout = new DescriptorSetLayout(device,
-                new SetLayoutBinding(Descriptor.UniformBuffer, 0, 1, ShaderStage.Vertex),
-                new SetLayoutBinding(Descriptor.CombinedImageSampler, 1, 1, ShaderStage.Fragment));
-        descriptorPool = new DescriptorPool(device, 10,
+        DescriptorPool descriptorPool = new DescriptorPool(device, 10,
                 new PoolSize(Descriptor.UniformBuffer, 3),
                 new PoolSize(Descriptor.StorageBuffer, 4),
                 new PoolSize(Descriptor.CombinedImageSampler, 2));
@@ -177,6 +177,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 a.setStencilStore(VulkanImage.Store.DontCare);
                 a.setInitialLayout(VulkanImage.Layout.Undefined);
                 a.setFinalLayout(VulkanImage.Layout.PresentSrc);
+                a.setClearColor(ColorRGBA.Black);
             });
             Attachment depth = p.createAttachment(depthView.getImage().getFormat(), VK_SAMPLE_COUNT_1_BIT, a -> {
                 a.setLoad(VulkanImage.Load.Clear);
@@ -185,6 +186,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 a.setStencilStore(VulkanImage.Store.DontCare);
                 a.setInitialLayout(VulkanImage.Layout.Undefined);
                 a.setFinalLayout(VulkanImage.Layout.DepthStencilAttachmentOptimal);
+                a.setClearDepth(1f);
             });
             Subpass subpass = p.createSubpass(PipelineBindPoint.Graphics, s -> {
                 s.addColorAttachment(color.createReference(VulkanImage.Layout.ColorAttachmentOptimal));
@@ -197,33 +199,42 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
                 d.setDstAccessMask(Flag.of(Access.ColorAttachmentWrite, Access.DepthStencilAttachmentWrite));
             });
         }
+
         swapchain.createFrameBuffers(renderPass, depthView);
 
         // mesh description
         MeshDescription meshDesc = new MeshDescription();
-        int meshBinding0 = meshDesc.addAttribute(BuiltInAttribute.Position, InputRate.Vertex, Format.RGB32SFloat, 0);
-        meshDesc.addAttribute(BuiltInAttribute.TexCoord, meshBinding0, Format.RG32SFloat, 1);
-        meshDesc.addAttribute(BuiltInAttribute.Normal, meshBinding0, Format.RGB32SFloat, 2);
+        try (MeshDescription.Builder m = meshDesc.build()) {
+            VertexBinding b = m.addBinding(InputRate.Vertex);
+            m.addAttribute(b, GlVertexBuffer.Type.Position.getName(), Format.RGB32SFloat, 0);
+            m.addAttribute(b, GlVertexBuffer.Type.TexCoord.getName(), Format.RG32SFloat, 1);
+            m.addAttribute(b, GlVertexBuffer.Type.Normal.getName(), Format.RGB32SFloat, 2);
+        }
+
+        TestMaterial material = new TestMaterial(descriptorPool);
 
         // pipeline
-        pipelineLayout = new PipelineLayout(device, descriptorLayout);
-        vertModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
+        PipelineLayout pipelineLayout = new PipelineLayout(device);
+        try (PipelineLayout.Builder p = pipelineLayout.build()) {
+            p.addMaterial(material);
+        }
+        ShaderModule vertModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
                 "Shaders/VulkanVertTest.glsl", ShaderType.Vertex)));
-        fragModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
+        ShaderModule fragModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
                 "Shaders/VulkanFragTest.glsl", ShaderType.Fragment)));
-        pipeline = new GraphicsPipeline(device, pipelineLayout, renderPass, 0);
+        pipeline = new GraphicsPipeline(device, pipelineLayout, renderPass.getSubpasses().get(0));
         try (GraphicsPipeline.Builder p = pipeline.build()) {
             p.addShader(vertModule, ShaderStage.Vertex, "main");
             p.addShader(fragModule, ShaderStage.Fragment, "main");
             p.getVertexInput().setMesh(meshDesc);
             p.getRasterization().setCullMode(CullMode.None);
-            p.getViewportState().addViewport();
-            p.getViewportState().addScissor();
+            p.getViewport().addViewport();
+            p.getViewport().addScissor();
             p.getColorBlend().addAttachment(new ColorBlendAttachment());
-            p.getDynamicState().addTypes(DynamicState.Type.ViewPort, DynamicState.Type.Scissor);
+            p.getDynamic().addTypes(DynamicState.Type.ViewPort, DynamicState.Type.Scissor);
         }
 
-        frames = new UpdateFrameManager(2, n -> new Frame());
+        frames = new UpdateFrameManager<>(2, n -> new Frame());
 
         // material color texture
         VulkanImage image = assetManager.loadAsset(VulkanImageLoader.key(initPool, "Common/Textures/MissingTexture.png"));
@@ -231,7 +242,6 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         try (VulkanImageView.Builder i = imgView.build()) {
             i.setAspect(VulkanImage.Aspect.Color);
         }
-        // material
         VulkanTexture texture = new VulkanTexture(device, imgView);
         try (Sampler.Builder t = texture.build()) {
             t.setMinMagFilters(Filter.Linear, Filter.Linear);
@@ -239,19 +249,26 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             t.setMipmapMode(MipmapMode.Linear);
         }
 
-        graphics = new BasicCommandBatch();
-        perFrameData = new BasicCommandBatch();
-        sharedData = new BasicCommandBatch();
+        graphics = new PerFrameCommandBatch(frames);
+        perFrameData = new PerFrameCommandBatch(frames);
+        sharedData = new PerFrameCommandBatch(frames);
         sharedDataFence = new Fence(device, true);
 
-        TestMaterial material = new TestMaterial(descriptorPool);
+        // set material parameters
         material.getBaseColorMap().setResource(new SingleResource<>(texture));
 
-        Mesh m = new MyCustomMesh(device, frames, meshDesc, sharedData,
+        // create geometry
+        Mesh m = new MyCustomMesh(meshDesc, new MeshBufferGenerator(device, frames, null, sharedData),
                 Vector3f.UNIT_Z, Vector3f.UNIT_Y, 1f, 1f, 0.5f, 0.5f);
         MatrixTransformMaterial t = new MatrixTransformMaterial(descriptorPool);
-        t.getTransforms().setResource(frames.perFrame(n ->
-                new PersistentBuffer(device, MemorySize.floats(16), BufferUsage.Uniform, false)));
+        VersionedBuffer<PersistentBuffer> transformBuffer = new VersionedBuffer<>(frames, MemorySize.floats(16),
+                s -> new PersistentBuffer(device, s));
+        for (PersistentBuffer buf : transformBuffer) {
+            try (PersistentBuffer.Builder b = buf.build()) {
+                b.setUsage(BufferUsage.Uniform);
+            }
+        }
+        t.getTransforms().setResource(transformBuffer);
         Geometry geometry = new Geometry("geometry", m, t);
         geometry.setMaterial(material);
         rootNode.attachChild(geometry);
@@ -268,17 +285,9 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
     @Override
     public boolean swapchainOutOfDate(Swapchain swapchain, int imageAcquireCode) {
-        if (swapchainResizeFlag || imageAcquireCode == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR
-                || imageAcquireCode == KHRSwapchain.VK_SUBOPTIMAL_KHR) {
+        if (swapchainResizeFlag || imageAcquireCode == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR || imageAcquireCode == KHRSwapchain.VK_SUBOPTIMAL_KHR) {
             swapchainResizeFlag = false;
-//            try (Swapchain.Builder s = swapchain.build()) {
-//                s.addQueue(device.getPhysicalDevice().getGraphics());
-//                s.addQueue(device.getPhysicalDevice().getPresent());
-//                s.selectFormat(Format.B8G8R8A8_SRGB.getVkEnum(), KHRSurface.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
-//                s.selectMode(Swapchain.PresentMode.Mailbox);
-//                s.selectExtentByWindow();
-//                s.selectImageCount(2);
-//            }
+            swapchain.update();
             CommandBuffer cmd = device.getShortTermPool(device.getPhysicalDevice().getGraphics()).allocateTransientCommandBuffer();
             cmd.begin();
             depthView = createDepthAttachment(cmd);
@@ -305,8 +314,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
     private VulkanImageView createDepthAttachment(CommandBuffer cmd) {
         Format depthFormat = device.getPhysicalDevice().findSupportedFormat(
-                VulkanImage.Tiling.Optimal,
-                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                VulkanImage.Tiling.Optimal, FormatFeature.DepthStencilAttachment,
                 Format.Depth32SFloat, Format.Depth32SFloat_Stencil8UInt, Format.Depth24UNorm_Stencil8UInt);
         BasicVulkanImage image = new BasicVulkanImage(device, VulkanImage.Type.TwoDemensional);
         try (BasicVulkanImage.Builder i = image.build()) {
@@ -318,10 +326,9 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         }
         VulkanImageView view = new VulkanImageView(image, ImageView.Type.TwoDemensional);
         try (VulkanImageView.Builder v = view.build()) {
-            v.allMipmaps();
             v.setAspect(VulkanImage.Aspect.Depth);
         }
-        image.transitionLayout(cmd, VulkanImage.Layout.Undefined, VulkanImage.Layout.DepthStencilAttachmentOptimal);
+        image.transitionLayout(cmd, VulkanImage.Layout.DepthStencilAttachmentOptimal);
         return view;
     }
 
@@ -352,65 +359,83 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             }
             inFlight.reset();
 
-            // set camera to render with
-            renderManager.setCamera(cam, false);
+            // update viewport camera
+            viewPort.getCamera().update();
+            viewPort.getCamera().updateViewProjection();
 
-            // update matrix uniform (geometry)
+            // update geometry matrix transforms
             for (Spatial s : rootNode) {
                 if (s instanceof Geometry) {
-                    ((Geometry)s).updateTransformMaterial(cam);
+                    ((Geometry)s).updateMatrixTransforms(viewPort.getCamera());
                 }
             }
 
             // update shared data
-            {
-                sharedDataFence.block(5000);
-                sharedDataCommands.resetAndBegin();
-                SyncGroup dataSync = sharedDataFinished.toGroupSignal();
-                if (sharedData.run(sharedDataCommands, frames.getCurrentFrame())) {
-                    sharedDataFence.reset();
-                    dataSync.setFence(sharedDataFence); // force the next frame to wait
-                }
-                sharedDataCommands.endAndSubmit(dataSync);
+            sharedDataFence.block(5000);
+            sharedDataCommands.resetAndBegin();
+            SyncGroup dataSync = sharedDataFinished.toGroupSignal();
+            if (sharedData.run(sharedDataCommands, frames.getCurrentFrame())) {
+                sharedDataFence.reset();
+                dataSync.setFence(sharedDataFence); // force the next frame to wait
             }
+            sharedDataCommands.endAndSubmit(dataSync);
 
             // update per-frame data
-            {
-                perFrameDataCommands.resetAndBegin();
-                perFrameData.run(perFrameDataCommands, frames.getCurrentFrame());
-                perFrameDataCommands.endAndSubmit(perFrameDataFinished.toGroupSignal());
-            }
+            perFrameDataCommands.resetAndBegin();
+            perFrameData.run(perFrameDataCommands, frames.getCurrentFrame());
+            perFrameDataCommands.endAndSubmit(perFrameDataFinished.toGroupSignal());
 
             // begin graphics commands
             graphicsCommands.resetAndBegin();
 
-            // material graphics
+            // set render pass and pipeline
             renderPass.begin(graphicsCommands, image.getFrameBuffer());
             pipeline.bind(graphicsCommands);
 
             // viewport and scissor
             try (MemoryStack stack = MemoryStack.stackPush()) {
-                VkViewport.Buffer vp = VkViewport.calloc(1, stack)
-                        .x(0f).y(0f)
-                        .width(swapchain.getExtent().getX())
-                        .height(swapchain.getExtent().getY())
-                        .minDepth(0f).maxDepth(1f);
-                vkCmdSetViewport(graphicsCommands.getBuffer(), 0, vp);
-                VkRect2D.Buffer scissor = VkRect2D.calloc(1, stack);
-                scissor.offset().set(0, 0);
-                scissor.extent(swapchain.getExtent().toStruct(stack));
-                vkCmdSetScissor(graphicsCommands.getBuffer(), 0, scissor);
+                viewPort.getCamera().setViewPort(stack, graphicsCommands);
             }
 
             // run graphics commands via CommandBatch
             graphics.run(graphicsCommands, frames.getCurrentFrame());
 
-            // draw all geometries in the rootNode
+
+            // flatten scene into a render bucket
+            List<Geometry> bucket = new ArrayList<>();
+            PipelineCache cache;
             for (Spatial s : rootNode) {
                 if (s instanceof Geometry) {
                     Geometry g = (Geometry)s;
-                    g.draw(graphicsCommands, pipeline);
+                    g.getMaterial().selectPipeline(cache);
+                    bucket.add(g);
                 }
+            }
+
+            // sort geometries to minimize pipeline switches and overdraw
+            Camera cam = viewPort.getCamera();
+            bucket.sort((g1, g2) -> {
+                Pipeline p1 = g1.getMaterial().getPipeline();
+                Pipeline p2 = g2.getMaterial().getPipeline();
+                if (p1 == p2) {
+                    float dist1 = g1.getWorldTranslation().distanceSquared(cam.getLocation());
+                    float dist2 = g2.getWorldTranslation().distanceSquared(cam.getLocation());
+                    return Float.compare(dist1, dist2);
+                } else {
+                    int ph1 = g1.getMaterial().getPipeline().hashCode();
+                    int ph2 = g2.getMaterial().getPipeline().hashCode();
+                    return Integer.compare(ph1, ph2);
+                }
+            });
+
+            // render geometries in the sorted order
+            Pipeline current = null;
+            for (Geometry g : bucket) {
+                Pipeline p = g.getMaterial().getPipeline();
+                if (p != current) {
+                    (current = p).bind(graphicsCommands);
+                }
+                g.render(renderManager, graphicsCommands);
             }
 
             // material

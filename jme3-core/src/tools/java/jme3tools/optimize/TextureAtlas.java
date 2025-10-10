@@ -39,8 +39,8 @@ import com.jme3.math.Vector2f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture;
@@ -437,8 +437,8 @@ public class TextureAtlas {
         Mesh inMesh = geom.getMesh();
         geom.computeWorldMatrix();
 
-        VertexBuffer inBuf = inMesh.getBuffer(Type.TexCoord);
-        VertexBuffer outBuf = outMesh.getBuffer(Type.TexCoord);
+        GlVertexBuffer inBuf = inMesh.getBuffer(Type.TexCoord);
+        GlVertexBuffer outBuf = outMesh.getBuffer(Type.TexCoord);
 
         if (inBuf == null || outBuf == null) {
             throw new IllegalStateException("Geometry mesh has no texture coordinate buffer.");
@@ -534,8 +534,8 @@ public class TextureAtlas {
 
             int geomVertCount = inMesh.getVertexCount();
 
-            VertexBuffer inBuf = inMesh.getBuffer(Type.TexCoord);
-            VertexBuffer outBuf = outMesh.getBuffer(Type.TexCoord);
+            GlVertexBuffer inBuf = inMesh.getBuffer(Type.TexCoord);
+            GlVertexBuffer outBuf = outMesh.getBuffer(Type.TexCoord);
 
             if (inBuf == null || outBuf == null) {
                 continue;

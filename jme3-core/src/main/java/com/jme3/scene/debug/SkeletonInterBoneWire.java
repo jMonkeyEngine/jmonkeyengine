@@ -42,10 +42,10 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Format;
+import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
 import java.util.HashMap;
@@ -81,7 +81,7 @@ public class SkeletonInterBoneWire extends GlMesh {
         this.setMode(Mode.Points);
         this.boneLengths = boneLengths;
 
-        VertexBuffer pb = new VertexBuffer(Type.Position);
+        GlVertexBuffer pb = new GlVertexBuffer(Type.Position);
         FloatBuffer fpb = BufferUtils.createFloatBuffer(POINT_AMOUNT * connectionsAmount * 3);
         pb.setupData(Usage.Stream, 3, Format.Float, fpb);
         this.setBuffer(pb);
@@ -99,7 +99,7 @@ public class SkeletonInterBoneWire extends GlMesh {
      * This method updates the geometry according to the positions of the bones.
      */
     public void updateGeometry() {
-        VertexBuffer vb = this.getBuffer(Type.Position);
+        GlVertexBuffer vb = this.getBuffer(Type.Position);
         FloatBuffer posBuf = this.getFloatBuffer(Type.Position);
         posBuf.clear();
         for (int i = 0; i < skeleton.getBoneCount(); ++i) {

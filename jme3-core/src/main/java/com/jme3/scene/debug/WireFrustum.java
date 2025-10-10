@@ -36,9 +36,9 @@ import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.shadow.ShadowUtil;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
@@ -131,7 +131,7 @@ public class WireFrustum extends GlMesh {
             throw new IllegalArgumentException("Frustum points array must not be null and must contain 8 points.");
         }
 
-        VertexBuffer vb = getBuffer(Type.Position);
+        GlVertexBuffer vb = getBuffer(Type.Position);
         if (vb == null) {
             // If for some reason the position buffer is missing, re-create it.
             // This case should ideally not happen if the object is constructed properly.

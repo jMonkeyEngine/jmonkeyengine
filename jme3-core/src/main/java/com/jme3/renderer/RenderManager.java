@@ -798,9 +798,7 @@ public class RenderManager {
             this.boundDrawBufferId.setValue(currentFb.getTargetIndex());
         }
 
-        // fixme
-        //Material material = geom.getMaterial();
-        Material material = null;
+        Material material = geom.getMaterial();
 
         // If forcedTechnique exists, we try to force it for the render.
         // If it does not exist in the mat def, we check for forcedMaterial and render the geom if not null.
@@ -815,15 +813,14 @@ public class RenderManager {
                         ? activeTechnique.getDef().getName()
                         : TechniqueDef.DEFAULT_TECHNIQUE_NAME;
 
-                // fixme
-                //geom.getMaterial().selectTechnique(forcedTechnique, this);
+                geom.getMaterial().selectTechnique(forcedTechnique, this);
                 //saving forcedRenderState for future calls
                 RenderState tmpRs = forcedRenderState;
-                //if (geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
-                    //forcing forced technique renderState
-                //    forcedRenderState
-                //            = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
-                //}
+                if (geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
+                    // forcing forced technique renderState
+                    forcedRenderState
+                            = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
+                }
                 // use geometry's material
                 material.render(geom, lightList, this);
                 material.selectTechnique(previousTechniqueName, this);

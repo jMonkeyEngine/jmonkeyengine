@@ -9,7 +9,7 @@ import java.util.List;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.plugins.fbx.SceneLoader;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.Mesh.Mode;
@@ -342,7 +342,7 @@ public class FbxMesh extends FbxObject {
         if(vertices != null) {
             // Unroll vertices data array
             FloatBuffer positionBuffer = BufferUtils.createFloatBuffer(vCount * 3);
-            mesh.setBuffer(VertexBuffer.Type.Position, 3, positionBuffer);
+            mesh.setBuffer(GlVertexBuffer.Type.Position, 3, positionBuffer);
             int srcCount = vertices.length / 3;
             for(int i = 0; i < vCount; ++i) {
                 int index = vertexMap.get(i);
@@ -357,7 +357,7 @@ public class FbxMesh extends FbxObject {
         if(normals != null) {
             // Unroll normals data array
             FloatBuffer normalBuffer = BufferUtils.createFloatBuffer(vCount * 3);
-            mesh.setBuffer(VertexBuffer.Type.Normal, 3, normalBuffer);
+            mesh.setBuffer(GlVertexBuffer.Type.Normal, 3, normalBuffer);
             List<Integer> mapping = null;
             if(normalsMapping.equals("ByVertice"))
                 mapping = vertexMap;
@@ -379,7 +379,7 @@ public class FbxMesh extends FbxObject {
         if(tangents != null) {
             // Unroll normals data array
             FloatBuffer tangentBuffer = BufferUtils.createFloatBuffer(vCount * 4);
-            mesh.setBuffer(VertexBuffer.Type.Tangent, 4, tangentBuffer);
+            mesh.setBuffer(GlVertexBuffer.Type.Tangent, 4, tangentBuffer);
             List<Integer> mapping = null;
             if(tangentsMapping.equals("ByVertice"))
                 mapping = vertexMap;
@@ -401,7 +401,7 @@ public class FbxMesh extends FbxObject {
         if(binormals != null) {
             // Unroll normals data array
             FloatBuffer binormalBuffer = BufferUtils.createFloatBuffer(vCount * 3);
-            mesh.setBuffer(VertexBuffer.Type.Binormal, 3, binormalBuffer);
+            mesh.setBuffer(GlVertexBuffer.Type.Binormal, 3, binormalBuffer);
             List<Integer> mapping = null;
             if(binormalsMapping.equals("ByVertice"))
                 mapping = vertexMap;
@@ -453,28 +453,28 @@ public class FbxMesh extends FbxObject {
             }
             // Unroll UV data array
             FloatBuffer uvBuffer = BufferUtils.createFloatBuffer(vCount * 2);
-            VertexBuffer.Type type = VertexBuffer.Type.TexCoord;
+            GlVertexBuffer.Type type = GlVertexBuffer.Type.TexCoord;
             switch(uvLayer) {
             case 1:
-                type = VertexBuffer.Type.TexCoord2;
+                type = GlVertexBuffer.Type.TexCoord2;
                 break;
             case 2:
-                type = VertexBuffer.Type.TexCoord3;
+                type = GlVertexBuffer.Type.TexCoord3;
                 break;
             case 3:
-                type = VertexBuffer.Type.TexCoord4;
+                type = GlVertexBuffer.Type.TexCoord4;
                 break;
             case 4:
-                type = VertexBuffer.Type.TexCoord5;
+                type = GlVertexBuffer.Type.TexCoord5;
                 break;
             case 5:
-                type = VertexBuffer.Type.TexCoord6;
+                type = GlVertexBuffer.Type.TexCoord6;
                 break;
             case 6:
-                type = VertexBuffer.Type.TexCoord7;
+                type = GlVertexBuffer.Type.TexCoord7;
                 break;
             case 7:
-                type = VertexBuffer.Type.TexCoord8;
+                type = GlVertexBuffer.Type.TexCoord8;
                 break;
             }
             mesh.setBuffer(type, 2, uvBuffer);
@@ -508,7 +508,7 @@ public class FbxMesh extends FbxObject {
                 int materialId = e.getKey();
                 List<Integer> indexes = e.getValue();
                 Mesh newMesh = mesh.clone();
-                newMesh.setBuffer(VertexBuffer.Type.Index, 3, toArray(indexes.toArray(new Integer[indexes.size()])));
+                newMesh.setBuffer(GlVertexBuffer.Type.Index, 3, toArray(indexes.toArray(new Integer[indexes.size()])));
                 newMesh.setStatic();
                 newMesh.updateBound();
                 newMesh.updateCounts();

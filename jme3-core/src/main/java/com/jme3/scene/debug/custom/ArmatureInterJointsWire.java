@@ -35,8 +35,8 @@ package com.jme3.scene.debug.custom;
 
 import com.jme3.math.Vector3f;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
 
 import java.nio.FloatBuffer;
 
@@ -108,7 +108,7 @@ public class ArmatureInterJointsWire extends GlMesh {
      * @param ends array of location vectors (not null, unaffected)
      */
     public void updatePoints(Vector3f start, Vector3f[] ends) {
-        VertexBuffer posBuf = getBuffer(Type.Position);
+        GlVertexBuffer posBuf = getBuffer(Type.Position);
         FloatBuffer fb = (FloatBuffer) posBuf.getData();
         fb.rewind();
         fb.put(start.x).put(start.y).put(start.z);
@@ -119,7 +119,7 @@ public class ArmatureInterJointsWire extends GlMesh {
         }
         posBuf.updateData(fb);
 
-        VertexBuffer normBuf = getBuffer(Type.Normal);
+        GlVertexBuffer normBuf = getBuffer(Type.Normal);
         fb = (FloatBuffer) normBuf.getData();
         fb.rewind();
         for (int i = 0; i < ends.length * 3 + 3; i += 3) {

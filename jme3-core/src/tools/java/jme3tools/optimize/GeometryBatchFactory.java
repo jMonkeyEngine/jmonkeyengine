@@ -6,9 +6,9 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.*;
 import com.jme3.scene.GlMesh.Mode;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer.Format;
+import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
@@ -95,9 +95,9 @@ public class GeometryBatchFactory {
      * @param outMesh a Mesh to receive the geometries
      */
     public static void mergeGeometries(Collection<Geometry> geometries, Mesh outMesh) {
-        int[] compsForBuf = new int[VertexBuffer.Type.values().length];
+        int[] compsForBuf = new int[GlVertexBuffer.Type.values().length];
         Format[] formatForBuf = new Format[compsForBuf.length];
-         boolean[] normForBuf = new boolean[VertexBuffer.Type.values().length];
+         boolean[] normForBuf = new boolean[GlVertexBuffer.Type.values().length];
 
         int totalVerts = 0;
         int totalTris = 0;
@@ -133,7 +133,7 @@ public class GeometryBatchFactory {
                     throw new UnsupportedOperationException();
             }
 
-            for (VertexBuffer vb : geom.getMesh().getBufferList().getArray()) {
+            for (GlVertexBuffer vb : geom.getMesh().getBufferList().getArray()) {
                 int currentCompsForBuf = compsForBuf[vb.getBufferType().ordinal()];
                 if (vb.getBufferType() != Type.Index && currentCompsForBuf != 0 && currentCompsForBuf != vb.getNumComponents()) {
                     throw new UnsupportedOperationException("The geometry " + geom + " buffer " + vb.getBufferType()
@@ -173,12 +173,12 @@ public class GeometryBatchFactory {
 
             Buffer data;
             if (i == Type.Index.ordinal()) {
-                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalTris);
+                data = GlVertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalTris);
             } else {
-                data = VertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalVerts);
+                data = GlVertexBuffer.createBuffer(formatForBuf[i], compsForBuf[i], totalVerts);
             }
 
-            VertexBuffer vb = new VertexBuffer(Type.values()[i]);
+            GlVertexBuffer vb = new GlVertexBuffer(Type.values()[i]);
             vb.setupData(Usage.Static, compsForBuf[i], formatForBuf[i], data);
             vb.setNormalized(normForBuf[i]);
             outMesh.setBuffer(vb);
@@ -196,8 +196,8 @@ public class GeometryBatchFactory {
             int geomTriCount = inMesh.getTriangleCount();
 
             for (int bufType = 0; bufType < compsForBuf.length; bufType++) {
-                VertexBuffer inBuf = inMesh.getBuffer(Type.values()[bufType]);
-                VertexBuffer outBuf = outMesh.getBuffer(Type.values()[bufType]);
+                GlVertexBuffer inBuf = inMesh.getBuffer(Type.values()[bufType]);
+                GlVertexBuffer outBuf = outMesh.getBuffer(Type.values()[bufType]);
 
                 if (inBuf == null || outBuf == null) {
                     continue;
@@ -268,7 +268,7 @@ public class GeometryBatchFactory {
         for (int i = 0; i < lodLevels; i++) {
             lodData[i] = new int[lodSize[i]];
         }
-        VertexBuffer[] lods = new VertexBuffer[lodLevels];
+        GlVertexBuffer[] lods = new GlVertexBuffer[lodLevels];
         int bufferPos[] = new int[lodLevels];
         int numOfVertices = 0;
 
@@ -277,7 +277,7 @@ public class GeometryBatchFactory {
         for (Geometry g : geometries) {
             numOfVertices = g.getVertexCount();
             for (int i = 0; i < lodLevels; i++) {
-                boolean isShortBuffer = g.getMesh().getLodLevel(i).getFormat() == VertexBuffer.Format.UnsignedShort;
+                boolean isShortBuffer = g.getMesh().getLodLevel(i).getFormat() == GlVertexBuffer.Format.UnsignedShort;
                 if(isShortBuffer){
                     ShortBuffer buffer = (ShortBuffer) g.getMesh().getLodLevel(i).getDataReadOnly();
                     for (int j = 0; j < buffer.limit(); j++) {
@@ -296,7 +296,7 @@ public class GeometryBatchFactory {
 
         }
         for (int i = 0; i < lodLevels; i++) {
-            lods[i] = new VertexBuffer(Type.Index);
+            lods[i] = new GlVertexBuffer(Type.Index);
             lods[i].setupData(Usage.Dynamic, 1, Format.UnsignedInt, BufferUtils.createIntBuffer(lodData[i]));
         }
         outMesh.setLodLevels(lods);
@@ -408,7 +408,7 @@ public class GeometryBatchFactory {
 
     public static void printMesh(Mesh mesh) {
         for (int bufType = 0; bufType < Type.values().length; bufType++) {
-            VertexBuffer outBuf = mesh.getBuffer(Type.values()[bufType]);
+            GlVertexBuffer outBuf = mesh.getBuffer(Type.values()[bufType]);
             if (outBuf == null) {
                 continue;
             }
@@ -487,10 +487,10 @@ public class GeometryBatchFactory {
         gatherGeoms(n, geoms);
 
         //gather buffer types
-        Map<VertexBuffer.Type, VertexBuffer> types = new EnumMap<>(VertexBuffer.Type.class);
-        Map<VertexBuffer.Type, Integer> typesCount = new EnumMap<>(VertexBuffer.Type.class);
+        Map<GlVertexBuffer.Type, GlVertexBuffer> types = new EnumMap<>(GlVertexBuffer.Type.class);
+        Map<GlVertexBuffer.Type, Integer> typesCount = new EnumMap<>(GlVertexBuffer.Type.class);
         for (Geometry geom : geoms) {
-            for (VertexBuffer buffer : geom.getMesh().getBufferList()) {
+            for (GlVertexBuffer buffer : geom.getMesh().getBufferList()) {
                 if (types.get(buffer.getBufferType()) == null) {
                     types.put(buffer.getBufferType(), buffer);
                     if (logger.isLoggable(Level.FINE)) {
@@ -510,7 +510,7 @@ public class GeometryBatchFactory {
             case RemoveUnalignedBuffers:
                 for (Geometry geom : geoms) {
 
-                    for (VertexBuffer buffer : geom.getMesh().getBufferList()) {
+                    for (GlVertexBuffer buffer : geom.getMesh().getBufferList()) {
                         Integer count = typesCount.get(buffer.getBufferType());
                         if (count != null && count < geoms.size()) {
                             geom.getMesh().clearBuffer(buffer.getBufferType());
@@ -523,9 +523,9 @@ public class GeometryBatchFactory {
                 break;
             case CreateMissingBuffers:
                 for (Geometry geom : geoms) {
-                    for (VertexBuffer.Type type : types.keySet()) {
+                    for (GlVertexBuffer.Type type : types.keySet()) {
                         if (geom.getMesh().getBuffer(type) == null) {
-                            VertexBuffer vb = new VertexBuffer(type);
+                            GlVertexBuffer vb = new GlVertexBuffer(type);
                             Buffer b;
                             switch (type) {
                                 case Index:

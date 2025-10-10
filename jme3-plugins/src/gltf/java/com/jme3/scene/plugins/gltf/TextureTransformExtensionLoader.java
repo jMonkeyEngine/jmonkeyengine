@@ -38,7 +38,7 @@ import com.jme3.asset.AssetLoadException;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsInteger;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getVertexBufferType;
 import com.jme3.texture.Texture2D;
@@ -69,13 +69,13 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
      * @param transform The matrix containing the scale/rotate/translate transformations
      * @param verType The vertex buffer type from which to retrieve the UV coordinates
      */    
-    private void uvTransform(Mesh mesh, Matrix3f transform, VertexBuffer.Type verType) {
+    private void uvTransform(Mesh mesh, Matrix3f transform, GlVertexBuffer.Type verType) {
         if (!transform.isIdentity()) { // if transform is the identity matrix, there's nothing to do
-            VertexBuffer tc = mesh.getBuffer(verType);
+            GlVertexBuffer tc = mesh.getBuffer(verType);
             if (tc == null) {
                 throw new IllegalStateException("The mesh has no texture coordinates");
             }
-            if (tc.getFormat() != VertexBuffer.Format.Float) {
+            if (tc.getFormat() != GlVertexBuffer.Format.Float) {
                 throw new UnsupportedOperationException("Only float texture coord format is supported");
             }
             if (tc.getNumComponents() != 2) {

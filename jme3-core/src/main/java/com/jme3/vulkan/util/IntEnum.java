@@ -1,23 +1,29 @@
 package com.jme3.vulkan.util;
 
-public interface IntEnum<T extends IntEnum> {
+import java.util.Objects;
+
+public interface IntEnum <T extends IntEnum> {
 
     int getEnum();
 
-    default boolean is(IntEnum<T> intEnum) {
-        return intEnum != null && is(intEnum.getEnum());
+    default boolean is(IntEnum other) {
+        return other != null && is(other.getEnum());
     }
 
-    default boolean is(int intEnum) {
-        return getEnum() == intEnum;
+    default boolean is(int value) {
+        return getEnum() == value;
     }
 
     static <T extends IntEnum> IntEnum<T> get(IntEnum<T> intEnum, IntEnum<T> defEnum) {
         return intEnum != null ? intEnum : defEnum;
     }
 
-    static <T extends IntEnum> IntEnum<T> of(int libEnum) {
-        return new EnumImpl<>(libEnum);
+    static int get(IntEnum intEnum, int defEnum) {
+        return intEnum != null ? intEnum.getEnum() : defEnum;
+    }
+
+    static <T extends IntEnum> IntEnum<T> of(int intEnum) {
+        return new EnumImpl<>(intEnum);
     }
 
     class EnumImpl <T extends IntEnum> implements IntEnum<T> {
@@ -31,6 +37,18 @@ public interface IntEnum<T extends IntEnum> {
         @Override
         public int getEnum() {
             return intEnum;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            EnumImpl<?> that = (EnumImpl<?>) o;
+            return intEnum == that.intEnum;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(intEnum);
         }
 
     }

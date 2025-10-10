@@ -41,8 +41,8 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -257,7 +257,7 @@ public class RagdollUtils {
     private static List<Float> getPoints(Mesh mesh, int boneIndex, Vector3f initialScale, Vector3f offset, float weightThreshold) {
 
         FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
-        VertexBuffer biBuf = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
+        GlVertexBuffer biBuf = mesh.getBuffer(GlVertexBuffer.Type.BoneIndex);
         Buffer boneIndices = biBuf.getDataReadOnly();
         FloatBuffer boneWeight = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
 
@@ -354,7 +354,7 @@ public class RagdollUtils {
     public static boolean hasVertices(int boneIndex, Mesh[] targets,
             float weightThreshold) {
         for (Mesh mesh : targets) {
-            VertexBuffer biBuf = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
+            GlVertexBuffer biBuf = mesh.getBuffer(GlVertexBuffer.Type.BoneIndex);
             Buffer boneIndices = biBuf.getDataReadOnly();
             FloatBuffer boneWeight
                     = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();

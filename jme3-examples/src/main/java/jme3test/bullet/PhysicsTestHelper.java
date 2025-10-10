@@ -51,7 +51,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
@@ -352,8 +352,8 @@ public class PhysicsTestHelper {
         }
 
         Mesh m = new Mesh();
-        m.setBuffer(VertexBuffer.Type.Index, 1, BufferUtils.createIntBuffer(indexBuf));
-        m.setBuffer(VertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(vertBuf));
+        m.setBuffer(GlVertexBuffer.Type.Index, 1, BufferUtils.createIntBuffer(indexBuf));
+        m.setBuffer(GlVertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(vertBuf));
         m.updateBound();
         return m;
     }

@@ -4,6 +4,8 @@ import java.util.Objects;
 
 public class MemorySize {
 
+    public static final MemorySize ZERO = new MemorySize(0, 1);
+
     private final int elements;
     private final int bytesPerElement;
     private final int bytes;
@@ -38,24 +40,48 @@ public class MemorySize {
         return bytes;
     }
 
+    public int getBytes(int padding) {
+        return bytes + padding * bytesPerElement;
+    }
+
     public int getShorts() {
         return bytes / Short.BYTES;
+    }
+
+    public int getShorts(int padding) {
+        return getBytes(padding) / Short.BYTES;
     }
 
     public int getInts() {
         return bytes / Integer.BYTES;
     }
 
+    public int getInts(int padding) {
+        return getBytes(padding) / Integer.BYTES;
+    }
+
     public int getFloats() {
         return bytes / Float.BYTES;
+    }
+
+    public int getFloats(int padding) {
+        return getBytes(padding) / Float.BYTES;
     }
 
     public int getDoubles() {
         return bytes / Double.BYTES;
     }
 
+    public int getDoubles(int padding) {
+        return getBytes(padding) / Double.BYTES;
+    }
+
     public int getLongs() {
         return bytes / Long.BYTES;
+    }
+
+    public int getLongs(int padding) {
+        return getBytes(padding) / Long.BYTES;
     }
 
     public static MemorySize bytes(int elements) {

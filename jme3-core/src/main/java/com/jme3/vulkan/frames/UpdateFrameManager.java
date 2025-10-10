@@ -2,40 +2,45 @@ package com.jme3.vulkan.frames;
 
 import com.jme3.vulkan.update.Command;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.IntFunction;
 
-public class UpdateFrameManager {
+public class UpdateFrameManager <T extends UpdateFrame> {
 
-    private final UpdateFrame[] frames;
+    private final List<T> frames = new ArrayList<>();
     private int currentFrame = 0;
 
-    public UpdateFrameManager(int frames, IntFunction<UpdateFrame> generator) {
-        this.frames = new UpdateFrame[frames];
+    public UpdateFrameManager(int frames, IntFunction<T> generator) {
         for (int i = 0; i < frames; i++) {
-            this.frames[i] = generator.apply(i);
+            this.frames.add(generator.apply(i));
         }
     }
 
     public void update(float tpf) {
-        frames[currentFrame].update(this, tpf);
-        if (++currentFrame >= frames.length) {
+        frames.get(currentFrame).update(this, tpf);
+        if (++currentFrame >= frames.size()) {
             currentFrame = 0;
         }
     }
 
     public int getTotalFrames() {
-        return frames.length;
+        return frames.size();
     }
 
     public int getCurrentFrame() {
         return currentFrame;
     }
 
-    public <T> PerFrameResource<T> perFrame(IntFunction<T> generator) {
+    public T getFrame(int index) {
+        return frames.get(index);
+    }
+
+    public <R> PerFrameResource<R> perFrame(IntFunction<R> generator) {
         return new PerFrameResource<>(this, generator);
     }
 
-    public <T extends Command> PerFrameCommand<T> perFrameCommand(IntFunction<T> generator) {
+    public <C extends Command> PerFrameCommand<C> perFrameCommand(IntFunction<C> generator) {
         return new PerFrameCommand<>(this, generator);
     }
 

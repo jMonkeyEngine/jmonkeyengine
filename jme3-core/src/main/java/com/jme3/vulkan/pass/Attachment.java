@@ -1,12 +1,10 @@
 package com.jme3.vulkan.pass;
 
+import com.jme3.math.ColorRGBA;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.images.VulkanImage;
 import org.lwjgl.vulkan.VkAttachmentDescription;
 
-/**
- * Immutable definition for render pass attachments.
- */
 public class Attachment {
 
     private final int position;
@@ -18,6 +16,9 @@ public class Attachment {
     private VulkanImage.Store stencilStore = VulkanImage.Store.DontCare;
     private VulkanImage.Layout initialLayout = VulkanImage.Layout.Undefined;
     private VulkanImage.Layout finalLayout = VulkanImage.Layout.General;
+    private final ColorRGBA clearColor = ColorRGBA.Black.clone();
+    private float clearDepth = 1f;
+    private int clearStencil = 0;
 
     protected Attachment(int position, Format format, int samples) {
         this.position = position;
@@ -76,6 +77,18 @@ public class Attachment {
         this.finalLayout = finalLayout;
     }
 
+    public void setClearColor(ColorRGBA color) {
+        this.clearColor.set(color);
+    }
+
+    public void setClearDepth(float clearDepth) {
+        this.clearDepth = clearDepth;
+    }
+
+    public void setClearStencil(int clearStencil) {
+        this.clearStencil = clearStencil;
+    }
+
     public int getPosition() {
         return position;
     }
@@ -110,6 +123,18 @@ public class Attachment {
 
     public VulkanImage.Layout getFinalLayout() {
         return finalLayout;
+    }
+
+    public ColorRGBA getClearColor() {
+        return clearColor;
+    }
+
+    public float getClearDepth() {
+        return clearDepth;
+    }
+
+    public int getClearStencil() {
+        return clearStencil;
     }
 
     public boolean isCompatible(Attachment a) {

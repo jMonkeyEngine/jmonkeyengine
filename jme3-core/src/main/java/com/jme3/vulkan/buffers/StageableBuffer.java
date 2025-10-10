@@ -16,9 +16,9 @@ public class StageableBuffer extends BasicVulkanBuffer implements Command {
     protected VulkanBuffer stage;
     protected BufferRegion dirtyRegion;
 
-    public StageableBuffer(LogicalDevice device, MemorySize size,
-                           Flag<BufferUsage> usage, Flag<MemoryProp> mem, boolean concurrent) {
-        super(device, size, usage.add(BufferUsage.TransferDst), mem, concurrent);
+    public StageableBuffer(LogicalDevice device, MemorySize size) {
+        super(device, size);
+        usage = usage.add(BufferUsage.TransferDst);
     }
 
     @Override
@@ -28,11 +28,7 @@ public class StageableBuffer extends BasicVulkanBuffer implements Command {
 
     @Override
     public PointerBuffer map(int offset, int size) {
-        if (dirtyRegion != null) {
-            dirtyRegion.unionLocal(offset, size);
-        } else {
-            dirtyRegion = new BufferRegion(offset, size);
-        }
+        updateDirtyRegion(offset, size);
         if (stage == null) {
             stage = createStagingBuffer();
         }
@@ -45,15 +41,28 @@ public class StageableBuffer extends BasicVulkanBuffer implements Command {
     }
 
     @Override
-    public void freeMemory() {
-        super.freeMemory();
-        stage.freeMemory();
-        dirtyRegion = null;
+    public void resize(int elements) {
+        super.resize(elements);
+        if (stage != null) {
+            stage.resize(elements);
+        }
     }
 
     protected VulkanBuffer createStagingBuffer() {
-        return new BasicVulkanBuffer(getDevice(), size(), BufferUsage.TransferSrc,
-                Flag.of(MemoryProp.HostVisible, MemoryProp.HostCoherent), false);
+        BasicVulkanBuffer buf = new BasicVulkanBuffer(getDevice(), size(), padding);
+        try (BasicVulkanBuffer.Builder b = buf.build()) {
+            b.setUsage(BufferUsage.TransferSrc);
+            b.setMemFlags(Flag.of(MemoryProp.HostVisible, MemoryProp.HostCoherent));
+        }
+        return buf;
+    }
+
+    protected void updateDirtyRegion(int offset, int size) {
+        if (dirtyRegion != null) {
+            dirtyRegion.unionLocal(offset, size);
+        } else {
+            dirtyRegion = new BufferRegion(offset, size);
+        }
     }
 
     public void transfer(CommandPool transferPool) {
@@ -81,10 +90,7 @@ public class StageableBuffer extends BasicVulkanBuffer implements Command {
     }
 
     public void freeStagingBuffer() {
-        if (stage != null) {
-            stage.freeMemory();
-            stage = null;
-        }
+        stage = null;
     }
 
     public GpuBuffer getStagingBuffer() {

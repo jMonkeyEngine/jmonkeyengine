@@ -35,7 +35,7 @@ import com.bulletphysics.collision.shapes.IndexedMesh;
 import com.bulletphysics.dom.HeightfieldTerrainShape;
 import com.jme3.math.FastMath;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;

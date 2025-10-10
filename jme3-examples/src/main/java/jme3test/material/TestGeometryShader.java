@@ -6,7 +6,7 @@ import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
 import com.jme3.util.BufferUtils;
@@ -18,8 +18,8 @@ public class TestGeometryShader extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         Mesh mesh = new Mesh();
-        mesh.setBuffer(VertexBuffer.Type.Index, 1, BufferUtils.createIntBuffer(new int[]{1}));
-        mesh.setBuffer(VertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(new float[]{0, 0, 0}));
+        mesh.setBuffer(GlVertexBuffer.Type.Index, 1, BufferUtils.createIntBuffer(new int[]{1}));
+        mesh.setBuffer(GlVertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(new float[]{0, 0, 0}));
         mesh.setMode(Mesh.Mode.Points);
         mesh.setBound(new BoundingBox(new Vector3f(0, 0, 0), 10, 10, 10));
         mesh.updateCounts();

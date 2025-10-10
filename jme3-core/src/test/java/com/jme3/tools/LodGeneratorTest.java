@@ -41,7 +41,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.system.TestUtil;
 
@@ -69,7 +69,7 @@ public class LodGeneratorTest {
     /**
      * Returns a List of the sizes of the VertexBuff.
      */
-    private int[] getBufferSizes(VertexBuffer[] buffers) {
+    private int[] getBufferSizes(GlVertexBuffer[] buffers) {
         int[] result = new int[buffers.length];
 
         for (int i = 0; i < buffers.length; i++) {
@@ -85,7 +85,7 @@ public class LodGeneratorTest {
     @Test
     public void testSphereReductionProportional() {
         LodGenerator lod = new LodGenerator(sphere());
-        VertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL,
+        GlVertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL,
                 REDUCTION_VALUES);
 
         int[] expected = { 240, 120, 108, 96, 84, 72, 60, 48 };
@@ -100,7 +100,7 @@ public class LodGeneratorTest {
     @Test
     public void testSphereReductionCollapsCost() {
         LodGenerator lod = new LodGenerator(sphere());
-        VertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.COLLAPSE_COST,
+        GlVertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.COLLAPSE_COST,
                 REDUCTION_VALUES);
 
         int[] expected = { 240, 6, 2, 1 };
@@ -150,7 +150,7 @@ public class LodGeneratorTest {
     public void testMonkeyReductionConstant() {
 
         LodGenerator lod = new LodGenerator(monkey());
-        VertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.CONSTANT,
+        GlVertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.CONSTANT,
                 REDUCTION_VALUES);
 
         int[] expected = { 5108 };
@@ -166,7 +166,7 @@ public class LodGeneratorTest {
     public void testMonkeyReductionProportional() {
 
         LodGenerator lod = new LodGenerator(monkey());
-        VertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL,
+        GlVertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL,
                 REDUCTION_VALUES);
 
         int[] expected = { 5108, 2553, 2298, 2043, 1787, 1531, 1276, 1021 };
@@ -181,7 +181,7 @@ public class LodGeneratorTest {
     // @Test
     public void testMonkeyReductionCollapsCost() {
         LodGenerator lod = new LodGenerator(monkey());
-        VertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.COLLAPSE_COST,
+        GlVertexBuffer[] buffer = lod.computeLods(LodGenerator.TriangleReductionMethod.COLLAPSE_COST,
                 REDUCTION_VALUES);
 
         int[] expected = { 5108, 16 };

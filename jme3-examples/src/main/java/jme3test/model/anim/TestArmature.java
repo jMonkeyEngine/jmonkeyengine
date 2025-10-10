@@ -170,12 +170,12 @@ public class TestArmature extends SimpleApplication {
     private Mesh createMesh() {
         Cylinder c = new Cylinder(30, 16, 0.1f, 1, true);
 
-        ShortBuffer jointIndex = (ShortBuffer) VertexBuffer.createBuffer(VertexBuffer.Format.UnsignedShort, 4, c.getVertexCount());
+        ShortBuffer jointIndex = (ShortBuffer) GlVertexBuffer.createBuffer(GlVertexBuffer.Format.UnsignedShort, 4, c.getVertexCount());
         jointIndex.rewind();
         c.setMaxNumWeights(1);
-        FloatBuffer jointWeight = (FloatBuffer) VertexBuffer.createBuffer(VertexBuffer.Format.Float, 4, c.getVertexCount());
+        FloatBuffer jointWeight = (FloatBuffer) GlVertexBuffer.createBuffer(GlVertexBuffer.Format.Float, 4, c.getVertexCount());
         jointWeight.rewind();
-        VertexBuffer vb = c.getBuffer(VertexBuffer.Type.Position);
+        GlVertexBuffer vb = c.getBuffer(GlVertexBuffer.Type.Position);
         FloatBuffer fvb = (FloatBuffer) vb.getData();
         fvb.rewind();
         for (int i = 0; i < c.getVertexCount(); i++) {
@@ -194,17 +194,17 @@ public class TestArmature extends SimpleApplication {
             jointWeight.put(1f).put(0f).put(0f).put(0f);
 
         }
-        c.setBuffer(VertexBuffer.Type.BoneIndex, 4, jointIndex);
-        c.setBuffer(VertexBuffer.Type.BoneWeight, 4, jointWeight);
+        c.setBuffer(GlVertexBuffer.Type.BoneIndex, 4, jointIndex);
+        c.setBuffer(GlVertexBuffer.Type.BoneWeight, 4, jointWeight);
 
         c.updateCounts();
         c.updateBound();
 
-        VertexBuffer weightsHW = new VertexBuffer(VertexBuffer.Type.HWBoneWeight);
-        VertexBuffer indicesHW = new VertexBuffer(VertexBuffer.Type.HWBoneIndex);
+        GlVertexBuffer weightsHW = new GlVertexBuffer(GlVertexBuffer.Type.HWBoneWeight);
+        GlVertexBuffer indicesHW = new GlVertexBuffer(GlVertexBuffer.Type.HWBoneIndex);
 
-        indicesHW.setUsage(VertexBuffer.Usage.CpuOnly);
-        weightsHW.setUsage(VertexBuffer.Usage.CpuOnly);
+        indicesHW.setUsage(GlVertexBuffer.Usage.CpuOnly);
+        weightsHW.setUsage(GlVertexBuffer.Usage.CpuOnly);
         c.setBuffer(weightsHW);
         c.setBuffer(indicesHW);
         c.generateBindPose();

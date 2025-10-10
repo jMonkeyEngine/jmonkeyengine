@@ -1,9 +1,10 @@
 package com.jme3.vulkan.pipelines;
 
-import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.Native;
+import com.jme3.vulkan.allocation.GraphicsState;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.pass.RenderPass;
+import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pipelines.states.*;
 import com.jme3.vulkan.shader.ShaderModule;
 import com.jme3.vulkan.shader.ShaderStage;
@@ -18,67 +19,58 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class GraphicsPipeline extends Pipeline {
 
-    private final RenderPass compat;
-    private final int subpassIndex;
+    private final Subpass subpass;
+    private final Collection<ShaderStageInfo> shaders = new ArrayList<>();
+    private final VertexInputState vertexInput = new VertexInputState();
+    private final InputAssemblyState inputAssembly = new InputAssemblyState();
+    private final ViewportState viewport = new ViewportState();
+    private final DepthStencilState depthStencil = new DepthStencilState();
+    private final RasterizationState rasterization = new RasterizationState();
+    private final MultisampleState multisample = new MultisampleState();
+    private final ColorBlendState colorBlend = new ColorBlendState();
+    private final DynamicState dynamic = new DynamicState();
 
-    public GraphicsPipeline(LogicalDevice<?> device, PipelineLayout layout, RenderPass compat, int subpassIndex) {
+    public GraphicsPipeline(LogicalDevice<?> device, PipelineLayout layout, Subpass subpass) {
         super(device, PipelineBindPoint.Graphics, layout);
-        this.compat = compat;
-        this.subpassIndex = subpassIndex;
-    }
-
-    public RenderPass getCompat() {
-        return compat;
-    }
-
-    public int getSubpassIndex() {
-        return subpassIndex;
+        this.subpass = subpass;
     }
 
     public Builder build() {
         return new Builder();
     }
 
-    public class Builder extends AbstractNative.Builder<GraphicsPipeline> {
-
-        private final Collection<ShaderStageInfo> stages = new ArrayList<>();
-        private final DynamicState dynamic = new DynamicState();
-        private final VertexInputState vertexInput = new VertexInputState();
-        private final InputAssemblyState inputAssembly = new InputAssemblyState();
-        private final ViewportState viewport = new ViewportState();
-        private final DepthStencilState depthStencil = new DepthStencilState();
-        private final RasterizationState rasterization = new RasterizationState();
-        private final MultisampleState multisample = new MultisampleState();
-        private final ColorBlendState colorBlend = new ColorBlendState();
+    public class Builder extends AbstractBuilder {
 
         @Override
         protected void build() {
-            VkPipelineShaderStageCreateInfo.Buffer stageBuf = VkPipelineShaderStageCreateInfo.calloc(stages.size(), stack);
-            for (ShaderStageInfo s : stages) {
-                stageBuf.get().sType(VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO)
-                        .stage(s.stage.bits())
-                        .module(s.module.getNativeObject())
-                        .pName(stack.UTF8(s.entryPoint));
-            }
-            stageBuf.flip();
             VkGraphicsPipelineCreateInfo.Buffer pipeline = VkGraphicsPipelineCreateInfo.calloc(1, stack)
                     .sType(VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO)
-                    .stageCount(stageBuf.limit())
-                    .pStages(stageBuf)
-                    .pVertexInputState(vertexInput.toStruct(stack))
-                    .pInputAssemblyState(inputAssembly.toStruct(stack))
-                    .pViewportState(viewport.toStruct(stack))
-                    .pDepthStencilState(depthStencil.toStruct(stack))
-                    .pRasterizationState(rasterization.toStruct(stack))
-                    .pMultisampleState(multisample.toStruct(stack))
-                    .pColorBlendState(colorBlend.toStruct(stack))
-                    .pDynamicState(dynamic.toStruct(stack))
+                    .flags(flags.bits())
                     .layout(layout.getNativeObject())
-                    .renderPass(compat.getNativeObject())
-                    .subpass(subpassIndex)
-                    .basePipelineHandle(VK_NULL_HANDLE)
+                    .renderPass(subpass.getPass().getNativeObject())
+                    .subpass(subpass.getPosition())
+                    .basePipelineHandle(parent != null ? parent.getNativeObject() : VK_NULL_HANDLE)
                     .basePipelineIndex(-1);
-            System.out.println("render pass: " + compat.getNativeObject());
+            if (!shaders.isEmpty()) {
+                VkPipelineShaderStageCreateInfo.Buffer stageBuf = VkPipelineShaderStageCreateInfo.calloc(shaders.size(), stack);
+                for (ShaderStageInfo s : shaders) {
+                    stageBuf.get().sType(VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO)
+                            .stage(s.stage.bits())
+                            .module(s.module.getNativeObject())
+                            .pName(stack.UTF8(s.entryPoint));
+                }
+                stageBuf.flip();
+                pipeline.stageCount(stageBuf.limit())
+                        .pStages(stageBuf);
+            }
+            pipeline.pVertexInputState(vertexInput.toStruct(stack));
+            pipeline.pInputAssemblyState(inputAssembly.toStruct(stack));
+            pipeline.pViewportState(viewport.toStruct(stack));
+            pipeline.pDepthStencilState(depthStencil.toStruct(stack));
+            pipeline.pRasterizationState(rasterization.toStruct(stack));
+            pipeline.pMultisampleState(multisample.toStruct(stack));
+            pipeline.pColorBlendState(colorBlend.toStruct(stack));
+            pipeline.pDynamicState(dynamic.toStruct(stack));
             LongBuffer idBuf = stack.mallocLong(1);
             // todo: look into pipeline caching
             check(vkCreateGraphicsPipelines(device.getNativeObject(), VK_NULL_HANDLE, pipeline, null, idBuf),
@@ -93,10 +85,10 @@ public class GraphicsPipeline extends Pipeline {
         }
 
         public void addShader(ShaderModule module, ShaderStage stage, String entryPoint) {
-            this.stages.add(new ShaderStageInfo(module, stage, entryPoint));
+            shaders.add(new ShaderStageInfo(module, stage, entryPoint));
         }
 
-        public DynamicState getDynamicState() {
+        public DynamicState getDynamic() {
             return dynamic;
         }
 
@@ -108,7 +100,7 @@ public class GraphicsPipeline extends Pipeline {
             return inputAssembly;
         }
 
-        public ViewportState getViewportState() {
+        public ViewportState getViewport() {
             return viewport;
         }
 

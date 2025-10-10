@@ -16,7 +16,6 @@ import com.jme3.vulkan.material.uniforms.BufferUniform;
 import com.jme3.vulkan.material.uniforms.TextureUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
 import com.jme3.vulkan.pipelines.Pipeline;
-import com.jme3.vulkan.struct.Structure;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
@@ -31,29 +30,38 @@ import static org.lwjgl.vulkan.VK10.*;
 public class NewMaterial implements Material {
 
     private final DescriptorPool pool;
-    private final List<UniformSet> uniformSets = new ArrayList<>();
-    private final HashMap<String, Uniform<?>> uniformLookup = new HashMap<>();
+    private final Map<Integer, UniformSet> uniformSets = new HashMap<>();
+    private final Map<String, Uniform<?>> uniformLookup = new HashMap<>();
+    private final BitSet usedSetSlots = new BitSet();
 
     public NewMaterial(DescriptorPool pool) {
         this.pool = pool;
     }
 
-    public void bind(CommandBuffer cmd, Pipeline pipeline) {
-        bind(cmd, pipeline, 0);
-    }
-
-    public void bind(CommandBuffer cmd, Pipeline pipeline, int offset) {
-        LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>();
-        Collections.addAll(availableLayouts, pipeline.getLayout().getDescriptorSetLayouts());
+    public boolean bind(CommandBuffer cmd, Pipeline pipeline) {
+        LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>(pipeline.getLayout().getDescriptorSetLayouts());
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            LongBuffer setBuf = stack.mallocLong(uniformSets.size());
-            for (UniformSet set : uniformSets) {
-                setBuf.put(set.acquireSet(pool, availableLayouts).getNativeObject());
+            LongBuffer sets = stack.mallocLong(uniformSets.size());
+            for (int i = usedSetSlots.nextSetBit(0), offset = i; i >= 0;) {
+                DescriptorSet acquired = uniformSets.get(i).acquire(pool, availableLayouts);
+                if (acquired == null) {
+                    return false; // material is not supported by the pipeline
+                }
+                sets.put(acquired.getNativeObject());
+                int next = usedSetSlots.nextSetBit(i + 1);
+                // if there are no more sets remaining, or the next position skips over at
+                // least one index, bind the current descriptor sets
+                if (next < 0 || next > i + 1) {
+                    sets.flip();
+                    vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getEnum(),
+                            pipeline.getLayout().getNativeObject(), offset, sets, null);
+                    sets.clear();
+                    offset = next;
+                }
+                i = next;
             }
-            setBuf.flip();
-            vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getVkEnum(),
-                    pipeline.getLayout().getNativeObject(), offset, setBuf, null);
         }
+        return true;
     }
 
     @Override
@@ -82,8 +90,8 @@ public class NewMaterial implements Material {
     public void setParam(String uniform, String param, Object value) {
         Uniform<? extends GpuBuffer> u = getUniform(uniform);
         GpuBuffer buffer = u.getResource().get();
-        buffer.map(Structure::new).set(param, value);
-        buffer.unmap();
+        //buffer.map(Structure::new).set(param, value);
+        //buffer.unmap();
     }
 
     @SuppressWarnings("unchecked")
@@ -93,7 +101,7 @@ public class NewMaterial implements Material {
         if (uniform != null) {
             return (T)uniform;
         }
-        for (UniformSet set : uniformSets) {
+        for (UniformSet set : uniformSets.values()) {
             for (Uniform<?> u : set) {
                 if (name.equals(u.getName())) {
                     uniformLookup.put(u.getName(), u);
@@ -105,25 +113,23 @@ public class NewMaterial implements Material {
     }
 
     public DescriptorSetLayout[] createLayouts(LogicalDevice<?> device) {
-        return uniformSets.stream().map(u -> u.createLayout(device)).toArray(DescriptorSetLayout[]::new);
+        return uniformSets.values().stream().map(u -> u.createLayout(device)).toArray(DescriptorSetLayout[]::new);
     }
 
     protected UniformSet addSet(UniformSet set) {
-        uniformSets.add(set);
+        if (uniformSets.put(set.getSetIndex(), set) != null) {
+            throw new IllegalArgumentException("Set index already occupied: " + set.getSetIndex());
+        }
+        usedSetSlots.set(set.getSetIndex());
         return set;
     }
 
-    protected UniformSet addSet(int setIndex, UniformSet set) {
-        uniformSets.add(setIndex, set);
-        return set;
+    protected UniformSet addSet(int index, Uniform... uniforms) {
+        return addSet(new UniformSet(index, uniforms));
     }
 
-    protected UniformSet addSet(Uniform... uniforms) {
-        return addSet(new UniformSet(uniforms));
-    }
-
-    public List<UniformSet> getSets() {
-        return Collections.unmodifiableList(uniformSets);
+    public Map<Integer, UniformSet> getSets() {
+        return Collections.unmodifiableMap(uniformSets);
     }
 
     @Override

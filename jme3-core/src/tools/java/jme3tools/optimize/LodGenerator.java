@@ -51,7 +51,7 @@ import com.jme3.bounding.BoundingSphere;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
@@ -270,7 +270,7 @@ public class LodGenerator {
     
     private void build() {
         BoundingSphere bs = new BoundingSphere();
-        bs.computeFromPoints(mesh.getFloatBuffer(VertexBuffer.Type.Position));
+        bs.computeFromPoints(mesh.getFloatBuffer(GlVertexBuffer.Type.Position));
         meshBoundingSphereRadius = bs.getRadius();
         List<Vertex> vertexLookup = new ArrayList<>();
         initialize();
@@ -286,9 +286,9 @@ public class LodGenerator {
 
         //in case the model is currently animating with software animation
         //attempting to retrieve the bind position instead of the position.
-        VertexBuffer position = mesh.getBuffer(VertexBuffer.Type.BindPosePosition);
+        GlVertexBuffer position = mesh.getBuffer(GlVertexBuffer.Type.BindPosePosition);
         if (position == null) {
-            position = mesh.getBuffer(VertexBuffer.Type.Position);
+            position = mesh.getBuffer(GlVertexBuffer.Type.Position);
         }
         FloatBuffer pos = (FloatBuffer) position.getDataReadOnly();
         pos.rewind();
@@ -322,7 +322,7 @@ public class LodGenerator {
     }
     
     private void gatherIndexData(Mesh mesh, List<Vertex> vertexLookup) {
-        VertexBuffer indexBuffer = mesh.getBuffer(VertexBuffer.Type.Index);
+        GlVertexBuffer indexBuffer = mesh.getBuffer(GlVertexBuffer.Type.Index);
         indexCount = indexBuffer.getNumElements() * 3;
         Buffer b = indexBuffer.getDataReadOnly();
         b.rewind();
@@ -535,13 +535,13 @@ public class LodGenerator {
      * @return an array of VertexBuffers containing the different index buffers
      * representing the LOD levels.
      */
-    public VertexBuffer[] computeLods(TriangleReductionMethod reductionMethod, float... reductionValues) {
+    public GlVertexBuffer[] computeLods(TriangleReductionMethod reductionMethod, float... reductionValues) {
         int tricount = triangleList.size();
         int lastBakeVertexCount = tricount;
         int lodCount = reductionValues.length;
-        VertexBuffer[] lods = new VertexBuffer[lodCount + 1];
+        GlVertexBuffer[] lods = new GlVertexBuffer[lodCount + 1];
         int numBakedLods = 1;
-        lods[0] = mesh.getBuffer(VertexBuffer.Type.Index);
+        lods[0] = mesh.getBuffer(GlVertexBuffer.Type.Index);
         for (int curLod = 0; curLod < lodCount; curLod++) {
             int neededTriCount = calcLodTriCount(reductionMethod, reductionValues[curLod]);
             while (neededTriCount < tricount) {
@@ -580,11 +580,11 @@ public class LodGenerator {
         return cleanBuffer(lods, numBakedLods);
     }
 
-    private VertexBuffer[] cleanBuffer(VertexBuffer[] lods, int numBakedLods) {
+    private GlVertexBuffer[] cleanBuffer(GlVertexBuffer[] lods, int numBakedLods) {
         int index = 0;
-        VertexBuffer[] result = new VertexBuffer[numBakedLods];
+        GlVertexBuffer[] result = new GlVertexBuffer[numBakedLods];
 
-        for (VertexBuffer lod : lods) {
+        for (GlVertexBuffer lod : lods) {
             if (lod != null) {
                 result[index] = lod;
                 index++;
@@ -611,18 +611,18 @@ public class LodGenerator {
         mesh.setLodLevels(computeLods(reductionMethod, reductionValues));
     }
     
-    private VertexBuffer makeLod(Mesh mesh) {
-        VertexBuffer indexBuffer = mesh.getBuffer(VertexBuffer.Type.Index);
+    private GlVertexBuffer makeLod(Mesh mesh) {
+        GlVertexBuffer indexBuffer = mesh.getBuffer(GlVertexBuffer.Type.Index);
         
-        boolean isShortBuffer = indexBuffer.getFormat() == VertexBuffer.Format.UnsignedShort;
+        boolean isShortBuffer = indexBuffer.getFormat() == GlVertexBuffer.Format.UnsignedShort;
         // Create buffers.
-        VertexBuffer lodBuffer = new VertexBuffer(VertexBuffer.Type.Index);
+        GlVertexBuffer lodBuffer = new GlVertexBuffer(GlVertexBuffer.Type.Index);
         int bufsize = indexCount == 0 ? 3 : indexCount;
         
         if (isShortBuffer) {
-            lodBuffer.setupData(VertexBuffer.Usage.Static, 3, VertexBuffer.Format.UnsignedShort, BufferUtils.createShortBuffer(bufsize));
+            lodBuffer.setupData(GlVertexBuffer.Usage.Static, 3, GlVertexBuffer.Format.UnsignedShort, BufferUtils.createShortBuffer(bufsize));
         } else {
-            lodBuffer.setupData(VertexBuffer.Usage.Static, 3, VertexBuffer.Format.UnsignedInt, BufferUtils.createIntBuffer(bufsize));
+            lodBuffer.setupData(GlVertexBuffer.Usage.Static, 3, GlVertexBuffer.Format.UnsignedInt, BufferUtils.createIntBuffer(bufsize));
         }
         
         

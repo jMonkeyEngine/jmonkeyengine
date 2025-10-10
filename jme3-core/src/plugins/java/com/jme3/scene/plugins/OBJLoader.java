@@ -39,7 +39,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.*;
 import com.jme3.scene.GlMesh.Mode;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.IndexIntBuffer;
 import com.jme3.scene.mesh.IndexShortBuffer;
@@ -481,22 +481,22 @@ public final class OBJLoader implements AssetLoader {
 
         if (hasNormals){
             normBuf = BufferUtils.createFloatBuffer(vertIndexMap.size() * 3);
-            m.setBuffer(VertexBuffer.Type.Normal, 3, normBuf);
+            m.setBuffer(GlVertexBuffer.Type.Normal, 3, normBuf);
         }
         if (hasTexCoord){
             tcBuf = BufferUtils.createFloatBuffer(vertIndexMap.size() * 2);
-            m.setBuffer(VertexBuffer.Type.TexCoord, 2, tcBuf);
+            m.setBuffer(GlVertexBuffer.Type.TexCoord, 2, tcBuf);
         }
 
         IndexBuffer indexBuf = null;
         if (vertIndexMap.size() >= 65536){
             // too many vertices: use IntBuffer instead of ShortBuffer
             IntBuffer ib = BufferUtils.createIntBuffer(newFaces.size() * 3);
-            m.setBuffer(VertexBuffer.Type.Index, 3, ib);
+            m.setBuffer(GlVertexBuffer.Type.Index, 3, ib);
             indexBuf = new IndexIntBuffer(ib);
         }else{
             ShortBuffer sb = BufferUtils.createShortBuffer(newFaces.size() * 3);
-            m.setBuffer(VertexBuffer.Type.Index, 3, sb);
+            m.setBuffer(GlVertexBuffer.Type.Index, 3, sb);
             indexBuf = new IndexShortBuffer(sb);
         }
 
@@ -545,7 +545,7 @@ public final class OBJLoader implements AssetLoader {
             indexBuf.put(index+2, v2.index);
         }
 
-        m.setBuffer(VertexBuffer.Type.Position, 3, posBuf);
+        m.setBuffer(GlVertexBuffer.Type.Position, 3, posBuf);
         // index buffer and others were set on creation
 
         m.setStatic();

@@ -27,7 +27,9 @@ public abstract class GlNative <T> extends AbstractNative<T> implements Cloneabl
         if (ref != null) {
             ref.destroy();
         }
-        this.renderer = renderer;
+        if (renderer != null) {
+            this.renderer = renderer;
+        }
         ref = Native.get().register(this);
     }
 

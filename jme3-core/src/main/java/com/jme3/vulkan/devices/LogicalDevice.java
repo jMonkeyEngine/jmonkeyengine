@@ -1,5 +1,6 @@
 package com.jme3.vulkan.devices;
 
+import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.util.natives.AbstractNative;
@@ -81,7 +82,7 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
         return new Builder(deviceFactory);
     }
 
-    public class Builder extends AbstractNative.Builder<LogicalDevice> {
+    public class Builder extends AbstractBuilder {
 
         private final Function<Long, T> deviceFactory;
         private final Set<DeviceExtension> extensions = new HashSet<>();

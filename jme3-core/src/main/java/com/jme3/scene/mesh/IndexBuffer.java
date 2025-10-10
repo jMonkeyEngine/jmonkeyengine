@@ -37,7 +37,7 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer.Format;
+import com.jme3.scene.GlVertexBuffer.Format;
 import com.jme3.util.BufferUtils;
 
 /**

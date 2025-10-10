@@ -1,8 +1,10 @@
 package com.jme3.vulkan.buffers;
 
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.update.CommandBatch;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
@@ -15,8 +17,8 @@ public class BackedStaticBuffer extends StaticBuffer {
     private final ByteBuffer backing;
     private boolean backed = false;
 
-    public BackedStaticBuffer(LogicalDevice device, MemorySize size, Flag<BufferUsage> usage, Flag<MemoryProp> mem, boolean concurrent) {
-        super(device, size, usage, mem, concurrent);
+    public BackedStaticBuffer(LogicalDevice device, MemorySize size) {
+        super(device, size);
         backing = MemoryUtil.memCalloc(size.getBytes(), Byte.BYTES);
         ref.refresh();
     }
@@ -41,10 +43,12 @@ public class BackedStaticBuffer extends StaticBuffer {
     @Override
     public void unmap() {
         super.unmap();
-        ByteBuffer data = super.mapBytes();
-        MemoryUtil.memCopy(data, backing);
-        super.unmap();
-        backed = true;
+        if (!backed) {
+            ByteBuffer data = super.mapBytes();
+            MemoryUtil.memCopy(data, backing);
+            super.unmap();
+            backed = true;
+        }
     }
 
     @Override

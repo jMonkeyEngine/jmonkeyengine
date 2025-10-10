@@ -36,18 +36,13 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
+import org.lwjgl.system.MemoryUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
+import java.nio.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -1036,6 +1031,54 @@ public final class BufferUtils {
         } catch (UnsupportedEncodingException ex) {
             throw new UnsupportedOperationException(ex);
         }
+    }
+
+    public static ByteBuffer interfaceByteBuffer(Buffer buffer, int bytesPerElement) {
+        return MemoryUtil.memByteBuffer(MemoryUtil.memAddress(buffer), buffer.limit() * bytesPerElement);
+    }
+
+    public static ByteBuffer interfaceByteBuffer(ByteBuffer buffer) {
+        return interfaceByteBuffer(buffer, Byte.BYTES);
+    }
+
+    public static ByteBuffer interfaceByteBuffer(ShortBuffer buffer) {
+        return interfaceByteBuffer(buffer, Short.BYTES);
+    }
+
+    public static ByteBuffer interfaceByteBuffer(IntBuffer buffer) {
+        return interfaceByteBuffer(buffer, Integer.BYTES);
+    }
+
+    public static ByteBuffer interfaceByteBuffer(FloatBuffer buffer) {
+        return interfaceByteBuffer(buffer, Float.BYTES);
+    }
+
+    public static ByteBuffer interfaceByteBuffer(DoubleBuffer buffer) {
+        return interfaceByteBuffer(buffer, Double.BYTES);
+    }
+
+    public static ByteBuffer interfaceByteBuffer(LongBuffer buffer) {
+        return interfaceByteBuffer(buffer, Long.BYTES);
+    }
+
+    public static ByteBuffer interfaceByteBuffer(Buffer buffer) {
+        if (buffer instanceof ByteBuffer) return interfaceByteBuffer((ByteBuffer)buffer);
+        if (buffer instanceof ShortBuffer) return interfaceByteBuffer((ShortBuffer)buffer);
+        if (buffer instanceof IntBuffer) return interfaceByteBuffer((IntBuffer)buffer);
+        if (buffer instanceof FloatBuffer) return interfaceByteBuffer((FloatBuffer)buffer);
+        if (buffer instanceof DoubleBuffer) return interfaceByteBuffer((DoubleBuffer)buffer);
+        if (buffer instanceof LongBuffer) return interfaceByteBuffer((LongBuffer)buffer);
+        throw new UnsupportedOperationException("Buffer cannot be interfaced: " + buffer);
+    }
+
+    public static int getBytesPerElement(Buffer buffer) {
+        if (buffer instanceof ByteBuffer) return Byte.BYTES;
+        if (buffer instanceof ShortBuffer) return Short.BYTES;
+        if (buffer instanceof IntBuffer) return Integer.BYTES;
+        if (buffer instanceof FloatBuffer) return Float.BYTES;
+        if (buffer instanceof DoubleBuffer) return Double.BYTES;
+        if (buffer instanceof LongBuffer) return Long.BYTES;
+        throw new UnsupportedOperationException("Cannot determine bytes per element of " + buffer);
     }
 
     /**

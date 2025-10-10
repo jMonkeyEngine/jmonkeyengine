@@ -12,7 +12,7 @@ public class TestMaterial extends NewMaterial {
 
     public TestMaterial(DescriptorPool pool) {
         super(pool);
-        addSet(baseColorMap);
+        addSet(0, baseColorMap);
     }
 
     public TextureUniform getBaseColorMap() {

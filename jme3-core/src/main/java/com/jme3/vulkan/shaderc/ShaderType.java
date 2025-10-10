@@ -1,4 +1,4 @@
-package com.jme3.shaderc;
+package com.jme3.vulkan.shaderc;
 
 import org.lwjgl.util.shaderc.Shaderc;
 import org.lwjgl.vulkan.VK10;

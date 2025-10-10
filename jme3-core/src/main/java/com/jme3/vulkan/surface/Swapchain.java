@@ -1,6 +1,7 @@
 package com.jme3.vulkan.surface;
 
 import com.jme3.texture.ImageView;
+import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
@@ -236,7 +237,11 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         public void createFrameBuffer(RenderPass compat, VulkanImageView depthStencil) {
-            this.frameBuffer = new FrameBuffer(getDevice(), compat, extent.x, extent.y, 1, colorView, depthStencil);
+            frameBuffer = new FrameBuffer(getDevice(), compat, extent.x, extent.y, 1);
+            try (FrameBuffer.Builder f = frameBuffer.build()) {
+                f.addAttachment(colorView);
+                f.addAttachment(depthStencil);
+            }
         }
 
         public FrameBuffer getFrameBuffer() {
@@ -245,7 +250,7 @@ public class Swapchain extends AbstractNative<Long> {
 
     }
 
-    public class Builder extends AbstractNative.Builder<Swapchain> {
+    public class Builder extends AbstractBuilder {
 
         private final VkSurfaceCapabilitiesKHR caps;
         private final VkSurfaceFormatKHR.Buffer formats;
@@ -349,10 +354,11 @@ public class Swapchain extends AbstractNative<Long> {
             queues.add(queue);
         }
 
-        public VkSurfaceFormatKHR selectFormat(int... preferredFormats) {
+        public VkSurfaceFormatKHR selectFormat(FormatColorSpace... preferredFormats) {
             for (VkSurfaceFormatKHR f : formats) {
                 for (int i = 0; i < preferredFormats.length; i += 2) {
-                    if (f.format() == preferredFormats[i] && f.colorSpace() == preferredFormats[i + 1]) {
+                    if (f.format() == preferredFormats[i].format.getVkEnum()
+                            && f.colorSpace() == preferredFormats[i].colorSpace.getEnum()) {
                         return (selectedFormat = f);
                     }
                 }
@@ -408,6 +414,22 @@ public class Swapchain extends AbstractNative<Long> {
 
         public int getMaxImageCount() {
             return caps.maxImageCount();
+        }
+
+    }
+
+    public static FormatColorSpace format(Format format, IntEnum<ColorSpace> colorSpace) {
+        return new FormatColorSpace(format, colorSpace);
+    }
+
+    public static class FormatColorSpace {
+
+        public final Format format;
+        public final IntEnum<ColorSpace> colorSpace;
+
+        public FormatColorSpace(Format format, IntEnum<ColorSpace> colorSpace) {
+            this.format = format;
+            this.colorSpace = colorSpace;
         }
 
     }

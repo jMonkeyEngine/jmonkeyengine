@@ -7,16 +7,9 @@ import com.jme3.math.Vector4f;
 
 import java.nio.*;
 
-public class NullAttributeModifier extends AttributeModifier {
+public class NullAttributeModifier implements AttributeModifier {
 
-    public NullAttributeModifier() {
-        super(null, null);
-    }
-
-    @Override
-    protected AttributeModifier map() {
-        return this;
-    }
+    public NullAttributeModifier() {}
 
     @Override
     public void close() {}
@@ -28,6 +21,11 @@ public class NullAttributeModifier extends AttributeModifier {
 
     @Override
     public int limit() {
+        return 0;
+    }
+
+    @Override
+    public int components() {
         return 0;
     }
 

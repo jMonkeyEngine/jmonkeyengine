@@ -43,7 +43,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.control.Control;
 import java.io.IOException;
 import java.nio.Buffer;
@@ -113,7 +113,7 @@ public class RagUtils {
                     set = new VectorSet(1);
                     coordsMap.put(managerName, set);
                 }
-                vertexVector3f(mesh, VertexBuffer.Type.BindPosePosition,
+                vertexVector3f(mesh, GlVertexBuffer.Type.BindPosePosition,
                         vertexI, bindPosition);
                 set.add(bindPosition);
             }
@@ -134,9 +134,9 @@ public class RagUtils {
         if (subtree instanceof Geometry) {
             Geometry geometry = (Geometry) subtree;
             Mesh mesh = geometry.getMesh();
-            VertexBuffer indices = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
+            GlVertexBuffer indices = mesh.getBuffer(GlVertexBuffer.Type.BoneIndex);
             boolean hasIndices = indices != null;
-            VertexBuffer weights = mesh.getBuffer(VertexBuffer.Type.BoneWeight);
+            GlVertexBuffer weights = mesh.getBuffer(GlVertexBuffer.Type.BoneWeight);
             boolean hasWeights = weights != null;
             if (hasIndices && hasWeights) {
                 result = geometry;
@@ -226,9 +226,9 @@ public class RagUtils {
         if (subtree instanceof Geometry) {
             Geometry geometry = (Geometry) subtree;
             Mesh mesh = geometry.getMesh();
-            VertexBuffer indices = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
+            GlVertexBuffer indices = mesh.getBuffer(GlVertexBuffer.Type.BoneIndex);
             boolean hasIndices = indices != null;
-            VertexBuffer weights = mesh.getBuffer(VertexBuffer.Type.BoneWeight);
+            GlVertexBuffer weights = mesh.getBuffer(GlVertexBuffer.Type.BoneWeight);
             boolean hasWeights = weights != null;
             if (hasIndices && hasWeights && !storeResult.contains(mesh)) {
                 storeResult.add(mesh);
@@ -404,14 +404,14 @@ public class RagUtils {
         assert maxWeightsPerVert > 0 : maxWeightsPerVert;
         assert maxWeightsPerVert <= 4 : maxWeightsPerVert;
 
-        VertexBuffer biBuf = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
+        GlVertexBuffer biBuf = mesh.getBuffer(GlVertexBuffer.Type.BoneIndex);
         Buffer boneIndexBuffer = biBuf.getDataReadOnly();
         boneIndexBuffer.rewind();
         int numBoneIndices = boneIndexBuffer.remaining();
         assert numBoneIndices % 4 == 0 : numBoneIndices;
         int numVertices = boneIndexBuffer.remaining() / 4;
 
-        VertexBuffer wBuf = mesh.getBuffer(VertexBuffer.Type.BoneWeight);
+        GlVertexBuffer wBuf = mesh.getBuffer(GlVertexBuffer.Type.BoneWeight);
         FloatBuffer weightBuffer = (FloatBuffer) wBuf.getDataReadOnly();
         weightBuffer.rewind();
         int numWeights = weightBuffer.remaining();
@@ -581,7 +581,7 @@ public class RagUtils {
             maxWeightsPerVert = 1;
         }
 
-        VertexBuffer biBuf = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
+        GlVertexBuffer biBuf = mesh.getBuffer(GlVertexBuffer.Type.BoneIndex);
         Buffer boneIndexBuffer = biBuf.getDataReadOnly();
         boneIndexBuffer.position(4 * vertexIndex);
         for (int wIndex = 0; wIndex < maxWeightsPerVert; ++wIndex) {
@@ -620,7 +620,7 @@ public class RagUtils {
             maxWeightsPerVert = 1;
         }
 
-        VertexBuffer wBuf = mesh.getBuffer(VertexBuffer.Type.BoneWeight);
+        GlVertexBuffer wBuf = mesh.getBuffer(GlVertexBuffer.Type.BoneWeight);
         FloatBuffer weightBuffer = (FloatBuffer) wBuf.getDataReadOnly();
         weightBuffer.position(4 * vertexIndex);
         for (int wIndex = 0; wIndex < maxWeightsPerVert; ++wIndex) {
@@ -651,18 +651,18 @@ public class RagUtils {
      * @return the data vector (either storeResult or a new instance)
      */
     private static Vector3f vertexVector3f(Mesh mesh,
-                                           VertexBuffer.Type bufferType, int vertexIndex,
+                                           GlVertexBuffer.Type bufferType, int vertexIndex,
                                            Vector3f storeResult) {
-        assert bufferType == VertexBuffer.Type.BindPoseNormal
-                || bufferType == VertexBuffer.Type.BindPosePosition
-                || bufferType == VertexBuffer.Type.Binormal
-                || bufferType == VertexBuffer.Type.Normal
-                || bufferType == VertexBuffer.Type.Position : bufferType;
+        assert bufferType == GlVertexBuffer.Type.BindPoseNormal
+                || bufferType == GlVertexBuffer.Type.BindPosePosition
+                || bufferType == GlVertexBuffer.Type.Binormal
+                || bufferType == GlVertexBuffer.Type.Normal
+                || bufferType == GlVertexBuffer.Type.Position : bufferType;
         if (storeResult == null) {
             storeResult = new Vector3f();
         }
 
-        VertexBuffer vertexBuffer = mesh.getBuffer(bufferType);
+        GlVertexBuffer vertexBuffer = mesh.getBuffer(bufferType);
         FloatBuffer floatBuffer = (FloatBuffer) vertexBuffer.getDataReadOnly();
         floatBuffer.position(3 * vertexIndex);
         storeResult.x = floatBuffer.get();

@@ -54,7 +54,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 
 import jme3tools.optimize.LodGenerator;
 
@@ -217,7 +217,7 @@ public class TestLodGeneration extends SimpleApplication implements ActionListen
             public void run() {
                 for (final Geometry geom : listGeoms) {
                     LodGenerator lodGenerator = new LodGenerator(geom);
-                    final VertexBuffer[] lods = lodGenerator.computeLods(reductionMethod, reductionPercentage);
+                    final GlVertexBuffer[] lods = lodGenerator.computeLods(reductionMethod, reductionPercentage);
 
                     // --- JME Thread Synchronization ---
                     // Mesh modifications and scene graph updates must be done on the main thread.

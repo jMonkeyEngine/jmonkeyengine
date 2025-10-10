@@ -11,21 +11,12 @@ import java.nio.ByteBuffer;
 
 public class PersistentBuffer extends BasicVulkanBuffer {
 
-    private final PointerBuffer regionAddress;
-    private final ByteBuffer regionBuffer;
     private final PointerBuffer mappedAddress = MemoryUtil.memCallocPointer(1);
+    private PointerBuffer regionAddress;
+    private ByteBuffer regionBuffer;
 
-    public PersistentBuffer(LogicalDevice<?> device, MemorySize size, Flag<BufferUsage> usage, boolean concurrent) {
-        this(device, size, usage, Flag.of(MemoryProp.HostVisible, MemoryProp.HostCoherent), concurrent);
-    }
-
-    public PersistentBuffer(LogicalDevice<?> device, MemorySize size, Flag<BufferUsage> usage, Flag<MemoryProp> mem, boolean concurrent) {
-        super(device, size, usage, mem, concurrent);
-        if (!mem.contains(MemoryProp.HostVisible)) {
-            throw new IllegalArgumentException("Memory must be host visible.");
-        }
-        regionAddress = memory.map(0, size.getBytes());
-        regionBuffer = regionAddress.getByteBuffer(0, size.getBytes());
+    public PersistentBuffer(LogicalDevice<?> device, MemorySize size) {
+        super(device, size);
     }
 
     @Override
@@ -48,6 +39,29 @@ public class PersistentBuffer extends BasicVulkanBuffer {
             sup.run();
             MemoryUtil.memFree(mappedAddress);
         };
+    }
+
+    @Override
+    public Builder build() {
+        return new Builder();
+    }
+
+    public class Builder extends BasicVulkanBuffer.Builder {
+
+        public Builder() {
+            memFlags = Flag.of(MemoryProp.HostVisible, MemoryProp.HostCoherent);
+        }
+
+        @Override
+        public void build() {
+            if (!memFlags.contains(MemoryProp.HostVisible)) {
+                throw new IllegalArgumentException("Memory must be host visible.");
+            }
+            super.build();
+            regionAddress = getMemory().map(0, size().getBytes());
+            regionBuffer = regionAddress.getByteBuffer(0, size().getBytes());
+        }
+
     }
 
 }

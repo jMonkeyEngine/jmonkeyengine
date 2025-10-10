@@ -37,7 +37,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.*;
 import com.jme3.scene.*;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.shader.VarType;
@@ -324,9 +324,9 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
                 if (!biBuff.hasArray() || !bwBuff.hasArray()) {
                     mesh.prepareForAnim(true); // prepare for software animation
                 }
-                VertexBuffer bindPos = mesh.getBuffer(Type.BindPosePosition);
-                VertexBuffer bindNorm = mesh.getBuffer(Type.BindPoseNormal);
-                VertexBuffer pos = mesh.getBuffer(Type.Position);
+                GlVertexBuffer bindPos = mesh.getBuffer(Type.BindPosePosition);
+                GlVertexBuffer bindNorm = mesh.getBuffer(Type.BindPoseNormal);
+                GlVertexBuffer pos = mesh.getBuffer(Type.Position);
                 FloatBuffer pb = (FloatBuffer) pos.getData();
                 FloatBuffer bpb = (FloatBuffer) bindPos.getData();
                 pb.clear();
@@ -334,7 +334,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
 
                 // reset bind normals if there is a BindPoseNormal buffer
                 if (bindNorm != null) {
-                    VertexBuffer norm = mesh.getBuffer(Type.Normal);
+                    GlVertexBuffer norm = mesh.getBuffer(Type.Normal);
                     FloatBuffer nb = (FloatBuffer) norm.getData();
                     FloatBuffer bnb = (FloatBuffer) bindNorm.getData();
                     nb.clear();
@@ -343,9 +343,9 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
                 }
 
                 //resetting bind tangents if there is a bind tangent buffer
-                VertexBuffer bindTangents = mesh.getBuffer(Type.BindPoseTangent);
+                GlVertexBuffer bindTangents = mesh.getBuffer(Type.BindPoseTangent);
                 if (bindTangents != null) {
-                    VertexBuffer tangents = mesh.getBuffer(Type.Tangent);
+                    GlVertexBuffer tangents = mesh.getBuffer(Type.Tangent);
                     FloatBuffer tb = (FloatBuffer) tangents.getData();
                     FloatBuffer btb = (FloatBuffer) bindTangents.getData();
                     tb.clear();
@@ -444,7 +444,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      */
     private void softwareSkinUpdate(Mesh mesh, Matrix4f[] offsetMatrices) {
 
-        VertexBuffer tb = mesh.getBuffer(Type.Tangent);
+        GlVertexBuffer tb = mesh.getBuffer(Type.Tangent);
         if (tb == null) {
             //if there are no tangents use the classic skinning
             applySkinning(mesh, offsetMatrices);
@@ -471,11 +471,11 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
 
         // NOTE: This code assumes the vertex buffer is in bind pose
         // resetToBind() has been called this frame
-        VertexBuffer vb = mesh.getBuffer(Type.Position);
+        GlVertexBuffer vb = mesh.getBuffer(Type.Position);
         FloatBuffer fvb = (FloatBuffer) vb.getData();
         fvb.rewind();
 
-        VertexBuffer nb = mesh.getBuffer(Type.Normal);
+        GlVertexBuffer nb = mesh.getBuffer(Type.Normal);
         FloatBuffer fnb = (FloatBuffer) nb.getData();
         fnb.rewind();
 
@@ -569,7 +569,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      * @param offsetMatrices the offsetMatrices to apply
      * @param tb             the tangent vertexBuffer
      */
-    private void applySkinningTangents(Mesh mesh, Matrix4f[] offsetMatrices, VertexBuffer tb) {
+    private void applySkinningTangents(Mesh mesh, Matrix4f[] offsetMatrices, GlVertexBuffer tb) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();
 
         if (maxWeightsPerVert <= 0) {
@@ -580,11 +580,11 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
 
         // NOTE: This code assumes the vertex buffer is in bind pose
         // resetToBind() has been called this frame
-        VertexBuffer vb = mesh.getBuffer(Type.Position);
+        GlVertexBuffer vb = mesh.getBuffer(Type.Position);
         FloatBuffer fvb = (FloatBuffer) vb.getData();
         fvb.rewind();
 
-        VertexBuffer nb = mesh.getBuffer(Type.Normal);
+        GlVertexBuffer nb = mesh.getBuffer(Type.Normal);
 
         FloatBuffer fnb = (nb == null) ? null : (FloatBuffer) nb.getData();
         if (fnb != null) {

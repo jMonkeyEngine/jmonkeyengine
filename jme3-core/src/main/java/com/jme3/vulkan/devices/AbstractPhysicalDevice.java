@@ -1,6 +1,7 @@
 package com.jme3.vulkan.devices;
 
 import com.jme3.vulkan.Format;
+import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.memory.MemoryProp;
@@ -80,12 +81,12 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice {
     }
 
     @Override
-    public Format findSupportedFormat(VulkanImage.Tiling tiling, int features, Format... candidates) {
+    public Format findSupportedFormat(VulkanImage.Tiling tiling, Flag<FormatFeature> features, Format... candidates) {
         VkFormatProperties props = VkFormatProperties.create();
         for (Format f : candidates) {
             vkGetPhysicalDeviceFormatProperties(physicalDevice, f.getVkEnum(), props);
-            if ((tiling == VulkanImage.Tiling.Linear && (props.linearTilingFeatures() & features) == features)
-                    || (tiling == VulkanImage.Tiling.Optimal && (props.optimalTilingFeatures() & features) == features)) {
+            if ((tiling == VulkanImage.Tiling.Linear && features.contains(props.linearTilingFeatures()))
+                    || (tiling == VulkanImage.Tiling.Optimal && features.contains(props.optimalTilingFeatures()))) {
                 return f;
             }
         }

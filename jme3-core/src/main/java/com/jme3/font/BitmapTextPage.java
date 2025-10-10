@@ -35,8 +35,8 @@ import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.clone.Cloner;
@@ -167,10 +167,10 @@ class BitmapTextPage extends Geometry {
         int vertCount = pageQuads.size() * 4;
         int triCount = pageQuads.size() * 2;
 
-        VertexBuffer pb = m.getBuffer(Type.Position);
-        VertexBuffer tb = m.getBuffer(Type.TexCoord);
-        VertexBuffer ib = m.getBuffer(Type.Index);
-        VertexBuffer cb = m.getBuffer(Type.Color);
+        GlVertexBuffer pb = m.getBuffer(Type.Position);
+        GlVertexBuffer tb = m.getBuffer(Type.TexCoord);
+        GlVertexBuffer ib = m.getBuffer(Type.Index);
+        GlVertexBuffer cb = m.getBuffer(Type.Color);
 
         FloatBuffer fpb = (FloatBuffer) pb.getData();
         FloatBuffer ftb = (FloatBuffer) tb.getData();

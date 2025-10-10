@@ -1,6 +1,7 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.texture.ImageView;
+import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.Swizzle;
@@ -97,7 +98,7 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
         return new Builder();
     }
 
-    public class Builder extends AbstractNative.Builder<VulkanImageView> {
+    public class Builder extends AbstractBuilder {
 
         @Override
         protected void build() {

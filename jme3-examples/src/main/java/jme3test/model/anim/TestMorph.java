@@ -13,7 +13,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.BufferUtils;
@@ -57,7 +57,7 @@ public class TestMorph extends SimpleApplication {
         buffer.rewind();
 
         MorphTarget target = new MorphTarget();
-        target.setBuffer(VertexBuffer.Type.Position, buffer);
+        target.setBuffer(GlVertexBuffer.Type.Position, buffer);
         box.addMorphTarget(target);
         /*
          * Add a morph target that increases Y coordinates of the "right" face.
@@ -77,7 +77,7 @@ public class TestMorph extends SimpleApplication {
         buffer.rewind();
 
         final MorphTarget target2 = new MorphTarget();
-        target2.setBuffer(VertexBuffer.Type.Position, buffer);
+        target2.setBuffer(GlVertexBuffer.Type.Position, buffer);
         box.addMorphTarget(target2);
 
         final Geometry g = new Geometry("box", box);
@@ -141,7 +141,7 @@ public class TestMorph extends SimpleApplication {
             @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (name.equals("change") && isPressed) {
-                    box.setBuffer(VertexBuffer.Type.MorphTarget0, 3, target2.getBuffer(VertexBuffer.Type.Position));
+                    box.setBuffer(GlVertexBuffer.Type.MorphTarget0, 3, target2.getBuffer(GlVertexBuffer.Type.Position));
                 }
             }
         }, "change");

@@ -32,7 +32,7 @@
 package com.jme3.scene.mesh;
 
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer.Format;
+import com.jme3.scene.GlVertexBuffer.Format;
 
 import java.nio.Buffer;
 

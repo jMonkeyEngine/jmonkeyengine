@@ -38,9 +38,9 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlImage.Format;
@@ -73,7 +73,7 @@ public class TestTexture3D extends SimpleApplication {
         float[] ext = new float[]{bb.getXExtent() * 2, bb.getYExtent() * 2, bb.getZExtent() * 2};
         //we need to change the UV coordinates (the sphere is assumed to be inside the 3D image box)
         sphere.clearBuffer(Type.TexCoord);
-        VertexBuffer vb = sphere.getBuffer(Type.Position);
+        GlVertexBuffer vb = sphere.getBuffer(Type.Position);
         FloatBuffer fb = (FloatBuffer) vb.getData();
         float[] uvCoordinates = BufferUtils.getFloatArray(fb);
         //now transform the coordinates so that they are in the range of <0; 1>
@@ -83,8 +83,8 @@ public class TestTexture3D extends SimpleApplication {
             uvCoordinates[i + 2] = (uvCoordinates[i + 2] - min.z) / ext[2];
         }
         //apply new texture coordinates
-        VertexBuffer uvCoordsBuffer = new VertexBuffer(Type.TexCoord);
-        uvCoordsBuffer.setupData(Usage.Static, 3, com.jme3.scene.VertexBuffer.Format.Float,
+        GlVertexBuffer uvCoordsBuffer = new GlVertexBuffer(Type.TexCoord);
+        uvCoordsBuffer.setupData(Usage.Static, 3, GlVertexBuffer.Format.Float,
                 BufferUtils.createFloatBuffer(uvCoordinates));
         sphere.setBuffer(uvCoordsBuffer);
         //create geometry, and apply material and our 3D texture

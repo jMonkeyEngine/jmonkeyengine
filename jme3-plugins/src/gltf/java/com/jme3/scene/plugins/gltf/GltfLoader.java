@@ -380,7 +380,7 @@ public class GltfLoader implements AssetLoader {
                 mesh.setMode(getMeshMode(mode));
                 Integer indices = getAsInteger(meshObject, "indices");
                 if (indices != null) {
-                    mesh.setBuffer(readAccessorData(indices, new VertexBufferPopulator(VertexBuffer.Type.Index)));
+                    mesh.setBuffer(readAccessorData(indices, new VertexBufferPopulator(GlVertexBuffer.Type.Index)));
                 }
                 JsonObject attributes = meshObject.getAsJsonObject("attributes");
                 assertNotNull(attributes, "No attributes defined for mesh " + mesh);
@@ -404,7 +404,7 @@ public class GltfLoader implements AssetLoader {
                         SkinBuffers buffs = getSkinBuffers(bufferType);
                         buffs.weights = readAccessorData(entry.getValue().getAsInt(), new FloatArrayPopulator());
                     } else {
-                        VertexBuffer vb = readAccessorData(entry.getValue().getAsInt(),
+                        GlVertexBuffer vb = readAccessorData(entry.getValue().getAsInt(),
                                 new VertexBufferPopulator(getVertexBufferType(bufferType)));
                         if (vb != null) {
                             mesh.setBuffer(vb);
@@ -417,15 +417,15 @@ public class GltfLoader implements AssetLoader {
                 }
                 handleSkinningBuffers(mesh, skinBuffers);
 
-                if (mesh.getBuffer(VertexBuffer.Type.BoneIndex) != null) {
+                if (mesh.getBuffer(GlVertexBuffer.Type.BoneIndex) != null) {
                     // the mesh has some skinning, let's create needed buffers for HW skinning
                     // creating empty buffers for HW skinning
                     // the buffers will be set up if ever used.
-                    VertexBuffer weightsHW = new VertexBuffer(VertexBuffer.Type.HWBoneWeight);
-                    VertexBuffer indicesHW = new VertexBuffer(VertexBuffer.Type.HWBoneIndex);
+                    GlVertexBuffer weightsHW = new GlVertexBuffer(GlVertexBuffer.Type.HWBoneWeight);
+                    GlVertexBuffer indicesHW = new GlVertexBuffer(GlVertexBuffer.Type.HWBoneIndex);
                     // setting usage to cpuOnly so that the buffer is not sent empty to the GPU
-                    indicesHW.setUsage(VertexBuffer.Usage.CpuOnly);
-                    weightsHW.setUsage(VertexBuffer.Usage.CpuOnly);
+                    indicesHW.setUsage(GlVertexBuffer.Usage.CpuOnly);
+                    weightsHW.setUsage(GlVertexBuffer.Usage.CpuOnly);
                     mesh.setBuffer(weightsHW);
                     mesh.setBuffer(indicesHW);
                     mesh.generateBindPose();
@@ -450,8 +450,8 @@ public class GltfLoader implements AssetLoader {
                         }
                         for (Map.Entry<String, JsonElement> entry : target.getAsJsonObject().entrySet()) {
                             String bufferType = entry.getKey();
-                            VertexBuffer.Type type = getVertexBufferType(bufferType);
-                            VertexBuffer vb = readAccessorData(entry.getValue().getAsInt(),
+                            GlVertexBuffer.Type type = getVertexBufferType(bufferType);
+                            GlVertexBuffer vb = readAccessorData(entry.getValue().getAsInt(),
                                     new VertexBufferPopulator(type));
                             if (vb != null) {
                                 morphTarget.setBuffer(type, (FloatBuffer) vb.getData());
@@ -476,7 +476,7 @@ public class GltfLoader implements AssetLoader {
                         // Alpha blending is enabled for this material. Let's place the geom in the transparent bucket.
                         geom.setQueueBucket(RenderQueue.Bucket.Transparent);
                     }
-                    if (useNormalsFlag && mesh.getBuffer(VertexBuffer.Type.Tangent) == null) {
+                    if (useNormalsFlag && mesh.getBuffer(GlVertexBuffer.Type.Tangent) == null) {
                         // No tangent buffer, but there is a normal map, we have to generate them using MikktSpace
                         MikktspaceTangentGenerator.generate(geom);
                     }
@@ -539,7 +539,7 @@ public class GltfLoader implements AssetLoader {
     }
 
     public Object readBuffer(Integer bufferViewIndex, int byteOffset, int count, Object store,
-            int numComponents, VertexBuffer.Format format) throws IOException {
+            int numComponents, GlVertexBuffer.Format format) throws IOException {
         JsonObject bufferView = bufferViews.get(bufferViewIndex).getAsJsonObject();
         Integer bufferIndex = getAsInteger(bufferView, "buffer");
         assertNotNull(bufferIndex, "No buffer defined for bufferView " + bufferViewIndex);
@@ -784,7 +784,7 @@ public class GltfLoader implements AssetLoader {
         if (uri == null) {
             assertNotNull(bufferView, "Image " + sourceIndex + " should either have an uri or a bufferView");
             assertNotNull(mimeType, "Image " + sourceIndex + " should have a mimeType");
-            byte[] data = (byte[]) readBuffer(bufferView, 0, -1, null, 1, VertexBuffer.Format.Byte);
+            byte[] data = (byte[]) readBuffer(bufferView, 0, -1, null, 1, GlVertexBuffer.Format.Byte);
             String extension = mimeType.split("/")[1];
             TextureKey key = new TextureKey("image" + sourceIndex + "." + extension, flip);
             result = (Texture2D) info.getManager().loadAssetFromStream(key, new ByteArrayInputStream(data));
@@ -1312,33 +1312,33 @@ public class GltfLoader implements AssetLoader {
                 boolean normalized) throws IOException;
     }
 
-    private class VertexBufferPopulator implements Populator<VertexBuffer> {
-        VertexBuffer.Type bufferType;
+    private class VertexBufferPopulator implements Populator<GlVertexBuffer> {
+        GlVertexBuffer.Type bufferType;
 
-        public VertexBufferPopulator(VertexBuffer.Type bufferType) {
+        public VertexBufferPopulator(GlVertexBuffer.Type bufferType) {
             this.bufferType = bufferType;
         }
 
         @Override
-        public VertexBuffer populate(Integer bufferViewIndex, int componentType, String type, int count,
-                int byteOffset, boolean normalized) throws IOException {
+        public GlVertexBuffer populate(Integer bufferViewIndex, int componentType, String type, int count,
+                                       int byteOffset, boolean normalized) throws IOException {
             if (bufferType == null) {
                 logger.log(Level.WARNING, "could not assign data to any VertexBuffer type for buffer view {0}", bufferViewIndex);
                 return null;
             }
 
-            VertexBuffer vb = new VertexBuffer(bufferType);
-            VertexBuffer.Format format = getVertexBufferFormat(componentType);
-            VertexBuffer.Format originalFormat = format;
+            GlVertexBuffer vb = new GlVertexBuffer(bufferType);
+            GlVertexBuffer.Format format = getVertexBufferFormat(componentType);
+            GlVertexBuffer.Format originalFormat = format;
             if (normalized) {
                 // Some float data can be packed into short buffers,
                 // "normalized" means they have to be unpacked.
                 // In that case the buffer is a FloatBuffer
-                format = VertexBuffer.Format.Float;
+                format = GlVertexBuffer.Format.Float;
             }
             int numComponents = getNumberOfComponents(type);
 
-            Buffer buff = VertexBuffer.createBuffer(format, numComponents, count);
+            Buffer buff = GlVertexBuffer.createBuffer(format, numComponents, count);
             int bufferSize = numComponents * count;
             if (bufferViewIndex == null) {
                 // no referenced buffer, specs says to pad the buffer with zeros.
@@ -1347,10 +1347,10 @@ public class GltfLoader implements AssetLoader {
                 readBuffer(bufferViewIndex, byteOffset, count, buff, numComponents, originalFormat);
             }
 
-            if (bufferType == VertexBuffer.Type.Index) {
+            if (bufferType == GlVertexBuffer.Type.Index) {
                 numComponents = 3;
             }
-            vb.setupData(VertexBuffer.Usage.Dynamic, numComponents, format, buff);
+            vb.setupData(GlVertexBuffer.Usage.Dynamic, numComponents, format, buff);
 
             return vb;
         }
@@ -1470,9 +1470,9 @@ public class GltfLoader implements AssetLoader {
             int numComponents = getNumberOfComponents(type);
 
             // can be bytes or shorts.
-            VertexBuffer.Format format = VertexBuffer.Format.Byte;
+            GlVertexBuffer.Format format = GlVertexBuffer.Format.Byte;
             if (componentType == 5123) {
-                format = VertexBuffer.Format.Short;
+                format = GlVertexBuffer.Format.Short;
             }
 
             int dataSize = numComponents * count;

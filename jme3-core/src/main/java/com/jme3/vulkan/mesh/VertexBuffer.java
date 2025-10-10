@@ -1,67 +1,52 @@
 package com.jme3.vulkan.mesh;
 
-import com.jme3.vulkan.buffers.*;
-import com.jme3.vulkan.frames.VersionedResource;
+import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.meshnew.AccessRate;
 import org.lwjgl.PointerBuffer;
 
 import java.nio.*;
 
-public class VertexBuffer {
+public interface VertexBuffer {
 
-    private final VersionedResource<? extends GpuBuffer> resource;
-    private GpuBuffer buffer;
-    private int mappers = 0;
-    private PointerBuffer memory;
+    PointerBuffer map();
 
-    public VertexBuffer(VersionedResource<? extends GpuBuffer> resource) {
-        this.resource = resource;
+    void unmap();
+
+    MemorySize size();
+
+    GpuBuffer getBuffer();
+
+    void setNumVertices(int vertices);
+
+    void setAccessFrequency(AccessRate access);
+
+    long getOffset();
+
+    boolean isInstanceBuffer();
+
+    default ByteBuffer mapBytes() {
+        return map().getByteBuffer(0, size().getBytes());
     }
 
-    public PointerBuffer map() {
-        if (mappers++ == 0) {
-            memory = (buffer = resource.get()).map();
-        }
-        // the mapped buffer could only ever not match the frame's current buffer if
-        // not all mappings were cleared on the previous frame (i.e. mappers != 0)
-        if (buffer != resource.get()) {
-            throw new IllegalStateException("Not all mappings were properly unmapped.");
-        }
-        return memory;
+    default ShortBuffer mapShorts() {
+        return map().getShortBuffer(0, size().getShorts());
     }
 
-    public void unmap() {
-        if (--mappers <= 0) {
-            memory = null;
-            buffer.unmap();
-        }
+    default IntBuffer mapInts() {
+        return map().getIntBuffer(0, size().getInts());
     }
 
-    public ByteBuffer mapBytes() {
-        return map().getByteBuffer(0, buffer.size().getBytes());
+    default FloatBuffer mapFloats() {
+        return map().getFloatBuffer(0, size().getFloats());
     }
 
-    public ShortBuffer mapShorts() {
-        return map().getShortBuffer(0, buffer.size().getShorts());
+    default DoubleBuffer mapDoubles() {
+        return map().getDoubleBuffer(0, size().getDoubles());
     }
 
-    public IntBuffer mapInts() {
-        return map().getIntBuffer(0, buffer.size().getInts());
-    }
-
-    public FloatBuffer mapFloats() {
-        return map().getFloatBuffer(0, buffer.size().getFloats());
-    }
-
-    public DoubleBuffer mapDoubles() {
-        return map().getDoubleBuffer(0, buffer.size().getDoubles());
-    }
-
-    public LongBuffer mapLongs() {
-        return map().getLongBuffer(0, buffer.size().getLongs());
-    }
-
-    public VersionedResource<? extends GpuBuffer> getResource() {
-        return resource;
+    default LongBuffer mapLongs() {
+        return map().getLongBuffer(0, size().getLongs());
     }
 
 }

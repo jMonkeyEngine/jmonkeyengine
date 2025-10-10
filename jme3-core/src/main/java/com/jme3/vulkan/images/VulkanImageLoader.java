@@ -154,8 +154,12 @@ public class VulkanImageLoader implements AssetLoader {
 
     private BasicVulkanImage loadGpuImage(CommandPool transferPool, ImageData data) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            GpuBuffer staging = new BasicVulkanBuffer(transferPool.getDevice(), MemorySize.bytes(data.getBuffer().limit()),
-                    BufferUsage.TransferSrc, Flag.of(MemoryProp.HostVisible, MemoryProp.HostCached), false);
+            BasicVulkanBuffer staging = new BasicVulkanBuffer(
+                    transferPool.getDevice(), MemorySize.bytes(data.getBuffer().limit()));
+            try (BasicVulkanBuffer.Builder s = staging.build()) {
+                s.setUsage(BufferUsage.TransferSrc);
+                s.setMemFlags(Flag.of(MemoryProp.HostVisible, MemoryProp.HostCoherent));
+            }
             staging.copy(data.getBuffer());
             BasicVulkanImage image = new BasicVulkanImage(transferPool.getDevice(), VulkanImage.Type.TwoDemensional);
             try (BasicVulkanImage.Builder i = image.build()) {
@@ -167,7 +171,7 @@ public class VulkanImageLoader implements AssetLoader {
             }
             CommandBuffer commands = transferPool.allocateTransientCommandBuffer();
             commands.begin();
-            image.transitionLayout(commands, VulkanImage.Layout.Undefined, VulkanImage.Layout.TransferDstOptimal);
+            image.transitionLayout(commands, VulkanImage.Layout.TransferDstOptimal);
             VkBufferImageCopy.Buffer region = VkBufferImageCopy.calloc(1, stack)
                     .bufferOffset(0)
                     .bufferRowLength(0) // padding bytes
@@ -180,9 +184,8 @@ public class VulkanImageLoader implements AssetLoader {
             region.imageExtent().set(data.getWidth(), data.getHeight(), 1);
             vkCmdCopyBufferToImage(commands.getBuffer(), staging.getId(),
                     image.getNativeObject(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
-            image.transitionLayout(commands, VulkanImage.Layout.TransferDstOptimal, VulkanImage.Layout.ShaderReadOnlyOptimal);
-            commands.end();
-            commands.submit(SyncGroup.ASYNC);
+            image.transitionLayout(commands, VulkanImage.Layout.ShaderReadOnlyOptimal);
+            commands.endAndSubmit(SyncGroup.ASYNC);
             transferPool.getQueue().waitIdle();
             return image;
         }

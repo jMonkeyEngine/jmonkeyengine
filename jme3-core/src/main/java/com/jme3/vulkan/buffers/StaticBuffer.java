@@ -8,8 +8,8 @@ import com.jme3.vulkan.util.Flag;
 
 public class StaticBuffer extends StageableBuffer {
 
-    public StaticBuffer(LogicalDevice device, MemorySize size, Flag<BufferUsage> usage, Flag<MemoryProp> mem, boolean concurrent) {
-        super(device, size, usage, mem, concurrent);
+    public StaticBuffer(LogicalDevice device, MemorySize size) {
+        super(device, size);
     }
 
     @Override

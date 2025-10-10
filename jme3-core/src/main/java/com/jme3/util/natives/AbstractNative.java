@@ -20,18 +20,4 @@ public abstract class AbstractNative<T> implements Native<T> {
         return ref;
     }
 
-    public static abstract class Builder <T extends AbstractNative> implements AutoCloseable {
-
-        protected final MemoryStack stack = MemoryStack.stackPush();
-
-        @Override
-        public void close() {
-            build();
-            stack.pop();
-        }
-
-        protected abstract void build();
-
-    }
-
 }

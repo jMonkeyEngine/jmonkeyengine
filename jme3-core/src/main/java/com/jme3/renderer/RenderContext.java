@@ -34,7 +34,7 @@ package com.jme3.renderer;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.GlImage;
@@ -228,21 +228,21 @@ public class RenderContext {
     /**
      * Currently bound element array vertex buffer.
      *
-     * @see Renderer#renderMesh(Mesh, int, int, com.jme3.scene.VertexBuffer[])
+     * @see Renderer#renderMesh(Mesh, int, int, GlVertexBuffer[])
      */
     public int boundElementArrayVBO;
 
     /**
      * ID of the bound vertex array.
      *
-     * @see Renderer#renderMesh(Mesh, int, int, com.jme3.scene.VertexBuffer[])
+     * @see Renderer#renderMesh(Mesh, int, int, GlVertexBuffer[])
      */
     public int boundVertexArray;
 
     /**
      * Currently bound array vertex buffer.
      *
-     * @see Renderer#renderMesh(Mesh, int, int, com.jme3.scene.VertexBuffer[])
+     * @see Renderer#renderMesh(Mesh, int, int, GlVertexBuffer[])
      */
     public int boundArrayVBO;
 
@@ -328,7 +328,7 @@ public class RenderContext {
      * Vertex attribs currently bound and enabled. If a slot is null, then
      * it is disabled.
      */
-    public final WeakReference<VertexBuffer>[] boundAttribs = new WeakReference[16];
+    public final WeakReference<GlVertexBuffer>[] boundAttribs = new WeakReference[16];
 
     /**
      * IDList for vertex attributes.

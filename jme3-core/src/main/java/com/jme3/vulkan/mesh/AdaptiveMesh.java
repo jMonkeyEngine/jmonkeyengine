@@ -6,19 +6,21 @@ import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.collision.bih.BIHTree;
-import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.math.Matrix4f;
-import com.jme3.renderer.Renderer;
+import com.jme3.renderer.RenderManager;
 import com.jme3.scene.CollisionData;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.buffers.generate.BufferGenerator;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.meshnew.AccessRate;
+import com.jme3.vulkan.meshnew.BetterMesh;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
@@ -29,49 +31,128 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public abstract class AdaptiveMesh implements Mesh {
 
-    protected enum VertexMode {
-
-        Stream, Dynamic, Static;
-
-    }
-
     protected final MeshDescription description;
-    private final List<VertexBuffer> vertexBuffers = new ArrayList<>();
-    protected final List<VersionedResource<? extends GpuBuffer>> indexBuffers = new ArrayList<>();
+    protected final BufferGenerator generator;
+    protected final Map<Integer, GpuBuffer> indexBuffers = new HashMap<>();
+    protected final VertexBuffer[] vertexBuffers;
     protected BoundingVolume volume = new BoundingBox();
     private int vertices;
-    private CollisionData collisionTree;
+    private int instances = 1;
+    private int maxLod = 0;
+    private BIHTree collisionTree;
 
-    public AdaptiveMesh(MeshDescription description) {
+    public AdaptiveMesh(MeshDescription description, BufferGenerator generator) {
         this.description = description;
+        this.generator = generator;
+        this.vertexBuffers = new VertexBuffer[description.getBindings().size()];
     }
 
-    @Override
-    public void draw(CommandBuffer cmd, Geometry geometry) {
+    public void bind(RenderManager rm, CommandBuffer cmd, Geometry geometry) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            LongBuffer verts = stack.mallocLong(vertexBuffers.size());
-            LongBuffer offsets = stack.mallocLong(vertexBuffers.size());
-            for (VertexBuffer vb : vertexBuffers) {
-                verts.put(vb.getResource().get().getId());
-                offsets.put(0L);
+            LongBuffer verts = stack.mallocLong(vertexBuffers.length);
+            LongBuffer offsets = stack.mallocLong(vertexBuffers.length);
+            for (int i = 0; i < vertexBuffers.length; i++) {
+                VertexBuffer vb = vertexBuffers[i];
+                if (vb == null) {
+                    vb = vertexBuffers[i] = new VulkanVertexBuffer(description.getBinding(i), generator, vertices);
+                }
+                verts.put(vb.getBuffer().getId());
+                offsets.put(vb.getOffset());
             }
             verts.flip();
             offsets.flip();
             vkCmdBindVertexBuffers(cmd.getBuffer(), 0, verts, offsets);
         }
         if (!indexBuffers.isEmpty()) {
-            GpuBuffer indices = indexBuffers.get(0).get();
+            GpuBuffer indices = selectIndexBuffer(geometry.getLodLevel());
             vkCmdBindIndexBuffer(cmd.getBuffer(), indices.getId(), 0, IndexType.of(indices).getEnum());
-            vkCmdDrawIndexed(cmd.getBuffer(), indices.size().getElements(), 1, 0, 0, 0);
-        } else {
-            vkCmdDraw(cmd.getBuffer(), vertices, 1, 0, 0);
         }
     }
 
     @Override
-    public void draw(Renderer renderer, Geometry geometry, int instances, com.jme3.scene.VertexBuffer[] instanceData) {
-        // todo: figure out how to possibly implement this
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void render(RenderManager renderManager, CommandBuffer cmd, Geometry geometry) {
+        if (!indexBuffers.isEmpty()) {
+            vkCmdDrawIndexed(cmd.getBuffer(), selectIndexBuffer(geometry.getLodLevel()).size().getElements(), instances, 0, 0, 0);
+        } else {
+            vkCmdDraw(cmd.getBuffer(), vertices, instances, 0, 0);
+        }
+    }
+
+    private GpuBuffer selectIndexBuffer(int lod) {
+        lod = Math.min(lod, maxLod);
+        GpuBuffer indices = null;
+        while (lod >= 0 && (indices = indexBuffers.get(lod)) == null) {
+            lod--;
+        }
+        if (indices == null) {
+            throw new NullPointerException("No index buffers specified.");
+        }
+        return indices;
+    }
+
+    @Override
+    public AttributeModifier modify(String attribute) {
+        VertexAttribute attr = description.getAttribute(attribute);
+        if (attr != null) {
+            VertexBuffer buffer = vertexBuffers[attr.getBinding().getBindingIndex()];
+            if (buffer == null) {
+                buffer = new VulkanVertexBuffer(attr.getBinding(), generator, vertices);
+                vertexBuffers[attr.getBinding().getBindingIndex()] = buffer;
+            }
+            return new VulkanAttributeModifier(buffer, attr);
+        } else {
+            return new NullAttributeModifier();
+        }
+    }
+
+    @Override
+    public void setAccessFrequency(String attributeName, AccessRate access) {
+        VertexAttribute attr = description.getAttribute(attributeName);
+        if (attr != null) {
+            VertexBuffer buffer = vertexBuffers[attr.getBinding().getBindingIndex()];
+            if (buffer == null) {
+                buffer = new VulkanVertexBuffer(attr.getBinding(), generator, vertices);
+                vertexBuffers[attr.getBinding().getBindingIndex()] = buffer;
+            } else {
+                buffer.setAccessFrequency(access);
+            }
+        }
+    }
+
+    @Override
+    public void setVertexCount(int vertices) {
+        if (this.vertices != vertices) {
+            this.vertices = vertices;
+            for (VertexBuffer vb : vertexBuffers) {
+                if (vb != null && !vb.isInstanceBuffer()) {
+                    vb.setNumVertices(vertices);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void setTriangleCount(int lod, int triangles) {
+        GpuBuffer indices = indexBuffers.get(lod);
+        maxLod = Math.max(maxLod, lod);
+        if (indices == null) {
+            // todo: allow element size in bytes to be configurable
+            indexBuffers.put(lod, new AdaptiveBuffer(MemorySize.ints(triangles * 3), BufferUsage.Index, generator));
+        } else {
+            indices.resize(triangles * 3);
+        }
+    }
+
+    @Override
+    public void setInstanceCount(int instances) {
+        if (this.instances != instances) {
+            this.instances = instances;
+            for (VertexBuffer vb : vertexBuffers) {
+                if (vb != null && vb.isInstanceBuffer()) {
+                    vb.setNumVertices(instances);
+                }
+            }
+        }
     }
 
     @Override
@@ -80,30 +161,33 @@ public abstract class AdaptiveMesh implements Mesh {
     }
 
     @Override
-    public int getTriangleCount() {
-        return !indexBuffers.isEmpty() ? indexBuffers.get(0).get().size().getElements() / 3 : 0;
+    public int getTriangleCount(int lod) {
+        GpuBuffer indices = indexBuffers.get(lod);
+        if (indices != null) {
+            return indices.size().getElements() / 3;
+        } else return 0;
+    }
+
+    @Override
+    public int getInstanceCount() {
+        return instances;
     }
 
     @Override
     public int collideWith(Collidable other, Geometry geometry, CollisionResults results) {
-        if (collisionTree == null) {
-            collisionTree = createCollisionTree();
+        if (collisionTree == null) try (AttributeModifier pos = modifyPosition()) {
+            GpuBuffer indices = indexBuffers.get(0);
+            collisionTree = new BIHTree(pos, indices.mapIndices());
+            collisionTree.construct();
+            indices.unmap();
         }
         return collisionTree.collideWith(other, geometry.getWorldMatrix(), geometry.getWorldBound(), results);
     }
 
     @Override
-    public int collideWith(Collidable other, CollisionResults results) {
-        if (collisionTree == null) {
-            collisionTree = createCollisionTree();
-        }
-        return collisionTree.collideWith(other, Matrix4f.IDENTITY, volume, results);
-    }
-
-    @Override
     public void updateBound() {
-        try (AttributeModifier position = modifyPosition()) {
-            volume.computeFromPoints(position);
+        try (AttributeModifier pos = modifyPosition()) {
+            volume.computeFromPoints(pos);
         }
     }
 
@@ -123,113 +207,12 @@ public abstract class AdaptiveMesh implements Mesh {
     }
 
     @Override
-    @SuppressWarnings("resource")
-    public AttributeModifier modifyAttribute(String attribute) {
-        VertexAttribute attr = description.getAttribute(attribute);
-        if (attr != null) {
-            return new AttributeModifier(vertexBuffers.get(attr.getBinding().getBindingIndex()), attr).map();
-        } else {
-            return new NullAttributeModifier().map();
-        }
-    }
-
-    @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule out = ex.getCapsule(this);
-        throw new UnsupportedOperationException("Exporting not yet supported.");
+
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
-        InputCapsule in = im.getCapsule(this);
-        throw new UnsupportedOperationException("Importing not yet supported.");
-    }
-
-    private CollisionData createCollisionTree() {
-        try (AttributeModifier positions = modifyPosition()) {
-            BIHTree tree = new BIHTree(positions, indexBuffers.get(0).get().mapIndices());
-            tree.construct();
-            return tree;
-        }
-    }
-
-    protected abstract AttributeModifier modifyPosition();
-
-    protected abstract VersionedResource<? extends GpuBuffer> createStreamingBuffer(MemorySize size);
-
-    protected abstract VersionedResource<? extends GpuBuffer> createDynamicBuffer(MemorySize size);
-
-    protected abstract VersionedResource<? extends GpuBuffer> createStaticBuffer(MemorySize size);
-
-    protected Builder buildVertexBuffers(int vertices) {
-        return new Builder(vertices);
-    }
-
-    protected class Builder implements AutoCloseable {
-
-        private final Map<String, AttributeInfo> attributes = new HashMap<>();
-
-        private Builder(int vertices) {
-            AdaptiveMesh.this.vertices = vertices;
-            for (VertexBinding b : description) {
-                for (VertexAttribute a : b) {
-                    attributes.put(a.getName(), new AttributeInfo());
-                }
-            }
-        }
-
-        @Override
-        public void close() {
-            VertexMode[] modes = new VertexMode[description.getBindings().size()];
-            for (Map.Entry<String, AttributeInfo> e : attributes.entrySet()) {
-                int i = description.getAttribute(e.getKey()).getBinding().getBindingIndex();
-                VertexMode mode = modes[i];
-                if (mode == null || e.getValue().getMode().ordinal() < mode.ordinal()) {
-                    modes[i] = e.getValue().getMode();
-                }
-            }
-            for (int i = 0; i < modes.length; i++) {
-                vertexBuffers.add(new VertexBuffer(createBufferResource(description.getBinding(i), modes[i])));
-            }
-        }
-
-        public void setMode(String name, VertexMode mode) {
-            AttributeInfo attr = attributes.get(name);
-            if (attr != null) {
-                attr.setMode(mode);
-            }
-        }
-
-        private VersionedResource<? extends GpuBuffer> createBufferResource(VertexBinding binding, VertexMode mode) {
-            MemorySize size = MemorySize.bytes(binding.getStride() * vertices);
-            switch (mode) {
-                case Stream: return createStreamingBuffer(size);
-                case Dynamic: return createDynamicBuffer(size);
-                case Static: return createStaticBuffer(size);
-                default: throw new UnsupportedOperationException();
-            }
-        }
-
-    }
-
-    /**
-     * Contains information about an attribute with the purpose
-     * of generating vertex buffers from that information.
-     *
-     * <p>This could technically be collapsed into VertexMode, but there
-     * may be other properties in the future that could be set.</p>
-     */
-    private static class AttributeInfo {
-
-        private VertexMode mode = VertexMode.Static;
-
-        public void setMode(VertexMode mode) {
-            this.mode = mode;
-        }
-
-        public VertexMode getMode() {
-            return mode;
-        }
 
     }
 

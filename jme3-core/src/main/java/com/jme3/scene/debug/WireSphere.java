@@ -36,10 +36,10 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Format;
+import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -82,11 +82,11 @@ public class WireSphere extends GlMesh {
     }
 
     public void updatePositions(float radius) {
-        VertexBuffer pvb = getBuffer(Type.Position);
+        GlVertexBuffer pvb = getBuffer(Type.Position);
         FloatBuffer pb;
 
         if (pvb == null) {
-            pvb = new VertexBuffer(Type.Position);
+            pvb = new GlVertexBuffer(Type.Position);
             pb = BufferUtils.createVector3Buffer(samples * 2 + samples * zSamples /*+ 6 * 3*/);
             pvb.setupData(Usage.Dynamic, 3, Format.Float, pb);
             setBuffer(pvb);

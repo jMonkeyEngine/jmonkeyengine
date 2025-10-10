@@ -44,8 +44,8 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.terrain.geomipmap.TerrainQuad.LocationHeight;
 import com.jme3.terrain.geomipmap.lodcalc.util.EntropyComputeUtil;
@@ -298,7 +298,7 @@ public class TerrainPatch extends Geometry {
     protected void setHeight(List<LocationHeight> locationHeights, boolean overrideHeight) {
 
         final float[] heightArray = geomap.getHeightArray();
-        final VertexBuffer vertexBuffer = mesh.getBuffer(Type.Position);
+        final GlVertexBuffer vertexBuffer = mesh.getBuffer(Type.Position);
         final FloatBuffer floatBuffer = mesh.getFloatBuffer(Type.Position);
 
         for (LocationHeight lh : locationHeights) {
@@ -338,9 +338,9 @@ public class TerrainPatch extends Geometry {
     }
 
     private void setInBuffer(Mesh mesh, int index, Vector3f normal, Vector3f tangent, Vector3f binormal) {
-        VertexBuffer NB = mesh.getBuffer(Type.Normal);
-        VertexBuffer TB = mesh.getBuffer(Type.Tangent);
-        VertexBuffer BB = mesh.getBuffer(Type.Binormal);
+        GlVertexBuffer NB = mesh.getBuffer(Type.Normal);
+        GlVertexBuffer TB = mesh.getBuffer(Type.Tangent);
+        GlVertexBuffer BB = mesh.getBuffer(Type.Binormal);
         BufferUtils.setInBuffer(normal, (FloatBuffer)NB.getData(), index);
         BufferUtils.setInBuffer(tangent, (FloatBuffer)TB.getData(), index);
         BufferUtils.setInBuffer(binormal, (FloatBuffer)BB.getData(), index);

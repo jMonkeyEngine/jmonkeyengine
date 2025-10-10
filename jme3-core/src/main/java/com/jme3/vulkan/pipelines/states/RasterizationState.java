@@ -3,10 +3,16 @@ package com.jme3.vulkan.pipelines.states;
 import com.jme3.vulkan.pipelines.CullMode;
 import com.jme3.vulkan.pipelines.FaceWinding;
 import com.jme3.vulkan.pipelines.PolygonMode;
+import com.jme3.vulkan.pipelines.newstate.PipelineEnum;
+import com.jme3.vulkan.pipelines.newstate.PipelineStruct;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VkGraphicsPipelineCreateInfo;
 import org.lwjgl.vulkan.VkPipelineRasterizationStateCreateInfo;
+
+import java.awt.image.Raster;
+import java.util.Objects;
 
 import static org.lwjgl.vulkan.VK10.*;
 

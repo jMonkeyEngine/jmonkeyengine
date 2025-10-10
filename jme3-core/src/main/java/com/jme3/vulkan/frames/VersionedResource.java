@@ -12,7 +12,8 @@ public interface VersionedResource<T> extends Iterable<T> {
      *
      * @param resource resource to assign (not null)
      */
-    void set(T resource);
+    @Deprecated
+    default void set(T resource) {}
 
     /**
      * Sets the resource for the specified frame.
@@ -20,7 +21,8 @@ public interface VersionedResource<T> extends Iterable<T> {
      * @param frame frame to assign to (not negative)
      * @param resource resource to assign (not null)
      */
-    void set(int frame, T resource);
+    @Deprecated
+    default void set(int frame, T resource) {}
 
     /**
      * Gets the resource for the current frame. Must return the same value

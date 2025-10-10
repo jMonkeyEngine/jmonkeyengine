@@ -46,9 +46,17 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.util.TempVars;
+import com.jme3.vulkan.commands.CommandBuffer;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VkRect2D;
+import org.lwjgl.vulkan.VkViewport;
+
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.lwjgl.vulkan.VK10.vkCmdSetScissor;
+import static org.lwjgl.vulkan.VK10.vkCmdSetViewport;
 
 /**
  * A standalone, purely mathematical class for doing
@@ -198,6 +206,14 @@ public class Camera implements Savable, Cloneable {
      */
     protected float viewPortBottom;
     /**
+     * Minimum depth this camera will render to.
+     */
+    protected float minDepth = 0f;
+    /**
+     * Maximum depth this camera will render to.
+     */
+    protected float maxDepth = 1f;
+    /**
      * Array holding the planes that this camera will check for culling.
      */
     protected Plane[] worldPlane;
@@ -323,6 +339,9 @@ public class Camera implements Savable, Cloneable {
             cam.viewProjectionMatrix = viewProjectionMatrix.clone();
             cam.guiBounding = (BoundingBox) guiBounding.clone();
 
+            cam.minDepth = minDepth;
+            cam.maxDepth = maxDepth;
+
             cam.update();
 
             return cam;
@@ -385,6 +404,9 @@ public class Camera implements Savable, Cloneable {
         this.guiBounding.setZExtent(cam.guiBounding.getZExtent());
         this.guiBounding.setCenter(cam.guiBounding.getCenter());
         this.guiBounding.setCheckPlane(cam.guiBounding.getCheckPlane());
+
+        this.minDepth = cam.minDepth;
+        this.maxDepth = cam.maxDepth;
 
         this.name = cam.name;
     }
@@ -1589,6 +1611,41 @@ public class Camera implements Savable, Cloneable {
         return height;
     }
 
+    public float getMaxDepth() {
+        return maxDepth;
+    }
+
+    public float getMinDepth() {
+        return minDepth;
+    }
+
+    public void setMinDepth(float minDepth) {
+        this.minDepth = minDepth;
+    }
+
+    public void setMaxDepth(float maxDepth) {
+        this.maxDepth = maxDepth;
+    }
+
+    public void setViewPort(MemoryStack stack, CommandBuffer cmd) {
+        float x = viewPortLeft * width;
+        float y = viewPortTop * height;
+        float w = (viewPortRight * width) - x;
+        float h = (viewPortBottom * height) - y;
+        VkViewport.Buffer vp = VkViewport.calloc(1, stack)
+                .x(x).y(y)
+                .width(w).height(h)
+                //.width(swapchain.getExtent().getX())
+                //.height(swapchain.getExtent().getY())
+                .minDepth(minDepth).maxDepth(maxDepth);
+        vkCmdSetViewport(cmd.getBuffer(), 0, vp);
+        VkRect2D.Buffer scissor = VkRect2D.calloc(1, stack);
+        scissor.offset().set((int)x, (int)y);
+        //scissor.extent(swapchain.getExtent().toStruct(stack));
+        scissor.extent().set((int)w, (int)h);
+        vkCmdSetScissor(cmd.getBuffer(), 0, scissor);
+    }
+
     @Override
     public String toString() {
         return "Camera[location=" + location + "\n, direction=" + getDirection() + "\n"
@@ -1618,6 +1675,8 @@ public class Camera implements Savable, Cloneable {
         capsule.write(width, "width", 0);
         capsule.write(height, "height", 0);
         capsule.write(name, "name", null);
+        capsule.write(minDepth, "minDepth", 0f);
+        capsule.write(maxDepth, "maxDepth", 1f);
     }
 
     @Override
@@ -1642,6 +1701,8 @@ public class Camera implements Savable, Cloneable {
         width = capsule.readInt("width", 1);
         height = capsule.readInt("height", 1);
         name = capsule.readString("name", null);
+        minDepth = capsule.readFloat("minDepth", 0f);
+        maxDepth = capsule.readFloat("maxDepth", 1f);
         onFrustumChange();
         onViewPortChange();
         onFrameChange();

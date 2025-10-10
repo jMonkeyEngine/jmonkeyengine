@@ -38,7 +38,7 @@ import com.jme3.asset.AssetNotFoundException;
 import com.jme3.opencl.Image.ImageDescriptor;
 import com.jme3.opencl.Image.ImageFormat;
 import com.jme3.opencl.Image.ImageType;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlTexture;
@@ -207,7 +207,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * @param access the memory access for the kernel
      * @return the new buffer
      */
-    public abstract Buffer bindVertexBuffer(VertexBuffer vb, MemoryAccess access);
+    public abstract Buffer bindVertexBuffer(GlVertexBuffer vb, MemoryAccess access);
 
     /**
      * Creates a shared image object from a jME3-image.

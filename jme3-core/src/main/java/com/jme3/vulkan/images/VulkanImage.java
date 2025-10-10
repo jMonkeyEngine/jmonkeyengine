@@ -3,6 +3,9 @@ package com.jme3.vulkan.images;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.SharingMode;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.pipelines.Access;
+import com.jme3.vulkan.pipelines.PipelineStage;
+import com.jme3.vulkan.pipelines.states.PipelineState;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.KHRSwapchain;
@@ -13,21 +16,39 @@ public interface VulkanImage extends GpuImage {
 
     enum Layout implements IntEnum<Layout> {
 
-        Undefined(VK_IMAGE_LAYOUT_UNDEFINED),
-        General(VK_IMAGE_LAYOUT_GENERAL),
+        Undefined(VK_IMAGE_LAYOUT_UNDEFINED,
+                Flag.empty(), PipelineStage.TopOfPipe),
+        General(VK_IMAGE_LAYOUT_GENERAL,
+                Flag.empty(), Flag.empty()), // not sure how this layout should be treated for transitions
         PreInitialized(VK_IMAGE_LAYOUT_PREINITIALIZED),
-        ColorAttachmentOptimal(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
-        DepthStencilAttachmentOptimal(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL),
-        DepthStencilReadOnlyOptimal(VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL),
-        TransferSrcOptimal(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL),
-        TransferDstOptimal(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL),
-        ShaderReadOnlyOptimal(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
+        ColorAttachmentOptimal(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                Flag.of(Access.ColorAttachmentRead, Access.ColorAttachmentWrite), PipelineStage.ColorAttachmentOutput),
+        DepthStencilAttachmentOptimal(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                Flag.of(Access.DepthStencilAttachmentRead, Access.DepthStencilAttachmentWrite), PipelineStage.EarlyFragmentTests),
+        DepthStencilReadOnlyOptimal(VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+                Access.DepthStencilAttachmentRead, PipelineStage.EarlyFragmentTests),
+        TransferSrcOptimal(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                Access.TransferRead, PipelineStage.Transfer),
+        TransferDstOptimal(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                Access.TransferWrite, PipelineStage.Transfer),
+        ShaderReadOnlyOptimal(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                Access.ShaderRead, PipelineStage.FragmentShader),
         PresentSrc(KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
         private final int vkEnum;
+        private final Flag<Access> access;
+        private final Flag<PipelineStage> stage;
 
         Layout(int vkEnum) {
             this.vkEnum = vkEnum;
+            access = Flag.empty();
+            stage = Flag.empty();
+        }
+
+        Layout(int vkEnum, Flag<Access> access, Flag<PipelineStage> stage) {
+            this.vkEnum = vkEnum;
+            this.access = access;
+            this.stage = stage;
         }
 
         @Override
@@ -35,6 +56,15 @@ public interface VulkanImage extends GpuImage {
             return vkEnum;
         }
 
+        public Flag<Access> getAccessHint() {
+            return access;
+        }
+
+        public Flag<PipelineStage> getStageHint() {
+            return stage;
+        }
+
+        @Deprecated
         @SuppressWarnings("SwitchStatementWithTooFewBranches")
         public static int[] getTransferArguments(Layout srcLayout, Layout dstLayout) {
             // output array format: {srcAccessMask, dstAccessMask, srcStage, dstStage}

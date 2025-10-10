@@ -1,5 +1,6 @@
 package com.jme3.vulkan.shader;
 
+import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -8,15 +9,14 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class ShaderModule implements Native<Long> {
+public class ShaderModule extends AbstractNative<Long> {
 
     private final LogicalDevice<?> device;
-    private final NativeReference ref;
-    private long id;
 
     public ShaderModule(LogicalDevice<?> device, ByteBuffer code) {
         this.device = device;
@@ -24,7 +24,7 @@ public class ShaderModule implements Native<Long> {
             VkShaderModuleCreateInfo create = VkShaderModuleCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO)
                     .pCode(code);
-            id = getLong(stack, ptr -> check(vkCreateShaderModule(device.getNativeObject(), create, null, ptr),
+            object = getLong(stack, ptr -> check(vkCreateShaderModule(device.getNativeObject(), create, null, ptr),
                     "Failed to create shader module."));
         }
         ref = Native.get().register(this);
@@ -32,23 +32,20 @@ public class ShaderModule implements Native<Long> {
     }
 
     @Override
-    public Long getNativeObject() {
-        return id;
-    }
-
-    @Override
     public Runnable createNativeDestroyer() {
-        return () -> vkDestroyShaderModule(device.getNativeObject(), id, null);
+        return () -> vkDestroyShaderModule(device.getNativeObject(), object, null);
     }
 
     @Override
-    public void prematureNativeDestruction() {
-        id = MemoryUtil.NULL;
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ShaderModule that = (ShaderModule) o;
+        return device == that.device && Objects.equals(object, that.object);
     }
 
     @Override
-    public NativeReference getNativeReference() {
-        return ref;
+    public int hashCode() {
+        return Objects.hash(device, object);
     }
 
 }

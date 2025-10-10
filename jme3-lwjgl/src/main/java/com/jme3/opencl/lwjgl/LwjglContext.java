@@ -35,7 +35,7 @@ import com.jme3.opencl.*;
 import com.jme3.opencl.Context;
 import com.jme3.opencl.Image.ImageDescriptor;
 import com.jme3.opencl.Image.ImageFormat;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlTexture;
@@ -151,7 +151,7 @@ public class LwjglContext extends Context {
     }
 
     @Override
-    public Buffer bindVertexBuffer(VertexBuffer vb, MemoryAccess access) {
+    public Buffer bindVertexBuffer(GlVertexBuffer vb, MemoryAccess access) {
         int id = vb.getId();
         if (id == -1) {
             throw new IllegalArgumentException("vertex buffer was not yet uploaded to the GPU or is CPU only");

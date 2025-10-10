@@ -5,6 +5,8 @@ import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
 
+import java.util.Objects;
+
 public class SetLayoutBinding {
 
     private final IntEnum<Descriptor> type;
@@ -45,6 +47,21 @@ public class SetLayoutBinding {
 
     public Flag<ShaderStage> getStages() {
         return stages;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        SetLayoutBinding that = (SetLayoutBinding) o;
+        return binding == that.binding
+                && descriptors == that.descriptors
+                && Objects.equals(type, that.type)
+                && Objects.equals(stages, that.stages);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, binding, descriptors, stages);
     }
 
 }

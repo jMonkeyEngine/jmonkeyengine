@@ -37,8 +37,8 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -77,7 +77,7 @@ public class EntropyComputeUtil {
         CollisionResults results = new CollisionResults();
 
         // Set the LOD indices on the block
-        VertexBuffer originalIndices = terrainBlock.getBuffer(Type.Index);
+        GlVertexBuffer originalIndices = terrainBlock.getBuffer(Type.Index);
 
         terrainBlock.clearBuffer(Type.Index);
         if (lodIndices instanceof IntBuffer)

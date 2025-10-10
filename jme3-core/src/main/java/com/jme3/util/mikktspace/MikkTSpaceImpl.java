@@ -32,7 +32,7 @@
 package com.jme3.util.mikktspace;
 
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
@@ -53,9 +53,9 @@ public class MikkTSpaceImpl implements MikkTSpaceContext {
         this.index = mesh.getIndicesAsList();
 
         //replacing any existing tangent buffer, if you came here you want them new.
-        mesh.clearBuffer(VertexBuffer.Type.Tangent);
+        mesh.clearBuffer(GlVertexBuffer.Type.Tangent);
         FloatBuffer fb = BufferUtils.createFloatBuffer(mesh.getVertexCount() * 4);
-        mesh.setBuffer(VertexBuffer.Type.Tangent, 4, fb);
+        mesh.setBuffer(GlVertexBuffer.Type.Tangent, 4, fb);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class MikkTSpaceImpl implements MikkTSpaceContext {
     @Override
     public void getPosition(float[] posOut, int face, int vert) {
         int vertIndex = getIndex(face, vert);
-        VertexBuffer position = mesh.getBuffer(VertexBuffer.Type.Position);
+        GlVertexBuffer position = mesh.getBuffer(GlVertexBuffer.Type.Position);
         FloatBuffer pos = (FloatBuffer) position.getData();
         pos.position(vertIndex * 3);
         posOut[0] = pos.get();
@@ -82,7 +82,7 @@ public class MikkTSpaceImpl implements MikkTSpaceContext {
     @Override
     public void getNormal(float[] normOut, int face, int vert) {
         int vertIndex = getIndex(face, vert);
-        VertexBuffer normal = mesh.getBuffer(VertexBuffer.Type.Normal);
+        GlVertexBuffer normal = mesh.getBuffer(GlVertexBuffer.Type.Normal);
         FloatBuffer norm = (FloatBuffer) normal.getData();
         norm.position(vertIndex * 3);
         normOut[0] = norm.get();
@@ -93,7 +93,7 @@ public class MikkTSpaceImpl implements MikkTSpaceContext {
     @Override
     public void getTexCoord(float[] texOut, int face, int vert) {
         int vertIndex = getIndex(face, vert);
-        VertexBuffer texCoord = mesh.getBuffer(VertexBuffer.Type.TexCoord);
+        GlVertexBuffer texCoord = mesh.getBuffer(GlVertexBuffer.Type.TexCoord);
         FloatBuffer tex = (FloatBuffer) texCoord.getData();
         tex.position(vertIndex * 2);
         texOut[0] = tex.get();
@@ -103,7 +103,7 @@ public class MikkTSpaceImpl implements MikkTSpaceContext {
     @Override
     public void setTSpaceBasic(float[] tangent, float sign, int face, int vert) {
         int vertIndex = getIndex(face, vert);
-        VertexBuffer tangentBuffer = mesh.getBuffer(VertexBuffer.Type.Tangent);
+        GlVertexBuffer tangentBuffer = mesh.getBuffer(GlVertexBuffer.Type.Tangent);
         FloatBuffer tan = (FloatBuffer) tangentBuffer.getData();
         
         tan.position(vertIndex * 4);

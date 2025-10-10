@@ -1,6 +1,7 @@
 package com.jme3.vulkan;
 
 import com.jme3.system.JmeVersion;
+import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
 import org.lwjgl.PointerBuffer;
@@ -62,7 +63,7 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
         return new Builder();
     }
 
-    public class Builder extends AbstractNative.Builder<VulkanInstance> {
+    public class Builder extends AbstractBuilder {
 
         @Override
         protected void build() {

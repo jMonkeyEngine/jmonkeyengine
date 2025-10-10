@@ -41,9 +41,9 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture.MagFilter;
@@ -491,10 +491,10 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         private final static int BATCH_MAX_VERTICES = BATCH_MAX_QUADS * 4;
 
         // individual buffers for all the vertex attributes
-        private final VertexBuffer vertexPos = new VertexBuffer(Type.Position);
-        private final VertexBuffer vertexTexCoord = new VertexBuffer(Type.TexCoord);
-        private final VertexBuffer vertexColor = new VertexBuffer(Type.Color);
-        private final VertexBuffer indexBuffer = new VertexBuffer(Type.Index);
+        private final GlVertexBuffer vertexPos = new GlVertexBuffer(Type.Position);
+        private final GlVertexBuffer vertexTexCoord = new GlVertexBuffer(Type.TexCoord);
+        private final GlVertexBuffer vertexColor = new GlVertexBuffer(Type.Color);
+        private final GlVertexBuffer indexBuffer = new GlVertexBuffer(Type.Index);
 
         private final Mesh mesh = new Mesh();
         private final Geometry meshGeometry = new Geometry("nifty-quad", mesh);
@@ -516,19 +516,19 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
         public Batch() {
             // set up mesh
-            vertexPos.setupData(Usage.Stream, 2, VertexBuffer.Format.Float, BufferUtils.createFloatBuffer(BATCH_MAX_VERTICES * 2));
+            vertexPos.setupData(Usage.Stream, 2, GlVertexBuffer.Format.Float, BufferUtils.createFloatBuffer(BATCH_MAX_VERTICES * 2));
             vertexPosBuffer = (FloatBuffer) vertexPos.getData();
             mesh.setBuffer(vertexPos);
 
-            vertexTexCoord.setupData(Usage.Stream, 2, VertexBuffer.Format.Float, BufferUtils.createFloatBuffer(BATCH_MAX_VERTICES * 2));
+            vertexTexCoord.setupData(Usage.Stream, 2, GlVertexBuffer.Format.Float, BufferUtils.createFloatBuffer(BATCH_MAX_VERTICES * 2));
             vertexTexCoordBuffer = (FloatBuffer) vertexTexCoord.getData();
             mesh.setBuffer(vertexTexCoord);
 
-            vertexColor.setupData(Usage.Stream, 4, VertexBuffer.Format.Float, BufferUtils.createFloatBuffer(BATCH_MAX_VERTICES * 4));
+            vertexColor.setupData(Usage.Stream, 4, GlVertexBuffer.Format.Float, BufferUtils.createFloatBuffer(BATCH_MAX_VERTICES * 4));
             vertexColorBuffer = (FloatBuffer) vertexColor.getData();
             mesh.setBuffer(vertexColor);
 
-            indexBuffer.setupData(Usage.Stream, 3, VertexBuffer.Format.UnsignedShort, BufferUtils.createShortBuffer(BATCH_MAX_QUADS * 2 * 3));
+            indexBuffer.setupData(Usage.Stream, 3, GlVertexBuffer.Format.UnsignedShort, BufferUtils.createShortBuffer(BATCH_MAX_QUADS * 2 * 3));
             indexBufferBuffer = (ShortBuffer) indexBuffer.getData();
             mesh.setBuffer(indexBuffer);
 

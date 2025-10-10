@@ -32,7 +32,7 @@
 package com.jme3.shader;
 
 import com.jme3.renderer.Renderer;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
 import com.jme3.util.ListMap;
@@ -335,7 +335,7 @@ public final class Shader extends NativeObject {
         bufferBlocks.remove(name);
     }
 
-    public Attribute getAttribute(VertexBuffer.Type attribType){
+    public Attribute getAttribute(GlVertexBuffer.Type attribType){
         int ordinal = attribType.ordinal();
         Attribute attrib = attribs.get(ordinal);
         if (attrib == null){

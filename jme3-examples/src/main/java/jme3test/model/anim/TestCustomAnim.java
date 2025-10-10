@@ -46,10 +46,10 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Format;
+import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.scene.shape.Box;
 
 public class TestCustomAnim extends SimpleApplication {
@@ -75,8 +75,8 @@ public class TestCustomAnim extends SimpleApplication {
 
         Box box = new Box(1, 1, 1);
 
-        VertexBuffer weightsHW = new VertexBuffer(Type.HWBoneWeight);
-        VertexBuffer indicesHW = new VertexBuffer(Type.HWBoneIndex);
+        GlVertexBuffer weightsHW = new GlVertexBuffer(Type.HWBoneWeight);
+        GlVertexBuffer indicesHW = new GlVertexBuffer(Type.HWBoneIndex);
         indicesHW.setUsage(Usage.CpuOnly);
         weightsHW.setUsage(Usage.CpuOnly);
         box.setBuffer(weightsHW);
@@ -84,13 +84,13 @@ public class TestCustomAnim extends SimpleApplication {
 
         // Setup bone weight buffer
         FloatBuffer weights = FloatBuffer.allocate(box.getVertexCount() * 4);
-        VertexBuffer weightsBuf = new VertexBuffer(Type.BoneWeight);
+        GlVertexBuffer weightsBuf = new GlVertexBuffer(Type.BoneWeight);
         weightsBuf.setupData(Usage.CpuOnly, 4, Format.Float, weights);
         box.setBuffer(weightsBuf);
 
         // Setup bone index buffer
         ByteBuffer indices = ByteBuffer.allocate(box.getVertexCount() * 4);
-        VertexBuffer indicesBuf = new VertexBuffer(Type.BoneIndex);
+        GlVertexBuffer indicesBuf = new GlVertexBuffer(Type.BoneIndex);
         indicesBuf.setupData(Usage.CpuOnly, 4, Format.UnsignedByte, indices);
         box.setBuffer(indicesBuf);
 

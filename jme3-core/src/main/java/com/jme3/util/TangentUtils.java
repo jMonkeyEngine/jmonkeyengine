@@ -40,7 +40,7 @@ import java.nio.IntBuffer;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.*;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Type;
 
 /**
  * Created by Nehon on 03/10/2016.
@@ -54,21 +54,21 @@ public class TangentUtils {
     }
 
     public static void generateBindPoseTangentsIfNecessary(Mesh mesh){
-        if (mesh.getBuffer(VertexBuffer.Type.BindPosePosition) != null) {
+        if (mesh.getBuffer(GlVertexBuffer.Type.BindPosePosition) != null) {
 
-            VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
+            GlVertexBuffer tangents = mesh.getBuffer(GlVertexBuffer.Type.Tangent);
             if (tangents != null) {
-                VertexBuffer bindTangents = new VertexBuffer(VertexBuffer.Type.BindPoseTangent);
-                bindTangents.setupData(VertexBuffer.Usage.CpuOnly,
+                GlVertexBuffer bindTangents = new GlVertexBuffer(GlVertexBuffer.Type.BindPoseTangent);
+                bindTangents.setupData(GlVertexBuffer.Usage.CpuOnly,
                         4,
-                        VertexBuffer.Format.Float,
+                        GlVertexBuffer.Format.Float,
                         BufferUtils.clone(tangents.getData()));
 
-                if (mesh.getBuffer(VertexBuffer.Type.BindPoseTangent) != null) {
-                    mesh.clearBuffer(VertexBuffer.Type.BindPoseTangent);
+                if (mesh.getBuffer(GlVertexBuffer.Type.BindPoseTangent) != null) {
+                    mesh.clearBuffer(GlVertexBuffer.Type.BindPoseTangent);
                 }
                 mesh.setBuffer(bindTangents);
-                tangents.setUsage(VertexBuffer.Usage.Stream);
+                tangents.setUsage(GlVertexBuffer.Usage.Stream);
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.jme3.vulkan.buffers;
 
 import com.jme3.renderer.vulkan.VulkanUtils;
+import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -22,30 +23,20 @@ import static org.lwjgl.vulkan.VK10.*;
 public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuffer {
 
     private final LogicalDevice<?> device;
-    private final MemorySize size;
-    protected final MemoryRegion memory;
+    private MemorySize size;
+    private MemoryRegion memory;
+    protected Flag<BufferUsage> usage = BufferUsage.Storage;
+    protected boolean concurrent = false;
+    protected long padding;
 
-    public BasicVulkanBuffer(LogicalDevice<?> device, MemorySize size, Flag<BufferUsage> usage, Flag<MemoryProp> mem, boolean concurrent) {
+    public BasicVulkanBuffer(LogicalDevice<?> device, MemorySize size) {
+        this(device, size, 0);
+    }
+
+    public BasicVulkanBuffer(LogicalDevice<?> device, MemorySize size, long padding) {
         this.device = device;
         this.size = size;
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkBufferCreateInfo create = VkBufferCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO)
-                    .size(size.getBytes())
-                    .usage(usage.bits())
-                    .sharingMode(VulkanUtils.sharingMode(concurrent));
-            LongBuffer idBuf = stack.mallocLong(1);
-            check(vkCreateBuffer(device.getNativeObject(), create, null, idBuf),
-                    "Failed to create buffer.");
-            object = idBuf.get(0);
-            VkMemoryRequirements bufferMem = VkMemoryRequirements.malloc(stack);
-            vkGetBufferMemoryRequirements(device.getNativeObject(), object, bufferMem);
-            memory = new MemoryRegion(device, bufferMem.size(), mem, bufferMem.memoryTypeBits());
-            memory.bind(this, 0);
-        }
-        ref = Native.get().register(this);
-        device.getNativeReference().addDependent(ref);
-        memory.getNativeReference().addDependent(ref);
+        this.padding = padding;
     }
 
     @Override
@@ -76,11 +67,6 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
     }
 
     @Override
-    public void freeMemory() {
-        memory.getNativeReference().destroy();
-    }
-
-    @Override
     public MemorySize size() {
         return size;
     }
@@ -88,6 +74,94 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
     @Override
     public LogicalDevice<?> getDevice() {
         return device;
+    }
+
+    @Override
+    public void resize(int elements) {
+        if (elements < 0) {
+            throw new IllegalArgumentException("Buffer size cannot be negative.");
+        }
+        if (elements != size.getElements()) {
+            size = new MemorySize(elements, size.getBytesPerElement());
+            if (memory != null && size.getBytes() > memory.getSize()) {
+                build().close();
+            }
+        }
+    }
+
+    protected MemoryRegion getMemory() {
+        return memory;
+    }
+
+    public void setPadding(long padding) {
+        assert padding >= 0 : "Padding cannot be negative.";
+        this.padding = padding;
+    }
+
+    public Flag<BufferUsage> getUsage() {
+        return usage;
+    }
+
+    public boolean isConcurrent() {
+        return concurrent;
+    }
+
+    public long getPadding() {
+        return padding;
+    }
+
+    public Builder build() {
+        return new Builder();
+    }
+
+    public class Builder extends AbstractBuilder {
+
+        protected Flag<MemoryProp> memFlags = MemoryProp.DeviceLocal;
+
+        @Override
+        protected void build() {
+            if (ref != null) {
+                ref.destroy();
+                ref = null;
+            }
+            VkBufferCreateInfo create = VkBufferCreateInfo.calloc(stack)
+                    .sType(VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO)
+                    .size(size.getBytes() + padding * size.getBytesPerElement())
+                    .usage(usage.bits())
+                    .sharingMode(VulkanUtils.sharingMode(concurrent));
+            LongBuffer idBuf = stack.mallocLong(1);
+            check(vkCreateBuffer(device.getNativeObject(), create, null, idBuf),
+                    "Failed to create buffer.");
+            object = idBuf.get(0);
+            VkMemoryRequirements bufferMem = VkMemoryRequirements.malloc(stack);
+            vkGetBufferMemoryRequirements(device.getNativeObject(), object, bufferMem);
+            memory = new MemoryRegion(device, bufferMem.size());
+            try (MemoryRegion.Builder m = memory.build()) {
+                m.setFlags(memFlags);
+                m.setUsableMemoryTypes(bufferMem.memoryTypeBits());
+            }
+            memory.bind(BasicVulkanBuffer.this, 0);
+            ref = Native.get().register(BasicVulkanBuffer.this);
+            device.getNativeReference().addDependent(ref);
+            memory.getNativeReference().addDependent(ref);
+        }
+
+        public void setMemFlags(Flag<MemoryProp> memFlags) {
+            this.memFlags = memFlags;
+        }
+
+        public void setUsage(Flag<BufferUsage> usage) {
+            BasicVulkanBuffer.this.usage = usage;
+        }
+
+        public void setSize(MemorySize size) {
+            BasicVulkanBuffer.this.size = size;
+        }
+
+        public void setConcurrent(boolean concurrent) {
+            BasicVulkanBuffer.this.concurrent = concurrent;
+        }
+
     }
 
 }

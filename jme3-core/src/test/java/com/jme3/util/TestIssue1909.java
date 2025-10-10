@@ -33,7 +33,7 @@ package com.jme3.util;
 
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import java.nio.FloatBuffer;
 import org.junit.Assert;
@@ -83,15 +83,15 @@ public class TestIssue1909 {
         );
         Mesh mesh = new Mesh();
         int numAxes = 3;
-        mesh.setBuffer(VertexBuffer.Type.Normal, numAxes, normals);
-        mesh.setBuffer(VertexBuffer.Type.Position, numAxes, positions);
-        mesh.setBuffer(VertexBuffer.Type.TexCoord, 2, uvs);
+        mesh.setBuffer(GlVertexBuffer.Type.Normal, numAxes, normals);
+        mesh.setBuffer(GlVertexBuffer.Type.Position, numAxes, positions);
+        mesh.setBuffer(GlVertexBuffer.Type.TexCoord, 2, uvs);
         mesh.updateBound();
 
         Geometry testGeometry = new Geometry("testGeometry", mesh);
         MikktspaceTangentGenerator.generate(testGeometry);
 
-        VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
+        GlVertexBuffer tangents = mesh.getBuffer(GlVertexBuffer.Type.Tangent);
         Assert.assertNotNull(tangents);
     }
 }

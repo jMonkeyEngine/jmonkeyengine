@@ -33,7 +33,7 @@ package com.jme3.util;
 
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import java.nio.FloatBuffer;
 import org.junit.Assert;
@@ -69,7 +69,7 @@ public class TestIssue1919 {
         MikktspaceTangentGenerator.generate(testGeometry);
 
         Mesh mesh = testGeometry.getMesh();
-        VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
+        GlVertexBuffer tangents = mesh.getBuffer(GlVertexBuffer.Type.Tangent);
         Assert.assertNull(tangents); /// skipped this mesh
     }
 
@@ -82,7 +82,7 @@ public class TestIssue1919 {
         MikktspaceTangentGenerator.generate(testGeometry);
 
         Mesh mesh = testGeometry.getMesh();
-        VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
+        GlVertexBuffer tangents = mesh.getBuffer(GlVertexBuffer.Type.Tangent);
         Assert.assertNull(tangents); /// skipped this mesh
     }
 
@@ -95,7 +95,7 @@ public class TestIssue1919 {
         MikktspaceTangentGenerator.generate(testGeometry);
 
         Mesh mesh = testGeometry.getMesh();
-        VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
+        GlVertexBuffer tangents = mesh.getBuffer(GlVertexBuffer.Type.Tangent);
         Assert.assertNull(tangents); // skipped this mesh
     }
 
@@ -117,7 +117,7 @@ public class TestIssue1919 {
         MikktspaceTangentGenerator.generate(testGeometry);
 
         Mesh mesh = testGeometry.getMesh();
-        VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
+        GlVertexBuffer tangents = mesh.getBuffer(GlVertexBuffer.Type.Tangent);
         Assert.assertNull(tangents); // skipped this mesh
     }
 
@@ -130,7 +130,7 @@ public class TestIssue1919 {
         MikktspaceTangentGenerator.generate(testGeometry);
 
         Mesh mesh = testGeometry.getMesh();
-        VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
+        GlVertexBuffer tangents = mesh.getBuffer(GlVertexBuffer.Type.Tangent);
         Assert.assertNotNull(tangents); // generated tangents
     }
 
@@ -169,9 +169,9 @@ public class TestIssue1919 {
         );
         Mesh mesh = new Mesh();
         mesh.setMode(mode);
-        mesh.setBuffer(VertexBuffer.Type.Normal, numAxes, normals);
-        mesh.setBuffer(VertexBuffer.Type.Position, numAxes, positions);
-        mesh.setBuffer(VertexBuffer.Type.TexCoord, 2, uvs);
+        mesh.setBuffer(GlVertexBuffer.Type.Normal, numAxes, normals);
+        mesh.setBuffer(GlVertexBuffer.Type.Position, numAxes, positions);
+        mesh.setBuffer(GlVertexBuffer.Type.TexCoord, 2, uvs);
         mesh.updateBound();
 
         Geometry result = new Geometry("testGeometry" + mode, mesh);

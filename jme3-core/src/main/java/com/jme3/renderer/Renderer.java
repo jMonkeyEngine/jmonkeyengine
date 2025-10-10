@@ -34,7 +34,7 @@ package com.jme3.renderer;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
@@ -309,7 +309,7 @@ public interface Renderer {
      *
      * @param vb The vertex buffer to upload
      */
-    public void updateBufferData(VertexBuffer vb);
+    public void updateBufferData(GlVertexBuffer vb);
 
     /**
      * Uploads data of the buffer object on the GPU.
@@ -330,7 +330,7 @@ public interface Renderer {
      *
      * @param vb The vertex buffer to delete
      */
-    public void deleteBuffer(VertexBuffer vb);
+    public void deleteBuffer(GlVertexBuffer vb);
 
     /**
      * Deletes the buffer object from the GPU.
@@ -351,12 +351,12 @@ public interface Renderer {
      * per-instance vertex attribute to the shader.
      *
      * @param mesh The mesh to render
-     * @param lod The LOD level to use, see {@link Mesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
+     * @param lod The LOD level to use, see {@link Mesh#setLodLevels(GlVertexBuffer[]) }.
      * @param count Number of mesh instances to render
      * @param instanceData When count is greater than 1, these buffers provide
      *     the per-instance attributes.
      */
-    public void renderMesh(GlMesh mesh, int lod, int count, VertexBuffer[] instanceData);
+    public void renderMesh(GlMesh mesh, int lod, int count, GlVertexBuffer[] instanceData);
 
     /**
      * Resets all previously used {@link NativeObject Native Objects} on this Renderer.

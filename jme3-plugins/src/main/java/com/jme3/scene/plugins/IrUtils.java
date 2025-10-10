@@ -33,7 +33,7 @@ package com.jme3.scene.plugins;
 
 import com.jme3.math.Vector4f;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.IndexIntBuffer;
 import com.jme3.scene.mesh.IndexShortBuffer;
@@ -300,45 +300,45 @@ public final class IrUtils {
         IrVertex inspectionVertex = vertices.get(0);
         if (inspectionVertex.pos != null) {
             posBuf = BufferUtils.createVector3Buffer(vertices.size());
-            jmeMesh.setBuffer(VertexBuffer.Type.Position, 3, posBuf);
+            jmeMesh.setBuffer(GlVertexBuffer.Type.Position, 3, posBuf);
         }
         if (inspectionVertex.norm != null) {
             normBuf = BufferUtils.createVector3Buffer(vertices.size());
-            jmeMesh.setBuffer(VertexBuffer.Type.Normal, 3, normBuf);
+            jmeMesh.setBuffer(GlVertexBuffer.Type.Normal, 3, normBuf);
         }
         if (inspectionVertex.tang4d != null) {
             tangBuf = BufferUtils.createFloatBuffer(vertices.size() * 4);
-            jmeMesh.setBuffer(VertexBuffer.Type.Tangent, 4, tangBuf);
+            jmeMesh.setBuffer(GlVertexBuffer.Type.Tangent, 4, tangBuf);
         }
         if (inspectionVertex.tang != null || inspectionVertex.bitang != null) {
             throw new IllegalStateException("Mesh is using 3D tangents, must be converted to 4D tangents first.");
         }
         if (inspectionVertex.uv0 != null) {
             uv0Buf = BufferUtils.createVector2Buffer(vertices.size());
-            jmeMesh.setBuffer(VertexBuffer.Type.TexCoord, 2, uv0Buf);
+            jmeMesh.setBuffer(GlVertexBuffer.Type.TexCoord, 2, uv0Buf);
         }
         if (inspectionVertex.uv1 != null) {
             uv1Buf = BufferUtils.createVector2Buffer(vertices.size());
-            jmeMesh.setBuffer(VertexBuffer.Type.TexCoord2, 2, uv1Buf);
+            jmeMesh.setBuffer(GlVertexBuffer.Type.TexCoord2, 2, uv1Buf);
         }
         if (inspectionVertex.color != null) {
             colorBuf = BufferUtils.createByteBuffer(vertices.size() * 4);
-            jmeMesh.setBuffer(VertexBuffer.Type.Color, 4, colorBuf);
-            jmeMesh.getBuffer(VertexBuffer.Type.Color).setNormalized(true);
+            jmeMesh.setBuffer(GlVertexBuffer.Type.Color, 4, colorBuf);
+            jmeMesh.getBuffer(GlVertexBuffer.Type.Color).setNormalized(true);
         }
         if (inspectionVertex.boneWeightsIndices != null) {
             boneIndices = BufferUtils.createByteBuffer(vertices.size() * 4);
             boneWeights = BufferUtils.createFloatBuffer(vertices.size() * 4);
-            jmeMesh.setBuffer(VertexBuffer.Type.BoneIndex,  4, boneIndices);
-            jmeMesh.setBuffer(VertexBuffer.Type.BoneWeight, 4, boneWeights);
+            jmeMesh.setBuffer(GlVertexBuffer.Type.BoneIndex,  4, boneIndices);
+            jmeMesh.setBuffer(GlVertexBuffer.Type.BoneWeight, 4, boneWeights);
             
             //creating empty buffers for HW skinning 
             //the buffers will be setup if ever used.
-            VertexBuffer weightsHW = new VertexBuffer(VertexBuffer.Type.HWBoneWeight);
-            VertexBuffer indicesHW = new VertexBuffer(VertexBuffer.Type.HWBoneIndex);
+            GlVertexBuffer weightsHW = new GlVertexBuffer(GlVertexBuffer.Type.HWBoneWeight);
+            GlVertexBuffer indicesHW = new GlVertexBuffer(GlVertexBuffer.Type.HWBoneIndex);
             //setting usage to cpuOnly so that the buffer is not send empty to the GPU
-            indicesHW.setUsage(VertexBuffer.Usage.CpuOnly);
-            weightsHW.setUsage(VertexBuffer.Usage.CpuOnly);
+            indicesHW.setUsage(GlVertexBuffer.Usage.CpuOnly);
+            weightsHW.setUsage(GlVertexBuffer.Usage.CpuOnly);
             
             jmeMesh.setBuffer(weightsHW);
             jmeMesh.setBuffer(indicesHW);
@@ -346,11 +346,11 @@ public final class IrUtils {
         if (vertices.size() >= 65536) {
             // too many vertices: use IntBuffer instead of ShortBuffer
             IntBuffer ib = BufferUtils.createIntBuffer(indexes.size());
-            jmeMesh.setBuffer(VertexBuffer.Type.Index, 3, ib);
+            jmeMesh.setBuffer(GlVertexBuffer.Type.Index, 3, ib);
             indexBuf = new IndexIntBuffer(ib);
         } else {
             ShortBuffer sb = BufferUtils.createShortBuffer(indexes.size());
-            jmeMesh.setBuffer(VertexBuffer.Type.Index, 3, sb);
+            jmeMesh.setBuffer(GlVertexBuffer.Type.Index, 3, sb);
             indexBuf = new IndexShortBuffer(sb);
         }
         

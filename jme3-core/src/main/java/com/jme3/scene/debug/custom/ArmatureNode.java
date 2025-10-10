@@ -40,9 +40,8 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.*;
 import com.jme3.scene.shape.Line;
+import com.jme3.vulkan.mesh.AttributeModifier;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.*;
 
 /**
@@ -307,22 +306,28 @@ public class ArmatureNode extends Node {
     }
 
     private void setColor(Geometry g, ColorRGBA color) {
-        float[] colors = new float[g.getMesh().getVertexCount() * 4];
-        for (int i = 0; i < g.getMesh().getVertexCount() * 4; i += 4) {
-            colors[i] = color.r;
-            colors[i + 1] = color.g;
-            colors[i + 2] = color.b;
-            colors[i + 3] = color.a;
+        try (AttributeModifier colorMod = g.getMesh().modify(GlVertexBuffer.Type.Color)) {
+            for (int i = 0; i < g.getMesh().getVertexCount(); i++) {
+                colorMod.putColor(i, 0, color);
+            }
         }
-        VertexBuffer colorBuff = g.getMesh().getBuffer(VertexBuffer.Type.Color);
-        if (colorBuff == null) {
-            g.getMesh().setBuffer(VertexBuffer.Type.Color, 4, colors);
-        } else {
-            FloatBuffer cBuff = (FloatBuffer) colorBuff.getData();
-            cBuff.rewind();
-            cBuff.put(colors);
-            colorBuff.updateData(cBuff);
-        }
+        // todo: ensure this code is properly replaced
+//        float[] colors = new float[g.getMesh().getVertexCount() * 4];
+//        for (int i = 0; i < g.getMesh().getVertexCount() * 4; i += 4) {
+//            colors[i] = color.r;
+//            colors[i + 1] = color.g;
+//            colors[i + 2] = color.b;
+//            colors[i + 3] = color.a;
+//        }
+//        GlVertexBuffer colorBuff = g.getMesh().getBuffer(GlVertexBuffer.Type.Color);
+//        if (colorBuff == null) {
+//            g.getMesh().setBuffer(GlVertexBuffer.Type.Color, 4, colors);
+//        } else {
+//            FloatBuffer cBuff = (FloatBuffer) colorBuff.getData();
+//            cBuff.rewind();
+//            cBuff.put(colors);
+//            colorBuff.updateData(cBuff);
+//        }
     }
 
     /**

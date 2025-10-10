@@ -41,7 +41,7 @@ import com.jme3.math.Spline.SplineType;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
 
@@ -248,9 +248,9 @@ public class Surface extends GlMesh {
             normals[arrayIndex++] = n.z;
         }
 
-        this.setBuffer(VertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(verticesArray));
-        this.setBuffer(VertexBuffer.Type.Index, 3, indices);
-        this.setBuffer(VertexBuffer.Type.Normal, 3, normals);
+        this.setBuffer(GlVertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(verticesArray));
+        this.setBuffer(GlVertexBuffer.Type.Index, 3, indices);
+        this.setBuffer(GlVertexBuffer.Type.Normal, 3, normals);
         this.updateBound();
         this.updateCounts();
     }

@@ -31,7 +31,7 @@
  */
 package com.jme3.terrain.geomipmap;
 
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Type;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;

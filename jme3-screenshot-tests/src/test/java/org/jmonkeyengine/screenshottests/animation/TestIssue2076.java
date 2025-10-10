@@ -44,7 +44,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import org.jmonkeyengine.screenshottests.testframework.ScreenshotTestBase;
 import org.junit.jupiter.api.Test;
 
@@ -99,8 +99,8 @@ public class TestIssue2076 extends ScreenshotTestBase {
                 // Remove its vertex normals
                 Geometry oldGeometry = (Geometry) oldJaime.getChild(0);
                 Mesh oldMesh = oldGeometry.getMesh();
-                oldMesh.clearBuffer(VertexBuffer.Type.Normal);
-                oldMesh.clearBuffer(VertexBuffer.Type.BindPoseNormal);
+                oldMesh.clearBuffer(GlVertexBuffer.Type.Normal);
+                oldMesh.clearBuffer(GlVertexBuffer.Type.BindPoseNormal);
 
                 // Test new animation system
                 Node newJaime = (Node) assetManager.loadModel(assetPath);
@@ -115,8 +115,8 @@ public class TestIssue2076 extends ScreenshotTestBase {
                 // Remove its vertex normals
                 Geometry newGeometry = (Geometry) newJaime.getChild(0);
                 Mesh newMesh = newGeometry.getMesh();
-                newMesh.clearBuffer(VertexBuffer.Type.Normal);
-                newMesh.clearBuffer(VertexBuffer.Type.BindPoseNormal);
+                newMesh.clearBuffer(GlVertexBuffer.Type.Normal);
+                newMesh.clearBuffer(GlVertexBuffer.Type.BindPoseNormal);
 
                 // Position the camera to see both models
                 simpleApplication.getCamera().setLocation(new Vector3f(0f, 0f, 5f));

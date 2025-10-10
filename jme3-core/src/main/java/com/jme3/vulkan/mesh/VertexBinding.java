@@ -10,24 +10,33 @@ public class VertexBinding implements Iterable<VertexAttribute> {
     private final int binding;
     private final IntEnum<InputRate> rate;
     private final Map<String, VertexAttribute> attributes = new HashMap<>();
-    private int stride;
+    private int stride = 0;
 
     public VertexBinding(int binding, IntEnum<InputRate> rate) {
         this.binding = binding;
-        this.rate = rate;
+        this.rate = Objects.requireNonNull(rate);
     }
 
-    private int findNextAttributeOffset(Format format) {
-        int offset = 0;
-        for (VertexAttribute a : attributes.values()) {
-            offset = Math.max(offset, a.getOffset() + a.getFormat().getTotalBytes());
-        }
-        stride = offset + format.getTotalBytes();
-        return offset;
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        VertexBinding that = (VertexBinding) o;
+        return binding == that.binding
+                && stride == that.stride
+                && rate.is(that.rate)
+                && Objects.equals(attributes, that.attributes);
     }
 
-    protected void addAttribute(String name, Format format, int location) {
-        attributes.put(name, new VertexAttribute(this, name, format, location, findNextAttributeOffset(format)));
+    @Override
+    public int hashCode() {
+        return Objects.hash(binding, rate, attributes, stride);
+    }
+
+    protected VertexAttribute addAttribute(String name, Format format, int location) {
+        VertexAttribute attr = new VertexAttribute(this, name, format, location, stride);
+        attributes.put(name, attr);
+        stride += format.getTotalBytes();
+        return attr;
     }
 
     public int getBindingIndex() {

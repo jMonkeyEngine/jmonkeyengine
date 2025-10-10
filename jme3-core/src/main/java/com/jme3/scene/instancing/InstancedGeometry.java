@@ -48,15 +48,13 @@ import com.jme3.renderer.Camera.FrustumIntersect;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.GlVertexBuffer.Format;
+import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.pipelines.Pipeline;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -70,12 +68,12 @@ public class InstancedGeometry extends Geometry {
 
     private static BiFunction<Camera, Geometry, Boolean> instanceCullingFunction = new DefaultInstanceCullingFunction();
 
-    private VertexBuffer[] globalInstanceData;
-    private VertexBuffer transformInstanceData;
+    private GlVertexBuffer[] globalInstanceData;
+    private GlVertexBuffer transformInstanceData;
     private Geometry[] geometries = new Geometry[1];
     // Keep track of both transformInstanceData and globalInstanceData
     // that is used by renderer.
-    private VertexBuffer[] allInstanceData;
+    private GlVertexBuffer[] allInstanceData;
 
     private int firstUnusedIndex = 0;
     private int numVisibleInstances = 0;
@@ -119,16 +117,10 @@ public class InstancedGeometry extends Geometry {
     }
 
     @Override
-    public void draw(CommandBuffer cmd, Pipeline pipeline) {
-        super.draw(cmd, pipeline);
-        // todo: implement correctly
-    }
-
-    @Override
     public void draw(Renderer renderer) {
         int instances = getNumVisibleInstances();
         if (instances > 0) {
-            mesh.draw(renderer, this, instances, getAllInstanceData());
+            mesh.render(renderer, this, instances, getAllInstanceData());
         }
     }
 
@@ -136,12 +128,12 @@ public class InstancedGeometry extends Geometry {
      * Global user specified per-instance data.
      *
      * By default set to <code>null</code>, specify an array of VertexBuffers
-     * via {@link #setGlobalUserInstanceData(com.jme3.scene.VertexBuffer[]) }.
+     * via {@link #setGlobalUserInstanceData(GlVertexBuffer[]) }.
      *
      * @return global user specified per-instance data.
-     * @see #setGlobalUserInstanceData(com.jme3.scene.VertexBuffer[])
+     * @see #setGlobalUserInstanceData(GlVertexBuffer[])
      */
-    public VertexBuffer[] getGlobalUserInstanceData() {
+    public GlVertexBuffer[] getGlobalUserInstanceData() {
         return globalInstanceData;
     }
 
@@ -154,9 +146,9 @@ public class InstancedGeometry extends Geometry {
      * @param globalInstanceData global user per-instance data.
      *
      * @throws IllegalArgumentException If one of the VertexBuffers is not
-     * {@link VertexBuffer#setInstanced(boolean) instanced}.
+     * {@link GlVertexBuffer#setInstanced(boolean) instanced}.
      */
-    public void setGlobalUserInstanceData(VertexBuffer[] globalInstanceData) {
+    public void setGlobalUserInstanceData(GlVertexBuffer[] globalInstanceData) {
         this.globalInstanceData = globalInstanceData;
         updateAllInstanceData();
     }
@@ -166,7 +158,7 @@ public class InstancedGeometry extends Geometry {
      *
      * @param transformInstanceData The transforms for each instance.
      */
-    public void setTransformUserInstanceData(VertexBuffer transformInstanceData) {
+    public void setTransformUserInstanceData(GlVertexBuffer transformInstanceData) {
         this.transformInstanceData = transformInstanceData;
         updateAllInstanceData();
     }
@@ -176,9 +168,9 @@ public class InstancedGeometry extends Geometry {
      *
      * @return The per-instance transform data.
      *
-     * @see #setTransformUserInstanceData(com.jme3.scene.VertexBuffer)
+     * @see #setTransformUserInstanceData(GlVertexBuffer)
      */
-    public VertexBuffer getTransformUserInstanceData() {
+    public GlVertexBuffer getTransformUserInstanceData() {
         return transformInstanceData;
     }
 
@@ -243,7 +235,7 @@ public class InstancedGeometry extends Geometry {
             BufferUtils.destroyDirectBuffer(transformInstanceData.getData());
             transformInstanceData.updateData(BufferUtils.createFloatBuffer(geometries.length * INSTANCE_SIZE));
         } else if (transformInstanceData == null) {
-            transformInstanceData = new VertexBuffer(Type.InstanceData);
+            transformInstanceData = new GlVertexBuffer(Type.InstanceData);
             transformInstanceData.setInstanced(true);
             transformInstanceData.setupData(Usage.Stream,
                     INSTANCE_SIZE,
@@ -426,19 +418,19 @@ public class InstancedGeometry extends Geometry {
         return geometries;
     }
 
-    public VertexBuffer[] getAllInstanceData() {
+    public GlVertexBuffer[] getAllInstanceData() {
         return allInstanceData;
     }
 
     private void updateAllInstanceData() {
-        ArrayList<VertexBuffer> allData = new ArrayList<>();
+        ArrayList<GlVertexBuffer> allData = new ArrayList<>();
         if (transformInstanceData != null) {
             allData.add(transformInstanceData);
         }
         if (globalInstanceData != null) {
             allData.addAll(Arrays.asList(globalInstanceData));
         }
-        allInstanceData = allData.toArray(new VertexBuffer[allData.size()]);
+        allInstanceData = allData.toArray(new GlVertexBuffer[allData.size()]);
     }
 
     @Override

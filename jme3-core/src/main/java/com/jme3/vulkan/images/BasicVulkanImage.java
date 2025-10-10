@@ -1,5 +1,6 @@
 package com.jme3.vulkan.images;
 
+import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.util.natives.AbstractNative;
@@ -33,6 +34,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
     private Format format = Format.RGBA8_SRGB;
     private IntEnum<Tiling> tiling = Tiling.Optimal;
     private IntEnum<SharingMode> sharing = SharingMode.Exclusive;
+    private Layout layout = Layout.Undefined;
 
     public BasicVulkanImage(LogicalDevice<?> device, IntEnum<GpuImage.Type> type) {
         this.device = device;
@@ -111,26 +113,26 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
         return () -> vkDestroyImage(device.getNativeObject(), object, null);
     }
 
-    // todo: replace with transition autocloseable and deprecate this method
-    public void transitionLayout(CommandBuffer commands, Layout srcLayout, Layout dstLayout) {
+    public void transitionLayout(CommandBuffer commands, Layout dstLayout) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            int[] args = VulkanImage.Layout.getTransferArguments(srcLayout, dstLayout);
+            //int[] args = VulkanImage.Layout.getTransferArguments(srcLayout, dstLayout);
             VkImageMemoryBarrier.Buffer barrier = VkImageMemoryBarrier.calloc(1, stack)
                     .sType(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER)
-                    .oldLayout(srcLayout.getEnum())
+                    .oldLayout(layout.getEnum())
                     .newLayout(dstLayout.getEnum())
                     .srcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
                     .dstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED) // for transfering queue ownership
                     .image(object)
-                    .srcAccessMask(args[0])
-                    .dstAccessMask(args[1]);
+                    .srcAccessMask(layout.getAccessHint().bits())
+                    .dstAccessMask(dstLayout.getAccessHint().bits());
             barrier.subresourceRange()
                     .baseMipLevel(0)
-                    .levelCount(1)
+                    .levelCount(mipmaps)
                     .baseArrayLayer(0)
-                    .layerCount(1)
+                    .layerCount(layers)
                     .aspectMask(format.getAspects().bits());
-            vkCmdPipelineBarrier(commands.getBuffer(), args[2], args[3], 0, null, null, barrier);
+            vkCmdPipelineBarrier(commands.getBuffer(), layout.getStageHint().bits(), dstLayout.getStageHint().bits(), 0, null, null, barrier);
+            layout = dstLayout;
         }
     }
 
@@ -138,10 +140,9 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
         return new Builder();
     }
 
-    public class Builder extends AbstractNative.Builder<BasicVulkanImage> {
+    public class Builder extends AbstractBuilder {
 
         private Flag<MemoryProp> mem;
-        private IntEnum<Layout> layout = Layout.Undefined;
 
         @Override
         protected void build() {
@@ -163,7 +164,11 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
             object = idBuf.get(0);
             VkMemoryRequirements memReq = VkMemoryRequirements.malloc(stack);
             vkGetImageMemoryRequirements(device.getNativeObject(), object, memReq);
-            memory = new MemoryRegion(device, memReq.size(), mem, memReq.memoryTypeBits());
+            memory = new MemoryRegion(device, memReq.size());
+            try (MemoryRegion.Builder m = memory.build()) {
+                m.setFlags(mem);
+                m.setUsableMemoryTypes(memReq.memoryTypeBits());
+            }
             memory.bind(BasicVulkanImage.this, 0);
             ref = Native.get().register(BasicVulkanImage.this);
             device.getNativeReference().addDependent(ref);
@@ -220,8 +225,8 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
             tiling = t;
         }
 
-        public void setLayout(IntEnum<Layout> l) {
-            this.layout = l;
+        public void setLayout(Layout l) {
+            layout = l;
         }
 
         public Flag<MemoryProp> getMemoryProps() {

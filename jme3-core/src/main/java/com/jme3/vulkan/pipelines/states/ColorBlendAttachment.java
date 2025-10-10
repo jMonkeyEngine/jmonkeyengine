@@ -2,6 +2,8 @@ package com.jme3.vulkan.pipelines.states;
 
 import org.lwjgl.vulkan.VkPipelineColorBlendAttachmentState;
 
+import java.util.Objects;
+
 import static org.lwjgl.vulkan.VK10.*;
 
 public class ColorBlendAttachment {
@@ -16,6 +18,26 @@ public class ColorBlendAttachment {
     private int dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
     private int alphaBlendOp = VK_BLEND_OP_ADD;
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ColorBlendAttachment that = (ColorBlendAttachment) o;
+        return colorWriteMask == that.colorWriteMask
+                && blend == that.blend
+                && srcColorBlendFactor == that.srcColorBlendFactor
+                && dstColorBlendFactor == that.dstColorBlendFactor
+                && colorBlendOp == that.colorBlendOp
+                && srcAlphaBlendFactor == that.srcAlphaBlendFactor
+                && dstAlphaBlendFactor == that.dstAlphaBlendFactor
+                && alphaBlendOp == that.alphaBlendOp;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(colorWriteMask, blend, srcColorBlendFactor, dstColorBlendFactor, colorBlendOp,
+                srcAlphaBlendFactor, dstAlphaBlendFactor, alphaBlendOp);
+    }
+
     public void writeToStruct(VkPipelineColorBlendAttachmentState struct) {
         struct.colorWriteMask(colorWriteMask)
                 .blendEnable(blend)
@@ -25,6 +47,19 @@ public class ColorBlendAttachment {
                 .srcAlphaBlendFactor(srcAlphaBlendFactor)
                 .dstAlphaBlendFactor(dstAlphaBlendFactor)
                 .alphaBlendOp(alphaBlendOp);
+    }
+
+    public ColorBlendAttachment copy() {
+        ColorBlendAttachment copy = new ColorBlendAttachment();
+        copy.colorWriteMask = colorWriteMask;
+        copy.blend = blend;
+        copy.srcColorBlendFactor = srcColorBlendFactor;
+        copy.dstColorBlendFactor = dstColorBlendFactor;
+        copy.colorBlendOp = colorBlendOp;
+        copy.srcAlphaBlendFactor = srcAlphaBlendFactor;
+        copy.dstAlphaBlendFactor = dstAlphaBlendFactor;
+        copy.alphaBlendOp = alphaBlendOp;
+        return copy;
     }
 
     public void setColorWriteMask(int colorWriteMask) {
@@ -57,6 +92,38 @@ public class ColorBlendAttachment {
 
     public void setAlphaBlendOp(int alphaBlendOp) {
         this.alphaBlendOp = alphaBlendOp;
+    }
+
+    public int getColorWriteMask() {
+        return colorWriteMask;
+    }
+
+    public boolean isBlend() {
+        return blend;
+    }
+
+    public int getSrcColorBlendFactor() {
+        return srcColorBlendFactor;
+    }
+
+    public int getDstColorBlendFactor() {
+        return dstColorBlendFactor;
+    }
+
+    public int getColorBlendOp() {
+        return colorBlendOp;
+    }
+
+    public int getSrcAlphaBlendFactor() {
+        return srcAlphaBlendFactor;
+    }
+
+    public int getDstAlphaBlendFactor() {
+        return dstAlphaBlendFactor;
+    }
+
+    public int getAlphaBlendOp() {
+        return alphaBlendOp;
     }
 
 }

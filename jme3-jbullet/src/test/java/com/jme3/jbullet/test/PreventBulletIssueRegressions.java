@@ -53,7 +53,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -180,8 +180,8 @@ public class PreventBulletIssueRegressions {
 
         Geometry geometry = (Geometry) sinbad.getChild(0);
         Mesh mesh = geometry.getMesh();
-        VertexBuffer.Type bufferType = VertexBuffer.Type.BoneIndex;
-        VertexBuffer vertexBuffer = mesh.getBuffer(bufferType);
+        GlVertexBuffer.Type bufferType = GlVertexBuffer.Type.BoneIndex;
+        GlVertexBuffer vertexBuffer = mesh.getBuffer(bufferType);
 
         // Remove the existing bone-index buffer.
         mesh.getBufferList().remove(vertexBuffer);

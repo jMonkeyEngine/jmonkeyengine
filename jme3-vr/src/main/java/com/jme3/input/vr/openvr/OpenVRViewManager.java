@@ -15,7 +15,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.system.jopenvr.DistortionCoordinates_t;
 import com.jme3.system.jopenvr.JOpenVRLibrary;
 import com.jme3.system.jopenvr.OpenVRUtil;
@@ -722,11 +722,11 @@ public class OpenVRViewManager extends AbstractVRViewManager {
         }
 
         // OK, create the mesh
-        distortionMesh.setBuffer(VertexBuffer.Type.Position, 3, verts);
-        distortionMesh.setBuffer(VertexBuffer.Type.Index, 1, indices);
-        distortionMesh.setBuffer(VertexBuffer.Type.TexCoord, 2, texcoordR);
-        distortionMesh.setBuffer(VertexBuffer.Type.TexCoord2, 2, texcoordG);
-        distortionMesh.setBuffer(VertexBuffer.Type.TexCoord3, 2, texcoordB);
+        distortionMesh.setBuffer(GlVertexBuffer.Type.Position, 3, verts);
+        distortionMesh.setBuffer(GlVertexBuffer.Type.Index, 1, indices);
+        distortionMesh.setBuffer(GlVertexBuffer.Type.TexCoord, 2, texcoordR);
+        distortionMesh.setBuffer(GlVertexBuffer.Type.TexCoord2, 2, texcoordG);
+        distortionMesh.setBuffer(GlVertexBuffer.Type.TexCoord3, 2, texcoordB);
         distortionMesh.setStatic();
         return distortionMesh;
     }

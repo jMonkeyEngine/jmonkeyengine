@@ -1,5 +1,6 @@
 package com.jme3.vulkan.mesh;
 
+import com.jme3.util.AbstractBuilder;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
@@ -15,6 +16,23 @@ import java.util.*;
 public class MeshDescription implements Iterable<VertexBinding> {
 
     private final List<VertexBinding> bindings = new ArrayList<>();
+
+    @Override
+    public Iterator<VertexBinding> iterator() {
+        return bindings.iterator();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        MeshDescription that = (MeshDescription) o;
+        return Objects.equals(bindings, that.bindings);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(bindings);
+    }
 
     public VkVertexInputBindingDescription.Buffer getBindingInfo(MemoryStack stack) {
         VkVertexInputBindingDescription.Buffer binds = VkVertexInputBindingDescription.calloc(bindings.size(), stack);
@@ -45,30 +63,6 @@ public class MeshDescription implements Iterable<VertexBinding> {
         return attr;
     }
 
-    public int addBinding(IntEnum<InputRate> rate) {
-        VertexBinding binding = new VertexBinding(bindings.size(), rate);
-        bindings.add(binding);
-        return binding.getBindingIndex();
-    }
-
-    public int addAttribute(String name, IntEnum<InputRate> rate, Format format, int location) {
-        int binding = addBinding(rate);
-        addAttribute(name, binding, format, location);
-        return binding;
-    }
-
-    public void addAttribute(String name, int bindingIndex, Format format, int location) {
-        getBinding(bindingIndex).addAttribute(name, format, location);
-    }
-
-    public int addAttribute(BuiltInAttribute name, IntEnum<InputRate> rate, Format format, int location) {
-        return addAttribute(name.getName(), rate, format, location);
-    }
-
-    public void addAttribute(BuiltInAttribute name, int bindingIndex, Format format, int location) {
-        addAttribute(name.getName(), bindingIndex, format, location);
-    }
-
     public VertexBinding getBinding(int index) {
         return bindings.get(index);
     }
@@ -85,9 +79,28 @@ public class MeshDescription implements Iterable<VertexBinding> {
         return Collections.unmodifiableList(bindings);
     }
 
-    @Override
-    public Iterator<VertexBinding> iterator() {
-        return bindings.iterator();
+    public Builder build() {
+        return new Builder();
+    }
+
+    public class Builder implements AutoCloseable {
+
+        @Override
+        public void close() {}
+
+        public VertexBinding addBinding(IntEnum<InputRate> rate) {
+            VertexBinding binding = new VertexBinding(bindings.size(), rate);
+            bindings.add(binding);
+            return binding;
+        }
+
+        public VertexAttribute addAttribute(VertexBinding binding, String name, Format format, int location) {
+            if (binding.getBindingIndex() >= bindings.size() || bindings.get(binding.getBindingIndex()) != binding) {
+                throw new IllegalArgumentException("Vertex binding does not belong to this mesh description.");
+            }
+            return binding.addAttribute(name, format, location);
+        }
+
     }
 
 }

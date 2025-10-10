@@ -27,13 +27,33 @@ public interface GpuBuffer {
      */
     PointerBuffer map(int offset, int size);
 
+    /**
+     * Unmaps the memory of this buffer. If this buffer is not currently
+     * {@link #map(int, int) mapped} when this method is called, an
+     * exception is thrown.
+     */
     void unmap();
 
-    void freeMemory();
-
+    /**
+     * Gets the functional size of this buffer.
+     *
+     * @return size
+     */
     MemorySize size();
 
+    /**
+     * Gets the native buffer ID.
+     *
+     * @return buffer ID
+     */
     long getId();
+
+    /**
+     * Resizes this buffer to accomodate the given number of elements.
+     *
+     * @param elements number of elements this buffer must be able to store (not negative)
+     */
+    void resize(int elements);
 
     default void verifyBufferSize(int elements, long bytesPerElement) {
         if (elements * bytesPerElement > size().getBytes()) {
@@ -145,14 +165,41 @@ public interface GpuBuffer {
         return mapLongs(0, size().getLongs());
     }
 
+    default IndexBuffer mapIndices(int offset, int size) {
+        switch (size().getBytesPerElement()) {
+            case Byte.BYTES: return new IndexByteBuffer(mapBytes(offset, size));
+            case Short.BYTES: return new IndexShortBuffer(mapShorts(offset, size));
+            case Integer.BYTES: return new IndexIntBuffer(mapInts(offset, size));
+            default: throw new UnsupportedOperationException("Unable to map to index buffer with "
+                    + size().getBytesPerElement() + " bytes per element.");
+        }
+    }
+
+    default IndexBuffer mapIndices(int offset) {
+        switch (size().getBytesPerElement()) {
+            case Byte.BYTES: return new IndexByteBuffer(mapBytes(offset));
+            case Short.BYTES: return new IndexShortBuffer(mapShorts(offset));
+            case Integer.BYTES: return new IndexIntBuffer(mapInts(offset));
+            default: throw new UnsupportedOperationException("Unable to map to index buffer with "
+                    + size().getBytesPerElement() + " bytes per element.");
+        }
+    }
+
     default IndexBuffer mapIndices() {
         switch (size().getBytesPerElement()) {
             case Byte.BYTES: return new IndexByteBuffer(mapBytes());
             case Short.BYTES: return new IndexShortBuffer(mapShorts());
             case Integer.BYTES: return new IndexIntBuffer(mapInts());
-            default: throw new UnsupportedOperationException("Cannot map to index buffer with "
+            default: throw new UnsupportedOperationException("Unable to map to index buffer with "
                     + size().getBytesPerElement() + " bytes per element.");
         }
+    }
+
+    default void copy(GpuBuffer buffer) {
+        verifyBufferSize(buffer.size().getBytes(), Byte.BYTES);
+        MemoryUtil.memCopy(buffer.mapBytes(), mapBytes(0, buffer.size().getBytes()));
+        buffer.unmap();
+        unmap();
     }
 
     default void copy(ByteBuffer buffer) {
