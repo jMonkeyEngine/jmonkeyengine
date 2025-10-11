@@ -48,6 +48,7 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.GlMesh;
 import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
@@ -99,14 +100,13 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
      * attenuation)</p>
      *
      * @param shader the Shader being used
-     * @param g the Geometry being rendered
      * @param lightList the list of lights
      * @param numLights the number of lights to upload
      * @param rm to manage rendering
      * @param startIndex the starting index in the LightList
      * @return the next starting index in the LightList
      */
-    protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex) {
+    private int updateLightListUniforms(Shader shader, LightList lightList, int numLights, RenderManager rm, int startIndex) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
         }
@@ -207,19 +207,19 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, GlMaterial.BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         int batchSize = renderManager.getSinglePassLightBatchSize();
         if (lights.size() == 0) {
-            updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, 0);
+            updateLightListUniforms(shader, lights, batchSize, renderManager, 0);
             renderer.setShader(shader);
-            renderMeshFromGeometry(renderer, geometry);
+            renderMeshFromGeometry(renderer, geometry, mesh);
         } else {
             while (nbRenderedLights < lights.size()) {
-                nbRenderedLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, nbRenderedLights);
+                nbRenderedLights = updateLightListUniforms(shader, lights, batchSize, renderManager, nbRenderedLights);
                 renderer.setShader(shader);
-                renderMeshFromGeometry(renderer, geometry);
+                renderMeshFromGeometry(renderer, geometry, mesh);
             }
         }
     }

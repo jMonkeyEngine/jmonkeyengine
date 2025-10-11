@@ -4,7 +4,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.buffers.generate.BufferGenerator;
-import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.memory.MemorySize;
 
 import java.nio.ShortBuffer;
@@ -14,16 +13,14 @@ public class MyCustomMesh extends AdaptiveMesh {
     private static final short[] INDICES = {0, 2, 3, 0, 1, 2};
 
     public MyCustomMesh(MeshDescription description,
-                        BufferGenerator generator,
+                        BufferGenerator<?> generator,
                         Vector3f normal, Vector3f up, float width, float height, float centerX, float centerY) {
         super(description, generator);
-        VersionedResource<? extends GpuBuffer> indices = generator.createStaticBuffer(MemorySize.shorts(6), BufferUsage.Index);
+        GpuBuffer indices = generator.createStaticBuffer(MemorySize.shorts(6), BufferUsage.Index);
         indexBuffers.put(0, indices);
-        for (GpuBuffer buf : indices) {
-            ShortBuffer iBuf = buf.mapShorts();
-            iBuf.put(INDICES);
-            buf.unmap();
-        }
+        ShortBuffer iBuf = indices.mapShorts();
+        iBuf.put(INDICES);
+        indices.unmap();
         Vector3f x = normal.cross(up);
         Vector3f y = normal.cross(x);
         Vector3f tempX = new Vector3f();

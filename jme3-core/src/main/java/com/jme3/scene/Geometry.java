@@ -167,24 +167,6 @@ public class Geometry extends Spatial {
         matBuffer.unmap();
     }
 
-    /**
-     * Binds this geometry's material and mesh data according to the currently
-     * bound pipeline and material, and then renders the mesh. If this geometry's
-     * material is the bound material, then the material does not have to be
-     * bound again.
-     *
-     * @param rm render manager for OpenGL rendering
-     * @param cmd command buffer for Vulkan rendering
-     * @param boundPipeline the pipeline that is currently bound
-     * @param boundMaterial the material that is currently bound
-     */
-    public void render(RenderManager rm, CommandBuffer cmd, Pipeline boundPipeline, Material boundMaterial) {
-        if (boundMaterial != material) {
-            material.bind(cmd, boundPipeline);
-        }
-        mesh.render(rm, cmd, this, lod);
-    }
-
     @Override
     public boolean checkCulling(Camera cam) {
         if (isGrouped()) {

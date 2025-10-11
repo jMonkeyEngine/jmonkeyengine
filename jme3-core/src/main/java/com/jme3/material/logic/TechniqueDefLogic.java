@@ -37,6 +37,7 @@ import com.jme3.material.GlMaterial;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.GlMesh;
 import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
@@ -93,5 +94,6 @@ public interface TechniqueDefLogic {
      * @param lights Lights which influence the geometry.
      * @param lastBindUnits the index of the most recently used texture unit
      */
-    void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, GlMaterial.BindUnits lastBindUnits);
+    void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh,
+                LightList lights, GlMaterial.BindUnits lastBindUnits);
 }

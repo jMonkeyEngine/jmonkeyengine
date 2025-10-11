@@ -39,6 +39,7 @@ import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.GlMesh;
 import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
 import com.jme3.shader.VarType;
@@ -134,7 +135,7 @@ public final class Technique {
      * @param rendererCaps The renderer capabilities which the shader should support.
      * @return A compatible shader.
      */
-    Shader makeCurrent(RenderManager renderManager, SafeArrayList<MatParamOverride> worldOverrides,
+    public Shader makeCurrent(RenderManager renderManager, SafeArrayList<MatParamOverride> worldOverrides,
             SafeArrayList<MatParamOverride> forcedOverrides,
             LightList lights, EnumSet<Caps> rendererCaps) {
         TechniqueDefLogic logic = def.getLogic();
@@ -155,17 +156,18 @@ public final class Technique {
     
     /**
      * Render the technique according to its {@link TechniqueDefLogic}.
-     * 
+     *
      * @param renderManager The render manager to perform the rendering against.
-     * @param shader The shader that was selected in 
-     * {@link #makeCurrent(RenderManager, SafeArrayList, SafeArrayList, LightList, EnumSet)}.
-     * @param geometry The geometry to render
-     * @param lights Lights which influence the geometry.
+     * @param shader        The shader that was selected in
+     *                      {@link #makeCurrent(RenderManager, SafeArrayList, SafeArrayList, LightList, EnumSet)}.
+     * @param geometry      The geometry to render
+     * @param mesh          The mesh to render
+     * @param lights        Lights which influence the geometry.
      * @param lastBindUnits the index of the most recently used texture unit
      */
-    void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh, LightList lights, BindUnits lastBindUnits) {
         TechniqueDefLogic logic = def.getLogic();
-        logic.render(renderManager, shader, geometry, lights, lastBindUnits);
+        logic.render(renderManager, shader, geometry, mesh, lights, lastBindUnits);
     }
     
     /**

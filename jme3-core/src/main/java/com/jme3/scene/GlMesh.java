@@ -35,13 +35,12 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
-import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.collision.bih.BIHTree;
 import com.jme3.export.*;
+import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.*;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
 import com.jme3.scene.GlVertexBuffer.*;
 import com.jme3.scene.mesh.*;
 import com.jme3.util.*;
@@ -50,7 +49,7 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.mesh.AttributeModifier;
-import com.jme3.vulkan.meshnew.AccessRate;
+import com.jme3.vulkan.mesh.AccessRate;
 
 import java.io.IOException;
 import java.nio.*;
@@ -890,9 +889,8 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
     }
 
     @Override
-    public void render(RenderManager renderManager, CommandBuffer cmd, Geometry geometry, int lod) {
-        renderManager.getRenderer().renderMesh(this, lod, elementCount, );
-        renderManager.renderGeometry();
+    public void render(RenderManager renderManager, CommandBuffer cmd, Geometry geometry, Material material) {
+
     }
 
     @Override

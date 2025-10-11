@@ -157,9 +157,9 @@ public class RenderManager {
     
     /**
      * Gets the default pipeline context registered under
-     * {@link PipelineContext#getClass()}.
+     * {@code PipelineContext.class}.
      * 
-     * @return 
+     * @return the default pipeline context
      */
     public PipelineContext getDefaultContext() {
         return getContext(PipelineContext.class);
@@ -757,27 +757,38 @@ public class RenderManager {
      * @see com.jme3.material.Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager)
      */
     public void renderGeometry(Geometry geom) {
-        
         if (renderFilter != null && !renderFilter.test(geom)) {
             return;
         }
-        
-        LightList lightList = geom.getWorldLightList();
-        if (lightFilter != null) {
-            filteredLightList.clear();
-            lightFilter.filterLights(geom, filteredLightList);
-            lightList = filteredLightList;
+        renderGeometry(geom, filterLights(geom, geom.getWorldLightList(), null));
+    }
+
+    /**
+     *
+     *
+     * @param geometry
+     * @param dst
+     * @return
+     */
+    public LightList filterLights(Geometry geometry, LightList src, LightList dst) {
+        if (lightFilter == null) {
+            return geometry.getWorldLightList();
         }
-        
-        renderGeometry(geom, lightList);
-        
+        if (dst == null) {
+            dst = filteredLightList;
+        }
+        dst.clear();
+        lightFilter.filterLights(geometry, src, dst);
+        return dst;
     }
     
     /**
      * 
      * @param geom
-     * @param lightList 
+     * @param lightList
+     * @deprecated use {@link com.jme3.vulkan.render.GlGeometryBatch} instead
      */
+    @Deprecated
     public void renderGeometry(Geometry geom, LightList lightList) {
         
         if (renderFilter != null && !renderFilter.test(geom)) {
@@ -1239,6 +1250,7 @@ public class RenderManager {
      * @param ortho True if to use orthographic projection (for GUI rendering),
      *     false if to use the camera's view and projection matrices.
      */
+    // todo: remove ortho argument
     public void setCamera(Camera cam, boolean ortho) {
         // Tell the light filter which camera to use for filtering.
         if (lightFilter != null) {

@@ -4,9 +4,7 @@ import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.buffers.AdaptiveBuffer;
 import com.jme3.vulkan.buffers.generate.BufferGenerator;
-import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.meshnew.AccessRate;
 import org.lwjgl.PointerBuffer;
 
 public class VulkanVertexBuffer implements VertexBuffer {

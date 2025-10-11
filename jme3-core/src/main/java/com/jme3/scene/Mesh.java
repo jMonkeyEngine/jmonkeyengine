@@ -35,10 +35,11 @@ import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.export.*;
+import com.jme3.material.Material;
 import com.jme3.renderer.RenderManager;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.mesh.AttributeModifier;
-import com.jme3.vulkan.meshnew.AccessRate;
+import com.jme3.vulkan.mesh.AccessRate;
 
 /**
  * Stores the vertex and index data for drawing indexed meshes.
@@ -50,29 +51,9 @@ import com.jme3.vulkan.meshnew.AccessRate;
  * they choose, but the format and number of each vertex attributes' components
  * must be as previously or externally specified.</p>
  *
- * <p>The base level of detail (LOD) index buffer at index 0 must always be
- * non-null. If a LOD is requested that does not yet exist, that LOD must
- * be created as a result (except when {@link #render(RenderManager, CommandBuffer, Geometry, int)
- * drawing}).</p>
- *
  * @author codex
  */
 public interface Mesh extends Savable {
-
-    /**
-     * Submits commands to draw this mesh in context with {@code geometry}.
-     * Only indices for the specified {@link #setTriangleCount(int, int)
-     * triangle count} are submitted. For vertex data, implementations
-     * must submit at least the specified {@link #setVertexCount(int)
-     * vertex count} amount of vertex data, but may submit more than
-     * that if convenient.
-     *
-     * @param renderManager render manager
-     * @param cmd           command buffer to submit to (null for opengl rendering)
-     * @param geometry      geometry to draw with
-     * @param lod           level of detail (LOD) to draw (must be non-negative)
-     */
-    void render(RenderManager renderManager, CommandBuffer cmd, Geometry geometry, int lod);
 
     /**
      * Creates an AttributeModifier with which to modify the vertex data
@@ -154,6 +135,8 @@ public interface Mesh extends Savable {
     BoundingVolume getBound();
 
     int getNumLodLevels();
+
+    /* ----- DEFAULTS ----- */
 
     default AttributeModifier modify(GlVertexBuffer.Type name) {
         return modify(name.getName());

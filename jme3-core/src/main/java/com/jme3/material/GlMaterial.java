@@ -54,6 +54,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.TextureUnitException;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.GlMesh;
 import com.jme3.shader.*;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.*;
@@ -64,7 +65,6 @@ import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.pipelines.Pipeline;
-import org.lwjgl.opengl.GL45;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -837,7 +837,15 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @throws UnsupportedOperationException If no candidate technique supports
      * the system capabilities.
      */
-    public void selectTechnique(String name, final RenderManager renderManager) {
+    public Technique selectTechnique(String name, final RenderManager renderManager) {
+        // if null, use the currently selected technique, or the default technique
+        if (name == null || technique == null) {
+            if (technique != null) {
+                return technique;
+            } else {
+                name = TechniqueDef.DEFAULT_TECHNIQUE_NAME;
+            }
+        }
         // check if already created
         Technique tech = techniques.get(name);
         // When choosing technique, we choose one that
@@ -876,7 +884,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         } else if (technique == tech) {
             // attempting to switch to an already
             // active technique.
-            return;
+            return technique;
         }
 
         technique = tech;
@@ -884,6 +892,8 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
 
         // shader was changed
         sortingId = -1;
+
+        return technique;
     }
 
     private void applyOverrides(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> overrides, BindUnits bindUnits) {
@@ -947,8 +957,9 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         }
     }
 
-    private BindUnits updateShaderMaterialParameters(Renderer renderer, Shader shader,
-                                                     SafeArrayList<MatParamOverride> worldOverrides, SafeArrayList<MatParamOverride> forcedOverrides) {
+    public BindUnits updateShaderMaterialParameters(Renderer renderer, Shader shader,
+                                                     SafeArrayList<MatParamOverride> worldOverrides,
+                                                     SafeArrayList<MatParamOverride> forcedOverrides) {
 
         bindUnits.textureUnit = 0;
         bindUnits.bufferUnit = 0;
@@ -1015,6 +1026,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param renderManager The render manager to preload for
      * @param geometry to determine the applicable parameter overrides, if any
      */
+    @Deprecated // this isn't used anywhere...
     public void preload(RenderManager renderManager, Geometry geometry) {
         if (technique == null) {
             selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
@@ -1153,7 +1165,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         resetUniformsNotSetByCurrent(shader);
 
         // Delegate rendering to the technique
-        technique.render(renderManager, shader, geometry, lights, units);
+        technique.render(renderManager, shader, geometry, (GlMesh)geometry.getMesh(), lights, units);
     }
 
     @Override

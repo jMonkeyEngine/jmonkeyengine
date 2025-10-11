@@ -40,6 +40,9 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.GlMesh;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.instancing.InstancedGeometry;
 import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
 import java.util.EnumSet;
@@ -58,8 +61,17 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
         return techniqueDef.getShader(assetManager, rendererCaps, defines);
     }
 
-    public static void renderMeshFromGeometry(Renderer renderer, Geometry geom) {
-        geom.draw(renderer);
+    public static void renderMeshFromGeometry(Renderer renderer, Geometry geom, GlMesh mesh) {
+        int lodLevel = geom.getLodLevel();
+        if (geom instanceof InstancedGeometry) {
+            InstancedGeometry instGeom = (InstancedGeometry) geom;
+            int numVisibleInstances = instGeom.getNumVisibleInstances();
+            if (numVisibleInstances > 0) {
+                renderer.renderMesh(mesh, lodLevel, numVisibleInstances, instGeom.getAllInstanceData());
+            }
+        } else {
+            renderer.renderMesh(mesh, lodLevel, 1, null);
+        }
     }
 
     protected static ColorRGBA getAmbientColor(LightList lightList, boolean removeLights, ColorRGBA ambientLightColor) {
@@ -80,9 +92,9 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
 
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, GlMaterial.BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
         Renderer renderer = renderManager.getRenderer();
         renderer.setShader(shader);
-        renderMeshFromGeometry(renderer, geometry);
+        renderMeshFromGeometry(renderer, geometry, mesh);
     }
 }

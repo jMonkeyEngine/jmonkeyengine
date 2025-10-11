@@ -38,6 +38,7 @@ import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.*;
 import com.jme3.renderer.*;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.GlMesh;
 import com.jme3.shader.*;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.util.TempVars;
@@ -107,7 +108,6 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
      * attenuation) </p>
      *
      * @param shader the Shader being used
-     * @param g the Geometry being rendered
      * @param lightList the list of lights
      * @param numLights the number of lights to upload
      * @param rm to manage rendering
@@ -115,7 +115,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
      * @param lastTexUnit the index of the most recently-used texture unit
      * @return the next starting index in the LightList
      */
-    protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex, int lastTexUnit) {
+    private int updateLightListUniforms(Shader shader, LightList lightList, int numLights, RenderManager rm, int startIndex, int lastTexUnit) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
         }
@@ -262,24 +262,24 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, GlMaterial.BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         int batchSize = renderManager.getSinglePassLightBatchSize();
         if (lights.size() == 0) {
-            updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, 0, lastBindUnits.textureUnit);
+            updateLightListUniforms(shader, lights, batchSize, renderManager, 0, lastBindUnits.textureUnit);
             renderer.setShader(shader);
-            renderMeshFromGeometry(renderer, geometry);
+            renderMeshFromGeometry(renderer, geometry, mesh);
         } else {
             while (nbRenderedLights < lights.size()) {
-                nbRenderedLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, nbRenderedLights, lastBindUnits.textureUnit);
+                nbRenderedLights = updateLightListUniforms(shader, lights, batchSize, renderManager, nbRenderedLights, lastBindUnits.textureUnit);
                 renderer.setShader(shader);
-                renderMeshFromGeometry(renderer, geometry);
+                renderMeshFromGeometry(renderer, geometry, mesh);
             }
         }
     }
 
-    protected void extractIndirectLights(LightList lightList, boolean removeLights) {
+    private void extractIndirectLights(LightList lightList, boolean removeLights) {
         ambientLightColor.set(0, 0, 0, 1);
         useAmbientLight = false;
         for (int j = 0; j < lightList.size(); j++) {

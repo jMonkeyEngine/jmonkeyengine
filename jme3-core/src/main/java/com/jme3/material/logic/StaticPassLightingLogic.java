@@ -46,6 +46,7 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.GlMesh;
 import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
@@ -172,12 +173,12 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, GlMaterial.BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
         Renderer renderer = renderManager.getRenderer();
         Matrix4f viewMatrix = renderManager.getCurrentCamera().getViewMatrix();
         updateLightListUniforms(viewMatrix, shader, lights);
         renderer.setShader(shader);
-        renderMeshFromGeometry(renderer, geometry);
+        renderMeshFromGeometry(renderer, geometry, mesh);
     }
 
 }

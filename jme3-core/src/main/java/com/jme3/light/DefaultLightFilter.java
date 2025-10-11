@@ -63,10 +63,9 @@ public final class DefaultLightFilter implements LightFilter {
     }
 
     @Override
-    public void filterLights(Geometry geometry, LightList filteredLightList) {
+    public void filterLights(Geometry geometry, LightList worldLights, LightList filteredLightList) {
         TempVars vars = TempVars.get();
         try {
-            LightList worldLights = geometry.getWorldLightList();
 
             for (int i = 0; i < worldLights.size(); i++) {
                 Light light = worldLights.get(i);

@@ -4,23 +4,15 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
-import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.collision.bih.BIHTree;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.renderer.RenderManager;
-import com.jme3.scene.CollisionData;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GlVertexBuffer;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.mesh.IndexBuffer;
+import com.jme3.vulkan.VulkanMesh;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.buffers.generate.BufferGenerator;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.meshnew.AccessRate;
-import com.jme3.vulkan.meshnew.BetterMesh;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
@@ -29,7 +21,7 @@ import java.util.*;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public abstract class AdaptiveMesh implements Mesh {
+public abstract class AdaptiveMesh implements VulkanMesh {
 
     protected final MeshDescription description;
     protected final BufferGenerator generator;
@@ -47,7 +39,8 @@ public abstract class AdaptiveMesh implements Mesh {
         this.vertexBuffers = new VertexBuffer[description.getBindings().size()];
     }
 
-    public void bind(RenderManager rm, CommandBuffer cmd, Geometry geometry) {
+    @Override
+    public void bind(CommandBuffer cmd, int lod) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer verts = stack.mallocLong(vertexBuffers.length);
             LongBuffer offsets = stack.mallocLong(vertexBuffers.length);
@@ -64,15 +57,15 @@ public abstract class AdaptiveMesh implements Mesh {
             vkCmdBindVertexBuffers(cmd.getBuffer(), 0, verts, offsets);
         }
         if (!indexBuffers.isEmpty()) {
-            GpuBuffer indices = selectIndexBuffer(geometry.getLodLevel());
+            GpuBuffer indices = selectIndexBuffer(lod);
             vkCmdBindIndexBuffer(cmd.getBuffer(), indices.getId(), 0, IndexType.of(indices).getEnum());
         }
     }
 
     @Override
-    public void render(RenderManager renderManager, CommandBuffer cmd, Geometry geometry) {
+    public void render(CommandBuffer cmd, int lod) {
         if (!indexBuffers.isEmpty()) {
-            vkCmdDrawIndexed(cmd.getBuffer(), selectIndexBuffer(geometry.getLodLevel()).size().getElements(), instances, 0, 0, 0);
+            vkCmdDrawIndexed(cmd.getBuffer(), selectIndexBuffer(lod).size().getElements(), instances, 0, 0, 0);
         } else {
             vkCmdDraw(cmd.getBuffer(), vertices, instances, 0, 0);
         }
@@ -204,6 +197,11 @@ public abstract class AdaptiveMesh implements Mesh {
     @Override
     public int getNumLodLevels() {
         return indexBuffers.size();
+    }
+
+    @Override
+    public MeshDescription getDescription() {
+        return description;
     }
 
     @Override

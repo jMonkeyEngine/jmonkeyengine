@@ -1,12 +1,10 @@
 package com.jme3.vulkan.buffers;
 
 import com.jme3.vulkan.buffers.generate.BufferGenerator;
-import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.meshnew.AccessRate;
+import com.jme3.vulkan.mesh.AccessRate;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryUtil;
 
 public class AdaptiveBuffer implements GpuBuffer {
 

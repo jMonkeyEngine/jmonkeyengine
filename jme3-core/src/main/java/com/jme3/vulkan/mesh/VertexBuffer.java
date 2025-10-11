@@ -2,7 +2,6 @@ package com.jme3.vulkan.mesh;
 
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.meshnew.AccessRate;
 import org.lwjgl.PointerBuffer;
 
 import java.nio.*;

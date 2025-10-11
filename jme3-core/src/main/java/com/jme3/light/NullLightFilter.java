@@ -47,7 +47,8 @@ public class NullLightFilter implements LightFilter {
     }
 
     @Override
-    public void filterLights(Geometry geometry, LightList filteredLightList) {
+    public void filterLights(Geometry geometry, LightList lights, LightList filteredLightList) {
 
     }
+
 }

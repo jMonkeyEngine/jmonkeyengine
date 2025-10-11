@@ -57,7 +57,7 @@ public class LightFilterTest {
         geom.updateGeometricState();
         filter.setCamera(cam); // setCamera resets the intersection cache
         list.clear();
-        filter.filterLights(geom, list);
+        filter.filterLights(geom, geom.getWorldLightList(), list);
         assert list.size() == expected;
     }
     

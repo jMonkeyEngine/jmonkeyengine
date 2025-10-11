@@ -46,6 +46,7 @@ import com.jme3.math.Vector4f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.GlMesh;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
@@ -68,7 +69,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, GlMaterial.BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
         Renderer r = renderManager.getRenderer();
         Uniform lightDir = shader.getUniform("g_LightDirection");
         Uniform lightColor = shader.getUniform("g_LightColor");
@@ -157,7 +158,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
             }
             vars.release();
             r.setShader(shader);
-            renderMeshFromGeometry(r, geometry);
+            renderMeshFromGeometry(r, geometry, mesh);
         }
 
         if (isFirstLight) {
@@ -167,7 +168,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
             lightColor.setValue(VarType.Vector4, ColorRGBA.BlackNoAlpha);
             lightPos.setValue(VarType.Vector4, NULL_DIR_LIGHT);
             r.setShader(shader);
-            renderMeshFromGeometry(r, geometry);
+            renderMeshFromGeometry(r, geometry, mesh);
         }
     }
 }

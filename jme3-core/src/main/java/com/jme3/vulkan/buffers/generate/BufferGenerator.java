@@ -2,9 +2,8 @@ package com.jme3.vulkan.buffers.generate;
 
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.meshnew.AccessRate;
+import com.jme3.vulkan.mesh.AccessRate;
 import com.jme3.vulkan.util.Flag;
 
 public interface BufferGenerator <T extends GpuBuffer> {

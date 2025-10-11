@@ -2,10 +2,6 @@ package com.jme3.vulkan.material;
 
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.light.LightList;
-import com.jme3.material.Material;
-import com.jme3.renderer.RenderManager;
-import com.jme3.scene.Geometry;
 import com.jme3.texture.Texture;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -15,7 +11,10 @@ import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.material.uniforms.BufferUniform;
 import com.jme3.vulkan.material.uniforms.TextureUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
+import com.jme3.vulkan.mesh.MeshDescription;
 import com.jme3.vulkan.pipelines.Pipeline;
+import com.jme3.vulkan.pipelines.PipelineCache;
+import com.jme3.vulkan.pipelines.newstate.PipelineState;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
@@ -27,7 +26,7 @@ import static org.lwjgl.vulkan.VK10.*;
 /**
  * Relates shader uniform values to sets and bindings.
  */
-public class NewMaterial implements Material {
+public class NewMaterial implements VulkanMaterial {
 
     private final DescriptorPool pool;
     private final Map<Integer, UniformSet> uniformSets = new HashMap<>();
@@ -38,6 +37,7 @@ public class NewMaterial implements Material {
         this.pool = pool;
     }
 
+    @Override
     public boolean bind(CommandBuffer cmd, Pipeline pipeline) {
         LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>(pipeline.getLayout().getDescriptorSetLayouts());
         try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -65,13 +65,8 @@ public class NewMaterial implements Material {
     }
 
     @Override
-    public void render(Geometry geometry, LightList lights, RenderManager renderManager) {
-        throw new UnsupportedOperationException("Unable to render in an OpenGL context.");
-    }
-
-    @Override
-    public void render(Geometry geometry, LightList lights, CommandBuffer cmd, Pipeline pipeline) {
-
+    public Pipeline selectPipeline(PipelineCache cache, MeshDescription description, String forcedTechnique, PipelineState overrideState) {
+        return null;
     }
 
     @Override

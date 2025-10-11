@@ -36,12 +36,14 @@ import com.jme3.light.LightList;
 import com.jme3.math.*;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.texture.Texture;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.frames.SingleResource;
 import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.pipelines.Pipeline;
+import com.jme3.vulkan.pipelines.PipelineCache;
 
 /**
  * <code>Material</code> describes the rendering style for a given
@@ -58,23 +60,11 @@ public interface Material extends Savable {
 
     String DEFAULT_UNIFORM_BUFFER = "DefaultUniformBuffer";
 
-    void render(Geometry geometry, LightList lights, RenderManager renderManager);
-
-    void render(Geometry geometry, LightList lights, CommandBuffer cmd, Pipeline pipeline);
-
     void setUniform(String name, VersionedResource<? extends GpuBuffer> buffer);
 
     void setTexture(String name, VersionedResource<? extends Texture> texture);
 
     void setParam(String uniform, String param, Object value);
-
-    default void render(Geometry geometry, RenderManager renderManager) {
-        render(geometry, geometry.getWorldLightList(), renderManager);
-    }
-
-    default void render(Geometry geometry, CommandBuffer cmd, Pipeline pipeline) {
-        render(geometry, geometry.getWorldLightList(), cmd, pipeline);
-    }
 
     /* ----- COMPATABILITY WITH OLD MATERIAL ----- */
 
