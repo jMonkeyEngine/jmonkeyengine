@@ -36,6 +36,7 @@ import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.export.*;
 import com.jme3.material.Material;
+import com.jme3.math.Triangle;
 import com.jme3.renderer.RenderManager;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.mesh.AttributeModifier;
@@ -135,6 +136,8 @@ public interface Mesh extends Savable {
     BoundingVolume getBound();
 
     int getNumLodLevels();
+
+    Triangle getTriangle(int triangleIndex, Triangle store);
 
     /* ----- DEFAULTS ----- */
 

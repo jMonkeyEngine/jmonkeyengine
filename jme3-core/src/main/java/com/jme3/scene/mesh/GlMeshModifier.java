@@ -77,6 +77,24 @@ public class GlMeshModifier implements AttributeModifier {
     }
 
     @Override
+    public VertexWriter putNumber(int vertex, int component, Number value) {
+        if (value instanceof Byte) {
+            putByte(vertex, component, value.byteValue());
+        } else if (value instanceof Short) {
+            putShort(vertex, component, value.shortValue());
+        } else if (value instanceof Integer) {
+            putInt(vertex, component, value.intValue());
+        } else if (value instanceof Float) {
+            putFloat(vertex, component, value.floatValue());
+        } else if (value instanceof Double) {
+            putDouble(vertex, component, value.doubleValue());
+        } else if (value instanceof Long) {
+            putLong(vertex, component, value.longValue());
+        }
+        return this;
+    }
+
+    @Override
     public int capacity() {
         return positionToVertex(buffer.position());
     }

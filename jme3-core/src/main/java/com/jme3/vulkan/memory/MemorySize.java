@@ -1,5 +1,9 @@
 package com.jme3.vulkan.memory;
 
+import com.jme3.util.BufferUtils;
+import com.jme3.vulkan.buffers.NioBuffer;
+
+import java.nio.Buffer;
 import java.util.Objects;
 
 public class MemorySize {
@@ -106,6 +110,16 @@ public class MemorySize {
 
     public static MemorySize longs(int elements) {
         return new MemorySize(elements, Long.BYTES);
+    }
+
+    /**
+     *
+     * @param bytes total number of bytes
+     * @param bytesPerElement number of bytes per element
+     * @return memory size reflecting {@code bytes} and {@code bytesPerElement}
+     */
+    public static MemorySize dynamic(int bytes, int bytesPerElement) {
+        return new MemorySize(bytes / bytesPerElement, bytesPerElement);
     }
 
 }

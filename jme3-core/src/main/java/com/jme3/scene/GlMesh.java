@@ -988,11 +988,16 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @param tri The triangle to store the positions in
      */
-    public void getTriangle(int index, Triangle tri) {
+    @Override
+    public Triangle getTriangle(int index, Triangle tri) {
+        if (tri == null) {
+            tri = new Triangle();
+        }
         getTriangle(index, tri.get1(), tri.get2(), tri.get3());
         tri.setIndex(index);
         tri.setCenter(null); // invalidate previously cached centroid, if any
         tri.setNormal(null);
+        return tri;
     }
 
     /**

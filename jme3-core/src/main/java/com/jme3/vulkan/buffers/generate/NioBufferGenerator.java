@@ -1,6 +1,6 @@
 package com.jme3.vulkan.buffers.generate;
 
-import com.jme3.util.NioBuffer;
+import com.jme3.vulkan.buffers.NioBuffer;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.frames.SingleResource;
 import com.jme3.vulkan.frames.VersionedResource;

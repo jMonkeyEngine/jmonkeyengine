@@ -48,9 +48,9 @@ public class VersionedBuffer <T extends GpuBuffer> implements GpuBuffer, Version
     }
 
     @Override
-    public void resize(int elements) {
+    public boolean resize(int elements) {
         this.elements = elements;
-        updateBufferSize();
+        return updateBufferSize(buffers.get(frames.getCurrentFrame()));
     }
 
     @Override
@@ -75,10 +75,15 @@ public class VersionedBuffer <T extends GpuBuffer> implements GpuBuffer, Version
 
     private T updateBufferSize() {
         T buf = buffers.get(frames.getCurrentFrame());
-        if (elements != buf.size().getElements()) {
-            buf.resize(elements);
-        }
+        updateBufferSize(buf);
         return buf;
+    }
+
+    private boolean updateBufferSize(T buf) {
+        if (elements != buf.size().getElements()) {
+            return buf.resize(elements);
+        }
+        return false;
     }
 
 }

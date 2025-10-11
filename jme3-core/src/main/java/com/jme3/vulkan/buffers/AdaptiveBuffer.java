@@ -45,17 +45,19 @@ public class AdaptiveBuffer implements GpuBuffer {
     }
 
     @Override
-    public void resize(int elements) {
-        buffer.resize(elements);
+    public boolean resize(int elements) {
+        return buffer.resize(elements);
     }
 
-    public void setAccessFrequency(AccessRate access) {
+    public boolean setAccessFrequency(AccessRate access) {
         if (this.access.ordinal() > access.ordinal()) {
             this.access = access;
             GpuBuffer newBuffer = generator.createBuffer(buffer.size(), usage, access);
             newBuffer.copy(buffer);
             buffer = newBuffer;
+            return true;
         }
+        return false;
     }
 
     public GpuBuffer getBuffer() {

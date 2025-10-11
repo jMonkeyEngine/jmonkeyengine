@@ -4,6 +4,8 @@ import com.jme3.material.*;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
+import com.jme3.vulkan.material.VkMaterial;
+import com.jme3.vulkan.mesh.VkMesh;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.pipelines.Pipeline;
@@ -26,8 +28,8 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
     @Override
     public void render(CommandBuffer cmd) {
         Pipeline currentPipeline = null;
-        VulkanMaterial currentMaterial = null;
-        VulkanMesh currentMesh = null;
+        VkMaterial currentMaterial = null;
+        VkMesh currentMesh = null;
         for (Element e : queue) {
             // I'm not sure if it's safe or optimal to allow controls to muck with
             // geometry/material/mesh at this point, but this would technically
@@ -81,8 +83,8 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
     public class Element {
 
         private final Geometry geometry;
-        private final VulkanMaterial material;
-        private final VulkanMesh mesh;
+        private final VkMaterial material;
+        private final VkMesh mesh;
         private final Pipeline pipeline;
         private float distanceSq = Float.NaN;
 
@@ -92,12 +94,12 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
             if (!(mat instanceof NewMaterial)) {
                 throw new ClassCastException("Cannot render " + mat.getClass() + " in a Vulkan context.");
             }
-            this.material = (VulkanMaterial)mat;
+            this.material = (VkMaterial)mat;
             Mesh m = forcedMesh != null ? forcedMesh : this.geometry.getMesh();
-            if (!(m instanceof com.jme3.vulkan.VulkanMesh)) {
+            if (!(m instanceof VkMesh)) {
                 throw new ClassCastException("Cannot render " + mat.getClass() + " in a Vulkan context.");
             }
-            this.mesh = (VulkanMesh)m;
+            this.mesh = (VkMesh)m;
             this.pipeline = this.material.selectPipeline(cache, this.mesh.getDescription(), forcedTechnique, overrideState);
             if (!this.pipeline.getBindPoint().is(PipelineBindPoint.Graphics)) {
                 throw new IllegalStateException("Cannot render geometry with a non-graphical pipeline.");
@@ -117,11 +119,11 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
             return geometry;
         }
 
-        public VulkanMaterial getMaterial() {
+        public VkMaterial getMaterial() {
             return material;
         }
 
-        public VulkanMesh getMesh() {
+        public VkMesh getMesh() {
             return mesh;
         }
 

@@ -65,6 +65,11 @@ public class NullAttributeModifier implements AttributeModifier {
     }
 
     @Override
+    public AttributeModifier putNumber(int vertex, int component, Number value) {
+        return this;
+    }
+
+    @Override
     public AttributeModifier putVector2(int vertex, int baseComponent, Vector2f value) {
         return this;
     }

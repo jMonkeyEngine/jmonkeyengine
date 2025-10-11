@@ -51,9 +51,10 @@ public interface GpuBuffer {
     /**
      * Resizes this buffer to accomodate the given number of elements.
      *
-     * @param elements number of elements this buffer must be able to store (not negative)
+     * @param elements number of elements this buffer must be able to store (not negative).
+     * @return true if the buffer capacity had to be changed in order to fit {@code elements} elements.
      */
-    void resize(int elements);
+    boolean resize(int elements);
 
     default void verifyBufferSize(int elements, long bytesPerElement) {
         if (elements * bytesPerElement > size().getBytes()) {
@@ -236,6 +237,22 @@ public interface GpuBuffer {
         verifyBufferSize(buffer.limit(), Long.BYTES);
         MemoryUtil.memCopy(buffer, mapLongs(0, buffer.limit()));
         unmap();
+    }
+
+    default void copy(Buffer buffer) {
+        if (buffer instanceof ByteBuffer) {
+            copy((ByteBuffer)buffer);
+        } else if (buffer instanceof ShortBuffer) {
+            copy((ShortBuffer)buffer);
+        } else if (buffer instanceof IntBuffer) {
+            copy((IntBuffer)buffer);
+        } else if (buffer instanceof FloatBuffer) {
+            copy((FloatBuffer)buffer);
+        } else if (buffer instanceof DoubleBuffer) {
+            copy((DoubleBuffer)buffer);
+        } else if (buffer instanceof LongBuffer) {
+            copy((LongBuffer)buffer);
+        }
     }
 
     default void copy(Struct<?> struct) {

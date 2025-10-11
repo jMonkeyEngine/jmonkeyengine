@@ -23,6 +23,8 @@ public interface VertexWriter extends VertexReader {
 
     VertexWriter putLong(int vertex, int component, long value);
 
+    VertexWriter putNumber(int vertex, int component, Number number);
+
     default VertexWriter putVector2(int vertex, int baseComponent, float x, float y) {
         putFloat(vertex, baseComponent++, x);
         putFloat(vertex, baseComponent  , y);

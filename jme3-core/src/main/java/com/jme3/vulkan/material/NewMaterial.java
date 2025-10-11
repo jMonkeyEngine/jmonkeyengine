@@ -26,7 +26,7 @@ import static org.lwjgl.vulkan.VK10.*;
 /**
  * Relates shader uniform values to sets and bindings.
  */
-public class NewMaterial implements VulkanMaterial {
+public class NewMaterial implements VkMaterial {
 
     private final DescriptorPool pool;
     private final Map<Integer, UniformSet> uniformSets = new HashMap<>();

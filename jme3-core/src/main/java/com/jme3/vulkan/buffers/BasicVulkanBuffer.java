@@ -77,7 +77,7 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
     }
 
     @Override
-    public void resize(int elements) {
+    public boolean resize(int elements) {
         if (elements < 0) {
             throw new IllegalArgumentException("Buffer size cannot be negative.");
         }
@@ -85,8 +85,10 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
             size = new MemorySize(elements, size.getBytesPerElement());
             if (memory != null && size.getBytes() > memory.getSize()) {
                 build().close();
+                return true;
             }
         }
+        return false;
     }
 
     protected MemoryRegion getMemory() {

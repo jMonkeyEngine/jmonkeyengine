@@ -41,11 +41,11 @@ public class StageableBuffer extends BasicVulkanBuffer implements Command {
     }
 
     @Override
-    public void resize(int elements) {
-        super.resize(elements);
+    public boolean resize(int elements) {
         if (stage != null) {
             stage.resize(elements);
         }
+        return super.resize(elements);
     }
 
     protected VulkanBuffer createStagingBuffer() {

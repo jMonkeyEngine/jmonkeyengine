@@ -87,6 +87,24 @@ public class VulkanAttributeModifier implements AttributeModifier {
     }
 
     @Override
+    public AttributeModifier putNumber(int vertex, int component, Number value) {
+        if (value instanceof Byte) {
+            return putByte(vertex, component, value.byteValue());
+        } else if (value instanceof Short) {
+            return putShort(vertex, component, value.shortValue());
+        } else if (value instanceof Integer) {
+            return putInt(vertex, component, value.intValue());
+        } else if (value instanceof Float) {
+            return putFloat(vertex, component, value.floatValue());
+        } else if (value instanceof Double) {
+            return putDouble(vertex, component, value.doubleValue());
+        } else if (value instanceof Long) {
+            return putLong(vertex, component, value.longValue());
+        }
+        return this;
+    }
+
+    @Override
     public AttributeModifier putVector2(int vertex, int baseComponent, float x, float y) {
         vertex = vertexToPosition(vertex);
         Format f = attribute.getFormat();

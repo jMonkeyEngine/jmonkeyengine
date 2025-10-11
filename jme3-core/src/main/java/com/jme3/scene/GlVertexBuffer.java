@@ -32,22 +32,20 @@
 package com.jme3.scene;
 
 import com.jme3.export.*;
-import com.jme3.math.FastMath;
-import com.jme3.renderer.Renderer;
+import com.jme3.scene.mesh.GlMeshModifier;
 import com.jme3.util.*;
 import com.jme3.util.natives.GlNative;
-import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.frames.SingleResource;
-import com.jme3.vulkan.frames.VersionedResource;
+import com.jme3.vulkan.buffers.NioBuffer;
 import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.mesh.AccessRate;
 import com.jme3.vulkan.mesh.VertexBuffer;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
 import java.nio.*;
-import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * A <code>VertexBuffer</code> contains a particular type of geometry
@@ -63,37 +61,7 @@ import java.util.Iterator;
  * For a 3D vector, a single component is one of the dimensions, X, Y or Z.</li>
  * </ul>
  */
-public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<NioBuffer>, Savable, Cloneable {
-
-    @Override
-    public void set(NioBuffer resource) {
-
-    }
-
-    @Override
-    public void set(int frame, NioBuffer resource) {
-
-    }
-
-    @Override
-    public NioBuffer get() {
-        return null;
-    }
-
-    @Override
-    public NioBuffer get(int frame) {
-        return null;
-    }
-
-    @Override
-    public int getNumResources() {
-        return 0;
-    }
-
-    @Override
-    public Iterator<NioBuffer> iterator() {
-        return new ArrayIterator<>(data);
-    }
+public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer, Savable, Cloneable {
 
     /**
      * Type of buffer. Specifies the actual attribute it defines.
@@ -287,7 +255,7 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
     /**
      * The usage of the VertexBuffer, specifies how often the buffer
      * is used. This can determine if a vertex buffer is placed in VRAM
-     * or held in video memory, but no guarantees are made- it's only a hint.
+     * or held in video memory, but no guarantees are made; it's only a hint.
      */
     public enum Usage {
         /**
@@ -373,7 +341,6 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
     }
 
     protected int offset = 0;
-    protected int lastLimit = 0;
     protected int stride = 0;
     protected int components = 0;
 
@@ -381,7 +348,7 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
      * derived from components * format.getComponentSize()
      */
     protected transient int componentsLength = 0;
-    protected final NioBuffer data = new NioBuffer();
+    protected NioBuffer data;
     protected Usage usage;
     protected Type bufType;
     protected Format format;
@@ -428,6 +395,21 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
     }
 
     @Override
+    public GpuBuffer getBuffer() {
+        return null;
+    }
+
+    @Override
+    public void setNumVertices(int vertices) {
+
+    }
+
+    @Override
+    public void setAccessFrequency(AccessRate access) {
+
+    }
+
+    @Override
     public ByteBuffer mapBytes() {
         return data.mapBytes();
     }
@@ -457,8 +439,9 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
         return data.mapLongs();
     }
 
+    @Deprecated
     public boolean invariant() {
-        // Does the VB hold any data?
+        /* // Does the VB hold any data?
         if (!data.hasBuffer()) {
             throw new AssertionError();
         }
@@ -487,7 +470,8 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
         // Does usage comply with buffer directness?
         //if (usage == Usage.CpuOnly && data.isDirect()) {
         //    throw new AssertionError();
-        /*} else*/ if (usage != Usage.CpuOnly && !buf.isDirect()) {
+        //} else
+        if (usage != Usage.CpuOnly && !buf.isDirect()) {
             throw new AssertionError();
         }
 
@@ -507,7 +491,7 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
             throw new AssertionError();
         } else if (buf instanceof ByteBuffer && format != Format.Byte && format != Format.UnsignedByte) {
             throw new AssertionError();
-        }
+        }*/
         return true;
     }
 
@@ -516,8 +500,14 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
      *
      * @see #setOffset(int)
      */
-    public int getOffset() {
+    @Override
+    public long getOffset() {
         return offset;
+    }
+
+    @Override
+    public boolean isInstanceBuffer() {
+        return false;
     }
 
     /**
@@ -574,8 +564,9 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
      * @return A rewound native buffer in the specified {@link Format format}
      *         that is safe to read from a separate thread from other readers.
      */
+    @Deprecated
     public Buffer getDataReadOnly() {
-        if (!data.hasBuffer()) {
+        /*if (!data.hasBuffer()) {
             return null;
         }
 
@@ -601,9 +592,10 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
         // Make sure the caller gets a consistent view since we may
         // have grabbed this buffer while another thread was reading
         // the raw data.
-        result.rewind();
+        result.rewind();*/
 
-        return result;
+        // todo: re-implement or replace
+        return null;
     }
 
     /**
@@ -711,7 +703,7 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
      * @return The total number of data elements in the data buffer.
      */
     public int getNumElements() {
-        if (!data.hasBuffer()) {
+        if (data == null) {
             return 0;
         }
         int elements = data.getBuffer().limit() / components;
@@ -768,12 +760,17 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
             }
         }
 
-        this.data.setBuffer(data);
+        //this.data.setBuffer(data);
+        if (this.data == null) {
+            this.data = new NioBuffer(data);
+        } else {
+            this.data.resize(data.limit());
+        }
+        this.data.copy(data);
         this.components = components;
         this.usage = usage;
         this.format = format;
         this.componentsLength = components * format.getComponentSize();
-        this.lastLimit = data.limit();
         setUpdateNeeded();
     }
 
@@ -794,19 +791,24 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
      */
     public void updateData(Buffer data) {
 
+        Objects.requireNonNull(data, "Vertex data buffer cannot be null.");
+
         // Check if the data buffer is read-only which is a sign
         // of a bug on the part of the caller
-        if (data != null && data.isReadOnly()) {
-            throw new IllegalArgumentException("VertexBuffer data cannot be read-only.");
-        }
+        // update: not a bug, since we're going to copy the buffer anyway
+//        if (data.isReadOnly()) {
+//            throw new IllegalArgumentException("VertexBuffer data cannot be read-only.");
+//        }
 
         // will force renderer to call glBufferData again
-        if (data != null && (this.data.getBuffer().getClass() != data.getClass() || data.limit() != lastLimit)) {
+        if (this.data == null || this.data.size().getElements() != data.limit()) {
+            if (this.data == null) {
+                this.data = new NioBuffer(data);
+            }
             dataSizeChanged = true;
-            lastLimit = data.limit();
         }
-
-        this.data.setBuffer(data);
+        this.data.resize(data.limit());
+        this.data.copy(data);
         setUpdateNeeded();
     }
 
@@ -827,88 +829,6 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
     }
 
     /**
-     * Converts single floating-point data to {@link Format#Half half} floating-point data.
-     */
-    public void convertToHalf() {
-        if (object != -1) {
-            throw new UnsupportedOperationException("Data has already been sent.");
-        }
-
-        if (format != Format.Float) {
-            throw new IllegalStateException("Format must be float!");
-        }
-
-        int numElements = data.getBuffer().limit() / components;
-        format = Format.Half;
-        this.componentsLength = components * format.getComponentSize();
-
-        ByteBuffer halfData = BufferUtils.createByteBuffer(componentsLength * numElements);
-        halfData.rewind();
-
-        FloatBuffer floatData = (FloatBuffer) data.getBuffer();
-        floatData.rewind();
-
-        for (int i = 0; i < floatData.limit(); i++) {
-            float f = floatData.get(i);
-            short half = FastMath.convertFloatToHalf(f);
-            halfData.putShort(half);
-        }
-        this.data.setBuffer(halfData);
-        setUpdateNeeded();
-        dataSizeChanged = true;
-    }
-
-    /**
-     * Reduces the capacity of the buffer to the given amount
-     * of elements, any elements at the end of the buffer are truncated
-     * as necessary.
-     *
-     * @param numElements The number of elements to reduce to.
-     */
-    public void compact(int numElements) {
-        int total = components * numElements;
-        data.getBuffer().clear();
-        switch (format) {
-            case Byte:
-            case UnsignedByte:
-            case Half: {
-                ByteBuffer buf = data.asBytes();
-                buf.limit(total);
-                ByteBuffer newBuf = BufferUtils.createByteBuffer(total);
-                newBuf.put(buf);
-                data.setBuffer(newBuf, Byte.BYTES);
-            } break;
-            case Short:
-            case UnsignedShort: {
-                ShortBuffer buf = data.asShorts();
-                buf.limit(total);
-                ShortBuffer newBuf = BufferUtils.createShortBuffer(total);
-                newBuf.put(buf);
-                data.setBuffer(newBuf, Short.BYTES);
-            } break;
-            case Int:
-            case UnsignedInt: {
-                IntBuffer buf = data.asInts();
-                buf.limit(total);
-                IntBuffer newBuf = BufferUtils.createIntBuffer(total);
-                newBuf.put(buf);
-                data.setBuffer(newBuf, Integer.BYTES);
-            } break;
-            case Float: {
-                FloatBuffer buf = data.asFloats();
-                buf.limit(total);
-                FloatBuffer newBuf = BufferUtils.createFloatBuffer(total);
-                newBuf.put(buf);
-                data.setBuffer(newBuf, Float.BYTES);
-            } break;
-            default: throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
-        }
-        data.getBuffer().clear();
-        setUpdateNeeded();
-        dataSizeChanged = true;
-    }
-
-    /**
      * Modify a component inside an element.
      * The <code>val</code> parameter must be in the buffer's format:
      * {@link Format}.
@@ -918,40 +838,9 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
      * @param val The value to set, either byte, short, int or float depending
      * on the {@link Format}.
      */
-    public void setElementComponent(int elementIndex, int componentIndex, Object val) {
-        int inPos = elementIndex * components;
-        int elementPos = componentIndex;
-
-        if (format == Format.Half) {
-            inPos *= 2;
-            elementPos *= 2;
-        }
-
-        data.getBuffer().clear();
-
-        switch (format) {
-            case Byte:
-            case UnsignedByte:
-            case Half: {
-                ByteBuffer bin = data.asBytes();
-                bin.put(inPos + elementPos, (Byte) val);
-            } break;
-            case Short:
-            case UnsignedShort: {
-                ShortBuffer sin = data.asShorts();
-                sin.put(inPos + elementPos, (Short) val);
-            } break;
-            case Int:
-            case UnsignedInt: {
-                IntBuffer iin = data.asInts();
-                iin.put(inPos + elementPos, (Integer) val);
-            } break;
-            case Float: {
-                FloatBuffer fin = data.asFloats();
-                fin.put(inPos + elementPos, (Float) val);
-            } break;
-            default:
-                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
+    public void setElementComponent(int elementIndex, int componentIndex, Number val) {
+        try (GlMeshModifier mod = new GlMeshModifier(this)) {
+            mod.putNumber(elementIndex, componentIndex, val);
         }
     }
 
@@ -1024,65 +913,22 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
      * match.
      */
     public void copyElements(int inIndex, GlVertexBuffer outVb, int outIndex, int len) {
-        if (outVb.format != format || outVb.components != components) {
-            throw new IllegalArgumentException("Buffer format mismatch. Cannot copy");
+        if (data == null) {
+            throw new NullPointerException("No data present to copy.");
         }
-
-        int inPos = inIndex * components;
-        int outPos = outIndex * components;
-        int elementSz = components;
-        if (format == Format.Half) {
-            // because half is stored as ByteBuffer, but it's 2 bytes long
-            inPos *= 2;
-            outPos *= 2;
-            elementSz *= 2;
+        if (outVb.data == null) {
+            outVb.data = new NioBuffer(data.size(), data.getPadding());
+        } else if (outVb.data.size().getBytesPerElement() != data.size().getBytesPerElement()) {
+            throw new IllegalArgumentException("Buffer element size mismatch.");
+        } else {
+            outVb.data.resize(data.size().getElements());
         }
-
-        // Make sure to grab a read-only copy in case some other
-        // thread is also accessing the buffer and messing with its
-        // position()
-        Buffer srcData = getDataReadOnly();
-        outVb.data.getBuffer().clear();
-
-        switch (format) {
-            case Byte:
-            case UnsignedByte:
-            case Half: {
-                ByteBuffer bin = (ByteBuffer) srcData;
-                ByteBuffer bout = outVb.data.asBytes();
-                bin.position(inPos).limit(inPos + elementSz * len);
-                bout.position(outPos).limit(outPos + elementSz * len);
-                bout.put(bin);
-            } break;
-            case Short:
-            case UnsignedShort: {
-                ShortBuffer sin = (ShortBuffer) srcData;
-                ShortBuffer sout = outVb.data.asShorts();
-                sin.position(inPos).limit(inPos + elementSz * len);
-                sout.position(outPos).limit(outPos + elementSz * len);
-                sout.put(sin);
-            } break;
-            case Int:
-            case UnsignedInt: {
-                IntBuffer iin = (IntBuffer) srcData;
-                IntBuffer iout = outVb.data.asInts();
-                iin.position(inPos).limit(inPos + elementSz * len);
-                iout.position(outPos).limit(outPos + elementSz * len);
-                iout.put(iin);
-            } break;
-            case Float: {
-                FloatBuffer fin = (FloatBuffer) srcData;
-                FloatBuffer fout = outVb.data.asFloats();
-                fin.position(inPos).limit(inPos + elementSz * len);
-                fout.position(outPos).limit(outPos + elementSz * len);
-                fout.put(fin);
-            } break;
-            default: throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
-        }
-
-        // Clear the output buffer to rewind it and reset its
-        // limit from where we shortened it above.
-        outVb.data.getBuffer().clear();
+        inIndex *= data.size().getBytesPerElement() * getNumElements();
+        outIndex *= data.size().getBytesPerElement() * getNumElements();
+        len *= data.size().getBytesPerElement() * getNumElements();
+        MemoryUtil.memCopy(outVb.data.mapBytes(outIndex, len), data.mapBytes(inIndex, len));
+        outVb.data.unmap();
+        data.unmap();
     }
 
     /**
@@ -1135,7 +981,7 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
         // e.g. re-use ID.
         GlVertexBuffer vb = (GlVertexBuffer) super.clone();
         vb.object = -1;
-        if (data.hasBuffer()) {
+        if (data != null) {
             // Make sure to pass a read-only buffer to clone so that
             // the position information doesn't get clobbered by another
             // reading thread during cloning (and vice versa) since this is
@@ -1157,12 +1003,10 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
         GlVertexBuffer vb = new GlVertexBuffer(overrideType);
         vb.components = components;
         vb.componentsLength = componentsLength;
-
-        // Make sure to pass a read-only buffer to clone so that
-        // the position information doesn't get clobbered by another
-        // reading thread during cloning (and vice versa) since this is
-        // a purely read-only operation.
-        vb.data.setBuffer(BufferUtils.clone(getDataReadOnly()));
+        if (data != null) {
+            vb.data = new NioBuffer(data);
+            vb.data.copy(data);
+        }
         vb.format = format;
         vb.object = -1;
         vb.normalized = normalized;
@@ -1177,7 +1021,7 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
     @Override
     public String toString() {
         String dataTxt = null;
-        if (data.hasBuffer()) {
+        if (data != null) {
             dataTxt = ", elements=" + data.getBuffer().limit();
         }
         return getClass().getSimpleName() + "[fmt=" + format.name()
@@ -1212,28 +1056,8 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
         oc.write(offset, "offset", 0);
         oc.write(stride, "stride", 0);
         oc.write(instanceSpan, "instanceSpan", 0);
-
-        String dataName = "data" + format.name();
-        Buffer roData = getDataReadOnly();
-        switch (format) {
-            case Float:
-                oc.write((FloatBuffer) roData, dataName, null);
-                break;
-            case Short:
-            case UnsignedShort:
-                oc.write((ShortBuffer) roData, dataName, null);
-                break;
-            case UnsignedByte:
-            case Byte:
-            case Half:
-                oc.write((ByteBuffer) roData, dataName, null);
-                break;
-            case Int:
-            case UnsignedInt:
-                oc.write((IntBuffer) roData, dataName, null);
-                break;
-            default:
-                throw new IOException("Unsupported export buffer format: " + format);
+        if (data != null) {
+            oc.write(data.getBuffer(), "data", null);
         }
     }
 
@@ -1250,25 +1074,42 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer<Ni
         instanceSpan = ic.readInt("instanceSpan", 0);
         componentsLength = components * format.getComponentSize();
 
-        String dataName = "data" + format.name();
-        switch (format) {
+        ByteBuffer data = ic.readByteBuffer("data", null);
+        String oldDataName = "data" + format.name();
+        if (data != null) {
+            this.data = new NioBuffer(MemorySize.dynamic(data.capacity(), format.getComponentSize()));
+            this.data.copy(data);
+        } else switch (format) { // for compatibility with old vertex buffer versions
             case Float: {
-                data.setBuffer(ic.readFloatBuffer(dataName, null), Float.BYTES);
+                FloatBuffer buf = ic.readFloatBuffer(oldDataName, null);
+                if (buf != null) {
+                    this.data = new NioBuffer(new MemorySize(buf.capacity(), Float.BYTES));
+                    this.data.copy(buf);
+                }
             } break;
-            case Short:
-            case UnsignedShort: {
-                data.setBuffer(ic.readShortBuffer(dataName, null), Short.BYTES);
+            case Short: case UnsignedShort: {
+                ShortBuffer buf = ic.readShortBuffer(oldDataName, null);
+                if (buf != null) {
+                    this.data = new NioBuffer(new MemorySize(buf.capacity(), Short.BYTES));
+                    this.data.copy(buf);
+                }
             } break;
-            case UnsignedByte:
-            case Byte:
-            case Half: {
-                data.setBuffer(ic.readByteBuffer(dataName, null), Byte.BYTES);
+            case UnsignedByte: case Byte: case Half: {
+                ByteBuffer buf = ic.readByteBuffer(oldDataName, null);
+                if (buf != null) {
+                    this.data = new NioBuffer(new MemorySize(buf.capacity(), Byte.BYTES));
+                    this.data.copy(buf);
+                }
             } break;
-            case Int:
-            case UnsignedInt: {
-                data.setBuffer(ic.readIntBuffer(dataName, null), Integer.BYTES);
+            case Int: case UnsignedInt: {
+                IntBuffer buf = ic.readIntBuffer(oldDataName, null);
+                if (buf != null) {
+                    this.data = new NioBuffer(new MemorySize(buf.capacity(), Integer.BYTES));
+                    this.data.copy(buf);
+                }
             } break;
-            default: throw new IOException("Unsupported import buffer format: " + format);
+            default:
+                throw new IOException("Unsupported import buffer format: " + format);
         }
     }
 

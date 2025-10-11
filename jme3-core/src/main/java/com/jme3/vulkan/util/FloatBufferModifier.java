@@ -77,6 +77,12 @@ public class FloatBufferModifier implements VertexReader, VertexWriter {
     }
 
     @Override
+    public VertexWriter putNumber(int vertex, int component, Number value) {
+        buffer.put(vertexToPosition(vertex, component), value.floatValue());
+        return this;
+    }
+
+    @Override
     public VertexWriter putFloats(int baseVertex, int baseComponent, float... values) {
         int p = buffer.position();
         buffer.position(vertexToPosition(baseVertex, baseComponent));

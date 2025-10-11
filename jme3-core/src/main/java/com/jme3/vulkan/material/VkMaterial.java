@@ -7,7 +7,7 @@ import com.jme3.vulkan.pipelines.Pipeline;
 import com.jme3.vulkan.pipelines.PipelineCache;
 import com.jme3.vulkan.pipelines.newstate.PipelineState;
 
-public interface VulkanMaterial extends Material {
+public interface VkMaterial extends Material {
 
     boolean bind(CommandBuffer cmd, Pipeline pipeline);
 

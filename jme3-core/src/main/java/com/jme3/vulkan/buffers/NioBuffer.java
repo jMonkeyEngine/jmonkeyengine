@@ -1,8 +1,8 @@
-package com.jme3.util;
+package com.jme3.vulkan.buffers;
 
+import com.jme3.util.BufferUtils;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
-import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
@@ -30,6 +30,22 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
         buffer.limit(size.getBytes());
         baseBufferAddress = MemoryUtil.memAddress(buffer, 0);
         ref = Native.get().register(this);
+    }
+
+    public NioBuffer(Buffer size) {
+        this(new MemorySize(size.limit(), BufferUtils.getBytesPerElement(size)), size.capacity() - size.limit());
+    }
+
+    public NioBuffer(NioBuffer size) {
+        this(size.size(), size.getPadding());
+    }
+
+    public NioBuffer(GpuBuffer size) {
+        this(size.size(), 0);
+    }
+
+    public NioBuffer(GpuBuffer size, int padding) {
+        this(size.size(), padding);
     }
 
     @Override
@@ -62,7 +78,7 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
     }
 
     @Override
-    public void resize(int elements) {
+    public boolean resize(int elements) {
         if (elements < 0) {
             throw new IllegalArgumentException("Buffer size cannot be negative.");
         }
@@ -75,9 +91,11 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
                     baseBufferAddress = MemoryUtil.memAddress(buffer, 0);
                     ref.refresh();
                 }
+                return true;
             }
             buffer.limit(size.getBytes());
         }
+        return false;
     }
 
     @Override

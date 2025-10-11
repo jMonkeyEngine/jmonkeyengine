@@ -8,7 +8,6 @@ import com.jme3.collision.bih.BIHTree;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.scene.Geometry;
-import com.jme3.vulkan.VulkanMesh;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.buffers.generate.BufferGenerator;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -21,7 +20,7 @@ import java.util.*;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public abstract class AdaptiveMesh implements VulkanMesh {
+public abstract class AdaptiveMesh implements VkMesh {
 
     protected final MeshDescription description;
     protected final BufferGenerator generator;
