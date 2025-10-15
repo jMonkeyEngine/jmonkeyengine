@@ -22,8 +22,15 @@ public class StageableBuffer extends BasicVulkanBuffer implements Command {
     }
 
     @Override
-    public boolean run(CommandBuffer cmd, int frame) {
-        return transfer(cmd);
+    public boolean requiresCommandBuffer(int frame) {
+        return stage != null && dirtyRegion != null;
+    }
+
+    @Override
+    public void run(CommandBuffer cmd, int frame) {
+        if (cmd != null) {
+            transfer(cmd);
+        }
     }
 
     @Override

@@ -22,6 +22,11 @@ public class GlMeshModifier implements AttributeModifier {
     @Override
     public void close() {}
 
+    @Override
+    public void setUpdateNeeded() {
+        vertices.setUpdateNeeded();
+    }
+
     public int vertexToPosition(int vertex) {
         return vertex * vertices.getStride();
     }

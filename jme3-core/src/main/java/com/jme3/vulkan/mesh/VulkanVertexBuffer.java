@@ -51,7 +51,7 @@ public class VulkanVertexBuffer implements VertexBuffer {
     }
 
     @Override
-    public void setAccessFrequency(AccessRate access) {
+    public void setAccessFrequency(AccessFrequency access) {
         buffer.setAccessFrequency(access);
     }
 

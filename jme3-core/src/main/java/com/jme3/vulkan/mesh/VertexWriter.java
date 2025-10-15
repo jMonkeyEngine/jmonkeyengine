@@ -193,5 +193,14 @@ public interface VertexWriter extends VertexReader {
         }
         return this;
     }
+
+    default VertexWriter putReader(VertexReader reader, int srcVertex, int dstVertex, int srcComponent, int dstComponent, int vertices, int components) {
+        for (int v = 0; v < vertices; v++) {
+            for (int c = 0; c < components; c++) {
+                putDouble(srcVertex + v, srcComponent + c, reader.getDouble(dstVertex + v, dstComponent + c));
+            }
+        }
+        return this;
+    }
     
 }

@@ -42,16 +42,13 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.RenderManager;
 import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.material.MatrixTransformMaterial;
 import com.jme3.vulkan.material.NewMaterial;
-import com.jme3.vulkan.pipelines.Pipeline;
 
 import java.io.IOException;
 import java.util.Queue;
@@ -162,7 +159,7 @@ public class Geometry extends Spatial {
 
     public void updateMatrixTransforms(Camera cam) {
         Matrix4f worldViewProjection = cam.getViewProjectionMatrix().mult(worldTransform.toTransformMatrix());
-        GpuBuffer matBuffer = transforms.getTransforms().getResource().get();
+        GpuBuffer matBuffer = transforms.getTransforms().get().get();
         worldViewProjection.fillFloatBuffer(matBuffer.mapFloats(), true);
         matBuffer.unmap();
     }

@@ -2,6 +2,7 @@ package com.jme3.vulkan.material.uniforms;
 
 import com.jme3.texture.Texture;
 import com.jme3.vulkan.descriptors.Descriptor;
+import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.shader.ShaderStage;
@@ -10,6 +11,8 @@ import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorImageInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
+
+import java.util.Objects;
 
 public class TextureUniform extends AbstractUniform<Texture> {
 
@@ -21,17 +24,11 @@ public class TextureUniform extends AbstractUniform<Texture> {
     }
 
     @Override
-    public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
-        Texture tex = resource.get();
-        VkDescriptorImageInfo.Buffer info = VkDescriptorImageInfo.calloc(1, stack)
-                .imageView(tex.getView().getId())
-                .sampler(tex.getId())
-                .imageLayout(layout.getEnum());
-        write.pImageInfo(info)
-                .descriptorType(type.getEnum())
-                .dstBinding(bindingIndex)
-                .dstArrayElement(0)
-                .descriptorCount(1);
+    public DescriptorSetWriter createWriter() {
+        if (value == null) {
+            throw new NullPointerException("Cannot write null value.");
+        }
+        return new Writer(value);
     }
 
     @Override
@@ -43,6 +40,42 @@ public class TextureUniform extends AbstractUniform<Texture> {
 
     public IntEnum<VulkanImage.Layout> getLayout() {
         return layout;
+    }
+
+    private class Writer implements DescriptorSetWriter {
+
+        private final long samplerId, viewId;
+
+        public Writer(Texture texture) {
+            this.samplerId = texture.getId();
+            this.viewId = texture.getView().getId();
+        }
+
+        @Override
+        public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
+            VkDescriptorImageInfo.Buffer info = VkDescriptorImageInfo.calloc(1, stack)
+                    .imageView(viewId)
+                    .sampler(samplerId)
+                    .imageLayout(layout.getEnum());
+            write.pImageInfo(info)
+                    .descriptorType(type.getEnum())
+                    .dstBinding(bindingIndex)
+                    .dstArrayElement(0)
+                    .descriptorCount(1);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            Writer writer = (Writer) o;
+            return samplerId == writer.samplerId && viewId == writer.viewId;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(samplerId, viewId);
+        }
+
     }
 
 }

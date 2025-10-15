@@ -37,19 +37,17 @@ import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.collision.bih.BIHTree;
 import com.jme3.export.*;
-import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.*;
-import com.jme3.renderer.RenderManager;
 import com.jme3.scene.GlVertexBuffer.*;
 import com.jme3.scene.mesh.*;
 import com.jme3.util.*;
 import com.jme3.util.IntMap.Entry;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.mesh.AttributeModifier;
-import com.jme3.vulkan.mesh.AccessRate;
+import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.mesh.AccessFrequency;
+import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
 import java.nio.*;
@@ -382,7 +380,7 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             bindNorm.setupData(Usage.CpuOnly,
                     norm.getNumComponents(),
                     norm.getFormat(),
-                    BufferUtils.clone(norm.getData()));
+                    norm.getData());
             setBuffer(bindNorm);
             norm.setUsage(Usage.Stream);
         }
@@ -393,11 +391,77 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
             bindTangents.setupData(Usage.CpuOnly,
                     tangents.getNumComponents(),
                     tangents.getFormat(),
-                    BufferUtils.clone(tangents.getData()));
+                    tangents.getData());
             setBuffer(bindTangents);
             tangents.setUsage(Usage.Stream);
         }// else hardware setup does nothing, mesh already in bind pose
 
+    }
+
+    public void prepareSoftwareAnim() {
+        // convert indices to ubytes on the heap
+        GlVertexBuffer indices = getBuffer(Type.BoneIndex);
+        indices.setUsage(Usage.CpuOnly);
+
+        // convert weights on the heap
+        GlVertexBuffer weights = getBuffer(Type.BoneWeight);
+        weights.setUsage(Usage.CpuOnly);
+
+        // position, normal, and tangent buffers to be in "Stream" mode
+        GlVertexBuffer positions = getBuffer(Type.Position);
+        GlVertexBuffer normals = getBuffer(Type.Normal);
+        GlVertexBuffer tangents = getBuffer(Type.Tangent);
+        positions.setUsage(Usage.Stream);
+        if (normals != null) {
+            normals.setUsage(Usage.Stream);
+        }
+        if (tangents != null) {
+            tangents.setUsage(Usage.Stream);
+        }
+    }
+
+    public void prepareHardwareAnim() {
+        //if HWBoneIndex and HWBoneWeight are empty, we set up them as direct
+        //buffers with software anim buffers data
+        GlVertexBuffer indicesHW = getBuffer(Type.HWBoneIndex);
+        Buffer result;
+        if (indicesHW.getData() == null) {
+            GlVertexBuffer indices = getBuffer(Type.BoneIndex);
+            indicesHW.setupData(Usage.Static, indices.getNumComponents(),
+                    indices.getFormat(), indices.getData());
+        }
+
+        GlVertexBuffer weightsHW = getBuffer(Type.HWBoneWeight);
+        if (weightsHW.getData() == null) {
+            GlVertexBuffer weights = getBuffer(Type.BoneWeight);
+            weightsHW.setupData(Usage.Static, weights.getNumComponents(),
+                    weights.getFormat(), weights.getData());
+        }
+
+        // position, normal, and tangent buffers to be in "Static" mode
+        GlVertexBuffer positions = getBuffer(Type.Position);
+        GlVertexBuffer normals = getBuffer(Type.Normal);
+        GlVertexBuffer tangents = getBuffer(Type.Tangent);
+
+        GlVertexBuffer positionsBP = getBuffer(Type.BindPosePosition);
+        GlVertexBuffer normalsBP = getBuffer(Type.BindPoseNormal);
+        GlVertexBuffer tangentsBP = getBuffer(Type.BindPoseTangent);
+
+        positions.setUsage(Usage.Static);
+        positionsBP.copyElements(0, positions, 0, positionsBP.getNumElements());
+        positions.setUpdateNeeded();
+
+        if (normals != null) {
+            normals.setUsage(Usage.Static);
+            normalsBP.copyElements(0, normals, 0, normalsBP.getNumElements());
+            normals.setUpdateNeeded();
+        }
+
+        if (tangents != null) {
+            tangents.setUsage(Usage.Static);
+            tangentsBP.copyElements(0, tangents, 0, tangentsBP.getNumElements());
+            tangents.setUpdateNeeded();
+        }
     }
 
     /**
@@ -405,113 +469,14 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      * and weight buffers to heap buffers.
      *
      * @param forSoftwareAnim Should be true to enable the conversion.
+     * @deprecated use {@link #prepareSoftwareAnim()} or {@link #prepareHardwareAnim()} instead
      */
+    @Deprecated
     public void prepareForAnim(boolean forSoftwareAnim) {
         if (forSoftwareAnim) {
-            // convert indices to ubytes on the heap
-            GlVertexBuffer indices = getBuffer(Type.BoneIndex);
-            if (!indices.getData().hasArray()) {
-                if (indices.getFormat() == Format.UnsignedByte) {
-                    ByteBuffer originalIndex = (ByteBuffer) indices.getData();
-                    ByteBuffer arrayIndex = ByteBuffer.allocate(originalIndex.capacity());
-                    originalIndex.clear();
-                    arrayIndex.put(originalIndex);
-                    indices.updateData(arrayIndex);
-                } else {
-                    //bone indices can be stored in an UnsignedShort buffer
-                    ShortBuffer originalIndex = (ShortBuffer) indices.getData();
-                    ShortBuffer arrayIndex = ShortBuffer.allocate(originalIndex.capacity());
-                    originalIndex.clear();
-                    arrayIndex.put(originalIndex);
-                    indices.updateData(arrayIndex);
-                }
-            }
-            indices.setUsage(Usage.CpuOnly);
-
-            // convert weights on the heap
-            GlVertexBuffer weights = getBuffer(Type.BoneWeight);
-            if (!weights.getData().hasArray()) {
-                FloatBuffer originalWeight = (FloatBuffer) weights.getData();
-                FloatBuffer arrayWeight = FloatBuffer.allocate(originalWeight.capacity());
-                originalWeight.clear();
-                arrayWeight.put(originalWeight);
-                weights.updateData(arrayWeight);
-            }
-            weights.setUsage(Usage.CpuOnly);
-            // position, normal, and tangent buffers to be in "Stream" mode
-            GlVertexBuffer positions = getBuffer(Type.Position);
-            GlVertexBuffer normals = getBuffer(Type.Normal);
-            GlVertexBuffer tangents = getBuffer(Type.Tangent);
-            positions.setUsage(Usage.Stream);
-            if (normals != null) {
-                normals.setUsage(Usage.Stream);
-            }
-            if (tangents != null) {
-                tangents.setUsage(Usage.Stream);
-            }
+            prepareSoftwareAnim();
         } else {
-            //if HWBoneIndex and HWBoneWeight are empty, we setup them as direct
-            //buffers with software anim buffers data
-            GlVertexBuffer indicesHW = getBuffer(Type.HWBoneIndex);
-            Buffer result;
-            if (indicesHW.getData() == null) {
-                GlVertexBuffer indices = getBuffer(Type.BoneIndex);
-                if (indices.getFormat() == Format.UnsignedByte) {
-                    ByteBuffer originalIndex = (ByteBuffer) indices.getData();
-                    ByteBuffer directIndex
-                            = BufferUtils.createByteBuffer(originalIndex.capacity());
-                    originalIndex.clear();
-                    directIndex.put(originalIndex);
-                    result = directIndex;
-                } else {
-                    //bone indices can be stored in an UnsignedShort buffer
-                    ShortBuffer originalIndex = (ShortBuffer) indices.getData();
-                    ShortBuffer directIndex
-                            = BufferUtils.createShortBuffer(originalIndex.capacity());
-                    originalIndex.clear();
-                    directIndex.put(originalIndex);
-                    result = directIndex;
-                }
-                indicesHW.setupData(Usage.Static, indices.getNumComponents(),
-                        indices.getFormat(), result);
-            }
-
-            GlVertexBuffer weightsHW = getBuffer(Type.HWBoneWeight);
-            if (weightsHW.getData() == null) {
-                GlVertexBuffer weights = getBuffer(Type.BoneWeight);
-                FloatBuffer originalWeight = (FloatBuffer) weights.getData();
-                FloatBuffer directWeight
-                        = BufferUtils.createFloatBuffer(originalWeight.capacity());
-                originalWeight.clear();
-                directWeight.put(originalWeight);
-                weightsHW.setupData(Usage.Static, weights.getNumComponents(),
-                        weights.getFormat(), directWeight);
-            }
-
-            // position, normal, and tangent buffers to be in "Static" mode
-            GlVertexBuffer positions = getBuffer(Type.Position);
-            GlVertexBuffer normals = getBuffer(Type.Normal);
-            GlVertexBuffer tangents = getBuffer(Type.Tangent);
-
-            GlVertexBuffer positionsBP = getBuffer(Type.BindPosePosition);
-            GlVertexBuffer normalsBP = getBuffer(Type.BindPoseNormal);
-            GlVertexBuffer tangentsBP = getBuffer(Type.BindPoseTangent);
-
-            positions.setUsage(Usage.Static);
-            positionsBP.copyElements(0, positions, 0, positionsBP.getNumElements());
-            positions.setUpdateNeeded();
-
-            if (normals != null) {
-                normals.setUsage(Usage.Static);
-                normalsBP.copyElements(0, normals, 0, normalsBP.getNumElements());
-                normals.setUpdateNeeded();
-            }
-
-            if (tangents != null) {
-                tangents.setUsage(Usage.Static);
-                tangentsBP.copyElements(0, tangents, 0, tangentsBP.getNumElements());
-                tangents.setUpdateNeeded();
-            }
+            prepareHardwareAnim();
         }
     }
 
@@ -884,38 +849,46 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @return how many triangles/elements are on this Mesh.
      */
+    @Override
     public int getTriangleCount() {
         return elementCount;
     }
 
     @Override
-    public void render(RenderManager renderManager, CommandBuffer cmd, Geometry geometry, Material material) {
-
+    public GlMeshModifier modify(String attributeName) {
+        return new GlMeshModifier(getBuffer(Type.valueOf(attributeName)));
     }
 
     @Override
-    public AttributeModifier modify(String attributeName) {
-        return null;
+    public boolean attributeExists(String attributeName) {
+        return getBuffer(Type.valueOf(attributeName)) != null;
     }
 
     @Override
-    public void setAccessFrequency(String attributeName, AccessRate hint) {
+    public GpuBuffer getIndices(int lod) {
+        throw new UnsupportedOperationException("To be implemented");
+    }
 
+    @Override
+    public void setAccessFrequency(String attributeName, AccessFrequency hint) {
+        getBuffer(Type.valueOf(attributeName)).setAccessFrequency(hint);
     }
 
     @Override
     public void setVertexCount(int vertices) {
-
+        for (GlVertexBuffer buf : getBufferList()) {
+            buf.setNumVertices(vertices);
+        }
     }
 
     @Override
     public void setTriangleCount(int lod, int triangles) {
-
+        throw new UnsupportedOperationException("To be implemented.");
     }
 
     @Override
     public void setInstanceCount(int instances) {
-
+        throw new UnsupportedOperationException("To be implemented.");
     }
 
     /**
@@ -1009,14 +982,20 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      *
      * @param indices Indices of the triangle's vertices
      */
-    public void getTriangle(int index, int[] indices) {
+    @Override
+    public int[] getTriangle(int index, int[] indices) {
         IndexBuffer ib = getIndicesAsList();
-
+        if (indices == null) {
+            indices = new int[3];
+        } else if (indices.length < 3) {
+            throw new IllegalArgumentException("Index storage array must have at least 3 elements.");
+        }
         // acquire triangle's vertex indices
         int vertIndex = index * 3;
         indices[0] = ib.get(vertIndex);
         indices[1] = ib.get(vertIndex + 1);
         indices[2] = ib.get(vertIndex + 2);
+        return indices;
     }
 
     /**
@@ -1511,19 +1490,6 @@ public class GlMesh implements Mesh, Savable, Cloneable, JmeCloneable {
      */
     public SafeArrayList<GlVertexBuffer> getBufferList() {
         return buffersList;
-    }
-
-    /**
-     * Determines if the mesh uses bone animation.
-     *
-     * A mesh uses bone animation if it has bone index / weight buffers
-     * such as {@link Type#BoneIndex} or {@link Type#HWBoneIndex}.
-     *
-     * @return true if the mesh uses bone animation, false otherwise
-     */
-    public boolean isAnimated() {
-        return getBuffer(Type.BoneIndex) != null
-                || getBuffer(Type.HWBoneIndex) != null;
     }
 
     /**

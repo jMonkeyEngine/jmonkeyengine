@@ -7,7 +7,6 @@ import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.material.uniforms.BufferUniform;
 import com.jme3.vulkan.material.uniforms.TextureUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
@@ -70,21 +69,21 @@ public class NewMaterial implements VkMaterial {
     }
 
     @Override
-    public void setUniform(String name, VersionedResource<? extends GpuBuffer> buffer) {
+    public void setUniform(String name, GpuBuffer buffer) {
         BufferUniform u = getUniform(name);
-        u.setResource(buffer);
+        u.set(buffer);
     }
 
     @Override
-    public void setTexture(String name, VersionedResource<? extends Texture> texture) {
+    public void setTexture(String name, Texture texture) {
         TextureUniform u = getUniform(name);
-        u.setResource(texture);
+        u.set(texture);
     }
 
     @Override
     public void setParam(String uniform, String param, Object value) {
         Uniform<? extends GpuBuffer> u = getUniform(uniform);
-        GpuBuffer buffer = u.getResource().get();
+        GpuBuffer buffer = u.get().get();
         //buffer.map(Structure::new).set(param, value);
         //buffer.unmap();
     }

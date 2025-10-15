@@ -2,6 +2,7 @@ package com.jme3.vulkan.frames;
 
 import java.util.Iterator;
 
+@Deprecated
 public class SingleResource <T> implements VersionedResource<T> {
 
     private T resource;

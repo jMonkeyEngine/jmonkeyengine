@@ -15,6 +15,9 @@ public class NullAttributeModifier implements AttributeModifier {
     public void close() {}
 
     @Override
+    public void setUpdateNeeded() {}
+
+    @Override
     public int capacity() {
         return 0;
     }

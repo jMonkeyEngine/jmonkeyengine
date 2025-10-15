@@ -7,7 +7,9 @@ import com.jme3.collision.CollisionResults;
 import com.jme3.collision.bih.BIHTree;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.math.Triangle;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.buffers.generate.BufferGenerator;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -17,10 +19,13 @@ import org.lwjgl.system.MemoryStack;
 import java.io.IOException;
 import java.nio.LongBuffer;
 import java.util.*;
+import java.util.logging.Logger;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public abstract class AdaptiveMesh implements VkMesh {
+public class AdaptiveMesh implements VkMesh {
+
+    private static final Logger LOG = Logger.getLogger(AdaptiveMesh.class.getName());
 
     protected final MeshDescription description;
     protected final BufferGenerator generator;
@@ -93,12 +98,23 @@ public abstract class AdaptiveMesh implements VkMesh {
             }
             return new VulkanAttributeModifier(buffer, attr);
         } else {
+            LOG.warning("Attribute \"" + attribute + "\" does not exist. Data changes will be ignored.");
             return new NullAttributeModifier();
         }
     }
 
     @Override
-    public void setAccessFrequency(String attributeName, AccessRate access) {
+    public boolean attributeExists(String attributeName) {
+        return description.getAttribute(attributeName) != null;
+    }
+
+    @Override
+    public GpuBuffer getIndices(int lod) {
+        return indexBuffers.get(lod);
+    }
+
+    @Override
+    public void setAccessFrequency(String attributeName, AccessFrequency access) {
         VertexAttribute attr = description.getAttribute(attributeName);
         if (attr != null) {
             VertexBuffer buffer = vertexBuffers[attr.getBinding().getBindingIndex()];
@@ -196,6 +212,48 @@ public abstract class AdaptiveMesh implements VkMesh {
     @Override
     public int getNumLodLevels() {
         return indexBuffers.size();
+    }
+
+    @Override
+    public Triangle getTriangle(int triangleIndex, Triangle store) {
+        GpuBuffer indices = indexBuffers.get(0);
+        if (indices == null) {
+            throw new NullPointerException("Base index buffer does not exist.");
+        }
+        if (store == null) {
+            store = new Triangle();
+        }
+        final int indicesPerTriangle = 3;
+        IndexBuffer mapped = indices.mapIndices(triangleIndex * indicesPerTriangle, indicesPerTriangle);
+        try (AttributeModifier pos = modifyPosition()) {
+            for (int i = 0; i < indicesPerTriangle; i++) {
+                pos.getVector3(mapped.get(i), 0, store.get(i));
+            }
+        }
+        indices.unmap();
+        store.setIndex(triangleIndex);
+        store.setCenter(null); // invalidate cached calculations
+        store.setNormal(null); // invalidate cached calculations
+        return store;
+    }
+
+    @Override
+    public int[] getTriangle(int triangleIndex, int[] store) {
+        GpuBuffer indices = indexBuffers.get(0);
+        if (indices == null) {
+            throw new NullPointerException("Base index buffer does not exist.");
+        }
+        final int indicesPerTriangle = 3;
+        if (store == null) {
+            store = new int[indicesPerTriangle];
+        } else if (store.length < indicesPerTriangle) {
+            throw new IllegalArgumentException("Index storage array must have at least " + indicesPerTriangle + " elements.");
+        }
+        IndexBuffer mapped = indices.mapIndices(triangleIndex * indicesPerTriangle, indicesPerTriangle);
+        for (int i = 0; i < indicesPerTriangle; i++) {
+            store[i] = mapped.get(i);
+        }
+        return store;
     }
 
     @Override

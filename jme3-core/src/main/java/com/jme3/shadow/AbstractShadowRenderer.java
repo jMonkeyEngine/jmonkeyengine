@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
 import com.jme3.light.LightFilter;
 import com.jme3.light.NullLightFilter;
+import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.Matrix4f;
@@ -151,7 +152,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     }
 
     private void init(AssetManager assetManager, int nbShadowMaps, int shadowMapSize) {
-        this.postshadowMat = new Material(assetManager, "Common/MatDefs/Shadow/PostShadow.j3md");
+        this.postshadowMat = new GlMaterial(assetManager, "Common/MatDefs/Shadow/PostShadow.j3md");
         shadowFB = new FrameBuffer[nbShadowMaps];
         shadowMaps = new Texture2D[nbShadowMaps];
         dispPic = new Picture[nbShadowMaps];
@@ -162,7 +163,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         //DO NOT COMMENT THIS (it prevents the OSX incomplete read-buffer crash)
         dummyTex = new Texture2D(shadowMapSize, shadowMapSize, Format.RGBA8);
 
-        preshadowMat = new Material(assetManager, "Common/MatDefs/Shadow/PreShadow.j3md");
+        preshadowMat = new GlMaterial(assetManager, "Common/MatDefs/Shadow/PreShadow.j3md");
         postshadowMat.setFloat("ShadowMapSize", shadowMapSize);
 
         for (int i = 0; i < nbShadowMaps; i++) {

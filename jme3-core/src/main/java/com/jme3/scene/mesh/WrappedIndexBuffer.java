@@ -82,30 +82,32 @@ public class WrappedIndexBuffer extends VirtualIndexBuffer {
     public Buffer getBuffer() {
         return ib.getBuffer();
     }
-    
-    public static void convertToList(Mesh mesh){
-        IndexBuffer inBuf = mesh.getIndicesAsList();
-        IndexBuffer outBuf = IndexBuffer.createIndexBuffer(mesh.getVertexCount(),
-                                                           inBuf.size());
 
-        for (int i = 0; i < inBuf.size(); i++){
-            outBuf.put(i, inBuf.get(i));
-        }
-
-        mesh.clearBuffer(Type.Index);
-        switch (mesh.getMode()){
-            case LineLoop:
-            case LineStrip:
-                mesh.setMode(Mode.Lines);
-                break;
-            case TriangleStrip:
-            case TriangleFan:
-                mesh.setMode(Mode.Triangles);
-                break;
-            default:
-                break;
-        }
-        mesh.setBuffer(Type.Index, 3, outBuf.getFormat(), outBuf.getBuffer());
+    @Deprecated
+    public static void convertToList(Mesh mesh) {
+//        IndexBuffer inBuf = mesh.getIndicesAsList();
+//        IndexBuffer outBuf = IndexBuffer.createIndexBuffer(mesh.getVertexCount(),
+//                                                           inBuf.size());
+//
+//        for (int i = 0; i < inBuf.size(); i++){
+//            outBuf.put(i, inBuf.get(i));
+//        }
+//
+//        // fixme: is this setting the mesh's mode with the mesh's mode?
+//        mesh.clearBuffer(Type.Index);
+//        switch (mesh.getMode()){
+//            case LineLoop:
+//            case LineStrip:
+//                mesh.setMode(Mode.Lines);
+//                break;
+//            case TriangleStrip:
+//            case TriangleFan:
+//                mesh.setMode(Mode.Triangles);
+//                break;
+//            default:
+//                break;
+//        }
+//        mesh.setBuffer(Type.Index, 3, outBuf.getFormat(), outBuf.getBuffer());
     }
     
 }

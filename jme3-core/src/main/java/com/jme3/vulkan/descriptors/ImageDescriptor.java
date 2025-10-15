@@ -10,7 +10,7 @@ public class ImageDescriptor {
     private final VulkanImage.Layout layout;
 
     public ImageDescriptor(VulkanTexture texture, VulkanImage.Layout layout) {
-        this(texture.getImage(), texture, layout);
+        this(texture.getView(), texture, layout);
     }
 
     public ImageDescriptor(VulkanImageView view, Sampler sampler, VulkanImage.Layout layout) {

@@ -18,7 +18,7 @@ public interface VertexBuffer {
 
     void setNumVertices(int vertices);
 
-    void setAccessFrequency(AccessRate access);
+    void setAccessFrequency(AccessFrequency access);
 
     long getOffset();
 

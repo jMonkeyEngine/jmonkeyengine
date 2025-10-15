@@ -13,11 +13,11 @@ public class StaticBuffer extends StageableBuffer {
     }
 
     @Override
-    public boolean run(CommandBuffer cmd, int frame) {
+    public void run(CommandBuffer cmd, int frame) {
         if (dirtyRegion == null) {
             freeStagingBuffer();
         }
-        return super.run(cmd, frame);
+        super.run(cmd, frame);
     }
 
 }

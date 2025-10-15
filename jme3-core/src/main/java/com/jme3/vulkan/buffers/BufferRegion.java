@@ -23,6 +23,14 @@ public class BufferRegion {
         return this;
     }
 
+    public boolean setEnd(int end) {
+        if (end <= offset) {
+            return false;
+        }
+        this.end = end;
+        return true;
+    }
+
     public BufferRegion unionLocal(BufferRegion region) {
         offset = Math.min(offset, region.offset);
         end = Math.max(end, region.end);

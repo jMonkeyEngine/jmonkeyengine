@@ -38,7 +38,7 @@ import com.jme3.util.natives.GlNative;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.buffers.NioBuffer;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.mesh.AccessRate;
+import com.jme3.vulkan.mesh.AccessFrequency;
 import com.jme3.vulkan.mesh.VertexBuffer;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
@@ -401,12 +401,17 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer, S
 
     @Override
     public void setNumVertices(int vertices) {
-
+        if (data != null) {
+            data.resize(vertices * components);
+        } else {
+            final int padding = 10;
+            data = new NioBuffer(new MemorySize(vertices * components, format.getComponentSize()), padding);
+        }
     }
 
     @Override
-    public void setAccessFrequency(AccessRate access) {
-
+    public void setAccessFrequency(AccessFrequency access) {
+        throw new UnsupportedOperationException("To be implemented.");
     }
 
     @Override
@@ -437,62 +442,6 @@ public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer, S
     @Override
     public LongBuffer mapLongs() {
         return data.mapLongs();
-    }
-
-    @Deprecated
-    public boolean invariant() {
-        /* // Does the VB hold any data?
-        if (!data.hasBuffer()) {
-            throw new AssertionError();
-        }
-        Buffer buf = data.getBuffer();
-        // Position must be 0.
-        if (buf.position() != 0) {
-            throw new AssertionError();
-        }
-        // Is the size of the VB == 0?
-        if (buf.limit() == 0) {
-            throw new AssertionError();
-        }
-        // Does offset exceed buffer limit or negative?
-        if (offset > buf.limit() || offset < 0) {
-            throw new AssertionError();
-        }
-        // Are components between 1 and 4?
-
-        // Are components between 1 and 4 and not InstanceData?
-        if (bufType != Type.InstanceData) {
-            if (components < 1 || components > 4) {
-                throw new AssertionError();
-            }
-        }
-
-        // Does usage comply with buffer directness?
-        //if (usage == Usage.CpuOnly && data.isDirect()) {
-        //    throw new AssertionError();
-        //} else
-        if (usage != Usage.CpuOnly && !buf.isDirect()) {
-            throw new AssertionError();
-        }
-
-        // Double/Char/Long buffers are not supported for VertexBuffers.
-        // For the rest, ensure they comply with the "Format" value.
-        if (buf instanceof DoubleBuffer) {
-            throw new AssertionError();
-        } else if (buf instanceof CharBuffer) {
-            throw new AssertionError();
-        } else if (buf instanceof LongBuffer) {
-            throw new AssertionError();
-        } else if (buf instanceof FloatBuffer && format != Format.Float) {
-            throw new AssertionError();
-        } else if (buf instanceof IntBuffer && format != Format.Int && format != Format.UnsignedInt) {
-            throw new AssertionError();
-        } else if (buf instanceof ShortBuffer && format != Format.Short && format != Format.UnsignedShort) {
-            throw new AssertionError();
-        } else if (buf instanceof ByteBuffer && format != Format.Byte && format != Format.UnsignedByte) {
-            throw new AssertionError();
-        }*/
-        return true;
     }
 
     /**

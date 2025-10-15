@@ -5,4 +5,6 @@ public interface AttributeModifier extends AutoCloseable, VertexReader, VertexWr
     @Override
     void close();
 
+    void setUpdateNeeded();
+
 }

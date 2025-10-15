@@ -35,15 +35,13 @@ import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.export.*;
-import com.jme3.material.Material;
 import com.jme3.math.Triangle;
-import com.jme3.renderer.RenderManager;
-import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.mesh.AttributeModifier;
-import com.jme3.vulkan.mesh.AccessRate;
+import com.jme3.vulkan.mesh.AccessFrequency;
 
 /**
- * Stores the vertex and index data for drawing indexed meshes.
+ * Stores the vertex, index, and instance data for drawing indexed meshes.
  *
  * <p>Each mesh is made up of at least one vertex buffer, at least one
  * index buffer, and at least one vertex attribute. Vertex attributes are
@@ -58,9 +56,10 @@ public interface Mesh extends Savable {
 
     /**
      * Creates an AttributeModifier with which to modify the vertex data
-     * of the named attribute. If the named attribute does not exist,
-     * the implementation may either throw an IllegalArgumentException or
-     * create a new attribute under {@code attributeName}.
+     * of the named attribute. If the named attribute has not been initialized,
+     * it will be initialized here if possible.
+     *
+     * <p>The returned modifier must be properly closed after use.</p>
      *
      * @param attributeName attribute to modify
      * @return modifier
@@ -69,6 +68,25 @@ public interface Mesh extends Savable {
      * to create a new attribute.
      */
     AttributeModifier modify(String attributeName);
+
+    boolean attributeExists(String attributeName);
+
+    default boolean attributeExists(GlVertexBuffer.Type type) {
+        return attributeExists(type.name());
+    }
+
+    default boolean isAnimated() {
+        return attributeExists(GlVertexBuffer.Type.BoneIndex)
+                || attributeExists(GlVertexBuffer.Type.HWBoneIndex);
+    }
+
+    /**
+     * Gets the index buffer for the specified level of detail (LOD).
+     *
+     * @param lod the level of detail to fetch from
+     * @return index buffer for {@code lod}, or null if no such buffer exists
+     */
+    GpuBuffer getIndices(int lod);
 
     /**
      * Hints at how often the named attribute will be modified by the host.
@@ -80,7 +98,7 @@ public interface Mesh extends Savable {
      * @param hint access frequency hint (lower ordinal is more optimized
      *             for frequent accesses)
      */
-    void setAccessFrequency(String attributeName, AccessRate hint);
+    void setAccessFrequency(String attributeName, AccessFrequency hint);
 
     /**
      * Sets the minimum number of vertices that must be supported by
@@ -121,32 +139,114 @@ public interface Mesh extends Savable {
      */
     void setInstanceCount(int instances);
 
+    /**
+     * Gets the vertex count as specified by {@link #setVertexCount(int)}.
+     *
+     * @return vertex count
+     */
     int getVertexCount();
 
+    /**
+     * Gets the triangle count for the specified LOD. If the LOD
+     * does not exist, zero is returned.
+     *
+     * @param lod level of detail
+     * @return number of triangles for that LOD
+     */
     int getTriangleCount(int lod);
 
+    /**
+     * Gets the instance count as specified by {@link #setInstanceCount(int)}.
+     *
+     * @return instance count
+     */
     int getInstanceCount();
 
+    /**
+     * Collides with {@code other} in the context of {@code geometry}. Collisions
+     * are stored in {@code results}.
+     *
+     * @param other collidable to test collisions with
+     * @param geometry geometry specifying the world bound and matrix
+     * @param results collision results to store the collisions in
+     * @return number of collisions that occured
+     */
     int collideWith(Collidable other, Geometry geometry, CollisionResults results);
 
+    /**
+     * Updates the bounding volume to contain all vertices of this mesh in model space.
+     */
     void updateBound();
 
+    /**
+     * Sets the bounding volume to be used by this mesh.
+     *
+     * @param volume volume to use
+     */
     void setBound(BoundingVolume volume);
 
+    /**
+     * Gets the bounding volume used by this mesh.
+     *
+     * @return bounding volume
+     */
     BoundingVolume getBound();
 
+    /**
+     * Gets the number of defined LOD levels.
+     *
+     * @return number of LOD levels
+     */
     int getNumLodLevels();
 
+    /**
+     * Fetches that positional data of the requested triangle.
+     *
+     * @param triangleIndex triangle to fetch
+     * @param store stores the result (if null, a new Triangle is created)
+     * @return triangle respresenting the mesh triangle
+     */
     Triangle getTriangle(int triangleIndex, Triangle store);
+
+    /**
+     * Gets the indices pointing to the vertices of the requested triangle.
+     *
+     * @param triangleIndex triangle to fetch
+     * @param store array storing the indices (must have at least 3 elements or be null)
+     * @return array storing the indices
+     */
+    int[] getTriangle(int triangleIndex, int[] store);
 
     /* ----- DEFAULTS ----- */
 
+    /**
+     * Modifies the named attribute.
+     *
+     * @param name name of the attribute
+     * @return modifier
+     * @see #modify(String)
+     */
     default AttributeModifier modify(GlVertexBuffer.Type name) {
         return modify(name.getName());
     }
 
+    /**
+     * Modifies the position attribute.
+     *
+     * @return modifier
+     * @see #modify(String)
+     */
     default AttributeModifier modifyPosition() {
         return modify(GlVertexBuffer.Type.Position.name());
+    }
+
+    /**
+     * Gets the triangle count for the base LOD level (0).
+     *
+     * @return triangel count for the base LOD
+     */
+    default int getTriangleCount() {
+        return getTriangleCount(0);
     }
 
     /* ----- COMPATIBILITY WITH OLD MESH ----- */

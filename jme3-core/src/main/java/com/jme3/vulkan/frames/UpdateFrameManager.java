@@ -36,12 +36,4 @@ public class UpdateFrameManager <T extends UpdateFrame> {
         return frames.get(index);
     }
 
-    public <R> PerFrameResource<R> perFrame(IntFunction<R> generator) {
-        return new PerFrameResource<>(this, generator);
-    }
-
-    public <C extends Command> PerFrameCommand<C> perFrameCommand(IntFunction<C> generator) {
-        return new PerFrameCommand<>(this, generator);
-    }
-
 }

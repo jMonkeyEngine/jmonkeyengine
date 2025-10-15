@@ -2,7 +2,7 @@ package com.jme3.vulkan.buffers;
 
 import com.jme3.vulkan.buffers.generate.BufferGenerator;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.mesh.AccessRate;
+import com.jme3.vulkan.mesh.AccessFrequency;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 
@@ -11,13 +11,13 @@ public class AdaptiveBuffer implements GpuBuffer {
     private final BufferGenerator<?> generator;
     private final Flag<BufferUsage> usage;
     private GpuBuffer buffer;
-    private AccessRate access;
+    private AccessFrequency access;
 
     public AdaptiveBuffer(MemorySize size, Flag<BufferUsage> usage, BufferGenerator<?> generator) {
-        this(size, usage, AccessRate.Static, generator);
+        this(size, usage, AccessFrequency.Static, generator);
     }
 
-    public AdaptiveBuffer(MemorySize size, Flag<BufferUsage> usage, AccessRate access, BufferGenerator<?> generator) {
+    public AdaptiveBuffer(MemorySize size, Flag<BufferUsage> usage, AccessFrequency access, BufferGenerator<?> generator) {
         this.generator = generator;
         this.usage = usage;
         this.access = access;
@@ -49,7 +49,7 @@ public class AdaptiveBuffer implements GpuBuffer {
         return buffer.resize(elements);
     }
 
-    public boolean setAccessFrequency(AccessRate access) {
+    public boolean setAccessFrequency(AccessFrequency access) {
         if (this.access.ordinal() > access.ordinal()) {
             this.access = access;
             GpuBuffer newBuffer = generator.createBuffer(buffer.size(), usage, access);
@@ -64,7 +64,7 @@ public class AdaptiveBuffer implements GpuBuffer {
         return buffer;
     }
 
-    public AccessRate getAccessFrequency() {
+    public AccessFrequency getAccessFrequency() {
         return access;
     }
 

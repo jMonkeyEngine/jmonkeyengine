@@ -45,6 +45,7 @@ import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+import com.jme3.vulkan.mesh.AttributeModifier;
 
 import java.io.IOException;
 import java.nio.Buffer;
@@ -319,41 +320,30 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
         for (Geometry geometry : targets) {
             Mesh mesh = geometry.getMesh();
             if (mesh != null && mesh.isAnimated()) {
-                Buffer bwBuff = mesh.getBuffer(Type.BoneWeight).getData();
-                Buffer biBuff = mesh.getBuffer(Type.BoneIndex).getData();
-                if (!biBuff.hasArray() || !bwBuff.hasArray()) {
-                    mesh.prepareForAnim(true); // prepare for software animation
+                try (AttributeModifier pb = mesh.modify(Type.Position);
+                        AttributeModifier bpb = mesh.modify(Type.BindPosePosition)) {
+                    pb.putReader(bpb, 0, 0, 0, 0, mesh.getVertexCount(), 3);
                 }
-                GlVertexBuffer bindPos = mesh.getBuffer(Type.BindPosePosition);
-                GlVertexBuffer bindNorm = mesh.getBuffer(Type.BindPoseNormal);
-                GlVertexBuffer pos = mesh.getBuffer(Type.Position);
-                FloatBuffer pb = (FloatBuffer) pos.getData();
-                FloatBuffer bpb = (FloatBuffer) bindPos.getData();
-                pb.clear();
-                bpb.clear();
-
-                // reset bind normals if there is a BindPoseNormal buffer
-                if (bindNorm != null) {
-                    GlVertexBuffer norm = mesh.getBuffer(Type.Normal);
-                    FloatBuffer nb = (FloatBuffer) norm.getData();
-                    FloatBuffer bnb = (FloatBuffer) bindNorm.getData();
-                    nb.clear();
-                    bnb.clear();
-                    nb.put(bnb).clear();
+                if (mesh.attributeExists(Type.BindPoseNormal)) {
+                    try (AttributeModifier nb = mesh.modify(Type.Normal);
+                            AttributeModifier bnb = mesh.modify(Type.BindPoseNormal)) {
+                        nb.putReader(bnb, 0, 0, 0, 0, mesh.getVertexCount(), 3);
+                    }
+                }
+                if (mesh.attributeExists(Type.BindPoseTangent)) {
+                    try (AttributeModifier tb = mesh.modify(Type.Tangent);
+                            AttributeModifier btb = mesh.modify(Type.BindPoseTangent)) {
+                        // todo: 3 or 4 components for tangent???
+                        tb.putReader(btb, 0, 0, 0, 0, mesh.getVertexCount(), 4);
+                    }
                 }
 
-                //resetting bind tangents if there is a bind tangent buffer
-                GlVertexBuffer bindTangents = mesh.getBuffer(Type.BindPoseTangent);
-                if (bindTangents != null) {
-                    GlVertexBuffer tangents = mesh.getBuffer(Type.Tangent);
-                    FloatBuffer tb = (FloatBuffer) tangents.getData();
-                    FloatBuffer btb = (FloatBuffer) bindTangents.getData();
-                    tb.clear();
-                    btb.clear();
-                    tb.put(btb).clear();
-                }
-
-                pb.put(bpb).clear();
+                // todo: replace prepareForAnim
+//                Buffer bwBuff = mesh.getBuffer(Type.BoneWeight).getData();
+//                Buffer biBuff = mesh.getBuffer(Type.BoneIndex).getData();
+//                if (!biBuff.hasArray() || !bwBuff.hasArray()) {
+//                    mesh.prepareForAnim(true); // prepare for software animation
+//                }
             }
         }
     }
@@ -444,13 +434,12 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      */
     private void softwareSkinUpdate(Mesh mesh, Matrix4f[] offsetMatrices) {
 
-        GlVertexBuffer tb = mesh.getBuffer(Type.Tangent);
-        if (tb == null) {
+        if (!mesh.attributeExists(Type.Tangent)) {
             //if there are no tangents use the classic skinning
             applySkinning(mesh, offsetMatrices);
         } else {
             //if there are tangents use the skinning with tangents
-            applySkinningTangents(mesh, offsetMatrices, tb);
+            applySkinningTangents(mesh, offsetMatrices);
         }
 
 
@@ -463,98 +452,48 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      * @param offsetMatrices the offset matrices to apply
      */
     private void applySkinning(Mesh mesh, Matrix4f[] offsetMatrices) {
+
         int maxWeightsPerVert = mesh.getMaxNumWeights();
         if (maxWeightsPerVert <= 0) {
             throw new IllegalStateException("Max weights per vert is incorrectly set!");
         }
-        int fourMinusMaxWeights = 4 - maxWeightsPerVert;
 
-        // NOTE: This code assumes the vertex buffer is in bind pose
-        // resetToBind() has been called this frame
-        GlVertexBuffer vb = mesh.getBuffer(Type.Position);
-        FloatBuffer fvb = (FloatBuffer) vb.getData();
-        fvb.rewind();
+        try (AttributeModifier positionBuffer = mesh.modify(Type.Position);
+             AttributeModifier normalBuffer = mesh.modify(Type.Normal);
+             AttributeModifier boneIndexBuffer = mesh.modify(Type.BoneIndex);
+             AttributeModifier boneWeightBuffer = mesh.modify(Type.BoneWeight)) {
 
-        GlVertexBuffer nb = mesh.getBuffer(Type.Normal);
-        FloatBuffer fnb = (FloatBuffer) nb.getData();
-        fnb.rewind();
-
-        // get boneIndexes and weights for mesh
-        IndexBuffer ib = IndexBuffer.wrapIndexBuffer(mesh.getBuffer(Type.BoneIndex).getData());
-        FloatBuffer wb = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
-
-        wb.rewind();
-
-        float[] weights = wb.array();
-        int idxWeights = 0;
-
-        TempVars vars = TempVars.get();
-
-        float[] posBuf = vars.skinPositions;
-        float[] normBuf = vars.skinNormals;
-
-        int iterations = (int) FastMath.ceil(fvb.limit() / ((float) posBuf.length));
-        int bufLength = posBuf.length;
-        for (int i = iterations - 1; i >= 0; i--) {
-            // read next set of positions and normals from native buffer
-            bufLength = Math.min(posBuf.length, fvb.remaining());
-            fvb.get(posBuf, 0, bufLength);
-            fnb.get(normBuf, 0, bufLength);
-            int verts = bufLength / 3;
-            int idxPositions = 0;
-
-            // iterate vertices and apply skinning transform for each effecting bone
-            for (int vert = verts - 1; vert >= 0; vert--) {
-                // Skip this vertex if the first weight is zero.
-                if (weights[idxWeights] == 0) {
-                    idxPositions += 3;
-                    idxWeights += 4;
-                    continue;
+            for (int v = 0; v < mesh.getVertexCount(); v++) {
+                if (boneWeightBuffer.getFloat(v, 0) == 0f) {
+                    continue; // skip if first weight is zero
                 }
-
-                float nmx = normBuf[idxPositions];
-                float vtx = posBuf[idxPositions++];
-                float nmy = normBuf[idxPositions];
-                float vty = posBuf[idxPositions++];
-                float nmz = normBuf[idxPositions];
-                float vtz = posBuf[idxPositions++];
-
+                float vtx = positionBuffer.getFloat(v, 0);
+                float vty = positionBuffer.getFloat(v, 1);
+                float vtz = positionBuffer.getFloat(v, 2);
+                float nmx = normalBuffer.getFloat(v, 0);
+                float nmy = normalBuffer.getFloat(v, 1);
+                float nmz = normalBuffer.getFloat(v, 2);
                 float rx = 0, ry = 0, rz = 0, rnx = 0, rny = 0, rnz = 0;
-
-                for (int w = maxWeightsPerVert - 1; w >= 0; w--) {
-                    float weight = weights[idxWeights];
-                    Matrix4f mat = offsetMatrices[ib.get(idxWeights++)];
-
+                for (int w = 0; w < maxWeightsPerVert; w++) {
+                    float weight = boneWeightBuffer.getFloat(v, w);
+                    Matrix4f mat = offsetMatrices[boneIndexBuffer.getInt(v, w)];
+                    // transform position
                     rx += (mat.m00 * vtx + mat.m01 * vty + mat.m02 * vtz + mat.m03) * weight;
                     ry += (mat.m10 * vtx + mat.m11 * vty + mat.m12 * vtz + mat.m13) * weight;
                     rz += (mat.m20 * vtx + mat.m21 * vty + mat.m22 * vtz + mat.m23) * weight;
-
+                    // transform normal
                     rnx += (nmx * mat.m00 + nmy * mat.m01 + nmz * mat.m02) * weight;
                     rny += (nmx * mat.m10 + nmy * mat.m11 + nmz * mat.m12) * weight;
                     rnz += (nmx * mat.m20 + nmy * mat.m21 + nmz * mat.m22) * weight;
                 }
-
-                idxWeights += fourMinusMaxWeights;
-
-                idxPositions -= 3;
-                normBuf[idxPositions] = rnx;
-                posBuf[idxPositions++] = rx;
-                normBuf[idxPositions] = rny;
-                posBuf[idxPositions++] = ry;
-                normBuf[idxPositions] = rnz;
-                posBuf[idxPositions++] = rz;
+                positionBuffer.putVector3(v, 0, rx, ry, rz);
+                normalBuffer.putVector3(v, 0, rnx, rny, rnz);
             }
 
-            fvb.position(fvb.position() - bufLength);
-            fvb.put(posBuf, 0, bufLength);
-            fnb.position(fnb.position() - bufLength);
-            fnb.put(normBuf, 0, bufLength);
+            positionBuffer.setUpdateNeeded();
+            normalBuffer.setUpdateNeeded();
+
         }
-
-        vars.release();
-
-        vb.updateData(fvb);
-        nb.updateData(fnb);
 
     }
 
@@ -567,148 +506,61 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
      *
      * @param mesh           the mesh
      * @param offsetMatrices the offsetMatrices to apply
-     * @param tb             the tangent vertexBuffer
      */
-    private void applySkinningTangents(Mesh mesh, Matrix4f[] offsetMatrices, GlVertexBuffer tb) {
-        int maxWeightsPerVert = mesh.getMaxNumWeights();
+    private void applySkinningTangents(Mesh mesh, Matrix4f[] offsetMatrices) {
 
+        int maxWeightsPerVert = mesh.getMaxNumWeights();
         if (maxWeightsPerVert <= 0) {
             throw new IllegalStateException("Max weights per vert is incorrectly set!");
         }
 
-        int fourMinusMaxWeights = 4 - maxWeightsPerVert;
+        try (AttributeModifier positionBuffer = mesh.modify(Type.Position);
+                AttributeModifier normalBuffer = mesh.modify(Type.Normal);
+                AttributeModifier tangentBuffer = mesh.modify(Type.Tangent);
+                AttributeModifier boneIndexBuffer = mesh.modify(Type.BoneIndex);
+                AttributeModifier boneWeightBuffer = mesh.modify(Type.BoneWeight)) {
 
-        // NOTE: This code assumes the vertex buffer is in bind pose
-        // resetToBind() has been called this frame
-        GlVertexBuffer vb = mesh.getBuffer(Type.Position);
-        FloatBuffer fvb = (FloatBuffer) vb.getData();
-        fvb.rewind();
-
-        GlVertexBuffer nb = mesh.getBuffer(Type.Normal);
-
-        FloatBuffer fnb = (nb == null) ? null : (FloatBuffer) nb.getData();
-        if (fnb != null) {
-            fnb.rewind();
-        }
-
-        FloatBuffer ftb = (FloatBuffer) tb.getData();
-        ftb.rewind();
-
-
-        // get boneIndexes and weights for mesh
-        IndexBuffer ib = IndexBuffer.wrapIndexBuffer(mesh.getBuffer(Type.BoneIndex).getData());
-        FloatBuffer wb = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
-
-        wb.rewind();
-
-        float[] weights = wb.array();
-        int idxWeights = 0;
-
-        TempVars vars = TempVars.get();
-
-
-        float[] posBuf = vars.skinPositions;
-        float[] normBuf = vars.skinNormals;
-        float[] tanBuf = vars.skinTangents;
-
-        int iterations = (int) FastMath.ceil(fvb.limit() / ((float) posBuf.length));
-        int bufLength = 0;
-        int tanLength = 0;
-        for (int i = iterations - 1; i >= 0; i--) {
-            // read next set of positions and normals from native buffer
-            bufLength = Math.min(posBuf.length, fvb.remaining());
-            tanLength = Math.min(tanBuf.length, ftb.remaining());
-            fvb.get(posBuf, 0, bufLength);
-            if (fnb != null) {
-                fnb.get(normBuf, 0, bufLength);
-            }
-            ftb.get(tanBuf, 0, tanLength);
-            int verts = bufLength / 3;
-            int idxPositions = 0;
-            // Tangents have their own index because they have 4 components.
-            int idxTangents = 0;
-
-            // iterate vertices and apply skinning transform for each effecting bone
-            for (int vert = verts - 1; vert >= 0; vert--) {
-                // Skip this vertex if the first weight is zero.
-                if (weights[idxWeights] == 0) {
-                    idxTangents += 4;
-                    idxPositions += 3;
-                    idxWeights += 4;
-                    continue;
+            for (int v = 0; v < mesh.getVertexCount(); v++) {
+                if (boneWeightBuffer.getFloat(v, 0) == 0f) {
+                    continue; // skip if first weight is zero
                 }
-
-                float nmx = normBuf[idxPositions];
-                float vtx = posBuf[idxPositions++];
-                float nmy = normBuf[idxPositions];
-                float vty = posBuf[idxPositions++];
-                float nmz = normBuf[idxPositions];
-                float vtz = posBuf[idxPositions++];
-
-                float tnx = tanBuf[idxTangents++];
-                float tny = tanBuf[idxTangents++];
-                float tnz = tanBuf[idxTangents++];
-
-                // skipping the 4th component of the tangent since it doesn't have to be transformed
-                idxTangents++;
-
+                float vtx = positionBuffer.getFloat(v, 0);
+                float vty = positionBuffer.getFloat(v, 1);
+                float vtz = positionBuffer.getFloat(v, 2);
+                float nmx = normalBuffer.getFloat(v, 0);
+                float nmy = normalBuffer.getFloat(v, 1);
+                float nmz = normalBuffer.getFloat(v, 2);
+                float tnx = tangentBuffer.getFloat(v, 0);
+                float tny = tangentBuffer.getFloat(v, 1);
+                float tnz = tangentBuffer.getFloat(v, 2);
                 float rx = 0, ry = 0, rz = 0, rnx = 0, rny = 0, rnz = 0, rtx = 0, rty = 0, rtz = 0;
-
-                for (int w = maxWeightsPerVert - 1; w >= 0; w--) {
-                    float weight = weights[idxWeights];
-                    Matrix4f mat = offsetMatrices[ib.get(idxWeights++)];
-
+                for (int w = 0; w < maxWeightsPerVert; w++) {
+                    float weight = boneWeightBuffer.getFloat(v, w);
+                    Matrix4f mat = offsetMatrices[boneIndexBuffer.getInt(v, w)];
+                    // transform position
                     rx += (mat.m00 * vtx + mat.m01 * vty + mat.m02 * vtz + mat.m03) * weight;
                     ry += (mat.m10 * vtx + mat.m11 * vty + mat.m12 * vtz + mat.m13) * weight;
                     rz += (mat.m20 * vtx + mat.m21 * vty + mat.m22 * vtz + mat.m23) * weight;
-
+                    // transform normal
                     rnx += (nmx * mat.m00 + nmy * mat.m01 + nmz * mat.m02) * weight;
                     rny += (nmx * mat.m10 + nmy * mat.m11 + nmz * mat.m12) * weight;
                     rnz += (nmx * mat.m20 + nmy * mat.m21 + nmz * mat.m22) * weight;
-
+                    // transform tangent (xyz only)
                     rtx += (tnx * mat.m00 + tny * mat.m01 + tnz * mat.m02) * weight;
                     rty += (tnx * mat.m10 + tny * mat.m11 + tnz * mat.m12) * weight;
                     rtz += (tnx * mat.m20 + tny * mat.m21 + tnz * mat.m22) * weight;
                 }
-
-                idxWeights += fourMinusMaxWeights;
-
-                idxPositions -= 3;
-
-                normBuf[idxPositions] = rnx;
-                posBuf[idxPositions++] = rx;
-                normBuf[idxPositions] = rny;
-                posBuf[idxPositions++] = ry;
-                normBuf[idxPositions] = rnz;
-                posBuf[idxPositions++] = rz;
-
-                idxTangents -= 4;
-
-                tanBuf[idxTangents++] = rtx;
-                tanBuf[idxTangents++] = rty;
-                tanBuf[idxTangents++] = rtz;
-
-                //once again skipping the 4th component of the tangent
-                idxTangents++;
+                positionBuffer.putVector3(v, 0, rx, ry, rz);
+                normalBuffer.putVector3(v, 0, rnx, rny, rnz);
+                tangentBuffer.putVector3(v, 0, rtx, rty, rtz);
             }
 
-            fvb.position(fvb.position() - bufLength);
-            fvb.put(posBuf, 0, bufLength);
-            if (fnb != null) {
-                fnb.position(fnb.position() - bufLength);
-                fnb.put(normBuf, 0, bufLength);
-            }
-            ftb.position(ftb.position() - tanLength);
-            ftb.put(tanBuf, 0, tanLength);
+            positionBuffer.setUpdateNeeded();
+            normalBuffer.setUpdateNeeded();
+            tangentBuffer.setUpdateNeeded();
+
         }
 
-        vars.release();
-
-        vb.updateData(fvb);
-        if (nb != null) {
-            nb.updateData(fnb);
-        }
-        tb.updateData(ftb);
     }
 
     /**

@@ -7,33 +7,42 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class SharedCommandBatch implements CommandBatch {
+public class BasicCommandBatch implements CommandBatch {
 
     private final List<WeakReference<Command>> commands = new ArrayList<>();
 
     @Override
-    public boolean run(CommandBuffer cmd, int frame) {
-        boolean run = false;
+    public boolean requiresCommandBuffer(int frame) {
+        return commands.stream().anyMatch(ref -> {
+            Command c = ref.get();
+            return c != null && c.requiresCommandBuffer(frame);
+        });
+    }
+
+    @Override
+    public void run(CommandBuffer cmd, int frame) {
         for (Iterator<WeakReference<Command>> it = commands.iterator(); it.hasNext();) {
             Command c = it.next().get();
             if (c == null) {
                 it.remove();
             } else {
-                run = c.run(cmd, frame) || run;
+                c.run(cmd, frame);
             }
         }
-        return run;
     }
 
     @Override
-    public <T extends Command> T add(int frame, T command) {
+    public <T extends Command> T add(T command) {
         commands.add(new WeakReference<>(command));
         return command;
     }
 
     @Override
     public void remove(Command command) {
-        commands.removeIf(ref -> ref.get() == command);
+        commands.removeIf(ref -> {
+            Command c = ref.get();
+            return c == null || c.removeByCommand(command);
+        });
     }
 
 }

@@ -133,7 +133,7 @@ public class Curve extends GlMesh {
             i++;
         }
 
-        this.setMode(Mesh.Mode.Lines);
+        this.setMode(GlMesh.Mode.Lines);
         this.setBuffer(GlVertexBuffer.Type.Position, 3, array);
         this.setBuffer(GlVertexBuffer.Type.Index, 2, indices);//(spline.getControlPoints().size() - 1) * nbSubSegments * 2
         this.updateBound();
@@ -185,7 +185,7 @@ public class Curve extends GlMesh {
             indices[i++] = (short) k;
         }
 
-        this.setMode(Mesh.Mode.Lines);
+        this.setMode(GlMesh.Mode.Lines);
         this.setBuffer(GlVertexBuffer.Type.Position, 3, array);
         this.setBuffer(GlVertexBuffer.Type.Index, 2, indices);
         this.updateBound();
@@ -229,7 +229,7 @@ public class Curve extends GlMesh {
                 indices[i++] = (short) (j + 1);
             }
 
-            this.setMode(Mesh.Mode.Lines);
+            this.setMode(GlMesh.Mode.Lines);
             this.setBuffer(GlVertexBuffer.Type.Position, 3, array);
             this.setBuffer(GlVertexBuffer.Type.Index, 2, indices);
             this.updateBound();
@@ -263,7 +263,7 @@ public class Curve extends GlMesh {
             }
         }
 
-        this.setMode(Mesh.Mode.Lines);
+        this.setMode(GlMesh.Mode.Lines);
         this.setBuffer(GlVertexBuffer.Type.Position, 3, array);
         this.setBuffer(GlVertexBuffer.Type.Index, 2, indices);
         this.updateBound();

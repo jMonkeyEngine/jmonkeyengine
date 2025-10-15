@@ -21,6 +21,9 @@ public class VulkanAttributeModifier implements AttributeModifier {
         vertex.unmap();
     }
 
+    @Override
+    public void setUpdateNeeded() {}
+
     public int vertexToPosition(int vertex) {
         return attribute.getBinding().getStride() * vertex + attribute.getOffset();
     }

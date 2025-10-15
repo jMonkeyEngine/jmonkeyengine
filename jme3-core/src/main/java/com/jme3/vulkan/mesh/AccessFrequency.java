@@ -1,6 +1,6 @@
 package com.jme3.vulkan.mesh;
 
-public enum AccessRate {
+public enum AccessFrequency {
 
     Stream, Dynamic, Static;
 

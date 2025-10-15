@@ -15,7 +15,7 @@ public class MatrixTransformMaterial extends NewMaterial {
 
     public MatrixTransformMaterial(DescriptorPool pool) {
         super(pool);
-        addSet(transforms);
+        addSet(0, transforms);
     }
 
     public BufferUniform getTransforms() {

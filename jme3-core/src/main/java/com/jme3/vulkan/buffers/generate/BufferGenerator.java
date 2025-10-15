@@ -3,7 +3,7 @@ package com.jme3.vulkan.buffers.generate;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.mesh.AccessRate;
+import com.jme3.vulkan.mesh.AccessFrequency;
 import com.jme3.vulkan.util.Flag;
 
 public interface BufferGenerator <T extends GpuBuffer> {
@@ -14,7 +14,7 @@ public interface BufferGenerator <T extends GpuBuffer> {
 
     T createStaticBuffer(MemorySize size, Flag<BufferUsage> usage);
 
-    default T createBuffer(MemorySize size, Flag<BufferUsage> usage, AccessRate access) {
+    default T createBuffer(MemorySize size, Flag<BufferUsage> usage, AccessFrequency access) {
         switch (access) {
             case Stream: return createStreamingBuffer(size, usage);
             case Dynamic: return createDynamicBuffer(size, usage);

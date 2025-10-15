@@ -2,10 +2,7 @@ package com.jme3.vulkan.buffers.generate;
 
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.frames.PerFrameCommand;
-import com.jme3.vulkan.frames.SingleCommand;
 import com.jme3.vulkan.frames.UpdateFrameManager;
-import com.jme3.vulkan.frames.VersionedResource;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.update.CommandBatch;
@@ -31,7 +28,7 @@ public class MeshBufferGenerator implements BufferGenerator<GpuBuffer> {
 
     @Override
     public GpuBuffer createStreamingBuffer(MemorySize size, Flag<BufferUsage> usage) {
-        VersionedBuffer<PersistentBuffer> buffer = new VersionedBuffer<>(frames, size,
+        PerFrameBuffer<PersistentBuffer> buffer = new PerFrameBuffer<>(frames, size,
                 s -> new PersistentBuffer(device, s));
         for (PersistentBuffer buf : buffer) {
             try (PersistentBuffer.Builder b = buf.build()) {
@@ -46,7 +43,7 @@ public class MeshBufferGenerator implements BufferGenerator<GpuBuffer> {
         if (dynamicBatch == null) {
             throw new UnsupportedOperationException("Cannot create dynamic buffer: dynamic batch is null.");
         }
-        VersionedBuffer<StageableBuffer> buffer = new VersionedBuffer<>(frames, size,
+        PerFrameBuffer<StageableBuffer> buffer = new PerFrameBuffer<>(frames, size,
                 s -> new StageableBuffer(device, s));
         for (StageableBuffer buf : buffer) {
             try (BasicVulkanBuffer.Builder b = buf.build()) {

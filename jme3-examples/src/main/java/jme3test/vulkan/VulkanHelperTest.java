@@ -5,14 +5,13 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.vulkan.ColorSpace;
 import com.jme3.vulkan.FormatFeature;
-import com.jme3.vulkan.buffers.VersionedBuffer;
+import com.jme3.vulkan.buffers.PerFrameBuffer;
 import com.jme3.vulkan.buffers.generate.MeshBufferGenerator;
 import com.jme3.vulkan.shaderc.ShaderType;
 import com.jme3.vulkan.shaderc.ShadercLoader;
@@ -55,15 +54,12 @@ import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.SyncGroup;
 import com.jme3.vulkan.update.CommandBatch;
-import com.jme3.vulkan.update.PerFrameCommandBatch;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 import static org.lwjgl.vulkan.VK13.*;
@@ -255,20 +251,20 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         sharedDataFence = new Fence(device, true);
 
         // set material parameters
-        material.getBaseColorMap().setResource(new SingleResource<>(texture));
+        material.getBaseColorMap().set(new SingleResource<>(texture));
 
         // create geometry
         Mesh m = new MyCustomMesh(meshDesc, new MeshBufferGenerator(device, frames, null, sharedData),
                 Vector3f.UNIT_Z, Vector3f.UNIT_Y, 1f, 1f, 0.5f, 0.5f);
         MatrixTransformMaterial t = new MatrixTransformMaterial(descriptorPool);
-        VersionedBuffer<PersistentBuffer> transformBuffer = new VersionedBuffer<>(frames, MemorySize.floats(16),
+        PerFrameBuffer<PersistentBuffer> transformBuffer = new PerFrameBuffer<>(frames, MemorySize.floats(16),
                 s -> new PersistentBuffer(device, s));
         for (PersistentBuffer buf : transformBuffer) {
             try (PersistentBuffer.Builder b = buf.build()) {
                 b.setUsage(BufferUsage.Uniform);
             }
         }
-        t.getTransforms().setResource(transformBuffer);
+        t.getTransforms().set(transformBuffer);
         Geometry geometry = new Geometry("geometry", m, t);
         geometry.setMaterial(material);
         rootNode.attachChild(geometry);
