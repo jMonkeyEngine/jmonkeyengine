@@ -2,6 +2,9 @@ package com.jme3.vulkan.descriptors;
 
 import com.jme3.vulkan.util.IntEnum;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.lwjgl.vulkan.VK10.*;
 
 public enum Descriptor implements IntEnum<Descriptor> {
@@ -28,5 +31,7 @@ public enum Descriptor implements IntEnum<Descriptor> {
     public int getEnum() {
         return vkEnum;
     }
+
+    private static final Map<String, IntEnum<Descriptor>> custom = new HashMap<>();
 
 }

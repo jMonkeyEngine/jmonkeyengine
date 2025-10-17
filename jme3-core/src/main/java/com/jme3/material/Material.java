@@ -36,8 +36,6 @@ import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.Texture;
 import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.frames.SingleResource;
-import com.jme3.vulkan.frames.VersionedResource;
 
 /**
  * <code>Material</code> describes the rendering style for a given
@@ -48,7 +46,7 @@ import com.jme3.vulkan.frames.VersionedResource;
  * shader.
  * </p>
  *
- * @author Kirill Vainer
+ * @author codex
  */
 public interface Material extends Savable {
 

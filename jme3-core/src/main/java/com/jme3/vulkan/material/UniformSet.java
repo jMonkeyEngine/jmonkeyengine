@@ -22,7 +22,7 @@ public class UniformSet implements Iterable<Uniform> {
         for (Uniform u : uniforms) {
             int i = u.getBindingIndex();
             if (bindings.get(i)) {
-                throw new IllegalArgumentException("Duplicate binding index in set: " + u.getBindingIndex());
+                throw new IllegalArgumentException("Duplicate binding index in set " + setIndex + ": " + u.getBindingIndex());
             }
             bindings.set(i);
         }

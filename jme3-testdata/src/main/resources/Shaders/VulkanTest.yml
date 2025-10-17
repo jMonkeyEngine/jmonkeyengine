@@ -1,23 +1,44 @@
 name: "VulkanTest"
+# Links type placeholders to full class names used for instantiation
+# by reflection. This enables custom types to be used. Common engine
+# types are supported by default.
+imports:
+  MyUniformType: "com.username.MyCustomUniform"
+  MyBufferMember: "com.username.MyCustomBufferMember"
+  MyRasterState: "com.username.MyCustomRasterState"
 parameters:
+  # Most valid parameter arguments are defined by managing Uniform object
+  # including default values. Exceptions are type, set, and define.
+  # Also, binding and stages are handled by AbstractUniform.
   Matrices:
     type: UniformBuffer
     set: 0
     binding: 0
-    usage: Stream # default is dynamic
-    stages: [Vertex] # default is All
-    layout:
+    usage: Stream
+    stages: [Vertex]
+    layout: # defines the layout of the uniform buffer
       worldViewProjection:
         type: Matrix4f
-        default: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      time:
+        type: Float
+        default: 1.0
+      myval:
+        type: MyBufferMember
+        default: "parse_this"
   BaseColorMap:
     type: Texture
     set: 0
     binding: 1
-    define: "MATRICES" # default is no define
+    define: "BASE_COLOR_MAP"
     default: "Common/Textures/MissingTexture.jpg"
+  MyValue:
+    type: MyUniformType
+    set: 0
+    binding: 1
+    default: "parse_this"
 pipelines:
   main:
+    type: GraphicsPipeline
     shaders:
       - stage: Vertex
         file: "Shaders/VulkanVertTest.yml"
@@ -26,17 +47,8 @@ pipelines:
         file: "Shaders/VulkanFragTest.yml"
         # entry is "main" by default
     dynamic: [ViewPort, Scissor]
-    vertexInput:
-      mesh:
-        - - name: "position"
-            format: R32G32B32_SFloat
-          - name: "texCoord"
-            format: R32G32_SFloat
-          - name: "normal"
-            format: R32G32B32_SFloat
-        - - name: "color"
-            format: R8B8G8A8_SRGB
     raster:
+      type: MyRasterState
       cullMode: None
     colorBlend:
       attachments:

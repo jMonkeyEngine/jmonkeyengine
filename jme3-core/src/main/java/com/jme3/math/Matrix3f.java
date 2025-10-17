@@ -34,7 +34,10 @@ package com.jme3.math;
 import com.jme3.export.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
+import com.jme3.vulkan.buffers.BufferMember;
+
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.logging.Logger;
 
@@ -55,7 +58,7 @@ import java.util.logging.Logger;
  * @author Mark Powell
  * @author Joshua Slack
  */
-public final class Matrix3f implements Savable, Cloneable, java.io.Serializable {
+public final class Matrix3f implements BufferMember, Savable, Cloneable, java.io.Serializable {
 
     static final long serialVersionUID = 1;
 
@@ -1500,4 +1503,17 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
             throw new AssertionError(); // can not happen
         }
     }
+
+    @Override
+    public void fillBuffer(ByteBuffer buffer) {
+        buffer.putFloat(m00).putFloat(m10).putFloat(m20)
+              .putFloat(m01).putFloat(m11).putFloat(m21)
+              .putFloat(m02).putFloat(m12).putFloat(m22);
+    }
+
+    @Override
+    public int getSizeInBytes() {
+        return 9 * Float.BYTES;
+    }
+
 }

@@ -1,22 +1,51 @@
 package com.jme3.vulkan.material.uniforms;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.buffers.generate.BufferGenerator;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
+import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.mesh.AccessFrequency;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
+import com.jme3.vulkan.util.ReflectionArgs;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-import java.util.Objects;
+import java.nio.ByteBuffer;
+import java.util.*;
 
 public class BufferUniform extends AbstractUniform<GpuBuffer> {
 
     public BufferUniform(String name, IntEnum<Descriptor> type, int bindingIndex, Flag<ShaderStage> stages) {
         super(name, type, bindingIndex, stages);
+    }
+
+    public BufferUniform(IntEnum<Descriptor> type, ReflectionArgs args) {
+        super(type, args);
+        if (args.getProperties().has("usage")) {
+            AccessFrequency usage = AccessFrequency.valueOf(args.getProperties().get("usage").asText());
+            List<BufferMember> members = new ArrayList<>();
+            int size = 0;
+            for (Iterator<Map.Entry<String, JsonNode>> it = args.getProperties().get("layout").fields(); it.hasNext();) {
+                Map.Entry<String, JsonNode> el = it.next();
+                BufferMember member = args.create(el.getKey(), el.getValue()).instantiate();
+                members.add(member);
+                size += member.getSizeInBytes();
+            }
+            value = args.getGenerator().createBuffer(MemorySize.bytes(size), BufferUsage.Uniform, usage);
+            ByteBuffer bytes = value.mapBytes();
+            bytes.clear();
+            for (BufferMember m : members) {
+                m.fillBuffer(bytes);
+            }
+            bytes.flip();
+            value.unmap();
+        }
     }
 
     @Override

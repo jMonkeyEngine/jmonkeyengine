@@ -20,6 +20,9 @@ dependencies {
     testImplementation project(':jme3-desktop')
     testRuntimeOnly project(':jme3-plugins')
 
+    // jackson yaml parsing
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2"
+
     // Use LWJGL3 directly in core. This destroys LWJGL2 and JOGL compatibility.
     api (libs.lwjgl3.awt) {
         exclude group: 'org.lwjgl', module: 'lwjgl'
@@ -34,6 +37,7 @@ dependencies {
     api libs.lwjgl3.vulkan
     api libs.lwjgl3.shaderc
 
+    // include natives
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows-x86') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux') })
