@@ -7,7 +7,9 @@ import org.lwjgl.vulkan.VkPipelineDynamicStateCreateInfo;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -38,7 +40,8 @@ public class DynamicState implements PipelineState<VkPipelineDynamicStateCreateI
 
     }
 
-    private final Set<IntEnum<Type>> states = new HashSet<>();
+    private final Set<Integer> states = new HashSet<>();
+    protected long version = 0L;
 
     @SafeVarargs
     public DynamicState(IntEnum<Type>... types) {
@@ -46,20 +49,44 @@ public class DynamicState implements PipelineState<VkPipelineDynamicStateCreateI
     }
 
     @Override
-    public VkPipelineDynamicStateCreateInfo toStruct(MemoryStack stack) {
+    public VkPipelineDynamicStateCreateInfo create(MemoryStack stack) {
+        return VkPipelineDynamicStateCreateInfo.calloc(stack)
+                .sType(VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO);
+    }
+
+    @Override
+    public VkPipelineDynamicStateCreateInfo fill(MemoryStack stack, VkPipelineDynamicStateCreateInfo struct) {
         IntBuffer stateBuf = stack.mallocInt(states.size());
-        for (IntEnum<Type> t : states) {
-            stateBuf.put(t.getEnum());
+        for (Integer t : states) {
+            stateBuf.put(t);
         }
         stateBuf.flip();
-        return VkPipelineDynamicStateCreateInfo.calloc(stack)
-                .sType(VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO)
-                .pDynamicStates(stateBuf);
+        return struct.pDynamicStates(stateBuf);
+    }
+
+    @Override
+    public long getCurrentVersion() {
+        return version;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        DynamicState that = (DynamicState) o;
+        return Objects.equals(states, that.states);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(states);
     }
 
     @SafeVarargs
     public final void addTypes(IntEnum<Type>... types) {
-        states.addAll(Arrays.asList(types));
+        if (types.length > 0) {
+            Arrays.stream(types).map(IntEnum::getEnum).collect(Collectors.toCollection(() -> states));
+            version++;
+        }
     }
 
 }

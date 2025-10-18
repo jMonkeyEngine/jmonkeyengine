@@ -14,9 +14,16 @@ public class ViewportState implements PipelineState<VkPipelineViewportStateCreat
 
     private final List<ViewportInfo> viewports = new ArrayList<>();
     private final List<ScissorInfo> scissors = new ArrayList<>();
+    protected long version = 0L;
 
     @Override
-    public VkPipelineViewportStateCreateInfo toStruct(MemoryStack stack) {
+    public VkPipelineViewportStateCreateInfo create(MemoryStack stack) {
+        return VkPipelineViewportStateCreateInfo.calloc(stack)
+                .sType(VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO);
+    }
+
+    @Override
+    public VkPipelineViewportStateCreateInfo fill(MemoryStack stack, VkPipelineViewportStateCreateInfo struct) {
         VkViewport.Buffer vpBuf = VkViewport.calloc(viewports.size(), stack);
         for (ViewportInfo v : viewports) {
             vpBuf.get().x(v.x).y(v.y).width(v.w).height(v.h).minDepth(v.min).maxDepth(v.max);
@@ -29,10 +36,13 @@ public class ViewportState implements PipelineState<VkPipelineViewportStateCreat
             e.extent().set(s.w, s.h);
         }
         scissorBuf.flip();
-        return VkPipelineViewportStateCreateInfo.calloc(stack)
-                .sType(VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO)
-                .pViewports(vpBuf)
+        return struct.pViewports(vpBuf)
                 .pScissors(scissorBuf);
+    }
+
+    @Override
+    public long getCurrentVersion() {
+        return version;
     }
 
     public void addViewport() {
@@ -45,6 +55,7 @@ public class ViewportState implements PipelineState<VkPipelineViewportStateCreat
 
     public void addViewport(float x, float y, float w, float h, float minDepth, float maxDepth) {
         viewports.add(new ViewportInfo(x, y, w, h, minDepth, maxDepth));
+        version++;
     }
 
     public void addScissor() {
@@ -53,6 +64,7 @@ public class ViewportState implements PipelineState<VkPipelineViewportStateCreat
 
     public void addScissor(int x, int y, int w, int h) {
         scissors.add(new ScissorInfo(x, y, w, h));
+        version++;
     }
 
     private static class ViewportInfo {

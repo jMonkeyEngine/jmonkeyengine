@@ -17,6 +17,7 @@ public class ColorBlendAttachment {
     private int srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
     private int dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
     private int alphaBlendOp = VK_BLEND_OP_ADD;
+    protected long version = 0L;
 
     @Override
     public boolean equals(Object o) {
@@ -36,6 +37,10 @@ public class ColorBlendAttachment {
     public int hashCode() {
         return Objects.hash(colorWriteMask, blend, srcColorBlendFactor, dstColorBlendFactor, colorBlendOp,
                 srcAlphaBlendFactor, dstAlphaBlendFactor, alphaBlendOp);
+    }
+
+    public long getCurrentVersion() {
+        return version;
     }
 
     public void writeToStruct(VkPipelineColorBlendAttachmentState struct) {
@@ -63,35 +68,59 @@ public class ColorBlendAttachment {
     }
 
     public void setColorWriteMask(int colorWriteMask) {
-        this.colorWriteMask = colorWriteMask;
+        if (this.colorWriteMask != colorWriteMask) {
+            this.colorWriteMask = colorWriteMask;
+            version++;
+        }
     }
 
     public void setBlend(boolean blend) {
-        this.blend = blend;
+        if (this.blend != blend) {
+            this.blend = blend;
+            version++;
+        }
     }
 
     public void setSrcColorBlendFactor(int srcColorBlendFactor) {
-        this.srcColorBlendFactor = srcColorBlendFactor;
+        if (this.srcColorBlendFactor != srcColorBlendFactor) {
+            this.srcColorBlendFactor = srcColorBlendFactor;
+            version++;
+        }
     }
 
     public void setDstColorBlendFactor(int dstColorBlendFactor) {
-        this.dstColorBlendFactor = dstColorBlendFactor;
+        if (this.dstColorBlendFactor != dstColorBlendFactor) {
+            this.dstColorBlendFactor = dstColorBlendFactor;
+            version++;
+        }
     }
 
     public void setColorBlendOp(int colorBlendOp) {
-        this.colorBlendOp = colorBlendOp;
+        if (this.colorBlendOp != colorBlendOp) {
+            this.colorBlendOp = colorBlendOp;
+            version++;
+        }
     }
 
     public void setSrcAlphaBlendFactor(int srcAlphaBlendFactor) {
-        this.srcAlphaBlendFactor = srcAlphaBlendFactor;
+        if (this.srcAlphaBlendFactor != srcAlphaBlendFactor) {
+            this.srcAlphaBlendFactor = srcAlphaBlendFactor;
+            version++;
+        }
     }
 
     public void setDstAlphaBlendFactor(int dstAlphaBlendFactor) {
-        this.dstAlphaBlendFactor = dstAlphaBlendFactor;
+        if (this.dstAlphaBlendFactor != dstAlphaBlendFactor) {
+            this.dstAlphaBlendFactor = dstAlphaBlendFactor;
+            version++;
+        }
     }
 
     public void setAlphaBlendOp(int alphaBlendOp) {
-        this.alphaBlendOp = alphaBlendOp;
+        if (this.alphaBlendOp != alphaBlendOp) {
+            this.alphaBlendOp = alphaBlendOp;
+            version++;
+        }
     }
 
     public int getColorWriteMask() {

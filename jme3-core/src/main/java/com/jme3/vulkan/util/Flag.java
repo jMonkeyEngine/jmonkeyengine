@@ -1,8 +1,18 @@
 package com.jme3.vulkan.util;
 
-public interface Flag <T extends Flag> {
+import java.util.Iterator;
+
+public interface Flag <T extends Flag> extends Iterable<Integer> {
 
     int bits();
+
+    default int lowestBit() {
+        return Integer.lowestOneBit(bits());
+    }
+
+    default int bitCount() {
+        return Integer.bitCount(bits());
+    }
 
     default Flag<T> add(Flag flag) {
         if (!contains(flag)) {
@@ -60,6 +70,11 @@ public interface Flag <T extends Flag> {
         return bits() == bits;
     }
 
+    @Override
+    default Iterator<Integer> iterator() {
+        return new IteratorImpl(bits());
+    }
+
     static <T extends Flag> Flag<T> of(int bits) {
         return new FlagImpl<>(bits);
     }
@@ -80,6 +95,10 @@ public interface Flag <T extends Flag> {
         return result;
     }
 
+    static boolean is(Flag f1, Flag f2) {
+        return f1 == f2 || (f1 != null && f1.is(f2));
+    }
+
     class FlagImpl <T extends Flag> implements Flag<T> {
 
         private final int bits;
@@ -95,6 +114,28 @@ public interface Flag <T extends Flag> {
         @Override
         public int bits() {
             return bits;
+        }
+
+    }
+
+    class IteratorImpl implements Iterator<Integer> {
+
+        private int bits;
+
+        public IteratorImpl(int bits) {
+            this.bits = bits;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return bits != 0;
+        }
+
+        @Override
+        public Integer next() {
+            int bit = Integer.lowestOneBit(bits);
+            bits &= ~bit;
+            return bit;
         }
 
     }

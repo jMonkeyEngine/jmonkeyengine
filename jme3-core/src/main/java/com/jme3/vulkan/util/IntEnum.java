@@ -26,6 +26,10 @@ public interface IntEnum <T extends IntEnum> {
         return new EnumImpl<>(intEnum);
     }
 
+    static boolean is(IntEnum e1, IntEnum e2) {
+        return e1 == e2 || (e1 != null && e1.is(e2));
+    }
+
     class EnumImpl <T extends IntEnum> implements IntEnum<T> {
 
         private final int intEnum;

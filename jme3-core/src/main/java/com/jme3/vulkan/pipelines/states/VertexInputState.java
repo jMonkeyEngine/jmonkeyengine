@@ -11,6 +11,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public class VertexInputState implements PipelineState<VkPipelineVertexInputStateCreateInfo> {
 
     private MeshDescription mesh;
+    protected long version = 0L;
 
     public VertexInputState() {}
 
@@ -19,16 +20,39 @@ public class VertexInputState implements PipelineState<VkPipelineVertexInputStat
     }
 
     @Override
-    public VkPipelineVertexInputStateCreateInfo toStruct(MemoryStack stack) {
-        Objects.requireNonNull(mesh, "Mesh description is not defined.");
+    public VkPipelineVertexInputStateCreateInfo create(MemoryStack stack) {
         return VkPipelineVertexInputStateCreateInfo.calloc(stack)
-                .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
-                .pVertexBindingDescriptions(mesh.getBindingInfo(stack))
+                .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO);
+    }
+
+    @Override
+    public VkPipelineVertexInputStateCreateInfo fill(MemoryStack stack, VkPipelineVertexInputStateCreateInfo struct) {
+        return struct.pVertexBindingDescriptions(mesh.getBindingInfo(stack))
                 .pVertexAttributeDescriptions(mesh.getAttributeInfo(stack));
     }
 
+    @Override
+    public long getCurrentVersion() {
+        return version;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        VertexInputState that = (VertexInputState) o;
+        return Objects.equals(mesh, that.mesh);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mesh);
+    }
+
     public void setMesh(MeshDescription mesh) {
-        this.mesh = mesh;
+        if (!Objects.equals(this.mesh, mesh)) {
+            this.mesh = mesh;
+            version++;
+        }
     }
 
 }

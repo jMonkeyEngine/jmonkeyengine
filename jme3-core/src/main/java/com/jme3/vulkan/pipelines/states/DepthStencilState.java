@@ -6,6 +6,8 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkPipelineDepthStencilStateCreateInfo;
 
+import java.util.Objects;
+
 public class DepthStencilState implements PipelineState<VkPipelineDepthStencilStateCreateInfo> {
 
     private boolean depthTest = true;
@@ -13,36 +15,77 @@ public class DepthStencilState implements PipelineState<VkPipelineDepthStencilSt
     private boolean depthBoundsTest = false;
     private boolean stencilTest = false;
     private IntEnum<CompareOp> depthCompare = CompareOp.LessOrEqual;
+    protected long version = 0L;
 
     @Override
-    public VkPipelineDepthStencilStateCreateInfo toStruct(MemoryStack stack) {
+    public VkPipelineDepthStencilStateCreateInfo create(MemoryStack stack) {
         return VkPipelineDepthStencilStateCreateInfo.calloc(stack)
-                .sType(VK10.VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO)
-                .depthTestEnable(depthTest)
+                .sType(VK10.VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO);
+    }
+
+    @Override
+    public VkPipelineDepthStencilStateCreateInfo fill(MemoryStack stack, VkPipelineDepthStencilStateCreateInfo struct) {
+        return struct.depthTestEnable(depthTest)
                 .depthWriteEnable(depthWrite)
                 .depthBoundsTestEnable(depthBoundsTest)
                 .stencilTestEnable(stencilTest)
                 .depthCompareOp(depthCompare.getEnum());
     }
 
+    @Override
+    public long getCurrentVersion() {
+        return version;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        DepthStencilState that = (DepthStencilState) o;
+        return depthTest == that.depthTest
+                && depthWrite == that.depthWrite
+                && depthBoundsTest == that.depthBoundsTest
+                && stencilTest == that.stencilTest
+                && IntEnum.is(depthCompare, that.depthCompare);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(depthTest, depthWrite, depthBoundsTest, stencilTest, depthCompare);
+    }
+
     public void setDepthTest(boolean depthTest) {
-        this.depthTest = depthTest;
+        if (this.depthTest != depthTest) {
+            this.depthTest = depthTest;
+            version++;
+        }
     }
 
     public void setDepthWrite(boolean depthWrite) {
-        this.depthWrite = depthWrite;
+        if (this.depthWrite != depthWrite) {
+            this.depthWrite = depthWrite;
+            version++;
+        }
     }
 
     public void setDepthBoundsTest(boolean depthBoundsTest) {
-        this.depthBoundsTest = depthBoundsTest;
+        if (this.depthBoundsTest != depthBoundsTest) {
+            this.depthBoundsTest = depthBoundsTest;
+            version++;
+        }
     }
 
     public void setStencilTest(boolean stencilTest) {
-        this.stencilTest = stencilTest;
+        if (this.stencilTest != stencilTest) {
+            this.stencilTest = stencilTest;
+            version++;
+        }
     }
 
     public void setDepthCompare(IntEnum<CompareOp> depthCompare) {
-        this.depthCompare = depthCompare;
+        if (!IntEnum.is(this.depthCompare, depthCompare)) {
+            this.depthCompare = depthCompare;
+            version++;
+        }
     }
 
 }

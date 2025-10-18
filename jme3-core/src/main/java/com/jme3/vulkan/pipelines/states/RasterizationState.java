@@ -25,12 +25,17 @@ public class RasterizationState implements PipelineState<VkPipelineRasterization
     private boolean depthClamp = false;
     private boolean rasterizerDiscard = false;
     private boolean depthBias = false;
+    protected long version = 0L;
 
     @Override
-    public VkPipelineRasterizationStateCreateInfo toStruct(MemoryStack stack) {
+    public VkPipelineRasterizationStateCreateInfo create(MemoryStack stack) {
         return VkPipelineRasterizationStateCreateInfo.calloc(stack)
-                .sType(VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO)
-                .depthClampEnable(depthClamp)
+                .sType(VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO);
+    }
+
+    @Override
+    public VkPipelineRasterizationStateCreateInfo fill(MemoryStack stack, VkPipelineRasterizationStateCreateInfo struct) {
+        return struct.depthClampEnable(depthClamp)
                 .rasterizerDiscardEnable(rasterizerDiscard)
                 .polygonMode(polygonMode.getEnum())
                 .lineWidth(lineWidth)
@@ -39,32 +44,76 @@ public class RasterizationState implements PipelineState<VkPipelineRasterization
                 .depthBiasEnable(depthBias);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        RasterizationState that = (RasterizationState) o;
+        return Float.compare(lineWidth, that.lineWidth) == 0
+                && depthClamp == that.depthClamp
+                && rasterizerDiscard == that.rasterizerDiscard
+                && depthBias == that.depthBias
+                && IntEnum.is(polygonMode, that.polygonMode)
+                && Flag.is(cullMode, that.cullMode)
+                && IntEnum.is(faceWinding, that.faceWinding);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(polygonMode, cullMode, faceWinding, lineWidth, depthClamp, rasterizerDiscard, depthBias);
+    }
+
+    @Override
+    public long getCurrentVersion() {
+        return version;
+    }
+
     public void setPolygonMode(IntEnum<PolygonMode> polygonMode) {
-        this.polygonMode = polygonMode;
+        if (!IntEnum.is(this.polygonMode, polygonMode)) {
+            this.polygonMode = polygonMode;
+            version++;
+        }
     }
 
     public void setCullMode(Flag<CullMode> cullMode) {
-        this.cullMode = cullMode;
+        if (!Flag.is(this.cullMode, cullMode)) {
+            this.cullMode = cullMode;
+            version++;
+        }
     }
 
     public void setFaceWinding(IntEnum<FaceWinding> faceWinding) {
-        this.faceWinding = faceWinding;
+        if (!IntEnum.is(this.faceWinding, faceWinding)) {
+            this.faceWinding = faceWinding;
+            version++;
+        }
     }
 
     public void setLineWidth(float lineWidth) {
-        this.lineWidth = lineWidth;
+        if (this.lineWidth != lineWidth) {
+            this.lineWidth = lineWidth;
+            version++;
+        }
     }
 
     public void setDepthClamp(boolean depthClamp) {
-        this.depthClamp = depthClamp;
+        if (this.depthClamp != depthClamp) {
+            this.depthClamp = depthClamp;
+            version++;
+        }
     }
 
     public void setRasterizerDiscard(boolean rasterizerDiscard) {
-        this.rasterizerDiscard = rasterizerDiscard;
+        if (this.rasterizerDiscard != rasterizerDiscard) {
+            this.rasterizerDiscard = rasterizerDiscard;
+            version++;
+        }
     }
 
     public void setDepthBias(boolean depthBias) {
-        this.depthBias = depthBias;
+        if (this.depthBias != depthBias) {
+            this.depthBias = depthBias;
+            version++;
+        }
     }
 
 }
