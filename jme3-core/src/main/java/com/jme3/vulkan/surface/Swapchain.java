@@ -12,7 +12,7 @@ import com.jme3.vulkan.images.GpuImage;
 import com.jme3.vulkan.images.ImageUsage;
 import com.jme3.vulkan.images.VulkanImageView;
 import com.jme3.vulkan.images.VulkanImage;
-import com.jme3.vulkan.pipelines.FrameBuffer;
+import com.jme3.vulkan.pipeline.FrameBuffer;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;

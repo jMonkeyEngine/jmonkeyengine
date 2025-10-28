@@ -4,7 +4,7 @@ import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.pipelines.CompareOp;
+import com.jme3.vulkan.pipeline.CompareOp;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 import org.lwjgl.vulkan.VkSamplerCreateInfo;

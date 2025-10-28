@@ -64,7 +64,7 @@ import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.frames.VersionedResource;
-import com.jme3.vulkan.pipelines.Pipeline;
+import com.jme3.vulkan.pipeline.Pipeline;
 
 import java.io.IOException;
 import java.util.Collection;

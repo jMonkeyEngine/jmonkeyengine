@@ -3,12 +3,13 @@ package com.jme3.vulkan.sync;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.pipelines.PipelineStage;
+import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
 
 import java.nio.LongBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -19,6 +20,7 @@ public class Semaphore extends AbstractNative<Long> {
 
     private final LogicalDevice<?> device;
     private Flag<PipelineStage> dstStageMask;
+    private final AtomicBoolean signal = new AtomicBoolean(false);
 
     public Semaphore(LogicalDevice<?> device) {
         this(device, PipelineStage.None);
@@ -42,6 +44,16 @@ public class Semaphore extends AbstractNative<Long> {
         return () -> vkDestroySemaphore(device.getNativeObject(), nonNull(object), null);
     }
 
+    protected void onRegisterSignal() {
+        if (signal.getAndSet(true)) {
+            throw new IllegalStateException("Semaphore cannot be registered as a signal twice in a row.");
+        }
+    }
+
+    protected boolean onRegisterWait() {
+        return signal.getAndSet(false);
+    }
+
     public void setDstStageMask(Flag<PipelineStage> dstStageMask) {
         this.dstStageMask = dstStageMask;
     }
@@ -50,7 +62,7 @@ public class Semaphore extends AbstractNative<Long> {
         this.dstStageMask = this.dstStageMask.add(stageBit);
     }
 
-    public void removeDstStageBit(Flag<PipelineStage> stageBit) {
+    public void removeDstStage(Flag<PipelineStage> stageBit) {
         this.dstStageMask = this.dstStageMask.remove(stageBit);
     }
 
@@ -64,6 +76,10 @@ public class Semaphore extends AbstractNative<Long> {
 
     public SyncGroup toGroupSignal() {
         return new SyncGroup(EMPTY, this);
+    }
+
+    public boolean isRegisteredSignal() {
+        return signal.get();
     }
 
     @Deprecated

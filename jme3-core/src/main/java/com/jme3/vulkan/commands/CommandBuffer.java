@@ -1,5 +1,6 @@
 package com.jme3.vulkan.commands;
 
+import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.SyncGroup;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -67,11 +68,11 @@ public class CommandBuffer {
                     .pCommandBuffers(stack.pointers(buffer));
             if (sync.containsWaits()) {
                 submit.waitSemaphoreCount(sync.getWaits().length)
-                        .pWaitSemaphores(sync.toWaitBuffer(stack))
+                        .pWaitSemaphores(sync.onRegisterWait(stack))
                         .pWaitDstStageMask(sync.toDstStageBuffer(stack));
             }
             if (sync.containsSignals()) {
-                submit.pSignalSemaphores(sync.toSignalBuffer(stack));
+                submit.pSignalSemaphores(sync.onRegisterSignal(stack));
             }
             pool.getQueue().submit(submit, sync.getFence());
         }

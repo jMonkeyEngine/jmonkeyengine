@@ -1,7 +1,7 @@
 package com.jme3.vulkan.pass;
 
-import com.jme3.vulkan.pipelines.Access;
-import com.jme3.vulkan.pipelines.PipelineStage;
+import com.jme3.vulkan.pipeline.Access;
+import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkSubpassDependency;

@@ -1,6 +1,7 @@
 package com.jme3.vulkan.render;
 
 import com.jme3.material.*;
+import com.jme3.math.FastMath;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -8,19 +9,17 @@ import com.jme3.vulkan.material.VkMaterial;
 import com.jme3.vulkan.mesh.VkMesh;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.material.NewMaterial;
-import com.jme3.vulkan.pipelines.Pipeline;
-import com.jme3.vulkan.pipelines.PipelineBindPoint;
-import com.jme3.vulkan.pipelines.PipelineCache;
-import com.jme3.vulkan.pipelines.newstate.PipelineState;
+import com.jme3.vulkan.pipeline.Pipeline;
+import com.jme3.vulkan.pipeline.PipelineBindPoint;
+import com.jme3.vulkan.pipeline.cache.PipelineCache;
 
 import java.util.Comparator;
 
 public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Element> {
 
     private final PipelineCache cache;
-    private PipelineState overrideState = null;
 
-    public VulkanGeometryBatch(Camera camera, PipelineCache cache, Comparator<Element> comparator) {
+    public VulkanGeometryBatch(PipelineCache cache, Camera camera, Comparator<Element> comparator) {
         super(camera, comparator);
         this.cache = cache;
     }
@@ -68,18 +67,6 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
         return queue.add(new Element(geometry));
     }
 
-    public void setOverrideState(PipelineState overrideState) {
-        this.overrideState = overrideState;
-    }
-
-    public PipelineCache getCache() {
-        return cache;
-    }
-
-    public PipelineState getOverrideState() {
-        return overrideState;
-    }
-
     public class Element {
 
         private final Geometry geometry;
@@ -87,6 +74,7 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
         private final VkMesh mesh;
         private final Pipeline pipeline;
         private float distanceSq = Float.NaN;
+        private float distance = Float.NaN;
 
         private Element(Geometry geometry) {
             this.geometry = geometry;
@@ -100,15 +88,17 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
                 throw new ClassCastException("Cannot render " + mat.getClass() + " in a Vulkan context.");
             }
             this.mesh = (VkMesh)m;
-            this.pipeline = this.material.selectPipeline(cache, this.mesh.getDescription(), forcedTechnique, overrideState);
-            if (!this.pipeline.getBindPoint().is(PipelineBindPoint.Graphics)) {
-                throw new IllegalStateException("Cannot render geometry with a non-graphical pipeline.");
-            }
+            this.pipeline = this.material.selectPipeline(cache, this.mesh.getDescription(), forcedTechnique, null);
         }
 
         public float computeDistanceSq() {
             if (!Float.isNaN(distanceSq)) return distanceSq;
             return (distanceSq = camera.getLocation().distanceSquared(geometry.getWorldTranslation()));
+        }
+
+        public float computeDistance() {
+            if (!Float.isNaN(distance)) return distance;
+            return (distance = FastMath.sqrt(computeDistanceSq()));
         }
 
         public Camera getCamera() {

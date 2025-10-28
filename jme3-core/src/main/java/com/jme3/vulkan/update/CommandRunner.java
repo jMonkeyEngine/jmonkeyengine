@@ -3,12 +3,13 @@ package com.jme3.vulkan.update;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.sync.SyncGroup;
 
-public class CommandRunner implements Runnable {
+import java.util.function.Consumer;
+
+public class CommandRunner {
 
     private int frame;
     private Command command;
     private CommandBuffer buffer;
-    private SyncGroup sync = new SyncGroup();
 
     public CommandRunner(int frame, CommandBuffer buffer, Command command) {
         this.frame = frame;
@@ -16,15 +17,21 @@ public class CommandRunner implements Runnable {
         this.command = command;
     }
 
-    @Override
-    public void run() {
+    public void run(SyncGroup sync, Consumer<CommandBuffer> onCommandBufferUsed) {
         if (command.requiresCommandBuffer(frame)) {
+            if (onCommandBufferUsed != null) {
+                onCommandBufferUsed.accept(buffer);
+            }
             buffer.resetAndBegin();
             command.run(buffer, frame);
-            buffer.endAndSubmit(sync);
+            buffer.endAndSubmit(sync != null ? sync : SyncGroup.ASYNC);
         } else {
             command.run(null, frame);
         }
+    }
+
+    public void run(SyncGroup sync) {
+        run(sync, null);
     }
 
     public void setTargetFrame(int frame) {
@@ -39,10 +46,6 @@ public class CommandRunner implements Runnable {
         this.buffer = buffer;
     }
 
-    public void setSync(SyncGroup sync) {
-        this.sync = sync;
-    }
-
     public int getTargetFrame() {
         return frame;
     }
@@ -53,10 +56,6 @@ public class CommandRunner implements Runnable {
 
     public Command getCommand() {
         return command;
-    }
-
-    public SyncGroup getSync() {
-        return sync;
     }
 
 }

@@ -11,9 +11,10 @@ import com.jme3.vulkan.material.uniforms.BufferUniform;
 import com.jme3.vulkan.material.uniforms.TextureUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
 import com.jme3.vulkan.mesh.MeshDescription;
-import com.jme3.vulkan.pipelines.Pipeline;
-import com.jme3.vulkan.pipelines.PipelineCache;
-import com.jme3.vulkan.pipelines.newstate.PipelineState;
+import com.jme3.vulkan.pipeline.Pipeline;
+import com.jme3.vulkan.pipeline.cache.PipelineCache;
+import com.jme3.vulkan.pipeline.states.BasePipelineState;
+import com.jme3.vulkan.pipeline.states.PipelineState;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ public class NewMaterial implements VkMaterial {
     private final DescriptorPool pool;
     private final Map<Integer, UniformSet> uniformSets = new HashMap<>();
     private final Map<String, Uniform<?>> uniformLookup = new HashMap<>();
+    private final Map<String, BasePipelineState<?, ?>> techniques = new HashMap<>();
     private final BitSet usedSetSlots = new BitSet();
 
     public NewMaterial(DescriptorPool pool) {
@@ -38,7 +40,8 @@ public class NewMaterial implements VkMaterial {
 
     @Override
     public boolean bind(CommandBuffer cmd, Pipeline pipeline) {
-        LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>(pipeline.getLayout().getDescriptorSetLayouts());
+        LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>(
+                pipeline.getLayout().getDescriptorSetLayouts());
         try (MemoryStack stack = MemoryStack.stackPush()) {
             LongBuffer sets = stack.mallocLong(uniformSets.size());
             for (int i = usedSetSlots.nextSetBit(0), offset = i; i >= 0;) {
@@ -64,8 +67,10 @@ public class NewMaterial implements VkMaterial {
     }
 
     @Override
-    public Pipeline selectPipeline(PipelineCache cache, MeshDescription description, String forcedTechnique, PipelineState overrideState) {
-        return null;
+    public Pipeline selectPipeline(PipelineCache cache, MeshDescription mesh,
+                                   String forcedTechnique, PipelineState overrideState) {
+        BasePipelineState<?, ?> state = techniques.get(forcedTechnique);
+        return state.selectPipeline(cache, mesh);
     }
 
     @Override
@@ -83,9 +88,19 @@ public class NewMaterial implements VkMaterial {
     @Override
     public void setParam(String uniform, String param, Object value) {
         Uniform<? extends GpuBuffer> u = getUniform(uniform);
-        GpuBuffer buffer = u.get().get();
+        GpuBuffer buffer = u.get();
         //buffer.map(Structure::new).set(param, value);
         //buffer.unmap();
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        throw new UnsupportedOperationException("Exporting not yet supported.");
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        throw new UnsupportedOperationException("Importing not yet supported.");
     }
 
     @SuppressWarnings("unchecked")
@@ -106,10 +121,6 @@ public class NewMaterial implements VkMaterial {
         return null;
     }
 
-    public DescriptorSetLayout[] createLayouts(LogicalDevice<?> device) {
-        return uniformSets.values().stream().map(u -> u.createLayout(device)).toArray(DescriptorSetLayout[]::new);
-    }
-
     protected UniformSet addSet(UniformSet set) {
         if (uniformSets.put(set.getSetIndex(), set) != null) {
             throw new IllegalArgumentException("Set index already occupied: " + set.getSetIndex());
@@ -122,18 +133,16 @@ public class NewMaterial implements VkMaterial {
         return addSet(new UniformSet(index, uniforms));
     }
 
+    public void setTechnique(String name, BasePipelineState<?, ?> state) {
+        techniques.put(name, state);
+    }
+
+    public DescriptorSetLayout[] createLayouts(LogicalDevice<?> device) {
+        return uniformSets.values().stream().map(u -> u.createLayout(device)).toArray(DescriptorSetLayout[]::new);
+    }
+
     public Map<Integer, UniformSet> getSets() {
         return Collections.unmodifiableMap(uniformSets);
-    }
-
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        throw new UnsupportedOperationException("Exporting not yet supported.");
-    }
-
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        throw new UnsupportedOperationException("Importing not yet supported.");
     }
 
 }

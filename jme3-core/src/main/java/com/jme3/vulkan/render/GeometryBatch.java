@@ -2,12 +2,10 @@ package com.jme3.vulkan.render;
 
 import com.jme3.material.Material;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.pipelines.newstate.PipelineState;
 
 import java.util.Comparator;
 import java.util.Iterator;

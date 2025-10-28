@@ -2,9 +2,9 @@ package jme3test.vulkan;
 
 import com.jme3.app.FlyCamAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
@@ -13,7 +13,12 @@ import com.jme3.vulkan.ColorSpace;
 import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.buffers.PerFrameBuffer;
 import com.jme3.vulkan.buffers.generate.MeshBufferGenerator;
-import com.jme3.vulkan.shaderc.ShaderType;
+import com.jme3.vulkan.pipeline.cache.PipelineCache;
+import com.jme3.vulkan.pipeline.graphics.ColorBlendAttachment;
+import com.jme3.vulkan.pipeline.graphics.GraphicsState;
+import com.jme3.vulkan.pipeline.states.IShaderState;
+import com.jme3.vulkan.render.GeometryBatch;
+import com.jme3.vulkan.render.VulkanGeometryBatch;
 import com.jme3.vulkan.shaderc.ShadercLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.vulkan.LwjglVulkanContext;
@@ -23,7 +28,6 @@ import com.jme3.vulkan.Format;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.PersistentBuffer;
-import com.jme3.vulkan.buffers.StageableBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.descriptors.*;
@@ -31,7 +35,6 @@ import com.jme3.vulkan.devices.DeviceFeature;
 import com.jme3.vulkan.devices.DeviceFilter;
 import com.jme3.vulkan.devices.GeneralPhysicalDevice;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.frames.SingleResource;
 import com.jme3.vulkan.frames.UpdateFrame;
 import com.jme3.vulkan.frames.UpdateFrameManager;
 import com.jme3.vulkan.images.*;
@@ -43,9 +46,7 @@ import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.pass.Attachment;
 import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pass.RenderPass;
-import com.jme3.vulkan.pipelines.*;
-import com.jme3.vulkan.pipelines.states.*;
-import com.jme3.vulkan.shader.ShaderModule;
+import com.jme3.vulkan.pipeline.*;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.surface.Surface;
 import com.jme3.vulkan.surface.Swapchain;
@@ -53,13 +54,14 @@ import com.jme3.vulkan.surface.SwapchainUpdater;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.SyncGroup;
+import com.jme3.vulkan.update.BasicCommandBatch;
 import com.jme3.vulkan.update.CommandBatch;
+import com.jme3.vulkan.update.CommandRunner;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Comparator;
 import java.util.logging.Level;
 
 import static org.lwjgl.vulkan.VK13.*;
@@ -71,9 +73,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private LogicalDevice<GeneralPhysicalDevice> device;
     private Swapchain swapchain;
     private RenderPass renderPass;
-    private GraphicsPipeline pipeline;
     private CommandPool graphicsPool;
-    private StageableBuffer vertexBuffer, indexBuffer;
+    private PipelineCache pipelineCache;
     private UpdateFrameManager<Frame> frames;
     private boolean swapchainResizeFlag = false;
     private boolean applicationStopped = false;
@@ -84,6 +85,13 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     // commands
     private CommandBatch graphics, perFrameData, sharedData;
     private Fence sharedDataFence;
+
+    // render
+    private final Comparator<VulkanGeometryBatch.Element> batchSorter = (o1, o2) -> {
+        int compare = Long.compare(o1.getPipeline().getSortId(), o2.getPipeline().getSortId());
+        if (compare != 0) return compare;
+        return Float.compare(o1.computeDistanceSq(), o2.computeDistanceSq());
+    };
 
     public static void main(String[] args) {
         VulkanHelperTest app = new VulkanHelperTest();
@@ -208,29 +216,25 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         }
 
         TestMaterial material = new TestMaterial(descriptorPool);
-
-        // pipeline
         PipelineLayout pipelineLayout = new PipelineLayout(device);
         try (PipelineLayout.Builder p = pipelineLayout.build()) {
             p.addMaterial(material);
         }
-        ShaderModule vertModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
-                "Shaders/VulkanVertTest.glsl", ShaderType.Vertex)));
-        ShaderModule fragModule = new ShaderModule(device, assetManager.loadAsset(ShadercLoader.key(
-                "Shaders/VulkanFragTest.glsl", ShaderType.Fragment)));
-        pipeline = new GraphicsPipeline(device, pipelineLayout, renderPass.getSubpasses().get(0));
-        try (GraphicsPipeline.Builder p = pipeline.build()) {
-            p.addShader(vertModule, ShaderStage.Vertex, "main");
-            p.addShader(fragModule, ShaderStage.Fragment, "main");
-            p.getVertexInput().setMesh(meshDesc);
-            p.getRasterization().setCullMode(CullMode.None);
-            p.getViewport().addViewport();
-            p.getViewport().addScissor();
-            p.getColorBlend().addAttachment(new ColorBlendAttachment());
-            p.getDynamic().addTypes(DynamicState.Type.ViewPort, DynamicState.Type.Scissor);
-        }
 
-        frames = new UpdateFrameManager<>(2, n -> new Frame());
+        GraphicsState state = new GraphicsState();
+        state.setLayout(pipelineLayout);
+        state.setSubpass(renderPass.getSubpasses().get(0));
+        state.addShader(new IShaderState("Shaders/VulkanVertTest.glsl", "main", ShaderStage.Vertex));
+        state.addShader(new IShaderState("Shaders/VulkanFragTest.glsl", "main", ShaderStage.Fragment));
+        state.setBlendAttachment(0, new ColorBlendAttachment());
+        state.setCullMode(CullMode.None);
+        state.setViewPort(0);
+        state.setScissor(0);
+        state.addDynamic(DynamicState.ViewPort);
+        state.addDynamic(DynamicState.Scissor);
+        material.setTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, state);
+
+        frames = new UpdateFrameManager<>(2, Frame::new);
 
         // material color texture
         VulkanImage image = assetManager.loadAsset(VulkanImageLoader.key(initPool, "Common/Textures/MissingTexture.png"));
@@ -245,13 +249,13 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             t.setMipmapMode(MipmapMode.Linear);
         }
 
-        graphics = new PerFrameCommandBatch(frames);
-        perFrameData = new PerFrameCommandBatch(frames);
-        sharedData = new PerFrameCommandBatch(frames);
+        graphics = new BasicCommandBatch();
+        perFrameData = new BasicCommandBatch();
+        sharedData = new BasicCommandBatch();
         sharedDataFence = new Fence(device, true);
 
         // set material parameters
-        material.getBaseColorMap().set(new SingleResource<>(texture));
+        material.getBaseColorMap().set(texture);
 
         // create geometry
         Mesh m = new MyCustomMesh(meshDesc, new MeshBufferGenerator(device, frames, null, sharedData),
@@ -268,6 +272,8 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         Geometry geometry = new Geometry("geometry", m, t);
         geometry.setMaterial(material);
         rootNode.attachChild(geometry);
+
+        pipelineCache = new PipelineCache(device, assetManager);
 
     }
 
@@ -331,14 +337,18 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private class Frame implements UpdateFrame {
 
         // render manager
-        private final CommandBuffer perFrameDataCommands = graphicsPool.allocateCommandBuffer();
-        private final CommandBuffer sharedDataCommands = graphicsPool.allocateCommandBuffer();
         private final CommandBuffer graphicsCommands = graphicsPool.allocateCommandBuffer();
+        private final CommandRunner perFrameDataCommands, sharedDataCommands;
         private final Semaphore imageAvailable = new Semaphore(device, PipelineStage.ColorAttachmentOutput);
         private final Semaphore perFrameDataFinished = new Semaphore(device, PipelineStage.TopOfPipe);
         private final Semaphore sharedDataFinished = new Semaphore(device, PipelineStage.TopOfPipe);
         private final Semaphore renderFinished = new Semaphore(device);
         private final Fence inFlight = new Fence(device, true);
+
+        public Frame(int frame) {
+            perFrameDataCommands = new CommandRunner(frame, graphicsPool.allocateCommandBuffer(), perFrameData);
+            sharedDataCommands = new CommandRunner(frame, graphicsPool.allocateCommandBuffer(), sharedData);
+        }
 
         @Override
         public void update(UpdateFrameManager frames, float tpf) {
@@ -359,87 +369,32 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             viewPort.getCamera().update();
             viewPort.getCamera().updateViewProjection();
 
-            // update geometry matrix transforms
-            for (Spatial s : rootNode) {
-                if (s instanceof Geometry) {
-                    ((Geometry)s).updateMatrixTransforms(viewPort.getCamera());
-                }
-            }
-
-            // update shared data
+            // update data
             sharedDataFence.block(5000);
-            sharedDataCommands.resetAndBegin();
-            SyncGroup dataSync = sharedDataFinished.toGroupSignal();
-            if (sharedData.run(sharedDataCommands, frames.getCurrentFrame())) {
-                sharedDataFence.reset();
-                dataSync.setFence(sharedDataFence); // force the next frame to wait
-            }
-            sharedDataCommands.endAndSubmit(dataSync);
+            sharedDataCommands.run(sharedDataFence.toGroup(), c -> sharedDataFence.reset());
+            perFrameDataCommands.run(perFrameDataFinished.toGroupSignal());
 
-            // update per-frame data
-            perFrameDataCommands.resetAndBegin();
-            perFrameData.run(perFrameDataCommands, frames.getCurrentFrame());
-            perFrameDataCommands.endAndSubmit(perFrameDataFinished.toGroupSignal());
-
-            // begin graphics commands
+            // begin rendering
             graphicsCommands.resetAndBegin();
-
-            // set render pass and pipeline
             renderPass.begin(graphicsCommands, image.getFrameBuffer());
-            pipeline.bind(graphicsCommands);
 
             // viewport and scissor
             try (MemoryStack stack = MemoryStack.stackPush()) {
-                viewPort.getCamera().setViewPort(stack, graphicsCommands);
+                viewPort.getCamera().setViewPortAndScissor(stack, graphicsCommands);
             }
 
-            // run graphics commands via CommandBatch
+            // run misc graphics commands via CommandBatch
             graphics.run(graphicsCommands, frames.getCurrentFrame());
 
+            // render geometry under rootNode
+            GeometryBatch<?> batch = new VulkanGeometryBatch(pipelineCache, cam, batchSorter);
+            batch.addAll(rootNode);
+            batch.render(graphicsCommands);
 
-            // flatten scene into a render bucket
-            List<Geometry> bucket = new ArrayList<>();
-            PipelineCache cache;
-            for (Spatial s : rootNode) {
-                if (s instanceof Geometry) {
-                    Geometry g = (Geometry)s;
-                    g.getMaterial().selectPipeline(cache);
-                    bucket.add(g);
-                }
-            }
-
-            // sort geometries to minimize pipeline switches and overdraw
-            Camera cam = viewPort.getCamera();
-            bucket.sort((g1, g2) -> {
-                Pipeline p1 = g1.getMaterial().getPipeline();
-                Pipeline p2 = g2.getMaterial().getPipeline();
-                if (p1 == p2) {
-                    float dist1 = g1.getWorldTranslation().distanceSquared(cam.getLocation());
-                    float dist2 = g2.getWorldTranslation().distanceSquared(cam.getLocation());
-                    return Float.compare(dist1, dist2);
-                } else {
-                    int ph1 = g1.getMaterial().getPipeline().hashCode();
-                    int ph2 = g2.getMaterial().getPipeline().hashCode();
-                    return Integer.compare(ph1, ph2);
-                }
-            });
-
-            // render geometries in the sorted order
-            Pipeline current = null;
-            for (Geometry g : bucket) {
-                Pipeline p = g.getMaterial().getPipeline();
-                if (p != current) {
-                    (current = p).bind(graphicsCommands);
-                }
-                g.render(renderManager, graphicsCommands);
-            }
-
-            // material
+            // end rendering
             renderPass.end(graphicsCommands);
-
-            // render manager
-            graphicsCommands.endAndSubmit(new SyncGroup(new Semaphore[]
-                    {imageAvailable, perFrameDataFinished, sharedDataFinished}, renderFinished, inFlight));
+            graphicsCommands.endAndSubmit(new SyncGroup(new Semaphore[] {imageAvailable, perFrameDataFinished,
+                    sharedDataFinished}, renderFinished, inFlight));
             swapchain.present(device.getPhysicalDevice().getPresent(), image, renderFinished.toGroupWait());
 
         }

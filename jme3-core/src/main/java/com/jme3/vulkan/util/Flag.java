@@ -99,6 +99,14 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
         return f1 == f2 || (f1 != null && f1.is(f2));
     }
 
+    static <T extends Flag> Flag<T> combine(Flag... flags) {
+        int bits = 0;
+        for (Flag f : flags) {
+            if (f != null) bits |= f.bits();
+        }
+        return of(bits);
+    }
+
     class FlagImpl <T extends Flag> implements Flag<T> {
 
         private final int bits;

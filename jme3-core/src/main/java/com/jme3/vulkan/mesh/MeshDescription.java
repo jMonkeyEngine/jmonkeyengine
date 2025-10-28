@@ -8,6 +8,7 @@ import org.lwjgl.vulkan.VkVertexInputAttributeDescription;
 import org.lwjgl.vulkan.VkVertexInputBindingDescription;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Describes the layout of vertex bindings and attributes, and simultaneously
@@ -16,6 +17,7 @@ import java.util.*;
 public class MeshDescription implements Iterable<VertexBinding> {
 
     private final List<VertexBinding> bindings = new ArrayList<>();
+    private final AtomicBoolean built = new AtomicBoolean(false);
 
     @Override
     public Iterator<VertexBinding> iterator() {
@@ -80,6 +82,9 @@ public class MeshDescription implements Iterable<VertexBinding> {
     }
 
     public Builder build() {
+        if (built.getAndSet(true)) {
+            throw new IllegalStateException("Cannot be modified after initial setup.");
+        }
         return new Builder();
     }
 

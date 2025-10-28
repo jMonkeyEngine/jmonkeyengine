@@ -1,14 +1,13 @@
 package com.jme3.vulkan.pass;
 
-import com.jme3.renderer.ViewPort;
 import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.pipelines.FrameBuffer;
-import com.jme3.vulkan.pipelines.PipelineBindPoint;
+import com.jme3.vulkan.pipeline.FrameBuffer;
+import com.jme3.vulkan.pipeline.PipelineBindPoint;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 

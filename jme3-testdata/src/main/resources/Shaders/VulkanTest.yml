@@ -23,7 +23,7 @@ parameters:
         type: Float
         default: 1.0
       myval:
-        type: MyBufferMember
+        type: com.username.hello.world.MyBufferMember
         default: "parse_this"
   BaseColorMap:
     type: Texture
@@ -38,7 +38,7 @@ parameters:
     default: "parse_this"
 pipelines:
   main:
-    type: GraphicsPipeline
+    type: GraphicsState
     shaders:
       - stage: Vertex
         file: "Shaders/VulkanVertTest.yml"

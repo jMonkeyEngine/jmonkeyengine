@@ -6,6 +6,8 @@ import org.lwjgl.vulkan.VK10;
 
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class SyncGroup {
@@ -60,6 +62,24 @@ public class SyncGroup {
         this.waits = Objects.requireNonNull(waits);
         this.signals = Objects.requireNonNull(signals);
         this.fence = fence;
+    }
+
+    public LongBuffer onRegisterSignal(MemoryStack stack) {
+        for (Semaphore s : signals) {
+            s.onRegisterSignal();
+        }
+        return toSignalBuffer(stack);
+    }
+
+    public LongBuffer onRegisterWait(MemoryStack stack) {
+        LongBuffer buf = stack.mallocLong(waits.length);
+        for (Semaphore w : waits) {
+            if (w.onRegisterWait()) {
+                buf.put(w.getNativeObject());
+            }
+        }
+        buf.flip();
+        return buf;
     }
 
     public void setWaits(Semaphore... waits) {

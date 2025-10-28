@@ -1,6 +1,6 @@
 package com.jme3.vulkan.allocation;
 
-import com.jme3.vulkan.pipelines.GraphicsPipeline;
+import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
 
 import java.util.HashMap;
 import java.util.Map;

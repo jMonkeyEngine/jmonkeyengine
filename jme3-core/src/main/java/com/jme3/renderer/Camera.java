@@ -1627,7 +1627,7 @@ public class Camera implements Savable, Cloneable {
         this.maxDepth = maxDepth;
     }
 
-    public void setViewPort(MemoryStack stack, CommandBuffer cmd) {
+    public void setViewPortAndScissor(MemoryStack stack, CommandBuffer cmd) {
         float x = viewPortLeft * width;
         float y = viewPortTop * height;
         float w = (viewPortRight * width) - x;
