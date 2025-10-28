@@ -31,7 +31,9 @@
  */
 package com.jme3.anim.interpolator;
 
-import com.jme3.animation.*;
+import com.jme3.anim.util.CompactArray;
+import com.jme3.anim.util.CompactQuaternionArray;
+import com.jme3.anim.util.CompactVector3Array;
 import com.jme3.math.*;
 
 /**
@@ -75,7 +77,7 @@ public class FrameInterpolator {
     }
 
     public Transform interpolate(float t, int currentIndex, CompactVector3Array translations,
-            CompactQuaternionArray rotations, CompactVector3Array scales, float[] times) {
+                                 CompactQuaternionArray rotations, CompactVector3Array scales, float[] times) {
         timesReader.setData(times);
         if (timeInterpolator != null) {
             t = timeInterpolator.interpolate(t, currentIndex, null, timesReader, null);

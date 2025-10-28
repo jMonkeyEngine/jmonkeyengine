@@ -55,7 +55,7 @@ public abstract class GeometryBatch <T> implements Iterable<T> {
                     it.skipChildren();
                     continue;
                 } else if (child.getCullHint() == Spatial.CullHint.Never) {
-                    forceAddAll(child);
+                    fastAddAll(child);
                     it.skipChildren();
                     continue; // current spatial is handled by the nested addAll call
                 }
@@ -77,9 +77,8 @@ public abstract class GeometryBatch <T> implements Iterable<T> {
         }
     }
 
-    public void forceAddAll(Spatial spatial) {
-        for (Spatial.GraphIterator it = spatial.iterator(); it.hasNext();) {
-            Spatial child = it.next();
+    public void fastAddAll(Spatial spatial) {
+        for (Spatial child : spatial) {
             if (child instanceof Geometry) {
                 fastAdd((Geometry)child);
             }

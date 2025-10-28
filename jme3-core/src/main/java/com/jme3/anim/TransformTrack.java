@@ -33,8 +33,8 @@ package com.jme3.anim;
 
 import com.jme3.anim.interpolator.FrameInterpolator;
 import com.jme3.anim.util.HasLocalTransform;
-import com.jme3.animation.CompactQuaternionArray;
-import com.jme3.animation.CompactVector3Array;
+import com.jme3.anim.util.CompactQuaternionArray;
+import com.jme3.anim.util.CompactVector3Array;
 import com.jme3.export.*;
 import com.jme3.math.*;
 import com.jme3.util.clone.Cloner;

@@ -159,7 +159,7 @@ public class Geometry extends Spatial {
 
     public void updateMatrixTransforms(Camera cam) {
         Matrix4f worldViewProjection = cam.getViewProjectionMatrix().mult(worldTransform.toTransformMatrix());
-        GpuBuffer matBuffer = transforms.getTransforms().get().get();
+        GpuBuffer matBuffer = transforms.getTransforms().get();
         worldViewProjection.fillFloatBuffer(matBuffer.mapFloats(), true);
         matBuffer.unmap();
     }

@@ -31,15 +31,11 @@
  */
 package com.jme3.scene.debug;
 
-import com.jme3.animation.Bone;
-import com.jme3.animation.Skeleton;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.math.Vector3f;
 import com.jme3.util.clone.Cloner;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -82,106 +78,6 @@ public class TestCloneMesh {
 
         AssetManager assetManager = new DesktopAssetManager();
         Grid saveAndLoad = BinaryExporter.saveAndLoad(assetManager, grid);
-        Assert.assertNotNull(saveAndLoad);
-        Assert.assertNotEquals(deepClone, saveAndLoad);
-    }
-
-    /**
-     * Test cloning/saving/loading a SkeletonDebugger.
-     */
-    @Test
-    public void testCloneSkeletonDebugger() {
-        Bone[] boneArray = new Bone[2];
-        boneArray[0] = new Bone("rootBone");
-        boneArray[1] = new Bone("leafBone");
-        boneArray[0].addChild(boneArray[1]);
-        Skeleton skeleton = new Skeleton(boneArray);
-        skeleton.setBindingPose();
-        SkeletonDebugger skeletonDebugger
-                = new SkeletonDebugger("sd", skeleton);
-
-        SkeletonDebugger deepClone = Cloner.deepClone(skeletonDebugger);
-        Assert.assertNotNull(deepClone);
-        Assert.assertNotEquals(deepClone, skeletonDebugger);
-
-        AssetManager assetManager = new DesktopAssetManager();
-        SkeletonDebugger saveAndLoad
-                = BinaryExporter.saveAndLoad(assetManager, skeletonDebugger);
-        Assert.assertNotNull(saveAndLoad);
-        Assert.assertNotEquals(deepClone, saveAndLoad);
-    }
-
-    /**
-     * Test cloning/saving/loading a SkeletonInterBoneWire.  See JME issue #1705.
-     */
-    @Test
-    public void testCloneSkeletonInterBoneWire() {
-        Bone[] boneArray = new Bone[2];
-        boneArray[0] = new Bone("rootBone");
-        boneArray[1] = new Bone("leafBone");
-        boneArray[0].addChild(boneArray[1]);
-        Skeleton skeleton = new Skeleton(boneArray);
-        skeleton.setBindingPose();
-        Map<Integer, Float> boneLengths = new HashMap<>();
-        boneLengths.put(0, 2f);
-        boneLengths.put(1, 1f);
-        SkeletonInterBoneWire sibw
-                = new SkeletonInterBoneWire(skeleton, boneLengths);
-
-        SkeletonInterBoneWire deepClone = Cloner.deepClone(sibw);
-        Assert.assertNotNull(deepClone);
-        Assert.assertNotEquals(deepClone, sibw);
-
-        AssetManager assetManager = new DesktopAssetManager();
-        SkeletonInterBoneWire saveAndLoad
-                = BinaryExporter.saveAndLoad(assetManager, sibw);
-        Assert.assertNotNull(saveAndLoad);
-        Assert.assertNotEquals(deepClone, saveAndLoad);
-    }
-
-    /**
-     * Test cloning/saving/loading a SkeletonPoints.  See JME issue #1705.
-     */
-    @Test
-    public void testCloneSkeletonPoints() {
-        Bone[] boneArray = new Bone[2];
-        boneArray[0] = new Bone("rootBone");
-        boneArray[1] = new Bone("leafBone");
-        boneArray[0].addChild(boneArray[1]);
-        Skeleton skeleton = new Skeleton(boneArray);
-        skeleton.setBindingPose();
-        SkeletonPoints skeletonPoints = new SkeletonPoints(skeleton);
-
-        SkeletonPoints deepClone = Cloner.deepClone(skeletonPoints);
-        Assert.assertNotNull(deepClone);
-        Assert.assertNotEquals(deepClone, skeletonPoints);
-
-        AssetManager assetManager = new DesktopAssetManager();
-        SkeletonPoints saveAndLoad
-                = BinaryExporter.saveAndLoad(assetManager, skeletonPoints);
-        Assert.assertNotNull(saveAndLoad);
-        Assert.assertNotEquals(deepClone, saveAndLoad);
-    }
-
-    /**
-     * Test cloning/saving/loading a SkeletonWire.  See JME issue #1705.
-     */
-    @Test
-    public void testCloneSkeletonWire() {
-        Bone[] boneArray = new Bone[2];
-        boneArray[0] = new Bone("rootBone");
-        boneArray[1] = new Bone("leafBone");
-        boneArray[0].addChild(boneArray[1]);
-        Skeleton skeleton = new Skeleton(boneArray);
-        SkeletonWire skeletonWire = new SkeletonWire(skeleton);
-
-        SkeletonWire deepClone = Cloner.deepClone(skeletonWire);
-        Assert.assertNotNull(deepClone);
-        Assert.assertNotEquals(deepClone, skeletonWire);
-
-        AssetManager assetManager = new DesktopAssetManager();
-        SkeletonWire saveAndLoad
-                = BinaryExporter.saveAndLoad(assetManager, skeletonWire);
         Assert.assertNotNull(saveAndLoad);
         Assert.assertNotEquals(deepClone, saveAndLoad);
     }

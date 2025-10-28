@@ -34,6 +34,7 @@ package com.jme3.environment.util;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.light.*;
+import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
@@ -68,7 +69,7 @@ public class LightsDebugState extends BaseAppState {
         debugNode = new Node("Environment debug Node");
         Sphere s = new Sphere(16, 16, 0.15f);
         debugGeom = new Geometry("debugEnvProbe", s);
-        debugMaterial = new Material(app.getAssetManager(), "Common/MatDefs/Misc/reflect.j3md");
+        debugMaterial = new GlMaterial(app.getAssetManager(), "Common/MatDefs/Misc/reflect.j3md");
         debugGeom.setMaterial(debugMaterial);
         debugBounds = BoundingSphereDebug.createDebugSphere(app.getAssetManager());
         if (scene == null) {

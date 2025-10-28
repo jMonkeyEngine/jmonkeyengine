@@ -58,7 +58,17 @@ public interface Material extends Savable {
 
     void setParam(String uniform, String param, Object value);
 
+    void clearParam(String uniform, String param);
+
+    <T> T getParam(String uniform, String name);
+
+    Texture getTexture(String name);
+
     /* ----- COMPATABILITY WITH OLD MATERIAL ----- */
+
+    default void clearParam(String param) {
+        clearParam(DEFAULT_UNIFORM_BUFFER, param);
+    }
 
     default void setParam(String param, Object value) {
         setParam(DEFAULT_UNIFORM_BUFFER, param, value);
@@ -98,6 +108,10 @@ public interface Material extends Savable {
 
     default void setMatrix4(String param, Matrix4f value) {
         setParam(param, value);
+    }
+
+    default <T> T getParam(String param) {
+        return getParam(DEFAULT_UNIFORM_BUFFER, param);
     }
 
 }

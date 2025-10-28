@@ -34,6 +34,7 @@ package com.jme3.shadow;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightFilter;
 import com.jme3.light.NullLightFilter;
+import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
@@ -94,8 +95,8 @@ public class BasicShadowRenderer implements SceneProcessor {
         dummyTex = new Texture2D(size, size, Format.RGBA8);        
         shadowFB.setColorTexture(dummyTex);
         shadowMapSize = size;
-        preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
-        postshadowMat = new Material(manager, "Common/MatDefs/Shadow/BasicPostShadow.j3md");
+        preshadowMat = new GlMaterial(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
+        postshadowMat = new GlMaterial(manager, "Common/MatDefs/Shadow/BasicPostShadow.j3md");
         postshadowMat.setTexture("ShadowMap", shadowMap);
 
         dispPic.setTexture(manager, shadowMap, false);

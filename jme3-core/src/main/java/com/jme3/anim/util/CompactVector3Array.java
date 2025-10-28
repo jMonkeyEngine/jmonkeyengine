@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,64 +29,70 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.animation;
+package com.jme3.anim.util;
 
 import com.jme3.export.*;
-import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
-
+import com.jme3.math.Vector3f;
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
- * This class is intended as a UserData added to a Spatial that is referenced by a Track.
- * (ParticleEmitter for EffectTrack and AudioNode for AudioTrack)
- * It holds the list of tracks that are directly referencing the Spatial.
- *
- * This is used when loading a Track to find the cloned reference of a Spatial in the cloned model returned by the assetManager.
- *
- * @author Nehon
+ * Serialize and compress Vector3f[] by indexing same values
+ * @author Lim, YongHoon
  */
-@Deprecated
-public class TrackInfo implements Savable, JmeCloneable {
+public class CompactVector3Array extends CompactArray<Vector3f> implements Savable {
 
-    ArrayList<Track> tracks = new ArrayList<>();
+    /**
+     * Creates a compact vector array
+     */
+    public CompactVector3Array() {
+    }
 
-    public TrackInfo() {
+    /**
+     * creates a compact vector array
+     * @param dataArray the data array
+     * @param index the indices
+     */
+    public CompactVector3Array(float[] dataArray, int[] index) {
+        super(dataArray, index);
+    }
+
+    @Override
+    protected final int getTupleSize() {
+        return 3;
+    }
+
+    @Override
+    protected final Class<Vector3f> getElementClass() {
+        return Vector3f.class;
     }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule c = ex.getCapsule(this);
-        c.writeSavableArrayList(tracks, "tracks", null);
+        serialize();
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(array, "array", null);
+        out.write(index, "index", null);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
-        InputCapsule c = im.getCapsule(this);
-        tracks = c.readSavableArrayList("tracks", null);
+        InputCapsule in = im.getCapsule(this);
+        array = in.readFloatArray("array", null);
+        index = in.readIntArray("index", null);
     }
-
-    public ArrayList<Track> getTracks() {
-        return tracks;
-    }
-
-    public void addTrack(Track track) {
-        tracks.add(track);
+    
+    @Override
+    protected void serialize(int i, Vector3f store) {
+        int j = i*getTupleSize();
+        array[j] = store.getX();
+        array[j+1] = store.getY();
+        array[j+2] = store.getZ();
     }
 
     @Override
-    public Object jmeClone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("Error cloning", e);
-        }
-    }
-
-    @Override
-    public void cloneFields(Cloner cloner, Object original) {
-        this.tracks = cloner.clone(tracks);
+    protected Vector3f deserialize(int i, Vector3f store) {
+        int j = i*getTupleSize();
+        store.set(array[j], array[j+1], array[j+2]);
+        return store;
     }
 }

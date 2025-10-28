@@ -27,15 +27,6 @@ public abstract class AbstractUniform <T> implements Uniform<T> {
         this.stages = stages;
     }
 
-    public AbstractUniform(IntEnum<Descriptor> type, ReflectionArgs args) {
-        this.name = args.getName();
-        this.type = type;
-        this.bindingIndex = Objects.requireNonNull(args.getProperties().get("binding"),
-                "Binding index is not specified for \"" + name + "\"").asInt();
-        this.stages = FlagParser.parseFlag(ShaderStage.class,
-                args.getProperties().get("stages"), ShaderStage.All);
-    }
-
     @Override
     public SetLayoutBinding createBinding() {
         return new SetLayoutBinding(type, bindingIndex, 1, stages);

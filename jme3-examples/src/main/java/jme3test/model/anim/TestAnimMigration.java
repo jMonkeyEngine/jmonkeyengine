@@ -34,7 +34,6 @@ package jme3test.model.anim;
 import com.jme3.anim.*;
 import com.jme3.anim.tween.Tweens;
 import com.jme3.anim.tween.action.*;
-import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;

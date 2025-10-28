@@ -31,7 +31,7 @@
  */
 package com.jme3.cinematic.events;
 
-import com.jme3.animation.LoopMode;
+import com.jme3.anim.util.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;

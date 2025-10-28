@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public class GraphicsState implements BasePipelineState<GraphicsPipeline, VkGraphicsPipelineCreateInfo>, Versionable {
+public class GraphicsState implements BasePipelineState<GraphicsState, VkGraphicsPipelineCreateInfo>, Versionable {
 
     protected static final int BASE_INDEX = 0;
 
@@ -129,33 +129,36 @@ public class GraphicsState implements BasePipelineState<GraphicsPipeline, VkGrap
     }
 
     @Override
-    public GraphicsState copy() {
-        GraphicsState copy = new GraphicsState();
-        copy.subpass = subpass;
-        copy.layout = layout;
-        copy.mesh = mesh;
-        copy.topology = topology;
-        copy.primitiveRestart = primitiveRestart;
-        copy.depthTest = depthTest;
-        copy.depthWrite = depthWrite;
-        copy.depthBoundsTest = depthBoundsTest;
-        copy.stencilTest = stencilTest;
-        copy.depthCompare = depthCompare;
-        copy.polygonMode = polygonMode;
-        copy.cullMode = cullMode;
-        copy.faceWinding = faceWinding;
-        copy.lineWidth = lineWidth;
-        copy.depthClamp = depthClamp;
-        copy.rasterizerDiscard = rasterizerDiscard;
-        copy.rasterizationSamples = rasterizationSamples;
-        copy.sampleShading = sampleShading;
-        copy.blendLogicEnabled = blendLogicEnabled;
-        copy.blendLogic = blendLogic;
-        copy.viewports.addAll(viewports);
-        copy.scissors.addAll(scissors);
-        copy.dynamicStates.addAll(dynamicStates);
-        copy.shaders.putAll(shaders);
-        return copy;
+    public GraphicsState copy(GraphicsState store) {
+        if (store == null) {
+            store = new GraphicsState();
+        }
+        store.subpass = subpass;
+        store.layout = layout;
+        store.mesh = mesh;
+        store.topology = topology;
+        store.primitiveRestart = primitiveRestart;
+        store.depthTest = depthTest;
+        store.depthWrite = depthWrite;
+        store.depthBoundsTest = depthBoundsTest;
+        store.stencilTest = stencilTest;
+        store.depthCompare = depthCompare;
+        store.polygonMode = polygonMode;
+        store.cullMode = cullMode;
+        store.faceWinding = faceWinding;
+        store.lineWidth = lineWidth;
+        store.depthClamp = depthClamp;
+        store.rasterizerDiscard = rasterizerDiscard;
+        store.rasterizationSamples = rasterizationSamples;
+        store.sampleShading = sampleShading;
+        store.blendLogicEnabled = blendLogicEnabled;
+        store.blendLogic = blendLogic;
+        store.viewports.addAll(viewports);
+        store.scissors.addAll(scissors);
+        store.dynamicStates.addAll(dynamicStates);
+        store.shaders.putAll(shaders);
+        store.blendAttachments.addAll(blendAttachments);
+        return store;
     }
 
     @Override
@@ -200,13 +203,13 @@ public class GraphicsState implements BasePipelineState<GraphicsPipeline, VkGrap
     }
 
     @Override
-    public GraphicsPipeline selectPipeline(PipelineCache cache, MeshDescription mesh) {
+    public Pipeline selectPipeline(PipelineCache cache, MeshDescription mesh) {
         this.mesh = mesh;
         CachedPipeline result = supportedPipelines.get(mesh);
         if (result == null || result.version != version) {
             // find an up-to-date pipeline for a different mesh to be the parent,
             // otherwise let the cache take care of it
-            GraphicsPipeline parent = supportedPipelines.values().stream()
+            Pipeline parent = supportedPipelines.values().stream()
                     .filter(p -> p.version == version)
                     .findAny()
                     .map(CachedPipeline::getPipeline).orElse(null);
@@ -231,6 +234,7 @@ public class GraphicsState implements BasePipelineState<GraphicsPipeline, VkGrap
         return version;
     }
 
+    @Override
     public GraphicsState override(GraphicsState state, GraphicsState store) {
         if (store == null) {
             store = new GraphicsState();
@@ -270,6 +274,11 @@ public class GraphicsState implements BasePipelineState<GraphicsPipeline, VkGrap
         store.applied.or(state.applied);
         store.applied.or(applied);
         return store;
+    }
+
+    @Override
+    public final Class<GraphicsState> getBaseStateClass() {
+        return GraphicsState.class;
     }
 
     protected void fillShaderInfo(MemoryStack stack, ShaderModule shader, VkPipelineShaderStageCreateInfo struct) {
@@ -733,15 +742,15 @@ public class GraphicsState implements BasePipelineState<GraphicsPipeline, VkGrap
 
     protected static class CachedPipeline {
 
-        public final Supplier<GraphicsPipeline> pipeline;
+        public final Supplier<Pipeline> pipeline;
         public final long version;
 
-        public CachedPipeline(Supplier<GraphicsPipeline> pipeline, long version) {
+        public CachedPipeline(Supplier<Pipeline> pipeline, long version) {
             this.pipeline = pipeline;
             this.version = version;
         }
 
-        public GraphicsPipeline getPipeline() {
+        public Pipeline getPipeline() {
             return pipeline.get();
         }
 

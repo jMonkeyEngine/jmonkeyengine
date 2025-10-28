@@ -55,7 +55,7 @@ public class GraphicsPipeline extends Pipeline {
     }
 
     @Override
-    public PipelineState<?> getState() {
+    public BasePipelineState<?, ?> getState() {
         return state;
     }
 

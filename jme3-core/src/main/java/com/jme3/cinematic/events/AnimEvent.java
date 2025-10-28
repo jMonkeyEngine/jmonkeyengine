@@ -33,7 +33,7 @@ package com.jme3.cinematic.events;
 
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.tween.action.Action;
-import com.jme3.animation.LoopMode;
+import com.jme3.anim.util.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.cinematic.Cinematic;
 import com.jme3.cinematic.PlayState;

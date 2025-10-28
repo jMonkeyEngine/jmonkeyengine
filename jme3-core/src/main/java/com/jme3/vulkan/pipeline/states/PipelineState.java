@@ -2,6 +2,12 @@ package com.jme3.vulkan.pipeline.states;
 
 import org.lwjgl.system.MemoryStack;
 
+/**
+ *
+ * @param <T>
+ * @deprecated use {@link BasePipelineState}
+ */
+@Deprecated
 public interface PipelineState <T> {
 
     /**

@@ -31,7 +31,6 @@
  */
 package com.jme3.export;
 
-import com.jme3.animation.Animation;
 import com.jme3.effect.shapes.*;
 import com.jme3.material.MatParamTexture;
 
@@ -71,8 +70,6 @@ public class SavableClassUtil {
         addRemapping("com.jme3.effect.EmitterMeshVertexShape", EmitterMeshVertexShape.class);
         addRemapping("com.jme3.effect.EmitterPointShape", EmitterPointShape.class);
         addRemapping("com.jme3.material.Material$MatParamTexture", MatParamTexture.class);
-        addRemapping("com.jme3.animation.BoneAnimation", Animation.class);
-        addRemapping("com.jme3.animation.SpatialAnimation", Animation.class);
 
         // Even though we no longer include Blender loading as part of the engine,
         // we leave this line in so that old j3os will still work and just not

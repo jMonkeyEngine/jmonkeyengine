@@ -38,6 +38,7 @@ import com.jme3.light.NullLightFilter;
 import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -305,27 +306,27 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         Geometry frustumMdl = new Geometry("f"/*, frustum*/);
         frustumMdl.setCullHint(Spatial.CullHint.Never);
         frustumMdl.setShadowMode(ShadowMode.Off);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new GlMaterial(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
         // fixme
-        //frustumMdl.setMaterial(mat);
-//        switch (i) {
-//            case 0:
-//                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Pink);
-//                break;
-//            case 1:
-//                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Red);
-//                break;
-//            case 2:
-//                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Green);
-//                break;
-//            case 3:
-//                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Blue);
-//                break;
-//            default:
-//                frustumMdl.getMaterial().setColor("Color", ColorRGBA.White);
-//                break;
-//        }
+        frustumMdl.setMaterial(mat);
+        switch (i) {
+            case 0:
+                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Pink);
+                break;
+            case 1:
+                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Red);
+                break;
+            case 2:
+                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Green);
+                break;
+            case 3:
+                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Blue);
+                break;
+            default:
+                frustumMdl.getMaterial().setColor("Color", ColorRGBA.White);
+                break;
+        }
 
         frustumMdl.updateGeometricState();
         return frustumMdl;

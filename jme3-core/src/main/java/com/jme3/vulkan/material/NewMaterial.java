@@ -1,5 +1,6 @@
 package com.jme3.vulkan.material;
 
+import com.jme3.dev.NotFullyImplemented;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.texture.Texture;
@@ -31,8 +32,9 @@ public class NewMaterial implements VkMaterial {
     private final DescriptorPool pool;
     private final Map<Integer, UniformSet> uniformSets = new HashMap<>();
     private final Map<String, Uniform<?>> uniformLookup = new HashMap<>();
-    private final Map<String, BasePipelineState<?, ?>> techniques = new HashMap<>();
     private final BitSet usedSetSlots = new BitSet();
+    private final Map<String, BasePipelineState<?, ?>> techniques = new HashMap<>();
+    private BasePipelineState<?, ?> additionalState;
 
     public NewMaterial(DescriptorPool pool) {
         this.pool = pool;
@@ -81,16 +83,38 @@ public class NewMaterial implements VkMaterial {
 
     @Override
     public void setTexture(String name, Texture texture) {
-        TextureUniform u = getUniform(name);
+        Uniform<Texture> u = getUniform(name);
         u.set(texture);
     }
 
     @Override
+    @NotFullyImplemented
     public void setParam(String uniform, String param, Object value) {
         Uniform<? extends GpuBuffer> u = getUniform(uniform);
         GpuBuffer buffer = u.get();
         //buffer.map(Structure::new).set(param, value);
         //buffer.unmap();
+    }
+
+    @Override
+    @NotFullyImplemented
+    public void clearParam(String uniform, String param) {
+        Uniform<? extends GpuBuffer> u = getUniform(uniform);
+        // clear parameter
+    }
+
+    @Override
+    @NotFullyImplemented
+    public <T> T getParam(String uniform, String name) {
+        Uniform<? extends GpuBuffer> u = getUniform(uniform);
+        // get parameter
+        return null;
+    }
+
+    @Override
+    public Texture getTexture(String name) {
+        Uniform<? extends Texture> t = getUniform(name);
+        return t != null ? t.get() : null;
     }
 
     @Override

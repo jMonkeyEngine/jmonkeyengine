@@ -34,7 +34,7 @@ package jme3test.animation;
 import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.AnimFactory;
-import com.jme3.animation.LoopMode;
+import com.jme3.anim.util.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.*;
 import com.jme3.cinematic.events.*;

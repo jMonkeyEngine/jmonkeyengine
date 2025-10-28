@@ -31,9 +31,6 @@
  */
 package com.jme3.scene.plugins.fbx.node;
 
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.Skeleton;
-import com.jme3.animation.SkeletonControl;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;

@@ -3,8 +3,6 @@ package com.jme3.scene.plugins.fbx.objects;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.jme3.animation.Bone;
-import com.jme3.animation.Skeleton;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.Matrix4f;

@@ -36,6 +36,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.Matrix4f;
@@ -126,7 +127,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         shadowRenderer.needsfallBackMaterial = true;
-        material = new Material(manager, "Common/MatDefs/Shadow/PostShadowFilter.j3md");
+        material = new GlMaterial(manager, "Common/MatDefs/Shadow/PostShadowFilter.j3md");
         shadowRenderer.setPostShadowMaterial(material);
         shadowRenderer.initialize(renderManager, vp);
         this.viewPort = vp;

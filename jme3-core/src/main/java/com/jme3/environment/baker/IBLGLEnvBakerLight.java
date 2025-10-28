@@ -35,6 +35,7 @@ import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.util.EnvMapUtils;
+import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -96,7 +97,7 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
         Box boxm = new Box(1, 1, 1);
         Geometry screen = new Geometry("BakeBox", boxm);
 
-        Material mat = new Material(assetManager, "Common/IBLSphH/IBLSphH.j3md");
+        Material mat = new GlMaterial(assetManager, "Common/IBLSphH/IBLSphH.j3md");
         mat.setTexture("Texture", envMap);
         mat.setVector2("Resolution", new Vector2f(envMap.getImage().getWidth(), envMap.getImage().getHeight()));
         screen.setMaterial(mat);

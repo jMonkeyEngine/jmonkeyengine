@@ -31,8 +31,6 @@
  */
 package com.jme3.scene.plugins.fbx.anim;
 
-import com.jme3.animation.Bone;
-import com.jme3.animation.Skeleton;
 import com.jme3.asset.AssetManager;
 import com.jme3.scene.plugins.fbx.node.FbxNode;
 import java.util.ArrayList;

@@ -32,8 +32,6 @@
 package org.jmonkeyengine.screenshottests.animation;
 
 import com.jme3.anim.SkinningControl;
-import com.jme3.anim.util.AnimMigrationUtils;
-import com.jme3.animation.SkeletonControl;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.BaseAppState;

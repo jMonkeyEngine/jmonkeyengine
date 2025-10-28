@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2025 jMonkeyEngine
+ * Copyright (c) 2009-2021 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,31 +29,37 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.animation;
+package com.jme3.anim.util;
 
 /**
- * <code>LoopMode</code> determines how animations repeat, or if they
- * do not repeat.
+ *
+ * @author Nehon
  */
-public enum LoopMode {
-    /**
-     * The animation will play repeatedly, when it reaches the end
-     * the animation will play again from the beginning, and so on.
-     */
-    Loop,
+public class AnimationUtils {
+    private AnimationUtils() {
+    }
 
     /**
-     * The animation will not loop. It will play until the last frame, and then
-     * freeze at that frame. It is possible to decide to play a new animation
-     * when that happens by using an AnimEventListener.
+     * Clamps the time according to duration and loopMode
+     *
+     * @param time the unclamped time value (in seconds)
+     * @param duration the animation's duration (in seconds)
+     * @param loopMode the animation's looping behavior (not null)
+     * @return the clamped time (in seconds)
      */
-    DontLoop,
-
-    /**
-     * The animation will cycle back and forth. When reaching the end, the
-     * animation will play backwards from the last frame until it reaches
-     * the first frame.
-     */
-    Cycle
-
+    public static float clampWrapTime(float time, float duration, LoopMode loopMode) {
+        if (time == 0 || duration == 0) {
+            return 0; // prevent division by 0 errors
+        }
+        switch (loopMode) {
+            case Cycle:
+                boolean sign = ((int) (time / duration) % 2) != 0;
+                return sign ? -(duration - (time % duration)) : time % duration;
+            case DontLoop:
+                return time > duration ? duration : (time < 0 ? 0 : time);
+            case Loop:
+                return time % duration;
+        }
+        return time;
+    }
 }

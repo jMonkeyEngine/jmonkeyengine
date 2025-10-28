@@ -37,6 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.util.EnvMapUtils;
+import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -149,7 +150,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
         Box boxm = new Box(1, 1, 1);
         Geometry screen = new Geometry("BakeBox", boxm);
 
-        Material mat = new Material(assetManager, "Common/IBL/IBLKernels.j3md");
+        Material mat = new GlMaterial(assetManager, "Common/IBL/IBLKernels.j3md");
         mat.setBoolean("UseSpecularIBL", true);
         mat.setTexture("EnvMap", envMap);
         screen.setMaterial(mat);

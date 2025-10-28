@@ -116,14 +116,6 @@ public class InstancedGeometry extends Geometry {
         return instanceCullingFunction;
     }
 
-    @Override
-    public void draw(Renderer renderer) {
-        int instances = getNumVisibleInstances();
-        if (instances > 0) {
-            mesh.render(renderer, this, instances, getAllInstanceData());
-        }
-    }
-
     /**
      * Global user specified per-instance data.
      *

@@ -31,9 +31,6 @@
  */
 package com.jme3.scene.plugins.fbx.anim;
 
-import com.jme3.animation.BoneTrack;
-import com.jme3.animation.SpatialTrack;
-import com.jme3.animation.Track;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;

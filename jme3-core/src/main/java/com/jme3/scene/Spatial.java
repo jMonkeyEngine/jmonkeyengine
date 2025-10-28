@@ -1891,8 +1891,8 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
         private int currentIndex = 0;
         private int iteration = -1;
 
-        public GraphIterator(Spatial start) {
-            current = Objects.requireNonNull(start);
+        public GraphIterator(Spatial root) {
+            current = Objects.requireNonNull(root);
         }
 
         @Override
@@ -1931,7 +1931,7 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
 
         protected void moveDown(Spatial node) {
             if (node.getParent() != current) {
-                throw new IllegalArgumentException("Next node must be a child of the current node.");
+                throw new IllegalArgumentException("Next spatial must be a child of the current spatial.");
             }
             current = node;
             childIndices.push(currentIndex);

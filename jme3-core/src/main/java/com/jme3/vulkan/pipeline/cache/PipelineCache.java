@@ -5,7 +5,6 @@ import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.pipeline.Pipeline;
 import com.jme3.vulkan.pipeline.states.BasePipelineState;
 import com.jme3.vulkan.pipeline.states.IShaderState;
-import com.jme3.vulkan.pipeline.states.PipelineState;
 import com.jme3.vulkan.shader.ShaderModule;
 
 import java.util.*;
@@ -17,7 +16,7 @@ public class PipelineCache {
 
     private final LogicalDevice<?> device;
     private final AssetManager assetManager;
-    private final Map<BasePipelineState<?, ?>, CacheElement<? extends Pipeline>> pipelines = new HashMap<>();
+    private final Map<BasePipelineState<?, ?>, CacheElement<Pipeline>> pipelines = new HashMap<>();
     private final Map<IShaderState, CacheElement<ShaderModule>> shaders = new HashMap<>();
     private long timeout = DEFAULT_TIMEOUT;
 
@@ -26,9 +25,8 @@ public class PipelineCache {
         this.assetManager = assetManager;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends Pipeline> Supplier<T> acquirePipeline(BasePipelineState<T, ?> state, T parent) {
-        CacheElement<T> pipeline = (CacheElement<T>)pipelines.get(state);
+    public Supplier<Pipeline> acquirePipeline(BasePipelineState<?, ?> state, Pipeline parent) {
+        CacheElement<Pipeline> pipeline = pipelines.get(state);
         if (pipeline == null) {
             pipeline = new CacheElement<>();
             Collection<ShaderModule> shaders = new ArrayList<>(state.getPipelineShaderStates().size());

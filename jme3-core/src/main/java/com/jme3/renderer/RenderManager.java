@@ -31,6 +31,7 @@
  */
 package com.jme3.renderer;
 
+import com.jme3.material.*;
 import com.jme3.renderer.pipeline.ForwardPipeline;
 import com.jme3.renderer.pipeline.DefaultPipelineContext;
 import com.jme3.renderer.pipeline.RenderPipeline;
@@ -38,12 +39,6 @@ import com.jme3.renderer.pipeline.PipelineContext;
 import com.jme3.light.DefaultLightFilter;
 import com.jme3.light.LightFilter;
 import com.jme3.light.LightList;
-import com.jme3.material.MatParamOverride;
-import com.jme3.material.Material;
-import com.jme3.material.MaterialDef;
-import com.jme3.material.RenderState;
-import com.jme3.material.Technique;
-import com.jme3.material.TechniqueDef;
 import com.jme3.math.Matrix4f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
@@ -99,7 +94,7 @@ public class RenderManager {
     private final LinkedList<RenderPipeline> usedPipelines = new LinkedList<>();
     private RenderPipeline defaultPipeline = new ForwardPipeline();
     private Camera prevCam = null;
-    private Material forcedMaterial = null;
+    private GlMaterial forcedMaterial = null;
     private String forcedTechnique = null;
     private RenderState forcedRenderState = null;
     private final SafeArrayList<MatParamOverride> forcedOverrides
@@ -539,7 +534,7 @@ public class RenderManager {
      *
      * @param mat The forced material to set, or null to return to normal
      */
-    public void setForcedMaterial(Material mat) {
+    public void setForcedMaterial(GlMaterial mat) {
         forcedMaterial = mat;
     }
     
@@ -612,7 +607,7 @@ public class RenderManager {
      *
      * <p>If the specified technique name is available on the geometry's
      * material, then it is used, otherwise, the
-     * {@link #setForcedMaterial(com.jme3.material.Material) forced material} is used.
+     * {@link #setForcedMaterial(com.jme3.material.GlMaterial) forced material} is used.
      * If a forced material is not set and the forced technique name cannot
      * be found on the material, the geometry will <em>not</em> be rendered.
      *
@@ -704,7 +699,7 @@ public class RenderManager {
     /**
      * Internal use only. Sets the world matrix to use for future
      * rendering. This has no effect unless objects are rendered manually
-     * using {@link Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager) }.
+     * using {@link GlMaterial#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager) }.
      * Using {@link #renderGeometry(com.jme3.scene.Geometry) } will
      * override this value.
      *
@@ -734,7 +729,7 @@ public class RenderManager {
      * geometry's {@link Geometry#getWorldMatrix() world transform matrix} is used.
      *
      * <p>Once the world matrix is applied, the proper material is chosen for rendering.
-     * If a {@link #setForcedMaterial(com.jme3.material.Material) forced material} is
+     * If a {@link #setForcedMaterial(com.jme3.material.GlMaterial) forced material} is
      * set on this RenderManager, then it is used for rendering the geometry,
      * otherwise, the {@link Geometry#getMaterial() geometry's material} is used.
      *
@@ -753,8 +748,8 @@ public class RenderManager {
      *
      * @see Technique
      * @see RenderState
-     * @see com.jme3.material.Material#selectTechnique(java.lang.String, com.jme3.renderer.RenderManager)
-     * @see com.jme3.material.Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager)
+     * @see com.jme3.material.GlMaterial#selectTechnique(java.lang.String, com.jme3.renderer.RenderManager)
+     * @see com.jme3.material.GlMaterial#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager)
      */
     public void renderGeometry(Geometry geom) {
         if (renderFilter != null && !renderFilter.test(geom)) {
@@ -788,9 +783,8 @@ public class RenderManager {
      * @param lightList
      * @deprecated use {@link com.jme3.vulkan.render.GlGeometryBatch} instead
      */
-    @Deprecated
     public void renderGeometry(Geometry geom, LightList lightList) {
-        
+
         if (renderFilter != null && !renderFilter.test(geom)) {
             return;
         }
@@ -809,7 +803,11 @@ public class RenderManager {
             this.boundDrawBufferId.setValue(currentFb.getTargetIndex());
         }
 
-        Material material = geom.getMaterial();
+        if (!(geom.getMaterial() instanceof GlMaterial)) {
+            throw new UnsupportedOperationException("Cannot render " + geom.getMaterial().getClass() + " in an OpenGL context.");
+        }
+
+        GlMaterial material = (GlMaterial)geom.getMaterial();
 
         // If forcedTechnique exists, we try to force it for the render.
         // If it does not exist in the mat def, we check for forcedMaterial and render the geom if not null.
@@ -824,13 +822,13 @@ public class RenderManager {
                         ? activeTechnique.getDef().getName()
                         : TechniqueDef.DEFAULT_TECHNIQUE_NAME;
 
-                geom.getMaterial().selectTechnique(forcedTechnique, this);
+                material.selectTechnique(forcedTechnique, this);
                 //saving forcedRenderState for future calls
                 RenderState tmpRs = forcedRenderState;
-                if (geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
+                if (material.getActiveTechnique().getDef().getForcedRenderState() != null) {
                     // forcing forced technique renderState
                     forcedRenderState
-                            = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
+                            = material.getActiveTechnique().getDef().getForcedRenderState();
                 }
                 // use geometry's material
                 material.render(geom, lightList, this);

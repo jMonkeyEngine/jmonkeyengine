@@ -32,6 +32,7 @@
 package com.jme3.environment.util;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -155,7 +156,7 @@ public class BoundingSphereDebug extends GlMesh {
     public static Geometry createDebugSphere(AssetManager assetManager) {
         BoundingSphereDebug mesh = new BoundingSphereDebug();
         Geometry geom = new Geometry("BoundingDebug", mesh);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new GlMaterial(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setBoolean("VertexColor", true);
         mat.getAdditionalRenderState().setWireframe(true);
         geom.setMaterial(mat);

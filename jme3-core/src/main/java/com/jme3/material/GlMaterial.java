@@ -34,6 +34,7 @@ package com.jme3.material;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.CloneableSmartAsset;
+import com.jme3.dev.NotFullyImplemented;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -62,9 +63,6 @@ import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.frames.VersionedResource;
-import com.jme3.vulkan.pipeline.Pipeline;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -316,8 +314,8 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
 
         // Comparing parameters
         for (String paramKey : paramValues.keySet()) {
-            MatParam thisParam = this.getParam(paramKey);
-            MatParam otherParam = other.getParam(paramKey);
+            MatParam thisParam = this.getMatParam(paramKey);
+            MatParam otherParam = other.getMatParam(paramKey);
 
             // This param does not exist in compared mat
             if (otherParam == null) {
@@ -458,7 +456,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param name The parameter name to look up.
      * @return The MatParam if set, or null if not set.
      */
-    public MatParam getParam(String name) {
+    public MatParam getMatParam(String name) {
         return paramValues.get(name);
     }
 
@@ -541,7 +539,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         if (type.isTextureType()) {
             setTextureParam(name, type, (GlTexture)value);
         } else {
-            MatParam val = getParam(name);
+            MatParam val = getMatParam(name);
             if (val == null) {
                 paramValues.put(name, new MatParam(type, name, value));
             } else {
@@ -574,9 +572,10 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * Clear a parameter from this material. The parameter must exist
      * @param name the name of the parameter to clear
      */
+    @Override
     public void clearParam(String name) {
         checkSetParam(null, name);
-        MatParam matParam = getParam(name);
+        MatParam matParam = getMatParam(name);
         if (matParam == null) {
             return;
         }
@@ -650,8 +649,33 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
     }
 
     @Override
-    public void setTexture(String name, VersionedResource<? extends Texture> value) {
-        setTexture(name, value.get());
+    @NotFullyImplemented
+    public void setUniform(String name, GpuBuffer buffer) {
+        throw new UnsupportedOperationException("To be implemented.");
+    }
+
+    @Override
+    @NotFullyImplemented
+    public void clearParam(String uniform, String param) {
+        clearParam(param);
+    }
+
+    @Override
+    public <T> T getParam(String uniform, String name) {
+        return getParam(name);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T getParam(String param) {
+        MatParam p = getMatParam(param);
+        return p != null ? (T)p.getValue() : null;
+    }
+
+    @Override
+    public Texture getTexture(String name) {
+        MatParamTexture param = getTextureParam(name);
+        return param != null ? param.getTextureValue() : null;
     }
 
     /**
@@ -779,11 +803,6 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      */
     public void setShaderStorageBufferObject(final String name, final BufferObject value) {
         setParam(name, VarType.ShaderStorageBufferObject, value);
-    }
-
-    @Override
-    public void setUniform(String name, VersionedResource<? extends GpuBuffer> buffer) {
-
     }
 
     /**
@@ -1129,7 +1148,6 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param lights Presorted and filtered light list to use for rendering
      * @param renderManager The render manager requesting the rendering
      */
-    @Override
     public void render(Geometry geometry, LightList lights, RenderManager renderManager) {
         if (technique == null) {
             selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
@@ -1166,11 +1184,6 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
 
         // Delegate rendering to the technique
         technique.render(renderManager, shader, geometry, (GlMesh)geometry.getMesh(), lights, units);
-    }
-
-    @Override
-    public void render(Geometry geometry, LightList lights, CommandBuffer cmd, Pipeline pipeline) {
-        throw new UnsupportedOperationException("Unable to render in a Vulkan context.");
     }
 
     @Override

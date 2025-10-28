@@ -38,7 +38,6 @@ import com.jme3.anim.ArmatureMask;
 import com.jme3.anim.SingleLayerInfluenceMask;
 import com.jme3.anim.SkinningControl;
 import com.jme3.anim.tween.action.BlendableAction;
-import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.SimpleApplication;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.font.BitmapFont;

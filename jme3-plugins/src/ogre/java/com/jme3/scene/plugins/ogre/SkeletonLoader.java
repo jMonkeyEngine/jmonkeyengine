@@ -32,7 +32,6 @@
 package com.jme3.scene.plugins.ogre;
 
 import com.jme3.anim.*;
-import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.math.Quaternion;

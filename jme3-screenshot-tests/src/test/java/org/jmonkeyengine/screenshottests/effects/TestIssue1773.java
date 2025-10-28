@@ -31,7 +31,7 @@
  */
 package org.jmonkeyengine.screenshottests.effects;
 
-import com.jme3.animation.LoopMode;
+import com.jme3.anim.util.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.BaseAppState;
