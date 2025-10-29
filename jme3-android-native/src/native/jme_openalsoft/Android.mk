@@ -41,7 +41,7 @@ LOCAL_CFLAGS                := -ffast-math \
                                -DRESTRICT="" \
                                -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=true
 
-LOCAL_LDLIBS                := -lOpenSLES -llog -Wl,-s -lc++_shared
+LOCAL_LDLIBS                := -lOpenSLES -llog -Wl,-s -lc++_static -lc++abi
 LOCAL_STATIC_LIBRARIES      := openalsoft_prebuilt
 # (or LOCAL_WHOLE_STATIC_LIBRARIES if you need every object pulled in)
 

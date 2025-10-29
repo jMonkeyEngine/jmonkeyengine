@@ -118,7 +118,8 @@ openalAbis.each { abi ->
             '-DALSOFT_SHARED=OFF',
             '-DBUILD_SHARED_LIBS=OFF',
             '-DALSOFT_STATIC=ON',
-            '-DLIBTYPE=STATIC'
+            '-DLIBTYPE=STATIC',
+            '-DCMAKE_CXX_FLAGS=-stdlib=libc++'
         ]
 
         dependsOn copyOpenALSoft
