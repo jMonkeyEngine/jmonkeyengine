@@ -66,6 +66,10 @@ public interface Material extends Savable {
 
     /* ----- COMPATABILITY WITH OLD MATERIAL ----- */
 
+    default int getSortId() {
+        return 0;
+    }
+
     default void clearParam(String param) {
         clearParam(DEFAULT_UNIFORM_BUFFER, param);
     }

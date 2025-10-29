@@ -20,21 +20,20 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class GraphicsPipeline extends Pipeline {
 
-    private BasePipelineState<?, VkGraphicsPipelineCreateInfo> state;
-
-    @Deprecated
-    public GraphicsPipeline(LogicalDevice<?> device, PipelineLayout layout, Subpass subpass) {
-        super(device, PipelineBindPoint.Graphics, null);
-    }
+    private final BasePipelineState state;
 
     /**
-     * Creates a new GraphicsPipeline with the given GraphicsState.
+     * Creates a new GraphicsPipeline with the given state.
      *
      * @param device logical device
      * @param state graphics state (alias created)
      */
-    public GraphicsPipeline(LogicalDevice<?> device, Pipeline parent, BasePipelineState<?, VkGraphicsPipelineCreateInfo> state, Collection<ShaderModule> shaders) {
-        super(device, PipelineBindPoint.Graphics, parent);
+    public GraphicsPipeline(LogicalDevice<?> device,
+                            PipelineLayout layout,
+                            Pipeline parent,
+                            BasePipelineState<?, VkGraphicsPipelineCreateInfo> state,
+                            Collection<ShaderModule> shaders) {
+        super(device, layout, PipelineBindPoint.Graphics, parent);
         this.state = state.copy(); // create alias to avoid outside mutations mucking things up
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkGraphicsPipelineCreateInfo.Buffer create = VkGraphicsPipelineCreateInfo.calloc(1, stack)

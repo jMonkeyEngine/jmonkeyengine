@@ -25,29 +25,6 @@ public class BufferUniform extends AbstractUniform<GpuBuffer> {
         super(name, type, bindingIndex, stages);
     }
 
-    public BufferUniform(IntEnum<Descriptor> type, ReflectionArgs args) {
-        super(type, args);
-        if (args.getProperties().has("usage")) {
-            AccessFrequency usage = AccessFrequency.valueOf(args.getProperties().get("usage").asText());
-            List<BufferMember> members = new ArrayList<>();
-            int size = 0;
-            for (Iterator<Map.Entry<String, JsonNode>> it = args.getProperties().get("layout").fields(); it.hasNext();) {
-                Map.Entry<String, JsonNode> el = it.next();
-                BufferMember member = args.create(el.getKey(), el.getValue()).instantiate();
-                members.add(member);
-                size += member.getSizeInBytes();
-            }
-            value = args.getGenerator().createBuffer(MemorySize.bytes(size), BufferUsage.Uniform, usage);
-            ByteBuffer bytes = value.mapBytes();
-            bytes.clear();
-            for (BufferMember m : members) {
-                m.fillBuffer(bytes);
-            }
-            bytes.flip();
-            value.unmap();
-        }
-    }
-
     @Override
     public DescriptorSetWriter createWriter() {
         if (value == null) {

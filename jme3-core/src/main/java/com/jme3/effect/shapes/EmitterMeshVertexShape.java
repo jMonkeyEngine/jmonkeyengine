@@ -41,6 +41,8 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.clone.Cloner;
+import com.jme3.vulkan.mesh.AttributeModifier;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,34 +82,36 @@ public class EmitterMeshVertexShape implements EmitterShape {
     public void setMeshes(List<Mesh> meshes) {
         Map<Vector3f, Vector3f> vertToNormalMap = new HashMap<>();
 
-        this.vertices = new ArrayList<List<Vector3f>>(meshes.size());
-        this.normals = new ArrayList<List<Vector3f>>(meshes.size());
+        this.vertices = new ArrayList<>(meshes.size());
+        this.normals = new ArrayList<>(meshes.size());
+        final Vector3f temp = new Vector3f();
         for (Mesh mesh : meshes) {
             // fetching the data
-            float[] vertexTable = BufferUtils.getFloatArray(mesh.getFloatBuffer(Type.Position));
-            float[] normalTable = BufferUtils.getFloatArray(mesh.getFloatBuffer(Type.Normal));
+            try (AttributeModifier pos = mesh.modify(Type.Position);
+                 AttributeModifier norms = mesh.modify(Type.Normal)) {
 
-            // unifying normals
-            for (int i = 0; i < vertexTable.length; i += 3) {// the tables should have the same size and be dividable by 3
-                Vector3f vert = new Vector3f(vertexTable[i], vertexTable[i + 1], vertexTable[i + 2]);
-                Vector3f norm = vertToNormalMap.get(vert);
-                if (norm == null) {
-                    norm = new Vector3f(normalTable[i], normalTable[i + 1], normalTable[i + 2]);
-                    vertToNormalMap.put(vert, norm);
-                } else {
-                    norm.addLocal(normalTable[i], normalTable[i + 1], normalTable[i + 2]);
+                // unifying normals
+                for (int i = 0; i < mesh.getVertexCount(); i++) {// the tables should have the same size and be dividable by 3
+                    Vector3f vert = pos.getVector3(i, 0, null);
+                    Vector3f norm = vertToNormalMap.get(vert);
+                    if (norm == null) {
+                        norm = norms.getVector3(i, 0, null);
+                        vertToNormalMap.put(vert, norm);
+                    } else {
+                        norm.addLocal(norms.getVector3(i, 0, temp));
+                    }
                 }
-            }
 
-            // adding data to vertices and normals
-            List<Vector3f> vertices = new ArrayList<>(vertToNormalMap.size());
-            List<Vector3f> normals = new ArrayList<>(vertToNormalMap.size());
-            for (Entry<Vector3f, Vector3f> entry : vertToNormalMap.entrySet()) {
-                vertices.add(entry.getKey());
-                normals.add(entry.getValue().normalizeLocal());
+                // adding data to vertices and normals
+                List<Vector3f> vertices = new ArrayList<>(vertToNormalMap.size());
+                List<Vector3f> normals = new ArrayList<>(vertToNormalMap.size());
+                for (Entry<Vector3f, Vector3f> entry : vertToNormalMap.entrySet()) {
+                    vertices.add(entry.getKey());
+                    normals.add(entry.getValue().normalizeLocal());
+                }
+                this.vertices.add(vertices);
+                this.normals.add(normals);
             }
-            this.vertices.add(vertices);
-            this.normals.add(normals);
         }
     }
 

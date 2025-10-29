@@ -45,6 +45,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.texture.GlTexture;
+import com.jme3.texture.Texture;
 
 import java.util.List;
 
@@ -127,7 +128,7 @@ public class ArmatureDebugger extends Node {
         armatureNode.setCamera(camera);
 
         GlMaterial matJoints = new GlMaterial(assetManager, "Common/MatDefs/Misc/Billboard.j3md");
-        GlTexture t = assetManager.loadTexture("Common/Textures/dot.png");
+        Texture t = assetManager.loadTexture("Common/Textures/dot.png");
         matJoints.setTexture("Texture", t);
         matJoints.getAdditionalRenderState().setDepthTest(false);
         matJoints.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);

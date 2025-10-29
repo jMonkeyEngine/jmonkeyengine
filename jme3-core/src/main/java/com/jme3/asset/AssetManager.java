@@ -43,6 +43,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.OBJLoader;
 import com.jme3.shader.ShaderGenerator;
 import com.jme3.texture.GlTexture;
+import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.TGALoader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -270,7 +271,7 @@ public interface AssetManager {
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
-    public GlTexture loadTexture(TextureKey key);
+    public Texture loadTexture(TextureKey key);
 
     /**
      * Loads texture file, supported types are BMP, JPG, PNG, GIF,
@@ -283,7 +284,7 @@ public interface AssetManager {
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
-    public GlTexture loadTexture(String name);
+    public Texture loadTexture(String name);
 
     /**
      * Load audio file, supported types are WAV or OGG.

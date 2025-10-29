@@ -206,6 +206,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      *
      * @return The sorting ID used for sorting geometries for rendering.
      */
+    @Override
     public int getSortId() {
         if (sortingId == -1 && technique != null) {
             sortingId = technique.getSortId() << 16;

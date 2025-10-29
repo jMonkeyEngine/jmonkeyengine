@@ -37,6 +37,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.util.BufferUtils;
+import com.jme3.vulkan.mesh.AttributeModifier;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,20 +67,24 @@ public class EmitterMeshFaceShape extends EmitterMeshVertexShape {
     public void setMeshes(List<Mesh> meshes) {
         this.vertices = new ArrayList<>(meshes.size());
         this.normals = new ArrayList<>(meshes.size());
+        int[] indices = new int[3];
         for (Mesh mesh : meshes) {
-            Vector3f[] vertexTable = BufferUtils.getVector3Array(mesh.getFloatBuffer(Type.Position));
-            int[] indices = new int[3];
-            List<Vector3f> vertices = new ArrayList<>(mesh.getTriangleCount() * 3);
-            List<Vector3f> normals = new ArrayList<>(mesh.getTriangleCount());
-            for (int i = 0; i < mesh.getTriangleCount(); ++i) {
-                mesh.getTriangle(i, indices);
-                vertices.add(vertexTable[indices[0]]);
-                vertices.add(vertexTable[indices[1]]);
-                vertices.add(vertexTable[indices[2]]);
-                normals.add(FastMath.computeNormal(vertexTable[indices[0]], vertexTable[indices[1]], vertexTable[indices[2]]));
+            try (AttributeModifier pos = mesh.modify(Type.Position)) {
+                List<Vector3f> vertices = new ArrayList<>(mesh.getTriangleCount() * 3);
+                List<Vector3f> normals = new ArrayList<>(mesh.getTriangleCount());
+                for (int i = 0; i < mesh.getTriangleCount(); ++i) {
+                    mesh.getTriangle(i, indices);
+                    Vector3f v1 = pos.getVector3(indices[0], 0, null);
+                    Vector3f v2 = pos.getVector3(indices[1], 0, null);
+                    Vector3f v3 = pos.getVector3(indices[2], 0, null);
+                    vertices.add(v1);
+                    vertices.add(v2);
+                    vertices.add(v3);
+                    normals.add(FastMath.computeNormal(v1, v2, v3));
+                }
+                this.vertices.add(vertices);
+                this.normals.add(normals);
             }
-            this.vertices.add(vertices);
-            this.normals.add(normals);
         }
     }
 

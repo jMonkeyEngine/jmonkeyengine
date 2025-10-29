@@ -35,12 +35,14 @@ public abstract class Pipeline extends AbstractNative<Long> {
     }
 
     protected final LogicalDevice<?> device;
+    protected final PipelineLayout layout;
     protected final PipelineBindPoint bindPoint;
     protected final Pipeline parent;
     private final long sortId;
 
-    public Pipeline(LogicalDevice<?> device, PipelineBindPoint bindPoint, Pipeline parent) {
+    public Pipeline(LogicalDevice<?> device, PipelineLayout layout, PipelineBindPoint bindPoint, Pipeline parent) {
         this.device = device;
+        this.layout = layout;
         this.bindPoint = bindPoint;
         this.parent = parent;
         this.sortId = nextSortId.getAndIncrement();
@@ -58,7 +60,7 @@ public abstract class Pipeline extends AbstractNative<Long> {
     }
 
     public boolean isMaterialEquivalent(Pipeline other) {
-        return this == other || (other != null && bindPoint.is(other.bindPoint) && layout == other.layout);
+        return this == other || (other != null && bindPoint.is(other.bindPoint) && getLayout() == other.getLayout());
     }
 
     public LogicalDevice<?> getDevice() {
@@ -71,10 +73,6 @@ public abstract class Pipeline extends AbstractNative<Long> {
 
     public PipelineLayout getLayout() {
         return layout;
-    }
-
-    public Flag<Create> getFlags() {
-        return flags;
     }
 
     public Pipeline getParent() {

@@ -32,6 +32,7 @@
 package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.backend.Backend;
 import com.jme3.light.LightFilter;
 import com.jme3.light.NullLightFilter;
 import com.jme3.material.Material;
@@ -189,7 +190,7 @@ public class PssmShadowRenderer implements SceneProcessor {
      * the more quality, the less fps)
      */
     public PssmShadowRenderer(AssetManager manager, int size, int nbSplits) {
-        this(manager, size, nbSplits, new Material(manager, "Common/MatDefs/Shadow/PostShadow.j3md"));
+        this(manager, size, nbSplits, Backend.material(manager, "Common/MatDefs/Shadow/PostShadow.j3md"));
     }
 
     /**
@@ -221,7 +222,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
         dummyTex = new Texture2D(size, size, Format.RGBA8);
 
-        preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
+        preshadowMat = Backend.material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
         postshadowMat.setFloat("ShadowMapSize", size);
 
         for (int i = 0; i < nbSplits; i++) {
@@ -327,7 +328,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         Geometry frustumMdl = new Geometry("f", frustum);
         frustumMdl.setCullHint(Spatial.CullHint.Never);
         frustumMdl.setShadowMode(ShadowMode.Off);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = Backend.material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
         frustumMdl.setMaterial(mat);
         switch (i) {

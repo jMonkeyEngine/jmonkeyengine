@@ -45,6 +45,8 @@ import com.jme3.shader.Glsl300ShaderGenerator;
 import com.jme3.shader.ShaderGenerator;
 import com.jme3.system.JmeSystem;
 import com.jme3.texture.GlTexture;
+import com.jme3.texture.Texture;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -415,7 +417,7 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     @Override
-    public GlTexture loadTexture(String name) {
+    public Texture loadTexture(String name) {
         TextureKey key = new TextureKey(name, true);
         key.setGenerateMips(true);
         return loadTexture(key);

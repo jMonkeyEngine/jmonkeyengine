@@ -46,7 +46,6 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
-import com.jme3.scene.debug.SkeletonDebugger;
 import com.jme3.scene.plugins.fbx.anim.FbxAnimCurveNode;
 import com.jme3.scene.plugins.fbx.anim.FbxCluster;
 import com.jme3.scene.plugins.fbx.anim.FbxLimbNode;

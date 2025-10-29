@@ -33,10 +33,10 @@ package com.jme3.ui;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
+import com.jme3.backend.Backend;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
@@ -166,7 +166,7 @@ public class Picture extends Geometry {
      */
     public void setTexture(AssetManager assetManager, Texture2D tex, boolean useAlpha){
         if (getMaterial() == null){
-            Material mat = new Material(assetManager, "Common/MatDefs/Gui/Gui.j3md");
+            Material mat = Backend.material(assetManager, "Common/MatDefs/Gui/Gui.j3md");
             mat.setColor("Color", ColorRGBA.White);
             setMaterial(mat);
         }

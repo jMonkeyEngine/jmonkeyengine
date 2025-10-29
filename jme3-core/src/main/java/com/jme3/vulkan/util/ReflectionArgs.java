@@ -14,16 +14,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+@Deprecated
 public class ReflectionArgs {
 
     private static final Map<String, Function<ReflectionArgs, Object>> natives = new HashMap<>();
-
-    static {
-        natives.put("UniformBuffer", args
-                -> new BufferUniform(Descriptor.UniformBuffer, args));
-        natives.put("Texture", TextureUniform::new);
-        natives.put("GraphicsState", GraphicsState::new);
-    }
 
     private final AssetManager assetManager;
     private final BufferGenerator<?> generator;

@@ -221,7 +221,10 @@ public class GraphicsState implements BasePipelineState<GraphicsState, VkGraphic
 
     @Override
     public GraphicsPipeline createPipeline(LogicalDevice<?> device, Pipeline parent, Collection<ShaderModule> shaders) {
-        return new GraphicsPipeline(device, parent, this, shaders);
+        if (layout == null) {
+            throw new NullPointerException("Pipeline layout is not defined.");
+        }
+        return new GraphicsPipeline(device, layout, parent, this, shaders);
     }
 
     @Override
@@ -295,7 +298,7 @@ public class GraphicsState implements BasePipelineState<GraphicsState, VkGraphic
     protected VkPipelineInputAssemblyStateCreateInfo createInputAssembly(MemoryStack stack) {
         return VkPipelineInputAssemblyStateCreateInfo.calloc(stack)
                 .sType(VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO)
-                .topology(getTopology().getEnum())
+                .topology(topology.getEnum())
                 .primitiveRestartEnable(primitiveRestart);
     }
 

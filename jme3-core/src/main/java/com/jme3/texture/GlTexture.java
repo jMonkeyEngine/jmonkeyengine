@@ -682,7 +682,7 @@ public abstract class GlTexture implements Texture<GlTexture, GlImage>, ImageVie
         if (key != null) {
             // key is available, so try the texture from there.
             try {
-                GlTexture loadedTex = importer.getAssetManager().loadTexture(key);
+                GlTexture loadedTex = (GlTexture)importer.getAssetManager().loadTexture(key);
                 image = loadedTex.getImage();
             } catch (AssetNotFoundException ex){
                 Logger.getLogger(GlTexture.class.getName()).log(Level.SEVERE, "Cannot locate texture {0}", key);
