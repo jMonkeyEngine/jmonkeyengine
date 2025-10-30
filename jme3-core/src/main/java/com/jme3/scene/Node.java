@@ -127,12 +127,26 @@ public class Node extends Spatial {
     @Override
     protected void setLightListRefresh() {
         super.setLightListRefresh();
+        boolean hasGlobalLights = false;
         for (Spatial child : children.getArray()) {
             if ((child.refreshFlags & RF_LIGHTLIST) != 0) {
+                if( !hasGlobalLights && (child.refreshFlags & RF_GLOBAL_LIGHTS) != 0){
+                    hasGlobalLights = true;
+                }
                 continue;
             }
-
             child.setLightListRefresh();
+        }
+        if(hasGlobalLights){
+            refreshFlags |= RF_GLOBAL_LIGHTS;
+            Node p = this.parent;
+            while (p != null) {
+                if ((p.refreshFlags & RF_GLOBAL_LIGHTS) != 0) {
+                    break;
+                }
+                p.refreshFlags |= RF_GLOBAL_LIGHTS;
+                p = p.parent;
+            }
         }
     }
 
