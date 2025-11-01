@@ -39,7 +39,7 @@ import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.system.AppSettings;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.TextureImage;
@@ -199,11 +199,11 @@ public interface Renderer {
      * @param src the source FrameBuffer (unaffected)
      * @param dst the destination FrameBuffer (modified)
      * @param copyDepth true&rarr;copy depth info, false&rarr;don't copy it
-     * @deprecated  Use {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer,
-     *     com.jme3.texture.FrameBuffer, boolean, boolean)}.
+     * @deprecated  Use {@link Renderer#copyFrameBuffer(GlFrameBuffer,
+     *     GlFrameBuffer, boolean, boolean)}.
      */
     @Deprecated
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth);
+    public void copyFrameBuffer(GlFrameBuffer src, GlFrameBuffer dst, boolean copyDepth);
 
     /**
      * Copies contents from src to dst, scaling if necessary.
@@ -213,7 +213,7 @@ public interface Renderer {
      * @param copyColor true&rarr;copy color info, false&rarr;don't copy it
      * @param copyDepth true&rarr;copy depth info, false&rarr;don't copy it
      */
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyColor, boolean copyDepth);
+    public void copyFrameBuffer(GlFrameBuffer src, GlFrameBuffer dst, boolean copyColor, boolean copyDepth);
 
     /**
      * Sets the framebuffer that will be drawn to.
@@ -223,7 +223,7 @@ public interface Renderer {
      *
      * @param fb The framebuffer to set
      */
-    public void setFrameBuffer(FrameBuffer fb);
+    public void setFrameBuffer(GlFrameBuffer fb);
 
     /**
      * Sets the framebuffer that will be set instead of the main framebuffer
@@ -231,7 +231,7 @@ public interface Renderer {
      *
      * @param fb The framebuffer to override the main framebuffer.
      */
-    public void setMainFrameBufferOverride(FrameBuffer fb);
+    public void setMainFrameBufferOverride(GlFrameBuffer fb);
 
     /**
      * Reads the pixels currently stored in the specified framebuffer
@@ -243,7 +243,7 @@ public interface Renderer {
      * @param fb The framebuffer to read from
      * @param byteBuf The bytebuffer to transfer color data to
      */
-    public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf);
+    public void readFrameBuffer(GlFrameBuffer fb, ByteBuffer byteBuf);
 
     /**
      * Reads the pixels currently stored in the specified framebuffer
@@ -256,14 +256,14 @@ public interface Renderer {
      * @param byteBuf The bytebuffer to transfer color data to
      * @param format the image format to use when reading the frameBuffer.
      */
-    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, GlImage.Format format);
+    public void readFrameBufferWithFormat(GlFrameBuffer fb, ByteBuffer byteBuf, GlImage.Format format);
 
     /**
      * Deletes a framebuffer and all attached renderbuffers.
      *
      * @param fb the FrameBuffer to be deleted
      */
-    public void deleteFrameBuffer(FrameBuffer fb);
+    public void deleteFrameBuffer(GlFrameBuffer fb);
 
     /**
      * Assigns a Texture to the specified texture unit.
@@ -413,7 +413,7 @@ public interface Renderer {
      * <p>If enabled, color values rendered to the main framebuffer undergo
      * linear -&gt; sRGB conversion.
      *
-     * <p>This is identical to {@link FrameBuffer#setSrgb(boolean)} except it is toggled
+     * <p>This is identical to {@link GlFrameBuffer#setSrgb(boolean)} except it is toggled
      * for the main framebuffer instead of an offscreen buffer.
      *
      * <p>This should be set together with {@link Renderer#setLinearizeSrgbImages(boolean)}
@@ -426,7 +426,7 @@ public interface Renderer {
      * @param srgb true for sRGB colorspace, false for linear colorspace
      * @throws RendererException If the GPU hardware does not support sRGB.
      *
-     * @see FrameBuffer#setSrgb(boolean)
+     * @see GlFrameBuffer#setSrgb(boolean)
      * @see Caps#Srgb
      */
     public void setMainFrameBufferSrgb(boolean srgb);
@@ -548,7 +548,7 @@ public interface Renderer {
      * Returns the current FrameBuffer that is being rendered to.
      * @return the FrameBuffer or null if rendering to the screen.
      */
-    public FrameBuffer getCurrentFrameBuffer();
+    public GlFrameBuffer getCurrentFrameBuffer();
 
     public void setShaderStorageBufferObject(int bindingPoint, BufferObject bufferObject) ;
     public void setUniformBufferObject(int bindingPoint, BufferObject bufferObject) ;

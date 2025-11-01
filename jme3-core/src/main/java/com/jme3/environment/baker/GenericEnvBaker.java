@@ -48,9 +48,9 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlTexture;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture.MagFilter;
 import com.jme3.texture.GlTexture.MinFilter;
@@ -168,9 +168,9 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     @Override
     public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Predicate<Geometry> filter) {
-        FrameBuffer envbakers[] = new FrameBuffer[6];
+        GlFrameBuffer envbakers[] = new GlFrameBuffer[6];
         for (int i = 0; i < 6; i++) {
-            envbakers[i] = new FrameBuffer(envMap.getImage().getWidth(), envMap.getImage().getHeight(), 1);
+            envbakers[i] = new GlFrameBuffer(envMap.getImage().getWidth(), envMap.getImage().getHeight(), 1);
             envbakers[i].setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
             envbakers[i].setSrgb(false);
             envbakers[i].addColorTarget(FrameBufferTarget.newTarget(envMap).face(TextureCubeMap.Face.values()[i]));
@@ -181,7 +181,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
         }
 
         for (int i = 0; i < 6; i++) {
-            FrameBuffer envbaker = envbakers[i];
+            GlFrameBuffer envbaker = envbakers[i];
 
             ViewPort viewPort = new ViewPort("EnvBaker", updateAndGetInternalCamera(i, envbaker.getWidth(), envbaker.getHeight(), position, frustumNear, frustumFar));
             viewPort.setClearFlags(true, true, true);
@@ -236,7 +236,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
      *            id of face if cubemap or 0 otherwise
      * @return the ByteBuffer containing the pulled data
      */
-    protected ByteBuffer pull(FrameBuffer fb, GlTexture env, int faceId) {
+    protected ByteBuffer pull(GlFrameBuffer fb, GlTexture env, int faceId) {
 
         if (fb.getColorTarget().getFormat() != env.getImage().getGlFormat())
             throw new IllegalArgumentException("Format mismatch: " + fb.getColorTarget().getFormat() + "!=" + env.getImage().getGlFormat());

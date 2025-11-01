@@ -43,7 +43,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.system.JmeSystem;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.util.BufferUtils;
 
 import java.io.File;
@@ -268,7 +268,7 @@ public class ScreenshotNoInputAppState extends AbstractAppState implements Actio
     }
 
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
         if (capture) {
             capture = false;
 

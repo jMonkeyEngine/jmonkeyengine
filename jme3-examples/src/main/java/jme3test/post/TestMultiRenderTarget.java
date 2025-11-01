@@ -42,7 +42,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
@@ -54,7 +54,7 @@ import com.jme3.ui.Picture;
  * each displaying a different render of 5 colorful cubes in the main scene.
  */
 public class TestMultiRenderTarget extends SimpleApplication implements SceneProcessor {
-    private FrameBuffer fb;
+    private GlFrameBuffer fb;
     /**
      * Displays the merged RGB (normal color) output<ul>
      * <li>from "ExtractRGB.frag" location 3,</li>
@@ -174,11 +174,11 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         Texture2D blueTexture = new Texture2D(w, h, Format.Luminance8);  // monochrome texture
         Texture2D rgbTexture = new Texture2D(w, h, Format.RGBA8);        // color texture
 
-        fb = new FrameBuffer(w, h, 1);
-        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(redTexture));   // location 0
-        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(greenTexture)); // location 1
-        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(blueTexture));  // location 2
-        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(rgbTexture));   // location 3
+        fb = new GlFrameBuffer(w, h, 1);
+        fb.addColorTarget(GlFrameBuffer.FrameBufferTarget.newTarget(redTexture));   // location 0
+        fb.addColorTarget(GlFrameBuffer.FrameBufferTarget.newTarget(greenTexture)); // location 1
+        fb.addColorTarget(GlFrameBuffer.FrameBufferTarget.newTarget(blueTexture));  // location 2
+        fb.addColorTarget(GlFrameBuffer.FrameBufferTarget.newTarget(rgbTexture));   // location 3
         fb.setMultiTarget(true);
 
         display1.setTexture(assetManager, rgbTexture, false);
@@ -220,7 +220,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
     }
 
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.jme3.vulkan.pipeline.graphics;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.pass.Subpass;
+import com.jme3.vulkan.pipeline.AbstractVulkanPipeline;
 import com.jme3.vulkan.pipeline.Pipeline;
 import com.jme3.vulkan.pipeline.PipelineBindPoint;
 import com.jme3.vulkan.pipeline.PipelineLayout;
@@ -18,7 +19,7 @@ import java.util.Collection;
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class GraphicsPipeline extends Pipeline {
+public class GraphicsPipeline extends AbstractVulkanPipeline {
 
     private final BasePipelineState state;
 

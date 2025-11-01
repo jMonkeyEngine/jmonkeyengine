@@ -12,7 +12,7 @@ import com.jme3.vulkan.images.GpuImage;
 import com.jme3.vulkan.images.ImageUsage;
 import com.jme3.vulkan.images.VulkanImageView;
 import com.jme3.vulkan.images.VulkanImage;
-import com.jme3.vulkan.pipeline.FrameBuffer;
+import com.jme3.vulkan.pipeline.framebuffer.VulkanFrameBuffer;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
@@ -160,7 +160,7 @@ public class Swapchain extends AbstractNative<Long> {
         private final LogicalDevice<?> device;
         private final long id;
         private final VulkanImageView colorView;
-        private FrameBuffer frameBuffer;
+        private VulkanFrameBuffer frameBuffer;
 
         private PresentImage(LogicalDevice<?> device, long id) {
             this.device = device;
@@ -237,14 +237,14 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         public void createFrameBuffer(RenderPass compat, VulkanImageView depthStencil) {
-            frameBuffer = new FrameBuffer(getDevice(), compat, extent.x, extent.y, 1);
-            try (FrameBuffer.Builder f = frameBuffer.build()) {
+            frameBuffer = new VulkanFrameBuffer(getDevice(), compat, extent.x, extent.y, 1);
+            try (VulkanFrameBuffer.Builder f = frameBuffer.build()) {
                 f.addAttachment(colorView);
                 f.addAttachment(depthStencil);
             }
         }
 
-        public FrameBuffer getFrameBuffer() {
+        public VulkanFrameBuffer getFrameBuffer() {
             return frameBuffer;
         }
 

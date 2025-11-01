@@ -36,7 +36,7 @@ import com.jme3.opencl.Context;
 import com.jme3.opencl.Image.ImageDescriptor;
 import com.jme3.opencl.Image.ImageFormat;
 import com.jme3.scene.GlVertexBuffer;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlTexture;
 import java.nio.ByteBuffer;
@@ -190,9 +190,9 @@ public class LwjglContext extends Context {
     }
 
     @Override
-    protected Image bindPureRenderBuffer(FrameBuffer.RenderBuffer buffer, MemoryAccess access) {
+    protected Image bindPureRenderBuffer(GlFrameBuffer.RenderBuffer buffer, MemoryAccess access) {
         Utils.assertSharingPossible();
-        int renderbuffer = buffer.getId();
+        int renderbuffer = buffer.getRenderBufferId();
         if (renderbuffer == -1) {
             throw new IllegalArgumentException("renderbuffer was not yet uploaded to the GPU");
         }

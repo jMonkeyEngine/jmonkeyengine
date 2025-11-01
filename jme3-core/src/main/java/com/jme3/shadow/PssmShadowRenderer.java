@@ -54,7 +54,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture.MagFilter;
 import com.jme3.texture.GlTexture.MinFilter;
@@ -142,7 +142,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     protected float zFarOverride = 0;
     protected RenderManager renderManager;
     protected ViewPort viewPort;
-    protected FrameBuffer[] shadowFB;
+    protected GlFrameBuffer[] shadowFB;
     protected Texture2D[] shadowMaps;
     protected Texture2D dummyTex;
     protected Camera shadowCam;
@@ -212,7 +212,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         this.nbSplits = nbSplits;
         shadowMapSize = size;
 
-        shadowFB = new FrameBuffer[nbSplits];
+        shadowFB = new GlFrameBuffer[nbSplits];
         shadowMaps = new Texture2D[nbSplits];
         dispPic = new Picture[nbSplits];
         lightViewProjectionsMatrices = new Matrix4f[nbSplits];
@@ -227,7 +227,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
         for (int i = 0; i < nbSplits; i++) {
             lightViewProjectionsMatrices[i] = new Matrix4f();
-            shadowFB[i] = new FrameBuffer(size, size, 1);
+            shadowFB[i] = new GlFrameBuffer(size, size, 1);
             shadowMaps[i] = new Texture2D(size, size, Format.Depth);
 
             shadowFB[i].setDepthTexture(shadowMaps[i]);
@@ -496,7 +496,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
 
         if (debug) {
             displayShadowMap(renderManager.getRenderer());

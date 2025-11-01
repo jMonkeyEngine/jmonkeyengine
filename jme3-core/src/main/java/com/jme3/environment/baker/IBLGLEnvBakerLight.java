@@ -45,10 +45,10 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.image.ImageRaster;
@@ -118,7 +118,7 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
 
         Texture2D shCoefTx[] = { new Texture2D(NUM_SH_COEFFICIENT, 1, 1, format), new Texture2D(NUM_SH_COEFFICIENT, 1, 1, format) };
 
-        FrameBuffer shbaker[] = { new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1), new FrameBuffer(NUM_SH_COEFFICIENT, 1, 1) };
+        GlFrameBuffer shbaker[] = { new GlFrameBuffer(NUM_SH_COEFFICIENT, 1, 1), new GlFrameBuffer(NUM_SH_COEFFICIENT, 1, 1) };
         shbaker[0].setSrgb(false);
         shbaker[0].addColorTarget(FrameBufferTarget.newTarget(shCoefTx[0]));
 

@@ -11,76 +11,18 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public abstract class Pipeline extends AbstractNative<Long> {
+public interface Pipeline {
 
-    public static final String DEFAULT_SHADER_ENTRY_POINT = "main";
-    private static final AtomicLong nextSortId = new AtomicLong(0L);
+    BasePipelineState<?, ?> getState();
 
-    public enum Create implements Flag<Create> {
+    void bind(CommandBuffer cmd);
 
-        Derivative(VK_PIPELINE_CREATE_DERIVATIVE_BIT),
-        AllowDerivatives(VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT);
+    boolean isMaterialEquivalent(Pipeline other);
 
-        private final int bits;
+    PipelineBindPoint getBindPoint();
 
-        Create(int bits) {
-            this.bits = bits;
-        }
+    Pipeline getParent();
 
-        @Override
-        public int bits() {
-            return bits;
-        }
-
-    }
-
-    protected final LogicalDevice<?> device;
-    protected final PipelineLayout layout;
-    protected final PipelineBindPoint bindPoint;
-    protected final Pipeline parent;
-    private final long sortId;
-
-    public Pipeline(LogicalDevice<?> device, PipelineLayout layout, PipelineBindPoint bindPoint, Pipeline parent) {
-        this.device = device;
-        this.layout = layout;
-        this.bindPoint = bindPoint;
-        this.parent = parent;
-        this.sortId = nextSortId.getAndIncrement();
-    }
-
-    public abstract BasePipelineState<?, ?> getState();
-
-    @Override
-    public Runnable createNativeDestroyer() {
-        return () -> vkDestroyPipeline(device.getNativeObject(), object, null);
-    }
-
-    public void bind(CommandBuffer cmd) {
-        vkCmdBindPipeline(cmd.getBuffer(), bindPoint.getEnum(), object);
-    }
-
-    public boolean isMaterialEquivalent(Pipeline other) {
-        return this == other || (other != null && bindPoint.is(other.bindPoint) && getLayout() == other.getLayout());
-    }
-
-    public LogicalDevice<?> getDevice() {
-        return device;
-    }
-
-    public PipelineBindPoint getBindPoint() {
-        return bindPoint;
-    }
-
-    public PipelineLayout getLayout() {
-        return layout;
-    }
-
-    public Pipeline getParent() {
-        return parent;
-    }
-
-    public long getSortId() {
-        return sortId;
-    }
+    int getSortId();
 
 }

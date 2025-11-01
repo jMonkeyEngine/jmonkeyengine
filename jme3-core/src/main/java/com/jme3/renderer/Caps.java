@@ -33,8 +33,8 @@ package com.jme3.renderer;
 
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
-import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.FrameBuffer.RenderBuffer;
+import com.jme3.texture.GlFrameBuffer;
+import com.jme3.texture.GlFrameBuffer.RenderBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture;
@@ -49,7 +49,7 @@ import java.util.Collection;
 public enum Caps {
 
     /**
-     * Supports {@link FrameBuffer FrameBuffers}.
+     * Supports {@link GlFrameBuffer FrameBuffers}.
      *
      * <p>OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
      * OpenGL ES: Renderer supports OpenGL ES 2.0.
@@ -540,7 +540,7 @@ public enum Caps {
      * @param fb The framebuffer to check
      * @return True if it is supported, false otherwise.
      */
-    public static boolean supports(Collection<Caps> caps, FrameBuffer fb) {
+    public static boolean supports(Collection<Caps> caps, GlFrameBuffer fb) {
         if (!caps.contains(Caps.FrameBuffer)) {
             return false;
         }
@@ -550,7 +550,7 @@ public enum Caps {
             return false;
         }
 
-        RenderBuffer depthBuf = fb.getDepthBuffer();
+        RenderBuffer depthBuf = fb.getDepthTarget();
         if (depthBuf != null) {
             Format depthFmt = depthBuf.getFormat();
             if (!depthFmt.isDepthFormat()) {
@@ -567,8 +567,8 @@ public enum Caps {
                 }
             }
         }
-        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
-            if (!supportsColorBuffer(caps, fb.getColorBuffer(i))) {
+        for (RenderBuffer clr : fb.getColorTargets()) {
+            if (!supportsColorBuffer(caps, clr)) {
                 return false;
             }
         }

@@ -28,7 +28,7 @@ public class GraphicsState implements BasePipelineState<GraphicsState, VkGraphic
     protected static final int CREATE_FLAGS = BASE_INDEX;
     private Subpass subpass;
     private PipelineLayout layout;
-    private Flag<Pipeline.Create> flags = Flag.empty();
+    private Flag<AbstractVulkanPipeline.Create> flags = Flag.empty();
 
     // shaders
     private final Map<Integer, IShaderState> shaders = new HashMap<>();
@@ -445,7 +445,7 @@ public class GraphicsState implements BasePipelineState<GraphicsState, VkGraphic
         }
     }
 
-    public void setFlags(Flag<Pipeline.Create> flags) {
+    public void setFlags(Flag<AbstractVulkanPipeline.Create> flags) {
         this.flags = set(this.flags, flags, CREATE_FLAGS);
     }
 
@@ -597,7 +597,7 @@ public class GraphicsState implements BasePipelineState<GraphicsState, VkGraphic
         return layout;
     }
 
-    public Flag<Pipeline.Create> getFlags() {
+    public Flag<AbstractVulkanPipeline.Create> getFlags() {
         return flags;
     }
 

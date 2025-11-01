@@ -43,7 +43,7 @@ import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 
 import java.io.IOException;
 
@@ -132,7 +132,7 @@ public abstract class AbstractShadowFilterVR<T extends AbstractShadowRendererVR>
     }
 
     @Override
-    protected void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
+    protected void postFrame(RenderManager renderManager, ViewPort viewPort, GlFrameBuffer prevFilterBuffer, GlFrameBuffer sceneBuffer) {
         if(!shadowRenderer.skipPostPass){
             shadowRenderer.setPostShadowParams();
         }

@@ -33,7 +33,19 @@ package com.jme3.material;
 
 import com.jme3.export.*;
 import com.jme3.scene.Mesh;
+import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.mesh.MeshDescription;
+import com.jme3.vulkan.pipeline.Pipeline;
+import com.jme3.vulkan.pipeline.cache.PipelineCache;
+import com.jme3.vulkan.pipeline.states.BasePipelineState;
+import com.jme3.vulkan.pipeline.states.IShaderState;
+import com.jme3.vulkan.shader.ShaderModule;
+import org.lwjgl.system.MemoryStack;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * <code>RenderState</code> specifies material rendering properties that cannot
@@ -982,7 +994,7 @@ public class RenderState implements Cloneable, Savable {
     /**
      * Sets the mesh line width.
      * Use this in conjunction with {@link #setWireframe(boolean)} or with a mesh in
-     * {@link Mesh.Mode#Lines} mode.
+     * {@link com.jme3.scene.GlMesh.Mode#Lines} mode.
      * Note: this does not work in OpenGL core profile. It only works in
      * compatibility profile.
      *

@@ -100,7 +100,7 @@ public class EnvironmentCamera extends BaseAppState {
     }
     protected GlImage images[];
     protected ViewPort[] viewports;
-    protected FrameBuffer[] framebuffers;
+    protected GlFrameBuffer[] framebuffers;
     protected ByteBuffer[] buffers;
 
     protected Vector3f position = new Vector3f();
@@ -297,7 +297,7 @@ public class EnvironmentCamera extends BaseAppState {
         final Texture2D[] textures = new Texture2D[6];
 
         viewports = new ViewPort[6];
-        framebuffers = new FrameBuffer[6];
+        framebuffers = new GlFrameBuffer[6];
         buffers = new ByteBuffer[6];
         images = new GlImage[6];
 
@@ -314,7 +314,7 @@ public class EnvironmentCamera extends BaseAppState {
     protected void cleanup(Application app) {
         this.backGroundColor = null;
 
-        for (final FrameBuffer frameBuffer : framebuffers) {
+        for (final GlFrameBuffer frameBuffer : framebuffers) {
             frameBuffer.dispose();
         }
 
@@ -383,9 +383,9 @@ public class EnvironmentCamera extends BaseAppState {
      * @param offView the off-screen viewport to be used (alias created)
      * @return a new instance
      */
-    protected FrameBuffer createOffScreenFrameBuffer(int mapSize, ViewPort offView) {
+    protected GlFrameBuffer createOffScreenFrameBuffer(int mapSize, ViewPort offView) {
         // create offscreen framebuffer
-        final FrameBuffer offBuffer = new FrameBuffer(mapSize, mapSize, 1);
+        final GlFrameBuffer offBuffer = new GlFrameBuffer(mapSize, mapSize, 1);
         offBuffer.setDepthBuffer(GlImage.Format.Depth);
         offView.setOutputFrameBuffer(offBuffer);
         return offBuffer;

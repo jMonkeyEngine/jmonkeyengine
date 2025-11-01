@@ -47,7 +47,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.shadow.PssmShadowRenderer.CompareMode;
 import com.jme3.shadow.PssmShadowRenderer.FilterMode;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import java.io.IOException;
 
 /** 
@@ -126,7 +126,7 @@ public class PssmShadowFilter extends Filter {
     }
 
     @Override
-    protected void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
+    protected void postFrame(RenderManager renderManager, ViewPort viewPort, GlFrameBuffer prevFilterBuffer, GlFrameBuffer sceneBuffer) {
         pssmRenderer.setPostShadowParams();
     }
 

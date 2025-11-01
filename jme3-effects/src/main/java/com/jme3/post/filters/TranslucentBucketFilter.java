@@ -42,7 +42,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
 import java.util.logging.Level;
@@ -121,7 +121,7 @@ public final class TranslucentBucketFilter extends Filter {
     }
 
     @Override
-    protected void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
+    protected void postFrame(RenderManager renderManager, ViewPort viewPort, GlFrameBuffer prevFilterBuffer, GlFrameBuffer sceneBuffer) {
         renderManager.setCamera(viewPort.getCamera(), false);
         if (prevFilterBuffer != sceneBuffer) {
             renderManager.getRenderer().copyFrameBuffer(prevFilterBuffer, sceneBuffer, true, false);

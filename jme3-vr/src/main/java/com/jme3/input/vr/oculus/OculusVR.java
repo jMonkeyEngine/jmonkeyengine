@@ -126,7 +126,7 @@ public class OculusVR implements VRAPI {
     /**
      * Frame buffers we can draw into.
      */
-    private FrameBuffer framebuffers[][];
+    private GlFrameBuffer framebuffers[][];
 
     public OculusVR(VREnvironment environment) {
         this.environment = environment;
@@ -415,7 +415,7 @@ public class OculusVR implements VRAPI {
 
         setupLayers();
 
-        framebuffers = new FrameBuffer[2][];
+        framebuffers = new GlFrameBuffer[2][];
         for (int eye = 0; eye < 2; eye++)
             setupFramebuffers(eye);
 
@@ -532,7 +532,7 @@ public class OculusVR implements VRAPI {
         LOGGER.fine("HMD Eye #" + eye + " texture chain length: " + chainLength);
 
         // Create the frame buffers
-        framebuffers[eye] = new FrameBuffer[chainLength];
+        framebuffers[eye] = new GlFrameBuffer[chainLength];
         for (int i = 0; i < chainLength; i++) {
             // find the GL texture ID for this texture
             IntBuffer textureIdB = BufferUtils.createIntBuffer(1);
@@ -548,7 +548,7 @@ public class OculusVR implements VRAPI {
 
             Texture2D tex = new Texture2D(img);
 
-            FrameBuffer buffer = new FrameBuffer(textureW, textureH, 1);
+            GlFrameBuffer buffer = new GlFrameBuffer(textureW, textureH, 1);
             buffer.setDepthBuffer(GlImage.Format.Depth);
             buffer.setColorTexture(tex);
 
@@ -630,7 +630,7 @@ public class OculusVR implements VRAPI {
         return chains[eye];
     }
 
-    public FrameBuffer[] getFramebuffers(int eye) {
+    public GlFrameBuffer[] getFramebuffers(int eye) {
         return framebuffers[eye];
     }
 

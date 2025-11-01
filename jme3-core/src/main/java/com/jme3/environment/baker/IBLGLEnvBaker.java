@@ -44,14 +44,14 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture.MagFilter;
 import com.jme3.texture.GlTexture.MinFilter;
 import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.TextureCubeMap;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.ui.Picture;
 
@@ -126,16 +126,16 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
         int mipWidth = (int) (specular.getImage().getWidth() * FastMath.pow(0.5f, mip));
         int mipHeight = (int) (specular.getImage().getHeight() * FastMath.pow(0.5f, mip));
 
-        FrameBuffer specularbakers[] = new FrameBuffer[6];
+        GlFrameBuffer specularbakers[] = new GlFrameBuffer[6];
         for (int i = 0; i < 6; i++) {
-            specularbakers[i] = new FrameBuffer(mipWidth, mipHeight, 1);
+            specularbakers[i] = new GlFrameBuffer(mipWidth, mipHeight, 1);
             specularbakers[i].setSrgb(false);
             specularbakers[i].addColorTarget(FrameBufferTarget.newTarget(specular).level(mip).face(i));
             specularbakers[i].setMipMapsGenerationHint(false);
         }
 
         for (int i = 0; i < 6; i++) {
-            FrameBuffer specularbaker = specularbakers[i];
+            GlFrameBuffer specularbaker = specularbakers[i];
             mat.setInt("FaceId", i);
 
             screen.updateLogicalState(0);
@@ -210,7 +210,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
         screen.setWidth(1);
         screen.setHeight(1);
 
-        FrameBuffer brtfbaker = new FrameBuffer(brtf.getImage().getWidth(), brtf.getImage().getHeight(), 1);
+        GlFrameBuffer brtfbaker = new GlFrameBuffer(brtf.getImage().getWidth(), brtf.getImage().getHeight(), 1);
         brtfbaker.setSrgb(false);
         brtfbaker.addColorTarget(FrameBufferTarget.newTarget(brtf));
 
@@ -251,7 +251,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
         Box boxm = new Box(1, 1, 1);
         Geometry screen = new Geometry("BakeBox", boxm);
 
-        FrameBuffer irradiancebaker = new FrameBuffer(irradiance.getImage().getWidth(), irradiance.getImage().getHeight(), 1);
+        GlFrameBuffer irradiancebaker = new GlFrameBuffer(irradiance.getImage().getWidth(), irradiance.getImage().getHeight(), 1);
         irradiancebaker.setSrgb(false);
 
         if (isTexturePulling()) {

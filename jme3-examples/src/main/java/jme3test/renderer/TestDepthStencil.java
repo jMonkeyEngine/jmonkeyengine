@@ -45,10 +45,10 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 
 public class TestDepthStencil extends SimpleApplication {
@@ -56,7 +56,7 @@ public class TestDepthStencil extends SimpleApplication {
     private boolean enableStencil = false;
     
     final private Node fbNode = new Node("Framebuffer Node");
-    private FrameBuffer fb;
+    private GlFrameBuffer fb;
 
     public static void main(String[] args){
         TestDepthStencil app = new TestDepthStencil();
@@ -69,7 +69,7 @@ public class TestDepthStencil extends SimpleApplication {
         int h = settings.getHeight();
 
         //setup framebuffer
-        fb = new FrameBuffer(w, h, 1);
+        fb = new GlFrameBuffer(w, h, 1);
 
         Texture2D fbTex = new Texture2D(w, h, Format.RGB8);
         fb.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth24Stencil8));

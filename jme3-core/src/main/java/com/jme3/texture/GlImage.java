@@ -61,7 +61,7 @@ import java.util.List;
  * @author Joshua Slack
  * @version $Id: Image.java 4131 2009-03-19 20:15:28Z blaine.dev $
  */
-public class GlImage extends GlNative<Integer> implements GpuImage, Savable /*, Cloneable*/ {
+public class GlImage extends GlNative implements GpuImage, Savable /*, Cloneable*/ {
 
     @Override
     public IntEnum<Type> getType() {

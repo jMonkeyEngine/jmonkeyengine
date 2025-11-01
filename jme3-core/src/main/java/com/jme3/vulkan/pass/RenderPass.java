@@ -6,7 +6,7 @@ import com.jme3.vulkan.Format;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.pipeline.FrameBuffer;
+import com.jme3.vulkan.pipeline.framebuffer.VulkanFrameBuffer;
 import com.jme3.vulkan.pipeline.PipelineBindPoint;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -37,11 +37,11 @@ public class RenderPass extends AbstractNative<Long> {
         return () -> vkDestroyRenderPass(device.getNativeObject(), object, null);
     }
 
-    public void begin(CommandBuffer cmd, FrameBuffer fbo) {
+    public void begin(CommandBuffer cmd, VulkanFrameBuffer fbo) {
         begin(cmd, fbo, true);
     }
 
-    public void begin(CommandBuffer cmd, FrameBuffer fbo, boolean inline) {
+    public void begin(CommandBuffer cmd, VulkanFrameBuffer fbo, boolean inline) {
         assert fbo.getAttachments().size() < attachments.size() : "FrameBuffer does not contain enough attachments.";
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkClearValue.Buffer clear = VkClearValue.calloc(attachments.size(), stack);

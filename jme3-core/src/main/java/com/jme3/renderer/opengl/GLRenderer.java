@@ -54,8 +54,8 @@ import com.jme3.shader.ShaderBufferBlock.BufferType;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.shader.bufferobject.BufferRegion;
 import com.jme3.shader.bufferobject.DirtyRegionsIterator;
-import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.FrameBuffer.RenderBuffer;
+import com.jme3.texture.GlFrameBuffer;
+import com.jme3.texture.GlFrameBuffer.RenderBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
@@ -70,7 +70,6 @@ import com.jme3.util.NativeObject;
 import com.jme3.util.NativeObjectManager;
 
 import jme3tools.shader.ShaderDebug;
-import org.lwjgl.opengl.GL45;
 
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
@@ -100,7 +99,7 @@ public final class GLRenderer implements Renderer {
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
     private final EnumMap<Limits, Integer> limits = new EnumMap<>(Limits.class);
 
-    private FrameBuffer mainFbOverride = null;
+    private GlFrameBuffer mainFbOverride = null;
     private int defaultFBO = 0;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
@@ -1807,17 +1806,17 @@ public final class GLRenderer implements Renderer {
      * @param src the source buffer (unaffected)
      * @param dst the destination buffer
      */
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
+    public void copyFrameBuffer(GlFrameBuffer src, GlFrameBuffer dst) {
         copyFrameBuffer(src, dst, true, true);
     }
 
     @Override
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
+    public void copyFrameBuffer(GlFrameBuffer src, GlFrameBuffer dst, boolean copyDepth) {
         copyFrameBuffer(src, dst, true, copyDepth);
     }
 
     @Override
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyColor,boolean copyDepth) {
+    public void copyFrameBuffer(GlFrameBuffer src, GlFrameBuffer dst, boolean copyColor, boolean copyDepth) {
         if (caps.contains(Caps.FrameBufferBlit)) {
             int srcX0 = 0;
             int srcY0 = 0;
@@ -1855,7 +1854,7 @@ public final class GLRenderer implements Renderer {
                 srcX1 = vpX + vpW;
                 srcY1 = vpY + vpH;
             } else {
-                glfbo.glBindFramebufferEXT(GLFbo.GL_READ_FRAMEBUFFER_EXT, src.getId());
+                glfbo.glBindFramebufferEXT(GLFbo.GL_READ_FRAMEBUFFER_EXT, src.getNativeObject());
                 srcX1 = src.getWidth();
                 srcY1 = src.getHeight();
             }
@@ -1866,7 +1865,7 @@ public final class GLRenderer implements Renderer {
                 dstX1 = vpX + vpW;
                 dstY1 = vpY + vpH;
             } else {
-                glfbo.glBindFramebufferEXT(GLFbo.GL_DRAW_FRAMEBUFFER_EXT, dst.getId());
+                glfbo.glBindFramebufferEXT(GLFbo.GL_DRAW_FRAMEBUFFER_EXT, dst.getNativeObject());
                 dstX1 = dst.getWidth();
                 dstY1 = dst.getHeight();
             }
@@ -1923,12 +1922,12 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private void updateRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
-        int id = rb.getId();
+    private void updateRenderBuffer(GlFrameBuffer fb, RenderBuffer rb) {
+        int id = rb.getRenderBufferId();
         if (id == -1) {
             glfbo.glGenRenderbuffersEXT(intBuf1);
             id = intBuf1.get(0);
-            rb.setId(id);
+            rb.setRenderBufferId(id);
         }
 
         if (context.boundRB != id) {
@@ -1965,9 +1964,9 @@ public final class GLRenderer implements Renderer {
 
     private int convertAttachmentSlot(int attachmentSlot) {
         // can also add support for stencil here
-        if (attachmentSlot == FrameBuffer.SLOT_DEPTH) {
+        if (attachmentSlot == GlFrameBuffer.SLOT_DEPTH) {
             return GLFbo.GL_DEPTH_ATTACHMENT_EXT;
-        } else if (attachmentSlot == FrameBuffer.SLOT_DEPTH_STENCIL) {
+        } else if (attachmentSlot == GlFrameBuffer.SLOT_DEPTH_STENCIL) {
             // NOTE: Using depth stencil format requires GL3, this is already
             // checked via render caps.
             return GL3.GL_DEPTH_STENCIL_ATTACHMENT;
@@ -1978,7 +1977,7 @@ public final class GLRenderer implements Renderer {
         return GLFbo.GL_COLOR_ATTACHMENT0_EXT + attachmentSlot;
     }
 
-    public void updateRenderTexture(FrameBuffer fb, RenderBuffer rb) {
+    public void updateRenderTexture(GlFrameBuffer fb, RenderBuffer rb) {
         GlTexture tex = rb.getTexture();
         GlImage image = tex.getImage();
         if (image.isUpdateNeeded()) {
@@ -2008,11 +2007,11 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    public void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb) {
+    public void updateFrameBufferAttachment(GlFrameBuffer fb, RenderBuffer rb) {
         boolean needAttach;
         if (rb.getTexture() == null) {
             // if it hasn't been created yet, then attach is required.
-            needAttach = rb.getId() == -1;
+            needAttach = rb.getRenderBufferId() == -1;
             updateRenderBuffer(fb, rb);
         } else {
             needAttach = false;
@@ -2022,11 +2021,11 @@ public final class GLRenderer implements Renderer {
             glfbo.glFramebufferRenderbufferEXT(GLFbo.GL_FRAMEBUFFER_EXT,
                     convertAttachmentSlot(rb.getSlot()),
                     GLFbo.GL_RENDERBUFFER_EXT,
-                    rb.getId());
+                    rb.getRenderBufferId());
         }
     }
 
-    private void bindFrameBuffer(FrameBuffer fb) {
+    private void bindFrameBuffer(GlFrameBuffer fb) {
         if (fb == null) {
             if (context.boundFBO != defaultFBO) {
                 glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, defaultFBO);
@@ -2035,10 +2034,10 @@ public final class GLRenderer implements Renderer {
                 context.boundFB = null;
             }
         } else {
-            assert fb.getId() != -1 && fb.getId() != 0;
-            if (context.boundFBO != fb.getId()) {
-                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, fb.getId());
-                context.boundFBO = fb.getId();
+            assert fb.getNativeObject() != -1 && fb.getNativeObject() != 0;
+            if (context.boundFBO != fb.getNativeObject()) {
+                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, fb.getNativeObject());
+                context.boundFBO = fb.getNativeObject();
                 context.boundFB = fb;
                 statistics.onFrameBufferUse(fb, true);
             } else {
@@ -2047,30 +2046,28 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    public void updateFrameBuffer(FrameBuffer fb) {
-        if (fb.getNumColorBuffers() == 0 && fb.getDepthBuffer() == null) {
+    public void updateFrameBuffer(GlFrameBuffer fb) {
+        if (fb.getColorTargets().isEmpty() && fb.getDepthTarget() == null) {
             throw new IllegalArgumentException("The framebuffer: " + fb
                     + "\nDoesn't have any color/depth buffers");
         }
 
-        int id = fb.getId();
+        int id = fb.getNativeObject();
         if (id == -1) {
             glfbo.glGenFramebuffersEXT(intBuf1);
             id = intBuf1.get(0);
-            fb.setId(id);
-            objManager.registerObject(fb);
+            fb.setId(this, id);
             statistics.onNewFrameBuffer();
         }
 
         bindFrameBuffer(fb);
 
-        FrameBuffer.RenderBuffer depthBuf = fb.getDepthBuffer();
+        GlFrameBuffer.RenderBuffer depthBuf = fb.getDepthTarget();
         if (depthBuf != null) {
             updateFrameBufferAttachment(fb, depthBuf);
         }
 
-        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
-            FrameBuffer.RenderBuffer colorBuf = fb.getColorBuffer(i);
+        for (GlFrameBuffer.RenderBuffer colorBuf : fb.getColorTargets()) {
             updateFrameBufferAttachment(fb, colorBuf);
         }
 
@@ -2080,7 +2077,7 @@ public final class GLRenderer implements Renderer {
         fb.clearUpdateNeeded();
     }
 
-    public Vector2f[] getFrameBufferSamplePositions(FrameBuffer fb) {
+    public Vector2f[] getFrameBufferSamplePositions(GlFrameBuffer fb) {
         if (fb.getSamples() <= 1) {
             throw new IllegalArgumentException("Framebuffer must be multisampled");
         }
@@ -2102,7 +2099,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void setMainFrameBufferOverride(FrameBuffer fb) {
+    public void setMainFrameBufferOverride(GlFrameBuffer fb) {
         mainFbOverride = null;
         if (context.boundFBO == 0) {
             // Main FB is now set to fb, make sure its bound
@@ -2113,31 +2110,27 @@ public final class GLRenderer implements Renderer {
 
 
     @Override
-    public FrameBuffer getCurrentFrameBuffer() {
+    public GlFrameBuffer getCurrentFrameBuffer() {
         if(mainFbOverride!=null){
             return mainFbOverride;
         }
         return context.boundFB;
     }
 
-    public void setReadDrawBuffers(FrameBuffer fb) {
+    public void setReadDrawBuffers(GlFrameBuffer fb) {
         if (gl2 == null) {
             return;
         }
 
-        final int NONE    = -2;
-        final int INITIAL = -1;
-        final int MRT_OFF = 100;
-
         if (fb != null) {
           
-            if (fb.getNumColorBuffers() == 0) {
+            if (fb.getColorTargets().isEmpty()) {
                 // make sure to select NONE as draw buf
                 // no color buffer attached.                
                 gl2.glDrawBuffer(GL.GL_NONE);             
                 gl2.glReadBuffer(GL.GL_NONE);                 
             } else {
-                if (fb.getNumColorBuffers() > limits.get(Limits.FrameBufferAttachments)) {
+                if (fb.getColorTargets().size() > limits.get(Limits.FrameBufferAttachments)) {
                     throw new RendererException("Framebuffer has more color "
                             + "attachments than are supported"
                             + " by the video hardware!");
@@ -2147,21 +2140,21 @@ public final class GLRenderer implements Renderer {
                         throw new RendererException("Multiple render targets "
                                 + " are not supported by the video hardware");
                     }
-                    if (fb.getNumColorBuffers() > limits.get(Limits.FrameBufferMrtAttachments)) {
+                    if (fb.getColorTargets().size() > limits.get(Limits.FrameBufferMrtAttachments)) {
                         throw new RendererException("Framebuffer has more"
                                 + " multi targets than are supported"
                                 + " by the video hardware!");
                     }
 
                     intBuf16.clear();
-                    for (int i = 0; i < fb.getNumColorBuffers(); i++) {
+                    for (int i = 0; i < fb.getColorTargets().size(); i++) {
                         intBuf16.put(GLFbo.GL_COLOR_ATTACHMENT0_EXT + i);
                     }
 
                     intBuf16.flip();
                     glext.glDrawBuffers(intBuf16);
                 } else {
-                    RenderBuffer rb = fb.getColorBuffer(fb.getTargetIndex());
+                    RenderBuffer rb = fb.getColorTarget(fb.getTargetIndex());
                     // select this draw buffer
                     gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
                     // select this read buffer
@@ -2173,7 +2166,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void setFrameBuffer(FrameBuffer fb) {
+    public void setFrameBuffer(GlFrameBuffer fb) {
         if (fb == null && mainFbOverride != null) {
             fb = mainFbOverride;
         }
@@ -2197,8 +2190,7 @@ public final class GLRenderer implements Renderer {
 
         // generate mipmaps for last FB if needed
         if (context.boundFB != null && (context.boundFB.getMipMapsGenerationHint()!=null?context.boundFB.getMipMapsGenerationHint():generateMipmapsForFramebuffers)) {
-            for (int i = 0; i < context.boundFB.getNumColorBuffers(); i++) {
-                RenderBuffer rb = context.boundFB.getColorBuffer(i);
+            for (RenderBuffer rb : context.boundFB.getColorTargets()) {
                 GlTexture tex = rb.getTexture();
                 if (tex != null && tex.getMinFilter().usesMipMapLevels()) {
                     try {
@@ -2229,24 +2221,24 @@ public final class GLRenderer implements Renderer {
             // update viewport to reflect framebuffer's resolution
             setViewPort(0, 0, fb.getWidth(), fb.getHeight());
 
-            assert fb.getId() > 0;
-            assert context.boundFBO == fb.getId();
+            assert fb.getNativeObject() > 0;
+            assert context.boundFBO == fb.getNativeObject();
 
             context.boundFB = fb;
             if (debug && caps.contains(Caps.GLDebug)) {
-                if (fb.getName() != null) glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getId(), fb.getName());
+                if (fb.getName() != null) glext.glObjectLabel(GL3.GL_FRAMEBUFFER, fb.getNativeObject(), fb.getName());
             }
         }
     }
 
     @Override
-    public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
+    public void readFrameBuffer(GlFrameBuffer fb, ByteBuffer byteBuf) {
         readFrameBufferWithGLFormat(fb, byteBuf, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
     }
 
-    private void readFrameBufferWithGLFormat(FrameBuffer fb, ByteBuffer byteBuf, int glFormat, int dataType) {
+    private void readFrameBufferWithGLFormat(GlFrameBuffer fb, ByteBuffer byteBuf, int glFormat, int dataType) {
         if (fb != null) {
-            RenderBuffer rb = fb.getColorBuffer();
+            RenderBuffer rb = fb.getColorTarget();
             if (rb == null) {
                 throw new IllegalArgumentException("Specified framebuffer"
                         + " does not have a colorbuffer");
@@ -2263,32 +2255,32 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, GlImage.Format format) {
+    public void readFrameBufferWithFormat(GlFrameBuffer fb, ByteBuffer byteBuf, GlImage.Format format) {
         GLImageFormat glFormat = texUtil.getImageFormatWithError(format, false);
         readFrameBufferWithGLFormat(fb, byteBuf, glFormat.format, glFormat.dataType);
     }
 
-    private void deleteRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
-        intBuf1.put(0, rb.getId());
+    private void deleteRenderBuffer(GlFrameBuffer fb, RenderBuffer rb) {
+        intBuf1.put(0, rb.getRenderBufferId());
         glfbo.glDeleteRenderbuffersEXT(intBuf1);
     }
 
     @Override
-    public void deleteFrameBuffer(FrameBuffer fb) {
-        if (fb.getId() != -1) {
-            if (context.boundFBO == fb.getId()) {
+    public void deleteFrameBuffer(GlFrameBuffer fb) {
+        if (fb.getNativeObject() != -1) {
+            if (context.boundFBO == fb.getNativeObject()) {
                 glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, 0);
                 context.boundFBO = 0;
             }
 
-            if (fb.getDepthBuffer() != null) {
-                deleteRenderBuffer(fb, fb.getDepthBuffer());
+            if (fb.getDepthTarget() != null) {
+                deleteRenderBuffer(fb, fb.getDepthTarget());
             }
-            if (fb.getColorBuffer() != null) {
-                deleteRenderBuffer(fb, fb.getColorBuffer());
+            if (fb.getColorTarget() != null) {
+                deleteRenderBuffer(fb, fb.getColorTarget());
             }
 
-            intBuf1.put(0, fb.getId());
+            intBuf1.put(0, fb.getNativeObject());
             glfbo.glDeleteFramebuffersEXT(intBuf1);
             fb.resetObject();
 

@@ -43,11 +43,11 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.TextureCubeMap;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.SkyFactory.EnvMapType;
 
@@ -74,7 +74,7 @@ public class TestRenderToCubemap  extends SimpleApplication {
         offView.setBackgroundColor(ColorRGBA.DarkGray);
  
         // create offscreen framebuffer
-        FrameBuffer offBuffer = new FrameBuffer(512, 512, 1);
+        GlFrameBuffer offBuffer = new GlFrameBuffer(512, 512, 1);
  
         //setup framebuffer's cam
         offCamera.setFrustumPerspective(45f, 1f, 1f, 1000f);

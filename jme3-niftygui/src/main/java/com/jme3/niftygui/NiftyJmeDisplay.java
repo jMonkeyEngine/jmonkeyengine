@@ -45,7 +45,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.image.ColorSpace;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.render.batch.BatchRenderConfiguration;
@@ -385,7 +385,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
     }
 
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
     }
 
     @Override

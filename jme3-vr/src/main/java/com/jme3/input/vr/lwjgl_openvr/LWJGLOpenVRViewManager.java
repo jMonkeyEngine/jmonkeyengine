@@ -11,7 +11,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
@@ -498,7 +498,7 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
         if (environment != null) {
             if (environment.getApplication() != null) {
                 // create offscreen framebuffer
-                FrameBuffer out = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
+                GlFrameBuffer out = new GlFrameBuffer(cam.getWidth(), cam.getHeight(), 1);
                 //offBuffer.setSrgb(true);
 
                 //setup framebuffer's texture
@@ -534,7 +534,7 @@ public class LWJGLOpenVRViewManager extends AbstractVRViewManager {
         if (environment != null) {
             if (environment.getApplication() != null) {
                 // create offscreen framebuffer
-                FrameBuffer offBufferLeft = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
+                GlFrameBuffer offBufferLeft = new GlFrameBuffer(cam.getWidth(), cam.getHeight(), 1);
                 //offBufferLeft.setSrgb(true);
 
                 //setup framebuffer's texture

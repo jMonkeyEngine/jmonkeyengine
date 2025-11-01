@@ -2,6 +2,7 @@ package com.jme3.vulkan.render;
 
 import com.jme3.light.LightList;
 import com.jme3.material.*;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.*;
 import com.jme3.scene.Geometry;
@@ -13,6 +14,7 @@ import com.jme3.shader.Uniform;
 import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.pipeline.Pipeline;
 
 import java.util.Comparator;
 
@@ -21,7 +23,6 @@ public class GlGeometryBatch extends GeometryBatch<GlGeometryBatch.Element> {
     private final RenderManager renderManager;
     private final boolean ortho;
     private final RenderState mergedState = new RenderState();
-    private final GlMaterial.BindUnits bindUnits = new GlMaterial.BindUnits();
     private final LightList filteredLights = new LightList(null);
     private RenderState forcedState = null;
     private LightList forcedLights = null;
@@ -37,21 +38,21 @@ public class GlGeometryBatch extends GeometryBatch<GlGeometryBatch.Element> {
         renderManager.setCamera(camera, ortho);
         Renderer renderer = renderManager.getRenderer();
         for (Element e : queue) {
-            if (e.getTechnique().getDef().isNoRender()) {
+            if (e.getPipeline().getDef().isNoRender()) {
                 continue;
             }
             updateRenderState(e.getGeometry(), e.getState(),
-                    e.getAdditionalState(), renderer, e.getTechnique().getDef());
+                    e.getAdditionalState(), renderer, e.getPipeline().getDef());
             SafeArrayList<MatParamOverride> overrides = e.getGeometry().getWorldMatParamOverrides();
             LightList lights = renderManager.filterLights(e.getGeometry(), e.getLights(), filteredLights);
-            Shader shader = e.getTechnique().makeCurrent(renderManager, overrides,
+            Shader shader = e.getPipeline().makeCurrent(renderManager, overrides,
                     renderManager.getForcedMatParams(), lights, renderer.getCaps());
             clearUniformsSetByCurrent(shader);
             renderManager.updateUniformBindings(shader);
             GlMaterial.BindUnits units = e.getMaterial().updateShaderMaterialParameters(
                     renderer, shader, overrides, renderManager.getForcedMatParams());
             resetUniformsNotSetByCurrent(shader);
-            e.getTechnique().render(renderManager, shader, e.getGeometry(), e.getMesh(), lights, units);
+            e.getPipeline().render(renderManager, shader, e.getGeometry(), e.getMesh(), lights, units);
         }
     }
 
@@ -139,7 +140,7 @@ public class GlGeometryBatch extends GeometryBatch<GlGeometryBatch.Element> {
         return forcedLights;
     }
 
-    public class Element {
+    public class Element implements BatchElement {
 
         private final Geometry geometry;
         private final GlMaterial material;
@@ -148,6 +149,8 @@ public class GlGeometryBatch extends GeometryBatch<GlGeometryBatch.Element> {
         private final RenderState state;
         private final RenderState additionalState;
         private final LightList lights;
+        private float distanceSq = Float.NaN;
+        private float distance = Float.NaN;
 
         public Element(Geometry geometry) {
             this.geometry = geometry;
@@ -167,23 +170,40 @@ public class GlGeometryBatch extends GeometryBatch<GlGeometryBatch.Element> {
             this.lights = forcedLights != null ? forcedLights : this.geometry.getWorldLightList();
         }
 
+        @Override
+        public float computeDistanceSq() {
+            if (!Float.isNaN(distanceSq)) return distanceSq;
+            else return (distanceSq = geometry.getWorldTranslation().distanceSquared(camera.getLocation()));
+        }
+
+        @Override
+        public float computeDistance() {
+            if (!Float.isNaN(distance)) return distance;
+            else return (distance = FastMath.sqrt(computeDistanceSq()));
+        }
+
+        @Override
         public Camera getCamera() {
             return camera;
         }
 
+        @Override
         public Geometry getGeometry() {
             return geometry;
         }
 
+        @Override
         public GlMaterial getMaterial() {
             return material;
         }
 
+        @Override
         public GlMesh getMesh() {
             return mesh;
         }
 
-        public Technique getTechnique() {
+        @Override
+        public Technique getPipeline() {
             return technique;
         }
 

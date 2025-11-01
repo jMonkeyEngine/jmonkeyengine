@@ -40,10 +40,10 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ColorOverlayFilter;
 import com.jme3.post.filters.ComposeFilter;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.util.SkyFactory;
 
@@ -78,7 +78,7 @@ public class TestPostFiltersCompositing extends SimpleApplication {
         viewPort.addProcessor(fpp);
 
         //creating a frame buffer for the main viewport
-        FrameBuffer mainVPFrameBuffer = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
+        GlFrameBuffer mainVPFrameBuffer = new GlFrameBuffer(cam.getWidth(), cam.getHeight(), 1);
         Texture2D mainVPTexture = new Texture2D(cam.getWidth(), cam.getHeight(), GlImage.Format.RGBA8);
         mainVPFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
         mainVPFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(mainVPTexture));

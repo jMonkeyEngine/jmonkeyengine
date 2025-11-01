@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.AWTFrameProcessor.TransferMode;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.util.BufferUtils;
 
@@ -98,7 +98,7 @@ public class AWTComponentRenderer {
   /**
    * The Frame buffer.
    */
-  protected final FrameBuffer frameBuffer;
+  protected final GlFrameBuffer frameBuffer;
 
   /**
    * The Pixel writer.
@@ -174,7 +174,7 @@ public class AWTComponentRenderer {
    * @param width the width of the component in pixels.
    * @param height the height of the component in pixels.
    */
-  public AWTComponentRenderer(Component destination, TransferMode transferMode, FrameBuffer frameBuffer, int width, int height) {
+  public AWTComponentRenderer(Component destination, TransferMode transferMode, GlFrameBuffer frameBuffer, int width, int height) {
     this.transferMode = transferMode;
     this.frameState = new AtomicInteger(WAITING_STATE);
     this.imageState = new AtomicInteger(WAITING_STATE);
@@ -185,7 +185,7 @@ public class AWTComponentRenderer {
     if (frameBuffer != null) {
       this.frameBuffer = frameBuffer;
     } else {
-      this.frameBuffer = new FrameBuffer(width, height, 1);
+      this.frameBuffer = new GlFrameBuffer(width, height, 1);
       this.frameBuffer.setDepthBuffer(GlImage.Format.Depth);
       this.frameBuffer.setColorBuffer(GlImage.Format.RGBA8);
       this.frameBuffer.setSrgb(true);

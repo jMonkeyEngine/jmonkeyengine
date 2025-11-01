@@ -37,12 +37,12 @@ import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.util.SafeArrayList;
 
 /**
  * Represents a view inside the display
- * window or a {@link FrameBuffer} to which scenes will be rendered.
+ * window or a {@link GlFrameBuffer} to which scenes will be rendered.
  *
  * <p>A viewport has a {@link #ViewPort(java.lang.String, com.jme3.renderer.Camera) camera}
  * which is used to render a set of {@link #attachScene(com.jme3.scene.Spatial) scenes}.
@@ -92,7 +92,7 @@ public class ViewPort {
     /**
      * FrameBuffer for output.
      */
-    protected FrameBuffer out = null;
+    protected GlFrameBuffer out = null;
 
     /**
      * Color applied when the color buffer is cleared.
@@ -289,9 +289,9 @@ public class ViewPort {
      * @return the framebuffer where this ViewPort's scenes are
      *     rendered to.
      *
-     * @see #setOutputFrameBuffer(com.jme3.texture.FrameBuffer)
+     * @see #setOutputFrameBuffer(GlFrameBuffer)
      */
-    public FrameBuffer getOutputFrameBuffer() {
+    public GlFrameBuffer getOutputFrameBuffer() {
         return out;
     }
 
@@ -305,7 +305,7 @@ public class ViewPort {
      * @param out The framebuffer to render scenes to, or null if to render
      *     to the screen.
      */
-    public void setOutputFrameBuffer(FrameBuffer out) {
+    public void setOutputFrameBuffer(GlFrameBuffer out) {
         this.out = out;
     }
 

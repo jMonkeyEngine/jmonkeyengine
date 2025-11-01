@@ -37,7 +37,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.*;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture;
@@ -64,15 +64,15 @@ public class HDRRenderer implements SceneProcessor {
     private static final Logger logger = Logger.getLogger(HDRRenderer.class.getName());
     private Camera fbCam = new Camera(1, 1);
 
-    private FrameBuffer msFB;
+    private GlFrameBuffer msFB;
 
-    private FrameBuffer mainSceneFB;
+    private GlFrameBuffer mainSceneFB;
     private Texture2D mainScene;
-    private FrameBuffer scene64FB;
+    private GlFrameBuffer scene64FB;
     private Texture2D scene64;
-    private FrameBuffer scene8FB;
+    private GlFrameBuffer scene8FB;
     private Texture2D scene8;
-    private FrameBuffer scene1FB[] = new FrameBuffer[2];
+    private GlFrameBuffer scene1FB[] = new GlFrameBuffer[2];
     private Texture2D scene1[] = new Texture2D[2];
 
     private Material hdr64;
@@ -218,7 +218,7 @@ public class HDRRenderer implements SceneProcessor {
         return i == 1 ? 0 : 1;
     }
 
-    private void renderProcessing(Renderer r, FrameBuffer dst, Material mat) {
+    private void renderProcessing(Renderer r, GlFrameBuffer dst, Material mat) {
         if (dst == null) {
             fsQuad.setWidth(mainSceneFB.getWidth());
             fsQuad.setHeight(mainSceneFB.getHeight());
@@ -237,7 +237,7 @@ public class HDRRenderer implements SceneProcessor {
         renderManager.renderGeometry(fsQuad);
     }
 
-    private void renderToneMap(Renderer r, FrameBuffer out) {
+    private void renderToneMap(Renderer r, GlFrameBuffer out) {
         tone.setFloat("A", exposure);
         tone.setFloat("White", whiteLevel);
         tone.setTexture("Lum", scene1[oppSrc]);
@@ -263,7 +263,7 @@ public class HDRRenderer implements SceneProcessor {
             renderer.deleteFrameBuffer(mainSceneFB);
         }
 
-        mainSceneFB = new FrameBuffer(w, h, 1);
+        mainSceneFB = new GlFrameBuffer(w, h, 1);
         mainScene = new Texture2D(w, h, bufFormat);
         mainSceneFB.setDepthBuffer(Format.Depth);
         mainSceneFB.setColorTexture(mainScene);
@@ -278,7 +278,7 @@ public class HDRRenderer implements SceneProcessor {
 
         Collection<Caps> caps = renderer.getCaps();
         if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample)){
-            msFB = new FrameBuffer(w, h, numSamples);
+            msFB = new GlFrameBuffer(w, h, numSamples);
             msFB.setDepthBuffer(Format.Depth);
             msFB.setColorBuffer(bufFormat);
             vp.setOutputFrameBuffer(msFB);
@@ -305,23 +305,23 @@ public class HDRRenderer implements SceneProcessor {
         fsQuad = new Picture("HDR Fullscreen Quad");
 
         Format lumFmt = Format.RGB8;
-        scene64FB = new FrameBuffer(64, 64, 1);
+        scene64FB = new GlFrameBuffer(64, 64, 1);
         scene64 = new Texture2D(64, 64, lumFmt);
         scene64FB.setColorTexture(scene64);
         scene64.setMagFilter(fbMagFilter);
         scene64.setMinFilter(fbMinFilter);
 
-        scene8FB = new FrameBuffer(8, 8, 1);
+        scene8FB = new GlFrameBuffer(8, 8, 1);
         scene8 = new Texture2D(8, 8, lumFmt);
         scene8FB.setColorTexture(scene8);
         scene8.setMagFilter(fbMagFilter);
         scene8.setMinFilter(fbMinFilter);
 
-        scene1FB[0] = new FrameBuffer(1, 1, 1);
+        scene1FB[0] = new GlFrameBuffer(1, 1, 1);
         scene1[0] = new Texture2D(1, 1, lumFmt);
         scene1FB[0].setColorTexture(scene1[0]);
 
-        scene1FB[1] = new FrameBuffer(1, 1, 1);
+        scene1FB[1] = new GlFrameBuffer(1, 1, 1);
         scene1[1] = new Texture2D(1, 1, lumFmt);
         scene1FB[1].setColorTexture(scene1[1]);
 
@@ -350,7 +350,7 @@ public class HDRRenderer implements SceneProcessor {
     }
 
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
         if (!enabled)
             return;
 

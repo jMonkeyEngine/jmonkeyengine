@@ -35,7 +35,13 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.util.NativeObject;
+import com.jme3.util.natives.GlNative;
+import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
+import com.jme3.vulkan.util.IntEnum;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <p>
@@ -56,9 +62,9 @@ import java.util.ArrayList;
  * depth testing (which requires a depth buffer).
  * Buffers can be copied to other framebuffers
  * including the main screen, by using
- * {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer, com.jme3.texture.FrameBuffer, boolean, boolean)}.
+ * {@link Renderer#copyFrameBuffer(GlFrameBuffer, GlFrameBuffer, boolean, boolean)}.
  * The content of a {@link RenderBuffer} can be retrieved by using
- * {@link Renderer#readFrameBuffer(com.jme3.texture.FrameBuffer, java.nio.ByteBuffer) }.
+ * {@link Renderer#readFrameBuffer(GlFrameBuffer, java.nio.ByteBuffer) }.
  * <p>
  * <code>FrameBuffer</code>s have several attachment points, there are
  * several <em>color</em> attachment points and a single <em>depth</em>
@@ -67,11 +73,11 @@ import java.util.ArrayList;
  * {@link Format#RGBA8}, allowing rendering the color content of the scene.
  * The depth attachment point requires a depth image format.
  *
- * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
+ * @see Renderer#setFrameBuffer(GlFrameBuffer)
  *
  * @author Kirill Vainer
  */
-public class FrameBuffer extends NativeObject {
+public class GlFrameBuffer extends GlNative implements FrameBuffer<GlFrameBuffer.RenderBuffer> {
 
     public static final int SLOT_UNDEF = -1;
     public static final int SLOT_DEPTH = -100;
@@ -92,7 +98,7 @@ public class FrameBuffer extends NativeObject {
      * buffer that will be rendered to. <code>RenderBuffer</code>s
      * are attached to an attachment slot on a <code>FrameBuffer</code>.
      */
-    public static class RenderBuffer {
+    public static abstract class RenderBuffer implements ImageView<GlImage> {
 
         GlTexture tex;
         GlImage.Format format;
@@ -124,18 +130,18 @@ public class FrameBuffer extends NativeObject {
 
         /**
          * Do not use.
-         * @return the buffer's ID
+         * @return the render buffer's ID
          */
-        public int getId() {
+        public int getRenderBufferId() {
             return id;
         }
 
         /**
          * Do not use.
          *
-         * @param id the desired ID
+         * @param id the desired render buffer ID
          */
-        public void setId(int id) {
+        public void setRenderBufferId(int id) {
             this.id = id;
         }
 
@@ -156,15 +162,7 @@ public class FrameBuffer extends NativeObject {
             id = -1;
         }
 
-        public RenderBuffer createDestructableClone() {
-            if (tex != null) {
-                return null;
-            } else {
-                RenderBuffer destructClone = new RenderBuffer();
-                destructClone.id = id;
-                return destructClone;
-            }
-        }
+        protected abstract void verifyTextureProperties(int width, int height, int samples, boolean depth);
 
         @Override
         public String toString() {
@@ -178,16 +176,54 @@ public class FrameBuffer extends NativeObject {
         public int getLayer() {
             return this.layer;
         }
+
+        @Override
+        public long getId() {
+            return tex.getId();
+        }
+
+        @Override
+        public GlImage getImage() {
+            return tex.getImage();
+        }
+
+        @Override
+        public IntEnum<Type> getViewType() {
+            return tex.getViewType();
+        }
+
+        @Override
+        public int getBaseMipmap() {
+            return tex.getBaseMipmap();
+        }
+
+        @Override
+        public int getMipmapCount() {
+            return tex.getMipmapCount();
+        }
+
+        @Override
+        public int getBaseLayer() {
+            return tex.getBaseLayer();
+        }
+
+        @Override
+        public int getLayerCount() {
+            return tex.getLayerCount();
+        }
+
     }
     
     public static class FrameBufferTextureTarget extends RenderBuffer {
-        private FrameBufferTextureTarget(){}
+
+        private FrameBufferTextureTarget() {}
+
         void setTexture(GlTexture tx){
             this.tex=tx;
             this.format=tx.getImage().getGlFormat();
         }
 
-        void setFormat(Format f){
+        void setFormat(Format f) {
             this.format=f;
         }
 
@@ -210,13 +246,41 @@ public class FrameBuffer extends NativeObject {
             return this;
         }
 
+        @Override
+        protected void verifyTextureProperties(int width, int height, int samples, boolean depth) {
+            GlImage img = tex.getImage();
+            if (img == null) {
+                throw new IllegalArgumentException("Texture not initialized with RTT.");
+            }
+            if (depth && !img.getGlFormat().isDepthFormat()) {
+                throw new IllegalArgumentException("Texture image format must be depth.");
+            } else if (!depth && img.getGlFormat().isDepthFormat()) {
+                throw new IllegalArgumentException("Texture image format must be color/luminance.");
+            }
+            if (width != img.getWidth() || height != img.getHeight()) {
+                throw new IllegalArgumentException("Texture image resolution "
+                        + "must match FB resolution");
+            }
+            if (samples != tex.getImage().getMultiSamples()) {
+                throw new IllegalStateException("Texture samples must match framebuffer samples");
+            }
+        }
+
     }
 
     public static class FrameBufferBufferTarget extends RenderBuffer {
         private FrameBufferBufferTarget(){}
         void setFormat(Format f){
             this.format=f;
-        }    
+        }
+
+        @Override
+        protected void verifyTextureProperties(int width, int height, int samples, boolean depth) {
+            if (!getFormat().isDepthFormat()) {
+                throw new IllegalArgumentException("Depth buffer format must be depth.");
+            }
+        }
+
     }
 
     public static class FrameBufferTarget {
@@ -252,7 +316,7 @@ public class FrameBuffer extends NativeObject {
     /**
      * A private constructor to inhibit instantiation of this class.
      */
-    private FrameBuffer() {
+    private GlFrameBuffer() {
     }
 
     public void addColorTarget(FrameBufferBufferTarget colorBuf){
@@ -282,20 +346,63 @@ public class FrameBuffer extends NativeObject {
         colorBuf.slot = i;
         colorBufs.set(i, colorBuf);
     }
-    
+
+    @Override
+    public void addColorTarget(RenderBuffer image) {
+        image.verifyTextureProperties(width, height, samples, false);
+        image.slot = colorBufs.size();
+        colorBufs.add(image);
+        setUpdateNeeded();
+    }
+
+    @Override
+    public void setColorTarget(int i, RenderBuffer image) {
+        image.verifyTextureProperties(width, height, samples, false);
+        image.slot = i;
+        if (colorBufs.set(i, image) != image) {
+            setUpdateNeeded();
+        }
+    }
+
     /**
      * Removes the color target at the index.
      * <p>
      * Color targets above the removed target will have their
      * slot indices shifted accordingly.
      * 
-     * @param i 
+     * @param i index of the target to remove
      */
+    @Override
     public void removeColorTarget(int i) {
-        colorBufs.remove(i);
-        for (; i < colorBufs.size(); i++) {
-            colorBufs.get(i).slot = i;
+        if (i < colorBufs.size()) {
+            colorBufs.remove(i);
+            for (; i < colorBufs.size(); i++) {
+                colorBufs.get(i).slot = i;
+            }
+            setUpdateNeeded();
         }
+    }
+
+    @Override
+    public void removeColorTarget(RenderBuffer image) {
+        if (colorBufs.remove(image)) {
+            for (int i = 0; i < colorBufs.size(); i++) {
+                colorBufs.get(i).slot = i;
+            }
+            setUpdateNeeded();
+        }
+    }
+
+    @Override
+    public void setDepthTarget(RenderBuffer image) {
+        image.verifyTextureProperties(width, height, samples, true);
+        this.depthBuf = image;
+        this.depthBuf.slot =  this.depthBuf.getFormat().isDepthStencilFormat() ? SLOT_DEPTH_STENCIL : SLOT_DEPTH;
+    }
+
+    @Override
+    public List<RenderBuffer> getColorTargets() {
+        return Collections.unmodifiableList(colorBufs);
     }
 
     /**
@@ -304,31 +411,19 @@ public class FrameBuffer extends NativeObject {
      *
      * @param colorBuf texture to add to the color Buffer
      * @param face position to add to the color buffer
+     * @deprecated use {@link FrameBufferTextureTarget#face(TextureCubeMap.Face)} instead
      */
-    public void addColorTarget(FrameBufferTextureTarget colorBuf, TextureCubeMap.Face face) {
-        // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
-        colorBuf.slot = colorBufs.size();
+    @Deprecated
+    public void addColorTarget(RenderBuffer colorBuf, TextureCubeMap.Face face) {
         colorBuf.face = face.ordinal();
-        colorBufs.add(colorBuf);
-    }
-
-    public void setDepthTarget(FrameBufferBufferTarget depthBuf){
-        if (!depthBuf.getFormat().isDepthFormat())
-            throw new IllegalArgumentException("Depth buffer format must be depth.");
-        this.depthBuf = depthBuf;
-        this.depthBuf.slot =  this.depthBuf.getFormat().isDepthStencilFormat() ?  SLOT_DEPTH_STENCIL : SLOT_DEPTH;
-    }
-
-    public void setDepthTarget(FrameBufferTextureTarget depthBuf){
-        checkSetTexture(depthBuf.getTexture(), true);
-        this.depthBuf = depthBuf;
-        this.depthBuf.slot = depthBuf.getTexture().getImage().getGlFormat().isDepthStencilFormat() ?  SLOT_DEPTH_STENCIL : SLOT_DEPTH;
+        addColorTarget(colorBuf);
     }
 
     public int getNumColorTargets(){
         return colorBufs.size();
     }
 
+    @Override
     public RenderBuffer getColorTarget(int index){
         return colorBufs.get(index);
     }
@@ -342,6 +437,7 @@ public class FrameBuffer extends NativeObject {
         return colorBufs.get(colorBufIndex);
     }
 
+    @Override
     public RenderBuffer getDepthTarget() {
         return depthBuf;
     }
@@ -365,7 +461,7 @@ public class FrameBuffer extends NativeObject {
      *
      * @throws IllegalArgumentException If width or height are not positive.
      */
-    public FrameBuffer(int width, int height, int samples) {
+    public GlFrameBuffer(int width, int height, int samples) {
         super();
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException("FrameBuffer must have valid size.");
@@ -376,8 +472,8 @@ public class FrameBuffer extends NativeObject {
         this.samples = samples == 0 ? 1 : samples;
     }
 
-    protected FrameBuffer(FrameBuffer src) {
-        super(src.id);
+    protected GlFrameBuffer(GlFrameBuffer src) {
+        super(src.object);
         /*
         for (RenderBuffer renderBuf : src.colorBufs){
             RenderBuffer clone = renderBuf.createDestructableClone();
@@ -389,76 +485,7 @@ public class FrameBuffer extends NativeObject {
          */
     }
 
-    /**
-     * Enables the use of a depth buffer for this <code>FrameBuffer</code>.
-     *
-     * @param format The format to use for the depth buffer.
-     * @throws IllegalArgumentException If <code>format</code> is not a depth format.
-     * @deprecated Use
-     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferBufferTarget)}
-     */
-    @Deprecated
-    public void setDepthBuffer(GlImage.Format format) {
-        if (id != -1) {
-            throw new UnsupportedOperationException("FrameBuffer already initialized.");
-        }
 
-        if (!format.isDepthFormat()) {
-            throw new IllegalArgumentException("Depth buffer format must be depth.");
-        }
-
-        depthBuf = new RenderBuffer();
-        depthBuf.slot = format.isDepthStencilFormat() ? SLOT_DEPTH_STENCIL : SLOT_DEPTH;
-        depthBuf.format = format;
-    }
-
-    /**
-     * Enables the use of a color buffer for this <code>FrameBuffer</code>.
-     *
-     * @param format The format to use for the color buffer.
-     * @throws IllegalArgumentException If <code>format</code> is not a color format.
-     * @deprecated Use addColorTarget
-     */
-    @Deprecated 
-    public void setColorBuffer(GlImage.Format format) {
-        if (id != -1) {
-            throw new UnsupportedOperationException("FrameBuffer already initialized.");
-        }
-
-        if (format.isDepthFormat()) {
-            throw new IllegalArgumentException("Color buffer format must be color/luminance.");
-        }
-
-        RenderBuffer colorBuf = new RenderBuffer();
-        colorBuf.slot = 0;
-        colorBuf.format = format;
-
-        colorBufs.clear();
-        colorBufs.add(colorBuf);
-    }
-
-    private void checkSetTexture(GlTexture tex, boolean depth) {
-        GlImage img = tex.getImage();
-        if (img == null) {
-            throw new IllegalArgumentException("Texture not initialized with RTT.");
-        }
-
-        if (depth && !img.getGlFormat().isDepthFormat()) {
-            throw new IllegalArgumentException("Texture image format must be depth.");
-        } else if (!depth && img.getGlFormat().isDepthFormat()) {
-            throw new IllegalArgumentException("Texture image format must be color/luminance.");
-        }
-
-        // check that resolution matches texture resolution
-        if (width != img.getWidth() || height != img.getHeight()) {
-            throw new IllegalArgumentException("Texture image resolution "
-                    + "must match FB resolution");
-        }
-
-        if (samples != tex.getImage().getMultiSamples()) {
-            throw new IllegalStateException("Texture samples must match framebuffer samples");
-        }
-    }
 
     /**
      * If enabled, any shaders rendering into this <code>FrameBuffer</code>
@@ -478,14 +505,14 @@ public class FrameBuffer extends NativeObject {
 
     /**
      * @return True if MRT (multiple rendering targets) is enabled.
-     * @see FrameBuffer#setMultiTarget(boolean)
+     * @see GlFrameBuffer#setMultiTarget(boolean)
      */
     public boolean isMultiTarget() {
         return colorBufIndex == -1;
     }
 
     /**
-     * If MRT is not enabled ({@link FrameBuffer#setMultiTarget(boolean) } is false)
+     * If MRT is not enabled ({@link GlFrameBuffer#setMultiTarget(boolean) } is false)
      * then this specifies the color target to which the scene should be rendered.
      * <p>
      * By default the value is 0.
@@ -510,269 +537,18 @@ public class FrameBuffer extends NativeObject {
     /**
      * @return The color target to which the scene should be rendered.
      *
-     * @see FrameBuffer#setTargetIndex(int)
+     * @see GlFrameBuffer#setTargetIndex(int)
      */
     public int getTargetIndex() {
         return colorBufIndex;
     }
 
     /**
-     * Set the color texture to use for this framebuffer.
-     * This automatically clears all existing textures added previously
-     * with {@link FrameBuffer#addColorTexture } and adds this texture as the
-     * only target.
-     *
-     * @param tex The color texture to set.
-     * @deprecated Use addColorTarget
-     */
-    @Deprecated 
-    public void setColorTexture(Texture2D tex) {
-        clearColorTargets();
-        addColorTexture(tex);
-    }
-
-    /**
-     * Set the color texture array to use for this framebuffer.
-     * This automatically clears all existing textures added previously
-     * with {@link FrameBuffer#addColorTexture } and adds this texture as the
-     * only target.
-     *
-     * @param tex The color texture array to set.
-     * @param layer (default=-1)
-     * @deprecated Use addColorTarget
-     */
-    @Deprecated
-    public void setColorTexture(TextureArray tex, int layer) {
-        clearColorTargets();
-        addColorTexture(tex, layer);
-    }
-
-    /**
-     * Set the color texture to use for this framebuffer.
-     * This automatically clears all existing textures added previously
-     * with {@link FrameBuffer#addColorTexture } and adds this texture as the
-     * only target.
-     *
-     * @param tex The cube-map texture to set.
-     * @param face The face of the cube-map to render to.
-     * @deprecated Use addColorTarget
-     */
-    @Deprecated 
-    public void setColorTexture(TextureCubeMap tex, TextureCubeMap.Face face) {
-        clearColorTargets();
-        addColorTexture(tex, face);
-    }
-
-    /**
      * Clears all color targets that were set or added previously.
      */
+    @Override
     public void clearColorTargets() {
         colorBufs.clear();
-    }
-
-    /**
-     * Add a color buffer without a texture bound to it.
-     * If MRT is enabled, then each subsequently added texture or buffer can be
-     * rendered to through a shader that writes to the array <code>gl_FragData</code>.
-     * If MRT is not enabled, then the index set with {@link FrameBuffer#setTargetIndex(int) }
-     * is rendered to by the shader.
-     *
-     * @param format the format of the color buffer
-     * @see #addColorTexture(com.jme3.texture.Texture2D)
-     * @deprecated Use addColorTarget
-     */
-    @Deprecated
-    public void addColorBuffer(GlImage.Format format) {
-        if (id != -1) {
-            throw new UnsupportedOperationException("FrameBuffer already initialized.");
-        }
-
-        if (format.isDepthFormat()) {
-            throw new IllegalArgumentException("Color buffer format must be color/luminance.");
-        }
-
-        RenderBuffer colorBuf = new RenderBuffer();
-        colorBuf.slot = colorBufs.size();
-        colorBuf.format = format;
-
-        colorBufs.add(colorBuf);
-    }
-
-    /**
-     * Add a color texture to use for this framebuffer.
-     * If MRT is enabled, then each subsequently added texture can be
-     * rendered to through a shader that writes to the array <code>gl_FragData</code>.
-     * If MRT is not enabled, then the index set with {@link FrameBuffer#setTargetIndex(int) }
-     * is rendered to by the shader.
-     *
-     * @param tex The texture to add.
-     * @see #addColorBuffer(GlImage.Format)
-     * @deprecated Use addColorTarget
-     */
-    @Deprecated
-    public void addColorTexture(Texture2D tex) {
-        if (id != -1) {
-            throw new UnsupportedOperationException("FrameBuffer already initialized.");
-        }
-
-        GlImage img = tex.getImage();
-        checkSetTexture(tex, false);
-
-        RenderBuffer colorBuf = new RenderBuffer();
-        colorBuf.slot = colorBufs.size();
-        colorBuf.tex = tex;
-        colorBuf.format = img.getGlFormat();
-
-        colorBufs.add(colorBuf);
-    }
-
-    /**
-     * Add a color texture array to use for this framebuffer.
-     * If MRT is enabled, then each subsequently added texture can be
-     * rendered to through a shader that writes to the array <code>gl_FragData</code>.
-     * If MRT is not enabled, then the index set with {@link FrameBuffer#setTargetIndex(int) }
-     * is rendered to by the shader.
-     *
-     * @param tex The texture array to add.
-     * @param layer (default=-1)
-     * @deprecated Use addColorTarget
-     */
-    @Deprecated
-    public void addColorTexture(TextureArray tex, int layer) {
-        if (id != -1) {
-            throw new UnsupportedOperationException("FrameBuffer already initialized.");
-        }
-
-        GlImage img = tex.getImage();
-        checkSetTexture(tex, false);
-
-        RenderBuffer colorBuf = new RenderBuffer();
-        colorBuf.slot = colorBufs.size();
-        colorBuf.tex = tex;
-        colorBuf.format = img.getGlFormat();
-        colorBuf.layer = layer;
-
-        colorBufs.add(colorBuf);
-    }
-
-    /**
-     * Add a color texture to use for this framebuffer.
-     * If MRT is enabled, then each subsequently added texture can be
-     * rendered to through a shader that writes to the array <code>gl_FragData</code>.
-     * If MRT is not enabled, then the index set with {@link FrameBuffer#setTargetIndex(int) }
-     * is rendered to by the shader.
-     *
-     * @param tex The cube-map texture to add.
-     * @param face The face of the cube-map to render to.
-     * @deprecated Use addColorTarget
-     */
-    @Deprecated
-    public void addColorTexture(TextureCubeMap tex, TextureCubeMap.Face face) {
-        if (id != -1) {
-            throw new UnsupportedOperationException("FrameBuffer already initialized.");
-        }
-
-        GlImage img = tex.getImage();
-        checkSetTexture(tex, false);
-
-        RenderBuffer colorBuf = new RenderBuffer();
-        colorBuf.slot = colorBufs.size();
-        colorBuf.tex = tex;
-        colorBuf.format = img.getGlFormat();
-        colorBuf.face = face.ordinal();
-
-        colorBufs.add(colorBuf);
-    }
-
-    /**
-     * Set the depth texture to use for this framebuffer.
-     *
-     * @param tex The color texture to set.
-     * @deprecated Use
-     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferTextureTarget)}
-     */
-    @Deprecated
-    public void setDepthTexture(Texture2D tex) {
-        if (id != -1) {
-            throw new UnsupportedOperationException("FrameBuffer already initialized.");
-        }
-
-        GlImage img = tex.getImage();
-        checkSetTexture(tex, true);
-
-        depthBuf = new RenderBuffer();
-        depthBuf.slot = img.getGlFormat().isDepthStencilFormat() ? SLOT_DEPTH_STENCIL : SLOT_DEPTH;
-        depthBuf.tex = tex;
-        depthBuf.format = img.getGlFormat();
-    }
-
-    /**
-     * 
-     * @param tex the TextureArray to apply
-     * @param layer (default=-1)
-     * @deprecated Use
-     * {@link #setDepthTarget(com.jme3.texture.FrameBuffer.FrameBufferTextureTarget)}
-     */
-    @Deprecated
-    public void setDepthTexture(TextureArray tex, int layer) {
-        if (id != -1) {
-            throw new UnsupportedOperationException("FrameBuffer already initialized.");
-        }
-
-        GlImage img = tex.getImage();
-        checkSetTexture(tex, true);
-
-        depthBuf = new RenderBuffer();
-        depthBuf.slot = img.getGlFormat().isDepthStencilFormat() ? SLOT_DEPTH_STENCIL : SLOT_DEPTH;
-        depthBuf.tex = tex;
-        depthBuf.format = img.getGlFormat();
-        depthBuf.layer = layer;
-    }
-
-    /**
-     * @return The number of color buffers attached to this texture.
-     * @deprecated Use getNumColorTargets
-     */
-    @Deprecated
-    public int getNumColorBuffers() {
-        return colorBufs.size();
-    }
-
-    /**
-     * @param index the zero-base index (&ge;0)
-     * @return The color buffer at the given index.
-     * @deprecated Use getColorTarget(int)
-     */
-    @Deprecated
-    public RenderBuffer getColorBuffer(int index) {
-        return colorBufs.get(index);
-    }
-
-    /**
-     * @return The color buffer with the index set by {@link #setTargetIndex(int)}, or null
-     * if no color buffers are attached.
-     * If MRT is disabled, the first color buffer is returned.
-     * @deprecated Use getColorTarget()
-     */
-    @Deprecated
-    public RenderBuffer getColorBuffer() {
-        if (colorBufs.isEmpty()) {
-            return null;
-        }
-        if (colorBufIndex < 0 || colorBufIndex >= colorBufs.size()) {
-            return colorBufs.get(0);
-        }
-        return colorBufs.get(colorBufIndex);
-    }
-
-    /**
-     * @return The depth buffer attached to this FrameBuffer, or null
-     * if no depth buffer is attached
-     * @deprecated Use getDepthTarget()
-     */
-    @Deprecated
-    public RenderBuffer getDepthBuffer() {
-        return depthBuf;
     }
 
     /**
@@ -814,33 +590,20 @@ public class FrameBuffer extends NativeObject {
     }
 
     @Override
-    public void resetObject() {
-        this.id = -1;
+    public Runnable createNativeDestroyer() {
+        return () -> renderer.deleteFrameBuffer(new GlFrameBuffer(this));
+    }
 
+    @Override
+    public void resetObject() {
+        this.object = -1;
         for (int i = 0; i < colorBufs.size(); i++) {
             colorBufs.get(i).resetObject();
         }
-
         if (depthBuf != null) {
             depthBuf.resetObject();
         }
-
         setUpdateNeeded();
-    }
-
-    @Override
-    public void deleteObject(Object rendererObject) {
-        ((Renderer) rendererObject).deleteFrameBuffer(this);
-    }
-
-    @Override
-    public NativeObject createDestructableClone() {
-        return new FrameBuffer(this);
-    }
-
-    @Override
-    public long getUniqueId() {
-        return ((long) OBJTYPE_FRAMEBUFFER << 32) | (0xffffffffL & (long) id);
     }
 
     /**

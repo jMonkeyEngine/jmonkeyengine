@@ -41,7 +41,10 @@ import java.nio.Buffer;
  * This class is used to track when OpenGL and OpenAL native objects are 
  * collected by the garbage collector, and then invoke the proper destructor
  * on the OpenGL library to delete it from memory.
+ *
+ * @deprecated use {@link com.jme3.util.natives.Native} instead
  */
+@Deprecated
 public abstract class NativeObject implements Cloneable {
 
     public static final int INVALID_ID = -1;

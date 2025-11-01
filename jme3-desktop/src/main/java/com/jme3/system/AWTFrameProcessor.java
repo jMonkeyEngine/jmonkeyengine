@@ -48,7 +48,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 
 /**
@@ -153,7 +153,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
     }
 
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
         if (!isEnabled()) {
             return;
         }
@@ -559,7 +559,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
         ViewPort viewPort = getViewPort();
         RenderManager renderManager = getRenderManager();
-        FrameBuffer frameBuffer = viewPort.getOutputFrameBuffer();
+        GlFrameBuffer frameBuffer = viewPort.getOutputFrameBuffer();
 
         AWTComponentRenderer frameTransfer = createFrameTransfer(frameBuffer, width, height);
         frameTransfer.init(renderManager.getRenderer(), isMain());
@@ -581,7 +581,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
      * @param height      the height.
      * @return the new frame transfer.
      */
-    protected AWTComponentRenderer createFrameTransfer(FrameBuffer frameBuffer, int width, int height) {
+    protected AWTComponentRenderer createFrameTransfer(GlFrameBuffer frameBuffer, int width, int height) {
         return new AWTComponentRenderer(getDestination(), getTransferMode(), isMain() ? null : frameBuffer, width, height);
     }
 
@@ -619,7 +619,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
         if (found) {
 
-            FrameBuffer frameBuffer = new FrameBuffer(width, height, 1);
+            GlFrameBuffer frameBuffer = new GlFrameBuffer(width, height, 1);
             frameBuffer.setDepthBuffer(GlImage.Format.Depth);
             frameBuffer.setColorBuffer(GlImage.Format.RGBA8);
             frameBuffer.setSrgb(true);

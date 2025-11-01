@@ -42,7 +42,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.Timer;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.util.AndroidScreenshots;
 import com.jme3.util.BufferUtils;
@@ -233,7 +233,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         private MjpegFileWriter writer;
         private boolean fastMode = true;
 
-        public void addImage(Renderer renderer, FrameBuffer out) {
+        public void addImage(Renderer renderer, GlFrameBuffer out) {
             if (freeItems == null) {
                 return;
             }
@@ -307,7 +307,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
 
         @Override
-        public void postFrame(FrameBuffer out) {
+        public void postFrame(GlFrameBuffer out) {
             numFrames++;
             addImage(renderManager.getRenderer(), out);
         }

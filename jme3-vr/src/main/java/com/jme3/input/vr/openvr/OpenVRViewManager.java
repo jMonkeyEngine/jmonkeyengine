@@ -22,7 +22,7 @@ import com.jme3.system.jopenvr.OpenVRUtil;
 import com.jme3.system.jopenvr.Texture_t;
 import com.jme3.system.jopenvr.VRTextureBounds_t;
 import com.jme3.system.jopenvr.VR_IVRSystem_FnTable;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
@@ -571,7 +571,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
         if (environment != null){
             if (environment.getApplication() != null){
                 // create offscreen framebuffer
-                FrameBuffer out = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
+                GlFrameBuffer out = new GlFrameBuffer(cam.getWidth(), cam.getHeight(), 1);
                 //offBuffer.setSrgb(true);
 
                 //setup framebuffer's texture
@@ -606,7 +606,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
         if (environment != null){
             if (environment.getApplication() != null){
                 // create offscreen framebuffer
-                FrameBuffer offBufferLeft = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
+                GlFrameBuffer offBufferLeft = new GlFrameBuffer(cam.getWidth(), cam.getHeight(), 1);
                 //offBufferLeft.setSrgb(true);
 
                 //setup framebuffer's texture

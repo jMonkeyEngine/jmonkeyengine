@@ -32,6 +32,7 @@
 package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.dev.NotFullyImplemented;
 import com.jme3.light.LightList;
 import com.jme3.material.GlMaterial.BindUnits;
 import com.jme3.material.TechniqueDef.LightMode;
@@ -45,12 +46,17 @@ import com.jme3.shader.Shader;
 import com.jme3.shader.VarType;
 import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
+import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.pipeline.Pipeline;
+import com.jme3.vulkan.pipeline.PipelineBindPoint;
+import com.jme3.vulkan.pipeline.states.BasePipelineState;
+
 import java.util.EnumSet;
 
 /**
  * Represents a technique instance.
  */
-public final class Technique {
+public final class Technique implements Pipeline {
 
     private final TechniqueDef def;
     private final GlMaterial owner;
@@ -193,13 +199,40 @@ public final class Technique {
     public DefineList getAllDefines() {
         throw new UnsupportedOperationException();
     }
-    
+
+    @Override
+    public BasePipelineState<?, ?> getState() {
+        return null;
+    }
+
+    @Override
+    @NotFullyImplemented
+    public void bind(CommandBuffer cmd) {
+
+    }
+
+    @Override
+    public boolean isMaterialEquivalent(Pipeline other) {
+        return false;
+    }
+
+    @Override
+    public PipelineBindPoint getBindPoint() {
+        return PipelineBindPoint.Graphics;
+    }
+
+    @Override
+    public Pipeline getParent() {
+        return null;
+    }
+
     /**
      * Compute the sort ID. Similar to {@link Object#hashCode()} but used
      * for sorting geometries for rendering.
      * 
      * @return the sort ID for this technique instance.
      */
+    @Override
     public int getSortId() {
         int hash = 17;
         hash = hash * 23 + def.getSortId();

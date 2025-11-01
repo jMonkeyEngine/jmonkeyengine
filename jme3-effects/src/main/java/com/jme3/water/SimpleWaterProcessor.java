@@ -42,7 +42,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.*;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture.WrapMode;
 import com.jme3.ui.Picture;
@@ -91,8 +91,8 @@ public class SimpleWaterProcessor implements SceneProcessor {
     protected Spatial reflectionScene;
     protected ViewPort reflectionView;
     protected ViewPort refractionView;
-    protected FrameBuffer reflectionBuffer;
-    protected FrameBuffer refractionBuffer;
+    protected GlFrameBuffer reflectionBuffer;
+    protected GlFrameBuffer refractionBuffer;
     protected Camera reflectionCam;
     protected Camera refractionCam;
     protected Texture2D reflectionTexture;
@@ -212,7 +212,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
     }
 
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
         if (debug) {
             displayMap(rm.getRenderer(), dispRefraction, 64);
             displayMap(rm.getRenderer(), dispReflection, 256);
@@ -281,7 +281,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
         reflectionView.setClearFlags(true, true, true);
         reflectionView.setBackgroundColor(ColorRGBA.Black);
         // create offscreen framebuffer
-        reflectionBuffer = new FrameBuffer(renderWidth, renderHeight, 1);
+        reflectionBuffer = new GlFrameBuffer(renderWidth, renderHeight, 1);
         //setup framebuffer to use texture
         reflectionBuffer.setDepthTarget(FrameBufferTarget.newTarget(Format.Depth));
         reflectionBuffer.addColorTarget(FrameBufferTarget.newTarget(reflectionTexture));
@@ -297,7 +297,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
         refractionView.setClearFlags(true, true, true);
         refractionView.setBackgroundColor(ColorRGBA.Black);
         // create offscreen framebuffer
-        refractionBuffer = new FrameBuffer(renderWidth, renderHeight, 1);
+        refractionBuffer = new GlFrameBuffer(renderWidth, renderHeight, 1);
         //setup framebuffer to use texture
         refractionBuffer.addColorTarget(FrameBufferTarget.newTarget(refractionTexture));
         refractionBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthTexture));
@@ -637,7 +637,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
         }
 
         @Override
-        public void postFrame(FrameBuffer out) {
+        public void postFrame(GlFrameBuffer out) {
         }
 
         @Override

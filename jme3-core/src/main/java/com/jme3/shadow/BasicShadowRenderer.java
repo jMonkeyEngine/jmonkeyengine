@@ -48,7 +48,7 @@ import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
@@ -65,7 +65,7 @@ public class BasicShadowRenderer implements SceneProcessor {
     private static final LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     private RenderManager renderManager;
     private ViewPort viewPort;
-    private final FrameBuffer shadowFB;
+    private final GlFrameBuffer shadowFB;
     private final Texture2D shadowMap;
     private final Camera shadowCam;
     private final Material preshadowMat;
@@ -86,7 +86,7 @@ public class BasicShadowRenderer implements SceneProcessor {
      * @param size the size of the shadow map (the map is square)
      */
     public BasicShadowRenderer(AssetManager manager, int size) {
-        shadowFB = new FrameBuffer(size, size, 1);
+        shadowFB = new GlFrameBuffer(size, size, 1);
         shadowMap = new Texture2D(size, size, Format.Depth);
         shadowFB.setDepthTexture(shadowMap);
         shadowCam = new Camera(size, size);
@@ -219,7 +219,7 @@ public class BasicShadowRenderer implements SceneProcessor {
     }
 
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
         if (!noOccluders) {
             postshadowMat.setMatrix4("LightViewProjectionMatrix", shadowCam.getViewProjectionMatrix());
             renderManager.setForcedMaterial(postshadowMat);

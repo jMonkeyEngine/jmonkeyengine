@@ -109,8 +109,8 @@
  * can then be used as usual, allowing e.g. the dynamic modification of position buffers for particle systems.<br>
  * {@link com.jme3.texture.GlImage} and {@link com.jme3.texture.GlTexture} objects can be used in OpenCL with the method
  * {@link com.jme3.opencl.Context#bindImage(GlTexture, com.jme3.opencl.MemoryAccess) }
- * or variations of this method. The same holds for {@link com.jme3.texture.FrameBuffer.RenderBuffer} objects
- * using {@link com.jme3.opencl.Context#bindRenderBuffer(com.jme3.texture.FrameBuffer.RenderBuffer, com.jme3.opencl.MemoryAccess) }.
+ * or variations of this method. The same holds for {@link com.jme3.texture.GlFrameBuffer.RenderBuffer} objects
+ * using {@link com.jme3.opencl.Context#bindRenderBuffer(GlFrameBuffer.RenderBuffer, com.jme3.opencl.MemoryAccess) }.
  * These methods result in an OpenCL-Image. Usages are e.g. animated textures,
  * terrain based on height maps, post-processing effects, and so forth.
  * <br>
@@ -159,4 +159,5 @@ package com.jme3.opencl;
 //TODO: add profiling to Kernel, CommandQueue
 
 import com.jme3.scene.GlVertexBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlTexture;

@@ -71,7 +71,7 @@ public class Texture3D extends GlTexture {
      * Creates a new three-dimensional texture for the purpose of offscreen
      * rendering.
      *
-     * @see com.jme3.texture.FrameBuffer
+     * @see GlFrameBuffer
      *
      * @param width the desired width (in pixels)
      * @param height the desired height (in pixels)
@@ -86,7 +86,7 @@ public class Texture3D extends GlTexture {
      * Creates a new three-dimensional texture for the purpose of offscreen
      * rendering.
      *
-     * @see com.jme3.texture.FrameBuffer
+     * @see GlFrameBuffer
      *
      * @param width the desired width (in pixels)
      * @param height the desired height (in pixels)

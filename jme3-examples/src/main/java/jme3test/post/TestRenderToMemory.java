@@ -48,8 +48,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext.Type;
-import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.GlFrameBuffer;
+import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
@@ -75,7 +75,7 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
     private Geometry offBox;
     private float angle = 0;
 
-    private FrameBuffer offBuffer;
+    private GlFrameBuffer offBuffer;
     private ImageDisplay display;
 
     private static final int width = 800, height = 600;
@@ -181,7 +181,7 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
         offView.addProcessor(this);
 
         // create offscreen framebuffer
-        offBuffer = new FrameBuffer(width, height, 1);
+        offBuffer = new GlFrameBuffer(width, height, 1);
 
         //setup framebuffer's cam
         offCamera.setFrustumPerspective(45f, 1f, 1f, 1000f);
@@ -253,7 +253,7 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
      * been rendered to the framebuffer.
      */
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
         updateImageContents();
     }
 

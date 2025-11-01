@@ -16,7 +16,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.CenterQuad;
 import com.jme3.system.AppSettings;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
@@ -423,7 +423,7 @@ public class VRGuiManager {
                     offView.setBackgroundColor(ColorRGBA.BlackNoAlpha);
 
                     // create offscreen framebuffer
-                    FrameBuffer offBuffer = new FrameBuffer((int)guiCanvasSize.x, (int)guiCanvasSize.y, 1);
+                    GlFrameBuffer offBuffer = new GlFrameBuffer((int)guiCanvasSize.x, (int)guiCanvasSize.y, 1);
 
                     //setup framebuffer's texture
                     guiTexture = new Texture2D((int)guiCanvasSize.x, (int)guiCanvasSize.y, Format.RGBA8);

@@ -4,25 +4,27 @@ import com.jme3.renderer.opengl.GLRenderer;
 
 import java.lang.ref.WeakReference;
 
-public abstract class GlNative <T> extends AbstractNative<T> implements Cloneable {
+public abstract class GlNative extends AbstractNative<Integer> implements Cloneable {
 
     protected GLRenderer renderer;
     protected boolean updateNeeded = true;
-    private WeakReference<GlNative<T>> weakRef;
+    private WeakReference<GlNative> weakRef;
 
-    public GlNative() {}
+    public GlNative() {
+        this(-1);
+    }
 
-    public GlNative(T object) {
+    public GlNative(int object) {
         this.object = object;
     }
 
     public abstract void resetObject();
 
-    protected void setId(T id) {
+    protected void setId(int id) {
         setId(null, id);
     }
 
-    public void setId(GLRenderer renderer, T id) {
+    public void setId(GLRenderer renderer, int id) {
         object = id;
         if (ref != null) {
             ref.destroy();
@@ -62,9 +64,9 @@ public abstract class GlNative <T> extends AbstractNative<T> implements Cloneabl
 
     @Override
     @SuppressWarnings("unchecked")
-    public GlNative<T> clone() {
+    public GlNative clone() {
         try {
-            GlNative<T> clone = (GlNative<T>) super.clone();
+            GlNative clone = (GlNative)super.clone();
             // TODO: copy mutable state here, so the clone can't change the internals of the original
             clone.updateNeeded = true;
             clone.renderer = renderer;

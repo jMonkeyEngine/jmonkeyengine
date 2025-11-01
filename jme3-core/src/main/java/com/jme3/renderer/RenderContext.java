@@ -36,7 +36,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.shader.Shader;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import java.lang.ref.WeakReference;
 import com.jme3.shader.bufferobject.BufferObject;
@@ -206,21 +206,21 @@ public class RenderContext {
     /**
      * ID of the bound FrameBuffer.
      *
-     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
+     * @see Renderer#setFrameBuffer(GlFrameBuffer)
      */
     public int boundFBO;
 
     /**
      * Currently bound FrameBuffer.
      *
-     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
+     * @see Renderer#setFrameBuffer(GlFrameBuffer)
      */
-    public FrameBuffer boundFB;
+    public GlFrameBuffer boundFB;
 
     /**
      * Currently bound Renderbuffer.
      *
-     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
+     * @see Renderer#setFrameBuffer(GlFrameBuffer)
      */
     public int boundRB;
 

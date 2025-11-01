@@ -58,7 +58,7 @@ import com.jme3.shader.UniformBindingManager;
 import com.jme3.shader.VarType;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.util.SafeArrayList;
 
 import java.util.ArrayList;
@@ -798,7 +798,7 @@ public class RenderManager {
 
         // Use material override to pass the current target index (used in api such as GL ES
         // that do not support glDrawBuffer)
-        FrameBuffer currentFb = this.renderer.getCurrentFrameBuffer();
+        GlFrameBuffer currentFb = this.renderer.getCurrentFrameBuffer();
         if (currentFb != null && !currentFb.isMultiTarget()) {
             this.boundDrawBufferId.setValue(currentFb.getTargetIndex());
         }

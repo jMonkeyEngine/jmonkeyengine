@@ -55,13 +55,13 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture.MagFilter;
 import com.jme3.texture.GlTexture.MinFilter;
 import com.jme3.texture.GlTexture.ShadowCompareMode;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 
 import java.io.IOException;
@@ -88,7 +88,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     protected float shadowIntensity = 0.7f;
     protected RenderManager renderManager;
     protected ViewPort viewPort;
-    protected FrameBuffer[] shadowFB;
+    protected GlFrameBuffer[] shadowFB;
     protected Texture2D[] shadowMaps;
     protected Texture2D dummyTex;
     protected Material preshadowMat;
@@ -159,7 +159,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
 
     private void init(AssetManager assetManager, int nbShadowMaps, int shadowMapSize) {
         this.postshadowMat = new Material(assetManager, "Common/MatDefs/Shadow/PostShadow.j3md");
-        shadowFB = new FrameBuffer[nbShadowMaps];
+        shadowFB = new GlFrameBuffer[nbShadowMaps];
         shadowMaps = new Texture2D[nbShadowMaps];
         dispPic = new Picture[nbShadowMaps];
         lightViewProjectionsMatrices = new Matrix4f[nbShadowMaps];
@@ -174,7 +174,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
 
         for (int i = 0; i < nbShadowMaps; i++) {
             lightViewProjectionsMatrices[i] = new Matrix4f();
-            shadowFB[i] = new FrameBuffer(shadowMapSize, shadowMapSize, 1);
+            shadowFB[i] = new GlFrameBuffer(shadowMapSize, shadowMapSize, 1);
             shadowMaps[i] = new Texture2D(shadowMapSize, shadowMapSize, Format.Depth);
 
             shadowFB[i].setDepthTarget(FrameBufferTarget.newTarget(shadowMaps[i]));
@@ -490,7 +490,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     protected abstract void getReceivers(GeometryList lightReceivers);
 
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
         if (skipPostPass) {
             return;
         }

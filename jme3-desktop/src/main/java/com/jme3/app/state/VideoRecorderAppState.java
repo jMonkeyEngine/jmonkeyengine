@@ -40,7 +40,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.system.Timer;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
@@ -223,7 +223,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<>();
         private MjpegFileWriter writer;
 
-        public void addImage(Renderer renderer, FrameBuffer out) {
+        public void addImage(Renderer renderer, GlFrameBuffer out) {
             if (freeItems == null) {
                 return;
             }
@@ -292,7 +292,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
 
         @Override
-        public void postFrame(FrameBuffer out) {
+        public void postFrame(GlFrameBuffer out) {
             addImage(renderManager.getRenderer(), out);
         }
 

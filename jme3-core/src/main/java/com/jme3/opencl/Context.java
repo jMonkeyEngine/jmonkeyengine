@@ -39,7 +39,7 @@ import com.jme3.opencl.Image.ImageDescriptor;
 import com.jme3.opencl.Image.ImageFormat;
 import com.jme3.opencl.Image.ImageType;
 import com.jme3.scene.GlVertexBuffer;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlTexture;
 import java.io.BufferedReader;
@@ -291,7 +291,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * @param access the kernel access permissions
      * @return an image
      */
-    public Image bindRenderBuffer(FrameBuffer.RenderBuffer buffer, MemoryAccess access) {
+    public Image bindRenderBuffer(GlFrameBuffer.RenderBuffer buffer, MemoryAccess access) {
         if (buffer.getTexture() == null) {
             return bindPureRenderBuffer(buffer, access);
         } else {
@@ -299,7 +299,7 @@ public abstract class Context extends AbstractOpenCLObject {
         }
     }
 
-    protected abstract Image bindPureRenderBuffer(FrameBuffer.RenderBuffer buffer, MemoryAccess access);
+    protected abstract Image bindPureRenderBuffer(GlFrameBuffer.RenderBuffer buffer, MemoryAccess access);
 
     /**
      * Creates a program object from the provided source code.

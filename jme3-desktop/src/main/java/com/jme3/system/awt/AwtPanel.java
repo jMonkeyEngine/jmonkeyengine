@@ -36,7 +36,7 @@ import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
@@ -62,7 +62,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     private boolean attachAsMain = false;
 
     private BufferedImage img;
-    private FrameBuffer fb;
+    private GlFrameBuffer fb;
     private boolean srgb = false;
     private ByteBuffer byteBuf;
     private IntBuffer intBuf;
@@ -243,9 +243,9 @@ public class AwtPanel extends Canvas implements SceneProcessor {
             fb = null;
         }
 
-        fb = new FrameBuffer(width, height, 1);
-        fb.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(GlImage.Format.Depth));
-        fb.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(GlImage.Format.RGB8));
+        fb = new GlFrameBuffer(width, height, 1);
+        fb.setDepthTarget(GlFrameBuffer.FrameBufferTarget.newTarget(GlImage.Format.Depth));
+        fb.addColorTarget(GlFrameBuffer.FrameBufferTarget.newTarget(GlImage.Format.RGB8));
         fb.setSrgb(srgb);
 
         if (attachAsMain) {
@@ -321,7 +321,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     }
 
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
         if (!attachAsMain && out != fb) {
             throw new IllegalStateException("Why did you change the output framebuffer?");
         }

@@ -33,7 +33,7 @@ package com.jme3.renderer;
 
 import com.jme3.scene.Mesh;
 import com.jme3.shader.Shader;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.util.IntMap;
 
@@ -257,7 +257,7 @@ public class Statistics {
      * @param fb The framebuffer that was set
      * @param wasSwitched If true, the framebuffer required a state switch
      */
-    public void onFrameBufferUse(FrameBuffer fb, boolean wasSwitched) {
+    public void onFrameBufferUse(GlFrameBuffer fb, boolean wasSwitched) {
         if (!enabled) {
             return;
         }

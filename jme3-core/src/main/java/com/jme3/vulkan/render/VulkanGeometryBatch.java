@@ -67,7 +67,7 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
         return queue.add(new Element(geometry));
     }
 
-    public class Element {
+    public class Element implements BatchElement {
 
         private final Geometry geometry;
         private final VkMaterial material;
@@ -91,32 +91,39 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
             this.pipeline = this.material.selectPipeline(cache, this.mesh.getDescription(), forcedTechnique, null);
         }
 
+        @Override
         public float computeDistanceSq() {
             if (!Float.isNaN(distanceSq)) return distanceSq;
             return (distanceSq = camera.getLocation().distanceSquared(geometry.getWorldTranslation()));
         }
 
+        @Override
         public float computeDistance() {
             if (!Float.isNaN(distance)) return distance;
             return (distance = FastMath.sqrt(computeDistanceSq()));
         }
 
+        @Override
         public Camera getCamera() {
             return camera;
         }
 
+        @Override
         public Geometry getGeometry() {
             return geometry;
         }
 
+        @Override
         public VkMaterial getMaterial() {
             return material;
         }
 
+        @Override
         public VkMesh getMesh() {
             return mesh;
         }
 
+        @Override
         public Pipeline getPipeline() {
             return pipeline;
         }

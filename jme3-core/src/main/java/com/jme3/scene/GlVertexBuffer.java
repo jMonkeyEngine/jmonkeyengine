@@ -61,7 +61,7 @@ import java.util.Objects;
  * For a 3D vector, a single component is one of the dimensions, X, Y or Z.</li>
  * </ul>
  */
-public class GlVertexBuffer extends GlNative<Integer> implements VertexBuffer, Savable, Cloneable {
+public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, Cloneable {
 
     /**
      * Type of buffer. Specifies the actual attribute it defines.

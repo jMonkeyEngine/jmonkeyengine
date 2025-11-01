@@ -39,11 +39,11 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -81,7 +81,7 @@ public abstract class Filter implements Savable {
      */
     public class Pass {
 
-        protected FrameBuffer renderFrameBuffer;
+        protected GlFrameBuffer renderFrameBuffer;
         protected Texture2D renderedTexture;
         protected Texture2D depthTexture;
         protected Material passMaterial;
@@ -108,7 +108,7 @@ public abstract class Filter implements Savable {
         public void init(Renderer renderer, int width, int height, Format textureFormat, Format depthBufferFormat, int numSamples, boolean renderDepth) {
             Collection<Caps> caps = renderer.getCaps();
             if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample) && caps.contains(Caps.OpenGL31)) {
-                renderFrameBuffer = new FrameBuffer(width, height, numSamples);
+                renderFrameBuffer = new GlFrameBuffer(width, height, numSamples);
                 renderedTexture = new Texture2D(width, height, numSamples, textureFormat);
                 renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthBufferFormat));
                 if (renderDepth) {
@@ -116,7 +116,7 @@ public abstract class Filter implements Savable {
                     renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthTexture));
                 }
             } else {
-                renderFrameBuffer = new FrameBuffer(width, height, 1);
+                renderFrameBuffer = new GlFrameBuffer(width, height, 1);
                 renderedTexture = new Texture2D(width, height, textureFormat);
                 renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthBufferFormat));
                 if (renderDepth) {
@@ -174,11 +174,11 @@ public abstract class Filter implements Savable {
         public void beforeRender() {
         }
 
-        public FrameBuffer getRenderFrameBuffer() {
+        public GlFrameBuffer getRenderFrameBuffer() {
             return renderFrameBuffer;
         }
 
-        public void setRenderFrameBuffer(FrameBuffer renderFrameBuffer) {
+        public void setRenderFrameBuffer(GlFrameBuffer renderFrameBuffer) {
             this.renderFrameBuffer = renderFrameBuffer;
         }
 
@@ -335,7 +335,7 @@ public abstract class Filter implements Savable {
      * @param prevFilterBuffer the FrameBuffer of the previous filter
      * @param sceneBuffer the FrameBuffer of the scene
      */
-    protected void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
+    protected void postFrame(RenderManager renderManager, ViewPort viewPort, GlFrameBuffer prevFilterBuffer, GlFrameBuffer sceneBuffer) {
     }
 
     /**
@@ -385,7 +385,7 @@ public abstract class Filter implements Savable {
      * returns the default pass frame buffer
      * @return the pre-existing buffer
      */
-    protected FrameBuffer getRenderFrameBuffer() {
+    protected GlFrameBuffer getRenderFrameBuffer() {
         return defaultPass.renderFrameBuffer;
     }
 
@@ -394,7 +394,7 @@ public abstract class Filter implements Savable {
      *
      * @param renderFrameBuffer the buffer to use (alias created)
      */
-    protected void setRenderFrameBuffer(FrameBuffer renderFrameBuffer) {
+    protected void setRenderFrameBuffer(GlFrameBuffer renderFrameBuffer) {
         this.defaultPass.renderFrameBuffer = renderFrameBuffer;
     }
 
@@ -490,6 +490,6 @@ public abstract class Filter implements Savable {
      * @param r the renderer
      * @param buffer the framebuffer on which the filter has been rendered.
      */
-    protected void postFilter(Renderer r, FrameBuffer buffer){        
+    protected void postFilter(Renderer r, GlFrameBuffer buffer){
     }
 }

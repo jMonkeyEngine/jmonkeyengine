@@ -35,7 +35,7 @@ import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 
 /**
  * Scene processors are used to compute/render things before and after the classic render of the scene.
@@ -98,7 +98,7 @@ public interface SceneProcessor {
      *
      * @param out The FB to which the scene was rendered.
      */
-    public void postFrame(FrameBuffer out);
+    public void postFrame(GlFrameBuffer out);
 
     /**
      * Called when the SP is removed from the RM.

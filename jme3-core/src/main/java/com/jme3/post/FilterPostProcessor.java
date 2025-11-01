@@ -37,11 +37,11 @@ import com.jme3.material.Material;
 import com.jme3.profile.*;
 import com.jme3.renderer.*;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 import com.jme3.util.SafeArrayList;
 import java.io.IOException;
@@ -62,16 +62,16 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private RenderManager renderManager;
     private Renderer renderer;
     private ViewPort viewPort;
-    private FrameBuffer renderFrameBufferMS;
+    private GlFrameBuffer renderFrameBufferMS;
     private int numSamples = 1;
-    private FrameBuffer renderFrameBuffer;
+    private GlFrameBuffer renderFrameBuffer;
     private Texture2D filterTexture;
     private Texture2D depthTexture;
     private SafeArrayList<Filter> filters = new SafeArrayList<>(Filter.class);
     private AssetManager assetManager;
     private Picture fsQuad;
     private boolean computeDepth = false;
-    private FrameBuffer outputBuffer;
+    private GlFrameBuffer outputBuffer;
     private int width;
     private int height;
     private float bottom;
@@ -201,15 +201,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @param buff
      * @param mat
      */
-    private void renderProcessing(Renderer r, FrameBuffer buff, Material mat) {
+    private void renderProcessing(Renderer r, GlFrameBuffer buff, Material mat) {
         if (buff == outputBuffer) {
             viewPort.getCamera().resize(originalWidth, originalHeight, false);
             viewPort.getCamera().setViewPort(left, right, bottom, top);
-            // update is redundant because resize and setViewPort will both
-            // run the appropriate (and same) onXXXChange methods.
-            // Also, update() updates some things that don't need to be updated.
-            //viewPort.getCamera().update();
-            renderManager.setCamera( viewPort.getCamera(), false);
+            renderManager.setCamera(viewPort.getCamera(), false);
             if (mat.getAdditionalRenderState().isDepthWrite()) {
                 mat.getAdditionalRenderState().setDepthTest(false);
                 mat.getAdditionalRenderState().setDepthWrite(false);
@@ -217,11 +213,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         } else {
             viewPort.getCamera().resize(buff.getWidth(), buff.getHeight(), false);
             viewPort.getCamera().setViewPort(0, 1, 0, 1);
-            // update is redundant because resize and setViewPort will both
-            // run the appropriate (and same) onXXXChange methods.
-            // Also, update() updates some things that don't need to be updated.
-            //viewPort.getCamera().update();
-            renderManager.setCamera( viewPort.getCamera(), false);
+            renderManager.setCamera(viewPort.getCamera(), false);
             mat.getAdditionalRenderState().setDepthTest(true);
             mat.getAdditionalRenderState().setDepthWrite(true);
         }
@@ -254,9 +246,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @param r
      * @param sceneFb
      */
-    private void renderFilterChain(Renderer r, FrameBuffer sceneFb) {
+    private void renderFilterChain(Renderer r, GlFrameBuffer sceneFb) {
         Texture2D tex = filterTexture;
-        FrameBuffer buff = sceneFb;
+        GlFrameBuffer buff = sceneFb;
         boolean msDepth = depthTexture != null && depthTexture.getImage().getMultiSamples() > 1;
         for (int i = 0; i < filters.size(); i++) {
             Filter filter = filters.get(i);
@@ -330,9 +322,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     @Override
-    public void postFrame(FrameBuffer out) {
+    public void postFrame(GlFrameBuffer out) {
 
-        FrameBuffer sceneBuffer = renderFrameBuffer;
+        GlFrameBuffer sceneBuffer = renderFrameBuffer;
         if (renderFrameBufferMS != null && !renderer.getCaps().contains(Caps.OpenGL32)) {
             renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer, true, true);
         } else if (renderFrameBufferMS != null) {
@@ -486,7 +478,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
         //antialiasing on filters only supported in opengl 3 due to depth read problem
         if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample)) {
-            renderFrameBufferMS = new FrameBuffer(width, height, numSamples);
+            renderFrameBufferMS = new GlFrameBuffer(width, height, numSamples);
             if (caps.contains(Caps.OpenGL32)) {
                 Texture2D msColor = new Texture2D(width, height, numSamples, fbFormat);
                 Texture2D msDepth = new Texture2D(width, height, numSamples, depthFormat);
@@ -501,7 +493,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
 
         if (numSamples <= 1 || !caps.contains(Caps.OpenGL32) || !caps.contains(Caps.FrameBufferMultisample)) {
-            renderFrameBuffer = new FrameBuffer(width, height, 1);
+            renderFrameBuffer = new GlFrameBuffer(width, height, 1);
             renderFrameBuffer.setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
             filterTexture = new Texture2D(width, height, fbFormat);
             renderFrameBuffer.addColorTarget(FrameBufferTarget.newTarget(filterTexture));

@@ -94,6 +94,11 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
         return layerCount;
     }
 
+    @Override
+    public boolean isDepthStencil() {
+        return aspect.contains(VulkanImage.Aspect.Depth) || aspect.contains(VulkanImage.Aspect.Stencil);
+    }
+
     public Builder build() {
         return new Builder();
     }
