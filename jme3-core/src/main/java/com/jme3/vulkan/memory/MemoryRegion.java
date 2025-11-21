@@ -3,13 +3,11 @@ package com.jme3.vulkan.memory;
 import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.GpuImage;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkMemoryAllocateInfo;
 

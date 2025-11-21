@@ -77,18 +77,18 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
     }
 
     @Override
-    public boolean resize(int elements) {
-        if (elements < 0) {
-            throw new IllegalArgumentException("Buffer size cannot be negative.");
-        }
-        if (elements != size.getElements()) {
-            size = new MemorySize(elements, size.getBytesPerElement());
-            if (memory != null && size.getBytes() > memory.getSize()) {
-                build().close();
-                return true;
-            }
+    public boolean resize(MemorySize size) {
+        this.size = size;
+        if (memory != null && size.getBytes() > memory.getSize()) {
+            build().close();
+            return true;
         }
         return false;
+    }
+
+    @Override
+    public Flag<MemoryProp> getMemoryProperties() {
+        return memory.getFlags();
     }
 
     protected MemoryRegion getMemory() {
@@ -100,10 +100,12 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
         this.padding = padding;
     }
 
+    @Override
     public Flag<BufferUsage> getUsage() {
         return usage;
     }
 
+    @Override
     public boolean isConcurrent() {
         return concurrent;
     }

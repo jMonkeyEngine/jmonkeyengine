@@ -98,6 +98,14 @@ public class VulkanFrameBuffer extends AbstractNative<Long> implements FrameBuff
     }
 
     @Override
+    public void clearColorTargets() {
+        if (!colorTargets.isEmpty()) {
+            colorTargets.clear();
+            updateNeeded = true;
+        }
+    }
+
+    @Override
     public void setDepthTarget(VulkanImageView image) {
         assert image == null || image.getAspect().contains(VulkanImage.Aspect.Depth) : "Image must have a depth aspect.";
         if (this.depthTarget != image) {
@@ -109,6 +117,11 @@ public class VulkanFrameBuffer extends AbstractNative<Long> implements FrameBuff
     @Override
     public List<VulkanImageView> getColorTargets() {
         return Collections.unmodifiableList(colorTargets);
+    }
+
+    @Override
+    public VulkanImageView getColorTarget(int i) {
+        return colorTargets.get(i);
     }
 
     @Override

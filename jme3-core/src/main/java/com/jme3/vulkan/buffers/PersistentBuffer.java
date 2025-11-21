@@ -1,67 +1,82 @@
 package com.jme3.vulkan.buffers;
 
-import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.memory.MemoryProp;
+import com.jme3.util.natives.Native;
+import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
-public class PersistentBuffer extends BasicVulkanBuffer {
+public class PersistentBuffer <T extends GpuBuffer> implements GpuBuffer, Native<T> {
 
-    private final PointerBuffer mappedAddress = MemoryUtil.memCallocPointer(1);
-    private PointerBuffer regionAddress;
-    private ByteBuffer regionBuffer;
+    private final T buffer;
+    private final PointerBuffer pointer = MemoryUtil.memCallocPointer(1);
+    private final NativeReference ref;
+    private ByteBuffer mapping;
 
-    public PersistentBuffer(LogicalDevice<?> device, MemorySize size) {
-        super(device, size);
+    public PersistentBuffer(T buffer) {
+        this.buffer = buffer;
+        this.ref = Native.get().register(this);
     }
 
     @Override
     public PointerBuffer map(int offset, int size) {
-        if (offset > 0) {
-            mappedAddress.put(0, MemoryUtil.memAddress(regionBuffer, offset));
-        } else {
-            mappedAddress.put(0, regionAddress.get(0));
+        if (mapping == null) {
+            mapping = buffer.mapBytes();
         }
-        return mappedAddress;
+        return pointer.put(0, MemoryUtil.memAddress(mapping, offset));
+    }
+
+    @Override
+    public long getId() {
+        return buffer.getId();
+    }
+
+    @Override
+    public boolean resize(MemorySize size) {
+        if (buffer.resize(size)) {
+            mapping = null;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public MemorySize size() {
+        return buffer.size();
     }
 
     @Override
     public void unmap() {}
 
     @Override
-    public Runnable createNativeDestroyer() {
-        Runnable sup = super.createNativeDestroyer();
-        return () -> {
-            sup.run();
-            MemoryUtil.memFree(mappedAddress);
-        };
+    public T getNativeObject() {
+        return buffer;
     }
 
     @Override
-    public Builder build() {
-        return new Builder();
+    public Runnable createNativeDestroyer() {
+        return () -> MemoryUtil.memFree(pointer);
     }
 
-    public class Builder extends BasicVulkanBuffer.Builder {
+    @Override
+    public void prematureNativeDestruction() {}
 
-        public Builder() {
-            memFlags = Flag.of(MemoryProp.HostVisible, MemoryProp.HostCoherent);
+    @Override
+    public NativeReference getNativeReference() {
+        return ref;
+    }
+
+    public void forceUnmap() {
+        if (mapping != null) {
+            mapping = null;
+            buffer.unmap();
         }
+    }
 
-        @Override
-        public void build() {
-            if (!memFlags.contains(MemoryProp.HostVisible)) {
-                throw new IllegalArgumentException("Memory must be host visible.");
-            }
-            super.build();
-            regionAddress = getMemory().map(0, size().getBytes());
-            regionBuffer = regionAddress.getByteBuffer(0, size().getBytes());
-        }
-
+    public T getBuffer() {
+        return buffer;
     }
 
 }

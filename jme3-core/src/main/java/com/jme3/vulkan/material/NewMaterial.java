@@ -9,7 +9,6 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.uniforms.BufferUniform;
-import com.jme3.vulkan.material.uniforms.TextureUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
 import com.jme3.vulkan.mesh.MeshDescription;
 import com.jme3.vulkan.pipeline.Pipeline;
@@ -21,8 +20,6 @@ import org.lwjgl.system.MemoryStack;
 import java.io.IOException;
 import java.nio.LongBuffer;
 import java.util.*;
-
-import static org.lwjgl.vulkan.VK10.*;
 
 /**
  * Relates shader uniform values to sets and bindings.

@@ -38,7 +38,10 @@ import com.jme3.export.*;
 import com.jme3.math.Triangle;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.mesh.AttributeModifier;
-import com.jme3.vulkan.mesh.AccessFrequency;
+import com.jme3.vulkan.mesh.DataAccess;
+import com.jme3.vulkan.mesh.exp.Vertex;
+import com.jme3.vulkan.pipeline.Topology;
+import com.jme3.vulkan.util.IntEnum;
 
 /**
  * Stores the vertex, index, and instance data for drawing indexed meshes.
@@ -53,6 +56,8 @@ import com.jme3.vulkan.mesh.AccessFrequency;
  * @author codex
  */
 public interface Mesh extends Savable {
+
+    Vertex getVertices();
 
     /**
      * Creates an AttributeModifier with which to modify the vertex data
@@ -70,15 +75,6 @@ public interface Mesh extends Savable {
     AttributeModifier modify(String attributeName);
 
     boolean attributeExists(String attributeName);
-
-    default boolean attributeExists(GlVertexBuffer.Type type) {
-        return attributeExists(type.name());
-    }
-
-    default boolean isAnimated() {
-        return attributeExists(GlVertexBuffer.Type.BoneIndex)
-                || attributeExists(GlVertexBuffer.Type.HWBoneIndex);
-    }
 
     /**
      * Gets the index buffer for the specified level of detail (LOD).
@@ -98,7 +94,7 @@ public interface Mesh extends Savable {
      * @param hint access frequency hint (lower ordinal is more optimized
      *             for frequent accesses)
      */
-    void setAccessFrequency(String attributeName, AccessFrequency hint);
+    void setAccessFrequency(String attributeName, DataAccess hint);
 
     /**
      * Sets the minimum number of vertices that must be supported by
@@ -193,6 +189,19 @@ public interface Mesh extends Savable {
     BoundingVolume getBound();
 
     /**
+     * Sets the topology format of the index buffers.
+     *
+     * @param topology topology
+     */
+    void setTopology(IntEnum<Topology> topology);
+
+    /**
+     *
+     * @return topology
+     */
+    IntEnum<Topology> getTopology();
+
+    /**
      * Gets the number of defined LOD levels.
      *
      * @return number of LOD levels
@@ -249,7 +258,26 @@ public interface Mesh extends Savable {
         return getTriangleCount(0);
     }
 
+    default boolean attributeExists(GlVertexBuffer.Type type) {
+        return attributeExists(type.name());
+    }
+
+    default boolean isAnimated() {
+        return attributeExists(GlVertexBuffer.Type.BoneIndex)
+                || attributeExists(GlVertexBuffer.Type.HWBoneIndex);
+    }
+
     /* ----- COMPATIBILITY WITH OLD MESH ----- */
+
+    @Deprecated
+    default void setMode(IntEnum<Topology> topology) {
+        setTopology(topology);
+    }
+
+    @Deprecated
+    default IntEnum<Topology> getMode() {
+        return getTopology();
+    }
 
     // todo: determine what to do with this method
     // It's used only seriously by Joint, and only then for attachment nodes.

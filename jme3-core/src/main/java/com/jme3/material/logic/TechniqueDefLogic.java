@@ -79,19 +79,19 @@ public interface TechniqueDefLogic {
     
     /**
      * Requests that the <code>TechniqueDefLogic</code> renders the given geometry.
-     * 
-     * Fixed material functionality such as {@link com.jme3.material.RenderState}, 
-     * {@link com.jme3.material.MatParam material parameters}, and 
+     * <p>
+     * Fixed material functionality such as {@link com.jme3.material.RenderState},
+     * {@link com.jme3.material.MatParam material parameters}, and
      * {@link com.jme3.shader.UniformBinding uniform bindings}
-     * have already been applied by the material, however, 
+     * have already been applied by the material, however,
      * {@link com.jme3.material.RenderState}, {@link Uniform uniforms}, {@link GlTexture textures},
      * can still be overridden.
-     * 
+     *
      * @param renderManager The render manager to perform the rendering against.
-     * @param shader The shader that was selected by this logic in 
-     * {@link #makeCurrent(com.jme3.asset.AssetManager, com.jme3.renderer.RenderManager, java.util.EnumSet, com.jme3.light.LightList, com.jme3.shader.DefineList)}.
-     * @param geometry The geometry to render
-     * @param lights Lights which influence the geometry.
+     * @param shader        The shader that was selected by this logic in
+     *                      {@link #makeCurrent(AssetManager, RenderManager, EnumSet, LightList, DefineList)}.
+     * @param geometry      The geometry to render
+     * @param lights        Lights which influence the geometry.
      * @param lastBindUnits the index of the most recently used texture unit
      */
     void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh,

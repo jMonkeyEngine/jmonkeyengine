@@ -44,6 +44,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import com.jme3.vulkan.mesh.VertexReader;
+import com.jme3.vulkan.mesh.attribute.Position;
 import com.jme3.vulkan.util.FloatBufferModifier;
 
 import java.io.IOException;
@@ -138,6 +139,29 @@ public class BoundingBox extends BoundingVolume {
     @Override
     public void computeFromPoints(VertexReader points) {
         containAABB(points);
+    }
+
+    @Override
+    public void computeFromPoints(Position position) {
+        float minX = Float.POSITIVE_INFINITY,
+                minY = Float.POSITIVE_INFINITY,
+                minZ = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY,
+                maxY = Float.NEGATIVE_INFINITY,
+                maxZ = Float.NEGATIVE_INFINITY;
+        for (Vector3f p : position.iterator(new Vector3f())) {
+            minX = Math.min(minX, p.x);
+            minY = Math.min(minY, p.y);
+            minZ = Math.min(minZ, p.z);
+            maxX = Math.max(maxX, p.x);
+            maxY = Math.max(maxY, p.y);
+            maxZ = Math.max(maxZ, p.z);
+        }
+        center.set(minX + maxX, minY + maxY, minZ + maxZ);
+        center.multLocal(0.5f);
+        xExtent = maxX - center.x;
+        yExtent = maxY - center.y;
+        zExtent = maxZ - center.z;
     }
 
     /**

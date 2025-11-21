@@ -195,7 +195,7 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void renderMesh(GlMesh mesh, int lod, int count, GlVertexBuffer[] instanceData) {
+    public void renderMesh(GlMesh mesh, GlMesh.Mode mode, int lod, int count, GlVertexBuffer[] instanceData) {
     }
 
     @Override

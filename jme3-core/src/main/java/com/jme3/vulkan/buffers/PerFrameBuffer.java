@@ -25,6 +25,7 @@ import java.util.function.Function;
  *
  * @param <T>
  */
+@Deprecated
 public class PerFrameBuffer <T extends GpuBuffer> implements GpuBuffer, VersionedResource<T>, Command {
 
     private final UpdateFrameManager<?> frames;
@@ -73,6 +74,11 @@ public class PerFrameBuffer <T extends GpuBuffer> implements GpuBuffer, Versione
     @Override
     public long getId() {
         return updateCurrentBuffer().getId();
+    }
+
+    @Override
+    public boolean resize(MemorySize size) {
+        return false;
     }
 
     @Override

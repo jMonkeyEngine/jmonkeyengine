@@ -88,12 +88,12 @@ public class BasicShadowRenderer implements SceneProcessor {
     public BasicShadowRenderer(AssetManager manager, int size) {
         shadowFB = new GlFrameBuffer(size, size, 1);
         shadowMap = new Texture2D(size, size, Format.Depth);
-        shadowFB.setDepthTexture(shadowMap);
+        shadowFB.setDepthTarget(GlFrameBuffer.newTarget(shadowMap));
         shadowCam = new Camera(size, size);
         
          //DO NOT COMMENT THIS (It prevents the OSX incomplete read buffer crash.)
-        dummyTex = new Texture2D(size, size, Format.RGBA8);        
-        shadowFB.setColorTexture(dummyTex);
+        dummyTex = new Texture2D(size, size, Format.RGBA8);
+        shadowFB.addColorTarget(GlFrameBuffer.newTarget(dummyTex));
         shadowMapSize = size;
         preshadowMat = new GlMaterial(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
         postshadowMat = new GlMaterial(manager, "Common/MatDefs/Shadow/BasicPostShadow.j3md");

@@ -214,12 +214,12 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
         if (lights.size() == 0) {
             updateLightListUniforms(shader, lights, batchSize, renderManager, 0);
             renderer.setShader(shader);
-            renderMeshFromGeometry(renderer, geometry, mesh);
+            renderMeshFromGeometry(renderer, geometry, mesh, mode);
         } else {
             while (nbRenderedLights < lights.size()) {
                 nbRenderedLights = updateLightListUniforms(shader, lights, batchSize, renderManager, nbRenderedLights);
                 renderer.setShader(shader);
-                renderMeshFromGeometry(renderer, geometry, mesh);
+                renderMeshFromGeometry(renderer, geometry, mesh, mode);
             }
         }
     }

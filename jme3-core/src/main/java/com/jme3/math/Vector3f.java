@@ -1223,4 +1223,9 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         }
         throw new IllegalArgumentException("index must be either 0, 1 or 2");
     }
+
+    public static Vector3f storage(Vector3f store) {
+        return store != null ? store : new Vector3f();
+    }
+
 }

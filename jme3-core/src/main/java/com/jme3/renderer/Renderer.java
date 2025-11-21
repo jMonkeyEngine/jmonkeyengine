@@ -351,12 +351,12 @@ public interface Renderer {
      * per-instance vertex attribute to the shader.
      *
      * @param mesh The mesh to render
-     * @param lod The LOD level to use, see {@link Mesh#setLodLevels(GlVertexBuffer[]) }.
+     * @param lod The LOD level to use
      * @param count Number of mesh instances to render
      * @param instanceData When count is greater than 1, these buffers provide
      *     the per-instance attributes.
      */
-    public void renderMesh(GlMesh mesh, int lod, int count, GlVertexBuffer[] instanceData);
+    public void renderMesh(GlMesh mesh, GlMesh.Mode mode, int lod, int count, GlVertexBuffer[] instanceData);
 
     /**
      * Resets all previously used {@link NativeObject Native Objects} on this Renderer.

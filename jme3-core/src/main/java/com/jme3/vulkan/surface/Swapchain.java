@@ -238,10 +238,8 @@ public class Swapchain extends AbstractNative<Long> {
 
         public void createFrameBuffer(RenderPass compat, VulkanImageView depthStencil) {
             frameBuffer = new VulkanFrameBuffer(getDevice(), compat, extent.x, extent.y, 1);
-            try (VulkanFrameBuffer.Builder f = frameBuffer.build()) {
-                f.addAttachment(colorView);
-                f.addAttachment(depthStencil);
-            }
+            frameBuffer.addColorTarget(colorView);
+            frameBuffer.setDepthTarget(depthStencil);
         }
 
         public VulkanFrameBuffer getFrameBuffer() {

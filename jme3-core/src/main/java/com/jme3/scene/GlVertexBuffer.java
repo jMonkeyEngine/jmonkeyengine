@@ -31,17 +31,19 @@
  */
 package com.jme3.scene;
 
+import com.jme3.dev.NotFullyImplemented;
 import com.jme3.export.*;
-import com.jme3.scene.mesh.GlMeshModifier;
 import com.jme3.util.*;
 import com.jme3.util.natives.GlNative;
+import com.jme3.vulkan.buffers.AsyncBufferHandler;
+import com.jme3.vulkan.buffers.GlBuffer;
 import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.buffers.NioBuffer;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.mesh.AccessFrequency;
-import com.jme3.vulkan.mesh.VertexBuffer;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryUtil;
+import com.jme3.vulkan.mesh.DataAccess;
+import com.jme3.vulkan.mesh.InputRate;
+import com.jme3.vulkan.mesh.VertexBinding;
+import com.jme3.vulkan.mesh.attribute.Attribute;
+import com.jme3.vulkan.util.IntEnum;
 
 import java.io.IOException;
 import java.nio.*;
@@ -61,11 +63,12 @@ import java.util.Objects;
  * For a 3D vector, a single component is one of the dimensions, X, Y or Z.</li>
  * </ul>
  */
-public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, Cloneable {
+public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, Cloneable {
 
     /**
      * Type of buffer. Specifies the actual attribute it defines.
      */
+    @Deprecated
     public enum Type {
         /**
          * Position of the vertex (3 floats)
@@ -102,7 +105,9 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
          * Specifies the source data for various vertex buffers
          * when interleaving is used. By default, the format is
          * byte.
+         * @deprecated use individual buffers instead
          */
+        @Deprecated
         InterleavedData,
         /**
          * Do not use.
@@ -250,6 +255,13 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
             return name;
         }
 
+        public static Type getTexCoord(int channel) {
+            assert channel >= 0 : "TexCoord channel must be non-negative.";
+            assert channel < 8 : "Only 8 TexCoord channels exist.";
+            if (channel == 0) return TexCoord;
+            else return values()[TexCoord2.ordinal() + channel - 1];
+        }
+
     }
 
     /**
@@ -261,20 +273,40 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
         /**
          * Mesh data is sent once and very rarely updated.
          */
-        Static,
+        Static(DataAccess.Static),
         /**
          * Mesh data is updated occasionally (once per frame or less).
          */
-        Dynamic,
+        Dynamic(DataAccess.Dynamic),
         /**
          * Mesh data is updated every frame.
          */
-        Stream,
+        Stream(DataAccess.Stream),
         /**
          * Mesh data is <em>not</em> sent to GPU at all. It is only
          * used by the CPU.
          */
-        CpuOnly
+        CpuOnly(null);
+
+        private final DataAccess access;
+
+        Usage(DataAccess access) {
+            this.access = access;
+        }
+
+        public DataAccess getAccess() {
+            return access;
+        }
+
+        public static Usage fromDataAccess(DataAccess access) {
+            for (Usage u : values()) {
+                if (u.access == access) {
+                    return u;
+                }
+            }
+            return Usage.CpuOnly;
+        }
+
     }
 
     /**
@@ -348,14 +380,14 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
      * derived from components * format.getComponentSize()
      */
     protected transient int componentsLength = 0;
-    protected NioBuffer data;
+    protected final AsyncBufferHandler<GlBuffer> data = new AsyncBufferHandler<>();
     protected Usage usage;
-    protected Type bufType;
     protected Format format;
     protected boolean normalized = false;
     protected int instanceSpan = 0;
-    protected transient boolean dataSizeChanged = false;
     protected String name;
+
+    private final Attribute<?> attribute;
 
     /**
      * Creates an empty, uninitialized buffer.
@@ -363,85 +395,41 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
      * 
      * @param type the type of VertexBuffer, such as Position or Binormal
      */
+    @Deprecated
+    @NotFullyImplemented
     public GlVertexBuffer(Type type) {
         super();
-        this.bufType = type;
+        attribute = null;
+    }
+
+    public GlVertexBuffer(Attribute<?> attribute) {
+        super();
+        this.attribute = attribute;
     }
 
     /**
      * Serialization only. Do not use.
      */
+    @NotFullyImplemented
     protected GlVertexBuffer() {
         super();
+        attribute = null;
     }
 
+    @NotFullyImplemented
     protected GlVertexBuffer(int id) {
         super(id);
+        attribute = null;
     }
 
     @Override
-    public PointerBuffer map() {
-        return data.map();
-    }
-
-    @Override
-    public void unmap() {
-        data.unmap();
-    }
-
-    @Override
-    public MemorySize size() {
-        return data.size();
-    }
-
-    @Override
-    public GpuBuffer getBuffer() {
+    public AsyncBufferHandler<GpuBuffer> getBuffer() {
         return null;
     }
 
     @Override
-    public void setNumVertices(int vertices) {
-        if (data != null) {
-            data.resize(vertices * components);
-        } else {
-            final int padding = 10;
-            data = new NioBuffer(new MemorySize(vertices * components, format.getComponentSize()), padding);
-        }
-    }
-
-    @Override
-    public void setAccessFrequency(AccessFrequency access) {
-        throw new UnsupportedOperationException("To be implemented.");
-    }
-
-    @Override
-    public ByteBuffer mapBytes() {
-        return data.mapBytes();
-    }
-
-    @Override
-    public ShortBuffer mapShorts() {
-        return data.mapShorts();
-    }
-
-    @Override
-    public IntBuffer mapInts() {
-        return data.mapInts();
-    }
-
-    @Override
-    public FloatBuffer mapFloats() {
-        return data.mapFloats();
-    }
-
-    @Override
-    public DoubleBuffer mapDoubles() {
-        return data.mapDoubles();
-    }
-
-    @Override
-    public LongBuffer mapLongs() {
-        return data.mapLongs();
+    public <T extends Attribute> T mapAttribute(String name, int vertices) {
+        return null;
     }
 
     /**
@@ -454,9 +442,8 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
         return offset;
     }
 
-    @Override
-    public boolean isInstanceBuffer() {
-        return false;
+    public Attribute<?> getAttribute() {
+        return attribute;
     }
 
     /**
@@ -472,8 +459,14 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
      *
      * @see #setStride(int)
      */
+    @Override
     public int getStride() {
         return stride;
+    }
+
+    @Override
+    public IntEnum<InputRate> getInputRate() {
+        return null;
     }
 
     /**
@@ -500,51 +493,7 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
      * @return A native buffer, in the specified {@link Format format}.
      */
     public Buffer getData() {
-        return data.getBuffer();
-    }
-
-    /**
-     * Returns a safe read-only version of this VertexBuffer's data.  The
-     * contents of the buffer will reflect whatever changes are made on
-     * other threads (eventually) but these should not be used in that way.
-     * This method provides a read-only buffer that is safe to _read_ from
-     * a separate thread since it has its own book-keeping state (position, limit, etc.)
-     *
-     * @return A rewound native buffer in the specified {@link Format format}
-     *         that is safe to read from a separate thread from other readers.
-     */
-    @Deprecated
-    public Buffer getDataReadOnly() {
-        /*if (!data.hasBuffer()) {
-            return null;
-        }
-
-        // Create a read-only duplicate().  Note: this does not copy
-        // the underlying memory, it just creates a new read-only wrapper
-        // with its own buffer position state.
-        // Unfortunately, this is not 100% straight forward since Buffer
-        // does not have an asReadOnlyBuffer() method.
-        Buffer result;
-        Buffer buf = data.getBuffer();
-        if (buf instanceof ByteBuffer) {
-            result = ((ByteBuffer) buf).asReadOnlyBuffer();
-        } else if (buf instanceof FloatBuffer) {
-            result = ((FloatBuffer) buf).asReadOnlyBuffer();
-        } else if (buf instanceof ShortBuffer) {
-            result = ((ShortBuffer) buf).asReadOnlyBuffer();
-        } else if (buf instanceof IntBuffer) {
-            result = ((IntBuffer) buf).asReadOnlyBuffer();
-        } else {
-            throw new UnsupportedOperationException("Cannot get read-only view of buffer type:" + data);
-        }
-
-        // Make sure the caller gets a consistent view since we may
-        // have grabbed this buffer while another thread was reading
-        // the raw data.
-        result.rewind();*/
-
-        // todo: re-implement or replace
-        return null;
+        return data.getBuffer().getBuffer();
     }
 
     /**
@@ -552,19 +501,20 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
      * information.
      */
     public Usage getUsage() {
-        return usage;
+        return attribute.getUsage();
     }
 
     /**
      * @param usage The usage of this buffer. See {@link Usage} for more
      * information.
      */
+    @Deprecated
     public void setUsage(Usage usage) {
 //        if (id != -1)
 //            throw new UnsupportedOperationException("Data has already been sent. Cannot set usage.");
 
-        this.usage = usage;
-        this.setUpdateNeeded();
+        //this.usage = usage;
+        //this.setUpdateNeeded();
     }
 
     /**
@@ -627,13 +577,6 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
     }
 
     /**
-     * @return The type of information that this buffer has.
-     */
-    public Type getBufferType() {
-        return bufType;
-    }
-
-    /**
      * @return The {@link Format format}, or data type of the data.
      */
     public Format getFormat() {
@@ -652,10 +595,10 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
      * @return The total number of data elements in the data buffer.
      */
     public int getNumElements() {
-        if (data == null) {
+        if (!data.hasBuffer()) {
             return 0;
         }
-        int elements = data.getBuffer().limit() / components;
+        int elements = data.getBuffer().getBuffer().limit() / components;
         if (format == Format.Half) {
             elements /= 2;
         }
@@ -679,6 +622,23 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
     }
 
     /**
+     * Initializes this vertex buffer with a new empty data buffer.
+     *
+     * @param usage access frequency of the data buffer
+     * @param format component format
+     * @param vertices number of vertices
+     * @param components components per vertex
+     * @param padding extra vertices to allocate space for
+     */
+    public void initDataBuffer(Usage usage, Format format, int vertices, int components, int padding) {
+        this.usage = usage;
+        this.format = format;
+        this.components = components;
+        this.componentsLength = components * format.getComponentSize();
+        data.setBuffer(new GlBuffer(new MemorySize(vertices * components, format.getComponentSize()), padding * components));
+    }
+
+    /**
      * Called to initialize the data in the <code>VertexBuffer</code>. Must only
      * be called once.
      *
@@ -699,19 +659,16 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
             throw new IllegalArgumentException("None of the arguments can be null");
         }
 
-        if (data.isReadOnly()) {
-            throw new IllegalArgumentException("VertexBuffer data cannot be read-only.");
-        }
-
-        if (bufType != Type.InstanceData) {
-            if (components < 1 || components > 4) {
-                throw new IllegalArgumentException("components must be between 1 and 4");
-            }
-        }
+        // not sure if this requirement should still be kept. To be deleted.
+//        if (bufType != Type.InstanceData) {
+//            if (components < 1 || components > 4) {
+//                throw new IllegalArgumentException("components must be between 1 and 4");
+//            }
+//        }
 
         //this.data.setBuffer(data);
-        if (this.data == null) {
-            this.data = new NioBuffer(data);
+        if (!this.data.hasBuffer()) {
+            this.data.setBuffer(new GlBuffer(data));
         } else {
             this.data.resize(data.limit());
         }
@@ -739,99 +696,26 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
      * @param data The data buffer to set
      */
     public void updateData(Buffer data) {
-
         Objects.requireNonNull(data, "Vertex data buffer cannot be null.");
-
-        // Check if the data buffer is read-only which is a sign
-        // of a bug on the part of the caller
-        // update: not a bug, since we're going to copy the buffer anyway
-//        if (data.isReadOnly()) {
-//            throw new IllegalArgumentException("VertexBuffer data cannot be read-only.");
-//        }
-
-        // will force renderer to call glBufferData again
-        if (this.data == null || this.data.size().getElements() != data.limit()) {
-            if (this.data == null) {
-                this.data = new NioBuffer(data);
-            }
-            dataSizeChanged = true;
-        }
+        this.data.setBufferIfAbsent(() -> new GlBuffer(data));
         this.data.resize(data.limit());
         this.data.copy(data);
         setUpdateNeeded();
     }
 
-    /**
-     * Returns true if the data size of the VertexBuffer has changed.
-     * Internal use only.
-     *
-     * @return true if the data size has changed
-     */
-    public boolean hasDataSizeChanged() {
-        return dataSizeChanged;
+    @Override
+    public boolean isUpdateNeeded() {
+        if (attribute.getUsage() != usage) {
+            usage = attribute.getUsage();
+            setUpdateNeeded();
+        }
+        return data.getBuffer().isUpdateNeeded() || super.isUpdateNeeded();
     }
 
     @Override
     public void clearUpdateNeeded() {
         super.clearUpdateNeeded();
-        dataSizeChanged = false;
-    }
-
-    /**
-     * Modify a component inside an element.
-     * The <code>val</code> parameter must be in the buffer's format:
-     * {@link Format}.
-     *
-     * @param elementIndex The element index to modify
-     * @param componentIndex The component index to modify
-     * @param val The value to set, either byte, short, int or float depending
-     * on the {@link Format}.
-     */
-    public void setElementComponent(int elementIndex, int componentIndex, Number val) {
-        try (GlMeshModifier mod = new GlMeshModifier(this)) {
-            mod.putNumber(elementIndex, componentIndex, val);
-        }
-    }
-
-    /**
-     * Get the component inside an element.
-     *
-     * @param elementIndex The element index
-     * @param componentIndex The component index
-     * @return The component, as one of the primitive types, byte, short,
-     * int or float.
-     */
-    public Object getElementComponent(int elementIndex, int componentIndex) {
-        int inPos = elementIndex * components;
-        int elementPos = componentIndex;
-
-        if (format == Format.Half) {
-            inPos *= 2;
-            elementPos *= 2;
-        }
-
-        Buffer srcData = getDataReadOnly();
-
-        switch (format) {
-            case Byte:
-            case UnsignedByte:
-            case Half:
-                ByteBuffer bin = (ByteBuffer) srcData;
-                return bin.get(inPos + elementPos);
-            case Short:
-            case UnsignedShort:
-                ShortBuffer sin = (ShortBuffer) srcData;
-                return sin.get(inPos + elementPos);
-            case Int:
-            case UnsignedInt:
-                IntBuffer iin = (IntBuffer) srcData;
-                return iin.get(inPos + elementPos);
-            case Float:
-                FloatBuffer fin = (FloatBuffer) srcData;
-                return fin.get(inPos + elementPos);
-            default:
-                throw new UnsupportedOperationException("Unrecognized buffer format: " + format);
-        }
+        data.getBuffer().update();
     }
 
     /**
@@ -845,6 +729,7 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
      * @throws IllegalArgumentException If the formats of the buffers do not
      * match.
      */
+    @Deprecated
     public void copyElement(int inIndex, GlVertexBuffer outVb, int outIndex) {
         copyElements(inIndex, outVb, outIndex, 1);
     }
@@ -861,12 +746,13 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
      * @throws IllegalArgumentException If the formats of the buffers do not
      * match.
      */
+    @Deprecated
     public void copyElements(int inIndex, GlVertexBuffer outVb, int outIndex, int len) {
-        if (data == null) {
+        if (!data.hasBuffer()) {
             throw new NullPointerException("No data present to copy.");
         }
-        if (outVb.data == null) {
-            outVb.data = new NioBuffer(data.size(), data.getPadding());
+        if (!outVb.data.hasBuffer()) {
+            outVb.data.setBuffer(new GlBuffer(data.size(), data.getBuffer().getPadding()));
         } else if (outVb.data.size().getBytesPerElement() != data.size().getBytesPerElement()) {
             throw new IllegalArgumentException("Buffer element size mismatch.");
         } else {
@@ -875,7 +761,7 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
         inIndex *= data.size().getBytesPerElement() * getNumElements();
         outIndex *= data.size().getBytesPerElement() * getNumElements();
         len *= data.size().getBytesPerElement() * getNumElements();
-        MemoryUtil.memCopy(outVb.data.mapBytes(outIndex, len), data.mapBytes(inIndex, len));
+        outVb.data.copy(data);
         outVb.data.unmap();
         data.unmap();
     }
@@ -930,12 +816,13 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
         // e.g. re-use ID.
         GlVertexBuffer vb = (GlVertexBuffer) super.clone();
         vb.object = -1;
-        if (data != null) {
+        if (data.hasBuffer()) {
             // Make sure to pass a read-only buffer to clone so that
             // the position information doesn't get clobbered by another
             // reading thread during cloning (and vice versa) since this is
             // a purely read-only operation.
-            vb.updateData(BufferUtils.clone(getDataReadOnly()));
+            vb.updateData(data.mapBytes());
+            data.unmap();
         }
 
         return vb;
@@ -952,8 +839,8 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
         GlVertexBuffer vb = new GlVertexBuffer(overrideType);
         vb.components = components;
         vb.componentsLength = componentsLength;
-        if (data != null) {
-            vb.data = new NioBuffer(data);
+        if (data.hasBuffer()) {
+            vb.data.setBuffer(new GlBuffer(data.getBuffer()));
             vb.data.copy(data);
         }
         vb.format = format;
@@ -970,11 +857,10 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
     @Override
     public String toString() {
         String dataTxt = null;
-        if (data != null) {
-            dataTxt = ", elements=" + data.getBuffer().limit();
+        if (data.hasBuffer()) {
+            dataTxt = ", elements=" + data.getBuffer().getBuffer().limit();
         }
         return getClass().getSimpleName() + "[fmt=" + format.name()
-                + ", type=" + bufType.name()
                 + ", usage=" + usage.name()
                 + dataTxt + "]";
     }
@@ -999,14 +885,13 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(components, "components", 0);
         oc.write(usage, "usage", Usage.Dynamic);
-        oc.write(bufType, "buffer_type", null);
         oc.write(format, "format", Format.Float);
         oc.write(normalized, "normalized", false);
         oc.write(offset, "offset", 0);
         oc.write(stride, "stride", 0);
         oc.write(instanceSpan, "instanceSpan", 0);
-        if (data != null) {
-            oc.write(data.getBuffer(), "data", null);
+        if (data.hasBuffer()) {
+            oc.write(data.mapBytes(), "data", null);
         }
     }
 
@@ -1015,61 +900,21 @@ public class GlVertexBuffer extends GlNative implements VertexBuffer, Savable, C
         InputCapsule ic = im.getCapsule(this);
         components = ic.readInt("components", 0);
         usage = ic.readEnum("usage", Usage.class, Usage.Dynamic);
-        bufType = ic.readEnum("buffer_type", Type.class, null);
         format = ic.readEnum("format", Format.class, Format.Float);
         normalized = ic.readBoolean("normalized", false);
         offset = ic.readInt("offset", 0);
         stride = ic.readInt("stride", 0);
         instanceSpan = ic.readInt("instanceSpan", 0);
         componentsLength = components * format.getComponentSize();
-
         ByteBuffer data = ic.readByteBuffer("data", null);
-        String oldDataName = "data" + format.name();
         if (data != null) {
-            this.data = new NioBuffer(MemorySize.dynamic(data.capacity(), format.getComponentSize()));
+            this.data.setBuffer(new GlBuffer(MemorySize.dynamic(data.capacity(), format.getComponentSize())));
             this.data.copy(data);
-        } else switch (format) { // for compatibility with old vertex buffer versions
-            case Float: {
-                FloatBuffer buf = ic.readFloatBuffer(oldDataName, null);
-                if (buf != null) {
-                    this.data = new NioBuffer(new MemorySize(buf.capacity(), Float.BYTES));
-                    this.data.copy(buf);
-                }
-            } break;
-            case Short: case UnsignedShort: {
-                ShortBuffer buf = ic.readShortBuffer(oldDataName, null);
-                if (buf != null) {
-                    this.data = new NioBuffer(new MemorySize(buf.capacity(), Short.BYTES));
-                    this.data.copy(buf);
-                }
-            } break;
-            case UnsignedByte: case Byte: case Half: {
-                ByteBuffer buf = ic.readByteBuffer(oldDataName, null);
-                if (buf != null) {
-                    this.data = new NioBuffer(new MemorySize(buf.capacity(), Byte.BYTES));
-                    this.data.copy(buf);
-                }
-            } break;
-            case Int: case UnsignedInt: {
-                IntBuffer buf = ic.readIntBuffer(oldDataName, null);
-                if (buf != null) {
-                    this.data = new NioBuffer(new MemorySize(buf.capacity(), Integer.BYTES));
-                    this.data.copy(buf);
-                }
-            } break;
-            default:
-                throw new IOException("Unsupported import buffer format: " + format);
         }
-    }
-
-    public String getName() {
-        if (name == null) {
-            name = getClass().getSimpleName() + "(" + getBufferType().name() + ")";
-        }
-        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
+
 }

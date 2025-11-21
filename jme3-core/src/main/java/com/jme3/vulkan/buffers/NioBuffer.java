@@ -24,9 +24,17 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
     }
 
     public NioBuffer(MemorySize size, int padding) {
+        this(size, padding, true);
+    }
+
+    public NioBuffer(MemorySize size, int padding, boolean clearMem) {
         this.size = size;
         this.padding = padding;
-        buffer = MemoryUtil.memCalloc(size.getElements() + padding, size.getBytesPerElement());
+        if (clearMem) {
+            buffer = MemoryUtil.memCalloc(size.getBytes(padding));
+        } else {
+            buffer = MemoryUtil.memAlloc(size.getBytes(padding));
+        }
         buffer.limit(size.getBytes());
         baseBufferAddress = MemoryUtil.memAddress(buffer, 0);
         ref = Native.get().register(this);
@@ -78,23 +86,19 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
     }
 
     @Override
-    public boolean resize(int elements) {
-        if (elements < 0) {
-            throw new IllegalArgumentException("Buffer size cannot be negative.");
-        }
-        if (elements != size.getElements()) {
-            size = new MemorySize(elements, size.getBytesPerElement());
-            if (size.getBytes() > buffer.capacity()) {
-                ByteBuffer newBuffer = MemoryUtil.memRealloc(buffer, size.getBytes(padding));
-                if (newBuffer != buffer) {
-                    buffer = newBuffer;
-                    baseBufferAddress = MemoryUtil.memAddress(buffer, 0);
-                    ref.refresh();
-                }
-                return true;
+    public boolean resize(MemorySize size) {
+        this.size = size;
+        if (size.getBytes() > buffer.capacity()) {
+            ByteBuffer newBuffer = MemoryUtil.memRealloc(buffer, size.getBytes(padding));
+            newBuffer.limit(size.getBytes());
+            if (newBuffer != buffer) {
+                buffer = newBuffer;
+                baseBufferAddress = MemoryUtil.memAddress(buffer, 0);
+                ref.refresh();
             }
-            buffer.limit(size.getBytes());
+            return true;
         }
+        buffer.limit(size.getBytes());
         return false;
     }
 

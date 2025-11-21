@@ -32,6 +32,7 @@
 package com.jme3.material;
 
 import com.jme3.export.*;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.Mesh;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.mesh.MeshDescription;
@@ -1455,8 +1456,6 @@ public class RenderState implements Cloneable, Savable {
     public float getLineWidth() {
         return lineWidth;
     }
-
-
 
     public boolean isApplyBlendMode() {
         return applyBlendMode;

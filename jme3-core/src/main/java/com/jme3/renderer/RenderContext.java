@@ -33,6 +33,7 @@ package com.jme3.renderer;
 
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.shader.Shader;
@@ -124,6 +125,8 @@ public class RenderContext {
      * @see RenderState#setLineWidth(float)
      */
     public float lineWidth;
+
+    public GlMesh.Mode meshMode;
 
     /**
      * How to blend input pixels with those already in the color buffer.

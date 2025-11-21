@@ -191,7 +191,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         this.r = vec3.x;
         this.g = vec3.y;
         this.b = vec3.z;
-    }    
+    }
 
     /**
      * <code>set</code> sets the RGBA values of this <code>ColorRGBA</code>.
@@ -838,6 +838,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      */
     public FloatBuffer toBuffer(MemoryStack stack) {
         return stack.floats(r, g, b, a);
+    }
+
+    public static ColorRGBA storage(ColorRGBA store) {
+        return store != null ? store : new ColorRGBA();
     }
 
 }

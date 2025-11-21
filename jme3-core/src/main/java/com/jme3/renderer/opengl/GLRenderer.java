@@ -1025,6 +1025,7 @@ public final class GLRenderer implements Renderer {
             gl.glLineWidth(state.getLineWidth());
             context.lineWidth = state.getLineWidth();
         }
+        context.meshMode = state.getMeshMode();
     }
 
     private void changeBlendMode(RenderState.BlendMode blendMode) {
@@ -3262,7 +3263,7 @@ public final class GLRenderer implements Renderer {
         int vertCount = mesh.getVertexCount();
         boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
 
-        if (mesh.getMode() == Mode.Hybrid) {
+        if (context.meshMode == Mode.Hybrid) {
             int[] modeStart = mesh.getModeStart();
             int[] elementLengths = mesh.getElementLengths();
 
@@ -3300,13 +3301,13 @@ public final class GLRenderer implements Renderer {
             }
         } else {
             if (useInstancing) {
-                glext.glDrawElementsInstancedARB(convertElementMode(mesh.getMode()),
+                glext.glDrawElementsInstancedARB(convertElementMode(context.meshMode),
                         indexBuf.getData().limit(),
                         convertFormat(indexBuf.getFormat()),
                         0,
                         count);
             } else {
-                gl.glDrawRangeElements(convertElementMode(mesh.getMode()),
+                gl.glDrawRangeElements(convertElementMode(context.meshMode),
                         0,
                         vertCount,
                         indexBuf.getData().limit(),
@@ -3372,7 +3373,7 @@ public final class GLRenderer implements Renderer {
             setVertexAttrib(instanceData, null);
         }
 
-        for (GlVertexBuffer vb : mesh.getBufferList().getArray()) {
+        for (GlVertexBuffer vb : mesh.getVertices()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {
@@ -3400,46 +3401,37 @@ public final class GLRenderer implements Renderer {
             updateBufferData(interleavedData);
         }
 
-        GlVertexBuffer indices;
-        if (mesh.getNumLodLevels() > 0) {
-            indices = mesh.getLodLevel(lod);
-        } else {
-            indices = mesh.getBuffer(Type.Index);
-        }
-
         if (instanceData != null) {
             for (GlVertexBuffer vb : instanceData) {
                 setVertexAttrib(vb, null);
             }
         }
 
-        for (GlVertexBuffer vb : mesh.getBufferList().getArray()) {
+        for (GlVertexBuffer vb : mesh.getVertices()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {
                 continue;
             }
 
-            if (vb.getStride() == 0) {
-                // not interleaved
+            if (vb.getStride() == 0) { // not interleaved
                 setVertexAttrib(vb);
-            } else {
-                // interleaved
+            } else { // interleaved
                 setVertexAttrib(vb, interleavedData);
             }
         }
 
         clearVertexAttribs();
 
-        if (indices != null) {
-            drawTriangleList(indices, mesh, count);
+        if (mesh.getNumLodLevels() > 0) {
+            drawTriangleList(mesh.getIndexBuffer(lod), mesh, count);
         } else {
-            drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
+            drawTriangleArray(context.meshMode, count, mesh.getVertexCount());
         }
     }
 
     @Override
-    public void renderMesh(GlMesh mesh, int lod, int count, GlVertexBuffer[] instanceData) {
+    public void renderMesh(GlMesh mesh, GlMesh.Mode mode, int lod, int count, GlVertexBuffer[] instanceData) {
         if (mesh.getVertexCount() == 0 || mesh.getTriangleCount() == 0 || count == 0) {
             return;
         }
@@ -3448,20 +3440,17 @@ public final class GLRenderer implements Renderer {
             throw new RendererException("Mesh instancing is not supported by the video hardware");
         }
 
-        if (mesh.getLineWidth() != 1f && context.lineWidth != mesh.getLineWidth()) {
-            gl.glLineWidth(mesh.getLineWidth());
-            context.lineWidth = mesh.getLineWidth();
-        }
+        // line width for deprecated system: can be removed
+//        if (mesh.getLineWidth() != 1f && context.lineWidth != mesh.getLineWidth()) {
+//            gl.glLineWidth(mesh.getLineWidth());
+//            context.lineWidth = mesh.getLineWidth();
+//        }
 
-        if (gl4 != null && mesh.getMode().equals(Mode.Patch)) {
+        if (gl4 != null && context.meshMode.equals(Mode.Patch)) {
             gl4.glPatchParameter(mesh.getPatchVertexCount());
         }
         statistics.onMeshDrawn(mesh, lod, count);
-//        if (ctxCaps.GL_ARB_vertex_array_object){
-//            renderMeshVertexArray(mesh, lod, count);
-//        }else{
         renderMeshDefault(mesh, lod, count, instanceData);
-//        }
     }
 
     @Override
@@ -3469,8 +3458,7 @@ public final class GLRenderer implements Renderer {
         // Gamma correction
         if (!caps.contains(Caps.Srgb) && enableSrgb) {
             // Not supported, sorry.
-            logger.warning("sRGB framebuffer is not supported " +
-                    "by video hardware, but was requested.");
+            logger.warning("sRGB framebuffer is not supported by video hardware, but was requested.");
 
             return;
         }

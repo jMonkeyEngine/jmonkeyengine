@@ -5,6 +5,7 @@ import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.frames.UpdateFrameManager;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.mesh.DataAccess;
 import com.jme3.vulkan.update.CommandBatch;
 import com.jme3.vulkan.util.Flag;
 
@@ -27,18 +28,26 @@ public class MeshBufferGenerator implements BufferGenerator<GpuBuffer> {
     }
 
     @Override
+    public GpuBuffer createBuffer(MemorySize size, Flag<BufferUsage> usage, DataAccess access) {
+        switch (access) {
+            case Stream: return createStreamingBuffer(size, usage);
+            case Dynamic: return createDynamicBuffer(size, usage);
+            case Static: return createStaticBuffer(size, usage);
+            default: throw new UnsupportedOperationException("Unable to create \"" + access + "\" buffer.");
+        }
+    }
+
     public GpuBuffer createStreamingBuffer(MemorySize size, Flag<BufferUsage> usage) {
-        PerFrameBuffer<PersistentBuffer> buffer = new PerFrameBuffer<>(frames, size,
-                s -> new PersistentBuffer(device, s));
-        for (PersistentBuffer buf : buffer) {
-            try (PersistentBuffer.Builder b = buf.build()) {
+        PerFrameBuffer<OldPersistentBuffer> buffer = new PerFrameBuffer<>(frames, size,
+                s -> new OldPersistentBuffer(device, s));
+        for (OldPersistentBuffer buf : buffer) {
+            try (OldPersistentBuffer.Builder b = buf.build()) {
                 b.setUsage(usage);
             }
         }
         return buffer;
     }
 
-    @Override
     public GpuBuffer createDynamicBuffer(MemorySize size, Flag<BufferUsage> usage) {
         if (dynamicBatch == null) {
             throw new UnsupportedOperationException("Cannot create dynamic buffer: dynamic batch is null.");
@@ -54,7 +63,6 @@ public class MeshBufferGenerator implements BufferGenerator<GpuBuffer> {
         return dynamicBatch.addAll(buffer);
     }
 
-    @Override
     public GpuBuffer createStaticBuffer(MemorySize size, Flag<BufferUsage> usage) {
         if (sharedBatch == null) {
             throw new UnsupportedOperationException("Cannot create static buffer: shared batch is null.");

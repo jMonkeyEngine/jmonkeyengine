@@ -263,10 +263,10 @@ public class Statistics {
         }
 
         if (fb != null) {
-            assert fb.getId() >= 1;
+            assert fb.getNativeObject() >= 1;
 
-            if (!fbosUsed.containsKey(fb.getId())) {
-                fbosUsed.put(fb.getId(), null);
+            if (!fbosUsed.containsKey(fb.getNativeObject())) {
+                fbosUsed.put(fb.getNativeObject(), null);
             }
         }
 

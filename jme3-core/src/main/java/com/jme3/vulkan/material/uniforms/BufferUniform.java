@@ -1,22 +1,16 @@
 package com.jme3.vulkan.material.uniforms;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.jme3.vulkan.buffers.*;
-import com.jme3.vulkan.buffers.generate.BufferGenerator;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
-import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.mesh.AccessFrequency;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
-import com.jme3.vulkan.util.ReflectionArgs;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-import java.nio.ByteBuffer;
 import java.util.*;
 
 public class BufferUniform extends AbstractUniform<GpuBuffer> {

@@ -6,11 +6,11 @@ import java.nio.*;
 
 public class VulkanAttributeModifier implements AttributeModifier {
 
-    private final VertexBuffer vertex;
+    private final VertexBinding vertex;
     private final VertexAttribute attribute;
     private final ByteBuffer buffer;
 
-    public VulkanAttributeModifier(VertexBuffer vertex, VertexAttribute attribute) {
+    public VulkanAttributeModifier(VertexBinding vertex, VertexAttribute attribute) {
         this.vertex = vertex;
         this.attribute = attribute;
         buffer = vertex.mapBytes();

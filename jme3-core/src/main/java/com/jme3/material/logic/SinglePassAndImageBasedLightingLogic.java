@@ -269,12 +269,12 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         if (lights.size() == 0) {
             updateLightListUniforms(shader, lights, batchSize, renderManager, 0, lastBindUnits.textureUnit);
             renderer.setShader(shader);
-            renderMeshFromGeometry(renderer, geometry, mesh);
+            renderMeshFromGeometry(renderer, geometry, mesh, mode);
         } else {
             while (nbRenderedLights < lights.size()) {
                 nbRenderedLights = updateLightListUniforms(shader, lights, batchSize, renderManager, nbRenderedLights, lastBindUnits.textureUnit);
                 renderer.setShader(shader);
-                renderMeshFromGeometry(renderer, geometry, mesh);
+                renderMeshFromGeometry(renderer, geometry, mesh, mode);
             }
         }
     }

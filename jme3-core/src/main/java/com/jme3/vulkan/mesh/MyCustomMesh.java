@@ -3,6 +3,7 @@ package com.jme3.vulkan.mesh;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.buffers.generate.BufferGenerator;
 import com.jme3.vulkan.memory.MemorySize;
 
@@ -16,7 +17,7 @@ public class MyCustomMesh extends AdaptiveMesh {
                         BufferGenerator<?> generator,
                         Vector3f normal, Vector3f up, float width, float height, float centerX, float centerY) {
         super(description, generator);
-        GpuBuffer indices = generator.createStaticBuffer(MemorySize.shorts(6), BufferUsage.Index);
+        GpuBuffer indices = generator.createBuffer(MemorySize.shorts(6), BufferUsage.Index, DataAccess.Static);
         indexBuffers.put(0, indices);
         ShortBuffer iBuf = indices.mapShorts();
         iBuf.put(INDICES);

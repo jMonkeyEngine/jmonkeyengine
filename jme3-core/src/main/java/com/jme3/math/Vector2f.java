@@ -906,4 +906,9 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         x = newX;
         y = newY;
     }
+
+    public static Vector2f storage(Vector2f store) {
+        return store != null ? store : new Vector2f();
+    }
+
 }

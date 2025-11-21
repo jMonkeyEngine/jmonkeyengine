@@ -2,272 +2,159 @@ package com.jme3.vulkan.mesh;
 
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
-import com.jme3.collision.Collidable;
-import com.jme3.collision.CollisionResults;
 import com.jme3.collision.bih.BIHTree;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.math.Triangle;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.vulkan.buffers.*;
-import com.jme3.vulkan.buffers.generate.BufferGenerator;
+import com.jme3.scene.GlVertexBuffer;
+import com.jme3.vulkan.buffers.AsyncBufferHandler;
+import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.mesh.attribute.Attribute;
+import com.jme3.vulkan.mesh.attribute.Position;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 
-import java.io.IOException;
 import java.nio.LongBuffer;
 import java.util.*;
-import java.util.logging.Logger;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public class AdaptiveMesh implements VkMesh {
+public class AdaptiveMesh {
 
-    private static final Logger LOG = Logger.getLogger(AdaptiveMesh.class.getName());
-
-    protected final MeshDescription description;
-    protected final BufferGenerator generator;
-    protected final Map<Integer, GpuBuffer> indexBuffers = new HashMap<>();
-    protected final VertexBuffer[] vertexBuffers;
-    protected BoundingVolume volume = new BoundingBox();
-    private int vertices;
-    private int instances = 1;
-    private int maxLod = 0;
+    private final MeshLayout layout;
+    private final Queue<LodBuffer> lods = new PriorityQueue<>();
+    private final List<VertexBuffer> vertexBuffers = new ArrayList<>();
+    private int vertices, instances;
+    private BoundingVolume volume = new BoundingBox();
     private BIHTree collisionTree;
 
-    public AdaptiveMesh(MeshDescription description, BufferGenerator generator) {
-        this.description = description;
-        this.generator = generator;
-        this.vertexBuffers = new VertexBuffer[description.getBindings().size()];
+    public AdaptiveMesh(MeshLayout layout, int vertices, int instances) {
+        this.layout = layout;
+        this.vertices = vertices;
+        this.instances = instances;
     }
 
-    @Override
-    public void bind(CommandBuffer cmd, int lod) {
+    public void render(CommandBuffer cmd, float distance) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            LongBuffer verts = stack.mallocLong(vertexBuffers.length);
-            LongBuffer offsets = stack.mallocLong(vertexBuffers.length);
-            for (int i = 0; i < vertexBuffers.length; i++) {
-                VertexBuffer vb = vertexBuffers[i];
+            LongBuffer verts = stack.mallocLong(vertexBuffers.size());
+            LongBuffer offsets = stack.mallocLong(vertexBuffers.size());
+            for (VertexBinding b : layout) {
+                VertexBuffer vb = getVertexBuffer(b);
                 if (vb == null) {
-                    vb = vertexBuffers[i] = new VulkanVertexBuffer(description.getBinding(i), generator, vertices);
+                    vb = createVertexBuffer(b, b.createBuffer(getElementsOf(b.getInputRate())));
                 }
-                verts.put(vb.getBuffer().getId());
-                offsets.put(vb.getOffset());
+                verts.put(vb.getData().getBuffer().getId());
+                offsets.put(vb.getBinding().getOffset());
             }
             verts.flip();
             offsets.flip();
             vkCmdBindVertexBuffers(cmd.getBuffer(), 0, verts, offsets);
         }
-        if (!indexBuffers.isEmpty()) {
-            GpuBuffer indices = selectIndexBuffer(lod);
-            vkCmdBindIndexBuffer(cmd.getBuffer(), indices.getId(), 0, IndexType.of(indices).getEnum());
-        }
-    }
-
-    @Override
-    public void render(CommandBuffer cmd, int lod) {
-        if (!indexBuffers.isEmpty()) {
-            vkCmdDrawIndexed(cmd.getBuffer(), selectIndexBuffer(lod).size().getElements(), instances, 0, 0, 0);
+        if (!lods.isEmpty()) {
+            LodBuffer lod = selectLod(distance);
+            vkCmdBindIndexBuffer(cmd.getBuffer(), lod.getId(), 0, IndexType.of(lod).getEnum());
+            vkCmdDrawIndexed(cmd.getBuffer(), lod.size().getElements(), instances, 0, 0, 0);
         } else {
             vkCmdDraw(cmd.getBuffer(), vertices, instances, 0, 0);
         }
     }
 
-    private GpuBuffer selectIndexBuffer(int lod) {
-        lod = Math.min(lod, maxLod);
-        GpuBuffer indices = null;
-        while (lod >= 0 && (indices = indexBuffers.get(lod)) == null) {
-            lod--;
-        }
-        if (indices == null) {
-            throw new NullPointerException("No index buffers specified.");
-        }
-        return indices;
+    public <T extends Attribute> T mapAttribute(String name) {
+        return layout.mapAttribute(this, name);
     }
 
-    @Override
-    public AttributeModifier modify(String attribute) {
-        VertexAttribute attr = description.getAttribute(attribute);
-        if (attr != null) {
-            VertexBuffer buffer = vertexBuffers[attr.getBinding().getBindingIndex()];
-            if (buffer == null) {
-                buffer = new VulkanVertexBuffer(attr.getBinding(), generator, vertices);
-                vertexBuffers[attr.getBinding().getBindingIndex()] = buffer;
-            }
-            return new VulkanAttributeModifier(buffer, attr);
-        } else {
-            LOG.warning("Attribute \"" + attribute + "\" does not exist. Data changes will be ignored.");
-            return new NullAttributeModifier();
-        }
+    public <T extends Attribute> T mapAttribute(GlVertexBuffer.Type name) {
+        return layout.mapAttribute(this, name);
     }
 
-    @Override
-    public boolean attributeExists(String attributeName) {
-        return description.getAttribute(attributeName) != null;
+    public void addLod(LodBuffer lod) {
+        lods.add(lod);
     }
 
-    @Override
-    public GpuBuffer getIndices(int lod) {
-        return indexBuffers.get(lod);
+    public VertexBuffer createVertexBuffer(VertexBinding binding, GpuBuffer buffer) {
+        VertexBuffer vb = new VertexBuffer(binding, buffer);
+        vertexBuffers.add(vb);
+        return vb;
     }
 
-    @Override
-    public void setAccessFrequency(String attributeName, AccessFrequency access) {
-        VertexAttribute attr = description.getAttribute(attributeName);
-        if (attr != null) {
-            VertexBuffer buffer = vertexBuffers[attr.getBinding().getBindingIndex()];
-            if (buffer == null) {
-                buffer = new VulkanVertexBuffer(attr.getBinding(), generator, vertices);
-                vertexBuffers[attr.getBinding().getBindingIndex()] = buffer;
-            } else {
-                buffer.setAccessFrequency(access);
-            }
-        }
+    public VertexBuffer getBuffer(int binding) {
+        return vertexBuffers.get(binding);
     }
 
-    @Override
-    public void setVertexCount(int vertices) {
+    public VertexBuffer getVertexBuffer(VertexBinding binding) {
+        return vertexBuffers.stream().filter(vb -> vb.getBinding() == binding).findAny().orElse(null);
+    }
+
+    public void computeBounds(BoundingVolume bounds) {
+        Position pos = mapAttribute(GlVertexBuffer.Type.Position);
+        volume.computeFromPoints(pos);
+        pos.unmap();
+    }
+
+    public void setVertices(int vertices) {
         if (this.vertices != vertices) {
             this.vertices = vertices;
             for (VertexBuffer vb : vertexBuffers) {
-                if (vb != null && !vb.isInstanceBuffer()) {
-                    vb.setNumVertices(vertices);
+                if (vb.getBinding().getInputRate().is(InputRate.Vertex)) {
+                    vb.buffer.getBuffer().resize(vertices);
                 }
             }
         }
     }
 
-    @Override
-    public void setTriangleCount(int lod, int triangles) {
-        GpuBuffer indices = indexBuffers.get(lod);
-        maxLod = Math.max(maxLod, lod);
-        if (indices == null) {
-            // todo: allow element size in bytes to be configurable
-            indexBuffers.put(lod, new AdaptiveBuffer(MemorySize.ints(triangles * 3), BufferUsage.Index, generator));
-        } else {
-            indices.resize(triangles * 3);
-        }
-    }
-
-    @Override
-    public void setInstanceCount(int instances) {
+    public void setInstances(int instances) {
         if (this.instances != instances) {
             this.instances = instances;
             for (VertexBuffer vb : vertexBuffers) {
-                if (vb != null && vb.isInstanceBuffer()) {
-                    vb.setNumVertices(instances);
+                if (vb.getBinding().getInputRate().is(InputRate.Instance)) {
+                    vb.buffer.getBuffer().resize(instances);
                 }
             }
         }
     }
 
-    @Override
-    public int getVertexCount() {
+    public MeshLayout getLayout() {
+        return layout;
+    }
+
+    public int getVertices() {
         return vertices;
     }
 
-    @Override
-    public int getTriangleCount(int lod) {
-        GpuBuffer indices = indexBuffers.get(lod);
-        if (indices != null) {
-            return indices.size().getElements() / 3;
-        } else return 0;
-    }
-
-    @Override
-    public int getInstanceCount() {
+    public int getInstances() {
         return instances;
     }
 
-    @Override
-    public int collideWith(Collidable other, Geometry geometry, CollisionResults results) {
-        if (collisionTree == null) try (AttributeModifier pos = modifyPosition()) {
-            GpuBuffer indices = indexBuffers.get(0);
-            collisionTree = new BIHTree(pos, indices.mapIndices());
-            collisionTree.construct();
-            indices.unmap();
-        }
-        return collisionTree.collideWith(other, geometry.getWorldMatrix(), geometry.getWorldBound(), results);
-    }
-
-    @Override
-    public void updateBound() {
-        try (AttributeModifier pos = modifyPosition()) {
-            volume.computeFromPoints(pos);
-        }
-    }
-
-    @Override
-    public void setBound(BoundingVolume volume) {
-        this.volume = volume;
-    }
-
-    @Override
-    public BoundingVolume getBound() {
-        return volume;
-    }
-
-    @Override
-    public int getNumLodLevels() {
-        return indexBuffers.size();
-    }
-
-    @Override
-    public Triangle getTriangle(int triangleIndex, Triangle store) {
-        GpuBuffer indices = indexBuffers.get(0);
-        if (indices == null) {
-            throw new NullPointerException("Base index buffer does not exist.");
-        }
-        if (store == null) {
-            store = new Triangle();
-        }
-        final int indicesPerTriangle = 3;
-        IndexBuffer mapped = indices.mapIndices(triangleIndex * indicesPerTriangle, indicesPerTriangle);
-        try (AttributeModifier pos = modifyPosition()) {
-            for (int i = 0; i < indicesPerTriangle; i++) {
-                pos.getVector3(mapped.get(i), 0, store.get(i));
+    protected LodBuffer selectLod(float distance) {
+        LodBuffer usable = lods.peek();
+        for (LodBuffer l : lods) {
+            if (distance < l.getOptimalDistance()) {
+                break;
             }
+            usable = l;
         }
-        indices.unmap();
-        store.setIndex(triangleIndex);
-        store.setCenter(null); // invalidate cached calculations
-        store.setNormal(null); // invalidate cached calculations
-        return store;
+        return usable;
     }
 
-    @Override
-    public int[] getTriangle(int triangleIndex, int[] store) {
-        GpuBuffer indices = indexBuffers.get(0);
-        if (indices == null) {
-            throw new NullPointerException("Base index buffer does not exist.");
-        }
-        final int indicesPerTriangle = 3;
-        if (store == null) {
-            store = new int[indicesPerTriangle];
-        } else if (store.length < indicesPerTriangle) {
-            throw new IllegalArgumentException("Index storage array must have at least " + indicesPerTriangle + " elements.");
-        }
-        IndexBuffer mapped = indices.mapIndices(triangleIndex * indicesPerTriangle, indicesPerTriangle);
-        for (int i = 0; i < indicesPerTriangle; i++) {
-            store[i] = mapped.get(i);
-        }
-        return store;
+    public int getElementsOf(IntEnum<InputRate> rate) {
+        return rate.is(InputRate.Instance) ? instances : vertices;
     }
 
-    @Override
-    public MeshDescription getDescription() {
-        return description;
-    }
+    public static class VertexBuffer {
 
-    @Override
-    public void write(JmeExporter ex) throws IOException {
+        private final VertexBinding binding;
+        private final AsyncBufferHandler<GpuBuffer> buffer = new AsyncBufferHandler<>();
 
-    }
+        private VertexBuffer(VertexBinding binding, GpuBuffer buffer) {
+            this.binding = binding;
+            this.buffer.setBuffer(buffer);
+        }
 
-    @Override
-    public void read(JmeImporter im) throws IOException {
+        public VertexBinding getBinding() {
+            return binding;
+        }
+
+        public AsyncBufferHandler<GpuBuffer> getData() {
+            return buffer;
+        }
 
     }
 

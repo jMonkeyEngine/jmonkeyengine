@@ -42,6 +42,8 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.util.BufferUtils;
+import com.jme3.vulkan.mesh.AttributeModifier;
+
 import java.nio.FloatBuffer;
 
 /**
@@ -135,10 +137,13 @@ public class BasicProfiler implements AppProfiler {
     protected final void createMesh() {
         if (mesh == null) {
             mesh = new Mesh();
-            mesh.setMode(Mesh.Mode.Lines);
+            // mesh is no longer responsible for the draw mode
+            //mesh.setMode(Mesh.Mode.Lines);
         }
 
-        mesh.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(size * 4 * 3));
+        mesh.setVertexCount(size * 4);
+        // todo: fix
+        //mesh.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(size * 4 * 3));
 
         FloatBuffer cb = BufferUtils.createFloatBuffer(size * 4 * 4);
         for (int i = 0; i < size; i++) {
@@ -153,19 +158,22 @@ public class BasicProfiler implements AppProfiler {
     }
 
     protected void updateMesh() {
-        FloatBuffer pb = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
-        pb.rewind();
-        float scale = 1 / 1000000f; // scaled to ms as pixels
-        for (int i = 0; i < size; i++) {
-            float t1 = frames[i * 2] * scale;
-            float t2 = frames[i * 2 + 1] * scale;
-
-            pb.put(i).put(0).put(0);
-            pb.put(i).put(t1).put(0);
-            pb.put(i).put(t1).put(0);
-            pb.put(i).put(t2).put(0);
+        try (AttributeModifier pos = mesh.modify(Type.Position)) {
+            float scale = 1 / 1000000f; // scaled to ms as pixels
+            for (int i = 0; i < size; i++) {
+                float t1 = frames[i * 2] * scale;
+                float t2 = frames[i * 2 + 1] * scale;
+                int vert = i * 4;
+                pos.putVector3(vert, 0, i, 0, 0);
+                pos.putVector3(vert + 1, 0, i, t1, 0);
+                pos.putVector3(vert + 2, 0, i, t1, 0);
+                pos.putVector3(vert + 3, 0, i, t2, 0);
+//                pb.put(i).put(0).put(0);
+//                pb.put(i).put(t1).put(0);
+//                pb.put(i).put(t1).put(0);
+//                pb.put(i).put(t2).put(0);
+            }
         }
-        mesh.setBuffer(Type.Position, 3, pb);
     }
 
     @Override

@@ -12,13 +12,13 @@ public class VertexAttribute {
     public static final String TEXCOORD = "jme_texCoord";
     public static final String COLOR = "jme_color";
 
-    private final VertexBinding binding;
+    private final OldVertexBinding binding;
     private final String name;
     private final Format format;
     private final int location;
     private final int offset;
 
-    public VertexAttribute(VertexBinding binding, String name, Format format, int location, int offset) {
+    public VertexAttribute(OldVertexBinding binding, String name, Format format, int location, int offset) {
         this.binding = Objects.requireNonNull(binding);
         this.name = Objects.requireNonNull(name);
         this.format = Objects.requireNonNull(format);
@@ -46,7 +46,7 @@ public class VertexAttribute {
         return name;
     }
 
-    public VertexBinding getBinding() {
+    public OldVertexBinding getBinding() {
         return binding;
     }
 

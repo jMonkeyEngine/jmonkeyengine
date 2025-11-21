@@ -32,7 +32,6 @@
 package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.backend.Backend;
 import com.jme3.light.LightFilter;
 import com.jme3.light.NullLightFilter;
 import com.jme3.material.Material;

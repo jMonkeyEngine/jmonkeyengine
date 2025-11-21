@@ -158,7 +158,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
             }
             vars.release();
             r.setShader(shader);
-            renderMeshFromGeometry(r, geometry, mesh);
+            renderMeshFromGeometry(r, geometry, mesh, mode);
         }
 
         if (isFirstLight) {
@@ -168,7 +168,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
             lightColor.setValue(VarType.Vector4, ColorRGBA.BlackNoAlpha);
             lightPos.setValue(VarType.Vector4, NULL_DIR_LIGHT);
             r.setShader(shader);
-            renderMeshFromGeometry(r, geometry, mesh);
+            renderMeshFromGeometry(r, geometry, mesh, mode);
         }
     }
 }

@@ -283,6 +283,12 @@ public class GlFrameBuffer extends GlNative implements FrameBuffer<GlFrameBuffer
 
     }
 
+    /**
+     * Creates FrameBuffer render targets.
+     *
+     * @deprecated use static methods under {@link GlFrameBuffer} directly
+     */
+    @Deprecated
     public static class FrameBufferTarget {
         private FrameBufferTarget(){}
         public static FrameBufferTextureTarget newTarget(GlTexture tx){
@@ -313,38 +319,29 @@ public class GlFrameBuffer extends GlNative implements FrameBuffer<GlFrameBuffer
         }
     }
 
+    public static FrameBufferTextureTarget newTarget(GlTexture tx) {
+        FrameBufferTextureTarget t = new FrameBufferTextureTarget();
+        t.setTexture(tx);
+        return t;
+    }
+
+    public static FrameBufferTextureTarget newTarget(GlTexture tx, TextureCubeMap.Face face) {
+        FrameBufferTextureTarget t = new FrameBufferTextureTarget();
+        t.face = face.ordinal();
+        t.setTexture(tx);
+        return t;
+    }
+
+    public static FrameBufferBufferTarget newTarget(Format format) {
+        FrameBufferBufferTarget t = new FrameBufferBufferTarget();
+        t.setFormat(format);
+        return t;
+    }
+
     /**
      * A private constructor to inhibit instantiation of this class.
      */
     private GlFrameBuffer() {
-    }
-
-    public void addColorTarget(FrameBufferBufferTarget colorBuf){
-        colorBuf.slot=colorBufs.size();
-        colorBufs.add(colorBuf);
-    }
-    
-    public void addColorTarget(FrameBufferTextureTarget colorBuf){
-        // checkSetTexture(colorBuf.getTexture(), false);  // TODO: this won't work for levels.
-        colorBuf.slot=colorBufs.size();
-        colorBufs.add(colorBuf);
-    }
-    
-    /**
-     * Replaces the color target at the index.
-     * <p>
-     * A color target must already exist at the index, otherwise
-     * an exception will be thrown.
-     * 
-     * @param i index of color target to replace
-     * @param colorBuf color target to replace with
-     */
-    public void replaceColorTarget(int i, FrameBufferTextureTarget colorBuf) {
-        if (i < 0 || i >= colorBufs.size()) {
-            throw new IndexOutOfBoundsException("No color target exists to replace at index=" + i);
-        }
-        colorBuf.slot = i;
-        colorBufs.set(i, colorBuf);
     }
 
     @Override
@@ -474,18 +471,7 @@ public class GlFrameBuffer extends GlNative implements FrameBuffer<GlFrameBuffer
 
     protected GlFrameBuffer(GlFrameBuffer src) {
         super(src.object);
-        /*
-        for (RenderBuffer renderBuf : src.colorBufs){
-            RenderBuffer clone = renderBuf.createDestructableClone();
-            if (clone != null)
-                this.colorBufs.add(clone);
-        }
-
-        this.depthBuf = src.depthBuf.createDestructableClone();
-         */
     }
-
-
 
     /**
      * If enabled, any shaders rendering into this <code>FrameBuffer</code>

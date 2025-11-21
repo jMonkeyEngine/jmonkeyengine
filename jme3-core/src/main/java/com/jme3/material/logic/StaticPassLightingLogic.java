@@ -178,7 +178,7 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
         Matrix4f viewMatrix = renderManager.getCurrentCamera().getViewMatrix();
         updateLightListUniforms(viewMatrix, shader, lights);
         renderer.setShader(shader);
-        renderMeshFromGeometry(renderer, geometry, mesh);
+        renderMeshFromGeometry(renderer, geometry, mesh, mode);
     }
 
 }

@@ -98,9 +98,7 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer count = stack.mallocInt(1);
             KHRSurface.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface.getNativeObject(), count, null);
-            if (count.get(0) <= 0) {
-                return false;
-            }
+            if (count.get(0) <= 0) return false;
             KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface.getNativeObject(), count, null);
             return count.get(0) > 0;
         }

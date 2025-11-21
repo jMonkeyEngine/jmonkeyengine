@@ -59,6 +59,14 @@ public class BufferRegion {
         return new BufferRegion(0, size.getBytes());
     }
 
+    public static BufferRegion union(BufferRegion region, int offset, int size) {
+        if (region == null) {
+            return new BufferRegion(offset, size);
+        } else {
+            return region.unionLocal(offset, size);
+        }
+    }
+
     private static int verifyOffset(int offset) {
         if (offset < 0) {
             throw new IllegalArgumentException("Offset cannot be negative.");

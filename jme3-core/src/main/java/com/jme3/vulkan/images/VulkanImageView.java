@@ -54,26 +54,6 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
         return type;
     }
 
-    public IntEnum<Swizzle> getSwizzleR() {
-        return swizzleR;
-    }
-
-    public IntEnum<Swizzle> getSwizzleG() {
-        return swizzleG;
-    }
-
-    public IntEnum<Swizzle> getSwizzleB() {
-        return swizzleB;
-    }
-
-    public IntEnum<Swizzle> getSwizzleA() {
-        return swizzleA;
-    }
-
-    public Flag<VulkanImage.Aspect> getAspect() {
-        return aspect;
-    }
-
     @Override
     public int getBaseMipmap() {
         return baseMipmap;
@@ -94,9 +74,24 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
         return layerCount;
     }
 
-    @Override
-    public boolean isDepthStencil() {
-        return aspect.contains(VulkanImage.Aspect.Depth) || aspect.contains(VulkanImage.Aspect.Stencil);
+    public IntEnum<Swizzle> getSwizzleR() {
+        return swizzleR;
+    }
+
+    public IntEnum<Swizzle> getSwizzleG() {
+        return swizzleG;
+    }
+
+    public IntEnum<Swizzle> getSwizzleB() {
+        return swizzleB;
+    }
+
+    public IntEnum<Swizzle> getSwizzleA() {
+        return swizzleA;
+    }
+
+    public Flag<VulkanImage.Aspect> getAspect() {
+        return aspect;
     }
 
     public Builder build() {

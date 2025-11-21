@@ -1154,6 +1154,10 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
             selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         }
 
+        if (!(geometry.getMesh() instanceof GlMesh)) {
+            throw new ClassCastException("Cannot render " + geometry.getMesh().getClass() + " in an OpenGL context.");
+        }
+
         TechniqueDef techniqueDef = technique.getDef();
         Renderer renderer = renderManager.getRenderer();
         EnumSet<Caps> rendererCaps = renderer.getCaps();

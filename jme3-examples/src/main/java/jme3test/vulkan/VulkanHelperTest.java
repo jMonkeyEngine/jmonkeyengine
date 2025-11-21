@@ -8,7 +8,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.Spatial;
 import com.jme3.vulkan.ColorSpace;
 import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.buffers.PerFrameBuffer;
@@ -27,7 +26,7 @@ import com.jme3.util.natives.Native;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.buffers.BufferUsage;
-import com.jme3.vulkan.buffers.PersistentBuffer;
+import com.jme3.vulkan.buffers.OldPersistentBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.descriptors.*;
@@ -209,7 +208,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         // mesh description
         MeshDescription meshDesc = new MeshDescription();
         try (MeshDescription.Builder m = meshDesc.build()) {
-            VertexBinding b = m.addBinding(InputRate.Vertex);
+            OldVertexBinding b = m.addBinding(InputRate.Vertex);
             m.addAttribute(b, GlVertexBuffer.Type.Position.getName(), Format.RGB32SFloat, 0);
             m.addAttribute(b, GlVertexBuffer.Type.TexCoord.getName(), Format.RG32SFloat, 1);
             m.addAttribute(b, GlVertexBuffer.Type.Normal.getName(), Format.RGB32SFloat, 2);
@@ -261,10 +260,10 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         Mesh m = new MyCustomMesh(meshDesc, new MeshBufferGenerator(device, frames, null, sharedData),
                 Vector3f.UNIT_Z, Vector3f.UNIT_Y, 1f, 1f, 0.5f, 0.5f);
         MatrixTransformMaterial t = new MatrixTransformMaterial(descriptorPool);
-        PerFrameBuffer<PersistentBuffer> transformBuffer = new PerFrameBuffer<>(frames, MemorySize.floats(16),
-                s -> new PersistentBuffer(device, s));
-        for (PersistentBuffer buf : transformBuffer) {
-            try (PersistentBuffer.Builder b = buf.build()) {
+        PerFrameBuffer<OldPersistentBuffer> transformBuffer = new PerFrameBuffer<>(frames, MemorySize.floats(16),
+                s -> new OldPersistentBuffer(device, s));
+        for (OldPersistentBuffer buf : transformBuffer) {
+            try (OldPersistentBuffer.Builder b = buf.build()) {
                 b.setUsage(BufferUsage.Uniform);
             }
         }

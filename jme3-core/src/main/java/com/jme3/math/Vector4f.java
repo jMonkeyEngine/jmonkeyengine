@@ -143,6 +143,19 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
         this.set(copy);
     }
 
+    public ColorRGBA toColor() {
+        return toColor(null);
+    }
+
+    public ColorRGBA toColor(ColorRGBA store) {
+        store = ColorRGBA.storage(store);
+        store.r = x;
+        store.g = y;
+        store.b = z;
+        store.a = w;
+        return store;
+    }
+
     /**
      * <code>set</code> sets the x,y,z,w values of the vector based on passed
      * parameters.
@@ -1178,4 +1191,9 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
         }
         throw new IllegalArgumentException("index must be either 0, 1, 2 or 3");
     }
+
+    public static Vector4f storage(Vector4f store) {
+        return store != null ? store : new Vector4f();
+    }
+
 }
