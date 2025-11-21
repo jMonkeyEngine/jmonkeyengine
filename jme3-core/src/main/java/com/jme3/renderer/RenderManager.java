@@ -1357,8 +1357,8 @@ public class RenderManager {
         }
 
         // cleanup for used render pipelines and pipeline contexts only
-        for (PipelineContext c : usedContexts) {
-            c.endContextRenderFrame(this);
+        for (int i = 0; i < usedContexts.size(); i++) {
+            usedContexts.get(i).endContextRenderFrame(this);
         }
         for (RenderPipeline<?> p : usedPipelines) {
             p.endRenderFrame(this);
