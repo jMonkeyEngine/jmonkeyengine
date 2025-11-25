@@ -999,6 +999,28 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
     }
 
     /**
+     * Transforms the given quaternion from world space to local space relative to this object's transform.
+     *
+     * @param in the input quaternion in world space that needs to be transformed
+     * @param store an optional Quaternion to store the result; if null, a new Quaternion will be created
+     * @return the transformed quaternion in local space, either stored in the provided Quaternion or a new one
+     */
+    public Quaternion worldToLocal(final Quaternion in, Quaternion store){
+        checkDoTransformUpdate();
+        if(store == null){
+            store=new Quaternion(in);
+        }else{
+            store.set(in);
+        }
+        TempVars tempVars = TempVars.get();
+        Quaternion worldRotation = tempVars.quat1.set(getWorldRotation());
+        worldRotation.inverseLocal();
+        store.multLocal(worldRotation);
+        tempVars.release();
+        return store;
+    }
+
+    /**
      * <code>getParent</code> retrieves this node's parent. If the parent is
      * null this is the root node.
      *
