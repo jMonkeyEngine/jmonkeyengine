@@ -165,11 +165,11 @@ public class PointLight extends Light {
         if (radius < 0) {
             throw new IllegalArgumentException("Light radius cannot be negative");
         }
-        
-        if (radius == Float.POSITIVE_INFINITY) {
-            radius = Float.MAX_VALUE;
+
+        // Fix #2566 - Prevent shader overflow with infinite or invalid radius
+        if (radius == Float.POSITIVE_INFINITY || radius < 0f || Float.isNaN(radius)) {
+            radius = Float.MAX_VALUE / 4f;  // Safe large value, avoids overflow in shaders
         }
-        
         this.radius = radius;
         if (radius != 0f) {
             this.invRadius = 1f / radius;
