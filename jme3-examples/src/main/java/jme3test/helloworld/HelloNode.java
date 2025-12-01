@@ -53,6 +53,7 @@ public class HelloNode extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
+        System.out.println("Initialization complete: HelloNode scene is now running.");
         /* create a blue box at coordinates (1,-1,1) */
         Box box1 = new Box(1,1,1);
         Geometry blue = new Geometry("Box", box1);
