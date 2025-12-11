@@ -36,4 +36,4 @@
 APP_PLATFORM := android-19
 # change this to 'debug' to see android logs
 APP_OPTIM := release
-APP_ABI := all
+APP_ABI := armeabi-v7a,arm64-v8a,x86,x86_64
