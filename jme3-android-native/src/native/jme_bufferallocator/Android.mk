@@ -39,7 +39,6 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_CFLAGS := -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=true
 LOCAL_LDLIBS     := -llog -Wl,-s
 
 LOCAL_MODULE := bufferallocatorjme

@@ -38,8 +38,7 @@ LOCAL_CFLAGS                := -ffast-math \
                                -DAL_ALEXT_PROTOTYPES \
                                -fcommon \
                                -O0 \
-                               -DRESTRICT="" \
-                               -DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=true
+                               -DRESTRICT=""
 
 LOCAL_LDLIBS                := -lOpenSLES -llog -Wl,-s -lc++_static -lc++abi
 LOCAL_STATIC_LIBRARIES      := openalsoft_prebuilt

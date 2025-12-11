@@ -99,7 +99,7 @@ jobs:
     name: Build natives for android
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/cirruslabs/android-sdk:35-ndk
+      image: ghcr.io/cirruslabs/android-sdk:36-ndk
 
     steps:
       - name: Clone the repo
