@@ -49,7 +49,7 @@ public final class LwjglxDefaultGLPlatform {
         switch (Platform.get()) {
             case WINDOWS:
                 return new Win32GLPlatform();
-            //case FREEBSD:  -> In future versions of lwjgl3 (possibly)
+            case FREEBSD:
             case LINUX:
                 return new X11GLPlatform();
             case MACOSX:
