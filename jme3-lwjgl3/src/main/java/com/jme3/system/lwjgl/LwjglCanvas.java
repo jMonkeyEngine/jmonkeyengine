@@ -645,11 +645,18 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                                                 getPrintContextInitInfo(canvas.getGLDataEffective())));
         }
 
-        try {
-            if (signalTerminate.tryAcquire(5, TimeUnit.MILLISECONDS)) {
-                canvas.doDisposeCanvas();
-            }
-        } catch (InterruptedException ignored) { }
+        // On platforms other than Windows, an ideal amount of time is needed
+        // for the CPU to breathe and avoid interrupting the AWT and OpenGL
+        // context. This ensures a smooth experience between AWT and OpenGL.
+        Platform platform = Platform.get();
+        if (platform != Platform.WINDOWS) {
+            try {
+                // Ideal time: 5 milliseconds
+                if (signalTerminate.tryAcquire(5, TimeUnit.MILLISECONDS)) {
+                    canvas.doDisposeCanvas();
+                }
+            } catch (InterruptedException ignored) { }
+        }
     }
     
     /**
