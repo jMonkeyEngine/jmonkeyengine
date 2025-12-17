@@ -1,7 +1,7 @@
 package com.jme3.vulkan.buffers;
 
 import com.jme3.renderer.vulkan.VulkanUtils;
-import com.jme3.util.AbstractBuilder;
+import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -10,12 +10,12 @@ import com.jme3.vulkan.memory.MemoryRegion;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkBufferCreateInfo;
 import org.lwjgl.vulkan.VkMemoryRequirements;
 
 import java.nio.BufferOverflowException;
 import java.nio.LongBuffer;
+import java.util.function.Consumer;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
@@ -29,14 +29,9 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
     protected boolean concurrent = false;
     protected long padding;
 
-    public BasicVulkanBuffer(LogicalDevice<?> device, MemorySize size) {
-        this(device, size, 0);
-    }
-
-    public BasicVulkanBuffer(LogicalDevice<?> device, MemorySize size, long padding) {
+    protected BasicVulkanBuffer(LogicalDevice<?> device, MemorySize size) {
         this.device = device;
         this.size = size;
-        this.padding = padding;
     }
 
     @Override
@@ -80,7 +75,7 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
     public boolean resize(MemorySize size) {
         this.size = size;
         if (memory != null && size.getBytes() > memory.getSize()) {
-            build().close();
+            new Builder().build();
             return true;
         }
         return false;
@@ -114,16 +109,18 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
         return padding;
     }
 
-    public Builder build() {
-        return new Builder();
+    public static BasicVulkanBuffer build(LogicalDevice<?> device, MemorySize size, Consumer<Builder> config) {
+        Builder b = new BasicVulkanBuffer(device, size).new Builder();
+        config.accept(b);
+        return b.build();
     }
 
-    public class Builder extends AbstractBuilder {
+    public class Builder extends AbstractNativeBuilder<BasicVulkanBuffer> {
 
         protected Flag<MemoryProp> memFlags = MemoryProp.DeviceLocal;
 
         @Override
-        protected void build() {
+        protected BasicVulkanBuffer construct() {
             if (ref != null) {
                 ref.destroy();
                 ref = null;
@@ -139,31 +136,35 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
             object = idBuf.get(0);
             VkMemoryRequirements bufferMem = VkMemoryRequirements.malloc(stack);
             vkGetBufferMemoryRequirements(device.getNativeObject(), object, bufferMem);
-            memory = new MemoryRegion(device, bufferMem.size());
-            try (MemoryRegion.Builder m = memory.build()) {
+            memory = MemoryRegion.build(device, bufferMem.size(), m -> {
                 m.setFlags(memFlags);
                 m.setUsableMemoryTypes(bufferMem.memoryTypeBits());
-            }
+            });
             memory.bind(BasicVulkanBuffer.this, 0);
             ref = Native.get().register(BasicVulkanBuffer.this);
             device.getNativeReference().addDependent(ref);
             memory.getNativeReference().addDependent(ref);
+            return BasicVulkanBuffer.this;
         }
 
-        public void setMemFlags(Flag<MemoryProp> memFlags) {
+        public Builder setMemFlags(Flag<MemoryProp> memFlags) {
             this.memFlags = memFlags;
+            return this;
         }
 
-        public void setUsage(Flag<BufferUsage> usage) {
+        public Builder setUsage(Flag<BufferUsage> usage) {
             BasicVulkanBuffer.this.usage = usage;
+            return this;
         }
 
-        public void setSize(MemorySize size) {
+        public Builder setSize(MemorySize size) {
             BasicVulkanBuffer.this.size = size;
+            return this;
         }
 
-        public void setConcurrent(boolean concurrent) {
+        public Builder setConcurrent(boolean concurrent) {
             BasicVulkanBuffer.this.concurrent = concurrent;
+            return this;
         }
 
     }

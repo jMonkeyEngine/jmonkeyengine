@@ -13,15 +13,13 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public interface Pipeline {
 
-    BasePipelineState<?, ?> getState();
-
     void bind(CommandBuffer cmd);
 
     boolean isMaterialEquivalent(Pipeline other);
 
-    PipelineBindPoint getBindPoint();
+    PipelineLayout getLayout();
 
-    Pipeline getParent();
+    PipelineBindPoint getBindPoint();
 
     int getSortId();
 

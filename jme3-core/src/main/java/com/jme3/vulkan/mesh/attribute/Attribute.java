@@ -1,23 +1,87 @@
 package com.jme3.vulkan.mesh.attribute;
 
-public interface Attribute <T> extends Iterable<T> {
+import com.jme3.vulkan.buffers.GpuBuffer;
 
+/**
+ * Interacts with a vertex or instance attribute stored in a buffer.
+ *
+ * @param <T>
+ */
+public interface Attribute <T> {
+
+    /**
+     * Unmaps this attribute from the vertex buffer.
+     */
     void unmap();
 
+    /**
+     * Sets the property described by this attribute of the element
+     * at the index with {@code value}.
+     *
+     * @param element element index
+     * @param value value to assign
+     */
     void set(int element, T value);
 
+    /**
+     * Gets the property described by this attribute of the element
+     * at the index.
+     *
+     * @param element element index
+     * @return value to assign
+     */
     T get(int element);
 
+    /**
+     * Gets the property described by this attribute of the element at the index.
+     * If {@code store} is not null, implementations may choose to store the
+     * property's value in {@code store} and return {@code store}.
+     *
+     * @param element index of element
+     * @param store object to store element's value
+     * @return object storing the element's value (can be {@code store})
+     */
+    T get(int element, T store);
+
+    /**
+     * {@link com.jme3.vulkan.buffers.GpuBuffer#push(int, int) Pushes} the elements
+     * in this attribute's vertex buffer in the described region.
+     *
+     * @param baseElement index of the first element to push
+     * @param elements number of elements to push
+     */
+    void push(int baseElement, int elements);
+
+    /**
+     * {@link GpuBuffer#push() Pushes} all elements in this attribute's vertex buffer.
+     */
+    void push();
+
+    /**
+     * Assigns {@code values} each element in order starting from {@code startElement}.
+     *
+     * @param startElement index of element to start at
+     * @param values values to assign (one value per element)
+     * @see #set(int, Object)
+     */
     default void set(int startElement, T[] values) {
         for (int i = 0; i < values.length; i++) {
             set(startElement + i, values[i]);
         }
     }
 
-    default T get(int element, T store) {
-        return get(element);
-    }
-
+    /**
+     * Gets the values of each vertex buffer element for each element of {@code store},
+     * starting at {@code startElement}. If an element of {@code store} is not null,
+     * implements may choose to store the corresponding vertex buffer element's
+     * value in that object. Otherwise each element of {@code store} is assigned with
+     * a new object containing the corresponding vertex buffer element's value.
+     *
+     * @param startElement index of element to start at
+     * @param store array defining the number of elements to read and optionally the
+     *              objects to hold the results
+     * @return {@code store} holding the value's of each element in the region
+     */
     default T[] get(int startElement, T[] store) {
         for (int i = 0; i < store.length; i++) {
             store[i] = get(startElement + i, store[i]);

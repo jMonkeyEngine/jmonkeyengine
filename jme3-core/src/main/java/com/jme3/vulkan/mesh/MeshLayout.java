@@ -1,71 +1,73 @@
 package com.jme3.vulkan.mesh;
 
-import com.jme3.scene.GlVertexBuffer;
 import com.jme3.vulkan.mesh.attribute.Attribute;
+import com.jme3.vulkan.pipeline.VertexPipeline;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkVertexInputAttributeDescription;
 import org.lwjgl.vulkan.VkVertexInputBindingDescription;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class MeshLayout implements Iterable<VertexBinding> {
 
     private final List<VertexBinding> bindings = new ArrayList<>();
 
-    public <T extends Attribute> T mapAttribute(AdaptiveMesh mesh, String name) {
-        for (VertexBinding b : bindings) {
-            AdaptiveMesh.VertexBuffer vb = mesh.getVertexBuffer(b);
-            int elements = mesh.getElementsOf(b.getInputRate());
-            if (vb == null) {
-                vb = mesh.createVertexBuffer(b, b.createBuffer(elements));
+    protected MeshLayout() {}
+
+    public <T extends Attribute> T mapAttribute(VulkanMesh mesh, String name) {
+        for (VertexBinding vb : bindings) {
+            T attr = vb.mapAttribute(name, mesh.getVertexBuffer(vb), mesh.getElements(vb.getInputRate()));
+            if (attr != null) {
+                return attr;
             }
-            T attr = b.mapAttribute(name, vb.getData(), elements);
-            if (attr != null) return attr;
         }
         throw new IllegalArgumentException("\"" + name + "\" is not an existing attribute.");
     }
 
-    public <T extends Attribute> T mapAttribute(AdaptiveMesh mesh, GlVertexBuffer.Type name) {
-        return mapAttribute(mesh, name.name());
-    }
-
-    public void addBinding(VertexBinding binding) {
-        bindings.add(binding);
-    }
-
-    public VkVertexInputBindingDescription.Buffer getBindingInfo(MemoryStack stack) {
+    public VkVertexInputBindingDescription.Buffer getBindingInfo(MemoryStack stack, VertexPipeline pipeline) {
+        if (pipeline.getNumAttributes() == 0) {
+            return VkVertexInputBindingDescription.malloc(0, stack);
+        }
         VkVertexInputBindingDescription.Buffer binds = VkVertexInputBindingDescription.calloc(bindings.size(), stack);
         int i = 0;
         for (VertexBinding vb : bindings) {
-            binds.get().binding(i++)
+            if (vb.bindOnPipeline(pipeline)) {
+                binds.get().binding(i++)
                     .stride(vb.getStride())
                     .inputRate(vb.getInputRate().getEnum());
+            }
         }
         binds.flip();
         return binds;
     }
 
-    public VkVertexInputAttributeDescription.Buffer getAttributeInfo(MemoryStack stack) {
-        int size = 0;
-        for (VertexBinding vb : bindings) {
-            size += vb.getNumAttributes();
+    public VkVertexInputAttributeDescription.Buffer getAttributeInfo(MemoryStack stack, VertexPipeline pipeline) {
+        if (pipeline.getNumAttributes() == 0) {
+            return VkVertexInputAttributeDescription.malloc(0, stack);
         }
-        VkVertexInputAttributeDescription.Buffer attr = VkVertexInputAttributeDescription.calloc(size, stack);
+        long numAttr = 0;
+        for (VertexBinding vb : bindings) {
+            numAttr += vb.getAttributes().stream()
+                    .filter(a -> a.bindOnPipeline(pipeline))
+                    .count();
+        }
+        VkVertexInputAttributeDescription.Buffer attr = VkVertexInputAttributeDescription.calloc((int)numAttr, stack);
         int binding = 0;
         for (VertexBinding vb : bindings) {
-            int location = 0;
-            int offset = 0;
-            for (VertexBinding.NamedAttribute a : vb) {
+            boolean anyValid = false;
+            for (VertexBinding.NamedAttribute a : vb.getAttributes()) {
+                Integer loc = pipeline.getAttributeLocation(a.getName());
+                if (loc == null) {
+                    continue;
+                }
                 attr.get().binding(binding)
-                        .location(location++)
-                        .format(a.getFormat().getVkEnum())
-                        .offset(offset);
-                offset += a.getFormat().getTotalBytes();
+                    .location(loc)
+                    .format(a.getFormat().getVkEnum())
+                    .offset(a.getOffset());
+                anyValid = true;
             }
-            binding++;
+            if (anyValid) binding++;
         }
         attr.flip();
         return attr;
@@ -85,7 +87,25 @@ public class MeshLayout implements Iterable<VertexBinding> {
 
     @Override
     public Iterator<VertexBinding> iterator() {
-        return bindings.iterator();
+        return Collections.unmodifiableList(bindings).iterator();
+    }
+
+    public static MeshLayout build(Consumer<Builder> config) {
+        Builder b = new MeshLayout().new Builder();
+        config.accept(b);
+        return b.build();
+    }
+
+    public class Builder {
+
+        public MeshLayout build() {
+            return MeshLayout.this;
+        }
+
+        public void addBinding(VertexBinding binding) {
+            bindings.add(binding);
+        }
+
     }
 
 }

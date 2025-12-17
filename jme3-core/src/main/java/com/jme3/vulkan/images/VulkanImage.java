@@ -2,12 +2,15 @@ package com.jme3.vulkan.images;
 
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.SharingMode;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.pipeline.Access;
 import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
+import org.lwjgl.vulkan.VkImageMemoryBarrier;
 
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -171,5 +174,7 @@ public interface VulkanImage extends GpuImage {
     IntEnum<SharingMode> getSharingMode();
 
     void addNativeDependent(NativeReference ref);
+
+    void transitionLayout(CommandBuffer commands, Layout dstLayout);
 
 }

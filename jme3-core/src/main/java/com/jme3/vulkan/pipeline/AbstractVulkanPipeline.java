@@ -1,12 +1,13 @@
 package com.jme3.vulkan.pipeline;
 
 import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.natives.Native;
+import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.util.Flag;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.lwjgl.vulkan.VK10.*;
 import static org.lwjgl.vulkan.VK10.vkCmdBindPipeline;
@@ -37,14 +38,12 @@ public abstract class AbstractVulkanPipeline extends AbstractNative<Long> implem
     protected final LogicalDevice<?> device;
     protected final PipelineLayout layout;
     protected final PipelineBindPoint bindPoint;
-    protected final Pipeline parent;
     private final int sortId;
 
-    public AbstractVulkanPipeline(LogicalDevice<?> device, PipelineLayout layout, PipelineBindPoint bindPoint, Pipeline parent) {
+    public AbstractVulkanPipeline(LogicalDevice<?> device, PipelineLayout layout, PipelineBindPoint bindPoint) {
         this.device = device;
         this.layout = layout;
         this.bindPoint = bindPoint;
-        this.parent = parent;
         this.sortId = nextSortId.getAndIncrement();
     }
 
@@ -71,11 +70,6 @@ public abstract class AbstractVulkanPipeline extends AbstractNative<Long> implem
     }
 
     @Override
-    public Pipeline getParent() {
-        return parent;
-    }
-
-    @Override
     public int getSortId() {
         return sortId;
     }
@@ -84,6 +78,7 @@ public abstract class AbstractVulkanPipeline extends AbstractNative<Long> implem
         return device;
     }
 
+    @Override
     public PipelineLayout getLayout() {
         return layout;
     }

@@ -1,18 +1,23 @@
 package com.jme3.vulkan.memory;
 
-import com.jme3.util.AbstractBuilder;
+import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.buffers.VulkanBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.GpuImage;
+import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkMemoryAllocateInfo;
+import org.lwjgl.vulkan.VkMemoryRequirements;
 
 import java.nio.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -26,7 +31,7 @@ public class MemoryRegion extends AbstractNative<Long> {
     private Flag<MemoryProp> flags = MemoryProp.DeviceLocal;
     private int type;
 
-    public MemoryRegion(LogicalDevice<?> device, long size) {
+    protected MemoryRegion(LogicalDevice<?> device, long size) {
         this.device = device;
         this.size = size;
     }
@@ -39,12 +44,12 @@ public class MemoryRegion extends AbstractNative<Long> {
         };
     }
 
-    public void bind(GpuBuffer buffer, long offset) {
+    public void bind(VulkanBuffer buffer, long offset) {
         check(vkBindBufferMemory(device.getNativeObject(), buffer.getId(), object, offset),
                 "Failed to bind buffer memory.");
     }
 
-    public void bind(GpuImage image, long offset) {
+    public void bind(VulkanImage image, long offset) {
         check(vkBindImageMemory(device.getNativeObject(), image.getId(), object, offset),
                 "Failed to bind image memory.");
     }
@@ -88,16 +93,35 @@ public class MemoryRegion extends AbstractNative<Long> {
         return type;
     }
 
-    public Builder build() {
-        return new Builder();
+    public static MemoryRegion build(LogicalDevice<?> device, long size, Consumer<Builder> config) {
+        Builder b = new MemoryRegion(device, size).new Builder();
+        config.accept(b);
+        return b.build();
     }
 
-    public class Builder extends AbstractBuilder {
+    public static MemoryRegion buildBufferMemory(VulkanBuffer buffer, Consumer<Builder> config) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            return buildBufferMemory(stack, buffer, config);
+        }
+    }
+
+    public static MemoryRegion buildBufferMemory(MemoryStack stack, VulkanBuffer buffer, Consumer<Builder> config) {
+        VkMemoryRequirements memReq = VkMemoryRequirements.malloc(stack);
+        vkGetBufferMemoryRequirements(buffer.getDevice().getNativeObject(), buffer.getId(), memReq);
+        MemoryRegion mem = build(buffer.getDevice(), buffer.size().getBytes(), b -> {
+            b.setUsableMemoryTypes(memReq.memoryTypeBits());
+            config.accept(b);
+        });
+        mem.bind(buffer, 0);
+        return mem;
+    }
+
+    public class Builder extends AbstractNativeBuilder<MemoryRegion> {
 
         private int usableMemoryTypes = 0;
 
         @Override
-        protected void build() {
+        protected MemoryRegion construct() {
             if (usableMemoryTypes == 0) {
                 throw new IllegalStateException("No usable memory types specified.");
             }
@@ -112,6 +136,7 @@ public class MemoryRegion extends AbstractNative<Long> {
             object = idBuf.get(0);
             ref = Native.get().register(MemoryRegion.this);
             device.getNativeReference().addDependent(ref);
+            return MemoryRegion.this;
         }
 
         public void setFlags(Flag<MemoryProp> flags) {

@@ -1,22 +1,24 @@
 package com.jme3.vulkan.mesh.attribute;
 
-import com.jme3.vulkan.buffers.Mappable;
+import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.mesh.VertexBinding;
 
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 
 public abstract class AbstractAttribute <T> implements Attribute<T> {
 
-    private final Mappable vertices;
-    private final int size, stride, offset;
+    private final VertexBinding binding;
+    private final GpuBuffer vertices;
+    private final int size, offset;
     private ByteBuffer buffer;
 
-    public AbstractAttribute(Mappable vertices, int size, int stride, int offset) {
+    public AbstractAttribute(VertexBinding binding, GpuBuffer vertices, int size, int offset) {
+        this.binding = binding;
         this.vertices = vertices;
         this.size = size;
-        this.stride = stride;
         this.offset = offset;
-        this.buffer = vertices.mapBytes();
+        this.buffer = vertices.mapBytes((int)binding.getOffset());
     }
 
     @Override
@@ -28,41 +30,53 @@ public abstract class AbstractAttribute <T> implements Attribute<T> {
         vertices.unmap();
     }
 
+    @Override
+    public void push(int baseElement, int elements) {
+        vertices.push((int)binding.getOffset() + baseElement * binding.getStride(), elements * binding.getStride());
+    }
+
+    @Override
+    public void push() {
+        push(0, size);
+    }
+
     protected ByteBuffer getBuffer() {
         return buffer;
     }
 
     protected ByteBuffer getBuffer(int element) {
-        return buffer.position(element * stride + offset);
+        // buffer is already offset by binding.getOffset() relative to vertices
+        return buffer.position(element * binding.getStride() + offset);
     }
 
-    @Override
-    public Iterator<T> iterator() {
-        if (vertices == null) {
-            throw new IllegalStateException("Cannot iterate over unmapped attribute.");
-        }
-        return new IteratorImpl<>(this, null, size);
+    public ReadIterator<T> read(T store) {
+        return new ReadIterator<>(this, store, size);
     }
 
-    public IteratorImpl<T> iterator(T store) {
-        if (vertices == null) {
-            throw new IllegalStateException("Cannot iterate over unmapped attribute.");
-        }
-        return new IteratorImpl<>(this, store, size);
+    public ReadIterator<T> read() {
+        return read(null);
+    }
+
+    public ReadWriteIterator<T> readWrite(T store) {
+        return new ReadWriteIterator<>(this, store, size);
+    }
+
+    public ReadWriteIterator<T> readWrite() {
+        return readWrite(null);
     }
 
     public IndexIterator indices() {
         return new IndexIterator(size);
     }
 
-    public static class IteratorImpl <T> implements Iterator<T>, Iterable<T> {
+    public static class ReadIterator <T> implements Iterator<T>, Iterable<T> {
 
         private final Attribute<T> attr;
         private final T store;
         private final int size;
         private int index = 0;
 
-        public IteratorImpl(Attribute<T> attr, T store, int size) {
+        public ReadIterator(Attribute<T> attr, T store, int size) {
             this.attr = attr;
             this.store = store;
             this.size = size;
@@ -82,6 +96,42 @@ public abstract class AbstractAttribute <T> implements Attribute<T> {
         @Override
         public T next() {
             return attr.get(index++, store);
+        }
+
+    }
+
+    public static class ReadWriteIterator <T> implements Iterator<T>, Iterable<T> {
+
+        private final Attribute<T> attr;
+        private final T store;
+        private final int size;
+        private int index = 0;
+        private T toWrite;
+
+        public ReadWriteIterator(Attribute<T> attr, T store, int size) {
+            this.attr = attr;
+            this.store = store;
+            this.size = size;
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+            this.index = 0;
+            return this;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (toWrite != null) {
+                attr.set(index - 1, toWrite);
+                toWrite = null;
+            }
+            return index < size;
+        }
+
+        @Override
+        public T next() {
+            return toWrite = attr.get(index++, store);
         }
 
     }

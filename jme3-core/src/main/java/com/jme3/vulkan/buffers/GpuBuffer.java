@@ -4,8 +4,10 @@ import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.IndexByteBuffer;
 import com.jme3.scene.mesh.IndexIntBuffer;
 import com.jme3.scene.mesh.IndexShortBuffer;
+import com.jme3.vulkan.GpuResource;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Struct;
 import org.lwjgl.system.StructBuffer;
@@ -15,7 +17,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.LongFunction;
 
-public interface GpuBuffer extends Mappable {
+public interface GpuBuffer extends GpuResource, Mappable {
 
     /**
      * Maps the memory of this buffer and returns a pointer to the mapped
@@ -30,32 +32,22 @@ public interface GpuBuffer extends Mappable {
     PointerBuffer map(int offset, int size);
 
     /**
-     * Gets the native buffer ID.
+     * Marks the region of this buffer as needing to be pushed to the GPU
+     * or another receiving buffer.
      *
-     * @return buffer ID
+     * @param offset offset of the region in bytes
+     * @param size size of the region in bytes
      */
-    long getId();
+    void push(int offset, int size);
 
     /**
-     * Resizes this buffer to accomodate the memory size.
-     * Implementations may choose to throw an exception rather than resizing.
+     * Marks this entire buffer as needing to be pushed to the GPU or
+     * another receiving buffer.
      *
-     * @param size buffer size this buffer must accommodate
-     * @return true if the buffer capacity had to be changed
-     * @throws UnsupportedOperationException if this buffer is unable to resize
+     * @see #push(int, int)
      */
-    boolean resize(MemorySize size);
-
-    /**
-     * Resizes this buffer to accomodate the given number of elements.
-     * Implementations may choose to throw an exception rather than resizing.
-     *
-     * @param elements number of elements this buffer must accommodate
-     * @return true if the buffer capacity had to be changed
-     * @throws UnsupportedOperationException if this buffer is unable to resize
-     */
-    default boolean resize(int elements) {
-        return resize(new MemorySize(elements, size().getBytesPerElement()));
+    default void push() {
+        push(0, size().getBytes());
     }
 
     /**

@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <code>RenderState</code> specifies material rendering properties that cannot
@@ -621,13 +622,10 @@ public class RenderState implements Cloneable, Savable {
      */
     @Override
     public boolean equals(Object o) {
-        if (o == null) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!(o instanceof RenderState)) {
-            return false;
-        }
-        RenderState rs = (RenderState) o;
+        RenderState rs = (RenderState)o;
 
         if (wireframe != rs.wireframe) {
             return false;
@@ -736,11 +734,19 @@ public class RenderState implements Cloneable, Savable {
             }
         }
 
-        if(lineWidth != rs.lineWidth){
-            return false;
-        }
+        return lineWidth == rs.lineWidth;
+    }
 
-        return true;
+    @Override
+    public int hashCode() {
+        return Objects.hash(wireframe, applyWireFrame, cullMode, applyCullMode, depthWrite, applyDepthWrite,
+                depthTest, applyDepthTest, colorWrite, applyColorWrite, blendEquation, blendEquationAlpha,
+                blendMode, applyBlendMode, offsetFactor, offsetUnits, offsetEnabled, applyPolyOffset,
+                stencilTest, applyStencilTest, lineWidth, applyLineWidth, depthFunc, applyDepthFunc,
+                frontStencilStencilFailOperation, frontStencilDepthFailOperation, frontStencilDepthPassOperation,
+                backStencilStencilFailOperation, backStencilDepthFailOperation, backStencilDepthPassOperation,
+                frontStencilFunction, backStencilFunction, frontStencilReference, backStencilReference,
+                frontStencilMask, backStencilMask, cachedHashCode, sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);
     }
 
     /**

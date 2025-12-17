@@ -12,10 +12,6 @@ parameters:
   # Also, binding and stages are handled by AbstractUniform.
   Matrices:
     type: UniformBuffer
-    set: 0
-    binding: 0
-    usage: Stream
-    stages: [Vertex]
     layout: # defines the layout of the uniform buffer
       worldViewProjection:
         type: Matrix4f
@@ -27,14 +23,9 @@ parameters:
         default: "parse_this"
   BaseColorMap:
     type: Texture
-    set: 0
-    binding: 1
-    define: "BASE_COLOR_MAP"
     default: "Common/Textures/MissingTexture.jpg"
   MyValue:
     type: MyUniformType
-    set: 0
-    binding: 1
     default: "parse_this"
 pipelines:
   main:
@@ -46,12 +37,20 @@ pipelines:
       - stage: Fragment
         file: "Shaders/VulkanFragTest.yml"
         # entry is "main" by default
-    dynamic: [ViewPort, Scissor]
-    raster:
-      type: MyRasterState
+    layout:
+      - name: "Matrices"
+        descriptor: UniformBuffer
+        stages: [Vertex]
+        set: 0
+        binding: 0
+      - name: "BaseColorMap"
+        descriptor: CombinedImageSampler
+        stages: [Fragment]
+        set: 0
+        binding: 1
+    renderHints:
       cullMode: None
-    colorBlend:
-      attachments:
+      blendAttachments:
         - colorWriteMask: [R, G, B, A]
           blend: false
           srcColorFactor: One
@@ -60,15 +59,4 @@ pipelines:
           srcAlphaFactor: One
           dstAlphaFactor: Zero
           alphaOp: Add
-    viewPort:
-      viewPorts:
-        - x: 0
-          y: 0
-          w: 128
-          h: 128
-      scissors:
-        - x: 0.0
-          y: 0.0
-          w: 1.0
-          h: 1.0
 

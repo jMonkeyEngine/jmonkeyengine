@@ -1,7 +1,8 @@
 package com.jme3.vulkan.mesh.attribute;
 
-import com.jme3.vulkan.Format;
+import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.buffers.Mappable;
+import com.jme3.vulkan.mesh.VertexBinding;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.Buffer;
@@ -10,8 +11,8 @@ import java.nio.ByteBuffer;
 
 public abstract class BufferAttribute <T, B extends Buffer> extends AbstractAttribute<T> {
 
-    public BufferAttribute(Mappable vertices, int size, int stride, int offset) {
-        super(vertices, size, stride, offset);
+    public BufferAttribute(VertexBinding binding, GpuBuffer vertices, int size, int offset) {
+        super(binding, vertices, size, offset);
     }
 
     public void set(int baseElement, B values) {

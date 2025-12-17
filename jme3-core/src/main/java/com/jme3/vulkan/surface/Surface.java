@@ -1,5 +1,6 @@
 package com.jme3.vulkan.surface;
 
+import com.jme3.app.Application;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.VulkanInstance;
@@ -20,6 +21,10 @@ public class Surface implements Native<Long>, DeviceFilter {
     private final NativeReference ref;
     private final long window;
     private long id;
+
+    public Surface(VulkanInstance instance, Application app) {
+        this(instance, (long)app.getWindowHandle());
+    }
 
     public Surface(VulkanInstance instance, long window) {
         this.instance = instance;

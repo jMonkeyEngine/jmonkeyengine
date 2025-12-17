@@ -1,18 +1,22 @@
 package com.jme3.vulkan.devices;
 
-import com.jme3.util.AbstractBuilder;
+import com.jme3.util.AbstractNativeBuilder;
+import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.VulkanInstance;
-import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.*;
+import org.lwjgl.vulkan.VkDevice;
+import org.lwjgl.vulkan.VkDeviceCreateInfo;
+import org.lwjgl.vulkan.VkExtensionProperties;
+import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
@@ -26,7 +30,7 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
     private final Map<Thread, Collection<CommandPool>> pools = new ConcurrentHashMap<>();
     private T physical;
 
-    public LogicalDevice(VulkanInstance instance) {
+    protected LogicalDevice(VulkanInstance instance) {
         this.instance = instance;
     }
 
@@ -36,6 +40,18 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
             vkDestroyDevice(object, null);
             enabledFeatures.free();
         };
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        LogicalDevice<?> that = (LogicalDevice<?>) o;
+        return instance == that.instance && object.address() == that.object.address();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(instance, object.address());
     }
 
     public void waitIdle() {
@@ -78,11 +94,13 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
         return pool;
     }
 
-    public Builder build(Function<Long, T> deviceFactory) {
-        return new Builder(deviceFactory);
+    public static <T extends PhysicalDevice> LogicalDevice<T> build(VulkanInstance instance, Function<Long, T> deviceFactory, Consumer<LogicalDevice<T>.Builder> config) {
+        LogicalDevice<T>.Builder b = new LogicalDevice<T>(instance).new Builder(deviceFactory);
+        config.accept(b);
+        return b.build();
     }
 
-    public class Builder extends AbstractBuilder {
+    public class Builder extends AbstractNativeBuilder<LogicalDevice<T>> {
 
         private final Function<Long, T> deviceFactory;
         private final Set<DeviceExtension> extensions = new HashSet<>();
@@ -95,7 +113,7 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
         }
 
         @Override
-        protected void build() {
+        protected LogicalDevice<T> construct() {
             findSuitablePhysicalDevice();
             VkPhysicalDeviceFeatures supportedFeatures = physical.getFeatures(stack);
             if (enableAllFeatures) {
@@ -132,6 +150,7 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
             ref = Native.get().register(LogicalDevice.this);
             physical.getInstance().getNativeReference().addDependent(ref);
             physical.createQueues(LogicalDevice.this);
+            return LogicalDevice.this;
         }
 
         private void findSuitablePhysicalDevice() {

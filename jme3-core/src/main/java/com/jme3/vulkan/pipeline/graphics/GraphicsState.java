@@ -3,6 +3,7 @@ package com.jme3.vulkan.pipeline.graphics;
 import com.jme3.util.Versionable;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.mesh.MeshDescription;
+import com.jme3.vulkan.mesh.MeshLayout;
 import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pipeline.*;
 import com.jme3.vulkan.pipeline.cache.PipelineCache;
@@ -34,7 +35,7 @@ public class GraphicsState implements BasePipelineState<GraphicsState, VkGraphic
     private final Map<Integer, IShaderState> shaders = new HashMap<>();
 
     // vertex input
-    private MeshDescription mesh; // not mutated the normal way
+    private MeshLayout mesh; // not mutated the normal way
 
     // input assembly
     protected static final int TOPOLOGY = BASE_INDEX + 1;
@@ -203,7 +204,7 @@ public class GraphicsState implements BasePipelineState<GraphicsState, VkGraphic
     }
 
     @Override
-    public Pipeline selectPipeline(PipelineCache cache, MeshDescription mesh) {
+    public Pipeline selectPipeline(PipelineCache cache, MeshLayout mesh) {
         this.mesh = mesh;
         CachedPipeline result = supportedPipelines.get(mesh);
         if (result == null || result.version != version) {

@@ -26,7 +26,6 @@ import com.jme3.util.natives.Native;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.buffers.BufferUsage;
-import com.jme3.vulkan.buffers.OldPersistentBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.descriptors.*;
@@ -217,7 +216,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         TestMaterial material = new TestMaterial(descriptorPool);
         PipelineLayout pipelineLayout = new PipelineLayout(device);
         try (PipelineLayout.Builder p = pipelineLayout.build()) {
-            p.addMaterial(material);
+            p.supportMaterial(material);
         }
 
         GraphicsState state = new GraphicsState();

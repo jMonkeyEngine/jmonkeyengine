@@ -1,15 +1,17 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.texture.ImageView;
-import com.jme3.util.AbstractBuilder;
+import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.Swizzle;
+import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.VkImageViewCreateInfo;
 
 import java.nio.LongBuffer;
+import java.util.function.Consumer;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
@@ -94,14 +96,16 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
         return aspect;
     }
 
-    public Builder build() {
-        return new Builder();
+    public static VulkanImageView build(VulkanImage image, IntEnum<Type> type, Consumer<Builder> config) {
+        Builder b = new VulkanImageView(image, type).new Builder();
+        config.accept(b);
+        return b.build();
     }
 
-    public class Builder extends AbstractBuilder {
+    public class Builder extends AbstractNativeBuilder<VulkanImageView> {
 
         @Override
-        protected void build() {
+        protected VulkanImageView construct() {
             VkImageViewCreateInfo create = VkImageViewCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO)
                     .image(image.getId())
@@ -124,6 +128,7 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
             object = idBuf.get(0);
             ref = Native.get().register(VulkanImageView.this);
             image.addNativeDependent(ref);
+            return VulkanImageView.this;
         }
 
         public void allMipmaps() {

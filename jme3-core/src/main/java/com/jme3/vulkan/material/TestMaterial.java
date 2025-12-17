@@ -1,18 +1,21 @@
 package com.jme3.vulkan.material;
 
-import com.jme3.vulkan.descriptors.DescriptorPool;
 import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.material.uniforms.BufferUniform;
 import com.jme3.vulkan.material.uniforms.TextureUniform;
-import com.jme3.vulkan.shader.ShaderStage;
 
 public class TestMaterial extends NewMaterial {
 
-    private final TextureUniform baseColorMap = new TextureUniform(
-            "BaseColorMap", VulkanImage.Layout.ShaderReadOnlyOptimal, 1, ShaderStage.Fragment);
+    private final BufferUniform matrices = new BufferUniform();
+    private final TextureUniform baseColorMap = new TextureUniform(VulkanImage.Layout.ShaderReadOnlyOptimal);
 
-    public TestMaterial(DescriptorPool pool) {
-        super(pool);
-        addSet(0, baseColorMap);
+    public TestMaterial() {
+        putUniform("Matrices", matrices);
+        putUniform("BaseColorMap", baseColorMap);
+    }
+
+    public BufferUniform getMatrices() {
+        return matrices;
     }
 
     public TextureUniform getBaseColorMap() {

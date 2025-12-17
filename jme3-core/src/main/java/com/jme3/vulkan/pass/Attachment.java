@@ -10,8 +10,8 @@ public class Attachment {
     private final int position;
     private final Format format;
     private final int samples;
-    private VulkanImage.Load load = VulkanImage.Load.Clear;
-    private VulkanImage.Store store = VulkanImage.Store.Store;
+    private VulkanImage.Load load = VulkanImage.Load.DontCare;
+    private VulkanImage.Store store = VulkanImage.Store.DontCare;
     private VulkanImage.Load stencilLoad = VulkanImage.Load.DontCare;
     private VulkanImage.Store stencilStore = VulkanImage.Store.DontCare;
     private VulkanImage.Layout initialLayout = VulkanImage.Layout.Undefined;

@@ -1,9 +1,10 @@
 package com.jme3.vulkan;
 
 import com.jme3.system.JmeVersion;
-import com.jme3.util.AbstractBuilder;
+import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryUtil;
@@ -13,34 +14,63 @@ import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
-import static org.lwjgl.vulkan.VK10.*;
+import static org.lwjgl.vulkan.VK14.*;
 
 public class VulkanInstance extends AbstractNative<VkInstance> {
 
     public static final String ENGINE_NAME = "jMonkeyEngine";
     public static final String LUNARG_LAYER = "VK_LAYER_KHRONOS_validation";
 
+    public enum Version implements IntEnum<Version> {
+
+        v10(VK_API_VERSION_1_0),
+        v11(VK_API_VERSION_1_1),
+        v12(VK_API_VERSION_1_2),
+        v13(VK_API_VERSION_1_3),
+        v14(VK_API_VERSION_1_4);
+
+        private final int vk;
+
+        Version(int vk) {
+            this.vk = vk;
+        }
+
+        @Override
+        public int getEnum() {
+            return vk;
+        }
+
+    }
+
     private final Set<String> extensions = new HashSet<>();
     private final Set<String> layers = new HashSet<>();
     private String appName = "Unnamed App";
     private int appVersion = VK_MAKE_VERSION(0, 0, 0);
-    private int apiVersion;
+    private IntEnum<Version> apiVersion;
     private VulkanLogger logger;
 
-    public VulkanInstance() {
-        this(VK_API_VERSION_1_0);
-    }
-
-    public VulkanInstance(int apiVersion) {
+    protected VulkanInstance(IntEnum<Version> apiVersion) {
         this.apiVersion = apiVersion;
     }
 
     @Override
     public Runnable createNativeDestroyer() {
         return () -> vkDestroyInstance(object, null);
+    }
+
+    public boolean equals(Object other) {
+        if (other == null || getClass() != other.getClass()) return false;
+        VulkanInstance that = (VulkanInstance) other;
+        return object.address() == that.object.address();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(object.address());
     }
 
     public VulkanLogger createLogger(Level exceptionThreshold) {
@@ -63,13 +93,23 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
         return new Builder();
     }
 
-    public class Builder extends AbstractBuilder {
+    public static VulkanInstance build(Consumer<Builder> config) {
+        return build(Version.v10, config);
+    }
+
+    public static VulkanInstance build(IntEnum<Version> apiVersion, Consumer<Builder> config) {
+        Builder b = new VulkanInstance(apiVersion).new Builder();
+        config.accept(b);
+        return b.build();
+    }
+
+    public class Builder extends AbstractNativeBuilder<VulkanInstance> {
 
         @Override
-        protected void build() {
+        protected VulkanInstance construct() {
             String[] ver = JmeVersion.VERSION_NUMBER.split("\\.", 3);
             VkApplicationInfo info = VkApplicationInfo.calloc(stack)
-                    .apiVersion(apiVersion)
+                    .apiVersion(apiVersion.getEnum())
                     .pEngineName(stack.UTF8(ENGINE_NAME))
                     .engineVersion(VK_MAKE_VERSION(
                             Integer.parseInt(ver[0]),
@@ -98,6 +138,7 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
             check(vkCreateInstance(create, null, ptr), "Failed to create instance.");
             object = new VkInstance(ptr.get(0), create);
             ref = Native.get().register(VulkanInstance.this);
+            return VulkanInstance.this;
         }
 
         public void setApplicationName(String name) {
@@ -108,7 +149,7 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
             VulkanInstance.this.appVersion = VK_MAKE_VERSION(major, minor, patch);
         }
 
-        public void setApiVersion(int version) {
+        public void setApiVersion(IntEnum<Version> version) {
             VulkanInstance.this.apiVersion = version;
         }
 

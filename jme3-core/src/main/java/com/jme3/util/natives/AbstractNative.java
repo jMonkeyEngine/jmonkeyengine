@@ -1,7 +1,5 @@
 package com.jme3.util.natives;
 
-import org.lwjgl.system.MemoryStack;
-
 public abstract class AbstractNative<T> implements Native<T> {
 
     protected T object;

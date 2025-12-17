@@ -9,9 +9,9 @@ public interface Mappable {
 
     PointerBuffer map();
 
-    MemorySize size();
-
     void unmap();
+
+    MemorySize size();
 
     ByteBuffer mapBytes();
 

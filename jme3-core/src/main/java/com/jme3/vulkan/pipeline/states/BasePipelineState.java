@@ -3,6 +3,7 @@ package com.jme3.vulkan.pipeline.states;
 import com.jme3.util.Versionable;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.mesh.MeshDescription;
+import com.jme3.vulkan.mesh.MeshLayout;
 import com.jme3.vulkan.pipeline.Pipeline;
 import com.jme3.vulkan.pipeline.cache.PipelineCache;
 import com.jme3.vulkan.shader.ShaderModule;
@@ -39,7 +40,7 @@ public interface BasePipelineState <SELF extends BasePipelineState, T> extends V
      * @param mesh mesh description to select with
      * @return selected pipeline
      */
-    Pipeline selectPipeline(PipelineCache cache, MeshDescription mesh);
+    Pipeline selectPipeline(PipelineCache cache, MeshLayout mesh);
 
     /**
      * Creates a new pipeline based on the current state.

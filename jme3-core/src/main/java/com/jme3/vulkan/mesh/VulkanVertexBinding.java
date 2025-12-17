@@ -1,9 +1,11 @@
 package com.jme3.vulkan.mesh;
 
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.vulkan.Format;
-import com.jme3.vulkan.buffers.AdaptiveVulkanBuffer;
-import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.buffers.Mappable;
+import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.buffers.newbuf.HostVisibleBuffer;
+import com.jme3.vulkan.buffers.newbuf.StreamingBuffer;
+import com.jme3.vulkan.buffers.stream.BufferStream;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.mesh.attribute.Attribute;
@@ -14,21 +16,24 @@ import java.util.*;
 public class VulkanVertexBinding implements VertexBinding {
 
     private final LogicalDevice<?> device;
+    private final BufferStream stream;
     private final List<NamedAttribute> attributes = new ArrayList<>();
     private final IntEnum<InputRate> rate;
     private int stride = 0;
     private long offset = 0L;
+    private GlVertexBuffer.Usage usage = GlVertexBuffer.Usage.Dynamic;
 
-    protected VulkanVertexBinding(LogicalDevice<?> device, IntEnum<InputRate> rate) {
+    protected VulkanVertexBinding(LogicalDevice<?> device, BufferStream stream, IntEnum<InputRate> rate) {
         this.device = device;
+        this.stream = stream;
         this.rate = rate;
     }
 
     @Override
-    public <T extends Attribute> T mapAttribute(String name, Mappable vertices, int size) {
+    public <T extends Attribute> T mapAttribute(String name, GpuBuffer vertices, int size) {
         for (NamedAttribute a : attributes) {
             if (a.getName().equals(name)) {
-                return (T)a.getMapping().map(vertices, size, getStride(), a.getOffset());
+                return (T)a.getMapping().map(this, vertices, size, a.getOffset());
             }
         }
         return null;
@@ -36,7 +41,20 @@ public class VulkanVertexBinding implements VertexBinding {
 
     @Override
     public GpuBuffer createBuffer(int elements) {
-        return new AdaptiveVulkanBuffer(device, new MemorySize(elements, stride));
+        MemorySize size = new MemorySize(elements, stride);
+        switch (usage) {
+            case Static:
+            case Dynamic: {
+                StreamingBuffer buffer = new StreamingBuffer(device, new MemorySize(elements, stride), BufferUsage.Vertex);
+                stream.add(buffer);
+                return buffer;
+            }
+            case Stream: {
+                return new PersistentVulkanBuffer<>(HostVisibleBuffer.build(device, size, b -> b.setUsage(BufferUsage.Vertex)));
+            }
+            case CpuOnly: throw new IllegalArgumentException("Cannot create cpu-only vulkan vertex buffer.");
+            default: throw new UnsupportedOperationException();
+        }
     }
 
     @Override
@@ -55,18 +73,13 @@ public class VulkanVertexBinding implements VertexBinding {
     }
 
     @Override
-    public int getNumAttributes() {
-        return attributes.size();
-    }
-
-    @Override
     public long getOffset() {
         return offset;
     }
 
     @Override
-    public Iterator<NamedAttribute> iterator() {
-        return attributes.iterator();
+    public Collection<NamedAttribute> getAttributes() {
+        return Collections.unmodifiableCollection(attributes);
     }
 
     @Override
@@ -83,12 +96,8 @@ public class VulkanVertexBinding implements VertexBinding {
         return Objects.hash(attributes, rate, stride);
     }
 
-    public static BuilderImpl create(LogicalDevice<?> device, IntEnum<InputRate> rate) {
-        return new VulkanVertexBinding(device, rate).build();
-    }
-
-    private BuilderImpl build() {
-        return new BuilderImpl();
+    public static BuilderImpl create(LogicalDevice<?> device, BufferStream stream, IntEnum<InputRate> rate) {
+        return new VulkanVertexBinding(device, stream, rate).new BuilderImpl();
     }
 
     public class BuilderImpl implements VertexBinding.Builder {
@@ -102,6 +111,12 @@ public class VulkanVertexBinding implements VertexBinding {
             }
             attributes.add(new NamedAttribute(name, format, mapping, stride));
             stride += format.getTotalBytes();
+            return this;
+        }
+
+        @Override
+        public BuilderImpl setUsage(GlVertexBuffer.Usage usage) {
+            VulkanVertexBinding.this.usage = Objects.requireNonNull(usage);
             return this;
         }
 

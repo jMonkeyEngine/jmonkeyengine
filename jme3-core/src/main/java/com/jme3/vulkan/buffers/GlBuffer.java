@@ -43,7 +43,7 @@ public class GlBuffer extends NioBuffer {
         updateNeeded = true;
     }
 
-    public boolean update() {
+    public boolean pollUpdate() {
         boolean u = updateNeeded;
         updateNeeded = false;
         return u;

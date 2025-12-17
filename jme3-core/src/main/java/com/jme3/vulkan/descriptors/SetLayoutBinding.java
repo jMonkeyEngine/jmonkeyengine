@@ -13,8 +13,16 @@ public class SetLayoutBinding {
     private final int binding, descriptors;
     private final Flag<ShaderStage> stages;
 
+    public SetLayoutBinding(IntEnum<Descriptor> type, int binding) {
+        this(type, binding, 1, ShaderStage.All);
+    }
+
     public SetLayoutBinding(IntEnum<Descriptor> type, int binding, int descriptors) {
         this(type, binding, descriptors, ShaderStage.All);
+    }
+
+    public SetLayoutBinding(IntEnum<Descriptor> type, int binding, Flag<ShaderStage> stages) {
+        this(type, binding, 1, stages);
     }
 
     public SetLayoutBinding(IntEnum<Descriptor> type, int binding, int descriptors, Flag<ShaderStage> stages) {

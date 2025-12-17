@@ -1,73 +1,27 @@
 package com.jme3.vulkan.sync;
 
-import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.pipeline.PipelineStage;
-import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
 
 import java.nio.LongBuffer;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
-import static org.lwjgl.vulkan.VK10.*;
+import static org.lwjgl.vulkan.VK14.*;
 
-public class Semaphore extends AbstractNative<Long> {
+public abstract class Semaphore extends AbstractNative<Long> {
 
     public static final Semaphore[] EMPTY = new Semaphore[0];
 
-    private final LogicalDevice<?> device;
-    private Flag<PipelineStage> dstStageMask;
-    private final AtomicBoolean signal = new AtomicBoolean(false);
+    protected final LogicalDevice<?> device;
 
-    public Semaphore(LogicalDevice<?> device) {
-        this(device, PipelineStage.None);
-    }
-
-    public Semaphore(LogicalDevice<?> device, Flag<PipelineStage> dstStageMask) {
+    protected Semaphore(LogicalDevice<?> device) {
         this.device = device;
-        this.dstStageMask = dstStageMask;
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkSemaphoreCreateInfo create = VkSemaphoreCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO);
-            object = getLong(stack, ptr -> check(vkCreateSemaphore(device.getNativeObject(), create, null, ptr),
-                    "Failed to create semaphore."));
-            ref = Native.get().register(this);
-            device.getNativeReference().addDependent(ref);
-        }
     }
 
     @Override
     public Runnable createNativeDestroyer() {
         return () -> vkDestroySemaphore(device.getNativeObject(), nonNull(object), null);
-    }
-
-    protected void onRegisterSignal() {
-        if (signal.getAndSet(true)) {
-            throw new IllegalStateException("Semaphore cannot be registered as a signal twice in a row.");
-        }
-    }
-
-    protected boolean onRegisterWait() {
-        return signal.getAndSet(false);
-    }
-
-    public void setDstStageMask(Flag<PipelineStage> dstStageMask) {
-        this.dstStageMask = dstStageMask;
-    }
-
-    public void addDstStage(Flag<PipelineStage> stageBit) {
-        this.dstStageMask = this.dstStageMask.add(stageBit);
-    }
-
-    public void removeDstStage(Flag<PipelineStage> stageBit) {
-        this.dstStageMask = this.dstStageMask.remove(stageBit);
-    }
-
-    public Flag<PipelineStage> getDstStageMask() {
-        return dstStageMask;
     }
 
     public SyncGroup toGroupWait() {
@@ -76,10 +30,6 @@ public class Semaphore extends AbstractNative<Long> {
 
     public SyncGroup toGroupSignal() {
         return new SyncGroup(EMPTY, this);
-    }
-
-    public boolean isRegisteredSignal() {
-        return signal.get();
     }
 
     @Deprecated
@@ -91,5 +41,7 @@ public class Semaphore extends AbstractNative<Long> {
     public LongBuffer toBuffer(MemoryStack stack) {
         return stack.longs(object);
     }
+
+
 
 }

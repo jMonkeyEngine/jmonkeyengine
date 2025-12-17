@@ -2,15 +2,17 @@ package com.jme3.vulkan.mesh.attribute;
 
 import com.jme3.math.Vector3f;
 import com.jme3.vulkan.Format;
+import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.buffers.Mappable;
+import com.jme3.vulkan.mesh.VertexBinding;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 public class Position extends BufferAttribute<Vector3f, FloatBuffer> {
 
-    public Position(Mappable vertices, int size, int stride, int offset) {
-        super(vertices, size, stride, offset);
+    public Position(VertexBinding binding, GpuBuffer vertices, int size, int offset) {
+        super(binding, vertices, size, offset);
     }
 
     @Override

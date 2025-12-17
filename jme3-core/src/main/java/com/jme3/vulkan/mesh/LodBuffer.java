@@ -1,12 +1,10 @@
 package com.jme3.vulkan.mesh;
 
-import com.jme3.dev.NotFullyImplemented;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.PointerBuffer;
 
-@NotFullyImplemented
-public class LodBuffer implements GpuBuffer, Comparable<LodBuffer> {
+public class LodBuffer implements GpuBuffer {
 
     private final GpuBuffer buffer;
     private final float optimalDistance;
@@ -22,13 +20,13 @@ public class LodBuffer implements GpuBuffer, Comparable<LodBuffer> {
     }
 
     @Override
-    public long getId() {
-        return buffer.getId();
+    public void push(int offset, int size) {
+        buffer.push(offset, size);
     }
 
     @Override
-    public boolean resize(MemorySize size) {
-        return buffer.resize(size);
+    public long getId() {
+        return buffer.getId();
     }
 
     @Override
@@ -39,11 +37,6 @@ public class LodBuffer implements GpuBuffer, Comparable<LodBuffer> {
     @Override
     public void unmap() {
         buffer.unmap();
-    }
-
-    @Override
-    public int compareTo(LodBuffer o) {
-        return Float.compare(optimalDistance, o.optimalDistance);
     }
 
     public float getOptimalDistance() {

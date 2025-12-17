@@ -55,6 +55,7 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.util.clone.JmeCloneable;
 import com.jme3.vulkan.material.NewMaterial;
+import com.jme3.vulkan.util.ScenePropertyStack;
 
 import java.io.IOException;
 import java.util.*;
@@ -1884,15 +1885,29 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
         return new GraphIterator(this);
     }
 
-    public static class GraphIterator implements Iterator<Spatial> {
+    public GraphIterator iterator(ScenePropertyStack... propertyStacks) {
+        return new GraphIterator(this, propertyStacks);
+    }
+
+    public static class GraphIterator implements Iterable<Spatial>, Iterator<Spatial> {
 
         private final Stack<Integer> childIndices = new Stack<>();
+        private final ScenePropertyStack[] propertyStacks;
         private Spatial current;
         private int currentIndex = 0;
         private int iteration = -1;
 
-        public GraphIterator(Spatial root) {
+        public GraphIterator(Spatial root, ScenePropertyStack... propertyStacks) {
             current = Objects.requireNonNull(root);
+            this.propertyStacks = propertyStacks;
+            for (ScenePropertyStack p : propertyStacks) {
+                p.push(root);
+            }
+        }
+
+        @Override
+        public Iterator<Spatial> iterator() {
+            return this;
         }
 
         @Override
@@ -1927,6 +1942,9 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
             } else {
                 current = null;
             }
+            for (ScenePropertyStack p : propertyStacks) {
+                p.pop();
+            }
         }
 
         protected void moveDown(Spatial node) {
@@ -1935,6 +1953,9 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
             }
             current = node;
             childIndices.push(currentIndex);
+            for (ScenePropertyStack p : propertyStacks) {
+                p.push(node);
+            }
             currentIndex = 0;
         }
 

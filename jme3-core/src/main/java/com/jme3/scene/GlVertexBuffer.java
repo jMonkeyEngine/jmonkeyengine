@@ -35,7 +35,7 @@ import com.jme3.dev.NotFullyImplemented;
 import com.jme3.export.*;
 import com.jme3.util.*;
 import com.jme3.util.natives.GlNative;
-import com.jme3.vulkan.buffers.AsyncBufferHandler;
+import com.jme3.vulkan.buffers.MultiMappingBuffer;
 import com.jme3.vulkan.buffers.GlBuffer;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.memory.MemorySize;
@@ -380,7 +380,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
      * derived from components * format.getComponentSize()
      */
     protected transient int componentsLength = 0;
-    protected final AsyncBufferHandler<GlBuffer> data = new AsyncBufferHandler<>();
+    protected final MultiMappingBuffer<GlBuffer> data = new MultiMappingBuffer<>();
     protected Usage usage;
     protected Format format;
     protected boolean normalized = false;
@@ -423,12 +423,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
     }
 
     @Override
-    public AsyncBufferHandler<GpuBuffer> getBuffer() {
-        return null;
-    }
-
-    @Override
-    public <T extends Attribute> T mapAttribute(String name, int vertices) {
+    public <T extends Attribute> T mapAttribute(String name, GpuBuffer vertices, int size) {
         return null;
     }
 
@@ -715,7 +710,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
     @Override
     public void clearUpdateNeeded() {
         super.clearUpdateNeeded();
-        data.getBuffer().update();
+        data.getBuffer().pollUpdate();
     }
 
     /**

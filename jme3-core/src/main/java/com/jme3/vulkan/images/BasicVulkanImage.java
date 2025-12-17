@@ -1,6 +1,6 @@
 package com.jme3.vulkan.images;
 
-import com.jme3.util.AbstractBuilder;
+import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.util.natives.AbstractNative;
@@ -18,6 +18,7 @@ import org.lwjgl.vulkan.VkImageMemoryBarrier;
 import org.lwjgl.vulkan.VkMemoryRequirements;
 
 import java.nio.LongBuffer;
+import java.util.function.Consumer;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -113,6 +114,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
         return () -> vkDestroyImage(device.getNativeObject(), object, null);
     }
 
+    @Override
     public void transitionLayout(CommandBuffer commands, Layout dstLayout) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             //int[] args = VulkanImage.Layout.getTransferArguments(srcLayout, dstLayout);
@@ -136,16 +138,18 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
         }
     }
 
-    public Builder build() {
-        return new Builder();
+    public static BasicVulkanImage build(LogicalDevice<?> device, IntEnum<GpuImage.Type> type, Consumer<Builder> config) {
+        Builder b = new BasicVulkanImage(device, type).new Builder();
+        config.accept(b);
+        return b.build();
     }
 
-    public class Builder extends AbstractBuilder {
+    public class Builder extends AbstractNativeBuilder<BasicVulkanImage> {
 
         private Flag<MemoryProp> mem;
 
         @Override
-        protected void build() {
+        protected BasicVulkanImage construct() {
             VkImageCreateInfo create = VkImageCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO)
                     .imageType(type.getEnum())
@@ -164,14 +168,14 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
             object = idBuf.get(0);
             VkMemoryRequirements memReq = VkMemoryRequirements.malloc(stack);
             vkGetImageMemoryRequirements(device.getNativeObject(), object, memReq);
-            memory = new MemoryRegion(device, memReq.size());
-            try (MemoryRegion.Builder m = memory.build()) {
+            memory = MemoryRegion.build(device, memReq.size(), m -> {
                 m.setFlags(mem);
                 m.setUsableMemoryTypes(memReq.memoryTypeBits());
-            }
+            });
             memory.bind(BasicVulkanImage.this, 0);
             ref = Native.get().register(BasicVulkanImage.this);
             device.getNativeReference().addDependent(ref);
+            return BasicVulkanImage.this;
         }
 
         public void setWidth(int w) {

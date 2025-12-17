@@ -2,7 +2,6 @@ package com.jme3.vulkan.pipeline.states;
 
 import com.jme3.vulkan.shader.ShaderStage;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class IShaderState {

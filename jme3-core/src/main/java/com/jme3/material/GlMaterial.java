@@ -1234,6 +1234,8 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         if (ver < 2) {
             guessRenderStateApply = true;
         }
+
+        // todo: end model compatibility???
         if (im.getFormatVersion() == 0) {
             // Enable compatibility with old models
             if (defName.equalsIgnoreCase("Common/MatDefs/Misc/VertexColor.j3md")) {

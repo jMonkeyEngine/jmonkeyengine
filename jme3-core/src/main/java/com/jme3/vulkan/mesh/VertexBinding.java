@@ -5,13 +5,15 @@ import com.jme3.vulkan.Format;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.buffers.Mappable;
 import com.jme3.vulkan.mesh.attribute.Attribute;
+import com.jme3.vulkan.pipeline.VertexPipeline;
 import com.jme3.vulkan.util.IntEnum;
 
+import java.util.Collection;
 import java.util.Objects;
 
-public interface VertexBinding extends Iterable<VertexBinding.NamedAttribute> {
+public interface VertexBinding {
 
-    <T extends Attribute> T mapAttribute(String name, Mappable vertices, int size);
+    <T extends Attribute> T mapAttribute(String name, GpuBuffer vertices, int size);
 
     GpuBuffer createBuffer(int elements);
 
@@ -23,7 +25,11 @@ public interface VertexBinding extends Iterable<VertexBinding.NamedAttribute> {
 
     IntEnum<InputRate> getInputRate();
 
-    int getNumAttributes();
+    Collection<NamedAttribute> getAttributes();
+
+    default boolean bindOnPipeline(VertexPipeline pipeline) {
+        return getAttributes().stream().anyMatch(a -> a.bindOnPipeline(pipeline));
+    }
 
     class NamedAttribute {
 
@@ -55,6 +61,10 @@ public interface VertexBinding extends Iterable<VertexBinding.NamedAttribute> {
             return offset;
         }
 
+        public boolean bindOnPipeline(VertexPipeline pipeline) {
+            return pipeline.getAttributeLocation(name) != null;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (o == null || getClass() != o.getClass()) return false;
@@ -72,6 +82,8 @@ public interface VertexBinding extends Iterable<VertexBinding.NamedAttribute> {
     interface Builder {
 
         Builder add(String name, Format format, AttributeMapping mapping);
+
+        Builder setUsage(GlVertexBuffer.Usage usage);
 
         VertexBinding build();
 

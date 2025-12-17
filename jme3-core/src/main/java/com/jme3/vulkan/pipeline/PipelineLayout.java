@@ -1,15 +1,15 @@
 package com.jme3.vulkan.pipeline;
 
-import com.jme3.util.AbstractBuilder;
 import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.natives.CacheableNativeBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.material.NewMaterial;
 import org.lwjgl.vulkan.VkPipelineLayoutCreateInfo;
 
 import java.nio.LongBuffer;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -17,9 +17,9 @@ import static org.lwjgl.vulkan.VK10.*;
 public class PipelineLayout extends AbstractNative<Long> {
 
     private final LogicalDevice<?> device;
-    private Collection<DescriptorSetLayout> layouts;
+    private final List<DescriptorSetLayout> layouts = new ArrayList<>();
 
-    public PipelineLayout(LogicalDevice<?> device, DescriptorSetLayout... layouts) {
+    protected PipelineLayout(LogicalDevice<?> device) {
         this.device = device;
     }
 
@@ -28,25 +28,39 @@ public class PipelineLayout extends AbstractNative<Long> {
         return () -> vkDestroyPipelineLayout(device.getNativeObject(), object, null);
     }
 
-    public Collection<DescriptorSetLayout> getDescriptorSetLayouts() {
-        return Collections.unmodifiableCollection(layouts);
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        PipelineLayout that = (PipelineLayout) o;
+        return Objects.equals(device, that.device) && Objects.equals(layouts, that.layouts);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(layouts);
+    }
+
+    public List<DescriptorSetLayout> getSetLayouts() {
+        return Collections.unmodifiableList(layouts);
     }
 
     public Builder build() {
         return new Builder();
     }
 
-    public class Builder extends AbstractBuilder {
+    public static PipelineLayout build(LogicalDevice<?> device, Consumer<Builder> config) {
+        Builder b = new PipelineLayout(device).new Builder();
+        config.accept(b);
+        return b.build();
+    }
 
-        private final Collection<DescriptorSetLayout> descriptorLayouts = new ArrayList<>();
-        private final Collection<NewMaterial> supportedMaterials = new ArrayList<>();
+    public class Builder extends CacheableNativeBuilder<PipelineLayout, PipelineLayout> {
 
         @Override
-        protected void build() {
-            Collection<DescriptorSetLayout> descriptors = createDescriptors();
-            LongBuffer layoutBuf = stack.mallocLong(descriptors.size());
-            for (DescriptorSetLayout l : descriptors) {
-                layoutBuf.put(l.build(stack).getNativeObject());
+        protected void construct() {
+            LongBuffer layoutBuf = stack.mallocLong(layouts.size());
+            for (DescriptorSetLayout l : layouts) {
+                layoutBuf.put(l.getNativeObject());
             }
             layoutBuf.flip();
             VkPipelineLayoutCreateInfo create = VkPipelineLayoutCreateInfo.calloc(stack)
@@ -61,37 +75,17 @@ public class PipelineLayout extends AbstractNative<Long> {
             device.getNativeReference().addDependent(ref);
         }
 
-        private Collection<DescriptorSetLayout> createDescriptors() {
-            // The number of duplicates of a particular layout to return is the
-            // maximum of those duplicates that come from any material.
-            Map<DescriptorSetLayout, LayoutCount> layoutBuckets = new HashMap<>();
-            int usedLayouts = 0;
-            for (NewMaterial m : supportedMaterials) {
-                DescriptorSetLayout[] layouts = m.createLayouts(device);
-                for (DescriptorSetLayout l : layouts) {
-                    LayoutCount c = layoutBuckets.get(l);
-                    if (c == null) {
-                        layoutBuckets.put(l, c = new LayoutCount());
-                    }
-                    if (c.add(l)) {
-                        usedLayouts++;
-                    }
-                }
-                layoutBuckets.values().forEach(LayoutCount::reset);
-            }
-            layouts.clear();
-            layouts = new ArrayList<>(usedLayouts + descriptorLayouts.size());
-            layouts.addAll(descriptorLayouts);
-            layoutBuckets.values().forEach(layouts::addAll);
-            return layouts;
+        @Override
+        protected PipelineLayout getBuildTarget() {
+            return PipelineLayout.this;
         }
 
-        public void addDescriptorLayout(DescriptorSetLayout layout) {
-            descriptorLayouts.add(layout);
+        public void nextUniformSet(DescriptorSetLayout layout) {
+            layouts.add(layout);
         }
 
-        public void addMaterial(NewMaterial material) {
-            supportedMaterials.add(material);
+        public void nextUniformSet(Consumer<DescriptorSetLayout.Builder> config) {
+            layouts.add(DescriptorSetLayout.build(device, config));
         }
 
     }

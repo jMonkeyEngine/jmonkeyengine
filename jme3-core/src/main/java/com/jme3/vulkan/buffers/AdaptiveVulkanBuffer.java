@@ -20,11 +20,14 @@ import org.lwjgl.system.MemoryUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdaptiveVulkanBuffer implements VulkanBuffer, AdaptiveBuffer, Command {
+public class AdaptiveVulkanBuffer implements VulkanBuffer, AdaptiveBuffer, Command, ResourceTicket<VulkanBuffer> {
+
+    private static final Flag<MemoryProp> SHARED_MEM_PROPS = Flag.of(MemoryProp.HostVisible, MemoryProp.HostCoherent);
 
     private final LogicalDevice<?> device;
     private final StaticAllocator<VulkanBuffer> allocator;
     private final UpdateFrameManager frames;
+    private MemorySize size;
     private GlVertexBuffer.Usage mode;
 
     private VulkanBuffer gpuOnlyBuffer;
@@ -95,14 +98,15 @@ public class AdaptiveVulkanBuffer implements VulkanBuffer, AdaptiveBuffer, Comma
 
     @Override
     public boolean resize(MemorySize size) {
+        this.size = size;
         switch (mode) {
             case Stream: {
-                boolean resize = false;
                 for (int i = 0; i < sharedBuffers.length; i++) {
-                    sharedBuffers[i] = new PersistentSharedBuffer(allocator.allocate());
+                    sharedBuffers[i] = new PersistentSharedBuffer(allocator.allocate(this));
                 }
             }
         }
+        return false; // ?
     }
 
     @Override
@@ -125,29 +129,27 @@ public class AdaptiveVulkanBuffer implements VulkanBuffer, AdaptiveBuffer, Comma
 
     }
 
-    private static class Ticket implements ResourceTicket<VulkanBuffer> {
-
-        private final MemorySize size;
-        private final Flag<BufferUsage> usage;
-
-        private final boolean concurrent;
-
-        private Ticket(MemorySize size, Flag<BufferUsage> usage, boolean concurrent) {
-            this.size = size;
-            this.usage = usage;
-            this.concurrent = concurrent;
-        }
-
-        @Override
-        public Float selectResource(VulkanBuffer resource) {
-            if ()
-        }
-
-        @Override
-        public VulkanBuffer createResource() {
+    @Override
+    public Float selectResource(VulkanBuffer resource) {
+        if (resource.getDevice() != device
+                || !resource.getUsage().contains(usage)
+                || !resource.getMemoryProperties().is(SHARED_MEM_PROPS)
+                || resource.isConcurrent() != concurrent
+                || resource.size().getBytes() < size.getBytes()) {
             return null;
         }
+        return (float)(resource.size().getBytes() - size.getBytes());
+    }
 
+    @Override
+    public VulkanBuffer createResource() {
+        BasicVulkanBuffer buf = new BasicVulkanBuffer(device, size);
+        try (BasicVulkanBuffer.Builder b = buf.build()) {
+            b.setUsage(usage);
+            b.setMemFlags(SHARED_MEM_PROPS);
+            b.setConcurrent(concurrent);
+        }
+        return buf;
     }
 
     private static class SharedBuffer {

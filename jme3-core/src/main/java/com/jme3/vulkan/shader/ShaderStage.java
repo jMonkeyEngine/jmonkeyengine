@@ -22,7 +22,7 @@ public final class ShaderStage implements Flag<ShaderStage>, IntEnum<ShaderStage
     private final int vk;
     private final int shaderc;
 
-    ShaderStage(int vk, int shaderc) {
+    public ShaderStage(int vk, int shaderc) {
         this.vk = vk;
         this.shaderc = shaderc;
     }

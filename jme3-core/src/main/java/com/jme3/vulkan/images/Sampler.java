@@ -1,6 +1,6 @@
 package com.jme3.vulkan.images;
 
-import com.jme3.util.AbstractBuilder;
+import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -11,6 +11,7 @@ import org.lwjgl.vulkan.VkSamplerCreateInfo;
 
 import java.nio.LongBuffer;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
@@ -94,16 +95,18 @@ public class Sampler extends AbstractNative<Long> {
         return unnormalizedCoords;
     }
 
-    public Builder build() {
-        return new Builder();
+    public static Sampler build(LogicalDevice<?> device, Consumer<Builder> config) {
+        Builder b = new Sampler(device).new Builder();
+        config.accept(b);
+        return b.build();
     }
 
-    public class Builder extends AbstractBuilder {
+    public class Builder extends AbstractNativeBuilder<Sampler> {
 
         private Builder() {}
 
         @Override
-        protected void build() {
+        protected Sampler construct() {
             VkPhysicalDeviceProperties props = device.getPhysicalDevice().getProperties(stack);
             VkSamplerCreateInfo create = VkSamplerCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO)
@@ -128,6 +131,7 @@ public class Sampler extends AbstractNative<Long> {
             object = idBuf.get(0);
             ref = Native.get().register(Sampler.this);
             device.getNativeReference().addDependent(ref);
+            return Sampler.this;
         }
 
         public void setMipmapMode(IntEnum<MipmapMode> m) {

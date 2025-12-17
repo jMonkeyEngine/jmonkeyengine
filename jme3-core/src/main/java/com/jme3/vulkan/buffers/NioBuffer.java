@@ -3,6 +3,7 @@ package com.jme3.vulkan.buffers;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
+import com.jme3.vulkan.buffers.stream.DirtyRegions;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
@@ -13,6 +14,7 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
 
     private final PointerBuffer address = MemoryUtil.memCallocPointer(1);
     private final NativeReference ref;
+    private final DirtyRegions regions = new DirtyRegions();
     private ByteBuffer buffer;
     private MemorySize size;
     private int padding;
@@ -74,6 +76,16 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
 
     @Override
     public void unmap() {}
+
+    @Override
+    public void update(int offset, int size) {
+        regions.add(offset, size);
+    }
+
+    @Override
+    public DirtyRegions getUpdateRegions() {
+        return null;
+    }
 
     @Override
     public MemorySize size() {

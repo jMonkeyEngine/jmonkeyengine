@@ -7,6 +7,9 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkSubmitInfo;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -15,6 +18,7 @@ public class Queue {
     private final LogicalDevice<?> device;
     private final VkQueue queue;
     private final int familyIndex, queueIndex;
+    private final Executor executor = Executors.newCachedThreadPool();
 
     public Queue(LogicalDevice<?> device, int familyIndex, int queueIndex) {
         this.device = device;
@@ -54,6 +58,10 @@ public class Queue {
 
     public int getQueueIndex() {
         return queueIndex;
+    }
+
+    public Executor getExecutor() {
+        return executor;
     }
 
 }

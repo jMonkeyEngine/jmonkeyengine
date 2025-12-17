@@ -9,6 +9,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Immutable definition of a subpass within a render pass.
@@ -46,6 +47,11 @@ public class Subpass {
                 depthStencil = AttachmentReference.unused(base.depthStencil.getLayout());
             }
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pass, position);
     }
 
     private void transferRefs(List<AttachmentReference> srcRefs, List<AttachmentReference> dstRefs, List<Attachment> attachments) {

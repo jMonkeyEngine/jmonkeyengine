@@ -2,16 +2,16 @@ package com.jme3.util;
 
 import org.lwjgl.system.MemoryStack;
 
-public abstract class AbstractBuilder implements AutoCloseable {
+public abstract class AbstractNativeBuilder <T> {
 
     protected final MemoryStack stack = MemoryStack.stackPush();
 
-    @Override
-    public void close() {
-        build();
+    public T build() {
+        T obj = construct();
         stack.pop();
+        return obj;
     }
 
-    protected abstract void build();
+    protected abstract T construct();
 
 }

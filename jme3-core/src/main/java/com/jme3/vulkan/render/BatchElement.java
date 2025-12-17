@@ -20,6 +20,4 @@ public interface BatchElement {
 
     Mesh getMesh();
 
-    Pipeline getPipeline();
-
 }

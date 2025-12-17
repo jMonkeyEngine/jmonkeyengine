@@ -5,30 +5,29 @@ import com.jme3.math.FastMath;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.vulkan.material.VkMaterial;
-import com.jme3.vulkan.mesh.VkMesh;
+import com.jme3.vulkan.descriptors.DescriptorPool;
+import com.jme3.vulkan.material.VulkanMaterial;
+import com.jme3.vulkan.mesh.VulkanMesh;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.material.NewMaterial;
-import com.jme3.vulkan.pipeline.Pipeline;
-import com.jme3.vulkan.pipeline.PipelineBindPoint;
-import com.jme3.vulkan.pipeline.cache.PipelineCache;
+import com.jme3.vulkan.pipeline.VertexPipeline;
+import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
 
 import java.util.Comparator;
 
 public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Element> {
 
-    private final PipelineCache cache;
+    private final DescriptorPool pool;
 
-    public VulkanGeometryBatch(PipelineCache cache, Camera camera, Comparator<Element> comparator) {
+    public VulkanGeometryBatch(DescriptorPool pool, Camera camera, Comparator<Element> comparator) {
         super(camera, comparator);
-        this.cache = cache;
+        this.pool = pool;
     }
 
     @Override
     public void render(CommandBuffer cmd) {
-        Pipeline currentPipeline = null;
-        VkMaterial currentMaterial = null;
-        VkMesh currentMesh = null;
+        VertexPipeline currentPipeline = null;
+        VulkanMaterial currentMaterial = null;
         for (Element e : queue) {
             // I'm not sure if it's safe or optimal to allow controls to muck with
             // geometry/material/mesh at this point, but this would technically
@@ -39,26 +38,19 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
             // that the appropriate buffers be updated on or after this point.
             e.getGeometry().updateMatrixTransforms(camera);
 
-            // bind the selected pipeline if necessary
+            // bind pipeline if necessary
             if (e.getPipeline() != currentPipeline) {
-                if (!e.getPipeline().isMaterialEquivalent(currentPipeline)) {
-                    currentMaterial = null; // must explicitly bind next material
-                }
                 (currentPipeline = e.getPipeline()).bind(cmd);
+                currentMaterial = null;
             }
 
-            // bind the material if necessary
-            if (e.getMaterial() != currentMaterial && !(currentMaterial = e.getMaterial()).bind(cmd, currentPipeline)) {
-                throw new IllegalStateException("Attempted to bind material with an incompatible pipeline.");
-            }
-
-            // bind the mesh if necessary
-            if (currentMesh != e.getMesh()) {
-                (currentMesh = e.getMesh()).bind(cmd, e.getGeometry().getLodLevel());
+            // bind material if necessary
+            if (e.getMaterial() != currentMaterial) {
+                (currentMaterial = e.getMaterial()).bind(cmd, currentPipeline, pool);
             }
 
             // render
-            currentMesh.render(cmd, e.getGeometry().getLodLevel());
+            e.getMesh().render(cmd, currentPipeline);
         }
     }
 
@@ -70,9 +62,9 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
     public class Element implements BatchElement {
 
         private final Geometry geometry;
-        private final VkMaterial material;
-        private final VkMesh mesh;
-        private final Pipeline pipeline;
+        private final VulkanMaterial material;
+        private final VulkanMesh mesh;
+        private final VertexPipeline pipeline;
         private float distanceSq = Float.NaN;
         private float distance = Float.NaN;
 
@@ -82,13 +74,16 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
             if (!(mat instanceof NewMaterial)) {
                 throw new ClassCastException("Cannot render " + mat.getClass() + " in a Vulkan context.");
             }
-            this.material = (VkMaterial)mat;
-            Mesh m = forcedMesh != null ? forcedMesh : this.geometry.getMesh();
-            if (!(m instanceof VkMesh)) {
-                throw new ClassCastException("Cannot render " + mat.getClass() + " in a Vulkan context.");
+            this.material = (VulkanMaterial)mat;
+            Mesh mesh = forcedMesh != null ? forcedMesh : this.geometry.getMesh();
+            if (!(mesh instanceof VulkanMesh)) {
+                throw new ClassCastException("Cannot render " + mesh.getClass() + " in a Vulkan context.");
             }
-            this.mesh = (VkMesh)m;
-            this.pipeline = this.material.selectPipeline(cache, this.mesh.getDescription(), forcedTechnique, null);
+            this.mesh = (VulkanMesh)mesh;
+            this.pipeline = GraphicsPipeline.build(null, null, geometry.getMaterial().getLayout(), null, p -> {
+                p.setCache(cache);
+                p.applyGeometry(geometry);
+            });
         }
 
         @Override
@@ -114,17 +109,16 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
         }
 
         @Override
-        public VkMaterial getMaterial() {
+        public VulkanMaterial getMaterial() {
             return material;
         }
 
         @Override
-        public VkMesh getMesh() {
+        public VulkanMesh getMesh() {
             return mesh;
         }
 
-        @Override
-        public Pipeline getPipeline() {
+        public VertexPipeline getPipeline() {
             return pipeline;
         }
 

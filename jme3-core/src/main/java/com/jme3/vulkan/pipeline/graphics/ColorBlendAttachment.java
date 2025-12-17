@@ -1,158 +1,211 @@
 package com.jme3.vulkan.pipeline.graphics;
 
+import com.jme3.material.RenderState;
+import com.jme3.vulkan.pipeline.BlendFactor;
+import com.jme3.vulkan.pipeline.BlendOp;
+import com.jme3.vulkan.pipeline.ColorComponent;
+import com.jme3.vulkan.util.Flag;
+import com.jme3.vulkan.util.IntEnum;
+import com.jme3.vulkan.util.RenderStateToVulkan;
 import org.lwjgl.vulkan.VkPipelineColorBlendAttachmentState;
 
 import java.util.Objects;
-
-import static org.lwjgl.vulkan.VK10.*;
+import java.util.function.Consumer;
 
 public class ColorBlendAttachment {
 
-    private int colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT
-                               | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    private boolean blend = false;
-    private int srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-    private int dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-    private int colorBlendOp = VK_BLEND_OP_ADD;
-    private int srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    private int dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    private int alphaBlendOp = VK_BLEND_OP_ADD;
-    protected long version = 0L;
+    private Flag<ColorComponent> writeMask = ColorComponent.All;
+    private IntEnum<BlendFactor> srcColorFactor = BlendFactor.One;
+    private IntEnum<BlendFactor> dstColorFactor = BlendFactor.Zero;
+    private IntEnum<BlendFactor> srcAlphaFactor = BlendFactor.One;
+    private IntEnum<BlendFactor> dstAlphaFactor = BlendFactor.Zero;
+    private IntEnum<BlendOp> colorBlend = BlendOp.Add;
+    private IntEnum<BlendOp> alphaBlend = BlendOp.Add;
+    private boolean enabled = true;
+
+    public ColorBlendAttachment(RenderState state) {
+        Builder a = new Builder();
+        switch (state.getBlendMode()) {
+            case Off: a.setEnabled(false); break;
+            case Additive: {
+                a.setSrcFactor(BlendFactor.One);
+                a.setDstFactor(BlendFactor.One);
+            } break;
+            case PremultAlpha: {
+                a.setSrcFactor(BlendFactor.One);
+                a.setDstFactor(BlendFactor.OneMinusSrcAlpha);
+            } break;
+            case AlphaAdditive: {
+                a.setSrcFactor(BlendFactor.SrcAlpha);
+                a.setDstFactor(BlendFactor.One);
+            } break;
+            case Screen: case Color: {
+                a.setSrcFactor(BlendFactor.One);
+                a.setDstFactor(BlendFactor.OneMinusSrcColor);
+            } break;
+            case Alpha: {
+                a.setSrcFactor(BlendFactor.SrcAlpha);
+                a.setDstFactor(BlendFactor.OneMinusSrcAlpha);
+            } break;
+            case AlphaSumA: {
+                a.setSrcColorFactor(BlendFactor.SrcAlpha);
+                a.setDstColorFactor(BlendFactor.OneMinusSrcAlpha);
+                a.setSrcAlphaFactor(BlendFactor.One);
+                a.setDstAlphaFactor(BlendFactor.One);
+            } break;
+            case Modulate: {
+                a.setSrcFactor(BlendFactor.DstColor);
+                a.setDstFactor(BlendFactor.Zero);
+            } break;
+            case ModulateX2: {
+                a.setSrcFactor(BlendFactor.DstColor);
+                a.setDstFactor(BlendFactor.SrcColor);
+            } break;
+            case Exclusion: {
+                a.setSrcFactor(BlendFactor.OneMinusDstColor);
+                a.setDstFactor(BlendFactor.OneMinusSrcColor);
+            } break;
+            case Custom: {
+                a.setColorBlend(RenderStateToVulkan.blendEquation(state.getBlendEquation()));
+                a.setAlphaBlend(RenderStateToVulkan.blendEquationAlpha(state.getBlendEquationAlpha(), state.getBlendEquation()));
+                a.setSrcColorFactor(RenderStateToVulkan.blendFunc(state.getCustomSfactorRGB()));
+                a.setSrcAlphaFactor(RenderStateToVulkan.blendFunc(state.getCustomSfactorAlpha()));
+                a.setDstColorFactor(RenderStateToVulkan.blendFunc(state.getCustomDfactorRGB()));
+                a.setDstAlphaFactor(RenderStateToVulkan.blendFunc(state.getCustomDfactorAlpha()));
+            } break;
+        }
+        a.build();
+    }
+
+    protected ColorBlendAttachment() {}
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ColorBlendAttachment that = (ColorBlendAttachment) o;
-        return colorWriteMask == that.colorWriteMask
-                && blend == that.blend
-                && srcColorBlendFactor == that.srcColorBlendFactor
-                && dstColorBlendFactor == that.dstColorBlendFactor
-                && colorBlendOp == that.colorBlendOp
-                && srcAlphaBlendFactor == that.srcAlphaBlendFactor
-                && dstAlphaBlendFactor == that.dstAlphaBlendFactor
-                && alphaBlendOp == that.alphaBlendOp;
+        // factors and blend ops do not matter if blending is not enabled
+        return enabled == that.enabled && (!enabled || (
+                Flag.is(writeMask, that.writeMask)
+                && IntEnum.is(srcColorFactor, that.srcColorFactor)
+                && IntEnum.is(dstColorFactor, that.dstColorFactor)
+                && IntEnum.is(srcAlphaFactor, that.srcAlphaFactor)
+                && IntEnum.is(dstAlphaFactor, that.dstAlphaFactor)
+                && IntEnum.is(colorBlend, that.colorBlend)
+                && IntEnum.is(alphaBlend, that.alphaBlend)));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(colorWriteMask, blend, srcColorBlendFactor, dstColorBlendFactor, colorBlendOp,
-                srcAlphaBlendFactor, dstAlphaBlendFactor, alphaBlendOp);
+        // factors and blend ops do not matter if blending is not enabled
+        return !enabled ? 0 : Objects.hash(writeMask, srcColorFactor, dstColorFactor, srcAlphaFactor, dstAlphaFactor, colorBlend, alphaBlend);
     }
 
-    public ColorBlendAttachment copy() {
-        ColorBlendAttachment copy = new ColorBlendAttachment();
-        copy.colorWriteMask = colorWriteMask;
-        copy.blend = blend;
-        copy.srcColorBlendFactor = srcColorBlendFactor;
-        copy.dstColorBlendFactor = dstColorBlendFactor;
-        copy.colorBlendOp = colorBlendOp;
-        copy.srcAlphaBlendFactor = srcAlphaBlendFactor;
-        copy.dstAlphaBlendFactor = dstAlphaBlendFactor;
-        copy.alphaBlendOp = alphaBlendOp;
-        return copy;
+    public void fill(VkPipelineColorBlendAttachmentState struct) {
+        struct.colorWriteMask(writeMask.bits())
+                .srcColorBlendFactor(srcColorFactor.getEnum())
+                .dstColorBlendFactor(dstColorFactor.getEnum())
+                .srcAlphaBlendFactor(srcAlphaFactor.getEnum())
+                .dstAlphaBlendFactor(dstAlphaFactor.getEnum())
+                .colorBlendOp(colorBlend.getEnum())
+                .alphaBlendOp(alphaBlend.getEnum())
+                .blendEnable(enabled);
     }
 
-    public long getCurrentVersion() {
-        return version;
+    public Flag<ColorComponent> getWriteMask() {
+        return writeMask;
     }
 
-    public void writeToStruct(VkPipelineColorBlendAttachmentState struct) {
-        struct.colorWriteMask(colorWriteMask)
-                .blendEnable(blend)
-                .srcColorBlendFactor(srcColorBlendFactor)
-                .dstColorBlendFactor(dstColorBlendFactor)
-                .colorBlendOp(colorBlendOp)
-                .srcAlphaBlendFactor(srcAlphaBlendFactor)
-                .dstAlphaBlendFactor(dstAlphaBlendFactor)
-                .alphaBlendOp(alphaBlendOp);
+    public IntEnum<BlendFactor> getSrcColorFactor() {
+        return srcColorFactor;
     }
 
-    public void setColorWriteMask(int colorWriteMask) {
-        if (this.colorWriteMask != colorWriteMask) {
-            this.colorWriteMask = colorWriteMask;
-            version++;
+    public IntEnum<BlendFactor> getDstColorFactor() {
+        return dstColorFactor;
+    }
+
+    public IntEnum<BlendFactor> getSrcAlphaFactor() {
+        return srcAlphaFactor;
+    }
+
+    public IntEnum<BlendFactor> getDstAlphaFactor() {
+        return dstAlphaFactor;
+    }
+
+    public IntEnum<BlendOp> getColorBlend() {
+        return colorBlend;
+    }
+
+    public IntEnum<BlendOp> getAlphaBlend() {
+        return alphaBlend;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public static ColorBlendAttachment build() {
+        return new ColorBlendAttachment();
+    }
+
+    public static ColorBlendAttachment build(Consumer<Builder> config) {
+        Builder b = new ColorBlendAttachment().new Builder();
+        config.accept(b);
+        return b.build();
+    }
+
+    public class Builder {
+
+        public ColorBlendAttachment build() {
+            return ColorBlendAttachment.this;
         }
-    }
 
-    public void setBlend(boolean blend) {
-        if (this.blend != blend) {
-            this.blend = blend;
-            version++;
+        public void setWriteMask(Flag<ColorComponent> writeMask) {
+            ColorBlendAttachment.this.writeMask = writeMask;
         }
-    }
 
-    public void setSrcColorBlendFactor(int srcColorBlendFactor) {
-        if (this.srcColorBlendFactor != srcColorBlendFactor) {
-            this.srcColorBlendFactor = srcColorBlendFactor;
-            version++;
+        public void setSrcColorFactor(IntEnum<BlendFactor> srcColorFactor) {
+            ColorBlendAttachment.this.srcColorFactor = srcColorFactor;
         }
-    }
 
-    public void setDstColorBlendFactor(int dstColorBlendFactor) {
-        if (this.dstColorBlendFactor != dstColorBlendFactor) {
-            this.dstColorBlendFactor = dstColorBlendFactor;
-            version++;
+        public void setDstColorFactor(IntEnum<BlendFactor> dstColorFactor) {
+            ColorBlendAttachment.this.dstColorFactor = dstColorFactor;
         }
-    }
 
-    public void setColorBlendOp(int colorBlendOp) {
-        if (this.colorBlendOp != colorBlendOp) {
-            this.colorBlendOp = colorBlendOp;
-            version++;
+        public void setSrcAlphaFactor(IntEnum<BlendFactor> srcAlphaFactor) {
+            ColorBlendAttachment.this.srcAlphaFactor = srcAlphaFactor;
         }
-    }
 
-    public void setSrcAlphaBlendFactor(int srcAlphaBlendFactor) {
-        if (this.srcAlphaBlendFactor != srcAlphaBlendFactor) {
-            this.srcAlphaBlendFactor = srcAlphaBlendFactor;
-            version++;
+        public void setDstAlphaFactor(IntEnum<BlendFactor> dstAlphaFactor) {
+            ColorBlendAttachment.this.dstAlphaFactor = dstAlphaFactor;
         }
-    }
 
-    public void setDstAlphaBlendFactor(int dstAlphaBlendFactor) {
-        if (this.dstAlphaBlendFactor != dstAlphaBlendFactor) {
-            this.dstAlphaBlendFactor = dstAlphaBlendFactor;
-            version++;
+        public void setSrcFactor(IntEnum<BlendFactor> srcFactor) {
+            setSrcColorFactor(srcFactor);
+            setSrcAlphaFactor(srcFactor);
         }
-    }
 
-    public void setAlphaBlendOp(int alphaBlendOp) {
-        if (this.alphaBlendOp != alphaBlendOp) {
-            this.alphaBlendOp = alphaBlendOp;
-            version++;
+        public void setDstFactor(IntEnum<BlendFactor> dstFactor) {
+            setDstColorFactor(dstFactor);
+            setDstAlphaFactor(dstFactor);
         }
-    }
 
-    public int getColorWriteMask() {
-        return colorWriteMask;
-    }
+        public void setColorBlend(IntEnum<BlendOp> colorBlend) {
+            ColorBlendAttachment.this.colorBlend = colorBlend;
+        }
 
-    public boolean isBlend() {
-        return blend;
-    }
+        public void setAlphaBlend(IntEnum<BlendOp> alphaBlend) {
+            ColorBlendAttachment.this.alphaBlend = alphaBlend;
+        }
 
-    public int getSrcColorBlendFactor() {
-        return srcColorBlendFactor;
-    }
+        public void setBlend(IntEnum<BlendOp> blend) {
+            setColorBlend(blend);
+            setAlphaBlend(blend);
+        }
 
-    public int getDstColorBlendFactor() {
-        return dstColorBlendFactor;
-    }
+        public void setEnabled(boolean enabled) {
+            ColorBlendAttachment.this.enabled = enabled;
+        }
 
-    public int getColorBlendOp() {
-        return colorBlendOp;
-    }
-
-    public int getSrcAlphaBlendFactor() {
-        return srcAlphaBlendFactor;
-    }
-
-    public int getDstAlphaBlendFactor() {
-        return dstAlphaBlendFactor;
-    }
-
-    public int getAlphaBlendOp() {
-        return alphaBlendOp;
     }
 
 }

@@ -29,17 +29,13 @@ public class PersistentBuffer <T extends GpuBuffer> implements GpuBuffer, Native
     }
 
     @Override
-    public long getId() {
-        return buffer.getId();
+    public void push(int offset, int size) {
+        buffer.push(offset, size);
     }
 
     @Override
-    public boolean resize(MemorySize size) {
-        if (buffer.resize(size)) {
-            mapping = null;
-            return true;
-        }
-        return false;
+    public long getId() {
+        return buffer.getId();
     }
 
     @Override

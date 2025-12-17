@@ -1,6 +1,7 @@
 package com.jme3.vulkan.material.uniforms;
 
 import com.jme3.texture.Texture;
+import com.jme3.vulkan.descriptors.AbstractSetWriter;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
@@ -14,66 +15,70 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 import java.util.Objects;
 
-public class TextureUniform extends AbstractUniform<Texture> {
+public class TextureUniform implements Uniform<Texture> {
 
     private final IntEnum<VulkanImage.Layout> layout;
+    private Texture value;
 
-    public TextureUniform(String name, IntEnum<VulkanImage.Layout> layout, int bindingIndex, Flag<ShaderStage> stages) {
-        super(name, Descriptor.CombinedImageSampler, bindingIndex, stages);
+    public TextureUniform(IntEnum<VulkanImage.Layout> layout) {
         this.layout = layout;
     }
 
     @Override
-    public DescriptorSetWriter createWriter() {
+    public DescriptorSetWriter createWriter(SetLayoutBinding binding) {
         if (value == null) {
             throw new NullPointerException("Cannot write null value.");
         }
-        return new Writer(value);
+        return new Writer(binding, value, layout);
     }
 
     @Override
-    public boolean isBindingCompatible(SetLayoutBinding binding) {
-        return type.is(binding.getType())
-            && bindingIndex == binding.getBinding()
-            && binding.getDescriptors() == 1;
+    public void set(Texture value) {
+        this.value = value;
+    }
+
+    @Override
+    public Texture get() {
+        return value;
     }
 
     public IntEnum<VulkanImage.Layout> getLayout() {
         return layout;
     }
 
-    private class Writer implements DescriptorSetWriter {
+    private static class Writer extends AbstractSetWriter {
 
         private final long samplerId, viewId;
+        private final IntEnum<VulkanImage.Layout> layout;
 
-        public Writer(Texture texture) {
+        public Writer(SetLayoutBinding binding, Texture texture, IntEnum<VulkanImage.Layout> layout) {
+            super(binding, 0, 1);
             this.samplerId = texture.getId();
             this.viewId = texture.getView().getId();
+            this.layout = layout;
         }
 
         @Override
-        public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
-            VkDescriptorImageInfo.Buffer info = VkDescriptorImageInfo.calloc(1, stack)
+        public void populate(MemoryStack stack, VkWriteDescriptorSet write) {
+            write.pImageInfo(VkDescriptorImageInfo.calloc(1, stack)
                     .imageView(viewId)
                     .sampler(samplerId)
-                    .imageLayout(layout.getEnum());
-            write.pImageInfo(info)
-                    .descriptorType(type.getEnum())
-                    .dstBinding(bindingIndex)
-                    .dstArrayElement(0)
-                    .descriptorCount(1);
+                    .imageLayout(layout.getEnum()));
         }
 
         @Override
         public boolean equals(Object o) {
             if (o == null || getClass() != o.getClass()) return false;
             Writer writer = (Writer) o;
-            return samplerId == writer.samplerId && viewId == writer.viewId;
+            return samplerId == writer.samplerId
+                    && viewId == writer.viewId
+                    && layout.is(writer.layout)
+                    && Objects.equals(binding, writer.binding);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(samplerId, viewId);
+            return Objects.hash(binding, samplerId, viewId, layout);
         }
 
     }

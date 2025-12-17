@@ -82,11 +82,11 @@ public class CommandPool implements Native<Long> {
     }
 
     public CommandBuffer allocateCommandBuffer() {
-        return new CommandBuffer(this);
-    }
-
-    public TransientCommandBuffer allocateTransientCommandBuffer() {
-        return new TransientCommandBuffer(this);
+        if (flags.contains(Create.Transient)) {
+            return new TransientCommandBuffer(this);
+        } else {
+            return new CommandBuffer(this);
+        }
     }
 
     public LogicalDevice<?> getDevice() {

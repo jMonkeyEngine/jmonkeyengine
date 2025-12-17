@@ -1,6 +1,6 @@
 package com.jme3.vulkan.pass;
 
-import com.jme3.util.AbstractBuilder;
+import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.Format;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -42,7 +42,6 @@ public class RenderPass extends AbstractNative<Long> {
     }
 
     public void begin(CommandBuffer cmd, VulkanFrameBuffer fbo, boolean inline) {
-        assert fbo.getAttachments().size() < attachments.size() : "FrameBuffer does not contain enough attachments.";
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkClearValue.Buffer clear = VkClearValue.calloc(attachments.size(), stack);
             for (Attachment a : attachments) {
@@ -122,19 +121,19 @@ public class RenderPass extends AbstractNative<Long> {
         return true;
     }
 
-    public Builder build() {
-        if (built) {
-            throw new IllegalStateException("Render pass has already been built or is being built.");
-        }
-        built = true;
-        return new Builder();
+    public static RenderPass build(LogicalDevice<?> device, Consumer<Builder> config) {
+        Builder b = new RenderPass(device).new Builder();
+        config.accept(b);
+        return b.build();
     }
 
-    public Builder buildCopyOf(RenderPass base) {
-        return new Builder(base);
+    public static RenderPass build(LogicalDevice<?> device, RenderPass base, Consumer<Builder> config) {
+        Builder b = new RenderPass(device).new Builder(base);
+        config.accept(b);
+        return b.build();
     }
 
-    public class Builder extends AbstractBuilder {
+    public class Builder extends AbstractNativeBuilder<RenderPass> {
 
         public Builder() {}
 
@@ -151,7 +150,7 @@ public class RenderPass extends AbstractNative<Long> {
         }
 
         @Override
-        protected void build() {
+        protected RenderPass construct() {
             VkRenderPassCreateInfo create = VkRenderPassCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO);
             if (!attachments.isEmpty()) {
@@ -180,6 +179,7 @@ public class RenderPass extends AbstractNative<Long> {
             object = idBuf.get(0);
             ref = Native.get().register(RenderPass.this);
             device.getNativeReference().addDependent(ref);
+            return RenderPass.this;
         }
 
         public Attachment createAttachment(Format format, int samples) {

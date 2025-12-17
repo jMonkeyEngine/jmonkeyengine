@@ -1,6 +1,7 @@
 package com.jme3.vulkan.material.uniforms;
 
 import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.descriptors.AbstractSetWriter;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
@@ -13,60 +14,57 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 import java.util.*;
 
-public class BufferUniform extends AbstractUniform<GpuBuffer> {
+public class BufferUniform implements Uniform<GpuBuffer> {
 
-    public BufferUniform(String name, IntEnum<Descriptor> type, int bindingIndex, Flag<ShaderStage> stages) {
-        super(name, type, bindingIndex, stages);
-    }
+    private GpuBuffer value;
 
     @Override
-    public DescriptorSetWriter createWriter() {
+    public DescriptorSetWriter createWriter(SetLayoutBinding binding) {
         if (value == null) {
             throw new NullPointerException("Cannot write null value.");
         }
-        return new Writer(value);
+        return new Writer(binding, value);
     }
 
     @Override
-    public boolean isBindingCompatible(SetLayoutBinding binding) {
-        return type.is(binding.getType())
-            && bindingIndex == binding.getBinding()
-            && binding.getDescriptors() == 1;
+    public void set(GpuBuffer value) {
+        this.value = value;
     }
 
-    private class Writer implements DescriptorSetWriter {
+    @Override
+    public GpuBuffer get() {
+        return value;
+    }
 
-        private final long id;
-        private final long bytes;
+    private static class Writer extends AbstractSetWriter {
 
-        private Writer(GpuBuffer buffer) {
+        private final long id, bytes;
+
+        private Writer(SetLayoutBinding binding, GpuBuffer buffer) {
+            super(binding, 0, 1);
             this.id = buffer.getId();
             this.bytes = buffer.size().getBytes();
         }
 
         @Override
-        public void populateWrite(MemoryStack stack, VkWriteDescriptorSet write) {
-            VkDescriptorBufferInfo.Buffer info = VkDescriptorBufferInfo.calloc(1, stack)
+        public void populate(MemoryStack stack, VkWriteDescriptorSet write) {
+            write.pBufferInfo(VkDescriptorBufferInfo.calloc(1, stack)
                     .buffer(id)
                     .offset(0L)
-                    .range(bytes);
-            write.pBufferInfo(info)
-                    .descriptorCount(1)
-                    .dstArrayElement(0)
-                    .dstBinding(bindingIndex)
-                    .descriptorType(type.getEnum());
+                    .range(bytes));
         }
 
         @Override
         public boolean equals(Object o) {
             if (o == null || getClass() != o.getClass()) return false;
             Writer writer = (Writer) o;
-            return id == writer.id && bytes == writer.bytes;
+            return id == writer.id && bytes == writer.bytes
+                    && Objects.equals(binding, writer.binding);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, bytes);
+            return Objects.hash(binding, id, bytes);
         }
 
     }

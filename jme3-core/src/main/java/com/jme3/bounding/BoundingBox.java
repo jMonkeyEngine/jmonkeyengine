@@ -149,7 +149,7 @@ public class BoundingBox extends BoundingVolume {
         float maxX = Float.NEGATIVE_INFINITY,
                 maxY = Float.NEGATIVE_INFINITY,
                 maxZ = Float.NEGATIVE_INFINITY;
-        for (Vector3f p : position.iterator(new Vector3f())) {
+        for (Vector3f p : position.read(new Vector3f())) {
             minX = Math.min(minX, p.x);
             minY = Math.min(minY, p.y);
             minZ = Math.min(minZ, p.z);

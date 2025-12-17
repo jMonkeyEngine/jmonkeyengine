@@ -7,69 +7,59 @@ import com.jme3.texture.Texture;
 import com.jme3.vulkan.buffers.GpuBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
-import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.uniforms.BufferUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
-import com.jme3.vulkan.mesh.MeshDescription;
 import com.jme3.vulkan.pipeline.Pipeline;
-import com.jme3.vulkan.pipeline.cache.PipelineCache;
-import com.jme3.vulkan.pipeline.states.BasePipelineState;
-import com.jme3.vulkan.pipeline.states.PipelineState;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
 import java.nio.LongBuffer;
 import java.util.*;
 
+import static org.lwjgl.vulkan.VK10.*;
+
 /**
- * Relates shader uniform values to sets and bindings.
+ * Relates shader uniform values to shader descriptor sets and bindings.
  */
-public class NewMaterial implements VkMaterial {
+public class NewMaterial implements VulkanMaterial {
 
-    private final DescriptorPool pool;
-    private final Map<Integer, UniformSet> uniformSets = new HashMap<>();
-    private final Map<String, Uniform<?>> uniformLookup = new HashMap<>();
-    private final BitSet usedSetSlots = new BitSet();
-    private final Map<String, BasePipelineState<?, ?>> techniques = new HashMap<>();
-    private BasePipelineState<?, ?> additionalState;
-
-    public NewMaterial(DescriptorPool pool) {
-        this.pool = pool;
-    }
+    private final Map<String, Uniform<?>> uniforms = new HashMap<>();
+    private final Map<DescriptorSetLayout, CachedDescriptorSet> setCache = new HashMap<>();
 
     @Override
-    public boolean bind(CommandBuffer cmd, Pipeline pipeline) {
-        LinkedList<DescriptorSetLayout> availableLayouts = new LinkedList<>(
-                pipeline.getLayout().getDescriptorSetLayouts());
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            LongBuffer sets = stack.mallocLong(uniformSets.size());
-            for (int i = usedSetSlots.nextSetBit(0), offset = i; i >= 0;) {
-                DescriptorSet acquired = uniformSets.get(i).acquire(pool, availableLayouts);
-                if (acquired == null) {
-                    return false; // material is not supported by the pipeline
-                }
-                sets.put(acquired.getNativeObject());
-                int next = usedSetSlots.nextSetBit(i + 1);
-                // if there are no more sets remaining, or the next position skips over at
-                // least one index, bind the current descriptor sets
-                if (next < 0 || next > i + 1) {
-                    sets.flip();
-                    vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getEnum(),
-                            pipeline.getLayout().getNativeObject(), offset, sets, null);
-                    sets.clear();
-                    offset = next;
-                }
-                i = next;
+    public void bind(CommandBuffer cmd, Pipeline pipeline, DescriptorPool pool) {
+        List<DescriptorSetLayout> layouts = pipeline.getLayout().getSetLayouts();
+        List<DescriptorSetLayout> reqSetAllocation = new ArrayList<>(layouts.size());
+        for (DescriptorSetLayout l : layouts) {
+            if (!setCache.containsKey(l)) {
+                reqSetAllocation.add(l);
             }
         }
-        return true;
-    }
-
-    @Override
-    public Pipeline selectPipeline(PipelineCache cache, MeshDescription mesh,
-                                   String forcedTechnique, PipelineState overrideState) {
-        BasePipelineState<?, ?> state = techniques.get(forcedTechnique);
-        return state.selectPipeline(cache, mesh);
+        DescriptorSet[] allocatedSets = pool.allocateSets(reqSetAllocation);
+        for (ListIterator<DescriptorSetLayout> it = reqSetAllocation.listIterator(); it.hasNext();) {
+            setCache.put(it.next(), new CachedDescriptorSet(allocatedSets[it.previousIndex()]));
+        }
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            LongBuffer sets = stack.mallocLong(layouts.size());
+            for (DescriptorSetLayout layout : layouts) {
+                CachedDescriptorSet set = setCache.get(layout);
+                if (set == null) {
+                    throw new NullPointerException("Cached descriptor set not available.");
+                }
+                for (Map.Entry<String, SetLayoutBinding> binding : layout.getBindings().entrySet()) {
+                    Uniform<?> uniform = uniforms.get(binding.getKey());
+                    if (uniform == null) {
+                        throw new NullPointerException("Layout requires uniform \"" + binding.getKey() + "\" which does not exist.");
+                    }
+                    set.stageWriter(binding.getKey(), uniform.createWriter(binding.getValue()));
+                }
+                set.writeChanges();
+                sets.put(set.getSet().getNativeObject());
+            }
+            sets.flip();
+            vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getEnum(),
+                    pipeline.getLayout().getNativeObject(), 0, sets, null);
+        }
     }
 
     @Override
@@ -124,46 +114,44 @@ public class NewMaterial implements VkMaterial {
         throw new UnsupportedOperationException("Importing not yet supported.");
     }
 
-    @SuppressWarnings("unchecked")
+    public void putUniform(String name, Uniform<?> uniform) {
+        uniforms.put(name, uniform);
+    }
+
     public <T extends Uniform> T getUniform(String name) {
-        // Not sure if caching the results is really worth it...
-        Uniform<?> uniform = uniformLookup.get(name);
-        if (uniform != null) {
-            return (T)uniform;
+        return (T) uniforms.get(name);
+    }
+
+    public Map<String, Uniform<?>> getUniforms() {
+        return Collections.unmodifiableMap(uniforms);
+    }
+
+    protected static class CachedDescriptorSet {
+
+        private final DescriptorSet set;
+        private final Map<String, DescriptorSetWriter> writers = new HashMap<>();
+        private final Map<String, DescriptorSetWriter> changes = new HashMap<>();
+
+        public CachedDescriptorSet(DescriptorSet set) {
+            this.set = set;
         }
-        for (UniformSet set : uniformSets.values()) {
-            for (Uniform<?> u : set) {
-                if (name.equals(u.getName())) {
-                    uniformLookup.put(u.getName(), u);
-                    return (T)u;
-                }
+
+        public void stageWriter(String name, DescriptorSetWriter writer) {
+            if (!Objects.equals(writers.put(name, writer), writer)) {
+                changes.put(name, writer);
             }
         }
-        return null;
-    }
 
-    protected UniformSet addSet(UniformSet set) {
-        if (uniformSets.put(set.getSetIndex(), set) != null) {
-            throw new IllegalArgumentException("Set index already occupied: " + set.getSetIndex());
+        public void writeChanges() {
+            if (changes.isEmpty()) return;
+            set.write(changes.values());
+            changes.clear();
         }
-        usedSetSlots.set(set.getSetIndex());
-        return set;
-    }
 
-    protected UniformSet addSet(int index, Uniform... uniforms) {
-        return addSet(new UniformSet(index, uniforms));
-    }
+        public DescriptorSet getSet() {
+            return set;
+        }
 
-    public void setTechnique(String name, BasePipelineState<?, ?> state) {
-        techniques.put(name, state);
-    }
-
-    public DescriptorSetLayout[] createLayouts(LogicalDevice<?> device) {
-        return uniformSets.values().stream().map(u -> u.createLayout(device)).toArray(DescriptorSetLayout[]::new);
-    }
-
-    public Map<Integer, UniformSet> getSets() {
-        return Collections.unmodifiableMap(uniformSets);
     }
 
 }

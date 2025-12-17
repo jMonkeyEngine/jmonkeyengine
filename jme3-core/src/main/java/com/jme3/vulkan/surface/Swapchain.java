@@ -1,7 +1,7 @@
 package com.jme3.vulkan.surface;
 
 import com.jme3.texture.ImageView;
-import com.jme3.util.AbstractBuilder;
+import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
@@ -58,15 +58,16 @@ public class Swapchain extends AbstractNative<Long> {
     private final LogicalDevice<?> device;
     private final Surface surface;
     private final List<PresentImage> images = new ArrayList<>();
-    private Consumer<Builder> builder;
+    private final Consumer<Builder> config;
     private Extent2 extent;
     private Format format;
     private int imageLayers = 1;
     private Flag<ImageUsage> imageUsage = ImageUsage.ColorAttachment;
 
-    public Swapchain(LogicalDevice<?> device, Surface surface) {
+    public Swapchain(LogicalDevice<?> device, Surface surface, Consumer<Builder> config) {
         this.device = device;
         this.surface = surface;
+        this.config = config;
         this.object = VK_NULL_HANDLE;
         ref = Native.get().register(this);
         device.getNativeReference().addDependent(ref);
@@ -114,17 +115,8 @@ public class Swapchain extends AbstractNative<Long> {
         }
     }
 
-    public void build(Consumer<Builder> builder) {
-        if (builder == null) {
-            throw new NullPointerException("Builder function cannot be null.");
-        }
-        try (Builder b = new Builder()) {
-            (this.builder = builder).accept(b);
-        }
-    }
-
     public void update() {
-        build(builder);
+        config.accept(new Builder());
     }
 
     public LogicalDevice getDevice() {
@@ -153,6 +145,12 @@ public class Swapchain extends AbstractNative<Long> {
 
     public Flag<ImageUsage> getImageUsage() {
         return imageUsage;
+    }
+
+    public static Swapchain build(LogicalDevice<?> device, Surface surface, Consumer<Builder> config) {
+        Builder b = new Swapchain(device, surface, config).new Builder();
+        config.accept(b);
+        return b.build();
     }
 
     public class PresentImage implements VulkanImage {
@@ -248,7 +246,7 @@ public class Swapchain extends AbstractNative<Long> {
 
     }
 
-    public class Builder extends AbstractBuilder {
+    public class Builder extends AbstractNativeBuilder<Swapchain> {
 
         private final VkSurfaceCapabilitiesKHR caps;
         private final VkSurfaceFormatKHR.Buffer formats;
@@ -277,7 +275,7 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        protected void build() {
+        protected Swapchain construct() {
             if (selectedFormat == null) {
                 throw new IllegalStateException("Format not selected.");
             }
@@ -342,6 +340,7 @@ public class Swapchain extends AbstractNative<Long> {
                 images.add(new PresentImage(device, imgs.get(i)));
             }
             ref.refresh();
+            return Swapchain.this;
         }
 
         public void setBaseSwapchain(Swapchain base) {
