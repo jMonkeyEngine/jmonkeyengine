@@ -51,6 +51,7 @@ on:
       - v3.5
       - v3.4
       - v3.3
+      - ios-2024_2
   pull_request:
   release:
     types: [published]
@@ -94,6 +95,46 @@ jobs:
             **/build/reports/**
             **/build/changed-images/**
             **/build/test-results/**
+
+  # Build iOS natives
+  BuildIosNatives:
+    name: Build natives for iOS
+    runs-on: macOS-14
+
+    steps:
+      - name: Check default JAVAs 
+        run: echo $JAVA_HOME --- $JAVA_HOME_8_X64 --- $JAVA_HOME_11_X64 --- $JAVA_HOME_17_X64 --- $JAVA_HOME_21_X64 ---
+
+      - name: Setup the java environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11.0.26+4'
+
+      - name: Setup the XCode version to 15.1.0 
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.1.0'
+
+      - name: Clone the repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Build
+        run: |
+          ./gradlew -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
+          :jme3-ios-native:build
+
+      - name: Upload natives
+        uses: actions/upload-artifact@master
+        with:
+          name: ios-natives
+          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
+
   # Build the natives on android
   BuildAndroidNatives:
     name: Build natives for android
@@ -139,7 +180,7 @@ jobs:
 
   # Build the engine, we only deploy from ubuntu-latest jdk21
   BuildJMonkey:
-    needs: [BuildAndroidNatives]
+    needs: [BuildAndroidNatives, BuildIosNatives]
     name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -179,6 +220,12 @@ jobs:
         with:
           name: android-natives
           path: build/native
+
+      - name: Download natives for iOS
+        uses: actions/download-artifact@master
+        with:
+          name: ios-natives
+          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
@@ -372,6 +419,12 @@ jobs:
           name: android-natives
           path: build/native
 
+      - name: Download natives for iOS
+        uses: actions/download-artifact@master
+        with:
+          name: ios-natives
+          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
+
       - name: Rebuild the maven artifacts and upload them to Sonatype's maven-snapshots repo
         run: |
           if [ "${{ secrets.CENTRAL_PASSWORD }}" = "" ];
@@ -428,6 +481,12 @@ jobs:
         with:
           name: android-natives
           path: build/native
+
+      - name: Download natives for iOS
+        uses: actions/download-artifact@master
+        with:
+          name: ios-natives
+          path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
       - name: Rebuild the maven artifacts and upload them to Sonatype's Central Publisher Portal
         run: |
