@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class JmeAppHarness extends IosHarness{
 
     private static final Logger logger = Logger.getLogger(JmeAppHarness.class.getName());
-	protected GLRenderer renderer;
+	protected Renderer renderer;
 	protected IosInputHandler input;
 	protected boolean autoFlush = true;
 	protected Vector2f resizePending = null;
@@ -66,7 +66,7 @@ public class JmeAppHarness extends IosHarness{
         logger.log(Level.FINE, "JmeAppHarness appDraw");
         if (renderer == null) {
             JmeContext iosContext = app.getContext();
-            renderer = (GLRenderer)iosContext.getRenderer();
+            renderer = iosContext.getRenderer();
             renderer.initialize();
             input = (IosInputHandler)iosContext.getTouchInput();
             input.initialize();
