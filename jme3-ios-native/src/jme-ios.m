@@ -101,7 +101,7 @@ Java_com_jme3_system_ios_IosImageLoader_loadImageData(JNIEnv* e, jclass obj, job
         comps = bpp / 8;
     } else {
         jclass assetExClazz = (*e)->FindClass(e, "com/jme3/asset/AssetLoadException");
-        (*e)->ThrowNew(e, assetExClazz, "Unsupported ImageFormat: Bits per Pixel is no multiple of 8");
+        (*e)->ThrowNew(e, assetExClazz, "Unsupported ImageFormat: Bits per Pixel is not multiple of 8");
     }
     
     // read data from inputstream via byteArray to NSMutableData
