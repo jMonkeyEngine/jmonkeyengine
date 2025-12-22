@@ -43,7 +43,6 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
@@ -166,7 +165,7 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
         }
         Geometry geo = frustums[shadowMapIndex];
         if (geo.getParent() == null) {
-            ((Node) viewPort.getScenes().get(0)).attachChild(geo);
+            getSceneForDebug().attachChild(geo);
         }
     }
 

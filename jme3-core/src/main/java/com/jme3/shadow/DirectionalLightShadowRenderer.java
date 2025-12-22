@@ -44,7 +44,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.clone.Cloner;
 
@@ -212,9 +211,9 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
-        ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, shadowMapIndex));
+        getSceneForDebug().attachChild(createFrustum(points, shadowMapIndex));
         ShadowUtil.updateFrustumPoints2(shadowCam, points);
-        ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, shadowMapIndex));
+        getSceneForDebug().attachChild(createFrustum(points, shadowMapIndex));
     }
 
     @Override
