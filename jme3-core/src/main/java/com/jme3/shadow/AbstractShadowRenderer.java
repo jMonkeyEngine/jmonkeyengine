@@ -426,7 +426,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
 
         if (debugfrustums) {
             debugfrustums = false;
-            getMainScene().updateGeometricState();
+            getSceneForDebug().updateGeometricState();
         }
 
         //restore setting for future rendering
@@ -886,4 +886,5 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         oc.write(edgesThickness, "edgesThickness", 1.0f);
     }
 }
+
 
