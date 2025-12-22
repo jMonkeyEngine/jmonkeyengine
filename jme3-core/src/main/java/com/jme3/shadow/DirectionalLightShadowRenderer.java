@@ -211,9 +211,9 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
-        getMainScene().attachChild(createFrustum(points, shadowMapIndex));
+        getSceneForDebug().attachChild(createFrustum(points, shadowMapIndex));
         ShadowUtil.updateFrustumPoints2(shadowCam, points);
-        getMainScene().attachChild(createFrustum(points, shadowMapIndex));
+        getSceneForDebug().attachChild(createFrustum(points, shadowMapIndex));
     }
 
     @Override
