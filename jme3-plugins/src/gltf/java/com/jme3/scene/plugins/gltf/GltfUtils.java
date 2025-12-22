@@ -36,6 +36,7 @@ import com.jme3.plugins.json.JsonElement;
 import com.jme3.plugins.json.JsonObject;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoadException;
+import com.jme3.export.binary.ByteUtils;
 import com.jme3.math.*;
 import com.jme3.plugins.json.Json;
 import com.jme3.plugins.json.JsonParser;
@@ -338,14 +339,14 @@ public class GltfUtils {
         int dataLength = componentSize * numComponents;
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
-        stream.skipBytes(byteOffset);
+        ByteUtils.skipFully((InputStream) stream, byteOffset);
         while (index < end) {
             for (int i = 0; i < numComponents; i++) {
                 buffer.put(stream.readShort());
             }
 
             if (dataLength < stride) {
-                stream.skipBytes(stride - dataLength);
+                ByteUtils.skipFully((InputStream) stream, stride - dataLength, false);
             }
             index += stride;
         }
@@ -358,13 +359,13 @@ public class GltfUtils {
         int dataLength = componentSize * numComponents;
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
-        stream.skipBytes(byteOffset);
+        ByteUtils.skipFully((InputStream) stream, byteOffset);
         while (index < end) {
             for (int i = 0; i < numComponents; i++) {
                 buffer.put(stream.readInt());
             }
             if (dataLength < stride) {
-                stream.skipBytes(stride - dataLength);
+                ByteUtils.skipFully((InputStream) stream, stride - dataLength, false);
             }
             index += stride;
         }
@@ -376,13 +377,13 @@ public class GltfUtils {
         int dataLength = componentSize * numComponents;
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
-        stream.skipBytes(byteOffset);
+        ByteUtils.skipFully((InputStream) stream, byteOffset);
         while (index < end) {
             for (int i = 0; i < numComponents; i++) {
                 buffer.put(readAsFloat(stream, format));
             }
             if (dataLength < stride) {
-                stream.skipBytes(stride - dataLength);
+                ByteUtils.skipFully((InputStream) stream, stride - dataLength, false);
             }
             index += stride;
         }
@@ -423,7 +424,7 @@ public class GltfUtils {
         int dataLength = componentSize * numComponents;
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
-        stream.skipBytes(byteOffset);
+        ByteUtils.skipFully((InputStream) stream, byteOffset);
 
         if (dataLength == stride) {
             read(stream, array, end - index);
@@ -438,7 +439,7 @@ public class GltfUtils {
             System.arraycopy(buffer, 0, array, arrayIndex, numComponents);
             arrayIndex += numComponents;
             if (dataLength < stride) {
-                stream.skipBytes(stride - dataLength);
+                ByteUtils.skipFully((InputStream) stream, stride - dataLength, false);
             }
             index += stride;
         }
@@ -461,7 +462,7 @@ public class GltfUtils {
         int dataLength = componentSize * numComponents;
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
-        stream.skipBytes(byteOffset);
+        ByteUtils.skipFully((InputStream) stream, byteOffset);
         int arrayIndex = 0;
         while (index < end) {
             for (int i = 0; i < numComponents; i++) {
@@ -473,7 +474,7 @@ public class GltfUtils {
                 arrayIndex++;
             }
             if (dataLength < stride) {
-                stream.skipBytes(stride - dataLength);
+                ByteUtils.skipFully((InputStream) stream, stride - dataLength, false);
             }
             index += stride;
         }
@@ -563,7 +564,7 @@ public class GltfUtils {
         int dataLength = componentSize * numComponents;
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
-        stream.skipBytes(byteOffset);
+        ByteUtils.skipFully((InputStream) stream, byteOffset);
         int arrayIndex = 0;
         while (index < end) {
             for (int i = 0; i < numComponents; i++) {
@@ -571,7 +572,7 @@ public class GltfUtils {
                 arrayIndex++;
             }
             if (dataLength < stride) {
-                stream.skipBytes(stride - dataLength);
+                ByteUtils.skipFully((InputStream) stream, stride - dataLength, false);
             }
             index += stride;
         }
@@ -583,7 +584,7 @@ public class GltfUtils {
         int dataLength = componentSize * numComponents;
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
-        stream.skipBytes(byteOffset);
+        ByteUtils.skipFully((InputStream) stream, byteOffset);
         int arrayIndex = 0;
         while (index < end) {
             array[arrayIndex] = new Vector3f(
@@ -594,7 +595,7 @@ public class GltfUtils {
 
             arrayIndex++;
             if (dataLength < stride) {
-                stream.skipBytes(stride - dataLength);
+                ByteUtils.skipFully((InputStream) stream, stride - dataLength, false);
             }
 
             index += stride;
@@ -607,7 +608,7 @@ public class GltfUtils {
         int dataLength = componentSize * numComponents;
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
-        stream.skipBytes(byteOffset);
+        ByteUtils.skipFully((InputStream) stream, byteOffset);
         int arrayIndex = 0;
         while (index < end) {
             array[arrayIndex] = new Quaternion(
@@ -619,7 +620,7 @@ public class GltfUtils {
 
             arrayIndex++;
             if (dataLength < stride) {
-                stream.skipBytes(stride - dataLength);
+                ByteUtils.skipFully((InputStream) stream, stride - dataLength, false);
             }
             index += stride;
         }
@@ -631,7 +632,7 @@ public class GltfUtils {
         int dataLength = componentSize * numComponents;
         int stride = Math.max(dataLength, byteStride);
         int end = count * stride + byteOffset;
-        stream.skipBytes(byteOffset);
+        ByteUtils.skipFully((InputStream) stream, byteOffset);
         int arrayIndex = 0;
         while (index < end) {
 
@@ -657,7 +658,7 @@ public class GltfUtils {
 
             arrayIndex++;
             if (dataLength < stride) {
-                stream.skipBytes(stride - dataLength);
+                ByteUtils.skipFully((InputStream) stream, stride - dataLength, false);
             }
 
             index += stride;

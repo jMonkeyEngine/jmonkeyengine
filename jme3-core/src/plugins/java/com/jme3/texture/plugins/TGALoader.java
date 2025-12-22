@@ -34,6 +34,7 @@ package com.jme3.texture.plugins;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
+import com.jme3.export.binary.ByteUtils;
 import com.jme3.math.FastMath;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -158,7 +159,7 @@ public final class TGALoader implements AssetLoader {
 
         // Skip image ID
         if (idLength > 0) {
-            dis.skip(idLength);
+            ByteUtils.skipFully((InputStream) dis, idLength);
         }
 
         ColorMapEntry[] cMapEntries = null;
@@ -168,7 +169,7 @@ public final class TGALoader implements AssetLoader {
             int bitsPerColor = Math.min(cMapDepth / 3, 8);
 
             byte[] cMapData = new byte[bytesInColorMap];
-            dis.read(cMapData);
+            ByteUtils.readFully((InputStream) dis, cMapData);
 
             // Only go to the trouble of constructing the color map
             // table if this is declared a color mapped image.

@@ -33,6 +33,7 @@ package com.jme3.cursors.plugins;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
+import com.jme3.export.binary.ByteUtils;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
 import java.awt.geom.AffineTransform;
@@ -127,13 +128,13 @@ public class CursorLoader implements AssetLoader {
                     nextInt = getNext(leIn);
                     while (nextInt >= 0) {
                         if (nextInt == 0x68696e61) {
-//                            System.out.println("we have 'anih' header");
-                            leIn.skipBytes(8); // internal struct length (always 36)
+//                            System.out.println("we have 'anih' header"); 
+                            ByteUtils.skipFully((DataInput) leIn, 8);  // internal struct length (always 36)
                             numIcons = leIn.readInt();
                             steps = leIn.readInt(); // number of blits for ani cycles
                             width = leIn.readInt();
                             height = leIn.readInt();
-                            leIn.skipBytes(8);
+                            ByteUtils.skipFully((DataInput) leIn, 8);
                             jiffy = leIn.readInt();
                             flag = leIn.readInt();
                             nextInt = leIn.readInt();
@@ -162,7 +163,8 @@ public class CursorLoader implements AssetLoader {
                             nextInt = leIn.readInt();
                             if (nextInt == 0x4f464e49) { // Got an INFO, skip its length
                                 // this part consist  of Author, title, etc
-                                leIn.skipBytes(length - 4);
+            
+                                ByteUtils.skipFully((DataInput) leIn, length - 4);
 //                                System.out.println(" Discarding INFO (skipped = " + skipped + ")");
                                 nextInt = leIn.readInt();
                             } else if (nextInt == 0x6d617266) { // found a 'fram' for animation
@@ -177,10 +179,10 @@ public class CursorLoader implements AssetLoader {
                                         if (i > 0) {
                                             // skip 'icon' header and length as they are
                                             // known already and won't change.
-                                            leIn.skipBytes(8);
+                                            ByteUtils.skipFully((DataInput) leIn, 8);
                                         }
                                         byte[] data = new byte[icoLength];
-                                        ((InputStream) leIn).read(data, 0, icoLength);
+                                        ByteUtils.readFully((InputStream) leIn, data);
                                         // in case the header didn't have width or height
                                         // get it from first image.
                                         if (width == 0 || height == 0 && i == 1) {
@@ -216,7 +218,7 @@ public class CursorLoader implements AssetLoader {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buffer = new byte[16384];
             int bytesRead;
-            while ((bytesRead = in.read(buffer)) >= 0) {
+            while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
             }
             icoimages = out.toByteArray();
