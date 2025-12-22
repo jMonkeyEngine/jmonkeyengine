@@ -51,7 +51,7 @@ public class MipMapGenerator {
     }
 
     private static BufferedImage scaleDown(BufferedImage sourceImage, int targetWidth, int targetHeight) {
-        int sourceWidth  = sourceImage.getWidth();
+        int sourceWidth = sourceImage.getWidth();
         int sourceHeight = sourceImage.getHeight();
 
         BufferedImage targetImage = new BufferedImage(targetWidth, targetHeight, sourceImage.getType());
@@ -64,7 +64,7 @@ public class MipMapGenerator {
         return targetImage;
     }
 
-    public static void resizeToPowerOf2(Image image){
+    public static void resizeToPowerOf2(Image image) {
         BufferedImage original = ImageToAwt.convert(image, false, true, 0);
         int potWidth = FastMath.nearestPowerOfTwo(image.getWidth());
         int potHeight = FastMath.nearestPowerOfTwo(image.getHeight());
@@ -83,29 +83,26 @@ public class MipMapGenerator {
         image.setMipMapSizes(null);
     }
 
-    public static void generateMipMaps(Image image){
+    public static void generateMipMaps(Image image) {
         BufferedImage original = ImageToAwt.convert(image, false, true, 0);
         int width = original.getWidth();
         int height = original.getHeight();
-        int level = 0;
 
         BufferedImage current = original;
         AWTLoader loader = new AWTLoader();
         ArrayList<ByteBuffer> output = new ArrayList<>();
         int totalSize = 0;
         Format format = null;
-        
-        while (height >= 1 || width >= 1){
+
+        while (height >= 1 || width >= 1) {
             Image converted = loader.load(current, false);
             format = converted.getFormat();
             output.add(converted.getData(0));
             totalSize += converted.getData(0).capacity();
 
-            if(height == 1 || width == 1) {
-              break;
+            if (height == 1 || width == 1) {
+                break;
             }
-
-            level++;
 
             height /= 2;
             width /= 2;
@@ -115,7 +112,7 @@ public class MipMapGenerator {
 
         ByteBuffer combinedData = BufferUtils.createByteBuffer(totalSize);
         int[] mipSizes = new int[output.size()];
-        for (int i = 0; i < output.size(); i++){
+        for (int i = 0; i < output.size(); i++) {
             ByteBuffer data = output.get(i);
             data.clear();
             combinedData.put(data);

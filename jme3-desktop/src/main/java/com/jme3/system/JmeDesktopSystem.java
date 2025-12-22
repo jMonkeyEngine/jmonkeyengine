@@ -74,23 +74,22 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
     public URL getPlatformAssetConfigURL() {
         return Resources.getResource("com/jme3/asset/Desktop.cfg");
     }
-    
+
     private static BufferedImage verticalFlip(BufferedImage original) {
         AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
         tx.translate(0, -original.getHeight());
         AffineTransformOp transformOp = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        BufferedImage awtImage = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
+        BufferedImage awtImage = new BufferedImage(original.getWidth(), original.getHeight(),
+                original.getType());
         Graphics2D g2d = awtImage.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
-                             RenderingHints.VALUE_RENDER_SPEED);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
         g2d.drawImage(original, transformOp, 0, 0);
         g2d.dispose();
         return awtImage;
     }
 
     private static BufferedImage ensureOpaque(BufferedImage original) {
-        if (original.getTransparency() == BufferedImage.OPAQUE)
-            return original;
+        if (original.getTransparency() == BufferedImage.OPAQUE) return original;
         int w = original.getWidth();
         int h = original.getHeight();
         int[] pixels = new int[w * h];
@@ -101,8 +100,11 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
     }
 
     @Override
-    public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
-        BufferedImage awtImage = ImageToAwt.convert(new Image(Image.Format.RGBA8, width, height, imageData.duplicate(), ColorSpace.Linear), false, true, 0);
+    public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width,
+            int height) throws IOException {
+        BufferedImage awtImage = ImageToAwt.convert(
+                new Image(Image.Format.RGBA8, width, height, imageData.duplicate(), ColorSpace.Linear), false,
+                true, 0);
         awtImage = verticalFlip(awtImage);
 
         ImageWriter writer = ImageIO.getImageWritersByFormatName(format).next();
@@ -115,7 +117,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             jpegParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             jpegParam.setCompressionQuality(0.95f);
         }
-        
+
         ImageOutputStream imgOut = new MemoryCacheImageOutputStream(outStream);
         writer.setOutput(imgOut);
         IIOImage outputImage = new IIOImage(awtImage, null, null);
@@ -127,10 +129,9 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private JmeContext newContextLwjgl(AppSettings settings, JmeContext.Type type) {
         try {
-            Class ctxClazz = null;
+            Class<?> ctxClazz = null;
             switch (type) {
                 case Canvas:
                     ctxClazz = Class.forName("com.jme3.system.lwjgl.LwjglCanvas");
@@ -146,9 +147,8 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             }
 
             return (JmeContext) ctxClazz.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException ex) {
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!\n"
@@ -158,10 +158,9 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     private JmeContext newContextJogl(AppSettings settings, JmeContext.Type type) {
         try {
-            Class ctxClazz = null;
+            Class<?> ctxClazz = null;
             switch (type) {
                 case Display:
                     ctxClazz = Class.forName("com.jme3.system.jogl.JoglNewtDisplay");
@@ -177,9 +176,8 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             }
 
             return (JmeContext) ctxClazz.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException ex) {
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!\n"
@@ -194,11 +192,10 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         try {
             String className = settings.getRenderer().substring("CUSTOM".length());
 
-            Class ctxClazz = Class.forName(className);
-            return (JmeContext) ctxClazz.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException ex) {
+            Class<JmeContext> ctxClazz = (Class<JmeContext>) Class.forName(className);
+            return ctxClazz.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         } catch (ClassNotFoundException ex) {
             logger.log(Level.SEVERE, "CRITICAL ERROR: Context class is missing!", ex);
@@ -211,8 +208,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
     public JmeContext newContext(AppSettings settings, Type contextType) {
         initialize(settings);
         JmeContext ctx;
-        if (settings.getRenderer() == null
-                || settings.getRenderer().equals("NULL")
+        if (settings.getRenderer() == null || settings.getRenderer().equals("NULL")
                 || contextType == JmeContext.Type.Headless) {
             ctx = new NullContext();
             ctx.setSettings(settings);
@@ -227,8 +223,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             ctx.setSettings(settings);
         } else {
             throw new UnsupportedOperationException(
-                    "Unrecognizable renderer specified: "
-                    + settings.getRenderer());
+                    "Unrecognizable renderer specified: " + settings.getRenderer());
         }
         return ctx;
     }
@@ -239,11 +234,10 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             Class<T> clazz = (Class<T>) Class.forName(className);
             return clazz.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException ex) {
-            logger.log(Level.SEVERE, "CRITICAL ERROR: Audio implementation class "
-                    + className + " is missing!\n", ex);
-        } catch (InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException ex) {
+            logger.log(Level.SEVERE,
+                    "CRITICAL ERROR: Audio implementation class " + className + " is missing!\n", ex);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         }
 
@@ -267,8 +261,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             efx = newObject("com.jme3.audio.joal.JoalEFX");
         } else {
             throw new UnsupportedOperationException(
-                    "Unrecognizable audio renderer specified: "
-                    + settings.getAudioRenderer());
+                    "Unrecognizable audio renderer specified: " + settings.getAudioRenderer());
         }
 
         if (al == null || alc == null || efx == null) {
