@@ -438,9 +438,9 @@ public class PssmShadowRenderer implements SceneProcessor {
             renderManager.setCamera(shadowCam, false);
 
             if (debugfrustums) {
-                getMainScene().attachChild(createFrustum(points, i));
+                getSceneForDebug().attachChild(createFrustum(points, i));
                 ShadowUtil.updateFrustumPoints2(shadowCam, points);
-                getMainScene().attachChild(createFrustum(points, i));
+                getSceneForDebug().attachChild(createFrustum(points, i));
             }
 
             r.setFrameBuffer(shadowFB[i]);
@@ -455,7 +455,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
         if (debugfrustums) {
             debugfrustums = false;
-            getMainScene().updateGeometricState();
+            getSceneForDebug().updateGeometricState();
         }
 
         //restore setting for future rendering
@@ -466,7 +466,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
     }
 
-    protected Node getMainScene() {
+    protected Node getSceneForDebug() {
         return (Node) viewPort.getScenes().get(0);
     }
 
