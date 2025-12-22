@@ -31,11 +31,11 @@
  */
 package jme3test.model;
 
+import com.jme3.anim.AnimClip;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
 import com.jme3.app.*;
 import com.jme3.asset.plugins.FileLocator;
-import com.jme3.asset.plugins.UrlLocator;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -82,7 +82,6 @@ public class TestGltfLoading extends SimpleApplication {
 
         String folder = System.getProperty("user.home");
         assetManager.registerLocator(folder, FileLocator.class);
-        assetManager.registerLocator("https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/refs/heads/main/", UrlLocator.class);
 
         // cam.setLocation(new Vector3f(4.0339394f, 2.645184f, 6.4627485f));
         // cam.setRotation(new Quaternion(-0.013950467f, 0.98604023f, -0.119502485f, -0.11510504f));
@@ -153,14 +152,7 @@ public class TestGltfLoading extends SimpleApplication {
 
 //        loadModel("Models/gltf/Corset/glTF/Corset.gltf", new Vector3f(0, -1, 0), 20f);
 //        loadModel("Models/gltf/BoxInterleaved/glTF/BoxInterleaved.gltf", new Vector3f(0, 0, 0), 1f);
-
-        // From url locator
-
-        // loadModel("Models/AnimatedColorsCube/glTF/AnimatedColorsCube.gltf", new Vector3f(0, 0f, 0), 0.1f);
-        // loadModel("Models/AntiqueCamera/glTF/AntiqueCamera.gltf", new Vector3f(0, 0, 0), 0.1f);
-        // loadModel("Models/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf", new Vector3f(0, 0, 0), 0.1f);
-        // loadModel("Models/AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb", new Vector3f(0, 0, 0), 0.1f);
-
+        
         probeNode.attachChild(assets.get(0));
 
         ChaseCameraAppState chaseCam = new ChaseCameraAppState();
@@ -239,10 +231,7 @@ public class TestGltfLoading extends SimpleApplication {
     private void loadModel(String path, Vector3f offset, Vector3f scale) {
         GltfModelKey k = new GltfModelKey(path);
         //k.setKeepSkeletonPose(true);
-        long t  = System.currentTimeMillis();        
         Spatial s = assetManager.loadModel(k);
-        System.out.println("Load time : " + (System.currentTimeMillis() - t) + " ms");
-        
         s.scale(scale.x, scale.y, scale.z);
         s.move(offset);
         assets.add(s);
