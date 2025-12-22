@@ -397,7 +397,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
     }
 
-    protected Node getMainScene() {
+    protected Node getSceneForDebug() {
         return (Node) viewPort.getScenes().get(0);
     }
 
@@ -886,3 +886,4 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         oc.write(edgesThickness, "edgesThickness", 1.0f);
     }
 }
+
