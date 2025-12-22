@@ -165,7 +165,7 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
         }
         Geometry geo = frustums[shadowMapIndex];
         if (geo.getParent() == null) {
-            getMainScene().attachChild(geo);
+            getSceneForDebug().attachChild(geo);
         }
     }
 
