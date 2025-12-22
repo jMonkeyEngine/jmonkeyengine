@@ -112,6 +112,7 @@ public class UserDataLoader implements ExtrasLoader {
         if (el == null) {
             return null;
         }
+        el = el.autoCast();
         if (el instanceof JsonObject) {
             return toAttribute(el.getAsJsonObject(), nested);
         } else if (el instanceof JsonArray) {

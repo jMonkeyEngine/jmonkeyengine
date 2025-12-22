@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -316,6 +316,10 @@ public class AudioNode extends Node implements AudioSource {
 
         data = audioData;
         this.audioKey = audioKey;
+    }
+    
+    public AudioKey getAudioKey() {
+        return audioKey;
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,10 +44,10 @@ import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.Trigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -58,44 +58,48 @@ import com.jme3.scene.VertexBuffer;
 
 import jme3tools.optimize.LodGenerator;
 
-public class TestLodGeneration extends SimpleApplication {
+public class TestLodGeneration extends SimpleApplication implements ActionListener {
 
     public static void main(String[] args) {
         TestLodGeneration app = new TestLodGeneration();
         app.start();
     }
 
-    private boolean wireFrame = false;
+    private boolean wireframe = false;
+    // Current reduction value for LOD generation (0.0 to 1.0)
     private float reductionValue = 0.0f;
     private int lodLevel = 0;
     private BitmapText hudText;
-    final private List<Geometry> listGeoms = new ArrayList<>();
-    final private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
+    private final List<Geometry> listGeoms = new ArrayList<>();
+    private final ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(5);
 
     @Override
     public void simpleInitApp() {
 
+        // --- Lighting Setup ---
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
         rootNode.addLight(dl);
 
         AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(0.6f));
         rootNode.addLight(al);
 
+        // --- Model Loading and Setup ---
         // model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         Node model = (Node) assetManager.loadModel("Models/Jaime/Jaime.j3o");
         BoundingBox b = ((BoundingBox) model.getWorldBound());
         model.setLocalScale(1.2f / (b.getYExtent() * 2));
         // model.setLocalTranslation(0,-(b.getCenter().y - b.getYExtent())* model.getLocalScale().y, 0);
+
+        // Iterate through the model's children and collect all Geometry objects
         for (Spatial spatial : model.getChildren()) {
             if (spatial instanceof Geometry) {
                 listGeoms.add((Geometry) spatial);
             }
         }
 
-        ChaseCamera chaseCam = new ChaseCamera(cam, inputManager);
-        model.addControl(chaseCam);
+        // --- Camera Setup ---
+        ChaseCamera chaseCam = new ChaseCamera(cam, model, inputManager);
         chaseCam.setLookAtOffset(b.getCenter());
         chaseCam.setDefaultDistance(5);
         chaseCam.setMinVerticalRotation(-FastMath.HALF_PI + 0.01f);
@@ -103,11 +107,17 @@ public class TestLodGeneration extends SimpleApplication {
 
         SkinningControl skControl = model.getControl(SkinningControl.class);
         if (skControl != null) {
+            // Disable skinning control if found. This is an optimization for static LOD generation
+            // as skinning computation is not needed when generating LODs.
             skControl.setEnabled(false);
         }
 
+        // --- Initial LOD Generation ---
+        // Set initial reduction value and LOD level
         reductionValue = 0.80f;
         lodLevel = 1;
+
+        // Generate LODs for each geometry in the model
         for (final Geometry geom : listGeoms) {
             LodGenerator lodGenerator = new LodGenerator(geom);
             lodGenerator.bakeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionValue);
@@ -115,45 +125,49 @@ public class TestLodGeneration extends SimpleApplication {
         }
 
         rootNode.attachChild(model);
+        // Disable the default fly camera as we are using a chase camera
         flyCam.setEnabled(false);
 
-        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        // --- HUD Setup ---
         hudText = new BitmapText(guiFont);
-        hudText.setSize(guiFont.getCharSet().getRenderedSize());
         hudText.setText(computeNbTri() + " tris");
-        hudText.setLocalTranslation(cam.getWidth() / 2, hudText.getLineHeight(), 0);
+        hudText.setLocalTranslation(cam.getWidth() / 2f, hudText.getLineHeight(), 0);
         guiNode.attachChild(hudText);
 
-        inputManager.addListener(new ActionListener() {
-            @Override
-            public void onAction(String name, boolean isPressed, float tpf) {
-                if (isPressed) {
-                    if (name.equals("plus")) {
-                        reductionValue += 0.05f;
-                        updateLod();
-                    }
-                    if (name.equals("minus")) {
-                        reductionValue -= 0.05f;
-                        updateLod();
-                    }
-                    if (name.equals("wireFrame")) {
-                        wireFrame = !wireFrame;
-                        for (Geometry geom : listGeoms) {
-                            Material mat = geom.getMaterial();
-                            mat.getAdditionalRenderState().setWireframe(wireFrame);
-                        }
-                    }
-                }
-            }
-        }, "plus", "minus", "wireFrame");
-
-        inputManager.addMapping("plus", new KeyTrigger(KeyInput.KEY_ADD));
-        inputManager.addMapping("minus", new KeyTrigger(KeyInput.KEY_SUBTRACT));
-        inputManager.addMapping("wireFrame", new KeyTrigger(KeyInput.KEY_SPACE));
+        // Register input mappings for user interaction
+        registerInputMappings();
     }
 
     @Override
-    public void simpleUpdate(float tpf) {
+    public void onAction(String name, boolean isPressed, float tpf) {
+        if (!isPressed) return;
+
+        if (name.equals("plus")) {
+            reductionValue += 0.05f;
+            updateLod();
+
+        } else if (name.equals("minus")) {
+            reductionValue -= 0.05f;
+            updateLod();
+
+        } else if (name.equals("wireframe")) {
+            wireframe = !wireframe;
+            for (Geometry geom : listGeoms) {
+                Material mat = geom.getMaterial();
+                mat.getAdditionalRenderState().setWireframe(wireframe);
+            }
+        }
+    }
+
+    private void registerInputMappings() {
+        addMapping("plus", new KeyTrigger(KeyInput.KEY_P));
+        addMapping("minus", new KeyTrigger(KeyInput.KEY_L));
+        addMapping("wireframe", new KeyTrigger(KeyInput.KEY_SPACE));
+    }
+
+    private void addMapping(String mappingName, Trigger... triggers) {
+        inputManager.addMapping(mappingName, triggers);
+        inputManager.addListener(this, mappingName);
     }
 
     @Override
@@ -163,14 +177,20 @@ public class TestLodGeneration extends SimpleApplication {
     }
 
     private void updateLod() {
+        // Clamp the reduction value between 0.0 and 1.0 to ensure it's within valid range
         reductionValue = FastMath.clamp(reductionValue, 0.0f, 1.0f);
         makeLod(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionValue, 1);
     }
 
+    /**
+     * Computes the total number of triangles currently displayed by all geometries.
+     * @return The total number of triangles.
+     */
     private int computeNbTri() {
         int nbTri = 0;
         for (Geometry geom : listGeoms) {
             Mesh mesh = geom.getMesh();
+            // Check if the mesh has LOD levels
             if (mesh.getNumLodLevels() > 0) {
                 nbTri += mesh.getLodLevel(lodLevel).getNumElements();
             } else {
@@ -180,24 +200,46 @@ public class TestLodGeneration extends SimpleApplication {
         return nbTri;
     }
 
-    private void makeLod(final LodGenerator.TriangleReductionMethod method, final float value, final int ll) {
+    /**
+     * Generates and applies LOD levels to the geometries in a background thread.
+     *
+     * @param reductionMethod     The triangle reduction method to use (e.g., PROPORTIONAL).
+     * @param reductionPercentage The percentage of triangles to reduce (0.0 to 1.0).
+     * @param targetLodLevel      The index of the LOD level to set active after generation.
+     */
+    private void makeLod(final LodGenerator.TriangleReductionMethod reductionMethod,
+                         final float reductionPercentage, final int targetLodLevel) {
+
+        // --- Asynchronous LOD Generation ---
+        // Execute the LOD generation process in the background thread pool.
         exec.execute(new Runnable() {
             @Override
             public void run() {
                 for (final Geometry geom : listGeoms) {
                     LodGenerator lodGenerator = new LodGenerator(geom);
-                    final VertexBuffer[] lods = lodGenerator.computeLods(method, value);
+                    final VertexBuffer[] lods = lodGenerator.computeLods(reductionMethod, reductionPercentage);
 
+                    // --- JME Thread Synchronization ---
+                    // Mesh modifications and scene graph updates must be done on the main thread.
                     enqueue(new Callable<Void>() {
                         @Override
                         public Void call() throws Exception {
                             geom.getMesh().setLodLevels(lods);
+
+                            // Reset lodLevel to 0 initially
                             lodLevel = 0;
-                            if (geom.getMesh().getNumLodLevels() > ll) {
-                                lodLevel = ll;
+                            // If the generated LOD levels are more than the target, set to target LOD
+                            if (geom.getMesh().getNumLodLevels() > targetLodLevel) {
+                                lodLevel = targetLodLevel;
                             }
                             geom.setLodLevel(lodLevel);
-                            hudText.setText(computeNbTri() + " tris");
+
+                            int nbTri = computeNbTri();
+                            hudText.setText(nbTri + " tris");
+
+                            // Print debug information to the console
+                            System.out.println(geom + " lodLevel: " + lodLevel + ", numLodLevels: " + geom.getMesh().getNumLodLevels()
+                                    + ", reductionValue: " + reductionValue + ", triangles: " + nbTri);
                             return null;
                         }
                     });
