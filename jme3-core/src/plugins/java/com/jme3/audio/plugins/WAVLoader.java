@@ -38,6 +38,7 @@ import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioKey;
 import com.jme3.audio.AudioStream;
 import com.jme3.audio.SeekableStream;
+import com.jme3.export.binary.ByteUtils;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
 import java.io.BufferedInputStream;
@@ -112,7 +113,7 @@ public class WAVLoader implements AssetLoader {
             }
             InputStream newStream = info.openStream();
             try {
-                newStream.skip(resetOffset);
+                ByteUtils.skipFully(newStream, resetOffset);
                 this.in = new BufferedInputStream(newStream);
             } catch (IOException ex) {
                 // Resource could have gotten lost, etc.
@@ -172,7 +173,7 @@ public class WAVLoader implements AssetLoader {
         // Skip any extra parameters in the format chunk (e.g., for non-PCM formats)
         int remainingChunkBytes = chunkSize - 16;
         if (remainingChunkBytes > 0) {
-            in.skipBytes(remainingChunkBytes);
+            ByteUtils.skipFully((InputStream)in, remainingChunkBytes);
         }
     }
 

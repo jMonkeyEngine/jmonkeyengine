@@ -81,6 +81,7 @@ public class NewtonianParticleInfluencer extends DefaultParticleInfluencer {
             // adding tangent vector
             particle.velocity.addLocal(temp);
         }
+        particle.velocity.addLocal(initialVelocity);
         if (velocityVariation != 0.0f) {
             this.applyVelocityVariation(particle);
         }

@@ -1,0 +1,9 @@
+<config>
+    <frameworkPaths>
+        <path>libs</path>
+    </frameworkPaths>
+    <frameworks>
+        <framework>jme3-ios-native</framework>
+    </frameworks>
+</config>
+

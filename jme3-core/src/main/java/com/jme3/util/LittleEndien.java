@@ -62,6 +62,9 @@ public class LittleEndien extends InputStream implements DataInput {
         return in.read(buf);
     }
 
+    /**
+     * Attempts(!) to read up to len bytes into buf at offset off.
+     */
     @Override
     public int read(byte[] buf, int off, int len) throws IOException {
         return in.read(buf, off, len);
@@ -142,14 +145,24 @@ public class LittleEndien extends InputStream implements DataInput {
 
     @Override
     public void readFully(byte b[]) throws IOException {
-        in.read(b, 0, b.length);
+        readFully(b, 0, b.length);
     }
 
     @Override
     public void readFully(byte b[], int off, int len) throws IOException {
-        in.read(b, off, len);
+        int totalRead = 0;
+        while (totalRead < len) {
+            int bytesRead = in.read(b, off + totalRead, len - totalRead);
+            if (bytesRead < 0) {
+                throw new EOFException("Reached end of stream before reading fully.");
+            }
+            totalRead += bytesRead;
+        }
     }
 
+    /**
+     * Attempts(!) to skip n bytes in the input stream.
+     */
     @Override
     public int skipBytes(int n) throws IOException {
         return (int) in.skip(n);
