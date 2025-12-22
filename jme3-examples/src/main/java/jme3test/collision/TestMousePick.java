@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,102 +29,166 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.collision;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
+import com.jme3.font.BitmapText;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Cylinder;
+import com.jme3.scene.shape.Sphere;
+import com.jme3.scene.shape.Torus;
+import com.jme3.shadow.DirectionalLightShadowFilter;
+import com.jme3.shadow.EdgeFilteringMode;
 
+/**
+ * The primary purpose of TestMousePick is to illustrate how to detect intersections 
+ * between a ray (originating from the camera's cursor position) and 3D objects in the scene. 
+ * <p> 
+ * When an intersection occurs, a visual marker (a red arrow) 
+ * is placed at the collision point, and the name of the 
+ * intersected object is displayed on the HUD.
+ * 
+ * @author capdevon
+ */
 public class TestMousePick extends SimpleApplication {
 
     public static void main(String[] args) {
         TestMousePick app = new TestMousePick();
         app.start();
     }
-    
+
+    private BitmapText hud;
     private Node shootables;
     private Geometry mark;
 
     @Override
     public void simpleInitApp() {
-        flyCam.setEnabled(false);
+        hud = createLabel(10, 10, "Text");
+        configureCamera();
         initMark();
+        setupScene();
+        setupLights();
+    }
 
+    private void configureCamera() {
+        flyCam.setMoveSpeed(15f);
+        flyCam.setDragToRotate(true);
+
+        cam.setLocation(Vector3f.UNIT_XYZ.mult(6));
+        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
+    }
+
+    private void setupScene() {
         /* Create four colored boxes and a floor to shoot at: */
         shootables = new Node("Shootables");
+        shootables.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         rootNode.attachChild(shootables);
-        shootables.attachChild(makeCube("a Dragon", -2f, 0f, 1f));
-        shootables.attachChild(makeCube("a tin can", 1f, -2f, 0f));
-        shootables.attachChild(makeCube("the Sheriff", 0f, 1f, -2f));
-        shootables.attachChild(makeCube("the Deputy", 1f, 0f, -4f));
-        shootables.attachChild(makeFloor());
-        shootables.attachChild(makeCharacter());
+
+        Geometry sphere = makeShape("Sphere", new Sphere(32, 32, 1f), ColorRGBA.randomColor());
+        sphere.setLocalTranslation(-2f, 0f, 1f);
+        shootables.attachChild(sphere);
+
+        Geometry box = makeShape("Box", new Box(1, 1, 1), ColorRGBA.randomColor());
+        box.setLocalTranslation(1f, -2f, 0f);
+        shootables.attachChild(box);
+
+        Geometry cylinder = makeShape("Cylinder", new Cylinder(16, 16, 1.0f, 1.0f, true), ColorRGBA.randomColor());
+        cylinder.setLocalTranslation(0f, 1f, -2f);
+        cylinder.rotate(90 * FastMath.DEG_TO_RAD, 0, 0);
+        shootables.attachChild(cylinder);
+
+        Geometry torus = makeShape("Torus", new Torus(16, 16, 0.15f, 0.5f), ColorRGBA.randomColor());
+        torus.setLocalTranslation(1f, 0f, -4f);
+        shootables.attachChild(torus);
+
+        // load a character from jme3-testdata
+        Spatial golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        golem.scale(0.5f);
+        golem.setLocalTranslation(-1.0f, -1.5f, -0.6f);
+        shootables.attachChild(golem);
+
+        Geometry floor = makeShape("Floor", new Box(15, .2f, 15), ColorRGBA.Gray);
+        floor.setLocalTranslation(0, -4, -5);
+        shootables.attachChild(floor);
     }
+
+    private void setupLights() {
+        // We must add a light to make the model visible
+        DirectionalLight sun = new DirectionalLight();
+        sun.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f).normalizeLocal());
+        rootNode.addLight(sun);
+
+        // init shadows
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        DirectionalLightShadowFilter dlsf = new DirectionalLightShadowFilter(assetManager, 2048, 3);
+        dlsf.setLight(sun);
+        dlsf.setLambda(0.55f);
+        dlsf.setShadowIntensity(0.8f);
+        dlsf.setEdgeFilteringMode(EdgeFilteringMode.PCFPOISSON);
+        fpp.addFilter(dlsf);
+        viewPort.addProcessor(fpp);
+    }
+
+    private final CollisionResults results = new CollisionResults();
+    private final Quaternion tempQuat = new Quaternion();
 
     @Override
     public void simpleUpdate(float tpf){
-        Vector3f origin    = cam.getWorldCoordinates(inputManager.getCursorPosition(), 0.0f);
-        Vector3f direction = cam.getWorldCoordinates(inputManager.getCursorPosition(), 0.3f);
-        direction.subtractLocal(origin).normalizeLocal();
 
-        Ray ray = new Ray(origin, direction);
-        CollisionResults results = new CollisionResults();
+        Ray ray = cam.screenPointToRay(inputManager.getCursorPosition());
+        results.clear();
         shootables.collideWith(ray, results);
-//        System.out.println("----- Collisions? " + results.size() + "-----");
-//        for (int i = 0; i < results.size(); i++) {
-//            // For each hit, we know distance, impact point, name of geometry.
-//            float dist = results.getCollision(i).getDistance();
-//            Vector3f pt = results.getCollision(i).getWorldContactPoint();
-//            String hit = results.getCollision(i).getGeometry().getName();
-//            System.out.println("* Collision #" + i);
-//            System.out.println("  You shot " + hit + " at " + pt + ", " + dist + " wu away.");
-//        }
+
         if (results.size() > 0) {
             CollisionResult closest = results.getClosestCollision();
-            mark.setLocalTranslation(closest.getContactPoint());
+            Vector3f point = closest.getContactPoint();
+            Vector3f normal = closest.getContactNormal();
 
-            Quaternion q = new Quaternion();
-            q.lookAt(closest.getContactNormal(), Vector3f.UNIT_Y);
-            mark.setLocalRotation(q);
+            tempQuat.lookAt(normal, Vector3f.UNIT_Y);
+            mark.setLocalRotation(tempQuat);
+            mark.setLocalTranslation(point);
 
             rootNode.attachChild(mark);
+            hud.setText(closest.getGeometry().toString());
+
         } else {
+            hud.setText("No collision");
             rootNode.detachChild(mark);
         }
     }
- 
-    /** A cube object for target practice */
-    private Geometry makeCube(String name, float x, float y, float z) {
-        Box box = new Box(1, 1, 1);
-        Geometry cube = new Geometry(name, box);
-        cube.setLocalTranslation(x, y, z);
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat1.setColor("Color", ColorRGBA.randomColor());
-        cube.setMaterial(mat1);
-        return cube;
+
+    private BitmapText createLabel(int x, int y, String text) {
+        BitmapText bmp = guiFont.createLabel(text);
+        bmp.setLocalTranslation(x, settings.getHeight() - y, 0);
+        bmp.setColor(ColorRGBA.Red);
+        guiNode.attachChild(bmp);
+        return bmp;
     }
 
-    /** A floor to show that the "shot" can go through several objects. */
-    private Geometry makeFloor() {
-        Box box = new Box(15, .2f, 15);
-        Geometry floor = new Geometry("the Floor", box);
-        floor.setLocalTranslation(0, -4, -5);
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat1.setColor("Color", ColorRGBA.Gray);
-        floor.setMaterial(mat1);
-        return floor;
+    private Geometry makeShape(String name, Mesh mesh, ColorRGBA color) {
+        Geometry geo = new Geometry(name, mesh);
+        Material mat = new Material(assetManager, Materials.LIGHTING);
+        mat.setBoolean("UseMaterialColors", true);
+        mat.setColor("Diffuse", color);
+        geo.setMaterial(mat);
+        return geo;
     }
 
     /**
@@ -132,22 +196,10 @@ public class TestMousePick extends SimpleApplication {
      */
     private void initMark() {
         Arrow arrow = new Arrow(Vector3f.UNIT_Z.mult(2f));
-        mark = new Geometry("BOOM!", arrow);
-        Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mark_mat.setColor("Color", ColorRGBA.Red);
-        mark.setMaterial(mark_mat);
+        mark = new Geometry("Marker", arrow);
+        Material mat = new Material(assetManager, Materials.UNSHADED);
+        mat.setColor("Color", ColorRGBA.Red);
+        mark.setMaterial(mat);
     }
 
-    private Spatial makeCharacter() {
-        // load a character from jme3-testdata
-        Spatial golem = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        golem.scale(0.5f);
-        golem.setLocalTranslation(-1.0f, -1.5f, -0.6f);
-
-        // We must add a light to make the model visible
-        DirectionalLight sun = new DirectionalLight();
-        sun.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f).normalizeLocal());
-        golem.addLight(sun);
-        return golem;
-    }
 }
