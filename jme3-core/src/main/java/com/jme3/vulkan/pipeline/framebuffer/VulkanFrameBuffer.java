@@ -55,6 +55,13 @@ public class VulkanFrameBuffer extends AbstractNative<Long> implements FrameBuff
     }
 
     @Override
+    public long getId() {
+        return getNativeObject();
+    }
+
+
+
+    @Override
     public Long getNativeObject() {
         if (updateNeeded) {
             build();
@@ -136,10 +143,12 @@ public class VulkanFrameBuffer extends AbstractNative<Long> implements FrameBuff
         }
     }
 
+    @Override
     public int getWidth() {
         return width;
     }
 
+    @Override
     public int getHeight() {
         return height;
     }

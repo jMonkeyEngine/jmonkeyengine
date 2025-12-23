@@ -38,12 +38,9 @@ public class VulkanComponentsTest {
 
         Material mat = engine.createMaterial("Path/To/Matdef.j3md");
         mat.setColor("Color", ColorRGBA.Blue);
-        Mesh mesh = engine.createBoxMesh();
-        Position pos = mesh.mapAttribute(GlVertexBuffer.Type.Position);
-        for (Vector3f p : pos.readWrite(new Vector3f())) {
-            p.multLocal(5f);
-            p.addLocal((float)Math.random(), (float)Math.random(), (float)Math.random());
-        }
+
+        Mesh mesh = engine.createQuadMesh();
+
         Geometry g = new Geometry("my_geom", mesh);
         g.setLocalTranslation(0f, 1f, 0f);
         g.setMaterial(mat);
@@ -102,7 +99,10 @@ public class VulkanComponentsTest {
                 d.addBinding("ColorMap", new SetLayoutBinding(Descriptor.CombinedImageSampler, 1, ShaderStage.Fragment));
             });
         });
-        GraphicsPipeline pipeline = GraphicsPipeline.build(device, null, pipelineLayout, meshLayout, b -> {
+        GraphicsPipeline pipeline = GraphicsPipeline.build(device, b -> {
+            b.setSubpass(null);
+            b.setLayout(pipelineLayout);
+            b.setMeshLayout(meshLayout);
             b.addBlendAttachment(ColorBlendAttachment.build());
             b.setDynamic(DynamicState.ViewPort, true);
             b.setDynamic(DynamicState.Scissor, true);

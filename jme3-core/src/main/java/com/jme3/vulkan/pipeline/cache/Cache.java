@@ -3,7 +3,7 @@ package com.jme3.vulkan.pipeline.cache;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class TheNewOneAndOnlyCache <E> {
+public class Cache<E> {
 
     private final Map<E, Entry<E>> entries = new ConcurrentHashMap<>();
     private long idleTimeout = 2000;

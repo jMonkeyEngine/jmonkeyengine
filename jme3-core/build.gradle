@@ -73,6 +73,9 @@ dependencies {
     //runtimeOnly(variantOf(libs.lwjgl3.vulkan) { classifier('natives-linux') })
     runtimeOnly(variantOf(libs.lwjgl3.shaderc) { classifier('natives-linux') })
 
+    // for parsing yaml files
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.1")
+
 }
 
 task updateVersionPropertiesFile {

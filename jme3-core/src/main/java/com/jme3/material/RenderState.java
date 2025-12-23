@@ -31,23 +31,14 @@
  */
 package com.jme3.material;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.jme3.export.*;
-import com.jme3.scene.GlMesh;
 import com.jme3.scene.Mesh;
-import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.mesh.MeshDescription;
-import com.jme3.vulkan.pipeline.Pipeline;
-import com.jme3.vulkan.pipeline.cache.PipelineCache;
-import com.jme3.vulkan.pipeline.states.BasePipelineState;
-import com.jme3.vulkan.pipeline.states.IShaderState;
-import com.jme3.vulkan.shader.ShaderModule;
-import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * <code>RenderState</code> specifies material rendering properties that cannot
@@ -1818,6 +1809,75 @@ public class RenderState implements Cloneable, Savable {
      */
     public boolean isFaceCullFlippable() {
         return cullMode == FaceCullMode.Front || cullMode == FaceCullMode.Back;
+    }
+
+    /**
+     * Sets this state according to the contents of the JsonNode.
+     *
+     * @param json json containing render state properties
+     */
+    public void applyJson(JsonNode json) {
+        readJson(json, "wireframe", p -> setWireframe(p.asBoolean()));
+        readJson(json, "cullMode", p -> setFaceCullMode(FaceCullMode.valueOf(p.asText())));
+        readJson(json, "depthWrite", p -> setDepthWrite(p.asBoolean()));
+        readJson(json, "depthTest", p -> setDepthTest(p.asBoolean()));
+        readJson(json, "colorWrite", p -> setColorWrite(p.asBoolean()));
+        readJson(json, "blendMode", p -> setBlendMode(BlendMode.valueOf(p.asText())));
+        readJson(json, "blendEquation", p -> setBlendEquation(BlendEquation.valueOf(p.asText())));
+        readJson(json, "blendEquationAlpha", p -> setBlendEquationAlpha(BlendEquationAlpha.valueOf(p.asText())));
+        readJson(json, "depthFunc", p -> setDepthFunc(TestFunction.valueOf(p.asText())));
+        readJson(json, "lineWidth", p -> setLineWidth(p.floatValue()));
+        if (json.has("polyOffset")) {
+            JsonNode poly = json.get("polyOffset");
+            float factor = readJson(poly, "factor", 0f, JsonNode::floatValue);
+            float units = readJson(poly, "units", 0f, JsonNode::floatValue);
+            setPolyOffset(factor, units);
+        }
+        if (json.has("blendFactors")) {
+            JsonNode factor = json.get("blendFactors");
+            Function<JsonNode, BlendFunc> readOp = n -> BlendFunc.valueOf(n.asText());
+            BlendFunc sColor = readJson(factor, "srcColor", BlendFunc.One, readOp);
+            BlendFunc dColor = readJson(factor, "dstColor", BlendFunc.One, readOp);
+            BlendFunc sAlpha = readJson(factor, "srcAlpha", BlendFunc.One, readOp);
+            BlendFunc dAlpha = readJson(factor, "dstAlpha", BlendFunc.One, readOp);
+            setCustomBlendFactors(sColor, dColor, sAlpha, dAlpha);
+        }
+        if (json.has("stencil")) {
+            JsonNode stencil = json.get("stencil");
+            Function<JsonNode, StencilOperation> readOp = n -> StencilOperation.valueOf(n.asText());
+            boolean enabled = readJson(stencil, "enabled", true, JsonNode::asBoolean);
+            StencilOperation frontStencilFail = readJson(stencil, "frontStencilFail", StencilOperation.Keep, readOp);
+            StencilOperation frontDepthFail = readJson(stencil, "frontDepthFail", StencilOperation.Keep, readOp);
+            StencilOperation frontDepthPass = readJson(stencil, "frontDepthPass", StencilOperation.Keep, readOp);
+            StencilOperation backStencilFail = readJson(stencil, "backStencilFail", StencilOperation.Keep, readOp);
+            StencilOperation backDepthFail = readJson(stencil, "backDepthFail", StencilOperation.Keep, readOp);
+            StencilOperation backDepthPass = readJson(stencil, "backDepthPass", StencilOperation.Keep, readOp);
+            TestFunction frontFunc = readJson(stencil, "frontFunc", TestFunction.Always,
+                    n -> TestFunction.valueOf(n.asText()));
+            TestFunction backFunc = readJson(stencil, "backFunc", TestFunction.Always,
+                    n -> TestFunction.valueOf(n.asText()));
+            setStencil(enabled, frontStencilFail, frontDepthFail, frontDepthPass,
+                    backStencilFail, backDepthFail, backDepthPass, frontFunc, backFunc);
+            readJson(stencil, "frontReference", p -> setFrontStencilReference(p.asInt()));
+            readJson(stencil, "backReference", p -> setBackStencilReference(p.asInt()));
+            readJson(stencil, "frontMask", p -> setFrontStencilMask(p.asInt()));
+            readJson(stencil, "backMask", p -> setBackStencilMask(p.asInt()));
+        }
+    }
+
+    private static boolean readJson(JsonNode json, String property, Consumer<JsonNode> onExists) {
+        if (json.has(property)) {
+            onExists.accept(json.get(property));
+            return true;
+        }
+        return false;
+    }
+
+    private static <T> T readJson(JsonNode json, String property, T def, Function<JsonNode, T> func) {
+        if (json.has(property)) {
+            return func.apply(json.get(property));
+        }
+        return def;
     }
     
 }

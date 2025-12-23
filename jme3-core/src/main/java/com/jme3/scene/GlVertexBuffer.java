@@ -68,7 +68,6 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
     /**
      * Type of buffer. Specifies the actual attribute it defines.
      */
-    @Deprecated
     public enum Type {
         /**
          * Position of the vertex (3 floats)
@@ -286,6 +285,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
          * Mesh data is <em>not</em> sent to GPU at all. It is only
          * used by the CPU.
          */
+        @Deprecated
         CpuOnly(null);
 
         private final DataAccess access;

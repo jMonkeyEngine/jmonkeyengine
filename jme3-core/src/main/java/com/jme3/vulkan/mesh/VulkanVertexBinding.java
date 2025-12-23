@@ -12,6 +12,7 @@ import com.jme3.vulkan.mesh.attribute.Attribute;
 import com.jme3.vulkan.util.IntEnum;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class VulkanVertexBinding implements VertexBinding {
 
@@ -21,7 +22,6 @@ public class VulkanVertexBinding implements VertexBinding {
     private final IntEnum<InputRate> rate;
     private int stride = 0;
     private long offset = 0L;
-    private GlVertexBuffer.Usage usage = GlVertexBuffer.Usage.Dynamic;
 
     protected VulkanVertexBinding(LogicalDevice<?> device, BufferStream stream, IntEnum<InputRate> rate) {
         this.device = device;
@@ -40,7 +40,7 @@ public class VulkanVertexBinding implements VertexBinding {
     }
 
     @Override
-    public GpuBuffer createBuffer(int elements) {
+    public GpuBuffer createBuffer(int elements, GlVertexBuffer.Usage usage) {
         MemorySize size = new MemorySize(elements, stride);
         switch (usage) {
             case Static:
@@ -50,10 +50,11 @@ public class VulkanVertexBinding implements VertexBinding {
                 return buffer;
             }
             case Stream: {
-                return new PersistentVulkanBuffer<>(HostVisibleBuffer.build(device, size, b -> b.setUsage(BufferUsage.Vertex)));
+                return new PersistentVulkanBuffer<>(HostVisibleBuffer.build(
+                        device, size, b -> b.setUsage(BufferUsage.Vertex)));
             }
-            case CpuOnly: throw new IllegalArgumentException("Cannot create cpu-only vulkan vertex buffer.");
-            default: throw new UnsupportedOperationException();
+            case CpuOnly: throw new IllegalArgumentException("Cannot create cpu-only vertex buffer for Vulkan.");
+            default: throw new UnsupportedOperationException("Unrecognized: " + usage);
         }
     }
 
@@ -96,8 +97,10 @@ public class VulkanVertexBinding implements VertexBinding {
         return Objects.hash(attributes, rate, stride);
     }
 
-    public static BuilderImpl create(LogicalDevice<?> device, BufferStream stream, IntEnum<InputRate> rate) {
-        return new VulkanVertexBinding(device, stream, rate).new BuilderImpl();
+    public static VulkanVertexBinding build(LogicalDevice<?> device, BufferStream stream, IntEnum<InputRate> rate, Consumer<Builder> config) {
+        BuilderImpl b = new VulkanVertexBinding(device, stream, rate).new BuilderImpl();
+        config.accept(b);
+        return b.build();
     }
 
     public class BuilderImpl implements VertexBinding.Builder {
@@ -105,23 +108,15 @@ public class VulkanVertexBinding implements VertexBinding {
         private final Set<String> usedAttrNames = new HashSet<>();
 
         @Override
-        public BuilderImpl add(String name, Format format, AttributeMapping mapping) {
+        public void add(String name, Format format, AttributeMapping mapping) {
             if (!usedAttrNames.add(name)) {
                 throw new IllegalArgumentException("\"" + name + "\" is already used as an attribute name.");
             }
             attributes.add(new NamedAttribute(name, format, mapping, stride));
             stride += format.getTotalBytes();
-            return this;
         }
 
-        @Override
-        public BuilderImpl setUsage(GlVertexBuffer.Usage usage) {
-            VulkanVertexBinding.this.usage = Objects.requireNonNull(usage);
-            return this;
-        }
-
-        @Override
-        public VulkanVertexBinding build() {
+        protected VulkanVertexBinding build() {
             return VulkanVertexBinding.this;
         }
 

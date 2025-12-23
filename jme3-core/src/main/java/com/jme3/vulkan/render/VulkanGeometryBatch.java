@@ -1,5 +1,6 @@
 package com.jme3.vulkan.render;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.material.*;
 import com.jme3.math.FastMath;
 import com.jme3.renderer.Camera;
@@ -10,18 +11,27 @@ import com.jme3.vulkan.material.VulkanMaterial;
 import com.jme3.vulkan.mesh.VulkanMesh;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.material.NewMaterial;
+import com.jme3.vulkan.pipeline.Pipeline;
 import com.jme3.vulkan.pipeline.VertexPipeline;
+import com.jme3.vulkan.pipeline.cache.Cache;
 import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
+import com.jme3.vulkan.shader.ShaderModule;
 
 import java.util.Comparator;
 
 public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Element> {
 
+    private final AssetManager assetManager;
     private final DescriptorPool pool;
+    private final Cache<Pipeline> pipelineCache;
+    private final Cache<ShaderModule> shaderCache;
 
-    public VulkanGeometryBatch(DescriptorPool pool, Camera camera, Comparator<Element> comparator) {
+    public VulkanGeometryBatch(Camera camera, Comparator<Element> comparator, AssetManager assetManager, DescriptorPool pool, Cache<Pipeline> pipelineCache, Cache<ShaderModule> shaderCache) {
         super(camera, comparator);
+        this.assetManager = assetManager;
         this.pool = pool;
+        this.pipelineCache = pipelineCache;
+        this.shaderCache = shaderCache;
     }
 
     @Override
@@ -55,7 +65,7 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
     }
 
     @Override
-    protected boolean fastAdd(Geometry geometry) {
+    public boolean add(Geometry geometry) {
         return queue.add(new Element(geometry));
     }
 
@@ -80,9 +90,9 @@ public class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Eleme
                 throw new ClassCastException("Cannot render " + mesh.getClass() + " in a Vulkan context.");
             }
             this.mesh = (VulkanMesh)mesh;
-            this.pipeline = GraphicsPipeline.build(null, null, geometry.getMaterial().getLayout(), null, p -> {
-                p.setCache(cache);
-                p.applyGeometry(geometry);
+            this.pipeline = GraphicsPipeline.build(pool.getDevice(), p -> {
+                p.setCache(pipelineCache);
+                p.applyGeometry(assetManager, Element.this.mesh, material, forcedTechnique, shaderCache);
             });
         }
 

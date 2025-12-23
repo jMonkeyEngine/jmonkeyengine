@@ -36,6 +36,7 @@ import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.Texture;
 import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.material.uniforms.Uniform;
 
 /**
  * <code>Material</code> describes the rendering style for a given
@@ -52,7 +53,7 @@ public interface Material extends Savable {
 
     String DEFAULT_UNIFORM_BUFFER = "DefaultUniformBuffer";
 
-    void setUniform(String name, GpuBuffer buffer);
+    void setUniformBuffer(String name, GpuBuffer buffer);
 
     void setTexture(String name, Texture texture);
 
@@ -63,6 +64,8 @@ public interface Material extends Savable {
     <T> T getParam(String uniform, String name);
 
     Texture getTexture(String name);
+
+    void addUniform(String name, Uniform uniform);
 
     /* ----- COMPATABILITY WITH OLD MATERIAL ----- */
 

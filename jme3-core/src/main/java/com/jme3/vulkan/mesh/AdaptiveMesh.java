@@ -14,6 +14,8 @@ import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.mesh.attribute.Attribute;
+import com.jme3.vulkan.pipeline.PolygonMode;
+import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.pipeline.VertexPipeline;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
@@ -30,12 +32,15 @@ public class AdaptiveMesh implements VulkanMesh, Iterable<AdaptiveMesh.VertexBuf
     private final MeshLayout layout;
     private final Collection<LodBuffer> lods = new ArrayList<>(1);
     private final List<VertexBuffer> vertexBuffers = new ArrayList<>();
+    private final Map<String, GlVertexBuffer.Usage> attributeUsages = new HashMap<>();
     private LodBuffer currentLod;
     private final int vertexCapacity;
     private final int instanceCapacity;
     private int vertices, instances;
     private final BoundingVolume volume = new BoundingBox();
     private BIHTree collisionTree;
+    private IntEnum<Topology> topology = Topology.TriangleList;
+    private IntEnum<PolygonMode> polygonMode = PolygonMode.Fill;
 
     public AdaptiveMesh(MeshLayout layout, int vertices, int instances) {
         this.layout = layout;
@@ -98,7 +103,14 @@ public class AdaptiveMesh implements VulkanMesh, Iterable<AdaptiveMesh.VertexBuf
     public VertexBuffer getVertexBuffer(VertexBinding binding) {
         VertexBuffer vb = vertexBuffers.stream().filter(v -> v.getBinding() == binding).findAny().orElse(null);
         if (vb == null) {
-            vb = new VertexBuffer(binding, binding.createBuffer(getCapacity(binding.getInputRate())));
+            GlVertexBuffer.Usage usage = GlVertexBuffer.Usage.Static;
+            for (VertexBinding.NamedAttribute attr : binding.getAttributes()) {
+                GlVertexBuffer.Usage u = attributeUsages.get(attr.getName());
+                if (u != null && u.ordinal() > usage.ordinal()) {
+                    usage = u;
+                }
+            }
+            vb = new VertexBuffer(binding, binding.createBuffer(getCapacity(binding.getInputRate()), usage));
             vertexBuffers.add(vb);
         }
         return vb;
@@ -125,10 +137,6 @@ public class AdaptiveMesh implements VulkanMesh, Iterable<AdaptiveMesh.VertexBuf
         pushElements(rate, 0, getElements(rate));
     }
 
-    public MeshLayout getLayout() {
-        return layout;
-    }
-
     @Override
     public int getElements(IntEnum<InputRate> rate) {
         if (rate.is(InputRate.Vertex)) return vertices;
@@ -146,6 +154,30 @@ public class AdaptiveMesh implements VulkanMesh, Iterable<AdaptiveMesh.VertexBuf
     @Override
     public Iterator<VertexBuffer> iterator() {
         return vertexBuffers.iterator();
+    }
+
+    @Override
+    public IntEnum<Topology> getTopology() {
+        return topology;
+    }
+
+    @Override
+    public IntEnum<PolygonMode> getPolygonMode() {
+        return polygonMode;
+    }
+
+    @Override
+    public void setUsage(String attributeName, GlVertexBuffer.Usage usage) {
+        attributeUsages.put(attributeName, usage);
+    }
+
+    @Override
+    public boolean attributeExists(String name) {
+        return layout.attributeExists(name);
+    }
+
+    public MeshLayout getLayout() {
+        return layout;
     }
 
     public static class VertexBuffer implements VulkanBuffer {

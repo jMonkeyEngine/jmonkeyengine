@@ -2,8 +2,10 @@ package com.jme3.vulkan.descriptors;
 
 import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.natives.CacheableNativeBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.pipeline.cache.Cache;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutCreateInfo;
 
@@ -59,10 +61,24 @@ public class DescriptorSetLayout extends AbstractNative<Long> {
         return b.build();
     }
 
-    public class Builder extends AbstractNativeBuilder<DescriptorSetLayout> {
+    public static DescriptorSetLayout build(LogicalDevice<?> device, Map<String, SetLayoutBinding> bindings) {
+        return new DescriptorSetLayout(device, bindings).new Builder().build();
+    }
+
+    public static DescriptorSetLayout build(LogicalDevice<?> device, Map<String, SetLayoutBinding> bindings, Cache<DescriptorSetLayout> cache) {
+        return new DescriptorSetLayout(device, bindings).new Builder(cache).build();
+    }
+
+    public class Builder extends CacheableNativeBuilder<DescriptorSetLayout, DescriptorSetLayout> {
+
+        private Builder() {}
+
+        private Builder(Cache<DescriptorSetLayout> cache) {
+            setCache(cache);
+        }
 
         @Override
-        protected DescriptorSetLayout construct() {
+        protected void construct() {
             VkDescriptorSetLayoutBinding.Buffer layoutBindings = VkDescriptorSetLayoutBinding.calloc(bindings.size(), stack);
             for (SetLayoutBinding b : bindings.values()) {
                 b.fillLayoutBinding(layoutBindings.get());
@@ -77,6 +93,10 @@ public class DescriptorSetLayout extends AbstractNative<Long> {
             object = idBuf.get(0);
             ref = Native.get().register(DescriptorSetLayout.this);
             device.getNativeReference().addDependent(ref);
+        }
+
+        @Override
+        protected DescriptorSetLayout getBuildTarget() {
             return DescriptorSetLayout.this;
         }
 

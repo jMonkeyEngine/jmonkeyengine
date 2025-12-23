@@ -22,7 +22,7 @@ public class MeshLayout implements Iterable<VertexBinding> {
                 return attr;
             }
         }
-        throw new IllegalArgumentException("\"" + name + "\" is not an existing attribute.");
+        return null;
     }
 
     public VkVertexInputBindingDescription.Buffer getBindingInfo(MemoryStack stack, VertexPipeline pipeline) {
@@ -71,6 +71,15 @@ public class MeshLayout implements Iterable<VertexBinding> {
         }
         attr.flip();
         return attr;
+    }
+
+    public boolean attributeExists(String name) {
+        for (VertexBinding binding : bindings) {
+            if (binding.getAttributes().stream().anyMatch(a -> a.getName().equals(name))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -651,7 +651,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
 
     @Override
     @NotFullyImplemented
-    public void setUniform(String name, GpuBuffer buffer) {
+    public void setUniformBuffer(String name, GpuBuffer buffer) {
         throw new UnsupportedOperationException("To be implemented.");
     }
 

@@ -124,6 +124,10 @@ public class ShaderModule extends AbstractNative<Long> {
             defines.put(name, value);
         }
 
+        public void setDefines(Map<String, String> defines) {
+            ShaderModule.this.defines.putAll(defines);
+        }
+
         public void clearDefines() {
             defines.clear();
         }

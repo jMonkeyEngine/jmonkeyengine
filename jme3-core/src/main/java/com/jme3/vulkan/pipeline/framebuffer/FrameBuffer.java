@@ -6,6 +6,12 @@ import java.util.List;
 
 public interface FrameBuffer <T extends ImageView> {
 
+    long getId();
+
+    int getWidth();
+
+    int getHeight();
+
     void addColorTarget(T image);
 
     void setColorTarget(int i, T image);

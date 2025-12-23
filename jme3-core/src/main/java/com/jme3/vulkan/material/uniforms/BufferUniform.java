@@ -14,16 +14,21 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 import java.util.*;
 
-public class BufferUniform implements Uniform<GpuBuffer> {
+public class BufferUniform implements VulkanUniform<GpuBuffer> {
 
     private GpuBuffer value;
 
     @Override
     public DescriptorSetWriter createWriter(SetLayoutBinding binding) {
         if (value == null) {
-            throw new NullPointerException("Cannot write null value.");
+            return null;
         }
         return new Writer(binding, value);
+    }
+
+    @Override
+    public SetLayoutBinding createBinding(IntEnum<Descriptor> type, int binding, Flag<ShaderStage> stages) {
+        return new SetLayoutBinding(type, binding, 1, stages);
     }
 
     @Override
@@ -36,12 +41,19 @@ public class BufferUniform implements Uniform<GpuBuffer> {
         return value;
     }
 
+    @Override
+    public String getDefineValue() {
+        return value == null ? null : Uniform.ENABLED_DEFINE;
+    }
+
     private static class Writer extends AbstractSetWriter {
 
+        private final GpuBuffer buffer; // maintain a reference to the buffer so it doesn't get gc'd
         private final long id, bytes;
 
         private Writer(SetLayoutBinding binding, GpuBuffer buffer) {
             super(binding, 0, 1);
+            this.buffer = buffer;
             this.id = buffer.getId();
             this.bytes = buffer.size().getBytes();
         }
@@ -65,6 +77,10 @@ public class BufferUniform implements Uniform<GpuBuffer> {
         @Override
         public int hashCode() {
             return Objects.hash(binding, id, bytes);
+        }
+
+        public GpuBuffer getBuffer() {
+            return buffer;
         }
 
     }

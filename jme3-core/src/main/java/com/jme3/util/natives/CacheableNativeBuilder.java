@@ -1,12 +1,12 @@
 package com.jme3.util.natives;
 
-import com.jme3.vulkan.pipeline.cache.TheNewOneAndOnlyCache;
+import com.jme3.vulkan.pipeline.cache.Cache;
 import org.lwjgl.system.MemoryStack;
 
 public abstract class CacheableNativeBuilder<C, T extends C> {
 
     protected final MemoryStack stack = MemoryStack.stackPush();
-    protected TheNewOneAndOnlyCache<C> cache;
+    protected Cache<C> cache;
 
     public T build() {
         T obj = getBuildTarget();
@@ -23,11 +23,11 @@ public abstract class CacheableNativeBuilder<C, T extends C> {
 
     protected abstract T getBuildTarget();
 
-    public void setCache(TheNewOneAndOnlyCache<C> cache) {
+    public void setCache(Cache<C> cache) {
         this.cache = cache;
     }
 
-    public TheNewOneAndOnlyCache<C> getCache() {
+    public Cache<C> getCache() {
         return cache;
     }
 

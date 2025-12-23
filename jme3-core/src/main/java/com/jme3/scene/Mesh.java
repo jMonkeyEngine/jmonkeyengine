@@ -36,6 +36,7 @@ import com.jme3.vulkan.mesh.attribute.Attribute;
 import com.jme3.vulkan.util.IntEnum;
 
 import java.util.Comparator;
+import java.util.function.Consumer;
 
 /**
  * Stores the vertex, index, and instance data for drawing indexed meshes.
@@ -51,26 +52,171 @@ import java.util.Comparator;
  */
 public interface Mesh {
 
+    /**
+     * Creates and returns an {@link Attribute} object which maps to the
+     * specified vertex attribute, regardless of where and how the attribute
+     * is stored in the mesh.
+     *
+     * @param name name of the attribute to map
+     * @return Attribute object
+     * @param <T> type of Attribute object
+     */
     <T extends Attribute> T mapAttribute(String name);
 
+    /**
+     * Adds the level of detail index buffer to this mesh. The LOD buffer
+     * that is used for rendering is selected via {@link #selectLevelOfDetail(Comparator)}.
+     * If no LOD buffers are provided, primitives will be automatically formed
+     * from the vertex buffers.
+     *
+     * @param lod level of detail buffer to add
+     */
     void addLevelOfDetail(LodBuffer lod);
 
+    /**
+     * Selects the level of detail buffer to use for rendering.
+     *
+     * @param selector chooses the LOD buffer from this mesh to render with
+     * @return the selected LOD buffer
+     */
     LodBuffer selectLevelOfDetail(Comparator<LodBuffer> selector);
 
+    /**
+     * Sets the number of elements for the specified input rate.
+     *
+     * <p>For example, to set the number of vertices:</p>
+     * <pre><code>mesh.setElements(InputRate.Vertex, 120);</code></pre>
+     *
+     * <p>The number of elements may not necessarily be equal to {@code elements}
+     * after this method call.</p>
+     *
+     * @param rate vertex rate
+     * @param elements number of elements associated with that vertex rate
+     * @return the number of elements used for the vertex rate as a result
+     * of this method call
+     */
     int setElements(IntEnum<InputRate> rate, int elements);
 
+    /**
+     * Sets the usage hint of the specified attribute. The effectiveness of
+     * a usage hint depends on the exact implementation. It is generally
+     * most effective to set an attribute's usage hint before the attribute's
+     * vertex buffer is first interacted with.
+     *
+     * @param attributeName name of the attribute
+     * @param usage usage hint
+     */
+    void setUsage(String attributeName, GlVertexBuffer.Usage usage);
+
+    /**
+     *
+     * @param rate
+     * @param baseElement
+     * @param elements
+     */
     void pushElements(IntEnum<InputRate> rate, int baseElement, int elements);
 
+    /**
+     *
+     * @param rate
+     * @return
+     */
     int getElements(IntEnum<InputRate> rate);
 
+    /**
+     *
+     * @param rate
+     * @return
+     */
     int getCapacity(IntEnum<InputRate> rate);
 
+    /**
+     *
+     * @param name
+     * @return
+     */
+    boolean attributeExists(String name);
+
+    /**
+     *
+     * @param type
+     * @return
+     * @param <T>
+     */
     default <T extends Attribute> T mapAttribute(GlVertexBuffer.Type type) {
         return mapAttribute(type.name());
     }
 
+    /**
+     *
+     * @param name
+     * @param usage
+     * @return
+     * @param <T>
+     */
+    default <T extends Attribute> T mapAttribute(String name, GlVertexBuffer.Usage usage) {
+        setUsage(name, usage);
+        return mapAttribute(name);
+    }
+
+    /**
+     *
+     * @param type
+     * @param usage
+     * @return
+     * @param <T>
+     */
+    default <T extends Attribute> T mapAttribute(GlVertexBuffer.Type type, GlVertexBuffer.Usage usage) {
+        setUsage(type, usage);
+        return mapAttribute(type);
+    }
+
+    /**
+     *
+     * @param name
+     * @param config
+     * @return
+     * @param <T>
+     */
+    default <T extends Attribute> void mapAttribute(String name, Consumer<T> config) {
+        T attr = mapAttribute(name);
+        if (attr != null) config.accept(attr);
+    }
+
+    /**
+     *
+     * @param type
+     * @param config
+     * @param <T>
+     */
+    default <T extends Attribute> void mapAttribute(GlVertexBuffer.Type type, Consumer<T> config) {
+        mapAttribute(type.name(), config);
+    }
+
+    /**
+     *
+     * @param type
+     * @param usage
+     */
+    default void setUsage(GlVertexBuffer.Type type, GlVertexBuffer.Usage usage) {
+        setUsage(type.name(), usage);
+    }
+
+    /**
+     *
+     * @param rate
+     */
     default void pushElements(IntEnum<InputRate> rate) {
         pushElements(rate, 0, getElements(rate));
+    }
+
+    /**
+     *
+     * @param type
+     * @return
+     */
+    default boolean attributeExists(GlVertexBuffer.Type type) {
+        return attributeExists(type.name());
     }
 
 }

@@ -9,7 +9,9 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.nio.LongBuffer;
+import java.util.Arrays;
 import java.util.List;
+import java.util.ListIterator;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
@@ -85,24 +87,15 @@ public class DescriptorPool implements Native<Long> {
      * @return allocated DescriptorSets, in the same order as {@code layouts}
      */
     public DescriptorSet[] allocateSets(DescriptorSetLayout... layouts) {
-        assert layouts.length > 0 : "Must specify at least one set layout.";
-        // layouts length = number of descriptor sets created
-        DescriptorSet[] sets = new DescriptorSet[layouts.length];
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkDescriptorSetAllocateInfo allocate = VkDescriptorSetAllocateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO)
-                    .descriptorPool(id)
-                    .pSetLayouts(VulkanUtils.accumulate(stack, layouts));
-            LongBuffer setBuf = stack.mallocLong(layouts.length);
-            check(vkAllocateDescriptorSets(device.getNativeObject(), allocate, setBuf),
-                    "Failed to allocate descriptor sets.");
-            for (int i = 0; i < setBuf.limit(); i++) {
-                sets[i] = new DescriptorSet(device, this, layouts[i], setBuf.get(i));
-            }
-        }
-        return sets;
+        return allocateSets(Arrays.asList(layouts));
     }
 
+    /**
+     * Allocates a {@link DescriptorSet} for each {@link DescriptorSetLayout} provided.
+     *
+     * @param layouts layouts to allocate DescriptorSets with
+     * @return allocated DescriptorSets, in the same order as {@code layouts}
+     */
     public DescriptorSet[] allocateSets(List<DescriptorSetLayout> layouts) {
         assert !layouts.isEmpty() : "Must specify at least one set layout.";
         DescriptorSet[] sets = new DescriptorSet[layouts.size()];
@@ -119,9 +112,8 @@ public class DescriptorPool implements Native<Long> {
             LongBuffer setBuf = stack.mallocLong(layouts.size());
             check(vkAllocateDescriptorSets(device.getNativeObject(), allocate, setBuf),
                     "Failed to allocate descriptor sets.");
-            int i = 0;
-            for (DescriptorSetLayout l : layouts) {
-                sets[i] = new DescriptorSet(device, this, l, setBuf.get(i++));
+            for (ListIterator<DescriptorSetLayout> it = layouts.listIterator(); it.hasNext();) {
+                sets[it.nextIndex()] = new DescriptorSet(device, this, it.next(), setBuf.get());
             }
         }
         return sets;
@@ -133,6 +125,10 @@ public class DescriptorPool implements Native<Long> {
 
     public Flag<Create> getFlags() {
         return flags;
+    }
+
+    public LogicalDevice<?> getDevice() {
+        return device;
     }
 
 }

@@ -9,6 +9,7 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.material.uniforms.BufferUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
+import com.jme3.vulkan.material.uniforms.VulkanUniform;
 import com.jme3.vulkan.pipeline.Pipeline;
 import org.lwjgl.system.MemoryStack;
 
@@ -23,7 +24,8 @@ import static org.lwjgl.vulkan.VK10.*;
  */
 public class NewMaterial implements VulkanMaterial {
 
-    private final Map<String, Uniform<?>> uniforms = new HashMap<>();
+    private final Map<String, VulkanUniform<?>> uniforms = new HashMap<>();
+    private final Map<String, VulkanTechnique> techniques = new HashMap<>();
     private final Map<DescriptorSetLayout, CachedDescriptorSet> setCache = new HashMap<>();
 
     @Override
@@ -47,11 +49,15 @@ public class NewMaterial implements VulkanMaterial {
                     throw new NullPointerException("Cached descriptor set not available.");
                 }
                 for (Map.Entry<String, SetLayoutBinding> binding : layout.getBindings().entrySet()) {
-                    Uniform<?> uniform = uniforms.get(binding.getKey());
+                    VulkanUniform<?> uniform = uniforms.get(binding.getKey());
                     if (uniform == null) {
                         throw new NullPointerException("Layout requires uniform \"" + binding.getKey() + "\" which does not exist.");
                     }
-                    set.stageWriter(binding.getKey(), uniform.createWriter(binding.getValue()));
+                    DescriptorSetWriter writer = uniform.createWriter(binding.getValue());
+                    if (writer == null) {
+                        continue;
+                    }
+                    set.stageWriter(binding.getKey(), writer);
                 }
                 set.writeChanges();
                 sets.put(set.getSet().getNativeObject());
@@ -114,16 +120,25 @@ public class NewMaterial implements VulkanMaterial {
         throw new UnsupportedOperationException("Importing not yet supported.");
     }
 
-    public void putUniform(String name, Uniform<?> uniform) {
-        uniforms.put(name, uniform);
+    public void addUniform(String name, Uniform<?> uniform) {
+        if (!(uniform instanceof VulkanUniform)) {
+            throw new ClassCastException("Uniform must implement VulkanUniform to be used in a Vulkan context.");
+        }
+        uniforms.put(name, (VulkanUniform<?>)uniform);
     }
 
+    @Override
     public <T extends Uniform> T getUniform(String name) {
-        return (T) uniforms.get(name);
+        return (T)uniforms.get(name);
     }
 
     public Map<String, Uniform<?>> getUniforms() {
         return Collections.unmodifiableMap(uniforms);
+    }
+
+    @Override
+    public VulkanTechnique getTechnique(String name) {
+        return techniques.get(name);
     }
 
     protected static class CachedDescriptorSet {

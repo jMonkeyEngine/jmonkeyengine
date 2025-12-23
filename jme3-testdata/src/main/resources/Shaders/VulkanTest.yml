@@ -10,7 +10,7 @@ parameters:
   # Most valid parameter arguments are defined by managing Uniform object
   # including default values. Exceptions are type, set, and define.
   # Also, binding and stages are handled by AbstractUniform.
-  Matrices:
+  - name: "Matrices"
     type: UniformBuffer
     layout: # defines the layout of the uniform buffer
       worldViewProjection:
@@ -21,15 +21,17 @@ parameters:
       myval:
         type: com.username.hello.world.MyBufferMember
         default: "parse_this"
-  BaseColorMap:
+
+  - name: "BaseColorMap"
     type: Texture
     default: "Common/Textures/MissingTexture.jpg"
-  MyValue:
+
+  - name: "MyValue"
     type: MyUniformType
     default: "parse_this"
-pipelines:
-  main:
-    type: GraphicsState
+
+techniques:
+  - name: "main"
     shaders:
       - stage: Vertex
         file: "Shaders/VulkanVertTest.yml"
@@ -37,26 +39,18 @@ pipelines:
       - stage: Fragment
         file: "Shaders/VulkanFragTest.yml"
         # entry is "main" by default
+      - shader: "Vertex:Shaders/VulkanVertTest.yml:main"
     layout:
-      - name: "Matrices"
-        descriptor: UniformBuffer
-        stages: [Vertex]
-        set: 0
-        binding: 0
       - name: "BaseColorMap"
         descriptor: CombinedImageSampler
         stages: [Fragment]
         set: 0
         binding: 1
-    renderHints:
+      - layout: "UniformBuffer:Matrices:0.0"
+        stages: [Vertex]
+        define: "MATRICES"
+    renderState:
       cullMode: None
-      blendAttachments:
-        - colorWriteMask: [R, G, B, A]
-          blend: false
-          srcColorFactor: One
-          dstColorFactor: Zero
-          colorOp: Add
-          srcAlphaFactor: One
-          dstAlphaFactor: Zero
-          alphaOp: Add
+      stencil:
+        frontStencilFail: Keep
 

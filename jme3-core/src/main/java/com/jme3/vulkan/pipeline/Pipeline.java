@@ -15,12 +15,15 @@ public interface Pipeline {
 
     void bind(CommandBuffer cmd);
 
-    boolean isMaterialEquivalent(Pipeline other);
-
     PipelineLayout getLayout();
 
     PipelineBindPoint getBindPoint();
 
+    /**
+     * A unique ID by which pipeline's may be sorted.
+     *
+     * @return
+     */
     int getSortId();
 
 }

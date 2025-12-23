@@ -7,17 +7,9 @@ import com.jme3.vulkan.frames.VersionedResource;
 public interface Uniform <T> {
 
     /**
-     * Creates a {@link DescriptorSetWriter} that can be used to write
-     * a snapshot of the uniform's current value into the
-     * {@link com.jme3.vulkan.descriptors.DescriptorSet DescriptorSet}.
-     *
-     * <p>The returned writer is expected to implement
-     * {@link Object#equals(Object) equals} so that writers can be compared
-     * for DescriptorSet caching.</p>
-     *
-     * @return writer
+     * Basic value that can be assigned to a define to simply enable it.
      */
-    DescriptorSetWriter createWriter(SetLayoutBinding binding);
+    String ENABLED_DEFINE = "1";
 
     /**
      * Sets the {@link VersionedResource} that will provide the uniform value.
@@ -28,5 +20,12 @@ public interface Uniform <T> {
      * Returns the {@link VersionedResource} supplying the uniform value.
      */
     T get();
+
+    /**
+     * Gets this uniform's value as a string assignable to a shader define.
+     *
+     * @return define value, or null to not generate a define for this uniform
+     */
+    String getDefineValue();
 
 }

@@ -144,8 +144,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         graphicsPool = device.getLongTermPool(physDevice.getGraphics());
 
         // swapchain
-        swapchain = new Swapchain(device, surface);
-        swapchain.build(s -> {
+        swapchain = Swapchain.build(device, surface, s -> {
             s.addQueue(physDevice.getGraphics());
             s.addQueue(physDevice.getPresent());
             s.selectFormat(Swapchain.format(Format.B8G8R8A8_SRGB, ColorSpace.KhrSrgbNonlinear));
@@ -284,14 +283,14 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     }
 
     @Override
-    public boolean swapchainOutOfDate(Swapchain swapchain, int imageAcquireCode) {
+    public boolean outOfDate(Swapchain swapchain, int imageAcquireCode) {
         if (swapchainResizeFlag || imageAcquireCode == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR || imageAcquireCode == KHRSwapchain.VK_SUBOPTIMAL_KHR) {
             swapchainResizeFlag = false;
             swapchain.update();
             CommandBuffer cmd = device.getShortTermPool(device.getPhysicalDevice().getGraphics()).allocateTransientCommandBuffer();
             cmd.begin();
             depthView = createDepthAttachment(cmd);
-            cmd.endAndSubmit(SyncGroup.ASYNC);
+            cmd.endAndSubmit();
             cmd.getPool().getQueue().waitIdle();
             swapchain.createFrameBuffers(renderPass, depthView);
             return true;

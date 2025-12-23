@@ -1,17 +1,19 @@
 package com.jme3.vulkan.pipeline.graphics;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.material.RenderState;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.GlVertexBuffer;
-import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.CacheableNativeBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.material.VulkanTechnique;
+import com.jme3.vulkan.material.VulkanMaterial;
 import com.jme3.vulkan.mesh.MeshLayout;
+import com.jme3.vulkan.mesh.VulkanMesh;
 import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pipeline.*;
-import com.jme3.vulkan.pipeline.cache.TheNewOneAndOnlyCache;
+import com.jme3.vulkan.pipeline.cache.Cache;
 import com.jme3.vulkan.shader.ShaderModule;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
@@ -29,7 +31,8 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPipeline {
 
-    private final Subpass subpass;
+    private PipelineLayout layout;
+    private Subpass subpass;
     private GraphicsPipeline parent;
     private Flag<Create> createFlags = Flag.empty();
 
@@ -37,7 +40,7 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
     private final Collection<ShaderModule> shaders = new ArrayList<>();
 
     // vertex input
-    private final MeshLayout mesh;
+    private MeshLayout mesh;
     private final Map<String, Integer> attributeLocations = new HashMap<>();
 
     // input assembly
@@ -76,10 +79,8 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
     // dynamic
     private final Set<Integer> dynamicStates = new HashSet<>();
 
-    protected GraphicsPipeline(LogicalDevice<?> device, Subpass subpass, PipelineLayout layout, MeshLayout mesh) {
-        super(device, layout, PipelineBindPoint.Graphics);
-        this.subpass = subpass;
-        this.mesh = mesh;
+    protected GraphicsPipeline(LogicalDevice<?> device) {
+        super(device, PipelineBindPoint.Graphics);
     }
 
     @Override
@@ -281,8 +282,13 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
         return attributeLocations.get(attributeName);
     }
 
-    public static GraphicsPipeline build(LogicalDevice<?> device, Subpass subpass, PipelineLayout layout, MeshLayout mesh, Consumer<Builder> config) {
-        Builder b = new GraphicsPipeline(device, subpass, layout, mesh).new Builder();
+    @Override
+    public PipelineLayout getLayout() {
+        return layout;
+    }
+
+    public static GraphicsPipeline build(LogicalDevice<?> device, Consumer<Builder> config) {
+        Builder b = new GraphicsPipeline(device).new Builder();
         config.accept(b);
         return b.build();
     }
@@ -291,6 +297,8 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
 
         @Override
         public GraphicsPipeline build() {
+            Objects.requireNonNull(layout, "Pipeline layout not specified.");
+            Objects.requireNonNull(mesh, "Mesh layout not specified.");
             if (viewports.isEmpty()) setNextViewPort();
             if (scissors.isEmpty()) setNextScissor();
             return super.build();
@@ -439,11 +447,14 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
                     .pDynamicStates(stateBuf);
         }
 
-        public void applyGeometry(Geometry geometry) {
-            setTopology(geometry.getMesh().getTopology());
-            setPolygonMode(geometry.getMesh().getPolygonMode());
-            attributeLocations.putAll(geometry.getMaterial().getAttributeLocations());
-            applyRenderState(geometry.getMaterial().getAdditionalRenderState());
+        public void applyGeometry(AssetManager assetManager, VulkanMesh mesh, VulkanMaterial material, String technique, Cache<ShaderModule> shaderCache) {
+            VulkanTechnique tech = material.getTechnique(technique);
+            setLayout(tech.getLayout());
+            addShaders(tech.getShaders(assetManager, shaderCache, material));
+            setTopology(mesh.getTopology());
+            setPolygonMode(mesh.getPolygonMode());
+            attributeLocations.putAll(tech.getAttributeLocations());
+            applyRenderState(tech.getRenderState());
         }
 
         public void applyRenderState(RenderState state) {
@@ -457,8 +468,24 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             setDepthWrite(state.isDepthWrite());
         }
 
+        public void setLayout(PipelineLayout layout) {
+            GraphicsPipeline.this.layout = layout;
+        }
+
+        public void setSubpass(Subpass subpass) {
+            GraphicsPipeline.this.subpass = subpass;
+        }
+
+        public void setMeshLayout(MeshLayout mesh) {
+            GraphicsPipeline.this.mesh = mesh;
+        }
+
         public void addShader(ShaderModule shader) {
             shaders.add(shader);
+        }
+
+        public void addShaders(Collection<ShaderModule> shaders) {
+            GraphicsPipeline.this.shaders.addAll(shaders);
         }
 
         public int addBlendAttachment(ColorBlendAttachment attachment) {
@@ -468,6 +495,10 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
 
         public void setBlendAttachment(int i, ColorBlendAttachment attachment) {
             blendAttachments.set(i, attachment);
+        }
+
+        public void setShaderCache(Cache<ShaderModule> shaderCache) {
+
         }
 
         public void setDynamic(IntEnum<DynamicState> state, boolean enable) {

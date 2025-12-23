@@ -6,6 +6,7 @@ import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.Native;
 import com.jme3.util.natives.NativeReference;
 import com.jme3.vulkan.*;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.GpuImage;
@@ -63,6 +64,8 @@ public class Swapchain extends AbstractNative<Long> {
     private Format format;
     private int imageLayers = 1;
     private Flag<ImageUsage> imageUsage = ImageUsage.ColorAttachment;
+    private Consumer<Swapchain> updater;
+    private boolean updateNeeded = false;
 
     public Swapchain(LogicalDevice<?> device, Surface surface, Consumer<Builder> config) {
         this.device = device;
@@ -85,19 +88,31 @@ public class Swapchain extends AbstractNative<Long> {
         }
     }
 
-    public PresentImage acquireNextImage(SwapchainUpdater updater, Semaphore semaphore, Fence fence, long timeoutMillis) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            IntBuffer i = stack.mallocInt(1);
-            int code = KHRSwapchain.vkAcquireNextImageKHR(device.getNativeObject(), object,
-                            TimeUnit.MILLISECONDS.toNanos(timeoutMillis), Native.getId(semaphore), Native.getId(fence), i);
-            if (updater.swapchainOutOfDate(this, code)) {
-                return null;
+    public PresentImage acquireNextImage(MemoryStack stack, Semaphore signal, Fence fence, long timeoutMillis) {
+        IntBuffer imageIndex = stack.mallocInt(1);
+        int code = KHRSwapchain.vkAcquireNextImageKHR(device.getNativeObject(), object,
+                TimeUnit.MILLISECONDS.toNanos(timeoutMillis), Native.getId(signal), Native.getId(fence), imageIndex);
+        if (updateNeeded || code == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR || code == KHRSwapchain.VK_SUBOPTIMAL_KHR) {
+            updateNeeded = false;
+            if (updater == null) {
+                throw new IllegalStateException("Swapchain is out of date.");
             }
-            return images.get(i.get(0));
+            updater.accept(this);
+            return null;
+        }
+        if (code != VK_SUCCESS) {
+            throw new RuntimeException("Failed to acquire next swapchain image (exit code " + code + ")");
+        }
+        return images.get(imageIndex.get(0));
+    }
+
+    public PresentImage acquireNextImage(Semaphore signal, Fence fence, long timeoutMillis) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            return acquireNextImage(stack, signal, fence, timeoutMillis);
         }
     }
 
-    public void present(Queue presentQueue, PresentImage image, SyncGroup sync) {
+    public void present(Queue presentQueue, PresentImage image, Semaphore... waits) {
         int imageIndex = images.indexOf(image);
         if (imageIndex < 0) {
             throw new IllegalArgumentException("Image does not belong to this swapchain.");
@@ -108,15 +123,36 @@ public class Swapchain extends AbstractNative<Long> {
                     .swapchainCount(1)
                     .pSwapchains(stack.longs(object))
                     .pImageIndices(stack.ints(imageIndex));
-            if (sync.containsWaits()) {
-                info.pWaitSemaphores(sync.toWaitBuffer(stack));
+            if (waits.length > 0) {
+                LongBuffer waitBuf = stack.mallocLong(waits.length);
+                for (Semaphore w : waits) {
+                    waitBuf.put(w.getNativeObject());
+                }
+                info.pWaitSemaphores(waitBuf.flip());
             }
             check(KHRSwapchain.vkQueuePresentKHR(presentQueue.getQueue(), info));
         }
     }
 
     public void update() {
-        config.accept(new Builder());
+        update(null);
+    }
+
+    public void update(Consumer<Builder> update) {
+        Builder b = new Builder();
+        config.accept(b);
+        if (update != null) {
+            update.accept(b);
+        }
+        b.build();
+    }
+
+    public void setUpdateNeeded() {
+        updateNeeded = true;
+    }
+
+    public void setUpdater(Consumer<Swapchain> updater) {
+        this.updater = updater;
     }
 
     public LogicalDevice getDevice() {
@@ -163,10 +199,7 @@ public class Swapchain extends AbstractNative<Long> {
         private PresentImage(LogicalDevice<?> device, long id) {
             this.device = device;
             this.id = id;
-            colorView = new VulkanImageView(this, ImageView.Type.TwoDemensional);
-            try (VulkanImageView.Builder v = colorView.build()) {
-                v.setLayerCount(imageLayers);
-            }
+            colorView = VulkanImageView.build(this, ImageView.Type.TwoDemensional, v -> v.setLayerCount(imageLayers));
         }
 
         @Override
@@ -232,6 +265,11 @@ public class Swapchain extends AbstractNative<Long> {
         @Override
         public void addNativeDependent(NativeReference ref) {
             Swapchain.this.ref.addDependent(ref);
+        }
+
+        @Override
+        public void transitionLayout(CommandBuffer commands, Layout dstLayout) {
+            throw new UnsupportedOperationException("Cannot transition swapchain image.");
         }
 
         public void createFrameBuffer(RenderPass compat, VulkanImageView depthStencil) {
@@ -307,7 +345,7 @@ public class Swapchain extends AbstractNative<Long> {
                     .imageArrayLayers(imageLayers)
                     .imageUsage(imageUsage.bits())
                     .preTransform(caps.currentTransform())
-                    .compositeAlpha(KHRSurface.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
+                    .compositeAlpha(CompositeAlpha.Opaque.bits())
                     .presentMode(selectedMode.getEnum())
                     .clipped(true);
             if (base != null) {
@@ -321,11 +359,11 @@ public class Swapchain extends AbstractNative<Long> {
                     concurrent.put(q.getFamilyIndex());
                 }
                 concurrent.flip();
-                create.imageSharingMode(VK_SHARING_MODE_CONCURRENT)
+                create.imageSharingMode(SharingMode.Concurrent.getEnum())
                         .queueFamilyIndexCount(queues.size())
                         .pQueueFamilyIndices(concurrent);
             } else {
-                create.imageSharingMode(VK_SHARING_MODE_EXCLUSIVE);
+                create.imageSharingMode(SharingMode.Exclusive.getEnum());
             }
             LongBuffer ptr = stack.mallocLong(1);
             check(KHRSwapchain.vkCreateSwapchainKHR(device.getNativeObject(), create, null, ptr),

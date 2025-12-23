@@ -27,7 +27,7 @@ public class TextureUniform implements Uniform<Texture> {
     @Override
     public DescriptorSetWriter createWriter(SetLayoutBinding binding) {
         if (value == null) {
-            throw new NullPointerException("Cannot write null value.");
+            return null;
         }
         return new Writer(binding, value, layout);
     }
@@ -40,6 +40,11 @@ public class TextureUniform implements Uniform<Texture> {
     @Override
     public Texture get() {
         return value;
+    }
+
+    @Override
+    public String getDefineValue() {
+        return value == null ? null : Uniform.ENABLED_DEFINE;
     }
 
     public IntEnum<VulkanImage.Layout> getLayout() {

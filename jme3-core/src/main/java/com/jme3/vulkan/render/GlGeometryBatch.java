@@ -112,7 +112,7 @@ public class GlGeometryBatch extends GeometryBatch<GlGeometryBatch.Element> {
     }
 
     @Override
-    protected boolean fastAdd(Geometry geometry) {
+    protected boolean add(Geometry geometry) {
         return queue.add(new Element(geometry));
     }
 

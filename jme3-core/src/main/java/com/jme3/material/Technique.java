@@ -201,29 +201,14 @@ public final class Technique implements Pipeline {
     }
 
     @Override
-    public BasePipelineState<?, ?> getState() {
-        return null;
-    }
-
-    @Override
     @NotFullyImplemented
     public void bind(CommandBuffer cmd) {
 
     }
 
     @Override
-    public boolean isMaterialEquivalent(Pipeline other) {
-        return false;
-    }
-
-    @Override
     public PipelineBindPoint getBindPoint() {
         return PipelineBindPoint.Graphics;
-    }
-
-    @Override
-    public Pipeline getParent() {
-        return null;
     }
 
     /**

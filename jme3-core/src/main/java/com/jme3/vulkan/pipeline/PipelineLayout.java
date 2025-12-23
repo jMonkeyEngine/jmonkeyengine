@@ -4,6 +4,7 @@ import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.CacheableNativeBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.descriptors.DescriptorSetLayout;
+import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.vulkan.VkPipelineLayoutCreateInfo;
 
@@ -42,6 +43,10 @@ public class PipelineLayout extends AbstractNative<Long> {
 
     public List<DescriptorSetLayout> getSetLayouts() {
         return Collections.unmodifiableList(layouts);
+    }
+
+    public LogicalDevice<?> getDevice() {
+        return device;
     }
 
     public Builder build() {
@@ -86,24 +91,6 @@ public class PipelineLayout extends AbstractNative<Long> {
 
         public void nextUniformSet(Consumer<DescriptorSetLayout.Builder> config) {
             layouts.add(DescriptorSetLayout.build(device, config));
-        }
-
-    }
-
-    private static class LayoutCount extends ArrayList<DescriptorSetLayout> {
-
-        private int material = 0;
-
-        @Override
-        public boolean add(DescriptorSetLayout l) {
-            if (++material > size()) {
-                return super.add(l);
-            }
-            return false;
-        }
-
-        public void reset() {
-            material = 0;
         }
 
     }

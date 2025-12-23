@@ -26,77 +26,18 @@ public abstract class GeometryBatch <T> implements Iterable<T> {
 
     public abstract void render(CommandBuffer cmd);
 
-    protected abstract boolean fastAdd(Geometry geometry);
-
-    public boolean add(Geometry geometry) {
-        return add(geometry, true, true);
-    }
-
-    public boolean add(Geometry geometry, boolean respectCullHints, boolean frustumCulling) {
-        Spatial.CullHint h = geometry.getCullHint();
-        if ((!respectCullHints || h != Spatial.CullHint.Always)
-                && (!frustumCulling
-                || (respectCullHints && h == Spatial.CullHint.Never)
-                || frustumIntersect(geometry) != Camera.FrustumIntersect.Outside)) {
-            return fastAdd(geometry);
-        }
-        return false;
-    }
+    public abstract boolean add(Geometry geometry);
 
     public void addAll(Spatial spatial) {
-        addAll(spatial, true, true);
-    }
-
-    public void addAll(Spatial spatial, boolean respectCullHints, boolean frustumCulling) {
-        for (Spatial.GraphIterator it = spatial.iterator(); it.hasNext();) {
-            Spatial child = it.next();
-            if (respectCullHints) {
-                if (child.getCullHint() == Spatial.CullHint.Always) {
-                    it.skipChildren();
-                    continue;
-                } else if (child.getCullHint() == Spatial.CullHint.Never) {
-                    fastAddAll(child);
-                    it.skipChildren();
-                    continue; // current spatial is handled by the nested addAll call
-                }
-            }
-            if (frustumCulling && (!respectCullHints || child.getCullHint() == Spatial.CullHint.Dynamic)) {
-                Camera.FrustumIntersect intersect = frustumIntersect(child);
-                if (intersect == Camera.FrustumIntersect.Outside) {
-                    it.skipChildren();
-                    continue;
-                } else if (intersect == Camera.FrustumIntersect.Inside) {
-                    addAll(child, respectCullHints, false);
-                    it.skipChildren();
-                    continue; // current spatial is handled by the nested addAll call
-                }
-            }
-            if (child instanceof Geometry) {
-                fastAdd((Geometry)child);
-            }
-        }
-    }
-
-    public void fastAddAll(Spatial spatial) {
         for (Spatial child : spatial) {
             if (child instanceof Geometry) {
-                fastAdd((Geometry)child);
+                add((Geometry)child);
             }
         }
     }
 
-    public int addAll(Iterable<Geometry> geometries) {
-        return addAll(geometries, true, true);
-    }
-
-    public int addAll(Iterable<Geometry> geometries, boolean respectCullHints, boolean frustumCulling) {
-        int count = 0;
-        for (Geometry g : geometries) {
-            if (add(g, respectCullHints, frustumCulling)) {
-                count++;
-            }
-        }
-        return count;
+    public void addAll(Iterable<Geometry> geometries) {
+        geometries.forEach(this::add);
     }
 
     protected Camera.FrustumIntersect frustumIntersect(Spatial spatial) {

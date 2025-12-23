@@ -36,13 +36,11 @@ public abstract class AbstractVulkanPipeline extends AbstractNative<Long> implem
     }
 
     protected final LogicalDevice<?> device;
-    protected final PipelineLayout layout;
     protected final PipelineBindPoint bindPoint;
     private final int sortId;
 
-    public AbstractVulkanPipeline(LogicalDevice<?> device, PipelineLayout layout, PipelineBindPoint bindPoint) {
+    public AbstractVulkanPipeline(LogicalDevice<?> device, PipelineBindPoint bindPoint) {
         this.device = device;
-        this.layout = layout;
         this.bindPoint = bindPoint;
         this.sortId = nextSortId.getAndIncrement();
     }
@@ -76,11 +74,6 @@ public abstract class AbstractVulkanPipeline extends AbstractNative<Long> implem
 
     public LogicalDevice<?> getDevice() {
         return device;
-    }
-
-    @Override
-    public PipelineLayout getLayout() {
-        return layout;
     }
 
 }

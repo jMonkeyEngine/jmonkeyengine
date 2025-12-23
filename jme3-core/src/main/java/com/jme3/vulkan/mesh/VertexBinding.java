@@ -15,7 +15,7 @@ public interface VertexBinding {
 
     <T extends Attribute> T mapAttribute(String name, GpuBuffer vertices, int size);
 
-    GpuBuffer createBuffer(int elements);
+    GpuBuffer createBuffer(int elements, GlVertexBuffer.Usage usage);
 
     void setOffset(long offset);
 
@@ -81,14 +81,10 @@ public interface VertexBinding {
 
     interface Builder {
 
-        Builder add(String name, Format format, AttributeMapping mapping);
+        void add(String name, Format format, AttributeMapping mapping);
 
-        Builder setUsage(GlVertexBuffer.Usage usage);
-
-        VertexBinding build();
-
-        default Builder add(GlVertexBuffer.Type name, Format format, AttributeMapping mapping) {
-            return add(name.name(), format, mapping);
+        default void add(GlVertexBuffer.Type name, Format format, AttributeMapping mapping) {
+            add(name.name(), format, mapping);
         }
 
     }

@@ -39,6 +39,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.GlFrameBuffer;
 import com.jme3.util.SafeArrayList;
+import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 
 /**
  * Represents a view inside the display
@@ -291,7 +292,7 @@ public class ViewPort {
      *
      * @see #setOutputFrameBuffer(GlFrameBuffer)
      */
-    public GlFrameBuffer getOutputFrameBuffer() {
+    public FrameBuffer<?> getOutputFrameBuffer() {
         return out;
     }
 

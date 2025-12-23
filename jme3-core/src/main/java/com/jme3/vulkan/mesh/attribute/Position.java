@@ -9,7 +9,7 @@ import com.jme3.vulkan.mesh.VertexBinding;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
-public class Position extends BufferAttribute<Vector3f, FloatBuffer> {
+public class Position extends AbstractAttribute<Vector3f> {
 
     public Position(VertexBinding binding, GpuBuffer vertices, int size, int offset) {
         super(binding, vertices, size, offset);
@@ -34,21 +34,6 @@ public class Position extends BufferAttribute<Vector3f, FloatBuffer> {
 
     public void set(int element, float x, float y, float z) {
         getBuffer(element).putFloat(x).putFloat(y).putFloat(z);
-    }
-
-    public void set(int baseElement, float[] values) {
-        ByteBuffer buf = getBuffer(baseElement);
-        for (float v : values) {
-            buf.putFloat(v);
-        }
-    }
-
-    public float[] get(int baseElement, float[] store) {
-        ByteBuffer buf = getBuffer(baseElement);
-        for (int i = 0; i < store.length; i++) {
-            store[i] = buf.getFloat();
-        }
-        return store;
     }
 
 }
