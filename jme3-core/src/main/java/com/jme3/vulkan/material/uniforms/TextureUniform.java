@@ -15,10 +15,10 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 import java.util.Objects;
 
-public class TextureUniform implements Uniform<Texture> {
+public class TextureUniform implements VulkanUniform<Texture<?, ?>> {
 
     private final IntEnum<VulkanImage.Layout> layout;
-    private Texture value;
+    private Texture<?, ?> value;
 
     public TextureUniform(IntEnum<VulkanImage.Layout> layout) {
         this.layout = layout;
@@ -33,12 +33,17 @@ public class TextureUniform implements Uniform<Texture> {
     }
 
     @Override
-    public void set(Texture value) {
+    public SetLayoutBinding createBinding(IntEnum<Descriptor> type, int binding, Flag<ShaderStage> stages) {
+        return new SetLayoutBinding(type, binding, 1, stages);
+    }
+
+    @Override
+    public void set(Texture<?, ?> value) {
         this.value = value;
     }
 
     @Override
-    public Texture get() {
+    public Texture<?, ?> get() {
         return value;
     }
 
@@ -56,7 +61,7 @@ public class TextureUniform implements Uniform<Texture> {
         private final long samplerId, viewId;
         private final IntEnum<VulkanImage.Layout> layout;
 
-        public Writer(SetLayoutBinding binding, Texture texture, IntEnum<VulkanImage.Layout> layout) {
+        public Writer(SetLayoutBinding binding, Texture<?, ?> texture, IntEnum<VulkanImage.Layout> layout) {
             super(binding, 0, 1);
             this.samplerId = texture.getId();
             this.viewId = texture.getView().getId();

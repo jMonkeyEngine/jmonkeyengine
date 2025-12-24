@@ -28,7 +28,9 @@ public interface Engine {
     Mesh createMesh(int vertices, int instances);
 
     @Deprecated
-    VertexBinding createMeshVertexBinding(IntEnum<InputRate> rate, Consumer<VertexBinding.Builder> config);
+    default VertexBinding createMeshVertexBinding(IntEnum<InputRate> rate, Consumer<VertexBinding.Builder> config) {
+        return null;
+    }
 
     GpuBuffer createBuffer(MemorySize size, Flag<BufferUsage> bufUsage, GlVertexBuffer.Usage dataUsage);
 

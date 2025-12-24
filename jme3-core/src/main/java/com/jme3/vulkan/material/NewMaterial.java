@@ -1,5 +1,7 @@
 package com.jme3.vulkan.material;
 
+import com.jme3.asset.AssetKey;
+import com.jme3.asset.CloneableSmartAsset;
 import com.jme3.dev.NotFullyImplemented;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -22,11 +24,26 @@ import static org.lwjgl.vulkan.VK10.*;
 /**
  * Relates shader uniform values to shader descriptor sets and bindings.
  */
-public class NewMaterial implements VulkanMaterial {
+public class NewMaterial implements VulkanMaterial, CloneableSmartAsset {
 
     private final Map<String, VulkanUniform<?>> uniforms = new HashMap<>();
     private final Map<String, VulkanTechnique> techniques = new HashMap<>();
     private final Map<DescriptorSetLayout, CachedDescriptorSet> setCache = new HashMap<>();
+
+    @Override
+    public CloneableSmartAsset clone() {
+        return null;
+    }
+
+    @Override
+    public void setKey(AssetKey key) {
+
+    }
+
+    @Override
+    public AssetKey getKey() {
+        return null;
+    }
 
     @Override
     public void bind(CommandBuffer cmd, Pipeline pipeline, DescriptorPool pool) {
@@ -69,14 +86,14 @@ public class NewMaterial implements VulkanMaterial {
     }
 
     @Override
-    public void setUniform(String name, GpuBuffer buffer) {
+    public void setUniformBuffer(String name, GpuBuffer buffer) {
         BufferUniform u = getUniform(name);
         u.set(buffer);
     }
 
     @Override
-    public void setTexture(String name, Texture texture) {
-        Uniform<Texture> u = getUniform(name);
+    public void setTexture(String name, Texture<?, ?> texture) {
+        Uniform<Texture<?, ?>> u = getUniform(name);
         u.set(texture);
     }
 
@@ -120,15 +137,17 @@ public class NewMaterial implements VulkanMaterial {
         throw new UnsupportedOperationException("Importing not yet supported.");
     }
 
-    public void addUniform(String name, Uniform<?> uniform) {
+    @Override
+    public void setUniform(String name, Uniform<?> uniform) {
         if (!(uniform instanceof VulkanUniform)) {
             throw new ClassCastException("Uniform must implement VulkanUniform to be used in a Vulkan context.");
         }
         uniforms.put(name, (VulkanUniform<?>)uniform);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends Uniform> T getUniform(String name) {
+    public <T extends Uniform<?>> T getUniform(String name) {
         return (T)uniforms.get(name);
     }
 

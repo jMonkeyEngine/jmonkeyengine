@@ -1,25 +1,15 @@
 name: "VulkanTest"
-# Links type placeholders to full class names used for instantiation
-# by reflection. This enables custom types to be used. Common engine
-# types are supported by default.
-imports:
-  MyUniformType: "com.username.MyCustomUniform"
-  MyBufferMember: "com.username.MyCustomBufferMember"
-  MyRasterState: "com.username.MyCustomRasterState"
 parameters:
-  # Most valid parameter arguments are defined by managing Uniform object
-  # including default values. Exceptions are type, set, and define.
-  # Also, binding and stages are handled by AbstractUniform.
+
   - name: "Matrices"
     type: UniformBuffer
     layout: # defines the layout of the uniform buffer
-      worldViewProjection:
-        type: Matrix4f
+      worldViewProjection: Matrix4f # type is the member
       time:
         type: Float
         default: 1.0
       myval:
-        type: com.username.hello.world.MyBufferMember
+        type: MyCustomType
         default: "parse_this"
 
   - name: "BaseColorMap"

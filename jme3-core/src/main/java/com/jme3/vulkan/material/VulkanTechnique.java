@@ -20,6 +20,17 @@ public class VulkanTechnique {
     private final Map<String, String> uniformDefines = new HashMap<>();
     private final Map<String, Integer> attributes = new HashMap<>();
     private final RenderState state = new RenderState();
+    
+    public SetLayoutBinding addBinding(int set, String name, SetLayoutBinding binding) {
+        while (set >= bindings.size()) {
+            bindings.add(null);
+        }
+        Map<String, SetLayoutBinding> bindingMap = bindings.get(set);
+        if (bindingMap == null) {
+            bindings.set(set, bindingMap = new HashMap<>());
+        }
+        return bindingMap.put(name, binding);
+    }
 
     public void setShaderSource(ShaderStage stage, String assetName) {
         shaders.put(stage, assetName);
@@ -68,10 +79,11 @@ public class VulkanTechnique {
     public PipelineLayout getLayout(LogicalDevice<?> device, Cache<PipelineLayout> layoutCache, Cache<DescriptorSetLayout> setCache) {
         return PipelineLayout.build(device, p -> {
             p.setCache(layoutCache);
-            for (Map<String, SetLayoutBinding> bMap : bindings) {
-                if (!bMap.isEmpty()) {
-                    p.nextUniformSet(DescriptorSetLayout.build(device, bMap, setCache));
+            for (Map<String, SetLayoutBinding> set : bindings) {
+                if (set == null) {
+                    throw new IllegalStateException("Each set layout must have at least one binding.");
                 }
+                p.nextUniformSet(DescriptorSetLayout.build(device, set, setCache));
             }
         });
     }

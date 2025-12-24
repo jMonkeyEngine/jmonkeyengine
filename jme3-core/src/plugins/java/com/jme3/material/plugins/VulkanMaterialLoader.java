@@ -17,7 +17,6 @@ import com.jme3.vulkan.material.uniforms.VulkanUniform;
 import com.jme3.vulkan.pipeline.PipelineLayout;
 import com.jme3.vulkan.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.IntEnum;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,19 +25,28 @@ import java.util.function.Function;
 
 public class VulkanMaterialLoader implements AssetLoader {
 
-    private static final Map<String, Function<JsonNode, Uniform>> uniformLoaders = new HashMap<>();
+    private static final Map<String, Function<JsonNode, Uniform<?>>> uniformLoaders = new HashMap<>();
     private static final Map<String, ShaderStage> stages = new HashMap<>();
     private static final ObjectMapper mapper = new ObjectMapper();
 
     static {
-        Function<JsonNode, Uniform> texture = n -> new TextureUniform(VulkanImage.Layout.valueOf(n.get("layout").asText()));
-        uniformLoaders.put("Texture", texture);
-        uniformLoaders.put("Texture1D", texture);
-        uniformLoaders.put("Texture2D", texture);
-        uniformLoaders.put("Texture3D", texture);
-        uniformLoaders.put("TextureCubeMap", texture);
-        uniformLoaders.put("TextureArray", texture);
-        uniformLoaders.put("UniformBuffer", n -> new BufferUniform());
+        addUniformLoader(n -> new TextureUniform(VulkanImage.Layout.valueOf(n.get("layout").asText())),
+                "texture", "texture1d", "texture2d", "texture3d", "texturecubemap", "texturearray");
+        addUniformLoader(n -> new BufferUniform(), "uniformbuffer");
+        addShaderStage(ShaderStage.Vertex, "vertex", "vert");
+        addShaderStage(ShaderStage.Fragment, "fragment", "frag");
+    }
+
+    public static void addUniformLoader(Function<JsonNode, Uniform<?>> loader, String... names) {
+        for (String n : names) {
+            uniformLoaders.put(n.toLowerCase(), loader);
+        }
+    }
+
+    public static void addShaderStage(ShaderStage stage, String... names) {
+        for (String n : names) {
+            stages.put(n.toLowerCase(), stage);
+        }
     }
 
     @Override
@@ -46,30 +54,19 @@ public class VulkanMaterialLoader implements AssetLoader {
         VulkanMaterial material = new NewMaterial();
         try (InputStream stream = assetInfo.openStream()) {
             JsonNode root = mapper.readTree(stream);
-            String matName = root.get("name").asText();
             for (JsonNode param : root.get("parameters")) {
                 String name = param.get("name").asText();
                 String type = param.get("type").asText();
-                material.addUniform(name, Objects.requireNonNull(uniformLoaders.get(type),
+                material.setUniform(name, Objects.requireNonNull(uniformLoaders.get(type),
                         "Unrecognized parameter type: " + type).apply(param));
             }
             for (JsonNode technique : root.get("techniques")) {
-                List<Collection<TechniqueMember>> members = new ArrayList<>();
+                VulkanTechnique tech = new VulkanTechnique();
                 for (JsonNode member : technique.get("layout")) {
                     TechniqueMember m = new TechniqueMember(member);
-                    while (m.set >= members.size()) {
-                        members.add(new LinkedList<>());
-                    }
-                    members.get(m.set).add(m);
+                    tech.addBinding(m.set, m.name, m.createBinding(Objects.requireNonNull(material.getUniform(m.name),
+                            "Technique layout member references uniform \"" + m.name + "\" which does not exist.")));
                 }
-                VulkanTechnique tech = new VulkanTechnique(PipelineLayout.build(device, l -> {
-                    for (Collection<TechniqueMember> bucket : members) if (!bucket.isEmpty()) {
-                        l.nextUniformSet(d -> { for (TechniqueMember m : bucket) {
-                            d.addBinding(m.name, m.createBinding(Objects.requireNonNull(material.getUniform(m.name),
-                                    "Technique member references parameter \"" + m.name + "\" which does not exist.")));
-                        }});
-                    }
-                }));
                 String name = technique.get("name").asText();
                 for (JsonNode shader : Objects.requireNonNull(technique.get("shaders"), "Technique \"" + name + "\" has no shader entries.")) {
                     if (shader.has("shader")) {
@@ -90,6 +87,7 @@ public class VulkanMaterialLoader implements AssetLoader {
                 }
             }
         }
+        return material;
     }
 
     private static class TechniqueMember {
@@ -105,14 +103,14 @@ public class VulkanMaterialLoader implements AssetLoader {
                 if (params.length < 3) {
                     throw new IOException("Technique member layout string must contain at least 3 parameters.");
                 }
-                type = params[0];
+                type = params[0].toLowerCase();
                 name = params[1];
                 String[] setBinding = params[2].split("\\.");
                 set = Integer.parseInt(setBinding[0]);
                 binding = Integer.parseInt(setBinding[1]);
             }
             if (member.has("type")) {
-                type = member.get("type").asText();
+                type = member.get("type").asText().toLowerCase();
             }
             if (member.has("name")) {
                 name = member.get("name").asText();
@@ -131,11 +129,12 @@ public class VulkanMaterialLoader implements AssetLoader {
                 if (member.isArray()) {
                     stages = Flag.empty();
                     for (JsonNode s : member.get("stages")) {
-                        stages = stages.add(Objects.requireNonNull(VulkanMaterialLoader.stages.get(s.asText()),
+                        stages = stages.add(Objects.requireNonNull(VulkanMaterialLoader.stages.get(
+                                s.asText().toLowerCase()),
                                 "Stage \"" + s.asText() + "\" is not recognized."));
                     }
                 } else {
-                    String stageName = member.get("stages").asText();
+                    String stageName = member.get("stages").asText().toLowerCase();
                     stages = Objects.requireNonNull(VulkanMaterialLoader.stages.get(stageName),
                             "Stage \"" + stageName + "\" is not recognized.");
                 }

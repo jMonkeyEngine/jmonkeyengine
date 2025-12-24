@@ -4,7 +4,6 @@ import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.CacheableNativeBuilder;
 import com.jme3.util.natives.Native;
 import com.jme3.vulkan.descriptors.DescriptorSetLayout;
-import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.vulkan.VkPipelineLayoutCreateInfo;
 

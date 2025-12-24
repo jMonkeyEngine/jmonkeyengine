@@ -1,7 +1,9 @@
 package com.jme3.vulkan.mesh;
 
+import com.jme3.vulkan.Format;
 import com.jme3.vulkan.mesh.attribute.Attribute;
 import com.jme3.vulkan.pipeline.VertexPipeline;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkVertexInputAttributeDescription;
 import org.lwjgl.vulkan.VkVertexInputBindingDescription;

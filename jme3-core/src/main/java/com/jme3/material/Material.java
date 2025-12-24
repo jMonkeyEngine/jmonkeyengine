@@ -55,7 +55,7 @@ public interface Material extends Savable {
 
     void setUniformBuffer(String name, GpuBuffer buffer);
 
-    void setTexture(String name, Texture texture);
+    void setTexture(String name, Texture<?, ?> texture);
 
     void setParam(String uniform, String param, Object value);
 
@@ -63,11 +63,11 @@ public interface Material extends Savable {
 
     <T> T getParam(String uniform, String name);
 
-    Texture getTexture(String name);
+    Texture<?, ?> getTexture(String name);
 
-    void addUniform(String name, Uniform uniform);
+    void setUniform(String name, Uniform<?> uniform);
 
-    /* ----- COMPATABILITY WITH OLD MATERIAL ----- */
+    /* ----- COMPATIBILITY WITH OLD MATERIAL ----- */
 
     default int getSortId() {
         return 0;

@@ -1,7 +1,9 @@
 package com.jme3.backend;
 
 import com.jme3.app.Application;
+import com.jme3.asset.AssetKey;
 import com.jme3.material.Material;
+import com.jme3.material.plugins.VulkanMaterialLoader;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -30,6 +32,8 @@ import com.jme3.vulkan.devices.DeviceFilter;
 import com.jme3.vulkan.devices.GeneralPhysicalDevice;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.*;
+import com.jme3.vulkan.material.NewMaterial;
+import com.jme3.vulkan.material.VulkanMaterial;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.mesh.*;
@@ -93,8 +97,13 @@ public class SimpleVulkanEngine implements Engine {
     }
 
     @Override
-    public Material createMaterial(String matdefName) {
-        return null;
+    public VulkanMaterial createMaterial() {
+        return new NewMaterial();
+    }
+
+    @Override
+    public VulkanMaterial createMaterial(String matdefName) {
+        return app.getAssetManager().loadAsset(new AssetKey<>(matdefName));
     }
 
     @Override
@@ -120,6 +129,8 @@ public class SimpleVulkanEngine implements Engine {
     }
 
     public void initialize() {
+
+        app.getAssetManager().registerLoader(VulkanMaterialLoader.class, "j4md");
 
         instance = VulkanInstance.build(VulkanInstance.Version.v10, i -> {
             i.addGlfwExtensions();

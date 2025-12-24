@@ -10,8 +10,8 @@ public class TestMaterial extends NewMaterial {
     private final TextureUniform baseColorMap = new TextureUniform(VulkanImage.Layout.ShaderReadOnlyOptimal);
 
     public TestMaterial() {
-        addUniform("Matrices", matrices);
-        addUniform("BaseColorMap", baseColorMap);
+        setUniform("Matrices", matrices);
+        setUniform("BaseColorMap", baseColorMap);
     }
 
     public BufferUniform getMatrices() {

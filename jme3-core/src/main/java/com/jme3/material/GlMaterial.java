@@ -687,7 +687,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * @param value the Texture object previously loaded by the asset manager
      */
     @Override
-    public void setTexture(String name, Texture value) {
+    public void setTexture(String name, Texture<?, ?> value) {
         if (value == null) {
             // clear it
             clearParam(name);

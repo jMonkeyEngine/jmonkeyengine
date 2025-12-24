@@ -12,6 +12,6 @@ public interface VulkanMaterial extends Material {
 
     VulkanTechnique getTechnique(String name);
 
-    <T extends Uniform> T getUniform(String name);
+    <T extends Uniform<?>> T getUniform(String name);
 
 }
