@@ -425,6 +425,11 @@ public interface GL {
     public void glBufferData(int target, ByteBuffer data, int usage);
 
     /**
+     * See {@link #glBufferData(int, ByteBuffer, int)}
+     */
+    public void glBufferData(int target, IntBuffer data, int usage);
+
+    /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferSubData">Reference Page</a></p>
      * <p>
      * Updates a subset of a buffer object's data store.
@@ -823,6 +828,11 @@ public interface GL {
      * @param data   a pointer to the location where buffer object data is returned.
      */
     public void glGetBufferSubData(int target, long offset, ByteBuffer data);
+
+    /**
+     * See {@link #glGetBufferSubData(int, long, ByteBuffer)}
+     */
+    public void glGetBufferSubData(int target, long offset, IntBuffer data);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetError">Reference Page</a></p>

@@ -87,7 +87,32 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
                                    final int access, final int format) {
         GL42.glBindImageTexture(unit, texture, level, layered, layer, access, format);
     }
-    
+
+    @Override
+    public void glDispatchCompute(final int numGroupsX, final int numGroupsY, final int numGroupsZ) {
+        GL43.glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
+    }
+
+    @Override
+    public void glMemoryBarrier(final int barriers) {
+        GL42.glMemoryBarrier(barriers);
+    }
+
+    @Override
+    public long glFenceSync(final int condition, final int flags) {
+        return GL32.glFenceSync(condition, flags);
+    }
+
+    @Override
+    public int glClientWaitSync(final long sync, final int flags, final long timeout) {
+        return GL32.glClientWaitSync(sync, flags, timeout);
+    }
+
+    @Override
+    public void glDeleteSync(final long sync) {
+        GL32.glDeleteSync(sync);
+    }
+
     @Override
     public void glBlendEquationSeparate(final int colorMode, final int alphaMode) {
         GL20.glBlendEquationSeparate(colorMode, alphaMode);
@@ -123,6 +148,12 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
 
     @Override
     public void glBufferData(final int target, final ByteBuffer data, final int usage) {
+        checkLimit(data);
+        GL15.glBufferData(target, data, usage);
+    }
+
+    @Override
+    public void glBufferData(final int target, final IntBuffer data, final int usage) {
         checkLimit(data);
         GL15.glBufferData(target, data, usage);
     }
@@ -317,6 +348,12 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
 
     @Override
     public void glGetBufferSubData(final int target, final long offset, final ByteBuffer data) {
+        checkLimit(data);
+        GL15.glGetBufferSubData(target, offset, data);
+    }
+
+    @Override
+    public void glGetBufferSubData(final int target, final long offset, final IntBuffer data) {
         checkLimit(data);
         GL15.glGetBufferSubData(target, offset, data);
     }

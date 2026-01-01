@@ -1,0 +1,75 @@
+#version 430
+
+/**
+ * Finds the global minimum/maximum values of a depth texture.
+ */
+
+layout(local_size_x = 16, local_size_y = 16) in;
+
+layout(binding = 0) uniform sampler2D inputDepth;
+
+layout(std430, binding = 1) buffer MinMaxBuffer {
+    uint gMin;
+    uint gMax;
+};
+
+// Each workgroup thread handles a 2x2 region, so 16x16 threads cover 32x32 pixels
+// Then we reduce 256 values down to 1
+shared vec2 sharedMinMax[256];
+
+/**
+ * Encodes a float for atomic min/max operations.
+ * Positive floats become large uints, negative floats become small uints,
+ * preserving the ordering relationship.
+ */
+uint floatFlip(float f) {
+    uint u = floatBitsToUint(f);
+    // If negative (sign bit set): flip ALL bits (turns into small uint)
+    // If positive (sign bit clear): flip ONLY sign bit (makes it large uint)
+    return (u & 0x80000000u) != 0u ? ~u : u ^ 0x80000000u;
+}
+
+void main() {
+    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 lid = ivec2(gl_LocalInvocationID.xy);
+    uint tid = gl_LocalInvocationIndex;
+    ivec2 inputSize = textureSize(inputDepth, 0);
+
+    // Each thread samples a 2x2 block
+    ivec2 baseCoord = gid * 2;
+    vec2 minMax = vec2(1.0 / 0.0, 0.0); // (infinity, 0)
+
+    for (int y = 0; y < 2; y++) {
+        for (int x = 0; x < 2; x++) {
+            ivec2 coord = baseCoord + ivec2(x, y);
+            if (coord.x < inputSize.x && coord.y < inputSize.y) {
+                float depth = texelFetch(inputDepth, coord, 0).r;
+                // Discard depth == 1.0 (background/sky)
+                if (depth != 1.0) {
+                    minMax.x = min(minMax.x, depth);
+                    minMax.y = max(minMax.y, depth);
+                }
+            }
+        }
+    }
+
+    sharedMinMax[tid] = minMax;
+    barrier();
+
+    // Parallel reduction in shared memory
+    for (uint stride = 128; stride > 0; stride >>= 1) {
+        if (tid < stride) {
+            vec2 us = sharedMinMax[tid];
+            vec2 other = sharedMinMax[tid + stride];
+            sharedMinMax[tid] = vec2(min(us.x, other.x), max(us.y, other.y));
+        }
+        barrier();
+    }
+
+    // First thread in workgroup writes to global buffer using atomics
+    if (lid.x == 0 && lid.y == 0) {
+        vec2 finalMinMax = sharedMinMax[0];
+        atomicMin(gMin, floatFlip(finalMinMax.x));
+        atomicMax(gMax, floatFlip(finalMinMax.y));
+    }
+}

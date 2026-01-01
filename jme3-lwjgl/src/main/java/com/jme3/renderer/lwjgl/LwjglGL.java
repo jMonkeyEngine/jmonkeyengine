@@ -8,6 +8,7 @@ import com.jme3.renderer.opengl.GL4;
 import com.jme3.util.BufferUtils;
 import org.lwjgl.opengl.*;
 
+import java.lang.reflect.Constructor;
 import java.nio.*;
 
 public final class LwjglGL implements GL, GL2, GL3, GL4 {
@@ -66,6 +67,41 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
                                    final int access, final int format) {
         GL42.glBindImageTexture(unit, texture, level, layered, layer, access, format);
     }
+
+    @Override
+    public void glDispatchCompute(final int numGroupsX, final int numGroupsY, final int numGroupsZ) {
+        GL43.glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
+    }
+
+    @Override
+    public void glMemoryBarrier(final int barriers) {
+        GL42.glMemoryBarrier(barriers);
+    }
+
+    @Override
+    public long glFenceSync(final int condition, final int flags) {
+        return GL32.glFenceSync(condition, flags).getPointer();
+    }
+
+    private Constructor<GLSync> constructor = null;
+    private GLSync makeGLSync(final long sync){
+        try {
+            if(constructor == null){
+                constructor = GLSync.class.getDeclaredConstructor(long.class);
+                constructor.setAccessible(true);
+            }
+            return constructor.newInstance(sync);
+        } catch(Exception e){ throw new RuntimeException(e); }
+    }
+    @Override
+    public int glClientWaitSync(final long sync, final int flags, final long timeout) {
+        return GL32.glClientWaitSync(makeGLSync(sync), flags, timeout);
+    }
+
+    @Override
+    public void glDeleteSync(final long sync) {
+        GL32.glDeleteSync(makeGLSync(sync));
+    }
     
     @Override
     public void glBlendEquationSeparate(int colorMode, int alphaMode){
@@ -103,6 +139,12 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
     public void glBufferData(int param1, ByteBuffer param2, int param3) {
         checkLimit(param2);
         GL15.glBufferData(param1, param2, param3);
+    }
+
+    @Override
+    public void glBufferData(int target, IntBuffer data, int usage) {
+        checkLimit(data);
+        GL15.glBufferData(target, data, usage);
     }
 
     @Override
@@ -289,6 +331,12 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
     
     @Override
     public void glGetBufferSubData(int target, long offset, ByteBuffer data) {
+        checkLimit(data);
+        GL15.glGetBufferSubData(target, offset, data);
+    }
+
+    @Override
+    public void glGetBufferSubData(int target, long offset, IntBuffer data) {
         checkLimit(data);
         GL15.glGetBufferSubData(target, offset, data);
     }

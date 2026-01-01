@@ -1,0 +1,55 @@
+MaterialDef Post Shadow {
+
+    MaterialParameters {
+        Int FilterMode
+        Boolean HardwareShadows
+
+        Texture2D ShadowMap0
+        Texture2D ShadowMap1
+        Texture2D ShadowMap2
+        Texture2D ShadowMap3
+
+        Float ShadowIntensity
+
+        // SDSM uses Vector2Array for splits:
+        // Each Vector2 contains (blendStart, blendEnd) for that cascade transition
+        Vector2Array Splits
+
+        Vector2 FadeInfo
+
+        Matrix4 LightViewProjectionMatrix0
+        Matrix4 LightViewProjectionMatrix1
+        Matrix4 LightViewProjectionMatrix2
+        Matrix4 LightViewProjectionMatrix3
+
+        Vector3 LightDir
+
+        Float PCFEdge
+        Float ShadowMapSize
+
+        Matrix4 ViewProjectionMatrixInverse
+        Vector4 ViewProjectionMatrixRow2
+
+        Texture2D Texture
+        Texture2D DepthTexture
+
+        Boolean BackfaceShadows //Not used.
+        Int NumSamples //Not used.
+    }
+
+    Technique {
+        VertexShader   GLSL310 GLSL300 GLSL150 :   Common/MatDefs/Shadow/PostShadowFilter.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 :   Common/MatDefs/Shadow/Sdsm/SdsmPostShadow.frag
+
+        WorldParameters {
+            ResolutionInverse
+        }
+
+        Defines {
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            SHADOWMAP_SIZE : ShadowMapSize
+        }
+    }
+}
