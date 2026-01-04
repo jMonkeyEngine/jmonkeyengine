@@ -60,7 +60,7 @@ public class VectorGroup {
         if(isValidVectorObject(vectorObj)){
             vectorList.add(vectorObj);
         } else{  
-            throw new IllegalArgumentException(  "VectorGroup must contain valid vector-type objects. This includes: Vector2f, Vector3f, Vector4f, and ColorRGBA");
+            throw new IllegalArgumentException(  "VectorGroup must contain valid vector-type objects. This includes: Vector2f, Vector3f, Vector4f, and ColorRGBA/ Incompatible type: " + vectorObj.getClass().getSimpleName());
         }
     }
     
@@ -112,4 +112,27 @@ public class VectorGroup {
         return (vectorObj instanceof Vector2f || vectorObj instanceof Vector3f || vectorObj instanceof Vector4f || vectorObj instanceof ColorRGBA || vectorObj instanceof VectorGroup);
     }
     
+        
+    public VectorGroup copy() {
+        VectorGroup newCopy = new VectorGroup();
+
+        for (Object vectorObj : vectorList) {
+            if (vectorObj instanceof Vector2f) {
+                Vector2f v2 = (Vector2f) vectorObj;
+                newCopy.addVectorToGroup(v2.clone());
+            } else if (vectorObj instanceof Vector3f) {
+                Vector3f v3 = (Vector3f) vectorObj;
+                newCopy.addVectorToGroup(v3.clone());
+            } else if (vectorObj instanceof Vector4f) {
+                Vector4f v4 = (Vector4f) vectorObj;
+                newCopy.addVectorToGroup(v4.clone());
+            } else if (vectorObj instanceof ColorRGBA) {
+                ColorRGBA c = (ColorRGBA) vectorObj;
+                newCopy.addVectorToGroup(c.clone());
+            } else {
+                throw new IllegalStateException("Unsupported object type: " + vectorObj.getClass());
+            }
+        }
+        return newCopy;
+    }       
 }
