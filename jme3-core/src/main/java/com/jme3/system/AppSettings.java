@@ -300,6 +300,8 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("WindowYPosition", 0);
         defaults.put("WindowXPosition", 0);
         defaults.put("X11PlatformPreferred", false);
+        defaults.put("XboxLikeControllerLayout", true);
+        defaults.put("TriggerToButtonThreshold", 0.5f);
         //  defaults.put("Icons", null);
     }
 
@@ -1611,5 +1613,53 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public boolean isX11PlatformPreferred() {
         return getBoolean("X11PlatformPreferred");
+    }
+
+    /**
+     * Enable/disable automatic normalization of gamepad mappings to an Xbox-like layout,
+     * when possible.
+     *
+     * <p>
+     * Depending on the platform and controller model, this setting might have no effect.
+     * It is primarily intended to provide a consistent default button/axis layout across common
+     * controllers.
+     *
+     * @param enabled true to enable, false to disable (default: true)
+     */
+    public void setXboxLikeControllerLayout(boolean enabled){
+        putBoolean("XboxLikeControllerLayout", enabled);
+    }
+
+    /**
+     * Whether automatic normalization of controller mappings to an Xbox-like layout is enabled.
+     *
+     * @return true if enabled, otherwise false
+     */
+    public boolean isXboxLikeControllerLayout(){
+        return getBoolean("XboxLikeControllerLayout");
+    }
+
+    /**
+     * Sets the threshold above which an analog trigger should also generate a button-press event.
+     * If the value is set to -1, the trigger will never generate button-press events.
+     *
+     * <p>
+     * This is intended to normalize behavior between controllers that expose triggers as analog
+     * axes and controllers that expose triggers as digital buttons.
+     *
+     * @param threshold the trigger threshold in the range [0, 1] (default: 0.5f) 
+     */
+    public void setTriggerToButtonThreshold(float threshold) {
+        putFloat("TriggerToButtonThreshold", threshold);
+    }
+
+    /**
+     * Gets the threshold above which an analog trigger should also generate a button-press event.
+     *
+     * @return the trigger threshold in the range [0, 1] (default: 0.5f)
+     * @see #setTriggerToButtonThreshold(float)
+     */
+    public float getTriggerToButtonThreshold() {
+        return getFloat("TriggerToButtonThreshold");
     }
 }

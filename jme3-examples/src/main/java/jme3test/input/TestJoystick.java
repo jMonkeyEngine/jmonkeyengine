@@ -255,24 +255,24 @@ public class TestJoystick extends SimpleApplication {
             attachChild(rightStick);
 
             // A "standard" mapping... fits a majority of my game pads
-            addButton( JoystickButton.BUTTON_0, 371, 512 - 176, 42, 42 );
-            addButton( JoystickButton.BUTTON_1, 407, 512 - 212, 42, 42 );
-            addButton( JoystickButton.BUTTON_2, 371, 512 - 248, 42, 42 );
-            addButton( JoystickButton.BUTTON_3, 334, 512 - 212, 42, 42 );
+            addButton( JoystickButton.BUTTON_XBOX_Y, 371, 512 - 176, 42, 42 );
+            addButton( JoystickButton.BUTTON_XBOX_B, 407, 512 - 212, 42, 42 );
+            addButton( JoystickButton.BUTTON_XBOX_A, 371, 512 - 248, 42, 42 );
+            addButton( JoystickButton.BUTTON_XBOX_X, 334, 512 - 212, 42, 42 );
  
             // Front buttons  Some of these have the top ones and the bottoms ones flipped.           
-            addButton( JoystickButton.BUTTON_4, 67, 512 - 111, 95, 21 );
-            addButton( JoystickButton.BUTTON_5, 348, 512 - 111, 95, 21 );
-            addButton( JoystickButton.BUTTON_6, 67, 512 - 89, 95, 21 );
-            addButton( JoystickButton.BUTTON_7, 348, 512 - 89, 95, 21 );
+            addButton( JoystickButton.BUTTON_XBOX_LB, 67, 512 - 111, 95, 21 );
+            addButton( JoystickButton.BUTTON_XBOX_RB, 348, 512 - 111, 95, 21 );
+            addButton( JoystickButton.BUTTON_XBOX_LT, 67, 512 - 89, 95, 21 );
+            addButton( JoystickButton.BUTTON_XBOX_RT, 348, 512 - 89, 95, 21 );
  
             // Select and start buttons           
-            addButton( JoystickButton.BUTTON_8, 206, 512 - 198, 48, 30 );
-            addButton( JoystickButton.BUTTON_9, 262, 512 - 198, 48, 30 );
+            addButton( JoystickButton.BUTTON_XBOX_BACK, 206, 512 - 198, 48, 30 );
+            addButton( JoystickButton.BUTTON_XBOX_START, 262, 512 - 198, 48, 30 );
             
             // Joystick push buttons
-            addButton( JoystickButton.BUTTON_10, 147, 512 - 300, 75, 70 );
-            addButton( JoystickButton.BUTTON_11, 285, 512 - 300, 75, 70 );
+            addButton( JoystickButton.BUTTON_XBOX_L3, 147, 512 - 300, 75, 70 );
+            addButton( JoystickButton.BUTTON_XBOX_R3, 285, 512 - 300, 75, 70 );
 
             // Fake button highlights for the POV axes
             //
@@ -280,10 +280,14 @@ public class TestJoystick extends SimpleApplication {
             //  -X  +X
             //    -Y
             //
-            addButton( "POV +Y", 96, 512 - 174, 40, 38 );
-            addButton( "POV +X", 128, 512 - 208, 40, 38 );
-            addButton( "POV -Y", 96, 512 - 239, 40, 38 );
-            addButton( "POV -X", 65, 512 - 208, 40, 38 );
+            // addButton( "POV +Y", 96, 512 - 174, 40, 38 );
+            // addButton( "POV +X", 128, 512 - 208, 40, 38 );
+            // addButton( "POV -Y", 96, 512 - 239, 40, 38 );
+            // addButton( "POV -X", 65, 512 - 208, 40, 38 );
+            addButton( JoystickButton.BUTTON_XBOX_DPAD_UP, 96, 512 - 174, 40, 38 );
+            addButton( JoystickButton.BUTTON_XBOX_DPAD_RIGHT, 128, 512 - 208, 40, 38 );
+            addButton( JoystickButton.BUTTON_XBOX_DPAD_DOWN, 96, 512 - 239, 40, 38 );
+            addButton( JoystickButton.BUTTON_XBOX_DPAD_LEFT, 65, 512 - 208, 40, 38 );
 
             resetPositions();                                               
         }
@@ -296,21 +300,20 @@ public class TestJoystick extends SimpleApplication {
  
         public void setAxisValue( JoystickAxis axis, float value ) {
                 
-            System.out.println( "Axis:" + axis.getName() + "(id:" + axis.getLogicalId() + ")=" + value );
-            if( axis == axis.getJoystick().getXAxis() ) {
+            if( axis == axis.getJoystick().getAxis(JoystickAxis.AXIS_XBOX_LEFT_THUMB_STICK_X)){
                 setXAxis(value);
-            } else if( axis == axis.getJoystick().getYAxis() ) {
+            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.AXIS_XBOX_LEFT_THUMB_STICK_Y)){
                 setYAxis(-value);
-            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.Z_AXIS) ) {
+            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.AXIS_XBOX_RIGHT_THUMB_STICK_X)) {
                 // Note: in the above condition, we could check the axis name, but
                 //       I have at least one joystick that reports 2 "Z Axis" axes.
                 //       In this particular case, the first one is the right one so
                 //       a name based lookup will find the proper one.  It's a problem
                 //       because the erroneous axis sends a constant stream of values.
                 setZAxis(value);
-            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.Z_ROTATION) ) {
+            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.AXIS_XBOX_RIGHT_THUMB_STICK_Y) ) {
                 setZRotation(-value);
-            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.LEFT_TRIGGER) ) {
+            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.AXIS_XBOX_LEFT_TRIGGER) ) {
                 if( axis.getJoystick().getButton(JoystickButton.BUTTON_6) == null ) {
                     // left/right triggers sometimes only show up as axes
                     boolean pressed = value != 0;
@@ -318,7 +321,7 @@ public class TestJoystick extends SimpleApplication {
                         setButtonValue(JoystickButton.BUTTON_6, pressed);
                     }
                 }
-            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.RIGHT_TRIGGER) ) {
+            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.AXIS_XBOX_RIGHT_TRIGGER) ) {
                 if( axis.getJoystick().getButton(JoystickButton.BUTTON_7) == null ) {
                     // left/right triggers sometimes only show up as axes
                     boolean pressed = value != 0;

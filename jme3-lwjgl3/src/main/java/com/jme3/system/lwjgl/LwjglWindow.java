@@ -834,7 +834,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     @Override
     public JoyInput getJoyInput() {
         if (joyInput == null) {
-            joyInput = new GlfwJoystickInput();
+            joyInput = new GlfwJoystickInput(settings);
         }
         return joyInput;
     }
