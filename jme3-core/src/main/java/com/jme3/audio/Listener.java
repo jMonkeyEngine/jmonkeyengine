@@ -47,9 +47,6 @@ public class Listener {
     private float volume = 1f;
     private AudioRenderer renderer;
 
-    private final Vector3f left = new Vector3f();
-    private final Vector3f up = new Vector3f();
-    private final Vector3f direction = new Vector3f();
 
     /**
      * Constructs a new {@code Listener} with default parameters.
@@ -111,12 +108,34 @@ public class Listener {
     }
 
     /**
+     * Gets the current location of the listener in world space.
+     * 
+     * @param store The vector to store the result in.
+     * @return The listener's location as a {@link Vector3f}.
+     */
+    public Vector3f getLocation(Vector3f store) {
+        if (store == null) store = new Vector3f();
+        return store.set(location);
+    }
+
+    /**
      * Gets the current rotation of the listener in world space.
      *
      * @return The listener's rotation as a {@link Quaternion}.
      */
     public Quaternion getRotation() {
         return rotation;
+    }
+
+    /**
+     * Gets the current rotation of the listener in world space.
+     * 
+     * @param store The quaternion to store the result in.
+     * @return The listener's rotation as a {@link Quaternion}.
+     */
+    public Quaternion getRotation(Quaternion store) {
+        if (store == null) store = new Quaternion();
+        return store.set(rotation);
     }
 
     /**
@@ -130,30 +149,80 @@ public class Listener {
     }
 
     /**
+     * Gets the current velocity of the listener.
+     * 
+     * @param store The vector to store the result in.
+     * @return The listener's velocity as a {@link Vector3f}.
+     */
+    public Vector3f getVelocity(Vector3f store) {
+        if (store == null) store = new Vector3f();
+        return store.set(velocity);
+    }
+
+    /**
      * Gets the left direction vector of the listener.
+     * This vector is derived from the listener's rotation.
      *
      * @return The listener's left direction as a {@link Vector3f}.
      */
     public Vector3f getLeft() {
-        return rotation.getRotationColumn(0, left);
+        return rotation.getRotationColumn(0);
+    }
+
+
+    /**
+     * Gets the left direction vector of the listener. This vector is derived from the listener's rotation.
+     *
+     * @param store The vector to store the result in.
+     * @return The listener's left direction as a {@link Vector3f}.
+     */
+    public Vector3f getLeft(Vector3f store) {
+        if (store == null) store = new Vector3f();
+        return rotation.getRotationColumn(0, store);
     }
 
     /**
      * Gets the up direction vector of the listener.
+     * This vector is derived from the listener's rotation.
      *
      * @return The listener's up direction as a {@link Vector3f}.
      */
     public Vector3f getUp() {
-        return rotation.getRotationColumn(1, up);
+        return rotation.getRotationColumn(1);
+    }
+
+    /**
+     * Gets the up direction vector of the listener. 
+     * This vector is derived from the listener's rotation.
+     *
+     * @param store The vector to store the result in.
+     * @return The listener's up direction as a {@link Vector3f}.
+     */
+    public Vector3f getUp(Vector3f store) {
+        if (store == null) store = new Vector3f();
+        return rotation.getRotationColumn(1, store);
     }
 
     /**
      * Gets the forward direction vector of the listener.
+     * This vector is derived from the listener's rotation.
      *
      * @return The listener's forward direction.
      */
     public Vector3f getDirection() {
-        return rotation.getRotationColumn(2, direction);
+        return rotation.getRotationColumn(2);
+    }
+
+    /**
+     * Gets the forward direction vector of the listener. 
+     * This vector is derived from the listener's rotation.
+     *
+     * @param store The vector to store the result in.
+     * @return The listener's forward direction.
+     */
+    public Vector3f getDirection(Vector3f store) {
+        if (store == null) store = new Vector3f();
+        return rotation.getRotationColumn(2, store);
     }
 
     /**
