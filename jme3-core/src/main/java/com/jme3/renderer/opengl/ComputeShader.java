@@ -36,7 +36,6 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.renderer.RendererException;
-import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -117,13 +116,6 @@ public class ComputeShader {
         gl.glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
     }
 
-    public void bindTexture(int bindingPoint, Texture texture) {
-        gl.glActiveTexture(GL.GL_TEXTURE0 + bindingPoint);
-        int textureId = texture.getImage().getId();
-        int target = convertTextureType(texture);
-        gl.glBindTexture(target, textureId);
-    }
-
     public void setUniform(int location, int value) {
         gl.glUniform1i(location, value);
     }
@@ -165,20 +157,5 @@ public class ComputeShader {
      */
     public void delete() {
         gl.glDeleteProgram(programId);
-    }
-
-    private int convertTextureType(Texture texture) {
-        switch (texture.getType()) {
-            case TwoDimensional:
-                return GL.GL_TEXTURE_2D;
-            case ThreeDimensional:
-                return GL2.GL_TEXTURE_3D;
-            case CubeMap:
-                return GL.GL_TEXTURE_CUBE_MAP;
-            case TwoDimensionalArray:
-                return GLExt.GL_TEXTURE_2D_ARRAY_EXT;
-            default:
-                throw new UnsupportedOperationException("Unsupported texture type: " + texture.getType());
-        }
     }
 }

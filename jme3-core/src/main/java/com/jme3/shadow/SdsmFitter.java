@@ -36,7 +36,9 @@ import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector2f;
+import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
+import com.jme3.renderer.TextureUnitException;
 import com.jme3.renderer.opengl.ComputeShader;
 import com.jme3.renderer.opengl.GL4;
 import com.jme3.renderer.opengl.ShaderStorageBufferObject;
@@ -55,6 +57,7 @@ public class SdsmFitter {
     private static final String FIT_FRUSTUMS_SHADER = "Common/MatDefs/Shadow/Sdsm/FitLightFrustums.comp";
 
     private final GL4 gl4;
+    private final Renderer renderer;
     private int maxFrameLag = 3;
 
     private final ComputeShader depthReduceShader;
@@ -301,13 +304,9 @@ public class SdsmFitter {
         }
     }
 
-    /**
-     * Creates a new SDSM fitter.
-     *
-     * @param gl the GL4 interface
-     */
-    public SdsmFitter(GL4 gl, AssetManager assetManager) {
+    public SdsmFitter(GL4 gl, Renderer renderer, AssetManager assetManager) {
         this.gl4 = gl;
+        this.renderer = renderer;
 
         // Load compute shaders
         String reduceSource = loadShaderSource(assetManager, REDUCE_DEPTH_SHADER);
@@ -348,7 +347,11 @@ public class SdsmFitter {
 
         // Pass 1: Reduce depth to find min/max
         depthReduceShader.makeActive();
-        depthReduceShader.bindTexture(0, depthTexture);
+        try {
+            renderer.setTexture(0, depthTexture);
+        } catch (TextureUnitException e) {
+            throw new RendererException(e);
+        }
         depthReduceShader.bindShaderStorageBuffer(1, holder.minMaxDepthSsbo);
         depthReduceShader.dispatch(xGroups, yGroups, 1);
         gl4.glMemoryBarrier(GL4.GL_SHADER_STORAGE_BARRIER_BIT);
@@ -357,7 +360,11 @@ public class SdsmFitter {
         holder.fitFrustumSsbo.initialize(FIT_FRUSTUM_INIT);
 
         fitFrustumsShader.makeActive();
-        fitFrustumsShader.bindTexture(0, depthTexture);
+        try {
+            renderer.setTexture(0, depthTexture);
+        } catch (TextureUnitException e) {
+            throw new RendererException(e);
+        }
         fitFrustumsShader.bindShaderStorageBuffer(1, holder.minMaxDepthSsbo);
         fitFrustumsShader.bindShaderStorageBuffer(2, holder.fitFrustumSsbo);
 

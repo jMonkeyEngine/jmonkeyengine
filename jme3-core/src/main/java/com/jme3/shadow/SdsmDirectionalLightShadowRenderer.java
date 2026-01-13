@@ -145,7 +145,7 @@ public class SdsmDirectionalLightShadowRenderer extends AbstractShadowRenderer {
             throw new UnsupportedOperationException("SDSM shadows require OpenGL 4.3 or higher");
         }
 
-        sdsmFitter = new SdsmFitter(gl4, assetManager);
+        sdsmFitter = new SdsmFitter(gl4, renderer, assetManager);
         glInitialized = true;
 
     }
