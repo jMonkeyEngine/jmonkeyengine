@@ -17,10 +17,7 @@ MaterialDef Post Shadow {
 
         Vector2 FadeInfo
 
-        Matrix4 LightViewProjectionMatrix0
-        Matrix4 LightViewProjectionMatrix1
-        Matrix4 LightViewProjectionMatrix2
-        Matrix4 LightViewProjectionMatrix3
+        Matrix4Array LightViewProjectionMatrices
 
         Vector3 LightDir
 

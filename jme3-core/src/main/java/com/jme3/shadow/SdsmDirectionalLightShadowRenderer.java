@@ -429,6 +429,19 @@ public class SdsmDirectionalLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     @Override
+    protected void setPostShadowParams() {
+        setMaterialParameters(postshadowMat);
+        postshadowMat.setParam("LightViewProjectionMatrices", VarType.Matrix4Array, lightViewProjectionsMatrices);
+        for (int j = 0; j < nbShadowMaps; j++) {
+            postshadowMat.setTexture(shadowMapStringCache[j], shadowMaps[j]);
+        }
+        if (fadeInfo != null) {
+            postshadowMat.setVector2("FadeInfo", fadeInfo);
+        }
+        postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
+    }
+
+    @Override
     protected boolean checkCulling(Camera viewCam) {
         // Directional lights are always visible
         return true;

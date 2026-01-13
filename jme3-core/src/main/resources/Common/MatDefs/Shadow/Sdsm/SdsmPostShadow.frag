@@ -14,10 +14,7 @@ const mat4 biasMat = mat4(0.5, 0.0, 0.0, 0.0,
 0.0, 0.0, 0.5, 0.0,
 0.5, 0.5, 0.5, 1.0);
 
-uniform mat4 m_LightViewProjectionMatrix0;
-uniform mat4 m_LightViewProjectionMatrix1;
-uniform mat4 m_LightViewProjectionMatrix2;
-uniform mat4 m_LightViewProjectionMatrix3;
+uniform mat4 m_LightViewProjectionMatrices[4];
 
 uniform vec2 g_ResolutionInverse;
 
@@ -33,21 +30,16 @@ vec3 getPosition(in float depth, in vec2 uv){
 
 
 float determineShadow(int index, vec4 worldPos){
-    vec4 projCoord;
+    vec4 projCoord = biasMat * m_LightViewProjectionMatrices[index] * worldPos;
     if(index == 0){
-        projCoord = biasMat * m_LightViewProjectionMatrix0 * worldPos;
         return GETSHADOW(m_ShadowMap0, projCoord);
     } else if(index == 1){
-        projCoord = biasMat * m_LightViewProjectionMatrix1 * worldPos;
         return GETSHADOW(m_ShadowMap1, projCoord);
     } else if(index == 2){
-        projCoord = biasMat * m_LightViewProjectionMatrix2 * worldPos;
         return GETSHADOW(m_ShadowMap2, projCoord);
-    } else if(index == 3){
-        projCoord = biasMat * m_LightViewProjectionMatrix3 * worldPos;
+    } else {
         return GETSHADOW(m_ShadowMap3, projCoord);
     }
-    return 1f;
 }
 
 void main() {
