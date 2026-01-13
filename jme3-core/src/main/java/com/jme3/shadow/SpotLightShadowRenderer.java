@@ -142,7 +142,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         //shadowCam.setDirection(direction);
 
         shadowCam.setFrustumPerspective(light.getSpotOuterAngle() * FastMath.RAD_TO_DEG * 2.0f, 1, 1f, light.getSpotRange());
-        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp());
+        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp(tempVec));
         shadowCam.setLocation(light.getPosition());
 
         shadowCam.update();
