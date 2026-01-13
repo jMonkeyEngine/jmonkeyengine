@@ -41,6 +41,7 @@ import com.jme3.renderer.RendererException;
 import com.jme3.renderer.TextureUnitException;
 import com.jme3.renderer.opengl.ComputeShader;
 import com.jme3.renderer.opengl.GL4;
+import com.jme3.renderer.opengl.GLFence;
 import com.jme3.renderer.opengl.ShaderStorageBufferObject;
 import com.jme3.texture.Texture;
 
@@ -225,7 +226,7 @@ public class SdsmFitter {
         ShaderStorageBufferObject minMaxDepthSsbo;
         ShaderStorageBufferObject fitFrustumSsbo;
         FitParameters parameters;
-        long fence = -1;
+        GLFence fence;
 
         SdsmResultHolder() {
             this.minMaxDepthSsbo = new ShaderStorageBufferObject(gl4);
@@ -233,7 +234,7 @@ public class SdsmFitter {
         }
 
         boolean isReady(boolean wait) {
-            if (fence == -1L) {
+            if (fence == null) {
                 return true;
             }
             int status = gl4.glClientWaitSync(fence, 0, wait ? -1 : 0);
@@ -241,9 +242,9 @@ public class SdsmFitter {
         }
 
         SplitFitResult extract() {
-            if (fence >= 0) {
+            if (fence != null) {
                 gl4.glDeleteSync(fence);
-                fence = -1;
+                fence = null;
             }
             SplitFit fit = extractFit();
             return new SplitFitResult(parameters, fit);
@@ -298,7 +299,7 @@ public class SdsmFitter {
         void cleanup() {
             minMaxDepthSsbo.delete();
             fitFrustumSsbo.delete();
-            if (fence >= 0) {
+            if (fence != null) {
                 gl4.glDeleteSync(fence);
             }
         }

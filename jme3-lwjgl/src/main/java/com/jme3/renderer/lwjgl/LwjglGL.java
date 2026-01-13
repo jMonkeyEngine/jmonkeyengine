@@ -5,10 +5,10 @@ import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
 import com.jme3.renderer.opengl.GL4;
+import com.jme3.renderer.opengl.GLFence;
 import com.jme3.util.BufferUtils;
 import org.lwjgl.opengl.*;
 
-import java.lang.reflect.Constructor;
 import java.nio.*;
 
 public final class LwjglGL implements GL, GL2, GL3, GL4 {
@@ -79,28 +79,19 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
     }
 
     @Override
-    public long glFenceSync(final int condition, final int flags) {
-        return GL32.glFenceSync(condition, flags).getPointer();
-    }
-
-    private Constructor<GLSync> constructor = null;
-    private GLSync makeGLSync(final long sync){
-        try {
-            if(constructor == null){
-                constructor = GLSync.class.getDeclaredConstructor(long.class);
-                constructor.setAccessible(true);
-            }
-            return constructor.newInstance(sync);
-        } catch(Exception e){ throw new RuntimeException(e); }
-    }
-    @Override
-    public int glClientWaitSync(final long sync, final int flags, final long timeout) {
-        return GL32.glClientWaitSync(makeGLSync(sync), flags, timeout);
+    public GLFence glFenceSync(final int condition, final int flags) {
+        GLSync nativeSync = GL32.glFenceSync(condition, flags);
+        return new GLFence(nativeSync.getPointer(), nativeSync);
     }
 
     @Override
-    public void glDeleteSync(final long sync) {
-        GL32.glDeleteSync(makeGLSync(sync));
+    public int glClientWaitSync(final GLFence sync, final int flags, final long timeout) {
+        return GL32.glClientWaitSync((GLSync) sync.getNativeSync(), flags, timeout);
+    }
+
+    @Override
+    public void glDeleteSync(final GLFence sync) {
+        GL32.glDeleteSync((GLSync) sync.getNativeSync());
     }
     
     @Override

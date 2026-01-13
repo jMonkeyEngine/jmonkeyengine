@@ -35,6 +35,7 @@ import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
 import com.jme3.renderer.opengl.GL4;
+import com.jme3.renderer.opengl.GLFence;
 import org.lwjgl.opengl.*;
 
 import java.nio.ByteBuffer;
@@ -99,18 +100,18 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
     }
 
     @Override
-    public long glFenceSync(final int condition, final int flags) {
-        return GL32.glFenceSync(condition, flags);
+    public GLFence glFenceSync(final int condition, final int flags) {
+        return new GLFence(GL32.glFenceSync(condition, flags));
     }
 
     @Override
-    public int glClientWaitSync(final long sync, final int flags, final long timeout) {
-        return GL32.glClientWaitSync(sync, flags, timeout);
+    public int glClientWaitSync(final GLFence sync, final int flags, final long timeout) {
+        return GL32.glClientWaitSync(sync.getHandle(), flags, timeout);
     }
 
     @Override
-    public void glDeleteSync(final long sync) {
-        GL32.glDeleteSync(sync);
+    public void glDeleteSync(final GLFence sync) {
+        GL32.glDeleteSync(sync.getHandle());
     }
 
     @Override

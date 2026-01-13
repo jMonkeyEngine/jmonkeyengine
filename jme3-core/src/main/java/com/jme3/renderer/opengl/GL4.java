@@ -171,7 +171,7 @@ public interface GL4 extends GL3 {
      * @param flags     must be 0
      * @return the sync object handle
      */
-    public long glFenceSync(int condition, int flags);
+    public GLFence glFenceSync(int condition, int flags);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glClientWaitSync">Reference Page</a></p>
@@ -184,7 +184,7 @@ public interface GL4 extends GL3 {
      * @return one of {@link #GL_ALREADY_SIGNALED}, {@link #GL_TIMEOUT_EXPIRED},
      *         {@link #GL_CONDITION_SATISFIED}, or {@link #GL_WAIT_FAILED}
      */
-    public int glClientWaitSync(long sync, int flags, long timeout);
+    public int glClientWaitSync(GLFence sync, int flags, long timeout);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDeleteSync">Reference Page</a></p>
@@ -193,6 +193,6 @@ public interface GL4 extends GL3 {
      *
      * @param sync the sync object to delete
      */
-    public void glDeleteSync(long sync);
+    public void glDeleteSync(GLFence sync);
 
 }
