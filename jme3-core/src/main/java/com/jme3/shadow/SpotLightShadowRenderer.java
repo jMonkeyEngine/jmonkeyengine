@@ -92,7 +92,6 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     
     private void init(int shadowMapSize) {
         shadowCam = new Camera(shadowMapSize, shadowMapSize);
-        tempCams[0] = shadowCam;
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
         }
@@ -102,8 +101,8 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     protected void initFrustumCam() {
         Camera viewCam = viewPort.getCamera();
         frustumCam = viewCam.clone();
-        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride,
-                viewCam.getFrustumLeft(), viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
+        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride, viewCam.getFrustumLeft(),
+                viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
     }
 
     /**
@@ -161,6 +160,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     protected void getReceivers(GeometryList lightReceivers) {
         lightReceivers.clear();
+        tempCams[0] = shadowCam;
         for (Spatial scene : viewPort.getScenes()) {
             ShadowUtil.getLitGeometriesInViewPort(scene, viewPort.getCamera(), tempCams, RenderQueue.ShadowMode.Receive, lightReceivers);
         }
