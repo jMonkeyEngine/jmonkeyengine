@@ -31,8 +31,6 @@
  */
 package com.jme3.shadow;
 
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector2f;
@@ -45,9 +43,10 @@ import com.jme3.renderer.opengl.GLFence;
 import com.jme3.renderer.opengl.ShaderStorageBufferObject;
 import com.jme3.texture.Texture;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Compute shader used in SDSM.
@@ -310,8 +309,8 @@ public class SdsmFitter {
         this.renderer = renderer;
 
         // Load compute shaders
-        String reduceSource = loadShaderSource(assetManager, REDUCE_DEPTH_SHADER);
-        String fitSource = loadShaderSource(assetManager, FIT_FRUSTUMS_SHADER);
+        String reduceSource = (String)assetManager.loadAsset(REDUCE_DEPTH_SHADER);
+        String fitSource = (String)assetManager.loadAsset(FIT_FRUSTUMS_SHADER);
 
         depthReduceShader = new ComputeShader(gl, reduceSource);
         fitFrustumsShader = new ComputeShader(gl, fitSource);
@@ -446,16 +445,6 @@ public class SdsmFitter {
             next.isReady(true);
             readyToYield = next.extract();
             return next;
-        }
-    }
-
-    private static String loadShaderSource(AssetManager assetManager, String resourcePath) {
-        //TODO: Should these shaders get special loaders or something?
-        AssetInfo info = assetManager.locateAsset(new AssetKey<>(resourcePath));
-        try (InputStream is = info.openStream()) {
-            return new Scanner(is).useDelimiter("\\A").next();
-        } catch (IOException e) {
-            throw new RendererException("Failed to load shader: " + resourcePath);
         }
     }
 
