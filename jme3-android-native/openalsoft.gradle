@@ -1,12 +1,12 @@
 // OpenAL Soft r1.21.1
 // TODO: update URL to jMonkeyEngine fork once it's updated with latest kcat's changes
-String openALSoftUrl = 'https://github.com/kcat/openal-soft/archive/1.21.1.zip'
+String openALSoftUrl = 'https://github.com/kcat/openal-soft/archive/1.24.3.zip'
 String openALSoftZipFile = 'OpenALSoft.zip'
 
 // OpenAL Soft directory the download is extracted into
 // Typically, the downloaded OpenAL Soft zip file will extract to a directory
 // called "openal-soft"
-String openALSoftFolder = 'openal-soft-1.21.1'
+String openALSoftFolder = 'openal-soft-1.24.3'
 
 //Working directories for the ndk build.
 String openalsoftBuildDir = "${buildDir}" + File.separator + 'openalsoft'
@@ -81,13 +81,103 @@ task copyJmeOpenALSoft(type: Copy, dependsOn: [copyOpenALSoft, copyJmeHeadersOpe
     from sourceDir
     into outputDir
 }
+// rootProject.ndkCommandPath must be set to your ndk-build wrapper or full ndk path
+def ndkPath = new File(rootProject.ndkCommandPath).getParent()
+def cmakeToolchain = "${ndkPath}/build/cmake/android.toolchain.cmake"
 
-task buildOpenAlSoftNativeLib(type: Exec, dependsOn: copyJmeOpenALSoft) {
-//    println "openalsoft build dir: " + openalsoftBuildDir
-//    println "ndkCommandPath: " + project.ndkCommandPath
+// 1) list your ABIs here
+def openalAbis = [
+    "armeabi-v7a",
+    "arm64-v8a",
+    "x86",
+    "x86_64"
+]
+
+// 2) for each ABI, register a configure/build pair
+openalAbis.each { abi ->
+
+    // configure task
+    tasks.register("configureOpenAlSoft_${abi}", Exec) {
+        group = "external-native"
+        description = "Generate CMake build files for OpenAL-Soft [$abi]"
+
+        workingDir file("$openalsoftBuildDir/$openALSoftFolder")
+        commandLine = [
+            "cmake",
+            "-S", ".",
+            "-B", "cmake-build-${abi}",
+            "-G", "Unix Makefiles",                         // or Ninja
+            "-DCMAKE_TOOLCHAIN_FILE=${cmakeToolchain}",
+            "-DANDROID_PLATFORM=android-21",
+            "-DANDROID_ABI=${abi}",
+            "-DCMAKE_BUILD_TYPE=Release",
+            "-DALSOFT_UTILS=OFF",
+            "-DALSOFT_EXAMPLES=OFF",
+            "-DALSOFT_TESTS=OFF",
+            "-DALSOFT_BACKEND_OPENSL=ON",
+            '-DALSOFT_SHARED=OFF',
+            '-DBUILD_SHARED_LIBS=OFF',
+            '-DALSOFT_STATIC=ON',
+            '-DLIBTYPE=STATIC',
+            '-DCMAKE_CXX_FLAGS=-stdlib=libc++'
+        ]
+
+        dependsOn copyOpenALSoft
+    }
+
+    // build task
+    tasks.register("buildOpenAlSoft_${abi}", Exec) {
+        group = "external-native"
+        description = "Compile OpenAL-Soft into libopenalsoft.a for [$abi]"
+
+        dependsOn "configureOpenAlSoft_${abi}"
+        workingDir file("$openalsoftBuildDir/$openALSoftFolder")
+        commandLine = [
+            "cmake",
+            "--build", "cmake-build-${abi}",
+            "--config", "Release"
+        ]
+    }
+}
+
+// 3) optional: aggregate tasks
+tasks.register("configureOpenAlSoftAll") {
+    group = "external-native"
+    description = "Configure OpenAL-Soft for all ABIs"
+    dependsOn openalAbis.collect { "configureOpenAlSoft_${it}" }
+}
+
+tasks.register("buildOpenAlSoftAll") {
+    group = "external-native"
+    description = "Build OpenAL-Soft for all ABIs"
+    dependsOn openalAbis.collect { "buildOpenAlSoft_${it}" }
+}
+
+task buildOpenAlSoftNativeLib(type: Exec) {
+    group = "external-native"
+    description = "Runs ndk-build on your JNI code, linking in the prebuilt OpenAL-Soft .a files"
+
+    dependsOn copyJmeOpenALSoft, buildOpenAlSoftAll
+
+    // where your Android.mk lives
     workingDir openalsoftBuildDir
+
+    // call the NDK build script
     executable rootProject.ndkCommandPath
-    args "-j" + Runtime.runtime.availableProcessors()
+
+    // pass in all ABIs (so ndk-build will rebuild your shared .so for each one),
+    // and pass in a custom var OPENALSOFT_BUILD_DIR so your Android.mk can find 
+    // the cmake-build-<ABI> folders.
+    args(
+        // let ndk-build know which ABIs to build for
+        "APP_ABI=armeabi-v7a,arm64-v8a,x86,x86_64",
+
+        // pass in the path to the CMake output root
+        "OPENALSOFT_BUILD_ROOT=${openalsoftBuildDir}/${openALSoftFolder}",
+
+        // parallel jobs
+        "-j${Runtime.runtime.availableProcessors()}"
+    )
 }
 
 task updatePreCompiledOpenAlSoftLibs(type: Copy, dependsOn: buildOpenAlSoftNativeLib) {
@@ -140,3 +230,4 @@ class MyDownload extends DefaultTask {
        ant.get(src: sourceUrl, dest: target)
     }
 }
+

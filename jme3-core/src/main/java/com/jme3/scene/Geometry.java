@@ -44,6 +44,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.MorphTarget;
+import com.jme3.scene.threadwarden.SceneGraphThreadWarden;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
@@ -183,6 +184,7 @@ public class Geometry extends Spatial {
      */
     @Override
     public void setLodLevel(int lod) {
+        assert SceneGraphThreadWarden.assertOnCorrectThread(this);
         if (mesh.getNumLodLevels() == 0) {
             throw new IllegalStateException("LOD levels are not set on this mesh");
         }
@@ -239,6 +241,7 @@ public class Geometry extends Spatial {
      * @throws IllegalArgumentException If mesh is null
      */
     public void setMesh(Mesh mesh) {
+        assert SceneGraphThreadWarden.assertOnCorrectThread(this);
         if (mesh == null) {
             throw new IllegalArgumentException();
         }
@@ -269,6 +272,7 @@ public class Geometry extends Spatial {
      */
     @Override
     public void setMaterial(Material material) {
+        assert SceneGraphThreadWarden.assertOnCorrectThread(this);
         this.material = material;
         nbSimultaneousGPUMorph = -1;
         if (isGrouped()) {

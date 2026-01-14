@@ -516,7 +516,9 @@ public final class GLRenderer implements Renderer {
                 limits.put(Limits.FrameBufferSamples, getInteger(GLExt.GL_MAX_SAMPLES_EXT));
             }
 
-            if (hasExtension("GL_ARB_texture_multisample") || caps.contains(Caps.OpenGLES31)) { // GLES31 does not fully support it
+            if (hasExtension("GL_ARB_texture_multisample") || caps.contains(Caps.OpenGLES31)
+                    || (JmeSystem.getPlatform().getOs() == Platform.Os.MacOS
+                            && caps.contains(Caps.OpenGL32))) { // GLES31 does not fully support it
                 caps.add(Caps.TextureMultisample);
                 limits.put(Limits.ColorTextureSamples, getInteger(GLExt.GL_MAX_COLOR_TEXTURE_SAMPLES));
                 limits.put(Limits.DepthTextureSamples, getInteger(GLExt.GL_MAX_DEPTH_TEXTURE_SAMPLES));

@@ -34,6 +34,7 @@ package com.jme3.texture.plugins;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
+import com.jme3.export.binary.ByteUtils;
 import com.jme3.math.FastMath;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -180,16 +181,14 @@ public class HDRLoader implements AssetLoader {
         return true;
     }
     
-    private boolean decodeScanlineUncompressed(InputStream in, int width) throws IOException{
+    private void decodeScanlineUncompressed(InputStream in, int width) throws IOException{
         byte[] rgbe = new byte[4];
         
         for (int i = 0; i < width; i+=3){
-            if (in.read(rgbe) < 1)
-                return false;
-
+            ByteUtils.readFully(in, rgbe);
             writeRGBE(rgbe);
         }
-        return true;
+        
     }
     
     private void decodeScanline(InputStream in, int width) throws IOException{
@@ -200,7 +199,7 @@ public class HDRLoader implements AssetLoader {
         
         // check format
         byte[] data = new byte[4];
-        in.read(data);
+        ByteUtils.readFully(in, data);
         if (data[0] != 0x02 || data[1] != 0x02 || (data[2] & 0x80) != 0){
             // not RLE data
             decodeScanlineUncompressed(in, width-1);

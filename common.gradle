@@ -157,27 +157,35 @@ publishing {
             version project.version
         }
     }
+
     repositories {
         maven {
             name = 'Dist'
             url = gradle.rootProject.projectDir.absolutePath + '/dist/maven'
         }
+
+        // Uploading to Sonatype relies on the existence of 2 properties
+        // (centralUsername and centralPassword)
+        // which should be set using -P options on the command line.
+
         maven {
+            // for uploading release builds to the default repo in Sonatype's OSSRH staging area
             credentials {
-                username = gradle.rootProject.hasProperty('ossrhUsername') ? ossrhUsername : 'Unknown user'
-                password = gradle.rootProject.hasProperty('ossrhPassword') ? ossrhPassword : 'Unknown password'
+                username = gradle.rootProject.hasProperty('centralUsername') ? centralUsername : 'Unknown user'
+                password = gradle.rootProject.hasProperty('centralPassword') ? centralPassword : 'Unknown password'
             }
-            name = 'OSSRH'
-            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2'
+            name = 'Central'
+            url = 'https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/'
         }
-	maven {
-	    credentials {
-                username = gradle.rootProject.hasProperty('ossrhUsername') ? ossrhUsername : 'Unknown user'
-                password = gradle.rootProject.hasProperty('ossrhPassword') ? ossrhPassword : 'Unknown password'
-	    }
-	    name = 'SNAPSHOT'
-	    url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
-	}
+        maven {
+            // for uploading snapshot builds to Sonatype's maven-snapshots repo
+            credentials {
+                username = gradle.rootProject.hasProperty('centralUsername') ? centralUsername : 'Unknown user'
+                password = gradle.rootProject.hasProperty('centralPassword') ? centralPassword : 'Unknown password'
+            }
+            name = 'SNAPSHOT'
+            url = 'https://central.sonatype.com/repository/maven-snapshots/'
+        }
     }
 }
 

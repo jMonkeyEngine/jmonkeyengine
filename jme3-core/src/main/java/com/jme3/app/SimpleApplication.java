@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2022 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,25 +45,46 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
+import com.jme3.scene.threadwarden.SceneGraphThreadWarden;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.system.JmeSystem;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
- * <code>SimpleApplication</code> is the base class for all jME3 Applications.
- * <code>SimpleApplication</code> will display a statistics view
- * using the {@link com.jme3.app.StatsAppState} AppState. It will display
- * the current frames-per-second value on-screen in addition to the statistics.
- * Several keys have special functionality in <code>SimpleApplication</code>:<br>
+ * `SimpleApplication` is the foundational base class for all jMonkeyEngine 3 (jME3) applications.
+ * It provides a streamlined setup for common game development tasks, including scene management,
+ * camera controls, and performance monitoring.
  *
- *  Esc - Close the application.<br>
- *  C - Display the camera position and rotation in the console.<br>
- *  M - Display memory usage in the console.<br>
+ * <p>By default, `SimpleApplication` attaches several essential {@link com.jme3.app.state.AppState} instances:
+ * <ul>
+ * <li>{@link com.jme3.app.StatsAppState}: Displays real-time frames-per-second (FPS) and
+ * detailed performance statistics on-screen.</li>
+ * <li>{@link com.jme3.app.FlyCamAppState}: Provides a convenient first-person fly-by camera
+ * controller, allowing easy navigation within the scene.</li>
+ * <li>{@link com.jme3.audio.AudioListenerState}: Manages the audio listener, essential for 3D sound.</li>
+ * <li>{@link com.jme3.app.DebugKeysAppState}: Enables debug functionalities like displaying
+ * camera position and memory usage in the console.</li>
+ * <li>{@link com.jme3.app.state.ConstantVerifierState}: A utility state for verifying constant
+ * values, primarily for internal engine debugging.</li>
+ * </ul>
  *
- * A {@link com.jme3.app.FlyCamAppState} is by default attached as well and can
- * be removed by calling <code>stateManager.detach(stateManager.getState(FlyCamAppState.class));</code>
+ * <p><b>Default Key Bindings:</b></p>
+ * <ul>
+ * <li><b>Esc:</b> Closes and exits the application.</li>
+ * <li><b>F5:</b> Toggles the visibility of the statistics view (FPS and debug stats).</li>
+ * <li><b>C:</b> Prints the current camera position and rotation to the console.</li>
+ * <li><b>M:</b> Prints memory usage statistics to the console.</li>
+ * </ul>
+ *
+ * <p>Applications extending `SimpleApplication` should implement the
+ * {@link #simpleInitApp()} method to set up their initial scene and game logic.
  */
 public abstract class SimpleApplication extends LegacyApplication {
+
+    protected static final Logger logger = Logger.getLogger(SimpleApplication.class.getName());
 
     public static final String INPUT_MAPPING_EXIT = "SIMPLEAPP_Exit";
     public static final String INPUT_MAPPING_CAMERA_POS = DebugKeysAppState.INPUT_MAPPING_CAMERA_POS;
@@ -81,26 +102,43 @@ public abstract class SimpleApplication extends LegacyApplication {
     private class AppActionListener implements ActionListener {
 
         @Override
-        public void onAction(String name, boolean value, float tpf) {
-            if (!value) {
+        public void onAction(String name, boolean isPressed, float tpf) {
+            if (!isPressed) {
                 return;
             }
 
             if (name.equals(INPUT_MAPPING_EXIT)) {
                 stop();
             } else if (name.equals(INPUT_MAPPING_HIDE_STATS)) {
-                if (stateManager.getState(StatsAppState.class) != null) {
-                    stateManager.getState(StatsAppState.class).toggleStats();
+                StatsAppState statsState = stateManager.getState(StatsAppState.class);
+                if (statsState != null) {
+                    statsState.toggleStats();
                 }
             }
         }
     }
 
+    /**
+     * Constructs a `SimpleApplication` with a predefined set of default
+     * {@link com.jme3.app.state.AppState} instances.
+     * These states provide common functionalities like statistics display,
+     * fly camera control, audio listener, debug keys, and constant verification.
+     */
     public SimpleApplication() {
-        this(new StatsAppState(), new FlyCamAppState(), new AudioListenerState(), new DebugKeysAppState(),
+        this(new StatsAppState(),
+                new FlyCamAppState(),
+                new AudioListenerState(),
+                new DebugKeysAppState(),
                 new ConstantVerifierState());
     }
 
+    /**
+     * Constructs a `SimpleApplication` with a custom array of initial
+     * {@link com.jme3.app.state.AppState} instances.
+     *
+     * @param initialStates An array of `AppState` instances to be attached
+     * to the `stateManager` upon initialization.
+     */
     public SimpleApplication(AppState... initialStates) {
         super(initialStates);
     }
@@ -111,6 +149,7 @@ public abstract class SimpleApplication extends LegacyApplication {
         // settings dialog is not shown
         boolean loadSettings = false;
         if (settings == null) {
+            logger.log(Level.INFO, "AppSettings not set, creating default settings.");
             setSettings(new AppSettings(true));
             loadSettings = true;
         }
@@ -127,57 +166,73 @@ public abstract class SimpleApplication extends LegacyApplication {
     }
 
     /**
-     * Returns the application's speed.
+     * Returns the current speed multiplier of the application.
+     * This value affects how quickly the game world updates relative to real time.
+     * A value of 1.0f means normal speed, 0.5f means half speed, 2.0f means double speed.
      *
-     * @return The speed of the application.
+     * @return The current speed of the application.
      */
     public float getSpeed() {
         return speed;
     }
 
     /**
-     * Changes the application's speed. 0.0f prevents the application from updating.
-     * @param speed The speed to set.
+     * Changes the application's speed multiplier.
+     * A `speed` of 0.0f effectively pauses the application's update cycle.
+     *
+     * @param speed The desired speed multiplier. A value of 1.0f is normal speed.
+     * Must be non-negative.
      */
     public void setSpeed(float speed) {
         this.speed = speed;
     }
 
     /**
-     * Retrieves flyCam
-     * @return flyCam Camera object
+     * Retrieves the `FlyByCamera` instance associated with this application.
+     * This camera allows free-form navigation within the 3D scene.
      *
+     * @return The `FlyByCamera` object, or `null` if `FlyCamAppState` is not attached
+     * or has not yet initialized the camera.
      */
     public FlyByCamera getFlyByCamera() {
         return flyCam;
     }
 
     /**
-     * Retrieves guiNode
-     * @return guiNode Node object
+     * Retrieves the `Node` dedicated to 2D graphical user interface (GUI) elements.
+     * Objects attached to this node are rendered on top of the 3D scene,
+     * typically without perspective effects, suitable for HUDs and UI.
      *
+     * @return The `Node` object representing the GUI root.
      */
     public Node getGuiNode() {
         return guiNode;
     }
 
     /**
-     * Retrieves rootNode
-     * @return rootNode Node object
+     * Retrieves the root `Node` of the 3D scene graph.
+     * All main 3D spatial objects and models should be attached to this node
+     * to be part of the rendered scene.
      *
+     * @return The `Node` object representing the 3D scene root.
      */
     public Node getRootNode() {
         return rootNode;
     }
 
+    /**
+     * Checks whether the settings dialog is configured to be shown at application startup.
+     *
+     * @return `true` if the settings dialog will be displayed, `false` otherwise.
+     */
     public boolean isShowSettings() {
         return showSettings;
     }
 
     /**
-     * Toggles settings window to display at start-up
-     * @param showSettings Sets true/false
+     * Sets whether the jME3 settings dialog should be displayed before the application starts.
      *
+     * @param showSettings `true` to show the settings dialog, `false` to suppress it.
      */
     public void setShowSettings(boolean showSettings) {
         this.showSettings = showSettings;
@@ -197,47 +252,66 @@ public abstract class SimpleApplication extends LegacyApplication {
     public void initialize() {
         super.initialize();
 
+        //noinspection AssertWithSideEffects
+        assert SceneGraphThreadWarden.setup(rootNode);
+        //noinspection AssertWithSideEffects
+        assert SceneGraphThreadWarden.setup(guiNode);
+
         // Several things rely on having this
         guiFont = loadGuiFont();
 
         guiNode.setQueueBucket(Bucket.Gui);
         guiNode.setCullHint(CullHint.Never);
+
         viewPort.attachScene(rootNode);
         guiViewPort.attachScene(guiNode);
 
         if (inputManager != null) {
+            // Special handling for FlyCamAppState:
+            // Although FlyCamAppState manages the FlyByCamera, SimpleApplication
+            // historically initializes and configures a default FlyByCamera instance
+            // and sets its initial speed. This allows subclasses to directly access
+            // 'flyCam' early in simpleInitApp().
 
-            // We have to special-case the FlyCamAppState because too
-            // many SimpleApplication subclasses expect it to exist in
-            // simpleInit().  But at least it only gets initialized if
-            // the app state is added.
-            if (stateManager.getState(FlyCamAppState.class) != null) {
+            FlyCamAppState flyCamState = stateManager.getState(FlyCamAppState.class);
+            if (flyCamState != null) {
                 flyCam = new FlyByCamera(cam);
-                flyCam.setMoveSpeed(1f); // odd to set this here but it did it before
-                stateManager.getState(FlyCamAppState.class).setCamera(flyCam);
+                flyCam.setMoveSpeed(1f); // Set a default movement speed for the camera
+                flyCamState.setCamera(flyCam); // Link the FlyCamAppState to this camera instance
             }
 
+            // Register the "Exit" input mapping for the Escape key, but only for Display contexts.
             if (context.getType() == Type.Display) {
                 inputManager.addMapping(INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
             }
 
-            if (stateManager.getState(StatsAppState.class) != null) {
+            // Register the "Hide Stats" input mapping for the F5 key, if StatsAppState is active.
+            StatsAppState statsState = stateManager.getState(StatsAppState.class);
+            if (statsState != null) {
                 inputManager.addMapping(INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
                 inputManager.addListener(actionListener, INPUT_MAPPING_HIDE_STATS);
             }
 
+            // Attach the action listener to the "Exit" mapping.
             inputManager.addListener(actionListener, INPUT_MAPPING_EXIT);
         }
 
-        if (stateManager.getState(StatsAppState.class) != null) {
-            // Some tests rely on having access to fpsText
-            // for quick display.  Maybe a different way would be better.
-            stateManager.getState(StatsAppState.class).setFont(guiFont);
-            fpsText = stateManager.getState(StatsAppState.class).getFpsText();
+        // Configure the StatsAppState if it exists.
+        StatsAppState statsState = stateManager.getState(StatsAppState.class);
+        if (statsState != null) {
+            statsState.setFont(guiFont);
+            fpsText = statsState.getFpsText();
         }
 
-        // call user code
+        // Call the user's application initialization code.
         simpleInitApp();
+    }
+
+    @Override
+    public void stop(boolean waitFor) {
+        //noinspection AssertWithSideEffects
+        assert SceneGraphThreadWarden.reset();
+        super.stop(waitFor);
     }
 
     @Override
@@ -246,22 +320,26 @@ public abstract class SimpleApplication extends LegacyApplication {
             prof.appStep(AppStep.BeginFrame);
         }
 
-        super.update(); // makes sure to execute AppTasks
+        // Executes AppTasks from the main thread
+        super.update();
+
+        // Skip updates if paused or speed is zero
         if (speed == 0 || paused) {
             return;
         }
 
         float tpf = timer.getTimePerFrame() * speed;
 
-        // update states
+        // Update AppStates
         if (prof != null) {
             prof.appStep(AppStep.StateManagerUpdate);
         }
         stateManager.update(tpf);
 
-        // simple update and root node
+        // Call user's per-frame update method
         simpleUpdate(tpf);
 
+        // Update scene graph nodes (logical and geometric states)
         if (prof != null) {
             prof.appStep(AppStep.SpatialUpdate);
         }
@@ -271,7 +349,7 @@ public abstract class SimpleApplication extends LegacyApplication {
         rootNode.updateGeometricState();
         guiNode.updateGeometricState();
 
-        // render states
+        // Render AppStates and the scene
         if (prof != null) {
             prof.appStep(AppStep.StateManagerRender);
         }
@@ -281,6 +359,7 @@ public abstract class SimpleApplication extends LegacyApplication {
             prof.appStep(AppStep.RenderFrame);
         }
         renderManager.render(tpf, context.isRenderable());
+        // Call user's custom render method
         simpleRender(renderManager);
         stateManager.postRender();
 
@@ -289,23 +368,53 @@ public abstract class SimpleApplication extends LegacyApplication {
         }
     }
 
+    /**
+     * Controls the visibility of the frames-per-second (FPS) display on the screen.
+     *
+     * @param show `true` to display the FPS, `false` to hide it.
+     */
     public void setDisplayFps(boolean show) {
-        if (stateManager.getState(StatsAppState.class) != null) {
-            stateManager.getState(StatsAppState.class).setDisplayFps(show);
+        StatsAppState statsState = stateManager.getState(StatsAppState.class);
+        if (statsState != null) {
+            statsState.setDisplayFps(show);
         }
     }
 
+    /**
+     * Controls the visibility of the comprehensive statistics view on the screen.
+     * This view typically includes details about memory, triangles, and other performance metrics.
+     *
+     * @param show `true` to display the statistics view, `false` to hide it.
+     */
     public void setDisplayStatView(boolean show) {
-        if (stateManager.getState(StatsAppState.class) != null) {
-            stateManager.getState(StatsAppState.class).setDisplayStatView(show);
+        StatsAppState statsState = stateManager.getState(StatsAppState.class);
+        if (statsState != null) {
+            statsState.setDisplayStatView(show);
         }
     }
 
     public abstract void simpleInitApp();
 
+    /**
+     * An optional method that can be overridden by subclasses for per-frame update logic.
+     * This method is called during the application's update loop, after AppStates are updated
+     * and before the scene graph's logical state is updated.
+     *
+     * @param tpf The time per frame (in seconds), adjusted by the application's speed.
+     */
     public void simpleUpdate(float tpf) {
+        // Default empty implementation; subclasses can override
     }
 
+    /**
+     * An optional method that can be overridden by subclasses for custom rendering logic.
+     * This method is called during the application's render loop, after the main scene
+     * has been rendered and before post-rendering for states.
+     * Useful for drawing overlays or specific rendering tasks outside the main scene graph.
+     *
+     * @param rm The `RenderManager` instance, which provides access to rendering functionalities.
+     */
     public void simpleRender(RenderManager rm) {
+        // Default empty implementation; subclasses can override
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,10 @@ public interface JoystickButton {
     public static final String BUTTON_9 = "9";
     public static final String BUTTON_10 = "10";
     public static final String BUTTON_11 = "11";
+    public static final String BUTTON_12 = "12";
+    public static final String BUTTON_13 = "13";
+    public static final String BUTTON_14 = "14";
+    public static final String BUTTON_15 = "15";
 
     /**
      * Assign the mapping name to receive events from the given button index
