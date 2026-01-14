@@ -3493,10 +3493,10 @@ public final class GLRenderer implements Renderer {
 
         if (enableSrgb) {
             gl.glEnable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
-            logger.log(Level.INFO, "SRGB FrameBuffer enabled (Gamma Correction)");
+            logger.log(Level.FINER, "SRGB FrameBuffer enabled (Gamma Correction)");
         } else {
             gl.glDisable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
-            logger.log(Level.INFO, "SRGB FrameBuffer disabled (Gamma Correction)");
+            logger.log(Level.FINER, "SRGB FrameBuffer disabled (Gamma Correction)");
         }
     }
 
