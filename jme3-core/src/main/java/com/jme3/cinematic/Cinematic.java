@@ -48,7 +48,6 @@ import com.jme3.scene.control.CameraControl.ControlDirection;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -97,7 +96,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     private Node scene;
     protected TimeLine timeLine = new TimeLine();
     private int lastFetchedKeyFrame = -1;
-    private List<CinematicEvent> cinematicEvents = new ArrayList<>();
+    private ArrayList<CinematicEvent> cinematicEvents = new ArrayList<>();
     private Map<String, CameraNode> cameras = new HashMap<>();
     private CameraNode currentCam;
     private boolean initialized = false;
@@ -241,7 +240,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.writeSavableArrayList((ArrayList) cinematicEvents, "cinematicEvents", null);
+        oc.writeSavableArrayList(cinematicEvents, "cinematicEvents", null);
         oc.writeStringSavableMap(cameras, "cameras", null);
         oc.write(timeLine, "timeLine", null);
     }
@@ -774,3 +773,4 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         }
     }
 }
+
