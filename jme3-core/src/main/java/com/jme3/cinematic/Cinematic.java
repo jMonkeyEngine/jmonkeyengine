@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2025 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@ import com.jme3.scene.control.CameraControl.ControlDirection;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,7 +97,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     private Node scene;
     protected TimeLine timeLine = new TimeLine();
     private int lastFetchedKeyFrame = -1;
-    private ArrayList<CinematicEvent> cinematicEvents = new ArrayList<>();
+    private final List<CinematicEvent> cinematicEvents = new ArrayList<>();
     private Map<String, CameraNode> cameras = new HashMap<>();
     private CameraNode currentCam;
     private boolean initialized = false;
@@ -240,7 +241,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.writeSavableArrayList(cinematicEvents, "cinematicEvents", null);
+        oc.write(cinematicEvents.toArray(new CinematicEvent[cinematicEvents.size()]), "cinematicEvents", null);
         oc.writeStringSavableMap(cameras, "cameras", null);
         oc.write(timeLine, "timeLine", null);
     }
@@ -256,7 +257,12 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        cinematicEvents = ic.readSavableArrayList("cinematicEvents", null);
+
+        Savable[] events = ic.readSavableArray("cinematicEvents", null);
+        for (Savable c : events) {
+//            addCinematicEvent(((CinematicEvent) c).getTime(), (CinematicEvent) c)
+            cinematicEvents.add((CinematicEvent) c);
+        }
         cameras = (Map<String, CameraNode>) ic.readStringSavableMap("cameras", null);
         timeLine = (TimeLine) ic.readSavable("timeLine", null);
     }
@@ -551,7 +557,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public void cleanup() {
         initialized = false;
         clear();
-        clearCameras();
     }
 
     /**
@@ -773,4 +778,5 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         }
     }
 }
+
 
