@@ -365,7 +365,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         for (CameraNode n : cameras.values()) {
             if (n.getParent() == null) {
                 scene.attachChild(n);
-                logger.log(Level.INFO, "Attached CameraNode to the scene: {0}", n);
             }
         }
     }
@@ -382,7 +381,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         for (CameraNode n : cameras.values()) {
             if (n.getParent() != null) {
                 scene.detachChild(n);
-                logger.log(Level.INFO, "Detached CameraNode from the scene: {0}", n);
             }
         }
     }
@@ -790,6 +788,3 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         }
     }
 }
-
-
-
