@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2025 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,10 +57,17 @@ import java.util.logging.Logger;
  */
 public class AnimEvent extends AbstractCinematicEvent {
 
-    public static final Logger logger
+    private static final Logger logger
             = Logger.getLogger(AnimEvent.class.getName());
+			
+    private static final String CINEMATIC_REF = "Cinematic:Ref";
 
-    private Spatial model;
+    private static final AtomicLong spatialId = new AtomicLong();
+
+    /**
+     * Reference ID used to find the associated Spatial.
+     */
+    protected String spatialRef;
     /*
      * Control that will play the animation
      */
@@ -76,13 +84,12 @@ public class AnimEvent extends AbstractCinematicEvent {
      * name of the animation layer on which the action will be played
      */
     private String layerName;
-
-    /**
-     * Instantiate a non-looping event to play the named action on the default
-     * layer of the specified AnimComposer.
+	
+	/**
+     * Constructs a new AnimEvent to play the named action on the default layer.
      *
-     * @param composer the Control that will play the animation (not null)
-     * @param actionName the name of the animation action to be played
+     * @param composer the Control that will play the animation (not null).
+     * @param actionName the name of the animation action to play.
      */
     public AnimEvent(AnimComposer composer, String actionName) {
         this(composer, actionName, AnimComposer.DEFAULT_LAYER);
@@ -99,7 +106,6 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     public AnimEvent(AnimComposer composer, String actionName,
             String layerName) {
-        this.model = composer.getSpatial();
         this.composer = composer;
         this.actionName = actionName;
         this.layerName = layerName;
@@ -108,6 +114,9 @@ public class AnimEvent extends AbstractCinematicEvent {
          */
         Action eventAction = composer.action(actionName);
         initialDuration = (float) eventAction.getLength();
+		
+		spatialRef = generateSpatialRef();
+        composer.getSpatial().setUserData(CINEMATIC_REF, spatialRef);
     }
 
     /**
@@ -115,6 +124,40 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     protected AnimEvent() {
         super();
+    }
+
+    /**
+     * Generate a unique identifier used to tag a Spatial in the scene graph.
+     *
+     * @return a unique string identifier
+     */
+    private String generateSpatialRef() {
+        return "cine" + System.currentTimeMillis() + "_" + (spatialId.incrementAndGet());
+    }
+
+    /**
+     * Recursively search the scene graph for a Spatial whose CINEMATIC_REF
+     * matches the stored spatialRef.
+     *
+     * @param sp the root Spatial to start searching from (not null)
+     * @return the matching Spatial, or null if not found
+     */
+    private Spatial findModelByRef(Spatial sp) {
+        String refId = sp.getUserData(CINEMATIC_REF);
+        if (spatialRef.equals(refId)) {
+            return sp;
+        }
+
+        if (sp instanceof Node) {
+            for (Spatial child : ((Node) sp).getChildren()) {
+                Spatial model = findModelByRef(child);
+                if (model != null) {
+                    return model;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -129,22 +172,12 @@ public class AnimEvent extends AbstractCinematicEvent {
         this.cinematic = cinematic;
 
         if (composer == null) {
+            Spatial model = findModelByRef(cinematic.getScene());
             if (model != null) {
-                if (cinematic.getScene() != null) {
-                    Spatial sceneModel = cinematic.getScene().getChild(model.getName());
-                    if (sceneModel != null) {
-                        Node parent = sceneModel.getParent();
-                        parent.detachChild(sceneModel);
-                        sceneModel = model;
-                        parent.attachChild(sceneModel);
-                    } else {
-                        cinematic.getScene().attachChild(model);
-                    }
-                }
                 composer = model.getControl(AnimComposer.class);
-
             } else {
-                throw new UnsupportedOperationException("model should not be null");
+                throw new UnsupportedOperationException(
+                        "No Spatial found in the scene with Cinematic:Ref=" + spatialRef);
             }
         }
     }
@@ -216,30 +249,6 @@ public class AnimEvent extends AbstractCinematicEvent {
         // do nothing
     }
 
-    @Override
-    public void dispose() {
-        super.dispose();
-        cinematic = null;
-        composer = null;
-    }
-
-    /**
-     * De-serialize this event from the specified importer, for example when
-     * loading from a J3O file.
-     *
-     * @param importer (not null)
-     * @throws IOException from the importer
-     */
-    @Override
-    public void read(JmeImporter importer) throws IOException {
-        super.read(importer);
-        InputCapsule capsule = importer.getCapsule(this);
-
-        model = (Spatial) capsule.readSavable("model", null);
-        actionName = capsule.readString("actionName", "");
-        layerName = capsule.readString("layerName", AnimComposer.DEFAULT_LAYER);
-    }
-
     /**
      * Alter the speed of the animation.
      *
@@ -301,6 +310,22 @@ public class AnimEvent extends AbstractCinematicEvent {
     }
 
     /**
+     * De-serialize this event from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param importer (not null)
+     * @throws IOException from the importer
+     */
+    @Override
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule ic = importer.getCapsule(this);
+        spatialRef = ic.readString("spatialRef", null);
+        actionName = ic.readString("actionName", null);
+        layerName = ic.readString("layerName", AnimComposer.DEFAULT_LAYER);
+    }
+
+    /**
      * Serialize this event to the specified exporter, for example when saving
      * to a J3O file.
      *
@@ -310,9 +335,9 @@ public class AnimEvent extends AbstractCinematicEvent {
     @Override
     public void write(JmeExporter exporter) throws IOException {
         super.write(exporter);
-        OutputCapsule capsule = exporter.getCapsule(this);
-        capsule.write(model, "model", null);
-        capsule.write(actionName, "actionName", "");
-        capsule.write(layerName, "layerName", AnimComposer.DEFAULT_LAYER);
+        OutputCapsule oc = exporter.getCapsule(this);
+        oc.write(spatialRef, "spatialRef", null);
+        oc.write(actionName, "actionName", null);
+        oc.write(layerName, "layerName", AnimComposer.DEFAULT_LAYER);
     }
 }
