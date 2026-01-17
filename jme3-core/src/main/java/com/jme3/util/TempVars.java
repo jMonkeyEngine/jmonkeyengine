@@ -36,6 +36,7 @@ import com.jme3.collision.CollisionResults;
 import com.jme3.collision.bih.BIHNode.BIHStackData;
 import com.jme3.math.*;
 import com.jme3.scene.Spatial;
+import java.io.Closeable;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ import java.util.ArrayList;
  * This returns an available instance of the TempVar class ensuring this 
  * particular instance is never used elsewhere in the meantime.
  */
-public class TempVars {
+public class TempVars implements Closeable{
 
     /**
      * Allow X instances of TempVars in a single thread.
@@ -226,4 +227,9 @@ public class TempVars {
     public final CollisionResults collisionResults = new CollisionResults();
     public final float[] bihSwapTmp = new float[9];
     public final ArrayList<BIHStackData> bihStack = new ArrayList<>();
+
+    @Override
+    public void close(){
+        release();
+    }
 }
