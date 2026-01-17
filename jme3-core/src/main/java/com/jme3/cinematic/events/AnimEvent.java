@@ -181,6 +181,13 @@ public class AnimEvent extends AbstractCinematicEvent {
             }
         }
     }
+	
+	@Override
+    public void dispose() {
+        super.dispose();
+        cinematic = null;
+        composer = null;
+    }
 
     /**
      * Callback when the event is paused.
