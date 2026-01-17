@@ -34,6 +34,7 @@ package com.jme3.texture.plugins.ktx;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
+import com.jme3.export.binary.ByteUtils;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.opengl.GLImageFormat;
 import com.jme3.renderer.opengl.GLImageFormats;
@@ -95,7 +96,7 @@ public class KTXLoader implements AssetLoader {
 
         DataInput in = new DataInputStream(stream);
         try {
-            stream.read(fileId, 0, 12);
+            ByteUtils.readFully(stream, fileId);
             if (!checkFileIdentifier(fileId)) {
                 throw new IllegalArgumentException("Unrecognized ktx file identifier : " + new String(fileId) + " should be " + new String(fileIdentifier));
             }
@@ -193,13 +194,13 @@ public class KTXLoader implements AssetLoader {
                         }
                         //cube padding
                         if (numberOfFaces == 6 && numberOfArrayElements == 0) {
-                            in.skipBytes(3 - ((nbPixelRead + 3) % 4));
+                            ByteUtils.skipFully(in, 3 - ((nbPixelRead + 3) % 4));
                         }
                     }
                 }
                 //mip padding
                 log.log(Level.FINE, "skipping {0}", (3 - ((imageSize + 3) % 4)));
-                in.skipBytes(3 - ((imageSize + 3) % 4));
+                ByteUtils.skipFully(in, 3 - ((imageSize + 3) % 4));
                 offset+=imageSize;
             }
             //there are loaded mip maps we set the sizes
@@ -305,7 +306,7 @@ public class KTXLoader implements AssetLoader {
             //padding
             int padding = 3 - ((keyAndValueByteSize + 3) % 4);            
             if (padding > 0) {
-                in.skipBytes(padding);
+                ByteUtils.skipFully(in, padding);
             }
             i += 4 + keyAndValueByteSize + padding;
         }

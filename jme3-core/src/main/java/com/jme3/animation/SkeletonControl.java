@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2023 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -250,6 +250,8 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         resetToBind(); // reset morph meshes to bind pose
 
         offsetMatrices = skeleton.computeSkinningMatrices();
+        numberOfBonesParam.setEnabled(false);
+        boneMatricesParam.setEnabled(false);
 
         for (Geometry geometry : targets) {
             Mesh mesh = geometry.getMesh();

@@ -34,6 +34,7 @@ package com.jme3.texture.plugins;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
+import com.jme3.export.binary.ByteUtils;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
@@ -160,7 +161,7 @@ public class DDSLoader implements AssetLoader {
             }
         }
 
-        in.skipBytes(4); // skip reserved value
+        ByteUtils.skipFully(in, 4);  // skip reserved value
     }
 
     private void setPixelFormat(int dxgiFormat) throws IOException {
@@ -227,13 +228,13 @@ public class DDSLoader implements AssetLoader {
         pitchOrSize = in.readInt();
         depth = in.readInt();
         mipMapCount = in.readInt();
-        in.skipBytes(44);
+        ByteUtils.skipFully(in, 44);
         pixelFormat = null;
         directx10 = false;
         readPixelFormat();
         caps1 = in.readInt();
         caps2 = in.readInt();
-        in.skipBytes(12);
+        ByteUtils.skipFully(in, 12);
         texture3D = false;
 
         if (!directx10) {
@@ -292,7 +293,7 @@ public class DDSLoader implements AssetLoader {
             compressed = true;
             int fourcc = in.readInt();
             int swizzle = in.readInt();
-            in.skipBytes(16);
+            ByteUtils.skipFully(in, 16);
 
             switch (fourcc) {
                 case PF_DXT1:
