@@ -60,7 +60,7 @@ public class AnimEvent extends AbstractCinematicEvent {
     private static final Logger logger
             = Logger.getLogger(AnimEvent.class.getName());
 			
-    private static final String CINEMATIC_REF = "Cinematic:Ref";
+    private static final String CINEMATIC_REF = "Cinematic:Refs";
 
     private static final AtomicLong spatialId = new AtomicLong();
 
@@ -72,10 +72,6 @@ public class AnimEvent extends AbstractCinematicEvent {
      * Control that will play the animation
      */
     private AnimComposer composer;
-    /*
-     * Cinematic that contains this event
-     */
-    private Cinematic cinematic;
     /*
      * name of the animation action to be played
      */
@@ -169,7 +165,6 @@ public class AnimEvent extends AbstractCinematicEvent {
     @Override
     public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
-        this.cinematic = cinematic;
 
         if (composer == null) {
             Spatial model = findModelByRef(cinematic.getScene());
@@ -185,7 +180,6 @@ public class AnimEvent extends AbstractCinematicEvent {
 	@Override
     public void dispose() {
         super.dispose();
-        cinematic = null;
         composer = null;
     }
 
