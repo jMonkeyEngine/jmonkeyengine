@@ -31,11 +31,13 @@
  */
 package com.jme3.cinematic;
 
+import com.jme3.anim.AnimComposer;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.cinematic.events.AbstractCinematicEvent;
+import com.jme3.cinematic.events.AnimEvent;
 import com.jme3.cinematic.events.CameraEvent;
 import com.jme3.cinematic.events.CinematicEvent;
 import com.jme3.export.*;
@@ -43,8 +45,11 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.control.CameraControl.ControlDirection;
+import com.jme3.util.clone.Cloner;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,6 +97,7 @@ import java.util.logging.Logger;
 public class Cinematic extends AbstractCinematicEvent implements AppState {
 
     private static final Logger logger = Logger.getLogger(Cinematic.class.getName());
+    private static final String CINEMATIC_REF = "Cinematic:Refs";
 
     private Application app;
     private Node scene;
@@ -241,7 +247,29 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(cinematicEvents.toArray(new CinematicEvent[cinematicEvents.size()]), "cinematicEvents", null);
+        CinematicEvent[] events = new CinematicEvent[cinematicEvents.size()];
+        for (int i = 0; i < cinematicEvents.size(); i++) {
+            CinematicEvent ce = cinematicEvents.get(i);
+            if (ce instanceof AnimEvent) {
+                AnimEvent animEvent = (AnimEvent) ce;
+
+                // set ref id that will be used to relink the composer after deserialization
+                String refId = animEvent.getAnimRef();
+                AnimComposer composer = animEvent.getComposer();
+                setModelRefId(composer.getSpatial(), refId);
+
+                // HACK: create a clone of the event without the composer
+                // this is used to make this appstate deserializable without
+                // breaking the scene graph
+                Cloner cloner = new Cloner();
+                animEvent = (AnimEvent) cloner.clone(animEvent);
+                animEvent.setComposer(null);
+                ce = animEvent;
+
+            }
+            events[i] = ce;
+        }
+        oc.write(events, "cinematicEvents", null);
         oc.writeStringSavableMap(cameras, "cameras", null);
         oc.write(timeLine, "timeLine", null);
     }
@@ -260,7 +288,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
 
         Savable[] events = ic.readSavableArray("cinematicEvents", null);
         for (Savable c : events) {
-//            addCinematicEvent(((CinematicEvent) c).getTime(), (CinematicEvent) c)
             cinematicEvents.add((CinematicEvent) c);
         }
         cameras = (Map<String, CameraNode>) ic.readStringSavableMap("cameras", null);
@@ -294,15 +321,65 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     public void initialize(AppStateManager stateManager, Application app) {
         this.app = app;
         initEvent(app, this);
+
         for (CinematicEvent cinematicEvent : cinematicEvents) {
+            if (cinematicEvent instanceof AnimEvent) {
+                AnimEvent animEvent = (AnimEvent) cinematicEvent;
+                AnimComposer composer = animEvent.getComposer();
+                if (composer == null) {
+                    String ref = animEvent.getAnimRef();
+                    Spatial sp = findModelByRef(scene, ref);
+                    if (sp != null) {
+                        composer = sp.getControl(AnimComposer.class);
+                        animEvent.setComposer(composer);
+                    }
+                }
+            }
             cinematicEvent.initEvent(app, this);
         }
+
         if (!cameras.isEmpty()) {
             for (CameraNode n : cameras.values()) {
                 n.setCamera(app.getCamera());
             }
         }
         initialized = true;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Spatial findModelByRef(Spatial sp, String spatialRef) {
+        Object refIdsObj = sp.getUserData(CINEMATIC_REF);
+        if ((refIdsObj instanceof List)) {
+            List<String> refIds = (List<String>) refIdsObj;
+            for (String refId : refIds) {
+                if (spatialRef.equals(refId)) {
+                    return sp;
+                }
+            }
+        }
+        if (sp instanceof Node) {
+            for (Spatial child : ((Node) sp).getChildren()) {
+                Spatial model = findModelByRef(child, spatialRef);
+                if (model != null) {
+                    return model;
+                }
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setModelRefId(Spatial sp, String spatialRef) {
+        Object refIdsObj = sp.getUserData(CINEMATIC_REF);
+        List<String> refIds;
+        if (refIdsObj instanceof List) {
+            refIds = (List<String>) refIdsObj;
+            if (refIds.contains(spatialRef)) return;
+        } else {
+            refIds = new ArrayList<>();
+            sp.setUserData(CINEMATIC_REF, refIds);
+        }
+        refIds.add(spatialRef);
     }
 
     /**

@@ -41,8 +41,8 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -55,19 +55,18 @@ import java.util.logging.Logger;
  *
  * Inspired by Nehon's {@link AnimationEvent}.
  */
-public class AnimEvent extends AbstractCinematicEvent {
+public class AnimEvent extends AbstractCinematicEvent implements JmeCloneable {
 
     private static final Logger logger
             = Logger.getLogger(AnimEvent.class.getName());
-			
-    private static final String CINEMATIC_REF = "Cinematic:Refs";
 
-    private static final AtomicLong spatialId = new AtomicLong();
+
+    private static final AtomicLong refCounter = new AtomicLong();
 
     /**
-     * Reference ID used to find the associated Spatial.
+     * Unique-ish id that identify this anim event
      */
-    protected String spatialRef;
+    protected String animRef;
     /*
      * Control that will play the animation
      */
@@ -102,6 +101,7 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     public AnimEvent(AnimComposer composer, String actionName,
             String layerName) {
+        this();
         this.composer = composer;
         this.actionName = actionName;
         this.layerName = layerName;
@@ -110,9 +110,6 @@ public class AnimEvent extends AbstractCinematicEvent {
          */
         Action eventAction = composer.action(actionName);
         initialDuration = (float) eventAction.getLength();
-		
-		spatialRef = generateSpatialRef();
-        composer.getSpatial().setUserData(CINEMATIC_REF, spatialRef);
     }
 
     /**
@@ -120,40 +117,7 @@ public class AnimEvent extends AbstractCinematicEvent {
      */
     protected AnimEvent() {
         super();
-    }
-
-    /**
-     * Generate a unique identifier used to tag a Spatial in the scene graph.
-     *
-     * @return a unique string identifier
-     */
-    private String generateSpatialRef() {
-        return "cine" + System.currentTimeMillis() + "_" + (spatialId.incrementAndGet());
-    }
-
-    /**
-     * Recursively search the scene graph for a Spatial whose CINEMATIC_REF
-     * matches the stored spatialRef.
-     *
-     * @param sp the root Spatial to start searching from (not null)
-     * @return the matching Spatial, or null if not found
-     */
-    private Spatial findModelByRef(Spatial sp) {
-        String refId = sp.getUserData(CINEMATIC_REF);
-        if (spatialRef.equals(refId)) {
-            return sp;
-        }
-
-        if (sp instanceof Node) {
-            for (Spatial child : ((Node) sp).getChildren()) {
-                Spatial model = findModelByRef(child);
-                if (model != null) {
-                    return model;
-                }
-            }
-        }
-
-        return null;
+        animRef = "animEvent-" + System.currentTimeMillis() + "_" + refCounter.incrementAndGet();
     }
 
     /**
@@ -165,23 +129,8 @@ public class AnimEvent extends AbstractCinematicEvent {
     @Override
     public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
+    }
 
-        if (composer == null) {
-            Spatial model = findModelByRef(cinematic.getScene());
-            if (model != null) {
-                composer = model.getControl(AnimComposer.class);
-            } else {
-                throw new UnsupportedOperationException(
-                        "No Spatial found in the scene with Cinematic:Ref=" + spatialRef);
-            }
-        }
-    }
-	
-	@Override
-    public void dispose() {
-        super.dispose();
-        composer = null;
-    }
 
     /**
      * Callback when the event is paused.
@@ -320,10 +269,11 @@ public class AnimEvent extends AbstractCinematicEvent {
     @Override
     public void read(JmeImporter importer) throws IOException {
         super.read(importer);
-        InputCapsule ic = importer.getCapsule(this);
-        spatialRef = ic.readString("spatialRef", null);
-        actionName = ic.readString("actionName", null);
-        layerName = ic.readString("layerName", AnimComposer.DEFAULT_LAYER);
+        InputCapsule capsule = importer.getCapsule(this);
+        actionName = capsule.readString("actionName", "");
+        composer = (AnimComposer) capsule.readSavable("composer", null);
+        layerName = capsule.readString("layerName", AnimComposer.DEFAULT_LAYER);
+        animRef = capsule.readString("animRef", null);
     }
 
     /**
@@ -336,9 +286,37 @@ public class AnimEvent extends AbstractCinematicEvent {
     @Override
     public void write(JmeExporter exporter) throws IOException {
         super.write(exporter);
-        OutputCapsule oc = exporter.getCapsule(this);
-        oc.write(spatialRef, "spatialRef", null);
-        oc.write(actionName, "actionName", null);
-        oc.write(layerName, "layerName", AnimComposer.DEFAULT_LAYER);
+        OutputCapsule capsule = exporter.getCapsule(this);
+        capsule.write(actionName, "actionName", "");
+        capsule.write(composer, "composer", null);
+        capsule.write(layerName, "layerName", AnimComposer.DEFAULT_LAYER);
+        capsule.write(animRef, "animRef", null);
     }
+
+    public AnimComposer getComposer() {
+        return composer;
+    }
+
+    public void setComposer(AnimComposer composer) {
+        this.composer = composer;
+    }
+
+    public String getAnimRef() {
+        return animRef;
+    }
+
+    @Override
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Can't clone AnimEvent", e);
+        }
+    }
+
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+
+    }
+
 }
