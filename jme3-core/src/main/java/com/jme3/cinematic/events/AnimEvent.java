@@ -36,6 +36,7 @@ import com.jme3.anim.tween.action.Action;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.cinematic.Cinematic;
+import com.jme3.cinematic.CinematicHandler;
 import com.jme3.cinematic.PlayState;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -127,10 +128,14 @@ public class AnimEvent extends AbstractCinematicEvent implements JmeCloneable {
      * @param cinematic the Cinematic that contains this event
      */
     @Override
-    public void initEvent(Application app, Cinematic cinematic) {
+    public void initEvent(Application app, CinematicHandler cinematic) {
         super.initEvent(app, cinematic);
     }
 
+    @Deprecated
+    public void initEvent(Application app, Cinematic cinematic) {
+        initEvent(app, (CinematicHandler) cinematic);
+    }
 
     /**
      * Callback when the event is paused.

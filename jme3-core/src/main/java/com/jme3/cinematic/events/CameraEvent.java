@@ -32,7 +32,7 @@
 package com.jme3.cinematic.events;
 
 import com.jme3.app.Application;
-import com.jme3.cinematic.Cinematic;
+import com.jme3.cinematic.CinematicHandler;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -55,7 +55,7 @@ public class CameraEvent extends AbstractCinematicEvent {
      * The `Cinematic` instance to which this event belongs and on which the
      * camera will be set.
      */
-    private Cinematic cinematic;
+    private CinematicHandler cinematic;
 
     /**
      * For serialization only. Do not use.
@@ -69,13 +69,13 @@ public class CameraEvent extends AbstractCinematicEvent {
      * @param cinematic  The `Cinematic` instance this event belongs to (cannot be null).
      * @param cameraName The name of the camera to be activated by this event (cannot be null or empty).
      */
-    public CameraEvent(Cinematic cinematic, String cameraName) {
+    public CameraEvent(CinematicHandler cinematic, String cameraName) {
         this.cinematic = cinematic;
         this.cameraName = cameraName;
     }
 
     @Override
-    public void initEvent(Application app, Cinematic cinematic) {
+    public void initEvent(Application app, CinematicHandler cinematic) {
         super.initEvent(app, cinematic);
         this.cinematic = cinematic;
     }
@@ -116,7 +116,7 @@ public class CameraEvent extends AbstractCinematicEvent {
      * Returns the `Cinematic` instance associated with this event.
      * @return The `Cinematic` instance.
      */
-    public Cinematic getCinematic() {
+    public CinematicHandler getCinematic() {
         return cinematic;
     }
 
@@ -124,7 +124,7 @@ public class CameraEvent extends AbstractCinematicEvent {
      * Sets the `Cinematic` instance for this event.
      * @param cinematic The `Cinematic` instance to set (cannot be null).
      */
-    public void setCinematic(Cinematic cinematic) {
+    public void setCinematic(CinematicHandler cinematic) {
         this.cinematic = cinematic;
     }
 

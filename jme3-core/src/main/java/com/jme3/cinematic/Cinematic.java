@@ -94,7 +94,7 @@ import java.util.logging.Logger;
  *
  * @author Nehon
  */
-public class Cinematic extends AbstractCinematicEvent implements AppState {
+public class Cinematic extends AbstractCinematicEvent implements AppState, CinematicHandler {
 
     private static final Logger logger = Logger.getLogger(Cinematic.class.getName());
     private static final String CINEMATIC_REF = "Cinematic:Refs";
@@ -544,6 +544,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cinematicEvent the cinematic event
      * @return the keyFrame for that event.
      */
+    @Override
     public KeyFrame addCinematicEvent(float timeStamp, CinematicEvent cinematicEvent) {
         KeyFrame keyFrame = timeLine.getKeyFrameAtTime(timeStamp);
         if (keyFrame == null) {
@@ -565,6 +566,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cinematicEvent the cinematic event to enqueue
      * @return the timestamp the event was scheduled.
      */
+    @Override
     public float enqueueCinematicEvent(CinematicEvent cinematicEvent) {
         float scheduleTime = nextEnqueue;
         addCinematicEvent(scheduleTime, cinematicEvent);
@@ -578,6 +580,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cinematicEvent the cinematicEvent to remove
      * @return true if the element has been removed
      */
+    @Override
     public boolean removeCinematicEvent(CinematicEvent cinematicEvent) {
         cinematicEvent.dispose();
         cinematicEvents.remove(cinematicEvent);
@@ -597,6 +600,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cinematicEvent the cinematicEvent to remove
      * @return true if the element has been removed
      */
+    @Override
     public boolean removeCinematicEvent(float timeStamp, CinematicEvent cinematicEvent) {
         KeyFrame keyFrame = timeLine.getKeyFrameAtTime(timeStamp);
         return removeCinematicEvent(keyFrame, cinematicEvent);
@@ -610,6 +614,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cinematicEvent the cinematicEvent to remove
      * @return true if the element has been removed
      */
+    @Override
     public boolean removeCinematicEvent(KeyFrame keyFrame, CinematicEvent cinematicEvent) {
         cinematicEvent.dispose();
         boolean ret = keyFrame.cinematicEvents.remove(cinematicEvent);
@@ -677,6 +682,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cam the scene camera.
      * @return the created CameraNode.
      */
+    @Override
     public CameraNode bindCamera(String cameraName, Camera cam) {
         if (cameras.containsKey(cameraName)) {
             throw new IllegalArgumentException("Camera " + cameraName + " is already bound to this cinematic");
@@ -696,6 +702,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * Cinematic#bindCamera())
      * @return the cameraNode for this name
      */
+    @Override
     public CameraNode getCamera(String cameraName) {
         return cameras.get(cameraName);
     }
@@ -718,6 +725,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cameraName the camera name (as registered in
      * Cinematic#bindCamera())
      */
+    @Override
     public void setActiveCamera(String cameraName) {
         setEnableCurrentCam(false);
         currentCam = cameras.get(cameraName);
@@ -734,6 +742,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param cameraName the camera name (as registered in
      * Cinematic#bindCamera())
      */
+    @Override
     public void activateCamera(final float timeStamp, final String cameraName) {
         addCinematicEvent(timeStamp, new CameraEvent(this, cameraName));
     }
@@ -757,6 +766,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param key the key
      * @param object the data
      */
+    @Override
     public void putEventData(String type, Object key, Object object) {
         Map<String, Map<Object, Object>> data = getEventsData();
         Map<Object, Object> row = data.get(type);
@@ -774,6 +784,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param key the key
      * @return the pre-existing object, or null
      */
+    @Override
     public Object getEventData(String type, Object key) {
         if (eventsData != null) {
             Map<Object, Object> row = eventsData.get(type);
@@ -790,6 +801,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @param type the type of data
      * @param key the key of the data
      */
+    @Override
     public void removeEventData(String type, Object key) {
         if (eventsData != null) {
             Map<Object, Object> row = eventsData.get(type);
@@ -849,6 +861,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * This method removes all previously bound CameraNodes and clears the
      * internal camera map, effectively detaching all cameras from the scene.
      */
+    @Override
     public void clearCameras() {
         for (CameraNode cameraNode : cameras.values()) {
             scene.detachChild(cameraNode);
