@@ -329,10 +329,12 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
                 if (composer == null) {
                     String ref = animEvent.getAnimRef();
                     Spatial sp = findModelByRef(scene, ref);
-                    if (sp != null) {
-                        composer = sp.getControl(AnimComposer.class);
-                        animEvent.setComposer(composer);
+                    if (sp == null) {
+                        throw new IllegalStateException(
+                                "Cannot find model with ref id " + ref + " for AnimEvent");
                     }
+                    composer = sp.getControl(AnimComposer.class);
+                    animEvent.setComposer(composer);
                 }
             }
             cinematicEvent.initEvent(app, this);
