@@ -1,10 +1,11 @@
 package com.jme3.cinematic;
 
 import com.jme3.cinematic.events.CinematicEvent;
+import com.jme3.export.Savable;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.CameraNode;
 
-public interface CinematicHandler {
+public interface CinematicHandler extends Savable {
 
     /**
      * Adds a cinematic event to this cinematic at the given timestamp. This
