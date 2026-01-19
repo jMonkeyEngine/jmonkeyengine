@@ -64,7 +64,7 @@ public final class LwjglDevice implements Device {
 
     @Override
     public DeviceType getDeviceType() {
-        int type = Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_TYPE);
+        long type = Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_TYPE);
         switch (type) {
             case CL10.CL_DEVICE_TYPE_ACCELERATOR: return DeviceType.ACCELEARTOR;
             case CL10.CL_DEVICE_TYPE_CPU: return DeviceType.CPU;
