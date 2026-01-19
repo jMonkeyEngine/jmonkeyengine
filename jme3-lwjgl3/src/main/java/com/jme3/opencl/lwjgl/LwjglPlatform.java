@@ -78,7 +78,7 @@ public final class LwjglPlatform implements Platform {
      * @param deviceType the device type
      * @return the available devices
      */
-    private long[] getDevices(int deviceType) {
+    private long[] getDevices(long deviceType) {
         int[] count = new int[1];
         int errcode = CL10.clGetDeviceIDs(platform, deviceType, null, count);
         if (errcode == CL10.CL_DEVICE_NOT_FOUND) {
