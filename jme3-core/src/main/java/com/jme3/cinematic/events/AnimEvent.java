@@ -132,11 +132,6 @@ public class AnimEvent extends AbstractCinematicEvent implements JmeCloneable {
         super.initEvent(app, cinematic);
     }
 
-    @Deprecated
-    public void initEvent(Application app, Cinematic cinematic) {
-        initEvent(app, (CinematicHandler) cinematic);
-    }
-
     /**
      * Callback when the event is paused.
      */

@@ -33,6 +33,7 @@ package com.jme3.cinematic.events;
 
 import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
+import com.jme3.cinematic.Cinematic;
 import com.jme3.cinematic.CinematicHandler;
 import com.jme3.cinematic.PlayState;
 import com.jme3.export.Savable;
@@ -137,6 +138,11 @@ public interface CinematicEvent extends Savable {
      */
     public void initEvent(Application app, CinematicHandler cinematic);
     
+    @Deprecated
+    public default void initEvent(Application app, Cinematic cinematic) {
+        initEvent(app, (CinematicHandler) cinematic);
+    }
+
     /**
      * Fast-forwards to the given time, where time=0 is the start of the event.
      *
