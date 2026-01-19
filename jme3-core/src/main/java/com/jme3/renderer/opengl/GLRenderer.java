@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -3492,19 +3492,11 @@ public final class GLRenderer implements Renderer {
         setFrameBuffer(null);
 
         if (enableSrgb) {
-            if (
-                // Workaround: getBoolean(GLExt.GL_FRAMEBUFFER_SRGB_CAPABLE_EXT) causes error 1280 (invalid enum) on macos
-                JmeSystem.getPlatform().getOs() != Platform.Os.MacOS
-                && !getBoolean(GLExt.GL_FRAMEBUFFER_SRGB_CAPABLE_EXT)
-            ) {
-                logger.warning("Driver claims that default framebuffer " + "is not sRGB capable. Enabling anyway.");
-            }
-
             gl.glEnable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
-
-            logger.log(Level.FINER, "SRGB FrameBuffer enabled (Gamma Correction)");
+            logger.log(Level.FINER, "sRGB FrameBuffer enabled (Gamma Correction)");
         } else {
             gl.glDisable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
+			logger.log(Level.FINER, "sRGB FrameBuffer disabled (Gamma Correction)");
         }
     }
 
