@@ -61,15 +61,19 @@ public final class LwjglDevice implements Device {
     public LwjglPlatform getPlatform() {
         return platform;
     }
-
+    
     @Override
     public DeviceType getDeviceType() {
         long type = Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_TYPE);
-        switch (type) {
-            case CL10.CL_DEVICE_TYPE_ACCELERATOR: return DeviceType.ACCELEARTOR;
-            case CL10.CL_DEVICE_TYPE_CPU: return DeviceType.CPU;
-            case CL10.CL_DEVICE_TYPE_GPU: return DeviceType.GPU;
-            default: return DeviceType.DEFAULT;
+        
+        if ((type & CL10.CL_DEVICE_TYPE_GPU) != 0) {
+            return DeviceType.GPU;
+        } else if ((type & CL10.CL_DEVICE_TYPE_CPU) != 0) {
+            return DeviceType.CPU;
+        } else if ((type & CL10.CL_DEVICE_TYPE_ACCELERATOR) != 0) {
+            return DeviceType.ACCELEARTOR;
+        } else {
+            return DeviceType.DEFAULT;
         }
     }
 
