@@ -1,11 +1,15 @@
 package com.jme3.cinematic;
 
+import com.jme3.app.Application;
 import com.jme3.cinematic.events.CinematicEvent;
-import com.jme3.export.Savable;
+import com.jme3.cinematic.events.CinematicEventListener;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.CameraNode;
 
-public interface CinematicHandler extends Savable {
+/**
+ * A interface that defines an object that can compose and coordinate cinematic events.
+ */
+public interface CinematicHandler extends CinematicEvent {
 
     /**
      * Adds a cinematic event to this cinematic at the given timestamp. This
@@ -127,5 +131,33 @@ public interface CinematicHandler extends Savable {
      * internal camera map, effectively detaching all cameras from the scene.
      */
     void clearCameras();
+
+    /**
+     * DO NOT implement this. This is a left-over from the previous problematic abstraction of the Cinematic
+     * class. Kept just for backward compatibility.
+     * 
+     * @param app
+     * @param cinematic
+     */
+    @Deprecated
+    public default void initEvent(Application app, CinematicHandler cinematic) {
+
+    }
+
+    /**
+     * Adds a CinematicEventListener to this handler.
+     *
+     * @param listener
+     *            CinematicEventListener
+     */
+    void addListener(CinematicEventListener listener);
+
+    /**
+     * Removes a CinematicEventListener from this handler.
+     *
+     * @param listener
+     *            CinematicEventListener
+     */
+    void removeListener(CinematicEventListener listener);
 
 }
