@@ -156,8 +156,6 @@ public class SoundEvent extends AbstractCinematicEvent {
         audioNode = new AudioNode(cinematic.getAssetManager(), path,
                 stream ? AudioData.DataType.Stream : AudioData.DataType.Buffer);
         audioNode.setPositional(false);
-        System.out.println("SoundEvent: loaded sound from " + path + this + audioNode + " for cinematic "
-                + getCinematic());
         setLoopMode(loopMode);
     }
 
@@ -174,10 +172,7 @@ public class SoundEvent extends AbstractCinematicEvent {
 
     @Override
     public void onPlay() {
-        System.out.println("SoundEvent: play sound from " + path + this + audioNode + " for cinematic "
-                + getCinematic());
         audioNode.play();
-
     }
 
     @Override
@@ -231,9 +226,6 @@ public class SoundEvent extends AbstractCinematicEvent {
         InputCapsule ic = im.getCapsule(this);
         path = ic.readString("path", "");
         stream = ic.readBoolean("stream", false);
-        AudioNode audioNode = (AudioNode) ic.readSavable("audioNode", null);
-        if (audioNode != null) {
-            this.audioNode = audioNode;
-        }
+        audioNode = (AudioNode) ic.readSavable("audioNode", null);
     }
 }

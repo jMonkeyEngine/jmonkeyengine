@@ -39,9 +39,6 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -312,10 +309,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
         speed = ic.readFloat("speed", 1);
         initialDuration = ic.readFloat("initalDuration", 10);
         loopMode = ic.readEnum("loopMode", LoopMode.class, LoopMode.DontLoop);
-        CinematicHandler cinematic = (CinematicHandler) ic.readSavable("cinematic", null);
-        if (cinematic != null) {
-            this.cinematic = cinematic;
-        }
+        cinematic = (CinematicHandler) ic.readSavable("cinematic", null);
     }
 
     /**

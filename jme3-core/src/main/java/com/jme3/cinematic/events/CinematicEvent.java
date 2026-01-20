@@ -51,17 +51,16 @@ public interface CinematicEvent extends Savable, CinematicBase {
 
     /**
      * initialize this event
-     * 
-     * @param cinematic
-     *            the cinematic
+     * @param app the application
+     * @param cinematic the cinematic
      */
     public void initEvent(CinematicHandler cinematic);
-    
+
     @Deprecated
     public default void initEvent(Application app, Cinematic cinematic) {
         initEvent((CinematicHandler) cinematic);
     }
-
+    
     /**
      * method called when an event is removed from a cinematic
      * this method should remove any reference to any external objects.

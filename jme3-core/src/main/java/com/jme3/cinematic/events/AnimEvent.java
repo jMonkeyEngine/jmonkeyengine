@@ -75,8 +75,8 @@ public class AnimEvent extends AbstractCinematicEvent {
      * name of the animation layer on which the action will be played
      */
     private String layerName;
-	
-	/**
+
+    /**
      * Constructs a new AnimEvent to play the named action on the default layer.
      *
      * @param composer the Control that will play the animation (not null).
@@ -195,6 +195,23 @@ public class AnimEvent extends AbstractCinematicEvent {
     }
 
     /**
+     * De-serialize this event from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param importer (not null)
+     * @throws IOException from the importer
+     */
+    @Override
+    public void read(JmeImporter importer) throws IOException {
+        super.read(importer);
+        InputCapsule capsule = importer.getCapsule(this);
+        actionName = capsule.readString("actionName", "");
+        composer = (AnimComposer) capsule.readSavable("composer", null);
+        layerName = capsule.readString("layerName", AnimComposer.DEFAULT_LAYER);
+        animRef = capsule.readString("animRef", null);
+    }
+
+    /**
      * Alter the speed of the animation.
      *
      * @param speed the relative speed (default=1)
@@ -252,23 +269,6 @@ public class AnimEvent extends AbstractCinematicEvent {
         } else {
             composer.setTime(layerName, t);
         }
-    }
-
-    /**
-     * De-serialize this event from the specified importer, for example when
-     * loading from a J3O file.
-     *
-     * @param importer (not null)
-     * @throws IOException from the importer
-     */
-    @Override
-    public void read(JmeImporter importer) throws IOException {
-        super.read(importer);
-        InputCapsule capsule = importer.getCapsule(this);
-        actionName = capsule.readString("actionName", "");
-        composer = (AnimComposer) capsule.readSavable("composer", null);
-        layerName = capsule.readString("layerName", AnimComposer.DEFAULT_LAYER);
-        animRef = capsule.readString("animRef", null);
     }
 
     /**

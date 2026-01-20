@@ -59,38 +59,36 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * An AppState for composing and playing cutscenes in a game.
+ * An appstate for composing and playing cutscenes in a game. The cinematic
+ * schedules CinematicEvents over a timeline. Once the Cinematic created it has
+ * to be attached to the stateManager.
  *
- * <p>A cinematic schedules and plays {@link CinematicEvent}s over a timeline.
- * Once a Cinematic is created, you must attach it to the `AppStateManager` to
- * run it. You can add various `CinematicEvent`s, see the `com.jme3.cinematic.events`
- * package for built-in event types.
+ * You can add various CinematicEvents to a Cinematic, see package
+ * com.jme3.cinematic.events
  *
- * <p>Events can be added in two main ways:
- * <ul>
- * <li>{@link Cinematic#addCinematicEvent(float, CinematicEvent)} adds an event
- * at a specific time from the cinematic's start.</li>
- * <li>{@link Cinematic#enqueueCinematicEvent(CinematicEvent)} adds events
- * one after another, with each starting at the end of the previous one.</li>
- * </ul>
+ * Two main methods can be used to add an event :
  *
- * <p>Playback can be controlled with methods like:
- * <ul>
- * <li>{@link Cinematic#play()}</li>
- * <li>{@link Cinematic#pause()}</li>
- * <li>{@link Cinematic#stop()}</li>
- * </ul>
+ * @see Cinematic#addCinematicEvent(float,
+ * com.jme3.cinematic.events.CinematicEvent) , that adds an event at the given
+ * time form the cinematic start.
  *
- * <p>Since `Cinematic` itself extends `CinematicEvent`, you can nest cinematics
- * within each other. Nested cinematics should not be attached to the `AppStateManager`.
+ * @see
+ * Cinematic#enqueueCinematicEvent(com.jme3.cinematic.events.CinematicEvent)
+ * that enqueue events one after the other according to their initialDuration
  *
- * <p>This class also handles multiple camera points of view by creating and
- * activating camera nodes on a schedule.
- * <ul>
- * <li>{@link Cinematic#bindCamera(java.lang.String, com.jme3.renderer.Camera)}</li>
- * <li>{@link Cinematic#activateCamera(float, java.lang.String)}</li>
- * <li>{@link Cinematic#setActiveCamera(java.lang.String)}</li>
- * </ul>
+ * A Cinematic has convenient methods to manage playback:
+ * @see Cinematic#play()
+ * @see Cinematic#pause()
+ * @see Cinematic#stop()
+ *
+ * A Cinematic is itself a CinematicEvent, meaning you can embed several
+ * cinematics. Embedded cinematics must not be added to the stateManager though.
+ *
+ * Cinematic can handle several points of view by creating camera nodes
+ * and activating them on schedule.
+ * @see Cinematic#bindCamera(java.lang.String, com.jme3.renderer.Camera)
+ * @see Cinematic#activateCamera(float, java.lang.String)
+ * @see Cinematic#setActiveCamera(java.lang.String)
  *
  * @author Nehon
  */
@@ -295,8 +293,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
 
             oc.write(cinematicEvents.toArray(new CinematicEvent[cinematicEvents.size()]), "cinematicEvents",
                     null);
-            oc.writeStringSavableMap(cameras, "cameras", null);
-            oc.write(timeLine, "timeLine", null);
+        oc.writeStringSavableMap(cameras, "cameras", null);
+        oc.write(timeLine, "timeLine", null);
         } finally {
             // unhack
             for (CinematicEvent event : cinematicEvents) {
@@ -353,8 +351,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
     public void initialize(AppStateManager stateManager, Application app) {
         this.app = app;
         initEvent(app, this);
-
-        System.out.println("Initializing");
         for (CinematicEvent cinematicEvent : cinematicEvents) {
             relinkAnimComposer(cinematicEvent);
             relinkCinematic(cinematicEvent);
@@ -503,7 +499,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
     @Override
     public void update(float tpf) {
         if (isInitialized() && playState == PlayState.Playing) {
-            System.out.println("Updating cinematic at time " + cinematic);
             internalUpdate(tpf);
         }
     }
@@ -704,14 +699,14 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
     }
 
     /**
-     * Binds a camera to this Cinematic, tagged by a unique name. This method creates and returns a CameraNode
-     * for the cam and attaches it to the scene. The control direction is set to SpatialToCamera. This camera
-     * Node can then be used in other events to handle the camera movements during playback.
+     * Binds a camera to this Cinematic, tagged by a unique name. This method
+     * creates and returns a CameraNode for the cam and attaches it to the scene.
+     * The control direction is set to SpatialToCamera. This camera Node can
+     * then be used in other events to handle the camera movements during
+     * playback.
      *
-     * @param cameraName
-     *            the unique tag the camera should have
-     * @param cam
-     *            the scene camera.
+     * @param cameraName the unique tag the camera should have
+     * @param cam the scene camera.
      * @return the created CameraNode.
      */
     public CameraNode bindCamera(String cameraName, Camera cam) {
@@ -739,9 +734,9 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
     }
 
     /**
-     * Enables or disables the camera control of the cameraNode of the current cam.
+     * enable/disable the camera control of the cameraNode of the current cam
      *
-     * @param enabled `true` to enable, `false` to disable.
+     * @param enabled
      */
     private void setEnableCurrentCam(boolean enabled) {
         if (currentCam != null) {
@@ -866,14 +861,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
         return scene;
     }
 
-    /**
-     * Gets the application instance associated with this cinematic.
-     *
-     * @return The application.
-     */
-    public Application getApplication() {
-        return app;
-    }
 
     /**
      * Remove all events from the Cinematic.
