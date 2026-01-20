@@ -34,17 +34,12 @@ package com.jme3.cinematic.events;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.tween.action.Action;
 import com.jme3.animation.LoopMode;
-import com.jme3.app.Application;
-import com.jme3.cinematic.Cinematic;
 import com.jme3.cinematic.CinematicHandler;
 import com.jme3.cinematic.PlayState;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
-
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
@@ -56,7 +51,7 @@ import java.util.logging.Logger;
  *
  * Inspired by Nehon's {@link AnimationEvent}.
  */
-public class AnimEvent extends AbstractCinematicEvent implements JmeCloneable {
+public class AnimEvent extends AbstractCinematicEvent {
 
     private static final Logger logger
             = Logger.getLogger(AnimEvent.class.getName());
@@ -128,8 +123,8 @@ public class AnimEvent extends AbstractCinematicEvent implements JmeCloneable {
      * @param cinematic the Cinematic that contains this event
      */
     @Override
-    public void initEvent(Application app, CinematicHandler cinematic) {
-        super.initEvent(app, cinematic);
+    public void initEvent(CinematicHandler cinematic) {
+        super.initEvent(cinematic);
     }
 
     /**
@@ -304,19 +299,4 @@ public class AnimEvent extends AbstractCinematicEvent implements JmeCloneable {
     public String getAnimRef() {
         return animRef;
     }
-
-    @Override
-    public Object jmeClone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("Can't clone AnimEvent", e);
-        }
-    }
-
-    @Override
-    public void cloneFields(Cloner cloner, Object original) {
-
-    }
-
 }

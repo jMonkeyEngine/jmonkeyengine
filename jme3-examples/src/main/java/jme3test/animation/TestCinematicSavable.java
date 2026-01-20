@@ -51,8 +51,7 @@ public class TestCinematicSavable extends SimpleApplication {
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
 
         cinematic = new Cinematic(rootNode, 10);
-        // cinematic.initialize(stateManager, this);
-        // stateManager.attach(cinematic);
+
 
         setupLightsAndFilters();
         setupModel();
@@ -95,7 +94,6 @@ public class TestCinematicSavable extends SimpleApplication {
         });
 
         Cinematic copy = BinaryExporter.saveAndLoad(assetManager, cinematic);
-        stateManager.detach(cinematic);
 
         cinematic = copy;
         cinematic.setScene(rootNode);
@@ -173,6 +171,8 @@ public class TestCinematicSavable extends SimpleApplication {
             @Override
             public void onAction(String name, boolean keyPressed, float tpf) {
                 if (name.equals("togglePlay") && keyPressed) {
+                    Cinematic cinematic = stateManager.getState(Cinematic.class);
+                    System.out.println("Toggle Play/Pause on cinematic: " + cinematic);
                     if (cinematic.getPlayState() == PlayState.Playing) {
                         cinematic.pause();
                     } else {

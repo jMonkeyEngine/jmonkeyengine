@@ -197,8 +197,8 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     @Override
-    public void initEvent(Application app, CinematicHandler cinematic) {
-        super.initEvent(app, cinematic);
+    public void initEvent(CinematicHandler cinematic) {
+        super.initEvent(cinematic);
         isControl = false;
     }
 

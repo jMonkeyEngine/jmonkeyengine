@@ -36,6 +36,7 @@ import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.asset.AssetManager;
 import com.jme3.cinematic.events.AbstractCinematicEvent;
 import com.jme3.cinematic.events.AnimEvent;
 import com.jme3.cinematic.events.CameraEvent;
@@ -48,7 +49,6 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.control.CameraControl.ControlDirection;
-import com.jme3.util.clone.Cloner;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -97,7 +97,8 @@ import java.util.logging.Logger;
 public class Cinematic extends AbstractCinematicEvent implements AppState, CinematicHandler {
 
     private static final Logger logger = Logger.getLogger(Cinematic.class.getName());
-    private static final String CINEMATIC_REF = "Cinematic:Refs";
+    private static final String CINEMATIC_REF_PREFIX = "Cinematic:Refs:";
+    private final String CINEMATIC_REF_VALUE = "jme3:Cinematic";
 
     private Application app;
     private Node scene;
@@ -237,6 +238,41 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
         }
     }
 
+    // HACK: null set the composer and cinematic references
+    // this is used to make this appstate deserializable without
+    // breaking the scene graph
+    private void applySerializationHack(CinematicEvent event, Map<CinematicEvent, Object[]> map) {
+        Object store[] = null;
+        if (event instanceof AbstractCinematicEvent) {
+            store = map.computeIfAbsent(event, k -> new Object[2]);
+            store[0] = ((AbstractCinematicEvent) event).getCinematic();
+            ((AbstractCinematicEvent) event).setCinematic(null);
+        }
+        if (event instanceof AnimEvent) {
+            AnimEvent animEvent = (AnimEvent) event;
+            store[1] = animEvent.getComposer();
+
+            // set ref id that will be used to relink the composer after deserialization
+            String refId = animEvent.getAnimRef();
+            AnimComposer composer = animEvent.getComposer();
+            setModelRefId(composer.getSpatial(), refId);
+
+            animEvent.setComposer(null);
+        }
+    }
+
+    private void undoSerializationHack(CinematicEvent event, Map<CinematicEvent, Object[]> map) {
+        Object store[] = map.get(event);
+        if (store == null) return;
+        if (event instanceof AbstractCinematicEvent) {
+            ((AbstractCinematicEvent) event).setCinematic((CinematicHandler) store[0]);
+        }
+        if (event instanceof AnimEvent) {
+            AnimEvent animEvent = (AnimEvent) event;
+            animEvent.setComposer((AnimComposer) store[1]);
+        }
+    }
+
     /**
      * used internally for serialization
      *
@@ -247,31 +283,26 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        CinematicEvent[] events = new CinematicEvent[cinematicEvents.size()];
-        for (int i = 0; i < cinematicEvents.size(); i++) {
-            CinematicEvent ce = cinematicEvents.get(i);
-            if (ce instanceof AnimEvent) {
-                AnimEvent animEvent = (AnimEvent) ce;
 
-                // set ref id that will be used to relink the composer after deserialization
-                String refId = animEvent.getAnimRef();
-                AnimComposer composer = animEvent.getComposer();
-                setModelRefId(composer.getSpatial(), refId);
+        Map<CinematicEvent, Object[]> tmp = new HashMap<>();
 
-                // HACK: create a clone of the event without the composer
-                // this is used to make this appstate deserializable without
-                // breaking the scene graph
-                Cloner cloner = new Cloner();
-                animEvent = (AnimEvent) cloner.clone(animEvent);
-                animEvent.setComposer(null);
-                ce = animEvent;
+        try {
 
+            // hack
+            for (CinematicEvent event : cinematicEvents) {
+                applySerializationHack(event, tmp);
             }
-            events[i] = ce;
+
+            oc.write(cinematicEvents.toArray(new CinematicEvent[cinematicEvents.size()]), "cinematicEvents",
+                    null);
+            oc.writeStringSavableMap(cameras, "cameras", null);
+            oc.write(timeLine, "timeLine", null);
+        } finally {
+            // unhack
+            for (CinematicEvent event : cinematicEvents) {
+                undoSerializationHack(event, tmp);
+            }
         }
-        oc.write(events, "cinematicEvents", null);
-        oc.writeStringSavableMap(cameras, "cameras", null);
-        oc.write(timeLine, "timeLine", null);
     }
 
     /**
@@ -288,6 +319,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
 
         Savable[] events = ic.readSavableArray("cinematicEvents", null);
         for (Savable c : events) {
+            relinkCinematic((CinematicEvent) c);
             cinematicEvents.add((CinematicEvent) c);
         }
         cameras = (Map<String, CameraNode>) ic.readStringSavableMap("cameras", null);
@@ -322,21 +354,10 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
         this.app = app;
         initEvent(app, this);
 
+        System.out.println("Initializing");
         for (CinematicEvent cinematicEvent : cinematicEvents) {
-            if (cinematicEvent instanceof AnimEvent) {
-                AnimEvent animEvent = (AnimEvent) cinematicEvent;
-                AnimComposer composer = animEvent.getComposer();
-                if (composer == null) {
-                    String ref = animEvent.getAnimRef();
-                    Spatial sp = findModelByRef(scene, ref);
-                    if (sp == null) {
-                        throw new IllegalStateException(
-                                "Cannot find model with ref id " + ref + " for AnimEvent");
-                    }
-                    composer = sp.getControl(AnimComposer.class);
-                    animEvent.setComposer(composer);
-                }
-            }
+            relinkAnimComposer(cinematicEvent);
+            relinkCinematic(cinematicEvent);
             cinematicEvent.initEvent(app, this);
         }
 
@@ -348,16 +369,35 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
         initialized = true;
     }
 
-    @SuppressWarnings("unchecked")
-    private Spatial findModelByRef(Spatial sp, String spatialRef) {
-        Object refIdsObj = sp.getUserData(CINEMATIC_REF);
-        if ((refIdsObj instanceof List)) {
-            List<String> refIds = (List<String>) refIdsObj;
-            for (String refId : refIds) {
-                if (spatialRef.equals(refId)) {
-                    return sp;
+    private void relinkAnimComposer(CinematicEvent cinematicEvent) {
+        if (cinematicEvent instanceof AnimEvent) {
+            AnimEvent animEvent = (AnimEvent) cinematicEvent;
+            AnimComposer composer = animEvent.getComposer();
+            if (composer == null) {
+                String ref = animEvent.getAnimRef();
+                Spatial sp = findModelByRef(scene, ref);
+                if (sp == null) {
+                    throw new IllegalStateException(
+                            "Cannot find model with ref id " + ref + " for AnimEvent");
                 }
+                composer = sp.getControl(AnimComposer.class);
+                animEvent.setComposer(composer);
             }
+        }
+    }
+
+    private void relinkCinematic(CinematicEvent cinematicEvent) {
+        if (cinematicEvent instanceof AbstractCinematicEvent) {
+            AbstractCinematicEvent ace = (AbstractCinematicEvent) cinematicEvent;
+            ace.setCinematic(this);
+        }
+    }
+
+    private Spatial findModelByRef(Spatial sp, String spatialRef) {
+        String keyToSearch = CINEMATIC_REF_PREFIX + spatialRef;
+        Object refObj = sp.getUserData(keyToSearch);
+        if (CINEMATIC_REF_VALUE.equals(refObj)) {
+            return sp;
         }
         if (sp instanceof Node) {
             for (Spatial child : ((Node) sp).getChildren()) {
@@ -370,18 +410,9 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     private void setModelRefId(Spatial sp, String spatialRef) {
-        Object refIdsObj = sp.getUserData(CINEMATIC_REF);
-        List<String> refIds;
-        if (refIdsObj instanceof List) {
-            refIds = (List<String>) refIdsObj;
-            if (refIds.contains(spatialRef)) return;
-        } else {
-            refIds = new ArrayList<>();
-            sp.setUserData(CINEMATIC_REF, refIds);
-        }
-        refIds.add(spatialRef);
+        String key = CINEMATIC_REF_PREFIX + spatialRef;
+        sp.setUserData(key, CINEMATIC_REF_VALUE);
     }
 
     /**
@@ -472,6 +503,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
     @Override
     public void update(float tpf) {
         if (isInitialized() && playState == PlayState.Playing) {
+            System.out.println("Updating cinematic at time " + cinematic);
             internalUpdate(tpf);
         }
     }
@@ -672,17 +704,16 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
     }
 
     /**
-     * Binds a camera to this Cinematic, tagged by a unique name. This method
-     * creates and returns a CameraNode for the cam and attaches it to the scene.
-     * The control direction is set to SpatialToCamera. This camera Node can
-     * then be used in other events to handle the camera movements during
-     * playback.
+     * Binds a camera to this Cinematic, tagged by a unique name. This method creates and returns a CameraNode
+     * for the cam and attaches it to the scene. The control direction is set to SpatialToCamera. This camera
+     * Node can then be used in other events to handle the camera movements during playback.
      *
-     * @param cameraName the unique tag the camera should have
-     * @param cam the scene camera.
+     * @param cameraName
+     *            the unique tag the camera should have
+     * @param cam
+     *            the scene camera.
      * @return the created CameraNode.
      */
-    @Override
     public CameraNode bindCamera(String cameraName, Camera cam) {
         if (cameras.containsKey(cameraName)) {
             throw new IllegalArgumentException("Camera " + cameraName + " is already bound to this cinematic");
@@ -857,11 +888,9 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
     }
 
     /**
-     * Clears all camera nodes bound to the cinematic from the scene node.
-     * This method removes all previously bound CameraNodes and clears the
-     * internal camera map, effectively detaching all cameras from the scene.
+     * Clears all camera nodes bound to the cinematic from the scene node. This method removes all previously
+     * bound CameraNodes and clears the internal camera map, effectively detaching all cameras from the scene.
      */
-    @Override
     public void clearCameras() {
         for (CameraNode cameraNode : cameras.values()) {
             scene.detachChild(cameraNode);
@@ -878,5 +907,10 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
         for (CinematicEvent event : cinematicEvents) {
             event.dispose();
         }
+    }
+
+    @Override
+    public AssetManager getAssetManager() {
+        return app.getAssetManager();
     }
 }

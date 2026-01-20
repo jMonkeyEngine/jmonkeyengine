@@ -1,15 +1,14 @@
 package com.jme3.cinematic;
 
-import com.jme3.app.Application;
+import com.jme3.asset.AssetManager;
 import com.jme3.cinematic.events.CinematicEvent;
-import com.jme3.cinematic.events.CinematicEventListener;
-import com.jme3.renderer.Camera;
+import com.jme3.export.Savable;
 import com.jme3.scene.CameraNode;
 
 /**
  * A interface that defines an object that can compose and coordinate cinematic events.
  */
-public interface CinematicHandler extends CinematicEvent {
+public interface CinematicHandler extends CinematicBase, Savable {
 
     /**
      * Adds a cinematic event to this cinematic at the given timestamp. This
@@ -58,19 +57,6 @@ public interface CinematicHandler extends CinematicEvent {
      * @return true if the element has been removed
      */
     boolean removeCinematicEvent(KeyFrame keyFrame, CinematicEvent cinematicEvent);
-
-    /**
-     * Binds a camera to this Cinematic, tagged by a unique name. This method
-     * creates and returns a CameraNode for the cam and attaches it to the scene.
-     * The control direction is set to SpatialToCamera. This camera Node can
-     * then be used in other events to handle the camera movements during
-     * playback.
-     *
-     * @param cameraName the unique tag the camera should have
-     * @param cam the scene camera.
-     * @return the created CameraNode.
-     */
-    CameraNode bindCamera(String cameraName, Camera cam);
 
     /**
      * returns a cameraNode given its name
@@ -126,38 +112,9 @@ public interface CinematicHandler extends CinematicEvent {
     void removeEventData(String type, Object key);
 
     /**
-     * Clears all camera nodes bound to the cinematic from the scene node.
-     * This method removes all previously bound CameraNodes and clears the
-     * internal camera map, effectively detaching all cameras from the scene.
-     */
-    void clearCameras();
-
-    /**
-     * DO NOT implement this. This is a left-over from the previous problematic abstraction of the Cinematic
-     * class. Kept just for backward compatibility.
+     * Returns the AssetManager associated with this CinematicHandler.
      * 
-     * @param app
-     * @param cinematic
+     * @return The AssetManager instance.
      */
-    @Deprecated
-    public default void initEvent(Application app, CinematicHandler cinematic) {
-
-    }
-
-    /**
-     * Adds a CinematicEventListener to this handler.
-     *
-     * @param listener
-     *            CinematicEventListener
-     */
-    void addListener(CinematicEventListener listener);
-
-    /**
-     * Removes a CinematicEventListener from this handler.
-     *
-     * @param listener
-     *            CinematicEventListener
-     */
-    void removeListener(CinematicEventListener listener);
-
+    AssetManager getAssetManager();
 }
