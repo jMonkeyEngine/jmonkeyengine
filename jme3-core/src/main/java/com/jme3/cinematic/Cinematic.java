@@ -95,8 +95,9 @@ import java.util.logging.Logger;
 public class Cinematic extends AbstractCinematicEvent implements AppState, CinematicHandler {
 
     private static final Logger logger = Logger.getLogger(Cinematic.class.getName());
+    
     private static final String CINEMATIC_REF_PREFIX = "Cinematic:Refs:";
-    private final String CINEMATIC_REF_VALUE = "jme3:Cinematic";
+    private static final String CINEMATIC_REF_VALUE = "jme3:Cinematic";
 
     private Application app;
     private Node scene;
@@ -241,11 +242,13 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
     // breaking the scene graph
     private void applySerializationHack(CinematicEvent event, Map<CinematicEvent, Object[]> map) {
         Object store[] = null;
+        
         if (event instanceof AbstractCinematicEvent) {
             store = map.computeIfAbsent(event, k -> new Object[2]);
             store[0] = ((AbstractCinematicEvent) event).getCinematic();
             ((AbstractCinematicEvent) event).setCinematic(null);
         }
+        
         if (event instanceof AnimEvent) {
             AnimEvent animEvent = (AnimEvent) event;
             store[1] = animEvent.getComposer();
@@ -259,15 +262,18 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
         }
     }
 
+    /**
+     * Restores previously removed references after serialization.
+     */
     private void undoSerializationHack(CinematicEvent event, Map<CinematicEvent, Object[]> map) {
         Object store[] = map.get(event);
         if (store == null) return;
+        
         if (event instanceof AbstractCinematicEvent) {
             ((AbstractCinematicEvent) event).setCinematic((CinematicHandler) store[0]);
         }
         if (event instanceof AnimEvent) {
-            AnimEvent animEvent = (AnimEvent) event;
-            animEvent.setComposer((AnimComposer) store[1]);
+            ((AnimEvent) event).setComposer((AnimComposer) store[1]);
         }
     }
 
@@ -281,22 +287,21 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-
+    
         Map<CinematicEvent, Object[]> tmp = new HashMap<>();
-
+    
         try {
-
-            // hack
+            // Temporarily detach non‑serializable references
             for (CinematicEvent event : cinematicEvents) {
                 applySerializationHack(event, tmp);
             }
-
-            oc.write(cinematicEvents.toArray(new CinematicEvent[cinematicEvents.size()]), "cinematicEvents",
-                    null);
-        oc.writeStringSavableMap(cameras, "cameras", null);
-        oc.write(timeLine, "timeLine", null);
+    
+            oc.write(cinematicEvents.toArray(new CinematicEvent[0]), "cinematicEvents", null);
+            oc.writeStringSavableMap(cameras, "cameras", null);
+            oc.write(timeLine, "timeLine", null);
+    
         } finally {
-            // unhack
+            // Restore references after serialization
             for (CinematicEvent event : cinematicEvents) {
                 undoSerializationHack(event, tmp);
             }
@@ -338,7 +343,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
             CinematicEvent ce = cinematicEvents.get(i);
             ce.setSpeed(speed);
         }
-
     }
 
     /**
@@ -369,9 +373,11 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
         if (cinematicEvent instanceof AnimEvent) {
             AnimEvent animEvent = (AnimEvent) cinematicEvent;
             AnimComposer composer = animEvent.getComposer();
+            
             if (composer == null) {
                 String ref = animEvent.getAnimRef();
                 Spatial sp = findModelByRef(scene, ref);
+                
                 if (sp == null) {
                     throw new IllegalStateException(
                             "Cannot find model with ref id " + ref + " for AnimEvent");
@@ -901,3 +907,4 @@ public class Cinematic extends AbstractCinematicEvent implements AppState, Cinem
         return app.getAssetManager();
     }
 }
+
