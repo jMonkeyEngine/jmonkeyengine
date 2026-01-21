@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -143,6 +143,20 @@ public class SoundEvent extends AbstractCinematicEvent {
     }
 
     /**
+     * Creates a sound event using the specified {@link AudioNode}.
+     * <p>
+     * This constructor is useful when the audio has already been loaded or
+     * preconfigured, allowing the event to play an existing {@code AudioNode}
+     * without relying on path‑based loading.
+     * </p>
+     *
+     * @param audioNode the audio node to be played by this event (not null)
+     */
+    public SoundEvent(AudioNode audioNode) {
+        this.audioNode = audioNode;
+    }
+
+    /**
      * creates a sound event
      * used for serialization
      */
@@ -153,10 +167,11 @@ public class SoundEvent extends AbstractCinematicEvent {
     @Override
     public void initEvent(CinematicHandler cinematic) {
         super.initEvent(cinematic);
-        audioNode = new AudioNode(cinematic.getAssetManager(), path,
-                stream ? AudioData.DataType.Stream : AudioData.DataType.Buffer);
-        audioNode.setPositional(false);
-        setLoopMode(loopMode);
+        if (audioNode == null) {
+            audioNode = new AudioNode(app.getAssetManager(), path, stream ? AudioData.DataType.Stream : AudioData.DataType.Buffer);
+            audioNode.setPositional(false);
+            setLoopMode(loopMode);
+        }
     }
 
     @Override
@@ -229,3 +244,4 @@ public class SoundEvent extends AbstractCinematicEvent {
         audioNode = (AudioNode) ic.readSavable("audioNode", null);
     }
 }
+
