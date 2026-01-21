@@ -168,10 +168,10 @@ public class PointLight extends Light {
         if(Float.isNaN(radius)){
             throw new IllegalArgumentException("Light radius cannot be a NaN (Not a Number) value");
         }
-        // Prevent shader overflow with infinite or invalid radius
-        if (radius == Float.POSITIVE_INFINITY || radius > Float.MAX_VALUE / 4.0f) {
-            radius = Float.MAX_VALUE / 4.0f;  // Safe large value, avoids overflow in shaders
-        }        
+
+        float maxSafeRadius = Float.MAX_VALUE / 4.0f;
+        radius = Math.min(radius, maxSafeRadius); // Caps radius to a safe large value; avoids overflow in shaders from values reaching max float value   
+        
         this.radius = radius;
         if (radius != 0f) {
             this.invRadius = 1f / radius;
@@ -261,4 +261,5 @@ public class PointLight extends Light {
                 + "]";
     }
 }
+
 
