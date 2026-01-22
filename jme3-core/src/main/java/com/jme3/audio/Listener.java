@@ -166,9 +166,8 @@ public class Listener {
      * @return The listener's left direction as a {@link Vector3f}.
      */
     public Vector3f getLeft() {
-        return rotation.getRotationColumn(0);
+        return getLeft(null);
     }
-
 
     /**
      * Gets the left direction vector of the listener. This vector is derived from the listener's rotation.
@@ -177,7 +176,6 @@ public class Listener {
      * @return The listener's left direction as a {@link Vector3f}.
      */
     public Vector3f getLeft(Vector3f store) {
-        if (store == null) store = new Vector3f();
         return rotation.getRotationColumn(0, store);
     }
 
@@ -188,7 +186,7 @@ public class Listener {
      * @return The listener's up direction as a {@link Vector3f}.
      */
     public Vector3f getUp() {
-        return rotation.getRotationColumn(1);
+        return getUp(null);
     }
 
     /**
@@ -199,7 +197,6 @@ public class Listener {
      * @return The listener's up direction as a {@link Vector3f}.
      */
     public Vector3f getUp(Vector3f store) {
-        if (store == null) store = new Vector3f();
         return rotation.getRotationColumn(1, store);
     }
 
@@ -210,7 +207,7 @@ public class Listener {
      * @return The listener's forward direction.
      */
     public Vector3f getDirection() {
-        return rotation.getRotationColumn(2);
+        return getDirection(null);
     }
 
     /**
@@ -221,7 +218,6 @@ public class Listener {
      * @return The listener's forward direction.
      */
     public Vector3f getDirection(Vector3f store) {
-        if (store == null) store = new Vector3f();
         return rotation.getRotationColumn(2, store);
     }
 
