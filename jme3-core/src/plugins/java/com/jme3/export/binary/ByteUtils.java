@@ -32,6 +32,8 @@
 package com.jme3.export.binary;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,6 +51,77 @@ public class ByteUtils {
      */
     private ByteUtils() {
     }
+
+
+    public static void readFully(InputStream in, byte[] b) throws IOException {
+        int bytesRead = 0;
+        int read = 0;
+        while (bytesRead < b.length && (read = in.read(b, bytesRead, b.length - bytesRead)) != -1) {
+            bytesRead += read;
+        }
+        if (bytesRead < b.length) {
+            throw new IOException(
+                    "End of stream reached prematurely after " + bytesRead + " of " + b.length + " bytes.");
+        }
+    }
+
+
+    public static void skipFully(InputStream in, long n) throws IOException {
+        skipFully(in, n, true);
+    }
+
+    public static void skipFully(InputStream in, long n, boolean throwOnEOF) throws IOException {
+        while (n > 0) {
+            long skipped = in.skip(n);
+            if (skipped > 0 && skipped <= n) { // skipped some bytes
+                n -= skipped;
+            } else if (skipped == 0) { // skipped nothing
+                // distinguish between EOF and no bytes available
+                if (in.read() == -1) {
+                    if (throwOnEOF) {
+                        throw new EOFException();
+                    } else {
+                        return;
+                    }
+                } else {
+                    // stream was just hangling 
+                    n--;
+                }
+            } else {
+                throw new IOException(
+                        "Unable to skip exactly " + n + " bytes. Only " + skipped + " bytes were skipped.");
+            }
+        }
+    }
+
+    public static void skipFully(DataInput in, int n) throws IOException {
+        skipFully(in, n, true);
+    }
+
+    public static void skipFully(DataInput in, int n, boolean throwOnEOF) throws IOException {
+        while (n > 0) {
+            long skipped = in.skipBytes(n);
+            if (skipped > 0 && skipped <= n) { // skipped some bytes
+                n -= skipped;
+            } else if (skipped == 0) { // skipped nothing
+                // distinguish between EOF and no bytes available
+                try {
+                    in.readByte();
+                } catch (EOFException e) {
+                    if (throwOnEOF) {
+                        throw e;
+                    } else {
+                        return;
+                    }
+                }
+                n--;
+            } else {
+                throw new IOException(
+                        "Unable to skip exactly " + n + " bytes. Only " + skipped + " bytes were skipped.");
+            }
+        }
+    }
+
 
     /**
      * Takes an InputStream and returns the complete byte content of it
@@ -125,7 +198,7 @@ public class ByteUtils {
         byte[] byteArray = new byte[2];
 
         // Read in the next 2 bytes
-        inputStream.read(byteArray);
+        readFully(inputStream, byteArray);
 
         short number = convertShortFromBytes(byteArray);
 
@@ -187,7 +260,7 @@ public class ByteUtils {
         byte[] byteArray = new byte[4];
 
         // Read in the next 4 bytes
-        inputStream.read(byteArray);
+        readFully(inputStream, byteArray);
 
         int number = convertIntFromBytes(byteArray);
 
@@ -263,7 +336,7 @@ public class ByteUtils {
         byte[] byteArray = new byte[8];
 
         // Read in the next 8 bytes
-        inputStream.read(byteArray);
+        readFully(inputStream, byteArray);
 
         long number = convertLongFromBytes(byteArray);
 
@@ -326,7 +399,7 @@ public class ByteUtils {
         byte[] byteArray = new byte[8];
 
         // Read in the next 8 bytes
-        inputStream.read(byteArray);
+        readFully(inputStream, byteArray);
 
         double number = convertDoubleFromBytes(byteArray);
 
@@ -382,7 +455,7 @@ public class ByteUtils {
         byte[] byteArray = new byte[4];
 
         // Read in the next 4 bytes
-        inputStream.read(byteArray);
+        readFully(inputStream, byteArray);
 
         float number = convertFloatFromBytes(byteArray);
 
@@ -440,7 +513,7 @@ public class ByteUtils {
         byte[] byteArray = new byte[1];
 
         // Read in the next byte
-        inputStream.read(byteArray);
+        readFully(inputStream, byteArray);
 
         return convertBooleanFromBytes(byteArray);
     }
@@ -470,9 +543,7 @@ public class ByteUtils {
      *             if bytes greater than the length of the store.
      */
     public static byte[] readData(byte[] store, int bytes, InputStream is) throws IOException {
-        for (int i = 0; i < bytes; i++) {
-            store[i] = (byte)is.read();
-        }
+        readFully(is, store);
         return store;
     }
 

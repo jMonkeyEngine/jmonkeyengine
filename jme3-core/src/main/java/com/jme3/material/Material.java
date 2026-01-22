@@ -1150,6 +1150,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         oc.write(def.getAssetName(), "material_def", null);
         oc.write(additionalState, "render_state", null);
         oc.write(transparent, "is_transparent", false);
+        oc.write(receivesShadows, "receives_shadows", false);
         oc.write(name, "name", null);
         oc.writeStringSavableMap(paramValues, "parameters", null);
     }
@@ -1162,6 +1163,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         name = ic.readString("name", null);
         additionalState = (RenderState) ic.readSavable("render_state", null);
         transparent = ic.readBoolean("is_transparent", false);
+        receivesShadows = ic.readBoolean("receives_shadows", false);
 
         // Load the material def
         String defName = ic.readString("material_def", null);

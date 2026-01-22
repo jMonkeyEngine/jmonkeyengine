@@ -34,6 +34,7 @@ package com.jme3.texture.plugins;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
+import com.jme3.export.binary.ByteUtils;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.image.ColorSpace;
@@ -115,12 +116,7 @@ public class PFMLoader implements AssetLoader {
             if (!needYFlip)
                 imageData.position(scanLineBytes * y);
 
-            int read = 0;
-            int off = 0;
-            do {
-                read = in.read(scanline, off, scanline.length - off);
-                off += read;
-            } while (read > 0);
+            ByteUtils.readFully(in, scanline);
 
             if (needEndianFlip){
                 flipScanline(scanline);
