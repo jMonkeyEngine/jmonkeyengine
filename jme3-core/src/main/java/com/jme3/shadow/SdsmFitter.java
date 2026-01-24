@@ -229,11 +229,16 @@ public class SdsmFitter {
 
         SdsmResultHolder() {
             this.minMaxDepthSsbo = new ShaderStorageBufferObject(gl4);
+            renderer.registerNativeObject(this.minMaxDepthSsbo);
             this.fitFrustumSsbo = new ShaderStorageBufferObject(gl4);
+            renderer.registerNativeObject(this.fitFrustumSsbo);
         }
 
         boolean isReady(boolean wait) {
             if (fence == null) {
+                return true;
+            }
+            if(fence.isUpdateNeeded()){
                 return true;
             }
             int status = gl4.glClientWaitSync(fence, 0, wait ? -1 : 0);
@@ -242,7 +247,7 @@ public class SdsmFitter {
 
         SplitFitResult extract() {
             if (fence != null) {
-                gl4.glDeleteSync(fence);
+                renderer.deleteFence(fence);
                 fence = null;
             }
             SplitFit fit = extractFit();
@@ -250,6 +255,7 @@ public class SdsmFitter {
         }
 
         private SplitFit extractFit() {
+            if(fitFrustumSsbo.isUpdateNeeded()){ return null; }
             int[] uintFit = fitFrustumSsbo.read(32);
             float[] fitResult = new float[32];
             for(int i=0;i<fitResult.length;i++) {
@@ -296,10 +302,10 @@ public class SdsmFitter {
         }
 
         void cleanup() {
-            minMaxDepthSsbo.delete();
-            fitFrustumSsbo.delete();
+            minMaxDepthSsbo.deleteObject(renderer);
+            fitFrustumSsbo.deleteObject(renderer);
             if (fence != null) {
-                gl4.glDeleteSync(fence);
+                fence.deleteObject(renderer);
             }
         }
     }
@@ -313,7 +319,9 @@ public class SdsmFitter {
         String fitSource = (String)assetManager.loadAsset(FIT_FRUSTUMS_SHADER);
 
         depthReduceShader = new ComputeShader(gl, reduceSource);
+        renderer.registerNativeObject(depthReduceShader);
         fitFrustumsShader = new ComputeShader(gl, fitSource);
+        renderer.registerNativeObject(fitFrustumsShader);
     }
 
     /**
@@ -377,7 +385,9 @@ public class SdsmFitter {
         gl4.glMemoryBarrier(GL4.GL_SHADER_STORAGE_BARRIER_BIT);
 
         // Create fence for async readback
-        holder.fence = gl4.glFenceSync(GL4.GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        GLFence fence = gl4.glFenceSync(GL4.GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        renderer.registerNativeObject(fence);
+        holder.fence = fence;
         resultHoldersInFlight.add(holder);
     }
 
@@ -428,10 +438,10 @@ public class SdsmFitter {
         resultHoldersReady.clear();
 
         if (depthReduceShader != null) {
-            depthReduceShader.delete();
+            depthReduceShader.deleteObject(renderer);
         }
         if (fitFrustumsShader != null) {
-            fitFrustumsShader.delete();
+            fitFrustumsShader.deleteObject(renderer);
         }
     }
 

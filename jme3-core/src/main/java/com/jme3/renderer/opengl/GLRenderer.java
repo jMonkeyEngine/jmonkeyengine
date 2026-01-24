@@ -3603,4 +3603,17 @@ public final class GLRenderer implements Renderer {
     public GL4 getGl4(){
         return gl4;
     }
+
+    @Override
+    public void deleteFence(GLFence fence) {
+        if(gl4 != null && fence.getId() != NativeObject.INVALID_ID){
+            gl4.glDeleteSync(fence);
+            fence.resetObject();
+        }
+    }
+
+    @Override
+    public void registerNativeObject(NativeObject nativeObject) {
+        objManager.registerObject(nativeObject);
+    }
 }

@@ -37,6 +37,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.renderer.RendererException;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.NativeObject;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -46,16 +47,28 @@ import java.nio.IntBuffer;
  * <p>
  * Compute shaders require OpenGL 4.3 or higher.
  */
-public class ComputeShader {
+public class ComputeShader extends NativeObject {
 
     private final GL4 gl;
-    private final int programId;
+    private final String source;
     /**
      * Creates a new compute shader from GLSL source code.
      */
     public ComputeShader(GL4 gl, String source) {
+        super();
         this.gl = gl;
+        this.source = source;
+        //Load this upfront to surface any problems at init time
+        createComputeShader();
+    }
+    private ComputeShader(ComputeShader source){
+        super();
+        this.gl = source.gl;
+        this.id = source.id;
+        this.source = null;
+    }
 
+    private void createComputeShader(){
         // Create and compile the shader
         int shaderId = gl.glCreateShader(GL4.GL_COMPUTE_SHADER);
         if (shaderId <= 0) {
@@ -78,27 +91,29 @@ public class ComputeShader {
         }
 
         // Create program and link
-        programId = gl.glCreateProgram();
-        if (programId <= 0) {
+        id = gl.glCreateProgram();
+        if (id <= 0) {
             gl.glDeleteShader(shaderId);
             throw new RendererException("Failed to create shader program");
         }
 
-        gl.glAttachShader(programId, shaderId);
-        gl.glLinkProgram(programId);
+        gl.glAttachShader(id, shaderId);
+        gl.glLinkProgram(id);
 
         // Check link status
-        gl.glGetProgram(programId, GL.GL_LINK_STATUS, intBuf);
+        gl.glGetProgram(id, GL.GL_LINK_STATUS, intBuf);
         if (intBuf.get(0) != GL.GL_TRUE) {
-            gl.glGetProgram(programId, GL.GL_INFO_LOG_LENGTH, intBuf);
-            String infoLog = gl.glGetProgramInfoLog(programId, intBuf.get(0));
+            gl.glGetProgram(id, GL.GL_INFO_LOG_LENGTH, intBuf);
+            String infoLog = gl.glGetProgramInfoLog(id, intBuf.get(0));
             gl.glDeleteShader(shaderId);
-            gl.glDeleteProgram(programId);
+            gl.glDeleteProgram(id);
             throw new RendererException("Compute shader program linking failed: " + infoLog);
         }
 
         // Shader object can be deleted after linking
         gl.glDeleteShader(shaderId);
+
+        clearUpdateNeeded();
     }
 
     /**
@@ -106,7 +121,10 @@ public class ComputeShader {
      * Must be called before setting uniforms or dispatching.
      */
     public void makeActive() {
-        gl.glUseProgram(programId);
+        if(isUpdateNeeded()){
+            createComputeShader();
+        }
+        gl.glUseProgram(id);
     }
 
     /**
@@ -144,18 +162,35 @@ public class ComputeShader {
     }
 
     public int getUniformLocation(String name) {
-        return gl.glGetUniformLocation(programId, name);
+        return gl.glGetUniformLocation(id, name);
     }
 
     public void bindShaderStorageBuffer(int location, ShaderStorageBufferObject ssbo) {
-        gl.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, location, ssbo.getBufferId());
+        gl.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, location, ssbo.getId());
     }
 
-    /**
-     * Deletes this compute shader and releases GPU resources.
-     * The shader should not be used after calling this method.
-     */
-    public void delete() {
-        gl.glDeleteProgram(programId);
+    @Override
+    public void resetObject() {
+        id = INVALID_ID;
+        setUpdateNeeded();
+    }
+
+    @Override
+    public void deleteObject(Object rendererObject) {
+        if(id != INVALID_ID){
+            gl.glDeleteProgram(id);
+        }
+        resetObject();
+    }
+
+    @Override
+    public NativeObject createDestructableClone() {
+        return new ComputeShader(this);
+    }
+
+    @Override
+    public long getUniqueId() {
+        //Note this is the same type of ID as a regular shader.
+        return ((long)OBJTYPE_SHADER << 32) | (0xffffffffL & (long)id);
     }
 }

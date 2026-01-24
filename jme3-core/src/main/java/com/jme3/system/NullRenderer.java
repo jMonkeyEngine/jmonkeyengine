@@ -40,6 +40,7 @@ import com.jme3.renderer.Limits;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.Statistics;
 import com.jme3.renderer.TextureUnitException;
+import com.jme3.renderer.opengl.GLFence;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
@@ -49,6 +50,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureImage;
+import com.jme3.util.NativeObject;
 
 import java.nio.ByteBuffer;
 import java.util.EnumMap;
@@ -320,5 +322,14 @@ public class NullRenderer implements Renderer {
     public void setUniformBufferObject(int bindingPoint, BufferObject bufferObject) {
 
     }
-    
+
+    @Override
+    public void deleteFence(GLFence fence) {
+
+    }
+
+    @Override
+    public void registerNativeObject(NativeObject nativeObject) {
+
+    }
 }

@@ -31,7 +31,9 @@
  */
 package com.jme3.renderer.opengl;
 
+import com.jme3.renderer.RendererException;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.NativeObject;
 
 import java.nio.IntBuffer;
 
@@ -42,10 +44,9 @@ import java.nio.IntBuffer;
  * SSBOs are buffers that can be read from and written to by shaders.
  * SSBOs require OpenGL 4.3 or higher.
  */
-public class ShaderStorageBufferObject {
+public class ShaderStorageBufferObject extends NativeObject {
 
     private final GL4 gl;
-    private final int bufferId;
 
     /**
      * Creates a new SSBO.
@@ -53,10 +54,23 @@ public class ShaderStorageBufferObject {
      * @param gl the GL4 interface (required for glBindBufferBase)
      */
     public ShaderStorageBufferObject(GL4 gl) {
+        super();
         this.gl = gl;
-        IntBuffer buf = BufferUtils.createIntBuffer(1);
-        gl.glGenBuffers(buf);
-        this.bufferId = buf.get(0);
+        ensureBufferReady();
+    }
+    private ShaderStorageBufferObject(ShaderStorageBufferObject source){
+        super();
+        this.gl = source.gl;
+        this.id = source.id;
+    }
+
+    private void ensureBufferReady(){
+        if(isUpdateNeeded()){
+            IntBuffer buf = BufferUtils.createIntBuffer(1);
+            gl.glGenBuffers(buf);
+            this.id = buf.get(0);
+            clearUpdateNeeded();
+        }
     }
 
     /**
@@ -76,7 +90,8 @@ public class ShaderStorageBufferObject {
      * @param data the initial data to upload
      */
     public void initialize(IntBuffer data) {
-        gl.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, bufferId);
+        ensureBufferReady();
+        gl.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, id);
         gl.glBufferData(GL4.GL_SHADER_STORAGE_BUFFER, data, GL.GL_DYNAMIC_COPY);
     }
 
@@ -109,23 +124,41 @@ public class ShaderStorageBufferObject {
      * @param destination the buffer to read into
      */
     public void read(IntBuffer destination) {
-        gl.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, bufferId);
+        if(isUpdateNeeded()){
+            //If the SSBO was deleted from e.g. context restart, it probably isn't sensible to read from it.
+            //We could create a fresh empty buffer and read from that, but that might result in garbage data.
+            throw new RendererException("SSBO was not ready for read");
+        }
+        gl.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, id);
         gl.glGetBufferSubData(GL4.GL_SHADER_STORAGE_BUFFER, 0, destination);
         gl.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, 0);
     }
 
-    /**
-     * Deletes this buffer and releases GPU resources.
-     * The buffer should not be used after calling this method.
-     */
-    public void delete() {
-        IntBuffer buf = BufferUtils.createIntBuffer(1);
-        buf.put(bufferId);
-        buf.flip();
-        gl.glDeleteBuffers(buf);
+
+    @Override
+    public void resetObject() {
+        this.id = INVALID_ID;
+        setUpdateNeeded();
     }
 
-    public int getBufferId() {
-        return bufferId;
+    @Override
+    public void deleteObject(Object rendererObject) {
+        if(id != INVALID_ID){
+            IntBuffer buf = BufferUtils.createIntBuffer(1);
+            buf.put(id);
+            buf.flip();
+            gl.glDeleteBuffers(buf);
+        }
+        resetObject();
+    }
+
+    @Override
+    public NativeObject createDestructableClone() {
+        return new ShaderStorageBufferObject(this);
+    }
+
+    @Override
+    public long getUniqueId() {
+        return ((long) OBJTYPE_BO << 32) | (0xffffffffL & (long) id);
     }
 }

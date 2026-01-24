@@ -304,6 +304,7 @@ public class TestSdsmDirectionalLightShadow extends SimpleApplication implements
         sb.append("  Numpad 8/5 - Light elevation\n");
         sb.append("  Numpad 4/6 - Light rotation\n");
         sb.append("  X - Show shadow frustum debug\n");
+        sb.append("  C - Restart display\n");
 
         statusText.setText(sb.toString());
     }
@@ -317,6 +318,7 @@ public class TestSdsmDirectionalLightShadow extends SimpleApplication implements
         inputManager.addMapping("sizeUp", new KeyTrigger(KeyInput.KEY_EQUALS));
         inputManager.addMapping("sizeDown", new KeyTrigger(KeyInput.KEY_MINUS));
         inputManager.addMapping("debug", new KeyTrigger(KeyInput.KEY_X));
+        inputManager.addMapping("restartDisplay", new KeyTrigger(KeyInput.KEY_C));
 
         inputManager.addMapping("elevUp", new KeyTrigger(KeyInput.KEY_NUMPAD8));
         inputManager.addMapping("elevDown", new KeyTrigger(KeyInput.KEY_NUMPAD5));
@@ -325,7 +327,7 @@ public class TestSdsmDirectionalLightShadow extends SimpleApplication implements
 
         inputManager.addListener(this,
                 "toggleMode", "splits1", "splits2", "splits3", "splits4",
-                "sizeUp", "sizeDown", "debug",
+                "sizeUp", "sizeDown", "debug", "restartDisplay",
                 "elevUp", "elevDown", "azimLeft", "azimRight");
     }
 
@@ -389,7 +391,8 @@ public class TestSdsmDirectionalLightShadow extends SimpleApplication implements
                     traditionalFilter.displayFrustum();
                 }
                 break;
-
+            case "restartDisplay":
+                (context).restart();
             default:
                 break;
         }

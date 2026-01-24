@@ -101,17 +101,17 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
 
     @Override
     public GLFence glFenceSync(final int condition, final int flags) {
-        return new GLFence(GL32.glFenceSync(condition, flags));
+        return new GLFence(GL32.glFenceSync(condition, flags), null);
     }
 
     @Override
     public int glClientWaitSync(final GLFence sync, final int flags, final long timeout) {
-        return GL32.glClientWaitSync(sync.getHandle(), flags, timeout);
+        return GL32.glClientWaitSync(sync.getFenceId(), flags, timeout);
     }
 
     @Override
     public void glDeleteSync(final GLFence sync) {
-        GL32.glDeleteSync(sync.getHandle());
+        GL32.glDeleteSync(sync.getFenceId());
     }
 
     @Override

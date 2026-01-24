@@ -31,6 +31,11 @@
  */
 package com.jme3.renderer.opengl;
 
+import com.jme3.renderer.Renderer;
+import com.jme3.util.NativeObject;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Wrapper for an OpenGL sync object (fence).
  * <p><a target="_blank" href="https://registry.khronos.org/OpenGL-Refpages/gl4/html/glFenceSync.xhtml">See here.</a></p>
@@ -45,38 +50,36 @@ package com.jme3.renderer.opengl;
  * @see GL4#glClientWaitSync(GLFence, int, long)
  * @see GL4#glDeleteSync(GLFence)
  */
-public class GLFence {
-
-    private final long handle;
+public class GLFence extends NativeObject {
+    private final static AtomicInteger nextUniqueId = new AtomicInteger(1);
     private Object nativeSync;
 
+
     /**
-     * Creates a new fence wrapper with the given handle.
-     *
-     * @param handle the native sync object handle (pointer)
+     * Most NativeObject implementations use the int handle GL returns as the NativeObjectId.
+     * However, fence IDs are actually longs.
+     * (This probably won't cause overflow issues; you're not likely to have 2 billion fences usefully around at once.)
      */
-    public GLFence(long handle) {
-        this.handle = handle;
-    }
+    private final long fenceId;
 
     /**
      * Creates a new fence wrapper with the given handle and native sync object.
      *
-     * @param handle the native sync object handle (pointer)
-     * @param nativeSync the backend-specific sync object (e.g., LWJGL2's GLSync)
+     * @param fenceId the native sync object handle (pointer)
+     * @param nativeSync the backend-specific sync object (e.g., LWJGL2's GLSync) or null
      */
-    public GLFence(long handle, Object nativeSync) {
-        this.handle = handle;
+    public GLFence(long fenceId, Object nativeSync) {
+        super();
+        this.fenceId = fenceId;
+        this.id = nextUniqueId.getAndIncrement();
         this.nativeSync = nativeSync;
+        clearUpdateNeeded();
     }
-
-    /**
-     * Returns the native sync object handle.
-     *
-     * @return the sync handle
-     */
-    public long getHandle() {
-        return handle;
+    private GLFence(GLFence source) {
+        super();
+        this.fenceId = source.fenceId;
+        this.nativeSync = source.nativeSync;
+        this.id = source.id;
     }
 
     /**
@@ -89,5 +92,30 @@ public class GLFence {
      */
     public Object getNativeSync() {
         return nativeSync;
+    }
+    public long getFenceId() {
+        return fenceId;
+    }
+
+    @Override
+    public void resetObject() {
+        this.nativeSync = null;
+        this.id = INVALID_ID;
+        setUpdateNeeded();
+    }
+
+    @Override
+    public void deleteObject(Object rendererObject) {
+        ((Renderer)rendererObject).deleteFence(this);
+    }
+
+    @Override
+    public NativeObject createDestructableClone() {
+        return new GLFence(this);
+    }
+
+    @Override
+    public long getUniqueId() {
+        return ((long) OBJTYPE_FENCE << 32) | (0xffffffffL & (long) id);
     }
 }
