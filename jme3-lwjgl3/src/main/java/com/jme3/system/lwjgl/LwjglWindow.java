@@ -42,6 +42,7 @@ import com.jme3.input.TouchInput;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
+import com.jme3.input.lwjgl.SdlJoystickInput;
 import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
 import com.jme3.system.Displays;
@@ -53,11 +54,9 @@ import com.jme3.util.SafeArrayList;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -834,7 +833,19 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     @Override
     public JoyInput getJoyInput() {
         if (joyInput == null) {
-            joyInput = new GlfwJoystickInput(settings);
+            boolean useSdl = true;
+
+            String mapper = settings.getJoysticksMapper();
+            if (AppSettings.JOYSTICKS_LEGACY_MAPPER.equals(mapper)
+                    || AppSettings.JOYSTICKS_XBOX_LEGACY_MAPPER.equals(mapper)) {
+                useSdl = false;
+            }
+
+            if (useSdl) {
+                joyInput = new SdlJoystickInput(settings);
+            } else {
+                joyInput = new GlfwJoystickInput(settings);
+            }
         }
         return joyInput;
     }

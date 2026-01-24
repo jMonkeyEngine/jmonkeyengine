@@ -46,7 +46,9 @@ public class TestJoystick extends SimpleApplication {
     public static void main(String[] args){
         TestJoystick app = new TestJoystick();
         AppSettings settings = new AppSettings(true);
+        settings.setJoysticksMapper(AppSettings.JOYSTICKS_XBOX_MAPPER);
         settings.setUseJoysticks(true);
+        settings.setX11PlatformPreferred(true);
         app.setSettings(settings);
         app.start();
     }
@@ -155,7 +157,7 @@ public class TestJoystick extends SimpleApplication {
             
         } 
     }
- 
+
     /**
      *  Easier to watch for all button and axis events with a raw input listener.
      */   
@@ -184,6 +186,7 @@ public class TestJoystick extends SimpleApplication {
             gamepad.setAxisValue( evt.getAxis(), value );
             if( value != 0 ) {
                 lastValues.put(evt.getAxis(), value);
+                evt.getAxis().getJoystick().rumble(0.5f);
             } 
         }
 
@@ -191,6 +194,7 @@ public class TestJoystick extends SimpleApplication {
         public void onJoyButtonEvent(JoyButtonEvent evt) {
             setViewedJoystick( evt.getButton().getJoystick() );
             gamepad.setButtonValue( evt.getButton(), evt.isPressed() ); 
+            evt.getButton().getJoystick().rumble(1f);
         }
 
         @Override
@@ -299,7 +303,7 @@ public class TestJoystick extends SimpleApplication {
         }
  
         public void setAxisValue( JoystickAxis axis, float value ) {
-                
+
             if( axis == axis.getJoystick().getAxis(JoystickAxis.AXIS_XBOX_LEFT_THUMB_STICK_X)){
                 setXAxis(value);
             } else if( axis == axis.getJoystick().getAxis(JoystickAxis.AXIS_XBOX_LEFT_THUMB_STICK_Y)){

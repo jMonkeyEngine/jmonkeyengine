@@ -115,4 +115,15 @@ public interface JoystickAxis {
      * @return the radius of the dead zone
      */
     public float getDeadZone();
+
+
+    /**
+     * Returns the suggested jitter threshold for this axis. Movements with a delta
+     * smaller than this threshold will be ignored by the backend input system
+     * 
+     * @return the jitter threshold
+     */
+    public default float getJitterThreshold(){
+        return 0;
+    }
 }
