@@ -51,7 +51,7 @@ public class SdlJoystickInput implements JoyInput {
         this.settings = settings;
         try {
             String path = settings.getSDLGameControllerDBResourcePath();
-            if (!path.isBlank()) {
+            if (path != null && !path.trim().isEmpty()) {
                 ByteBuffer bbf = SdlGameControllerDb.getGamecontrollerDb(path);
                 if (SDL_AddGamepadMapping(bbf) == -1) {
                     throw new Exception("Failed to load");

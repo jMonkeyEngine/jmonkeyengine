@@ -73,7 +73,7 @@ public class GlfwJoystickInput implements JoyInput {
         this.settings = settings;
         try {
             String path = settings.getSDLGameControllerDBResourcePath();
-            if (!path.isBlank()) {
+            if (path != null && !path.trim().isEmpty()) {
                 ByteBuffer bbf = SdlGameControllerDb.getGamecontrollerDb(path);
                 if (!glfwUpdateGamepadMappings(bbf)) throw new Exception("Failed to load");
             }
