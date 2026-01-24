@@ -54,7 +54,8 @@ public abstract class NativeObject implements Cloneable {
                                OBJTYPE_AUDIOBUFFER  = 6,
                                OBJTYPE_AUDIOSTREAM  = 7,
                                OBJTYPE_FILTER       = 8,
-                               OBJTYPE_BO           = 9;
+                               OBJTYPE_BO           = 9,
+                               OBJTYPE_FENCE = 10;
     
     /**
      * The object manager to which this NativeObject is registered to.

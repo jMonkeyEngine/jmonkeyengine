@@ -164,6 +164,11 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     }
 
     @Override
+    public void glGetBufferSubData(int target, long offset, IntBuffer data) {
+        throw new UnsupportedOperationException("OpenGL ES 2 does not support glGetBufferSubData");
+    }
+
+    @Override
     public void glClear(int mask) {
         GLES20.glClear(mask);
     }

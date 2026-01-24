@@ -1,0 +1,236 @@
+#version 430
+
+/**
+ * Computes tight bounding boxes for each shadow cascade via min/max on lightspace locations of depth samples that fall within each cascade.
+ */
+
+layout(local_size_x = 16, local_size_y = 16) in;
+
+layout(binding = 0) uniform sampler2D inputDepth;
+
+layout(std430, binding = 1) readonly buffer MinMaxBuffer {
+    uint gMin;
+    uint gMax;
+};
+
+layout(std430, binding = 2) buffer CascadeBounds {
+    uvec4 gBounds[4];     // xy = min XY, zw = max XY per cascade
+    uvec2 gZBounds[4];    // x = min Z, y = max Z per cascade
+    uint rMin;            // Copy of global min for output
+    uint rMax;            // Copy of global max for output
+    uvec2 rSplitStart[3]; // [split start, blend end] for up to 3 splits
+};
+
+layout(location = 3) uniform mat4 cameraToLightView;
+layout(location = 4) uniform int splitCount;
+layout(location = 5) uniform vec2 cameraFrustum; // (near, far)
+layout(location = 6) uniform float blendZone;
+
+// Shared memory for workgroup reduction
+// Each workgroup is 16x16 = 256 threads
+shared vec4 sharedBounds[4][256];  // minX, minY, maxX, maxY per cascade
+shared vec2 sharedZBounds[4][256]; // minZ, maxZ per cascade
+
+/**
+ * Computes the start position of cascade i using log/uniform blend.
+ */
+float computeCascadeSplitStart(int i, float near, float far) {
+    float idm = float(i) / float(splitCount + 1);
+    float logSplit = near * pow(far / near, idm);
+    float uniformSplit = near + (far - near) * idm;
+    return logSplit * 0.65 + uniformSplit * 0.35;
+}
+
+/**
+ * Converts projection-space Z to view-space Z (distance from camera).
+ */
+float getProjectionToViewZ(float projZPos) {
+    float near = cameraFrustum.x;
+    float far = cameraFrustum.y;
+    float a = far / (far - near);
+    float b = far * near / (near - far);
+    return b / (projZPos - a);
+}
+
+/**
+ * Converts view-space Z to projection-space Z.
+ */
+float getViewToProjectionZ(float viewZPos) {
+    float near = cameraFrustum.x;
+    float far = cameraFrustum.y;
+    float a = far / (far - near);
+    float b = far * near / (near - far);
+    return a + b / viewZPos;
+}
+
+/**
+ * Encodes a float for atomic min/max operations.
+ */
+uint floatFlip(float f) {
+    uint u = floatBitsToUint(f);
+    // If negative (sign bit set): flip ALL bits (turns into small uint)
+    // If positive (sign bit clear): flip ONLY sign bit (makes it large uint)
+    return (u & 0x80000000u) != 0u ? ~u : u ^ 0x80000000u;
+}
+
+/**
+ * Decodes a uint back to float (inverse of floatFlip).
+ */
+float uintFlip(uint u) {
+    return uintBitsToFloat((u & 0x80000000u) != 0u ? u ^ 0x80000000u : ~u);
+}
+
+void main() {
+    // Compute cascade split depths from the global min/max
+    float minDepth = uintFlip(gMin);
+    float maxDepth = uintFlip(gMax);
+    float minDepthFrustum = getProjectionToViewZ(minDepth);
+    float maxDepthFrustum = getProjectionToViewZ(maxDepth);
+
+    // Compute split boundaries
+    vec2 splitStart[3]; // [split start, blend end] for up to 3 splits
+    int lastSplitIndex = splitCount - 1;
+    float lastSplit = minDepth;
+
+    for (int i = 0; i < lastSplitIndex; i++) {
+        float viewSplitStart = computeCascadeSplitStart(i + 1, minDepthFrustum, maxDepthFrustum);
+        float nextSplit = getViewToProjectionZ(viewSplitStart);
+        float splitBlendStart = nextSplit - (nextSplit - lastSplit) * blendZone;
+        lastSplit = nextSplit;
+        splitStart[i] = vec2(splitBlendStart, nextSplit);
+    }
+
+    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 lid = ivec2(gl_LocalInvocationID.xy);
+    uint tid = gl_LocalInvocationIndex;
+    ivec2 inputSize = textureSize(inputDepth, 0);
+    ivec2 baseCoord = gid * 2;
+
+    // Initialize local bounds to infinity
+    const float INF = 1.0 / 0.0;
+    vec4 localBounds[4] = vec4[4](
+        vec4(INF, INF, -INF, -INF),
+        vec4(INF, INF, -INF, -INF),
+        vec4(INF, INF, -INF, -INF),
+        vec4(INF, INF, -INF, -INF)
+    );
+    vec2 localZBounds[4] = vec2[4](
+        vec2(INF, -INF),
+        vec2(INF, -INF),
+        vec2(INF, -INF),
+        vec2(INF, -INF)
+    );
+
+    // Sample 2x2 pixel block
+    for (int y = 0; y < 2; y++) {
+        for (int x = 0; x < 2; x++) {
+            ivec2 coord = baseCoord + ivec2(x, y);
+            if (coord.x < inputSize.x && coord.y < inputSize.y) {
+                float depth = texelFetch(inputDepth, coord, 0).r;
+                // Skip background (depth == 1.0)
+                if (depth != 1.0) {
+                    // Reconstruct clip-space position from depth
+                    vec2 uv = (vec2(coord) + 0.5) / vec2(textureSize(inputDepth, 0));
+                    vec4 clipPos = vec4(uv * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
+
+                    // Transform to light view space
+                    vec4 lightSpacePos = cameraToLightView * clipPos;
+                    lightSpacePos /= lightSpacePos.w;
+
+                    // Find which cascade this sample belongs to
+                    int cascadeIndex = 0;
+                    while (cascadeIndex < lastSplitIndex) {
+                        if (depth < splitStart[cascadeIndex].x) {
+                            break;
+                        }
+                        cascadeIndex += 1;
+                    }
+
+                    // Update bounds for primary cascade
+                    vec4 exB = localBounds[cascadeIndex];
+                    localBounds[cascadeIndex] = vec4(
+                        min(exB.xy, lightSpacePos.xy),
+                        max(exB.zw, lightSpacePos.xy)
+                    );
+                    vec2 exD = localZBounds[cascadeIndex];
+                    localZBounds[cascadeIndex] = vec2(
+                        min(exD.x, lightSpacePos.z),
+                        max(exD.y, lightSpacePos.z)
+                    );
+
+                    // Handle blend zone - also include in previous cascade
+                    if (cascadeIndex > 0) {
+                        int prevCascade = cascadeIndex - 1;
+                        vec2 split = splitStart[prevCascade];
+                        if (depth < split.y) {
+                            exB = localBounds[prevCascade];
+                            localBounds[prevCascade] = vec4(
+                                min(exB.xy, lightSpacePos.xy),
+                                max(exB.zw, lightSpacePos.xy)
+                            );
+                            exD = localZBounds[prevCascade];
+                            localZBounds[prevCascade] = vec2(
+                                min(exD.x, lightSpacePos.z),
+                                max(exD.y, lightSpacePos.z)
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Store local results to shared memory
+    for (int i = 0; i < splitCount; i++) {
+        sharedBounds[i][tid] = localBounds[i];
+        sharedZBounds[i][tid] = localZBounds[i];
+    }
+    barrier();
+
+    // Parallel reduction in shared memory
+    for (uint stride = 128; stride > 0; stride >>= 1) {
+        if (tid < stride) {
+            for (int i = 0; i < splitCount; i++) {
+                vec4 us = sharedBounds[i][tid];
+                vec4 other = sharedBounds[i][tid + stride];
+                sharedBounds[i][tid] = vec4(
+                    min(us.x, other.x),
+                    min(us.y, other.y),
+                    max(us.z, other.z),
+                    max(us.w, other.w)
+                );
+
+                vec2 usZ = sharedZBounds[i][tid];
+                vec2 otherZ = sharedZBounds[i][tid + stride];
+                sharedZBounds[i][tid] = vec2(
+                    min(usZ.x, otherZ.x),
+                    max(usZ.y, otherZ.y)
+                );
+            }
+        }
+        barrier();
+    }
+
+    // Global reduction using atomics (first thread in workgroup)
+    if (lid.x == 0 && lid.y == 0) {
+        for (int i = 0; i < splitCount; i++) {
+            vec4 bounds = sharedBounds[i][0];
+            atomicMin(gBounds[i].x, floatFlip(bounds.x));
+            atomicMin(gBounds[i].y, floatFlip(bounds.y));
+            atomicMax(gBounds[i].z, floatFlip(bounds.z));
+            atomicMax(gBounds[i].w, floatFlip(bounds.w));
+
+            vec2 zBounds = sharedZBounds[i][0];
+            atomicMin(gZBounds[i].x, floatFlip(zBounds.x));
+            atomicMax(gZBounds[i].y, floatFlip(zBounds.y));
+        }
+    }
+    // Second thread copies output data
+    else if (gid.x == 1 && gid.y == 0) {
+        rMin = gMin;
+        rMax = gMax;
+        for (int i = 0; i < splitCount - 1; i++) {
+            rSplitStart[i] = uvec2(floatFlip(splitStart[i].x), floatFlip(splitStart[i].y));
+        }
+    }
+}
