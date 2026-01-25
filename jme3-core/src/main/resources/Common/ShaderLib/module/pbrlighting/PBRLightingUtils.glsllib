@@ -395,7 +395,7 @@
                         vec4 specularColor = vec4(1.0);
                     #endif
                     #ifdef GLOSSINESSMAP
-                        glossiness *= texture2D(m_GlossinesMap, newTexCoord).r;
+                        glossiness *= texture2D(m_GlossinessMap, newTexCoord).r;
                     #endif
                 #endif
                 specularColor *= m_Specular;
@@ -711,3 +711,4 @@
     }
 
 #endif
+
