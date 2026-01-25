@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.system.NativeLibraries.LibraryInfo;
 import com.jme3.util.res.Resources;
 
 /**
@@ -92,6 +93,16 @@ public final class NativeLibraryLoader {
      */
     public static void registerNativeLibrary(NativeLibrary library) {
         nativeLibraryMap.put(library.getKey(), library);
+    }
+
+    /**
+     * Register a new native library.
+     *
+     * This simply registers a known library, the actual extraction and loading is performed by calling
+     * {@link #loadNativeLibrary(java.lang.String, boolean) }.
+     */
+    public static void registerNativeLibrary(LibraryInfo library) {
+        library.getNativeVariants().forEach(NativeLibraryLoader::registerNativeLibrary);
     }
 
     /**
@@ -428,11 +439,15 @@ public final class NativeLibraryLoader {
     /**
      * First extracts the native library and then loads it.
      * 
-     * @param name The name of the library to load.
-     * @param isRequired If true and the library fails to load, throw exception. If
-     * false, do nothing if it fails to load.
+     * @param name
+     *            The name of the library to load.
+     * @param isRequired
+     *            If true and the library fails to load, throw exception. If false, do nothing if it fails to
+     *            load.
+     * 
+     * @return The absolute path of the loaded library.
      */
-    public static void loadNativeLibrary(String name, boolean isRequired) {
+    public static String loadNativeLibrary(String name, boolean isRequired) {
         if (JmeSystem.isLowPermissions()) {
             throw new UnsupportedOperationException("JVM is running under "
                     + "reduced permissions. Cannot load native libraries.");
@@ -453,7 +468,7 @@ public final class NativeLibraryLoader {
                                     " is not available for your OS: {1}",
                             new Object[]{name, platform});
                 }
-                return;
+                return null;
             }
         }
         
@@ -461,7 +476,7 @@ public final class NativeLibraryLoader {
 
         if (pathInJar == null) {
             // This platform does not require the native library to be loaded.
-            return;
+            return null;
         }
 
         URL url = Resources.getResource(pathInJar);
@@ -476,7 +491,7 @@ public final class NativeLibraryLoader {
                                 " was not found in the classpath via ''{1}''.",
                         new Object[]{library.getName(), pathInJar});
             }
-            return;
+            return null;
         }
         
         // The library has been found and is ready to be extracted.
@@ -526,6 +541,8 @@ public final class NativeLibraryLoader {
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "Loaded native library {0}.", library.getName());
             }
+
+            return targetFile.getAbsolutePath();
         } catch (IOException ex) {
             /*if (ex.getMessage().contains("used by another process")) {
                 return;

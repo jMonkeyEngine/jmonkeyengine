@@ -50,3 +50,5 @@ javadoc_deploy.pub
 !.vscode/settings.json
 !.vscode/JME_style.xml
 !.vscode/extensions.json
+joysticks-*.txt
+hs_err_pid*.log

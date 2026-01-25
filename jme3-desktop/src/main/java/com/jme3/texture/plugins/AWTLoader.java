@@ -101,6 +101,27 @@ public class AWTLoader implements AssetLoader {
         }
     }
 
+    private static void convertBGRtoRGB(byte[] data){
+        for (int i = 0; i < data.length; i += 3) {
+            byte tmp = data[i];
+            data[i] = data[i + 2];
+            data[i + 2] = tmp;
+        }
+    }
+
+    private static void convertABGRtoRGBA(byte[] data){
+        for (int i = 0; i < data.length; i += 4) {
+            byte a = data[i];
+            byte b = data[i + 1];
+            byte g = data[i + 2];
+            byte r = data[i + 3];
+            data[i]     = r;
+            data[i + 1] = g;
+            data[i + 2] = b;
+            data[i + 3] = a;
+        }
+    }
+
     public Image load(BufferedImage img, boolean flipY){
         int width = img.getWidth();
         int height = img.getHeight();
@@ -110,18 +131,22 @@ public class AWTLoader implements AssetLoader {
                byte[] dataBuf1 = (byte[]) extractImageData(img);
                if (flipY)
                    flipImage(dataBuf1, width, height, 32);
+
+               convertABGRtoRGBA(dataBuf1);
                 
                ByteBuffer data1 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight()*4);
                data1.put(dataBuf1);
-               return new Image(Format.ABGR8, width, height, data1, null, com.jme3.texture.image.ColorSpace.sRGB);
+               return new Image(Format.RGBA8, width, height, data1, null, com.jme3.texture.image.ColorSpace.sRGB);
             case BufferedImage.TYPE_3BYTE_BGR: // most common in JPEG images
                byte[] dataBuf2 = (byte[]) extractImageData(img);
                if (flipY)
                    flipImage(dataBuf2, width, height, 24);
+
+               convertBGRtoRGB(dataBuf2);
                
                ByteBuffer data2 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight()*3);
                data2.put(dataBuf2);
-               return new Image(Format.BGR8, width, height, data2, null, com.jme3.texture.image.ColorSpace.sRGB);
+               return new Image(Format.RGB8, width, height, data2, null, com.jme3.texture.image.ColorSpace.sRGB);
             case BufferedImage.TYPE_BYTE_GRAY: // grayscale fonts
                 byte[] dataBuf3 = (byte[]) extractImageData(img);
                 if (flipY)

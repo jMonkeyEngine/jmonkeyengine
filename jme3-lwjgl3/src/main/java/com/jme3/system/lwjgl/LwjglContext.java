@@ -46,6 +46,7 @@ import com.jme3.opencl.lwjgl.Utils;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.lwjgl.LwjglGL;
+import com.jme3.renderer.lwjgl.LwjglGLES;
 import com.jme3.renderer.lwjgl.LwjglGLExt;
 import com.jme3.renderer.lwjgl.LwjglGLFboEXT;
 import com.jme3.renderer.lwjgl.LwjglGLFboGL3;
@@ -78,13 +79,15 @@ import org.lwjgl.opengl.EXTFramebufferMultisample;
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.glGetInteger;
 import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengles.GLES;
+import org.lwjgl.opengles.GLESCapabilities;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Platform;
-
 /**
  * A LWJGL implementation of a graphics context.
  */
 public abstract class LwjglContext implements JmeContext {
+    protected boolean useAngle = false;
 
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
 
@@ -112,7 +115,7 @@ public abstract class LwjglContext implements JmeContext {
             AppSettings.LWJGL_OPENGL42,
             AppSettings.LWJGL_OPENGL43,
             AppSettings.LWJGL_OPENGL44,
-            AppSettings.LWJGL_OPENGL45
+            AppSettings.LWJGL_OPENGL45, AppSettings.ANGLE_GLES3
     ));
 
     public static final boolean CL_GL_SHARING_POSSIBLE = true;
@@ -208,52 +211,85 @@ public abstract class LwjglContext implements JmeContext {
     private void initContext(boolean first) {
 
         final String renderer = settings.getRenderer();
-        final GLCapabilities capabilities = createCapabilities(!renderer.equals(AppSettings.LWJGL_OPENGL2));
-
-        if (!capabilities.OpenGL20) {
-            throw new RendererException("OpenGL 2.0 or higher is required for jMonkeyEngine");
-        } else if (!SUPPORTED_RENDERS.contains(renderer)) {
-            throw new UnsupportedOperationException("Unsupported renderer: " + renderer);
-        }
 
         if (first) {
-            GL gl = new LwjglGL();
-            GLExt glext = new LwjglGLExt();
+            GL gl;
+            GLExt glext;
             GLFbo glfbo;
+            if (!useAngle) {
 
-            if (capabilities.OpenGL30) {
-                glfbo = new LwjglGLFboGL3();
+                final GLCapabilities capabilities = createCapabilities(
+                        !renderer.equals(AppSettings.LWJGL_OPENGL2));
+
+                if (!capabilities.OpenGL20) {
+                    throw new RendererException("OpenGL 2.0 or higher is required for jMonkeyEngine");
+                } else if (!SUPPORTED_RENDERS.contains(renderer)) {
+                    throw new UnsupportedOperationException("Unsupported renderer: " + renderer);
+                }
+
+                gl = new LwjglGL();
+                glext = new LwjglGLExt();
+
+                if (capabilities.OpenGL30) {
+                    glfbo = new LwjglGLFboGL3();
+                } else {
+                    glfbo = new LwjglGLFboEXT();
+                }
+
+                if (settings.isGraphicsDebug()) {
+                    gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
+                    glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
+                    glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
+                }
+
+                if (settings.isGraphicsTiming()) {
+                    GLTimingState timingState = new GLTimingState();
+                    gl = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class,
+                            GL4.class);
+                    glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
+                    glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
+                }
+
+                if (settings.isGraphicsTrace()) {
+                    gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
+                    glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
+                    glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
+                }
+
+                if (capabilities.GL_ARB_debug_output && settings.isGraphicsDebug()) {
+                    ARBDebugOutput.glDebugMessageCallbackARB(new LwjglGLDebugOutputHandler(), 0);
+                }
+
             } else {
-                glfbo = new LwjglGLFboEXT();
-            }
+                final GLESCapabilities capabilities = GLES.createCapabilities();
+                LwjglGLES gles = new LwjglGLES();
 
-            if (settings.isGraphicsDebug()) {
-                gl = (GL) GLDebug.createProxy(gl, gl, GL.class, GL2.class, GL3.class, GL4.class);
-                glext = (GLExt) GLDebug.createProxy(gl, glext, GLExt.class);
-                glfbo = (GLFbo) GLDebug.createProxy(gl, glfbo, GLFbo.class);
-            }
+                if (settings.isGraphicsDebug()) {
+                    gles = (LwjglGLES) GLDebug.createProxy(gles, gles, GL.class, GLES_30.class, GLFbo.class,
+                            GLExt.class);
 
-            if (settings.isGraphicsTiming()) {
-                GLTimingState timingState = new GLTimingState();
-                gl = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
-                glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
-                glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
-            }
+                }
 
-            if (settings.isGraphicsTrace()) {
-                gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
-                glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
-                glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
-            }
+                if (settings.isGraphicsTiming()) {
+                    GLTimingState timingState = new GLTimingState();
+                    gles = (LwjglGLES) GLTiming.createGLTiming(gles, timingState, GL.class, GLES_30.class,
+                            GLFbo.class, GLExt.class);
+                }
 
+                if (settings.getBoolean("GraphicsTrace")) {
+                    gles = (LwjglGLES) GLTracer.createGlesTracer(gles, GL.class, GLES_30.class, GLFbo.class,
+                            GLExt.class);
+                }
+
+                gl = gles;
+                glext = gles;
+                glfbo = gles;
+
+            }
             this.renderer = new GLRenderer(gl, glext, glfbo);
             if (this.settings.isGraphicsDebug()) ((GLRenderer)this.renderer).setDebugEnabled(true);
         }
         this.renderer.initialize();
-
-        if (capabilities.GL_ARB_debug_output && settings.isGraphicsDebug()) {
-            ARBDebugOutput.glDebugMessageCallbackARB(new LwjglGLDebugOutputHandler(), 0);
-        }
 
         this.renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
         this.renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
@@ -271,6 +307,7 @@ public abstract class LwjglContext implements JmeContext {
             if (joyInput != null) {
                 joyInput.initialize();
             }
+
 
             GLFW.glfwSetJoystickCallback(new GLFWJoystickCallback() {
                 @Override
@@ -326,6 +363,7 @@ public abstract class LwjglContext implements JmeContext {
 
     @SuppressWarnings("unchecked")
     protected void initOpenCL(final long window) {
+        if (useAngle) return;
         logger.info("Initialize OpenCL with LWJGL3");
         
 //        try {
@@ -541,6 +579,7 @@ public abstract class LwjglContext implements JmeContext {
     @Override
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
+        useAngle = settings.getRenderer().equals(AppSettings.ANGLE_GLES3);
     }
 
     @Override

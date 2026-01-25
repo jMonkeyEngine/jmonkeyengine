@@ -8,12 +8,17 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.system.AppSettings;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 public class TestUnshadedModel extends SimpleApplication {
 
     public static void main(String[] args){
+        AppSettings settings = new AppSettings(true);
+        settings.setX11PlatformPreferred(true);
+        settings.setRenderer(AppSettings.ANGLE_GLES3);
         TestUnshadedModel app = new TestUnshadedModel();
+        app.setSettings(settings);
         app.start();
     }
 

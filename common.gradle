@@ -34,6 +34,9 @@ repositories {
     flatDir {
         dirs rootProject.file('lib')
     }
+    maven {
+        url "https://maven.rblb.it/riccardobl/angle-natives"
+    }
 }
 
 dependencies {

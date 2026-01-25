@@ -219,6 +219,8 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public static final String LWJGL_OPENAL = "LWJGL";
 
+    public static final String ANGLE_GLES3 = "ANGLE_GLES3";
+
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
      * <p>
@@ -282,7 +284,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
         defaults.put("Title", JmeVersion.FULL_NAME);
-        defaults.put("Renderer", LWJGL_OPENGL32);
+        defaults.put("Renderer", ANGLE_GLES3);
         defaults.put("AudioRenderer", LWJGL_OPENAL);
         defaults.put("DisableJoysticks", true);
         defaults.put("UseInput", true);
