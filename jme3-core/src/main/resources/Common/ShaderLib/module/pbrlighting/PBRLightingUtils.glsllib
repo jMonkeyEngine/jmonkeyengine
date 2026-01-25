@@ -144,7 +144,7 @@
             
             surface.exposure = 1.0; //default value
             #ifdef EXPOSUREMAP
-                surface.exposure *= texture2D(m_SunLightExposureMap, newTexCoord;
+                surface.exposure *= texture2D(m_SunLightExposureMap, newTexCoord).r;
             #endif
             #ifdef STATIC_SUN_EXPOSURE
                 surface.exposure *= m_StaticSunIntensity; //single float value to indicate percentage of sunlight hitting the model (only suitable for small models or models with equal sunlight exposure accross the entire model
