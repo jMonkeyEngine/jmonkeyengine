@@ -1,0 +1,93 @@
+name: Bounty detector
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+  pull-requests: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.label.name, 'diff:')
+    steps:
+      - name: Comment bounty info
+        uses: actions/github-script@v7
+        env:
+          FORUM_URL: "https://hub.jmonkeyengine.org/t/proposal-experimental-bounty-program-in-jme/49385"
+          RESERVE_HOURS: "48"
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const label = context.payload.label?.name ?? "";
+            const actor = context.actor;              // person who applied the label
+            const issueOwner = issue.user?.login;     // original issue author
+
+            if (!issueOwner) return;
+
+            const forumUrl = process.env.FORUM_URL || "TBD";
+            const reserveHours = Number(process.env.RESERVE_HOURS || "48");
+
+            // "previous contributor" = has at least one merged PR authored in this repo
+            const repoFull = `${context.repo.owner}/${context.repo.repo}`;
+            const q = `repo:${repoFull} type:pr author:${issueOwner} is:merged`;
+
+            let isPreviousContributor = false;
+            try {
+              const search = await github.rest.search.issuesAndPullRequests({ q, per_page: 1 });
+              isPreviousContributor = (search.data.total_count ?? 0) > 0;
+            } catch (e) {
+              isPreviousContributor = false;
+            }
+
+            // Reserve only if previous contributor AND labeler is NOT the issue owner
+            const shouldReserve = isPreviousContributor && (actor !== issueOwner);
+
+            const lines = [];
+            lines.push(`💰 **This issue has a bounty.**`);
+            lines.push(`Resolve it to receive a reward.`);
+            lines.push(`For details (amount, rules, eligibility), see: ${forumUrl}`);
+            lines.push("");
+
+            lines.push(`If you want to start working on this, **comment on this issue** with your intent.`);
+            lines.push(`If accepted by a maintainer, the issue will be **assigned** to you.`);
+            lines.push("");
+
+            if (shouldReserve) {
+              const reservedUntil = new Date(Date.now() + reserveHours * 60 * 60 * 1000);
+              const reservedUntilIso = reservedUntil.toISOString();
+
+              lines.push(
+                `<sub>` +
+                `⏳ **Temporary reservation for @${issueOwner}:** since they are a previous contributor, they have priority for this bounty for **${reserveHours} hours** ` +
+                `(until **${reservedUntilIso}**). After that, it is **open to everyone**.` +
+                `</sub>`
+              );
+              lines.push("");
+            }
+
+            // Avoid duplicate comments for the same label
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              per_page: 100,
+            });
+
+            const already = comments.data.some(c =>
+              c.user?.login === "github-actions[bot]" &&
+              typeof c.body === "string" &&
+              c.body.includes("**This issue has a bounty.**") &&
+              c.body.includes(`see: ${forumUrl}`)
+            );
+
+            if (already) return;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: lines.join("\n"),
+            });
