@@ -46,7 +46,7 @@ jobs:
             const shouldReserve = isPreviousContributor && (actor !== issueOwner);
 
             const lines = [];
-            lines.push(`💰 **This issue has a bounty.**`);
+            lines.push(`# 💰 This issue has a bounty`);
             lines.push(`Resolve it to receive a reward.`);
             lines.push(`For details (amount, rules, eligibility), see: ${forumUrl}`);
             lines.push("");
@@ -61,7 +61,8 @@ jobs:
 
               lines.push(
                 `<sub>` +
-                `⏳ **Temporary reservation for @${issueOwner}:** since they are a previous contributor, they have priority for this bounty for **${reserveHours} hours** ` +
+                `⏳ **Temporary reservation for @${issueOwner}:** since they are a previous contributor, they have priority for this bounty ` +
+                `for <relative-time datetime="${reservedUntilIso}"></relative-time> ` +
                 `(until **${reservedUntilIso}**). After that, it is **open to everyone**.` +
                 `</sub>`
               );
