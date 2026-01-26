@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,15 +78,20 @@ public class ShadowUtil {
         int w = viewCam.getWidth();
         int h = viewCam.getHeight();
 
-        points[0].set(viewCam.getWorldCoordinates(new Vector2f(0, 0), 0));
-        points[1].set(viewCam.getWorldCoordinates(new Vector2f(0, h), 0));
-        points[2].set(viewCam.getWorldCoordinates(new Vector2f(w, h), 0));
-        points[3].set(viewCam.getWorldCoordinates(new Vector2f(w, 0), 0));
+        TempVars vars = TempVars.get();
+        Vector2f tempVec2 = vars.vect2d;
 
-        points[4].set(viewCam.getWorldCoordinates(new Vector2f(0, 0), 1));
-        points[5].set(viewCam.getWorldCoordinates(new Vector2f(0, h), 1));
-        points[6].set(viewCam.getWorldCoordinates(new Vector2f(w, h), 1));
-        points[7].set(viewCam.getWorldCoordinates(new Vector2f(w, 0), 1));
+        viewCam.getWorldCoordinates(tempVec2.set(0, 0), 0, points[0]);
+        viewCam.getWorldCoordinates(tempVec2.set(0, h), 0, points[1]);
+        viewCam.getWorldCoordinates(tempVec2.set(w, h), 0, points[2]);
+        viewCam.getWorldCoordinates(tempVec2.set(w, 0), 0, points[3]);
+
+        viewCam.getWorldCoordinates(tempVec2.set(0, 0), 1, points[4]);
+        viewCam.getWorldCoordinates(tempVec2.set(0, h), 1, points[5]);
+        viewCam.getWorldCoordinates(tempVec2.set(w, h), 1, points[6]);
+        viewCam.getWorldCoordinates(tempVec2.set(w, 0), 1, points[7]);
+
+        vars.release();
     }
 
     /**
@@ -108,10 +113,11 @@ public class ShadowUtil {
             float farOverride,
             float scale,
             Vector3f[] points) {
+        TempVars vars = TempVars.get();
 
         Vector3f pos = viewCam.getLocation();
-        Vector3f dir = viewCam.getDirection();
-        Vector3f up = viewCam.getUp();
+        Vector3f dir = viewCam.getDirection(vars.vect1);
+        Vector3f up = viewCam.getUp(vars.vect2);
 
         float depthHeightRatio = viewCam.getFrustumTop() / viewCam.getFrustumNear();
         float near = nearOverride;
@@ -137,18 +143,18 @@ public class ShadowUtil {
             far_width = far_height * ratio;
         }
 
-        Vector3f right = dir.cross(up).normalizeLocal();
+        Vector3f right = vars.vect3.set(dir).crossLocal(up).normalizeLocal();
 
-        Vector3f temp = new Vector3f();
+        Vector3f temp = vars.vect4;
         temp.set(dir).multLocal(far).addLocal(pos);
-        Vector3f farCenter = temp.clone();
+        Vector3f farCenter = vars.vect5.set(temp);
         temp.set(dir).multLocal(near).addLocal(pos);
-        Vector3f nearCenter = temp.clone();
+        Vector3f nearCenter = vars.vect6.set(temp);
 
-        Vector3f nearUp = temp.set(up).multLocal(near_height).clone();
-        Vector3f farUp = temp.set(up).multLocal(far_height).clone();
-        Vector3f nearRight = temp.set(right).multLocal(near_width).clone();
-        Vector3f farRight = temp.set(right).multLocal(far_width).clone();
+        Vector3f nearUp = vars.vect7.set(up).multLocal(near_height);
+        Vector3f farUp = vars.vect8.set(up).multLocal(far_height);
+        Vector3f nearRight = vars.vect9.set(right).multLocal(near_width);
+        Vector3f farRight = vars.vect10.set(right).multLocal(far_width);
 
         points[0].set(nearCenter).subtractLocal(nearUp).subtractLocal(nearRight);
         points[1].set(nearCenter).addLocal(nearUp).subtractLocal(nearRight);
@@ -168,13 +174,14 @@ public class ShadowUtil {
             }
             center.divideLocal(8f);
 
-            Vector3f cDir = new Vector3f();
+            Vector3f cDir = temp;
             for (int i = 0; i < 8; i++) {
                 cDir.set(points[i]).subtractLocal(center);
                 cDir.multLocal(scale - 1.0f);
                 points[i].addLocal(cDir);
             }
         }
+        vars.release();
     }
 
     /**
@@ -244,18 +251,21 @@ public class ShadowUtil {
      * @return a new instance
      */
     public static BoundingBox computeBoundForPoints(Vector3f[] pts, Transform transform) {
-        Vector3f min = new Vector3f(Vector3f.POSITIVE_INFINITY);
-        Vector3f max = new Vector3f(Vector3f.NEGATIVE_INFINITY);
-        Vector3f temp = new Vector3f();
+        TempVars vars = TempVars.get();
+        Vector3f min = vars.vect1.set(Vector3f.POSITIVE_INFINITY);
+        Vector3f max = vars.vect2.set(Vector3f.NEGATIVE_INFINITY);
+        Vector3f temp = vars.vect3;
         for (int i = 0; i < pts.length; i++) {
             transform.transformVector(pts[i], temp);
 
             min.minLocal(temp);
             max.maxLocal(temp);
         }
-        Vector3f center = min.add(max).multLocal(0.5f);
-        Vector3f extent = max.subtract(min).multLocal(0.5f);
-        return new BoundingBox(center, extent.x, extent.y, extent.z);
+        Vector3f center = vars.vect4.set(min).addLocal(max).multLocal(0.5f);
+        Vector3f extent = vars.vect5.set(max).subtractLocal(min).multLocal(0.5f);
+        BoundingBox bbox = new BoundingBox(center, extent.x, extent.y, extent.z);
+        vars.release();
+        return bbox;
     }
 
     /**
@@ -266,10 +276,10 @@ public class ShadowUtil {
      * @return a new BoundingBox
      */
     public static BoundingBox computeBoundForPoints(Vector3f[] pts, Matrix4f mat) {
-        Vector3f min = new Vector3f(Vector3f.POSITIVE_INFINITY);
-        Vector3f max = new Vector3f(Vector3f.NEGATIVE_INFINITY);
         TempVars vars = TempVars.get();
-        Vector3f temp = vars.vect1;
+        Vector3f min = vars.vect1.set(Vector3f.POSITIVE_INFINITY);
+        Vector3f max = vars.vect2.set(Vector3f.NEGATIVE_INFINITY);
+        Vector3f temp = vars.vect3;
 
         for (int i = 0; i < pts.length; i++) {
             float w = mat.multProj(pts[i], temp);
@@ -282,11 +292,13 @@ public class ShadowUtil {
             min.minLocal(temp);
             max.maxLocal(temp);
         }
+        Vector3f center = vars.vect4.set(min).addLocal(max).multLocal(0.5f);
+        Vector3f extent = vars.vect5.set(max).subtractLocal(min).multLocal(0.5f);
+        // Nehon 08/18/2010 : Added an offset to the extend, to avoid banding artifacts when the frustums are
+        // aligned.
+        BoundingBox bbox = new BoundingBox(center, extent.x + 2.0f, extent.y + 2.0f, extent.z + 2.5f);
         vars.release();
-        Vector3f center = min.add(max).multLocal(0.5f);
-        Vector3f extent = max.subtract(min).multLocal(0.5f);
-        //Nehon 08/18/2010 : Added an offset to the extend, to avoid banding artifacts when the frustums are aligned.
-        return new BoundingBox(center, extent.x + 2.0f, extent.y + 2.0f, extent.z + 2.5f);
+        return bbox;
     }
 
     /**
@@ -335,13 +347,12 @@ public class ShadowUtil {
                 0f, 0f, scaleZ, offsetZ,
                 0f, 0f, 0f, 1f);
 
-
-        Matrix4f result = new Matrix4f();
+        Matrix4f result = vars.tempMat42;
         result.set(cropMatrix);
         result.multLocal(projMatrix);
 
-        vars.release();
         shadowCam.setProjectionMatrix(result);
+        vars.release();
     }
 
     /**
@@ -610,13 +621,12 @@ public class ShadowUtil {
                 0f, 0f, scaleZ, offsetZ,
                 0f, 0f, 0f, 1f);
 
-
-        Matrix4f result = new Matrix4f();
+        Matrix4f result = vars.tempMat42;
         result.set(cropMatrix);
         result.multLocal(projMatrix);
-        vars.release();
 
         shadowCam.setProjectionMatrix(result);
+        vars.release();
     }
 
     /**
