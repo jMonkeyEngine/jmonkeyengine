@@ -46,6 +46,8 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.FullscreenTriangle;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.texture.Image.Format;
@@ -88,7 +90,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private Texture2D depthTexture;
     private SafeArrayList<Filter> filters = new SafeArrayList<>(Filter.class);
     private AssetManager assetManager;
-    private Picture fsQuad;
+    private Geometry fsQuad;
     private boolean computeDepth = false;
     private FrameBuffer outputBuffer;
     private int width;
@@ -181,9 +183,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         renderManager = rm;
         renderer = rm.getRenderer();
         viewPort = vp;
-        fsQuad = new Picture("filter full screen quad");
-        fsQuad.setWidth(1);
-        fsQuad.setHeight(1);
+        fsQuad = new Geometry("FsQuad", new FullscreenTriangle());
 
         // Determine optimal framebuffer format based on renderer capabilities
         if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
