@@ -201,6 +201,8 @@ public class JmeIosGLES {
     public static native String glGetShaderInfoLog(int shader);
     public static native void glGetShaderiv(int shader, int pname, int[] params, int offset);
     public static native String glGetString(int name);
+
+    public static native String glGetStringi(int name, int index);
     public static native int glGetUniformLocation(int program, String name);
     public static native boolean glIsEnabled(int cap);
     public static native boolean glIsFramebuffer(int framebuffer);

@@ -13,6 +13,10 @@ dependencies {
     api libs.lwjgl3.opencl
     api libs.lwjgl3.opengl
 
+    api libs.lwjgl3.opengles
+    api("io.github.riccardobl:angle-natives:2026-01-24-2")
+
+    runtimeOnly("io.github.riccardobl:angle-natives:2026-01-24-2")
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows-x86') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux') })
@@ -52,6 +56,15 @@ dependencies {
     runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux-arm64') })
     runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos') })
     runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos-arm64') })
+
+
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.opengles){ classifier('natives-macos-arm64') })
 }
 
 javadoc {

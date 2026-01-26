@@ -809,5 +809,9 @@ public class IosGL implements GL, GL2, GLES_30, GLExt, GLFbo {
         throw new UnsupportedOperationException("Unimplemented method 'glGenVertexArrays'");
     }
 
+    @Override
+    public String glGetString(int name, int index) {
+        return JmeIosGLES.glGetStringi(name, index);
+    }
 
 }

@@ -48,6 +48,9 @@ import com.jme3.system.Displays;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
+import com.jme3.system.NativeLibraryLoader;
+import com.jme3.system.NativeLibraries.LibraryInfo;
+import com.jme3.system.Platform;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
 import java.awt.Graphics2D;
@@ -66,10 +69,11 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.glfw.GLFWNativeEGL;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowFocusCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
-import org.lwjgl.system.Platform;
+import org.lwjgl.system.Configuration;
 
 /**
  * A wrapper class over the GLFW framework in LWJGL 3.
@@ -77,6 +81,41 @@ import org.lwjgl.system.Platform;
  * @author Daniel Johansson
  */
 public abstract class LwjglWindow extends LwjglContext implements Runnable {
+    private static final LibraryInfo angleEGL = new LibraryInfo("angleEGL")
+            .addNativeVariant(Platform.Windows64, "native/angle/windows/x86_64/libEGL.dll", "libEGL.dll")
+            .addNativeVariant(Platform.Windows_ARM64, "native/angle/windows/arm64/libEGL.dll", "libEGL.dll")
+            .addNativeVariant(Platform.Linux64, "native/angle/linux/x86_64/libEGL.so", "libEGL.so")
+            .addNativeVariant(Platform.Linux_ARM64, "native/angle/linux/arm64/libEGL.so", "libEGL.so")
+            .addNativeVariant(Platform.MacOSX64, "native/angle/osx/x86_64/libEGL.dylib", "libEGL.dylib")
+            .addNativeVariant(Platform.MacOSX_ARM64, "native/angle/osx/arm64/libEGL.dylib", "libEGL.dylib");
+    // private static final LibraryInfo angleEGL_1 = new LibraryInfo("angleEGL_1")
+    // .addNativeVariant(Platform.Linux64, "native/angle/linux/x86_64/libEGL.so.1", "libEGL.so.1")
+    // .addNativeVariant(Platform.Linux_ARM64, "native/angle/linux/arm64/libEGL.so.1", "libEGL.so.1");
+    private static final LibraryInfo angleGLESv2 = new LibraryInfo("angleGLESv2")
+            .addNativeVariant(Platform.Windows64, "native/angle/windows/x86_64/libGLESv2.dll",
+                    "libGLESv2.dll")
+            .addNativeVariant(Platform.Windows_ARM64, "native/angle/windows/arm64/libGLESv2.dll",
+                    "libGLESv2.dll")
+            .addNativeVariant(Platform.Linux64, "native/angle/linux/x86_64/libGLESv2.so", "libGLESv2.so")
+            .addNativeVariant(Platform.Linux_ARM64, "native/angle/linux/arm64/libGLESv2.so", "libGLESv2.so")
+            .addNativeVariant(Platform.MacOSX64, "native/angle/osx/x86_64/libGLESv2.dylib", "libGLESv2.dylib")
+            .addNativeVariant(Platform.MacOSX_ARM64, "native/angle/osx/arm64/libGLESv2.dylib",
+                    "libGLESv2.dylib");
+    // private static final LibraryInfo angleGLESv2_2 = new LibraryInfo("angleGLESv2_2")
+    // .addNativeVariant(Platform.Linux64, "native/angle/linux/x86_64/libGLESv2.so.2", "libGLESv2.so.2")
+    // .addNativeVariant(Platform.Linux_ARM64, "native/angle/linux/arm64/libGLESv2.so.2",
+    // "libGLESv2.so.2");
+    private static final LibraryInfo d3dcompiler_47 = new LibraryInfo("d3dcompiler_47")
+            .addNativeVariant(Platform.Windows64, "native/d3dcompiler/windows/x86_64/d3dcompiler_47.dll")
+            .addNativeVariant(Platform.Windows_ARM64, "native/d3dcompiler/windows/arm64/d3dcompiler_47.dll");
+
+    static {
+        NativeLibraryLoader.registerNativeLibrary(angleEGL);
+        NativeLibraryLoader.registerNativeLibrary(angleGLESv2);
+        // NativeLibraryLoader.registerNativeLibrary(angleEGL_1);
+        // NativeLibraryLoader.registerNativeLibrary(angleGLESv2_2);
+        NativeLibraryLoader.registerNativeLibrary(d3dcompiler_47);
+    }
 
     private static final Logger LOGGER = Logger.getLogger(LwjglWindow.class.getName());
 
@@ -89,82 +128,76 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private static final Map<String, Runnable> RENDER_CONFIGS = new HashMap<>();
 
     static {
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL30,
-            () -> {
-                // Based on GLFW docs for OpenGL version below 3.2,
-                // GLFW_OPENGL_ANY_PROFILE must be used.
-                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL31,
-            () -> {
-                // Based on GLFW docs for OpenGL version below 3.2,
-                // GLFW_OPENGL_ANY_PROFILE must be used.
-                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL32,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL33,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL40,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL41,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL42,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL43,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL44,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL45,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-            }
-        );
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL30, () -> {
+            // Based on GLFW docs for OpenGL version below 3.2,
+            // GLFW_OPENGL_ANY_PROFILE must be used.
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL31, () -> {
+            // Based on GLFW docs for OpenGL version below 3.2,
+            // GLFW_OPENGL_ANY_PROFILE must be used.
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL32, () -> {
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL33, () -> {
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL40, () -> {
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL41, () -> {
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL42, () -> {
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL43, () -> {
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL44, () -> {
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL45, () -> {
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+        });
+        RENDER_CONFIGS.put(AppSettings.ANGLE_GLES3, () -> {
+            glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+        });
     }
 
     protected final AtomicBoolean needClose = new AtomicBoolean(false);
@@ -263,6 +296,29 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
      * @param settings the settings to apply when creating the context.
      */
     protected void createContext(final AppSettings settings) {
+
+        if (useAngle) {
+
+            String angleEGLPath = NativeLibraryLoader.loadNativeLibrary("angleEGL", true);
+            String angleGLESv2Path = NativeLibraryLoader.loadNativeLibrary("angleGLESv2", true);
+            // String angleEGL1Path = NativeLibraryLoader.loadNativeLibrary("angleEGL_1", true);
+            // String angleGLESv2_2Path = NativeLibraryLoader.loadNativeLibrary("angleGLESv2_2", true);
+            NativeLibraryLoader.loadNativeLibrary("d3dcompiler_47", false); // windows only
+
+            // force debug build
+            // angleEGLPath = "/home/riccardobl/Desktop/debugANGLE/native/angle/linux/x86_64/libEGL.so";
+            // angleGLESv2Path = "/home/riccardobl/Desktop/debugANGLE/native/angle/linux/x86_64/libGLESv2.so";
+
+            // if (angleEGL1Path != null) angleEGLPath = angleEGL1Path;
+            // if (angleGLESv2_2Path != null) angleGLESv2Path = angleGLESv2_2Path;
+
+            GLFWNativeEGL.setEGLPath(angleEGLPath);
+            GLFWNativeEGL.setGLESPath(angleGLESv2Path);
+
+            Configuration.OPENGLES_LIBRARY_NAME.set(angleGLESv2Path);
+            Configuration.EGL_LIBRARY_NAME.set(angleEGLPath);
+        }
+
         glfwSetErrorCallback(
             errorCallback =
                 new GLFWErrorCallback() {
@@ -297,8 +353,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         final String renderer = settings.getRenderer();
 
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         RENDER_CONFIGS
             .computeIfAbsent(
@@ -645,7 +699,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return;
         }
 
-        if (Platform.get() == Platform.MACOSX) {
+        if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.MACOSX) {
             // NOTE: this is required for Mac OS X!
             mainThread = Thread.currentThread();
             mainThread.setName("jME3 Main");
