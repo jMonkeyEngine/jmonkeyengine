@@ -44,7 +44,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
@@ -89,7 +88,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         init(shadowMapSize);
     }
 
-    
+
     private void init(int shadowMapSize) {
         shadowCam = new Camera(shadowMapSize, shadowMapSize);
         for (int i = 0; i < points.length; i++) {
@@ -175,9 +174,9 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
         Vector3f[] points2 = points.clone();
 
-        ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, shadowMapIndex));
+        getSceneForDebug().attachChild(createFrustum(points, shadowMapIndex));
         ShadowUtil.updateFrustumPoints2(shadowCam, points2);
-        ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points2, shadowMapIndex));
+        getSceneForDebug().attachChild(createFrustum(points2, shadowMapIndex));
     }
 
     @Override

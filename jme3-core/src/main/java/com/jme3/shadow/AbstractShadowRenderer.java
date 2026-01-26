@@ -56,6 +56,7 @@ import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
 import com.jme3.texture.FrameBuffer;
@@ -427,6 +428,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         // Default implementation does nothing.
     }
 
+    protected Node getSceneForDebug() {
+        return (Node) viewPort.getScenes().get(0);
+    }
+
     @Override
     public void postQueue(RenderQueue rq) {
         lightReceivers.clear();
@@ -449,7 +454,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             renderShadowMap(shadowMapIndex);
         }
 
-        debugfrustums = false;
+        if (debugfrustums) {
+            debugfrustums = false;
+            getSceneForDebug().updateGeometricState();
+        }
 
         //restore setting for future rendering
         r.setFrameBuffer(viewPort.getOutputFrameBuffer());
@@ -956,3 +964,5 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         oc.write(edgesThickness, "edgesThickness", 1.0f);
     }
 }
+
+

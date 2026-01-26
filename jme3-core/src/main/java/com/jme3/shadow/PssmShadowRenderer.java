@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -438,13 +438,9 @@ public class PssmShadowRenderer implements SceneProcessor {
             renderManager.setCamera(shadowCam, false);
 
             if (debugfrustums) {
-//                    frustumFromBound(b.casterBB,ColorRGBA.Blue );
-//                    frustumFromBound(b.receiverBB,ColorRGBA.Green );
-//                    frustumFromBound(b.splitBB,ColorRGBA.Yellow );
-                ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, i));
+                getSceneForDebug().attachChild(createFrustum(points, i));
                 ShadowUtil.updateFrustumPoints2(shadowCam, points);
-                ((Node) viewPort.getScenes().get(0)).attachChild(createFrustum(points, i));
-
+                getSceneForDebug().attachChild(createFrustum(points, i));
             }
 
             r.setFrameBuffer(shadowFB[i]);
@@ -456,7 +452,11 @@ public class PssmShadowRenderer implements SceneProcessor {
             viewPort.getQueue().renderShadowQueue(splitOccluders, renderManager, shadowCam, true);
             renderManager.setLightFilter(tmpLightFilter);
         }
-        debugfrustums = false;
+
+        if (debugfrustums) {
+            debugfrustums = false;
+            getSceneForDebug().updateGeometricState();
+        }
 
         //restore setting for future rendering
         r.setFrameBuffer(viewPort.getOutputFrameBuffer());
@@ -465,6 +465,11 @@ public class PssmShadowRenderer implements SceneProcessor {
         renderManager.setCamera(viewCam, false);
 
     }
+
+    protected Node getSceneForDebug() {
+        return (Node) viewPort.getScenes().get(0);
+    }
+
     boolean debugfrustums = false;
 
     public void displayFrustum() {
