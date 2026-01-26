@@ -138,7 +138,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     // List of geometries that cast shadows (occluders).
     protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
     // Internal cache for shadow map uniform names (e.g., "ShadowMap0", "ShadowMap1").
-    private String[] shadowMapStringCache;
+    protected String[] shadowMapStringCache;
     // nternal cache for light view projection matrix uniform names (e.g., "LightViewProjectionMatrix0").
     private String[] lightViewStringCache;
     // The distance at which shadows start to fade out. A value of 0 means no override.

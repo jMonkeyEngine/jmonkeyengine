@@ -43,6 +43,30 @@ public interface GL4 extends GL3 {
     public static final int GL_PATCHES = 0xE;
 
     /**
+     * Accepted by the {@code shaderType} parameter of CreateShader.
+     */
+    public static final int GL_COMPUTE_SHADER = 0x91B9;
+
+    /**
+     * Accepted by the {@code barriers} parameter of MemoryBarrier.
+     */
+    public static final int GL_SHADER_STORAGE_BARRIER_BIT = 0x00002000;
+    public static final int GL_TEXTURE_FETCH_BARRIER_BIT = 0x00000008;
+
+    /**
+     * Accepted by the {@code condition} parameter of FenceSync.
+     */
+    public static final int GL_SYNC_GPU_COMMANDS_COMPLETE = 0x9117;
+
+    /**
+     * Returned by ClientWaitSync.
+     */
+    public static final int GL_ALREADY_SIGNALED = 0x911A;
+    public static final int GL_TIMEOUT_EXPIRED = 0x911B;
+    public static final int GL_CONDITION_SATISFIED = 0x911C;
+    public static final int GL_WAIT_FAILED = 0x911D;
+
+    /**
      * Accepted by the {@code target} parameter of BindBufferBase and BindBufferRange.
      */
     public static final int GL_ATOMIC_COUNTER_BUFFER = 0x92C0;
@@ -104,7 +128,7 @@ public interface GL4 extends GL3 {
     /**
      * Binds a single level of a texture to an image unit for the purpose of reading
      * and writing it from shaders.
-     * 
+     *
      * @param unit image unit to bind to
      * @param texture texture to bind to the image unit
      * @param level level of the texture to bind
@@ -114,5 +138,61 @@ public interface GL4 extends GL3 {
      * @param format format to use when performing formatted stores
      */
     public void glBindImageTexture(int unit, int texture, int level, boolean layered, int layer, int access, int format);
-    
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glDispatchCompute">Reference Page</a></p>
+     * <p>
+     * Launches one or more compute work groups.
+     *
+     * @param numGroupsX the number of work groups to be launched in the X dimension
+     * @param numGroupsY the number of work groups to be launched in the Y dimension
+     * @param numGroupsZ the number of work groups to be launched in the Z dimension
+     */
+    public void glDispatchCompute(int numGroupsX, int numGroupsY, int numGroupsZ);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glMemoryBarrier">Reference Page</a></p>
+     * <p>
+     * Defines a barrier ordering memory transactions.
+     *
+     * @param barriers the barriers to insert. One or more of:
+     *  {@link #GL_SHADER_STORAGE_BARRIER_BIT}
+     *  {@link #GL_TEXTURE_FETCH_BARRIER_BIT}
+     */
+    public void glMemoryBarrier(int barriers);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glFenceSync">Reference Page</a></p>
+     * <p>
+     * Creates a new sync object and inserts it into the GL command stream.
+     *
+     * @param condition the condition that must be met to set the sync object's state to signaled.
+     *                  Must be {@link #GL_SYNC_GPU_COMMANDS_COMPLETE}.
+     * @param flags     must be 0
+     * @return the sync object handle
+     */
+    public GLFence glFenceSync(int condition, int flags);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glClientWaitSync">Reference Page</a></p>
+     * <p>
+     * Causes the client to block and wait for a sync object to become signaled.
+     *
+     * @param sync    the sync object to wait on
+     * @param flags   flags controlling command flushing behavior. May be 0 or GL_SYNC_FLUSH_COMMANDS_BIT.
+     * @param timeout the timeout in nanoseconds for which to wait
+     * @return one of {@link #GL_ALREADY_SIGNALED}, {@link #GL_TIMEOUT_EXPIRED},
+     *         {@link #GL_CONDITION_SATISFIED}, or {@link #GL_WAIT_FAILED}
+     */
+    public int glClientWaitSync(GLFence sync, int flags, long timeout);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glDeleteSync">Reference Page</a></p>
+     * <p>
+     * Deletes a sync object.
+     *
+     * @param sync the sync object to delete
+     */
+    public void glDeleteSync(GLFence sync);
+
 }

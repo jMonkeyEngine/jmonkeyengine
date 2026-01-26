@@ -138,6 +138,7 @@ public final class GLRenderer implements Renderer {
         generateMipmapsForFramebuffers = v;
     }
 
+
     public void setDebugEnabled(boolean v) {
         debug = v;
     }
@@ -3596,5 +3597,23 @@ public final class GLRenderer implements Renderer {
         } else {
             return gl.glIsEnabled(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
         }
+    }
+
+    //TODO: How should the GL4 specific functionalities here be exposed? Via the renderer?
+    public GL4 getGl4(){
+        return gl4;
+    }
+
+    @Override
+    public void deleteFence(GLFence fence) {
+        if(gl4 != null && fence.getId() != NativeObject.INVALID_ID){
+            gl4.glDeleteSync(fence);
+            fence.resetObject();
+        }
+    }
+
+    @Override
+    public void registerNativeObject(NativeObject nativeObject) {
+        objManager.registerObject(nativeObject);
     }
 }

@@ -47,4 +47,7 @@ public class RendererException extends RuntimeException {
     public RendererException(String message) {
         super(message);
     }
+    public RendererException(Exception e) {
+        super(e);
+    }
 }

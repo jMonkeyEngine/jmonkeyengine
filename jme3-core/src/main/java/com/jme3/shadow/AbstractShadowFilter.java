@@ -41,7 +41,6 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
@@ -317,6 +316,14 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
      */
     public int getShadowMapSize() {
         return shadowRenderer.getShadowMapSize();
+    }
+
+    /**
+     * Displays the shadow frustums for debugging purposes.
+     * Creates geometry showing the shadow map camera frustums in the scene.
+     */
+    public void displayFrustum() {
+        shadowRenderer.displayFrustum();
     }
 
     @Override
