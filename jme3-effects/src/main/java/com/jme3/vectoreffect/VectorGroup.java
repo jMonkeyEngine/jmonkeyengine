@@ -66,7 +66,7 @@ public class VectorGroup {
     
     
    //regardless of type, all vectors in a VectorGroup are converted to and from Vector4f when being operated on internally by a VectorEffect.     
-    protected Vector4f getAsVector4(int index) {
+    public Vector4f getAsVector4(int index) {
         Object vectorObj = vectorList.get(index);
         if (vectorObj instanceof Vector4f) {
             Vector4f vec4 = (Vector4f) vectorObj;
@@ -89,7 +89,7 @@ public class VectorGroup {
         }
     }
 
-    protected void updateVectorObject(Vector4f newVal, int index) {
+    public void updateVectorObject(Vector4f newVal, int index) {
         Object store = vectorList.get(index);
         if (store instanceof Vector4f) {
             ((Vector4f)store).set(newVal);  // set vec4
@@ -136,3 +136,4 @@ public class VectorGroup {
         return newCopy;
     }       
 }
+
