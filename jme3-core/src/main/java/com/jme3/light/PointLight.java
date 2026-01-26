@@ -165,10 +165,12 @@ public class PointLight extends Light {
         if (radius < 0) {
             throw new IllegalArgumentException("Light radius cannot be negative");
         }
-        
-        if (radius == Float.POSITIVE_INFINITY) {
-            radius = Float.MAX_VALUE;
+        if(Float.isNaN(radius)){
+            throw new IllegalArgumentException("Light radius cannot be a NaN (Not a Number) value");
         }
+
+        float maxSafeRadius = Float.MAX_VALUE / 4.0f;
+        radius = Math.min(radius, maxSafeRadius); // Caps radius to a safe large value; avoids overflow in shaders from values reaching max float value   
         
         this.radius = radius;
         if (radius != 0f) {
@@ -259,3 +261,5 @@ public class PointLight extends Light {
                 + "]";
     }
 }
+
+
