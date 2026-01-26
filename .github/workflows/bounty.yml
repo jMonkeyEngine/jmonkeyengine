@@ -16,7 +16,7 @@ jobs:
       - name: Comment bounty info
         uses: actions/github-script@v7
         env:
-          FORUM_URL: "https://hub.jmonkeyengine.org/t/proposal-experimental-bounty-program-in-jme/49385"
+          FORUM_URL: "https://hub.jmonkeyengine.org/t/bounty-program-trial-starts-today/49394/"
           RESERVE_HOURS: "48"
           TIMER_SVG_BASE: "https://jme-bounty-reservation-indicator.rblb.workers.dev/timer.svg"
         with:
@@ -80,8 +80,7 @@ jobs:
             const already = comments.data.some(c =>
               c.user?.login === "github-actions[bot]" &&
               typeof c.body === "string" &&
-              c.body.includes("**This issue has a bounty.**") &&
-              c.body.includes(`see: ${forumUrl}`)
+              c.body.includes("This issue has a bounty")
             );
 
             if (already) return;
