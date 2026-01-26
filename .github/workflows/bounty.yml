@@ -18,17 +18,17 @@ jobs:
         env:
           FORUM_URL: "https://hub.jmonkeyengine.org/t/proposal-experimental-bounty-program-in-jme/49385"
           RESERVE_HOURS: "48"
+          TIMER_SVG_BASE: "https://jme-bounty-reservation-indicator.rblb.workers.dev/timer.svg"
         with:
           script: |
             const issue = context.payload.issue;
-            const label = context.payload.label?.name ?? "";
-            const actor = context.actor;              // person who applied the label
-            const issueOwner = issue.user?.login;     // original issue author
-
+            const actor = context.actor;
+            const issueOwner = issue.user?.login;
             if (!issueOwner) return;
 
             const forumUrl = process.env.FORUM_URL || "TBD";
             const reserveHours = Number(process.env.RESERVE_HOURS || "48");
+            const svgBase = process.env.TIMER_SVG_BASE || "";
 
             // "previous contributor" = has at least one merged PR authored in this repo
             const repoFull = `${context.repo.owner}/${context.repo.repo}`;
@@ -46,7 +46,7 @@ jobs:
             const shouldReserve = isPreviousContributor && (actor !== issueOwner);
 
             const lines = [];
-            lines.push(`# 💰 This issue has a bounty`);
+            lines.push(`## 💰 This issue has a bounty`);
             lines.push(`Resolve it to receive a reward.`);
             lines.push(`For details (amount, rules, eligibility), see: ${forumUrl}`);
             lines.push("");
@@ -55,17 +55,17 @@ jobs:
             lines.push(`If accepted by a maintainer, the issue will be **assigned** to you.`);
             lines.push("");
 
-            if (shouldReserve) {
+            if (shouldReserve && svgBase) {
               const reservedUntil = new Date(Date.now() + reserveHours * 60 * 60 * 1000);
               const reservedUntilIso = reservedUntil.toISOString();
 
-              lines.push(
-                `<sub>` +
-                `⏳ **Temporary reservation for @${issueOwner}:** since they are a previous contributor, they have priority for this bounty ` +
-                `for <relative-time datetime="${reservedUntilIso}"></relative-time> ` +
-                `(until **${reservedUntilIso}**). After that, it is **open to everyone**.` +
-                `</sub>`
-              );
+              const svgUrl =
+                `${svgBase}` +
+                `?until=${encodeURIComponent(reservedUntilIso)}` +
+                `&user=${encodeURIComponent(issueOwner)}` +
+                `&theme=dark`;
+
+              lines.push(`![bounty reservation](${svgUrl})`);
               lines.push("");
             }
 
