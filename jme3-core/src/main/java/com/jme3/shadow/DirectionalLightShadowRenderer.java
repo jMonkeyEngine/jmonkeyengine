@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,8 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     protected float[] splitsArray;
     protected DirectionalLight light;
     protected Vector3f[] points = new Vector3f[8];
-    //Holding the info for fading shadows in the far distance   
+    protected final Vector3f tempVec = new Vector3f();
+
     private boolean stabilize = true;
 
     /**
@@ -96,10 +97,12 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     private void init(int nbSplits, int shadowMapSize) {
-        nbShadowMaps = Math.max(Math.min(nbSplits, 4), 1);
-        if (nbShadowMaps != nbSplits) {
-            throw new IllegalArgumentException("Number of splits must be between 1 and 4. Given value : " + nbSplits);
+        // Ensure the number of shadow maps is within the valid range [1, 4]
+        if (nbSplits < 1 || nbSplits > 4) {
+            throw new IllegalArgumentException("Number of splits must be between 1 and 4. Given value: " + nbSplits);
         }
+
+        nbShadowMaps = nbSplits;
         splits = new ColorRGBA();
         splitsArray = new float[nbSplits + 1];
         shadowCam = new Camera(shadowMapSize, shadowMapSize);
@@ -150,7 +153,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
         ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, 1.0f, points);
 
         shadowCam.setFrustumFar(zFar);
-        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp());
+        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp(tempVec));
         shadowCam.update();
         shadowCam.updateViewProjection();
 
