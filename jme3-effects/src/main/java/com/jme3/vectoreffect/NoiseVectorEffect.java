@@ -49,19 +49,15 @@ public class NoiseVectorEffect extends VectorEffect {
     public float speed = 1;
     private float timeAccrued = 0;
     
-    public NoiseVectorEffect(Object vectorObject, Object noiseMagnitude) {
+    public NoiseVectorEffect(VectorGroup vectorObject, VectorGroup noiseMagnitude) {
         this(vectorObject, noiseMagnitude, NoiseType.OpenSimplex2, 0.5f);       
     }
     
-    public NoiseVectorEffect(Object vectorObject, Object noiseMagnitude, NoiseType noiseType, float frequency) {
+    public NoiseVectorEffect(VectorGroup vectorObject, VectorGroup noiseMagnitude, NoiseType noiseType,
+            float frequency) {
         super(vectorObject);
         
-        if(noiseMagnitude instanceof VectorGroup){
-            noiseMagnitudes = (VectorGroup) noiseMagnitude;
-        }else{
-            noiseMagnitudes = new VectorGroup(noiseMagnitude);
-        }        
-        
+        this.noiseMagnitudes = noiseMagnitude;
         noiseGenerator = new FastNoiseLite();
         noiseGenerator.SetFrequency(frequency);
         noiseGenerator.SetNoiseType(noiseType);       
@@ -73,12 +69,7 @@ public class NoiseVectorEffect extends VectorEffect {
         super.update(tpf);
         
         if(originalVectorValues == null){
-            originalVectorValues = new VectorGroup();
-            for(int v = 0; v < vectorsToModify.getSize(); v++){
-                Vector4f startVector = vectorsToModify.getAsVector4(v).clone();
-                originalVectorValues.addVectorToGroup(startVector);
-            }
-
+            originalVectorValues = vectorsToModify.clone();
         }
         
         timeAccrued += tpf;                

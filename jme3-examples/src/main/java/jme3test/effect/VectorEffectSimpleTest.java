@@ -33,6 +33,7 @@ package jme3test.effect;
 
 import com.jme3.vectoreffect.EaseVectorEffect;
 import com.jme3.vectoreffect.VectorEffectManagerState;
+import com.jme3.vectoreffect.VectorGroup;
 import com.jme3.vectoreffect.SequencedVectorEffect;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.PointLight;
@@ -46,9 +47,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
-import java.awt.DisplayMode;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 
 /**
  *
@@ -56,10 +54,10 @@ import java.awt.GraphicsEnvironment;
  */
 public class VectorEffectSimpleTest extends SimpleApplication {
 
-    private ColorRGBA colorToShift  = new ColorRGBA(0.0f, 0.0f, 1.0f, 1.0f);
-    
-    private VectorEffectManagerState vectorEffectManagerState;    
-    
+    private ColorRGBA colorToShift = new ColorRGBA(0.0f, 0.0f, 1.0f, 1.0f);
+
+    private VectorEffectManagerState vectorEffectManagerState;
+
     public static void main(String[] args) {
         VectorEffectSimpleTest app = new VectorEffectSimpleTest();
         AppSettings settings = new AppSettings(true);
@@ -67,54 +65,52 @@ public class VectorEffectSimpleTest extends SimpleApplication {
         app.start();
     }
 
-
     @Override
     public void simpleInitApp() {
         restart();
         flyCam.setMoveSpeed(10f);
-        
+
         vectorEffectManagerState = new VectorEffectManagerState();
         stateManager.attach(vectorEffectManagerState);
-        
+
         initBloom();
         initPbrRoom(13);
-        
+
         initLightAndEmissiveSphere();
-    
-     //initiate VectorEffectManagerState    
+
+        // initiate VectorEffectManagerState
         vectorEffectManagerState = new VectorEffectManagerState();
         stateManager.attach(vectorEffectManagerState);
         vectorEffectManagerState.setEnabled(true);
-        
-     //create gradient effect :
+
+        // create gradient effect :
+        VectorGroup vg = new VectorGroup(colorToShift);
         SequencedVectorEffect colorGradientEffect = new SequencedVectorEffect(
-                new EaseVectorEffect(colorToShift, ColorRGBA.Cyan, 0.75f),
-                new EaseVectorEffect(colorToShift, ColorRGBA.Yellow, 0.75f),
-                new EaseVectorEffect(colorToShift, ColorRGBA.Blue, 0.75f ),
-                new EaseVectorEffect(colorToShift, ColorRGBA.Magenta, 0.75f),
-                new EaseVectorEffect(colorToShift, ColorRGBA.Green, 0.75f),
-                new EaseVectorEffect(colorToShift, ColorRGBA.Red, 0.75f)
-        );
-        
-     //create red flashing effect : 
+                new EaseVectorEffect(vg, new VectorGroup(ColorRGBA.Cyan), 0.75f),
+                new EaseVectorEffect(vg, new VectorGroup(ColorRGBA.Yellow), 0.75f),
+                new EaseVectorEffect(vg, new VectorGroup(ColorRGBA.Blue), 0.75f),
+                new EaseVectorEffect(vg, new VectorGroup(ColorRGBA.Magenta), 0.75f),
+                new EaseVectorEffect(vg, new VectorGroup(ColorRGBA.Green), 0.75f),
+                new EaseVectorEffect(vg, new VectorGroup(ColorRGBA.Red), 0.75f));
+
+        // create red flashing effect :
         SequencedVectorEffect blinkEffect = new SequencedVectorEffect(
-                new EaseVectorEffect(colorToShift, ColorRGBA.Black, 0.25f, Easing.inOutQuad),
-                new EaseVectorEffect(colorToShift, ColorRGBA.Red, 0.175f, Easing.outQuart)
-        );  
+                new EaseVectorEffect(vg, new VectorGroup(ColorRGBA.Black), 0.25f, Easing.inOutQuad),
+                new EaseVectorEffect(vg, new VectorGroup(ColorRGBA.Red), 0.175f, Easing.outQuart));
         blinkEffect.setRepeatNumberOfTimes(10);
-        
-        
-    //put both effects into a looping SequencedVectorEffect    
-        SequencedVectorEffect finalLoopingEffect = new SequencedVectorEffect(colorGradientEffect, blinkEffect);        
+
+        // put both effects into a looping SequencedVectorEffect
+        SequencedVectorEffect finalLoopingEffect = new SequencedVectorEffect(colorGradientEffect,
+                blinkEffect);
         finalLoopingEffect.setLooping(true);
-        
-    //register the effect:
+
+        // register the effect:
         vectorEffectManagerState.registerVectorEffect(finalLoopingEffect);
-        
+
     }
-    
+
     private void initBloom() {
-        
+
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         BloomFilter bloom = new BloomFilter(BloomFilter.GlowMode.Scene);
         bloom.setBloomIntensity(5f);
@@ -125,15 +121,14 @@ public class VectorEffectSimpleTest extends SimpleApplication {
         viewPort.addProcessor(fpp);
     }
 
-    private void initLightAndEmissiveSphere(){
-      
+    private void initLightAndEmissiveSphere() {
 
-      //make point light
+        // make point light
         PointLight light = new PointLight();
         light.setRadius(10);
         colorToShift = light.getColor();
-        
-      //make sphere with Emissive color  
+
+        // make sphere with Emissive color
         Sphere sphereMesh = new Sphere(32, 32, 0.5f);
         Geometry glowingSphere = new Geometry("ShakingSphere", sphereMesh);
 
@@ -143,65 +138,55 @@ public class VectorEffectSimpleTest extends SimpleApplication {
         sphereMat.setFloat("Metallic", 0.98f);
         sphereMat.setBoolean("UseVertexColor", false);
         glowingSphere.setMaterial(sphereMat);
-        
-        
-        //assign the same colorToShift vector to both the light and emissive value (important not to clone)
-        light.setColor(colorToShift);        
-        sphereMat.setColor("Emissive", colorToShift);  
-        
-        
-        rootNode.attachChild(glowingSphere);          
-        rootNode.addLight(light);
-        
-        
-    }
-    
-    public void initPbrRoom(float size) {
 
+        // assign the same colorToShift vector to both the light and emissive value (important not to clone)
+        light.setColor(colorToShift);
+        sphereMat.setColor("Emissive", colorToShift);
+
+        rootNode.attachChild(glowingSphere);
+        rootNode.addLight(light);
+
+    }
+
+    public void initPbrRoom(float size) {
 
         float half = size * 0.5f;
 
-        
         Material wallMat = new Material(assetManager, "Common/MatDefs/Light/PBRLighting.j3md");
 
-        wallMat.setColor("BaseColor", new ColorRGBA(1,1,1, 1f));
+        wallMat.setColor("BaseColor", new ColorRGBA(1, 1, 1, 1f));
         wallMat.setFloat("Roughness", 0.12f);
         wallMat.setFloat("Metallic", 0.02f);
 
         // Floor
-        Geometry floor = new Geometry("Floor",
-                new Quad(size, size));
+        Geometry floor = new Geometry("Floor", new Quad(size, size));
         floor.setMaterial(wallMat);
         floor.rotate(-FastMath.HALF_PI, 0, 0);
         floor.setLocalTranslation(-half, -half, half);
         rootNode.attachChild(floor);
 
         // Ceiling
-        Geometry ceiling = new Geometry("Ceiling",
-                new Quad(size, size));
+        Geometry ceiling = new Geometry("Ceiling", new Quad(size, size));
         ceiling.setMaterial(wallMat);
         ceiling.rotate(FastMath.HALF_PI, 0, 0);
-        ceiling.setLocalTranslation(-half, size-half, -half);
+        ceiling.setLocalTranslation(-half, size - half, -half);
         rootNode.attachChild(ceiling);
 
         // Back wall
-        Geometry backWall = new Geometry("BackWall",
-                new Quad(size, size));
+        Geometry backWall = new Geometry("BackWall", new Quad(size, size));
         backWall.setMaterial(wallMat);
         backWall.setLocalTranslation(-half, -half, -half);
         rootNode.attachChild(backWall);
 
         // Left wall
-        Geometry leftWall = new Geometry("LeftWall",
-                new Quad(size, size));
+        Geometry leftWall = new Geometry("LeftWall", new Quad(size, size));
         leftWall.setMaterial(wallMat);
         leftWall.rotate(0, FastMath.HALF_PI, 0);
         leftWall.setLocalTranslation(-half, -half, half);
         rootNode.attachChild(leftWall);
 
         // Right wall
-        Geometry rightWall = new Geometry("RightWall",
-                new Quad(size, size));
+        Geometry rightWall = new Geometry("RightWall", new Quad(size, size));
         rightWall.setMaterial(wallMat);
         rightWall.rotate(0, -FastMath.HALF_PI, 0);
         rightWall.setLocalTranslation(half, -half, -half);

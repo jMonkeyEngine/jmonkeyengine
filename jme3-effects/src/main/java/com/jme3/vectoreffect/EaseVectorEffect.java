@@ -52,27 +52,30 @@ public final class EaseVectorEffect extends VectorEffect {
 
     private EaseFunction easeFunction = Easing.linear; 
 
-    public EaseVectorEffect(Object vectorToModify) {
+    public EaseVectorEffect(VectorGroup vectorToModify) {
         super(vectorToModify);
     }
     
-    public EaseVectorEffect(Object vectorToModify, Object targetVector, float duration) {
+    public EaseVectorEffect(VectorGroup vectorToModify, VectorGroup targetVector, float duration) {
         this(vectorToModify);
         setEaseToValueOverDuration(duration, targetVector);
     }
     
-    public EaseVectorEffect(Object vectorToModify, Object targetVector, float duration, float delay) {
+    public EaseVectorEffect(VectorGroup vectorToModify, VectorGroup targetVector, float duration,
+            float delay) {
         this(vectorToModify);
         setEaseToValueOverDuration(duration, targetVector);
         setDelayTime(delay);
     }
     
-    public EaseVectorEffect(Object vectorToModify, Object targetVector, float duration, EaseFunction easeFunction) {
+    public EaseVectorEffect(VectorGroup vectorToModify, VectorGroup targetVector, float duration,
+            EaseFunction easeFunction) {
         this(vectorToModify, targetVector, duration);
         setEaseFunction(easeFunction);
     }
     
-    public EaseVectorEffect(Object vectorToModify, Object targetVector, float duration, EaseFunction easeFunction, float delay) {
+    public EaseVectorEffect(VectorGroup vectorToModify, VectorGroup targetVector, float duration,
+            EaseFunction easeFunction, float delay) {
         this(vectorToModify, targetVector, duration);
         setEaseFunction(easeFunction);
         setDelayTime(delay);
@@ -89,12 +92,7 @@ public final class EaseVectorEffect extends VectorEffect {
 
         
         if (startVectors == null) {
-            startVectors = new VectorGroup();
-            
-            for(int v = 0; v < vectorsToModify.getSize(); v++){
-                Vector4f startVector = vectorsToModify.getAsVector4(v).clone();
-                startVectors.addVectorToGroup(startVector);
-            }
+            startVectors = vectorsToModify.clone();
         }
 
         easeTimer += tpf;
@@ -117,14 +115,8 @@ public final class EaseVectorEffect extends VectorEffect {
         }
     }
 
-    public EaseVectorEffect setEaseToValueOverDuration(float dur, Object targetVector) {
-        if(targetVector instanceof VectorGroup){
-            targetVectors = (VectorGroup) targetVector;
-        }
-        else{
-            targetVectors = new VectorGroup(targetVector);
-        }
-        
+    public EaseVectorEffect setEaseToValueOverDuration(float dur, VectorGroup targetVector) {
+        this.targetVectors = targetVector;
         duration = dur;
         startVectors = null;
         return this;

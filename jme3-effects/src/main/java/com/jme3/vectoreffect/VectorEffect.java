@@ -52,13 +52,8 @@ public abstract class VectorEffect {
         
     }
     
-    public VectorEffect(Object vectorObj) {
-        
-        if(vectorObj instanceof VectorGroup){
-            vectorsToModify = (VectorGroup) vectorObj;
-        }else{
-            vectorsToModify = new VectorGroup(vectorObj); 
-        }        
+    public VectorEffect(VectorGroup vectorsToModify) {
+        this.vectorsToModify = vectorsToModify;
     }        
     
     public void setIsFinished(boolean isFinished) {        
