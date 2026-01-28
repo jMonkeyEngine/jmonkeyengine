@@ -47,10 +47,22 @@ public abstract class ScreenshotTestBase{
     /**
      * Initialises a screenshot test. The resulting object should be configured (if neccessary) and then started
      * by calling {@link ScreenshotTest#run()}.
-     * @param initialStates
+     * @param initialStates the states that will create the JME environment
      * @return
      */
     public ScreenshotTest screenshotTest(AppState... initialStates){
         return new ScreenshotTest(initialStates);
+    }
+
+    /**
+     * Permits multiple scenarios to be tested in a single test. Each scenario should give identical results and
+     * will have a screenshot taken on the same frame.
+     *
+     * <p>
+     *     This is intended for testing migrations where the old and new approach should both give identical results.
+     * </p>
+     */
+    public ScreenshotTest screenshotMultiScenarioTest(Scenario... scenarios){
+        return new ScreenshotTest(scenarios);
     }
 }
