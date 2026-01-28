@@ -67,7 +67,6 @@ public class VectorEffectSimpleTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        restart();
         flyCam.setMoveSpeed(10f);
 
         vectorEffectManagerState = new VectorEffectManagerState();
@@ -193,4 +192,5 @@ public class VectorEffectSimpleTest extends SimpleApplication {
         rootNode.attachChild(rightWall);
 
     }
+
 }
