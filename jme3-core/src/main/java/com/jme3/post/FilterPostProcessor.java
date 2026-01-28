@@ -46,6 +46,8 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.FullscreenTriangle;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.texture.Image.Format;
@@ -88,7 +90,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private Texture2D depthTexture;
     private SafeArrayList<Filter> filters = new SafeArrayList<>(Filter.class);
     private AssetManager assetManager;
-    private Picture fsQuad;
+    private boolean useFullscreenTriangle = false;
+    private Geometry fsQuad;
     private boolean computeDepth = false;
     private FrameBuffer outputBuffer;
     private int width;
@@ -114,6 +117,18 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      */
     public FilterPostProcessor(AssetManager assetManager) {
         this.assetManager = assetManager;
+    }
+
+    /**
+     * Constructs a new instance of FilterPostProcessor.
+     *
+     * @param assetManager The asset manager used to load resources needed by the processor.
+     * @param useFullscreenTriangle If true, a fullscreen triangle will be used for rendering;
+     *                              otherwise, a quad will be used.
+     */
+    public FilterPostProcessor(AssetManager assetManager, boolean useFullscreenTriangle) {
+        this(assetManager);
+        this.useFullscreenTriangle = useFullscreenTriangle;
     }
 
     /**
@@ -181,9 +196,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         renderManager = rm;
         renderer = rm.getRenderer();
         viewPort = vp;
-        fsQuad = new Picture("filter full screen quad");
-        fsQuad.setWidth(1);
-        fsQuad.setHeight(1);
+        if(useFullscreenTriangle) {
+            fsQuad = new Geometry("FsQuad", new FullscreenTriangle());
+        }else{
+            Picture fullscreenQuad = new Picture("filter full screen quad");
+            fullscreenQuad.setWidth(1);
+            fullscreenQuad.setHeight(1);
+            fsQuad = fullscreenQuad;
+        }
 
         // Determine optimal framebuffer format based on renderer capabilities
         if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
@@ -715,6 +735,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(numSamples, "numSamples", 0);
+        oc.write(useFullscreenTriangle, "useFullscreenTriangle", false);
         oc.writeSavableArrayList(new ArrayList(filters), "filters", null);
     }
 
@@ -723,6 +744,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
+        useFullscreenTriangle = ic.readBoolean("useFullscreenTriangle", false);
         filters = new SafeArrayList<>(Filter.class, ic.readSavableArrayList("filters", null));
         for (Filter filter : filters.getArray()) {
             filter.setProcessor(this);
