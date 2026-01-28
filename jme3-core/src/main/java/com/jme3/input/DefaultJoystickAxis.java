@@ -48,6 +48,7 @@ public class DefaultJoystickAxis implements JoystickAxis {
     private final boolean isAnalog;
     private final boolean isRelative;
     private float deadZone;
+    private float jitterThreshold = 0f;
 
     /**
      *  Creates a new joystick axis instance. Only used internally.
@@ -166,6 +167,12 @@ public class DefaultJoystickAxis implements JoystickAxis {
     public String toString() {
         return "JoystickAxis[name=" + name + ", parent=" + parent.getName() + ", id=" + axisIndex
                                     + ", logicalId=" + logicalId + ", isAnalog=" + isAnalog
-                                    + ", isRelative=" + isRelative + ", deadZone=" + deadZone + "]";
+                                    + ", isRelative=" + isRelative + ", deadZone=" + deadZone + 
+                                    ", jitterThreshold=" + jitterThreshold + "]";
+    }
+
+    @Override
+    public float getJitterThreshold() {
+        return jitterThreshold;
     }
 }

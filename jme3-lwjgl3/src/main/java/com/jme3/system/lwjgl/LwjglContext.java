@@ -32,6 +32,7 @@
 
 package com.jme3.system.lwjgl;
 
+import com.jme3.input.JoyInput;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
@@ -124,7 +125,7 @@ public abstract class LwjglContext implements JmeContext {
 
     protected GlfwKeyInput keyInput;
     protected GlfwMouseInput mouseInput;
-    protected GlfwJoystickInput joyInput;
+    protected JoyInput joyInput;
 
     protected Timer timer;
 
@@ -275,17 +276,18 @@ public abstract class LwjglContext implements JmeContext {
             GLFW.glfwSetJoystickCallback(new GLFWJoystickCallback() {
                 @Override
                 public void invoke(int jid, int event) {
+                    if (!(joyInput instanceof GlfwJoystickInput)) return;
 
                     // Invoke the disconnected event before we reload the joysticks or lose the reference to it.
                     // Invoke the connected event after we reload the joysticks to obtain the reference to it.
+                    GlfwJoystickInput glfwJoyInput = (GlfwJoystickInput) joyInput;
 
-                    if ( event == GLFW.GLFW_CONNECTED ) {
-                        joyInput.reloadJoysticks();
-                        joyInput.fireJoystickConnectedEvent(jid);
-                    }
-                    else {
-                        joyInput.fireJoystickDisconnectedEvent(jid);
-                        joyInput.reloadJoysticks();
+                    if (event == GLFW.GLFW_CONNECTED) {
+                        glfwJoyInput.reloadJoysticks();
+                        glfwJoyInput.fireJoystickConnectedEvent(jid);
+                    } else {
+                        glfwJoyInput.fireJoystickDisconnectedEvent(jid);
+                        glfwJoyInput.reloadJoysticks();
                     }
                 }
             });
