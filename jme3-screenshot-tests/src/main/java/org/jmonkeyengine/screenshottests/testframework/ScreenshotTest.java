@@ -47,7 +47,11 @@ public class ScreenshotTest{
 
     TestType testType = TestType.MUST_PASS;
 
-    AppState[] states;
+    /**
+     * Usually there will be a single scenario but sometimes it will be desirable to test that two ways
+     * of doing something produce the same result. In that case there will be multiple scenarios.
+     */
+    List<Scenario> scenarios = new ArrayList<>();
 
     List<Integer> framesToTakeScreenshotsOn = new ArrayList<>();
 
@@ -56,7 +60,11 @@ public class ScreenshotTest{
     String baseImageFileName = null;
 
     public ScreenshotTest(AppState... initialStates){
-        states = initialStates;
+        scenarios.add(new Scenario("SimpleSingleScenario", initialStates));
+        framesToTakeScreenshotsOn.add(1); //default behaviour is to take a screenshot on the first frame
+    }
+    public ScreenshotTest(Scenario... scenarios){
+        this.scenarios.addAll(Arrays.asList(scenarios));
         framesToTakeScreenshotsOn.add(1); //default behaviour is to take a screenshot on the first frame
     }
 
@@ -100,7 +108,7 @@ public class ScreenshotTest{
 
         String imageFilePrefix = baseImageFileName == null ? calculateImageFilePrefix() : baseImageFileName;
 
-        TestDriver.bootAppForTest(testType,settings,imageFilePrefix, framesToTakeScreenshotsOn, states);
+        TestDriver.bootAppForTest(testType,settings,imageFilePrefix, framesToTakeScreenshotsOn, scenarios);
     }
 
 
