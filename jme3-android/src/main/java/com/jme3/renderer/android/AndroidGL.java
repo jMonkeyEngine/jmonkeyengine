@@ -348,7 +348,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public long glGetQueryObjectui64(int query, int pname) {
-        IntBuffer buff = IntBuffer.allocate(1);
+        IntBuffer buff = tmpBuff.clear();
         //FIXME This is wrong IMO should be glGetQueryObjectui64v with a LongBuffer but it seems the API doesn't provide it.
         GLES30.glGetQueryObjectuiv(query, pname, buff);
         return buff.get(0);
@@ -356,8 +356,8 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     @Override
     public int glGetQueryObjectiv(int query, int pname) {
-        IntBuffer buff = IntBuffer.allocate(1);
-        GLES30.glGetQueryiv(query, pname, buff);
+        IntBuffer buff = tmpBuff.clear();
+        GLES30.glGetQueryObjectuiv(query, pname, buff);
         return buff.get(0);
     }
 
@@ -756,6 +756,11 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     public void glGenVertexArrays(IntBuffer arrays) {
         GLES30.glGenVertexArrays(arrays.limit(),arrays);
 
+    }
+
+    @Override
+    public String glGetString(int name, int index) {
+        return GLES30.glGetStringi(name, index);
     }
 
 }
