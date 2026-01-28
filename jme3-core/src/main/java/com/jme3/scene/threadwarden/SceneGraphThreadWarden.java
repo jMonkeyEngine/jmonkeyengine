@@ -4,7 +4,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 import java.util.Collections;
-import java.util.Set;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +17,7 @@ import java.util.logging.Logger;
  *     Only has an effect if asserts are on
  * </p>
  */
+@SuppressWarnings("SameReturnValue")
 public class SceneGraphThreadWarden {
 
     private static final Logger logger = Logger.getLogger(SceneGraphThreadWarden.class.getName());
@@ -34,8 +35,7 @@ public class SceneGraphThreadWarden {
         assert ASSERTS_ENABLED = true;
     }
 
-    public static Thread mainThread;
-    public static final Set<Spatial> spatialsThatAreMainThreadReserved = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
+    public static final Map<Spatial, Thread> spatialsThatAreMainThreadReserved = Collections.synchronizedMap(new WeakHashMap<>());
 
     /**
      * Marks the given node as being reserved for the main thread.
@@ -48,12 +48,11 @@ public class SceneGraphThreadWarden {
             return true;
         }
         Thread thisThread = Thread.currentThread();
-        if(mainThread != null && mainThread != thisThread ){
-            throw new IllegalStateException("The main thread has already been set to " + mainThread.getName() + " but now it's being set to " + Thread.currentThread().getName());
+        Thread existingRestriction = spatialsThatAreMainThreadReserved.get(rootNode);
+        if(existingRestriction != null && existingRestriction != thisThread ){
+            throw new IllegalStateException("The node is already restricted to " + existingRestriction.getName() + " but now it's being restricted to " + Thread.currentThread().getName());
         }
-        mainThread = thisThread;
-        setTreeRestricted(rootNode);
-
+        setTreeRestricted(rootNode, thisThread);
         return true; // return true so can be a "side effect" of an assert
     }
 
@@ -71,11 +70,11 @@ public class SceneGraphThreadWarden {
      * Runs through the entire tree and sets the restriction state of all nodes below the given node
      * @param spatial the node (and children) to set the restriction state of
      */
-    private static void setTreeRestricted(Spatial spatial){
-        spatialsThatAreMainThreadReserved.add(spatial);
+    private static void setTreeRestricted(Spatial spatial, Thread threadRestriction){
+        spatialsThatAreMainThreadReserved.put(spatial, threadRestriction);
         if(spatial instanceof Node){
             for(Spatial child : ((Node) spatial).getChildren()){
-                setTreeRestricted(child);
+                setTreeRestricted(child, threadRestriction);
             }
         }
     }
@@ -99,8 +98,8 @@ public class SceneGraphThreadWarden {
             return true;
         }
 
-        boolean shouldNowBeRestricted = newParent !=null && spatialsThatAreMainThreadReserved.contains(newParent);
-        boolean wasPreviouslyRestricted = spatialsThatAreMainThreadReserved.contains(spatial);
+        boolean shouldNowBeRestricted = newParent !=null && spatialsThatAreMainThreadReserved.containsKey(newParent);
+        boolean wasPreviouslyRestricted = spatialsThatAreMainThreadReserved.containsKey(spatial);
 
         if(shouldNowBeRestricted || wasPreviouslyRestricted ){
             assertOnCorrectThread(spatial);
@@ -110,7 +109,7 @@ public class SceneGraphThreadWarden {
             return true;
         }
         if(shouldNowBeRestricted){
-            setTreeRestricted(spatial);
+            setTreeRestricted(spatial, Thread.currentThread());
         }else{
             setTreeNotRestricted(spatial);
         }
@@ -118,9 +117,11 @@ public class SceneGraphThreadWarden {
         return true; // return true so can be a "side effect" of an assert
     }
 
+    /**
+     * This is a full reset over all options and all threads
+     */
     public static boolean reset(){
         spatialsThatAreMainThreadReserved.clear();
-        mainThread = null;
         THREAD_WARDEN_ENABLED = !Boolean.getBoolean("nothreadwarden");
         return true; // return true so can be a "side effect" of an assert
     }
@@ -134,8 +135,9 @@ public class SceneGraphThreadWarden {
         if(checksDisabled()){
             return true;
         }
-        if(spatialsThatAreMainThreadReserved.contains(spatial)){
-            if(Thread.currentThread() != mainThread){
+        Thread restrictingThread = spatialsThatAreMainThreadReserved.get(spatial);
+        if(restrictingThread!=null){
+            if(Thread.currentThread() != restrictingThread){
                 // log as well as throw an exception because we are running in a thread, if we are in an executor service the exception
                 // might not make itself known until `get` is called on the future (and JME might crash before that happens).
                 String message = "The spatial " + spatial + " was mutated on a thread other than the main thread, was mutated on " + Thread.currentThread().getName();
