@@ -46,6 +46,9 @@ public class NoiseVectorEffect extends VectorEffect {
     private VectorGroup noiseMagnitudes;    
     private VectorGroup originalVectorValues;
     
+    private final Vector4f tempNoiseVariationVec = new Vector4f();
+    private final Vector4f tempOriginalVec = new Vector4f();
+    
     public float speed = 1;
     private float timeAccrued = 0;
     
@@ -72,19 +75,17 @@ public class NoiseVectorEffect extends VectorEffect {
             originalVectorValues = vectorsToModify.clone();
         }
         
-        timeAccrued += tpf;                
-        
-        //to-do: add a togglable isUniform boolean that can be set false to allow each x/y/z/w component to be altered by a different noise value.
-        
+        timeAccrued += tpf;             
         float noiseReturnVal = noiseGenerator.GetNoise(timeAccrued * speed, 12.671f + timeAccrued * speed * 0.92173f, 19.54f + timeAccrued * speed * 0.68913f);
         
         for(int v = 0; v < vectorsToModify.getSize(); v++){
             int magnitudeIndex = Math.min(v, noiseMagnitudes.getSize() - 1); //allows multiple vectors to share the same magnitude if desired
-            Vector4f noiseVariation = noiseMagnitudes.getAsVector4(magnitudeIndex).mult(noiseReturnVal);
+            noiseMagnitudes.getAsVector4(magnitudeIndex, tempNoiseVariationVec);
+
+            tempNoiseVariationVec.multLocal(noiseReturnVal);        
+            originalVectorValues.getAsVector4(v, tempOriginalVec);
         
-            noiseVariation.addLocal(originalVectorValues.getAsVector4(v));
-        
-            vectorsToModify.updateVectorObject(noiseVariation, v);
+            vectorsToModify.updateVectorObject(tempOriginalVec.add(tempNoiseVariationVec), v);
         }             
     }    
     
@@ -99,6 +100,6 @@ public class NoiseVectorEffect extends VectorEffect {
     @Override
     public void reset() {
         super.reset(); 
-        originalVectorValues = null;
+        originalVectorValues = null;       
     }
 }

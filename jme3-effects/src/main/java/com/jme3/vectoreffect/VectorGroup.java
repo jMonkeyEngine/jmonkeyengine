@@ -80,8 +80,8 @@ public class VectorGroup implements Cloneable {
         }
     }
 
-    protected Vector4f getAsVector4(int index) {
-        return vectorSupplier.get(index).get();
+    protected Vector4f getAsVector4(int index, Vector4f store) {
+        return store.set(vectorSupplier.get(index).get());
     }
 
     protected void updateVectorObject(Vector4f newVal, int index) {
@@ -93,7 +93,7 @@ public class VectorGroup implements Cloneable {
     public VectorGroup clone() {
         VectorGroup clonedGroup = new VectorGroup(new VectorSupplier[0]);
         for (VectorSupplier supplier : this.vectorSupplier) {
-            clonedGroup.vectorSupplier.add(supplier);
+            clonedGroup.vectorSupplier.add(VectorSupplier.of(supplier.get().clone()));
         }
         return clonedGroup;
     }

@@ -9,8 +9,6 @@ public interface VectorSupplier extends Cloneable {
     Vector4f get();
     void set(Vector4f newVal);
 
-
-
     static class Vector4fSupplier implements VectorSupplier {
         private final Vector4f vector;
 
@@ -18,10 +16,12 @@ public interface VectorSupplier extends Cloneable {
             this.vector = vector;
         }
 
+        @Override
         public Vector4f get() {
             return vector;
         }
 
+        @Override
         public void set(Vector4f newVal) {
             this.vector.set(newVal);
         }
@@ -29,8 +29,7 @@ public interface VectorSupplier extends Cloneable {
         @Override
         public Vector4fSupplier clone() {
             return new Vector4fSupplier(vector.clone());
-        }
-      
+        }      
     }
 
     static class Vector3fSupplier implements VectorSupplier {
@@ -40,11 +39,13 @@ public interface VectorSupplier extends Cloneable {
             this.vector = vector;
         }
 
+        @Override
         public Vector4f get() {
             store.set(vector.x, vector.y, vector.z, 0);
             return store;
         }
 
+        @Override
         public void set(Vector4f newVal) {
             this.vector.set(newVal.x, newVal.y, newVal.z);
             get(); //update store
@@ -64,11 +65,13 @@ public interface VectorSupplier extends Cloneable {
             this.color = color;
         }
 
+        @Override
         public Vector4f get() {
             store.set(color.r, color.g, color.b, color.a);
             return store;
         }
 
+        @Override
         public void set(Vector4f newVal) {
             this.color.set(newVal.x, newVal.y, newVal.z, newVal.w);
             get(); //update store
@@ -88,11 +91,13 @@ public interface VectorSupplier extends Cloneable {
             this.vector = vector;
         }
 
+        @Override
         public Vector4f get() {
             store.set(vector.x, vector.y, 0, 0);
             return store;
         }
 
+        @Override
         public void set(Vector4f newVal) {
             this.vector.set(newVal.x, newVal.y);
             get(); //update store
@@ -102,8 +107,7 @@ public interface VectorSupplier extends Cloneable {
         public Vector2fSupplier clone() {
             return new Vector2fSupplier(vector.clone());
         }
-    }
-    
+    }   
 
 
     public static VectorSupplier of(Vector4f vector) {

@@ -35,6 +35,7 @@ package com.jme3.vectoreffect;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  *
@@ -65,30 +66,30 @@ public class VectorEffectManagerState extends BaseAppState {
     }
     
     public void registerVectorEffect(VectorEffect vectorEffect){
-        if(activeVectorEffects != null){
-            if(!activeVectorEffects.contains(vectorEffect)){
-                activeVectorEffects.add(vectorEffect);
-            }       
-        }
+        if(!activeVectorEffects.contains(vectorEffect)){
+            activeVectorEffects.add(vectorEffect);
+        }     
     }
     
     @Override
     public void update(float tpf) {
         super.update(tpf);
-        
-        for(VectorEffect vectorEffect : activeVectorEffects){
-            
-            
+        for (Iterator<VectorEffect> it = activeVectorEffects.iterator(); it.hasNext(); ) {
+            VectorEffect vectorEffect = it.next();
 
-            if(vectorEffect.isFinished()){
-                getApplication().enqueue(() ->{
-                    activeVectorEffects.remove(vectorEffect);
-                });
-            }
-            else{
+            if (vectorEffect.isFinished()) {
+                it.remove(); 
+            } else {
                 vectorEffect.update(tpf);
             }
         }
+    }
 
-    } 
+    public void cancelEffects(Object vectorObject) {
+        for(VectorEffect vectorEffect : activeVectorEffects){
+            if(vectorEffect.vectorsToModify.equals(vectorObject)){
+                vectorEffect.setIsFinished(true);
+            }
+        }
+    }
 }

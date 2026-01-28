@@ -36,9 +36,6 @@ import com.jme3.app.state.AppStateManager;
 import java.util.ArrayList;
 
 /**
- * Base class for vector/color effects. * 
- * Supports Vector2f, Vector3f, Vector4f, and ColorRGBA.
- * 
  * @author yaRnMcDonuts
  */
 

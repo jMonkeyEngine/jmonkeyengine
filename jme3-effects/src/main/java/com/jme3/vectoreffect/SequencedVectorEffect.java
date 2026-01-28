@@ -55,7 +55,6 @@ public class SequencedVectorEffect extends VectorEffect {
         Collections.addAll(this.effects, effects);
     }
 
-
     @Override
     public void update(float tpf) {
         super.update(tpf);
@@ -77,8 +76,7 @@ public class SequencedVectorEffect extends VectorEffect {
                 if (!isRepeatingInfinitely && currentCycle >= numTimesToRepeat) {
                     setIsFinished(true);
                     currentCycle = 0;
-                }
-               
+                }               
             }
         }
     }    

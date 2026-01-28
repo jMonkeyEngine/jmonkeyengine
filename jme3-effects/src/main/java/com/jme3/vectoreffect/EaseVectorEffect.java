@@ -43,14 +43,18 @@ import com.jme3.math.Vector4f;
 public final class EaseVectorEffect extends VectorEffect {
 
     private VectorGroup targetVectors;
-    private VectorGroup startVectors;
-
+    private VectorGroup startVectors;    
+  
     private float duration = 0f;
     private float easeTimer = 0f;
     private float delay = 0f;
     private float delayTimer = 0f;
 
     private EaseFunction easeFunction = Easing.linear; 
+    
+    private final Vector4f tempTargetVec = new Vector4f();
+    private final Vector4f tempStartVec = new Vector4f();
+
 
     public EaseVectorEffect(VectorGroup vectorToModify) {
         super(vectorToModify);
@@ -80,6 +84,7 @@ public final class EaseVectorEffect extends VectorEffect {
         setEaseFunction(easeFunction);
         setDelayTime(delay);
     }
+    
 
     @Override
     public void update(float tpf) {
@@ -89,11 +94,10 @@ public final class EaseVectorEffect extends VectorEffect {
             delayTimer += tpf;
             return;
         }
-
         
         if (startVectors == null) {
-            startVectors = vectorsToModify.clone();
-        }
+            startVectors = vectorsToModify.clone();    
+        }        
 
         easeTimer += tpf;
         float t = Math.min(easeTimer / duration, 1f);
@@ -102,12 +106,13 @@ public final class EaseVectorEffect extends VectorEffect {
 
         for(int v = 0; v < vectorsToModify.getSize(); v++){
             
-                Vector4f targetVector = targetVectors.getAsVector4(v);
-                Vector4f startVector = startVectors.getAsVector4(v);
-                Vector4f difference = targetVector.subtract(startVector);
-                
-                Vector4f currentValue = startVector.add(difference.mult(easedT));
-                vectorsToModify.updateVectorObject(currentValue, v);            
+            int targetIndex = Math.min(v, targetVectors.getSize() - 1); //allows multiple vectors to share a lesser number of targets if desired
+            targetVectors.getAsVector4(targetIndex, tempTargetVec);
+            startVectors.getAsVector4(v, tempStartVec);
+            tempTargetVec.subtractLocal(tempStartVec);
+            tempTargetVec.multLocal(easedT);
+
+            vectorsToModify.updateVectorObject(tempStartVec.addLocal(tempTargetVec), v);            
         }        
 
         if (t >= 1f) {
@@ -134,7 +139,8 @@ public final class EaseVectorEffect extends VectorEffect {
     public void reset() {
         delayTimer = 0;
         easeTimer = 0;
-        startVectors = null;
+        startVectors = null;           
         super.reset(); 
     }
+    
 }
