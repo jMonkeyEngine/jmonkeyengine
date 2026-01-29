@@ -45,6 +45,7 @@ import com.jme3.scene.*;
 import com.jme3.scene.control.Control;
 import com.jme3.scene.debug.custom.ArmatureDebugAppState;
 import com.jme3.scene.plugins.gltf.GltfModelKey;
+
 import jme3test.model.anim.EraseTimer;
 
 import java.util.*;
@@ -134,8 +135,65 @@ public class TestGltfLoading extends SimpleApplication {
         //loadModel("Models/gltf/crab/scene.gltf", Vector3f.ZERO, 1);
         //loadModel("Models/gltf/manta/scene.gltf", Vector3f.ZERO, 0.2f);
         //loadModel("Models/gltf/bone/scene.gltf", Vector3f.ZERO, 0.1f);
-//        loadModel("Models/gltf/box/box.gltf", Vector3f.ZERO, 1);
-        loadModel("Models/gltf/duck/Duck.gltf", new Vector3f(0, 1, 0), 1);
+        //loadModel("Models/gltf/box/box.gltf", Vector3f.ZERO, 1);
+        //loadModel("Models/gltf/duck/Duck.gltf", new Vector3f(0, 1, 0), 1);
+        
+        
+        // ===================================================================
+        // TODO_DRACO Draco test start
+        // The following test assumes that the "Models" directory from 
+        // https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models
+        // is copied into the 
+        // jme3-testdata\src\main\resources\Models\gltf\
+        // directory (or at least the following list of models)
+        
+        // Comment in/out the model to test
+        String dracoTestModel = null;
+        //dracoTestModel = "Avocado";
+        //dracoTestModel = "BarramundiFish";
+        dracoTestModel = "BoomBox";
+        //dracoTestModel = "BrainStem";
+        //dracoTestModel = "CesiumMan";
+        //dracoTestModel = "CesiumMilkTruck";
+        //dracoTestModel = "Corset";
+        //dracoTestModel = "Lantern";
+        //dracoTestModel = "MorphPrimitivesTest";
+        //dracoTestModel = "RiggedFigure";
+        //dracoTestModel = "RiggedSimple";
+        //dracoTestModel = "SunglassesKhronos";
+        //dracoTestModel = "VirtualCity";
+        //dracoTestModel = "WaterBottle";
+        
+        boolean testDraco = true;
+        // Uncomment this to not load the Draco-compressed
+        // version, but the glTF-Binary version of the model
+        //testDraco = false;
+        String dracoTestFlavor = null;
+        String dracoTestExtension = null;
+        if (testDraco)
+        {
+        	dracoTestFlavor = "glTF-Draco";
+        	dracoTestExtension = "gltf";
+        }
+        else
+        {
+            dracoTestFlavor = "glTF-Binary";
+        	dracoTestExtension = "glb";
+        }
+        // Assemble a path like 
+        // "Models/gltf/Models/BoomBox/glTF-Draco/BoomBox.gltf"
+        String dracoTestPath = "Models/gltf/Models/" + dracoTestModel + "/" + dracoTestFlavor + "/" + dracoTestModel + "." + dracoTestExtension; 
+        
+        System.out.println("Running Draco test with "+dracoTestPath);
+        loadModel(dracoTestPath, new Vector3f(0, 0, 0), 20.0f);
+        
+        // TODO_DRACO Draco test end
+        // ===================================================================
+        
+        
+        //loadModel("Models/gltf/BoomBox/glTF-Draco/BoomBox.gltf", new Vector3f(0, 0, 0), 20);
+        //loadModel("Models/gltf/BoomBox/glTF-Binary/BoomBox.glb", new Vector3f(0, 0, 0), 1);
+        
 //        loadModel("Models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf", Vector3f.ZERO, 1);
 //        loadModel("Models/gltf/hornet/scene.gltf", new Vector3f(0, -0.5f, 0), 0.4f);
 ////        loadModel("Models/gltf/adamHead/adamHead.gltf", Vector3f.ZERO, 0.6f);
