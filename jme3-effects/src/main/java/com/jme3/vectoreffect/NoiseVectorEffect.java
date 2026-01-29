@@ -39,7 +39,7 @@ import com.jme3.math.FastNoiseLite.NoiseType;
  *
  * @author yaRnMcDonuts
  */
-public class NoiseVectorEffect extends AbstractVectorEffect {
+public class NoiseVectorEffect extends AbstractVectorEffect implements VectorEffect {
     
     private FastNoiseLite noiseGenerator;        
 

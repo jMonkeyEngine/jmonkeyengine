@@ -40,7 +40,7 @@ import com.jme3.math.Vector4f;
  *
  * @author yaRnMcDonuts
  */
-public final class EaseVectorEffect extends AbstractVectorEffect {
+public final class EaseVectorEffect extends AbstractVectorEffect implements VectorEffect {
 
     private VectorGroup targetVectors;
     private VectorGroup startVectors;    

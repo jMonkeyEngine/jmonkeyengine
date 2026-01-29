@@ -39,8 +39,8 @@ import java.util.Collections;
  *
  * @author yaRnMcDonuts
  */
-public class SequencedVectorEffect extends AbstractVectorEffect {
-    private final ArrayList<AbstractVectorEffect> effects = new ArrayList<>();
+public class SequencedVectorEffect extends AbstractVectorEffect implements VectorEffect {
+    private final ArrayList<VectorEffect> effects = new ArrayList<>();
     private int currentIndex = 0;
     private boolean isRepeatingInfinitely = false;
     private float numTimesToRepeat = -1;
@@ -48,9 +48,9 @@ public class SequencedVectorEffect extends AbstractVectorEffect {
 
     public void setLooping(boolean repeat) {        this.isRepeatingInfinitely = repeat;    }
     public void setRepeatNumberOfTimes(float repititionCount){ this.numTimesToRepeat = repititionCount; }
-    public void addEffect(AbstractVectorEffect effect) {        effects.add(effect);    }
+    public void addEffect(VectorEffect effect) {        effects.add(effect);    }
 
-    public SequencedVectorEffect(AbstractVectorEffect... effects) {
+    public SequencedVectorEffect(VectorEffect... effects) {
         super();
         Collections.addAll(this.effects, effects);
     }
@@ -63,7 +63,7 @@ public class SequencedVectorEffect extends AbstractVectorEffect {
             return;
         }
 
-        AbstractVectorEffect current = effects.get(currentIndex);
+        VectorEffect current = effects.get(currentIndex);
         current.update(tpf);
 
         if (current.isFinished()) {
@@ -86,7 +86,7 @@ public class SequencedVectorEffect extends AbstractVectorEffect {
         super.reset(); 
         isFinished = false;
         currentIndex = 0;
-        for (AbstractVectorEffect e : effects) {
+        for (VectorEffect e : effects) {
             e.reset();
         }
     }
