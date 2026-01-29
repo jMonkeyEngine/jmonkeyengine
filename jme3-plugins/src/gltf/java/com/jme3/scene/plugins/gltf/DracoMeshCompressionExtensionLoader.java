@@ -63,28 +63,25 @@ import dev.fileformat.drako.DrakoException;
 import dev.fileformat.drako.PointAttribute;
 
 /**
- * A class for handling the <code>KHR_draco_mesh_compression</code> extension
- * when loading a glTF asset.
+ * A class for handling the <code>KHR_draco_mesh_compression</code> extension when loading a glTF asset.
  * 
- * It is registered as the handler for this extension in the glTF
- * {@link CustomContentManager}. In the
- * {@link GltfLoader#readMeshPrimitives(int)} method, the custom content handler
- * will be called for each mesh primitive, and handle the
- * <code>KHR_draco_mesh_compression</code> of the primitive by calling the
+ * It is registered as the handler for this extension in the glTF {@link CustomContentManager}. In the
+ * {@link GltfLoader#readMeshPrimitives(int)} method, the custom content handler will be called for each mesh
+ * primitive, and handle the <code>KHR_draco_mesh_compression</code> of the primitive by calling the
  * {@link #handleExtension} method of this class.
  * 
- * TODO_DRACO Strictly speaking, the loader should ignore any attribute
- * definitions when the draco extension is present. Right now, this is called
- * after the mesh was already filled with the vertex buffers that have been
- * created by the default loading process. See the check for "bufferViewIndex ==
- * null" in VertexBufferPopulator.
+ * TODO_DRACO Strictly speaking, the loader should ignore any attribute definitions when the draco extension
+ * is present. Right now, this is called after the mesh was already filled with the vertex buffers that have
+ * been created by the default loading process. See the check for "bufferViewIndex == null" in
+ * VertexBufferPopulator.
  */
 public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 
 	/**
 	 * The logger used in this class
 	 */
-	private final static Logger logger = Logger.getLogger(DracoMeshCompressionExtensionLoader.class.getName());
+	private final static Logger logger = Logger
+	        .getLogger(DracoMeshCompressionExtensionLoader.class.getName());
 
 	/**
 	 * The default log level
@@ -94,8 +91,8 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	/**
 	 * <ul>
 	 * <li>The <code>parentName</code> will be <code>"primitive"</code></li>
-	 * <li>The <code>parent</code>" will be the JSON element that represents the
-	 * mesh primitive from the glTF JSON.</li>
+	 * <li>The <code>parent</code>" will be the JSON element that represents the mesh primitive from the glTF
+	 * JSON.</li>
 	 * <li>The <code>extension</code> will be the JSON element that represents the
 	 * <code>KHR_draco_mesh_compression</code> extension object.</li>
 	 * </ul>
@@ -103,8 +100,8 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension,
-			Object input) throws IOException {
+	public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent,
+	        JsonElement extension, Object input) throws IOException {
 
 		logger.log(level, "Decoding draco data");
 
@@ -121,7 +118,8 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 		int indices[] = dracoMesh.getIndices().toArray();
 		int indicesAccessorIndex = getAsInt(meshPrimitiveObject, "mesh primitive", "indices");
 		JsonObject indicesAccessor = loader.getAccessor(indicesAccessorIndex);
-		int indicesComponentType = getAsInt(indicesAccessor, "accessor " + indicesAccessorIndex, "componentType");
+		int indicesComponentType = getAsInt(indicesAccessor, "accessor " + indicesAccessorIndex,
+		        "componentType");
 		VertexBuffer indicesVertexBuffer = createIndicesVertexBuffer(loader, indicesComponentType, indices);
 		mesh.clearBuffer(VertexBuffer.Type.Index);
 		mesh.setBuffer(indicesVertexBuffer);
@@ -148,7 +146,8 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 
 			// The mesh primitive stores the accessor index for
 			// each attribute
-			int attributeAccessorIndex = getAsInt(parentAttributes, attributeName + " attribute", attributeName);
+			int attributeAccessorIndex = getAsInt(parentAttributes, attributeName + " attribute",
+			        attributeName);
 			JsonObject accessor = loader.getAccessor(attributeAccessorIndex);
 
 			logger.log(level, "attributeAccessorIndex " + attributeAccessorIndex);
@@ -158,8 +157,8 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 			// created from the data that was fetched from the
 			// decoded draco PointAttribute
 			Type bufferType = getVertexBufferType(attributeName);
-			VertexBuffer attributeVertexBuffer = createAttributeVertexBuffer(attributeName, accessor, pointAttribute,
-					indices);
+			VertexBuffer attributeVertexBuffer = createAttributeVertexBuffer(attributeName, accessor,
+			        pointAttribute, indices);
 			mesh.clearBuffer(bufferType);
 			mesh.setBuffer(attributeVertexBuffer);
 		}
@@ -169,15 +168,15 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	}
 
 	/**
-	 * Read the draco data from the given extension, using
-	 * <code>openize-drako-java</code>.
+	 * Read the draco data from the given extension, using <code>openize-drako-java</code>.
 	 * 
-	 * @param loader    The glTF loader
-	 * @param extension The draco extension object that was found in a mesh
-	 *                  primitive
+	 * @param loader
+	 *            The glTF loader
+	 * @param extension
+	 *            The draco extension object that was found in a mesh primitive
 	 * @return The Draco mesh
-	 * @throws IOException If attempting to load the underlying buffer causes an IO
-	 *                     error
+	 * @throws IOException
+	 *             If attempting to load the underlying buffer causes an IO error
 	 */
 	private static DracoMesh readDracoMesh(GltfLoader loader, JsonElement extension) throws IOException {
 		logger.log(level, "Decoding draco mesh");
@@ -193,7 +192,8 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 		try {
 			dracoMesh = (DracoMesh) Draco.decode(bufferViewDataArray);
 		} catch (DrakoException e) {
-			throw new AssetLoadException("Could not decode Draco mesh from buffer view " + bufferViewIndex, e);
+			throw new AssetLoadException("Could not decode Draco mesh from buffer view " + bufferViewIndex,
+			        e);
 		}
 
 		logger.log(level, "Decoding draco mesh DONE");
@@ -201,17 +201,18 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	}
 
 	/**
-	 * Create the indices vertex buffer that should go into the mesh, based on the
-	 * given Draco-decoded indices
+	 * Create the indices vertex buffer that should go into the mesh, based on the given Draco-decoded indices
 	 * 
-	 * @param loader        The glTF loader
-	 * @param accessorIndex The accessor index of the vertices
-	 * @param indices       The Draco-decoded indices
+	 * @param loader
+	 *            The glTF loader
+	 * @param accessorIndex
+	 *            The accessor index of the vertices
+	 * @param indices
+	 *            The Draco-decoded indices
 	 * @return The indices vertex buffer
-	 * @throws AssetLoadException If the given component type is not
-	 *                            <code>GL_UNSIGNED_BYTE</code>,
-	 *                            <code>GL_UNSIGNED_SHORT</code>, or
-	 *                            <code>GL_UNSIGNED_INT</code>
+	 * @throws AssetLoadException
+	 *             If the given component type is not <code>GL_UNSIGNED_BYTE</code>,
+	 *             <code>GL_UNSIGNED_SHORT</code>, or <code>GL_UNSIGNED_INT</code>
 	 */
 	VertexBuffer createIndicesVertexBuffer(GltfLoader loader, int componentType, int indices[]) {
 		Buffer data = null;
@@ -222,8 +223,9 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 		} else if (componentType == GL.GL_UNSIGNED_INT) {
 			data = BufferUtils.createIntBuffer(indices);
 		} else {
-			throw new AssetLoadException("The indices accessor must have a component type of " + GL.GL_UNSIGNED_BYTE
-					+ ", " + GL.GL_UNSIGNED_SHORT + ", or " + GL.GL_UNSIGNED_INT + ", but has " + componentType);
+			throw new AssetLoadException("The indices accessor must have a component type of "
+			        + GL.GL_UNSIGNED_BYTE + ", " + GL.GL_UNSIGNED_SHORT + ", or " + GL.GL_UNSIGNED_INT
+			        + ", but has " + componentType);
 		}
 		VertexBuffer vb = new VertexBuffer(VertexBuffer.Type.Index);
 		VertexBuffer.Format format = getVertexBufferFormat(componentType);
@@ -234,13 +236,13 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 
 	// TODO_DRACO Could go into GltfUtils
 	/**
-	 * Determines the number of components per element for the given accessor, based
-	 * on its <code>type</code>
+	 * Determines the number of components per element for the given accessor, based on its <code>type</code>
 	 * 
-	 * @param accessor The accessor
+	 * @param accessor
+	 *            The accessor
 	 * @return The number of components
-	 * @throws AssetLoadException If the accessor does not have a valid
-	 *                            <code>type</code> property
+	 * @throws AssetLoadException
+	 *             If the accessor does not have a valid <code>type</code> property
 	 */
 	private static int getAccessorComponentCount(JsonObject accessor) {
 		String type = getAsString(accessor, "type");
@@ -252,7 +254,8 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	/**
 	 * Create a byte buffer containing the given values, cast to <code>byte</code>
 	 * 
-	 * @param array The array
+	 * @param array
+	 *            The array
 	 * @return The buffer
 	 */
 	private static Buffer createByteBuffer(int[] array) {
@@ -267,7 +270,8 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	/**
 	 * Create a short buffer containing the given values, cast to <code>short</code>
 	 * 
-	 * @param array The array
+	 * @param array
+	 *            The array
 	 * @return The buffer
 	 */
 	private static Buffer createShortBuffer(int[] array) {
@@ -282,19 +286,22 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	/**
 	 * Obtain the data for the specified buffer view of the given loader.
 	 * 
-	 * This will return a slice of the data of the underlying buffer. Callers may
-	 * not modify the returned data.
+	 * This will return a slice of the data of the underlying buffer. Callers may not modify the returned
+	 * data.
 	 * 
-	 * @param loader          The loader
-	 * @param bufferViewIndex The buffer view index
+	 * @param loader
+	 *            The loader
+	 * @param bufferViewIndex
+	 *            The buffer view index
 	 * @return The buffer view data
-	 * @throws IOException        If attempting to load the underlying buffer causes
-	 *                            an IO error
-	 * @throws AssetLoadException If the specified index is not valid, or the buffer
-	 *                            view did not define a valid buffer index or byte
-	 *                            length
+	 * @throws IOException
+	 *             If attempting to load the underlying buffer causes an IO error
+	 * @throws AssetLoadException
+	 *             If the specified index is not valid, or the buffer view did not define a valid buffer index
+	 *             or byte length
 	 */
-	private static ByteBuffer obtainBufferViewData(GltfLoader loader, int bufferViewIndex) throws IOException {
+	private static ByteBuffer obtainBufferViewData(GltfLoader loader, int bufferViewIndex)
+	        throws IOException {
 		JsonObject bufferView = loader.getBufferView(bufferViewIndex);
 		int bufferIndex = getAsInt(bufferView, "bufferView", "buffer");
 		assertNotNull(bufferIndex, "No buffer defined for bufferView " + bufferViewIndex);
@@ -312,14 +319,16 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	/**
 	 * Obtains the point attribute with the given ID from the given draco mesh.
 	 * 
-	 * @param dracoMesh     The draco mesh
-	 * @param gltfAttribute The glTF attribute name, like <code>"POSITION"</code>
-	 *                      (only used for error messages)
-	 * @param id            The unique ID of the attribute, i.e. the value that was
-	 *                      stored as the <code>"POSITION": id</code> in the draco
-	 *                      extension JSON object.
+	 * @param dracoMesh
+	 *            The draco mesh
+	 * @param gltfAttribute
+	 *            The glTF attribute name, like <code>"POSITION"</code> (only used for error messages)
+	 * @param id
+	 *            The unique ID of the attribute, i.e. the value that was stored as the
+	 *            <code>"POSITION": id</code> in the draco extension JSON object.
 	 * @return The point attribute
-	 * @throws AssetLoadException If the attribute with the given ID cannot be found
+	 * @throws AssetLoadException
+	 *             If the attribute with the given ID cannot be found
 	 */
 	private static PointAttribute getAttribute(DracoMesh dracoMesh, String gltfAttribute, int id) {
 		for (int i = 0; i < dracoMesh.getNumAttributes(); i++) {
@@ -328,25 +337,29 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 				return attribute;
 			}
 		}
-		throw new AssetLoadException(
-				"Could not obtain attribute " + gltfAttribute + " with unique ID " + id + " from decoded Draco mesh");
+		throw new AssetLoadException("Could not obtain attribute " + gltfAttribute + " with unique ID " + id
+		        + " from decoded Draco mesh");
 	}
 
 	/**
-	 * Creates a vertex buffer for the specified attribute, according to the
-	 * structure that is described by the given accessor JSON object, using the data
-	 * that is obtained from the given Draco-decoded point attribute
+	 * Creates a vertex buffer for the specified attribute, according to the structure that is described by
+	 * the given accessor JSON object, using the data that is obtained from the given Draco-decoded point
+	 * attribute
 	 * 
-	 * @param attributeName  The attribute name
-	 * @param accessor       The accessor JSON object
-	 * @param pointAttribute The Draco-decoded point attribute
-	 * @param indices        The indices, obtained from the draco mesh
+	 * @param attributeName
+	 *            The attribute name
+	 * @param accessor
+	 *            The accessor JSON object
+	 * @param pointAttribute
+	 *            The Draco-decoded point attribute
+	 * @param indices
+	 *            The indices, obtained from the draco mesh
 	 * @return The vertex buffer
-	 * @throws AssetLoadException If the given accessor does not have a component
-	 *                            type that is valid for a vertex attribute
+	 * @throws AssetLoadException
+	 *             If the given accessor does not have a component type that is valid for a vertex attribute
 	 */
 	private static VertexBuffer createAttributeVertexBuffer(String attributeName, JsonObject accessor,
-			PointAttribute pointAttribute, int indices[]) {
+	        PointAttribute pointAttribute, int indices[]) {
 		int count = getAsInt(accessor, "accessor", "count");
 		int componentType = getAsInt(accessor, "accessor", "componentType");
 		int componentCount = getAccessorComponentCount(accessor);
@@ -354,37 +367,45 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 
 		if (componentType == GL.GL_BYTE || componentType == GL.GL_UNSIGNED_BYTE) {
 			ByteBuffer attributeData = readByteDracoAttribute(pointAttribute, indices, count, componentCount);
-			VertexBuffer attributeVertexBuffer = createByteAttributeVertexBuffer(accessor, bufferType, attributeData);
+			VertexBuffer attributeVertexBuffer = createByteAttributeVertexBuffer(accessor, bufferType,
+			        attributeData);
 			return attributeVertexBuffer;
 		}
 		if (componentType == GL.GL_SHORT || componentType == GL.GL_UNSIGNED_SHORT) {
-			ShortBuffer attributeData = readShortDracoAttribute(pointAttribute, indices, count, componentCount);
-			VertexBuffer attributeVertexBuffer = createShortAttributeVertexBuffer(accessor, bufferType, attributeData);
+			ShortBuffer attributeData = readShortDracoAttribute(pointAttribute, indices, count,
+			        componentCount);
+			VertexBuffer attributeVertexBuffer = createShortAttributeVertexBuffer(accessor, bufferType,
+			        attributeData);
 			return attributeVertexBuffer;
 		}
 		if (componentType == GL.GL_FLOAT) {
-			FloatBuffer attributeData = readFloatDracoAttribute(pointAttribute, indices, count, componentCount);
-			VertexBuffer attributeVertexBuffer = createFloatAttributeVertexBuffer(accessor, bufferType, attributeData);
+			FloatBuffer attributeData = readFloatDracoAttribute(pointAttribute, indices, count,
+			        componentCount);
+			VertexBuffer attributeVertexBuffer = createFloatAttributeVertexBuffer(accessor, bufferType,
+			        attributeData);
 			return attributeVertexBuffer;
 		}
-		throw new AssetLoadException("The accessor for attribute " + attributeName + " must have a component type of "
-				+ GL.GL_BYTE + ", " + GL.GL_UNSIGNED_BYTE + ", " + GL.GL_SHORT + ", " + GL.GL_UNSIGNED_SHORT + ", "
-				+ "or " + GL.GL_FLOAT + ", but has " + componentType);
+		throw new AssetLoadException(
+		        "The accessor for attribute " + attributeName + " must have a component type of " + GL.GL_BYTE
+		                + ", " + GL.GL_UNSIGNED_BYTE + ", " + GL.GL_SHORT + ", " + GL.GL_UNSIGNED_SHORT + ", "
+		                + "or " + GL.GL_FLOAT + ", but has " + componentType);
 	}
 
 	/**
 	 * Read the data from the given point attribute, as <code>byte</code> values
 	 * 
-	 * @param pointAttribute The Draco-decoded point attribute
-	 * @param indices        The indices, obtained from the draco mesh
-	 * @param count          The count, obtained from the accessor for this
-	 *                       attribute
-	 * @param componentCount The component count (number of components per element),
-	 *                       obtained from the accessor type
+	 * @param pointAttribute
+	 *            The Draco-decoded point attribute
+	 * @param indices
+	 *            The indices, obtained from the draco mesh
+	 * @param count
+	 *            The count, obtained from the accessor for this attribute
+	 * @param componentCount
+	 *            The component count (number of components per element), obtained from the accessor type
 	 * @return The resulting data, as a byte buffer
 	 */
 	private static ByteBuffer readByteDracoAttribute(PointAttribute pointAttribute, int indices[], int count,
-			int componentCount) {
+	        int componentCount) {
 		int numFaces = indices.length / 3;
 		byte p[] = new byte[componentCount];
 		ByteBuffer attributeData = BufferUtils.createByteBuffer(count * componentCount);
@@ -419,16 +440,18 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	/**
 	 * Read the data from the given point attribute, as <code>short</code> values
 	 * 
-	 * @param pointAttribute The Draco-decoded point attribute
-	 * @param indices        The indices, obtained from the draco mesh
-	 * @param count          The count, obtained from the accessor for this
-	 *                       attribute
-	 * @param componentCount The component count (number of components per element),
-	 *                       obtained from the accessor type
+	 * @param pointAttribute
+	 *            The Draco-decoded point attribute
+	 * @param indices
+	 *            The indices, obtained from the draco mesh
+	 * @param count
+	 *            The count, obtained from the accessor for this attribute
+	 * @param componentCount
+	 *            The component count (number of components per element), obtained from the accessor type
 	 * @return The resulting data, as a short buffer
 	 */
-	private static ShortBuffer readShortDracoAttribute(PointAttribute pointAttribute, int indices[], int count,
-			int componentCount) {
+	private static ShortBuffer readShortDracoAttribute(PointAttribute pointAttribute, int indices[],
+	        int count, int componentCount) {
 		int numFaces = indices.length / 3;
 		short p[] = new short[componentCount];
 		ShortBuffer attributeData = BufferUtils.createShortBuffer(count * componentCount);
@@ -463,16 +486,18 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	/**
 	 * Read the data from the given point attribute, as <code>float</code> values
 	 * 
-	 * @param pointAttribute The Draco-decoded point attribute
-	 * @param indices        The indices, obtained from the draco mesh
-	 * @param count          The count, obtained from the accessor for this
-	 *                       attribute
-	 * @param componentCount The component count (number of components per element),
-	 *                       obtained from the accessor type
+	 * @param pointAttribute
+	 *            The Draco-decoded point attribute
+	 * @param indices
+	 *            The indices, obtained from the draco mesh
+	 * @param count
+	 *            The count, obtained from the accessor for this attribute
+	 * @param componentCount
+	 *            The component count (number of components per element), obtained from the accessor type
 	 * @return The resulting data, as a float buffer
 	 */
-	private static FloatBuffer readFloatDracoAttribute(PointAttribute pointAttribute, int indices[], int count,
-			int componentCount) {
+	private static FloatBuffer readFloatDracoAttribute(PointAttribute pointAttribute, int indices[],
+	        int count, int componentCount) {
 		int numFaces = indices.length / 3;
 		float p[] = new float[componentCount];
 		FloatBuffer attributeData = BufferUtils.createFloatBuffer(count * componentCount);
@@ -507,14 +532,17 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	/**
 	 * Create the vertex buffer for the given <code>byte</code> attribute data
 	 * 
-	 * @param accessor      The accessor that describes the component type and type
+	 * @param accessor
+	 *            The accessor that describes the component type and type
 	 * 
-	 * @param bufferType    The buffer type
-	 * @param attributeData The attribute data
+	 * @param bufferType
+	 *            The buffer type
+	 * @param attributeData
+	 *            The attribute data
 	 * @return The vertex buffer
 	 */
-	private static VertexBuffer createByteAttributeVertexBuffer(JsonObject accessor, VertexBuffer.Type bufferType,
-			ByteBuffer attributeData) {
+	private static VertexBuffer createByteAttributeVertexBuffer(JsonObject accessor,
+	        VertexBuffer.Type bufferType, ByteBuffer attributeData) {
 		int componentType = getAsInt(accessor, "accessor", "componentType");
 		VertexBuffer vb = new VertexBuffer(bufferType);
 		VertexBuffer.Format format = getVertexBufferFormat(componentType);
@@ -526,14 +554,17 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	/**
 	 * Create the vertex buffer for the given <code>short</code> attribute data
 	 * 
-	 * @param accessor      The accessor that describes the component type and type
+	 * @param accessor
+	 *            The accessor that describes the component type and type
 	 * 
-	 * @param bufferType    The buffer type
-	 * @param attributeData The attribute data
+	 * @param bufferType
+	 *            The buffer type
+	 * @param attributeData
+	 *            The attribute data
 	 * @return The vertex buffer
 	 */
-	private static VertexBuffer createShortAttributeVertexBuffer(JsonObject accessor, VertexBuffer.Type bufferType,
-			ShortBuffer attributeData) {
+	private static VertexBuffer createShortAttributeVertexBuffer(JsonObject accessor,
+	        VertexBuffer.Type bufferType, ShortBuffer attributeData) {
 		int componentType = getAsInt(accessor, "accessor", "componentType");
 		VertexBuffer vb = new VertexBuffer(bufferType);
 		VertexBuffer.Format format = getVertexBufferFormat(componentType);
@@ -545,14 +576,17 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	/**
 	 * Create the vertex buffer for the given <code>float</code> attribute data
 	 * 
-	 * @param accessor      The accessor that describes the component type and type
+	 * @param accessor
+	 *            The accessor that describes the component type and type
 	 * 
-	 * @param bufferType    The buffer type
-	 * @param attributeData The attribute data
+	 * @param bufferType
+	 *            The buffer type
+	 * @param attributeData
+	 *            The attribute data
 	 * @return The vertex buffer
 	 */
-	private static VertexBuffer createFloatAttributeVertexBuffer(JsonObject accessor, VertexBuffer.Type bufferType,
-			FloatBuffer attributeData) {
+	private static VertexBuffer createFloatAttributeVertexBuffer(JsonObject accessor,
+	        VertexBuffer.Type bufferType, FloatBuffer attributeData) {
 		int componentType = getAsInt(accessor, "accessor", "componentType");
 		VertexBuffer vb = new VertexBuffer(bufferType);
 		VertexBuffer.Format format = getVertexBufferFormat(componentType);
