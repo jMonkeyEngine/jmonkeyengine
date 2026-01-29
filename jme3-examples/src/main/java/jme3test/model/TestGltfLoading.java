@@ -129,7 +129,6 @@ public class TestGltfLoading extends SimpleApplication {
 
         // loadModelSample("Avocado", "draco");
 
-        // FIXME: wrong texture coords?
         // loadModelSample("BarramundiFish", "draco");
 
         // loadModelSample("BoomBox", "draco");
@@ -137,7 +136,6 @@ public class TestGltfLoading extends SimpleApplication {
         // FIXME: bad skinning?
         // loadModelSample("BrainStem", "draco");
 
-        // FIXME: wrong offsets?
         // loadModelSample("CesiumMilkTruck", "draco");
 
         // FIXME: FAILS WITH INDEX OUT OF BOUND EXCEPTION
@@ -145,7 +143,6 @@ public class TestGltfLoading extends SimpleApplication {
 
         // loadModelSample("Corset", "draco");
 
-        // FIXME: unclear
         // loadModelSample("Lantern", "draco");
 
         // loadModelSample("MorphPrimitivesTest", "draco");

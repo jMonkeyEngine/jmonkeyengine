@@ -9,9 +9,15 @@ sourceSets {
     }
 }
 
+repositories{
+    maven {
+        url "https://maven.rblb.it/jMonkeyEngine/openize-drako-java/"
+    }
+}
+
 dependencies {
     api project(':jme3-core')
-    implementation "dev.fileformat:drako:1.4.2"
+    implementation "org.jmonkeyengine:drako:1.4.3"
     implementation project(':jme3-plugins-json')
     implementation project(':jme3-plugins-json-gson')
     testRuntimeOnly project(':jme3-desktop')
