@@ -32,47 +32,50 @@
 package jme3test.model;
 
 import com.jme3.anim.AnimComposer;
-import com.jme3.anim.SkinningControl;
 import com.jme3.app.*;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.asset.plugins.UrlLocator;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.math.*;
 import com.jme3.renderer.Limits;
 import com.jme3.scene.*;
-import com.jme3.scene.control.Control;
 import com.jme3.scene.debug.custom.ArmatureDebugAppState;
 import com.jme3.scene.plugins.gltf.GltfModelKey;
-
 import jme3test.model.anim.EraseTimer;
 
+import java.io.File;
 import java.util.*;
 
 public class TestGltfLoading extends SimpleApplication {
 
-    final private Node autoRotate = new Node("autoRotate");
-    final private List<Spatial> assets = new ArrayList<>();
+    private final Node autoRotate = new Node("autoRotate");
+    private final List<Spatial> assets = new ArrayList<>();
     private Node probeNode;
     private float time = 0;
     private int assetIndex = 0;
     private boolean useAutoRotate = false;
     private final static String indentString = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-    final private int duration = 1;
+    private final int duration = 1;
     private boolean playAnim = true;
+    private ChaseCameraAppState chaseCam;
+
+    private final Queue<String> anims = new LinkedList<>();
+    private AnimComposer composer;
 
     public static void main(String[] args) {
         TestGltfLoading app = new TestGltfLoading();
         app.start();
     }
 
-    /*
-    WARNING this test case can't work without the assets, and considering their size, they are not pushed into the repo
-    you can find them here :
-    https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0
-    https://sketchfab.com/features/gltf
-    You have to copy them in Model/gltf folder in the jme3-testdata project.
+    /**
+     * WARNING This test case will try to load models from $HOME/glTF-Sample-Models, if the models is not
+     * found there, it will automatically try to load it from the repository
+     * https://github.com/KhronosGroup/glTF-Sample-Models .
+     * 
+     * Depending on the your connection speed and github rate limiting, this can be quite slow.
      */
     @Override
     public void simpleInitApp() {
@@ -81,12 +84,14 @@ public class TestGltfLoading extends SimpleApplication {
         getStateManager().attach(armatureDebugappState);
         setTimer(new EraseTimer());
 
-        String folder = System.getProperty("user.home");
-        assetManager.registerLocator(folder, FileLocator.class);
-        assetManager.registerLocator("https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/refs/heads/main/", UrlLocator.class);
+        String folder = System.getProperty("user.home") + "/glTF-Sample-Models";
+        if (new File(folder).exists()) {
+            assetManager.registerLocator(folder, FileLocator.class);
+        }
+        assetManager.registerLocator(
+                "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/refs/heads/main/",
+                UrlLocator.class);
 
-        // cam.setLocation(new Vector3f(4.0339394f, 2.645184f, 6.4627485f));
-        // cam.setRotation(new Quaternion(-0.013950467f, 0.98604023f, -0.119502485f, -0.11510504f));
         cam.setFrustumPerspective(45f, (float) cam.getWidth() / cam.getHeight(), 0.1f, 100f);
         renderer.setDefaultAnisotropicFilter(Math.min(renderer.getLimits().get(Limits.TextureAnisotropy), 8));
         setPauseOnLostFocus(false);
@@ -99,138 +104,63 @@ public class TestGltfLoading extends SimpleApplication {
         probeNode = (Node) assetManager.loadModel("Scenes/defaultProbe.j3o");
         autoRotate.attachChild(probeNode);
 
-//        DirectionalLight dl = new DirectionalLight();
-//        dl.setDirection(new Vector3f(-1f, -1.0f, -1f).normalizeLocal());
-//        dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
-//        rootNode.addLight(dl);
+        chaseCam = new ChaseCameraAppState();
+        getStateManager().attach(chaseCam);
 
-//        DirectionalLight dl2 = new DirectionalLight();
-//        dl2.setDirection(new Vector3f(1f, 1.0f, 1f).normalizeLocal());
-//        dl2.setColor(new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f));
-//        rootNode.addLight(dl2);
+        loadModelSample("BoomBox", "gltf");
 
-//        PointLight pl = new PointLight(new Vector3f(5.0f, 5.0f, 5.0f), ColorRGBA.White, 30);
-//        rootNode.addLight(pl);
-//        PointLight pl1 = new PointLight(new Vector3f(-5.0f, -5.0f, -5.0f), ColorRGBA.White.mult(0.5f), 50);
-//        rootNode.addLight(pl1);
+        // loadModelSample("Duck", "gltf");
+        // loadModelSample("Duck", "glb");
+        // loadModelSample("ABeautifulGame", "gltf");
+        // loadModelSample("Avocado", "glb");
+        // loadModelSample("Avocado", "gltf");
+        // loadModelSample("CesiumMilkTruck", "glb");
+        // loadModelSample("VirtualCity", "glb");
+        // loadModelSample("BrainStem", "glb");
+        // loadModelSample("Lantern", "glb");
+        // loadModelSample("RiggedFigure", "glb");
+        // loadModelSample("SciFiHelmet", "gltf");
+        // loadModelSample("DamagedHelmet", "gltf");
+        // loadModelSample("AnimatedCube", "gltf");
+        // loadModelSample("AntiqueCamera", "glb");
+        // loadModelSample("AnimatedMorphCube", "glb");
 
-        //loadModel("Models/gltf/polly/project_polly.gltf", new Vector3f(0, 0, 0), 0.5f);
-        //loadModel("Models/gltf/zophrac/scene.gltf", new Vector3f(0, 0, 0), 0.01f);
-    //    loadModel("Models/gltf/scifigirl/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
-        //loadModel("Models/gltf/man/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
-       //loadModel("Models/gltf/torus/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
-        //loadModel("Models/gltf/morph/scene.gltf", new Vector3f(0, 0, 0), 0.2f);
-//        loadModel("Models/gltf/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf", new Vector3f(0, 0, 0), 1f);
-//        loadModel("Models/gltf/SimpleMorph/glTF/SimpleMorph.gltf", new Vector3f(0, 0, 0), 0.1f);
-        //loadModel("Models/gltf/nier/scene.gltf", new Vector3f(0, -1.5f, 0), 0.01f);
-        //loadModel("Models/gltf/izzy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
-        //loadModel("Models/gltf/darth/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
-        //loadModel("Models/gltf/mech/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
-        //loadModel("Models/gltf/elephant/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
-        //loadModel("Models/gltf/buffalo/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
-        //loadModel("Models/gltf/war/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
-        //loadModel("Models/gltf/ganjaarl/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
-        //loadModel("Models/gltf/hero/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
-        //loadModel("Models/gltf/mercy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
-        //loadModel("Models/gltf/crab/scene.gltf", Vector3f.ZERO, 1);
-        //loadModel("Models/gltf/manta/scene.gltf", Vector3f.ZERO, 0.2f);
-        //loadModel("Models/gltf/bone/scene.gltf", Vector3f.ZERO, 0.1f);
-        //loadModel("Models/gltf/box/box.gltf", Vector3f.ZERO, 1);
-        //loadModel("Models/gltf/duck/Duck.gltf", new Vector3f(0, 1, 0), 1);
-        
-        
-        // ===================================================================
-        // TODO_DRACO Draco test start
-        // The following test assumes that the "Models" directory from 
-        // https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models
-        // is copied into the 
-        // jme3-testdata\src\main\resources\Models\gltf\
-        // directory (or at least the following list of models)
-        
-        // Comment in/out the model to test
-        String dracoTestModel = null;
-        //dracoTestModel = "Avocado";
-        //dracoTestModel = "BarramundiFish";
-        dracoTestModel = "BoomBox";
-        //dracoTestModel = "BrainStem";
-        //dracoTestModel = "CesiumMan";
-        //dracoTestModel = "CesiumMilkTruck";
-        //dracoTestModel = "Corset";
-        //dracoTestModel = "Lantern";
-        //dracoTestModel = "MorphPrimitivesTest";
-        //dracoTestModel = "RiggedFigure";
-        //dracoTestModel = "RiggedSimple";
-        //dracoTestModel = "SunglassesKhronos";
-        //dracoTestModel = "VirtualCity";
-        //dracoTestModel = "WaterBottle";
-        
-        boolean testDraco = true;
-        // Uncomment this to not load the Draco-compressed
-        // version, but the glTF-Binary version of the model
-        //testDraco = false;
-        String dracoTestFlavor = null;
-        String dracoTestExtension = null;
-        if (testDraco)
-        {
-        	dracoTestFlavor = "glTF-Draco";
-        	dracoTestExtension = "gltf";
-        }
-        else
-        {
-            dracoTestFlavor = "glTF-Binary";
-        	dracoTestExtension = "glb";
-        }
-        // Assemble a path like 
-        // "Models/gltf/Models/BoomBox/glTF-Draco/BoomBox.gltf"
-        String dracoTestPath = "Models/gltf/Models/" + dracoTestModel + "/" + dracoTestFlavor + "/" + dracoTestModel + "." + dracoTestExtension; 
-        
-        System.out.println("Running Draco test with "+dracoTestPath);
-        loadModel(dracoTestPath, new Vector3f(0, 0, 0), 20.0f);
-        
-        // TODO_DRACO Draco test end
-        // ===================================================================
-        
-        
-        //loadModel("Models/gltf/BoomBox/glTF-Draco/BoomBox.gltf", new Vector3f(0, 0, 0), 20);
-        //loadModel("Models/gltf/BoomBox/glTF-Binary/BoomBox.glb", new Vector3f(0, 0, 0), 1);
-        
-//        loadModel("Models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf", Vector3f.ZERO, 1);
-//        loadModel("Models/gltf/hornet/scene.gltf", new Vector3f(0, -0.5f, 0), 0.4f);
-////        loadModel("Models/gltf/adamHead/adamHead.gltf", Vector3f.ZERO, 0.6f);
-        //loadModel("Models/gltf/busterDrone/busterDrone.gltf", new Vector3f(0, 0f, 0), 0.8f);
-//        loadModel("Models/gltf/AnimatedCube/glTF/AnimatedCube.gltf", Vector3f.ZERO, 0.5f);
-//        loadModel("Models/gltf/BoxAnimated/glTF/BoxAnimated.gltf", new Vector3f(0, 0f, 0), 0.8f);
-//        loadModel("Models/gltf/RiggedSimple/glTF/RiggedSimple.gltf", new Vector3f(0, -0.3f, 0), 0.2f);
-//        loadModel("Models/gltf/RiggedFigure/glTF/RiggedFigure.gltf", new Vector3f(0, -1f, 0), 1f);
-//        loadModel("Models/gltf/CesiumMan/glTF/CesiumMan.gltf", new Vector3f(0, -1, 0), 1f);
-//        loadModel("Models/gltf/BrainStem/glTF/BrainStem.gltf", new Vector3f(0, -1, 0), 1f);
-        //loadModel("Models/gltf/Jaime/Jaime.gltf", new Vector3f(0, -1, 0), 1f);
-        // loadModel("Models/gltf/GiantWorm/GiantWorm.gltf", new Vector3f(0, -1, 0), 1f);
-        //loadModel("Models/gltf/RiggedFigure/WalkingLady.gltf", new Vector3f(0, -0.f, 0), 1f);
-        //loadModel("Models/gltf/Monster/Monster.gltf", Vector3f.ZERO, 0.03f);
+        // DRACO SAMPLES
 
-//        loadModel("Models/gltf/Corset/glTF/Corset.gltf", new Vector3f(0, -1, 0), 20f);
-//        loadModel("Models/gltf/BoxInterleaved/glTF/BoxInterleaved.gltf", new Vector3f(0, 0, 0), 1f);
+        // loadModelSample("Avocado", "draco");
 
-        // From url locator
+        // FIXME: wrong texture coords?
+        // loadModelSample("BarramundiFish", "draco");
 
-        // loadModel("Models/AnimatedColorsCube/glTF/AnimatedColorsCube.gltf", new Vector3f(0, 0f, 0), 0.1f);
-        // loadModel("Models/AntiqueCamera/glTF/AntiqueCamera.gltf", new Vector3f(0, 0, 0), 0.1f);
-        // loadModel("Models/AnimatedMorphCube/glTF/AnimatedMorphCube.gltf", new Vector3f(0, 0, 0), 0.1f);
-        // loadModel("Models/AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb", new Vector3f(0, 0, 0), 0.1f);
+        // loadModelSample("BoomBox", "draco");
+
+        // FIXME: bad skinning?
+        // loadModelSample("BrainStem", "draco");
+
+        // FIXME: wrong offsets?
+        // loadModelSample("CesiumMilkTruck", "draco");
+
+        // FIXME: FAILS WITH INDEX OUT OF BOUND EXCEPTION
+        // loadModelSample("VirtualCity", "draco");
+
+        // loadModelSample("Corset", "draco");
+
+        // FIXME: unclear
+        // loadModelSample("Lantern", "draco");
+
+        // loadModelSample("MorphPrimitivesTest", "draco");
+
+        // FIXME: skinning?
+        // loadModelSample("RiggedFigure", "draco");
+
+        // FIXME: skinning?
+        // loadModelSample("RiggedSimple", "draco");
+
+        // FIXME: "dracoMesh" is null
+        // loadModelSample("SunglassesKhronos", "draco");
+        // loadModelSample("WaterBottle", "draco");
 
         probeNode.attachChild(assets.get(0));
-
-        ChaseCameraAppState chaseCam = new ChaseCameraAppState();
-        chaseCam.setTarget(probeNode);
-        getStateManager().attach(chaseCam);
-        chaseCam.setInvertHorizontalAxis(true);
-        chaseCam.setInvertVerticalAxis(true);
-        chaseCam.setZoomSpeed(0.5f);
-        chaseCam.setMinVerticalRotation(-FastMath.HALF_PI);
-        chaseCam.setRotationSpeed(3);
-        chaseCam.setDefaultDistance(3);
-        chaseCam.setDefaultVerticalRotation(0.3f);
 
         inputManager.addMapping("autorotate", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addListener(new ActionListener() {
@@ -271,36 +201,63 @@ public class TestGltfLoading extends SimpleApplication {
 
         dumpScene(rootNode, 0);
 
-      //  stateManager.attach(new DetailedProfilerState());
+        // stateManager.attach(new DetailedProfilerState());
     }
 
-    private <T extends Control> T findControl(Spatial s, Class<T> controlClass) {
-        T ctrl = s.getControl(controlClass);
-        if (ctrl != null) {
-            return ctrl;
+    private void loadModelSample(String name, String type) {
+        String path = "Models/" + name;
+        String ext = "gltf";
+        switch (type) {
+            case "draco":
+                path += "/glTF-Draco/";
+                ext = "gltf";
+                break;
+            case "glb":
+                path += "/glTF-Binary/";
+                ext = "glb";
+                break;
+            default:
+                path += "/glTF/";
+                ext = "gltf";
+                break;
         }
-        if (s instanceof Node) {
-            Node n = (Node) s;
-            for (Spatial spatial : n.getChildren()) {
-                ctrl = findControl(spatial, controlClass);
-                if (ctrl != null) {
-                    return ctrl;
-                }
-            }
+        path += name + "." + ext;
+
+        Spatial s = loadModel(path, new Vector3f(0, 0, 0), 1f);
+
+        BoundingBox bbox = (BoundingBox) s.getWorldBound();
+
+        float maxExtent = Math.max(bbox.getXExtent(), Math.max(bbox.getYExtent(), bbox.getZExtent()));
+        if (maxExtent < 10f) {
+            s.scale(10f / maxExtent);
+            maxExtent = 10f;
         }
-        return null;
+        float distance = 50f;
+
+        chaseCam.setTarget(s);
+        chaseCam.setInvertHorizontalAxis(true);
+        chaseCam.setInvertVerticalAxis(true);
+        chaseCam.setZoomSpeed(0.5f);
+        chaseCam.setMinVerticalRotation(-FastMath.HALF_PI);
+        chaseCam.setRotationSpeed(3);
+        chaseCam.setDefaultDistance(distance);
+        chaseCam.setMaxDistance(distance * 10);
+        chaseCam.setDefaultVerticalRotation(0.3f);
+
     }
 
-    private void loadModel(String path, Vector3f offset, float scale) {
-        loadModel(path, offset, new Vector3f(scale, scale, scale));
+    private Spatial loadModel(String path, Vector3f offset, float scale) {
+        return loadModel(path, offset, new Vector3f(scale, scale, scale));
     }
-    private void loadModel(String path, Vector3f offset, Vector3f scale) {
+
+    private Spatial loadModel(String path, Vector3f offset, Vector3f scale) {
+        System.out.println("Loading model: " + path);
         GltfModelKey k = new GltfModelKey(path);
-        //k.setKeepSkeletonPose(true);
-        long t  = System.currentTimeMillis();        
+        // k.setKeepSkeletonPose(true);
+        long t = System.currentTimeMillis();
         Spatial s = assetManager.loadModel(k);
         System.out.println("Load time : " + (System.currentTimeMillis() - t) + " ms");
-        
+
         s.scale(scale.x, scale.y, scale.z);
         s.move(offset);
         assets.add(s);
@@ -308,28 +265,8 @@ public class TestGltfLoading extends SimpleApplication {
             playFirstAnim(s);
         }
 
-        SkinningControl ctrl = findControl(s, SkinningControl.class);
-
-        //  ctrl.getSpatial().removeControl(ctrl);
-        if (ctrl == null) {
-            return;
-        }
-        //System.err.println(ctrl.getArmature().toString());
-        //ctrl.setHardwareSkinningPreferred(false);
-        //     getStateManager().getState(ArmatureDebugAppState.class).addArmatureFrom(ctrl);
-//        AnimControl aCtrl = findControl(s, AnimControl.class);
-//        //ctrl.getSpatial().removeControl(ctrl);
-//        if (aCtrl == null) {
-//            return;
-//        }
-//        if (aCtrl.getArmature() != null) {
-//            getStateManager().getState(SkeletonDebugAppState.class).addSkeleton(aCtrl.getArmature(), aCtrl.getSpatial(), true);
-//        }
-
+        return s;
     }
-
-    final private Queue<String> anims = new LinkedList<>();
-    private AnimComposer composer;
 
     private void playFirstAnim(Spatial s) {
 
@@ -375,25 +312,25 @@ public class TestGltfLoading extends SimpleApplication {
             return;
         }
         time += tpf;
-      //  autoRotate.rotate(0, tpf * 0.5f, 0);
+        // autoRotate.rotate(0, tpf * 0.5f, 0);
         if (time > duration) {
             // morphIndex++;
-            //  setMorphTarget(morphIndex);
+            // setMorphTarget(morphIndex);
             assets.get(assetIndex).removeFromParent();
             assetIndex = (assetIndex + 1) % assets.size();
-//            if (assetIndex == 0) {
-//                duration = 10;
-//            }
+            // if (assetIndex == 0) {
+            // duration = 10;
+            // }
             probeNode.attachChild(assets.get(assetIndex));
             time = 0;
         }
     }
 
     private void dumpScene(Spatial s, int indent) {
-        System.err.println(indentString.substring(0, indent) + s.getName() + " (" + s.getClass().getSimpleName() + ") / " +
-                s.getLocalTransform().getTranslation().toString() + ", " +
-                s.getLocalTransform().getRotation().toString() + ", " +
-                s.getLocalTransform().getScale().toString());
+        System.err.println(indentString.substring(0, indent) + s.getName() + " ("
+                + s.getClass().getSimpleName() + ") / " + s.getLocalTransform().getTranslation().toString()
+                + ", " + s.getLocalTransform().getRotation().toString() + ", "
+                + s.getLocalTransform().getScale().toString());
         if (s instanceof Node) {
             Node n = (Node) s;
             for (Spatial spatial : n.getChildren()) {
