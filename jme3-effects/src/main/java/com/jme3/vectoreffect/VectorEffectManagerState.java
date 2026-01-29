@@ -85,9 +85,9 @@ public class VectorEffectManagerState extends BaseAppState {
         }
     }
 
-    public void cancelEffects(Object vectorObject) {
+    public void cancelEffects(VectorGroup vectorObject) {
         for(VectorEffect vectorEffect : activeVectorEffects){
-            if(vectorEffect.vectorsToModify.equals(vectorObject)){
+            if(vectorEffect.getVectorsToModify().equals(vectorObject)){
                 vectorEffect.setIsFinished(true);
             }
         }

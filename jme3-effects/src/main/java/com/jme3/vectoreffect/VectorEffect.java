@@ -29,68 +29,19 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.vectoreffect;
 
-import com.jme3.app.state.AppStateManager;
-import java.util.ArrayList;
-
 /**
+ *
  * @author yaRnMcDonuts
  */
+public interface VectorEffect {
 
-public abstract class VectorEffect {
-    
-    protected VectorGroup vectorsToModify;    
-    private final ArrayList<Runnable> onFinishedCallbacks = new ArrayList<>();    
-    protected boolean isFinished = false;       
-   
-    public VectorEffect(){
+    public boolean isFinished();
+    public void update(float tpf);
+    public void setIsFinished(boolean b);
+    public VectorGroup getVectorsToModify();
+    public void reset();
         
-    }
     
-    public VectorEffect(VectorGroup vectorsToModify) {
-        this.vectorsToModify = vectorsToModify;
-    }        
-    
-    public void setIsFinished(boolean isFinished) {        
-        this.isFinished = isFinished;
-        if (isFinished) {
-            for(Runnable r : onFinishedCallbacks) {
-                r.run();
-            }
-            onFinishedCallbacks.clear();
-        }
-    }
-    
-    public boolean isFinished() {        
-        return isFinished;  
-    }    
-    
-
-    public void reset() {
-        isFinished = false;
-    }
-    
-    
-    public void registerRunnableOnFinish(Runnable runnable) {
-        onFinishedCallbacks.add(runnable);
-    }  
-    
-    public void update(float tpf){
-       
-    }    
-        
-    // convenience registration method so users can avoid repeatedly writing this AppState fetching code
-    public void convenienceRegister(AppStateManager stateManager) {
-        if(stateManager != null){
-            VectorEffectManagerState vectorEffectManagerState = stateManager.getState(VectorEffectManagerState.class);
-            if(vectorEffectManagerState != null){
-                vectorEffectManagerState.registerVectorEffect(this);
-            }
-        }
-    }
-
-
 }
-

@@ -93,7 +93,7 @@ public class VectorGroup implements Cloneable {
     public VectorGroup clone() {
         VectorGroup clonedGroup = new VectorGroup(new VectorSupplier[0]);
         for (VectorSupplier supplier : this.vectorSupplier) {
-            clonedGroup.vectorSupplier.add(VectorSupplier.of(supplier.get().clone()));
+            clonedGroup.vectorSupplier.add(supplier.clone());
         }
         return clonedGroup;
     }

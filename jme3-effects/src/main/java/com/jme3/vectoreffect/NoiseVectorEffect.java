@@ -39,7 +39,7 @@ import com.jme3.math.FastNoiseLite.NoiseType;
  *
  * @author yaRnMcDonuts
  */
-public class NoiseVectorEffect extends VectorEffect {
+public class NoiseVectorEffect extends AbstractVectorEffect {
     
     private FastNoiseLite noiseGenerator;        
 
@@ -85,7 +85,7 @@ public class NoiseVectorEffect extends VectorEffect {
             tempNoiseVariationVec.multLocal(noiseReturnVal);        
             originalVectorValues.getAsVector4(v, tempOriginalVec);
         
-            vectorsToModify.updateVectorObject(tempOriginalVec.add(tempNoiseVariationVec), v);
+            vectorsToModify.updateVectorObject(tempOriginalVec.addLocal(tempNoiseVariationVec), v);
         }             
     }    
     

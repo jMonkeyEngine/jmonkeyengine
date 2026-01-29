@@ -32,62 +32,74 @@
 
 package com.jme3.vectoreffect;
 
+import com.jme3.app.state.AppStateManager;
 import java.util.ArrayList;
-import java.util.Collections;
 
 /**
- *
  * @author yaRnMcDonuts
  */
-public class SequencedVectorEffect extends AbstractVectorEffect {
-    private final ArrayList<AbstractVectorEffect> effects = new ArrayList<>();
-    private int currentIndex = 0;
-    private boolean isRepeatingInfinitely = false;
-    private float numTimesToRepeat = -1;
-    private float currentCycle = 0;
 
-    public void setLooping(boolean repeat) {        this.isRepeatingInfinitely = repeat;    }
-    public void setRepeatNumberOfTimes(float repititionCount){ this.numTimesToRepeat = repititionCount; }
-    public void addEffect(AbstractVectorEffect effect) {        effects.add(effect);    }
-
-    public SequencedVectorEffect(AbstractVectorEffect... effects) {
-        super();
-        Collections.addAll(this.effects, effects);
+public abstract class AbstractVectorEffect implements VectorEffect {
+    
+    protected VectorGroup vectorsToModify;    
+    private final ArrayList<Runnable> onFinishedCallbacks = new ArrayList<>();    
+    protected boolean isFinished = false;       
+   
+    public AbstractVectorEffect(){
+        
     }
-
-    @Override
-    public void update(float tpf) {
-        super.update(tpf);
-        if (effects.isEmpty()) {
-            setIsFinished(true);
-            return;
-        }
-
-        AbstractVectorEffect current = effects.get(currentIndex);
-        current.update(tpf);
-
-        if (current.isFinished()) {
-            currentIndex++;
-
-            if (currentIndex >= effects.size()) {
-                currentCycle++;
-                reset();
-                
-                if (!isRepeatingInfinitely && currentCycle >= numTimesToRepeat) {
-                    setIsFinished(true);
-                    currentCycle = 0;
-                }               
-            }
-        }
-    }    
+    
+    public AbstractVectorEffect(VectorGroup vectorsToModify) {
+        this.vectorsToModify = vectorsToModify;
+    }        
     
     @Override
-    public void reset() {
-        super.reset(); 
-        isFinished = false;
-        currentIndex = 0;
-        for (AbstractVectorEffect e : effects) {
-            e.reset();
+    public void setIsFinished(boolean isFinished) {        
+        this.isFinished = isFinished;
+        if (isFinished) {
+            for(Runnable r : onFinishedCallbacks) {
+                r.run();
+            }
+            onFinishedCallbacks.clear();
         }
     }
+    
+    @Override
+    public VectorGroup getVectorsToModify(){
+        return vectorsToModify;
+    }
+    
+    @Override
+    public boolean isFinished() {        
+        return isFinished;  
+    }    
+    
+
+    @Override
+    public void reset() {
+        isFinished = false;
+    }
+    
+    
+    public void registerRunnableOnFinish(Runnable runnable) {
+        onFinishedCallbacks.add(runnable);
+    }  
+    
+    @Override
+    public void update(float tpf){
+       
+    }    
+        
+    // convenience registration method so users can avoid repeatedly writing this AppState fetching code
+    public void convenienceRegister(AppStateManager stateManager) {
+        if(stateManager != null){
+            VectorEffectManagerState vectorEffectManagerState = stateManager.getState(VectorEffectManagerState.class);
+            if(vectorEffectManagerState != null){
+                vectorEffectManagerState.registerVectorEffect(this);
+            }
+        }
+    }
+
+
 }
+
