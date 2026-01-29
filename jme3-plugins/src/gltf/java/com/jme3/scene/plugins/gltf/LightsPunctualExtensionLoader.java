@@ -333,5 +333,4 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         float range = (float) Math.sqrt(effectiveIntensity / visibleThreshold);
         return Math.min(range, maxRange);
     }
-
 }
