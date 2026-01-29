@@ -105,17 +105,17 @@ public class GltfUtils {
 
     public static VertexBuffer.Format getVertexBufferFormat(int componentType) {
         switch (componentType) {
-            case GL.GL_BYTE:
+            case GltfConstants.GL_BYTE:
                 return VertexBuffer.Format.Byte;
-            case GL.GL_UNSIGNED_BYTE:
+            case GltfConstants.GL_UNSIGNED_BYTE:
                 return VertexBuffer.Format.UnsignedByte;
-            case GL.GL_SHORT:
+            case GltfConstants.GL_SHORT:
                 return VertexBuffer.Format.Short;
-            case GL.GL_UNSIGNED_SHORT:
+            case GltfConstants.GL_UNSIGNED_SHORT:
                 return VertexBuffer.Format.UnsignedShort;
-            case GL.GL_UNSIGNED_INT:
+            case GltfConstants.GL_UNSIGNED_INT:
                 return VertexBuffer.Format.UnsignedInt;
-            case GL.GL_FLOAT:
+            case GltfConstants.GL_FLOAT:
                 return VertexBuffer.Format.Float;
             default:
                 throw new AssetLoadException("Illegal component type: " + componentType);

@@ -51,7 +51,6 @@ import java.util.logging.Logger;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.plugins.json.JsonElement;
 import com.jme3.plugins.json.JsonObject;
-import com.jme3.renderer.opengl.GL;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
@@ -216,15 +215,16 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 	 */
 	VertexBuffer createIndicesVertexBuffer(GltfLoader loader, int componentType, int indices[]) {
 		Buffer data = null;
-		if (componentType == GL.GL_UNSIGNED_BYTE) {
+		if (componentType == GltfConstants.GL_UNSIGNED_BYTE) {
 			data = createByteBuffer(indices);
-		} else if (componentType == GL.GL_UNSIGNED_SHORT) {
+		} else if (componentType == GltfConstants.GL_UNSIGNED_SHORT) {
 			data = createShortBuffer(indices);
-		} else if (componentType == GL.GL_UNSIGNED_INT) {
+		} else if (componentType == GltfConstants.GL_UNSIGNED_INT) {
 			data = BufferUtils.createIntBuffer(indices);
 		} else {
 			throw new AssetLoadException("The indices accessor must have a component type of "
-			        + GL.GL_UNSIGNED_BYTE + ", " + GL.GL_UNSIGNED_SHORT + ", or " + GL.GL_UNSIGNED_INT
+			        + GltfConstants.GL_UNSIGNED_BYTE + ", " + GltfConstants.GL_UNSIGNED_SHORT + ", or "
+			        + GltfConstants.GL_UNSIGNED_INT
 			        + ", but has " + componentType);
 		}
 		VertexBuffer vb = new VertexBuffer(VertexBuffer.Type.Index);
@@ -365,20 +365,20 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 		int componentCount = getAccessorComponentCount(accessor);
 		Type bufferType = getVertexBufferType(attributeName);
 
-		if (componentType == GL.GL_BYTE || componentType == GL.GL_UNSIGNED_BYTE) {
+		if (componentType == GltfConstants.GL_BYTE || componentType == GltfConstants.GL_UNSIGNED_BYTE) {
 			ByteBuffer attributeData = readByteDracoAttribute(pointAttribute, indices, count, componentCount);
 			VertexBuffer attributeVertexBuffer = createByteAttributeVertexBuffer(accessor, bufferType,
 			        attributeData);
 			return attributeVertexBuffer;
 		}
-		if (componentType == GL.GL_SHORT || componentType == GL.GL_UNSIGNED_SHORT) {
+		if (componentType == GltfConstants.GL_SHORT || componentType == GltfConstants.GL_UNSIGNED_SHORT) {
 			ShortBuffer attributeData = readShortDracoAttribute(pointAttribute, indices, count,
 			        componentCount);
 			VertexBuffer attributeVertexBuffer = createShortAttributeVertexBuffer(accessor, bufferType,
 			        attributeData);
 			return attributeVertexBuffer;
 		}
-		if (componentType == GL.GL_FLOAT) {
+		if (componentType == GltfConstants.GL_FLOAT) {
 			FloatBuffer attributeData = readFloatDracoAttribute(pointAttribute, indices, count,
 			        componentCount);
 			VertexBuffer attributeVertexBuffer = createFloatAttributeVertexBuffer(accessor, bufferType,
@@ -386,9 +386,10 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 			return attributeVertexBuffer;
 		}
 		throw new AssetLoadException(
-		        "The accessor for attribute " + attributeName + " must have a component type of " + GL.GL_BYTE
-		                + ", " + GL.GL_UNSIGNED_BYTE + ", " + GL.GL_SHORT + ", " + GL.GL_UNSIGNED_SHORT + ", "
-		                + "or " + GL.GL_FLOAT + ", but has " + componentType);
+		        "The accessor for attribute " + attributeName + " must have a component type of "
+		                + GltfConstants.GL_BYTE + ", " + GltfConstants.GL_UNSIGNED_BYTE + ", "
+		                + GltfConstants.GL_SHORT + ", " + GltfConstants.GL_UNSIGNED_SHORT + ", " + "or "
+		                + GltfConstants.GL_FLOAT + ", but has " + componentType);
 	}
 
 	/**
