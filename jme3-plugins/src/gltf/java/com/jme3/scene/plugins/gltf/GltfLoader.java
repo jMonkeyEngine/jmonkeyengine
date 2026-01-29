@@ -622,9 +622,59 @@ public class GltfLoader implements AssetLoader {
 
     }
 
+	/**
+	 * Returns the JSON object that represents the buffer view with the specified
+	 * index in the glTF JSON.
+	 * 
+	 * @param index The buffer view index
+	 * @return The buffer view as a JSON object
+	 * @throws AssetLoadException If the index is negative or not smaller than the
+	 *                            number of buffer views in the glTF JSON
+	 */
+	JsonObject getBufferView(int index) {
+		assertNotNull(bufferViews, "No buffer views when trying to access buffer view with index " + index);
+		validateIndex("bufferView", index, bufferViews.size());
+		JsonObject bufferView = bufferViews.get(index).getAsJsonObject();
+		return bufferView;
+	}
+
+	/**
+	 * Returns the JSON object that represents the accessor with the specified index
+	 * in the glTF JSON.
+	 * 
+	 * @param index The accessor index
+	 * @return The accessor as a JSON object
+	 * @throws AssetLoadException If the index is negative or not smaller than the
+	 *                            number of accessors in the glTF JSON
+	 */
+	JsonObject getAccessor(int index) {
+		assertNotNull(accessors, "No accessors when trying to access accessor with index " + index);
+		validateIndex("accessor", index, accessors.size());
+		JsonObject accessor = accessors.get(index).getAsJsonObject();
+		return accessor;
+	}
+
+	/**
+	 * Ensure that the given index is valid for the specified size, and throw an
+	 * exception of this is not the case.
+	 * 
+	 * @param name  The name of the index
+	 * @param index The index
+	 * @param size  The size
+	 * @throws AssetLoadException If the index is negative or not smaller than the
+	 *                            size
+	 */
+	private static void validateIndex(String name, int index, int size) {
+		if (index < 0 || index >= size) {
+			throw new AssetLoadException(
+					"The " + name + " index must be positive and smaller than " + size + ", but is " + index);
+		}
+	}
+
     public ByteBuffer readData(int bufferIndex) throws IOException {
         assertNotNull(buffers, "No buffer defined");
-
+        validateIndex("buffer", bufferIndex, buffers.size());
+        
         JsonObject buffer = buffers.get(bufferIndex).getAsJsonObject();
         String uri = getAsString(buffer, "uri");
         Integer bufferLength = getAsInteger(buffer, "byteLength");

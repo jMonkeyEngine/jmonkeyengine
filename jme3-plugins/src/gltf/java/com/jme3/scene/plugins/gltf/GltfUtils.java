@@ -36,10 +36,10 @@ import com.jme3.plugins.json.JsonElement;
 import com.jme3.plugins.json.JsonObject;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoadException;
-import com.jme3.export.binary.ByteUtils;
 import com.jme3.math.*;
 import com.jme3.plugins.json.Json;
 import com.jme3.plugins.json.JsonParser;
+import com.jme3.renderer.opengl.GL;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import com.jme3.util.*;
@@ -105,17 +105,17 @@ public class GltfUtils {
 
     public static VertexBuffer.Format getVertexBufferFormat(int componentType) {
         switch (componentType) {
-            case 5120:
+            case GL.GL_BYTE:
                 return VertexBuffer.Format.Byte;
-            case 5121:
+            case GL.GL_UNSIGNED_BYTE:
                 return VertexBuffer.Format.UnsignedByte;
-            case 5122:
+            case GL.GL_SHORT:
                 return VertexBuffer.Format.Short;
-            case 5123:
+            case GL.GL_UNSIGNED_SHORT:
                 return VertexBuffer.Format.UnsignedShort;
-            case 5125:
+            case GL.GL_UNSIGNED_INT:
                 return VertexBuffer.Format.UnsignedInt;
-            case 5126:
+            case GL.GL_FLOAT:
                 return VertexBuffer.Format.Float;
             default:
                 throw new AssetLoadException("Illegal component type: " + componentType);
@@ -724,6 +724,24 @@ public class GltfUtils {
         return el == null ? null : el.getAsInt();
     }
 
+    /**
+     * Returns the specified element from the given parent as an <code>int</code>,
+     * throwing an exception if it is not present.
+     * 
+     * @param parent The parent element
+     * @param parentName The parent name
+     * @param name The name of the element
+     * @return The value, as an <code>int</code>
+     * @throws AssetLoadException If the element is not present
+     */
+	public static int getAsInt(JsonObject parent, String parentName, String name) {
+		JsonElement el = parent.get(name);
+		if (el == null) {
+			throw new AssetLoadException("No " + name + " defined for " + parentName);
+		}
+		return el.getAsInt();
+	}
+    
     public static Integer getAsInteger(JsonObject parent, String name, int defaultValue) {
         JsonElement el = parent.get(name);
         return el == null ? defaultValue : el.getAsInt();
