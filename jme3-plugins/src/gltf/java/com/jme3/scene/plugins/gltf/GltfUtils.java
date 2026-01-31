@@ -734,13 +734,13 @@ public class GltfUtils {
      * @return The value, as an <code>int</code>
      * @throws AssetLoadException If the element is not present
      */
-	public static int getAsInt(JsonObject parent, String parentName, String name) {
-		JsonElement el = parent.get(name);
-		if (el == null) {
-			throw new AssetLoadException("No " + name + " defined for " + parentName);
-		}
-		return el.getAsInt();
-	}
+    public static int getAsInt(JsonObject parent, String parentName, String name) {
+        JsonElement el = parent.get(name);
+        if (el == null) {
+            throw new AssetLoadException("No " + name + " defined for " + parentName);
+        }
+        return el.getAsInt();
+    }
     
     public static Integer getAsInteger(JsonObject parent, String name, int defaultValue) {
         JsonElement el = parent.get(name);
