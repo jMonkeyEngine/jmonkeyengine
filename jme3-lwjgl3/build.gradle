@@ -12,6 +12,7 @@ dependencies {
     api libs.lwjgl3.openal
     api libs.lwjgl3.opencl
     api libs.lwjgl3.opengl
+    api libs.lwjgl3.sdl
 
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows-x86') })
@@ -52,6 +53,14 @@ dependencies {
     runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-linux-arm64') })
     runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos') })
     runtimeOnly(variantOf(libs.lwjgl3.openal){ classifier('natives-macos-arm64') })
+
+    runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-windows') })
+    runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-windows-x86') })
+    runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-linux') })
+    runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-linux-arm32') })
+    runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-linux-arm64') })
+    runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-macos') })
+    runtimeOnly(variantOf(libs.lwjgl3.sdl){ classifier('natives-macos-arm64') })
 }
 
 javadoc {

@@ -55,6 +55,26 @@ public interface JoystickButton {
     public static final String BUTTON_14 = "14";
     public static final String BUTTON_15 = "15";
 
+
+    public static final String BUTTON_XBOX_A = BUTTON_2;
+    public static final String BUTTON_XBOX_B = BUTTON_1;
+    public static final String BUTTON_XBOX_X = BUTTON_3;
+    public static final String BUTTON_XBOX_Y = BUTTON_0;
+    public static final String BUTTON_XBOX_LB = BUTTON_4;
+    public static final String BUTTON_XBOX_RB = BUTTON_5;
+    public static final String BUTTON_XBOX_LT = BUTTON_6;
+    public static final String BUTTON_XBOX_RT = BUTTON_7;
+    public static final String BUTTON_XBOX_BACK = BUTTON_8;
+    public static final String BUTTON_XBOX_START = BUTTON_9;
+    public static final String BUTTON_XBOX_L3 = BUTTON_10;
+    public static final String BUTTON_XBOX_R3 = BUTTON_11;
+
+    public static final String BUTTON_XBOX_DPAD_UP = BUTTON_12;
+    public static final String BUTTON_XBOX_DPAD_DOWN = BUTTON_13;
+    public static final String BUTTON_XBOX_DPAD_LEFT = BUTTON_14;
+    public static final String BUTTON_XBOX_DPAD_RIGHT = BUTTON_15;
+
+
     /**
      * Assign the mapping name to receive events from the given button index
      * on the joystick.
