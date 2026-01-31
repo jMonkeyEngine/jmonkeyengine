@@ -32,6 +32,7 @@
 package com.jme3.scene.plugins.gltf;
 
 import static com.jme3.scene.plugins.gltf.GltfUtils.assertNotNull;
+import static com.jme3.scene.plugins.gltf.GltfUtils.getAsBoolean;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsInt;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsInteger;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsString;
@@ -530,7 +531,10 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
     }
 
     /**
-     * Create the vertex buffer for the given <code>byte</code> attribute data
+     * Create the vertex buffer for the given <code>byte</code> attribute data.
+     * 
+     * If the accessor is <code>normalized</code>, then this will dequantize the given data into a
+     * <code>Float</code> vertex buffer.
      * 
      * @param accessor
      *            The accessor that describes the component type and type
@@ -545,14 +549,33 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
             VertexBuffer.Type bufferType, ByteBuffer attributeData) {
         int componentType = getAsInt(accessor, "accessor", "componentType");
         VertexBuffer vb = new VertexBuffer(bufferType);
-        VertexBuffer.Format format = getVertexBufferFormat(componentType);
         int numComponents = getAccessorComponentCount(accessor);
-        vb.setupData(VertexBuffer.Usage.Dynamic, numComponents, format, attributeData);
+
+        VertexBuffer.Format originalFormat = getVertexBufferFormat(componentType);
+        VertexBuffer.Format resultFormat = originalFormat;
+        Buffer resultAttributeData = attributeData;
+
+        boolean normalized = Boolean.TRUE.equals(getAsBoolean(accessor, "normalized"));
+        if (normalized) {
+            logger.log(level,
+                    "Draco-decoded data is " + originalFormat + ", but normalized - dequantizing to Float");
+            resultFormat = VertexBuffer.Format.Float;
+            if (originalFormat == VertexBuffer.Format.Byte) {
+                resultAttributeData = BufferQuantization.dequantizeByteBuffer(attributeData);
+            } else {
+                resultAttributeData = BufferQuantization.dequantizeUnsignedByteBuffer(attributeData);
+            }
+        }
+
+        vb.setupData(VertexBuffer.Usage.Dynamic, numComponents, resultFormat, resultAttributeData);
         return vb;
     }
 
     /**
      * Create the vertex buffer for the given <code>short</code> attribute data
+     * 
+     * If the accessor is <code>normalized</code>, then this will dequantize the given data into a
+     * <code>Float</code> vertex buffer.
      * 
      * @param accessor
      *            The accessor that describes the component type and type
@@ -567,9 +590,25 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
             VertexBuffer.Type bufferType, ShortBuffer attributeData) {
         int componentType = getAsInt(accessor, "accessor", "componentType");
         VertexBuffer vb = new VertexBuffer(bufferType);
-        VertexBuffer.Format format = getVertexBufferFormat(componentType);
         int numComponents = getAccessorComponentCount(accessor);
-        vb.setupData(VertexBuffer.Usage.Dynamic, numComponents, format, attributeData);
+
+        VertexBuffer.Format originalFormat = getVertexBufferFormat(componentType);
+        VertexBuffer.Format resultFormat = originalFormat;
+        Buffer resultAttributeData = attributeData;
+
+        boolean normalized = Boolean.TRUE.equals(getAsBoolean(accessor, "normalized"));
+        if (normalized) {
+            logger.log(level,
+                    "Draco-decoded data is " + originalFormat + ", but normalized - dequantizing to Float");
+            resultFormat = VertexBuffer.Format.Float;
+            if (originalFormat == VertexBuffer.Format.Short) {
+                resultAttributeData = BufferQuantization.dequantizeShortBuffer(attributeData);
+            } else {
+                resultAttributeData = BufferQuantization.dequantizeUnsignedShortBuffer(attributeData);
+            }
+        }
+
+        vb.setupData(VertexBuffer.Usage.Dynamic, numComponents, resultFormat, resultAttributeData);
         return vb;
     }
 
