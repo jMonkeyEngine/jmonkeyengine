@@ -40,7 +40,7 @@ import com.jme3.math.Vector4f;
  *
  * @author yaRnMcDonuts
  */
-public final class EaseVectorEffect extends AbstractVectorEffect implements VectorEffect {
+public final class EaseVectorEffect extends AbstractVectorEffect{
 
     private VectorGroup targetVectors;
     private VectorGroup startVectors;    
@@ -54,7 +54,6 @@ public final class EaseVectorEffect extends AbstractVectorEffect implements Vect
     
     private final Vector4f tempTargetVec = new Vector4f();
     private final Vector4f tempStartVec = new Vector4f();
-
 
     public EaseVectorEffect(VectorGroup vectorToModify) {
         super(vectorToModify);
@@ -141,6 +140,5 @@ public final class EaseVectorEffect extends AbstractVectorEffect implements Vect
         easeTimer = 0;
         startVectors = null;           
         super.reset(); 
-    }
-    
+    }  
 }
