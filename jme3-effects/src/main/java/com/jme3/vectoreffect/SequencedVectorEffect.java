@@ -39,7 +39,7 @@ import java.util.Collections;
  *
  * @author yaRnMcDonuts
  */
-public class SequencedVectorEffect extends AbstractVectorEffect implements VectorEffect {
+public class SequencedVectorEffect extends AbstractVectorEffect{
     private final ArrayList<VectorEffect> effects = new ArrayList<>();
     private int currentIndex = 0;
     private boolean isRepeatingInfinitely = false;
