@@ -98,6 +98,11 @@ public class ArmatureNode extends Node {
      */
     private Camera camera;
 
+    /**
+     * For serialization only. Do not use.
+     */
+    protected ArmatureNode() {
+    }
 
     /**
      * Creates a wire with bone lengths data. If the data is supplied then the
