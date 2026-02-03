@@ -96,6 +96,9 @@ public class XMLExporter implements JmeExporter {
         try {
             TransformerFactory tfFactory = TransformerFactory.newInstance();
             tfFactory.setAttribute("indent-number", indentSpaces);
+            // Disable external DTD and stylesheet access to prevent XXE attacks
+            tfFactory.setAttribute("accessExternalDTD", "");
+            tfFactory.setAttribute("accessExternalStylesheet", "");
 
             Transformer transformer = tfFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
