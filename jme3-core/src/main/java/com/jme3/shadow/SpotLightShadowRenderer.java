@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2021 jMonkeyEngine
+ * Copyright (c) 2009-2025 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,9 +65,9 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
     protected Camera shadowCam;    
     protected SpotLight light;
-    protected Vector3f[] points = new Vector3f[8];
-    //Holding the info for fading shadows in the far distance 
-   
+    protected final Camera[] tempCams = new Camera[1];
+    protected final Vector3f[] points = new Vector3f[8];
+    protected final Vector3f tempVec = new Vector3f();
 
     /**
      * Used for serialization use SpotLightShadowRenderer#SpotLightShadowRenderer(AssetManager assetManager, int shadowMapSize)
@@ -100,7 +100,8 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     protected void initFrustumCam() {
         Camera viewCam = viewPort.getCamera();
         frustumCam = viewCam.clone();
-        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride, viewCam.getFrustumLeft(), viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
+        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride, viewCam.getFrustumLeft(),
+                viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
     }
 
     /**
@@ -140,7 +141,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         //shadowCam.setDirection(direction);
 
         shadowCam.setFrustumPerspective(light.getSpotOuterAngle() * FastMath.RAD_TO_DEG * 2.0f, 1, 1f, light.getSpotRange());
-        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp());
+        shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp(tempVec));
         shadowCam.setLocation(light.getPosition());
 
         shadowCam.update();
@@ -158,10 +159,9 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     protected void getReceivers(GeometryList lightReceivers) {
         lightReceivers.clear();
-        Camera[] cameras = new Camera[1];
-        cameras[0] = shadowCam;
+        tempCams[0] = shadowCam;
         for (Spatial scene : viewPort.getScenes()) {
-            ShadowUtil.getLitGeometriesInViewPort(scene, viewPort.getCamera(), cameras, RenderQueue.ShadowMode.Receive, lightReceivers);
+            ShadowUtil.getLitGeometriesInViewPort(scene, viewPort.getCamera(), tempCams, RenderQueue.ShadowMode.Receive, lightReceivers);
         }
     }
     
