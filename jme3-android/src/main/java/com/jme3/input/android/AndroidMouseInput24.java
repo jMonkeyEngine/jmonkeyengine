@@ -41,6 +41,12 @@ import com.jme3.cursors.plugins.JmeCursor;
 import java.nio.IntBuffer;
 import java.util.logging.Logger;
 
+/**
+ * <code>AndroidMouseInput24</code> extends <code>AndroidMouseInput14</code> to improve mouse support
+ * using new events defined in API rev 24 and adding support for cursor change and cursor visibility
+ *
+ * @author joliver82
+ */
 public class AndroidMouseInput24 extends AndroidMouseInput14{
     private static final Logger logger = Logger.getLogger(AndroidMouseInput24.class.getName());
 

@@ -47,7 +47,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <code>AndroidMouseInput14</code> extends <code>MouseInput</code> to add mouse support for jME3
+ * <code>AndroidMouseInput14</code> implements <code>MouseInput</code> to add mouse support for jME3
  * uses the onGenericMotion events that where added in Android rev 12 and MotionEvent.getButtonState
  * from Android rev 14 so added "14" suffix to the class to specify the Android required rev and
  * match other classes naming
@@ -199,8 +199,8 @@ public class AndroidMouseInput14 implements MouseInput {
         boolean consumed = false;
 
         switch (event.getAction()) {
-            case MotionEvent.ACTION_SCROLL: // Should not be received here
-            case MotionEvent.ACTION_MOVE: // Should not be received here
+            case MotionEvent.ACTION_SCROLL:
+            case MotionEvent.ACTION_MOVE:
             case MotionEvent.ACTION_HOVER_MOVE:
             case MotionEvent.ACTION_HOVER_EXIT:
             case MotionEvent.ACTION_HOVER_ENTER:

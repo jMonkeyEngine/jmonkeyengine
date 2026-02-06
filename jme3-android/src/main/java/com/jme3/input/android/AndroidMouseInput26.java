@@ -42,6 +42,12 @@ import java.nio.IntBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * <code>AndroidMouseInput26</code> extends <code>AndroidMouseInput24</code> to improve mouse support
+ * adding grab/capture support using onCapturedPointer events
+ *
+ * @author joliver82
+ */
 public class AndroidMouseInput26 extends AndroidMouseInput24{
     private static final Logger logger = Logger.getLogger(AndroidMouseInput26.class.getName());
 
@@ -54,7 +60,6 @@ public class AndroidMouseInput26 extends AndroidMouseInput24{
         boolean btnEventReceived = false;
         boolean leftPressed = false, rightPressed = false, centerPressed = false;
 
-//        int btnState = event.getButtonState();
         int btnAction = event.getActionButton();
 
         switch (event.getAction()) {
