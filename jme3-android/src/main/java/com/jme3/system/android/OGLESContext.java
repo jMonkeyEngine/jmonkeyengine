@@ -51,9 +51,10 @@ import android.widget.FrameLayout;
 import com.jme3.input.*;
 import com.jme3.input.android.AndroidInputHandler;
 import com.jme3.input.android.AndroidInputHandler14;
+import com.jme3.input.android.AndroidInputHandler24;
+import com.jme3.input.android.AndroidInputHandler26;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
-import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.*;
 import com.jme3.system.*;
@@ -125,7 +126,11 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         GLSurfaceView view = new GLSurfaceView(context);
         logger.log(Level.INFO, "Android Build Version: {0}", Build.VERSION.SDK_INT);
         if (androidInput == null) {
-            if (Build.VERSION.SDK_INT >= 14) {
+            if (Build.VERSION.SDK_INT >= 26) {
+                androidInput = new AndroidInputHandler26();
+            } else if (Build.VERSION.SDK_INT >= 24) {
+                androidInput = new AndroidInputHandler24();
+            } else if (Build.VERSION.SDK_INT >= 14) {
                 androidInput = new AndroidInputHandler14();
             } else if (Build.VERSION.SDK_INT >= 9) {
                 androidInput = new AndroidInputHandler();
@@ -141,6 +146,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);
+        view.setFocusedByDefault(true);
+        view.requestFocus();
+        //view.setClickable(true);
 
         // setFormat must be set before AndroidConfigChooser is called by the surfaceview.
         // if setFormat is called after ConfigChooser is called, then execution
@@ -310,7 +318,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
     @Override
     public MouseInput getMouseInput() {
-        return new DummyMouseInput();
+        return androidInput.getMouseInput();
     }
 
     @Override

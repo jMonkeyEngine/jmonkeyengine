@@ -184,6 +184,10 @@ public class AWTMouseInput extends AWTInput implements MouseInput, MouseListener
     }
 
     @Override
+    public void setMouseGrab(boolean grab) {
+    }
+
+    @Override
     public int getButtonCount() {
         return 3;
     }

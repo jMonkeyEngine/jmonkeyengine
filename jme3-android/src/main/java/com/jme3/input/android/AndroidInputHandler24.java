@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,36 +29,16 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.input.dummy;
 
-import com.jme3.cursors.plugins.JmeCursor;
-import com.jme3.input.MouseInput;
+package com.jme3.input.android;
 
-/**
- * DummyMouseInput as an implementation of <code>MouseInput</code> that raises no
- * input events.
- *
- * @author Kirill Vainer.
- */
-public class DummyMouseInput extends DummyInput implements MouseInput {
+import android.view.View;
 
-    @Override
-    public void setCursorVisible(boolean visible) {
-        if (!inited)
-            throw new IllegalStateException("Input not initialized.");
-    }
+public class AndroidInputHandler24 extends AndroidInputHandler14 {
 
-    @Override
-    public void setMouseGrab(boolean grab) {
-    }
-
-    @Override
-    public int getButtonCount() {
-        return 0;
-    }
-
-    @Override
-    public void setNativeCursor(JmeCursor cursor) {
+    public AndroidInputHandler24() {
+        super();
+        mouseInput = new AndroidMouseInput24(this);
     }
 
 }

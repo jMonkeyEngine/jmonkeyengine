@@ -172,6 +172,11 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     }
 
     @Override
+    public void setMouseGrab(boolean grab) {
+        setCursorVisible(false);
+    }
+
+    @Override
     public void update() {
         if (cursorMoved) {
             int newX = location.x;

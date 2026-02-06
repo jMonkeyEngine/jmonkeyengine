@@ -37,6 +37,9 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.jme3.system.AppSettings;
+
 import java.util.logging.Logger;
 
 /**
@@ -55,6 +58,7 @@ public class AndroidInputHandler14 extends AndroidInputHandler implements View.O
     public AndroidInputHandler14() {
         touchInput = new AndroidTouchInput14(this);
         joyInput = new AndroidJoyInput14(this);
+        mouseInput = new AndroidMouseInput14(this);
     }
 
     @Override
@@ -69,6 +73,12 @@ public class AndroidInputHandler14 extends AndroidInputHandler implements View.O
         super.addListeners(view);
         view.setOnHoverListener(this);
         view.setOnGenericMotionListener(this);
+    }
+
+    @Override
+    public void loadSettings(AppSettings settings) {
+        super.loadSettings(settings);
+        ((AndroidMouseInput14)mouseInput).loadSettings(settings);
     }
 
     @Override
@@ -89,6 +99,12 @@ public class AndroidInputHandler14 extends AndroidInputHandler implements View.O
         if (isTouch && touchInput != null) {
             // send the event to the touch processor
             consumed = ((AndroidTouchInput14)touchInput).onHover(event);
+        }
+
+        boolean isMouse = ((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE);
+        if (isMouse && mouseInput != null) {
+            // send the event to the mouse processor
+            consumed = ((AndroidMouseInput14)mouseInput).onHover(event);
         }
 
         return consumed;
@@ -114,6 +130,28 @@ public class AndroidInputHandler14 extends AndroidInputHandler implements View.O
 //                    new Object[]{source, isJoystick});
             // send the event to the touch processor
             consumed = consumed || ((AndroidJoyInput14)joyInput).onGenericMotion(event);
+        }
+
+        if((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE) {
+            consumed = consumed || ((AndroidMouseInput14)mouseInput).onGenericMotion(event);
+        }
+
+        return consumed;
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        if (view != getView()) {
+            return false;
+        }
+
+        boolean consumed = super.onTouch(view, event);
+
+        // Mouse movement while button down is received as onTouch event instead
+        boolean isMouse = ((event.getSource() & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE);
+        if (isMouse && mouseInput != null) {
+            // send the event to the mouse processor
+            consumed |= ((AndroidMouseInput14)mouseInput).onGenericMotion(event);
         }
 
         return consumed;
@@ -154,7 +192,6 @@ public class AndroidInputHandler14 extends AndroidInputHandler implements View.O
         }
 
         return consumed;
-
     }
 
 }

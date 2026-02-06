@@ -167,6 +167,11 @@ public class LwjglMouseInput implements MouseInput {
     }
 
     @Override
+    public void setMouseGrab(boolean grab) {
+        setCursorVisible(false);
+    }
+
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
         if (listener != null && Mouse.isCreated()) {

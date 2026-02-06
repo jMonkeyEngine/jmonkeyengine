@@ -40,7 +40,9 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import com.jme3.input.JoyInput;
+import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
+import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.system.AppSettings;
 import java.util.logging.Logger;
 
@@ -60,11 +62,12 @@ public class AndroidInputHandler implements View.OnTouchListener,
     protected GLSurfaceView view;
     protected AndroidTouchInput touchInput;
     protected AndroidJoyInput joyInput;
-
+    protected MouseInput mouseInput;
 
     public AndroidInputHandler() {
         touchInput = new AndroidTouchInput(this);
         joyInput = new AndroidJoyInput(this);
+        mouseInput = new DummyMouseInput();
     }
 
     public void setView(View view) {
@@ -116,6 +119,10 @@ public class AndroidInputHandler implements View.OnTouchListener,
 
     public JoyInput getJoyInput() {
         return joyInput;
+    }
+
+    public MouseInput getMouseInput() {
+        return mouseInput;
     }
 
     /*

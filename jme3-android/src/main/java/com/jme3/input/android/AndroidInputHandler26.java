@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2020 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,36 +29,44 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.input.dummy;
 
-import com.jme3.cursors.plugins.JmeCursor;
-import com.jme3.input.MouseInput;
+package com.jme3.input.android;
 
-/**
- * DummyMouseInput as an implementation of <code>MouseInput</code> that raises no
- * input events.
- *
- * @author Kirill Vainer.
- */
-public class DummyMouseInput extends DummyInput implements MouseInput {
+import android.opengl.GLSurfaceView;
+import android.view.InputDevice;
+import android.view.MotionEvent;
+import android.view.View;
 
-    @Override
-    public void setCursorVisible(boolean visible) {
-        if (!inited)
-            throw new IllegalStateException("Input not initialized.");
+public class AndroidInputHandler26 extends AndroidInputHandler24 implements View.OnCapturedPointerListener {
+
+    public AndroidInputHandler26() {
+        super();
+        mouseInput = new AndroidMouseInput26(this);
+    }
+
+    protected void removeListeners(GLSurfaceView view) {
+        super.removeListeners(view);
+        view.setOnCapturedPointerListener(null);
     }
 
     @Override
-    public void setMouseGrab(boolean grab) {
+    protected void addListeners(GLSurfaceView view) {
+        super.addListeners(view);
+        view.setOnCapturedPointerListener(this);
     }
 
     @Override
-    public int getButtonCount() {
-        return 0;
-    }
+    public boolean onCapturedPointer(View view, MotionEvent event) {
+        if (view != getView()) {
+            return false;
+        }
 
-    @Override
-    public void setNativeCursor(JmeCursor cursor) {
-    }
+        boolean consumed = false;
+        boolean isMouse = ((event.getSource() & InputDevice.SOURCE_MOUSE_RELATIVE) == InputDevice.SOURCE_MOUSE_RELATIVE);
+        if (isMouse && mouseInput != null) {
+            consumed = ((AndroidMouseInput26)mouseInput).onCapturedPointer(event);
+        }
 
+        return consumed;
+    }
 }

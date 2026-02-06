@@ -76,6 +76,13 @@ public interface MouseInput extends Input {
     public void setCursorVisible(boolean visible);
 
     /**
+     * Set whether to grab the mouse or not.
+     *
+     * @param grab whether to grab the mouse or not.
+     */
+    public void setMouseGrab(boolean grab);
+
+    /**
      * Returns the number of buttons the mouse has. Typically 3 for most mice.
      *
      * @return the number of buttons the mouse has.

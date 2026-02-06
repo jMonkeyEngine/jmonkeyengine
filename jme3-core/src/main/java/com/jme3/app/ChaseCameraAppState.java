@@ -127,7 +127,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
         initToggleRotateInput();
 
         inputManager.addListener(this, inputs);
-        inputManager.setCursorVisible(dragToRotate);
+        inputManager.setMouseGrab(!dragToRotate);
     }
 
     @Override
@@ -441,7 +441,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
         this.dragToRotate = dragToRotate;
         this.canRotate = !dragToRotate;
         if (inputManager != null) {
-            inputManager.setCursorVisible(dragToRotate);
+            inputManager.setMouseGrab(!dragToRotate);
         }
     }
 
