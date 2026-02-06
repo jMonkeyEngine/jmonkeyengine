@@ -37,6 +37,13 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
 
+/**
+ * <code>AndroidInputHandler26</code> extends <code>AndroidInputHandler24</code> to
+ * add the onCapturedPointer events that where added in Android rev 26.<br>
+ * The onCapturedPointer events are received when mouse is grabbed/captured.
+ *
+ * @author joliver82
+ */
 public class AndroidInputHandler26 extends AndroidInputHandler24 implements View.OnCapturedPointerListener {
 
     public AndroidInputHandler26() {

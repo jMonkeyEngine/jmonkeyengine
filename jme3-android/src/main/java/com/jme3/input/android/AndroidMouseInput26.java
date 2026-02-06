@@ -44,7 +44,7 @@ import java.util.logging.Logger;
 
 /**
  * <code>AndroidMouseInput26</code> extends <code>AndroidMouseInput24</code> to improve mouse support
- * adding grab/capture support using onCapturedPointer events
+ * adding grab/capture support using onCapturedPointer events.
  *
  * @author joliver82
  */
