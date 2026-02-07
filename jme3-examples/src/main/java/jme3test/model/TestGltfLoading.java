@@ -107,8 +107,6 @@ public class TestGltfLoading extends SimpleApplication {
         chaseCam = new ChaseCameraAppState();
         getStateManager().attach(chaseCam);
 
-        loadModelSample("BoomBox", "gltf");
-
         // loadModelSample("Duck", "gltf");
         // loadModelSample("Duck", "glb");
         // loadModelSample("ABeautifulGame", "gltf");
@@ -128,35 +126,37 @@ public class TestGltfLoading extends SimpleApplication {
         // DRACO SAMPLES
 
         // loadModelSample("Avocado", "draco");
-
         // loadModelSample("BarramundiFish", "draco");
-
         // loadModelSample("BoomBox", "draco");
-
-        // FIXME: bad skinning?
-        // loadModelSample("BrainStem", "draco");
-
         // loadModelSample("CesiumMilkTruck", "draco");
-
-        // FIXME: FAILS WITH INDEX OUT OF BOUND EXCEPTION
-        // loadModelSample("VirtualCity", "draco");
-
         // loadModelSample("Corset", "draco");
-
         // loadModelSample("Lantern", "draco");
-
         // loadModelSample("MorphPrimitivesTest", "draco");
-
-        // FIXME: skinning?
-        // loadModelSample("RiggedFigure", "draco");
-
-        // FIXME: skinning?
-        // loadModelSample("RiggedSimple", "draco");
-
-        // FIXME: "dracoMesh" is null
-        // loadModelSample("SunglassesKhronos", "draco");
         // loadModelSample("WaterBottle", "draco");
+        
+        // Draco skinning samples
+        //loadModelSample("BrainStem", "draco");
+        //loadModelSample("BrainStem", "glb");
 
+        //loadModelSample("CesiumMan", "draco");
+        //loadModelSample("CesiumMan", "glb");
+
+        loadModelSample("RiggedFigure", "draco");
+        //loadModelSample("RiggedFigure", "glb");
+
+        //loadModelSample("RiggedSimple", "draco");
+        //loadModelSample("RiggedSimple", "glb");
+
+        // Test for normalized texture coordinates in draco
+        //loadModelFromPath("Models/gltf/unitSquare11x11_unsignedShortTexCoords-draco.glb");
+
+        // Uses EXT_texture_webp - not supported yet 
+        //loadModelSample("SunglassesKhronos", "draco");
+        
+        // Probably invalid model
+        // See https://github.com/KhronosGroup/glTF-Sample-Assets/issues/264
+        // loadModelSample("VirtualCity", "draco");
+        
         probeNode.attachChild(assets.get(0));
 
         inputManager.addMapping("autorotate", new KeyTrigger(KeyInput.KEY_SPACE));
@@ -219,11 +219,14 @@ public class TestGltfLoading extends SimpleApplication {
                 break;
         }
         path += name + "." + ext;
+        loadModelFromPath(path);
+    }
+    
+    private void loadModelFromPath(String path) {
 
         Spatial s = loadModel(path, new Vector3f(0, 0, 0), 1f);
 
         BoundingBox bbox = (BoundingBox) s.getWorldBound();
-
         float maxExtent = Math.max(bbox.getXExtent(), Math.max(bbox.getYExtent(), bbox.getZExtent()));
         if (maxExtent < 10f) {
             s.scale(10f / maxExtent);
@@ -234,7 +237,7 @@ public class TestGltfLoading extends SimpleApplication {
         chaseCam.setTarget(s);
         chaseCam.setInvertHorizontalAxis(true);
         chaseCam.setInvertVerticalAxis(true);
-        chaseCam.setZoomSpeed(0.5f);
+        chaseCam.setZoomSpeed(1.5f);
         chaseCam.setMinVerticalRotation(-FastMath.HALF_PI);
         chaseCam.setRotationSpeed(3);
         chaseCam.setDefaultDistance(distance);
