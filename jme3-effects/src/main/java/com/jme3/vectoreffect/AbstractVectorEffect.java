@@ -60,7 +60,6 @@ public abstract class AbstractVectorEffect implements VectorEffect {
             for(Runnable r : onFinishedCallbacks) {
                 r.run();
             }
-            onFinishedCallbacks.clear();
         }
     }
     
@@ -81,7 +80,7 @@ public abstract class AbstractVectorEffect implements VectorEffect {
     }
     
     
-    public void registerRunnableOnFinish(Runnable runnable) {
+    public void runOnFinish(Runnable runnable) {
         onFinishedCallbacks.add(runnable);
     }  
     
@@ -102,4 +101,5 @@ public abstract class AbstractVectorEffect implements VectorEffect {
 
 
 }
+
 
