@@ -55,12 +55,12 @@ import com.jme3.plugins.json.JsonObject;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.plugins.gltf.GltfLoader.SkinBuffers;
 import com.jme3.util.BufferUtils;
-
-import dev.fileformat.drako.Draco;
-import dev.fileformat.drako.DracoMesh;
-import dev.fileformat.drako.DrakoException;
-import dev.fileformat.drako.PointAttribute;
+import com.openize.drako.Draco;
+import com.openize.drako.DracoMesh;
+import com.openize.drako.DrakoException;
+import com.openize.drako.PointAttribute;
 
 /**
  * A class for handling the <code>KHR_draco_mesh_compression</code> extension when loading a glTF asset.
@@ -157,14 +157,135 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
             // created from the data that was fetched from the
             // decoded draco PointAttribute
             Type bufferType = getVertexBufferType(attributeName);
-            VertexBuffer attributeVertexBuffer = createAttributeVertexBuffer(attributeName, accessor,
-                    pointAttribute, indices);
-            mesh.clearBuffer(bufferType);
-            mesh.setBuffer(attributeVertexBuffer);
+
+            if (attributeName.startsWith("JOINTS")) {
+                readJoints(loader, attributeName, accessor, pointAttribute);
+            } else if (attributeName.startsWith("WEIGHTS")) {
+                readWeights(loader, attributeName, accessor, pointAttribute);
+            } else {
+                VertexBuffer attributeVertexBuffer = createAttributeVertexBuffer(attributeName, accessor,
+                        pointAttribute);
+                mesh.clearBuffer(bufferType);
+                mesh.setBuffer(attributeVertexBuffer);
+            }
         }
+        loader.postProcessSkinning(mesh);
 
         logger.log(level, "Decoding draco data DONE");
         return mesh;
+    }
+
+    /**
+     * Read the data from a <code>JOINTS_n</code> attribute that was decoded from Draco.
+     * 
+     * This will read the data from the attribute, and store it as the {@link SkinBuffers#joints} array for in
+     * the skin buffers information that is obtained via {@link GltfLoader#getSkinBuffers(String)} for the
+     * given attribute name.
+     * 
+     * @param loader
+     *            The {@link GltfLoader}
+     * @param attributeName
+     *            The attribute name
+     * @param accessor
+     *            The accessor for the attribute
+     * @param pointAttribute
+     *            The actual Draco-decoded attribute data
+     * @throws AssetLoadException
+     *             If the component type of the given accessor is not <code>GL_UNSIGNED_BYTE</code> or
+     *             <code>GL_UNSIGNED_SHORT</code>
+     */
+    private static void readJoints(GltfLoader loader, String attributeName, JsonObject accessor,
+            PointAttribute pointAttribute) {
+        int count = getAsInt(accessor, "accessor", "count");
+        int componentType = getAsInt(accessor, "accessor", "componentType");
+        int componentCount = getAccessorComponentCount(accessor);
+
+        if (componentType == GltfConstants.GL_UNSIGNED_BYTE) {
+            ByteBuffer attributeData = readByteDracoAttribute(pointAttribute, count, componentCount);
+            short array[] = new short[attributeData.capacity()];
+            for (int i = 0; i < array.length; i++) {
+                array[i] = attributeData.get(i);
+            }
+            SkinBuffers buffs = loader.getSkinBuffers(attributeName);
+            buffs.componentSize = 2;
+            buffs.joints = array;
+        } else if (componentType == GltfConstants.GL_UNSIGNED_SHORT) {
+            ShortBuffer attributeData = readShortDracoAttribute(pointAttribute, count, componentCount);
+            short array[] = new short[attributeData.capacity()];
+            attributeData.slice().get(array);
+            SkinBuffers buffs = loader.getSkinBuffers(attributeName);
+            buffs.componentSize = 2;
+            buffs.joints = array;
+        } else {
+            throw new AssetLoadException("The accessor for attribute " + attributeName
+                    + " must have a component type of " + GltfConstants.GL_UNSIGNED_BYTE + " or "
+                    + GltfConstants.GL_UNSIGNED_SHORT + ", but has " + componentType);
+        }
+    }
+
+    /**
+     * Read the data from a <code>WEIGHTS_n</code> attribute that was decoded from Draco.
+     * 
+     * This will read the data from the attribute, and store it as the {@link SkinBuffers#weights} array for
+     * in the skin buffers information that is obtained via {@link GltfLoader#getSkinBuffers(String)} for the
+     * given attribute name.
+     * 
+     * @param loader
+     *            The {@link GltfLoader}
+     * @param attributeName
+     *            The attribute name
+     * @param accessor
+     *            The accessor for the attribute
+     * @param pointAttribute
+     *            The actual Draco-decoded attribute data
+     * @throws AssetLoadException
+     *             If the component type of the given accessor is not <code>GL_UNSIGNED_BYTE</code> or
+     *             <code>GL_UNSIGNED_SHORT</code> or <code>GL_FLOAT</code>, or if it is
+     *             <code>GL_UNSIGNED_BYTE</code> or <code>GL_UNSIGNED_SHORT</code> and the accessor is not
+     *             normalized.
+     */
+    private static void readWeights(GltfLoader loader, String attributeName, JsonObject accessor,
+            PointAttribute pointAttribute) {
+        int count = getAsInt(accessor, "accessor", "count");
+        int componentType = getAsInt(accessor, "accessor", "componentType");
+        int componentCount = getAccessorComponentCount(accessor);
+
+        if (componentType == GltfConstants.GL_UNSIGNED_BYTE) {
+            boolean normalized = Boolean.TRUE.equals(getAsBoolean(accessor, "normalized"));
+            if (!normalized) {
+                throw new AssetLoadException("The accessor for attribute " + attributeName
+                        + " has a component type of " + componentType + " but is not normalized");
+            }
+            ByteBuffer attributeData = readByteDracoAttribute(pointAttribute, count, componentCount);
+            FloatBuffer resultAttributeData = BufferQuantization.dequantizeByteBuffer(attributeData);
+            float array[] = new float[attributeData.capacity()];
+            resultAttributeData.slice().get(array);
+            SkinBuffers buffs = loader.getSkinBuffers(attributeName);
+            buffs.weights = array;
+        } else if (componentType == GltfConstants.GL_UNSIGNED_SHORT) {
+            boolean normalized = Boolean.TRUE.equals(getAsBoolean(accessor, "normalized"));
+            if (!normalized) {
+                throw new AssetLoadException("The accessor for attribute " + attributeName
+                        + " has a component type of " + componentType + " but is not normalized");
+            }
+            ShortBuffer attributeData = readShortDracoAttribute(pointAttribute, count, componentCount);
+            FloatBuffer resultAttributeData = BufferQuantization.dequantizeShortBuffer(attributeData);
+            float array[] = new float[attributeData.capacity()];
+            resultAttributeData.slice().get(array);
+            SkinBuffers buffs = loader.getSkinBuffers(attributeName);
+            buffs.weights = array;
+        } else if (componentType == GltfConstants.GL_FLOAT) {
+            FloatBuffer attributeData = readFloatDracoAttribute(pointAttribute, count, componentCount);
+            float array[] = new float[attributeData.capacity()];
+            attributeData.slice().get(array);
+            SkinBuffers buffs = loader.getSkinBuffers(attributeName);
+            buffs.weights = array;
+        } else {
+            throw new AssetLoadException(
+                    "The accessor for attribute " + attributeName + " must have a component type of "
+                            + GltfConstants.GL_UNSIGNED_BYTE + ", " + GltfConstants.GL_UNSIGNED_SHORT
+                            + ", or " + GltfConstants.GL_FLOAT + ", but has " + componentType);
+        }
     }
 
     /**
@@ -352,35 +473,31 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
      *            The accessor JSON object
      * @param pointAttribute
      *            The Draco-decoded point attribute
-     * @param indices
-     *            The indices, obtained from the draco mesh
      * @return The vertex buffer
      * @throws AssetLoadException
      *             If the given accessor does not have a component type that is valid for a vertex attribute
      */
     private static VertexBuffer createAttributeVertexBuffer(String attributeName, JsonObject accessor,
-            PointAttribute pointAttribute, int indices[]) {
+            PointAttribute pointAttribute) {
         int count = getAsInt(accessor, "accessor", "count");
         int componentType = getAsInt(accessor, "accessor", "componentType");
         int componentCount = getAccessorComponentCount(accessor);
         Type bufferType = getVertexBufferType(attributeName);
 
         if (componentType == GltfConstants.GL_BYTE || componentType == GltfConstants.GL_UNSIGNED_BYTE) {
-            ByteBuffer attributeData = readByteDracoAttribute(pointAttribute, indices, count, componentCount);
+            ByteBuffer attributeData = readByteDracoAttribute(pointAttribute, count, componentCount);
             VertexBuffer attributeVertexBuffer = createByteAttributeVertexBuffer(accessor, bufferType,
                     attributeData);
             return attributeVertexBuffer;
         }
         if (componentType == GltfConstants.GL_SHORT || componentType == GltfConstants.GL_UNSIGNED_SHORT) {
-            ShortBuffer attributeData = readShortDracoAttribute(pointAttribute, indices, count,
-                    componentCount);
+            ShortBuffer attributeData = readShortDracoAttribute(pointAttribute, count, componentCount);
             VertexBuffer attributeVertexBuffer = createShortAttributeVertexBuffer(accessor, bufferType,
                     attributeData);
             return attributeVertexBuffer;
         }
         if (componentType == GltfConstants.GL_FLOAT) {
-            FloatBuffer attributeData = readFloatDracoAttribute(pointAttribute, indices, count,
-                    componentCount);
+            FloatBuffer attributeData = readFloatDracoAttribute(pointAttribute, count, componentCount);
             VertexBuffer attributeVertexBuffer = createFloatAttributeVertexBuffer(accessor, bufferType,
                     attributeData);
             return attributeVertexBuffer;
@@ -397,42 +514,23 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
      * 
      * @param pointAttribute
      *            The Draco-decoded point attribute
-     * @param indices
-     *            The indices, obtained from the draco mesh
      * @param count
      *            The count, obtained from the accessor for this attribute
      * @param componentCount
      *            The component count (number of components per element), obtained from the accessor type
      * @return The resulting data, as a byte buffer
      */
-    private static ByteBuffer readByteDracoAttribute(PointAttribute pointAttribute, int indices[], int count,
+    private static ByteBuffer readByteDracoAttribute(PointAttribute pointAttribute, int count,
             int componentCount) {
-        int numFaces = indices.length / 3;
+
         byte p[] = new byte[componentCount];
         ByteBuffer attributeData = BufferUtils.createByteBuffer(count * componentCount);
-        for (int i = 0; i < numFaces; i++) {
-            int j0 = indices[i * 3 + 0];
-            int j1 = indices[i * 3 + 1];
-            int j2 = indices[i * 3 + 2];
 
-            int mj0 = pointAttribute.mappedIndex(j0);
-            int mj1 = pointAttribute.mappedIndex(j1);
-            int mj2 = pointAttribute.mappedIndex(j2);
-
-            pointAttribute.getValue(mj0, p);
-            int offset0 = j0 * componentCount;
+        for (int i = 0; i < count; i++) {
+            int j = pointAttribute.mappedIndex(i);
+            pointAttribute.getValue(j, p);
             for (int c = 0; c < componentCount; c++) {
-                attributeData.put(offset0 + c, p[c]);
-            }
-            pointAttribute.getValue(mj1, p);
-            int offset1 = j1 * componentCount;
-            for (int c = 0; c < componentCount; c++) {
-                attributeData.put(offset1 + c, p[c]);
-            }
-            pointAttribute.getValue(mj2, p);
-            int offset2 = j2 * componentCount;
-            for (int c = 0; c < componentCount; c++) {
-                attributeData.put(offset2 + c, p[c]);
+                attributeData.put(i * componentCount + c, p[c]);
             }
         }
         return attributeData;
@@ -443,42 +541,23 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
      * 
      * @param pointAttribute
      *            The Draco-decoded point attribute
-     * @param indices
-     *            The indices, obtained from the draco mesh
      * @param count
      *            The count, obtained from the accessor for this attribute
      * @param componentCount
      *            The component count (number of components per element), obtained from the accessor type
      * @return The resulting data, as a short buffer
      */
-    private static ShortBuffer readShortDracoAttribute(PointAttribute pointAttribute, int indices[],
-            int count, int componentCount) {
-        int numFaces = indices.length / 3;
+    private static ShortBuffer readShortDracoAttribute(PointAttribute pointAttribute, int count,
+            int componentCount) {
+
         short p[] = new short[componentCount];
         ShortBuffer attributeData = BufferUtils.createShortBuffer(count * componentCount);
-        for (int i = 0; i < numFaces; i++) {
-            int j0 = indices[i * 3 + 0];
-            int j1 = indices[i * 3 + 1];
-            int j2 = indices[i * 3 + 2];
 
-            int mj0 = pointAttribute.mappedIndex(j0);
-            int mj1 = pointAttribute.mappedIndex(j1);
-            int mj2 = pointAttribute.mappedIndex(j2);
-
-            pointAttribute.getValue(mj0, p);
-            int offset0 = j0 * componentCount;
+        for (int i = 0; i < count; i++) {
+            int j = pointAttribute.mappedIndex(i);
+            pointAttribute.getValue(j, p);
             for (int c = 0; c < componentCount; c++) {
-                attributeData.put(offset0 + c, p[c]);
-            }
-            pointAttribute.getValue(mj1, p);
-            int offset1 = j1 * componentCount;
-            for (int c = 0; c < componentCount; c++) {
-                attributeData.put(offset1 + c, p[c]);
-            }
-            pointAttribute.getValue(mj2, p);
-            int offset2 = j2 * componentCount;
-            for (int c = 0; c < componentCount; c++) {
-                attributeData.put(offset2 + c, p[c]);
+                attributeData.put(i * componentCount + c, p[c]);
             }
         }
         return attributeData;
@@ -489,42 +568,22 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
      * 
      * @param pointAttribute
      *            The Draco-decoded point attribute
-     * @param indices
-     *            The indices, obtained from the draco mesh
      * @param count
      *            The count, obtained from the accessor for this attribute
      * @param componentCount
      *            The component count (number of components per element), obtained from the accessor type
      * @return The resulting data, as a float buffer
      */
-    private static FloatBuffer readFloatDracoAttribute(PointAttribute pointAttribute, int indices[],
-            int count, int componentCount) {
-        int numFaces = indices.length / 3;
+    private static FloatBuffer readFloatDracoAttribute(PointAttribute pointAttribute, int count,
+            int componentCount) {
         float p[] = new float[componentCount];
         FloatBuffer attributeData = BufferUtils.createFloatBuffer(count * componentCount);
-        for (int i = 0; i < numFaces; i++) {
-            int j0 = indices[i * 3 + 0];
-            int j1 = indices[i * 3 + 1];
-            int j2 = indices[i * 3 + 2];
-
-            int mj0 = pointAttribute.mappedIndex(j0);
-            int mj1 = pointAttribute.mappedIndex(j1);
-            int mj2 = pointAttribute.mappedIndex(j2);
-
-            pointAttribute.getValue(mj0, p);
-            int offset0 = j0 * componentCount;
+        for (int i = 0; i < count; i++) {
+            int j = pointAttribute.mappedIndex(i);
+            pointAttribute.getValue(j, p);
+            int offset0 = i * componentCount;
             for (int c = 0; c < componentCount; c++) {
                 attributeData.put(offset0 + c, p[c]);
-            }
-            pointAttribute.getValue(mj1, p);
-            int offset1 = j1 * componentCount;
-            for (int c = 0; c < componentCount; c++) {
-                attributeData.put(offset1 + c, p[c]);
-            }
-            pointAttribute.getValue(mj2, p);
-            int offset2 = j2 * componentCount;
-            for (int c = 0; c < componentCount; c++) {
-                attributeData.put(offset2 + c, p[c]);
             }
         }
         return attributeData;

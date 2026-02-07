@@ -31,25 +31,47 @@
  */
 package com.jme3.scene.plugins.gltf;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetLoadException;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
+import com.jme3.plugins.json.Json;
 import com.jme3.plugins.json.JsonArray;
 import com.jme3.plugins.json.JsonElement;
 import com.jme3.plugins.json.JsonObject;
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetLoadException;
-import com.jme3.math.*;
-import com.jme3.plugins.json.Json;
 import com.jme3.plugins.json.JsonParser;
-import com.jme3.renderer.opengl.GL;
-import com.jme3.scene.*;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.plugins.gltf.GltfLoader.SkinBuffers;
 import com.jme3.texture.Texture;
-import com.jme3.util.*;
-import java.io.*;
-import java.nio.*;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.jme3.util.BufferUtils;
+import com.jme3.util.IntMap;
+import com.jme3.util.LittleEndien;
 
 /**
  * Created by Nehon on 07/08/2017.
@@ -505,7 +527,7 @@ public class GltfUtils {
     }
 
 
-    public static void handleSkinningBuffers(Mesh mesh, IntMap<GltfLoader.SkinBuffers> skinBuffers) {
+    static void handleSkinningBuffers(Mesh mesh, IntMap<GltfLoader.SkinBuffers> skinBuffers) {
         if (skinBuffers.size() > 0) {
             int length = skinBuffers.get(0).joints.length;
             short[] jointsArray = new short[length];
