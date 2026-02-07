@@ -77,7 +77,6 @@ public class AndroidMouseInput26 extends AndroidMouseInput24{
                 break;
 
             case MotionEvent.ACTION_BUTTON_RELEASE:
-            case MotionEvent.ACTION_CANCEL:
                 if(btnAction == MotionEvent.BUTTON_PRIMARY) {
                     leftPressed = false;
                 }
@@ -108,8 +107,8 @@ public class AndroidMouseInput26 extends AndroidMouseInput24{
     }
 
     @Override
-    public void setMouseGrab(boolean grab) {
-        if(grab) {
+    public void setCursorVisible(boolean visible) {
+        if(!visible) {
             inputHandler.getView().requestPointerCapture();
         } else {
             inputHandler.getView().releasePointerCapture();

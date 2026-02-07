@@ -925,7 +925,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     public void setDragToRotate(boolean dragToRotate) {
         this.dragToRotate = dragToRotate;
         this.canRotate = !dragToRotate;
-        inputManager.setMouseGrab(!dragToRotate);
+        inputManager.setCursorVisible(dragToRotate);
     }
 
     /**

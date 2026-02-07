@@ -79,7 +79,6 @@ public class AndroidMouseInput24 extends AndroidMouseInput14{
                     break;
 
                 case MotionEvent.ACTION_BUTTON_RELEASE:
-                case MotionEvent.ACTION_CANCEL:
                     if(btnAction == MotionEvent.BUTTON_PRIMARY) {
                         leftPressed = false;
                     }

@@ -234,7 +234,6 @@ public class AndroidMouseInput14 implements MouseInput {
                 break;
 
             case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
                 if((btnState & MotionEvent.BUTTON_PRIMARY) == MotionEvent.BUTTON_PRIMARY) {
                     leftPressed = false;
                 }
@@ -269,10 +268,6 @@ public class AndroidMouseInput14 implements MouseInput {
         logger.log(Level.FINE, "Cannot hide mouse till API 24");
     }
 
-    @Override
-    public void setMouseGrab(boolean grab) {
-        logger.log(Level.FINE, "Cannot grab mouse till API 26");
-    }
 
     @Override
     public int getButtonCount() {

@@ -96,7 +96,6 @@ public class InputManager implements RawInputListener {
     private long frameDelta = 0;
     private boolean eventsPermitted = false;
     private boolean mouseVisible = true;
-    private boolean mouseGrab = false;
     private boolean safeMode = false;
     private float globalAxisDeadZone = 0.05f;
     private final Vector2f cursorPos = new Vector2f();
@@ -698,18 +697,6 @@ public class InputManager implements RawInputListener {
         if (mouseVisible != visible) {
             mouseVisible = visible;
             mouse.setCursorVisible(mouseVisible);
-        }
-    }
-
-    /**
-     * Set whether to grab the mouse or not.
-     *
-     * @param grab whether to grab the mouse or not.
-     */
-    public void setMouseGrab(boolean grab) {
-        if (mouseGrab != grab) {
-            mouseGrab = grab;
-            mouse.setMouseGrab(mouseGrab);
         }
     }
 

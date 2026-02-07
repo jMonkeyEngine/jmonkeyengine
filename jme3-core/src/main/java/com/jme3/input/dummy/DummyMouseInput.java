@@ -49,10 +49,6 @@ public class DummyMouseInput extends DummyInput implements MouseInput {
     }
 
     @Override
-    public void setMouseGrab(boolean grab) {
-    }
-
-    @Override
     public int getButtonCount() {
         return 0;
     }
