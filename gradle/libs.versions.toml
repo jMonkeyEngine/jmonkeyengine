@@ -3,7 +3,7 @@
 [versions]
 
 checkstyle = "9.3"
-lwjgl3 = "3.4.0"
+lwjgl3 = "3.4.1"
 nifty = "1.4.3"
 
 [libraries]
