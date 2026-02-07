@@ -9,12 +9,6 @@ sourceSets {
     }
 }
 
-repositories{
-    maven {
-        url "https://maven.rblb.it/jMonkeyEngine/openize-drako-java/"
-    }
-}
-
 dependencies {
     api project(':jme3-core')
     implementation "com.openize:drako:1.4.4"
