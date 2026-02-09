@@ -159,9 +159,6 @@ public class AndroidMouseInput14 implements MouseInput {
         int deltaX=currentMouseState.updateX(x);
         int deltaY=currentMouseState.updateY(y);
         int wheel=currentMouseState.incrementWheel(deltaWheel);
-
-        logger.log(Level.INFO, "Mouse motion event: " + x + "x" + y + " wheel: " + wheel);
-
         eventQueue.add(new MouseMotionEvent(x, y, deltaX, deltaY, wheel, deltaWheel));
     }
 
@@ -169,9 +166,6 @@ public class AndroidMouseInput14 implements MouseInput {
         int x=currentMouseState.incrementX(deltaX);
         int y=currentMouseState.incrementY(deltaY);
         int wheel=currentMouseState.incrementWheel(deltaWheel);
-
-        logger.log(Level.INFO, "Mouse motion event: " + x + "x" + y + " wheel: " + wheel);
-
         eventQueue.add(new MouseMotionEvent(x, y, deltaX, deltaY, wheel, deltaWheel));
     }
 
@@ -179,17 +173,14 @@ public class AndroidMouseInput14 implements MouseInput {
         boolean eventAdded = false;
         if(currentMouseState.updateLeftButton(left)) {
             eventQueue.add(new MouseButtonEvent(MouseInput.BUTTON_LEFT, left, x, y));
-            logger.log(Level.INFO, "Mouse button left: " + left);
             eventAdded = true;
         }
         if(currentMouseState.updateRightButton(right)) {
             eventQueue.add(new MouseButtonEvent(MouseInput.BUTTON_RIGHT, right, x, y));
-            logger.log(Level.INFO, "Mouse button right: " + right);
             eventAdded = true;
         }
         if(currentMouseState.updateCenterButton(center)) {
             eventQueue.add(new MouseButtonEvent(MouseInput.BUTTON_MIDDLE, center, x, y));
-            logger.log(Level.INFO, "Mouse button center: " + center);
             eventAdded = true;
         }
         return eventAdded;
