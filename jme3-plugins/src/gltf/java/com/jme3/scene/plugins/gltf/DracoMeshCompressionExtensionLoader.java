@@ -84,9 +84,9 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
             .getLogger(DracoMeshCompressionExtensionLoader.class.getName());
 
     /**
-     * The default log level
+     * The default log level for Draco extension handling
      */
-    private static final Level level = Level.INFO;
+    private static final Level level = Level.FINER;
 
     /**
      * <ul>
