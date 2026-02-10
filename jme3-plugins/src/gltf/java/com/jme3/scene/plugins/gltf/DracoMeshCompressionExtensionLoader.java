@@ -178,9 +178,9 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
     /**
      * Read the data from a <code>JOINTS_n</code> attribute that was decoded from Draco.
      * 
-     * This will read the data from the attribute, and store it as the {@link SkinBuffers#joints} array for in
-     * the skin buffers information that is obtained via {@link GltfLoader#getSkinBuffers(String)} for the
-     * given attribute name.
+     * This will read the data from the attribute, and store it as the {@link SkinBuffers#joints} array in the
+     * skin buffers information that is obtained via {@link GltfLoader#getSkinBuffers(String)} for the given
+     * attribute name.
      * 
      * @param loader
      *            The {@link GltfLoader}
@@ -226,8 +226,8 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
     /**
      * Read the data from a <code>WEIGHTS_n</code> attribute that was decoded from Draco.
      * 
-     * This will read the data from the attribute, and store it as the {@link SkinBuffers#weights} array for
-     * in the skin buffers information that is obtained via {@link GltfLoader#getSkinBuffers(String)} for the
+     * This will read the data from the attribute, and store it as the {@link SkinBuffers#weights} array in
+     * the skin buffers information that is obtained via {@link GltfLoader#getSkinBuffers(String)} for the
      * given attribute name.
      * 
      * @param loader
@@ -338,9 +338,9 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
     VertexBuffer createIndicesVertexBuffer(GltfLoader loader, int componentType, int indices[]) {
         Buffer data = null;
         if (componentType == GltfConstants.GL_UNSIGNED_BYTE) {
-            data = createByteBuffer(indices);
+            data = BufferUtils.createByteBuffer(indices);
         } else if (componentType == GltfConstants.GL_UNSIGNED_SHORT) {
-            data = createShortBuffer(indices);
+            data = BufferUtils.createShortBuffer(indices);
         } else if (componentType == GltfConstants.GL_UNSIGNED_INT) {
             data = BufferUtils.createIntBuffer(indices);
         } else {
@@ -369,38 +369,6 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
         String type = getAsString(accessor, "type");
         assertNotNull(type, "No type attribute defined for accessor");
         return getNumberOfComponents(type);
-    }
-
-    // TODO_DRACO Could go into BufferUtils
-    /**
-     * Create a byte buffer containing the given values, cast to <code>byte</code>
-     * 
-     * @param array
-     *            The array
-     * @return The buffer
-     */
-    private static Buffer createByteBuffer(int[] array) {
-        ByteBuffer buffer = BufferUtils.createByteBuffer(array.length);
-        for (int i = 0; i < array.length; i++) {
-            buffer.put(i, (byte) array[i]);
-        }
-        return buffer;
-    }
-
-    // TODO_DRACO Could go into BufferUtils
-    /**
-     * Create a short buffer containing the given values, cast to <code>short</code>
-     * 
-     * @param array
-     *            The array
-     * @return The buffer
-     */
-    private static Buffer createShortBuffer(int[] array) {
-        ShortBuffer buffer = BufferUtils.createShortBuffer(array.length);
-        for (int i = 0; i < array.length; i++) {
-            buffer.put(i, (short) array[i]);
-        }
-        return buffer;
     }
 
     // TODO_DRACO Could fit into GltfLoader
