@@ -56,7 +56,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -78,7 +80,9 @@ public class TestDriver extends BaseAppState{
 
     private static final Logger logger = Logger.getLogger(TestDriver.class.getName());
 
-    public static final String IMAGES_ARE_DIFFERENT = "Images are different. (If you are running the test locally this is expected, images only reproducible on github CI infrastructure)";
+    public static final String IMAGES_ARE_DIFFERENT = "Generated images is different from committed image. (If you are running the test locally this is expected, images only reproducible on github CI infrastructure)";
+
+    public static final String IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS = "Images are different between scenarios.";
 
     public static final String IMAGES_ARE_DIFFERENT_SIZES = "Images are different sizes.";
 
@@ -145,85 +149,127 @@ public class TestDriver extends BaseAppState{
      * - After all the frames have been taken it stops the application
      * - Compares the screenshot to the expected screenshot (if any). Fails the test if they are different
      */
-    public static void bootAppForTest(TestType testType, AppSettings appSettings, String baseImageFileName, List<Integer> framesToTakeScreenshotsOn, AppState... initialStates){
-        FastMath.rand.setSeed(0); //try to make things deterministic by setting the random seed
+    public static void bootAppForTest(TestType testType, AppSettings appSettings, String baseImageFileName, List<Integer> framesToTakeScreenshotsOn, List<Scenario> scenarios){
+
         Collections.sort(framesToTakeScreenshotsOn);
 
-        Path imageTempDir;
+        List<Path> tempFolders = new ArrayList<>();
+        Map<Scenario, List<Path>> imageFilesPerScenario = new HashMap<>();
 
-        try{
-            imageTempDir = Files.createTempDirectory("jmeSnapshotTest");
-        } catch(IOException e){
-            throw new RuntimeException(e);
-        }
+        // usually there is a single scenario, but the framework can be set up to expect multiple scenarios that give identical results
+        for(Scenario scenario : scenarios) {
+            FastMath.rand.setSeed(0); //try to make things deterministic by setting the random seed
+            Path imageTempDir;
+            try {
+                imageTempDir = Files.createTempDirectory("jmeSnapshotTest");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            tempFolders.add(imageTempDir);
 
-        ScreenshotNoInputAppState screenshotAppState = new ScreenshotNoInputAppState(imageTempDir.toString() + "/");
-        String screenshotAppFileNamePrefix = "Screenshot-";
-        screenshotAppState.setFileName(screenshotAppFileNamePrefix);
+            ScreenshotNoInputAppState screenshotAppState = new ScreenshotNoInputAppState(imageTempDir.toString() + "/");
+            String screenshotAppFileNamePrefix = "Screenshot-";
+            screenshotAppState.setFileName(screenshotAppFileNamePrefix);
 
-        List<AppState> states = new ArrayList<>(Arrays.asList(initialStates));
-        TestDriver testDriver = new TestDriver(screenshotAppState, framesToTakeScreenshotsOn);
-        states.add(screenshotAppState);
-        states.add(testDriver);
+            List<AppState> states = new ArrayList<>(Arrays.asList(scenario.states));
+            TestDriver testDriver = new TestDriver(screenshotAppState, framesToTakeScreenshotsOn);
+            states.add(screenshotAppState);
+            states.add(testDriver);
 
-        SimpleApplication app = new App(states.toArray(new AppState[0]));
-        app.setSettings(appSettings);
-        app.setShowSettings(false);
+            SimpleApplication app = new App(states.toArray(new AppState[0]));
+            app.setSettings(appSettings);
+            app.setShowSettings(false);
 
-        testDriver.waitLatch = new CountDownLatch(1);
-        executor.execute(() -> app.start(JmeContext.Type.Display));
+            testDriver.waitLatch = new CountDownLatch(1);
+            executor.execute(() -> app.start(JmeContext.Type.Display));
 
-        int maxWaitTimeMilliseconds = 45000;
+            int maxWaitTimeMilliseconds = 45000;
 
-        try {
-            boolean exitedProperly = testDriver.waitLatch.await(maxWaitTimeMilliseconds, TimeUnit.MILLISECONDS);
+            try {
+                boolean exitedProperly = testDriver.waitLatch.await(maxWaitTimeMilliseconds, TimeUnit.MILLISECONDS);
 
-            if(!exitedProperly){
-                logger.warning("Test driver did not exit in " + maxWaitTimeMilliseconds + "ms. Timed out");
-                app.stop(true);
+                if (!exitedProperly) {
+                    logger.warning("Test driver did not exit in " + maxWaitTimeMilliseconds + "ms. Timed out");
+                    app.stop(true);
+                }
+
+                Thread.sleep(1000); //give time for openGL is fully released before starting a new test (get random JVM crashes without this)
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
             }
 
-            Thread.sleep(1000); //give time for openGL is fully released before starting a new test (get random JVM crashes without this)
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
-        }
-
-        //search the imageTempDir
-        List<Path> imageFiles = new ArrayList<>();
-        try(Stream<Path> paths = Files.list(imageTempDir)){
-            paths.forEach(imageFiles::add);
-        } catch(IOException e){
-            throw new RuntimeException(e);
-        }
-
-        //this resorts with natural numeric ordering (so App10.png comes after App9.png)
-        imageFiles.sort(new Comparator<Path>(){
-            @Override
-            public int compare(Path p1, Path p2){
-                return extractNumber(p1).compareTo(extractNumber(p2));
+            //search the imageTempDir
+            List<Path> imageFiles = new ArrayList<>();
+            try (Stream<Path> paths = Files.list(imageTempDir)) {
+                paths.forEach(imageFiles::add);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
 
-            private Integer extractNumber(Path path){
-                String name = path.getFileName().toString();
-                int numStart = screenshotAppFileNamePrefix.length();
-                int numEnd = name.lastIndexOf(".png");
-                return Integer.parseInt(name.substring(numStart, numEnd));
+            //this resorts with natural numeric ordering (so App10.png comes after App9.png)
+            imageFiles.sort(new Comparator<Path>() {
+                @Override
+                public int compare(Path p1, Path p2) {
+                    return extractNumber(p1).compareTo(extractNumber(p2));
+                }
+
+                private Integer extractNumber(Path path) {
+                    String name = path.getFileName().toString();
+                    int numStart = screenshotAppFileNamePrefix.length();
+                    int numEnd = name.lastIndexOf(".png");
+                    return Integer.parseInt(name.substring(numStart, numEnd));
+                }
+            });
+            if (imageFiles.isEmpty()) {
+                fail("No screenshot found in the temporary directory. Did the application crash?");
             }
-        });
+            if (imageFiles.size() != framesToTakeScreenshotsOn.size()) {
+                fail("Not all screenshots were taken, expected " + framesToTakeScreenshotsOn.size() + " but got " + imageFiles.size());
+            }
 
-        if(imageFiles.isEmpty()){
-            fail("No screenshot found in the temporary directory. Did the application crash?");
+            imageFilesPerScenario.put(scenario, imageFiles);
         }
-        if(imageFiles.size() != framesToTakeScreenshotsOn.size()){
-            fail("Not all screenshots were taken, expected " + framesToTakeScreenshotsOn.size() + " but got " + imageFiles.size());
-        }
-
         String failureMessage = null;
 
         try {
+            List<Path> primeScenarioScreenshots = imageFilesPerScenario.get(scenarios.get(0));
+
+            if(imageFilesPerScenario.size()>1){
+                String primeScenarioName = scenarios.get(0).scenarioName;
+
+                // check each scenario gave the same results (before checking a single scenario against the reference images
+                for(int i=1;i<imageFilesPerScenario.size();i++){
+                    String thisScenarioName = scenarios.get(i).scenarioName;
+                    List<Path> otherScenarioScreenshots = imageFilesPerScenario.get(scenarios.get(i));
+                    for(int screenshotIndex=0;screenshotIndex<framesToTakeScreenshotsOn.size();screenshotIndex++) {
+                        Path primeImage = primeScenarioScreenshots.get(screenshotIndex);
+                        Path otherImage = otherScenarioScreenshots.get(screenshotIndex);
+
+                        BufferedImage img1 = ImageIO.read(primeImage.toFile());
+                        BufferedImage img2 = ImageIO.read(otherImage.toFile());
+
+                        int frame = framesToTakeScreenshotsOn.get(screenshotIndex);
+
+                        String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
+
+                        if (!imagesAreTheSame(img1, img2)) {
+                            attachImage("Scenario " + primeScenarioName + " " + screenshotIndex, thisFrameBaseImageFileName + "_" + primeScenarioName + ".png", img1);
+                            attachImage("Scenario " + thisScenarioName + " " + screenshotIndex, thisFrameBaseImageFileName + "_" + thisScenarioName + ".png", img2);
+                            attachImage("Diff (between above scenarios)", thisFrameBaseImageFileName + "_" + primeScenarioName + "_" + thisScenarioName + "_diff.png", createComparisonImage(img1, img2));
+
+                            if(failureMessage==null){ //only want the first thing to go wrong as the junit test fail reason
+                                failureMessage = IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS;
+                            }
+                            ExtentReportExtension.getCurrentTest().fail(IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS);
+                        }
+                    }
+                }
+            }
+
+
             for(int screenshotIndex=0;screenshotIndex<framesToTakeScreenshotsOn.size();screenshotIndex++){
-                Path generatedImage = imageFiles.get(screenshotIndex);
+                Path generatedImage = primeScenarioScreenshots.get(screenshotIndex);
                 int frame = framesToTakeScreenshotsOn.get(screenshotIndex);
 
                 String thisFrameBaseImageFileName = baseImageFileName + "_f" + frame;
@@ -280,7 +326,9 @@ public class TestDriver extends BaseAppState{
         } catch (IOException e) {
             throw new RuntimeException("Error reading images", e);
         } finally{
-            clearTemporaryFolder(imageTempDir);
+            for(Path imageTempDir : tempFolders){
+                clearTemporaryFolder(imageTempDir);
+            }
         }
 
         if(failureMessage!=null){
