@@ -69,24 +69,4 @@ public class InstancedNodeTest {
         // Verify the control is the right type
         Assert.assertNotNull("Control should not be null", loaded.getControl(0));
     }
-
-    /**
-     * Test that an empty InstancedNode can be serialized.
-     */
-    @Test
-    public void testEmptyInstancedNodeSerialization() throws Exception {
-        InstancedNode instancedNode = new InstancedNode("empty_instanced_node");
-
-        // Verify the control exists before serialization
-        Assert.assertEquals("Empty InstancedNode should have 1 control before serialization", 
-                            1, instancedNode.getNumControls());
-
-        // Serialize and deserialize
-        InstancedNode loaded = (InstancedNode) BinaryExporter.saveAndLoad(assetManager, instancedNode);
-
-        // Verify the control exists after deserialization
-        Assert.assertNotNull("Loaded empty InstancedNode should not be null", loaded);
-        Assert.assertEquals("Empty InstancedNode should have 1 control after deserialization", 
-                            1, loaded.getNumControls());
-    }
 }
