@@ -104,7 +104,7 @@ public class AndroidInputHandler14 extends AndroidInputHandler implements View.O
         boolean isMouse = ((source & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE);
         if (isMouse && mouseInput != null) {
             // send the event to the mouse processor
-            consumed = ((AndroidMouseInput14)mouseInput).onHover(event);
+            consumed = consumed || ((AndroidMouseInput14)mouseInput).onHover(event);
         }
 
         return consumed;
@@ -151,7 +151,7 @@ public class AndroidInputHandler14 extends AndroidInputHandler implements View.O
         boolean isMouse = ((event.getSource() & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE);
         if (isMouse && mouseInput != null) {
             // send the event to the mouse processor
-            consumed |= ((AndroidMouseInput14)mouseInput).onGenericMotion(event);
+            consumed = consumed || ((AndroidMouseInput14)mouseInput).onGenericMotion(event);
         }
 
         return consumed;
