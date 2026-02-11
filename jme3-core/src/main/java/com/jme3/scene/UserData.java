@@ -74,6 +74,10 @@ public final class UserData implements Savable {
     private static final int   TYPE_SHORT        = 10;
     private static final int   TYPE_BYTE         = 11;
 
+    // Counter for generating unique IDs to prevent field name collisions
+    private static final java.util.concurrent.atomic.AtomicLong uniqueIdCounter = 
+        new java.util.concurrent.atomic.AtomicLong(0);
+
     protected byte             type;
     protected Object           value;
     
@@ -147,7 +151,7 @@ public final class UserData implements Savable {
         // when multiple UserData objects with lists/maps/arrays are serialized together.
         // Store it so it can be read back during deserialization.
         if (uniqueId == null) {
-            uniqueId = String.valueOf(System.nanoTime());
+            uniqueId = String.valueOf(uniqueIdCounter.incrementAndGet());
         }
         oc.write(uniqueId, "uniqueId", null);
         
@@ -213,7 +217,7 @@ public final class UserData implements Savable {
         uniqueId = ic.readString("uniqueId", null);
         
         // For backwards compatibility with old files that don't have uniqueId,
-        // use a default prefix
+        // use the original prefix. This matches the field names in old files.
         if (uniqueId == null) {
             uniqueId = "0";
         }
