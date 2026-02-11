@@ -267,8 +267,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         
         private ResolutionWorker getWorker(int w, int h) {
             String key = getResolutionKey(w, h);
-            ResolutionWorker worker = workers.get(key);
-            if (worker == null) {
+            return workers.computeIfAbsent(key, k -> {
                 // Generate filename for this resolution
                 File workerFile;
                 if (file == null) {
@@ -281,10 +280,8 @@ public class VideoRecorderAppState extends AbstractAppState {
                     String extension = dotIndex > 0 ? originalPath.substring(dotIndex) : ".avi";
                     workerFile = new File(basePath + "-" + w + "x" + h + "-" + (System.currentTimeMillis() / 1000) + extension);
                 }
-                worker = new ResolutionWorker(w, h, workerFile);
-                workers.put(key, worker);
-            }
-            return worker;
+                return new ResolutionWorker(w, h, workerFile);
+            });
         }
 
         public void addImage(Renderer renderer, FrameBuffer out) {
