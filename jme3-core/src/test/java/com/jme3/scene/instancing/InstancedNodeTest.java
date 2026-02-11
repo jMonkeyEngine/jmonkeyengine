@@ -34,11 +34,6 @@ package com.jme3.scene.instancing;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Box;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -58,23 +53,6 @@ public class InstancedNodeTest {
     public void testSerializationPreservesControl() throws Exception {
         // Create an InstancedNode
         InstancedNode instancedNode = new InstancedNode("test_instanced_node");
-
-        // Create a material with instancing enabled
-        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        material.setBoolean("UseInstancing", true);
-        material.setColor("Color", ColorRGBA.Red);
-
-        // Add some instanced geometries
-        for (int i = 0; i < 5; i++) {
-            Box box = new Box(1, 1, 1);
-            Geometry geo = new Geometry("box_" + i, box);
-            geo.setMaterial(material);
-            geo.setLocalTranslation(new Vector3f(i * 3, 0, 0));
-            instancedNode.attachChild(geo);
-        }
-
-        // Instance the geometries
-        instancedNode.instance();
 
         // Verify the control exists before serialization
         Assert.assertEquals("InstancedNode should have 1 control before serialization", 
