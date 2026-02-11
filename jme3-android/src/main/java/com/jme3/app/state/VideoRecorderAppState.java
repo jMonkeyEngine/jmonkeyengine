@@ -284,6 +284,50 @@ public class VideoRecorderAppState extends AbstractAppState {
 
         @Override
         public void reshape(ViewPort vp, int w, int h) {
+            if (this.width == w && this.height == h) {
+                return;
+            }
+            
+            this.width = w;
+            this.height = h;
+            
+            // Wait for all work items to finish processing
+            if (freeItems != null) {
+                try {
+                    while (freeItems.size() < numCpus) {
+                        Thread.sleep(10);
+                    }
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
+            // Close the current writer and generate new filename for resized video
+            if (writer != null) {
+                try {
+                    writer.finishAVI();
+                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.INFO, 
+                        "Window resized from {0}x{1} to {2}x{3}. Previous recording saved to: {4}", 
+                        new Object[]{writer.width, writer.height, w, h, file.getAbsolutePath()});
+                } catch (Exception ex) {
+                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video on reshape: {0}", ex);
+                }
+                writer = null;
+                
+                // Generate a new filename for the resized video
+                String originalPath = file.getAbsolutePath();
+                int dotIndex = originalPath.lastIndexOf('.');
+                String basePath = dotIndex > 0 ? originalPath.substring(0, dotIndex) : originalPath;
+                String extension = dotIndex > 0 ? originalPath.substring(dotIndex) : ".avi";
+                file = new File(basePath + "-" + System.currentTimeMillis() / 1000 + extension);
+            }
+            
+            // Recreate work items with new dimensions
+            freeItems.clear();
+            usedItems.clear();
+            for (int i = 0; i < numCpus; i++) {
+                freeItems.add(new WorkItem(w, h));
+            }
         }
 
         @Override
