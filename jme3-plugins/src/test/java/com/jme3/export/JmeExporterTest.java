@@ -139,7 +139,7 @@ public class JmeExporterTest {
     public void testExporterConsistency() {
         //
         final boolean testXML = true;
-        final boolean testLists = false;
+        final boolean testLists = true;
         final boolean testMaps = true;
         final boolean printXML = false;
 
