@@ -77,13 +77,17 @@ public final class UserData implements Savable {
     // Counter for generating unique IDs to prevent field name collisions
     private static final java.util.concurrent.atomic.AtomicLong uniqueIdCounter = 
         new java.util.concurrent.atomic.AtomicLong(0);
+    
+    // Prefix used for backwards compatibility with files created before the uniqueId field was added
+    private static final String LEGACY_PREFIX = "0";
 
     protected byte             type;
     protected Object           value;
     
     // Unique identifier for this UserData instance to prevent field name collisions
-    // when multiple UserData objects with lists/maps/arrays are serialized together
-    private transient String   uniqueId;
+    // when multiple UserData objects with lists/maps/arrays are serialized together.
+    // Marked volatile to ensure visibility across threads during concurrent serialization.
+    private transient volatile String uniqueId;
 
     public UserData() {
     }
@@ -150,8 +154,13 @@ public final class UserData implements Savable {
         // Generate a unique ID for this instance to prevent field name collisions
         // when multiple UserData objects with lists/maps/arrays are serialized together.
         // Store it so it can be read back during deserialization.
+        // Use double-checked locking to ensure thread-safety.
         if (uniqueId == null) {
-            uniqueId = String.valueOf(uniqueIdCounter.incrementAndGet());
+            synchronized (this) {
+                if (uniqueId == null) {
+                    uniqueId = String.valueOf(uniqueIdCounter.incrementAndGet());
+                }
+            }
         }
         oc.write(uniqueId, "uniqueId", null);
         
