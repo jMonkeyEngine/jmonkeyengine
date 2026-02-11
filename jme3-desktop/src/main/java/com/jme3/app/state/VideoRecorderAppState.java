@@ -47,7 +47,9 @@ import com.jme3.util.Screenshots;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -212,6 +214,43 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
     }
 
+    private class ResolutionWorker {
+        final int width;
+        final int height;
+        final LinkedBlockingQueue<WorkItem> freeItems;
+        final LinkedBlockingQueue<WorkItem> usedItems;
+        MjpegFileWriter writer;
+        File file;
+        
+        ResolutionWorker(int width, int height, File file) {
+            this.width = width;
+            this.height = height;
+            this.file = file;
+            this.freeItems = new LinkedBlockingQueue<>();
+            this.usedItems = new LinkedBlockingQueue<>();
+            for (int i = 0; i < numCpus; i++) {
+                freeItems.add(new WorkItem(width, height));
+            }
+        }
+        
+        boolean isFullyDrained() {
+            return freeItems.size() >= numCpus && usedItems.isEmpty();
+        }
+        
+        void closeWriter() {
+            if (writer != null) {
+                try {
+                    writer.finishAVI();
+                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.INFO, 
+                        "Recording saved to: {0}", file.getAbsolutePath());
+                } catch (Exception ex) {
+                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video", ex);
+                }
+                writer = null;
+            }
+        }
+    }
+
     private class VideoProcessor implements SceneProcessor {
 
         private Camera camera;
@@ -219,20 +258,43 @@ public class VideoRecorderAppState extends AbstractAppState {
         private int height;
         private RenderManager renderManager;
         private boolean isInitialized = false;
-        private LinkedBlockingQueue<WorkItem> freeItems;
-        private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<>();
-        private MjpegFileWriter writer;
-        private boolean reshapePending = false;
-        private int newWidth;
-        private int newHeight;
+        private ResolutionWorker currentWorker;
+        private Map<String, ResolutionWorker> workers = new HashMap<>();
+
+        private String getResolutionKey(int w, int h) {
+            return w + "x" + h;
+        }
+        
+        private ResolutionWorker getWorker(int w, int h) {
+            String key = getResolutionKey(w, h);
+            ResolutionWorker worker = workers.get(key);
+            if (worker == null) {
+                // Generate filename for this resolution
+                File workerFile;
+                if (file == null) {
+                    String filename = System.getProperty("user.home") + File.separator + "jMonkey-" + System.currentTimeMillis() / 1000 + ".avi";
+                    workerFile = new File(filename);
+                } else {
+                    String originalPath = file.getAbsolutePath();
+                    int dotIndex = originalPath.lastIndexOf('.');
+                    String basePath = dotIndex > 0 ? originalPath.substring(0, dotIndex) : originalPath;
+                    String extension = dotIndex > 0 ? originalPath.substring(dotIndex) : ".avi";
+                    workerFile = new File(basePath + "-" + w + "x" + h + "-" + (System.currentTimeMillis() / 1000) + extension);
+                }
+                worker = new ResolutionWorker(w, h, workerFile);
+                workers.put(key, worker);
+            }
+            return worker;
+        }
 
         public void addImage(Renderer renderer, FrameBuffer out) {
-            if (freeItems == null || reshapePending) {
+            final ResolutionWorker worker = currentWorker;
+            if (worker == null) {
                 return;
             }
             try {
-                final WorkItem item = freeItems.take();
-                usedItems.add(item);
+                final WorkItem item = worker.freeItems.take();
+                worker.usedItems.add(item);
                 item.buffer.clear();
                 renderer.readFrameBufferWithFormat(out, item.buffer, Image.Format.BGRA8);
                 executor.submit(new Callable<Void>() {
@@ -240,13 +302,13 @@ public class VideoRecorderAppState extends AbstractAppState {
                     @Override
                     public Void call() throws Exception {
                         Screenshots.convertScreenShot(item.buffer, item.image);
-                        item.data = writer.writeImageToBytes(item.image, quality);
-                        while (usedItems.peek() != item) {
+                        item.data = worker.writer.writeImageToBytes(item.image, quality);
+                        while (worker.usedItems.peek() != item) {
                             Thread.sleep(1);
                         }
-                        writer.addImage(item.data);
-                        usedItems.poll();
-                        freeItems.add(item);
+                        worker.writer.addImage(item.data);
+                        worker.usedItems.poll();
+                        worker.freeItems.add(item);
                         return null;
                     }
                 });
@@ -262,12 +324,7 @@ public class VideoRecorderAppState extends AbstractAppState {
             this.height = camera.getHeight();
             this.renderManager = rm;
             this.isInitialized = true;
-            if (freeItems == null) {
-                freeItems = new LinkedBlockingQueue<WorkItem>();
-                for (int i = 0; i < numCpus; i++) {
-                    freeItems.add(new WorkItem(width, height));
-                }
-            }
+            this.currentWorker = getWorker(width, height);
         }
 
         @Override
@@ -276,10 +333,9 @@ public class VideoRecorderAppState extends AbstractAppState {
                 return;
             }
             
-            // Mark that reshape is pending and store new dimensions
-            this.newWidth = w;
-            this.newHeight = h;
-            this.reshapePending = true;
+            this.width = w;
+            this.height = h;
+            this.currentWorker = getWorker(w, h);
         }
 
         @Override
@@ -289,44 +345,20 @@ public class VideoRecorderAppState extends AbstractAppState {
 
         @Override
         public void preFrame(float tpf) {
-            // Handle pending reshape if all work items are available
-            if (reshapePending && freeItems != null && freeItems.size() >= numCpus) {
-                // All work items are free, safe to reshape
-                this.width = newWidth;
-                this.height = newHeight;
-                this.reshapePending = false;
-                
-                // Close the current writer and generate new filename for resized video
-                if (writer != null) {
-                    try {
-                        writer.finishAVI();
-                        Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.INFO, 
-                            "Window resized from {0}x{1} to {2}x{3}. Previous recording saved to: {4}", 
-                            new Object[]{writer.width, writer.height, width, height, file.getAbsolutePath()});
-                    } catch (Exception ex) {
-                        Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video on reshape", ex);
-                    }
-                    writer = null;
-                    
-                    // Generate a new filename for the resized video
-                    String originalPath = file.getAbsolutePath();
-                    int dotIndex = originalPath.lastIndexOf('.');
-                    String basePath = dotIndex > 0 ? originalPath.substring(0, dotIndex) : originalPath;
-                    String extension = dotIndex > 0 ? originalPath.substring(dotIndex) : ".avi";
-                    file = new File(basePath + "-" + (System.currentTimeMillis() / 1000) + extension);
+            // Evict old workers that are fully drained
+            workers.entrySet().removeIf(entry -> {
+                ResolutionWorker worker = entry.getValue();
+                if (worker != currentWorker && worker.isFullyDrained()) {
+                    worker.closeWriter();
+                    return true;
                 }
-                
-                // Recreate work items with new dimensions
-                freeItems.clear();
-                usedItems.clear();
-                for (int i = 0; i < numCpus; i++) {
-                    freeItems.add(new WorkItem(width, height));
-                }
-            }
+                return false;
+            });
             
-            if (null == writer) {
+            // Ensure current worker has a writer
+            if (currentWorker != null && currentWorker.writer == null) {
                 try {
-                    writer = new MjpegFileWriter(file, width, height, framerate);
+                    currentWorker.writer = new MjpegFileWriter(currentWorker.file, currentWorker.width, currentWorker.height, framerate);
                 } catch (Exception ex) {
                     Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error creating file writer: {0}", ex);
                 }
@@ -344,15 +376,18 @@ public class VideoRecorderAppState extends AbstractAppState {
 
         @Override
         public void cleanup() {
-            try {
-                while (freeItems.size() < numCpus) {
-                    Thread.sleep(10);
+            // Close all workers
+            for (ResolutionWorker worker : workers.values()) {
+                try {
+                    while (!worker.isFullyDrained()) {
+                        Thread.sleep(10);
+                    }
+                    worker.closeWriter();
+                } catch (Exception ex) {
+                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video: {0}", ex);
                 }
-                writer.finishAVI();
-            } catch (Exception ex) {
-                Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video: {0}", ex);
             }
-            writer = null;
+            workers.clear();
         }
 
         @Override
