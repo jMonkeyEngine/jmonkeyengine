@@ -120,11 +120,11 @@ public abstract class  BufferLayout {
      * @param pos
      *            the position to align
      * @param basicAlignment
-     *            the basic alignment
+     *            the basic alignment (must be a power of two)
      * @return the aligned position
      */
     public int align(int pos, int basicAlignment) {
-        return pos==0?pos:FastMath.toMultipleOf(pos, basicAlignment);
+        return pos==0?pos:FastMath.alignToPowerOfTwo(pos, basicAlignment);
     }
 
     /**
