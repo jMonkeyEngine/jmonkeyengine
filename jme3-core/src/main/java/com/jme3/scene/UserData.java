@@ -76,6 +76,10 @@ public final class UserData implements Savable {
 
     protected byte             type;
     protected Object           value;
+    
+    // Unique identifier for this UserData instance to prevent field name collisions
+    // when multiple UserData objects with lists/maps/arrays are serialized together
+    private transient String   uniqueId;
 
     public UserData() {
     }
@@ -139,9 +143,13 @@ public final class UserData implements Savable {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(type, "type", (byte) 0);
         
-        // Use a unique prefix for list/map/array field names to avoid collisions
-        // when multiple UserData objects are serialized in the same binary file
-        String uniquePrefix = String.valueOf(System.identityHashCode(this));
+        // Generate a unique ID for this instance to prevent field name collisions
+        // when multiple UserData objects with lists/maps/arrays are serialized together.
+        // Store it so it can be read back during deserialization.
+        if (uniqueId == null) {
+            uniqueId = String.valueOf(System.nanoTime());
+        }
+        oc.write(uniqueId, "uniqueId", null);
         
         switch (type) {
             case TYPE_INTEGER:
@@ -169,15 +177,15 @@ public final class UserData implements Savable {
                 oc.write(sav, "savableVal", null);
                 break;
             case TYPE_LIST:
-                this.writeList(oc, (List<?>) value, uniquePrefix + ":0");
+                this.writeList(oc, (List<?>) value, uniqueId + ":0");
                 break;
             case TYPE_MAP:
                 Map<?, ?> map = (Map<?, ?>) value;
-                this.writeList(oc, map.keySet(), uniquePrefix + ":0");
-                this.writeList(oc, map.values(), uniquePrefix + ":1");
+                this.writeList(oc, map.keySet(), uniqueId + ":0");
+                this.writeList(oc, map.values(), uniqueId + ":1");
                 break;
             case TYPE_ARRAY:
-                this.writeList(oc, Arrays.asList((Object[]) value), uniquePrefix + ":0");
+                this.writeList(oc, Arrays.asList((Object[]) value), uniqueId + ":0");
                 break;
             case TYPE_DOUBLE:
                 Double d = (Double) value;
@@ -201,9 +209,14 @@ public final class UserData implements Savable {
         InputCapsule ic = im.getCapsule(this);
         type = ic.readByte("type", (byte) 0);
         
-        // Use a unique prefix for list/map/array field names to avoid collisions
-        // when multiple UserData objects are deserialized from the same binary file
-        String uniquePrefix = String.valueOf(System.identityHashCode(this));
+        // Read the unique ID that was written during serialization
+        uniqueId = ic.readString("uniqueId", null);
+        
+        // For backwards compatibility with old files that don't have uniqueId,
+        // use a default prefix
+        if (uniqueId == null) {
+            uniqueId = "0";
+        }
         
         switch (type) {
             case TYPE_INTEGER:
@@ -225,19 +238,19 @@ public final class UserData implements Savable {
                 value = ic.readSavable("savableVal", null);
                 break;
             case TYPE_LIST:
-                value = this.readList(ic, uniquePrefix + ":0");
+                value = this.readList(ic, uniqueId + ":0");
                 break;
             case TYPE_MAP:
                 Map<Object, Object> map = new HashMap<>();
-                List<?> keys = this.readList(ic, uniquePrefix + ":0");
-                List<?> values = this.readList(ic, uniquePrefix + ":1");
+                List<?> keys = this.readList(ic, uniqueId + ":0");
+                List<?> values = this.readList(ic, uniqueId + ":1");
                 for (int i = 0; i < keys.size(); ++i) {
                     map.put(keys.get(i), values.get(i));
                 }
                 value = map;
                 break;
             case TYPE_ARRAY:
-                value = this.readList(ic, uniquePrefix + ":0").toArray();
+                value = this.readList(ic, uniqueId + ":0").toArray();
                 break;
             case TYPE_DOUBLE:
                 value = ic.readDouble("doubleVal", 0.);
