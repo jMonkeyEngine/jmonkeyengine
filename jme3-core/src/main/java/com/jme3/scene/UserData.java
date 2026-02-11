@@ -139,6 +139,10 @@ public final class UserData implements Savable {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(type, "type", (byte) 0);
         
+        // Use a unique prefix for list/map/array field names to avoid collisions
+        // when multiple UserData objects are serialized in the same binary file
+        String uniquePrefix = String.valueOf(System.identityHashCode(this));
+        
         switch (type) {
             case TYPE_INTEGER:
                 int i = (Integer) value;
@@ -165,15 +169,15 @@ public final class UserData implements Savable {
                 oc.write(sav, "savableVal", null);
                 break;
             case TYPE_LIST:
-                this.writeList(oc, (List<?>) value, "0");
+                this.writeList(oc, (List<?>) value, uniquePrefix + ":0");
                 break;
             case TYPE_MAP:
                 Map<?, ?> map = (Map<?, ?>) value;
-                this.writeList(oc, map.keySet(), "0");
-                this.writeList(oc, map.values(), "1");
+                this.writeList(oc, map.keySet(), uniquePrefix + ":0");
+                this.writeList(oc, map.values(), uniquePrefix + ":1");
                 break;
             case TYPE_ARRAY:
-                this.writeList(oc, Arrays.asList((Object[]) value), "0");
+                this.writeList(oc, Arrays.asList((Object[]) value), uniquePrefix + ":0");
                 break;
             case TYPE_DOUBLE:
                 Double d = (Double) value;
@@ -196,6 +200,11 @@ public final class UserData implements Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         type = ic.readByte("type", (byte) 0);
+        
+        // Use a unique prefix for list/map/array field names to avoid collisions
+        // when multiple UserData objects are deserialized from the same binary file
+        String uniquePrefix = String.valueOf(System.identityHashCode(this));
+        
         switch (type) {
             case TYPE_INTEGER:
                 value = ic.readInt("intVal", 0);
@@ -216,19 +225,19 @@ public final class UserData implements Savable {
                 value = ic.readSavable("savableVal", null);
                 break;
             case TYPE_LIST:
-                value = this.readList(ic, "0");
+                value = this.readList(ic, uniquePrefix + ":0");
                 break;
             case TYPE_MAP:
                 Map<Object, Object> map = new HashMap<>();
-                List<?> keys = this.readList(ic, "0");
-                List<?> values = this.readList(ic, "1");
+                List<?> keys = this.readList(ic, uniquePrefix + ":0");
+                List<?> values = this.readList(ic, uniquePrefix + ":1");
                 for (int i = 0; i < keys.size(); ++i) {
                     map.put(keys.get(i), values.get(i));
                 }
                 value = map;
                 break;
             case TYPE_ARRAY:
-                value = this.readList(ic, "0").toArray();
+                value = this.readList(ic, uniquePrefix + ":0").toArray();
                 break;
             case TYPE_DOUBLE:
                 value = ic.readDouble("doubleVal", 0.);
