@@ -291,10 +291,17 @@ public class VideoRecorderAppState extends AbstractAppState {
             this.width = w;
             this.height = h;
             
-            // Wait for all work items to finish processing
+            // Wait for all work items to finish processing with timeout
             if (freeItems != null) {
                 try {
+                    long startTime = System.currentTimeMillis();
+                    long timeout = 5000; // 5 second timeout
                     while (freeItems.size() < numCpus) {
+                        if (System.currentTimeMillis() - startTime > timeout) {
+                            Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.WARNING, 
+                                "Timeout waiting for work items to complete during reshape. Some frames may be lost.");
+                            break;
+                        }
                         Thread.sleep(10);
                     }
                 } catch (InterruptedException ex) {
@@ -319,7 +326,7 @@ public class VideoRecorderAppState extends AbstractAppState {
                 int dotIndex = originalPath.lastIndexOf('.');
                 String basePath = dotIndex > 0 ? originalPath.substring(0, dotIndex) : originalPath;
                 String extension = dotIndex > 0 ? originalPath.substring(dotIndex) : ".avi";
-                file = new File(basePath + "-" + System.currentTimeMillis() / 1000 + extension);
+                file = new File(basePath + "-" + (System.currentTimeMillis() / 1000) + extension);
             }
             
             // Recreate work items with new dimensions
