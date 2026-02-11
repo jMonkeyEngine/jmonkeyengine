@@ -232,9 +232,12 @@ public class VideoRecorderAppState extends AbstractAppState {
         private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<>();
         private MjpegFileWriter writer;
         private boolean fastMode = true;
+        private boolean reshapePending = false;
+        private int newWidth;
+        private int newHeight;
 
         public void addImage(Renderer renderer, FrameBuffer out) {
-            if (freeItems == null) {
+            if (freeItems == null || reshapePending) {
                 return;
             }
             try {
@@ -288,53 +291,10 @@ public class VideoRecorderAppState extends AbstractAppState {
                 return;
             }
             
-            this.width = w;
-            this.height = h;
-            
-            // Wait for all work items to finish processing with timeout
-            if (freeItems != null) {
-                try {
-                    long startTime = System.currentTimeMillis();
-                    long timeout = 5000; // 5 second timeout
-                    while (freeItems.size() < numCpus) {
-                        if (System.currentTimeMillis() - startTime > timeout) {
-                            Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.WARNING, 
-                                "Timeout waiting for work items to complete during reshape. Some frames may be lost.");
-                            break;
-                        }
-                        Thread.sleep(10);
-                    }
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            
-            // Close the current writer and generate new filename for resized video
-            if (writer != null) {
-                try {
-                    writer.finishAVI();
-                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.INFO, 
-                        "Window resized from {0}x{1} to {2}x{3}. Previous recording saved to: {4}", 
-                        new Object[]{writer.width, writer.height, w, h, file.getAbsolutePath()});
-                } catch (Exception ex) {
-                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video on reshape", ex);
-                }
-                writer = null;
-                
-                // Generate a new filename for the resized video
-                String originalPath = file.getAbsolutePath();
-                int dotIndex = originalPath.lastIndexOf('.');
-                String basePath = dotIndex > 0 ? originalPath.substring(0, dotIndex) : originalPath;
-                String extension = dotIndex > 0 ? originalPath.substring(dotIndex) : ".avi";
-                file = new File(basePath + "-" + (System.currentTimeMillis() / 1000) + extension);
-            }
-            
-            // Recreate work items with new dimensions
-            freeItems.clear();
-            usedItems.clear();
-            for (int i = 0; i < numCpus; i++) {
-                freeItems.add(new WorkItem(w, h));
-            }
+            // Mark that reshape is pending and store new dimensions
+            this.newWidth = w;
+            this.newHeight = h;
+            this.reshapePending = true;
         }
 
         @Override
@@ -344,6 +304,41 @@ public class VideoRecorderAppState extends AbstractAppState {
 
         @Override
         public void preFrame(float tpf) {
+            // Handle pending reshape if all work items are available
+            if (reshapePending && freeItems != null && freeItems.size() >= numCpus) {
+                // All work items are free, safe to reshape
+                this.width = newWidth;
+                this.height = newHeight;
+                this.reshapePending = false;
+                
+                // Close the current writer and generate new filename for resized video
+                if (writer != null) {
+                    try {
+                        writer.finishAVI();
+                        Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.INFO, 
+                            "Window resized from {0}x{1} to {2}x{3}. Previous recording saved to: {4}", 
+                            new Object[]{writer.width, writer.height, width, height, file.getAbsolutePath()});
+                    } catch (Exception ex) {
+                        Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video on reshape", ex);
+                    }
+                    writer = null;
+                    
+                    // Generate a new filename for the resized video
+                    String originalPath = file.getAbsolutePath();
+                    int dotIndex = originalPath.lastIndexOf('.');
+                    String basePath = dotIndex > 0 ? originalPath.substring(0, dotIndex) : originalPath;
+                    String extension = dotIndex > 0 ? originalPath.substring(dotIndex) : ".avi";
+                    file = new File(basePath + "-" + (System.currentTimeMillis() / 1000) + extension);
+                }
+                
+                // Recreate work items with new dimensions
+                freeItems.clear();
+                usedItems.clear();
+                for (int i = 0; i < numCpus; i++) {
+                    freeItems.add(new WorkItem(width, height));
+                }
+            }
+            
             if (null == writer) {
                 try {
                     writer = new MjpegFileWriter(file, width, height, framerate);
