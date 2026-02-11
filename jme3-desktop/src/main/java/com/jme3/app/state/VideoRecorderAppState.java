@@ -302,7 +302,7 @@ public class VideoRecorderAppState extends AbstractAppState {
                         "Window resized from {0}x{1} to {2}x{3}. Previous recording saved to: {4}", 
                         new Object[]{writer.width, writer.height, w, h, file.getAbsolutePath()});
                 } catch (Exception ex) {
-                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video on reshape: {0}", ex);
+                    Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video on reshape", ex);
                 }
                 writer = null;
                 
