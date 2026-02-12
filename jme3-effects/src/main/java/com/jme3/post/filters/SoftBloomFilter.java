@@ -173,7 +173,17 @@ public class SoftBloomFilter extends Filter {
         material.setFloat("GlowFactor", glowFactor);
         
         initialized = true;
-        
+    }
+
+    @Override
+    protected void cleanUpFilter(Renderer r) {
+        for (Pass p : downSamplingPasses) {
+            p.cleanup(r);
+        }
+        for (Pass p : upSamplingPasses) {
+            p.cleanup(r);
+        }
+        initialized = false;
     }
     
     @Override
