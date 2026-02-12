@@ -101,6 +101,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.texture.Texture;
@@ -589,17 +590,31 @@ public class GltfLoader implements AssetLoader {
             // the mesh has some skinning, let's create needed buffers for HW skinning
             // creating empty buffers for HW skinning
             // the buffers will be set up if ever used.
-            VertexBuffer weightsHW = new VertexBuffer(VertexBuffer.Type.HWBoneWeight);
-            VertexBuffer indicesHW = new VertexBuffer(VertexBuffer.Type.HWBoneIndex);
             // setting usage to cpuOnly so that the buffer is not sent empty to the GPU
-            indicesHW.setUsage(VertexBuffer.Usage.CpuOnly);
-            weightsHW.setUsage(VertexBuffer.Usage.CpuOnly);
-            mesh.clearBuffer(weightsHW.getBufferType());
-            mesh.setBuffer(weightsHW);
-            mesh.clearBuffer(indicesHW.getBufferType());
-            mesh.setBuffer(indicesHW);
+            ensureBuffer(mesh, VertexBuffer.Type.HWBoneIndex, VertexBuffer.Usage.CpuOnly);
+            ensureBuffer(mesh, VertexBuffer.Type.HWBoneWeight, VertexBuffer.Usage.CpuOnly);
             mesh.generateBindPose();
         }
+    }
+
+    /**
+     * Ensure that the given mesh has a buffer with the given type.
+     * 
+     * If it does not yet have a buffer with the given type, then
+     * a new buffer with the given type and usage is created and
+     * assigned to the mesh.
+     * 
+     * @param mesh The mesh
+     * @param type The type
+     * @param usage The usage
+     */
+    private static void ensureBuffer(Mesh mesh, VertexBuffer.Type type, Usage usage) {
+        if (mesh.getBuffer(type) != null) {
+            return;
+        }
+        VertexBuffer vb = new VertexBuffer(type);
+        vb.setUsage(usage);
+        mesh.setBuffer(vb);
     }
 
     private <R> R readAccessorData(int accessorIndex, Populator<R> populator) throws IOException {
