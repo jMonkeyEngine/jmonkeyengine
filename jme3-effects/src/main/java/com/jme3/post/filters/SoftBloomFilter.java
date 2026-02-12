@@ -177,10 +177,10 @@ public class SoftBloomFilter extends Filter {
 
     @Override
     protected void cleanUpFilter(Renderer r) {
-        for (Pass p : downSamplingPasses) {
+        for (Pass p : downsamplingPasses) {
             p.cleanup(r);
         }
-        for (Pass p : upSamplingPasses) {
+        for (Pass p : upsamplingPasses) {
             p.cleanup(r);
         }
         initialized = false;
