@@ -200,6 +200,15 @@ public class CommandBuffer {
         completionListeners.clear();
     }
 
+    public <T extends CommandSetting> T addSetting(T setting) {
+        // add setting
+        return setting;
+    }
+
+    public void applySettings() {
+        // apply settings
+    }
+
     /**
      * Registers a semaphore to be signaled when the command buffer finishes
      * execution. All registered signal semaphores are removed when this

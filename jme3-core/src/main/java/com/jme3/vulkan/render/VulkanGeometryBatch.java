@@ -15,6 +15,7 @@ import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.pipeline.VertexPipeline;
 
 import java.util.Comparator;
+import java.util.function.Consumer;
 
 public abstract class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBatch.Element> {
 
@@ -23,41 +24,6 @@ public abstract class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBa
     public VulkanGeometryBatch(Comparator<? super Element> comparator, DescriptorPool pool) {
         super(comparator);
         this.pool = pool;
-    }
-
-    public void render(CommandBuffer cmd, CommandSetting... settings) {
-        if (queue.isEmpty()) {
-            return;
-        }
-        for (CommandSetting s : settings) {
-            s.apply(cmd);
-        }
-        VertexPipeline currentPipeline = null;
-        VulkanMaterial currentMaterial = null;
-        for (Element e : queue) {
-
-            // bind pipeline if necessary
-            if (e.getPipeline() != currentPipeline) {
-                (currentPipeline = e.getPipeline()).bind(cmd);
-                currentMaterial = null;
-            }
-
-            // bind material if necessary
-            if (e.getMaterial() != currentMaterial) {
-                (currentMaterial = e.getMaterial()).bind(cmd, currentPipeline, pool);
-            }
-
-            // render
-            renderElement(cmd, e);
-        }
-    }
-
-    public void render(CommandBuffer cmd) {
-        render(cmd, null);
-    }
-
-    protected void renderElement(CommandBuffer cmd, Element e) {
-        e.getMesh().render(cmd, e.getPipeline());
     }
 
     @Override

@@ -322,9 +322,25 @@ public class StructLayout {
         }
     }
 
+    public void updateBuffer(Struct src, BufferMapping dst, String... fieldNames) {
+        updateBuffer(src, dst, false, fieldNames);
+    }
+
+    public void updateBuffer(Struct src, BufferMapping dst, boolean force, String... fieldNames) {
+        try {
+            int p = dst.getBytes().position();
+            getFieldDescription(src.getClass()).write(this, dst, src, force, fieldNames);
+            dst.getBytes().position(p);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to update buffer.", e);
+        }
+    }
+
     public void updateStruct(ByteBuffer src, Struct dst) {
         try {
+            int p = src.position();
             getFieldDescription(dst.getClass()).read(this, src, dst);
+            src.position(p);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Failed to update struct.", e);
         }
@@ -388,6 +404,10 @@ public class StructLayout {
 
         T read(StructLayout layout, ByteBuffer buffer, T value) throws IllegalAccessException;
 
+        default void write(StructLayout layout, BufferMapping mapping, T value, boolean force, String... fieldNames) throws IllegalAccessException {
+            write(layout, mapping, value, force);
+        }
+
     }
 
     public static class StructDesc implements FieldDesc<Struct> {
@@ -413,6 +433,18 @@ public class StructLayout {
             alignBuffer(mapping.getBytes(), info.getAlignment());
             for (Field f : info.getFields()) {
                 layout.getFieldDescription(f.getType()).write(layout, mapping, f.get(value), force);
+            }
+            alignBuffer(mapping.getBytes(), info.getAlignment());
+        }
+
+        @Override
+        public void write(StructLayout layout, BufferMapping mapping, Struct value, boolean force, String... fieldNames) throws IllegalAccessException {
+            StructInfo info = layout.getStructInfo(value.getClass());
+            alignBuffer(mapping.getBytes(), info.getAlignment());
+            for (Field f : info.getFields()) {
+                if (Arrays.stream(fieldNames).anyMatch(n -> n.equals(f.getName()))) {
+                    layout.getFieldDescription(f.getType()).write(layout, mapping, f.get(value), force);
+                }
             }
             alignBuffer(mapping.getBytes(), info.getAlignment());
         }

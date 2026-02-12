@@ -6,6 +6,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
+import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.material.plugins.VulkanMaterialLoader;
 import com.jme3.math.ColorRGBA;
@@ -53,15 +54,14 @@ import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.material.NewMaterialDef;
 import com.jme3.vulkan.material.VulkanMaterial;
 import com.jme3.vulkan.material.shader.ShaderModule;
+import com.jme3.vulkan.material.technique.NewTechnique;
+import com.jme3.vulkan.material.technique.VulkanTechnique;
 import com.jme3.vulkan.material.uniforms.TextureUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
 import com.jme3.vulkan.material.uniforms.StructUniform;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.mesh.AdaptiveMesh;
-import com.jme3.vulkan.mesh.AdaptiveVertexBinding;
-import com.jme3.vulkan.mesh.InputRate;
-import com.jme3.vulkan.mesh.MeshLayout;
+import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.mesh.attribute.*;
 import com.jme3.vulkan.pass.Attachment;
 import com.jme3.vulkan.pass.RenderPass;
@@ -71,6 +71,7 @@ import com.jme3.vulkan.pipeline.cache.Cache;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 import com.jme3.vulkan.pipeline.framebuffer.OutputFrameBuffer;
 import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
+import com.jme3.vulkan.render.AbstractBatchElement;
 import com.jme3.vulkan.render.GeometryBatch;
 import com.jme3.vulkan.render.RenderEngine;
 import com.jme3.vulkan.render.VulkanGeometryBatch;
@@ -172,7 +173,11 @@ public class SimpleVulkanEngine implements RenderEngine {
     private OutputFrameBuffer outFrameBuffer;
     private final BufferGenerator<VulkanBuffer> bufferGen = new BufferGeneratorImpl();
 
-    private VulkanGeometryBatch opaque, sky, transparent, gui, translucent;
+    private final GeometryBatch<Element> opaque = new GeometryBatch<>(new OpaqueComparator());
+    private final GeometryBatch<Element> sky = new GeometryBatch<>(new OpaqueComparator());
+    private final GeometryBatch<Element> transparent = new GeometryBatch<>(new TransparentComparator());
+    private final GeometryBatch<Element> gui = new GeometryBatch<>(new GuiComparator());
+    private final GeometryBatch<Element> translucent = new GeometryBatch<>(new TransparentComparator());
 
     private final Cache<Pipeline> pipelineCache = new Cache<>();
     private final Cache<PipelineLayout> pipelineLayoutCache = new Cache<>();
@@ -270,13 +275,7 @@ public class SimpleVulkanEngine implements RenderEngine {
             }));
         });
 
-        opaque = new EngineGeometryBatch(new OpaqueComparator(), descriptorPool);
-        sky = new EngineGeometryBatch(new OpaqueComparator(), descriptorPool);
-        transparent = new EngineGeometryBatch(new TransparentComparator(), descriptorPool);
-        gui = new EngineGeometryBatch(new GuiComparator(), descriptorPool);
-        translucent = new EngineGeometryBatch(new TransparentComparator(), descriptorPool);
         outFrameBuffer = new OutputFrameBuffer(swapchain, renderPass);
-
         stream = new BufferStream(device, 500);
         for (int i = 0; i < framesInFlight.length; i++) {
             framesInFlight[i] = new Frame();
@@ -417,40 +416,38 @@ public class SimpleVulkanEngine implements RenderEngine {
             for (Spatial scene : vp.getScenes()) for (Spatial.GraphIterator it = scene.iterator(cull, bucket); it.hasNext();) {
                 Spatial child = it.next();
                 child.runControlRender(SimpleVulkanEngine.this, vp);
-                if (cull.peek() != Camera.FrustumIntersect.Outside) {
-                    if (child instanceof Geometry) {
-                        Geometry g = (Geometry) child;
-                        if (vp.getGeometryFilter() == null || vp.getGeometryFilter().test(g)) {
-                            GeometryBatch<?> batch = getBatchByQueueBucket(bucket.peek());
-                            if (batch != null) {
-                                batch.add(g);
-                            }
+                if (cull.peek() == Camera.FrustumIntersect.Outside) {
+                    it.skipChildren();
+                } else if (child instanceof Geometry) {
+                    Geometry g = (Geometry)child;
+                    if (vp.getGeometryFilter() == null || vp.getGeometryFilter().test(g)) {
+                        GeometryBatch<?> batch = getBatchByQueueBucket(bucket.peek());
+                        if (batch != null) {
+                            batch.add(new Element(g, null, ));
                         }
                     }
-                } else {
-                    it.skipChildren();
                 }
             }
 
-            CommandSetting<ViewPortArea> vpArea = CommandSetting.viewPort();
-            CommandSetting<ScissorArea> scissor = CommandSetting.scissor();
+            CommandSetting<ViewPortArea> vpArea = graphics.addSetting(CommandSetting.viewPort());
+            CommandSetting<ScissorArea> scissor = graphics.addSetting(CommandSetting.scissor());
 
             vpArea.push(vp.getArea());
             scissor.push(vp.getArea().toScissor(null));
             {
-                opaque.render(graphics, vpArea, scissor);
+                renderBatch(opaque);
                 vpArea.push(vp.getArea().clone().toMaxDepth());
                 {
-                    sky.render(graphics, vpArea, scissor);
+                    renderBatch(sky);
                 }
                 vpArea.pop();
-                transparent.render(graphics, vpArea, scissor);
+                renderBatch(transparent);
                 vpArea.push(vp.getArea().clone().toMinDepth());
                 {
-                    gui.render(graphics, vpArea, scissor);
+                    renderBatch(gui);
                 }
                 vpArea.pop();
-                translucent.render(graphics, vpArea, scissor);
+                renderBatch(translucent);
             }
             vpArea.pop();
             scissor.pop();
@@ -464,6 +461,39 @@ public class SimpleVulkanEngine implements RenderEngine {
 
         }
 
+        private void renderBatch(GeometryBatch<Element> batch) {
+            if (batch.isEmpty()) {
+                return;
+            }
+            graphics.applySettings();
+            VertexPipeline currentPipeline = null;
+            VulkanMaterial currentMaterial = null;
+            TempVars vars = TempVars.get();
+            for (Element e : batch) {
+                if (e.getPipeline() != currentPipeline) {
+                    (currentPipeline = e.getPipeline()).bind(graphics);
+                    currentMaterial = null;
+                }
+                if (e.getMaterial() != currentMaterial) {
+                    (currentMaterial = e.getMaterial()).bind(graphics, currentPipeline, descriptorPool);
+                }
+                lighting.indices.clear();
+                int lightIndex = 0;
+                for (LightData l : lighting.lights) {
+                    if (l.getLight().intersectsVolume(e.getGeometry().getWorldBound(), vars)) {
+                        lighting.indices.add(lightIndex);
+                    }
+                    lightIndex++;
+                }
+                transforms.viewProjectionMatrix.mult(e.getGeometry().getWorldMatrix(), transforms.worldViewProjectionMatrix);
+                currentMaterial.set("Lighting", lighting);
+                currentMaterial.set("Transforms", transforms);
+                stream.stream(graphics); // this is a problem
+                e.getMesh().render(graphics, e.getPipeline());
+            }
+            vars.release();
+        }
+
         private GeometryBatch<?> getBatchByQueueBucket(RenderQueue.Bucket bucket) {
             switch (bucket) {
                 case Opaque: return opaque;
@@ -475,75 +505,6 @@ public class SimpleVulkanEngine implements RenderEngine {
             }
         }
 
-    }
-
-    private class EngineGeometryBatch extends VulkanGeometryBatch {
-
-        private final RenderState tempState = new RenderState();
-
-        public EngineGeometryBatch(Comparator<? super Element> comparator, DescriptorPool pool) {
-            super(comparator, pool);
-        }
-
-        @Override
-        protected VertexPipeline createPipeline(Element e) {
-            return GraphicsPipeline.build(device, p -> {
-                p.setCache(pipelineCache);
-                p.setLayoutCache(pipelineLayoutCache);
-                p.setShaderCache(shaderCache);
-                p.setSetLayoutCache(descSetLayoutCache);
-                p.setSubpass(renderPass.getSubpass(0));
-                p.setDynamic(DynamicState.ViewPort, true);
-                p.setDynamic(DynamicState.Scissor, true);
-                p.setDepthClamp(true);
-                p.applyGeometry(app.getAssetManager(), e.getMesh(), e.getMaterial(), e.getTechnique());
-                p.applyRenderState(tempState.integrateGeometryStates(e.getGeometry(), forcedRenderState,
-                        e.getMaterial().getAdditionalRenderState(), e.getTechnique().getRenderState()));
-            });
-        }
-
-        @Override
-        public void render(CommandBuffer cmd, Runnable onRender) {
-            if (onRender != null && !queue.isEmpty()) {
-                onRender.run();
-            }
-            transforms.viewProjectionMatrix.set(camera.getViewProjectionMatrix());
-            VertexPipeline currentPipeline = null;
-            VulkanMaterial currentMaterial = null;
-            TempVars vars = TempVars.get();
-            for (Element e : queue) {
-
-                // bind pipeline if necessary
-                if (e.getPipeline() != currentPipeline) {
-                    (currentPipeline = e.getPipeline()).bind(cmd);
-                    currentMaterial = null;
-                }
-
-                // bind material if necessary
-                if (e.getMaterial() != currentMaterial) {
-                    (currentMaterial = e.getMaterial()).bind(cmd, currentPipeline, descriptorPool);
-                }
-
-                // find light indices
-                lighting.indices.clear();
-                int lightIndex = 0;
-                for (LightData l : lighting.lights) {
-                    if (l.getLight().intersectsVolume(e.getGeometry().getWorldBound(), vars)) {
-                        lighting.indices.add(lightIndex);
-                    }
-                    lightIndex++;
-                }
-
-                transforms.viewProjectionMatrix.mult(e.getGeometry().getWorldMatrix(), transforms.worldViewProjectionMatrix);
-                currentMaterial.set("Lighting", lighting);
-                currentMaterial.set("Transforms", transforms);
-                stream.stream(cmd);
-
-                // render
-                e.getMesh().render(cmd, currentPipeline);
-            }
-            vars.release();
-        }
     }
 
     private class SwapchainUpdater implements Consumer<Swapchain> {
@@ -580,6 +541,77 @@ public class SimpleVulkanEngine implements RenderEngine {
                 case CpuOnly: throw new IllegalArgumentException("Cannot create cpu-only buffer for Vulkan.");
                 default: throw new UnsupportedOperationException("Unrecognized: " + dataUsage);
             }
+        }
+
+    }
+
+    private class Element extends AbstractBatchElement {
+
+        private final VulkanTechnique technique;
+        private final VulkanMaterial material;
+        private final VulkanMesh mesh;
+        private final VertexPipeline pipeline;
+
+        private Element(Geometry geometry, RenderState forcedRenderState,
+                        Material forcedMaterial, String forcedTechnique, Mesh forcedMesh) {
+            super(geometry);
+            Material mat = forcedMaterial != null ? forcedMaterial : geometry.getMaterial();
+            if (!(mat instanceof NewMaterial)) {
+                throw new ClassCastException("Cannot render " + mat.getClass() + " in a Vulkan context.");
+            }
+            this.material = (VulkanMaterial)mat;
+            this.technique = material.getTechnique(forcedTechnique != null ? forcedTechnique : "main");
+            Mesh mesh = forcedMesh != null ? forcedMesh : geometry.getMesh();
+            if (!(mesh instanceof VulkanMesh)) {
+                throw new ClassCastException("Cannot render " + mesh.getClass() + " in a Vulkan context.");
+            }
+            this.mesh = (VulkanMesh)mesh;
+            this.pipeline = GraphicsPipeline.build(device, p -> {
+                p.setCache(pipelineCache);
+                p.setLayoutCache(pipelineLayoutCache);
+                p.setShaderCache(shaderCache);
+                p.setSetLayoutCache(descSetLayoutCache);
+                p.setSubpass(renderPass.getSubpass(0));
+                p.setDynamic(DynamicState.ViewPort, true);
+                p.setDynamic(DynamicState.Scissor, true);
+                p.setDepthClamp(true);
+                p.applyGeometry(app.getAssetManager(), this.mesh, this.material, this.technique);
+                p.applyRenderState(new RenderState().integrateGeometryStates(geometry, forcedRenderState,
+                        this.material.getAdditionalRenderState(), this.technique.getRenderState()));
+            });
+        }
+
+        @Override
+        public Camera getCamera() {
+            return VulkanGeometryBatch.this.getCamera();
+        }
+
+        @Override
+        public VulkanMaterial getMaterial() {
+            return material;
+        }
+
+        @Override
+        public VulkanMesh getMesh() {
+            return mesh;
+        }
+
+        @Override
+        public long getPipelineSortId() {
+            return pipeline.getSortId();
+        }
+
+        @Override
+        public long getMaterialSortId() {
+            return 0;
+        }
+
+        public VulkanTechnique getTechnique() {
+            return technique;
+        }
+
+        public VertexPipeline getPipeline() {
+            return pipeline;
         }
 
     }

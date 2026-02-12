@@ -3,7 +3,6 @@ package com.jme3.vulkan.render;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 
 import java.util.Comparator;
@@ -11,7 +10,7 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.PriorityQueue;
 
-public abstract class GeometryBatch <T extends BatchElement> implements Iterable<T> {
+public class GeometryBatch <T extends BatchElement> implements Iterable<T> {
 
     protected final PriorityQueue<T> queue;
     protected Camera camera;
@@ -24,7 +23,9 @@ public abstract class GeometryBatch <T extends BatchElement> implements Iterable
         this.queue = new PriorityQueue<>(comparator);
     }
 
-    public abstract boolean add(Geometry geometry);
+    public void add(T element) {
+        queue.add(element);
+    }
 
     public void clear() {
         queue.clear();
