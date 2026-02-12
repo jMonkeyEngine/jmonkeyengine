@@ -46,6 +46,7 @@ import com.jme3.export.Savable;
  * @author Riccardo Balbo
  *
  */
+@Deprecated
 public class BufferRegion implements Savable, Cloneable {
     protected int start = -1;
     protected int end = -1;

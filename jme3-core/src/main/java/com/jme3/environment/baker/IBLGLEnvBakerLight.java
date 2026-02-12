@@ -34,6 +34,7 @@ package com.jme3.environment.baker;
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 import com.jme3.asset.AssetManager;
+import com.jme3.backend.Engine;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
@@ -83,8 +84,8 @@ public class IBLGLEnvBakerLight extends IBLHybridEnvBakerLight {
      * @param specular_size
      *            The size in pixels of the output specular cube map (eg. 1024)
      */
-    public IBLGLEnvBakerLight(RenderManager rm, AssetManager am, Format format, Format depthFormat, int env_size, int specular_size) {
-        super(rm, am, format, depthFormat, env_size, specular_size);
+    public IBLGLEnvBakerLight(Engine engine, AssetManager am, Format format, Format depthFormat, int env_size, int specular_size) {
+        super(engine, am, format, depthFormat, env_size, specular_size);
     }
 
     @Override

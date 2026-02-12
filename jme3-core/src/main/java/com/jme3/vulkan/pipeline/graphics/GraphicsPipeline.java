@@ -2,22 +2,26 @@ package com.jme3.vulkan.pipeline.graphics;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.RenderState;
+import com.jme3.renderer.ScissorArea;
+import com.jme3.renderer.ViewPortArea;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.util.natives.CacheableNativeBuilder;
-import com.jme3.util.natives.Native;
+import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.commands.CommandBuffer;
+import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.material.VulkanTechnique;
 import com.jme3.vulkan.material.VulkanMaterial;
+import com.jme3.vulkan.material.shader.ShaderModule;
+import com.jme3.vulkan.material.technique.VulkanTechnique;
 import com.jme3.vulkan.mesh.MeshLayout;
 import com.jme3.vulkan.mesh.VulkanMesh;
 import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pipeline.*;
 import com.jme3.vulkan.pipeline.cache.Cache;
-import com.jme3.vulkan.shader.ShaderModule;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
-import com.jme3.vulkan.util.RenderStateToVulkan;
+import com.jme3.vulkan.util.VulkanEnums;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -26,7 +30,6 @@ import java.nio.LongBuffer;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPipeline {
@@ -73,8 +76,8 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
     private IntEnum<LogicOp> blendLogic = LogicOp.Copy;
 
     // viewport
-    private final List<ViewportInfo> viewports = new ArrayList<>();
-    private final List<ScissorInfo> scissors = new ArrayList<>();
+    private final List<ViewPortArea> viewports = new ArrayList<>();
+    private final List<ScissorArea> scissors = new ArrayList<>();
 
     // dynamic
     private final Set<Integer> dynamicStates = new HashSet<>();
@@ -256,11 +259,11 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
         return blendLogic;
     }
 
-    public List<ViewportInfo> getViewports() {
+    public List<ViewPortArea> getViewports() {
         return Collections.unmodifiableList(viewports);
     }
 
-    public List<ScissorInfo> getScissors() {
+    public List<ScissorArea> getScissors() {
         return Collections.unmodifiableList(scissors);
     }
 
@@ -268,6 +271,7 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
         return Collections.unmodifiableSet(dynamicStates);
     }
 
+    @Override
     public boolean isDynamic(IntEnum<DynamicState> state) {
         return dynamicStates.contains(state.getEnum());
     }
@@ -295,12 +299,16 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
 
     public class Builder extends CacheableNativeBuilder<Pipeline, GraphicsPipeline> {
 
+        private Cache<PipelineLayout> layoutCache;
+        private Cache<ShaderModule> shaderCache;
+        private Cache<DescriptorSetLayout> setCache;
+
         @Override
         public GraphicsPipeline build() {
             Objects.requireNonNull(layout, "Pipeline layout not specified.");
             Objects.requireNonNull(mesh, "Mesh layout not specified.");
-            if (viewports.isEmpty()) setNextViewPort();
-            if (scissors.isEmpty()) setNextScissor();
+            if (viewports.isEmpty()) setNextViewPort(new ViewPortArea());
+            if (scissors.isEmpty()) setNextScissor(new ScissorArea());
             return super.build();
         }
 
@@ -310,8 +318,8 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             LongBuffer id = stack.mallocLong(1);
             vkCreateGraphicsPipelines(device.getNativeObject(), VK_NULL_HANDLE, create, null, id);
             object = id.get(0);
-            ref = Native.get().register(GraphicsPipeline.this);
-            device.getNativeReference().addDependent(ref);
+            ref = DisposableManager.reference(GraphicsPipeline.this);
+            device.getReference().addDependent(ref);
         }
 
         @Override
@@ -359,8 +367,8 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
         protected VkPipelineVertexInputStateCreateInfo createVertexInput() {
             return VkPipelineVertexInputStateCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
-                    .pVertexBindingDescriptions(mesh.getBindingInfo(stack, GraphicsPipeline.this))
-                    .pVertexAttributeDescriptions(mesh.getAttributeInfo(stack, GraphicsPipeline.this));
+                    .pVertexBindingDescriptions(getBindingInfo(stack, mesh))
+                    .pVertexAttributeDescriptions(getAttributeInfo(stack, mesh));
         }
 
         protected VkPipelineInputAssemblyStateCreateInfo createInputAssembly() {
@@ -417,17 +425,19 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
                     .pAttachments(attBuf);
         }
 
+        @SuppressWarnings("resource")
         protected VkPipelineViewportStateCreateInfo createViewport() {
             VkViewport.Buffer vpBuf = VkViewport.calloc(viewports.size(), stack);
-            for (ViewportInfo v : viewports) {
-                vpBuf.get().x(v.x).y(v.y).width(v.w).height(v.h).minDepth(v.min).maxDepth(v.max);
+            for (ViewPortArea v : viewports) {
+                vpBuf.get().x(v.getX()).y(v.getY()).width(v.getWidth()).height(v.getHeight())
+                        .minDepth(v.getMaxDepth()).maxDepth(v.getMaxDepth());
             }
             vpBuf.flip();
             VkRect2D.Buffer scissorBuf = VkRect2D.calloc(scissors.size(), stack);
-            for (ScissorInfo s : scissors) {
+            for (ScissorArea s : scissors) {
                 VkRect2D e = scissorBuf.get();
-                e.offset().set(s.x, s.y);
-                e.extent().set(s.w, s.h);
+                e.offset().set(s.getX(), s.getY());
+                e.extent().set(s.getWidth(), s.getHeight());
             }
             scissorBuf.flip();
             return VkPipelineViewportStateCreateInfo.calloc(stack)
@@ -447,21 +457,24 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
                     .pDynamicStates(stateBuf);
         }
 
-        public void applyGeometry(AssetManager assetManager, VulkanMesh mesh, VulkanMaterial material, String technique, Cache<ShaderModule> shaderCache) {
-            VulkanTechnique tech = material.getTechnique(technique);
-            setLayout(tech.getLayout());
-            addShaders(tech.getShaders(assetManager, shaderCache, material));
+        public void applyGeometry(AssetManager assetManager, Geometry geometry, String technique) {
+            VulkanMaterial mat = (VulkanMaterial)geometry.getMaterial();
+            applyGeometry(assetManager, (VulkanMesh)geometry.getMesh(), (VulkanMaterial)geometry.getMaterial(), mat.getTechnique(technique));
+        }
+
+        public void applyGeometry(AssetManager assetManager, VulkanMesh mesh, VulkanMaterial material, VulkanTechnique tech) {
+            setLayout(tech.getLayout(device, layoutCache, setCache));
+            addShaders(tech.getShaders(device, assetManager, shaderCache, material));
+            setMeshLayout(mesh.getLayout());
             setTopology(mesh.getTopology());
-            setPolygonMode(mesh.getPolygonMode());
             attributeLocations.putAll(tech.getAttributeLocations());
-            applyRenderState(tech.getRenderState());
         }
 
         public void applyRenderState(RenderState state) {
             addBlendAttachment(new ColorBlendAttachment(state));
             setPolygonMode(state.isWireframe() ? PolygonMode.Line : PolygonMode.Fill);
-            setCullMode(RenderStateToVulkan.faceCull(state.getFaceCullMode()));
-            setDepthCompare(RenderStateToVulkan.depthFunc(state.getDepthFunc()));
+            setCullMode(VulkanEnums.faceCull(state.getFaceCullMode()));
+            setDepthCompare(VulkanEnums.depthFunc(state.getDepthFunc()));
             setStencilTest(state.isStencilTest());
             setLineWidth(state.getLineWidth());
             setDepthTest(state.isDepthTest());
@@ -497,8 +510,16 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             blendAttachments.set(i, attachment);
         }
 
-        public void setShaderCache(Cache<ShaderModule> shaderCache) {
+        public void setLayoutCache(Cache<PipelineLayout> layout) {
+            this.layoutCache = layoutCache;
+        }
 
+        public void setShaderCache(Cache<ShaderModule> shaderCache) {
+            this.shaderCache = shaderCache;
+        }
+
+        public void setSetLayoutCache(Cache<DescriptorSetLayout> setCache) {
+            this.setCache = setCache;
         }
 
         public void setDynamic(IntEnum<DynamicState> state, boolean enable) {
@@ -506,24 +527,12 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             else dynamicStates.remove(state.getEnum());
         }
 
-        public void setNextViewPort(float x, float y, float w, float h, float minDepth, float maxDepth) {
-            viewports.add(new ViewportInfo(x, y, w, h, minDepth, maxDepth));
+        public void setNextViewPort(ViewPortArea vp) {
+            viewports.add(vp);
         }
 
-        public void setNextViewPort(float x, float y, float w, float h) {
-            setNextViewPort(x, y, w, h, 0f, 1f);
-        }
-
-        public void setNextViewPort() {
-            setNextViewPort(0f, 0f, 128f, 128f, 0f, 1f);
-        }
-
-        public void setNextScissor(int x, int y, int w, int h) {
-            scissors.add(new ScissorInfo(x, y, w, h));
-        }
-
-        public void setNextScissor() {
-            setNextScissor(0, 0, 128, 128);
+        public void setNextScissor(ScissorArea scissor) {
+            scissors.add(scissor);
         }
 
         public void setAttributeLocation(String attribute, int location) {
@@ -532,6 +541,10 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
 
         public void setAttributeLocation(GlVertexBuffer.Type attribute, int location) {
             setAttributeLocation(attribute.name(), location);
+        }
+
+        public void setAttributeLocations(Map<String, Integer> locations) {
+            attributeLocations.putAll(locations);
         }
 
         public void setParent(GraphicsPipeline parent) {

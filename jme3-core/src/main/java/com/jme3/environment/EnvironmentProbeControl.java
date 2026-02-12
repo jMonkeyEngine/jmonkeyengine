@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import com.jme3.asset.AssetManager;
+import com.jme3.backend.Engine;
 import com.jme3.environment.baker.IBLGLEnvBakerLight;
 import com.jme3.environment.baker.IBLHybridEnvBakerLight;
 import com.jme3.export.InputCapsule;
@@ -185,11 +186,6 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         }
     }
 
-    @Override
-    public Control cloneForSpatial(Spatial spatial) {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * Requests savable results from the baking process. This will make the
      * baking process slower and more memory intensive but will allow to
@@ -226,11 +222,11 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
     }
 
     @Override
-    public void render(RenderManager rm, ViewPort vp) {
+    public void render(Engine engine, ViewPort vp) {
         if (!isEnabled()) return;
         if (bakeNeeded) {
             bakeNeeded = false;
-            rebakeNow(rm);
+            rebakeNow(engine);
         }
     }
 
@@ -286,8 +282,8 @@ public class EnvironmentProbeControl extends LightProbe implements Control {
         this.assetManager = assetManager;
     }
 
-    void rebakeNow(RenderManager renderManager) {
-        IBLHybridEnvBakerLight baker = new IBLGLEnvBakerLight(renderManager, assetManager, Format.RGB16F,
+    void rebakeNow(Engine engine) {
+        IBLHybridEnvBakerLight baker = new IBLGLEnvBakerLight(engine, assetManager, Format.RGB16F,
                 Format.Depth,
                         envMapSize, envMapSize);
                     

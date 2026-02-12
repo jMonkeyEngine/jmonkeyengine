@@ -1,7 +1,6 @@
 package com.jme3.vulkan.commands;
 
-import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
+import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
@@ -34,7 +33,7 @@ public class CommandPool implements Native<Long> {
     }
 
     private final Queue queue;
-    private final NativeReference ref;
+    private final DisposableReference ref;
     private final Flag<Create> flags;
     private long id;
 
@@ -56,7 +55,7 @@ public class CommandPool implements Native<Long> {
             id = idBuf.get(0);
         }
         ref = Native.get().register(this);
-        queue.getDevice().getNativeReference().addDependent(ref);
+        queue.getDevice().getReference().addDependent(ref);
     }
 
     @Override
@@ -65,19 +64,19 @@ public class CommandPool implements Native<Long> {
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> {
             vkDestroyCommandPool(queue.getDevice().getNativeObject(), id, null);
         };
     }
 
     @Override
-    public void prematureNativeDestruction() {
+    public void prematureDestruction() {
         id = VK_NULL_HANDLE;
     }
 
     @Override
-    public NativeReference getNativeReference() {
+    public DisposableReference getNativeReference() {
         return null;
     }
 

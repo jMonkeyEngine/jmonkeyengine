@@ -1,6 +1,13 @@
-shader: "Shaders/VulkanVertTest.glsl"
-type: "vertex"
-platforms: ["vulkan", "opengl", "gles"]
-versions: [460, 450]
+files:
+  vulkan: "Shaders/VulkanVertTest.glsl"
+type: Vertex
+version: 450
 parameters:
-    Matrices: "MATRICES"
+  - name: "Camera"
+    type: UniformBuffer
+    define: "CAMERA"
+    location: [0, 0] # set, binding
+  - name: "ColorMap"
+    type: CombinedImageSampler
+    define: "COLOR_MAP"
+    location: [0, 1]

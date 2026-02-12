@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.jme3.asset.AssetManager;
+import com.jme3.backend.Engine;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
@@ -83,8 +84,8 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
      * @param specular_size
      *            The size in pixels of the output specular cube map (eg. 1024)
      */
-    public IBLHybridEnvBakerLight(RenderManager rm, AssetManager am, Format format, Format depthFormat, int env_size, int specular_size) {
-        super(rm, am, format, depthFormat, env_size);
+    public IBLHybridEnvBakerLight(Engine engine, AssetManager am, Format format, Format depthFormat, int env_size, int specular_size) {
+        super(engine, am, format, depthFormat, env_size);
 
         specular = new TextureCubeMap(specular_size, specular_size, format);
         specular.setWrap(WrapMode.EdgeClamp);
@@ -110,7 +111,7 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
         return true;
     }
 
-    private void bakeSpecularIBL(int mip, float roughness, Material mat, Geometry screen) throws Exception {
+    private void bakeSpecularIBL(int mip, float roughness, Material mat, Geometry screen) {
         mat.setFloat("Roughness", roughness);
 
         int mipWidth = (int) (specular.getImage().getWidth() * FastMath.pow(0.5f, mip));

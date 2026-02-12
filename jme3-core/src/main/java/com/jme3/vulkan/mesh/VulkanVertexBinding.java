@@ -1,10 +1,10 @@
 package com.jme3.vulkan.mesh;
 
 import com.jme3.scene.GlVertexBuffer;
-import com.jme3.vulkan.Format;
+import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.buffers.newbuf.HostVisibleBuffer;
-import com.jme3.vulkan.buffers.newbuf.StreamingBuffer;
+import com.jme3.vulkan.buffers.stream.StreamingBuffer;
 import com.jme3.vulkan.buffers.stream.BufferStream;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemorySize;
@@ -13,6 +13,7 @@ import com.jme3.vulkan.util.IntEnum;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class VulkanVertexBinding implements VertexBinding {
 
@@ -30,17 +31,17 @@ public class VulkanVertexBinding implements VertexBinding {
     }
 
     @Override
-    public <T extends Attribute> T mapAttribute(String name, GpuBuffer vertices, int size) {
+    public <T extends Attribute> T mapAttribute(String name, MappableBuffer vertices, int size) {
         for (NamedAttribute a : attributes) {
             if (a.getName().equals(name)) {
-                return (T)a.getMapping().map(this, vertices, size, a.getOffset());
+                return (T)a.getMapper().apply(new AttributeMappingInfo(this, vertices, size, a.getOffset()));
             }
         }
         return null;
     }
 
     @Override
-    public GpuBuffer createBuffer(int elements, GlVertexBuffer.Usage usage) {
+    public MappableBuffer createBuffer(int elements, GlVertexBuffer.Usage usage) {
         MemorySize size = new MemorySize(elements, stride);
         switch (usage) {
             case Static:
@@ -84,6 +85,11 @@ public class VulkanVertexBinding implements VertexBinding {
     }
 
     @Override
+    public NamedAttribute getFirstAttribute() {
+        return attributes.get(0);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         VulkanVertexBinding that = (VulkanVertexBinding)o;
@@ -108,7 +114,7 @@ public class VulkanVertexBinding implements VertexBinding {
         private final Set<String> usedAttrNames = new HashSet<>();
 
         @Override
-        public void add(String name, Format format, AttributeMapping mapping) {
+        public void add(String name, Format format, Function<AttributeMappingInfo, Attribute> mapping) {
             if (!usedAttrNames.add(name)) {
                 throw new IllegalArgumentException("\"" + name + "\" is already used as an attribute name.");
             }

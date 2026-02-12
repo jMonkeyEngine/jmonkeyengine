@@ -1,8 +1,8 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.util.AbstractNativeBuilder;
-import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.pipeline.CompareOp;
 import com.jme3.vulkan.util.IntEnum;
@@ -39,7 +39,7 @@ public class Sampler extends AbstractNative<Long> {
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> vkDestroySampler(device.getNativeObject(), object, null);
     }
 
@@ -107,7 +107,7 @@ public class Sampler extends AbstractNative<Long> {
 
         @Override
         protected Sampler construct() {
-            VkPhysicalDeviceProperties props = device.getPhysicalDevice().getProperties(stack);
+            VkPhysicalDeviceProperties props = device.getPhysicalDevice().getProperties();
             VkSamplerCreateInfo create = VkSamplerCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO)
                     .minFilter(min.getEnum())
@@ -129,8 +129,8 @@ public class Sampler extends AbstractNative<Long> {
             check(vkCreateSampler(device.getNativeObject(), create, null, idBuf),
                     "Failed to create sampler.");
             object = idBuf.get(0);
-            ref = Native.get().register(Sampler.this);
-            device.getNativeReference().addDependent(ref);
+            ref = DisposableManager.reference(Sampler.this);
+            device.getReference().addDependent(ref);
             return Sampler.this;
         }
 

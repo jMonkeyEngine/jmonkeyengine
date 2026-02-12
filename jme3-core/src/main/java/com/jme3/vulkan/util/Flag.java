@@ -1,5 +1,7 @@
 package com.jme3.vulkan.util;
 
+import com.jme3.backend.GraphicsAPI;
+
 import java.util.Iterator;
 
 public interface Flag <T extends Flag> extends Iterable<Integer> {
@@ -117,6 +119,16 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
         return of(bits);
     }
 
+    @Deprecated
+    static <T extends Flag> AgnosticFlag<T> agnostic() {
+        return new AgnosticFlag<>();
+    }
+
+    @Deprecated
+    static <T extends Flag> AgnosticFlag<T> agnostic(int... bits) {
+        return new AgnosticFlag<>(bits);
+    }
+
     class FlagImpl <T extends Flag> implements Flag<T> {
 
         private final int bits;
@@ -136,6 +148,36 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
 
     }
 
+    class AgnosticFlag <T extends Flag> implements Flag<T> {
+
+        private final int[] bits;
+
+        public AgnosticFlag() {
+            this.bits = new int[GraphicsAPI.values().length];
+        }
+
+        public AgnosticFlag(int... bits) {
+            if (bits.length == GraphicsAPI.values().length) {
+                this.bits = bits;
+            } else {
+                this.bits = new int[GraphicsAPI.values().length];
+                System.arraycopy(bits, 0, this.bits, 0, bits.length);
+            }
+        }
+
+        public AgnosticFlag<T> set(GraphicsAPI api, int bits) {
+            this.bits[api.ordinal()] = bits;
+            return this;
+        }
+
+        @Override
+        public int bits() {
+            return bits[GraphicsAPI.getActiveAPI().ordinal()];
+        }
+
+    }
+
+    @Deprecated
     class IteratorImpl implements Iterator<Integer> {
 
         private int bits;

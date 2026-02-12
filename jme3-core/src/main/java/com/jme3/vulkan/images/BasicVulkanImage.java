@@ -1,10 +1,10 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.util.AbstractNativeBuilder;
-import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
 import com.jme3.util.natives.AbstractNative;
-import com.jme3.vulkan.Format;
+import com.jme3.util.natives.DisposableManager;
+import com.jme3.util.natives.DisposableReference;
+import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.SharingMode;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -12,6 +12,7 @@ import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemoryRegion;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
+import com.jme3.vulkan.util.VulkanEnums;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkImageCreateInfo;
 import org.lwjgl.vulkan.VkImageMemoryBarrier;
@@ -105,12 +106,12 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
     }
 
     @Override
-    public void addNativeDependent(NativeReference ref) {
+    public void addNativeDependent(DisposableReference ref) {
         this.ref.addDependent(ref);
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> vkDestroyImage(device.getNativeObject(), object, null);
     }
 
@@ -132,7 +133,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
                     .levelCount(mipmaps)
                     .baseArrayLayer(0)
                     .layerCount(layers)
-                    .aspectMask(format.getAspects().bits());
+                    .aspectMask(VulkanEnums.imageAspects(format.getAspects()));
             vkCmdPipelineBarrier(commands.getBuffer(), layout.getStageHint().bits(), dstLayout.getStageHint().bits(), 0, null, null, barrier);
             layout = dstLayout;
         }
@@ -155,7 +156,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
                     .imageType(type.getEnum())
                     .mipLevels(mipmaps)
                     .arrayLayers(layers)
-                    .format(format.getVkEnum())
+                    .format(format.getEnum())
                     .tiling(tiling.getEnum())
                     .initialLayout(layout.getEnum())
                     .usage(usage.bits())
@@ -173,8 +174,8 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
                 m.setUsableMemoryTypes(memReq.memoryTypeBits());
             });
             memory.bind(BasicVulkanImage.this, 0);
-            ref = Native.get().register(BasicVulkanImage.this);
-            device.getNativeReference().addDependent(ref);
+            ref = DisposableManager.reference(BasicVulkanImage.this);
+            device.getReference().addDependent(ref);
             return BasicVulkanImage.this;
         }
 
@@ -231,6 +232,10 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
 
         public void setLayout(Layout l) {
             layout = l;
+        }
+
+        public void setSharing(IntEnum<SharingMode> sharing) {
+            BasicVulkanImage.this.sharing = sharing;
         }
 
         public Flag<MemoryProp> getMemoryProps() {

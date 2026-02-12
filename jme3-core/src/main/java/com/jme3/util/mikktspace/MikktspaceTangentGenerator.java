@@ -158,9 +158,10 @@ public class MikktspaceTangentGenerator {
         }
         
         if (hasTriangles) {
-            MikkTSpaceImpl context = new MikkTSpaceImpl(mesh);
+            MikkTSpaceContext context = new MikkTSpaceImpl(mesh);
             boolean results = genTangSpaceDefault(context);
             TangentUtils.generateBindPoseTangentsIfNecessary(mesh);
+            context.close();
             return results;
         }
         return false;
@@ -305,11 +306,11 @@ public class MikktspaceTangentGenerator {
         return true;
     }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // it is IMPORTANT that this function is called to evaluate the hash since
     // inlining could potentially reorder instructions and generate different
     // results for the same effective input value fVal.
     //TODO nehon: Wuuttt? something is fishy about this. How the fuck inlining can reorder instructions? Is that a C thing?
+    //TODO codex: 100% agreed. That shouldn't be happening.
     static int findGridCell(final float min, final float max, final float val) {
         final float fIndex = CELLS * ((val - min) / (max - min));
         final int iIndex = (int) fIndex;
@@ -431,12 +432,12 @@ public class MikktspaceTangentGenerator {
             } else {
                 //TODO Nehon: pTempVert is very unlikely to be null...maybe remove this...
                 int[] pTable = Arrays.copyOfRange(piHashTable, piHashOffsets[k], piHashOffsets[k] + iEntries);
-                MergeVertsSlow(piTriList_in_and_out, mikkTSpace, pTable, iEntries);
+                mergeVertsSlow(piTriList_in_and_out, mikkTSpace, pTable, iEntries);
             }
         }
     }
 
-    static void MergeVertsFast(int piTriList_in_and_out[], TmpVert pTmpVert[], final MikkTSpaceContext mikkTSpace, final int iL_in, final int iR_in) {
+    static void MergeVertsFast(int[] piTriList_in_and_out, TmpVert[] pTmpVert, final MikkTSpaceContext mikkTSpace, final int iL_in, final int iR_in) {
         // make bbox        
         float[] fvMin = new float[3];
         float[] fvMax = new float[3];
@@ -557,7 +558,7 @@ public class MikktspaceTangentGenerator {
     }
 
     //TODO Nehon: Used only if an array failed to be allocated... Can't happen in Java...
-    static void MergeVertsSlow(int piTriList_in_and_out[], final MikkTSpaceContext mikkTSpace, final int pTable[], final int iEntries) {
+    static void mergeVertsSlow(int[] piTriList_in_and_out, final MikkTSpaceContext mikkTSpace, final int[] pTable, final int iEntries) {
         // this can be optimized further using a tree structure or more hashing.
         for (int e = 0; e < iEntries; e++) {
             int i = pTable[e];

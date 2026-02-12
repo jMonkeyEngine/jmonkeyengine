@@ -31,9 +31,9 @@
  */
 package com.jme3.texture;
 
-import com.jme3.renderer.opengl.GL2;
-import com.jme3.renderer.opengl.GL4;
 import com.jme3.renderer.opengl.TextureUtil;
+import org.lwjgl.opengl.GL45;
+
 import java.util.Objects;
 
 /**
@@ -142,9 +142,9 @@ public class TextureImage {
      * @param texUtil utility used to convert JME's image format to the corresponding GL enum (not null)
      * @param unit texture unit to bind to
      */
-    public void bindImage(GL4 gl4, TextureUtil texUtil, int unit) {
+    public void bindImage(TextureUtil texUtil, int unit) {
         GlImage img = texture.getImage();
-        gl4.glBindImageTexture(unit, img.getNativeObject(), level, isLayered(), Math.max(layer, 0),
+        GL45.glBindImageTexture(unit, img.getNativeObject(), level, isLayered(), Math.max(layer, 0),
                 access.getGlEnum(), texUtil.getImageFormat(img.getGlFormat(), false).internalFormat);
     }
     

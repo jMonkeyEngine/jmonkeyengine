@@ -1,13 +1,12 @@
 package com.jme3.vulkan.descriptors;
 
-import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 import java.util.Collection;
-import java.util.Map;
 
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -23,19 +22,20 @@ public class DescriptorSet extends AbstractNative<Long> {
         this.layout = layout;
         this.object = id;
         if (pool.getFlags().contains(DescriptorPool.Create.FreeDescriptorSets)) {
-            ref = Native.get().register(this);
+            ref = DisposableManager.reference(this);
             pool.getNativeReference().addDependent(ref);
         }
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> { try (MemoryStack stack = MemoryStack.stackPush()) {
             vkFreeDescriptorSets(device.getNativeObject(), pool.getNativeObject(), stack.longs(object));
         }};
     }
 
     public void write(Collection<DescriptorSetWriter> writers) {
+        if (writers.isEmpty()) return;
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(writers.size(), stack);
             for (DescriptorSetWriter w : writers) {

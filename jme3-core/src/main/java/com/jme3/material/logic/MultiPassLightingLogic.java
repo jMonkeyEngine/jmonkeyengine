@@ -45,9 +45,10 @@ import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
+import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlMesh;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
 import com.jme3.util.TempVars;
@@ -69,8 +70,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
-        Renderer r = renderManager.getRenderer();
+    public void render(GLRenderer renderer, ShaderProgram shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
         Uniform lightDir = shader.getUniform("g_LightDirection");
         Uniform lightColor = shader.getUniform("g_LightColor");
         Uniform lightPos = shader.getUniform("g_LightPosition");
@@ -94,7 +94,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
             } else if (isSecondLight) {
                 ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
                 // apply additive blending for 2nd and future lights
-                r.applyRenderState(ADDITIVE_LIGHT);
+                renderer.applyRenderState(ADDITIVE_LIGHT);
                 isSecondLight = false;
             }
 
@@ -157,8 +157,8 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
             }
             vars.release();
-            r.setShader(shader);
-            renderMeshFromGeometry(r, geometry, mesh, mode);
+            renderer.setShader(shader);
+            renderMeshFromGeometry(renderer, geometry, mesh, mode);
         }
 
         if (isFirstLight) {
@@ -167,8 +167,8 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
             ambientColor.setValue(VarType.Vector4, getAmbientColor(lights, false, ambientLightColor));
             lightColor.setValue(VarType.Vector4, ColorRGBA.BlackNoAlpha);
             lightPos.setValue(VarType.Vector4, NULL_DIR_LIGHT);
-            r.setShader(shader);
-            renderMeshFromGeometry(r, geometry, mesh, mode);
+            renderer.setShader(shader);
+            renderMeshFromGeometry(renderer, geometry, mesh, mode);
         }
     }
 }

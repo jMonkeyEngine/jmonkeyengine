@@ -2,22 +2,24 @@ package com.jme3.vulkan.devices;
 
 import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
-import com.jme3.util.natives.Native;
+import com.jme3.util.natives.Disposable;
+import com.jme3.util.natives.DisposableManager;
+import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.commands.CommandPool;
 import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.util.Flag;
+import com.jme3.vulkan.util.PNextChain;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VkDevice;
-import org.lwjgl.vulkan.VkDeviceCreateInfo;
-import org.lwjgl.vulkan.VkExtensionProperties;
-import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
+import org.lwjgl.system.Struct;
+import org.lwjgl.vulkan.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
@@ -26,8 +28,8 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
 
     private final VulkanInstance instance;
     private final Set<String> enabledExtensions = new HashSet<>();
-    private final VkPhysicalDeviceFeatures enabledFeatures = VkPhysicalDeviceFeatures.calloc();
     private final Map<Thread, Collection<CommandPool>> pools = new ConcurrentHashMap<>();
+    private PNextChain enabledFeatures;
     private T physical;
 
     protected LogicalDevice(VulkanInstance instance) {
@@ -35,7 +37,7 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> {
             vkDestroyDevice(object, null);
             enabledFeatures.free();
@@ -66,8 +68,8 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
         return Collections.unmodifiableSet(enabledExtensions);
     }
 
-    public VkPhysicalDeviceFeatures getEnabledFeatures() {
-        return enabledFeatures;
+    public PNextChain getEnabledFeatures() {
+        return enabledFeatures.getReadOnly();
     }
 
     public CommandPool getShortTermPool(Queue queue) {
@@ -104,6 +106,7 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
 
         private final Function<Long, T> deviceFactory;
         private final Set<DeviceExtension> extensions = new HashSet<>();
+        private final PNextChain featureChain = new PNextChain();
         private final Collection<DeviceFeature> features = new ArrayList<>();
         private final Collection<DeviceFilter> filters = new ArrayList<>();
         private boolean enableAllFeatures = false;
@@ -114,19 +117,44 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
 
         @Override
         protected LogicalDevice<T> construct() {
+            featureChain.add(p -> VkPhysicalDeviceFeatures2.calloc().pNext(p));
             findSuitablePhysicalDevice();
-            VkPhysicalDeviceFeatures supportedFeatures = physical.getFeatures(stack);
-            if (enableAllFeatures) {
-                enabledFeatures.set(supportedFeatures);
-            } else for (DeviceFeature f : features) {
-                if (f.evaluateFeatureSupport(supportedFeatures) != null) {
-                    f.enableFeature(enabledFeatures);
-                }
-            }
             VkDeviceCreateInfo create = VkDeviceCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO)
-                    .pQueueCreateInfos(physical.createQueueFamilyInfo(stack))
-                    .pEnabledFeatures(enabledFeatures);
+                    .pQueueCreateInfos(physical.createQueueFamilyInfo(stack));
+            if (instance.getApiVersion().is(VulkanInstance.Version.v10)) {
+                featureChain.free();
+                enabledFeatures = new PNextChain();
+                VkPhysicalDeviceFeatures2 f2 = enabledFeatures.add(p -> VkPhysicalDeviceFeatures2.calloc().pNext(p));
+                if (enableAllFeatures) {
+                    physical.getFeatures(f2.features());
+                } else {
+                    VkPhysicalDeviceFeatures available = physical.getFeatures(VkPhysicalDeviceFeatures.malloc(stack));
+                    for (DeviceFeature f : features) if (f instanceof LegacyDeviceFeature) {
+                        LegacyDeviceFeature legacy = (LegacyDeviceFeature) f;
+                        Float score = legacy.evaluateSupport(available);
+                        if (score != null && score > 0f) {
+                            legacy.enableFeature(f2.features());
+                        }
+                    }
+                }
+                create.pEnabledFeatures(f2.features());
+            } else {
+                physical.getFeatures(featureChain.get(VkPhysicalDeviceFeatures2.class));
+                if (enableAllFeatures) {
+                    enabledFeatures = featureChain;
+                } else {
+                    enabledFeatures = featureChain.copyStructure();
+                    for (DeviceFeature f : features) {
+                        Float score = f.evaluateSupport(featureChain);
+                        if (score != null && score > 0f) {
+                            f.enableFeature(enabledFeatures);
+                        }
+                    }
+                    featureChain.free();
+                }
+                create.pNext(enabledFeatures.get(VkPhysicalDeviceFeatures2.class));
+            }
             if (!extensions.isEmpty()) {
                 PointerBuffer exts = stack.mallocPointer(extensions.size());
                 for (DeviceExtension e : extensions) {
@@ -147,8 +175,8 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
             check(vkCreateDevice(physical.getDeviceHandle(), create, null, ptr),
                     "Failed to create logical device.");
             object = new VkDevice(ptr.get(0), physical.getDeviceHandle(), create);
-            ref = Native.get().register(LogicalDevice.this);
-            physical.getInstance().getNativeReference().addDependent(ref);
+            ref = DisposableManager.get().register(LogicalDevice.this);
+            physical.getInstance().getReference().addDependent(ref);
             physical.createQueues(LogicalDevice.this);
             return LogicalDevice.this;
         }
@@ -160,51 +188,51 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
                             "Failed to enumerate physical devices."));
             physical = null;
             float topWeight = Float.NEGATIVE_INFINITY;
-            deviceLoop: for (T d : iteratePointers(devices, deviceFactory::apply)) {
-                if (!d.populateQueueFamilyIndices()) {
+            deviceLoop: for (T device : iteratePointers(devices, deviceFactory::apply)) {
+                if (!device.populateQueueFamilyIndices()) {
                     continue;
                 }
-                // attempting to evaluate all devices with only one memory stack
-                // results in an out of memory error
-                try (MemoryStack stack = MemoryStack.stackPush()) {
-                    float deviceWeight = 0f;
-                    // extensions
-                    VkExtensionProperties.Buffer supportedExts = d.getExtensionProperties(stack);
-                    Set<String> extSet = new HashSet<>();
-                    supportedExts.stream().forEach(e -> extSet.add(e.extensionNameString()));
-                    for (DeviceExtension ext : extensions) {
-                        Float weight = ext.evaluate(extSet);
-                        if (weight == null) {
-                            continue deviceLoop;
-                        }
-                        deviceWeight += weight;
+                float deviceWeight = 0f;
+                if (!featureChain.isEmpty()) {
+                    if (instance.getApiVersion().is(VulkanInstance.Version.v10)) {
+                        device.getFeatures(featureChain.get(VkPhysicalDeviceFeatures2.class).features());
+                    } else {
+                        device.getFeatures(featureChain.get(VkPhysicalDeviceFeatures2.class));
                     }
-                    // features
-                    VkPhysicalDeviceFeatures ftrs = d.getFeatures(stack);
                     for (DeviceFeature f : features) {
-                        Float weight = f.evaluateFeatureSupport(ftrs);
+                        Float weight = f.evaluateSupport(featureChain);
                         if (weight == null) {
                             continue deviceLoop;
                         }
                         deviceWeight += weight;
                     }
-                    // miscellaneous filters
-                    for (DeviceFilter f : filters) {
-                        Float weight = f.evaluateDevice(d);
+                }
+                for (DeviceFilter f : filters) {
+                    Float weight = f.evaluateDevice(device);
+                    if (weight == null) {
+                        continue deviceLoop;
+                    }
+                    deviceWeight += weight;
+                }
+                if (!extensions.isEmpty()) try (MemoryStack stack = MemoryStack.stackPush()) {
+                    Set<String> deviceExts = device.getExtensionProperties(stack).stream()
+                            .map(VkExtensionProperties::extensionNameString)
+                            .collect(Collectors.toCollection(HashSet::new));
+                    for (DeviceExtension e : extensions) {
+                        Float weight = e.evaluate(deviceExts);
                         if (weight == null) {
                             continue deviceLoop;
                         }
                         deviceWeight += weight;
                     }
-                    // compare
-                    if (deviceWeight > topWeight) {
-                        physical = d;
-                        topWeight = deviceWeight;
-                    }
+                }
+                if (deviceWeight > topWeight) {
+                    physical = device;
+                    topWeight = deviceWeight;
                 }
             }
             if (physical == null) {
-                throw new NullPointerException("Failed to find suitable physical device.");
+                throw new NullPointerException("Failed to find a suitable physical vulkan device.");
             }
         }
 
@@ -220,6 +248,10 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
             addExtension(DeviceExtension.optional(name, successWeight));
         }
 
+        public void addFeatureContainer(Function<Long, Struct> generator) {
+            featureChain.add(generator);
+        }
+
         public void addFeature(DeviceFeature feature) {
             features.add(feature);
         }
@@ -230,17 +262,6 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
 
         public void setEnableAllFeatures(boolean enableAllFeatures) {
             this.enableAllFeatures = enableAllFeatures;
-        }
-
-    }
-
-    private static class EvaluatedDevice <T extends PhysicalDevice> {
-
-        public final T device;
-        public final Collection<DeviceFeature> features = new ArrayList<>();
-
-        private EvaluatedDevice(T device) {
-            this.device = device;
         }
 
     }

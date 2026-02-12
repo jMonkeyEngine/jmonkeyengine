@@ -191,6 +191,20 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
+     * Sets the x, y, and z components of this vector with the
+     * components of {@code vect}.
+     *
+     * @param vect vector to copy
+     * @return this vector
+     */
+    public Vector4f set(Vector3f vect) {
+        this.x = vect.x;
+        this.y = vect.y;
+        this.z = vect.z;
+        return this;
+    }
+
+    /**
      * <code>add</code> adds a provided vector to this vector creating a
      * resultant vector which is returned. If the provided vector is null, null
      * is returned.

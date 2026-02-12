@@ -43,7 +43,7 @@ import java.util.ArrayList;
  * <code>UniformBindingManager</code> helps {@link RenderManager} to manage
  * {@link UniformBinding uniform bindings}.
  * 
- * The {@link #updateUniformBindings(com.jme3.shader.Shader)} method will update
+ * The {@link #updateUniformBindings(ShaderProgram)} method will update
  * a given list of uniforms based on the current state
  * of the manager.
  * 
@@ -88,7 +88,7 @@ public class UniformBindingManager {
      *
      * @param shader (not null)
      */
-    public void updateUniformBindings(Shader shader) {
+    public void updateUniformBindings(ShaderProgram shader) {
         ArrayList<Uniform> params = shader.getBoundUniforms();
         for (int i = 0; i < params.size(); i++) {
             Uniform u = params.get(i);

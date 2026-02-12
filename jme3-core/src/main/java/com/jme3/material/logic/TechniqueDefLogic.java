@@ -36,10 +36,11 @@ import com.jme3.light.LightList;
 import com.jme3.material.GlMaterial;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlMesh;
 import com.jme3.shader.DefineList;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.Uniform;
 import com.jme3.texture.GlTexture;
 import java.util.EnumSet;
@@ -74,8 +75,8 @@ public interface TechniqueDefLogic {
      * 
      * @return The shader to use for rendering.
      */
-    Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
-            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines);
+    ShaderProgram getShader(AssetManager assetManager, RenderManager renderManager,
+                            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines);
     
     /**
      * Requests that the <code>TechniqueDefLogic</code> renders the given geometry.
@@ -87,13 +88,14 @@ public interface TechniqueDefLogic {
      * {@link com.jme3.material.RenderState}, {@link Uniform uniforms}, {@link GlTexture textures},
      * can still be overridden.
      *
-     * @param renderManager The render manager to perform the rendering against.
+     * @param renderer      The renderer to render the mesh
      * @param shader        The shader that was selected by this logic in
-     *                      {@link #makeCurrent(AssetManager, RenderManager, EnumSet, LightList, DefineList)}.
+     *                      {@link #getShader(AssetManager, RenderManager, EnumSet, LightList, DefineList)}.
      * @param geometry      The geometry to render
      * @param lights        Lights which influence the geometry.
      * @param lastBindUnits the index of the most recently used texture unit
      */
-    void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh,
+    void render(GLRenderer renderer, ShaderProgram shader, Geometry geometry, GlMesh mesh,
                 LightList lights, GlMaterial.BindUnits lastBindUnits);
+
 }

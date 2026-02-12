@@ -51,7 +51,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -368,7 +368,7 @@ public class MaterialDebugAppState extends AbstractAppState {
         }
 
         public void init() {
-            AssetInfo info = assetManager.locateAsset(new AssetKey<Shader>(fileName));
+            AssetInfo info = assetManager.locateAsset(new AssetKey<ShaderProgram>(fileName));
             if (info != null && info instanceof UrlAssetInfo) {
                 try {
                     Field f = info.getClass().getDeclaredField("url");

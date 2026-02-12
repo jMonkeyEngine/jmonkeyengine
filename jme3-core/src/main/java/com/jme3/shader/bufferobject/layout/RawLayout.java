@@ -32,6 +32,7 @@
 package com.jme3.shader.bufferobject.layout;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
@@ -40,6 +41,8 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
+import com.jme3.shader.bufferobject.BufferRegion;
+import com.jme3.util.struct.Struct;
 
 /**
  * Simple serializer
@@ -47,6 +50,7 @@ import com.jme3.math.Vector4f;
  * @author Riccardo Balbo
  */
 public class RawLayout extends BufferLayout {
+
     public RawLayout() {
         // Init default serializers
         registerSerializer(new ObjectSerializer<byte[]>(byte[].class) {
@@ -539,4 +543,10 @@ public class RawLayout extends BufferLayout {
     public String getId() {
         return "raw";
     }
+
+    @Override
+    public List<BufferRegion> generateFieldRegions(Struct struct) {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
 }

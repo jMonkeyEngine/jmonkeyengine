@@ -1,12 +1,12 @@
 package jme3test.vulkan;
 
-import com.jme3.vulkan.Format;
+import com.jme3.vulkan.formats.Format;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
 
 /**
- * Benchmarks interaction with ByteBuffers through {@link com.jme3.vulkan.Format.Component
+ * Benchmarks interaction with ByteBuffers through {@link Format.ComponentFormat
  * Component} compatibility, which ensure that whatever primitives are provided
  * are correctly put into the buffer, and vise versa. Components will be critical
  * for ensuring that Meshes don't care what MeshDescription they are using.
@@ -40,7 +40,7 @@ public class AttributeBufferBenchmark {
         start();
         for (int i = 0; i < verts; i++) {
             int p = i * format.getTotalBytes();
-            for (Format.Component c : format) {
+            for (Format.ComponentFormat c : format) {
                 // The advantage of Component put is that we can provide
                 // any primitive type, and the Component will automatically
                 // convert to the correct type.
@@ -55,7 +55,7 @@ public class AttributeBufferBenchmark {
         start();
         for (int i = 0; i < verts; i++) {
             int p = i * format.getTotalBytes();
-            for (Format.Component c : format) {
+            for (Format.ComponentFormat c : format) {
                 buffer.put(p + c.getOffset(), (byte)value);
             }
         }

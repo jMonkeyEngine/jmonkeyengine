@@ -35,90 +35,43 @@ import com.jme3.export.Savable;
 import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.texture.Texture;
-import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructBuffer;
+import com.jme3.vulkan.buffers.MappableBuffer;
+import com.jme3.vulkan.material.technique.NewTechnique;
 import com.jme3.vulkan.material.uniforms.Uniform;
+
+import java.util.Objects;
 
 /**
  * <code>Material</code> describes the rendering style for a given
  * {@link Geometry}.
+ *
  * <p>A material is essentially a list of {@link MatParam parameters},
  * those parameters map to uniforms which are defined in a shader.
  * Setting the parameters can modify the behavior of a
- * shader.
- * </p>
+ * shader.</p>
  *
  * @author codex
  */
-public interface Material extends Savable {
+public interface Material {
 
-    String DEFAULT_UNIFORM_BUFFER = "DefaultUniformBuffer";
+    <T extends Uniform> T setUniform(String name, T uniform);
 
-    void setUniformBuffer(String name, GpuBuffer buffer);
+    void setTechnique(String name, NewTechnique technique);
 
-    void setTexture(String name, Texture<?, ?> texture);
+    <T extends Uniform> T getUniform(String name);
 
-    void setParam(String uniform, String param, Object value);
+    NewTechnique getTechnique(String name);
 
-    void clearParam(String uniform, String param);
-
-    <T> T getParam(String uniform, String name);
-
-    Texture<?, ?> getTexture(String name);
-
-    void setUniform(String name, Uniform<?> uniform);
-
-    /* ----- COMPATIBILITY WITH OLD MATERIAL ----- */
+    RenderState getAdditionalRenderState();
 
     default int getSortId() {
         return 0;
     }
 
-    default void clearParam(String param) {
-        clearParam(DEFAULT_UNIFORM_BUFFER, param);
-    }
-
-    default void setParam(String param, Object value) {
-        setParam(DEFAULT_UNIFORM_BUFFER, param, value);
-    }
-
-    default void setBoolean(String param, boolean value) {
-        setParam(param, value);
-    }
-
-    default void setInt(String param, int value) {
-        setParam(param, value);
-    }
-
-    default void setFloat(String param, float value) {
-        setParam(param, value);
-    }
-
-    default void setFloat(String param, Float value) {
-        setParam(param, value);
-    }
-
-    default void setColor(String param, ColorRGBA value) {
-        setParam(param, value);
-    }
-
-    default void setVector2(String param, Vector2f value) {
-        setParam(param, value);
-    }
-
-    default void setVector3(String param, Vector3f value) {
-        setParam(param, value);
-    }
-
-    default void setVector4(String param, Vector4f value) {
-        setParam(param, value);
-    }
-
-    default void setMatrix4(String param, Matrix4f value) {
-        setParam(param, value);
-    }
-
-    default <T> T getParam(String param) {
-        return getParam(DEFAULT_UNIFORM_BUFFER, param);
+    default void set(String name, Object value) {
+        getUniform(name).set(value);
     }
 
 }

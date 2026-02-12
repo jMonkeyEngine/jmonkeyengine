@@ -7,7 +7,7 @@ import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.texture.GlTexture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +31,7 @@ public class TestShaderNodes extends SimpleApplication {
         mat.selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         Technique t = mat.getActiveTechnique();
 
-        for (Shader.ShaderSource shaderSource : t.getDef().getShader(assetManager, renderer.getCaps(), t.getDynamicDefines()).getSources()) {
+        for (ShaderProgram.ShaderSource shaderSource : t.getDef().getShader(assetManager, renderer.getCaps(), t.getDynamicDefines()).getSources()) {
             System.out.println(shaderSource.getSource());
         }
         

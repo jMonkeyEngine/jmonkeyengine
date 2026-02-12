@@ -36,12 +36,15 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlVertexBuffer;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import java.lang.ref.WeakReference;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.GlTexture;
+import com.jme3.util.IntMap;
+import com.jme3.vulkan.buffers.GlNativeBuffer;
+import com.jme3.vulkan.mesh.VertexBuffer;
 
 /**
  * Represents the current state of the graphics library. This class is used
@@ -195,16 +198,16 @@ public class RenderContext {
     /**
      * ID of the shader for rendering.
      *
-     * @see Renderer#setShader(com.jme3.shader.Shader)
+     * @see Renderer#setShader(ShaderProgram)
      */
     public int boundShaderProgram;
 
     /**
      * Shader for rendering.
      *
-     * @see Renderer#setShader(com.jme3.shader.Shader)
+     * @see Renderer#setShader(ShaderProgram)
      */
-    public Shader boundShader;
+    public ShaderProgram boundShader;
 
     /**
      * ID of the bound FrameBuffer.
@@ -227,27 +230,12 @@ public class RenderContext {
      */
     public int boundRB;
 
-  
-    /**
-     * Currently bound element array vertex buffer.
-     *
-     * @see Renderer#renderMesh(Mesh, int, int, GlVertexBuffer[])
-     */
-    public int boundElementArrayVBO;
-
     /**
      * ID of the bound vertex array.
      *
      * @see Renderer#renderMesh(Mesh, int, int, GlVertexBuffer[])
      */
     public int boundVertexArray;
-
-    /**
-     * Currently bound array vertex buffer.
-     *
-     * @see Renderer#renderMesh(Mesh, int, int, GlVertexBuffer[])
-     */
-    public int boundArrayVBO;
 
     /**
      * Currently bound pixel pack pixel buffer.
@@ -331,7 +319,7 @@ public class RenderContext {
      * Vertex attribs currently bound and enabled. If a slot is null, then
      * it is disabled.
      */
-    public final WeakReference<GlVertexBuffer>[] boundAttribs = new WeakReference[16];
+    public final WeakReference<VertexBuffer>[] boundAttribs = new WeakReference[16];
 
     /**
      * IDList for vertex attributes.
@@ -361,6 +349,14 @@ public class RenderContext {
      * Color applied when a color buffer is cleared.
      */
     public ColorRGBA clearColor = new ColorRGBA(0, 0, 0, 0);
+
+
+
+
+    public final IntMap<Integer> boundBuffers = new IntMap<>();
+
+
+
 
     /**
      * Instantiates a context with appropriate default values.

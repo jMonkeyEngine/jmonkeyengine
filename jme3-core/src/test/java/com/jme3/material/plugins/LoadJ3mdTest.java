@@ -36,7 +36,7 @@ import com.jme3.material.*;
 import com.jme3.renderer.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.system.*;
 import java.util.*;
 import static org.junit.Assert.assertEquals;
@@ -82,7 +82,7 @@ public class LoadJ3mdTest {
         material.selectTechnique("Default", renderManager);
 
         assertEquals(material.getActiveTechnique().getDef().getShaderNodes().size(), 2);
-        Shader s = material.getActiveTechnique().getDef().getShader(TestUtil.createAssetManager(), myCaps,  material.getActiveTechnique().getDynamicDefines());
+        ShaderProgram s = material.getActiveTechnique().getDef().getShader(TestUtil.createAssetManager(), myCaps,  material.getActiveTechnique().getDynamicDefines());
         assertEquals(s.getSources().size(), 2);
     }
 

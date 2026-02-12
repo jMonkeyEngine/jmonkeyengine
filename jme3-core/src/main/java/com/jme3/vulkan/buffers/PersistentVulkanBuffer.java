@@ -30,4 +30,9 @@ public class PersistentVulkanBuffer <T extends VulkanBuffer> extends PersistentB
         return getBuffer().isConcurrent();
     }
 
+    @Override
+    public Long getGpuObject() {
+        return getBuffer().getGpuObject();
+    }
+
 }

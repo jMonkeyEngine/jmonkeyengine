@@ -36,8 +36,8 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.shader.bufferobject.BufferObject;
-import com.jme3.shader.Shader;
-import com.jme3.shader.Shader.ShaderSource;
+import com.jme3.shader.ShaderProgram;
+import com.jme3.shader.ShaderProgram.ShaderSource;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
@@ -174,16 +174,16 @@ public interface Renderer {
      *
      * @param shader The shader to use for rendering.
      */
-    public void setShader(Shader shader);
+    public void setShader(ShaderProgram shader);
 
     /**
      * Deletes a shader. This method also deletes
      * the attached shader sources.
      *
      * @param shader Shader to delete.
-     * @see #deleteShaderSource(com.jme3.shader.Shader.ShaderSource)
+     * @see #deleteShaderSource(ShaderProgram.ShaderSource)
      */
-    public void deleteShader(Shader shader);
+    public void deleteShader(ShaderProgram shader);
 
     /**
      * Deletes the provided shader source.
@@ -309,6 +309,7 @@ public interface Renderer {
      *
      * @param vb The vertex buffer to upload
      */
+    @Deprecated
     public void updateBufferData(GlVertexBuffer vb);
 
     /**
@@ -356,6 +357,7 @@ public interface Renderer {
      * @param instanceData When count is greater than 1, these buffers provide
      *     the per-instance attributes.
      */
+    @Deprecated
     public void renderMesh(GlMesh mesh, GlMesh.Mode mode, int lod, int count, GlVertexBuffer[] instanceData);
 
     /**

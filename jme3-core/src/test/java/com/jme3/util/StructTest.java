@@ -10,27 +10,26 @@ import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.shader.bufferobject.BufferRegion;
 import com.jme3.shader.bufferobject.DirtyRegionsIterator;
 import com.jme3.shader.bufferobject.layout.Std140Layout;
-import com.jme3.util.struct.Struct;
-import com.jme3.util.struct.StructField;
-import com.jme3.util.struct.StructUtils;
+import com.jme3.util.struct.*;
 import com.jme3.util.struct.fields.*;
 
 import org.junit.Test;
 
 public class StructTest {
-    static class SubStruct implements Struct {
-        public final IntField subIntField0 = new IntField(0, "subIntField0", 100);
-        public final FloatField subFloatField1 = new FloatField(1, "subFloatField1", 100f);
 
+    static class SubStruct implements Struct {
+        @Member(value = 0) public int subIntField0 = 100;
+        @Member(value = 1) public float subFloatField1 = 100f;
     }
 
+    @Consistent
     static class TestStruct implements Struct {
-        public final IntField intField0 = new IntField(0, "intField0", 100);
-        public final FloatField floatField1 = new FloatField(1, "floatField1", 100f);
-        public final FloatArrayField floatFieldArray2 = new FloatArrayField(2, "floatFieldArray2", new Float[] { 100f, 200f, 300f });
-        public final SubStructField<SubStruct> structField3 = new SubStructField<SubStruct>(3, "structField3", new SubStruct());
-        public final SubStructArrayField<SubStruct> structArrayField5 = new SubStructArrayField<SubStruct>(5, "structArrayField5", new SubStruct[] { new SubStruct(), new SubStruct() });
-        public final BooleanField boolField6 = new BooleanField(6, "boolField6", true);
+        @Member(value = 0) public int intField0 = 100;
+        @Member(value = 1) public float floatField1 = 100f;
+        @Member(value = 2) public final float[] floatFieldArray2 = new float[] { 100f, 200f, 300f };
+        @Member(value = 3) public SubStruct structField3 = new SubStruct();
+        @Member(value = 4) public final SubStruct[] structArrayField5 = new SubStruct[] { new SubStruct(), new SubStruct() };
+        @Member(value = 5) public boolean boolField6 = true;
     }
 
     @Test
@@ -39,7 +38,7 @@ public class StructTest {
         java.util.List<StructField<?>> fields = StructUtils.getFields(test);
         String checkString = "";
         for (StructField<?> f : fields) {
-            String s = f.getPosition() + " " + f.getName() + " " + f.getDepth() + "\n";
+            String s = f.getPosition() + "\n";
             checkString += s;
         }
         String expectedString = "0 intField0 0\n1 floatField1 0\n2 floatFieldArray2 0\n3 subIntField0 1\n4 subFloatField1 1\n5 subIntField0 1\n6 subFloatField1 1\n7 subIntField0 1\n8 subFloatField1 1\n9 boolField6 0\n";
@@ -53,7 +52,7 @@ public class StructTest {
 
         Std140Layout layout = new Std140Layout();
         BufferObject bo = new BufferObject();
-        StructUtils.setStd140BufferLayout(fields, layout, bo);
+        bo.setRegions(layout.generateFieldRegions(fields));
         System.out.println(bo.getData().getInt());
         
         StructUtils.updateBufferData(fields, false, layout, bo);
@@ -76,7 +75,7 @@ public class StructTest {
         BufferObject bo = new BufferObject();
 
         java.util.List<StructField<?>> fields = StructUtils.getFields(test);
-        StructUtils.setStd140BufferLayout(fields, layout, bo);
+        bo.setRegions(layout.generateFieldRegions(fields));
         int bolength = bo.getData().limit();
         assertEquals(128, bolength);
         assertEquals(128, bo.getData().capacity());
@@ -128,7 +127,7 @@ public class StructTest {
 
         // Update something
         System.out.println("Test Partial Update");
-        test.floatField1.setValue(2f);
+        test.floatField1 = 2f;
         StructUtils.updateBufferData(fields, false, layout, bo);
         dirtyI = bo.getDirtyRegions();
         assertTrue(bo.isUpdateNeeded());
@@ -154,8 +153,8 @@ public class StructTest {
 
         // Update something2
         System.out.println("Test Partial Update 2");
-        test.floatField1.setValue(2f);
-        test.boolField6.setValue(true);
+        test.floatField1 = 2f;
+        test.boolField6 = true;
         StructUtils.updateBufferData(fields, false, layout, bo);
         dirtyI = bo.getDirtyRegions();
         assertTrue(bo.isUpdateNeeded());
@@ -187,7 +186,7 @@ public class StructTest {
 
         // Update substruct 
         System.out.println("Test Partial Update Substruct");
-        test.structField3.getValue().subIntField0.setValue(3);
+        test.structField3.subIntField0 = 3;
         StructUtils.updateBufferData(fields, false, layout, bo);
         dirtyI = bo.getDirtyRegions();
         assertTrue(bo.isUpdateNeeded());

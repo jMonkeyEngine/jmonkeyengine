@@ -32,6 +32,9 @@
 package com.jme3.shader.bufferobject.layout;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
@@ -40,15 +43,17 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
+import com.jme3.shader.bufferobject.BufferRegion;
+import com.jme3.util.struct.Struct;
 
 /**
- * Serializer that respects the Std140 layout
- * (https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.core.pdf#page=159)
- * (www.opengl.org/registry/specs/ARB/uniform_buffer_object.txt)
- * 
+ * Serializer that respects the <a href="https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.core.pdf#page=159">
+ * Std140 layout</a> (www.opengl.org/registry/specs/ARB/uniform_buffer_object.txt).
+ *
  * @author Riccardo Balbo
  */
 public class Std140Layout extends BufferLayout {
+
     public Std140Layout() {
         // Init default serializers
         // 1. If the member is a scalar consuming N basic machine units, the
@@ -611,4 +616,44 @@ public class Std140Layout extends BufferLayout {
     public String getId() {
         return "std140";
     }
+
+    @Override
+    public List<BufferRegion> generateFieldRegions(Struct struct) {
+        int pos = -1;
+        List<BufferRegion> regions = new ArrayList<>();
+        List<StructField> fields = struct.getFields();
+        for (ListIterator<StructField> it = fields.listIterator(); it.hasNext();) {
+            StructField<?> f = it.next();
+            Object v = f.getFieldValue();
+
+            int basicAlignment = getBasicAlignment(v);
+            int length = estimateSize(v);
+
+            int start = align(pos + 1, basicAlignment);
+            int end = start + length - 1;
+
+            if (!it.hasNext() || f.getOwner() != fields.get(it.nextIndex()).getOwner()) {
+                end = align(end, 16) - 1;
+            }
+
+            BufferRegion r = new BufferRegion(start, end);
+            regions.add(r);
+            pos = end;
+        }
+        return regions;
+    }
+
+    @Override
+    public BufferSlice getNextFieldRegion(int position, StructField field, StructField next) {
+        Object v = field.getFieldValue();
+        int basicAlignment = getBasicAlignment(v);
+        int length = estimateSize(v);
+        int start = align(position, basicAlignment);
+        int end = start + length - 1;
+        if (next == null || field.getOwner() != next.getOwner()) {
+            end = align(end, 16) - 1;
+        }
+        return new BufferSlice(start, end);
+    }
+
 }

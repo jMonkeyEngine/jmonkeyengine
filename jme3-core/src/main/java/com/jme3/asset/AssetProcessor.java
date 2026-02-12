@@ -32,7 +32,7 @@
 package com.jme3.asset;
 
 import com.jme3.material.Material;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 
 /**
  * <code>AssetProcessor</code> is used to apply processing to assets
@@ -62,7 +62,7 @@ public interface AssetProcessor {
      * otherwise, a clone should be created.
      * For example, a clone of a {@link Material} should have its own set
      * of unique parameters that can be changed just for that instance,
-     * but it may share certain other data if it sees fit (like the {@link Shader}).
+     * but it may share certain other data if it sees fit (like the {@link ShaderProgram}).
      * 
      * @param obj The asset to clone
      * @return The cloned asset, or the same as the given argument if no

@@ -8,7 +8,7 @@ import com.jme3.material.TechniqueDef;
 import com.jme3.material.plugins.J3MLoader;
 import com.jme3.renderer.Caps;
 import com.jme3.shader.DefineList;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.plugins.GLSLLoader;
 import com.jme3.system.JmeSystem;
 import java.util.EnumSet;
@@ -40,7 +40,7 @@ public class ShaderCheck {
         rendererCaps.add(Caps.GLSL100);
         for (TechniqueDef techDef : def.getTechniqueDefs(TechniqueDef.DEFAULT_TECHNIQUE_NAME)) {
             DefineList defines = techDef.createDefineList();
-            Shader shader = techDef.getShader(assetManager, rendererCaps, defines);
+            ShaderProgram shader = techDef.getShader(assetManager, rendererCaps, defines);
             for (Validator validator : validators) {
                 StringBuilder sb = new StringBuilder();
                 validator.validate(shader, sb);

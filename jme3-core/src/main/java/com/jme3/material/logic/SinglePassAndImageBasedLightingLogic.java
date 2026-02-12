@@ -76,8 +76,8 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     }
 
     @Override
-    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
-            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
+    public ShaderProgram getShader(AssetManager assetManager, RenderManager renderManager,
+                                   EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
         defines.set(nbLightsDefineId, renderManager.getSinglePassLightBatchSize() * 3);
         defines.set(singlePassLightingDefineId, true);
 
@@ -92,7 +92,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             defines.set(useAmbientLightDefineId, useAmbientLight);
         }
 
-        return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
+        return super.getShader(assetManager, renderManager, rendererCaps, lights, defines);
     }
 
     /**
@@ -115,7 +115,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
      * @param lastTexUnit the index of the most recently-used texture unit
      * @return the next starting index in the LightList
      */
-    private int updateLightListUniforms(Shader shader, LightList lightList, int numLights, RenderManager rm, int startIndex, int lastTexUnit) {
+    private int updateLightListUniforms(ShaderProgram shader, LightList lightList, int numLights, RenderManager rm, int startIndex, int lastTexUnit) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
         }
@@ -262,7 +262,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, ShaderProgram shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         int batchSize = renderManager.getSinglePassLightBatchSize();

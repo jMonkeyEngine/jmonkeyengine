@@ -1,7 +1,7 @@
 package com.jme3.vulkan.pipeline.framebuffer;
 
 import com.jme3.util.natives.AbstractNative;
-import com.jme3.util.natives.Native;
+import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.images.VulkanImageView;
@@ -70,7 +70,7 @@ public class VulkanFrameBuffer extends AbstractNative<Long> implements FrameBuff
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> vkDestroyFramebuffer(device.getNativeObject(), object, null);
     }
 
@@ -193,8 +193,8 @@ public class VulkanFrameBuffer extends AbstractNative<Long> implements FrameBuff
             check(vkCreateFramebuffer(device.getNativeObject(), create, null, idBuf));
             object = idBuf.get(0);
         }
-        ref = Native.get().register(VulkanFrameBuffer.this);
-        device.getNativeReference().addDependent(ref);
+        ref = DisposableManager.reference(VulkanFrameBuffer.this);
+        device.getReference().addDependent(ref);
         updateNeeded = false;
     }
 

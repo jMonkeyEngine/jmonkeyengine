@@ -1,18 +1,18 @@
 package com.jme3.vulkan.descriptors;
 
-import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.buffers.MappableBuffer;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 
 public class BufferDescriptor {
 
-    private final GpuBuffer buffer;
+    private final MappableBuffer buffer;
     private final long offset, range;
 
-    public BufferDescriptor(GpuBuffer buffer) {
+    public BufferDescriptor(MappableBuffer buffer) {
         this(buffer, 0, buffer.size().getBytes());
     }
 
-    public BufferDescriptor(GpuBuffer buffer, long offset, long range) {
+    public BufferDescriptor(MappableBuffer buffer, long offset, long range) {
         this.buffer = buffer;
         this.offset = offset;
         this.range = range;
@@ -22,7 +22,7 @@ public class BufferDescriptor {
         info.buffer(buffer.getId()).offset(offset).range(range);
     }
 
-    public GpuBuffer getBuffer() {
+    public MappableBuffer getBuffer() {
         return buffer;
     }
 

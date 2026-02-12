@@ -50,7 +50,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlMesh;
 import com.jme3.shader.DefineList;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
 import com.jme3.util.TempVars;
@@ -79,11 +79,11 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
-            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
+    public ShaderProgram getShader(AssetManager assetManager, RenderManager renderManager,
+                                   EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
         defines.set(nbLightsDefineId, renderManager.getSinglePassLightBatchSize() * 3);
         defines.set(singlePassLightingDefineId, true);
-        return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
+        return super.getShader(assetManager, renderManager, rendererCaps, lights, defines);
     }
 
     /**
@@ -106,7 +106,7 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
      * @param startIndex the starting index in the LightList
      * @return the next starting index in the LightList
      */
-    private int updateLightListUniforms(Shader shader, LightList lightList, int numLights, RenderManager rm, int startIndex) {
+    private int updateLightListUniforms(ShaderProgram shader, LightList lightList, int numLights, RenderManager rm, int startIndex) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
         }
@@ -207,7 +207,7 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, ShaderProgram shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         int batchSize = renderManager.getSinglePassLightBatchSize();

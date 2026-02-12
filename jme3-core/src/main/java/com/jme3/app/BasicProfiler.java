@@ -42,7 +42,6 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.util.BufferUtils;
-import com.jme3.vulkan.mesh.AttributeModifier;
 
 import java.nio.FloatBuffer;
 

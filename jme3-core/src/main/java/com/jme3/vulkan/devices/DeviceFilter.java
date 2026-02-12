@@ -23,10 +23,6 @@ public interface DeviceFilter {
         return new DeviceSwapchainSupport(surface);
     }
 
-    static DeviceAnisotropySupport anisotropy() {
-        return new DeviceAnisotropySupport();
-    }
-
     class DeviceExtensionSupport implements DeviceFilter {
 
         private final Collection<String> extensions;
@@ -63,20 +59,6 @@ public interface DeviceFilter {
                 return 0f;
             }
             return null;
-        }
-
-    }
-
-    class DeviceAnisotropySupport implements DeviceFilter {
-
-        @Override
-        public Float evaluateDevice(PhysicalDevice device) {
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                if (device.getFeatures(stack).samplerAnisotropy()) {
-                    return 0f;
-                }
-                return null;
-            }
         }
 
     }

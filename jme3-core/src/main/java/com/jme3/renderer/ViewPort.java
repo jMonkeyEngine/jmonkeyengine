@@ -34,21 +34,21 @@ package com.jme3.renderer;
 import com.jme3.renderer.pipeline.RenderPipeline;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.SceneProcessor;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.GlFrameBuffer;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 
+import java.util.function.Predicate;
+
 /**
  * Represents a view inside the display
  * window or a {@link GlFrameBuffer} to which scenes will be rendered.
  *
- * <p>A viewport has a {@link #ViewPort(java.lang.String, com.jme3.renderer.Camera) camera}
+ * <p>A viewport has a camera
  * which is used to render a set of {@link #attachScene(com.jme3.scene.Spatial) scenes}.
- * A view port has a location on the screen as set by the
- * {@link Camera#setViewPort(float, float, float, float) } method.
+ * A view port has a location on the screen.
  * By default, a view port does not clear the framebuffer, but it can be
  * set to {@link #setClearFlags(boolean, boolean, boolean) clear the framebuffer}.
  * The background color which the color buffer is cleared to can be specified
@@ -64,54 +64,25 @@ import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
  * @see Spatial
  * @see Camera
  */
-public class ViewPort {
+public class ViewPort implements Comparable<ViewPort> {
 
-    /**
-     * Name for this viewport.
-     */
-    protected final String name;
-    /**
-     * Camera used for rendering.
-     */
     protected final Camera cam;
-    /**
-     * Geometries for rendering, sorted.
-     */
-    protected final RenderQueue queue = new RenderQueue();
-    /**
-     * Scene-graph hierarchies for rendering.
-     */
     protected final SafeArrayList<Spatial> sceneList = new SafeArrayList<>(Spatial.class);
-    /**
-     * Scene processors currently applied.
-     */
     protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
-    /**
-     * Dedicated pipeline.
-     */
     protected RenderPipeline pipeline;
-    /**
-     * FrameBuffer for output.
-     */
     protected GlFrameBuffer out = null;
 
-    /**
-     * Color applied when the color buffer is cleared.
-     */
+    protected int viewPriority;
+
     protected final ColorRGBA backColor = new ColorRGBA(0, 0, 0, 0);
-    /**
-     * Enables clearing the depth buffer.
-     */
     protected boolean clearDepth = false;
-    /**
-     * Enables clearing the color buffer.
-     */
     protected boolean clearColor = false;
-    /**
-     * Enables clearing the stencil buffer.
-     */
     protected boolean clearStencil = false;
     private boolean enabled = true;
+
+    private final ViewPortArea area = new ViewPortArea(0f, 0f, 128f, 128f);
+
+    private Predicate<Geometry> geometryFilter;
 
     /**
      * Creates a new viewport. User code should generally use these methods instead:<br>
@@ -121,24 +92,40 @@ public class ViewPort {
      * <li>{@link RenderManager#createPostView(java.lang.String, com.jme3.renderer.Camera)  }</li>
      * </ul>
      *
-     * @param name The name of the viewport. Used for debugging only.
      * @param cam The camera through which the viewport is rendered. The camera
      *     cannot be swapped to a different one after creating the viewport.
      */
-    public ViewPort(String name, Camera cam) {
-        this.name = name;
-        this.cam = cam;
+    public ViewPort(Camera cam) {
+        this(cam, 0);
     }
 
     /**
-     * Returns the name of the viewport as set in the constructor.
+     * Creates a new viewport.
      *
-     * @return the name of the viewport
-     *
-     * @see #ViewPort(java.lang.String, com.jme3.renderer.Camera)
+     * @param cam camera used to render the viewport
+     * @param viewPriority indicates the order in which viewports are rendered values
+     *                     closer to negative infinity are rendered first (defaults to 0)
      */
-    public String getName() {
-        return name;
+    public ViewPort(Camera cam, int viewPriority) {
+        this.cam = cam;
+        this.viewPriority = viewPriority;
+    }
+
+    public Predicate<Geometry> getGeometryFilter() {
+        return geometryFilter;
+    }
+
+    public void setGeometryFilter(Predicate<Geometry> geometryFilter) {
+        this.geometryFilter = geometryFilter;
+    }
+
+    /**
+     * Gets the area this viewport renders to.
+     *
+     * @return area
+     */
+    public ViewPortArea getArea() {
+        return area;
     }
 
     /**
@@ -256,9 +243,22 @@ public class ViewPort {
     }
 
     /**
+     * Sets the view priority of this viewport. Values closer to negative infinity
+     * relative to other viewports causes this viewport to be rendered before them.
+     * Ties result in an arbitrary order.
+     *
+     * <p>default=0</p>
+     *
+     * @param viewPriority view priority
+     */
+    public void setViewPriority(int viewPriority) {
+        this.viewPriority = viewPriority;
+    }
+
+    /**
      * Enables or disables clearing of the stencil buffer for this ViewPort.
      *
-     * <p>By default stencil clearing is disabled.
+     * <p>Stencil clearing is disabled by default.</p>
      *
      * @param clearStencil Enable/disable stencil buffer clearing.
      */
@@ -311,6 +311,16 @@ public class ViewPort {
     }
 
     /**
+     * Gets the view priority of this viewport.
+     *
+     * @return view priority
+     * @see #setViewPriority(int)
+     */
+    public int getViewPriority() {
+        return viewPriority;
+    }
+
+    /**
      * Returns the camera which renders the attached scenes.
      *
      * @return the camera which renders the attached scenes.
@@ -319,15 +329,6 @@ public class ViewPort {
      */
     public Camera getCamera() {
         return cam;
-    }
-
-    /**
-     * Internal use only.
-     *
-     * @return the pre-existing instance
-     */
-    public RenderQueue getQueue() {
-        return queue;
     }
 
     /**
@@ -448,10 +449,15 @@ public class ViewPort {
     /**
      * Gets the framegraph used by this viewport for rendering.
      * 
-     * @return 
+     * @return pipeline
      */
     public RenderPipeline getPipeline() {
         return pipeline;
+    }
+
+    @Override
+    public int compareTo(ViewPort o) {
+        return Integer.compare(viewPriority, o.viewPriority);
     }
 
 }

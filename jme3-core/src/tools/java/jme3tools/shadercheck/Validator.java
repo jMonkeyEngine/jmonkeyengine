@@ -1,6 +1,6 @@
 package jme3tools.shadercheck;
 
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 
 /**
  * Interface for shader validator tools.
@@ -30,13 +30,13 @@ public interface Validator {
     /**
      * Validates the given shader to make sure it follows all requirements
      * of the shader language specified as
-     * {@link com.jme3.shader.Shader.ShaderSource#getLanguage()}.
+     * {@link ShaderProgram.ShaderSource#getLanguage()}.
      * The results of the validation will be written into the 
      * results argument.
      * 
      * @param shader The shader to validate
      * @param results The storage for the validation results
      */
-    public void validate(Shader shader, StringBuilder results);
+    public void validate(ShaderProgram shader, StringBuilder results);
     
 }

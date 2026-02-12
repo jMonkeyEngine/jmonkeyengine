@@ -31,8 +31,8 @@
  */
 package com.jme3.renderer;
 
-import com.jme3.shader.Shader;
-import com.jme3.shader.Shader.ShaderSource;
+import com.jme3.shader.ShaderProgram;
+import com.jme3.shader.ShaderProgram.ShaderSource;
 import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlFrameBuffer.RenderBuffer;
 import com.jme3.texture.GlImage;
@@ -583,7 +583,7 @@ public enum Caps {
      * @param shader The shader to check
      * @return True if it is supported, false otherwise.
      */
-    public static boolean supports(Collection<Caps> caps, Shader shader) {
+    public static boolean supports(Collection<Caps> caps, ShaderProgram shader) {
         for (ShaderSource source : shader.getSources()) {
             if (source.getLanguage().startsWith("GLSL")) {
                 int ver = Integer.parseInt(source.getLanguage().substring(4));

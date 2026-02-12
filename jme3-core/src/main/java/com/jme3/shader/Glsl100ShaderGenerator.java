@@ -34,7 +34,7 @@ package com.jme3.shader;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.plugins.ConditionParser;
-import com.jme3.shader.Shader.ShaderType;
+import com.jme3.shader.ShaderProgram.ShaderType;
 
 import java.util.ArrayList;
 import java.util.List;

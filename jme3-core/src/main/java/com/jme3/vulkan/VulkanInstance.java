@@ -3,15 +3,12 @@ package com.jme3.vulkan;
 import com.jme3.system.JmeVersion;
 import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
-import com.jme3.util.natives.Native;
+import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWVulkan;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.vulkan.EXTDebugUtils;
-import org.lwjgl.vulkan.VkApplicationInfo;
-import org.lwjgl.vulkan.VkInstance;
-import org.lwjgl.vulkan.VkInstanceCreateInfo;
+import org.lwjgl.vulkan.*;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -58,10 +55,11 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> vkDestroyInstance(object, null);
     }
 
+    @Override
     public boolean equals(Object other) {
         if (other == null || getClass() != other.getClass()) return false;
         VulkanInstance that = (VulkanInstance) other;
@@ -75,6 +73,10 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
 
     public VulkanLogger createLogger(Level exceptionThreshold) {
         return logger = new VulkanLogger(this, exceptionThreshold);
+    }
+
+    public IntEnum<Version> getApiVersion() {
+        return apiVersion;
     }
 
     public VulkanLogger getLogger() {
@@ -137,7 +139,7 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
             PointerBuffer ptr = stack.mallocPointer(1);
             check(vkCreateInstance(create, null, ptr), "Failed to create instance.");
             object = new VkInstance(ptr.get(0), create);
-            ref = Native.get().register(VulkanInstance.this);
+            ref = DisposableManager.reference(VulkanInstance.this);
             return VulkanInstance.this;
         }
 
@@ -163,6 +165,10 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
 
         public void addDebugExtension() {
             extensions.add(EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        }
+
+        public void addRobustness2Extension() {
+            extensions.add(EXTRobustness2.VK_EXT_ROBUSTNESS_2_EXTENSION_NAME);
         }
 
         public void addLunarGLayer() {

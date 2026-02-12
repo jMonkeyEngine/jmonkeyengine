@@ -60,7 +60,7 @@ public class Queue {
         return queueIndex;
     }
 
-    public Executor getExecutor() {
+    public Executor getAsyncExecutor() {
         return executor;
     }
 

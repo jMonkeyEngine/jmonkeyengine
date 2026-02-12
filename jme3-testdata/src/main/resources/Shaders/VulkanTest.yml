@@ -1,46 +1,55 @@
 name: "VulkanTest"
+
 parameters:
 
-  - name: "Matrices"
+  - name: "MetallicRoughness"
     type: UniformBuffer
-    layout: # defines the layout of the uniform buffer
-      worldViewProjection: Matrix4f # type is the member
-      time:
-        type: Float
-        default: 1.0
-      myval:
-        type: MyCustomType
-        default: "parse_this"
+    struct: MetallicRoughnessPBR
 
-  - name: "BaseColorMap"
+  - name: "Lighting"
+    type: UniformBuffer
+    struct: Lighting
+
+  - name: "ColorMap"
     type: Texture
     default: "Common/Textures/MissingTexture.jpg"
 
-  - name: "MyValue"
-    type: MyUniformType
-    default: "parse_this"
+  - name: "NormalUnpacker"
+    type: String
+    default: "normal.xyz"
+
+# represents the additional render state
+renderState:
+  cullMode: Front
 
 techniques:
   - name: "main"
     shaders:
-      - stage: Vertex
-        file: "Shaders/VulkanVertTest.yml"
-        entry: "main"
-      - stage: Fragment
-        file: "Shaders/VulkanFragTest.yml"
-        # entry is "main" by default
-      - shader: "Vertex:Shaders/VulkanVertTest.yml:main"
-    layout:
-      - name: "BaseColorMap"
-        descriptor: CombinedImageSampler
-        stages: [Fragment]
-        set: 0
-        binding: 1
-      - layout: "UniformBuffer:Matrices:0.0"
-        stages: [Vertex]
-        define: "MATRICES"
+      - file: "Shaders/VulkanVertTest.glsl"
+        entry: "main" # entry is "main" by default
+        version: 450
+        type: Vertex
+      - file: "Shaders/VulkanFragTest.yml"
+        version: 450
+        type: Fragment
+    bindings:
+      - name: "ColorMap"
+        location: [0, 0] # [set, binding]
+        scope: [Fragment]
+        define: "COLOR_MAP"
+      - name: "NormalUnpacker"
+        scope: [Fragment]
+        define: "NORMAL_UNPACKER"
+        # location not defined: is not a writable uniform in this case
+    pushConstants:
+      - scope: [Vertex]
+        uniform: "Transforms"
     renderState:
       cullMode: None
       stencil:
         frontStencilFail: Keep
+    attributes:
+      Position: 0
+      TexCoord: 1
+      Normal: 2
 

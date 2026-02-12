@@ -540,13 +540,20 @@ public class GlFrameBuffer extends GlNative implements FrameBuffer<GlFrameBuffer
     /**
      * @return The height in pixels of this framebuffer.
      */
+    @Override
     public int getHeight() {
         return height;
+    }
+
+    @Override
+    public long getId() {
+        return object;
     }
 
     /**
      * @return The width in pixels of this framebuffer.
      */
+    @Override
     public int getWidth() {
         return width;
     }
@@ -576,7 +583,7 @@ public class GlFrameBuffer extends GlNative implements FrameBuffer<GlFrameBuffer
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> renderer.deleteFrameBuffer(new GlFrameBuffer(this));
     }
 

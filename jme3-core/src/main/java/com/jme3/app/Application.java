@@ -35,6 +35,7 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.Listener;
+import com.jme3.backend.Engine;
 import com.jme3.input.InputManager;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
@@ -63,10 +64,10 @@ public interface Application {
     /**
      * Changes the application's behavior when unfocused.
      *
-     * By default, the application will
+     * <p>By default, the application will
      * {@link LostFocusBehavior#ThrottleOnLostFocus throttle the update loop}
      * so as not to use 100% of the CPU when it is out of focus, e.g.
-     * alt-tabbed, minimized, or obstructed by another window.
+     * alt-tabbed, minimized, or obstructed by another window.</p>
      *
      * @param lostFocusBehavior The new lost focus behavior to use.
      *
@@ -216,7 +217,7 @@ public interface Application {
      * Requests the context to close, shutting down the main loop
      * and making necessary cleanup operations.
      *
-     * Same as calling stop(false)
+     * <p>Same as calling stop(false)</p>
      *
      * @see #stop(boolean)
      */
@@ -265,4 +266,7 @@ public interface Application {
     public ViewPort getGuiViewPort();
 
     public ViewPort getViewPort();
+
+    Engine getEngine();
+
 }

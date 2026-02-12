@@ -2,11 +2,9 @@ package com.jme3.vulkan.memory;
 
 import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
-import com.jme3.util.natives.Native;
-import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.buffers.VulkanBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.images.GpuImage;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.PointerBuffer;
@@ -37,7 +35,7 @@ public class MemoryRegion extends AbstractNative<Long> {
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> {
             vkFreeMemory(device.getNativeObject(), object, null);
             MemoryUtil.memFree(mapping);
@@ -45,7 +43,7 @@ public class MemoryRegion extends AbstractNative<Long> {
     }
 
     public void bind(VulkanBuffer buffer, long offset) {
-        check(vkBindBufferMemory(device.getNativeObject(), buffer.getId(), object, offset),
+        check(vkBindBufferMemory(device.getNativeObject(), buffer.getGpuObject(), object, offset),
                 "Failed to bind buffer memory.");
     }
 
@@ -75,7 +73,7 @@ public class MemoryRegion extends AbstractNative<Long> {
 
     public void unmap() {
         if (!mapped.getAndSet(false)) {
-            throw new IllegalStateException("Memory is not mapped.");
+            throw new IllegalStateException("Memory not mapped.");
         }
         mapping.put(0, VK_NULL_HANDLE);
         vkUnmapMemory(device.getNativeObject(), object);
@@ -107,7 +105,7 @@ public class MemoryRegion extends AbstractNative<Long> {
 
     public static MemoryRegion buildBufferMemory(MemoryStack stack, VulkanBuffer buffer, Consumer<Builder> config) {
         VkMemoryRequirements memReq = VkMemoryRequirements.malloc(stack);
-        vkGetBufferMemoryRequirements(buffer.getDevice().getNativeObject(), buffer.getId(), memReq);
+        vkGetBufferMemoryRequirements(buffer.getDevice().getNativeObject(), buffer.getGpuObject(), memReq);
         MemoryRegion mem = build(buffer.getDevice(), buffer.size().getBytes(), b -> {
             b.setUsableMemoryTypes(memReq.memoryTypeBits());
             config.accept(b);
@@ -134,8 +132,8 @@ public class MemoryRegion extends AbstractNative<Long> {
             check(vkAllocateMemory(device.getNativeObject(), allocate, null, idBuf),
                     "Failed to allocate buffer memory.");
             object = idBuf.get(0);
-            ref = Native.get().register(MemoryRegion.this);
-            device.getNativeReference().addDependent(ref);
+            ref = DisposableManager.reference(MemoryRegion.this);
+            device.getReference().addDependent(ref);
             return MemoryRegion.this;
         }
 

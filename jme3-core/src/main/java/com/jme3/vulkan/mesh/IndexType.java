@@ -1,6 +1,6 @@
 package com.jme3.vulkan.mesh;
 
-import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.util.IntEnum;
 
 import static org.lwjgl.vulkan.VK10.*;
@@ -27,7 +27,7 @@ public enum IndexType implements IntEnum<IndexType> {
         return bytes;
     }
 
-    public static IndexType of(GpuBuffer buffer) {
+    public static IndexType of(MappableBuffer buffer) {
         if (buffer.size().getBytesPerElement() <= UInt16.bytes) {
             return UInt16;
         } else {

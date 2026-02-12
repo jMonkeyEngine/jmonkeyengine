@@ -34,7 +34,6 @@ package com.jme3.math;
 import com.jme3.export.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
-import com.jme3.vulkan.buffers.BufferMember;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -557,6 +556,29 @@ public final class Matrix3f implements BufferMember, Savable, Cloneable, java.io
                 throw new IllegalArgumentException("Invalid column index. " + i);
         }
         return this;
+    }
+
+    public Matrix3f setColumn(int i, float m0, float m1, float m2) {
+        switch (i) {
+            case 0: {
+                m00 = m0;
+                m10 = m1;
+                m20 = m2;
+            } break;
+            case 1: {
+                m01 = m0;
+                m11 = m1;
+                m21 = m2;
+            } break;
+            case 2: {
+                m02 = m0;
+                m12 = m1;
+                m22 = m2;
+            } break;
+            default:
+                logger.warning("Invalid column index.");
+                throw new IllegalArgumentException("Invalid column index. " + i);
+        }
     }
 
     /**
@@ -1514,6 +1536,10 @@ public final class Matrix3f implements BufferMember, Savable, Cloneable, java.io
     @Override
     public int getSizeInBytes() {
         return 9 * Float.BYTES;
+    }
+
+    public static Matrix3f storage(Matrix3f store) {
+        return store != null ? store : new Matrix3f();
     }
 
 }

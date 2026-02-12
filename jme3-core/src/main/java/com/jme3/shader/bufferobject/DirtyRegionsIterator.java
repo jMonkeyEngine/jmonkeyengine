@@ -41,6 +41,7 @@ import java.util.List;
  * 
  * @author Riccardo Balbo
  */
+@Deprecated
 public class DirtyRegionsIterator implements Iterator<BufferRegion> {
 
     private static class DirtyRegion extends BufferRegion {
@@ -64,10 +65,12 @@ public class DirtyRegionsIterator implements Iterator<BufferRegion> {
             return slice;
         }
 
+        @Override
         public void clearDirty() {
             regions.forEach(BufferRegion::clearDirty);
             super.clearDirty();
         }
+
     }
 
     private BufferObject bufferObject;

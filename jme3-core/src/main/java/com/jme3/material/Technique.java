@@ -32,31 +32,30 @@
 package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.dev.NotFullyImplemented;
 import com.jme3.light.LightList;
 import com.jme3.material.GlMaterial.BindUnits;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlMesh;
 import com.jme3.shader.DefineList;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.VarType;
 import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.pipeline.Pipeline;
-import com.jme3.vulkan.pipeline.PipelineBindPoint;
-import com.jme3.vulkan.pipeline.states.BasePipelineState;
+import com.jme3.vulkan.material.technique.NewTechnique;
+import com.jme3.vulkan.material.shader.ShaderStage;
+import com.jme3.vulkan.util.Flag;
 
 import java.util.EnumSet;
 
 /**
  * Represents a technique instance.
  */
-public final class Technique implements Pipeline {
+public final class Technique implements NewTechnique {
 
     private final TechniqueDef def;
     private final GlMaterial owner;
@@ -77,6 +76,28 @@ public final class Technique implements Pipeline {
         this.dynamicDefines = def.createDefineList();
     }
 
+    @Override
+    public void setShaderSource(ShaderStage stage, String assetName) {
+        // the only reason this method is here is that I hope one day this
+        // class will be freed from TechniqueDef tyranny
+        throw new UnsupportedOperationException("Cannot mutate shader sources.");
+    }
+
+    @Override
+    public void removeShader(ShaderStage stage) {
+        throw new UnsupportedOperationException("Cannot mutate shader sources.");
+    }
+
+    @Override
+    public void linkDefine(String defineName, String uniformName, Flag<ShaderStage> scope) {
+        throw new UnsupportedOperationException("Cannot mutate define linkages.");
+    }
+
+    @Override
+    public void unlinkDefine(String defineName) {
+        throw new UnsupportedOperationException("Cannot mutate define linkages.");
+    }
+
     /**
      * Returns the technique definition that is implemented by this technique
      * instance. 
@@ -92,7 +113,7 @@ public final class Technique implements Pipeline {
      * Called by the material to tell the technique a parameter was modified.
      * Specify <code>null</code> for value if the param is to be cleared.
      */
-    final void notifyParamChanged(String paramName, VarType type, Object value) {
+    private void notifyParamChanged(String paramName, VarType type, Object value) {
         Integer defineId = def.getShaderParamDefineId(paramName);
 
         if (defineId == null) {
@@ -108,7 +129,7 @@ public final class Technique implements Pipeline {
      * The technique updates dynamic defines based on the
      * currently set material parameters.
      */
-    final void notifyTechniqueSwitched() {
+    void notifyTechniqueSwitched() {
         ListMap<String, MatParam> paramMap = owner.getParamsMap();
         paramDefines.clear();
         for (int i = 0; i < paramMap.size(); i++) {
@@ -141,9 +162,10 @@ public final class Technique implements Pipeline {
      * @param rendererCaps The renderer capabilities which the shader should support.
      * @return A compatible shader.
      */
-    public Shader makeCurrent(RenderManager renderManager, SafeArrayList<MatParamOverride> worldOverrides,
-            SafeArrayList<MatParamOverride> forcedOverrides,
-            LightList lights, EnumSet<Caps> rendererCaps) {
+    public ShaderProgram getShader(RenderManager renderManager,
+                                   SafeArrayList<MatParamOverride> worldOverrides,
+                                   SafeArrayList<MatParamOverride> forcedOverrides,
+                                   LightList lights, EnumSet<Caps> rendererCaps) {
         TechniqueDefLogic logic = def.getLogic();
         AssetManager assetManager = owner.getMaterialDef().getAssetManager();
 
@@ -157,23 +179,22 @@ public final class Technique implements Pipeline {
             applyOverrides(dynamicDefines, forcedOverrides);
         }
 
-        return logic.makeCurrent(assetManager, renderManager, rendererCaps, lights, dynamicDefines);
+        return logic.getShader(assetManager, renderManager, rendererCaps, lights, dynamicDefines);
     }
     
     /**
      * Render the technique according to its {@link TechniqueDefLogic}.
      *
-     * @param renderManager The render manager to perform the rendering against.
+     * @param renderer      The renderer to perform the rendering against.
      * @param shader        The shader that was selected in
-     *                      {@link #makeCurrent(RenderManager, SafeArrayList, SafeArrayList, LightList, EnumSet)}.
+     *                      {@link #getShader(RenderManager, SafeArrayList, SafeArrayList, LightList, EnumSet)}.
      * @param geometry      The geometry to render
      * @param mesh          The mesh to render
      * @param lights        Lights which influence the geometry.
      * @param lastBindUnits the index of the most recently used texture unit
      */
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh, LightList lights, BindUnits lastBindUnits) {
-        TechniqueDefLogic logic = def.getLogic();
-        logic.render(renderManager, shader, geometry, mesh, lights, lastBindUnits);
+    public void render(GLRenderer renderer, ShaderProgram shader, Geometry geometry, GlMesh mesh, LightList lights, BindUnits lastBindUnits) {
+        def.getLogic().render(renderer, shader, geometry, mesh, lights, lastBindUnits);
     }
     
     /**
@@ -200,28 +221,17 @@ public final class Technique implements Pipeline {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    @NotFullyImplemented
-    public void bind(CommandBuffer cmd) {
-
-    }
-
-    @Override
-    public PipelineBindPoint getBindPoint() {
-        return PipelineBindPoint.Graphics;
-    }
-
     /**
      * Compute the sort ID. Similar to {@link Object#hashCode()} but used
      * for sorting geometries for rendering.
      * 
      * @return the sort ID for this technique instance.
      */
-    @Override
     public int getSortId() {
         int hash = 17;
         hash = hash * 23 + def.getSortId();
         hash = hash * 23 + paramDefines.hashCode();
         return hash;
     }
+
 }

@@ -3,23 +3,17 @@ package com.jme3.vulkan.mesh;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.bih.BIHTree;
+import com.jme3.renderer.opengl.GLRenderer;
+import com.jme3.scene.GlMesh;
 import com.jme3.scene.GlVertexBuffer;
-import com.jme3.scene.Mesh;
-import com.jme3.vulkan.buffers.MultiMappingBuffer;
-import com.jme3.vulkan.buffers.BufferUsage;
-import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.buffers.GlNativeBuffer;
+import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.buffers.VulkanBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.memory.MemoryProp;
-import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.mesh.attribute.Attribute;
-import com.jme3.vulkan.pipeline.PolygonMode;
 import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.pipeline.VertexPipeline;
-import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.LongBuffer;
@@ -27,20 +21,18 @@ import java.util.*;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public class AdaptiveMesh implements VulkanMesh, Iterable<AdaptiveMesh.VertexBuffer>  {
+public class AdaptiveMesh implements VulkanMesh, GlMesh {
 
     private final MeshLayout layout;
-    private final Collection<LodBuffer> lods = new ArrayList<>(1);
     private final List<VertexBuffer> vertexBuffers = new ArrayList<>();
+    private final List<MappableBuffer> indexBuffers = new ArrayList<>(1);
     private final Map<String, GlVertexBuffer.Usage> attributeUsages = new HashMap<>();
-    private LodBuffer currentLod;
-    private final int vertexCapacity;
-    private final int instanceCapacity;
+    private final int vertexCapacity, instanceCapacity;
+    private MappableBuffer selectedIndex;
     private int vertices, instances;
     private final BoundingVolume volume = new BoundingBox();
     private BIHTree collisionTree;
     private IntEnum<Topology> topology = Topology.TriangleList;
-    private IntEnum<PolygonMode> polygonMode = PolygonMode.Fill;
 
     public AdaptiveMesh(MeshLayout layout, int vertices, int instances) {
         this.layout = layout;
@@ -50,26 +42,43 @@ public class AdaptiveMesh implements VulkanMesh, Iterable<AdaptiveMesh.VertexBuf
 
     @Override
     public void render(CommandBuffer cmd, VertexPipeline pipeline) {
+        if (vertices <= 0 || instances <= 0) {
+            return;
+        }
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            LongBuffer verts = stack.mallocLong(vertexBuffers.size());
-            LongBuffer offsets = stack.mallocLong(vertexBuffers.size());
-            for (VertexBinding b : layout) {
-                if (!b.bindOnPipeline(pipeline)) {
-                    continue;
+            LongBuffer verts = stack.mallocLong(layout.getBindings().size());
+            LongBuffer offsets = stack.mallocLong(layout.getBindings().size());
+            for (VertexBinding b : layout.getBindings()) {
+                if (pipeline.vertexBindingCompatible(b)) {
+                    verts.put(getVertexBuffer(b).getData().getId());
+                    offsets.put(b.getOffset());
                 }
-                VertexBuffer vb = getVertexBuffer(b);
-                verts.put(vb.getId());
-                offsets.put(vb.getBinding().getOffset());
             }
             verts.flip();
             offsets.flip();
             vkCmdBindVertexBuffers(cmd.getBuffer(), 0, verts, offsets);
         }
-        if (currentLod != null) {
-            vkCmdBindIndexBuffer(cmd.getBuffer(), currentLod.getId(), 0, IndexType.of(currentLod).getEnum());
-            vkCmdDrawIndexed(cmd.getBuffer(), currentLod.size().getElements(), instances, 0, 0, 0);
+        if (selectedIndex != null) {
+            vkCmdBindIndexBuffer(cmd.getBuffer(), ((VulkanBuffer)selectedIndex).getId(), 0, IndexType.of(selectedIndex).getEnum());
+            vkCmdDrawIndexed(cmd.getBuffer(), selectedIndex.size().getElements(), instances, 0, 0, 0);
         } else {
             vkCmdDraw(cmd.getBuffer(), vertices, instances, 0, 0);
+        }
+    }
+
+    @Override
+    public void render(GLRenderer renderer) {
+        if (vertices <= 0 || instances <= 0) {
+            return;
+        }
+        for (VertexBuffer vb : vertexBuffers) {
+            renderer.setVertexAttrib(vb);
+        }
+        renderer.clearVertexAttribs(); // misleading name here
+        if (selectedIndex != null) {
+            renderer.drawTriangleList((GlNativeBuffer)selectedIndex, topology, instances, vertices);
+        } else {
+            renderer.drawTriangleArray(topology, instances, vertices);
         }
     }
 
@@ -79,38 +88,48 @@ public class AdaptiveMesh implements VulkanMesh, Iterable<AdaptiveMesh.VertexBuf
     }
 
     @Override
-    public <T extends Attribute> T mapAttribute(GlVertexBuffer.Type name) {
-        return layout.mapAttribute(this, name.name());
-    }
-
-    @Override
-    public void addLevelOfDetail(LodBuffer lod) {
-        lods.add(lod);
-    }
-
-    @Override
-    public LodBuffer selectLevelOfDetail(Comparator<LodBuffer> selector) {
-        currentLod = null;
-        for (LodBuffer l : lods) {
-            if (currentLod == null || selector.compare(l, currentLod) > 0) {
-                currentLod = l;
-            }
+    public void setLevelOfDetail(int level, MappableBuffer buffer) {
+        while (indexBuffers.size() <= level) {
+            indexBuffers.add(null);
         }
-        return currentLod;
+        indexBuffers.set(level, buffer);
+        if (selectedIndex == null) {
+            selectedIndex = buffer;
+        }
+    }
+
+    @Override
+    public MappableBuffer selectLevelOfDetail(int level) {
+        selectedIndex = null;
+        for (; level >= 0; level--) {
+            if ((selectedIndex = indexBuffers.get(level)) != null) break;
+        }
+        return selectedIndex;
+    }
+
+    @Override
+    public MappableBuffer getLevelOfDetail(int level) {
+        for (; level >= 0; level--) {
+            MappableBuffer index = indexBuffers.get(level);
+            if (index != null) return index;
+        }
+        return null;
     }
 
     @Override
     public VertexBuffer getVertexBuffer(VertexBinding binding) {
-        VertexBuffer vb = vertexBuffers.stream().filter(v -> v.getBinding() == binding).findAny().orElse(null);
+        VertexBuffer vb = vertexBuffers.stream()
+                .filter(v -> v.getBinding() == binding)
+                .findAny().orElse(null);
         if (vb == null) {
             GlVertexBuffer.Usage usage = GlVertexBuffer.Usage.Static;
-            for (VertexBinding.NamedAttribute attr : binding.getAttributes()) {
+            for (NamedAttribute attr : binding.getAttributes()) {
                 GlVertexBuffer.Usage u = attributeUsages.get(attr.getName());
                 if (u != null && u.ordinal() > usage.ordinal()) {
                     usage = u;
                 }
             }
-            vb = new VertexBuffer(binding, binding.createBuffer(getCapacity(binding.getInputRate()), usage));
+            vb = new VertexBuffer(binding, getCapacity(binding.getInputRate()), usage);
             vertexBuffers.add(vb);
         }
         return vb;
@@ -127,7 +146,7 @@ public class AdaptiveMesh implements VulkanMesh, Iterable<AdaptiveMesh.VertexBuf
     public void pushElements(IntEnum<InputRate> rate, int baseElement, int elements) {
         for (VertexBuffer vb : vertexBuffers) {
             if (vb.getBinding().getInputRate().is(rate)) {
-                vb.push((int)vb.getBinding().getOffset() + baseElement * vb.getBinding().getStride(), elements * vb.getBinding().getStride());
+                vb.getData().push((int)vb.getBinding().getOffset() + baseElement * vb.getBinding().getStride(), elements * vb.getBinding().getStride());
             }
         }
     }
@@ -152,18 +171,8 @@ public class AdaptiveMesh implements VulkanMesh, Iterable<AdaptiveMesh.VertexBuf
     }
 
     @Override
-    public Iterator<VertexBuffer> iterator() {
-        return vertexBuffers.iterator();
-    }
-
-    @Override
     public IntEnum<Topology> getTopology() {
         return topology;
-    }
-
-    @Override
-    public IntEnum<PolygonMode> getPolygonMode() {
-        return polygonMode;
     }
 
     @Override
@@ -176,69 +185,9 @@ public class AdaptiveMesh implements VulkanMesh, Iterable<AdaptiveMesh.VertexBuf
         return layout.attributeExists(name);
     }
 
+    @Override
     public MeshLayout getLayout() {
         return layout;
-    }
-
-    public static class VertexBuffer implements VulkanBuffer {
-
-        private final VertexBinding binding;
-        private final MultiMappingBuffer<VulkanBuffer> buffer = new MultiMappingBuffer<>();
-
-        private VertexBuffer(VertexBinding binding, GpuBuffer buffer) {
-            this.binding = binding;
-            this.buffer.setBuffer((VulkanBuffer)buffer);
-        }
-
-        public VertexBinding getBinding() {
-            return binding;
-        }
-
-        @Override
-        public LogicalDevice<?> getDevice() {
-            return buffer.getBuffer().getDevice();
-        }
-
-        @Override
-        public Flag<BufferUsage> getUsage() {
-            return buffer.getBuffer().getUsage();
-        }
-
-        @Override
-        public Flag<MemoryProp> getMemoryProperties() {
-            return buffer.getBuffer().getMemoryProperties();
-        }
-
-        @Override
-        public boolean isConcurrent() {
-            return buffer.getBuffer().isConcurrent();
-        }
-
-        @Override
-        public PointerBuffer map(int offset, int size) {
-            return buffer.map(offset, size);
-        }
-
-        @Override
-        public void push(int offset, int size) {
-            buffer.push(offset, size);
-        }
-
-        @Override
-        public long getId() {
-            return buffer.getId();
-        }
-
-        @Override
-        public void unmap() {
-            buffer.unmap();
-        }
-
-        @Override
-        public MemorySize size() {
-            return buffer.size();
-        }
-
     }
 
 }

@@ -33,23 +33,17 @@ package com.jme3.anim;
 
 import com.jme3.export.*;
 import com.jme3.material.MatParamOverride;
-import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.*;
 import com.jme3.scene.*;
 import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.shader.VarType;
 import com.jme3.util.SafeArrayList;
-import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-import com.jme3.vulkan.mesh.AttributeModifier;
 
 import java.io.IOException;
-import java.nio.Buffer;
-import java.nio.FloatBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -333,7 +327,6 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
                 if (mesh.attributeExists(Type.BindPoseTangent)) {
                     try (AttributeModifier tb = mesh.modify(Type.Tangent);
                             AttributeModifier btb = mesh.modify(Type.BindPoseTangent)) {
-                        // todo: 3 or 4 components for tangent???
                         tb.putReader(btb, 0, 0, 0, 0, mesh.getVertexCount(), 4);
                     }
                 }

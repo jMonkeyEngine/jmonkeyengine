@@ -819,10 +819,10 @@ public class Node extends Spatial {
     @Override
     protected void findNextIteration(GraphIterator iterator) {
         int i = iterator.advanceIndex();
-        if (i >= children.size()) {
+        if (i < 0) {
             iterator.moveUp();
         } else {
-            iterator.moveDown(children.get(i));
+            iterator.moveDown(children.get(i), i >= children.size() - 1);
         }
     }
 

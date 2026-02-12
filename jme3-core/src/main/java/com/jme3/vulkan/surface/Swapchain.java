@@ -3,12 +3,13 @@ package com.jme3.vulkan.surface;
 import com.jme3.texture.ImageView;
 import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
-import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
+import com.jme3.util.natives.DisposableManager;
+import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.*;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.images.GpuImage;
 import com.jme3.vulkan.images.ImageUsage;
 import com.jme3.vulkan.images.VulkanImageView;
@@ -17,7 +18,6 @@ import com.jme3.vulkan.pipeline.framebuffer.VulkanFrameBuffer;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
-import com.jme3.vulkan.sync.SyncGroup;
 import com.jme3.vulkan.util.Extent2;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
@@ -35,6 +35,8 @@ import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class Swapchain extends AbstractNative<Long> {
+
+    public static final String EXTENSION = KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 
     public enum PresentMode implements IntEnum<PresentMode> {
 
@@ -72,13 +74,13 @@ public class Swapchain extends AbstractNative<Long> {
         this.surface = surface;
         this.config = config;
         this.object = VK_NULL_HANDLE;
-        ref = Native.get().register(this);
-        device.getNativeReference().addDependent(ref);
+        ref = DisposableManager.reference(this);
+        device.getReference().addDependent(ref);
         surface.getNativeReference().addDependent(ref);
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> KHRSwapchain.vkDestroySwapchainKHR(device.getNativeObject(), object, null);
     }
 
@@ -91,7 +93,8 @@ public class Swapchain extends AbstractNative<Long> {
     public PresentImage acquireNextImage(MemoryStack stack, Semaphore signal, Fence fence, long timeoutMillis) {
         IntBuffer imageIndex = stack.mallocInt(1);
         int code = KHRSwapchain.vkAcquireNextImageKHR(device.getNativeObject(), object,
-                TimeUnit.MILLISECONDS.toNanos(timeoutMillis), Native.getId(signal), Native.getId(fence), imageIndex);
+                TimeUnit.MILLISECONDS.toNanos(timeoutMillis), signal != null ? signal.getSemaphoreObject() : VK_NULL_HANDLE,
+                fence != null ? fence.getNativeObject() : VK_NULL_HANDLE, imageIndex);
         if (updateNeeded || code == KHRSwapchain.VK_ERROR_OUT_OF_DATE_KHR || code == KHRSwapchain.VK_SUBOPTIMAL_KHR) {
             updateNeeded = false;
             if (updater == null) {
@@ -126,7 +129,7 @@ public class Swapchain extends AbstractNative<Long> {
             if (waits.length > 0) {
                 LongBuffer waitBuf = stack.mallocLong(waits.length);
                 for (Semaphore w : waits) {
-                    waitBuf.put(w.getNativeObject());
+                    waitBuf.put(w.getSemaphoreObject());
                 }
                 info.pWaitSemaphores(waitBuf.flip());
             }
@@ -263,7 +266,7 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public void addNativeDependent(NativeReference ref) {
+        public void addNativeDependent(DisposableReference ref) {
             Swapchain.this.ref.addDependent(ref);
         }
 
@@ -327,7 +330,7 @@ public class Swapchain extends AbstractNative<Long> {
                 throw new IllegalStateException("Image count not selected.");
             }
             if (object != VK_NULL_HANDLE) {
-                createNativeDestroyer().run();
+                createDestroyer().run();
                 object = VK_NULL_HANDLE;
             }
             VkSurfaceCapabilitiesKHR caps = VkSurfaceCapabilitiesKHR.calloc(stack);
@@ -339,7 +342,7 @@ public class Swapchain extends AbstractNative<Long> {
                     .sType(KHRSwapchain.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR)
                     .surface(surface.getNativeObject())
                     .minImageCount(selectedImageCount)
-                    .imageFormat(format.getVkEnum())
+                    .imageFormat(format.getEnum())
                     .imageColorSpace(selectedFormat.colorSpace())
                     .imageExtent(selectedExtent)
                     .imageArrayLayers(imageLayers)
@@ -392,7 +395,7 @@ public class Swapchain extends AbstractNative<Long> {
         public VkSurfaceFormatKHR selectFormat(FormatColorSpace... preferredFormats) {
             for (VkSurfaceFormatKHR f : formats) {
                 for (int i = 0; i < preferredFormats.length; i += 2) {
-                    if (f.format() == preferredFormats[i].format.getVkEnum()
+                    if (f.format() == preferredFormats[i].format.getEnum()
                             && f.colorSpace() == preferredFormats[i].colorSpace.getEnum()) {
                         return (selectedFormat = f);
                     }

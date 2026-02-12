@@ -4,6 +4,8 @@ import java.util.Iterator;
 
 public class DirtyRegions implements Iterable<DirtyRegions.Region> {
 
+    public static final DirtyRegions EMPTY = new DirtyRegions();
+
     private final Region head = new Region(0, 0);
     private int numRegions = 0;
     private int coverage = 0;
@@ -15,7 +17,7 @@ public class DirtyRegions implements Iterable<DirtyRegions.Region> {
         if (size == 0) return;
         boolean merged = false;
         for (Region r = head, prev = null; r != null; r = r.next) {
-            if (!(merged = merged | r.mergeOnIntersect(offset, size)) && prev != null && offset + size < r.start) {
+            if (!(merged = (merged | r.mergeOnIntersect(offset, size))) && prev != null && offset + size < r.start) {
                 (prev.next = new Region(offset, size)).next = r;
                 break;
             }
@@ -34,11 +36,30 @@ public class DirtyRegions implements Iterable<DirtyRegions.Region> {
         numRegions = n;
     }
 
-    public void optimize(int minGap) {
+    public void optimizeGaps(int regionMergeGap) {
         for (Region r = head.next, prev = head; r != null; r = r.next) {
-            if (!prev.fillGapBetween(r, minGap)) {
+            int g = prev.fillGapBetween(r, regionMergeGap);
+            if (g >= 0) {
                 prev = r;
+                numRegions--;
+                coverage += g;
             }
+        }
+    }
+
+    public void optimizeNumRegions(int maxRegions) {
+        if (numRegions <= 1) return;
+        for (; numRegions > maxRegions; numRegions--) {
+            Region pref = head;
+            int gap = Integer.MAX_VALUE;
+            for (Region r = head; r.next != null; r = r.next) {
+                int g = r.next.start - r.end;
+                if (g < gap) {
+                    gap = g;
+                    pref = r;
+                }
+            }
+            coverage += pref.fillGapBetween(pref.next, Integer.MAX_VALUE);
         }
     }
 
@@ -91,13 +112,14 @@ public class DirtyRegions implements Iterable<DirtyRegions.Region> {
             return false;
         }
 
-        private boolean fillGapBetween(Region r, int minGap) {
+        private int fillGapBetween(Region r, int minGap) {
             if (end + minGap >= r.start) {
+                minGap = end - r.start;
                 end = r.end;
                 next = r.next;
-                return true;
+                return minGap;
             }
-            return false;
+            return -1;
         }
 
         public int getOffset() {

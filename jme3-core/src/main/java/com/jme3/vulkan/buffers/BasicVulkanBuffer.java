@@ -2,8 +2,8 @@ package com.jme3.vulkan.buffers;
 
 import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.util.AbstractNativeBuilder;
-import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemoryRegion;
@@ -35,12 +35,15 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
     }
 
     @Override
-    public long getId() {
+    public Long getGpuObject() {
         return object;
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public void push(int offset, int size) {}
+
+    @Override
+    public Runnable createDestroyer() {
         return () -> vkDestroyBuffer(device.getNativeObject(), object, null);
     }
 
@@ -72,10 +75,12 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
     }
 
     @Override
-    public boolean resize(MemorySize size) {
+    public ResizeResult resize(MemorySize size) {
         this.size = size;
         if (memory != null && size.getBytes() > memory.getSize()) {
-            new Builder().build();
+            Builder b = new Builder();
+            b.setMemFlags(getMemoryProperties());
+            b.build();
             return true;
         }
         return false;
@@ -141,9 +146,9 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
                 m.setUsableMemoryTypes(bufferMem.memoryTypeBits());
             });
             memory.bind(BasicVulkanBuffer.this, 0);
-            ref = Native.get().register(BasicVulkanBuffer.this);
-            device.getNativeReference().addDependent(ref);
-            memory.getNativeReference().addDependent(ref);
+            ref = DisposableManager.reference(BasicVulkanBuffer.this);
+            device.getReference().addDependent(ref);
+            memory.getReference().addDependent(ref);
             return BasicVulkanBuffer.this;
         }
 

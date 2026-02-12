@@ -1,8 +1,6 @@
 package com.jme3.vulkan.descriptors;
 
-import com.jme3.renderer.vulkan.VulkanUtils;
-import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
+import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.util.Flag;
 import org.lwjgl.system.MemoryStack;
@@ -36,7 +34,7 @@ public class DescriptorPool implements Native<Long> {
     }
 
     private final LogicalDevice<?> device;
-    private final NativeReference ref;
+    private final DisposableReference ref;
     private final Flag<Create> flags;
     private final long id;
 
@@ -59,7 +57,7 @@ public class DescriptorPool implements Native<Long> {
             id = idBuf.get(0);
         }
         ref = Native.get().register(this);
-        device.getNativeReference().addDependent(ref);
+        device.getReference().addDependent(ref);
     }
 
     @Override
@@ -68,15 +66,15 @@ public class DescriptorPool implements Native<Long> {
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> vkDestroyDescriptorPool(device.getNativeObject(), id, null);
     }
 
     @Override
-    public void prematureNativeDestruction() {}
+    public void prematureDestruction() {}
 
     @Override
-    public NativeReference getNativeReference() {
+    public DisposableReference getNativeReference() {
         return ref;
     }
 

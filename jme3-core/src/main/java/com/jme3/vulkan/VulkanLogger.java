@@ -1,7 +1,6 @@
 package com.jme3.vulkan;
 
-import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
+import com.jme3.util.natives.DisposableReference;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.EXTDebugUtils;
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT;
@@ -19,7 +18,7 @@ public class VulkanLogger implements Native<Long> {
 
     private final VulkanInstance instance;
     private final Level exceptionThreshold;
-    private final NativeReference ref;
+    private final DisposableReference ref;
     private final long id;
     private final VkDebugUtilsMessengerCallbackEXT callback = new VkDebugUtilsMessengerCallbackEXT() {
         @Override
@@ -48,7 +47,7 @@ public class VulkanLogger implements Native<Long> {
             id = getLong(stack, ptr -> vkCreateDebugUtilsMessengerEXT(instance.getNativeObject(), create, null, ptr));
         }
         ref = Native.get().register(this);
-        instance.getNativeReference().addDependent(ref);
+        instance.getReference().addDependent(ref);
     }
 
     public int message(int messageSeverity, int messageTypes, long pCallbackData, long pUserData) {
@@ -67,7 +66,7 @@ public class VulkanLogger implements Native<Long> {
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> {
             verifyExtensionMethod(instance.getNativeObject(), "vkDestroyDebugUtilsMessengerEXT");
             vkDestroyDebugUtilsMessengerEXT(instance.getNativeObject(), id, null);
@@ -76,10 +75,10 @@ public class VulkanLogger implements Native<Long> {
     }
 
     @Override
-    public void prematureNativeDestruction() {}
+    public void prematureDestruction() {}
 
     @Override
-    public NativeReference getNativeReference() {
+    public DisposableReference getNativeReference() {
         return ref;
     }
 

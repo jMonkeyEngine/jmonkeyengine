@@ -41,6 +41,9 @@ import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.lwjgl.opengl.EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT;
+import static org.lwjgl.opengl.GL45.*;
+
 /**
  * Internal utility class used by {@link GLRenderer} to manage textures.
  * 
@@ -49,18 +52,11 @@ import java.util.logging.Logger;
 public final class TextureUtil {
 
     private static final Logger logger = Logger.getLogger(TextureUtil.class.getName());
-
-    private final GL gl;
-    private final GL2 gl2;
-    private final GLExt glext;
+    
     private GLImageFormat[][] formats;
     private boolean supportUnpackRowLength;
     
-    public TextureUtil(GL gl, GL2 gl2, GLExt glext) {
-        this.gl = gl;
-        this.gl2 = gl2;
-        this.glext = glext;
-    }
+    public TextureUtil() {}
     
     public void initialize(EnumSet<Caps> caps) {
         supportUnpackRowLength = caps.contains(Caps.UnpackRowLength);
@@ -108,31 +104,31 @@ public final class TextureUtil {
         // Needed for OpenGL 3.3 to support luminance / alpha formats
         switch (format) {
             case Alpha8:
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_ZERO);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_ZERO);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_ZERO);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_RED);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_R, GL_ZERO);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_G, GL_ZERO);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_B, GL_ZERO);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, GL_RED);
                 break;
             case Luminance8:
             case Luminance16F:
             case Luminance32F:
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_RED);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_RED);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_RED);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_ONE);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_R, GL_RED);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_G, GL_RED);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_B, GL_RED);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, GL_ONE);
                 break;
             case Luminance8Alpha8:
             case Luminance16FAlpha16F:
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_RED);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_RED);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_RED);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_GREEN);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_R, GL_RED);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_G, GL_RED);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_B, GL_RED);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, GL_GREEN);
                 break;
             case ABGR8:
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_ALPHA);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_BLUE);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_GREEN);
-                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_RED);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_R, GL_ALPHA);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_G, GL_BLUE);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_B, GL_GREEN);
+                glTexParameteri(target, GL_TEXTURE_SWIZZLE_A, GL_RED);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -141,9 +137,9 @@ public final class TextureUtil {
     
     private void uploadTextureLevel(GLImageFormat format, int target, int level, int slice, int sliceCount, int width, int height, int depth, int samples, ByteBuffer data) {
         if (format.compressed && data != null) {
-            if (target == GL2.GL_TEXTURE_3D) {
+            if (target == GL_TEXTURE_3D) {
                 // For 3D textures, we upload the entire mipmap level.
-                gl2.glCompressedTexImage3D(target,
+                glCompressedTexImage3D(target,
                                             level,
                                             format.internalFormat,
                                             width,
@@ -151,11 +147,11 @@ public final class TextureUtil {
                                             depth,
                                             0,
                                             data);
-            } else if (target == GLExt.GL_TEXTURE_2D_ARRAY_EXT) {
+            } else if (target == GL_TEXTURE_2D_ARRAY_EXT) {
                 // For texture arrays, only upload 1 slice at a time.
                 // zoffset specifies slice index, and depth is 1 to indicate
                 // a single texture in the array.
-                gl2.glCompressedTexSubImage3D(target,
+                glCompressedTexSubImage3D(target,
                                               level,
                                               0,
                                               0,
@@ -167,7 +163,7 @@ public final class TextureUtil {
                                               data);
             } else {
                 // Cubemaps also use 2D upload.
-                gl2.glCompressedTexImage2D(target,
+                glCompressedTexImage2D(target,
                                            level,
                                            format.internalFormat,
                                            width,
@@ -177,8 +173,8 @@ public final class TextureUtil {
             }
         } else {
             // (Non-compressed OR allocating texture storage for FBO)
-            if (target == GL2.GL_TEXTURE_3D) {
-                gl2.glTexImage3D(target,
+            if (target == GL_TEXTURE_3D) {
+                glTexImage3D(target,
                                  level,
                                  format.internalFormat,
                                  width,
@@ -188,10 +184,10 @@ public final class TextureUtil {
                                  format.format,
                                  format.dataType,
                                  data);
-            } else if (target == GLExt.GL_TEXTURE_2D_ARRAY_EXT) {
+            } else if (target == GL_TEXTURE_2D_ARRAY_EXT) {
                 if (slice == -1) {
                     // Allocate texture storage (data is NULL)
-                    gl2.glTexImage3D(target,
+                    glTexImage3D(target,
                                      level,
                                      format.internalFormat,
                                      width,
@@ -205,7 +201,7 @@ public final class TextureUtil {
                     // For texture arrays, only upload 1 slice at a time.
                     // zoffset specifies slice index, and depth is 1 to indicate
                     // a single texture in the array.
-                    gl2.glTexSubImage3D(target,
+                    glTexSubImage3D(target,
                                         level,          // level
                                         0,              // xoffset
                                         0,              // yoffset
@@ -220,7 +216,7 @@ public final class TextureUtil {
             } else {
                 // 2D multisampled image.
                 if (samples > 1) {
-                    glext.glTexImage2DMultisample(target,
+                    glTexImage2DMultisample(target,
                                                   samples,
                                                   format.internalFormat,
                                                   width,
@@ -228,7 +224,7 @@ public final class TextureUtil {
                                                   true);
                 } else {
                     // Regular 2D image
-                    gl.glTexImage2D(target,
+                    glTexImage2D(target,
                                     level,
                                     format.internalFormat,
                                     width,
@@ -305,7 +301,7 @@ public final class TextureUtil {
      */
     @Deprecated
     public void uploadSubTexture(GlImage image, int target, int index, int x, int y, boolean linearizeSrgb) {
-        if (target != GL.GL_TEXTURE_2D || image.getDepth() > 1) {
+        if (target != GL_TEXTURE_2D || image.getDepth() > 1) {
             throw new UnsupportedOperationException("Updating non-2D texture is not supported");
         }
         
@@ -341,12 +337,12 @@ public final class TextureUtil {
         data.position(0);
         data.limit(data.capacity());
         
-        gl.glTexSubImage2D(target, 0, x, y, image.getWidth(), image.getHeight(), 
+        glTexSubImage2D(target, 0, x, y, image.getWidth(), image.getHeight(), 
                            oglFormat.format, oglFormat.dataType, data);
     }
 
     public void uploadSubTexture(int target, GlImage src, int index, int targetX, int targetY, int areaX, int areaY, int areaWidth, int areaHeight, boolean linearizeSrgb) {
-        if (target != GL.GL_TEXTURE_2D || src.getDepth() > 1) {
+        if (target != GL_TEXTURE_2D || src.getDepth() > 1) {
             throw new UnsupportedOperationException("Updating non-2D texture is not supported");
         }
 
@@ -390,14 +386,14 @@ public final class TextureUtil {
         if (needsStride && (!supportUnpackRowLength)) { // doesn't support stride, copy row by row (slower).
             for (int i = 0; i < areaHeight; i++) {
                 data.position(skip + (srcWidth * Bpp * i));
-                gl.glTexSubImage2D(target, 0, targetX, targetY + i, areaWidth, 1, oglFormat.format, oglFormat.dataType, data);
+                glTexSubImage2D(target, 0, targetX, targetY + i, areaWidth, 1, oglFormat.format, oglFormat.dataType, data);
             }
         } else {
             if (needsStride)
-                gl2.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, srcWidth);
-            gl.glTexSubImage2D(target, 0, targetX, targetY, areaWidth, areaHeight, oglFormat.format, oglFormat.dataType, data);
+                glPixelStorei(GL_UNPACK_ROW_LENGTH, srcWidth);
+            glTexSubImage2D(target, 0, targetX, targetY, areaWidth, areaHeight, oglFormat.format, oglFormat.dataType, data);
             if (needsStride)
-                gl2.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, 0);
+                glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         }
         data.position(cpos);
 

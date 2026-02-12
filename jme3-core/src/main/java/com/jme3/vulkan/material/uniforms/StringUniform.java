@@ -14,11 +14,6 @@ public class StringUniform implements Uniform<String> {
     }
 
     @Override
-    public DescriptorSetWriter createWriter(SetLayoutBinding binding) {
-        return null;
-    }
-
-    @Override
     public void set(String value) {
         this.value = value;
     }

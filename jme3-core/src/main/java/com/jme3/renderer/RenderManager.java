@@ -52,7 +52,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.UniformBinding;
 import com.jme3.shader.UniformBindingManager;
 import com.jme3.shader.VarType;
@@ -716,7 +716,7 @@ public class RenderManager {
      *
      * @param shader (not null)
      */
-    public void updateUniformBindings(Shader shader) {
+    public void updateUniformBindings(ShaderProgram shader) {
         uniformBindingManager.updateUniformBindings(shader);
     }
 
@@ -1248,7 +1248,6 @@ public class RenderManager {
      * @param ortho True if to use orthographic projection (for GUI rendering),
      *     false if to use the camera's view and projection matrices.
      */
-    // todo: remove ortho argument
     public void setCamera(Camera cam, boolean ortho) {
         // Tell the light filter which camera to use for filtering.
         if (lightFilter != null) {

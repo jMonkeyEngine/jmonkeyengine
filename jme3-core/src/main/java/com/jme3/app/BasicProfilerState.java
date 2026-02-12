@@ -40,11 +40,15 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.GlVertexBuffer.Type;
-import com.jme3.vulkan.mesh.exp.Color;
-import com.jme3.vulkan.mesh.exp.Position;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.MappableBuffer;
+import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.mesh.attribute.Color;
+import com.jme3.vulkan.mesh.attribute.Position;
 
 /**
  *  Provides a basic profiling visualization that shows
@@ -122,7 +126,10 @@ public class BasicProfilerState extends BaseAppState {
 
         int size = profiler.getFrameCount();
         float frameTime = 1000f / 60;
-        mesh.getVertices().as(Position.class).setPosition(0, new float[] {
+
+        Position pos = mesh.mapAttribute(Type.Position);
+        Color color = mesh.mapAttribute(Type.Color);
+        pos.set(0, new float[] {
             // first quad
             0, 0, 0,
             size, 0, 0,
@@ -141,8 +148,7 @@ public class BasicProfilerState extends BaseAppState {
             size, 0, 0,
             0, 0, 0
         });
-
-        mesh.getVertices().as(Color.class).setColor(0, new float[] {
+        color.set(0, new float[] {
             // first quad, within normal frame limits
             0, 1, 0, 0.25f,
             0, 1, 0, 0.25f,
@@ -160,28 +166,36 @@ public class BasicProfilerState extends BaseAppState {
             0, 0, 0, 0.5f,
             0, 0, 0, 0.5f
         });
+        pos.unmap();
+        color.unmap();
 
-        mesh.setBuffer(Type.Index, 3, new short[] {
-                0, 1, 2,
-                0, 2, 3,
-                4, 5, 6,
-                4, 6, 7,
-                8, 9, 10,
-                8, 10, 11
+        MappableBuffer indices = mesh.setIndexBufferIfAbsent(() -> getEngine().createBuffer(
+                MemorySize.shorts(6 * 3), BufferUsage.Index, GlVertexBuffer.Usage.Static));
+        indices.mapShorts().put(new short[] {
+            0, 1, 2,
+            0, 2, 3,
+            4, 5, 6,
+            4, 6, 7,
+            8, 9, 10,
+            8, 10, 11
         });
+        indices.unmap();
+        indices.push();
+
     }
 
     @Override
     protected void initialize(Application app) {
         graph = new Geometry("profiler", profiler.getMesh());
 
-        Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        //Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = getEngine().createMaterial("Common/MatDefs/Misc/Unshaded.j4md");
         mat.setBoolean("VertexColor", true);
         graph.setMaterial(mat);
         graph.setLocalTranslation(0, 300, 0);
         graph.setLocalScale(1, scale, 1);
 
-        Mesh mesh = new Mesh();
+        Mesh mesh = getEngine().createMesh(12);
         background = new Geometry("profiler.background", mesh);
         mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setBoolean("VertexColor", true);

@@ -1,7 +1,7 @@
 package com.jme3.vulkan.pass;
 
 import com.jme3.math.ColorRGBA;
-import com.jme3.vulkan.Format;
+import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.images.VulkanImage;
 import org.lwjgl.vulkan.VkAttachmentDescription;
 
@@ -43,7 +43,7 @@ public class Attachment {
     }
 
     public void fillStruct(VkAttachmentDescription struct) {
-        struct.format(format.getVkEnum())
+        struct.format(format.getEnum())
                 .samples(samples)
                 .loadOp(load.getEnum())
                 .storeOp(store.getEnum())

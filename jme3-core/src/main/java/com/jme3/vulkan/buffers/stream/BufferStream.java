@@ -1,9 +1,9 @@
 package com.jme3.vulkan.buffers.stream;
 
 import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.buffers.newbuf.HostVisibleBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkBufferCopy;
@@ -18,43 +18,80 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.lwjgl.vulkan.VK10.*;
 
+/**
+ * Streams changes from
+ */
 public class BufferStream {
 
     private final LogicalDevice<?> device;
     private final Collection<StreamingPage> pages = new ConcurrentLinkedQueue<>();
-    private final Queue<CopyInfo> copyCommands = new ConcurrentLinkedQueue<>();
+    private final Queue<CopyCmd> copyCommands = new ConcurrentLinkedQueue<>();
     private final Collection<WeakReference<Streamable>> buffers = new ConcurrentLinkedQueue<>();
     private final int pageByteSize;
+    private int regionMergeGap = -1;
+    private int maxRegions = -1;
 
     public BufferStream(LogicalDevice<?> device, int pageByteSize) {
         this.device = device;
         this.pageByteSize = pageByteSize;
     }
 
-    public void stream() {
+    /**
+     * Stages changes of all streamable objects registered with this buffer stream.
+     *
+     * @see #add(Streamable)
+     * @see #stage(Streamable)
+     */
+    public void stage() {
         for (Iterator<WeakReference<Streamable>> it = buffers.iterator(); it.hasNext();) {
             Streamable b = it.next().get();
-            if (b != null) stream(b);
+            if (b != null) stage(b);
             else it.remove();
         }
     }
 
-    public void add(Streamable buffer) {
-        buffers.add(new WeakReference<>(buffer));
+    /**
+     * Registers a {@link WeakReference} of {@code object} with this buffer stream.
+     * On each call of {@link #stage()}, if {@code object} is reachable, object's
+     * changes will be staged.
+     *
+     * @param object object to register
+     */
+    public <T extends Streamable> T add(T object) {
+        buffers.add(new WeakReference<>(object));
+        return object;
     }
 
     /**
-     * Streams changes from a source buffer to a destination buffer.
+     * Removes {@code object} from being automatically staged on each call of {@link #stage()}.
      *
-     * @param object
+     * @param object object to remove
      */
-    public void stream(Streamable object) {
+    public void remove(Streamable object) {
+        buffers.removeIf(ref -> ref.get() == object);
+    }
+
+    /**
+     * Stages changes from the streamable object to an intermediate streaming page and
+     * submits a copy command to upload the changes from the streaming page to the streamable
+     * object's destination buffer. If the streamable object has no changes, this does nothing.
+     *
+     * @param object streamable object to stage changes from
+     * @see #upload(CommandBuffer)
+     */
+    public <T extends Streamable> T stage(T object) {
+        if (object.getUpdateRegions().getCoverage() == 0) {
+            return object;
+        }
         VulkanBuffer dst = object.getDstBuffer();
         if (!dst.getUsage().contains(BufferUsage.TransferDst)) {
             throw new IllegalArgumentException("Cannot stream to " + dst + ": not a transfer destination.");
         }
-        if (object.getUpdateRegions().getCoverage() == 0) {
-            return;
+        if (regionMergeGap >= 0) {
+            object.getUpdateRegions().optimizeGaps(regionMergeGap);
+        }
+        if (maxRegions >= 0) {
+            object.getUpdateRegions().optimizeNumRegions(maxRegions);
         }
         BufferPartition<StreamingPage> partition = allocatePartition(object.getUpdateRegions().getCoverage());
         if (partition == null) {
@@ -62,35 +99,115 @@ public class BufferStream {
         }
         ByteBuffer srcBytes = object.mapBytes();
         ByteBuffer partitionBytes = partition.mapBytes();
-        CopyInfo copy = new CopyInfo(partition, dst, object.getUpdateRegions().getNumRegions());
+        StreamCopy copy = new StreamCopy(partition, dst, object.getUpdateRegions().getNumRegions());
         int partitionOffset = 0;
         for (DirtyRegions.Region r : object.getUpdateRegions()) {
             if (r.getEnd() > srcBytes.limit()) {
                 throw new IllegalStateException("Buffer region extends outside source buffer.");
             }
-            MemoryUtil.memCopy(MemoryUtil.memAddress(srcBytes, r.getOffset()), MemoryUtil.memAddress(partitionBytes, partitionOffset), r.getSize());
+            // copy src to intermediate
+            MemoryUtil.memCopy(MemoryUtil.memAddress(srcBytes, r.getOffset()),
+                    MemoryUtil.memAddress(partitionBytes, partitionOffset), r.getSize());
             copy.data.get().set(partitionOffset, r.getOffset(), r.getSize());
             partitionOffset += r.getSize();
         }
         object.getUpdateRegions().clear();
         copy.data.flip();
         copyCommands.add(copy);
+        return object;
     }
 
+    /**
+     * Stages a direct copy between two vulkan buffers, bypassing the need to allocate
+     * an intermediate staging buffer. The region copied starts at the first byte in both
+     * buffers and runs to end of the smallest buffer.
+     *
+     * <p>Although technically more efficient, this can result in concurrent modification
+     * with multiple frames-in-flight that {@link #stage(Streamable)} usually guards against.</p>
+     *
+     * @param src source buffer
+     * @param dst destination buffer
+     */
+    public void stageDirect(VulkanBuffer src, VulkanBuffer dst) {
+        if (!src.getUsage().contains(BufferUsage.TransferSrc)) {
+            throw new IllegalArgumentException("Source buffer must have the TransferSrc flag set.");
+        }
+        if (!dst.getUsage().contains(BufferUsage.TransferDst)) {
+            throw new IllegalArgumentException("Destination buffer must have the TransferDst flag set.");
+        }
+        DirectCopy copy = new DirectCopy(src, dst, 1);
+        copy.data.get().set(0, 0, Math.min(src.size().getBytes(), dst.size().getBytes()));
+        copyCommands.add(copy);
+    }
+
+    /**
+     * Uploads changes staged to this buffer stream to the destination buffers.
+     * If no changes have been staged, this does nothing.
+     *
+     * @param cmd command buffer to submit the necessary commands to
+     * @see #stage(Streamable)
+     */
     public void upload(CommandBuffer cmd) {
-        Collection<CopyInfo> toRelease = new ArrayList<>(copyCommands.size());
-        for (CopyInfo c; (c = copyCommands.poll()) != null;) {
-            vkCmdCopyBuffer(cmd.getBuffer(), c.src.getId(), c.dst.getId(), c.data);
+        if (copyCommands.isEmpty()) {
+            return;
+        }
+        Collection<CopyCmd> toRelease = new ArrayList<>(copyCommands.size());
+        for (CopyCmd c; (c = copyCommands.poll()) != null;) {
+            vkCmdCopyBuffer(cmd.getBuffer(), c.getSrc().getGpuObject(), c.getDst().getGpuObject(), c.getParameters());
             toRelease.add(c);
         }
         cmd.onExecutionComplete(() -> {
-            for (CopyInfo c : toRelease) {
-                c.freeData();
-                c.releasePartition();
+            for (CopyCmd c : toRelease) {
+                c.release();
             }
         });
     }
 
+    /**
+     * {@link #stage() Stages} registered streamable objects and
+     * {@link #upload(CommandBuffer) uploads}.
+     *
+     * @param cmd command buffer
+     */
+    public void stream(CommandBuffer cmd) {
+        stage();
+        upload(cmd);
+    }
+
+    /**
+     * Returns true if changes are staged to this buffer stream that require
+     * {@link #upload(CommandBuffer) uploading}.
+     *
+     * @return true if changes are staged
+     */
+    public boolean hasChanges() {
+        return !copyCommands.isEmpty();
+    }
+
+    public void setRegionMergeGap(int regionMergeGap) {
+        this.regionMergeGap = regionMergeGap;
+    }
+
+    public void setMaxRegions(int maxRegions) {
+        this.maxRegions = maxRegions;
+    }
+
+    public int getRegionMergeGap() {
+        return regionMergeGap;
+    }
+
+    public int getMaxRegions() {
+        return maxRegions;
+    }
+
+    /**
+     * Allocates {@code bytes} of free space in a streaming page. If not enough
+     * consecutive space is found in an existing page, a new page is created that
+     * is guaranteed to contain at least enough space for the allocation.
+     *
+     * @param bytes consecutive bytes to allocate
+     * @return allocated page partition
+     */
     private BufferPartition<StreamingPage> allocatePartition(int bytes) {
         for (StreamingPage s : pages) {
             BufferPartition<StreamingPage> p = s.allocatePartition(bytes);
@@ -110,9 +227,8 @@ public class BufferStream {
         }
 
         private static VulkanBuffer create(LogicalDevice<?> device, MemorySize size) {
-            return BasicVulkanBuffer.build(device, size, b -> {
+            return HostVisibleBuffer.build(device, size, b -> {
                 b.setUsage(BufferUsage.TransferSrc);
-                b.setMemFlags(MemoryProp.HostVisibleAndCoherent);
                 b.setConcurrent(true);
             });
         }
@@ -146,10 +262,10 @@ public class BufferStream {
     private static class AllocatedRegion {
 
         private final StreamingPage stream;
-        private int start, end;
+        private long start, end;
         private AllocatedRegion next;
 
-        public AllocatedRegion(StreamingPage stream, int start, int end) {
+        public AllocatedRegion(StreamingPage stream, long start, long end) {
             this.stream = stream;
             this.start = Math.min(start, stream.size().getBytes());
             this.end = Math.min(end, stream.size().getBytes());
@@ -162,16 +278,16 @@ public class BufferStream {
                     // up trying to allocate after this island
                     next = new AllocatedRegion(stream, end + bytes, end + bytes);
                 }
-                int a = availableBytesAfter();
+                long a = availableBytesAfter();
                 if (a >= bytes) {
-                    int pStart = end;
+                    long pStart = end;
                     if (a == bytes) {
                         next.start = start;
                         end = start; // collapse island
                     } else {
                         end += bytes;
                     }
-                    return new BufferPartition<>(stream, pStart, MemorySize.bytes(bytes));
+                    return new BufferPartition<>(stream, MemorySize.bytes(pStart, bytes));
                 }
             }
             return null;
@@ -181,7 +297,7 @@ public class BufferStream {
             if (start == end) {
                 return false;
             }
-            int pEnd = partition.getOffset() + partition.size().getBytes();
+            long pEnd = partition.size().getEnd();
             if (pEnd <= start || partition.getOffset() >= end) {
                 return false;
             }
@@ -200,31 +316,89 @@ public class BufferStream {
             return true;
         }
 
-        public int availableBytesAfter() {
+        public long availableBytesAfter() {
             if (next == null) return stream.size().getBytes() - end;
             else return next.start - end;
         }
 
     }
 
-    private static class CopyInfo {
+    private interface CopyCmd {
+
+        VulkanBuffer getSrc();
+
+        VulkanBuffer getDst();
+
+        VkBufferCopy.Buffer getParameters();
+
+        void release();
+
+    }
+
+    private static class StreamCopy implements CopyCmd {
 
         public final BufferPartition<StreamingPage> src;
         public final VulkanBuffer dst;
         public final VkBufferCopy.Buffer data;
 
-        public CopyInfo(BufferPartition<StreamingPage> src, VulkanBuffer dst, int regions) {
+        public StreamCopy(BufferPartition<StreamingPage> src, VulkanBuffer dst, int regions) {
             this.src = src;
             this.dst = dst;
             this.data = VkBufferCopy.calloc(regions);
         }
 
-        public void freeData() {
-            MemoryUtil.memFree(data);
+        @Override
+        public VulkanBuffer getSrc() {
+            return src.getBuffer().getBuffer();
         }
 
-        public void releasePartition() {
+        @Override
+        public VulkanBuffer getDst() {
+            return dst;
+        }
+
+        @Override
+        public VkBufferCopy.Buffer getParameters() {
+            return data;
+        }
+
+        @Override
+        public void release() {
+            MemoryUtil.memFree(data);
             src.getBuffer().releasePartition(src);
+        }
+
+    }
+
+    private static class DirectCopy implements CopyCmd {
+
+        private final VulkanBuffer src, dst;
+        private final VkBufferCopy.Buffer data;
+
+        public DirectCopy(VulkanBuffer src, VulkanBuffer dst, int regions) {
+            this.src = src;
+            this.dst = dst;
+            this.data = VkBufferCopy.calloc(regions);
+        }
+
+        @Override
+        public VulkanBuffer getSrc() {
+            return src;
+        }
+
+        @Override
+        public VulkanBuffer getDst() {
+            return dst;
+        }
+
+        @Override
+        public VkBufferCopy.Buffer getParameters() {
+            return data;
+        }
+
+        @Override
+        public void release() {
+            MemoryUtil.memFree(data);
         }
 
     }

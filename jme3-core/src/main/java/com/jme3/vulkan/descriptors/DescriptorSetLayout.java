@@ -1,9 +1,8 @@
 package com.jme3.vulkan.descriptors;
 
-import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.CacheableNativeBuilder;
-import com.jme3.util.natives.Native;
+import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.pipeline.cache.Cache;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
@@ -31,7 +30,7 @@ public class DescriptorSetLayout extends AbstractNative<Long> {
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> vkDestroyDescriptorSetLayout(device.getNativeObject(), object, null);
     }
 
@@ -91,8 +90,8 @@ public class DescriptorSetLayout extends AbstractNative<Long> {
             check(vkCreateDescriptorSetLayout(device.getNativeObject(), create, null, idBuf),
                     "Failed to create descriptor set layout.");
             object = idBuf.get(0);
-            ref = Native.get().register(DescriptorSetLayout.this);
-            device.getNativeReference().addDependent(ref);
+            ref = DisposableManager.reference(DescriptorSetLayout.this);
+            device.getReference().addDependent(ref);
         }
 
         @Override

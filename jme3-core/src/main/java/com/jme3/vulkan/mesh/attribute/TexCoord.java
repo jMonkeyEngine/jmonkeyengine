@@ -1,15 +1,14 @@
 package com.jme3.vulkan.mesh.attribute;
 
 import com.jme3.math.Vector2f;
-import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.mesh.VertexBinding;
+import com.jme3.vulkan.mesh.AttributeMappingInfo;
 
 import java.nio.ByteBuffer;
 
-public class TexCoord extends AbstractAttribute<Vector2f> {
+public class TexCoord extends AbstractAttribute<Vector2f, Float> {
 
-    public TexCoord(VertexBinding binding, GpuBuffer vertices, int size, int offset) {
-        super(binding, vertices, size, offset);
+    public TexCoord(ValueMapper<Float> mapper, AttributeMappingInfo info) {
+        super(mapper, info);
     }
 
     @Override
@@ -33,6 +32,12 @@ public class TexCoord extends AbstractAttribute<Vector2f> {
 
     public void set(int element, float x, float y) {
         getBuffer(element).putFloat(x).putFloat(y);
+    }
+
+    public void set(int startElement, float[] array) {
+        for (int i = 0; i < array.length; i += 2, startElement++) {
+            set(startElement, array[i], array[i + 1]);
+        }
     }
 
 }

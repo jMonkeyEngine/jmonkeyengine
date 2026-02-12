@@ -3,31 +3,40 @@ package com.jme3.vulkan.buffers;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.PointerBuffer;
 
-public class BufferPartition <T extends GpuBuffer> implements GpuBuffer {
+public class BufferPartition <T extends MappableBuffer> implements MappableBuffer {
 
     private final T buffer;
-    private final int offset;
-    private final MemorySize size;
+    private MemorySize size;
 
-    public BufferPartition(T buffer, int offset, MemorySize size) {
+    public BufferPartition(T buffer, MemorySize size) {
+        if (buffer.size().getBytes() < size.getEnd()) {
+            throw new IllegalArgumentException("Partition extends outside buffer.");
+        }
         this.buffer = buffer;
-        this.offset = offset;
         this.size = size;
     }
 
     @Override
-    public PointerBuffer map(int offset, int size) {
-        return buffer.map(this.offset + offset, size);
+    public PointerBuffer map(long offset, long size) {
+        // check partition validity due to the source buffer possibly being resized
+        if (buffer.size().getBytes() < this.size.getEnd()) {
+            throw new IllegalStateException("Partition is outdated: extends outside buffer.");
+        }
+        return buffer.map(this.size.getOffset() + offset, size);
     }
 
     @Override
-    public boolean resize(MemorySize size) {
-        return false;
+    public void push(long offset, long size) {
+        buffer.push(this.size.getOffset() + offset, size);
     }
 
     @Override
-    public long getId() {
-        return buffer.getId();
+    public ResizeResult resize(MemorySize size) {
+        if (buffer.size().getBytes() < size.getEnd()) {
+            return ResizeResult.Failure;
+        }
+        this.size = size;
+        return ResizeResult.Success;
     }
 
     @Override

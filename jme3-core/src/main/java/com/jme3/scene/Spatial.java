@@ -34,6 +34,7 @@ package com.jme3.scene;
 import com.jme3.anim.util.HasLocalTransform;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.CloneableSmartAsset;
+import com.jme3.backend.Engine;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.export.*;
@@ -56,6 +57,7 @@ import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.util.clone.JmeCloneable;
 import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.util.ScenePropertyStack;
+import com.jme3.vulkan.util.SceneStack;
 
 import java.io.IOException;
 import java.util.*;
@@ -74,6 +76,8 @@ import java.util.logging.Logger;
 public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, Collidable,
         CloneableSmartAsset, JmeCloneable, HasLocalTransform {
     private static final Logger logger = Logger.getLogger(Spatial.class.getName());
+
+    public static final int SAVABLE_VERSION = 1;
 
     /**
      * Specifies how frustum culling should be handled by
@@ -151,7 +155,7 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
     // scale values
     protected transient Camera.FrustumIntersect frustrumIntersects
             = Camera.FrustumIntersect.Intersects;
-    protected RenderQueue.Bucket queueBucket = RenderQueue.Bucket.Inherit;
+    protected String queueBucket = RenderQueue.Bucket.Inherit.name();
     protected ShadowMode shadowMode = RenderQueue.ShadowMode.Inherit;
     public transient float queueDistance = Float.NEGATIVE_INFINITY;
     protected Transform localTransform;
@@ -362,6 +366,7 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
      * @return true if inside or intersecting camera frustum
      * (should be rendered), false if outside.
      */
+    @Deprecated
     public boolean checkCulling(Camera cam) {
         if (refreshFlags != 0) {
             throw new IllegalStateException("Scene graph is not properly updated for rendering.\n"
@@ -385,11 +390,11 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
                 : Camera.FrustumIntersect.Intersects);
 
         if (frustrumIntersects == Camera.FrustumIntersect.Intersects) {
-            if (getQueueBucket() == Bucket.Gui) {
-                return cam.containsGui(getWorldBound());
-            } else {
-                frustrumIntersects = cam.contains(getWorldBound());
-            }
+//            if (getQueueBucket() == Bucket.Gui) {
+//                return cam.containsGui(getWorldBound());
+//            } else {
+//                frustrumIntersects = cam.contains(getWorldBound());
+//            }
         }
 
         return frustrumIntersects != Camera.FrustumIntersect.Outside;
@@ -751,19 +756,19 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
      * Called when the Spatial is about to be rendered, to notify
      * controls attached to this Spatial using the Control.render() method.
      *
-     * @param rm The RenderManager rendering the Spatial.
+     * @param engine rendering engine
      * @param vp The ViewPort to which the Spatial is being rendered to.
      *
      * @see Spatial#addControl(com.jme3.scene.control.Control)
      * @see Spatial#getControl(java.lang.Class)
      */
-    public void runControlRender(RenderManager rm, ViewPort vp) {
+    public void runControlRender(Engine engine, ViewPort vp) {
         if (controls.isEmpty()) {
             return;
         }
 
         for (Control c : controls.getArray()) {
-            c.render(rm, vp);
+            c.render(engine, vp);
         }
     }
 
@@ -1338,13 +1343,13 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
      *
      * @return The spatial's current render-queue bucket.
      */
-    public RenderQueue.Bucket getQueueBucket() {
-        if (queueBucket != RenderQueue.Bucket.Inherit) {
+    public String getQueueBucket() {
+        if (!queueBucket.equals(Bucket.Inherit.name())) {
             return queueBucket;
         } else if (parent != null) {
             return parent.getQueueBucket();
         } else {
-            return RenderQueue.Bucket.Opaque;
+            return RenderQueue.Bucket.Opaque.name();
         }
     }
 
@@ -1406,7 +1411,6 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
      * are shared if static, or specially cloned if animated.
      *
      * @param cloneMaterial true to clone materials, false to share them
-     * @see Mesh#cloneForAnim()
      */
     public Spatial clone(boolean cloneMaterial) {
         // Set up the cloner for the type of cloning we want to do.
@@ -1455,8 +1459,6 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
      *
      * Note that meshes of geometries are not cloned explicitly, they
      * are shared if static, or specially cloned if animated.
-     *
-     * @see Mesh#cloneForAnim()
      */
     @Override
     public Spatial clone() {
@@ -1614,11 +1616,12 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
     @SuppressWarnings("unchecked")
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule capsule = ex.getCapsule(this);
+
         capsule.write(name, "name", null);
         capsule.write(worldBound, "world_bound", null);
         capsule.write(cullHint, "cull_mode", CullHint.Inherit);
         capsule.write(batchHint, "batch_hint", BatchHint.Inherit);
-        capsule.write(queueBucket, "queue", RenderQueue.Bucket.Inherit);
+        capsule.write(queueBucket, "queue", RenderQueue.Bucket.Inherit.name());
         capsule.write(shadowMode, "shadow_mode", ShadowMode.Inherit);
         capsule.write(localTransform, "transform", Transform.IDENTITY);
         capsule.write(localLights, "lights", null);
@@ -1633,13 +1636,18 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
     @SuppressWarnings("unchecked")
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
+        int version = ic.getSavableVersion(getClass());
 
         name = ic.readString("name", null);
         worldBound = (BoundingVolume) ic.readSavable("world_bound", null);
         cullHint = ic.readEnum("cull_mode", CullHint.class, CullHint.Inherit);
         batchHint = ic.readEnum("batch_hint", BatchHint.class, BatchHint.Inherit);
-        queueBucket = ic.readEnum("queue", RenderQueue.Bucket.class,
-                RenderQueue.Bucket.Inherit);
+        if (version >= 1) { // read queue as string
+            queueBucket = ic.readString("queue", Bucket.Inherit.name());
+        } else { // read queue as enum
+            queueBucket = ic.readEnum("queue", RenderQueue.Bucket.class,
+                    RenderQueue.Bucket.Inherit).name();
+        }
         shadowMode = ic.readEnum("shadow_mode", ShadowMode.class,
                 ShadowMode.Inherit);
 
@@ -1731,6 +1739,10 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
      *            The bucket to use for this Spatial.
      */
     public void setQueueBucket(RenderQueue.Bucket queueBucket) {
+        setQueueBucket(queueBucket.name());
+    }
+
+    public void setQueueBucket(String queueBucket) {
         this.queueBucket = queueBucket;
     }
 
@@ -1753,7 +1765,7 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
      *
      * @see Spatial#setQueueBucket(com.jme3.renderer.queue.RenderQueue.Bucket)
      */
-    public RenderQueue.Bucket getLocalQueueBucket() {
+    public String getLocalQueueBucket() {
         return queueBucket;
     }
 
@@ -1885,22 +1897,23 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
         return new GraphIterator(this);
     }
 
-    public GraphIterator iterator(ScenePropertyStack... propertyStacks) {
+    public GraphIterator iterator(SceneStack... propertyStacks) {
         return new GraphIterator(this, propertyStacks);
     }
 
     public static class GraphIterator implements Iterable<Spatial>, Iterator<Spatial> {
 
-        private final Stack<Integer> childIndices = new Stack<>();
-        private final ScenePropertyStack[] propertyStacks;
+        private final Deque<Integer> childIndices = new ArrayDeque<>();
+        private final SceneStack[] propertyStacks;
         private Spatial current;
         private int currentIndex = 0;
         private int iteration = -1;
 
-        public GraphIterator(Spatial root, ScenePropertyStack... propertyStacks) {
+        public GraphIterator(Spatial root, SceneStack... propertyStacks) {
             current = Objects.requireNonNull(root);
             this.propertyStacks = propertyStacks;
-            for (ScenePropertyStack p : propertyStacks) {
+            for (SceneStack p : propertyStacks) {
+                p.clear();
                 p.push(root);
             }
         }
@@ -1912,7 +1925,7 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
 
         @Override
         public boolean hasNext() {
-            return current != null;
+            return iteration < 0 || (current != null && childIndices.stream().anyMatch(i -> i >= 0));
         }
 
         @Override
@@ -1933,27 +1946,24 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
         }
 
         protected void moveUp() {
-            if (!childIndices.isEmpty()) {
+            do {
                 current = current.getParent();
+                if (current == null) return;
                 currentIndex = childIndices.pop();
-                if (current != null) {
-                    current.findNextIteration(this);
+                for (SceneStack p : propertyStacks) {
+                    p.pop();
                 }
-            } else {
-                current = null;
-            }
-            for (ScenePropertyStack p : propertyStacks) {
-                p.pop();
-            }
+            } while (currentIndex < 0);
+            current.findNextIteration(this);
         }
 
-        protected void moveDown(Spatial node) {
+        protected void moveDown(Spatial node, boolean lastChild) {
             if (node.getParent() != current) {
                 throw new IllegalArgumentException("Next spatial must be a child of the current spatial.");
             }
             current = node;
-            childIndices.push(currentIndex);
-            for (ScenePropertyStack p : propertyStacks) {
+            childIndices.push(lastChild ? -1 : currentIndex);
+            for (SceneStack p : propertyStacks) {
                 p.push(node);
             }
             currentIndex = 0;
@@ -1963,7 +1973,7 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
             return currentIndex++;
         }
 
-        protected int getCurrentIndex() {
+        public int getCurrentIndex() {
             return currentIndex;
         }
 

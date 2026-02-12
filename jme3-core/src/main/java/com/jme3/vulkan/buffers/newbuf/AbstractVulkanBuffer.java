@@ -3,7 +3,9 @@ package com.jme3.vulkan.buffers.newbuf;
 import com.jme3.renderer.vulkan.VulkanUtils;
 import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
-import com.jme3.util.natives.Native;
+import com.jme3.util.natives.Disposable;
+import com.jme3.util.natives.DisposableManager;
+import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.VulkanBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -22,7 +24,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public abstract class AbstractVulkanBuffer extends AbstractNative<Long> implements VulkanBuffer {
 
     protected final LogicalDevice<?> device;
-    protected final MemorySize size;
+    protected MemorySize size;
     private MemoryRegion memory;
     private Flag<BufferUsage> usage = BufferUsage.Storage;
     private boolean concurrent = false;
@@ -33,7 +35,7 @@ public abstract class AbstractVulkanBuffer extends AbstractNative<Long> implemen
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> vkDestroyBuffer(device.getNativeObject(), object, null);
     }
 
@@ -58,13 +60,18 @@ public abstract class AbstractVulkanBuffer extends AbstractNative<Long> implemen
     }
 
     @Override
-    public long getId() {
+    public MemorySize size() {
+        return size;
+    }
+
+    @Override
+    public Long getGpuObject() {
         return object;
     }
 
     @Override
-    public MemorySize size() {
-        return size;
+    public DisposableReference getReference() {
+        return ref;
     }
 
     protected MemoryRegion getMemory() {
@@ -87,9 +94,9 @@ public abstract class AbstractVulkanBuffer extends AbstractNative<Long> implemen
                     "Failed to create buffer.");
             object = idBuf.get(0);
             createMemory(m -> m.setFlags(memProps));
-            ref = Native.get().register(AbstractVulkanBuffer.this);
-            device.getNativeReference().addDependent(ref);
-            getMemory().getNativeReference().addDependent(ref);
+            ref = DisposableManager.get().register(AbstractVulkanBuffer.this);
+            device.getReference().addDependent(ref);
+            getMemory().getReference().addDependent(ref);
         }
 
         protected void createMemory(Consumer<MemoryRegion.Builder> config) {

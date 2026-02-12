@@ -10,8 +10,6 @@ import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
 import com.jme3.vulkan.ColorSpace;
 import com.jme3.vulkan.FormatFeature;
-import com.jme3.vulkan.buffers.PerFrameBuffer;
-import com.jme3.vulkan.buffers.generate.MeshBufferGenerator;
 import com.jme3.vulkan.pipeline.cache.PipelineCache;
 import com.jme3.vulkan.pipeline.graphics.ColorBlendAttachment;
 import com.jme3.vulkan.pipeline.graphics.GraphicsState;
@@ -22,8 +20,7 @@ import com.jme3.vulkan.shaderc.ShadercLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.vulkan.LwjglVulkanContext;
 import com.jme3.texture.ImageView;
-import com.jme3.util.natives.Native;
-import com.jme3.vulkan.Format;
+import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.commands.CommandBuffer;
@@ -37,7 +34,6 @@ import com.jme3.vulkan.frames.UpdateFrame;
 import com.jme3.vulkan.frames.UpdateFrameManager;
 import com.jme3.vulkan.images.*;
 import com.jme3.vulkan.material.MatrixTransformMaterial;
-import com.jme3.vulkan.material.TestMaterial;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.mesh.*;
@@ -45,12 +41,11 @@ import com.jme3.vulkan.pass.Attachment;
 import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.pipeline.*;
-import com.jme3.vulkan.shader.ShaderStage;
+import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.surface.Surface;
 import com.jme3.vulkan.surface.Swapchain;
 import com.jme3.vulkan.surface.SwapchainUpdater;
 import com.jme3.vulkan.sync.Fence;
-import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.SyncGroup;
 import com.jme3.vulkan.update.BasicCommandBatch;
 import com.jme3.vulkan.update.CommandBatch;
@@ -160,7 +155,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
         CommandPool initPool = device.getShortTermPool(physDevice.getGraphics());
         CommandBuffer initCommands = initPool.allocateTransientCommandBuffer();
-        initCommands.begin();
+        initCommands.beginRecording();
 
         // depth texture
         depthView = createDepthAttachment(initCommands);
@@ -207,9 +202,9 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
         MeshDescription meshDesc = new MeshDescription();
         try (MeshDescription.Builder m = meshDesc.build()) {
             OldVertexBinding b = m.addBinding(InputRate.Vertex);
-            m.addAttribute(b, GlVertexBuffer.Type.Position.getName(), Format.RGB32SFloat, 0);
-            m.addAttribute(b, GlVertexBuffer.Type.TexCoord.getName(), Format.RG32SFloat, 1);
-            m.addAttribute(b, GlVertexBuffer.Type.Normal.getName(), Format.RGB32SFloat, 2);
+            m.addAttribute(b, GlVertexBuffer.Type.Position.getName(), Format.RGB32_SFloat, 0);
+            m.addAttribute(b, GlVertexBuffer.Type.TexCoord.getName(), Format.RG32_SFloat, 1);
+            m.addAttribute(b, GlVertexBuffer.Type.Normal.getName(), Format.RGB32_SFloat, 2);
         }
 
         TestMaterial material = new TestMaterial(descriptorPool);
@@ -288,7 +283,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
             swapchainResizeFlag = false;
             swapchain.update();
             CommandBuffer cmd = device.getShortTermPool(device.getPhysicalDevice().getGraphics()).allocateTransientCommandBuffer();
-            cmd.begin();
+            cmd.beginRecording();
             depthView = createDepthAttachment(cmd);
             cmd.endAndSubmit();
             cmd.getPool().getQueue().waitIdle();
@@ -314,7 +309,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
     private VulkanImageView createDepthAttachment(CommandBuffer cmd) {
         Format depthFormat = device.getPhysicalDevice().findSupportedFormat(
                 VulkanImage.Tiling.Optimal, FormatFeature.DepthStencilAttachment,
-                Format.Depth32SFloat, Format.Depth32SFloat_Stencil8UInt, Format.Depth24UNorm_Stencil8UInt);
+                Format.Depth32_SFloat, Format.Depth32_SFloat_Stencil8_UInt, Format.Depth24_UNorm_Stencil8_UInt);
         BasicVulkanImage image = new BasicVulkanImage(device, VulkanImage.Type.TwoDemensional);
         try (BasicVulkanImage.Builder i = image.build()) {
             i.setSize(swapchain.getExtent().x, swapchain.getExtent().y);

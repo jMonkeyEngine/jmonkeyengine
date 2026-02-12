@@ -2,10 +2,10 @@ package com.jme3.vulkan.images;
 
 import com.jme3.texture.ImageView;
 import com.jme3.util.AbstractNativeBuilder;
-import com.jme3.util.natives.Native;
 import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.natives.DisposableManager;
+import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.Swizzle;
-import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.VkImageViewCreateInfo;
@@ -37,7 +37,7 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> vkDestroyImageView(image.getDevice().getNativeObject(), object, null);
     }
 
@@ -110,7 +110,7 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
                     .sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO)
                     .image(image.getId())
                     .viewType(type.getEnum())
-                    .format(image.getFormat().getVkEnum());
+                    .format(image.getFormat().getEnum());
             create.components()
                     .r(swizzleR.getEnum())
                     .g(swizzleG.getEnum())
@@ -126,7 +126,7 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
             check(vkCreateImageView(image.getDevice().getNativeObject(), create, null, idBuf),
                     "Failed to create image view.");
             object = idBuf.get(0);
-            ref = Native.get().register(VulkanImageView.this);
+            ref = DisposableManager.reference(VulkanImageView.this);
             image.addNativeDependent(ref);
             return VulkanImageView.this;
         }

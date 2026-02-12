@@ -1,15 +1,19 @@
 package com.jme3.vulkan.mesh;
 
-import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.PointerBuffer;
 
-public class LodBuffer implements GpuBuffer {
+public class LodBuffer implements MappableBuffer {
 
-    private final GpuBuffer buffer;
+    private final MappableBuffer buffer;
     private final float optimalDistance;
 
-    public LodBuffer(GpuBuffer buffer, float optimalDistance) {
+    public LodBuffer(MappableBuffer buffer) {
+        this(buffer, 0f);
+    }
+
+    public LodBuffer(MappableBuffer buffer, float optimalDistance) {
         this.buffer = buffer;
         this.optimalDistance = optimalDistance;
     }

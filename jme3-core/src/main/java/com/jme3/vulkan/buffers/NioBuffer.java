@@ -1,20 +1,17 @@
 package com.jme3.vulkan.buffers;
 
-import com.jme3.util.BufferUtils;
-import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
-import com.jme3.vulkan.buffers.stream.DirtyRegions;
+import com.jme3.util.natives.Disposable;
+import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.memory.MemorySize;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.*;
 
-public class NioBuffer implements GpuBuffer, Native<Long> {
+public class NioBuffer implements MappableBuffer, Disposable {
 
     private final PointerBuffer address = MemoryUtil.memCallocPointer(1);
-    private final NativeReference ref;
-    private final DirtyRegions regions = new DirtyRegions();
+    protected final DisposableReference ref;
     private ByteBuffer buffer;
     private MemorySize size;
     private int padding;
@@ -22,7 +19,7 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
     private int lastMappedOffset = -1;
 
     public NioBuffer(MemorySize size) {
-        this(size, 0);
+        this(size, 0, true);
     }
 
     public NioBuffer(MemorySize size, int padding) {
@@ -42,22 +39,6 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
         ref = Native.get().register(this);
     }
 
-    public NioBuffer(Buffer size) {
-        this(new MemorySize(size.limit(), BufferUtils.getBytesPerElement(size)), size.capacity() - size.limit());
-    }
-
-    public NioBuffer(NioBuffer size) {
-        this(size.size(), size.getPadding());
-    }
-
-    public NioBuffer(GpuBuffer size) {
-        this(size.size(), 0);
-    }
-
-    public NioBuffer(GpuBuffer size, int padding) {
-        this(size.size(), padding);
-    }
-
     @Override
     public PointerBuffer map(int offset, int size) {
         if (offset < 0) {
@@ -75,17 +56,37 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
     }
 
     @Override
+    public ByteBuffer mapBytes() {
+        return buffer;
+    }
+
+    @Override
+    public ShortBuffer mapShorts() {
+        return buffer.asShortBuffer();
+    }
+
+    @Override
+    public IntBuffer mapInts() {
+        return buffer.asIntBuffer();
+    }
+
+    @Override
+    public FloatBuffer mapFloats() {
+        return buffer.asFloatBuffer();
+    }
+
+    @Override
+    public DoubleBuffer mapDoubles() {
+        return buffer.asDoubleBuffer();
+    }
+
+    @Override
+    public LongBuffer mapLongs() {
+        return buffer.asLongBuffer();
+    }
+
+    @Override
     public void unmap() {}
-
-    @Override
-    public void update(int offset, int size) {
-        regions.add(offset, size);
-    }
-
-    @Override
-    public DirtyRegions getUpdateRegions() {
-        return null;
-    }
 
     @Override
     public MemorySize size() {
@@ -93,9 +94,15 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
     }
 
     @Override
-    public long getId() {
-        return baseBufferAddress;
+    public Runnable createDestroyer() {
+        return () -> {
+            MemoryUtil.memFree(buffer);
+            MemoryUtil.memFree(address);
+        };
     }
+
+    @Override
+    public void push(int offset, int size) {}
 
     @Override
     public boolean resize(MemorySize size) {
@@ -112,27 +119,6 @@ public class NioBuffer implements GpuBuffer, Native<Long> {
         }
         buffer.limit(size.getBytes());
         return false;
-    }
-
-    @Override
-    public Long getNativeObject() {
-        return baseBufferAddress;
-    }
-
-    @Override
-    public Runnable createNativeDestroyer() {
-        return () -> {
-            MemoryUtil.memFree(buffer);
-            MemoryUtil.memFree(address);
-        };
-    }
-
-    @Override
-    public void prematureNativeDestruction() {}
-
-    @Override
-    public NativeReference getNativeReference() {
-        return ref;
     }
 
     public void setPadding(int padding) {

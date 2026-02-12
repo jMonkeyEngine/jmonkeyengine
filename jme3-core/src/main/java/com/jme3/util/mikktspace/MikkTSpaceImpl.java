@@ -31,11 +31,15 @@
  */
 package com.jme3.util.mikktspace;
 
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.util.BufferUtils;
-import java.nio.FloatBuffer;
+import com.jme3.vulkan.mesh.attribute.Attribute;
+
+import java.util.Objects;
 
 /**
  *
@@ -43,24 +47,35 @@ import java.nio.FloatBuffer;
  */
 public class MikkTSpaceImpl implements MikkTSpaceContext {
 
-    Mesh mesh;
-    final private IndexBuffer index;
+    private final IndexBuffer index;
+    private final Attribute<Vector3f> positions, normals;
+    private final Attribute<Vector2f> texCoords;
+    private final Attribute<Vector4f> tangents;
+    private final int triangleCount;
+    private final Vector2f tempVec2 = new Vector2f();
+    private final Vector3f tempVec3 = new Vector3f();
+    private final Vector4f tempVec4 = new Vector4f();
 
     public MikkTSpaceImpl(Mesh mesh) {
-        this.mesh = mesh;
 
-        // If the mesh lacks indices, generate a virtual index buffer.
-        this.index = mesh.getIndicesAsList();
+        // todo: if the mesh lacks indices, generate a virtual index buffer.
+        this.index = mesh.getIndexBuffer().mapIndices();
+        this.triangleCount = mesh.getIndexBuffer().size().getElements() / 3;
 
-        //replacing any existing tangent buffer, if you came here you want them new.
-        mesh.clearBuffer(GlVertexBuffer.Type.Tangent);
-        FloatBuffer fb = BufferUtils.createFloatBuffer(mesh.getVertexCount() * 4);
-        mesh.setBuffer(GlVertexBuffer.Type.Tangent, 4, fb);
+        positions = Objects.requireNonNull(mesh.mapAttribute(GlVertexBuffer.Type.Position),
+                "Position attribute required to generate tangents.");
+        texCoords = Objects.requireNonNull(mesh.mapAttribute(GlVertexBuffer.Type.TexCoord),
+                "TexCoord attribute required to generate tangents.");
+        normals = Objects.requireNonNull(mesh.mapAttribute(GlVertexBuffer.Type.Normal),
+                "Normal attribute required to generate tangents.");
+        tangents = Objects.requireNonNull(mesh.mapAttribute(GlVertexBuffer.Type.Tangent),
+                "Tangent attribute required to generate tangents.");
+
     }
 
     @Override
     public int getNumFaces() {
-        return mesh.getTriangleCount();        
+        return triangleCount;
     }
 
     @Override
@@ -70,48 +85,30 @@ public class MikkTSpaceImpl implements MikkTSpaceContext {
 
     @Override
     public void getPosition(float[] posOut, int face, int vert) {
-        int vertIndex = getIndex(face, vert);
-        GlVertexBuffer position = mesh.getBuffer(GlVertexBuffer.Type.Position);
-        FloatBuffer pos = (FloatBuffer) position.getData();
-        pos.position(vertIndex * 3);
-        posOut[0] = pos.get();
-        posOut[1] = pos.get();
-        posOut[2] = pos.get();
+        positions.get(getIndex(face, vert), tempVec3);
+        posOut[0] = tempVec3.x;
+        posOut[1] = tempVec3.y;
+        posOut[2] = tempVec3.z;
     }
 
     @Override
     public void getNormal(float[] normOut, int face, int vert) {
-        int vertIndex = getIndex(face, vert);
-        GlVertexBuffer normal = mesh.getBuffer(GlVertexBuffer.Type.Normal);
-        FloatBuffer norm = (FloatBuffer) normal.getData();
-        norm.position(vertIndex * 3);
-        normOut[0] = norm.get();
-        normOut[1] = norm.get();
-        normOut[2] = norm.get();
+        normals.get(getIndex(face, vert), tempVec3);
+        normOut[0] = tempVec3.x;
+        normOut[1] = tempVec3.y;
+        normOut[2] = tempVec3.z;
     }
 
     @Override
     public void getTexCoord(float[] texOut, int face, int vert) {
-        int vertIndex = getIndex(face, vert);
-        GlVertexBuffer texCoord = mesh.getBuffer(GlVertexBuffer.Type.TexCoord);
-        FloatBuffer tex = (FloatBuffer) texCoord.getData();
-        tex.position(vertIndex * 2);
-        texOut[0] = tex.get();
-        texOut[1] = tex.get();        
+        texCoords.get(getIndex(face, vert), tempVec2);
+        texOut[0] = tempVec2.x;
+        texOut[1] = tempVec2.y;
     }
 
     @Override
     public void setTSpaceBasic(float[] tangent, float sign, int face, int vert) {
-        int vertIndex = getIndex(face, vert);
-        GlVertexBuffer tangentBuffer = mesh.getBuffer(GlVertexBuffer.Type.Tangent);
-        FloatBuffer tan = (FloatBuffer) tangentBuffer.getData();
-        
-        tan.position(vertIndex * 4);
-        tan.put(tangent);
-        tan.put(sign);
-        
-        tan.rewind();
-        tangentBuffer.setUpdateNeeded();
+        tangents.set(getIndex(face, vert), tempVec4.set(tangent[0], tangent[1], tangent[2], sign));
     }
 
     @Override
@@ -119,9 +116,17 @@ public class MikkTSpaceImpl implements MikkTSpaceContext {
         //Do nothing
     }
 
+    @Override
+    public void close() {
+        tangents.push();
+        positions.unmap();
+        texCoords.unmap();
+        normals.unmap();
+        tangents.unmap();
+    }
+
     private int getIndex(int face, int vert) {
-        int vertIndex = index.get(face * 3 + vert);
-        return vertIndex;
+        return index.get(face * 3 + vert);
     }
 
 }

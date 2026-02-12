@@ -42,8 +42,8 @@ import com.jme3.renderer.Statistics;
 import com.jme3.renderer.TextureUnitException;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.GlVertexBuffer;
-import com.jme3.shader.Shader;
-import com.jme3.shader.Shader.ShaderSource;
+import com.jme3.shader.ShaderProgram;
+import com.jme3.shader.ShaderProgram.ShaderSource;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
@@ -128,11 +128,11 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void setShader(Shader shader) {
+    public void setShader(ShaderProgram shader) {
     }
 
     @Override
-    public void deleteShader(Shader shader) {
+    public void deleteShader(ShaderProgram shader) {
     }
 
     @Override

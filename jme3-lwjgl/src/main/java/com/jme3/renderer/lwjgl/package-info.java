@@ -32,4 +32,5 @@
 /**
  * rendering support for the Lightweight Java Game Library (LWJGL)
  */
+@Deprecated
 package com.jme3.renderer.lwjgl;

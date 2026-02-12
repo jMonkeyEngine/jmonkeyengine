@@ -2,7 +2,7 @@ package com.jme3.vulkan.images;
 
 import com.jme3.asset.*;
 import com.jme3.util.BufferUtils;
-import com.jme3.vulkan.Format;
+import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.buffers.BasicVulkanBuffer;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.memory.MemoryProp;
@@ -67,7 +67,7 @@ public class VulkanImageLoader implements AssetLoader {
                 }
                 ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
                 buffer.put(data);
-                return new ImageData(buffer, width, height, Format.ABGR8_SRGB);
+                return new ImageData(buffer, width, height, Format.ABGR8_SRGB_Pack32);
             }
             case BufferedImage.TYPE_3BYTE_BGR: { // most common in JPEG images
                 if (flipY) {
@@ -169,7 +169,7 @@ public class VulkanImageLoader implements AssetLoader {
                 i.setMemoryProps(MemoryProp.DeviceLocal);
             }
             CommandBuffer commands = transferPool.allocateTransientCommandBuffer();
-            commands.begin();
+            commands.beginRecording();
             image.transitionLayout(commands, VulkanImage.Layout.TransferDstOptimal);
             VkBufferImageCopy.Buffer region = VkBufferImageCopy.calloc(1, stack)
                     .bufferOffset(0)

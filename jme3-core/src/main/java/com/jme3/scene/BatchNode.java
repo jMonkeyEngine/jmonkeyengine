@@ -41,9 +41,6 @@ import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-import com.jme3.vulkan.mesh.AttributeModifier;
-import com.jme3.vulkan.mesh.VertexReader;
-import com.jme3.vulkan.mesh.VertexWriter;
 
 import java.nio.Buffer;
 import java.nio.FloatBuffer;

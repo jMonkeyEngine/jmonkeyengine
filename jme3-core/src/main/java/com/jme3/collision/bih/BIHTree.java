@@ -49,7 +49,6 @@ import com.jme3.scene.CollisionData;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.TempVars;
-import com.jme3.vulkan.mesh.VertexReader;
 
 import java.io.IOException;
 import static java.lang.Math.max;

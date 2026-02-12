@@ -27,15 +27,14 @@ public class GeneralPhysicalDevice extends AbstractPhysicalDevice implements Gra
     public boolean populateQueueFamilyIndices() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkQueueFamilyProperties.Buffer properties = getQueueFamilyProperties(stack);
-            IntBuffer ibuf = stack.callocInt(1);
             for (int i = 0; i < properties.limit(); i++) {
                 VkQueueFamilyProperties props = properties.get(i);
                 int flags = props.queueFlags();
                 if (graphicsIndex == null && (flags & VK_QUEUE_GRAPHICS_BIT) > 0) {
                     graphicsIndex = i;
                 } else if (presentIndex == null) {
-                    KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(getDeviceHandle(),
-                            i, surface.getNativeObject(), ibuf);
+                    IntBuffer ibuf = stack.callocInt(1);
+                    KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(getDeviceHandle(), i, surface.getNativeObject(), ibuf);
                     if (ibuf.get(0) == VK_TRUE) {
                         presentIndex = i;
                     }
@@ -78,11 +77,6 @@ public class GeneralPhysicalDevice extends AbstractPhysicalDevice implements Gra
 
     @Override
     public Queue getCompute() {
-        return graphics;
-    }
-
-    @Override
-    public Queue getDataTransfer() {
         return graphics;
     }
 

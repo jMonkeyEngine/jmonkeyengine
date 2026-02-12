@@ -2,15 +2,13 @@ package com.jme3.vulkan.pipeline.states;
 
 import com.jme3.util.Versionable;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.mesh.MeshDescription;
 import com.jme3.vulkan.mesh.MeshLayout;
 import com.jme3.vulkan.pipeline.Pipeline;
 import com.jme3.vulkan.pipeline.cache.PipelineCache;
-import com.jme3.vulkan.shader.ShaderModule;
+import com.jme3.vulkan.material.shader.ShaderModule;
 import org.lwjgl.system.MemoryStack;
 
 import java.util.Collection;
-import java.util.Map;
 
 public interface BasePipelineState <SELF extends BasePipelineState, T> extends Versionable {
 

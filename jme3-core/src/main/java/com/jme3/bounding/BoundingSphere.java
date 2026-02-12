@@ -40,8 +40,6 @@ import com.jme3.export.JmeImporter;
 import com.jme3.math.*;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
-import com.jme3.vulkan.mesh.VertexReader;
-import com.jme3.vulkan.mesh.VertexWriter;
 import com.jme3.vulkan.util.FloatBufferModifier;
 import org.lwjgl.system.MemoryStack;
 

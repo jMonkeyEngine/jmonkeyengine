@@ -2,9 +2,6 @@ package jme3test.renderer;
 import com.jme3.app.SimpleApplication;
 
 import com.jme3.renderer.lwjgl.LwjglGL;
-import com.jme3.renderer.opengl.GL;
-import com.jme3.renderer.opengl.GLExt;
-import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.renderer.lwjgl.LwjglGLExt;
 import com.jme3.renderer.lwjgl.LwjglGLFboEXT;

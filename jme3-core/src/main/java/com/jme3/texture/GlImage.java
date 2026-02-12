@@ -691,7 +691,7 @@ public class GlImage extends GlNative implements GpuImage, Savable /*, Cloneable
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> renderer.deleteImage(new GlImage(object));
     }
     
@@ -1081,7 +1081,7 @@ public class GlImage extends GlNative implements GpuImage, Savable /*, Cloneable
     }
 
     @Override
-    public com.jme3.vulkan.Format getFormat() {
+    public com.jme3.vulkan.formats.Format getFormat() {
         // todo: merge com.jme3.vulkan.Format and GlImage.Format
         throw new UnsupportedOperationException("Not supported yet.");
     }

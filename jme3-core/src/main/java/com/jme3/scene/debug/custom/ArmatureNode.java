@@ -40,7 +40,6 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.*;
 import com.jme3.scene.shape.Line;
-import com.jme3.vulkan.mesh.AttributeModifier;
 
 import java.util.*;
 

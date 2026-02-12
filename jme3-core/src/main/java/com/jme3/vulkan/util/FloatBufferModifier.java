@@ -1,8 +1,5 @@
 package com.jme3.vulkan.util;
 
-import com.jme3.vulkan.mesh.VertexReader;
-import com.jme3.vulkan.mesh.VertexWriter;
-
 import java.nio.FloatBuffer;
 
 public class FloatBufferModifier implements VertexReader, VertexWriter {

@@ -36,7 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jme3.math.FastMath;
+import com.jme3.shader.bufferobject.BufferRegion;
 import com.jme3.util.functional.Function;
+import com.jme3.util.struct.Struct;
 
 /**
  * Layout serializer for buffers
@@ -102,6 +104,7 @@ public abstract class  BufferLayout {
         ObjectSerializer s = getSerializer(o);
         return s.length(this, o);
     }
+
     /**
      * Get basic alignment of Object when serialized accordingly with std140
      * 
@@ -114,6 +117,7 @@ public abstract class  BufferLayout {
         ObjectSerializer s = getSerializer(o);
         return s.basicAlignment(this, o);
     }
+
     /**
      * Align a position to the given basicAlignment
      * 
@@ -124,7 +128,7 @@ public abstract class  BufferLayout {
      * @return the aligned position
      */
     public int align(int pos, int basicAlignment) {
-        return pos==0?pos:FastMath.toMultipleOf(pos, basicAlignment);
+        return pos == 0 ? pos : FastMath.toMultipleOf(pos, basicAlignment);
     }
 
     /**
@@ -143,6 +147,10 @@ public abstract class  BufferLayout {
         s.write(this, out, o);
     }
 
-
     public abstract String getId();
+
+    public abstract List<BufferRegion> generateFieldRegions(Struct struct);
+
+    public abstract BufferSlice getNextFieldRegion(int position, StructField field, StructField next);
+
 }

@@ -33,6 +33,7 @@
 package com.jme3.app.state;
 
 import com.jme3.app.Application;
+import com.jme3.backend.Engine;
 import com.jme3.renderer.RenderManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -162,6 +163,10 @@ public abstract class BaseAppState implements AppState {
         return app.getStateManager();
     }
 
+    public final Engine getEngine() {
+        return app.getEngine();
+    }
+
     public final <T extends AppState> T getState(Class<T> type) {
         return getState(type, false);
     }
@@ -239,4 +244,5 @@ public abstract class BaseAppState implements AppState {
         cleanup(app);
         initialized = false;
     }
+
 }

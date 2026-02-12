@@ -76,14 +76,14 @@ public class J3MLoader implements AssetLoader {
     private RenderState renderState;
     private final ArrayList<String> presetDefines = new ArrayList<>();
 
-    private final List<EnumMap<Shader.ShaderType, String>> shaderLanguages;
-    private final EnumMap<Shader.ShaderType, String> shaderNames;
+    private final List<EnumMap<ShaderProgram.ShaderType, String>> shaderLanguages;
+    private final EnumMap<ShaderProgram.ShaderType, String> shaderNames;
 
     private static final String whitespacePattern = "\\p{javaWhitespace}+";
 
     public J3MLoader() {
         shaderLanguages = new ArrayList<>();// EnumMap<>(Shader.ShaderType.class);
-        shaderNames = new EnumMap<>(Shader.ShaderType.class);
+        shaderNames = new EnumMap<>(ShaderProgram.ShaderType.class);
     }
 
 
@@ -95,7 +95,7 @@ public class J3MLoader implements AssetLoader {
         }
         String[] typeAndLang = split[0].split(whitespacePattern);
 
-        for (Shader.ShaderType shaderType : Shader.ShaderType.values()) {
+        for (ShaderProgram.ShaderType shaderType : ShaderProgram.ShaderType.values()) {
             if (typeAndLang[0].equals(shaderType.toString() + "Shader")) {
 
                 readShaderDefinition(shaderType, split[1].trim(), Arrays.copyOfRange(typeAndLang, 1, typeAndLang.length));
@@ -104,7 +104,7 @@ public class J3MLoader implements AssetLoader {
     }
 
 
-    private void readShaderDefinition(Shader.ShaderType shaderType, String name, String... languages) {
+    private void readShaderDefinition(ShaderProgram.ShaderType shaderType, String name, String... languages) {
         shaderNames.put(shaderType, name);
 
         if (langSize != 0 && langSize != languages.length) {
@@ -113,7 +113,7 @@ public class J3MLoader implements AssetLoader {
         langSize = languages.length;
         for (int i = 0; i < languages.length; i++) {
             if (i >= shaderLanguages.size()) {
-                shaderLanguages.add(new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class));
+                shaderLanguages.add(new EnumMap<ShaderProgram.ShaderType, String>(ShaderProgram.ShaderType.class));
             }
             shaderLanguages.get(i).put(shaderType, languages[i]);
         }
@@ -671,7 +671,7 @@ public class J3MLoader implements AssetLoader {
             // is now done by TechniqueDef.
             technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "", "GLSL100", "GLSL100");
             techniqueDefs.add(technique);
-        }else if (shaderNames.containsKey(Shader.ShaderType.Vertex) && shaderNames.containsKey(Shader.ShaderType.Fragment)) {
+        }else if (shaderNames.containsKey(ShaderProgram.ShaderType.Vertex) && shaderNames.containsKey(ShaderProgram.ShaderType.Fragment)) {
             if (shaderLanguages.size() > 1) {
                 for (int i = 1; i < shaderLanguages.size(); i++) {
                     cloner.clearIndex();
@@ -826,7 +826,7 @@ public class J3MLoader implements AssetLoader {
 
     protected void initNodesLoader() {
         if (!isUseNodes) {
-            isUseNodes = shaderNames.get(Shader.ShaderType.Vertex) == null && shaderNames.get(Shader.ShaderType.Fragment) == null;
+            isUseNodes = shaderNames.get(ShaderProgram.ShaderType.Vertex) == null && shaderNames.get(ShaderProgram.ShaderType.Fragment) == null;
             if (isUseNodes) {
                 if (nodesLoaderDelegate == null) {
                     nodesLoaderDelegate = new ShaderNodeLoaderDelegate();

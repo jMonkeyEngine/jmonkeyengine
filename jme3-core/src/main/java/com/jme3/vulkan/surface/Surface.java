@@ -1,8 +1,7 @@
 package com.jme3.vulkan.surface;
 
 import com.jme3.app.Application;
-import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
+import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.devices.DeviceFilter;
 import com.jme3.vulkan.devices.PhysicalDevice;
@@ -18,12 +17,12 @@ import static com.jme3.renderer.vulkan.VulkanUtils.*;
 public class Surface implements Native<Long>, DeviceFilter {
 
     private final VulkanInstance instance;
-    private final NativeReference ref;
+    private final DisposableReference ref;
     private final long window;
     private long id;
 
     public Surface(VulkanInstance instance, Application app) {
-        this(instance, (long)app.getWindowHandle());
+        this(instance, (long)app.getContext().getWindowHandle());
     }
 
     public Surface(VulkanInstance instance, long window) {
@@ -34,7 +33,7 @@ public class Surface implements Native<Long>, DeviceFilter {
                     instance.getNativeObject(), window, null, ptr),
                     "Failed to create surface for GLFW window."));
             ref = Native.get().register(this);
-            instance.getNativeReference().addDependent(ref);
+            instance.getReference().addDependent(ref);
         }
     }
 
@@ -62,17 +61,17 @@ public class Surface implements Native<Long>, DeviceFilter {
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> KHRSurface.vkDestroySurfaceKHR(instance.getNativeObject(), id, null);
     }
 
     @Override
-    public void prematureNativeDestruction() {
+    public void prematureDestruction() {
         id = MemoryUtil.NULL;
     }
 
     @Override
-    public NativeReference getNativeReference() {
+    public DisposableReference getNativeReference() {
         return ref;
     }
 

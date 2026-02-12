@@ -1,14 +1,12 @@
 package com.jme3.vulkan.pass;
 
 import com.jme3.util.AbstractNativeBuilder;
-import com.jme3.util.natives.Native;
-import com.jme3.vulkan.Format;
-import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.natives.DisposableManager;
+import com.jme3.vulkan.formats.Format;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.images.VulkanImageView;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
-import com.jme3.vulkan.pipeline.framebuffer.VulkanFrameBuffer;
 import com.jme3.vulkan.pipeline.PipelineBindPoint;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -28,14 +26,13 @@ public class RenderPass extends AbstractNative<Long> {
     private final List<Attachment> attachments = new ArrayList<>();
     private final List<Subpass> subpasses = new ArrayList<>();
     private final List<SubpassDependency> dependencies = new ArrayList<>();
-    private boolean built = false;
 
     public RenderPass(LogicalDevice<?> device) {
         this.device = device;
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> vkDestroyRenderPass(device.getNativeObject(), object, null);
     }
 
@@ -74,6 +71,10 @@ public class RenderPass extends AbstractNative<Long> {
 
     public void end(CommandBuffer cmd) {
         vkCmdEndRenderPass(cmd.getBuffer());
+    }
+
+    public Subpass getSubpass(int i) {
+        return subpasses.get(i);
     }
 
     public LogicalDevice getDevice() {
@@ -179,8 +180,8 @@ public class RenderPass extends AbstractNative<Long> {
             LongBuffer idBuf = stack.mallocLong(1);
             check(vkCreateRenderPass(device.getNativeObject(), create, null, idBuf), "Failed to create render pass.");
             object = idBuf.get(0);
-            ref = Native.get().register(RenderPass.this);
-            device.getNativeReference().addDependent(ref);
+            ref = DisposableManager.reference(RenderPass.this);
+            device.getReference().addDependent(ref);
             return RenderPass.this;
         }
 

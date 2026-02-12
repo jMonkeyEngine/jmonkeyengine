@@ -9,6 +9,7 @@ import java.nio.Buffer;
  *
  * @author JavaSaBr
  */
+@Deprecated
 public class LwjglRender {
 
     protected static void checkLimit(final Buffer buffer) {

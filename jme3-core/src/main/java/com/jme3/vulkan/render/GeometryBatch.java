@@ -1,48 +1,30 @@
 package com.jme3.vulkan.render;
 
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.Spatial;
-import com.jme3.vulkan.commands.CommandBuffer;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.PriorityQueue;
 
-public abstract class GeometryBatch <T> implements Iterable<T> {
+public abstract class GeometryBatch <T extends BatchElement> implements Iterable<T> {
 
-    protected final Camera camera;
     protected final PriorityQueue<T> queue;
-    protected String forcedTechnique = null;
-    protected Material forcedMaterial = null;
-    protected Mesh forcedMesh = null;
+    protected Camera camera;
+    protected String forcedTechnique;
+    protected Material forcedMaterial;
+    protected Mesh forcedMesh;
+    protected RenderState forcedRenderState;
 
-    public GeometryBatch(Camera camera, Comparator<T> comparator) {
-        this.camera = camera;
+    public GeometryBatch(Comparator<? super T> comparator) {
         this.queue = new PriorityQueue<>(comparator);
     }
 
-    public abstract void render(CommandBuffer cmd);
-
     public abstract boolean add(Geometry geometry);
-
-    public void addAll(Spatial spatial) {
-        for (Spatial child : spatial) {
-            if (child instanceof Geometry) {
-                add((Geometry)child);
-            }
-        }
-    }
-
-    public void addAll(Iterable<Geometry> geometries) {
-        geometries.forEach(this::add);
-    }
-
-    protected Camera.FrustumIntersect frustumIntersect(Spatial spatial) {
-        return camera.contains(spatial.getWorldBound());
-    }
 
     public void clear() {
         queue.clear();
@@ -56,6 +38,10 @@ public abstract class GeometryBatch <T> implements Iterable<T> {
         return queue.isEmpty();
     }
 
+    public void setCamera(Camera camera) {
+        this.camera = Objects.requireNonNull(camera, "Camera cannot be null.");
+    }
+
     public void setForcedTechnique(String forcedTechnique) {
         this.forcedTechnique = forcedTechnique;
     }
@@ -66,6 +52,10 @@ public abstract class GeometryBatch <T> implements Iterable<T> {
 
     public void setForcedMesh(Mesh forcedMesh) {
         this.forcedMesh = forcedMesh;
+    }
+
+    public void setForcedRenderState(RenderState forcedRenderState) {
+        this.forcedRenderState = forcedRenderState;
     }
 
     public Camera getCamera() {
@@ -82,6 +72,14 @@ public abstract class GeometryBatch <T> implements Iterable<T> {
 
     public Mesh getForcedMesh() {
         return forcedMesh;
+    }
+
+    public RenderState getForcedRenderState() {
+        return forcedRenderState;
+    }
+
+    public PriorityQueue<T> getQueue() {
+        return queue;
     }
 
     @Override

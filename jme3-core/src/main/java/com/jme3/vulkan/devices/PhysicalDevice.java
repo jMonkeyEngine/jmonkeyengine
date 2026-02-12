@@ -1,6 +1,6 @@
 package com.jme3.vulkan.devices;
 
-import com.jme3.vulkan.Format;
+import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.commands.Queue;
 import com.jme3.vulkan.images.VulkanImage;
@@ -25,9 +25,11 @@ public interface PhysicalDevice {
 
     VkQueueFamilyProperties.Buffer getQueueFamilyProperties(MemoryStack stack);
 
-    VkPhysicalDeviceProperties getProperties(MemoryStack stack);
+    VkPhysicalDeviceProperties getProperties();
 
-    VkPhysicalDeviceFeatures getFeatures(MemoryStack stack);
+    VkPhysicalDeviceFeatures getFeatures(VkPhysicalDeviceFeatures features);
+
+    VkPhysicalDeviceFeatures2 getFeatures(VkPhysicalDeviceFeatures2 features);
 
     VkExtensionProperties.Buffer getExtensionProperties(MemoryStack stack);
 
@@ -40,7 +42,5 @@ public interface PhysicalDevice {
     boolean querySwapchainSupport(Surface surface);
 
     Queue getCompute();
-
-    Queue getDataTransfer();
 
 }

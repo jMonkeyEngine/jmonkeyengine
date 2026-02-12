@@ -1,23 +1,49 @@
 package com.jme3.vulkan.memory;
 
 import com.jme3.util.BufferUtils;
-import com.jme3.vulkan.buffers.NioBuffer;
 
-import java.nio.Buffer;
+import java.nio.*;
 import java.util.Objects;
 
 public class MemorySize {
 
-    public static final MemorySize ZERO = new MemorySize(0, 1);
+    public static final MemorySize ZERO = new MemorySize(0, 0, 1);
 
-    private final int elements;
+    private final long elements;
     private final int bytesPerElement;
-    private final int bytes;
 
-    public MemorySize(int elements, int bytesPerElement) {
+    private final long offset, bytes;
+
+    public MemorySize(long offset, long bytes) {
+        this.offset = offset;
+        this.bytes = bytes;
+        this.elements = bytes;
+        this.bytesPerElement = 1;
+    }
+
+    public MemorySize(long offset, long elements, int bytesPerElement) {
+        assert offset >= 0 : "Offset must be non-negative";
+        assert elements >= 0 : "Elements must be non-negative";
+        assert bytesPerElement > 0 : "Bytes per element must be positive.";
         this.elements = elements;
         this.bytesPerElement = bytesPerElement;
         this.bytes = this.elements * this.bytesPerElement;
+        this.offset = offset * bytesPerElement;
+    }
+
+    public MemorySize(long offset, Buffer buffer) {
+        this.offset = offset;
+        this.bytesPerElement = BufferUtils.getBytesPerElement(buffer);
+        this.elements = buffer.limit() / bytesPerElement;
+        this.bytes = buffer.limit();
+    }
+
+    public MemorySize(long bytes) {
+        this(0, bytes);
+    }
+
+    public MemorySize(Buffer buffer) {
+        this(0, buffer);
     }
 
     @Override
@@ -32,7 +58,75 @@ public class MemorySize {
         return Objects.hash(elements, bytesPerElement);
     }
 
-    public int getElements() {
+    public ByteBuffer position(ByteBuffer buffer) {
+        buffer.position((int)offset);
+        buffer.limit((int)(offset + bytes));
+        return buffer;
+    }
+
+    public ShortBuffer position(ShortBuffer buffer) {
+        buffer.position((int)offset / Short.BYTES);
+        buffer.limit((int)(offset + bytes) / Short.BYTES);
+        return buffer;
+    }
+
+    public IntBuffer position(IntBuffer buffer) {
+        buffer.position((int)offset / Integer.BYTES);
+        buffer.limit((int)(offset + bytes) / Integer.BYTES);
+        return buffer;
+    }
+
+    public FloatBuffer position(FloatBuffer buffer) {
+        buffer.position((int)offset / Float.BYTES);
+        buffer.limit((int)(offset + bytes) / Float.BYTES);
+        return buffer;
+    }
+
+    public DoubleBuffer position(DoubleBuffer buffer) {
+        buffer.position((int)offset / Double.BYTES);
+        buffer.limit((int)(offset + bytes) / Double.BYTES);
+        return buffer;
+    }
+
+    public LongBuffer position(LongBuffer buffer) {
+        buffer.position((int)offset / Long.BYTES);
+        buffer.limit((int)(offset + bytes) / Long.BYTES);
+        return buffer;
+    }
+
+    public MemorySize setOffset(long offset) {
+        return new MemorySize(offset, elements, bytesPerElement);
+    }
+
+    public MemorySize setBytes(long bytes) {
+        return new MemorySize(offset, bytes, Byte.BYTES);
+    }
+
+    public MemorySize setShorts(long shorts) {
+        return new MemorySize(offset / Short.BYTES, shorts, Short.BYTES);
+    }
+
+    public MemorySize setInts(long ints) {
+        return new MemorySize(offset / Integer.BYTES, ints, Integer.BYTES);
+    }
+
+    public MemorySize setFloats(long floats) {
+        return new MemorySize(offset / Float.BYTES, floats, Float.BYTES);
+    }
+
+    public MemorySize setDoubles(long doubles) {
+        return new MemorySize(offset / Double.BYTES, doubles, Double.BYTES);
+    }
+
+    public MemorySize setLongs(long longs) {
+        return new MemorySize(offset / Long.BYTES, longs, Long.BYTES);
+    }
+
+    public int elementsFromBytes(int bytes) {
+        return bytes / bytesPerElement;
+    }
+
+    public long getElements() {
         return elements;
     }
 
@@ -40,76 +134,84 @@ public class MemorySize {
         return bytesPerElement;
     }
 
-    public int getBytes() {
+    public long getOffset() {
+        return offset;
+    }
+
+    public long getBytes() {
         return bytes;
     }
 
-    public int getBytes(int padding) {
-        return bytes + padding * bytesPerElement;
+    public long getEnd() {
+        return offset + bytes;
     }
 
-    public int getShorts() {
+    public long getShorts() {
         return bytes / Short.BYTES;
     }
 
-    public int getShorts(int padding) {
-        return getBytes(padding) / Short.BYTES;
-    }
-
-    public int getInts() {
+    public long getInts() {
         return bytes / Integer.BYTES;
     }
 
-    public int getInts(int padding) {
-        return getBytes(padding) / Integer.BYTES;
-    }
-
-    public int getFloats() {
+    public long getFloats() {
         return bytes / Float.BYTES;
     }
 
-    public int getFloats(int padding) {
-        return getBytes(padding) / Float.BYTES;
-    }
-
-    public int getDoubles() {
+    public long getDoubles() {
         return bytes / Double.BYTES;
     }
 
-    public int getDoubles(int padding) {
-        return getBytes(padding) / Double.BYTES;
-    }
-
-    public int getLongs() {
+    public long getLongs() {
         return bytes / Long.BYTES;
     }
 
-    public int getLongs(int padding) {
-        return getBytes(padding) / Long.BYTES;
+    public static MemorySize bytes(long elements) {
+        return new MemorySize(0, elements, 1);
     }
 
-    public static MemorySize bytes(int elements) {
-        return new MemorySize(elements, 1);
+    public static MemorySize shorts(long elements) {
+        return new MemorySize(0, elements, Short.BYTES);
     }
 
-    public static MemorySize shorts(int elements) {
-        return new MemorySize(elements, Short.BYTES);
+    public static MemorySize ints(long elements) {
+        return new MemorySize(0, elements, Integer.BYTES);
     }
 
-    public static MemorySize ints(int elements) {
-        return new MemorySize(elements, Integer.BYTES);
+    public static MemorySize floats(long elements) {
+        return new MemorySize(0, elements, Float.BYTES);
     }
 
-    public static MemorySize floats(int elements) {
-        return new MemorySize(elements, Float.BYTES);
+    public static MemorySize doubles(long elements) {
+        return new MemorySize(0, elements, Double.BYTES);
     }
 
-    public static MemorySize doubles(int elements) {
-        return new MemorySize(elements, Double.BYTES);
+    public static MemorySize longs(long elements) {
+        return new MemorySize(0, elements, Long.BYTES);
     }
 
-    public static MemorySize longs(int elements) {
-        return new MemorySize(elements, Long.BYTES);
+    public static MemorySize bytes(long offset, long elements) {
+        return new MemorySize(offset, elements, 1);
+    }
+
+    public static MemorySize shorts(long offset, long elements) {
+        return new MemorySize(offset, elements, Short.BYTES);
+    }
+
+    public static MemorySize ints(long offset, long elements) {
+        return new MemorySize(offset, elements, Integer.BYTES);
+    }
+
+    public static MemorySize floats(long offset, long elements) {
+        return new MemorySize(offset, elements, Float.BYTES);
+    }
+
+    public static MemorySize doubles(long offset, long elements) {
+        return new MemorySize(offset, elements, Double.BYTES);
+    }
+
+    public static MemorySize longs(long offset, long elements) {
+        return new MemorySize(offset, elements, Long.BYTES);
     }
 
     /**
@@ -118,7 +220,7 @@ public class MemorySize {
      * @param bytesPerElement number of bytes per element
      * @return memory size reflecting {@code bytes} and {@code bytesPerElement}
      */
-    public static MemorySize dynamic(int bytes, int bytesPerElement) {
+    public static MemorySize dynamic(long bytes, long bytesPerElement) {
         return new MemorySize(bytes / bytesPerElement, bytesPerElement);
     }
 

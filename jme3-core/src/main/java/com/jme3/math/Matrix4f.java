@@ -34,6 +34,7 @@ package com.jme3.math;
 import com.jme3.export.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
+
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.logging.Logger;
@@ -472,6 +473,38 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
                 m23 = column[2];
                 m33 = column[3];
                 break;
+            default:
+                logger.warning("Invalid column index.");
+                throw new IllegalArgumentException("Invalid column index. " + i);
+        }
+    }
+
+    public void setColumn(int i, float m0, float m1, float m2, float m3) {
+        switch (i) {
+            case 0: {
+                m00 = m0;
+                m10 = m1;
+                m20 = m2;
+                m30 = m3;
+            } break;
+            case 1: {
+                m01 = m0;
+                m11 = m1;
+                m21 = m2;
+                m31 = m3;
+            } break;
+            case 2: {
+                m02 = m0;
+                m12 = m1;
+                m22 = m2;
+                m32 = m3;
+            } break;
+            case 3: {
+                m03 = m0;
+                m13 = m1;
+                m23 = m2;
+                m33 = m3;
+            } break;
             default:
                 logger.warning("Invalid column index.");
                 throw new IllegalArgumentException("Invalid column index. " + i);
@@ -2570,6 +2603,10 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     public Matrix4f flipYScalarForVulkan() {
         m11 = -m11;
         return this;
+    }
+
+    public static Matrix4f storage(Matrix4f store) {
+        return store != null ? store : new Matrix4f();
     }
 
 }

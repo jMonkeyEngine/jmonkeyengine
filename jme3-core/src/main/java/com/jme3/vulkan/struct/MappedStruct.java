@@ -1,215 +1,241 @@
 package com.jme3.vulkan.struct;
 
-import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.system.NativeResource;
-import org.lwjgl.system.Struct;
-import org.lwjgl.system.StructBuffer;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.lwjgl.system.*;
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
 
-public abstract class MappedStruct <SELF extends MappedStruct<SELF>> extends Struct<SELF> implements NativeResource {
+public class MappedStruct extends Struct<MappedStruct> implements NativeResource {
 
-    protected MappedStruct(long address, ByteBuffer container) {
-        super(address, container);
+    private final Layout layout;
+
+    public MappedStruct(long address, Layout layout) {
+        this(address, null, layout);
     }
 
-    protected abstract MappedLayout getLayout();
+    public MappedStruct(long address, ByteBuffer container, Layout layout) {
+        super(address, container);
+        this.layout = layout;
+    }
+
+    @Override
+    protected MappedStruct create(long address, ByteBuffer container) {
+        return new MappedStruct(address, container, layout);
+    }
 
     @Override
     public int sizeof() {
-        return getLayout().sizeof();
+        return layout.sizeof;
+    }
+
+    public int alignof() {
+        return layout.alignof;
+    }
+
+    public <T extends StructMember> T getMember(String name) {
+        return layout.getMember(name);
     }
 
     public void set(String name, Object value) {
-        getLayout().getMember(name).set(address, value);
+        Objects.requireNonNull(layout.members.get(name), "Struct member \"" + name + "\" does not exist.")
+                .setAtPointer(address, value);
     }
 
-    public Object get(String name) {
-        return getLayout().getMember(name).get(address);
+    public <T> T get(String name) {
+        return (T)Objects.requireNonNull(layout.members.get(name), "Struct member \"" + name + "\" does not exist.")
+                .getAtPointer(address);
     }
 
-    protected static class MappedLayout {
+    public void parse(String name, JsonNode json) {
+        Objects.requireNonNull(layout.members.get(name), "Struct member \"" + name + "\" does not exist.")
+                .parse(address, json);
+    }
 
-        private final Map<String, MappedMember> members = new HashMap<>();
-        private final List<MappedMember> memberList = new LinkedList<>();
+    public Layout getLayout() {
+        return layout;
+    }
+
+    public static MappedStruct create(long address, Layout layout) {
+        return new MappedStruct(address, layout);
+    }
+
+    public static MappedStruct.Buffer create(long address, int capacity, Layout layout) {
+        return new MappedStruct.Buffer(layout, address, capacity);
+    }
+
+    public static MappedStruct malloc(Consumer<Layout> config) {
+        return malloc(layout(config));
+    }
+
+    public static MappedStruct malloc(Layout layout) {
+        return new MappedStruct(MemoryUtil.nmemAllocChecked(layout.sizeof), layout);
+    }
+
+    public static MappedStruct calloc(Consumer<Layout> config) {
+        return calloc(layout(config));
+    }
+
+    public static MappedStruct calloc(Layout layout) {
+        return new MappedStruct(MemoryUtil.nmemCallocChecked(1, layout.sizeof), layout);
+    }
+
+    public static MappedStruct.Buffer malloc(int capacity, Consumer<Layout> config) {
+        return malloc(capacity, layout(config));
+    }
+
+    public static MappedStruct.Buffer malloc(int capacity, Layout layout) {
+        return new Buffer(layout, MemoryUtil.nmemAllocChecked(__checkMalloc(capacity, layout.sizeof)), capacity);
+    }
+
+    public static MappedStruct.Buffer calloc(int capacity, Consumer<Layout> config) {
+        return calloc(capacity, layout(config));
+    }
+
+    public static MappedStruct.Buffer calloc(int capacity, Layout layout) {
+        return new Buffer(layout, MemoryUtil.nmemCallocChecked(capacity, layout.sizeof), capacity);
+    }
+
+    public static MappedStruct malloc(MemoryStack stack, Consumer<Layout> config) {
+        return malloc(stack, layout(config));
+    }
+
+    public static MappedStruct malloc(MemoryStack stack, Layout layout) {
+        return new MappedStruct(stack.nmalloc(layout.alignof, layout.sizeof), layout);
+    }
+
+    public static MappedStruct calloc(MemoryStack stack, Consumer<Layout> config) {
+        return calloc(stack, layout(config));
+    }
+
+    public static MappedStruct calloc(MemoryStack stack, Layout layout) {
+        return new MappedStruct(stack.ncalloc(layout.alignof, 1, layout.sizeof), layout);
+    }
+
+    public static MappedStruct.Buffer malloc(int capacity, MemoryStack stack, Consumer<Layout> config) {
+        return malloc(capacity, stack, layout(config));
+    }
+
+    public static MappedStruct.Buffer malloc(int capacity, MemoryStack stack, Layout layout) {
+        return new Buffer(layout, stack.nmalloc(layout.alignof, capacity * layout.sizeof), capacity);
+    }
+
+    public static MappedStruct.Buffer calloc(int capacity, MemoryStack stack, Consumer<Layout> config) {
+        return calloc(capacity, stack, layout(config));
+    }
+
+    public static MappedStruct.Buffer calloc(int capacity, MemoryStack stack, Layout layout) {
+        return new Buffer(layout, stack.ncalloc(layout.alignof, capacity, layout.sizeof), capacity);
+    }
+
+    public static Layout layout(Consumer<MappedStruct.Layout> config) {
+        Layout l = new Layout();
+        config.accept(l);
+        l.build();
+        return l;
+    }
+
+    public static Layout layout(JsonNode jsonLayout, Map<String, JsonNode> defaults) {
+        Layout layout = new Layout();
+        for (JsonNode member : jsonLayout) {
+            String type;
+            if (member.has("type")) {
+                type = member.get("type").asText();
+            } else {
+                type = member.asText();
+            }
+            String name = member.get("name").asText();
+            layout.add(name, StructMember.create(type));
+            if (member.has("default")) {
+                defaults.put(name, member.get("default"));
+            }
+        }
+        layout.build();
+        return layout;
+    }
+
+    public static class Layout extends Struct<Layout> {
+
+        private final Map<String, StructMember> members = new LinkedHashMap<>();
         private int sizeof, alignof;
+        private boolean built = false;
 
-        protected void add(String name, MappedMember member) {
+        private Layout() {
+            super(0L, null);
+        }
+
+        public void add(String name, StructMember member) {
+            assert !built : "Layout already built.";
             members.put(name, member);
-            memberList.add(member);
         }
 
-        public MappedMember getMember(String name) {
-            return members.get(name);
-        }
-
-        protected Layout build() {
-            Struct.Member[] mems = memberList.stream().map(m -> __member(m.size)).toArray(Struct.Member[]::new);
-            Layout layout = __struct(mems);
+        private void build() {
+            built = true;
+            if (members.isEmpty()) {
+                throw new IllegalStateException("Struct cannot be empty.");
+            }
+            Layout layout = __struct(members.values().stream()
+                    .map(m -> __member(m.size))
+                    .toArray(Struct.Member[]::new));
             sizeof = layout.getSize();
             alignof = layout.getAlignment();
             int i = 0;
-            for (MappedMember m : memberList) {
+            for (StructMember m : members.values()) {
                 m.offset = layout.offsetof(i++);
             }
-            memberList.clear();
-            return layout;
         }
 
+        public <T extends StructMember> T getMember(String name) {
+            return (T)members.get(name);
+        }
+
+        @Override
+        protected MappedStruct.Layout create(long l, ByteBuffer byteBuffer) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public int sizeof() {
             return sizeof;
         }
 
-        public int alignof() {
-            return alignof;
-        }
-
     }
 
-    protected static abstract class MappedMember <T> {
+    public static class Buffer extends StructBuffer<MappedStruct, Buffer> implements NativeResource {
 
-        protected final int size;
-        protected int offset;
+        private final MappedStruct factory;
 
-        public MappedMember(int size) {
-            this.size = size;
+        public Buffer(Layout layout, long address, int cap) {
+            super(address, null, -1, 0, cap, cap);
+            this.factory = new MappedStruct(0L, layout);
         }
 
-        protected abstract void set(long struct, Object value);
-
-        protected abstract T get(long struct);
-
-        public int getSize() {
-            return size;
-        }
-
-        public int getOffset() {
-            return offset;
-        }
-
-    }
-
-    protected static abstract class MappedBuffer <STRUCT extends MappedStruct<STRUCT>, SELF extends MappedBuffer<STRUCT, SELF>>
-            extends StructBuffer<STRUCT, SELF> implements NativeResource {
-
-        protected MappedBuffer(ByteBuffer container, int remaining) {
-            super(container, remaining);
-        }
-
-        public MappedBuffer(long address, ByteBuffer container, int mark, int position, int limit, int capacity) {
+        public Buffer(Layout layout, long address, ByteBuffer container, int mark, int position, int limit, int capacity) {
             super(address, container, mark, position, limit, capacity);
+            this.factory = new MappedStruct(0L, layout);
         }
 
-    }
-
-    protected static class ByteMember extends MappedMember<Byte> {
-
-        public ByteMember() {
-            super(Byte.BYTES);
-        }
-
-        @Override
-        protected void set(long struct, Object value) {
-            MemoryUtil.memPutByte(struct + offset, (byte)value);
+        public Buffer(Layout layout, ByteBuffer container, int remaining) {
+            super(container, remaining);
+            this.factory = new MappedStruct(0L, layout);
         }
 
         @Override
-        protected Byte get(long struct) {
-            return MemoryUtil.memGetByte(struct + offset);
-        }
-
-    }
-
-    protected static class ShortMember extends MappedMember<Short> {
-
-        public ShortMember() {
-            super(Short.BYTES);
+        protected MappedStruct getElementFactory() {
+            return factory;
         }
 
         @Override
-        protected void set(long struct, Object value) {
-            MemoryUtil.memPutShort(struct + offset, (short)value);
+        protected Buffer self() {
+            return this;
         }
 
         @Override
-        protected Short get(long struct) {
-            return MemoryUtil.memGetShort(struct + offset);
-        }
-
-    }
-
-    protected static class IntMember extends MappedMember<Integer> {
-
-        public IntMember() {
-            super(Integer.BYTES);
-        }
-
-        @Override
-        protected void set(long struct, Object value) {
-            MemoryUtil.memPutInt(struct + offset, (int)value);
-        }
-
-        @Override
-        protected Integer get(long struct) {
-            return MemoryUtil.memGetInt(struct + offset);
-        }
-
-    }
-
-    protected static class FloatMember extends MappedMember<Float> {
-
-        public FloatMember() {
-            super(Float.BYTES);
-        }
-
-        @Override
-        protected void set(long struct, Object value) {
-            MemoryUtil.memPutFloat(struct + offset, (float)value);
-        }
-
-        @Override
-        protected Float get(long struct) {
-            return MemoryUtil.memGetFloat(struct + offset);
-        }
-
-    }
-
-    protected static class DoubleMember extends MappedMember<Double> {
-
-        public DoubleMember() {
-            super(Double.BYTES);
-        }
-
-        @Override
-        protected void set(long struct, Object value) {
-            MemoryUtil.memPutDouble(struct + offset, (double)value);
-        }
-
-        @Override
-        protected Double get(long struct) {
-            return MemoryUtil.memGetDouble(struct + offset);
-        }
-
-    }
-
-    protected static class LongMember extends MappedMember<Long> {
-
-        public LongMember() {
-            super(Long.BYTES);
-        }
-
-        @Override
-        protected void set(long struct, Object value) {
-            MemoryUtil.memPutLong(struct + offset, (long)value);
-        }
-
-        @Override
-        protected Long get(long struct) {
-            return MemoryUtil.memGetLong(struct + offset);
+        protected Buffer create(long address, ByteBuffer container, int mark, int position, int limit, int capacity) {
+            return new Buffer(factory.layout, address, container, mark, position, limit, capacity);
         }
 
     }

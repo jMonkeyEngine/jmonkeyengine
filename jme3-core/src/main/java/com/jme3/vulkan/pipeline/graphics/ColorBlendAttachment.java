@@ -6,7 +6,7 @@ import com.jme3.vulkan.pipeline.BlendOp;
 import com.jme3.vulkan.pipeline.ColorComponent;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
-import com.jme3.vulkan.util.RenderStateToVulkan;
+import com.jme3.vulkan.util.VulkanEnums;
 import org.lwjgl.vulkan.VkPipelineColorBlendAttachmentState;
 
 import java.util.Objects;
@@ -66,12 +66,12 @@ public class ColorBlendAttachment {
                 a.setDstFactor(BlendFactor.OneMinusSrcColor);
             } break;
             case Custom: {
-                a.setColorBlend(RenderStateToVulkan.blendEquation(state.getBlendEquation()));
-                a.setAlphaBlend(RenderStateToVulkan.blendEquationAlpha(state.getBlendEquationAlpha(), state.getBlendEquation()));
-                a.setSrcColorFactor(RenderStateToVulkan.blendFunc(state.getCustomSfactorRGB()));
-                a.setSrcAlphaFactor(RenderStateToVulkan.blendFunc(state.getCustomSfactorAlpha()));
-                a.setDstColorFactor(RenderStateToVulkan.blendFunc(state.getCustomDfactorRGB()));
-                a.setDstAlphaFactor(RenderStateToVulkan.blendFunc(state.getCustomDfactorAlpha()));
+                a.setColorBlend(VulkanEnums.blendEquation(state.getBlendEquation()));
+                a.setAlphaBlend(VulkanEnums.blendEquationAlpha(state.getBlendEquationAlpha(), state.getBlendEquation()));
+                a.setSrcColorFactor(VulkanEnums.blendFunc(state.getCustomSfactorRGB()));
+                a.setSrcAlphaFactor(VulkanEnums.blendFunc(state.getCustomSfactorAlpha()));
+                a.setDstColorFactor(VulkanEnums.blendFunc(state.getCustomDfactorRGB()));
+                a.setDstAlphaFactor(VulkanEnums.blendFunc(state.getCustomDfactorAlpha()));
             } break;
         }
         a.build();

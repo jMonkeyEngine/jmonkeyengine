@@ -138,7 +138,7 @@ public class J3mdTechniqueDefWriter {
     private void writeShaderNodes(TechniqueDef techniqueDef, Collection<MatParam> matParams, Writer out) throws IOException {
         out.write("        VertexShaderNodes {\n");
         for (ShaderNode shaderNode : techniqueDef.getShaderNodes()) {
-            if(shaderNode.getDefinition().getType() == Shader.ShaderType.Vertex){
+            if(shaderNode.getDefinition().getType() == ShaderProgram.ShaderType.Vertex){
                 writeShaderNode(out, shaderNode, matParams);
             }
         }
@@ -146,7 +146,7 @@ public class J3mdTechniqueDefWriter {
 
         out.write("        FragmentShaderNodes {\n");
         for (ShaderNode shaderNode : techniqueDef.getShaderNodes()) {
-            if(shaderNode.getDefinition().getType() == Shader.ShaderType.Fragment){
+            if(shaderNode.getDefinition().getType() == ShaderProgram.ShaderType.Fragment){
                 writeShaderNode(out, shaderNode, matParams);
             }
         }
@@ -165,7 +165,7 @@ public class J3mdTechniqueDefWriter {
 
     private void writeShaders(TechniqueDef techniqueDef, Writer out) throws IOException {
         if (techniqueDef.getShaderProgramNames().size() > 0) {
-            for (Shader.ShaderType shaderType : techniqueDef.getShaderProgramNames().keySet()) {
+            for (ShaderProgram.ShaderType shaderType : techniqueDef.getShaderProgramNames().keySet()) {
                 //   System.err.println(shaderType + " " +techniqueDef.getShaderProgramNames().get(shaderType) + " " +techniqueDef.getShaderProgramLanguage(shaderType))
                 out.write("        ");
                 out.write(shaderType.name());

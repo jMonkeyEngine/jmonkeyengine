@@ -48,7 +48,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlMesh;
 import com.jme3.shader.DefineList;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
 import java.util.ArrayList;
@@ -86,8 +86,8 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
-            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
+    public ShaderProgram getShader(AssetManager assetManager, RenderManager renderManager,
+                                   EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
 
         // TODO: if it ever changes that render isn't called
         // right away with the same geometry after makeCurrent, it would be
@@ -125,7 +125,7 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
         viewMatrix.mult(location, location);
     }
 
-    private void updateLightListUniforms(Matrix4f viewMatrix, Shader shader, LightList lights) {
+    private void updateLightListUniforms(Matrix4f viewMatrix, ShaderProgram shader, LightList lights) {
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
         ambientColor.setValue(VarType.Vector4, getAmbientColor(lights, true, ambientLightColor));
 
@@ -173,7 +173,7 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
+    public void render(RenderManager renderManager, ShaderProgram shader, Geometry geometry, GlMesh mesh, LightList lights, GlMaterial.BindUnits lastBindUnits) {
         Renderer renderer = renderManager.getRenderer();
         Matrix4f viewMatrix = renderManager.getCurrentCamera().getViewMatrix();
         updateLightListUniforms(viewMatrix, shader, lights);

@@ -1,18 +1,14 @@
 package com.jme3.vulkan.mesh.attribute;
 
 import com.jme3.math.Vector3f;
-import com.jme3.vulkan.Format;
-import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.buffers.Mappable;
-import com.jme3.vulkan.mesh.VertexBinding;
+import com.jme3.vulkan.mesh.AttributeMappingInfo;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 
-public class Position extends AbstractAttribute<Vector3f> {
+public class Position extends AbstractAttribute<Vector3f, Float> {
 
-    public Position(VertexBinding binding, GpuBuffer vertices, int size, int offset) {
-        super(binding, vertices, size, offset);
+    public Position(ValueMapper<Float> mapper, AttributeMappingInfo info) {
+        super(mapper, info);
     }
 
     @Override
@@ -29,11 +25,20 @@ public class Position extends AbstractAttribute<Vector3f> {
     public Vector3f get(int element, Vector3f store) {
         store = Vector3f.storage(store);
         ByteBuffer buf = getBuffer(element);
-        return store.set(buf.getFloat(), buf.getFloat(), buf.getFloat());
+        return store.set(mapper.get(buf), mapper.get(buf), mapper.get(buf));
     }
 
     public void set(int element, float x, float y, float z) {
-        getBuffer(element).putFloat(x).putFloat(y).putFloat(z);
+        ByteBuffer buf = getBuffer(element);
+        mapper.put(buf, x);
+        mapper.put(buf, y);
+        mapper.put(buf, z);
+    }
+
+    public void set(int startElement, float[] array) {
+        for (int i = 0; i < array.length; i += 3) {
+            set(startElement++, array[i], array[i + 1], array[i + 2]);
+        }
     }
 
 }

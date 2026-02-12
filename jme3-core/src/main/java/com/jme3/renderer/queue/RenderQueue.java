@@ -71,6 +71,7 @@ public class RenderQueue {
      * bucket the spatial is placed. A spatial's queue bucket can be set
      * via {@link Spatial#setQueueBucket(com.jme3.renderer.queue.RenderQueue.Bucket) }.
      */
+    @Deprecated
     public enum Bucket {
         /**
          * The renderer will try to find the optimal order for rendering all 

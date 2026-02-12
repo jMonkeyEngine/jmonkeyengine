@@ -62,7 +62,7 @@ import com.jme3.texture.*;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
-import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.buffers.MappableBuffer;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -433,6 +433,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      *
      * @return The additional render state.
      */
+    @Override
     public RenderState getAdditionalRenderState() {
         if (additionalState == null) {
             additionalState = RenderState.ADDITIONAL.clone();
@@ -651,7 +652,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
 
     @Override
     @NotFullyImplemented
-    public void setUniformBuffer(String name, GpuBuffer buffer) {
+    public void setUniformBuffer(String name, MappableBuffer buffer) {
         throw new UnsupportedOperationException("To be implemented.");
     }
 
@@ -916,7 +917,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         return technique;
     }
 
-    private void applyOverrides(Renderer renderer, Shader shader, SafeArrayList<MatParamOverride> overrides, BindUnits bindUnits) {
+    private void applyOverrides(Renderer renderer, ShaderProgram shader, SafeArrayList<MatParamOverride> overrides, BindUnits bindUnits) {
         for (MatParamOverride override : overrides.getArray()) {
             VarType type = override.getVarType();
 
@@ -936,7 +937,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         }
     }
 
-    private void updateShaderMaterialParameter(Renderer renderer, VarType type, Shader shader, MatParam param, BindUnits unit, boolean override) {
+    private void updateShaderMaterialParameter(Renderer renderer, VarType type, ShaderProgram shader, MatParam param, BindUnits unit, boolean override) {
         if (type == VarType.UniformBufferObject || type == VarType.ShaderStorageBufferObject) {
             ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
             BufferObject bufferObject = (BufferObject) param.getValue();
@@ -977,7 +978,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         }
     }
 
-    public BindUnits updateShaderMaterialParameters(Renderer renderer, Shader shader,
+    public BindUnits updateShaderMaterialParameters(Renderer renderer, ShaderProgram shader,
                                                      SafeArrayList<MatParamOverride> worldOverrides,
                                                      SafeArrayList<MatParamOverride> forcedOverrides) {
 
@@ -1061,12 +1062,12 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         // Get world overrides
         SafeArrayList<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();
 
-        Shader shader = technique.makeCurrent(renderManager, overrides, null, null, rendererCaps);
+        ShaderProgram shader = technique.getShader(renderManager, overrides, null, null, rendererCaps);
         updateShaderMaterialParameters(renderer, shader, overrides, null);
         renderManager.getRenderer().setShader(shader);
     }
 
-    private void clearUniformsSetByCurrent(Shader shader) {
+    private void clearUniformsSetByCurrent(ShaderProgram shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
         int size = uniforms.size();
         for (int i = 0; i < size; i++) {
@@ -1075,7 +1076,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         }
     }
 
-    private void resetUniformsNotSetByCurrent(Shader shader) {
+    private void resetUniformsNotSetByCurrent(ShaderProgram shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
         int size = uniforms.size();
         for (int i = 0; i < size; i++) {
@@ -1104,7 +1105,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
      * or the first default technique that the renderer supports
      * (based on the technique's {@link TechniqueDef#getRequiredCaps() requested rendering capabilities})<ul>
      * <li>If the technique has been changed since the last frame, then it is notified via
-     * {@link Technique#makeCurrent(com.jme3.renderer.RenderManager, com.jme3.util.SafeArrayList, com.jme3.util.SafeArrayList, com.jme3.light.LightList, java.util.EnumSet)
+     * {@link Technique#getShader(com.jme3.renderer.RenderManager, com.jme3.util.SafeArrayList, com.jme3.util.SafeArrayList, com.jme3.light.LightList, java.util.EnumSet)
      * Technique.makeCurrent()}.
      * If the technique wants to use a shader to render the model, it should load it at this part -
      * the shader should have all the proper defines as declared in the technique definition,
@@ -1173,7 +1174,7 @@ public class GlMaterial implements Material, CloneableSmartAsset, Cloneable, Sav
         SafeArrayList<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();
 
         // Select shader to use
-        Shader shader = technique.makeCurrent(renderManager, overrides, renderManager.getForcedMatParams(), lights, rendererCaps);
+        ShaderProgram shader = technique.getShader(renderManager, overrides, renderManager.getForcedMatParams(), lights, rendererCaps);
 
         // Begin tracking which uniforms were changed by material.
         clearUniformsSetByCurrent(shader);

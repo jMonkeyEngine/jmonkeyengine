@@ -32,12 +32,9 @@
 package com.jme3.effect.shapes;
 
 import com.jme3.math.FastMath;
-import com.jme3.math.Triangle;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlVertexBuffer.Type;
-import com.jme3.util.BufferUtils;
-import com.jme3.vulkan.mesh.AttributeModifier;
 
 import java.util.ArrayList;
 import java.util.List;

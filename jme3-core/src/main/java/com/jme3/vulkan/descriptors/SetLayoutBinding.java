@@ -1,6 +1,6 @@
 package com.jme3.vulkan.descriptors;
 
-import com.jme3.vulkan.shader.ShaderStage;
+import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;

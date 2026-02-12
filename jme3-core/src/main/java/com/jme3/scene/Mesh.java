@@ -31,11 +31,12 @@
  */
 package com.jme3.scene;
 
+import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.mesh.attribute.Attribute;
+import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.util.IntEnum;
 
-import java.util.Comparator;
 import java.util.function.Consumer;
 
 /**
@@ -52,6 +53,8 @@ import java.util.function.Consumer;
  */
 public interface Mesh {
 
+    MeshLayout getLayout();
+
     /**
      * Creates and returns an {@link Attribute} object which maps to the
      * specified vertex attribute, regardless of where and how the attribute
@@ -64,31 +67,50 @@ public interface Mesh {
     <T extends Attribute> T mapAttribute(String name);
 
     /**
-     * Adds the level of detail index buffer to this mesh. The LOD buffer
-     * that is used for rendering is selected via {@link #selectLevelOfDetail(Comparator)}.
-     * If no LOD buffers are provided, primitives will be automatically formed
-     * from the vertex buffers.
+     * Gets the vertex buffer data related to the vertex binding.
      *
-     * @param lod level of detail buffer to add
+     * @param binding binding related to the vertex buffer
+     * @return vertex buffer data
      */
-    void addLevelOfDetail(LodBuffer lod);
+    VertexBuffer getVertexBuffer(VertexBinding binding);
 
     /**
-     * Selects the level of detail buffer to use for rendering.
+     * Sets the index buffer for the level of detail. If no index buffer
+     * is selected for rendering when this method is called, {@code buffer}
+     * is selected for rendering.
      *
-     * @param selector chooses the LOD buffer from this mesh to render with
-     * @return the selected LOD buffer
+     * @param level level of detail
+     * @param buffer index buffer
      */
-    LodBuffer selectLevelOfDetail(Comparator<LodBuffer> selector);
+    void setLevelOfDetail(int level, MappableBuffer buffer);
 
     /**
-     * Sets the number of elements for the specified input rate.
+     * Selects the index buffer at or immediately below the specified level
+     * of detail for rendering. The number of triangles represented by the
+     * selected index buffer is determined by its {@link MappableBuffer#size() size}.
+     * If no index buffer exists at or below the specified level, no index
+     * buffer is selected for rendering.
      *
-     * <p>For example, to set the number of vertices:</p>
-     * <pre><code>mesh.setElements(InputRate.Vertex, 120);</code></pre>
+     * @param level level of detail
+     * @return selected index buffer
+     */
+    MappableBuffer selectLevelOfDetail(int level);
+
+    /**
+     * Gets the index buffer at or immediately below the specified level
+     * of detail, or null if none exists.
      *
-     * <p>The number of elements may not necessarily be equal to {@code elements}
-     * after this method call.</p>
+     * @param level level of detail
+     * @return index buffer
+     */
+    MappableBuffer getLevelOfDetail(int level);
+
+    /**
+     * Sets the number of elements for the specified input rate (i.e. vertices
+     * or instances) that are rendered. The actual number used may be different
+     * from {@code elements}, usually depending on the capacity for that input
+     * rate. If set to zero or less than zero, implementations may choose to
+     * skip rendering for this mesh.
      *
      * @param rate vertex rate
      * @param elements number of elements associated with that vertex rate
@@ -109,50 +131,65 @@ public interface Mesh {
     void setUsage(String attributeName, GlVertexBuffer.Usage usage);
 
     /**
+     * {@link MappableBuffer#push(int, int) Pushes} the specified regions of all buffers
+     * for the given input rate.
      *
-     * @param rate
-     * @param baseElement
-     * @param elements
+     * @param rate rate of vertex buffer to push
+     * @param baseElement first element to push
+     * @param elements number of elements to push
      */
     void pushElements(IntEnum<InputRate> rate, int baseElement, int elements);
 
     /**
+     * Gets the number of elements for the given input rate.
      *
-     * @param rate
-     * @return
+     * @param rate rate to get number of elements of
+     * @return number of elements
      */
     int getElements(IntEnum<InputRate> rate);
 
     /**
+     * Gets the maximum number of elements for the given input rate.
      *
-     * @param rate
-     * @return
+     * @param rate rate to get element capacity of
+     * @return number of elements
      */
     int getCapacity(IntEnum<InputRate> rate);
 
     /**
+     * Tests if the named attribute exists for this mesh.
      *
-     * @param name
-     * @return
+     * @param name attribute name
+     * @return true if the attribute exists
      */
     boolean attributeExists(String name);
 
     /**
+     * Gets the topology mode of this mesh.
      *
-     * @param type
-     * @return
-     * @param <T>
+     * @return topology mode
+     */
+    IntEnum<Topology> getTopology();
+
+    /**
+     * {@link #mapAttribute(String) Maps} the named attribute.
+     *
+     * @param type attribute name
+     * @return mapped attribute
+     * @param <T> attribute type
      */
     default <T extends Attribute> T mapAttribute(GlVertexBuffer.Type type) {
         return mapAttribute(type.name());
     }
 
     /**
+     * {@link #mapAttribute(String) Maps} and sets the {@link #setUsage(GlVertexBuffer.Type,
+     * GlVertexBuffer.Usage) usage flag} of the named attribute.
      *
-     * @param name
-     * @param usage
-     * @return
-     * @param <T>
+     * @param name attribute name
+     * @param usage usage hint
+     * @return mapped attribute
+     * @param <T> attribute type
      */
     default <T extends Attribute> T mapAttribute(String name, GlVertexBuffer.Usage usage) {
         setUsage(name, usage);
@@ -160,11 +197,13 @@ public interface Mesh {
     }
 
     /**
+     * {@link #mapAttribute(String) Maps} and sets the {@link #setUsage(GlVertexBuffer.Type,
+     * GlVertexBuffer.Usage) usage flag} of the named attribute.
      *
-     * @param type
-     * @param usage
-     * @return
-     * @param <T>
+     * @param type attribute name
+     * @param usage usage hint
+     * @return mapped attribute
+     * @param <T> attribute type
      */
     default <T extends Attribute> T mapAttribute(GlVertexBuffer.Type type, GlVertexBuffer.Usage usage) {
         setUsage(type, usage);
@@ -172,11 +211,12 @@ public interface Mesh {
     }
 
     /**
+     * {@link #mapAttribute(String) Maps} the named attribute and passes the mapped
+     * attribute to a config Consumer.
      *
-     * @param name
-     * @param config
-     * @return
-     * @param <T>
+     * @param name attribute name
+     * @param config Consumer accepting the attribute
+     * @param <T> attribute type
      */
     default <T extends Attribute> void mapAttribute(String name, Consumer<T> config) {
         T attr = mapAttribute(name);
@@ -184,36 +224,43 @@ public interface Mesh {
     }
 
     /**
+     * {@link #mapAttribute(String) Maps} the named attribute and passes the mapped
+     * attribute to a config Consumer.
      *
-     * @param type
-     * @param config
-     * @param <T>
+     * @param type attribute name
+     * @param config Consumer accepting the attribute
+     * @param <T> attribute type
      */
     default <T extends Attribute> void mapAttribute(GlVertexBuffer.Type type, Consumer<T> config) {
         mapAttribute(type.name(), config);
     }
 
     /**
+     * Sets the usage hint of the named attribute.
      *
-     * @param type
-     * @param usage
+     * @param type attribute name
+     * @param usage usage hint
+     * @see #setUsage(String, GlVertexBuffer.Usage)
      */
     default void setUsage(GlVertexBuffer.Type type, GlVertexBuffer.Usage usage) {
         setUsage(type.name(), usage);
     }
 
     /**
+     * Pushes all elements for the given input rate.
      *
-     * @param rate
+     * @param rate input rate to push
+     * @see #pushElements(IntEnum, int, int)
      */
     default void pushElements(IntEnum<InputRate> rate) {
         pushElements(rate, 0, getElements(rate));
     }
 
     /**
+     * Tests if the named attribute exists for this mesh.
      *
-     * @param type
-     * @return
+     * @param type attribute name
+     * @return true if the attribute exists
      */
     default boolean attributeExists(GlVertexBuffer.Type type) {
         return attributeExists(type.name());

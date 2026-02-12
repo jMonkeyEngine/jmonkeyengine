@@ -4,9 +4,9 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.util.natives.AbstractNative;
-import com.jme3.util.natives.Native;
-import com.jme3.vulkan.shader.ShaderModule;
-import com.jme3.vulkan.shader.ShaderStage;
+import com.jme3.util.natives.DisposableManager;
+import com.jme3.vulkan.material.shader.ShaderModule;
+import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.IntEnum;
 import jme3tools.shader.ShaderDebug;
 import org.lwjgl.system.MemoryStack;
@@ -113,11 +113,11 @@ public class ShadercLoader implements AssetLoader {
             if (object == NULL) {
                 throw new NullPointerException("Unable to initialize Shaderc compiler.");
             }
-            ref = Native.get().register(this);
+            ref = DisposableManager.reference(this);
         }
 
         @Override
-        public Runnable createNativeDestroyer() {
+        public Runnable createDestroyer() {
             return () -> Shaderc.shaderc_compiler_release(object);
         }
 

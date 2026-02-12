@@ -1,6 +1,7 @@
 package com.jme3.vulkan.devices;
 
-import com.jme3.vulkan.Format;
+import com.jme3.util.natives.Disposable;
+import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.images.VulkanImage;
@@ -16,14 +17,16 @@ import java.nio.IntBuffer;
 import static com.jme3.renderer.vulkan.VulkanUtils.enumerateBuffer;
 import static org.lwjgl.vulkan.VK10.*;
 
-public abstract class AbstractPhysicalDevice implements PhysicalDevice {
+public abstract class AbstractPhysicalDevice implements PhysicalDevice, Disposable {
 
     private final VulkanInstance instance;
     private final VkPhysicalDevice physicalDevice;
+    private final NativeMem mem = new NativeMem();
 
     public AbstractPhysicalDevice(VulkanInstance instance, long id) {
         this.instance = instance;
         this.physicalDevice = new VkPhysicalDevice(id, instance.getNativeObject());
+        Native.get().register(this);
     }
 
     @Override
@@ -43,16 +46,21 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice {
     }
 
     @Override
-    public VkPhysicalDeviceProperties getProperties(MemoryStack stack) {
-        VkPhysicalDeviceProperties props = VkPhysicalDeviceProperties.malloc(stack);
+    public VkPhysicalDeviceProperties getProperties() {
+        VkPhysicalDeviceProperties props = mem.mallocProperties();
         vkGetPhysicalDeviceProperties(physicalDevice, props);
         return props;
     }
 
     @Override
-    public VkPhysicalDeviceFeatures getFeatures(MemoryStack stack) {
-        VkPhysicalDeviceFeatures features = VkPhysicalDeviceFeatures.malloc(stack);
+    public VkPhysicalDeviceFeatures getFeatures(VkPhysicalDeviceFeatures features) {
         vkGetPhysicalDeviceFeatures(physicalDevice, features);
+        return features;
+    }
+
+    @Override
+    public VkPhysicalDeviceFeatures2 getFeatures(VkPhysicalDeviceFeatures2 features) {
+        VK11.vkGetPhysicalDeviceFeatures2(physicalDevice, features);
         return features;
     }
 
@@ -84,7 +92,7 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice {
     public Format findSupportedFormat(VulkanImage.Tiling tiling, Flag<FormatFeature> features, Format... candidates) {
         VkFormatProperties props = VkFormatProperties.create();
         for (Format f : candidates) {
-            vkGetPhysicalDeviceFormatProperties(physicalDevice, f.getVkEnum(), props);
+            vkGetPhysicalDeviceFormatProperties(physicalDevice, f.getEnum(), props);
             if ((tiling == VulkanImage.Tiling.Linear && features.contains(props.linearTilingFeatures()))
                     || (tiling == VulkanImage.Tiling.Optimal && features.contains(props.optimalTilingFeatures()))) {
                 return f;
@@ -102,6 +110,32 @@ public abstract class AbstractPhysicalDevice implements PhysicalDevice {
             KHRSurface.vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface.getNativeObject(), count, null);
             return count.get(0) > 0;
         }
+    }
+
+    @Override
+    public Runnable createDestroyer() {
+        return mem;
+    }
+
+    private static class NativeMem implements Runnable {
+
+        private VkPhysicalDeviceProperties properties;
+
+        @Override
+        public void run() {
+            if (properties != null) {
+                properties.free();
+                properties = null;
+            }
+        }
+
+        public VkPhysicalDeviceProperties mallocProperties() {
+            if (properties == null) {
+                properties = VkPhysicalDeviceProperties.malloc();
+            }
+            return properties;
+        }
+
     }
 
 }

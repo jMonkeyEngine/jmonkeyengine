@@ -1,6 +1,5 @@
 package com.jme3.renderer.vulkan;
 
-import com.jme3.util.natives.Native;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;

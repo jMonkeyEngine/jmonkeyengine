@@ -1,11 +1,11 @@
 package com.jme3.vulkan.mesh.attribute;
 
-import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.buffers.MappableBuffer;
 
 /**
  * Interacts with a vertex or instance attribute stored in a buffer.
  *
- * @param <T>
+ * @param <T> object type the attribute represents
  */
 public interface Attribute <T> {
 
@@ -44,7 +44,7 @@ public interface Attribute <T> {
     T get(int element, T store);
 
     /**
-     * {@link com.jme3.vulkan.buffers.GpuBuffer#push(int, int) Pushes} the elements
+     * {@link MappableBuffer#push(int, int) Pushes} the elements
      * in this attribute's vertex buffer in the described region.
      *
      * @param baseElement index of the first element to push
@@ -53,9 +53,50 @@ public interface Attribute <T> {
     void push(int baseElement, int elements);
 
     /**
-     * {@link GpuBuffer#push() Pushes} all elements in this attribute's vertex buffer.
+     * {@link MappableBuffer#push() Pushes} all elements in this attribute's vertex buffer.
      */
     void push();
+
+    /**
+     * Returns an Iterable for iterating over each element of this attribute.
+     * If {@code store} is not null, implementations may choose to use {@code store}
+     * as each iteration's object.
+     *
+     * @param store object to use as each element (or null to create a new object each time)
+     * @return iterable
+     */
+    Iterable<T> read(T store);
+
+    /**
+     * Returns an Iterable for iterating over each element of this attribute.
+     * If an iteration's object is modified, the change is reflected in this
+     * attribute. If {@code store} is not null, implementations may choose to
+     * use {@code store} as each iteration's object.
+     *
+     * @param store object to use as each element (or null to create a new object each time)
+     * @return iterable
+     */
+    Iterable<T> readWrite(T store);
+
+    /**
+     * Returns an iterable for iterating over each element of this attribute.
+     * Iteration objects are not assigned with the corresponding element's value.
+     * All elements are assigned with the corresponding iteration's object at the
+     * end of each iteration. In other words, the iterator writes, but does not
+     * read, to the attribute. The initial state of an iteration's object is
+     * undefined.
+     *
+     * @param store object to use as each element (cannot be null)
+     * @return iterable
+     */
+    Iterable<T> write(T store);
+
+    /**
+     * Returns an Iterable for iterating over each element index in this attribute.
+     *
+     * @return index iterable
+     */
+    Iterable<Integer> indices();
 
     /**
      * Assigns {@code values} each element in order starting from {@code startElement}.
@@ -87,6 +128,28 @@ public interface Attribute <T> {
             store[i] = get(startElement + i, store[i]);
         }
         return store;
+    }
+
+    /**
+     * Returns an Iterable for iterating over each element of this attribute.
+     * A new object is created for each iteration.
+     *
+     * @return iterable
+     * @see #read(Object)
+     */
+    default Iterable<T> read() {
+        return read(null);
+    }
+
+    /**
+     * Returns an Iterable for iterating over each element of this attribute.
+     * A new object is created for each iteration.
+     *
+     * @return iterable
+     * @see #readWrite(Object)
+     */
+    default Iterable<T> readWrite() {
+        return read(null);
     }
 
 }

@@ -1,7 +1,7 @@
 package jme3tools.shadercheck;
 
-import com.jme3.shader.Shader;
-import com.jme3.shader.Shader.ShaderSource;
+import com.jme3.shader.ShaderProgram;
+import com.jme3.shader.ShaderProgram.ShaderSource;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Scanner;
@@ -98,7 +98,7 @@ public class CgcValidator implements Validator {
     }
     
     @Override
-    public void validate(Shader shader, StringBuilder results) {
+    public void validate(ShaderProgram shader, StringBuilder results) {
         for (ShaderSource source : shader.getSources()){
             results.append("Checking: ").append(source.getName());
             switch (source.getType()){

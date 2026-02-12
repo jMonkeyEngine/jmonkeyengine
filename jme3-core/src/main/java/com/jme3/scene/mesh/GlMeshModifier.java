@@ -2,8 +2,6 @@ package com.jme3.scene.mesh;
 
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.util.BufferUtils;
-import com.jme3.vulkan.mesh.AttributeModifier;
-import com.jme3.vulkan.mesh.VertexWriter;
 
 import java.nio.ByteBuffer;
 

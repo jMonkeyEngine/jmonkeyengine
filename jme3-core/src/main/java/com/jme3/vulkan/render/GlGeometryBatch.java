@@ -5,88 +5,61 @@ import com.jme3.material.*;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.*;
+import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.Uniform;
 import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.pipeline.Pipeline;
 
 import java.util.Comparator;
 
 public class GlGeometryBatch extends GeometryBatch<GlGeometryBatch.Element> {
 
-    private final RenderManager renderManager;
-    private final boolean ortho;
+    private final GLRenderer renderer;
     private final RenderState mergedState = new RenderState();
     private final LightList filteredLights = new LightList(null);
     private RenderState forcedState = null;
     private LightList forcedLights = null;
 
-    public GlGeometryBatch(RenderManager renderManager, Camera camera, boolean ortho, Comparator<Element> comparator) {
-        super(camera, comparator);
-        this.renderManager = renderManager;
-        this.ortho = ortho;
+    public GlGeometryBatch(GLRenderer renderer, Comparator<Element> comparator) {
+        super(comparator);
+        this.renderer = renderer;
     }
 
-    @Override
-    public void render(CommandBuffer cmd) {
-        renderManager.setCamera(camera, ortho);
-        Renderer renderer = renderManager.getRenderer();
+    public void render() {
+        render(null);
+    }
+
+    public void render(Runnable onRender) {
+        if (onRender != null && !queue.isEmpty()) {
+            onRender.run();
+        }
+        //renderManager.setCamera(camera, ortho);
         for (Element e : queue) {
-            if (e.getPipeline().getDef().isNoRender()) {
+            if (e.technique.getDef().isNoRender()) {
                 continue;
             }
-            updateRenderState(e.getGeometry(), e.getState(),
-                    e.getAdditionalState(), renderer, e.getPipeline().getDef());
+            renderer.applyRenderState(mergedState.integrateGeometryStates(e.getGeometry(), forcedRenderState,
+                    e.getMaterial().getAdditionalRenderState(), e.technique.getDef().getRenderState()));
             SafeArrayList<MatParamOverride> overrides = e.getGeometry().getWorldMatParamOverrides();
             LightList lights = renderManager.filterLights(e.getGeometry(), e.getLights(), filteredLights);
-            Shader shader = e.getPipeline().makeCurrent(renderManager, overrides,
+            ShaderProgram shader = e.technique.getShader(renderManager, overrides,
                     renderManager.getForcedMatParams(), lights, renderer.getCaps());
             clearUniformsSetByCurrent(shader);
             renderManager.updateUniformBindings(shader);
             GlMaterial.BindUnits units = e.getMaterial().updateShaderMaterialParameters(
                     renderer, shader, overrides, renderManager.getForcedMatParams());
             resetUniformsNotSetByCurrent(shader);
-            e.getPipeline().render(renderManager, shader, e.getGeometry(), e.getMesh(), lights, units);
+            e.technique.render(renderer, shader, e.getGeometry(), e.getMesh(), lights, units);
         }
     }
 
-    private void updateRenderState(Geometry geometry, RenderState forcedState, RenderState additionalState,
-                                   Renderer renderer, TechniqueDef techniqueDef) {
-        RenderState finalRenderState;
-        if (forcedState != null) {
-            finalRenderState = mergedState.copyFrom(forcedState);
-        } else if (techniqueDef.getRenderState() != null) {
-            finalRenderState = mergedState.copyFrom(RenderState.DEFAULT);
-            finalRenderState = techniqueDef.getRenderState().copyMergedTo(additionalState, finalRenderState);
-        } else {
-            finalRenderState = mergedState.copyFrom(RenderState.DEFAULT);
-            finalRenderState = RenderState.DEFAULT.copyMergedTo(additionalState, finalRenderState);
-        }
-        // test if the face cull mode should be flipped before render
-        if (finalRenderState.isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
-            finalRenderState.flipFaceCull();
-        }
-        renderer.applyRenderState(finalRenderState);
-    }
-
-    private boolean isNormalsBackward(Vector3f scalar) {
-        // count number of negative scalar vector components
-        int n = 0;
-        if (scalar.x < 0) n++;
-        if (scalar.y < 0) n++;
-        if (scalar.z < 0) n++;
-        // An odd number of negative components means the normal vectors
-        // are backward to what they should be.
-        return n == 1 || n == 3;
-    }
-
-    private void clearUniformsSetByCurrent(Shader shader) {
+    private void clearUniformsSetByCurrent(ShaderProgram shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
         int size = uniforms.size();
         for (int i = 0; i < size; i++) {
@@ -95,33 +68,23 @@ public class GlGeometryBatch extends GeometryBatch<GlGeometryBatch.Element> {
         }
     }
 
-    private void resetUniformsNotSetByCurrent(Shader shader) {
+    private void resetUniformsNotSetByCurrent(ShaderProgram shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
         int size = uniforms.size();
         for (int i = 0; i < size; i++) {
             Uniform u = uniforms.getValue(i);
-            if (!u.isSetByCurrentMaterial()) {
-                if (u.getName().charAt(0) != 'g') {
-                    // Don't reset world globals!
-                    // The benefits gained from this are very minimal
-                    // and cause lots of matrix -> FloatBuffer conversions.
-                    u.clearValue();
-                }
+            if (!u.isSetByCurrentMaterial() && u.getName().charAt(0) != 'g') {
+                // Don't reset world globals!
+                // The benefits gained from this are very minimal
+                // and cause lots of matrix -> FloatBuffer conversions.
+                u.clearValue();
             }
         }
     }
 
     @Override
-    protected boolean add(Geometry geometry) {
+    public boolean add(Geometry geometry) {
         return queue.add(new Element(geometry));
-    }
-
-    @Override
-    protected Camera.FrustumIntersect frustumIntersect(Spatial spatial) {
-        if (ortho) {
-            return camera.containsGui(spatial.getWorldBound()) ?
-                    Camera.FrustumIntersect.Intersects : Camera.FrustumIntersect.Outside;
-        } else return camera.contains(spatial.getWorldBound());
     }
 
     public void setForcedState(RenderState forcedState) {
@@ -203,8 +166,13 @@ public class GlGeometryBatch extends GeometryBatch<GlGeometryBatch.Element> {
         }
 
         @Override
-        public Technique getPipeline() {
-            return technique;
+        public long getPipelineSortId() {
+            return technique.getSortId();
+        }
+
+        @Override
+        public long getMaterialSortId() {
+            return material.getSortId();
         }
 
         public RenderState getState() {

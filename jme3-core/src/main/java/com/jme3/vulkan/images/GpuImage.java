@@ -1,7 +1,6 @@
 package com.jme3.vulkan.images;
 
-import com.jme3.texture.GlTexture;
-import com.jme3.vulkan.Format;
+import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.util.IntEnum;
 
 import static org.lwjgl.vulkan.VK10.*;

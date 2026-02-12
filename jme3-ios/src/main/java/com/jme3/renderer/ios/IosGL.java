@@ -32,11 +32,7 @@
 package com.jme3.renderer.ios;
 
 import com.jme3.renderer.RendererException;
-import com.jme3.renderer.opengl.GL;
-import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GLES_30;
-import com.jme3.renderer.opengl.GLExt;
-import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
 import java.nio.BufferOverflowException;

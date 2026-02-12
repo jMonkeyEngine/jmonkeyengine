@@ -33,6 +33,8 @@ package com.jme3.material;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jme3.export.*;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 
 import java.io.IOException;
@@ -1811,12 +1813,39 @@ public class RenderState implements Cloneable, Savable {
         return cullMode == FaceCullMode.Front || cullMode == FaceCullMode.Back;
     }
 
+    public RenderState integrateGeometryStates(Geometry geometry, RenderState forcedState, RenderState additionalState, RenderState techState) {
+        if (forcedState != null) {
+            copyFrom(forcedState);
+        } else if (techState != null) {
+            copyFrom(DEFAULT);
+            techState.copyMergedTo(additionalState, this);
+        } else {
+            copyFrom(DEFAULT);
+            RenderState.DEFAULT.copyMergedTo(additionalState, this);
+        }
+        if (isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
+            flipFaceCull();
+        }
+        return this;
+    }
+
+    private boolean isNormalsBackward(Vector3f scalar) {
+        // count number of negative scalar vector components
+        int n = 0;
+        if (scalar.x < 0) n++;
+        if (scalar.y < 0) n++;
+        if (scalar.z < 0) n++;
+        // An odd number of negative components means the normal vectors
+        // are backward to what they should be.
+        return n == 1 || n == 3;
+    }
+
     /**
      * Sets this state according to the contents of the JsonNode.
      *
      * @param json json containing render state properties
      */
-    public void applyJson(JsonNode json) {
+    public void readJson(JsonNode json) {
         readJson(json, "wireframe", p -> setWireframe(p.asBoolean()));
         readJson(json, "cullMode", p -> setFaceCullMode(FaceCullMode.valueOf(p.asText())));
         readJson(json, "depthWrite", p -> setDepthWrite(p.asBoolean()));

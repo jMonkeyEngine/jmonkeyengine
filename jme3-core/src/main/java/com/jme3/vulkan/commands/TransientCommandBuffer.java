@@ -16,7 +16,7 @@ public class TransientCommandBuffer extends CommandBuffer {
     }
 
     @Override
-    public void begin() {
+    public void beginRecording() {
         if (recording) {
             throw new IllegalStateException("Command buffer already recording.");
         }

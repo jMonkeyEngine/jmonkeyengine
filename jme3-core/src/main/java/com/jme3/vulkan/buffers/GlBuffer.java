@@ -17,20 +17,8 @@ public class GlBuffer extends NioBuffer {
         super(size, padding);
     }
 
-    public GlBuffer(Buffer size) {
-        super(size);
-    }
-
-    public GlBuffer(NioBuffer size) {
-        super(size);
-    }
-
-    public GlBuffer(GpuBuffer size) {
-        super(size);
-    }
-
-    public GlBuffer(GpuBuffer size, int padding) {
-        super(size, padding);
+    public GlBuffer(MemorySize size, int padding, boolean clearMem) {
+        super(size, padding, clearMem);
     }
 
     @Override

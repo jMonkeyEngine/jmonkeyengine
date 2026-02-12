@@ -32,9 +32,6 @@
 package com.jme3.util.struct;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.jme3.export.InputCapsule;
@@ -50,6 +47,7 @@ import com.jme3.shader.bufferobject.layout.Std140Layout;
  * @author Riccardo Balbo
  */
 public class StructStd140BufferObject extends BufferObject {
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(StructStd140BufferObject.class.getName());
     private transient Class<? extends Struct> rootStruct;
     private transient List<StructField<?>> resolvedFields;
@@ -57,11 +55,8 @@ public class StructStd140BufferObject extends BufferObject {
 
     /**
      * Create an empty Struct buffer
-     * 
-     * @param str
      */
-    public StructStd140BufferObject() {
-    }
+    public StructStd140BufferObject() {}
 
     /**
      * Internal only
@@ -80,13 +75,9 @@ public class StructStd140BufferObject extends BufferObject {
     }
 
     private void loadLayout(Struct struct) {
-        ArrayList<Field> classFields = new ArrayList<Field>();
-        resolvedFields = StructUtils.getFields(struct, classFields);
-        for (Field field : classFields) {
-            if (!Modifier.isFinal(field.getModifiers())) throw new RuntimeException("Can't load layout for " + struct + " every field must be final");
-        }
+        resolvedFields = StructUtils.getFields(struct);
         rootStruct = struct.getClass();
-        StructUtils.setStd140BufferLayout(resolvedFields, std140, this);
+        setRegions(std140.generateFieldRegions(resolvedFields));
     }
 
     /**

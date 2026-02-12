@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Deprecated
 public class SyncGroup {
     
     public static final SyncGroup ASYNC = new SyncGroup();

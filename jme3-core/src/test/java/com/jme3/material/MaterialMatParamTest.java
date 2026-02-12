@@ -37,7 +37,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
 import java.util.Arrays;
@@ -439,7 +439,7 @@ public class MaterialMatParamTest {
 
     private final NullRenderer renderer = new NullRenderer() {
         @Override
-        public void setShader(Shader shader) {
+        public void setShader(ShaderProgram shader) {
             MaterialMatParamTest.this.usedShader = shader;
             evaluated = true;
         }
@@ -452,7 +452,7 @@ public class MaterialMatParamTest {
     private final RenderManager renderManager = TestUtil.createRenderManager(renderer);
 
     private boolean evaluated = false;
-    private Shader usedShader = null;
+    private ShaderProgram usedShader = null;
     private final GlTexture[] usedTextures = new GlTexture[32];
 
     private void inputMp(MatParam... params) {

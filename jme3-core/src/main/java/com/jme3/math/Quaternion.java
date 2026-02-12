@@ -1631,4 +1631,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
                 && !Float.isInfinite(quaternion.z)
                 && !Float.isInfinite(quaternion.w);
     }
+
+    public static Quaternion storage(Quaternion store) {
+        return store != null ? store : new Quaternion();
+    }
+
 }

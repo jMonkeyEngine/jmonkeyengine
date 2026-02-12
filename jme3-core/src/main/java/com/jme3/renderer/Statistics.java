@@ -32,7 +32,7 @@
 package com.jme3.renderer;
 
 import com.jme3.scene.Mesh;
-import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderProgram;
 import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.util.IntMap;
@@ -198,7 +198,7 @@ public class Statistics {
      * @param shader The shader that was used
      * @param wasSwitched If true, the shader has required a state switch
      */
-    public void onShaderUse(Shader shader, boolean wasSwitched) {
+    public void onShaderUse(ShaderProgram shader, boolean wasSwitched) {
         assert shader.getId() >= 1;
 
         if (!enabled) {

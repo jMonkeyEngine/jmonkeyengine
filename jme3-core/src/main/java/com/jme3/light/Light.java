@@ -33,12 +33,14 @@ package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
+import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import java.io.IOException;
+import java.nio.FloatBuffer;
 
 /**
  * Abstract class for representing a light source.
@@ -234,6 +236,14 @@ public abstract class Light implements Savable, Cloneable {
      * @return True if the light intersects the sphere, false otherwise.
      */
     public abstract boolean intersectsSphere(BoundingSphere sphere, TempVars vars);
+
+    public boolean intersectsVolume(BoundingVolume volume, TempVars vars) {
+        if (volume instanceof BoundingBox) {
+            return intersectsBox((BoundingBox)volume, vars);
+        } else if (volume instanceof BoundingSphere) {
+            return intersectsSphere((BoundingSphere)volume, vars);
+        } else throw new UnsupportedOperationException("Volume type not supported.");
+    }
 
     /**
      * Determines if the light intersects with the given camera frustum.

@@ -1,6 +1,6 @@
 package com.jme3.vulkan.pipeline.states;
 
-import com.jme3.vulkan.shader.ShaderStage;
+import com.jme3.vulkan.material.shader.ShaderStage;
 
 import java.util.Objects;
 

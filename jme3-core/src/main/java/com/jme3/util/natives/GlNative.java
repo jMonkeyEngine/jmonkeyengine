@@ -20,7 +20,8 @@ public abstract class GlNative extends AbstractNative<Integer> implements Clonea
 
     public abstract void resetObject();
 
-    protected void setId(int id) {
+    @Deprecated
+    public void setId(int id) {
         setId(null, id);
     }
 
@@ -32,7 +33,7 @@ public abstract class GlNative extends AbstractNative<Integer> implements Clonea
         if (renderer != null) {
             this.renderer = renderer;
         }
-        ref = Native.get().register(this);
+        ref = DisposableManager.reference(this);
     }
 
     public void setUpdateNeeded() {
@@ -54,7 +55,6 @@ public abstract class GlNative extends AbstractNative<Integer> implements Clonea
         }
     }
 
-    @SuppressWarnings("unchecked")
     public <E> WeakReference<E> getWeakRef() {
         if (weakRef == null) {
             weakRef = new WeakReference<>(this);
@@ -63,7 +63,6 @@ public abstract class GlNative extends AbstractNative<Integer> implements Clonea
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public GlNative clone() {
         try {
             GlNative clone = (GlNative)super.clone();

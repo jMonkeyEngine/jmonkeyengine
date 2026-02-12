@@ -31,23 +31,23 @@
  */
 package com.jme3.scene;
 
-import com.jme3.dev.NotFullyImplemented;
 import com.jme3.export.*;
 import com.jme3.util.*;
 import com.jme3.util.natives.GlNative;
-import com.jme3.vulkan.buffers.MultiMappingBuffer;
+import com.jme3.vulkan.buffers.AsyncMappingBuffer;
 import com.jme3.vulkan.buffers.GlBuffer;
-import com.jme3.vulkan.buffers.GpuBuffer;
+import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.mesh.DataAccess;
-import com.jme3.vulkan.mesh.InputRate;
-import com.jme3.vulkan.mesh.VertexBinding;
+import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.mesh.attribute.Attribute;
 import com.jme3.vulkan.util.IntEnum;
 
 import java.io.IOException;
 import java.nio.*;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * A <code>VertexBuffer</code> contains a particular type of geometry
@@ -62,7 +62,10 @@ import java.util.Objects;
  * <li>Component - A component represents the parts inside an element.
  * For a 3D vector, a single component is one of the dimensions, X, Y or Z.</li>
  * </ul>
+ *
+ * @deprecated this is fully replaced by
  */
+@Deprecated
 public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, Cloneable {
 
     /**
@@ -240,27 +243,6 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
         MorphTarget12,
         MorphTarget13;
 
-        private final String name;
-
-        Type() {
-            this.name = name();
-        }
-
-        Type(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public static Type getTexCoord(int channel) {
-            assert channel >= 0 : "TexCoord channel must be non-negative.";
-            assert channel < 8 : "Only 8 TexCoord channels exist.";
-            if (channel == 0) return TexCoord;
-            else return values()[TexCoord2.ordinal() + channel - 1];
-        }
-
     }
 
     /**
@@ -380,14 +362,13 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
      * derived from components * format.getComponentSize()
      */
     protected transient int componentsLength = 0;
-    protected final MultiMappingBuffer<GlBuffer> data = new MultiMappingBuffer<>();
+    protected AsyncMappingBuffer<GlBuffer> data;
+    protected Function<AttributeMappingInfo, Attribute> mapper;
     protected Usage usage;
     protected Format format;
     protected boolean normalized = false;
     protected int instanceSpan = 0;
     protected String name;
-
-    private final Attribute<?> attribute;
 
     /**
      * Creates an empty, uninitialized buffer.
@@ -395,36 +376,51 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
      * 
      * @param type the type of VertexBuffer, such as Position or Binormal
      */
-    @Deprecated
-    @NotFullyImplemented
     public GlVertexBuffer(Type type) {
-        super();
-        attribute = null;
+        this(type.name());
     }
 
-    public GlVertexBuffer(Attribute<?> attribute) {
+    public GlVertexBuffer(String name) {
         super();
-        this.attribute = attribute;
+        this.name = name;
     }
 
     /**
      * Serialization only. Do not use.
      */
-    @NotFullyImplemented
     protected GlVertexBuffer() {
         super();
-        attribute = null;
     }
 
-    @NotFullyImplemented
     protected GlVertexBuffer(int id) {
         super(id);
-        attribute = null;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
-    public <T extends Attribute> T mapAttribute(String name, GpuBuffer vertices, int size) {
+    public MappableBuffer createBuffer(int elements, Usage usage) {
+        return new AsyncMappingBuffer<>(new GlBuffer(new MemorySize(elements, format.getComponentSize())));
+    }
+
+    @Override
+    public void setOffset(long offset) {}
+
+    @Override
+    public Collection<NamedAttribute> getAttributes() {
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public NamedAttribute getFirstAttribute() {
         return null;
+    }
+
+    @Override
+    public <T extends Attribute> T mapAttribute(String name, MappableBuffer vertices, int size) {
+        return (T)mapper.apply(new AttributeMappingInfo(this, data, getNumElements(), 0));
     }
 
     /**
@@ -435,10 +431,6 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
     @Override
     public long getOffset() {
         return offset;
-    }
-
-    public Attribute<?> getAttribute() {
-        return attribute;
     }
 
     /**
@@ -496,20 +488,16 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
      * information.
      */
     public Usage getUsage() {
-        return attribute.getUsage();
+        return usage;
     }
 
     /**
      * @param usage The usage of this buffer. See {@link Usage} for more
      * information.
      */
-    @Deprecated
     public void setUsage(Usage usage) {
-//        if (id != -1)
-//            throw new UnsupportedOperationException("Data has already been sent. Cannot set usage.");
-
-        //this.usage = usage;
-        //this.setUpdateNeeded();
+        this.usage = usage;
+        setUpdateNeeded();
     }
 
     /**
@@ -590,7 +578,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
      * @return The total number of data elements in the data buffer.
      */
     public int getNumElements() {
-        if (!data.hasBuffer()) {
+        if (data == null) {
             return 0;
         }
         int elements = data.getBuffer().getBuffer().limit() / components;
@@ -630,7 +618,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
         this.format = format;
         this.components = components;
         this.componentsLength = components * format.getComponentSize();
-        data.setBuffer(new GlBuffer(new MemorySize(vertices * components, format.getComponentSize()), padding * components));
+        data = new AsyncMappingBuffer<>(new GlBuffer(new MemorySize(vertices * components, format.getComponentSize()), padding * components));
     }
 
     /**
@@ -645,7 +633,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
      * @param data A native buffer, the format of which matches the {@link Format}
      * argument.
      */
-    public void setupData(Usage usage, int components, Format format, Buffer data) {
+    public void setupData(Usage usage, int components, Format format, Buffer data, Function<AttributeMappingInfo, Attribute> mapper) {
         if (object != -1) {
             throw new UnsupportedOperationException("Data has already been sent. Cannot setupData again.");
         }
@@ -661,25 +649,20 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
 //            }
 //        }
 
-        //this.data.setBuffer(data);
-        if (!this.data.hasBuffer()) {
-            this.data.setBuffer(new GlBuffer(data));
-        } else {
-            this.data.resize(data.limit());
-        }
+        this.data = new AsyncMappingBuffer<>(new GlBuffer(new MemorySize(data)));
         this.data.copy(data);
         this.components = components;
         this.usage = usage;
         this.format = format;
         this.componentsLength = components * format.getComponentSize();
+        this.mapper = mapper;
         setUpdateNeeded();
     }
 
     /**
      * Called to update the data in the buffer with new data. Can only
-     * be called after {@link GlVertexBuffer#setupData(
-     * GlVertexBuffer.Usage, int, GlVertexBuffer.Format, java.nio.Buffer) }
-     * has been called. Note that it is fine to call this method on the
+     * be called after {@link #setupData(Usage, int, Format, Buffer, Function)
+     * setupData} has been called. Note that it is fine to call this method on the
      * data already set, e.g. vb.updateData(vb.getData()), this will just
      * set the proper update flag indicating the data should be sent to the GPU
      * again.
@@ -692,18 +675,13 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
      */
     public void updateData(Buffer data) {
         Objects.requireNonNull(data, "Vertex data buffer cannot be null.");
-        this.data.setBufferIfAbsent(() -> new GlBuffer(data));
-        this.data.resize(data.limit());
+        this.data.getBuffer().resize(new MemorySize(data));
         this.data.copy(data);
         setUpdateNeeded();
     }
 
     @Override
     public boolean isUpdateNeeded() {
-        if (attribute.getUsage() != usage) {
-            usage = attribute.getUsage();
-            setUpdateNeeded();
-        }
         return data.getBuffer().isUpdateNeeded() || super.isUpdateNeeded();
     }
 
@@ -743,19 +721,16 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
      */
     @Deprecated
     public void copyElements(int inIndex, GlVertexBuffer outVb, int outIndex, int len) {
-        if (!data.hasBuffer()) {
+        if (data == null) {
             throw new NullPointerException("No data present to copy.");
         }
-        if (!outVb.data.hasBuffer()) {
-            outVb.data.setBuffer(new GlBuffer(data.size(), data.getBuffer().getPadding()));
+        if (outVb.data == null) {
+            outVb.data = new AsyncMappingBuffer<>(new GlBuffer(data.size(), data.getBuffer().getPadding()));
         } else if (outVb.data.size().getBytesPerElement() != data.size().getBytesPerElement()) {
             throw new IllegalArgumentException("Buffer element size mismatch.");
         } else {
-            outVb.data.resize(data.size().getElements());
+            outVb.data.getBuffer().resize(data.size());
         }
-        inIndex *= data.size().getBytesPerElement() * getNumElements();
-        outIndex *= data.size().getBytesPerElement() * getNumElements();
-        len *= data.size().getBytesPerElement() * getNumElements();
         outVb.data.copy(data);
         outVb.data.unmap();
         data.unmap();
@@ -811,7 +786,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
         // e.g. re-use ID.
         GlVertexBuffer vb = (GlVertexBuffer) super.clone();
         vb.object = -1;
-        if (data.hasBuffer()) {
+        if (data != null) {
             // Make sure to pass a read-only buffer to clone so that
             // the position information doesn't get clobbered by another
             // reading thread during cloning (and vice versa) since this is
@@ -834,8 +809,8 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
         GlVertexBuffer vb = new GlVertexBuffer(overrideType);
         vb.components = components;
         vb.componentsLength = componentsLength;
-        if (data.hasBuffer()) {
-            vb.data.setBuffer(new GlBuffer(data.getBuffer()));
+        if (data != null) {
+            vb.data = new AsyncMappingBuffer<>(new GlBuffer(data.size(), 0, false));
             vb.data.copy(data);
         }
         vb.format = format;
@@ -852,7 +827,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
     @Override
     public String toString() {
         String dataTxt = null;
-        if (data.hasBuffer()) {
+        if (data != null) {
             dataTxt = ", elements=" + data.getBuffer().getBuffer().limit();
         }
         return getClass().getSimpleName() + "[fmt=" + format.name()
@@ -868,7 +843,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> {
             renderer.deleteBuffer(new GlVertexBuffer(object));
 
@@ -885,7 +860,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
         oc.write(offset, "offset", 0);
         oc.write(stride, "stride", 0);
         oc.write(instanceSpan, "instanceSpan", 0);
-        if (data.hasBuffer()) {
+        if (data != null) {
             oc.write(data.mapBytes(), "data", null);
         }
     }
@@ -903,7 +878,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
         componentsLength = components * format.getComponentSize();
         ByteBuffer data = ic.readByteBuffer("data", null);
         if (data != null) {
-            this.data.setBuffer(new GlBuffer(MemorySize.dynamic(data.capacity(), format.getComponentSize())));
+            this.data = new AsyncMappingBuffer<>(new GlBuffer(MemorySize.dynamic(data.capacity(), format.getComponentSize())));
             this.data.copy(data);
         }
     }

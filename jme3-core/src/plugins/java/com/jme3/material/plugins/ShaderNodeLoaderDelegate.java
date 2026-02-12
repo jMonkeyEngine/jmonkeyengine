@@ -38,7 +38,7 @@ import com.jme3.material.MatParam;
 import com.jme3.material.MaterialDef;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.TechniqueDef;
-import com.jme3.shader.Shader.ShaderType;
+import com.jme3.shader.ShaderProgram.ShaderType;
 import com.jme3.shader.*;
 import com.jme3.util.blockparser.Statement;
 

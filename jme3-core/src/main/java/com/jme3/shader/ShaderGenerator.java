@@ -34,7 +34,7 @@ package com.jme3.shader;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.TechniqueDef;
-import com.jme3.shader.Shader.ShaderType;
+import com.jme3.shader.ShaderProgram.ShaderType;
 import com.jme3.shader.plugins.ShaderAssetKey;
 
 import java.util.*;
@@ -93,7 +93,7 @@ public abstract class ShaderGenerator {
      * @param definesSourceCode (may be null)
      * @return a Shader program
      */
-    public Shader generateShader(String definesSourceCode) {
+    public ShaderProgram generateShader(String definesSourceCode) {
         if (techniqueDef == null) {
             throw new UnsupportedOperationException("The shaderGenerator was not "
                     + "properly initialized, call "
@@ -103,7 +103,7 @@ public abstract class ShaderGenerator {
         String techniqueName = techniqueDef.getName();
         ShaderGenerationInfo info = techniqueDef.getShaderGenerationInfo();
 
-        Shader shader = new Shader();
+        ShaderProgram shader = new ShaderProgram();
         for (ShaderType type : ShaderType.values()) {
             String extension = type.getExtension();
             String language = getLanguageAndVersion(type);
@@ -196,7 +196,7 @@ public abstract class ShaderGenerator {
      * @param type the Shader type
      */
     @SuppressWarnings("unchecked")
-    protected void generateDeclarationAndMainBody(List<ShaderNode> shaderNodes, StringBuilder sourceDeclaration, StringBuilder source, ShaderGenerationInfo info, Shader.ShaderType type) {
+    protected void generateDeclarationAndMainBody(List<ShaderNode> shaderNodes, StringBuilder sourceDeclaration, StringBuilder source, ShaderGenerationInfo info, ShaderProgram.ShaderType type) {
         for (ShaderNode shaderNode : shaderNodes) {
             if (info.getUnusedNodes().contains(shaderNode.getName())) {
                 continue;
@@ -257,7 +257,7 @@ public abstract class ShaderGenerator {
      *
      * @return the shaderLanguage and version.
      */
-    protected abstract String getLanguageAndVersion(Shader.ShaderType type);
+    protected abstract String getLanguageAndVersion(ShaderProgram.ShaderType type);
 
     /**
      * generates the uniforms declaration for a shader of the given type.

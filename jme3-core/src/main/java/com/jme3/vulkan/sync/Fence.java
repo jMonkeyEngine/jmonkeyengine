@@ -1,7 +1,6 @@
 package com.jme3.vulkan.sync;
 
-import com.jme3.util.natives.Native;
-import com.jme3.util.natives.NativeReference;
+import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkFenceCreateInfo;
@@ -15,7 +14,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public class Fence implements Native<Long> {
 
     private final LogicalDevice<?> device;
-    private final NativeReference ref;
+    private final DisposableReference ref;
     private long id;
 
     public Fence(LogicalDevice<?> device) {
@@ -31,7 +30,7 @@ public class Fence implements Native<Long> {
             id = getLong(stack, ptr -> check(vkCreateFence(device.getNativeObject(), create, null, ptr),
                     "Failed to create fence."));
             ref = Native.get().register(this);
-            device.getNativeReference().addDependent(ref);
+            device.getReference().addDependent(ref);
         }
     }
 
@@ -41,17 +40,17 @@ public class Fence implements Native<Long> {
     }
 
     @Override
-    public Runnable createNativeDestroyer() {
+    public Runnable createDestroyer() {
         return () -> vkDestroyFence(device.getNativeObject(), nonNull(id), null);
     }
 
     @Override
-    public void prematureNativeDestruction() {
+    public void prematureDestruction() {
         id = NULL;
     }
 
     @Override
-    public NativeReference getNativeReference() {
+    public DisposableReference getNativeReference() {
         return ref;
     }
 

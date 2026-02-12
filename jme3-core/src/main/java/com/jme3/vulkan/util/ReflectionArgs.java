@@ -2,16 +2,10 @@ package com.jme3.vulkan.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jme3.asset.AssetManager;
-import com.jme3.vulkan.buffers.generate.BufferGenerator;
-import com.jme3.vulkan.descriptors.Descriptor;
-import com.jme3.vulkan.material.uniforms.BufferUniform;
-import com.jme3.vulkan.material.uniforms.TextureUniform;
-import com.jme3.vulkan.pipeline.graphics.GraphicsState;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 @Deprecated

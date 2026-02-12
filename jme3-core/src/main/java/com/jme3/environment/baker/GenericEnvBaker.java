@@ -40,12 +40,14 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.jme3.asset.AssetManager;
+import com.jme3.backend.Engine;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.camera.PerspectiveCamera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.GlFrameBuffer;
@@ -100,19 +102,22 @@ public abstract class GenericEnvBaker implements EnvBaker {
     protected TextureCubeMap envMap;
     protected Format depthFormat;
 
-    protected final RenderManager renderManager;
+    protected final Engine engine;
     protected final AssetManager assetManager;
-    protected final Camera cam;
+    protected final ViewPort viewPort;
+    protected final PerspectiveCamera cam;
     protected boolean texturePulling = false;
     protected List<ByteArrayOutputStream> bos = new ArrayList<>();
 
-    protected GenericEnvBaker(RenderManager rm, AssetManager am, Format colorFormat, Format depthFormat, int env_size) {
+    protected GenericEnvBaker(Engine engine, AssetManager am, Format colorFormat, Format depthFormat, int env_size) {
         this.depthFormat = depthFormat;
 
-        renderManager = rm;
+        this.engine = engine;
         assetManager = am;
 
-        cam = new Camera(128, 128);
+        cam = new PerspectiveCamera();
+        viewPort = new ViewPort(cam);
+        viewPort.setView(0, 0, 128, 128);
 
         envMap = new TextureCubeMap(env_size, env_size, colorFormat);
         envMap.setMagFilter(MagFilter.Bilinear);
@@ -131,6 +136,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
         return texturePulling;
     }
 
+    @Override
     public TextureCubeMap getEnvMap() {
         return envMap;
     }
@@ -151,14 +157,15 @@ public abstract class GenericEnvBaker implements EnvBaker {
      *            near frustum
      * @param frustumFar
      *            far frustum
-     * @return The updated camera
+     * @return The updated viewport containing the camera
      */
-    protected Camera updateAndGetInternalCamera(int faceId, int w, int h, Vector3f position, float frustumNear, float frustumFar) {
-        cam.resize(w, h, false);
+    protected ViewPort updateAndGetInternalCamera(int faceId, int w, int h, Vector3f position, float frustumNear, float frustumFar) {
+        //cam.resize(w, h, false);
+        viewPort.setView(0, 0, w, h);
         cam.setLocation(position);
-        cam.setFrustumPerspective(90.0F, 1F, frustumNear, frustumFar);
+        cam.setPerspective(90.0F, 1F, frustumNear, frustumFar);
         cam.setRotation(new Quaternion().fromAxes(axisX[faceId], axisY[faceId], axisZ[faceId]));
-        return cam;
+        return viewPort;
     }
 
     @Override
@@ -168,7 +175,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
     @Override
     public void bakeEnvironment(Spatial scene, Vector3f position, float frustumNear, float frustumFar, Predicate<Geometry> filter) {
-        GlFrameBuffer envbakers[] = new GlFrameBuffer[6];
+        GlFrameBuffer[] envbakers = new GlFrameBuffer[6];
         for (int i = 0; i < 6; i++) {
             envbakers[i] = new GlFrameBuffer(envMap.getImage().getWidth(), envMap.getImage().getHeight(), 1);
             envbakers[i].setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
@@ -183,7 +190,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
         for (int i = 0; i < 6; i++) {
             GlFrameBuffer envbaker = envbakers[i];
 
-            ViewPort viewPort = new ViewPort("EnvBaker", updateAndGetInternalCamera(i, envbaker.getWidth(), envbaker.getHeight(), position, frustumNear, frustumFar));
+            ViewPort viewPort = updateAndGetInternalCamera(i, envbaker.getWidth(), envbaker.getHeight(), position, frustumNear, frustumFar);
             viewPort.setClearFlags(true, true, true);
             viewPort.setBackgroundColor(ColorRGBA.Pink);
 
@@ -191,14 +198,11 @@ public abstract class GenericEnvBaker implements EnvBaker {
             viewPort.clearScenes();
             viewPort.attachScene(scene);
 
-            scene.updateLogicalState(0);
+            scene.updateLogicalState(0); // this seems suspicious
             scene.updateGeometricState();
 
-            Predicate<Geometry> ofilter = renderManager.getRenderFilter();
-
-            renderManager.setRenderFilter(filter);
-            renderManager.renderViewPort(viewPort, 0.16f);
-            renderManager.setRenderFilter(ofilter);
+            viewPort.setGeometryFilter(filter);
+            engine.render(viewPort);
 
             if (isTexturePulling()) {
                 pull(envbaker, envMap, i);
@@ -254,7 +258,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
             bos.set(faceId, bo = new ByteArrayOutputStream());
         }
         try {
-            byte array[] = new byte[face.limit()];
+            byte[] array = new byte[face.limit()];
             face.get(array);
             bo.write(array);
         } catch (Exception ex) {

@@ -6,7 +6,7 @@ layout (location = 2) in vec3 inNormal;
 
 layout (location = 0) out vec2 texCoord;
 
-layout (set = 0, binding = 0) uniform CameraBuffer {
+layout (set = 0, binding = 0) uniform Camera {
     mat4 worldViewProjectionMatrix;
 } cam;
 
