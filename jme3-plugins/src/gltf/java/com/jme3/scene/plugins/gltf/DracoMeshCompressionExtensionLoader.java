@@ -111,18 +111,19 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
 
         DracoMesh dracoMesh = readDracoMesh(loader, extension);
 
-        // Fetch the indices, convert them into a vertex buffer,
-        // and replace the index vertex buffer of the mesh with
-        // the newly created buffer.
+        // Fetch the indices and fill the index vertex buffer of
+        // the mesh with the data from draco
         logger.log(level, "Decoding draco indices");
         int indices[] = dracoMesh.getIndices().toArray();
         int indicesAccessorIndex = getAsInt(meshPrimitiveObject, "mesh primitive", "indices");
         JsonObject indicesAccessor = loader.getAccessor(indicesAccessorIndex);
         int indicesComponentType = getAsInt(indicesAccessor, "accessor " + indicesAccessorIndex,
                 "componentType");
-        VertexBuffer indicesVertexBuffer = createIndicesVertexBuffer(loader, indicesComponentType, indices);
-        mesh.clearBuffer(VertexBuffer.Type.Index);
-        mesh.setBuffer(indicesVertexBuffer);
+
+        VertexBuffer indicesVertexBuffer = mesh.getBuffer(VertexBuffer.Type.Index);
+        Buffer indicesVertexBufferData = createIndicesVertexBufferData(indicesComponentType, indices);
+        indicesVertexBuffer.setupData(VertexBuffer.Usage.Dynamic, 3,
+                getVertexBufferFormat(indicesComponentType), indicesVertexBufferData);
 
         // Iterate over all attributes that are found in the
         // "attributes" dictionary of the extension object.
@@ -322,37 +323,30 @@ public class DracoMeshCompressionExtensionLoader implements ExtensionLoader {
     }
 
     /**
-     * Create the indices vertex buffer that should go into the mesh, based on the given Draco-decoded indices
+     * Create the indices vertex buffer data, based on the given Draco-decoded indices
      * 
-     * @param loader
-     *            The glTF loader
      * @param accessorIndex
      *            The accessor index of the vertices
      * @param indices
      *            The Draco-decoded indices
-     * @return The indices vertex buffer
+     * @return The indices vertex buffer data
      * @throws AssetLoadException
      *             If the given component type is not <code>GL_UNSIGNED_BYTE</code>,
      *             <code>GL_UNSIGNED_SHORT</code>, or <code>GL_UNSIGNED_INT</code>
      */
-    VertexBuffer createIndicesVertexBuffer(GltfLoader loader, int componentType, int indices[]) {
-        Buffer data = null;
+    private Buffer createIndicesVertexBufferData(int componentType, int indices[]) {
         if (componentType == GltfConstants.GL_UNSIGNED_BYTE) {
-            data = BufferUtils.createByteBuffer(indices);
-        } else if (componentType == GltfConstants.GL_UNSIGNED_SHORT) {
-            data = BufferUtils.createShortBuffer(indices);
-        } else if (componentType == GltfConstants.GL_UNSIGNED_INT) {
-            data = BufferUtils.createIntBuffer(indices);
-        } else {
-            throw new AssetLoadException("The indices accessor must have a component type of "
-                    + GltfConstants.GL_UNSIGNED_BYTE + ", " + GltfConstants.GL_UNSIGNED_SHORT + ", or "
-                    + GltfConstants.GL_UNSIGNED_INT + ", but has " + componentType);
+            return BufferUtils.createByteBuffer(indices);
         }
-        VertexBuffer vb = new VertexBuffer(VertexBuffer.Type.Index);
-        VertexBuffer.Format format = getVertexBufferFormat(componentType);
-        int numComponents = 3;
-        vb.setupData(VertexBuffer.Usage.Dynamic, numComponents, format, data);
-        return vb;
+        if (componentType == GltfConstants.GL_UNSIGNED_SHORT) {
+            return BufferUtils.createShortBuffer(indices);
+        }
+        if (componentType == GltfConstants.GL_UNSIGNED_INT) {
+            return BufferUtils.createIntBuffer(indices);
+        }
+        throw new AssetLoadException("The indices accessor must have a component type of "
+                + GltfConstants.GL_UNSIGNED_BYTE + ", " + GltfConstants.GL_UNSIGNED_SHORT + ", or "
+                + GltfConstants.GL_UNSIGNED_INT + ", but has " + componentType);
     }
 
     // TODO_DRACO Could go into GltfUtils
