@@ -118,7 +118,7 @@ public class TestGltfLoading extends SimpleApplication {
         // loadModelSample("Lantern", "glb");
         // loadModelSample("RiggedFigure", "glb");
         // loadModelSample("SciFiHelmet", "gltf");
-        // loadModelSample("DamagedHelmet", "gltf");
+        loadModelSample("DamagedHelmet", "gltf");
         // loadModelSample("AnimatedCube", "gltf");
         // loadModelSample("AntiqueCamera", "glb");
         // loadModelSample("AnimatedMorphCube", "glb");
@@ -141,7 +141,7 @@ public class TestGltfLoading extends SimpleApplication {
         //loadModelSample("CesiumMan", "draco");
         //loadModelSample("CesiumMan", "glb");
 
-        loadModelSample("RiggedFigure", "draco");
+        // loadModelSample("RiggedFigure", "draco");
         //loadModelSample("RiggedFigure", "glb");
 
         //loadModelSample("RiggedSimple", "draco");
