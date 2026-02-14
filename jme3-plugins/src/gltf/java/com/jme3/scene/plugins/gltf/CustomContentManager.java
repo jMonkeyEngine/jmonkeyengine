@@ -63,6 +63,7 @@ public class CustomContentManager {
         defaultExtensionLoaders.put("KHR_materials_unlit", UnlitExtensionLoader.class);
         defaultExtensionLoaders.put("KHR_texture_transform", TextureTransformExtensionLoader.class);
         defaultExtensionLoaders.put("KHR_materials_emissive_strength", PBREmissiveStrengthExtensionLoader.class);
+        defaultExtensionLoaders.put("KHR_draco_mesh_compression", DracoMeshCompressionExtensionLoader.class);
 
     }
     

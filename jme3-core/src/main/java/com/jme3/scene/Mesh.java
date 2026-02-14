@@ -366,6 +366,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                 pos.getNumComponents(),
                 pos.getFormat(),
                 BufferUtils.clone(pos.getData()));
+        clearBuffer(bindPos.getBufferType());
         setBuffer(bindPos);
 
         // XXX: note that this method also sets stream mode
@@ -379,6 +380,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                     norm.getNumComponents(),
                     norm.getFormat(),
                     BufferUtils.clone(norm.getData()));
+            clearBuffer(bindNorm.getBufferType());
             setBuffer(bindNorm);
             norm.setUsage(Usage.Stream);
         }
@@ -390,6 +392,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                     tangents.getNumComponents(),
                     tangents.getFormat(),
                     BufferUtils.clone(tangents.getData()));
+            clearBuffer(bindTangents.getBufferType());
             setBuffer(bindTangents);
             tangents.setUsage(Usage.Stream);
         }// else hardware setup does nothing, mesh already in bind pose

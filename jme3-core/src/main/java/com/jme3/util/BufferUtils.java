@@ -1139,6 +1139,37 @@ public final class BufferUtils {
         return copy;
     }
 
+
+    /**
+     * Create a byte buffer containing the given values, cast to <code>byte</code>
+     *
+     * @param array
+     *            The array
+     * @return The buffer
+     */
+    public static Buffer createByteBuffer(int[] array) {
+        ByteBuffer buffer = BufferUtils.createByteBuffer(array.length);
+        for (int i = 0; i < array.length; i++) {
+            buffer.put(i, (byte) array[i]);
+        }
+        return buffer;
+    }
+
+    /**
+     * Create a short buffer containing the given values, cast to <code>short</code>
+     *
+     * @param array
+     *            The array
+     * @return The buffer
+     */
+    public static Buffer createShortBuffer(int[] array) {
+        ShortBuffer buffer = BufferUtils.createShortBuffer(array.length);
+        for (int i = 0; i < array.length; i++) {
+            buffer.put(i, (short) array[i]);
+        }
+        return buffer;
+    }
+
     /**
      * Ensures there is at least the <code>required</code> number of entries
      * left after the current position of the buffer. If the buffer is too small
