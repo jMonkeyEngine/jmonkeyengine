@@ -33,6 +33,7 @@ package com.jme3.scene;
 
 import com.jme3.math.Matrix4f;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
 
 /**
  * 
@@ -46,6 +47,8 @@ import com.jme3.util.TempVars;
  * @author Nehon
  */
 public class SimpleBatchNode extends BatchNode {
+
+    private Matrix4f cachedLocalMat = new Matrix4f();
 
     public SimpleBatchNode() {
         super();
@@ -73,8 +76,6 @@ public class SimpleBatchNode extends BatchNode {
             batch.geometry.setTransformRefresh();
         }
     }
-    
-    private final Matrix4f cachedLocalMat = new Matrix4f();
 
     @Override
     protected Matrix4f getTransformMatrix(Geometry g){
@@ -96,4 +97,11 @@ public class SimpleBatchNode extends BatchNode {
     public void batch() {
         doBatch();
     }
+
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        super.cloneFields(cloner, original);
+        this.cachedLocalMat = cloner.clone(cachedLocalMat);
+    }
+    
 }
