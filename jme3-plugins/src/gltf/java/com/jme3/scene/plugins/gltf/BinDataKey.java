@@ -40,6 +40,12 @@ import com.jme3.asset.cache.AssetCache;
 class BinDataKey extends AssetKey<Object> {
     public BinDataKey(String name) {
         super(name);
+
+        // References to external data in glTF are not required to have a
+        // specific file extension. But the 'General.cfg' contains
+        // LOADER com.jme3.scene.plugins.gltf.BinLoader : bin
+        // So always set the extension to be "bin" to find the loader.
+        this.extension = "bin";
     }
 
     @Override
