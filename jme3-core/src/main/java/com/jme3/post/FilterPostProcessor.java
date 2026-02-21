@@ -107,7 +107,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private boolean multiView = false;
     private AppProfiler prof;
 
-    private Format fbFormat = Format.RGB111110F;
+    private Format fbFormat = null;
     private Format depthFormat = Format.Depth;
 
     /**
@@ -206,6 +206,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
 
         // Determine optimal framebuffer format based on renderer capabilities
+        if (fbFormat == null) fbFormat = Format.RGB111110F;
         if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
             if (renderer.getCaps().contains(Caps.FloatColorBufferRGB)) {
                 fbFormat = Format.RGB16F;
@@ -231,11 +232,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     /**
-     * Returns the default color buffer format used for the internal rendering
-     * passes of the filters. This format is determined during initialization
-     * based on the renderer's capabilities.
+     * Returns the default color buffer format used for the internal rendering passes of the filters. This
+     * format is determined during initialization based on the renderer's capabilities.
      *
-     * @return The default `Format` for the filter pass textures.
+     * @return The default `Format` for the filter pass textures or null if set to be determined
+     *         automatically.
      */
     public Format getDefaultPassTextureFormat() {
         return fbFormat;
@@ -701,10 +702,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     /**
-     * Sets the preferred `Image.Format` to be used for the internal frame buffer's
-     * color buffer.
+     * Sets the preferred `Image.Format` to be used for the internal frame buffer's color buffer.
      *
-     * @param fbFormat The desired `Format` for the color buffer.
+     * @param fbFormat
+     *            The desired `Format` for the color buffer or null to let the processor determine the optimal
+     *            format based on renderer capabilities.
      */
     public void setFrameBufferFormat(Format fbFormat) {
         this.fbFormat = fbFormat;
