@@ -482,8 +482,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         // framebuffer size (resolution) may differ from window size (e.g. HiDPI)
 
         glfwGetWindowSize(window, width, height);
-        int windowWidth = width[0] < 1 ? 1 : width[0];
-        int windowHeight = height[0] < 1 ? 1 : height[0];
+        int windowWidth = width[0] < 16 ? 16 : width[0];
+        int windowHeight = height[0] < 16 ? 16 : height[0];
         if (settings.getWindowWidth() != windowWidth || settings.getWindowHeight() != windowHeight) {
             settings.setWindowSize(windowWidth, windowHeight);
             for (WindowSizeListener wsListener : windowSizeListeners.getArray()) {
@@ -492,8 +492,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         glfwGetFramebufferSize(window, width, height);
-        int framebufferWidth = width[0];
-        int framebufferHeight = height[0];
+        int framebufferWidth = width[0] < 16 ? 16 : width[0];
+        int framebufferHeight = height[0] < 16 ? 16 : height[0];
         if (framebufferWidth != oldFramebufferWidth || framebufferHeight != oldFramebufferHeight) {
             settings.setResolution(framebufferWidth, framebufferHeight);
             listener.reshape(framebufferWidth, framebufferHeight);
@@ -502,8 +502,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             oldFramebufferHeight = framebufferHeight;
         }
 
-        float xScale = framebufferWidth / windowWidth;
-        float yScale = framebufferHeight / windowHeight;
+        float xScale = (float) framebufferWidth / windowWidth;
+        float yScale = (float) framebufferHeight / windowHeight;
         if (oldScale.x != xScale || oldScale.y != yScale) {
             listener.rescale(xScale, yScale);
 
