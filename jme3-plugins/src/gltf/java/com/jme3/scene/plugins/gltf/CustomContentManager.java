@@ -31,16 +31,21 @@
  */
 package com.jme3.scene.plugins.gltf;
 
-import com.jme3.plugins.json.JsonArray;
-import com.jme3.plugins.json.JsonElement;
-import com.jme3.asset.AssetLoadException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.jme3.asset.AssetLoadException;
+import com.jme3.plugins.json.JsonArray;
+import com.jme3.plugins.json.JsonElement;
+import com.jme3.plugins.json.JsonObject;
 
 /**
  * Created by Nehon on 20/08/2017.
@@ -56,6 +61,10 @@ public class CustomContentManager {
     private GltfLoader gltfLoader;
 
     
+    /**
+     * The mapping from glTF extension names to the classes that
+     * represent the respective laoders.
+     */
     static final Map<String, Class<? extends ExtensionLoader>> defaultExtensionLoaders = new ConcurrentHashMap<>();
     static {
         defaultExtensionLoaders.put("KHR_materials_pbrSpecularGlossiness", PBRSpecGlossExtensionLoader.class);
@@ -64,9 +73,13 @@ public class CustomContentManager {
         defaultExtensionLoaders.put("KHR_texture_transform", TextureTransformExtensionLoader.class);
         defaultExtensionLoaders.put("KHR_materials_emissive_strength", PBREmissiveStrengthExtensionLoader.class);
         defaultExtensionLoaders.put("KHR_draco_mesh_compression", DracoMeshCompressionExtensionLoader.class);
-
     }
     
+    /**
+     * The mapping from glTF extension names to the actual loader instances
+     * that have been lazily created from the defaultExtensionLoaders,
+     * in {@link #findExtensionLoader(String)}
+     */
     private final Map<String, ExtensionLoader> loadedExtensionLoaders = new HashMap<>();
 
     public CustomContentManager() {
@@ -104,28 +117,80 @@ public class CustomContentManager {
             this.key = (GltfModelKey) gltfLoader.getInfo().getKey();
         }
 
-        JsonArray extensionUsed = gltfLoader.getDocRoot().getAsJsonArray("extensionsUsed");
-        if (extensionUsed != null) {
-            for (JsonElement extElem : extensionUsed) {
-                String ext = extElem.getAsString();
-                if (ext != null) {
-                    if (defaultExtensionLoaders.get(ext) == null && (this.key != null && this.key.getExtensionLoader(ext) == null)) {
-                        logger.log(Level.WARNING, "Extension " + ext + " is not supported, please provide your own implementation in the GltfModelKey");
-                    }
+        // For extensions that are USED but not supported, print a warning
+        List<String> extensionsUsed = getArrayAsStringList(gltfLoader.getDocRoot(), "extensionsUsed");
+        for (String extensionName : extensionsUsed) {
+            if (!isExtensionSupported(extensionName)) {
+                logger.log(Level.WARNING, "Extension " + extensionName
+                        + " is not supported, please provide your own implementation in the GltfModelKey");
+            }
+        }
+
+        // For extensions that are REQUIRED but not supported,
+        // throw an AssetLoadException by default
+        // If the GltfModelKey#isStrict returns false, then
+        // still print an error message, at least
+        List<String> extensionsRequired = getArrayAsStringList(gltfLoader.getDocRoot(), "extensionsRequired");
+        for (String extensionName : extensionsRequired) {
+            if (!isExtensionSupported(extensionName)) {
+                if (this.key != null && this.key.isStrict()) {
+                    throw new AssetLoadException(
+                            "Extension " + extensionName + " is required for this file.");
+                } else {
+                    logger.log(Level.SEVERE, "Extension " + extensionName
+                            + " is required for this file. The behavior of the loader is unspecified.");
                 }
             }
         }
-        JsonArray extensionRequired = gltfLoader.getDocRoot().getAsJsonArray("extensionsRequired");
-        if (extensionRequired != null) {
-            for (JsonElement extElem : extensionRequired) {
-                String ext = extElem.getAsString();
-                if (ext != null) {
-                    if (defaultExtensionLoaders.get(ext) == null && (this.key != null && this.key.getExtensionLoader(ext) == null)) {
-                        logger.log(Level.SEVERE, "Extension " + ext + " is mandatory for this file, the loaded scene result will be unexpected.");
-                    }
-                }
+    }
+
+    /**
+     * Returns a (possibly unmodifiable) list of the string representations of the elements in the specified
+     * array, or an empty list if the specified array does not exist.
+     * 
+     * @param jsonObject
+     *            The JSON object
+     * @param property
+     *            The property name of the array property
+     * @return The list
+     */
+    private static List<String> getArrayAsStringList(JsonObject jsonObject, String property) {
+        JsonArray jsonArray = jsonObject.getAsJsonArray(property);
+        if (jsonArray == null) {
+            return Collections.emptyList();
+        }
+        List<String> list = new ArrayList<String>();
+        for (JsonElement jsonElement : jsonArray) {
+            String string = jsonElement.getAsString();
+            if (string != null) {
+                list.add(string);
             }
         }
+        return list;
+    }
+
+    /**
+     * Returns whether the specified glTF extension is supported.
+     * 
+     * The given string is the name of the extension, e.g. <code>KHR_texture_transform</code>.
+     * 
+     * This will return whether there is a default extension loader for the given extension registered in the
+     * {@link #defaultExtensionLoaders}, or whether the <code>GltfModelKey</code> that was obtained from the
+     * <code>GltfLoader</code> contains a custom extension loader that was registered via
+     * {@link GltfModelKey#registerExtensionLoader(String, ExtensionLoader)}.
+     * 
+     * @param ext
+     *            The glTF extension name
+     * @return Whether the given extension is supported
+     */
+    private boolean isExtensionSupported(String ext) {
+        if (defaultExtensionLoaders.containsKey(ext)) {
+            return true;
+        }
+        if (this.key != null && this.key.getExtensionLoader(ext) != null) {
+            return true;
+        }
+        return false;
     }
 
     public <T> T readExtensionAndExtras(String name, JsonElement el, T input) throws AssetLoadException, IOException {
@@ -142,36 +207,11 @@ public class CustomContentManager {
         }
 
         for (Map.Entry<String, JsonElement> ext : extensions.getAsJsonObject().entrySet()) {
-            ExtensionLoader loader = null;
-
-            if (key != null) {
-                loader = key.getExtensionLoader(ext.getKey());
-            }
-
-            if (loader == null) {
-                loader = loadedExtensionLoaders.get(ext.getKey());
-                if (loader == null) {
-                    try {
-                        Class<? extends ExtensionLoader> clz = defaultExtensionLoaders.get(ext.getKey());
-                        if (clz != null) {
-                            loader = clz.getDeclaredConstructor().newInstance();
-                        }
-                    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                        logger.log(Level.WARNING, "Could not instantiate loader", e);
-                    }
-
-                    if (loader != null) {
-                        loadedExtensionLoaders.put(ext.getKey(), loader);
-                    }
-                }
-            }
-            
-
+            ExtensionLoader loader = findExtensionLoader(ext.getKey());
             if (loader == null) {
                 logger.log(Level.WARNING, "Could not find loader for extension " + ext.getKey());
                 continue;
             }
-
             try {
                 return (T) loader.handleExtension(gltfLoader, name, el, ext.getValue(), input);
             } catch (ClassCastException e) {
@@ -180,6 +220,45 @@ public class CustomContentManager {
         }
 
         return input;
+    }
+
+    /**
+     * Returns the <code>ExtensionLoader</code> for the given glTF extension name.
+     * 
+     * The extension name is a name like <code>KHR_texture_transform</code>. This method will first try to
+     * return the custom extension loader that was registered in the GltfModelKey.
+     * 
+     * If it does not exist, it will return an instance of the default extension loader that was registered
+     * for the given extension, lazily creating the instance based on the registered defaultExtensionLoaders.
+     * 
+     * @param extensionName
+     *            The extension name
+     * @return The loader, or <code>null</code> if no loader could be found or instantiated
+     */
+    private ExtensionLoader findExtensionLoader(String extensionName) {
+        if (key != null) {
+            ExtensionLoader loader = key.getExtensionLoader(extensionName);
+            if (loader != null) {
+                return loader;
+            }
+        }
+
+        ExtensionLoader loader = loadedExtensionLoaders.get(extensionName);
+        if (loader != null) {
+            return loader;
+        }
+        try {
+            Class<? extends ExtensionLoader> clz = defaultExtensionLoaders.get(extensionName);
+            if (clz != null) {
+                loader = clz.getDeclaredConstructor().newInstance();
+                loadedExtensionLoaders.put(extensionName, loader);
+            }
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            logger.log(Level.WARNING, "Could not instantiate loader", e);
+        }
+        return loader;
+
     }
 
     @SuppressWarnings("unchecked")
