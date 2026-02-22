@@ -36,18 +36,20 @@ import com.jme3.collision.CollisionResults;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.mesh.*;
+import com.jme3.vulkan.mesh.attribute.Attribute;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -350,6 +352,48 @@ public class BatchNode extends GeometryGroupNode {
         return null;
     }
 
+    private void mergeGeometries(MeshLayout layout, Collection<Geometry> geometries) {
+        long vertices = 0;
+        long instances = 0;
+        for (Geometry g : geometries) {
+            vertices += g.getMesh().getElements(InputRate.Vertex);
+            if (g.getMesh().getElements(InputRate.Instance) > 1) {
+                throw new IllegalArgumentException("Cannot batch instanced geometry.");
+            }
+        }
+        Mesh outMesh = new AdaptiveMesh(layout, vertices, instances);
+        long vertexOffset = 0;
+        for (Geometry g : geometries) {
+            Mesh inMesh = g.getMesh();
+            if (inMesh.getLayout() == layout) {
+                // copy memory directly because all vertex buffers are aligned
+                for (VertexBuffer src : inMesh.getVertexBuffers()) {
+                    VertexBuffer dst = outMesh.getVertexBuffer(src.getBinding());
+                    try (BufferMapping srcMap = src.getData().map(); BufferMapping dstMap = dst.getData().map(vertexOffset, srcMap.getSize())) {
+                        MemoryUtil.memCopy(srcMap.getBytes(), dstMap.getBytes());
+                    }
+                }
+            } else for (VertexBinding srcBinding : inMesh.getLayout().getBindings()) {
+                attrLoop: for (NamedAttribute srcAttr : srcBinding.getAttributes()) {
+                    for (VertexBinding dstBinding : layout.getBindings()) {
+                        NamedAttribute dstAttr = dstBinding.getAttribute(srcAttr.getName());
+                        if (dstAttr != null) {
+                            try (Attribute<Object> src = srcAttr.map(inMesh, srcBinding);
+                                 Attribute<Object> dst = dstAttr.map(outMesh, dstBinding)) {
+                                Object store = src.createStorageObject(null);
+                                for (Integer i : src.indices()) {
+                                    dst.set(vertexOffset + i, src.get(i, store));
+                                }
+                            }
+                            continue attrLoop;
+                        }
+                    }
+                }
+            }
+            vertexOffset += g.getVertexCount();
+        }
+    }
+
     /**
      * Merges all geometries in the collection into
      * the output mesh. Does not take into account materials.
@@ -358,6 +402,9 @@ public class BatchNode extends GeometryGroupNode {
      * @param outMesh
      */
     private void mergeGeometries(Mesh outMesh, List<Geometry> geometries) {
+
+
+
         int[] compsForBuf = new int[GlVertexBuffer.Type.values().length];
         GlVertexBuffer.Format[] formatForBuf = new GlVertexBuffer.Format[compsForBuf.length];
         boolean[] normForBuf = new boolean[GlVertexBuffer.Type.values().length];
@@ -377,13 +424,13 @@ public class BatchNode extends GeometryGroupNode {
             int components;
             switch (geom.getMesh().getMode()) {
                 case Points:
-                    listMode = Mesh.Mode.Points;
+                    listMode = GlMesh.Mode.Points;
                     components = 1;
                     break;
                 case LineLoop:
                 case LineStrip:
                 case Lines:
-                    listMode = Mesh.Mode.Lines;
+                    listMode = GlMesh.Mode.Lines;
                     //listLineWidth = geom.getMesh().getLineWidth();
                     components = 2;
                     break;
@@ -508,38 +555,40 @@ public class BatchNode extends GeometryGroupNode {
         }
     }
 
-    private void doTransforms(VertexReader bindBufPos, VertexReader bindBufNorm, VertexReader bindBufTangents,
-                              VertexWriter bufPos, VertexWriter bufNorm, VertexWriter bufTangents,
+    private void doTransforms(Attribute<Vector3f> bindPos, Attribute<Vector3f> bindNorm, Attribute<Vector4f> bindTangents,
+                              Attribute<Vector3f> pos, Attribute<Vector3f> norm, Attribute<Vector4f> tangents,
                               int start, int end, Matrix4f transform) {
-        TempVars vars = TempVars.get();
-        Vector3f pos = vars.vect1;
-        Vector3f norm = vars.vect2;
-        Vector3f tan = vars.vect3;
-
-        int length = (end - start) * 3;
-        int tanLength = (end - start) * 4;
 
         // offset is given in element units
         // convert to be in component units
-        int offset = start * 3;
-        int tanOffset = start * 4;
+        int length = end - start;
 
-        bindBufPos.rewind();
-        bindBufPos.get(tmpFloat, 0, length);
+        bindPos.rewind();
+        bindPos.get(tmpFloat, 0, length);
 
-        if (bindBufNorm != null) {
-            bindBufNorm.rewind();
-            bindBufNorm.get(tmpFloatN, 0, length);
+        if (bindNorm != null) {
+            bindNorm.rewind();
+            bindNorm.get(tmpFloatN, 0, length);
         }
 
-        if (bindBufTangents != null) {
-            bindBufTangents.rewind();
-            bindBufTangents.get(tmpFloatT, 0, tanLength);
+        if (bindTangents != null) {
+            bindTangents.rewind();
+            bindTangents.get(tmpFloatT, 0, length);
         }
 
         int index = 0;
         int tanIndex = 0;
         int index1, index2, tanIndex1, tanIndex2;
+
+        for (Vector3f p : bindPos.transfer(pos, new Vector3f())) {
+            transform.mult(p, p);
+        }
+        if (bindNorm != null) for (Vector3f n : bindNorm.transfer(norm, new Vector3f())) {
+            transform.mult(n, n);
+        }
+        if (bindTangents != null) for (Vector4f t : bindTangents.transfer(tangents, new Vector4f())) {
+            transform.mult(t, t);
+        }
 
         while (index < length) {
             index1 = index + 1;
@@ -553,7 +602,7 @@ public class BatchNode extends GeometryGroupNode {
             tmpFloat[index1] = pos.y;
             tmpFloat[index2] = pos.z;
 
-            if (bindBufNorm != null) {
+            if (bindNorm != null) {
                 norm.x = tmpFloatN[index];
                 norm.y = tmpFloatN[index1];
                 norm.z = tmpFloatN[index2];
@@ -565,7 +614,7 @@ public class BatchNode extends GeometryGroupNode {
 
             index += 3;
 
-            if (bindBufTangents != null) {
+            if (bindTangents != null) {
                 tanIndex1 = tanIndex + 1;
                 tanIndex2 = tanIndex + 2;
                 tan.x = tmpFloatT[tanIndex];
@@ -582,17 +631,17 @@ public class BatchNode extends GeometryGroupNode {
         vars.release();
 
         //using bulk put as it's faster
-        bufPos.position(offset);
-        bufPos.put(tmpFloat, 0, length);
+        pos.position(start);
+        pos.put(tmpFloat, 0, length);
 
-        if (bindBufNorm != null) {
-            bufNorm.position(offset);
-            bufNorm.put(tmpFloatN, 0, length);
+        if (bindNorm != null) {
+            norm.position(start);
+            norm.put(tmpFloatN, 0, length);
         }
 
-        if (bindBufTangents != null) {
-            bufTangents.position(tanOffset);
-            bufTangents.put(tmpFloatT, 0, tanLength);
+        if (bindTangents != null) {
+            tangents.position(start);
+            tangents.put(tmpFloatT, 0, length);
         }
     }
 
@@ -623,42 +672,6 @@ public class BatchNode extends GeometryGroupNode {
             outBuf.put(offset + i * componentSize + 2, pos.z);
         }
         vars.release();
-    }
-
-    protected class Batch implements JmeCloneable {
-        /**
-         * update the batchesByGeom map for this batch with the given List of geometries
-         *
-         * @param list
-         */
-        void updateGeomList(List<Geometry> list) {
-            for (Geometry geom : list) {
-                if (!isBatch(geom)) {
-                    batchesByGeom.put(geom, this);
-                }
-            }
-        }
-
-        Geometry geometry;
-
-        public final Geometry getGeometry() {
-            return geometry;
-        }
-
-        @Override
-        public Batch jmeClone() {
-            try {
-                return (Batch) super.clone();
-            } catch (CloneNotSupportedException ex) {
-                throw new AssertionError();
-            }
-        }
-
-        @Override
-        public void cloneFields(Cloner cloner, Object original) {
-            this.geometry = cloner.clone(geometry);
-        }
-
     }
 
     protected void setNeedsFullRebatch(boolean needsFullRebatch) {
@@ -714,5 +727,41 @@ public class BatchNode extends GeometryGroupNode {
             }
         }
         return total;
+    }
+
+    protected class Batch implements JmeCloneable {
+        /**
+         * update the batchesByGeom map for this batch with the given List of geometries
+         *
+         * @param list
+         */
+        void updateGeomList(List<Geometry> list) {
+            for (Geometry geom : list) {
+                if (!isBatch(geom)) {
+                    batchesByGeom.put(geom, this);
+                }
+            }
+        }
+
+        Geometry geometry;
+
+        public final Geometry getGeometry() {
+            return geometry;
+        }
+
+        @Override
+        public Batch jmeClone() {
+            try {
+                return (Batch) super.clone();
+            } catch (CloneNotSupportedException ex) {
+                throw new AssertionError();
+            }
+        }
+
+        @Override
+        public void cloneFields(Cloner cloner, Object original) {
+            this.geometry = cloner.clone(geometry);
+        }
+
     }
 }

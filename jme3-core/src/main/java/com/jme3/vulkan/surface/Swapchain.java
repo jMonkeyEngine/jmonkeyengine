@@ -7,7 +7,7 @@ import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.*;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.commands.Queue;
+import com.jme3.vulkan.commands.CommandQueue;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.images.GpuImage;
@@ -36,7 +36,7 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class Swapchain extends AbstractNative<Long> {
 
-    public static final String EXTENSION = KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+    public static final String EXTENSION_NAME = KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 
     public enum PresentMode implements IntEnum<PresentMode> {
 
@@ -115,7 +115,7 @@ public class Swapchain extends AbstractNative<Long> {
         }
     }
 
-    public void present(Queue presentQueue, PresentImage image, Semaphore... waits) {
+    public void present(CommandQueue presentQueue, PresentImage image, Semaphore... waits) {
         int imageIndex = images.indexOf(image);
         if (imageIndex < 0) {
             throw new IllegalArgumentException("Image does not belong to this swapchain.");
@@ -292,7 +292,7 @@ public class Swapchain extends AbstractNative<Long> {
         private final VkSurfaceCapabilitiesKHR caps;
         private final VkSurfaceFormatKHR.Buffer formats;
         private final IntBuffer modes;
-        private final Collection<Queue> queues = new ArrayList<>();
+        private final Collection<CommandQueue> queues = new ArrayList<>();
 
         private VkSurfaceFormatKHR selectedFormat;
         private VkExtent2D selectedExtent;
@@ -358,7 +358,7 @@ public class Swapchain extends AbstractNative<Long> {
             }
             if (queues.size() > 1) {
                 IntBuffer concurrent = stack.mallocInt(queues.size());
-                for (Queue q : queues) {
+                for (CommandQueue q : queues) {
                     concurrent.put(q.getFamilyIndex());
                 }
                 concurrent.flip();
@@ -388,7 +388,7 @@ public class Swapchain extends AbstractNative<Long> {
             this.base = base;
         }
 
-        public void addQueue(Queue queue) {
+        public void addSupportedQueue(CommandQueue queue) {
             queues.add(queue);
         }
 

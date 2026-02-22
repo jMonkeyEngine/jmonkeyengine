@@ -127,6 +127,7 @@ public class VulkanUtils {
         return (n & bit) > 0;
     }
 
+    @Deprecated
     public static int sharingMode(boolean concurrent) {
         return concurrent ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
     }

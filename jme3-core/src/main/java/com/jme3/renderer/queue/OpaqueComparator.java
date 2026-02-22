@@ -31,22 +31,22 @@
  */
 package com.jme3.renderer.queue;
 
-import com.jme3.vulkan.render.BatchElement;
+import com.jme3.vulkan.render.bucket.BucketElement;
 
 import java.util.Comparator;
 
-public class OpaqueComparator implements Comparator<BatchElement> {
+public class OpaqueComparator implements Comparator<BucketElement> {
 
     @Override
-    public int compare(BatchElement o1, BatchElement o2) {
-        int comp = Long.compare(o1.getPipelineSortId(), o1.getPipelineSortId());
-        if (comp == 0) {
-            comp = Long.compare(o1.getMaterialSortId(), o2.getMaterialSortId());
-            if (comp == 0) {
-                comp = Float.compare(o1.computeDistanceSq(), o2.computeDistanceSq());
+    public int compare(BucketElement o1, BucketElement o2) {
+        int result = Long.compare(o1.getTechniqueSortPosition(), o1.getTechniqueSortPosition());
+        if (result == 0) {
+            result = Long.compare(o1.getMaterialSortPosition(), o2.getMaterialSortPosition());
+            if (result == 0) {
+                result = Float.compare(o1.computeDistanceSq(), o2.computeDistanceSq());
             }
         }
-        return comp;
+        return result;
     }
 
 }

@@ -1,6 +1,6 @@
 package com.jme3.vulkan.devices;
 
-import com.jme3.vulkan.commands.Queue;
+import com.jme3.vulkan.commands.CommandQueue;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.surface.Surface;
 import org.lwjgl.system.MemoryStack;
@@ -15,8 +15,8 @@ import static org.lwjgl.vulkan.VK10.*;
 public class GeneralPhysicalDevice extends AbstractPhysicalDevice implements GraphicalDevice, PresentDevice {
 
     private final Surface surface;
-    private Integer graphicsIndex, presentIndex;
-    private Queue graphics, present;
+    private final QueueInfo graphics = new QueueInfo(1f);
+    private final QueueInfo present = new QueueInfo(2f);
 
     public GeneralPhysicalDevice(VulkanInstance instance, Surface surface, long id) {
         super(instance, id);
@@ -26,62 +26,51 @@ public class GeneralPhysicalDevice extends AbstractPhysicalDevice implements Gra
     @Override
     public boolean populateQueueFamilyIndices() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkQueueFamilyProperties.Buffer properties = getQueueFamilyProperties(stack);
+            VkQueueFamilyProperties.Buffer properties = getQueueFamilyProperties();
+            IntBuffer intBuf = stack.callocInt(1);
             for (int i = 0; i < properties.limit(); i++) {
                 VkQueueFamilyProperties props = properties.get(i);
-                int flags = props.queueFlags();
-                if (graphicsIndex == null && (flags & VK_QUEUE_GRAPHICS_BIT) > 0) {
-                    graphicsIndex = i;
-                } else if (presentIndex == null) {
-                    IntBuffer ibuf = stack.callocInt(1);
-                    KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(getDeviceHandle(), i, surface.getNativeObject(), ibuf);
-                    if (ibuf.get(0) == VK_TRUE) {
-                        presentIndex = i;
+                if (!graphics.hasFamily() && (props.queueFlags() & VK_QUEUE_GRAPHICS_BIT) > 0) {
+                    graphics.setFamilyIndex(i);
+                }
+                if (!present.hasFamily()) {
+                    KHRSurface.vkGetPhysicalDeviceSurfaceSupportKHR(getDeviceHandle(), i, surface.getNativeObject(), intBuf);
+                    if (intBuf.get(0) == VK_TRUE) {
+                        present.setFamilyIndex(i);
                     }
                 }
-                if (allQueuesAvailable()) {
+                if (graphics.hasFamily() && present.hasFamily()) {
                     return true;
                 }
             }
         }
-        return allQueuesAvailable();
+        return false;
     }
 
     @Override
     public VkDeviceQueueCreateInfo.Buffer createQueueFamilyInfo(MemoryStack stack) {
-        VkDeviceQueueCreateInfo.Buffer create = VkDeviceQueueCreateInfo.calloc(2, stack);
-        create.get(0).sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO)
-                .queueFamilyIndex(graphicsIndex)
-                .pQueuePriorities(stack.floats(1f));
-        create.get(1).sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO)
-                .queueFamilyIndex(presentIndex)
-                .pQueuePriorities(stack.floats(1f));
-        return create;
+        return createQueueFamilyInfo(stack, graphics, present);
     }
 
     @Override
     public void createQueues(LogicalDevice device) {
-        graphics = new Queue(device, graphicsIndex, 0);
-        present = new Queue(device, presentIndex, 0);
+        graphics.generate(device);
+        present.generate(device);
     }
 
     @Override
-    public Queue getGraphics() {
-        return graphics;
+    public CommandQueue getGraphics() {
+        return graphics.getQueue();
     }
 
     @Override
-    public Queue getPresent() {
-        return present;
+    public CommandQueue getPresent() {
+        return present.getQueue();
     }
 
     @Override
-    public Queue getCompute() {
-        return graphics;
-    }
-
-    public boolean allQueuesAvailable() {
-        return graphicsIndex != null && presentIndex != null;
+    public CommandQueue getCompute() {
+        return graphics.getQueue();
     }
 
 }

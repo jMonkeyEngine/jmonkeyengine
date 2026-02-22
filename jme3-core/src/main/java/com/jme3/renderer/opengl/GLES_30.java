@@ -38,6 +38,7 @@ import java.nio.IntBuffer;
  *
  * @author Jesus Oliver
  */
+@Deprecated
 public interface GLES_30 extends GL {
 
     public static final int GL_RGB10_A2 = 0x8059;

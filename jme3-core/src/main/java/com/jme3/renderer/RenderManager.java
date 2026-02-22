@@ -60,6 +60,7 @@ import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
 import com.jme3.texture.GlFrameBuffer;
 import com.jme3.util.SafeArrayList;
+import com.jme3.vulkan.render.batching.GlGeometryBatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -781,7 +782,7 @@ public class RenderManager {
      * 
      * @param geom
      * @param lightList
-     * @deprecated use {@link com.jme3.vulkan.render.GlGeometryBatch} instead
+     * @deprecated use {@link GlGeometryBatch} instead
      */
     public void renderGeometry(Geometry geom, LightList lightList) {
 

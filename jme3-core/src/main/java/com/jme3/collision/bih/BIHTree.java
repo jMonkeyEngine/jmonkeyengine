@@ -49,6 +49,7 @@ import com.jme3.scene.CollisionData;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.TempVars;
+import com.jme3.vulkan.mesh.attribute.Attribute;
 
 import java.io.IOException;
 import static java.lang.Math.max;
@@ -67,25 +68,16 @@ public class BIHTree implements CollisionData {
     // private transient CollisionResults boundResults = new CollisionResults();
     private transient float[] bihSwapTmp;
 
-    private void initTriList(VertexReader vb, IndexBuffer ib) {
+    private void initTriList(Attribute<Vector3f> vb, IndexBuffer ib) {
         pointData = new float[numTris * 3 * 3];
         int p = 0;
 
-        for (int i = 0; i < numTris * 3; i += 3) {
-            int vert = ib.get(i) * 3;
-            pointData[p++] = vb.getFloat(vert, 0);
-            pointData[p++] = vb.getFloat(vert, 1);
-            pointData[p++] = vb.getFloat(vert, 2);
-
-            vert = ib.get(i + 1) * 3;
-            pointData[p++] = vb.getFloat(vert, 0);
-            pointData[p++] = vb.getFloat(vert, 1);
-            pointData[p++] = vb.getFloat(vert, 2);
-
-            vert = ib.get(i + 2) * 3;
-            pointData[p++] = vb.getFloat(vert, 0);
-            pointData[p++] = vb.getFloat(vert, 1);
-            pointData[p++] = vb.getFloat(vert, 2);
+        Vector3f pos = new Vector3f();
+        for (int i = 0; i < numTris * 3; i++) {
+            pos = vb.get(ib.get(i) * 3L, pos);
+            pointData[p++] = pos.x;
+            pointData[p++] = pos.y;
+            pointData[p++] = pos.z;
         }
 
         triIndices = new int[numTris];
@@ -94,7 +86,7 @@ public class BIHTree implements CollisionData {
         }
     }
 
-    public BIHTree(VertexReader positions, IndexBuffer indices) {
+    public BIHTree(Attribute<Vector3f> positions, IndexBuffer indices) {
         maxTrisPerNode = MAX_TRIS_PER_NODE;
         bihSwapTmp = new float[9];
         numTris = indices.size() / 3;

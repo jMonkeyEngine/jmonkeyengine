@@ -6,9 +6,9 @@ public class AttributeMappingInfo {
 
     private final VertexBinding binding;
     private final MappableBuffer vertices;
-    private final int size, offset;
+    private final long size, offset;
 
-    public AttributeMappingInfo(VertexBinding binding, MappableBuffer vertices, int size, int offset) {
+    public AttributeMappingInfo(VertexBinding binding, MappableBuffer vertices, long size, long offset) {
         this.binding = binding;
         this.vertices = vertices;
         this.size = size;
@@ -38,7 +38,7 @@ public class AttributeMappingInfo {
      *
      * @return number of vertices
      */
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 
@@ -47,7 +47,7 @@ public class AttributeMappingInfo {
      *
      * @return byte offset from the beginning of a vertex
      */
-    public int getOffset() {
+    public long getOffset() {
         return offset;
     }
 

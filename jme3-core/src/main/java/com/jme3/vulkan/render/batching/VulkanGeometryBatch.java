@@ -1,17 +1,12 @@
-package com.jme3.vulkan.render;
+package com.jme3.vulkan.render.batching;
 
-import com.jme3.material.*;
-import com.jme3.math.FastMath;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.vulkan.commands.CommandSetting;
 import com.jme3.vulkan.descriptors.DescriptorPool;
 import com.jme3.vulkan.material.VulkanMaterial;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.material.technique.VulkanTechnique;
 import com.jme3.vulkan.mesh.VulkanMesh;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.pipeline.VertexPipeline;
 
 import java.util.Comparator;
@@ -24,6 +19,26 @@ public abstract class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBa
     public VulkanGeometryBatch(Comparator<? super Element> comparator, DescriptorPool pool) {
         super(comparator);
         this.pool = pool;
+    }
+
+    public void render(CommandBuffer cmd, Consumer<Element> perRender) {
+        if (queue.isEmpty()) {
+            return;
+        }
+        cmd.applySettings();
+        VertexPipeline currentPipeline = null;
+        VulkanMaterial currentMaterial = null;
+        for (Element e : queue) {
+            if (e.getPipeline() != currentPipeline) {
+                (currentPipeline = e.getPipeline()).bind(cmd);
+                currentMaterial = null; // current material binding is invalidated
+            }
+            if (e.getMaterial() != currentMaterial) {
+                (currentMaterial = e.getMaterial()).bind(cmd, currentPipeline, pool);
+            }
+            perRender.accept(e);
+            e.getMesh().render(cmd, e.getPipeline());
+        }
     }
 
     @Override
@@ -40,32 +55,24 @@ public abstract class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBa
         return pool;
     }
 
-    public class Element extends AbstractBatchElement {
+    public class Element extends AbstractBatchElement implements VulkanBatchElement {
 
         private final VulkanTechnique technique;
         private final VulkanMaterial material;
         private final VulkanMesh mesh;
         private final VertexPipeline pipeline;
 
-        private Element(Geometry geometry) {
+        public Element(Geometry geometry) {
             super(geometry);
-            Material mat = forcedMaterial != null ? forcedMaterial : geometry.getMaterial();
-            if (!(mat instanceof NewMaterial)) {
-                throw new ClassCastException("Cannot render " + mat.getClass() + " in a Vulkan context.");
-            }
-            this.material = (VulkanMaterial)mat;
-            technique = material.getTechnique(forcedTechnique);
-            Mesh msh = forcedMesh != null ? forcedMesh : geometry.getMesh();
-            if (!(msh instanceof VulkanMesh)) {
-                throw new ClassCastException("Cannot render " + msh.getClass() + " in a Vulkan context.");
-            }
-            this.mesh = (VulkanMesh)msh;
+            this.material = (VulkanMaterial)(forcedMaterial != null ? forcedMaterial : geometry.getMaterial());
+            this.technique = (VulkanTechnique) material.getTechnique(forcedTechnique != null ? forcedTechnique : "main");
+            this.mesh = (VulkanMesh) (forcedMesh != null ? forcedMesh : geometry.getMesh());
             this.pipeline = createPipeline(this);
         }
 
         @Override
         public Camera getCamera() {
-            return VulkanGeometryBatch.this.getCamera();
+            return camera;
         }
 
         @Override
@@ -80,7 +87,7 @@ public abstract class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBa
 
         @Override
         public long getPipelineSortId() {
-            return pipeline.getSortId();
+            return pipeline.getSortPosition();
         }
 
         @Override
@@ -88,10 +95,12 @@ public abstract class VulkanGeometryBatch extends GeometryBatch<VulkanGeometryBa
             return 0;
         }
 
+        @Override
         public VulkanTechnique getTechnique() {
             return technique;
         }
 
+        @Override
         public VertexPipeline getPipeline() {
             return pipeline;
         }

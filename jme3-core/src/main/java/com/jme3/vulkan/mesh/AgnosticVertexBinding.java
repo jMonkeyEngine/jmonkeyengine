@@ -2,6 +2,8 @@ package com.jme3.vulkan.mesh;
 
 import com.jme3.backend.Engine;
 import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.Mesh;
+import com.jme3.vulkan.buffers.BufferGenerator;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.MappableBuffer;
@@ -13,32 +15,31 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class AdaptiveVertexBinding implements VertexBinding {
+@Deprecated
+public class AgnosticVertexBinding implements VertexBinding {
 
-    private final Engine engine;
+    private final BufferGenerator<MappableBuffer> bufferGen;
     private final IntEnum<InputRate> rate;
     private final List<NamedAttribute> attributes = new ArrayList<>();
     private int stride = 0;
     private long offset = 0L;
 
-    protected AdaptiveVertexBinding(Engine engine, IntEnum<InputRate> rate) {
-        this.engine = engine;
+    protected AgnosticVertexBinding(BufferGenerator<MappableBuffer> bufferGen, IntEnum<InputRate> rate) {
+        this.bufferGen = bufferGen;
         this.rate = rate;
     }
 
     @Override
-    public <T extends Attribute> T mapAttribute(String name, MappableBuffer vertices, int size) {
+    public <T extends Attribute> T mapAttribute(String name, Mesh mesh) {
         for (NamedAttribute a : attributes) {
-            if (a.getName().equals(name)) {
-                return (T)a.getMapper().apply(new AttributeMappingInfo(this, vertices, size, a.getOffset()));
-            }
+            if (a.getName().equals(name)) return a.map(mesh, this);
         }
         return null;
     }
 
     @Override
-    public MappableBuffer createBuffer(int elements, GlVertexBuffer.Usage usage) {
-        return engine.createBuffer(new MemorySize(elements, stride), BufferUsage.Vertex, usage);
+    public MappableBuffer createBuffer(long elements, GlVertexBuffer.Usage usage) {
+        return bufferGen.createBuffer(new MemorySize(elements, stride), BufferUsage.Vertex, usage);
     }
 
     @Override
@@ -72,9 +73,14 @@ public class AdaptiveVertexBinding implements VertexBinding {
     }
 
     @Override
+    public NamedAttribute getAttribute(String name) {
+        return attributes.stream().filter(a -> a.getName().equals(name)).findAny().orElse(null);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        AdaptiveVertexBinding that = (AdaptiveVertexBinding)o;
+        AgnosticVertexBinding that = (AgnosticVertexBinding)o;
         return stride == that.stride
                 && Objects.equals(attributes, that.attributes)
                 && Objects.equals(rate, that.rate);
@@ -85,8 +91,8 @@ public class AdaptiveVertexBinding implements VertexBinding {
         return Objects.hash(attributes, rate, stride);
     }
 
-    public static AdaptiveVertexBinding build(Engine engine, IntEnum<InputRate> rate, Consumer<Builder> config) {
-        AdaptiveVertexBinding b = new AdaptiveVertexBinding(engine, rate);
+    public static AgnosticVertexBinding build(Engine engine, IntEnum<InputRate> rate, Consumer<Builder> config) {
+        AgnosticVertexBinding b = new AgnosticVertexBinding(engine, rate);
         config.accept(b.new Builder());
         return b;
     }

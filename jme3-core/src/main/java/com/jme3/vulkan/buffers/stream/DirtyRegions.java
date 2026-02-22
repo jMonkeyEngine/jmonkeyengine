@@ -4,13 +4,11 @@ import java.util.Iterator;
 
 public class DirtyRegions implements Iterable<DirtyRegions.Region> {
 
-    public static final DirtyRegions EMPTY = new DirtyRegions();
-
     private final Region head = new Region(0, 0);
     private int numRegions = 0;
-    private int coverage = 0;
+    private long coverage = 0;
 
-    public void add(int offset, int size) {
+    public void add(long offset, long size) {
         if (offset < 0 || size < 0) {
             throw new IllegalArgumentException("Region parameters must be non-negative.");
         }
@@ -27,7 +25,8 @@ public class DirtyRegions implements Iterable<DirtyRegions.Region> {
                 prev = r;
             }
         }
-        int cov = 0, n = 0;
+        long cov = 0;
+        int n = 0;
         for (Region r : this) {
             cov += r.getSize();
             n++;
@@ -36,9 +35,14 @@ public class DirtyRegions implements Iterable<DirtyRegions.Region> {
         numRegions = n;
     }
 
+    public void optimize() {
+        optimizeGaps(10);
+        optimizeNumRegions(10);
+    }
+
     public void optimizeGaps(int regionMergeGap) {
         for (Region r = head.next, prev = head; r != null; r = r.next) {
-            int g = prev.fillGapBetween(r, regionMergeGap);
+            long g = prev.fillGapBetween(r, regionMergeGap);
             if (g >= 0) {
                 prev = r;
                 numRegions--;
@@ -51,15 +55,15 @@ public class DirtyRegions implements Iterable<DirtyRegions.Region> {
         if (numRegions <= 1) return;
         for (; numRegions > maxRegions; numRegions--) {
             Region pref = head;
-            int gap = Integer.MAX_VALUE;
+            long gap = Long.MAX_VALUE;
             for (Region r = head; r.next != null; r = r.next) {
-                int g = r.next.start - r.end;
+                long g = r.next.start - r.end;
                 if (g < gap) {
                     gap = g;
                     pref = r;
                 }
             }
-            coverage += pref.fillGapBetween(pref.next, Integer.MAX_VALUE);
+            coverage += pref.fillGapBetween(pref.next, Long.MAX_VALUE);
         }
     }
 
@@ -80,21 +84,21 @@ public class DirtyRegions implements Iterable<DirtyRegions.Region> {
         return numRegions;
     }
 
-    public int getCoverage() {
+    public long getCoverage() {
         return coverage;
     }
 
     public static class Region {
 
-        private int start, end;
+        private long start, end;
         private Region next;
 
-        public Region(int offset, int size) {
+        public Region(long offset, long size) {
             this.start = offset;
             this.end = offset + size;
         }
 
-        private boolean mergeOnIntersect(int offset, int size) {
+        private boolean mergeOnIntersect(long offset, long size) {
             if (offset + size >= start && offset <= end) {
                 start = Math.min(start, offset);
                 end = Math.max(end, offset + size);
@@ -112,7 +116,7 @@ public class DirtyRegions implements Iterable<DirtyRegions.Region> {
             return false;
         }
 
-        private int fillGapBetween(Region r, int minGap) {
+        private long fillGapBetween(Region r, long minGap) {
             if (end + minGap >= r.start) {
                 minGap = end - r.start;
                 end = r.end;
@@ -122,15 +126,15 @@ public class DirtyRegions implements Iterable<DirtyRegions.Region> {
             return -1;
         }
 
-        public int getOffset() {
+        public long getOffset() {
             return start;
         }
 
-        public int getSize() {
+        public long getSize() {
             return end - start;
         }
 
-        public int getEnd() {
+        public long getEnd() {
             return end;
         }
 

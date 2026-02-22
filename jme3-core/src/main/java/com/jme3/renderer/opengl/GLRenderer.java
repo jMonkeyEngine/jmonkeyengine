@@ -40,10 +40,8 @@ import com.jme3.math.*;
 import com.jme3.opencl.OpenCLObjectManager;
 import com.jme3.renderer.*;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.GlMesh.Mode;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.GlVertexBuffer.Format;
-import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.scene.GlVertexBuffer.Usage;
 import com.jme3.shader.*;
 import com.jme3.shader.ShaderProgram.ShaderSource;
@@ -52,8 +50,6 @@ import com.jme3.system.JmeSystem;
 import com.jme3.system.Platform;
 import com.jme3.shader.ShaderBufferBlock.BufferType;
 import com.jme3.shader.bufferobject.BufferObject;
-import com.jme3.shader.bufferobject.BufferRegion;
-import com.jme3.shader.bufferobject.DirtyRegionsIterator;
 import com.jme3.texture.GlFrameBuffer;
 import com.jme3.texture.GlFrameBuffer.RenderBuffer;
 import com.jme3.texture.GlImage;
@@ -69,6 +65,7 @@ import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObject;
 import com.jme3.util.NativeObjectManager;
 
+import com.jme3.vulkan.buffers.BufferMapping;
 import com.jme3.vulkan.buffers.GlNativeBuffer;
 import com.jme3.vulkan.buffers.stream.DirtyRegions;
 import com.jme3.vulkan.memory.MemorySize;
@@ -3002,20 +2999,20 @@ public final class GLRenderer implements Renderer {
         }
 
         DirtyRegions regions = bo.getData().getUpdateRegions();
-        if (regions.getCoverage() >= bo.getData().size().getBytes()) {
-            glBindBuffer(type, bufferId);
-            glBufferData(type, bo.getData().mapBytes(), usage);
-            glBindBuffer(type, 0);
-            bo.getData().unmap();
-        } else if (regions.getCoverage() > 0) {
-            ByteBuffer data = bo.getData().mapBytes();
-            glBindBuffer(type, bufferId);
-            for (DirtyRegions.Region r : regions) {
-                glBufferSubData(type, r.getOffset(), data.position(r.getOffset()).limit(r.getEnd()));
+        try (BufferMapping m = bo.getData().map()) {
+            if (regions.getCoverage() >= bo.getData().size().getBytes()) {
+                glBindBuffer(type, bufferId);
+                glBufferData(type, m.getBytes(), usage);
+                glBindBuffer(type, 0);
+            } else if (regions.getCoverage() > 0) {
+                ByteBuffer data = m.getBytes();
+                glBindBuffer(type, bufferId);
+                for (DirtyRegions.Region r : regions) {
+                    glBufferSubData(type, r.getOffset(), data.position(r.getOffset()).limit(r.getEnd()));
+                }
+                regions.clear();
+                glBindBuffer(type, 0);
             }
-            regions.clear();
-            glBindBuffer(type, 0);
-            bo.getData().unmap();
         }
         bo.clearUpdateNeeded();
 
@@ -3139,7 +3136,7 @@ public final class GLRenderer implements Renderer {
                 glVertexAttribPointer(slot,
                         f.getComponents(),
                         f.getGlBufferComponentType(),
-                        f.getComponentFormat().isNormalized(),
+                        f.getSpace().isNormalized(),
                         vb.getBinding().getStride(),
                         slotOffset);
                 slotOffset += f.getBytes();
@@ -3155,7 +3152,7 @@ public final class GLRenderer implements Renderer {
             }
         }
         if (debug && caps.contains(Caps.GLDebug)) {
-            glObjectLabel(GL_BUFFER, (int)vb.getData().getNativeObject(), attrInfo.getName());
+            glObjectLabel(GL_BUFFER, ((GlNativeBuffer)vb.getData().getBuffer()).getNativeObject(), attrInfo.getName());
         }
     }
 
@@ -3177,7 +3174,7 @@ public final class GLRenderer implements Renderer {
         boolean useInstancing = instances > 1 && caps.contains(Caps.MeshInstancing);
         if (useInstancing) {
             glDrawElementsInstancedARB(topology.getEnum(),
-                    indexBuf.size().getElements(),
+                    (int)indexBuf.size().getElements(),
                     indexFormat(indexBuf.size()),
                     0,
                     instances);
@@ -3185,7 +3182,7 @@ public final class GLRenderer implements Renderer {
             glDrawRangeElements(topology.getEnum(),
                     0,
                     vertices,
-                    indexBuf.size().getElements(),
+                    (int)indexBuf.size().getElements(),
                     indexFormat(indexBuf.size()),
                     0);
         }
@@ -3223,14 +3220,14 @@ public final class GLRenderer implements Renderer {
 
         // Here while count is still passed in.  Can be removed when/if
         // the method is collapsed again.  -pspeed
-        count = Math.max(mesh.getInstanceCount(), count);
+        count = Math.max(mesh.getElements(InputRate.Instance), count);
 
         // we shouldn't be using an explicit interleaved buffer anymore
-        GlVertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
-        if (interleavedData != null && interleavedData.isUpdateNeeded()) {
-            //updateBufferData(interleavedData);
-            throw new UnsupportedOperationException("Interleaved data is not supported.");
-        }
+//        GlVertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
+//        if (interleavedData != null && interleavedData.isUpdateNeeded()) {
+//            //updateBufferData(interleavedData);
+//            throw new UnsupportedOperationException("Interleaved data is not supported.");
+//        }
 
         // Instance data is explicitly stored within the mesh.
         // Please don't pull shenanigans needing mesh data outside the mesh!
@@ -3258,30 +3255,30 @@ public final class GLRenderer implements Renderer {
 
         clearVertexAttribs();
 
-        if (mesh.getNumLodLevels() > 0) {
-            // commented out for incompatible arguments
-            //drawTriangleList(mesh.getIndexBuffer(lod), mesh, count);
-        } else {
-            drawTriangleArray(mesh.getTopology(), count, mesh.getVertexCount());
-        }
+//        if (mesh.getNumLodLevels() > 0) {
+//            // commented out for incompatible arguments
+//            //drawTriangleList(mesh.getIndexBuffer(lod), mesh, count);
+//        } else {
+//            drawTriangleArray(mesh.getTopology(), count, mesh.getVertexCount());
+//        }
     }
 
     @Override
     @Deprecated // meshes should handle at least the upper layer of rendering now
     public void renderMesh(GlMesh mesh, GlMesh.Mode mode, int lod, int count, GlVertexBuffer[] instanceData) {
-        if (mesh.getVertexCount() == 0 || mesh.getTriangleCount() == 0 || count == 0) {
-            return;
-        }
-
-        if (count > 1 && !caps.contains(Caps.MeshInstancing)) {
-            throw new RendererException("Mesh instancing is not supported by the video hardware");
-        }
-
-        if (glVersion >= 400 && context.meshMode.equals(Mode.Patch)) {
-            glPatchParameteri(GL_PATCH_VERTICES, mesh.getPatchVertexCount());
-        }
-        statistics.onMeshDrawn(mesh, lod, count);
-        renderMeshDefault(mesh, lod, count, instanceData);
+//        if (mesh.getVertexCount() == 0 || mesh.getTriangleCount() == 0 || count == 0) {
+//            return;
+//        }
+//
+//        if (count > 1 && !caps.contains(Caps.MeshInstancing)) {
+//            throw new RendererException("Mesh instancing is not supported by the video hardware");
+//        }
+//
+//        if (glVersion >= 400 && context.meshMode.equals(Mode.Patch)) {
+//            glPatchParameteri(GL_PATCH_VERTICES, mesh.getPatchVertexCount());
+//        }
+//        statistics.onMeshDrawn(mesh, lod, count);
+//        renderMeshDefault(mesh, lod, count, instanceData);
     }
 
     @Override

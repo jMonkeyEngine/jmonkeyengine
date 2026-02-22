@@ -1,5 +1,7 @@
 package com.jme3.vulkan.descriptors;
 
+import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.util.Flag;
@@ -14,7 +16,7 @@ import java.util.ListIterator;
 import static com.jme3.renderer.vulkan.VulkanUtils.check;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class DescriptorPool implements Native<Long> {
+public class DescriptorPool extends AbstractNative<Long> {
 
     public enum Create implements Flag<Create> {
 
@@ -34,9 +36,7 @@ public class DescriptorPool implements Native<Long> {
     }
 
     private final LogicalDevice<?> device;
-    private final DisposableReference ref;
     private final Flag<Create> flags;
-    private final long id;
 
     public DescriptorPool(LogicalDevice<?> device, int sets, PoolSize... sizes) {
         this(device, sets, Flag.empty(), sizes);
@@ -54,28 +54,15 @@ public class DescriptorPool implements Native<Long> {
             LongBuffer idBuf = stack.mallocLong(1);
             check(vkCreateDescriptorPool(device.getNativeObject(), create, null, idBuf),
                     "Failed to create descriptor pool.");
-            id = idBuf.get(0);
+            object = idBuf.get(0);
         }
-        ref = Native.get().register(this);
+        ref = DisposableManager.reference(this);
         device.getReference().addDependent(ref);
     }
 
     @Override
-    public Long getNativeObject() {
-        return id;
-    }
-
-    @Override
     public Runnable createDestroyer() {
-        return () -> vkDestroyDescriptorPool(device.getNativeObject(), id, null);
-    }
-
-    @Override
-    public void prematureDestruction() {}
-
-    @Override
-    public DisposableReference getNativeReference() {
-        return ref;
+        return () -> vkDestroyDescriptorPool(device.getNativeObject(), object, null);
     }
 
     /**
@@ -105,7 +92,7 @@ public class DescriptorPool implements Native<Long> {
             layoutBuf.flip();
             VkDescriptorSetAllocateInfo allocate = VkDescriptorSetAllocateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO)
-                    .descriptorPool(id)
+                    .descriptorPool(object)
                     .pSetLayouts(layoutBuf);
             LongBuffer setBuf = stack.mallocLong(layouts.size());
             check(vkAllocateDescriptorSets(device.getNativeObject(), allocate, setBuf),
@@ -118,7 +105,7 @@ public class DescriptorPool implements Native<Long> {
     }
 
     public void reset() {
-        vkResetDescriptorPool(device.getNativeObject(), id, 0);
+        vkResetDescriptorPool(device.getNativeObject(), object, 0);
     }
 
     public Flag<Create> getFlags() {

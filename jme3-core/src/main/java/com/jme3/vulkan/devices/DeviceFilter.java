@@ -33,14 +33,11 @@ public interface DeviceFilter {
 
         @Override
         public Float evaluateDevice(PhysicalDevice device) {
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                VkExtensionProperties.Buffer exts = device.getExtensionProperties(stack);
-                if (extensions.stream().allMatch(e -> exts.stream().anyMatch(
-                    p -> p.extensionNameString().equals(e)))) {
-                    return 0f;
-                }
-                return null;
+            VkExtensionProperties.Buffer exts = device.getExtensionProperties();
+            if (extensions.stream().allMatch(e -> exts.stream().anyMatch(p -> p.extensionNameString().equals(e)))) {
+                return 0f;
             }
+            return null;
         }
 
     }

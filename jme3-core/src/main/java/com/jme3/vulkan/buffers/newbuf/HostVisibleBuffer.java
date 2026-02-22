@@ -2,68 +2,52 @@ package com.jme3.vulkan.buffers.newbuf;
 
 import com.jme3.vulkan.buffers.BufferMapping;
 import com.jme3.vulkan.buffers.SourceBufferMapping;
+import com.jme3.vulkan.buffers.stream.BufferStream;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.vulkan.VK10;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 public class HostVisibleBuffer extends AbstractVulkanBuffer {
 
-    protected HostVisibleBuffer(LogicalDevice<?> device, MemorySize size) {
-        super(device, size);
+    protected HostVisibleBuffer(MemorySize size) {
+        super(size);
     }
 
     @Override
-    public BufferMapping map(long offset, long size) {
-        return new SourceBufferMapping(this, getMemory().map(this.size.getOffset() + offset, size), size);
+    public void stage(long offset, long size) {}
+
+    @Override
+    public void upload(CommandBuffer cmd, BufferStream stream) {}
+
+    @Override
+    protected BufferMapping mapNative(BufferHandle handle, long offset, long size) {
+        return new SourceBufferMapping(this, handle.getMemory().map(this.size.getOffset() + offset, size), size, () -> handle.getMemory().unmap());
     }
 
     @Override
-    public void push(long offset, long size) {}
-
-    @Override
-    public ResizeResult resize(MemorySize size) {
-        this.size = size;
-        if (size.getEnd() > getMemory().getSize()) {
-            new Builder().build();
-            return ResizeResult.Realloc;
+    protected void moveToNewBuffer(BufferHandle oldHandle, BufferHandle newHandle) {
+        long size = Math.min(oldHandle.getMemory().getSize(), newHandle.getMemory().getSize());
+        try (BufferMapping srcMap = mapNative(oldHandle, 0, size); BufferMapping dstMap = mapNative(newHandle, 0, size)) {
+            MemoryUtil.memCopy(srcMap.getBytes(), dstMap.getBytes());
         }
-        return ResizeResult.Success;
     }
 
     @Override
-    public void unmap() {
-        getMemory().unmap();
+    protected void initialize(LogicalDevice<?> device) {
+        memProps = memProps.add(MemoryProp.HostVisibleAndCoherent);
+        super.initialize(device);
     }
 
-    public static HostVisibleBuffer build(LogicalDevice<?> device, MemorySize size, Consumer<Builder> config) {
-        Builder b = new HostVisibleBuffer(device, size).new Builder();
-        config.accept(b);
-        return b.build();
-    }
-
-    public class Builder extends AbstractVulkanBuffer.Builder<HostVisibleBuffer> {
-
-        private boolean lazilyAllocated = getMemory() != null && getMemory().getFlags().contains(MemoryProp.LazilyAllocated);
-
-        @Override
-        protected HostVisibleBuffer construct() {
-            ByteBuffer prev = ref != null ? mapBytes() : null;
-            construct(MemoryProp.HostVisibleAndCoherent.addIf(lazilyAllocated, MemoryProp.LazilyAllocated));
-            if (prev != null) {
-                MemoryUtil.memCopy(prev, mapBytes());
-            }
-            return HostVisibleBuffer.this;
-        }
-
-        public void setLazilyAllocated(boolean lazilyAllocated) {
-            this.lazilyAllocated = lazilyAllocated;
-        }
-
+    public static HostVisibleBuffer build(MemorySize size, Consumer<Builder> config) {
+        HostVisibleBuffer b = new HostVisibleBuffer(size);
+        config.accept(b.new Builder());
+        return b;
     }
 
 }

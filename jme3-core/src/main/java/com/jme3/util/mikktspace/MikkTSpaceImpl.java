@@ -119,10 +119,10 @@ public class MikkTSpaceImpl implements MikkTSpaceContext {
     @Override
     public void close() {
         tangents.push();
-        positions.unmap();
-        texCoords.unmap();
-        normals.unmap();
-        tangents.unmap();
+        positions.close();
+        texCoords.close();
+        normals.close();
+        tangents.close();
     }
 
     private int getIndex(int face, int vert) {

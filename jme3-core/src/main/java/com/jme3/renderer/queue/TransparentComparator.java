@@ -31,14 +31,15 @@
  */
 package com.jme3.renderer.queue;
 
-import com.jme3.vulkan.render.BatchElement;
+import com.jme3.vulkan.render.batching.BatchElement;
+import com.jme3.vulkan.render.bucket.BucketElement;
 
 import java.util.Comparator;
 
-public class TransparentComparator implements Comparator<BatchElement> {
+public class TransparentComparator implements Comparator<BucketElement> {
 
     @Override
-    public int compare(BatchElement o1, BatchElement o2) {
+    public int compare(BucketElement o1, BucketElement o2) {
         return Float.compare(o2.computeDistanceSq(), o1.computeDistanceSq());
     }
 

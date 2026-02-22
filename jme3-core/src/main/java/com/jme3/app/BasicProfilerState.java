@@ -166,8 +166,8 @@ public class BasicProfilerState extends BaseAppState {
             0, 0, 0, 0.5f,
             0, 0, 0, 0.5f
         });
-        pos.unmap();
-        color.unmap();
+        pos.close();
+        color.close();
 
         MappableBuffer indices = mesh.setIndexBufferIfAbsent(() -> getEngine().createBuffer(
                 MemorySize.shorts(6 * 3), BufferUsage.Index, GlVertexBuffer.Usage.Static));
@@ -180,7 +180,7 @@ public class BasicProfilerState extends BaseAppState {
             8, 10, 11
         });
         indices.unmap();
-        indices.push();
+        indices.stage();
 
     }
 

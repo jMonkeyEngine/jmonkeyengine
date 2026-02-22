@@ -1,43 +1,30 @@
 package com.jme3.vulkan.formats;
 
-import com.jme3.vulkan.util.AdaptiveEnum;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.IntEnum;
 
 import static org.lwjgl.vulkan.VK10.*;
+import static com.jme3.vulkan.formats.GlComponent.*;
 
-public class Format implements AdaptiveEnum<Format> {
+public enum Format {
 
-    public static final int GL_UNKNOWN = -1;
-    public static final int GL_DOUBLE = 5130;
-    public static final int GL_FLOAT = 5126;
-    public static final int GL_INT = 5124;
-    public static final int GL_UINT = 5125;
-    public static final int GL_SHORT = 5122;
-    public static final int GL_USHORT = 5123;
-    public static final int GL_BYTE = 5120;
-    public static final int GL_UBYTE = 5121;
+    RGBA32_SFloat(16, 4, Space.SFloat, Aspects.Color, GL_FLOAT),
+    RGB32_SFloat(12, 3, Space.SFloat, Aspects.Color, GL_FLOAT),
+    RG32_SFloat(8, 2, Space.SFloat, Aspects.Color, GL_FLOAT),
+    R32_SFloat(4, 1, Space.SFloat, Aspects.Color, GL_FLOAT),
 
-    public static final Format
+    RGBA8_SRGB(4, 4, Space.SRGB, Aspects.Color, GL_UBYTE),
+    R8_SRGB(1, 1, Space.SRGB, Aspects.Color, GL_UBYTE),
+    BGR8_SRGB(3, 3, Space.SRGB, Aspects.Color, GL_UBYTE),
+    ABGR8_SRGB_Pack32(4, 1, Space.SRGB, Aspects.Color, GL_UBYTE),
+    BGRA8_SRGB(4, 4, Space.SRGB, Aspects.Color, GL_UBYTE),
 
-    RGBA32_SFloat = new Format("RGBA32_SFloat", GL_FLOAT, 16, 4, ComponentFormat.SFloat, Aspects.Color),
-    RGB32_SFloat = new Format("RGB32_SFloat", GL_FLOAT, 12, 3, ComponentFormat.SFloat, Aspects.Color),
-    RG32_SFloat = new Format("RG32_SFloat", GL_FLOAT, 8, 2, ComponentFormat.SFloat, Aspects.Color),
-    R32_SFloat = new Format("R32_SFloat", GL_FLOAT, 4, 1, ComponentFormat.SFloat, Aspects.Color),
+    Depth32_SFloat(4, 1, Space.SFloat, Aspects.Depth, GL_FLOAT),
+    Depth32_SFloat_Stencil8_UInt(5, 2, Space.SFloat, Aspects.DepthStencil, GL_UNKNOWN),
+    Depth24_UNorm_Stencil8_UInt(4, 2, Space.UNorm, Aspects.DepthStencil, GL_UNKNOWN),
+    Depth16_UNorm(2, 1, Space.UNorm, Aspects.Depth, GL_USHORT),
+    Depth16_UNorm_Stencil8_UInt(3, 2, Space.UNorm, Aspects.DepthStencil, GL_UNKNOWN);
 
-    RGBA8_SRGB = new Format("RGBA8_SRGB", GL_BYTE, 4, 4, ComponentFormat.SRGB, Aspects.Color),
-    R8_SRGB = new Format("R8_SRGB", GL_BYTE, 1, 1, ComponentFormat.SRGB, Aspects.Color),
-    BGR8_SRGB = new Format("BGR8_SRGB", GL_BYTE, 3, 3, ComponentFormat.SRGB, Aspects.Color),
-    ABGR8_SRGB_Pack32 = new Format("ABGR8_SRGB", GL_BYTE, 4, 1, ComponentFormat.SRGB, Aspects.Color),
-    BGRA8_SRGB = new Format("BGRA8_SRGB", GL_BYTE, 4, 4, ComponentFormat.SRGB, Aspects.Color),
-
-    Depth32_SFloat = new Format("Depth32_SFloat", GL_FLOAT, 4, 1, ComponentFormat.SFloat, Aspects.Depth),
-    Depth32_SFloat_Stencil8_UInt = new Format("Depth32_SFloat_Stencil8_UInt", 5, 2, Aspects.DepthStencil),
-    Depth24_UNorm_Stencil8_UInt = new Format("Depth24_UNorm_Stencil8_UInt", 4, 2, Aspects.DepthStencil),
-    Depth16_UNorm = new Format("Depth16_UNorm", GL_USHORT, 2, 1, ComponentFormat.UNorm, Aspects.Depth),
-    Depth16_UNorm_Stencil8_UInt = new Format("Depth16_UNorm_Stencil8_UInt", 3, 2, Aspects.DepthStencil);
-
-    public enum ComponentFormat {
+    public enum Space {
 
         Undefined(false),
         SFloat(false),
@@ -48,7 +35,7 @@ public class Format implements AdaptiveEnum<Format> {
 
         private final boolean normalized;
 
-        ComponentFormat(boolean normalized) {
+        Space(boolean normalized) {
             this.normalized = normalized;
         }
 
@@ -86,43 +73,22 @@ public class Format implements AdaptiveEnum<Format> {
 
     }
 
-    private final String name;
-    private final int glBufferCompFormat;
     private final int bytes;
     private final int components;
-    private final ComponentFormat compFmt;
+    private final Space space;
     private final Aspects aspects;
-    private int enumVal = -1;
+    private final int glComponent;
 
-    public Format(String name, int bytes, int components, Aspects aspects) {
-        this(name, GL_UNKNOWN, bytes, components, ComponentFormat.Undefined, aspects);
-    }
-
-    public Format(String name, int glBufferCompFormat, int bytes, int components, ComponentFormat compFmt, Aspects aspects) {
-        this.name = name;
-        this.glBufferCompFormat = glBufferCompFormat;
+    Format(int bytes, int components, Space space, Aspects aspects, int glComponent) {
         this.bytes = bytes;
         this.components = components;
-        this.compFmt = compFmt;
+        this.space = space;
         this.aspects = aspects;
+        this.glComponent = glComponent;
     }
 
-    @Override
-    public int getEnum() {
-        if (enumVal < 0) {
-            throw new IllegalStateException(name + " is not supported or not configured.");
-        }
-        return enumVal;
-    }
-
-    @Override
-    public Format set(int enumVal) {
-        this.enumVal = enumVal;
-        return this;
-    }
-
-    public int getGlBufferComponentType() {
-        return glBufferCompFormat;
+    public int getEnum(FormatInterpreter interpreter) {
+        return interpreter.getEnum(this);
     }
 
     public int getBytes() {
@@ -133,16 +99,16 @@ public class Format implements AdaptiveEnum<Format> {
         return components;
     }
 
-    public ComponentFormat getComponentFormat() {
-        return compFmt;
+    public Space getSpace() {
+        return space;
     }
 
     public Aspects getAspects() {
         return aspects;
     }
 
-    public boolean isSupported() {
-        return enumVal >= 0;
+    public int getGlComponent() {
+        return glComponent;
     }
 
     public enum Feature implements Flag<Feature> {

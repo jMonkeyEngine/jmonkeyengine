@@ -5,15 +5,8 @@ import com.jme3.scene.mesh.IndexByteBuffer;
 import com.jme3.scene.mesh.IndexIntBuffer;
 import com.jme3.scene.mesh.IndexShortBuffer;
 import com.jme3.vulkan.memory.MemorySize;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.system.Struct;
-import org.lwjgl.system.StructBuffer;
 
 import java.nio.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.LongFunction;
 
 public interface MappableBuffer extends Mappable {
 
@@ -51,6 +44,11 @@ public interface MappableBuffer extends Mappable {
             this.resized = resized;
         }
 
+        /**
+         * Returns true if the buffer had to be resized to fit the new size.
+         *
+         * @return true if resized
+         */
         public boolean isResized() {
             return resized;
         }
@@ -76,7 +74,7 @@ public interface MappableBuffer extends Mappable {
      * @param offset offset of the region in bytes
      * @param size size of the region in bytes
      */
-    void push(long offset, long size);
+    void stage(long offset, long size);
 
     /**
      * Resizes this buffer.
@@ -90,10 +88,10 @@ public interface MappableBuffer extends Mappable {
      * Marks this entire buffer as needing to be pushed to the GPU or
      * another receiving buffer.
      *
-     * @see #push(long, long)
+     * @see #stage(long, long)
      */
-    default void push() {
-        push(0, size().getBytes());
+    default void stage() {
+        stage(0, size().getBytes());
     }
 
     /**

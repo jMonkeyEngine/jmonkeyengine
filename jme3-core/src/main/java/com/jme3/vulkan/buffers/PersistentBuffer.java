@@ -1,15 +1,11 @@
 package com.jme3.vulkan.buffers;
 
 import com.jme3.vulkan.memory.MemorySize;
-import org.lwjgl.PointerBuffer;
-
-import java.nio.*;
 
 public class PersistentBuffer <T extends MappableBuffer> implements MappableBuffer {
 
     private final T buffer;
-    private MappingImpl mapping;
-    private long mappedOffset, mappedSize;
+    private volatile BufferMapping mapping;
 
     public PersistentBuffer(T buffer) {
         this.buffer = buffer;
@@ -17,20 +13,17 @@ public class PersistentBuffer <T extends MappableBuffer> implements MappableBuff
 
     @Override
     public BufferMapping map(long offset, long size) {
-        if (mapping == null || offset != mappedOffset || mappedSize != size) {
-            if (mapping != null) {
-                mapping.forceClose();
+        if (mapping == null) synchronized (buffer) {
+            if (mapping == null) {
+                mapping = buffer.map(offset, size);
             }
-            mapping = new MappingImpl(buffer.map(offset, size));
-            mappedOffset = offset;
-            mappedSize = size;
         }
-        return mapping;
+        return new VirtualBufferMapping(mapping.getAddress() + offset, size);
     }
 
     @Override
-    public void push(long offset, long size) {
-        buffer.push(offset, size);
+    public void stage(long offset, long size) {
+        buffer.stage(offset, size);
     }
 
     @Override
@@ -47,81 +40,16 @@ public class PersistentBuffer <T extends MappableBuffer> implements MappableBuff
     }
 
     public void forceUnmap() {
-        if (mapping != null) {
-            mapping.forceClose();
-            mapping = null;
+        if (mapping != null) synchronized (buffer) {
+            if (mapping != null) {
+                mapping.close();
+                mapping = null;
+            }
         }
     }
 
     public T getBuffer() {
         return buffer;
-    }
-
-    private static class MappingImpl implements BufferMapping {
-
-        private final BufferMapping delegate;
-
-        public MappingImpl(BufferMapping delegate) {
-            this.delegate = delegate;
-        }
-
-        public void forceClose() {
-            delegate.close();
-        }
-
-        @Override
-        public void close() {}
-
-        @Override
-        public void push(long offset, long size) {
-            delegate.push(offset, size);
-        }
-
-        @Override
-        public long getAddress() {
-            return delegate.getAddress();
-        }
-
-        @Override
-        public long getSize() {
-            return delegate.getSize();
-        }
-
-        @Override
-        public ByteBuffer getBytes() {
-            return delegate.getBytes();
-        }
-
-        @Override
-        public ShortBuffer getShorts() {
-            return delegate.getShorts();
-        }
-
-        @Override
-        public IntBuffer getInts() {
-            return delegate.getInts();
-        }
-
-        @Override
-        public FloatBuffer getFloats() {
-            return delegate.getFloats();
-        }
-
-        @Override
-        public DoubleBuffer getDoubles() {
-            return delegate.getDoubles();
-        }
-
-        @Override
-        public LongBuffer getLongs() {
-            return delegate.getLongs();
-        }
-
-        @Override
-        public PointerBuffer getPointers() {
-            return delegate.getPointers();
-        }
-
     }
 
 }

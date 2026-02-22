@@ -44,7 +44,6 @@ import com.jme3.material.MatParamOverride;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -55,9 +54,7 @@ import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.util.clone.JmeCloneable;
-import com.jme3.vulkan.material.NewMaterial;
-import com.jme3.vulkan.util.ScenePropertyStack;
-import com.jme3.vulkan.util.SceneStack;
+import com.jme3.vulkan.util.SceneIterationListener;
 
 import java.io.IOException;
 import java.util.*;
@@ -1894,28 +1891,28 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
 
     @Override
     public GraphIterator iterator() {
-        return new GraphIterator(this);
+        return new GraphIterator(this, Collections.EMPTY_LIST);
     }
 
-    public GraphIterator iterator(SceneStack... propertyStacks) {
-        return new GraphIterator(this, propertyStacks);
+    public GraphIterator iterator(Deque... listeners) {
+        return new GraphIterator(this, Arrays.asList(listeners));
+    }
+
+    public GraphIterator iterator(Collection<Deque> listeners) {
+        return new GraphIterator(this, listeners);
     }
 
     public static class GraphIterator implements Iterable<Spatial>, Iterator<Spatial> {
 
         private final Deque<Integer> childIndices = new ArrayDeque<>();
-        private final SceneStack[] propertyStacks;
+        private final Collection<Deque> listeners;
         private Spatial current;
         private int currentIndex = 0;
         private int iteration = -1;
 
-        public GraphIterator(Spatial root, SceneStack... propertyStacks) {
+        protected GraphIterator(Spatial root, Collection<Deque> listeners) {
             current = Objects.requireNonNull(root);
-            this.propertyStacks = propertyStacks;
-            for (SceneStack p : propertyStacks) {
-                p.clear();
-                p.push(root);
-            }
+            this.listeners = listeners;
         }
 
         @Override
@@ -1950,8 +1947,8 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
                 current = current.getParent();
                 if (current == null) return;
                 currentIndex = childIndices.pop();
-                for (SceneStack p : propertyStacks) {
-                    p.pop();
+                for (Deque l : listeners) {
+                    l.pop();
                 }
             } while (currentIndex < 0);
             current.findNextIteration(this);
@@ -1963,9 +1960,6 @@ public abstract class Spatial implements Iterable<Spatial>, Savable, Cloneable, 
             }
             current = node;
             childIndices.push(lastChild ? -1 : currentIndex);
-            for (SceneStack p : propertyStacks) {
-                p.push(node);
-            }
             currentIndex = 0;
         }
 

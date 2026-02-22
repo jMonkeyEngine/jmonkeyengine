@@ -309,7 +309,7 @@ public final class BinaryImporter implements JmeImporter {
 
     public Savable readObject(int id) {
 
-        if(contentTable.get(id) != null) {
+        if (contentTable.get(id) != null) {
             return contentTable.get(id);
         }
 
@@ -329,10 +329,11 @@ public final class BinaryImporter implements JmeImporter {
             int dataLength = ByteUtils.convertIntFromBytes(dataArray, loc);
             loc+=4;
 
-            Savable  out = SavableClassUtil.fromName(bco.className);
-
-            BinaryInputCapsule cap = new BinaryInputCapsule(this, out, bco);
+            Class savableType = Class.forName(SavableClassUtil.remapClass(bco.className));
+            BinaryInputCapsule cap = new BinaryInputCapsule(this, savableType, bco);
             cap.setContent(dataArray, loc, loc+dataLength);
+
+            Savable out = SavableClassUtil.fromName(cap, savableType);
 
             capsuleTable.put(out, cap);
             contentTable.put(id, out);

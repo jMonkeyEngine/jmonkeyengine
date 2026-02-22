@@ -14,18 +14,18 @@ import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.GlNativeBuffer;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.render.GeometryBatch;
-import com.jme3.vulkan.render.GlGeometryBatch;
+import com.jme3.vulkan.render.batching.GeometryBatch;
+import com.jme3.vulkan.render.batching.GlGeometryBatch;
 import com.jme3.vulkan.render.RenderEngine;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.ScenePropertyStack;
-import com.jme3.vulkan.util.SceneStack;
+import com.jme3.vulkan.util.SceneIterationListener;
 
 public class OpenGLEngine implements RenderEngine {
 
     private final GLRenderer renderer = new GLRenderer();
     private GlGeometryBatch opaque, sky, transparent, gui, translucent;
-    private final SceneStack<RenderQueue.Bucket> bucket = new ScenePropertyStack<>(
+    private final SceneIterationListener<RenderQueue.Bucket> bucket = new ScenePropertyStack<>(
             RenderQueue.Bucket.Opaque, RenderQueue.Bucket.Inherit,
             s -> RenderQueue.Bucket.valueOf(s.getLocalQueueBucket()));
 
@@ -36,7 +36,7 @@ public class OpenGLEngine implements RenderEngine {
         transparent.setCamera(vp.getCamera());
         gui.setCamera(new GuiCamera(vp.getCamera(), vp.getViewWidth(), vp.getViewHeight()));
         translucent.setCamera(vp.getCamera());
-        SceneStack<Camera.FrustumIntersect> cull = vp.getCamera().createCullStack();
+        SceneIterationListener<Camera.FrustumIntersect> cull = vp.getCamera().createCullStack();
         for (Spatial scene : vp.getScenes()) for (Spatial.GraphIterator it = scene.iterator(cull, bucket); it.hasNext();) {
             Spatial child = it.next();
             child.runControlRender(this, vp);

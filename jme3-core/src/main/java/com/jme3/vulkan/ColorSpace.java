@@ -5,7 +5,7 @@ import org.lwjgl.vulkan.KHRSurface;
 
 public enum ColorSpace implements IntEnum<ColorSpace> {
 
-    KhrSrgbNonlinear(KHRSurface.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
+    SrgbNonlinear(KHRSurface.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
 
     private final int vkEnum;
 

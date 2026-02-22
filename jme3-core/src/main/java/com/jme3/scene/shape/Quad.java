@@ -32,12 +32,14 @@
 
 package com.jme3.scene.shape;
 
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.scene.GlMesh;
+import com.jme3.export.*;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.vulkan.mesh.AdaptiveMesh;
+import com.jme3.vulkan.mesh.MeshLayout;
+import com.jme3.vulkan.mesh.attribute.Attribute;
+
 import java.io.IOException;
 
 /**
@@ -48,15 +50,14 @@ import java.io.IOException;
  *
  * @author Kirill Vainer
  */
-public class Quad extends GlMesh {
+public class Quad extends AdaptiveMesh {
 
     private float width;
     private float height;
 
-    /**
-     * Serialization only. Do not use.
-     */
-    protected Quad() {
+    protected Quad(MeshLayout layout) {
+        super(layout, 4, 1);
+        
     }
 
     /**
@@ -66,7 +67,8 @@ public class Quad extends GlMesh {
      * @param width The X extent or width
      * @param height The Y extent or width
      */
-    public Quad(float width, float height) {
+    public Quad(MeshLayout layout, float width, float height) {
+        this(layout);
         updateGeometry(width, height);
     }
 
@@ -79,7 +81,8 @@ public class Quad extends GlMesh {
      * @param flipCoords If true, the texture coordinates will be flipped
      * along the Y axis.
      */
-    public Quad(float width, float height, boolean flipCoords) {
+    public Quad(MeshLayout layout, float width, float height, boolean flipCoords) {
+        this(layout);
         updateGeometry(width, height, flipCoords);
     }
 
@@ -98,28 +101,26 @@ public class Quad extends GlMesh {
     public void updateGeometry(float width, float height, boolean flipCoords) {
         this.width = width;
         this.height = height;
-        setBuffer(Type.Position, 3, new float[]{0,      0,      0,
-                                                width,  0,      0,
-                                                width,  height, 0,
-                                                0,      height, 0
-                                                });
-
-
-        if (flipCoords) {
-            setBuffer(Type.TexCoord, 2, new float[]{0, 1,
-                                                    1, 1,
-                                                    1, 0,
-                                                    0, 0});
-        } else {
-            setBuffer(Type.TexCoord, 2, new float[]{0, 0,
-                                                    1, 0,
-                                                    1, 1,
-                                                    0, 1});
+        try (Attribute<Vector3f> pos = mapAttribute(Type.Position)) {
+            Vector3f temp = pos.createStorageObject(null);
+            pos.set(0, temp.set(0, 0, 0));
+            pos.set(1, temp.set(width, 0, 0));
+            pos.set(2, temp.set(width, height, 0));
+            pos.set(3, temp.set(0, height, 0));
         }
-        setBuffer(Type.Normal, 3, new float[]{0, 0, 1,
-                                              0, 0, 1,
-                                              0, 0, 1,
-                                              0, 0, 1});
+        try (Attribute<Vector2f> texCoord = mapAttribute(Type.TexCoord)) {
+            Vector2f temp = texCoord.createStorageObject(null);
+            texCoord.set(0, temp.set(0, flipCoords ? 1 : 0));
+            texCoord.set(1, temp.set(1, flipCoords ? 1 : 0));
+            texCoord.set(2, temp.set(1, flipCoords ? 0 : 1));
+            texCoord.set(3, temp.set(0, flipCoords ? 0 : 1));
+        }
+        try (Attribute<Vector3f> normal = mapAttribute(Type.Normal)) {
+            for (Vector3f n : normal.write(null)) {
+                n.set(0, 0, 1);
+            }
+        }
+
         if (height < 0) {
             setBuffer(Type.Index, 3, new short[]{0, 2, 1,
                                                  0, 3, 2});
@@ -127,6 +128,7 @@ public class Quad extends GlMesh {
             setBuffer(Type.Index, 3, new short[]{0, 1, 2,
                                                  0, 2, 3});
         }
+        indexBuffers.add(0, new );
 
         updateBound();
         setStatic();
@@ -147,4 +149,5 @@ public class Quad extends GlMesh {
         capsule.write(width, "width", 0);
         capsule.write(height, "height", 0);
     }
+
 }

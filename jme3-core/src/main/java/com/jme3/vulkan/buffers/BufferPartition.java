@@ -1,7 +1,6 @@
 package com.jme3.vulkan.buffers;
 
 import com.jme3.vulkan.memory.MemorySize;
-import org.lwjgl.PointerBuffer;
 
 public class BufferPartition <T extends MappableBuffer> implements MappableBuffer {
 
@@ -17,7 +16,7 @@ public class BufferPartition <T extends MappableBuffer> implements MappableBuffe
     }
 
     @Override
-    public PointerBuffer map(long offset, long size) {
+    public BufferMapping map(long offset, long size) {
         // check partition validity due to the source buffer possibly being resized
         if (buffer.size().getBytes() < this.size.getEnd()) {
             throw new IllegalStateException("Partition is outdated: extends outside buffer.");
@@ -26,8 +25,8 @@ public class BufferPartition <T extends MappableBuffer> implements MappableBuffe
     }
 
     @Override
-    public void push(long offset, long size) {
-        buffer.push(this.size.getOffset() + offset, size);
+    public void stage(long offset, long size) {
+        buffer.stage(this.size.getOffset() + offset, size);
     }
 
     @Override
@@ -44,17 +43,8 @@ public class BufferPartition <T extends MappableBuffer> implements MappableBuffe
         return size;
     }
 
-    @Override
-    public void unmap() {
-        buffer.unmap();
-    }
-
     public T getBuffer() {
         return buffer;
-    }
-
-    public int getOffset() {
-        return offset;
     }
 
 }

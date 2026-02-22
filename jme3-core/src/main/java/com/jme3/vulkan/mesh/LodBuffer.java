@@ -25,7 +25,7 @@ public class LodBuffer implements MappableBuffer {
 
     @Override
     public void push(int offset, int size) {
-        buffer.push(offset, size);
+        buffer.stage(offset, size);
     }
 
     @Override

@@ -52,7 +52,7 @@ public abstract class AbstractVulkanPipeline extends AbstractNative<Long> implem
     }
 
     @Override
-    public long getSortId() {
+    public long getSortPosition() {
         return object;
     }
 

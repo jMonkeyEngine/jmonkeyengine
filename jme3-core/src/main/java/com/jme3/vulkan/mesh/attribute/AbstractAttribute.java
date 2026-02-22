@@ -1,35 +1,37 @@
 package com.jme3.vulkan.mesh.attribute;
 
+import com.jme3.vulkan.buffers.BufferMapping;
 import com.jme3.vulkan.mesh.AttributeMappingInfo;
 
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 public abstract class AbstractAttribute <T, E> implements Attribute<T> {
 
     protected final ValueMapper<E> mapper;
     private final AttributeMappingInfo info;
-    private ByteBuffer buffer;
+    private BufferMapping mapping;
 
     public AbstractAttribute(ValueMapper<E> mapper, AttributeMappingInfo info) {
         this.mapper = mapper;
         this.info = info;
-        this.buffer = info.getVertices().mapBytes((int)info.getBinding().getOffset());
+        this.mapping = info.getVertices().map(info.getBinding().getOffset());
     }
 
     @Override
-    public void unmap() {
-        if (buffer == null) {
+    public void close() {
+        if (mapping == null) {
             throw new IllegalStateException("Attribute has already been unmapped.");
         }
-        buffer = null;
-        info.getVertices().unmap();
+        mapping.close();
+        mapping = null;
     }
 
     @Override
-    public void push(int baseElement, int elements) {
-        info.getVertices().push((int)info.getBinding().getOffset() + baseElement * info.getBinding().getStride(), elements * info.getBinding().getStride());
+    public void push(long baseElement, long elements) {
+        mapping.push(baseElement * info.getBinding().getStride(), elements * info.getBinding().getStride());
     }
 
     @Override
@@ -38,43 +40,56 @@ public abstract class AbstractAttribute <T, E> implements Attribute<T> {
     }
 
     @Override
-    public ReadIterator<T> read(T store) {
-        return new ReadIterator<>(this, store, info.getSize());
+    public Iterable<T> read(T store) {
+        return new ReadIterator<>(this, createStorageObject(store), info.getSize());
     }
 
     @Override
-    public ReadWriteIterator<T> readWrite(T store) {
-        return new ReadWriteIterator<>(this, store, info.getSize());
+    public Iterable<T> readWrite(T store) {
+        return new ReadWriteIterator<>(this, createStorageObject(store), info.getSize());
     }
 
     @Override
     public Iterable<T> write(T store) {
-        return null;
+        return new WriteIterator<>(this, createStorageObject(store), info.getSize());
     }
 
     @Override
-    public IndexIterator indices() {
+    public Iterable<T> transfer(Attribute<T> dst, T store) {
+        store = createStorageObject(store);
+        return new TransferIterator<>(read(store).iterator(), dst.write(store).iterator(), this::copyValueTo);
+    }
+
+    @Override
+    public Iterable<Integer> indices() {
         return new IndexIterator(info.getSize());
     }
 
+    @Override
+    public long getNumElements() {
+        return info.getSize();
+    }
+
+    protected abstract void copyValueTo(T src, T dst);
+
     protected ByteBuffer getBuffer() {
-        return buffer;
+        return mapping.getBytes();
     }
 
-    protected ByteBuffer getBuffer(int element) {
+    protected ByteBuffer getBuffer(long element) {
         // buffer is already offset by binding.getOffset() relative to vertices
-        buffer.position(element * info.getBinding().getStride() + info.getOffset());
-        return buffer;
+        mapping.getBytes().position((int)(element * info.getBinding().getStride() + info.getOffset()));
+        return mapping.getBytes();
     }
 
-    public static class ReadIterator <T> implements Iterator<T>, Iterable<T> {
+    protected static class ReadIterator <T> implements Iterator<T>, Iterable<T> {
 
         private final Attribute<T> attr;
         private final T store;
-        private final int size;
+        private final long size;
         private int index = 0;
 
-        public ReadIterator(Attribute<T> attr, T store, int size) {
+        public ReadIterator(Attribute<T> attr, T store, long size) {
             this.attr = attr;
             this.store = store;
             this.size = size;
@@ -98,15 +113,15 @@ public abstract class AbstractAttribute <T, E> implements Attribute<T> {
 
     }
 
-    public static class ReadWriteIterator <T> implements Iterator<T>, Iterable<T> {
+    protected static class ReadWriteIterator <T> implements Iterator<T>, Iterable<T> {
 
         private final Attribute<T> attr;
         private final T store;
-        private final int size;
+        private final long size;
         private int index = 0;
         private T toWrite;
 
-        public ReadWriteIterator(Attribute<T> attr, T store, int size) {
+        public ReadWriteIterator(Attribute<T> attr, T store, long size) {
             this.attr = attr;
             this.store = store;
             this.size = size;
@@ -134,15 +149,15 @@ public abstract class AbstractAttribute <T, E> implements Attribute<T> {
 
     }
 
-    public static class WriteIterator <T> implements Iterator<T>, Iterable<T> {
+    protected static class WriteIterator <T> implements Iterator<T>, Iterable<T> {
 
         private final Attribute<T> attr;
         private final T store;
-        private final int size;
+        private final long size;
         private int index = 0;
         private T toWrite;
 
-        public WriteIterator(Attribute<T> attr, T store, int size) {
+        public WriteIterator(Attribute<T> attr, T store, long size) {
             this.attr = attr;
             this.store = Objects.requireNonNull(store, "Storage object cannot be null for write-only iteration.");
             this.size = size;
@@ -170,12 +185,45 @@ public abstract class AbstractAttribute <T, E> implements Attribute<T> {
 
     }
 
-    public static class IndexIterator implements Iterator<Integer>, Iterable<Integer> {
+    protected static class TransferIterator <T> implements Iterable<T>, Iterator<T> {
 
-        private final int size;
+        private final Iterator<T> read, write;
+        private final BiConsumer<T, T> assign;
+        private T src;
+
+        public TransferIterator(Iterator<T> read, Iterator<T> write, BiConsumer<T, T> assign) {
+            this.read = read;
+            this.write = write;
+            this.assign = assign;
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+            return this;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (src != null) {
+                assign.accept(src, write.next());
+                src = null;
+            }
+            return read.hasNext() & write.hasNext();
+        }
+
+        @Override
+        public T next() {
+            return src = read.next();
+        }
+
+    }
+
+    protected static class IndexIterator implements Iterator<Integer>, Iterable<Integer> {
+
+        private final long size;
         private int index = 0;
 
-        public IndexIterator(int size) {
+        public IndexIterator(long size) {
             this.size = size;
         }
 

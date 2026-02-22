@@ -2,7 +2,7 @@ package com.jme3.vulkan.devices;
 
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.FormatFeature;
-import com.jme3.vulkan.commands.Queue;
+import com.jme3.vulkan.commands.CommandQueue;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.surface.Surface;
@@ -23,7 +23,7 @@ public interface PhysicalDevice {
 
     VkPhysicalDevice getDeviceHandle();
 
-    VkQueueFamilyProperties.Buffer getQueueFamilyProperties(MemoryStack stack);
+    VkQueueFamilyProperties.Buffer getQueueFamilyProperties();
 
     VkPhysicalDeviceProperties getProperties();
 
@@ -31,16 +31,16 @@ public interface PhysicalDevice {
 
     VkPhysicalDeviceFeatures2 getFeatures(VkPhysicalDeviceFeatures2 features);
 
-    VkExtensionProperties.Buffer getExtensionProperties(MemoryStack stack);
+    VkExtensionProperties.Buffer getExtensionProperties();
 
-    VkPhysicalDeviceMemoryProperties getMemoryProperties(MemoryStack stack);
+    VkPhysicalDeviceMemoryProperties getMemoryProperties();
 
-    int findSupportedMemoryType(MemoryStack stack, int types, Flag<MemoryProp> flags);
+    int findSupportedMemoryType(int types, Flag<MemoryProp> flags);
 
     Format findSupportedFormat(VulkanImage.Tiling tiling, Flag<FormatFeature> features, Format... candidates);
 
     boolean querySwapchainSupport(Surface surface);
 
-    Queue getCompute();
+    CommandQueue getCompute();
 
 }

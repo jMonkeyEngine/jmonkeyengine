@@ -35,12 +35,9 @@ import com.jme3.effect.shapes.*;
 import com.jme3.material.MatParamTexture;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -83,7 +80,7 @@ public class SavableClassUtil {
     private SavableClassUtil() {
     }
 
-    private static String remapClass(String className) throws ClassNotFoundException {
+    public static String remapClass(String className) {
         String result = CLASS_REMAPPINGS.get(className);
         if (result == null) {
             return className;
@@ -134,9 +131,8 @@ public class SavableClassUtil {
         }
     }
 
-    public static int getSavedSavableVersion(Object savable,
+    public static int getSavedSavableVersion(Class thisClass,
             Class<? extends Savable> desiredClass, int[] versions, int formatVersion) {
-        Class thisClass = savable.getClass();
         int count = 0;
 
         while (thisClass != desiredClass) {
@@ -149,14 +145,14 @@ public class SavableClassUtil {
         }
 
         if (thisClass == null) {
-            throw new IllegalArgumentException(savable.getClass().getName() +
+            throw new IllegalArgumentException(thisClass.getName() +
                                                " does not extend " +
                                                desiredClass.getName() + "!");
         } else if (count >= versions.length) {
             if (formatVersion <= 1) {
                 return 0; // for buggy versions of j3o
             } else {
-                throw new IllegalArgumentException(savable.getClass().getName() +
+                throw new IllegalArgumentException(thisClass.getName() +
                                                    " cannot access version of " +
                                                    desiredClass.getName() +
                                                    " because it doesn't implement Savable");
@@ -166,87 +162,53 @@ public class SavableClassUtil {
     }
 
     /**
-     * fromName creates a new Savable from the provided class name. First registered modules
-     * are checked to handle special cases, if the modules do not handle the class name, the
-     * class is instantiated directly.
-     * @param className the class name to create.
+     * Creates a new Savable from the provided class using either a static builder method
+     * or a parameterless construct.
+     *
+     * @param type class type to create
      * @return the Savable instance of the class.
      * @throws InstantiationException thrown if the class does not have an empty constructor.
      * @throws IllegalAccessException thrown if the class is not accessible.
      * @throws InvocationTargetException if the underlying constructor throws an exception
      * @throws ClassNotFoundException thrown if the class name is not in the classpath.
      */
-    public static Savable fromName(String className)
-            throws ClassNotFoundException, IllegalAccessException,
-            InstantiationException, InvocationTargetException {
-        className = remapClass(className);
-
-        Constructor noArgConstructor = findNoArgConstructor(className);
-        noArgConstructor.setAccessible(true);
+    public static Savable fromName(InputCapsule capsule, Class type)
+            throws ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+        Constructor capsuleConst = findConstructor(type, InputCapsule.class);
+        if (capsuleConst != null) {
+            capsuleConst.setAccessible(true);
+            return (Savable)capsuleConst.newInstance(capsule);
+        }
+        Constructor noArgConst = findConstructor(type);
+        if (noArgConst == null) {
+            throw new IllegalStateException("Savable class must have a constructor accepting a " + InputCapsule.class + " or a parameterless constructor.");
+        }
+        noArgConst.setAccessible(true);
         try {
-            return (Savable) noArgConstructor.newInstance();
+            return (Savable)noArgConst.newInstance();
         } catch (InvocationTargetException | InstantiationException e) {
             Logger.getLogger(SavableClassUtil.class.getName()).log(
-                    Level.SEVERE, "Could not access constructor of class ''{0}" + "''! \n"
-                    + "Some types need to have the BinaryImporter set up in a special way. Please double-check the setup.", className);
+                    Level.SEVERE, "Could not access constructor of class \"{0}\"! "
+                            + "Some types need to have the BinaryImporter set up in a special way. Please double-check the setup.", type.getName());
             throw e;
         } catch (IllegalAccessException e) {
             Logger.getLogger(SavableClassUtil.class.getName()).log(
-                    Level.SEVERE, "{0} \n"
-                    + "Some types need to have the BinaryImporter set up in a special way. Please double-check the setup.", e.getMessage());
+                    Level.SEVERE, "{0}. Some types need to have the BinaryImporter set up in a special way. Please double-check the setup.", e.getMessage());
             throw e;
         }
     }
 
     /**
-     * @deprecated use {@link #fromName(java.lang.String)} instead 
-     */
-    @Deprecated
-    public static Savable fromName(String className, List<ClassLoader> loaders) throws InstantiationException,
-            InvocationTargetException, NoSuchMethodException,
-            IllegalAccessException, ClassNotFoundException, IOException {
-        if (loaders == null) {
-            return fromName(className);
-        }
-
-        String newClassName = remapClass(className);
-        synchronized (loaders) {
-            for (ClassLoader classLoader : loaders) {
-                final Class<?> loadedClass;
-                try {
-                    loadedClass = classLoader.loadClass(newClassName);
-                } catch (final ClassNotFoundException e) {
-                    continue;
-                }
-                try {
-                    return (Savable) loadedClass.newInstance();
-                } catch (InstantiationException | IllegalAccessException e) {
-                }
-            }
-        }
-
-        return fromName(className);
-    }
-
-    /**
-     * Use reflection to gain access to the no-arg constructor of the named
-     * class.
+     * Use reflection to gain access to a constructor of the class.
      *
      * @return the pre-existing constructor (not null)
      */
-    @SuppressWarnings("unchecked")
-    private static Constructor findNoArgConstructor(String className)
-            throws ClassNotFoundException, InstantiationException {
-        Class clazz = Class.forName(className);
-        Constructor result;
+    private static Constructor findConstructor(Class classType, Class... argTypes) throws InstantiationException {
         try {
-            result = clazz.getDeclaredConstructor();
+            return classType.getDeclaredConstructor(argTypes);
         } catch (NoSuchMethodException e) {
-            throw new InstantiationException(
-                    "Loading requires a no-arg constructor, but class "
-                    + className + " lacks one.");
+            return null;
         }
-
-        return result;
     }
+
 }

@@ -160,7 +160,7 @@ public class BufferObject extends NativeObject implements StructuredBuffer, Sava
      */
     public void initializeEmpty(int length) {
         data = new NioBuffer(MemorySize.bytes(length));
-        data.push();
+        data.stage();
     }
 
 
@@ -172,7 +172,7 @@ public class BufferObject extends NativeObject implements StructuredBuffer, Sava
     public void setData(ByteBuffer data) {
         this.data = new NioBuffer(MemorySize.bytes(data.remaining()), 0, false);
         this.data.copy(data);
-        this.data.push();
+        this.data.stage();
     }
 
 
@@ -355,7 +355,7 @@ public class BufferObject extends NativeObject implements StructuredBuffer, Sava
         ByteBuffer readData = ic.readByteBuffer("data", null);
         data = new NioBuffer(MemorySize.bytes(readData.remaining()));
         data.copy(readData);
-        data.push();
+        data.stage();
         setUpdateNeeded(true);
     }
 
@@ -366,7 +366,7 @@ public class BufferObject extends NativeObject implements StructuredBuffer, Sava
         clone.weakRef = null;
         clone.data = new NioBuffer(data.size());
         clone.data.copy(data);
-        clone.data.push();
+        clone.data.stage();
         clone.regions = new ArrayList<>();
         assert clone.regions != regions;
         for (BufferRegion r : regions) {

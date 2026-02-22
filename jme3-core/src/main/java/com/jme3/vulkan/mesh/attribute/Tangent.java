@@ -1,6 +1,5 @@
 package com.jme3.vulkan.mesh.attribute;
 
-import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.vulkan.mesh.AttributeMappingInfo;
 
@@ -13,22 +12,27 @@ public class Tangent extends AbstractAttribute<Vector4f, Float> {
     }
 
     @Override
-    public void set(int element, Vector4f value) {
+    protected void copyValueTo(Vector4f src, Vector4f dst) {
+        dst.set(src);
+    }
+
+    @Override
+    public void set(long element, Vector4f value) {
         set(element, value.x, value.y, value.z, value.w);
     }
 
     @Override
-    public Vector4f get(int element) {
+    public Vector4f get(long element) {
         return get(element, (Vector4f)null);
     }
 
     @Override
-    public Vector4f get(int element, Vector4f store) {
+    public Vector4f get(long element, Vector4f store) {
         ByteBuffer buf = getBuffer(element);
         return Vector4f.storage(store).set(mapper.get(buf), mapper.get(buf), mapper.get(buf), mapper.get(buf));
     }
 
-    public void set(int element, float x, float y, float z, float w) {
+    public void set(long element, float x, float y, float z, float w) {
         ByteBuffer buf = getBuffer(element);
         mapper.put(buf, x);
         mapper.put(buf, y);
@@ -36,7 +40,7 @@ public class Tangent extends AbstractAttribute<Vector4f, Float> {
         mapper.put(buf, w);
     }
 
-    public void set(int startElement, float[] array) {
+    public void set(long startElement, float[] array) {
         for (int i = 0; i < array.length; i += 4) {
             set(startElement++, array[i], array[i + 1], array[i + 2], array[i + 3]);
         }

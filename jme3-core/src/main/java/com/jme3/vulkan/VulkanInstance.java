@@ -48,7 +48,6 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
     private String appName = "Unnamed App";
     private int appVersion = VK_MAKE_VERSION(0, 0, 0);
     private IntEnum<Version> apiVersion;
-    private VulkanLogger logger;
 
     protected VulkanInstance(IntEnum<Version> apiVersion) {
         this.apiVersion = apiVersion;
@@ -71,16 +70,8 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
         return Objects.hashCode(object.address());
     }
 
-    public VulkanLogger createLogger(Level exceptionThreshold) {
-        return logger = new VulkanLogger(this, exceptionThreshold);
-    }
-
     public IntEnum<Version> getApiVersion() {
         return apiVersion;
-    }
-
-    public VulkanLogger getLogger() {
-        return logger;
     }
 
     public Set<String> getExtensions() {

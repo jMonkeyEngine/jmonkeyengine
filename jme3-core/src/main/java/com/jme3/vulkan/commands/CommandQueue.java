@@ -13,14 +13,14 @@ import java.util.concurrent.Executors;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class Queue {
+public class CommandQueue {
 
     private final LogicalDevice<?> device;
     private final VkQueue queue;
     private final int familyIndex, queueIndex;
     private final Executor executor = Executors.newCachedThreadPool();
 
-    public Queue(LogicalDevice<?> device, int familyIndex, int queueIndex) {
+    public CommandQueue(LogicalDevice<?> device, int familyIndex, int queueIndex) {
         this.device = device;
         this.familyIndex = familyIndex;
         this.queueIndex = queueIndex;

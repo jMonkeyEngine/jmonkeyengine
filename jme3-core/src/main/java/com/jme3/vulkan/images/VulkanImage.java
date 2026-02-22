@@ -9,6 +9,7 @@ import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.KHRSwapchain;
+import org.lwjgl.vulkan.VK14;
 
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -21,6 +22,7 @@ public interface VulkanImage extends GpuImage {
         General(VK_IMAGE_LAYOUT_GENERAL,
                 Flag.empty(), Flag.empty()), // not sure how this layout should be treated for transitions
         PreInitialized(VK_IMAGE_LAYOUT_PREINITIALIZED),
+        ReadOnlyOptimal(VK14.VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL),
         ColorAttachmentOptimal(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                 Flag.of(Access.ColorAttachmentRead, Access.ColorAttachmentWrite), PipelineStage.ColorAttachmentOutput),
         DepthStencilAttachmentOptimal(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,

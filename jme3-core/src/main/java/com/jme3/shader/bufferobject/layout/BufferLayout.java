@@ -45,6 +45,7 @@ import com.jme3.util.struct.Struct;
  * 
  * @author Riccardo Balbo
  */
+@Deprecated
 public abstract class  BufferLayout {
 
     public static abstract class ObjectSerializer<T> {
@@ -150,7 +151,5 @@ public abstract class  BufferLayout {
     public abstract String getId();
 
     public abstract List<BufferRegion> generateFieldRegions(Struct struct);
-
-    public abstract BufferSlice getNextFieldRegion(int position, StructField field, StructField next);
 
 }

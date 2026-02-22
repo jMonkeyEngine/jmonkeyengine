@@ -1081,9 +1081,8 @@ public class OldGlMesh implements Mesh, Savable {
      * It is expected that the position buffer is a float buffer with 3 components.
      */
     public void updateBound() {
-        GlVertexBuffer posBuf = getBuffer(Type.Position);
-        if (meshBound != null && posBuf != null) {
-            meshBound.computeFromPoints((FloatBuffer) posBuf.getData());
+        if (meshBound != null) try (Attribute<Vector3f> pos = mapAttribute(Type.Position)) {
+            meshBound.computeFromPoints(pos);
         }
     }
 

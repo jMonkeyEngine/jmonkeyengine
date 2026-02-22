@@ -9,6 +9,7 @@ public class SourceBufferMapping implements BufferMapping {
     private final MappableBuffer source;
     private final PointerBuffer address;
     private final long size;
+    private final Runnable unmap;
     private ByteBuffer bytes;
     private ShortBuffer shorts;
     private IntBuffer ints;
@@ -17,20 +18,21 @@ public class SourceBufferMapping implements BufferMapping {
     private LongBuffer longs;
     private PointerBuffer pointers;
 
-    public SourceBufferMapping(MappableBuffer source, PointerBuffer address, long size) {
+    public SourceBufferMapping(MappableBuffer source, PointerBuffer address, long size, Runnable unmap) {
         this.source = source;
         this.address = address;
         this.size = size;
+        this.unmap = unmap;
     }
 
     @Override
     public void close() {
-        source.unmap();
+        unmap.run();
     }
 
     @Override
     public void push(long offset, long size) {
-        source.push(offset, size);
+        source.stage(offset, size);
     }
 
     @Override

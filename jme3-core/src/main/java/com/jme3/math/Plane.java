@@ -115,6 +115,11 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
         this(normal, displacement.dot(normal));
     }
 
+    public void set(Plane plane) {
+        this.normal.set(plane.normal);
+        this.constant = plane.constant;
+    }
+
     /**
      * <code>setNormal</code> sets the normal of the plane.
      *

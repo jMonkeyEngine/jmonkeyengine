@@ -17,6 +17,11 @@ public class VirtualBufferMapping implements BufferMapping {
     private LongBuffer longs;
     private PointerBuffer pointers;
 
+    public VirtualBufferMapping(long address, long size) {
+        this.address = address;
+        this.size = (int)size;
+    }
+
     public VirtualBufferMapping(ByteBuffer bytes) {
         this.address = MemoryUtil.memAddress(bytes, 0);
         this.bytes = bytes;

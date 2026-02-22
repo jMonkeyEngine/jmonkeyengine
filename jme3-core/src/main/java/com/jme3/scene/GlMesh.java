@@ -50,6 +50,46 @@ import com.jme3.renderer.opengl.GLRenderer;
  */
 public interface GlMesh extends Mesh {
 
+    /**
+     * The mode of the Mesh specifies both the type of primitive represented
+     * by the mesh and how the data should be interpreted.
+     *
+     * @deprecated use {@link com.jme3.vulkan.pipeline.Topology} instead
+     */
+    @Deprecated
+    enum Mode {
+
+        Points(true),
+        Lines(true),
+        LineStrip(false),
+        LineLoop(false),
+        Triangles(true),
+        TriangleStrip(false),
+        TriangleFan(false),
+        Hybrid(false),
+        Patch(true);
+
+        private boolean listMode = false;
+
+        private Mode(boolean listMode) {
+            this.listMode = listMode;
+        }
+
+        /**
+         * Returns true if the specified mode is a list mode (meaning
+         * ,it specifies the indices as a linear list and not some special
+         * format).
+         * Will return true for the types {@link #Points}, {@link #Lines} and
+         * {@link #Triangles}.
+         *
+         * @return true if the mode is a list type mode
+         */
+        public boolean isListMode() {
+            return listMode;
+        }
+
+    }
+
     void render(GLRenderer renderer);
 
 }

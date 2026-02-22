@@ -1,4 +1,4 @@
-package com.jme3.vulkan.render;
+package com.jme3.vulkan.render.batching;
 
 import com.jme3.math.FastMath;
 import com.jme3.scene.Geometry;

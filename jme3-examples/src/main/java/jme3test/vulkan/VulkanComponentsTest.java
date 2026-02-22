@@ -5,6 +5,10 @@ import com.jme3.backend.SimpleVulkanEngine;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
+import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.camera.PerspectiveCamera;
+import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
@@ -22,10 +26,14 @@ import com.jme3.vulkan.mesh.attribute.Position;
 import com.jme3.vulkan.pipeline.DynamicState;
 import com.jme3.vulkan.pipeline.PipelineLayout;
 import com.jme3.vulkan.pipeline.PipelineStage;
+import com.jme3.vulkan.pipeline.VertexPipeline;
 import com.jme3.vulkan.pipeline.graphics.ColorBlendAttachment;
 import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
 import com.jme3.vulkan.material.shader.ShaderStage;
+import com.jme3.vulkan.render.BatchRenderer;
 import com.jme3.vulkan.render.RenderEngine;
+import com.jme3.vulkan.render.batching.GeometryBatch;
+import com.jme3.vulkan.render.batching.VulkanGeometryBatch;
 import com.jme3.vulkan.sync.BinarySemaphore;
 import com.jme3.vulkan.sync.TimelineSemaphore;
 
@@ -44,6 +52,29 @@ public class VulkanComponentsTest {
         g.setLocalTranslation(0f, 1f, 0f);
         g.setMaterial(mat);
         rootNode.attachChild(g);
+
+        Camera camera = new PerspectiveCamera();
+        ViewPort viewPort = new ViewPort(camera, 0) {
+
+            private final GeometryBatch opaque = new VulkanGeometryBatch(new OpaqueComparator()) {
+                @Override
+                protected VertexPipeline createPipeline(Element e) {
+                    return null;
+                }
+            };
+
+            public void render(BatchRenderer renderer) {
+                renderer.setViewPortArea(getArea());
+                renderer.render(getBatch("Opaque"));
+                renderer.setViewPortArea(getArea().clone().toMaxDepth());
+                renderer.render(getBatch("Sky"));
+                renderer.setViewPortArea(getArea());
+                renderer.render(getBatch("Transparent"));
+            }
+        };
+
+        viewPort.addBatch("Opaque", engine.createGeometryBatch(new OpaqueComparator()));
+        viewPort.addBatch("Sky", engine.createGeometryBatch(new OpaqueComparator()));
 
     }
 
@@ -67,7 +98,7 @@ public class VulkanComponentsTest {
         for (Vector3f p : pos.read(new Vector3f())) {
             xExtent = Math.max(xExtent, p.x);
         }
-        pos.unmap();
+        pos.close();
 
         CommandBuffer cmd = new CommandBuffer(null);
 

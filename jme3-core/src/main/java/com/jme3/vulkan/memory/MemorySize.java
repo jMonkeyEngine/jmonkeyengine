@@ -1,18 +1,21 @@
 package com.jme3.vulkan.memory;
 
+import com.jme3.export.*;
 import com.jme3.util.BufferUtils;
+import com.jme3.vulkan.tmp.EffectivelyFinal;
+import com.jme3.vulkan.tmp.EffectivelyFinalWriter;
 
+import java.io.IOException;
 import java.nio.*;
 import java.util.Objects;
 
-public class MemorySize {
+public class MemorySize implements Savable {
 
     public static final MemorySize ZERO = new MemorySize(0, 0, 1);
 
-    private final long elements;
-    private final int bytesPerElement;
-
-    private final long offset, bytes;
+    @EffectivelyFinal private long offset, bytes;
+    @EffectivelyFinal private long elements;
+    @EffectivelyFinal private int bytesPerElement;
 
     public MemorySize(long offset, long bytes) {
         this.offset = offset;
@@ -44,6 +47,24 @@ public class MemorySize {
 
     public MemorySize(Buffer buffer) {
         this(0, buffer);
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(offset, "offset", 0);
+        out.write(bytes, "bytes", 0);
+        out.write(bytesPerElement, "bytesPerElement", 1);
+    }
+
+    @Override
+    @EffectivelyFinalWriter
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        offset = in.readLong("offset", 0);
+        bytes = in.readLong("bytes", 0);
+        bytesPerElement = in.readInt("bytesPerElement", 1);
+        elements = bytes / bytesPerElement;
     }
 
     @Override

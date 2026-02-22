@@ -6,20 +6,14 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
-import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.material.plugins.VulkanMaterialLoader;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector4f;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.ScissorArea;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.ViewPortArea;
-import com.jme3.renderer.camera.GuiCamera;
-import com.jme3.renderer.queue.GuiComparator;
 import com.jme3.renderer.queue.OpaqueComparator;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.TransparentComparator;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlVertexBuffer;
@@ -32,13 +26,12 @@ import com.jme3.util.struct.*;
 import com.jme3.vulkan.ColorSpace;
 import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.VulkanInstance;
+import com.jme3.vulkan.VulkanLogger;
 import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.buffers.newbuf.HostVisibleBuffer;
 import com.jme3.vulkan.buffers.stream.BufferStream;
 import com.jme3.vulkan.buffers.stream.StreamingBuffer;
-import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.commands.CommandPool;
-import com.jme3.vulkan.commands.CommandSetting;
+import com.jme3.vulkan.commands.*;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorPool;
 import com.jme3.vulkan.descriptors.DescriptorSetLayout;
@@ -54,8 +47,6 @@ import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.material.NewMaterialDef;
 import com.jme3.vulkan.material.VulkanMaterial;
 import com.jme3.vulkan.material.shader.ShaderModule;
-import com.jme3.vulkan.material.technique.NewTechnique;
-import com.jme3.vulkan.material.technique.VulkanTechnique;
 import com.jme3.vulkan.material.uniforms.TextureUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
 import com.jme3.vulkan.material.uniforms.StructUniform;
@@ -71,10 +62,9 @@ import com.jme3.vulkan.pipeline.cache.Cache;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 import com.jme3.vulkan.pipeline.framebuffer.OutputFrameBuffer;
 import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
-import com.jme3.vulkan.render.AbstractBatchElement;
-import com.jme3.vulkan.render.GeometryBatch;
-import com.jme3.vulkan.render.RenderEngine;
-import com.jme3.vulkan.render.VulkanGeometryBatch;
+import com.jme3.vulkan.render.*;
+import com.jme3.vulkan.render.bucket.GeometryBucket;
+import com.jme3.vulkan.render.bucket.VulkanBucketElement;
 import com.jme3.vulkan.surface.Surface;
 import com.jme3.vulkan.surface.Swapchain;
 import com.jme3.vulkan.sync.BinarySemaphore;
@@ -82,14 +72,11 @@ import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.TimelineSemaphore;
 import com.jme3.vulkan.util.Flag;
-import com.jme3.vulkan.util.ScenePropertyStack;
-import com.jme3.vulkan.util.SceneStack;
 import org.lwjgl.vulkan.EXTRobustness2;
 import org.lwjgl.vulkan.VkPhysicalDeviceRobustness2FeaturesEXT;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
 public class SimpleVulkanEngine implements RenderEngine {
 
@@ -162,6 +149,7 @@ public class SimpleVulkanEngine implements RenderEngine {
     private long frameCount = -1;
 
     private VulkanInstance instance;
+    private VulkanLogger logger;
     private Surface surface;
     private LogicalDevice<GeneralPhysicalDevice> device;
     private Swapchain swapchain;
@@ -172,12 +160,6 @@ public class SimpleVulkanEngine implements RenderEngine {
     private MeshLayout meshLayout;
     private OutputFrameBuffer outFrameBuffer;
     private final BufferGenerator<VulkanBuffer> bufferGen = new BufferGeneratorImpl();
-
-    private final GeometryBatch<Element> opaque = new GeometryBatch<>(new OpaqueComparator());
-    private final GeometryBatch<Element> sky = new GeometryBatch<>(new OpaqueComparator());
-    private final GeometryBatch<Element> transparent = new GeometryBatch<>(new TransparentComparator());
-    private final GeometryBatch<Element> gui = new GeometryBatch<>(new GuiComparator());
-    private final GeometryBatch<Element> translucent = new GeometryBatch<>(new TransparentComparator());
 
     private final Cache<Pipeline> pipelineCache = new Cache<>();
     private final Cache<PipelineLayout> pipelineLayoutCache = new Cache<>();
@@ -191,6 +173,19 @@ public class SimpleVulkanEngine implements RenderEngine {
         this.app = app;
         this.framesInFlight = new Frame[framesInFlight];
         initialize();
+        app.getViewPort().addGeometryBucket("Opaque", new GeometryBucket(new OpaqueComparator()));
+        app.getViewPort().addGeometryBucket("Sky", new GeometryBucket(new OpaqueComparator()) {
+            @Override
+            public void setupRender(ViewPort vp, StandardRenderSettings settings) {
+                settings.pushViewPort(settings.getViewPort().clone().toMaxDepth());
+            }
+            @Override
+            public void cleanupRender(ViewPort vp, StandardRenderSettings settings) {
+                settings.popViewPort();
+            }
+        });
+        app.getViewPort().addGeometryBucket("Transparent", new GeometryBucket(new TransparentComparator()));
+        app.getViewPort().addGeometryBucket("Translucent", new GeometryBucket(new TransparentComparator()));
     }
 
     private void initialize() {
@@ -202,17 +197,17 @@ public class SimpleVulkanEngine implements RenderEngine {
 
         instance = VulkanInstance.build(VulkanInstance.Version.v11, i -> {
             i.addGlfwExtensions();
-            i.addDebugExtension(); // game developer only
-            i.addLunarGLayer();    // game developer only
+            i.addDebugExtension();
+            i.addLunarGLayer();
         });
-        instance.createLogger(Level.SEVERE);
+        logger = new VulkanLogger(instance, VulkanLogger.Severity.All, VulkanLogger.Type.All);
 
         surface = new Surface(instance, app);
 
         device = LogicalDevice.build(instance, id -> new GeneralPhysicalDevice(instance, surface, id), d -> {
             d.addFilter(surface);
             d.addFilter(DeviceFilter.swapchain(surface));
-            d.addCriticalExtension(Swapchain.EXTENSION);
+            d.addCriticalExtension(Swapchain.EXTENSION_NAME);
             d.addOptionalExtension(EXTRobustness2.VK_EXT_ROBUSTNESS_2_EXTENSION_NAME, 1f);
             d.addFeatureContainer(p -> VkPhysicalDeviceRobustness2FeaturesEXT.calloc().pNext(p));
             d.addFeature(DeviceFeature.anisotropy(1f, true));
@@ -221,21 +216,23 @@ public class SimpleVulkanEngine implements RenderEngine {
 
         descriptorPool = new DescriptorPool(device, 1000,
                 new PoolSize(Descriptor.UniformBuffer, 1000),
+                new PoolSize(Descriptor.StorageBuffer, 1000),
                 new PoolSize(Descriptor.CombinedImageSampler, 1000));
         graphicsPool = new CommandPool(device.getPhysicalDevice().getGraphics(), CommandPool.Create.ResetCommandBuffer);
         transientGraphicsPool = new CommandPool(device.getPhysicalDevice().getGraphics(), CommandPool.Create.Transient);
 
         VulkanImageView renderDepth = createPresentDepth();
-        CommandBuffer initCmds = transientGraphicsPool.allocateCommandBuffer();
+        CommandBuffer initCmds = transientGraphicsPool.allocate(CommandBuffer.Level.Primary);
         initCmds.beginRecording();
         renderDepth.getImage().transitionLayout(initCmds, VulkanImage.Layout.DepthStencilAttachmentOptimal);
         TimelineSemaphore.SignalEvent initEvent = initCmds.signalEvent(new TimelineSemaphore(device));
-        initCmds.endAndSubmit();
+        initCmds.endRecording();
+        initCmds.submit();
 
         swapchain = Swapchain.build(device, surface, s -> {
-            s.addQueue(device.getPhysicalDevice().getGraphics());
-            s.addQueue(device.getPhysicalDevice().getPresent());
-            s.selectFormat(Swapchain.format(Format.BGRA8_SRGB, ColorSpace.KhrSrgbNonlinear));
+            s.addSupportedQueue(device.getPhysicalDevice().getGraphics());
+            s.addSupportedQueue(device.getPhysicalDevice().getPresent());
+            s.selectFormat(Swapchain.format(Format.BGRA8_SRGB, ColorSpace.SrgbNonlinear));
             s.selectMode(Swapchain.PresentMode.Mailbox);
             s.selectExtentByWindow();
             s.selectImageCount(framesInFlight.length);
@@ -243,17 +240,20 @@ public class SimpleVulkanEngine implements RenderEngine {
         swapchain.setUpdater(new SwapchainUpdater());
 
         renderPass = RenderPass.build(device, r -> {
-            Attachment color = r.createAttachment(swapchain.getFormat(), 1, a -> {
+            Attachment sceneColor = r.createAttachment(Format.RGBA8_SRGB, 1, a -> {
                 a.setLoad(VulkanImage.Load.Clear);
-                a.setStore(VulkanImage.Store.Store);
+                a.setStore(VulkanImage.Store.DontCare);
+                a.setInitialLayout(VulkanImage.Layout.Undefined);
                 a.setFinalLayout(VulkanImage.Layout.ColorAttachmentOptimal);
             });
             Attachment depth = r.createAttachment(renderDepth.getImage().getFormat(), 1, a -> {
                 a.setLoad(VulkanImage.Load.Clear);
+                a.setStore(VulkanImage.Store.DontCare);
+                a.setInitialLayout(VulkanImage.Layout.Undefined);
                 a.setFinalLayout(VulkanImage.Layout.DepthStencilAttachmentOptimal);
             });
             Subpass scene = r.createSubpass(PipelineBindPoint.Graphics, s -> {
-                s.addColorAttachment(color.createReference(VulkanImage.Layout.ColorAttachmentOptimal));
+                s.addColorAttachment(sceneColor.createReference(VulkanImage.Layout.ColorAttachmentOptimal));
                 s.setDepthStencilAttachment(depth.createReference(VulkanImage.Layout.DepthStencilAttachmentOptimal));
             });
             r.createDependency(null, scene, d -> {
@@ -265,11 +265,11 @@ public class SimpleVulkanEngine implements RenderEngine {
         });
 
         meshLayout = MeshLayout.build(m -> {
-            m.addBinding(AdaptiveVertexBinding.build(this, InputRate.Vertex, v -> {
+            m.addBinding(VertexBinding.build(this, InputRate.Vertex, v -> {
                 v.add(GlVertexBuffer.Type.Position, Format.RGB32_SFloat, i -> new Position(ValueMapper.Float32, i));
                 v.add(GlVertexBuffer.Type.TexCoord, Format.RG32_SFloat, i -> new TexCoord(ValueMapper.Float32, i));
             }));
-            m.addBinding(AdaptiveVertexBinding.build(this, InputRate.Vertex, v -> {
+            m.addBinding(VertexBinding.build(this, InputRate.Vertex, v -> {
                 v.add(GlVertexBuffer.Type.Normal, Format.RGB32_SFloat, i -> new Normal(ValueMapper.Float32, i));
                 v.add(GlVertexBuffer.Type.Tangent, Format.RGBA32_SFloat, i -> new Tangent(ValueMapper.Float32, i));
             }));
@@ -287,17 +287,16 @@ public class SimpleVulkanEngine implements RenderEngine {
     }
 
     private VulkanImageView createPresentDepth() {
-        VulkanImage renderDepth = BasicVulkanImage.build(device, GpuImage.Type.TwoDemensional, i -> {
+        VulkanImage depth = BasicVulkanImage.build(device, GpuImage.Type.TwoDemensional, i -> {
             i.setSize(swapchain.getExtent().x, swapchain.getExtent().y);
             i.setFormat(device.getPhysicalDevice().findSupportedFormat(
-                    VulkanImage.Tiling.Optimal,
-                    FormatFeature.DepthStencilAttachment,
+                    VulkanImage.Tiling.Optimal, FormatFeature.DepthStencilAttachment,
                     Format.Depth32_SFloat, Format.Depth32_SFloat_Stencil8_UInt, Format.Depth24_UNorm_Stencil8_UInt));
             i.setTiling(VulkanImage.Tiling.Optimal);
             i.setUsage(ImageUsage.DepthStencilAttachment);
             i.setMemoryProps(MemoryProp.DeviceLocal);
         });
-        return VulkanImageView.build(renderDepth, ImageView.Type.TwoDemensional, v -> {
+        return VulkanImageView.build(depth, ImageView.Type.TwoDemensional, v -> {
             v.setAspect(VulkanImage.Aspect.Depth);
         });
     }
@@ -357,21 +356,19 @@ public class SimpleVulkanEngine implements RenderEngine {
 
     protected class Frame {
 
-        private final CommandBuffer graphics = graphicsPool.allocateCommandBuffer();
+        private final CommandBuffer graphics = graphicsPool.allocate(CommandBuffer.Level.Primary);
         private final Semaphore imageAcquired = new BinarySemaphore(device);
         private final Semaphore renderComplete = new BinarySemaphore(device);
         private final Fence inFlight = new Fence(device, true);
-
-        private final ScenePropertyStack<RenderQueue.Bucket> bucket = new ScenePropertyStack<>(
-                RenderQueue.Bucket.Opaque, RenderQueue.Bucket.Inherit,
-                s -> RenderQueue.Bucket.valueOf(s.getLocalQueueBucket()));
+        private final StandardRenderSettings settings = new VulkanRenderSettings(graphics);
 
         public boolean render(Collection<ViewPort> viewPorts) {
             inFlight.block(5000L);
             if (!outFrameBuffer.acquireNextImage(imageAcquired, null, 5000L)) {
                 return false;
             }
-            graphics.resetAndBegin();
+            graphics.reset();
+            graphics.beginRecording();
             renderPass.begin(graphics, outFrameBuffer);
             for (ViewPort vp : viewPorts) {
                 render(vp);
@@ -379,130 +376,55 @@ public class SimpleVulkanEngine implements RenderEngine {
             renderPass.end(graphics);
             graphics.await(imageAcquired, PipelineStage.ColorAttachmentOutput);
             graphics.signal(renderComplete);
-            graphics.endAndSubmit(inFlight);
+            graphics.endRecording();
+            graphics.submit(inFlight);
             swapchain.present(device.getPhysicalDevice().getPresent(), outFrameBuffer.getCurrentImage(), renderComplete);
             return true;
         }
 
         private void render(ViewPort vp) {
-            if (!vp.isEnabled()) {
+            if (!vp.isEnabled() || vp.getScenes().isEmpty()) {
                 return;
             }
-
-            // assign cameras
-            opaque.setCamera(vp.getCamera());
-            sky.setCamera(vp.getCamera());
-            translucent.setCamera(vp.getCamera());
-            gui.setCamera(new GuiCamera(vp.getCamera(), vp.getArea().getWidth(), vp.getArea().getHeight()));
-            translucent.setCamera(vp.getCamera());
-
-            // gather lights
-            ListIterator<LightData> lightIt = lighting.lights.listIterator();
+            lighting.lights.clear();
             for (Spatial scene : vp.getScenes()) for (Spatial child : scene) {
-                for (Light l : child.getLocalLightList()) if (lightIt.hasNext()) {
-                    lightIt.next().set(l);
-                } else {
-                    lightIt.add(new LightData());
-                    lightIt.previous().set(l);
+                for (Light l : child.getLocalLightList()) {
+                    lighting.lights.add(new LightData(l));
                 }
             }
-            while (lightIt.hasNext()) {
-                lightIt.next();
-                lightIt.remove();
-            }
-
-            // gather geometry
-            SceneStack<Camera.FrustumIntersect> cull = vp.getCamera().createCullStack();
-            for (Spatial scene : vp.getScenes()) for (Spatial.GraphIterator it = scene.iterator(cull, bucket); it.hasNext();) {
-                Spatial child = it.next();
-                child.runControlRender(SimpleVulkanEngine.this, vp);
-                if (cull.peek() == Camera.FrustumIntersect.Outside) {
-                    it.skipChildren();
-                } else if (child instanceof Geometry) {
-                    Geometry g = (Geometry)child;
-                    if (vp.getGeometryFilter() == null || vp.getGeometryFilter().test(g)) {
-                        GeometryBatch<?> batch = getBatchByQueueBucket(bucket.peek());
-                        if (batch != null) {
-                            batch.add(new Element(g, null, ));
-                        }
-                    }
-                }
-            }
-
-            CommandSetting<ViewPortArea> vpArea = graphics.addSetting(CommandSetting.viewPort());
-            CommandSetting<ScissorArea> scissor = graphics.addSetting(CommandSetting.scissor());
-
-            vpArea.push(vp.getArea());
-            scissor.push(vp.getArea().toScissor(null));
-            {
-                renderBatch(opaque);
-                vpArea.push(vp.getArea().clone().toMaxDepth());
-                {
-                    renderBatch(sky);
-                }
-                vpArea.pop();
-                renderBatch(transparent);
-                vpArea.push(vp.getArea().clone().toMinDepth());
-                {
-                    renderBatch(gui);
-                }
-                vpArea.pop();
-                renderBatch(translucent);
-            }
-            vpArea.pop();
-            scissor.pop();
-
-            // clear
-            opaque.clear();
-            sky.clear();
-            transparent.clear();
-            gui.clear();
-            translucent.clear();
-
-        }
-
-        private void renderBatch(GeometryBatch<Element> batch) {
-            if (batch.isEmpty()) {
-                return;
-            }
-            graphics.applySettings();
+            settings.pushViewPort(vp.getArea());
+            settings.pushScissor(vp.getArea().toScissor(null));
+            TempVars vars = TempVars.get();
             VertexPipeline currentPipeline = null;
             VulkanMaterial currentMaterial = null;
-            TempVars vars = TempVars.get();
-            for (Element e : batch) {
-                if (e.getPipeline() != currentPipeline) {
-                    (currentPipeline = e.getPipeline()).bind(graphics);
-                    currentMaterial = null;
-                }
-                if (e.getMaterial() != currentMaterial) {
-                    (currentMaterial = e.getMaterial()).bind(graphics, currentPipeline, descriptorPool);
-                }
-                lighting.indices.clear();
-                int lightIndex = 0;
-                for (LightData l : lighting.lights) {
-                    if (l.getLight().intersectsVolume(e.getGeometry().getWorldBound(), vars)) {
-                        lighting.indices.add(lightIndex);
+            for (GeometryBucket b : vp.gatherGeometry(s -> s.runControlRender(SimpleVulkanEngine.this, vp))) {
+                b.setupRender(vp, settings);
+                settings.applySettings();
+                for (VulkanBucketElement e : b.sort(g -> new EngineBucketElement(vp.getCamera(), g, null))) {
+                    if (e.getPipeline() != currentPipeline) {
+                        (currentPipeline = e.getPipeline()).bind(graphics);
+                        currentMaterial = null;
                     }
-                    lightIndex++;
+                    if (e.getMaterial() != currentMaterial) {
+                        (currentMaterial = e.getMaterial()).bind(graphics, currentPipeline, descriptorPool);
+                    }
+                    lighting.indices.clear();
+                    int lightIndex = 0;
+                    for (LightData l : lighting.lights) {
+                        if (l.getLight().intersectsVolume(e.getGeometry().getWorldBound(), vars)) {
+                            lighting.indices.add(lightIndex);
+                        }
+                        lightIndex++;
+                    }
+                    transforms.viewProjectionMatrix.mult(e.getGeometry().getWorldMatrix(), transforms.worldViewProjectionMatrix);
+                    e.getMaterial().set("Lighting", lighting);
+                    e.getMaterial().set("Transforms", transforms);
+                    stream.stream(graphics); // this is a problem because it can bypass wrappers
+                    e.getMesh().render(graphics, currentPipeline);
                 }
-                transforms.viewProjectionMatrix.mult(e.getGeometry().getWorldMatrix(), transforms.worldViewProjectionMatrix);
-                currentMaterial.set("Lighting", lighting);
-                currentMaterial.set("Transforms", transforms);
-                stream.stream(graphics); // this is a problem
-                e.getMesh().render(graphics, e.getPipeline());
+                b.cleanupRender(vp, settings);
             }
             vars.release();
-        }
-
-        private GeometryBatch<?> getBatchByQueueBucket(RenderQueue.Bucket bucket) {
-            switch (bucket) {
-                case Opaque: return opaque;
-                case Sky: return sky;
-                case Transparent: return transparent;
-                case Gui: return gui;
-                case Translucent: return translucent;
-                default: return null;
-            }
         }
 
     }
@@ -515,11 +437,12 @@ public class SimpleVulkanEngine implements RenderEngine {
         public void accept(Swapchain swapchain) {
             swapchain.update();
             VulkanImageView depth = createPresentDepth();
-            CommandBuffer cmd = transientGraphicsPool.allocateCommandBuffer();
+            CommandBuffer cmd = transientGraphicsPool.allocate(CommandBuffer.Level.Primary);
             cmd.beginRecording();
             depth.getImage().transitionLayout(cmd, VulkanImage.Layout.DepthStencilAttachmentOptimal);
             TimelineSemaphore.SignalEvent event = cmd.signalEvent(wait);
-            cmd.endAndSubmit();
+            cmd.endRecording();
+            cmd.submit();
             event.awaitSignal(1000L);
             outFrameBuffer.setDepthTarget(depth);
         }
@@ -545,28 +468,15 @@ public class SimpleVulkanEngine implements RenderEngine {
 
     }
 
-    private class Element extends AbstractBatchElement {
+    private class EngineBucketElement extends VulkanBucketElement {
 
-        private final VulkanTechnique technique;
-        private final VulkanMaterial material;
-        private final VulkanMesh mesh;
-        private final VertexPipeline pipeline;
+        public EngineBucketElement(Camera camera, Geometry geometry, String technique) {
+            super(camera, geometry, technique);
+        }
 
-        private Element(Geometry geometry, RenderState forcedRenderState,
-                        Material forcedMaterial, String forcedTechnique, Mesh forcedMesh) {
-            super(geometry);
-            Material mat = forcedMaterial != null ? forcedMaterial : geometry.getMaterial();
-            if (!(mat instanceof NewMaterial)) {
-                throw new ClassCastException("Cannot render " + mat.getClass() + " in a Vulkan context.");
-            }
-            this.material = (VulkanMaterial)mat;
-            this.technique = material.getTechnique(forcedTechnique != null ? forcedTechnique : "main");
-            Mesh mesh = forcedMesh != null ? forcedMesh : geometry.getMesh();
-            if (!(mesh instanceof VulkanMesh)) {
-                throw new ClassCastException("Cannot render " + mesh.getClass() + " in a Vulkan context.");
-            }
-            this.mesh = (VulkanMesh)mesh;
-            this.pipeline = GraphicsPipeline.build(device, p -> {
+        @Override
+        protected VertexPipeline createPipeline() {
+            return GraphicsPipeline.build(device, p -> {
                 p.setCache(pipelineCache);
                 p.setLayoutCache(pipelineLayoutCache);
                 p.setShaderCache(shaderCache);
@@ -575,43 +485,10 @@ public class SimpleVulkanEngine implements RenderEngine {
                 p.setDynamic(DynamicState.ViewPort, true);
                 p.setDynamic(DynamicState.Scissor, true);
                 p.setDepthClamp(true);
-                p.applyGeometry(app.getAssetManager(), this.mesh, this.material, this.technique);
-                p.applyRenderState(new RenderState().integrateGeometryStates(geometry, forcedRenderState,
-                        this.material.getAdditionalRenderState(), this.technique.getRenderState()));
+                p.applyGeometry(app.getAssetManager(), getMesh(), getMaterial(), getTechnique());
+                p.applyRenderState(new RenderState().integrateGeometryStates(getGeometry(), new RenderState(),
+                        getMaterial().getAdditionalRenderState(), getTechnique().getRenderState()));
             });
-        }
-
-        @Override
-        public Camera getCamera() {
-            return VulkanGeometryBatch.this.getCamera();
-        }
-
-        @Override
-        public VulkanMaterial getMaterial() {
-            return material;
-        }
-
-        @Override
-        public VulkanMesh getMesh() {
-            return mesh;
-        }
-
-        @Override
-        public long getPipelineSortId() {
-            return pipeline.getSortId();
-        }
-
-        @Override
-        public long getMaterialSortId() {
-            return 0;
-        }
-
-        public VulkanTechnique getTechnique() {
-            return technique;
-        }
-
-        public VertexPipeline getPipeline() {
-            return pipeline;
         }
 
     }

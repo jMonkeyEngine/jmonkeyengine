@@ -59,15 +59,15 @@ final class BinaryInputCapsule implements InputCapsule {
 
     protected BinaryImporter importer;
     protected BinaryClassObject cObj;
-    protected Savable savable;
+    protected Class savableType;
     protected HashMap<Byte, Object> fieldData;
 
     protected int index = 0;
 
-    public BinaryInputCapsule(BinaryImporter importer, Savable savable, BinaryClassObject bco) {
+    public BinaryInputCapsule(BinaryImporter importer, Class savableType, BinaryClassObject bco) {
         this.importer = importer;
         this.cObj = bco;
-        this.savable = savable;
+        this.savableType = savableType;
     }
 
     public void setContent(byte[] content, int start, int limit) {
@@ -259,7 +259,7 @@ final class BinaryInputCapsule implements InputCapsule {
     
     @Override
     public int getSavableVersion(Class<? extends Savable> desiredClass){
-        return SavableClassUtil.getSavedSavableVersion(savable, desiredClass, 
+        return SavableClassUtil.getSavedSavableVersion(savableType, desiredClass,
                                             cObj.classHierarchyVersions, importer.getFormatVersion());
     }
 

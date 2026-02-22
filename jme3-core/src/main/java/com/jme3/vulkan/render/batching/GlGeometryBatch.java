@@ -1,20 +1,17 @@
-package com.jme3.vulkan.render;
+package com.jme3.vulkan.render.batching;
 
 import com.jme3.light.LightList;
 import com.jme3.material.*;
 import com.jme3.math.FastMath;
-import com.jme3.math.Vector3f;
 import com.jme3.renderer.*;
 import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.Spatial;
 import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.Uniform;
 import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
-import com.jme3.vulkan.commands.CommandBuffer;
 
 import java.util.Comparator;
 

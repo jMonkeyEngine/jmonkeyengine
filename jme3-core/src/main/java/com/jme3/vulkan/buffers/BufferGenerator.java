@@ -12,7 +12,7 @@ public interface BufferGenerator <T extends MappableBuffer> {
         MappableBuffer buffer = createBuffer(MemorySize.bytes(values.length), bufUsage, dataUsage);
         buffer.mapBytes().put(values);
         buffer.unmap();
-        buffer.push();
+        buffer.stage();
         return buffer;
     }
 
@@ -20,7 +20,7 @@ public interface BufferGenerator <T extends MappableBuffer> {
         MappableBuffer buffer = createBuffer(MemorySize.shorts(values.length), bufUsage, dataUsage);
         buffer.mapShorts().put(values);
         buffer.unmap();
-        buffer.push();
+        buffer.stage();
         return buffer;
     }
 
@@ -28,7 +28,7 @@ public interface BufferGenerator <T extends MappableBuffer> {
         MappableBuffer buffer = createBuffer(MemorySize.ints(values.length), bufUsage, dataUsage);
         buffer.mapInts().put(values);
         buffer.unmap();
-        buffer.push();
+        buffer.stage();
         return buffer;
     }
 
@@ -36,7 +36,7 @@ public interface BufferGenerator <T extends MappableBuffer> {
         MappableBuffer buffer = createBuffer(MemorySize.floats(values.length), bufUsage, dataUsage);
         buffer.mapFloats().put(values);
         buffer.unmap();
-        buffer.push();
+        buffer.stage();
         return buffer;
     }
 
@@ -44,7 +44,7 @@ public interface BufferGenerator <T extends MappableBuffer> {
         MappableBuffer buffer = createBuffer(MemorySize.doubles(values.length), bufUsage, dataUsage);
         buffer.mapDoubles().put(values);
         buffer.unmap();
-        buffer.push();
+        buffer.stage();
         return buffer;
     }
 
@@ -52,7 +52,7 @@ public interface BufferGenerator <T extends MappableBuffer> {
         MappableBuffer buffer = createBuffer(MemorySize.longs(values.length), bufUsage, dataUsage);
         buffer.mapLongs().put(values);
         buffer.unmap();
-        buffer.push();
+        buffer.stage();
         return buffer;
     }
 

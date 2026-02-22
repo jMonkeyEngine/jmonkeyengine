@@ -1,11 +1,13 @@
 package com.jme3.vulkan.commands;
 
+import com.jme3.renderer.ScissorArea;
+import com.jme3.renderer.ViewPortArea;
 import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.TimelineSemaphore;
 import com.jme3.vulkan.util.Flag;
-import org.lwjgl.PointerBuffer;
+import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -18,28 +20,35 @@ import static org.lwjgl.vulkan.VK14.*;
 
 public class CommandBuffer {
 
-    protected final CommandPool pool;
-    protected final VkCommandBuffer buffer;
-    protected boolean recording = false;
+    public enum Level implements IntEnum<Level> {
 
+        Primary(VK_COMMAND_BUFFER_LEVEL_PRIMARY),
+        Secondary(VK_COMMAND_BUFFER_LEVEL_SECONDARY);
+
+        private final int vk;
+
+        Level(int vk) {
+            this.vk = vk;
+        }
+
+        @Override
+        public int getEnum() {
+            return vk;
+        }
+
+    }
+
+    private final CommandPool pool;
+    private final VkCommandBuffer buffer;
     private final Collection<Sync> signals = new ArrayList<>();
     private final Collection<WaitSync> waits = new ArrayList<>();
     private final Collection<Runnable> completionListeners = new ArrayList<>();
     private TimelineSemaphore completionSemaphore;
+    private boolean recording = false;
 
-    public CommandBuffer(CommandPool pool) {
+    protected CommandBuffer(CommandPool pool, VkCommandBuffer buffer) {
         this.pool = pool;
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            VkCommandBufferAllocateInfo allocate = VkCommandBufferAllocateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO)
-                    .commandPool(pool.getNativeObject())
-                    .level(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
-                    .commandBufferCount(1);
-            PointerBuffer ptr = stack.mallocPointer(1);
-            check(vkAllocateCommandBuffers(pool.getDevice().getNativeObject(), allocate, ptr),
-                    "Failed to allocate command buffer");
-            buffer = new VkCommandBuffer(ptr.get(0), pool.getDevice().getNativeObject());
-        }
+        this.buffer = buffer;
     }
 
     /**
@@ -58,17 +67,6 @@ public class CommandBuffer {
             check(vkBeginCommandBuffer(buffer, begin), "Failed to begin command buffer");
             recording = true;
         }
-    }
-
-    /**
-     * Resets this command buffer and begins recording.
-     *
-     * @see #beginRecording()
-     * @see #reset()
-     */
-    public void resetAndBegin() {
-        reset();
-        beginRecording();
     }
 
     /**
@@ -155,29 +153,6 @@ public class CommandBuffer {
     }
 
     /**
-     * End recording and submit.
-     *
-     * @see #endRecording()
-     * @see #submit()
-     */
-    public void endAndSubmit() {
-        endRecording();
-        submit();
-    }
-
-    /**
-     * End recording and submit.
-     *
-     * @param fence fence to submit with
-     * @see #endRecording()
-     * @see #submit(Fence)
-     */
-    public void endAndSubmit(Fence fence) {
-        endRecording();
-        submit(fence);
-    }
-
-    /**
      * Resets this command buffer so that it contains no previous commands
      * and may be reused with new commands. All The allocating {@link CommandPool}
      * must be created with the {@link CommandPool.Create#ResetCommandBuffer
@@ -198,15 +173,6 @@ public class CommandBuffer {
         signals.clear();
         waits.clear();
         completionListeners.clear();
-    }
-
-    public <T extends CommandSetting> T addSetting(T setting) {
-        // add setting
-        return setting;
-    }
-
-    public void applySettings() {
-        // apply settings
     }
 
     /**
@@ -251,6 +217,18 @@ public class CommandBuffer {
     }
 
     /**
+     * Registers a semaphore that blocks the command buffer from executing
+     * until the semaphore is signaled. The semaphore blocks at the
+     * {@link PipelineStage#TopOfPipe} pipeline stage.
+     *
+     * @param s blocking semaphore
+     * @see #await(Semaphore, Flag)
+     */
+    public void await(Semaphore s) {
+        await(s, PipelineStage.TopOfPipe);
+    }
+
+    /**
      * Registers a {@link Runnable} listener that is triggered when this
      * command buffer finishes execution. All registered listeners are
      * removed when this command buffer is {@link #reset()}.
@@ -262,7 +240,9 @@ public class CommandBuffer {
     }
 
     /**
-     * Blocks until this command buffer's {@link Queue} is {@link Queue#waitIdle() idle}.
+     * Blocks until this command buffer's {@link CommandQueue} is {@link CommandQueue#waitIdle() idle}.
+     * It is recommended to use {@link Fence fences} or {@link TimelineSemaphore timeline
+     * semaphores} instead, as this method is usually very inefficient.
      */
     public void queueWaitIdle() {
         pool.getQueue().waitIdle();

@@ -5,11 +5,10 @@ import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
-import com.jme3.vulkan.util.SceneStack;
+import com.jme3.vulkan.util.SceneIterationListener;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Iterator;
 
 public class ParallelCamera extends ExtensionCamera {
 
@@ -88,11 +87,6 @@ public class ParallelCamera extends ExtensionCamera {
             }
         }
         return result;
-    }
-
-    @Override
-    public SceneStack<FrustumIntersect> createCullStack() {
-        return new Cull();
     }
 
     @Override
@@ -312,84 +306,6 @@ public class ParallelCamera extends ExtensionCamera {
 
         public float getBottom() {
             return bottom;
-        }
-
-    }
-
-    public class Cull implements SceneStack<Camera.FrustumIntersect> {
-
-        private final Deque<SpatialCullState> intersect = new ArrayDeque<>();
-
-        public Cull() {
-            intersect.push(new SpatialCullState(FrustumIntersect.Intersects, Spatial.CullHint.Dynamic, 0));
-        }
-
-        @Override
-        public FrustumIntersect push(Spatial spatial) {
-            SpatialCullState parent = intersect.peek();
-            Spatial.CullHint hint = spatial.getCullHint();
-            if (hint == Spatial.CullHint.Inherit) {
-                hint = parent.cullHint;
-            }
-            if (hint == Spatial.CullHint.Never) {
-                return push(new SpatialCullState(FrustumIntersect.Intersects, hint, parent.planeState));
-            } else if (hint == Spatial.CullHint.Always) {
-                return push(new SpatialCullState(FrustumIntersect.Outside, hint, parent.planeState));
-            } else if (parent.intersect != FrustumIntersect.Intersects) {
-                return push(new SpatialCullState(parent.intersect, hint, parent.planeState));
-            }
-            updateView();
-            BoundingVolume volume = spatial.getWorldBound();
-            Camera.FrustumIntersect result = Camera.FrustumIntersect.Inside;
-            int planeState = parent.planeState;
-            planeLoop: for (int i = 0; i < frustum.planes.length; i++) {
-                int mask = 1 << i;
-                if ((planeState & mask) == 0) switch (volume.whichSide(frustum.planes[i])) {
-                    case Positive: planeState |= mask; break;
-                    case Negative: {
-                        volume.setCheckPlane(i);
-                        result = Camera.FrustumIntersect.Outside;
-                        break planeLoop;
-                    }
-                    case None: result = Camera.FrustumIntersect.Intersects; break;
-                }
-            }
-            intersect.push(new SpatialCullState(result, hint, planeState));
-            return result;
-        }
-
-        @Override
-        public FrustumIntersect pop() {
-            return intersect.pop().intersect;
-        }
-
-        @Override
-        public FrustumIntersect peek() {
-            return intersect.isEmpty() ? null : intersect.peek().intersect;
-        }
-
-        @Override
-        public void clear() {
-            intersect.clear();
-        }
-
-        private FrustumIntersect push(SpatialCullState state) {
-            intersect.push(state);
-            return state.intersect;
-        }
-
-    }
-
-    private static class SpatialCullState {
-
-        public final FrustumIntersect intersect;
-        public final Spatial.CullHint cullHint;
-        public final int planeState;
-
-        private SpatialCullState(FrustumIntersect intersect, Spatial.CullHint cullHint, int planeState) {
-            this.intersect = intersect;
-            this.cullHint = cullHint;
-            this.planeState = planeState;
         }
 
     }

@@ -43,6 +43,7 @@ import com.jme3.scene.Spatial;
  * 
  * @author Kirill Vainer
  */
+@Deprecated
 public class RenderQueue {
 
     private GeometryList opaqueList;

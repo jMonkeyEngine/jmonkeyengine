@@ -26,7 +26,7 @@ public class StructBuffer <S extends Struct, B extends MappableBuffer> implement
 
     @Override
     public void push(int offset, int size) {
-        buffer.push(offset, size);
+        buffer.stage(offset, size);
     }
 
     @Override

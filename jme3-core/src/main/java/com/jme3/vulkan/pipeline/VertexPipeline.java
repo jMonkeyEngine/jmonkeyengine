@@ -21,7 +21,7 @@ public interface VertexPipeline extends Pipeline {
         VkVertexInputBindingDescription.Buffer binds = VkVertexInputBindingDescription.calloc(layout.getBindings().size(), stack);
         int i = 0;
         for (VertexBinding vb : layout.getBindings()) {
-            if (vertexBindingCompatible(vb)) {
+            if (isVertexBindingCompatible(vb)) {
                 binds.get().binding(i++)
                         .stride(vb.getStride())
                         .inputRate(vb.getInputRate().getEnum());
@@ -70,7 +70,7 @@ public interface VertexPipeline extends Pipeline {
         return attr;
     }
 
-    default boolean vertexBindingCompatible(VertexBinding binding) {
+    default boolean isVertexBindingCompatible(VertexBinding binding) {
         return binding.getAttributes().stream().anyMatch(a -> getAttributeLocation(a.getName()) != null);
     }
 

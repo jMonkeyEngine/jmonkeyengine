@@ -2,12 +2,10 @@ package com.jme3.vulkan.devices;
 
 import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
-import com.jme3.util.natives.Disposable;
 import com.jme3.util.natives.DisposableManager;
-import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.commands.CommandPool;
-import com.jme3.vulkan.commands.Queue;
+import com.jme3.vulkan.commands.CommandQueue;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.PNextChain;
 import org.lwjgl.PointerBuffer;
@@ -72,15 +70,15 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
         return enabledFeatures.getReadOnly();
     }
 
-    public CommandPool getShortTermPool(Queue queue) {
+    public CommandPool getShortTermPool(CommandQueue queue) {
         return getPool(queue, CommandPool.Create.Transient);
     }
 
-    public CommandPool getLongTermPool(Queue queue) {
+    public CommandPool getLongTermPool(CommandQueue queue) {
         return getPool(queue, CommandPool.Create.ResetCommandBuffer);
     }
 
-    public CommandPool getPool(Queue queue, Flag<CommandPool.Create> flags) {
+    public CommandPool getPool(CommandQueue queue, Flag<CommandPool.Create> flags) {
         if (queue.getDevice() != this) {
             throw new IllegalArgumentException("Queue must belong to this device.");
         }
@@ -182,13 +180,12 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
         }
 
         private void findSuitablePhysicalDevice() {
-            PointerBuffer devices = enumerateBuffer(stack, stack::mallocPointer,
-                    (count, buffer) -> check(
-                            vkEnumeratePhysicalDevices(instance.getNativeObject(), count, buffer),
-                            "Failed to enumerate physical devices."));
+            PointerBuffer devicePtrs = enumerateBuffer(stack, stack::mallocPointer, (count, buffer) -> check(
+                    vkEnumeratePhysicalDevices(instance.getNativeObject(), count, buffer),
+                    "Failed to enumerate physical devices."));
             physical = null;
             float topWeight = Float.NEGATIVE_INFINITY;
-            deviceLoop: for (T device : iteratePointers(devices, deviceFactory::apply)) {
+            deviceLoop: for (T device : iteratePointers(devicePtrs, deviceFactory::apply)) {
                 if (!device.populateQueueFamilyIndices()) {
                     continue;
                 }
@@ -214,8 +211,8 @@ public class LogicalDevice <T extends PhysicalDevice> extends AbstractNative<VkD
                     }
                     deviceWeight += weight;
                 }
-                if (!extensions.isEmpty()) try (MemoryStack stack = MemoryStack.stackPush()) {
-                    Set<String> deviceExts = device.getExtensionProperties(stack).stream()
+                if (!extensions.isEmpty()) {
+                    Set<String> deviceExts = device.getExtensionProperties().stream()
                             .map(VkExtensionProperties::extensionNameString)
                             .collect(Collectors.toCollection(HashSet::new));
                     for (DeviceExtension e : extensions) {

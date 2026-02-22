@@ -43,7 +43,7 @@ public class MemoryRegion extends AbstractNative<Long> {
     }
 
     public void bind(VulkanBuffer buffer, long offset) {
-        check(vkBindBufferMemory(device.getNativeObject(), buffer.getGpuObject(), object, offset),
+        check(vkBindBufferMemory(device.getNativeObject(), buffer.getBufferId(device), object, offset),
                 "Failed to bind buffer memory.");
     }
 
@@ -97,16 +97,16 @@ public class MemoryRegion extends AbstractNative<Long> {
         return b.build();
     }
 
-    public static MemoryRegion buildBufferMemory(VulkanBuffer buffer, Consumer<Builder> config) {
+    public static MemoryRegion buildBufferMemory(LogicalDevice<?> device, VulkanBuffer buffer, Consumer<Builder> config) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            return buildBufferMemory(stack, buffer, config);
+            return buildBufferMemory(stack, device, buffer, config);
         }
     }
 
-    public static MemoryRegion buildBufferMemory(MemoryStack stack, VulkanBuffer buffer, Consumer<Builder> config) {
+    public static MemoryRegion buildBufferMemory(MemoryStack stack, LogicalDevice<?> device, VulkanBuffer buffer, Consumer<Builder> config) {
         VkMemoryRequirements memReq = VkMemoryRequirements.malloc(stack);
-        vkGetBufferMemoryRequirements(buffer.getDevice().getNativeObject(), buffer.getGpuObject(), memReq);
-        MemoryRegion mem = build(buffer.getDevice(), buffer.size().getBytes(), b -> {
+        vkGetBufferMemoryRequirements(device.getNativeObject(), buffer.getBufferId(device), memReq);
+        MemoryRegion mem = build(device, buffer.size().getBytes(), b -> {
             b.setUsableMemoryTypes(memReq.memoryTypeBits());
             config.accept(b);
         });
@@ -123,7 +123,7 @@ public class MemoryRegion extends AbstractNative<Long> {
             if (usableMemoryTypes == 0) {
                 throw new IllegalStateException("No usable memory types specified.");
             }
-            type = device.getPhysicalDevice().findSupportedMemoryType(stack, usableMemoryTypes, flags);
+            type = device.getPhysicalDevice().findSupportedMemoryType(usableMemoryTypes, flags);
             VkMemoryAllocateInfo allocate = VkMemoryAllocateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO)
                     .allocationSize(size)

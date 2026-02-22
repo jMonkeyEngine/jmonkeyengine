@@ -5,11 +5,8 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.Spatial;
 import com.jme3.vulkan.util.ScenePropertyStack;
-import com.jme3.vulkan.util.SceneStack;
-
-import java.util.function.Consumer;
+import com.jme3.vulkan.util.SceneIterationListener;
 
 public class BaseCamera implements Camera {
 
@@ -56,11 +53,6 @@ public class BaseCamera implements Camera {
     @Override
     public Camera.FrustumIntersect contains(BoundingVolume volume) {
         return Camera.FrustumIntersect.Outside;
-    }
-
-    @Override
-    public SceneStack<FrustumIntersect> createCullStack() {
-        return new ScenePropertyStack<>(FrustumIntersect.Inside, FrustumIntersect.Inside, s -> FrustumIntersect.Inside);
     }
 
     @Override

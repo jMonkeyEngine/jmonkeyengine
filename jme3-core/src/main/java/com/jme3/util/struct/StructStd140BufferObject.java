@@ -46,6 +46,7 @@ import com.jme3.shader.bufferobject.layout.Std140Layout;
  * 
  * @author Riccardo Balbo
  */
+@Deprecated
 public class StructStd140BufferObject extends BufferObject {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(StructStd140BufferObject.class.getName());

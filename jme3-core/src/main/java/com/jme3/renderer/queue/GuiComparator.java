@@ -31,7 +31,7 @@
  */
 package com.jme3.renderer.queue;
 
-import com.jme3.vulkan.render.BatchElement;
+import com.jme3.vulkan.render.batching.BatchElement;
 
 import java.util.Comparator;
 

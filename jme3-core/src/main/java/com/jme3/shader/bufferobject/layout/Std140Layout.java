@@ -33,6 +33,7 @@ package com.jme3.shader.bufferobject.layout;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -52,6 +53,7 @@ import com.jme3.util.struct.Struct;
  *
  * @author Riccardo Balbo
  */
+@Deprecated
 public class Std140Layout extends BufferLayout {
 
     public Std140Layout() {
@@ -619,41 +621,29 @@ public class Std140Layout extends BufferLayout {
 
     @Override
     public List<BufferRegion> generateFieldRegions(Struct struct) {
-        int pos = -1;
-        List<BufferRegion> regions = new ArrayList<>();
-        List<StructField> fields = struct.getFields();
-        for (ListIterator<StructField> it = fields.listIterator(); it.hasNext();) {
-            StructField<?> f = it.next();
-            Object v = f.getFieldValue();
-
-            int basicAlignment = getBasicAlignment(v);
-            int length = estimateSize(v);
-
-            int start = align(pos + 1, basicAlignment);
-            int end = start + length - 1;
-
-            if (!it.hasNext() || f.getOwner() != fields.get(it.nextIndex()).getOwner()) {
-                end = align(end, 16) - 1;
-            }
-
-            BufferRegion r = new BufferRegion(start, end);
-            regions.add(r);
-            pos = end;
-        }
-        return regions;
-    }
-
-    @Override
-    public BufferSlice getNextFieldRegion(int position, StructField field, StructField next) {
-        Object v = field.getFieldValue();
-        int basicAlignment = getBasicAlignment(v);
-        int length = estimateSize(v);
-        int start = align(position, basicAlignment);
-        int end = start + length - 1;
-        if (next == null || field.getOwner() != next.getOwner()) {
-            end = align(end, 16) - 1;
-        }
-        return new BufferSlice(start, end);
+//        int pos = -1;
+//        List<BufferRegion> regions = new ArrayList<>();
+//        List<StructField> fields = struct.getFields();
+//        for (ListIterator<StructField> it = fields.listIterator(); it.hasNext();) {
+//            StructField<?> f = it.next();
+//            Object v = f.getFieldValue();
+//
+//            int basicAlignment = getBasicAlignment(v);
+//            int length = estimateSize(v);
+//
+//            int start = align(pos + 1, basicAlignment);
+//            int end = start + length - 1;
+//
+//            if (!it.hasNext() || f.getOwner() != fields.get(it.nextIndex()).getOwner()) {
+//                end = align(end, 16) - 1;
+//            }
+//
+//            BufferRegion r = new BufferRegion(start, end);
+//            regions.add(r);
+//            pos = end;
+//        }
+//      return regions;
+        return Collections.emptyList();
     }
 
 }

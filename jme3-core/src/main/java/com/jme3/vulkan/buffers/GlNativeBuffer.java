@@ -2,17 +2,18 @@ package com.jme3.vulkan.buffers;
 
 import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.scene.GlVertexBuffer;
+import com.jme3.util.natives.Disposable;
 import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.memory.MemorySize;
 
 import java.lang.ref.WeakReference;
 
-public class GlNativeBuffer extends NioBuffer implements Native<Integer> {
+public class GlNativeBuffer extends NioBuffer implements Disposable {
 
     private GLRenderer renderer;
     private GlVertexBuffer.Usage usage = GlVertexBuffer.Usage.Dynamic;
-    private boolean updateNeeded = true;
     private WeakReference<GlNativeBuffer> weakRef;
+    private boolean updateNeeded = true;
     private int object = -1;
 
     public GlNativeBuffer(MemorySize size) {
@@ -39,8 +40,7 @@ public class GlNativeBuffer extends NioBuffer implements Native<Integer> {
         };
     }
 
-    @Override
-    public Integer getNativeObject() {
+    public int getNativeObject() {
         return object;
     }
 

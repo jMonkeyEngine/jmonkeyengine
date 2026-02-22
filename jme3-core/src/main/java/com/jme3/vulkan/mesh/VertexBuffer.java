@@ -2,20 +2,20 @@ package com.jme3.vulkan.mesh;
 
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.vulkan.buffers.MappableBuffer;
-import com.jme3.vulkan.buffers.AsyncMappingBuffer;
+import com.jme3.vulkan.buffers.ConcurrentBuffer;
 
 import java.lang.ref.WeakReference;
 
 public class VertexBuffer {
 
     private final VertexBinding binding;
-    private final AsyncMappingBuffer<MappableBuffer> data;
+    private final ConcurrentBuffer<MappableBuffer> data;
     private final GlVertexBuffer.Usage usage;
     private WeakReference<VertexBuffer> weakRef;
 
-    public VertexBuffer(VertexBinding binding, int elements, GlVertexBuffer.Usage usage) {
+    public VertexBuffer(VertexBinding binding, long elements, GlVertexBuffer.Usage usage) {
         this.binding = binding;
-        this.data = new AsyncMappingBuffer<>(binding.createBuffer(elements, usage));
+        this.data = new ConcurrentBuffer<>(binding.createBuffer(elements, usage));
         this.usage = usage;
     }
 
@@ -23,7 +23,7 @@ public class VertexBuffer {
         return binding;
     }
 
-    public AsyncMappingBuffer<MappableBuffer> getData() {
+    public ConcurrentBuffer<MappableBuffer> getData() {
         return data;
     }
 

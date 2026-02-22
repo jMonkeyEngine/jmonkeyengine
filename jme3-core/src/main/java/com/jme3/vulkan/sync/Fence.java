@@ -1,5 +1,7 @@
 package com.jme3.vulkan.sync;
 
+import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.devices.LogicalDevice;
 import org.lwjgl.system.MemoryStack;
@@ -11,11 +13,9 @@ import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class Fence implements Native<Long> {
+public class Fence extends AbstractNative<Long> {
 
     private final LogicalDevice<?> device;
-    private final DisposableReference ref;
-    private long id;
 
     public Fence(LogicalDevice<?> device) {
         this(device, false);
@@ -27,31 +27,16 @@ public class Fence implements Native<Long> {
             VkFenceCreateInfo create = VkFenceCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_FENCE_CREATE_INFO)
                     .flags(signal ? VK_FENCE_CREATE_SIGNALED_BIT : 0);
-            id = getLong(stack, ptr -> check(vkCreateFence(device.getNativeObject(), create, null, ptr),
+            object = getLong(stack, ptr -> check(vkCreateFence(device.getNativeObject(), create, null, ptr),
                     "Failed to create fence."));
-            ref = Native.get().register(this);
+            ref = DisposableManager.reference(this);
             device.getReference().addDependent(ref);
         }
     }
 
     @Override
-    public Long getNativeObject() {
-        return id;
-    }
-
-    @Override
     public Runnable createDestroyer() {
-        return () -> vkDestroyFence(device.getNativeObject(), nonNull(id), null);
-    }
-
-    @Override
-    public void prematureDestruction() {
-        id = NULL;
-    }
-
-    @Override
-    public DisposableReference getNativeReference() {
-        return ref;
+        return () -> vkDestroyFence(device.getNativeObject(), nonNull(object), null);
     }
 
     public String toString() {
@@ -59,7 +44,7 @@ public class Fence implements Native<Long> {
     }
 
     public void block(long timeoutMillis) {
-        check(vkWaitForFences(device.getNativeObject(), id, true, TimeUnit.MILLISECONDS.toNanos(timeoutMillis)),
+        check(vkWaitForFences(device.getNativeObject(), object, true, TimeUnit.MILLISECONDS.toNanos(timeoutMillis)),
                 "Fence wait expired.");
     }
 
@@ -69,7 +54,7 @@ public class Fence implements Native<Long> {
     }
 
     public void reset() {
-        vkResetFences(device.getNativeObject(), id);
+        vkResetFences(device.getNativeObject(), object);
     }
 
     public SyncGroup toGroup() {
@@ -77,11 +62,11 @@ public class Fence implements Native<Long> {
     }
 
     public boolean isBlocking() {
-        return vkGetFenceStatus(device.getNativeObject(), id) != VK_SUCCESS;
+        return vkGetFenceStatus(device.getNativeObject(), object) != VK_SUCCESS;
     }
 
     public long getId() {
-        return id;
+        return object;
     }
 
 }

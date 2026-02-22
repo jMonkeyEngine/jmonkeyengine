@@ -54,6 +54,26 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
         return new FlagImpl<>(result);
     }
 
+    default Flag<T> removeIf(boolean condition, Flag flag) {
+        if (condition) return remove(flag);
+        else return this;
+    }
+
+    default Flag<T> removeIf(boolean condition, Flag... flag) {
+        if (condition) return remove(flag);
+        else return this;
+    }
+
+    default Flag<T> containOnlyIf(boolean condition, Flag flag) {
+        if (condition) return add(flag);
+        else return remove(flag);
+    }
+
+    default Flag<T> containOnlyIf(boolean condition, Flag... flag) {
+        if (condition) return add(flag);
+        else return remove(flag);
+    }
+
     default boolean contains(Flag flag) {
         return contains(flag.bits());
     }

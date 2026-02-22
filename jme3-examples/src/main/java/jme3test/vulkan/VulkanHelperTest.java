@@ -12,10 +12,9 @@ import com.jme3.vulkan.ColorSpace;
 import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.pipeline.cache.PipelineCache;
 import com.jme3.vulkan.pipeline.graphics.ColorBlendAttachment;
-import com.jme3.vulkan.pipeline.graphics.GraphicsState;
 import com.jme3.vulkan.pipeline.states.IShaderState;
-import com.jme3.vulkan.render.GeometryBatch;
-import com.jme3.vulkan.render.VulkanGeometryBatch;
+import com.jme3.vulkan.render.batching.GeometryBatch;
+import com.jme3.vulkan.render.batching.VulkanGeometryBatch;
 import com.jme3.vulkan.shaderc.ShadercLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.vulkan.LwjglVulkanContext;
@@ -81,7 +80,7 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
     // render
     private final Comparator<VulkanGeometryBatch.Element> batchSorter = (o1, o2) -> {
-        int compare = Long.compare(o1.getPipeline().getSortId(), o2.getPipeline().getSortId());
+        int compare = Long.compare(o1.getPipeline().getSortPosition(), o2.getPipeline().getSortPosition());
         if (compare != 0) return compare;
         return Float.compare(o1.computeDistanceSq(), o2.computeDistanceSq());
     };
@@ -140,9 +139,9 @@ public class VulkanHelperTest extends SimpleApplication implements SwapchainUpda
 
         // swapchain
         swapchain = Swapchain.build(device, surface, s -> {
-            s.addQueue(physDevice.getGraphics());
-            s.addQueue(physDevice.getPresent());
-            s.selectFormat(Swapchain.format(Format.B8G8R8A8_SRGB, ColorSpace.KhrSrgbNonlinear));
+            s.addSupportedQueue(physDevice.getGraphics());
+            s.addSupportedQueue(physDevice.getPresent());
+            s.selectFormat(Swapchain.format(Format.B8G8R8A8_SRGB, ColorSpace.SrgbNonlinear));
             s.selectMode(Swapchain.PresentMode.Mailbox);
             s.selectExtentByWindow();
             s.selectImageCount(2);

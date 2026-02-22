@@ -7,12 +7,21 @@ import com.jme3.vulkan.buffers.MappableBuffer;
  *
  * @param <T> object type the attribute represents
  */
-public interface Attribute <T> {
+public interface Attribute <T> extends AutoCloseable {
 
     /**
-     * Unmaps this attribute from the vertex buffer.
+     * Unmaps this attribute from the buffer.
      */
-    void unmap();
+    @Override
+    void close();
+
+    /**
+     * Returns an object that can be used to store an element.
+     *
+     * @param store object for storage (or null to create a new object)
+     * @return {@code store} or a new object
+     */
+    T createStorageObject(T store);
 
     /**
      * Sets the property described by this attribute of the element
@@ -21,7 +30,7 @@ public interface Attribute <T> {
      * @param element element index
      * @param value value to assign
      */
-    void set(int element, T value);
+    void set(long element, T value);
 
     /**
      * Gets the property described by this attribute of the element
@@ -30,7 +39,7 @@ public interface Attribute <T> {
      * @param element element index
      * @return value to assign
      */
-    T get(int element);
+    T get(long element);
 
     /**
      * Gets the property described by this attribute of the element at the index.
@@ -38,22 +47,22 @@ public interface Attribute <T> {
      * property's value in {@code store} and return {@code store}.
      *
      * @param element index of element
-     * @param store object to store element's value
+     * @param store object to store element's value (or null to create a new object)
      * @return object storing the element's value (can be {@code store})
      */
-    T get(int element, T store);
+    T get(long element, T store);
 
     /**
-     * {@link MappableBuffer#push(int, int) Pushes} the elements
+     * {@link MappableBuffer#stage(long, long) Pushes} the elements
      * in this attribute's vertex buffer in the described region.
      *
      * @param baseElement index of the first element to push
      * @param elements number of elements to push
      */
-    void push(int baseElement, int elements);
+    void push(long baseElement, long elements);
 
     /**
-     * {@link MappableBuffer#push() Pushes} all elements in this attribute's vertex buffer.
+     * {@link MappableBuffer#stage() Pushes} all elements in this attribute's vertex buffer.
      */
     void push();
 
@@ -62,7 +71,7 @@ public interface Attribute <T> {
      * If {@code store} is not null, implementations may choose to use {@code store}
      * as each iteration's object.
      *
-     * @param store object to use as each element (or null to create a new object each time)
+     * @param store object to use as each element (or null to use a new object)
      * @return iterable
      */
     Iterable<T> read(T store);
@@ -73,7 +82,7 @@ public interface Attribute <T> {
      * attribute. If {@code store} is not null, implementations may choose to
      * use {@code store} as each iteration's object.
      *
-     * @param store object to use as each element (or null to create a new object each time)
+     * @param store object to use as each element (or null to use a new object)
      * @return iterable
      */
     Iterable<T> readWrite(T store);
@@ -86,10 +95,21 @@ public interface Attribute <T> {
      * read, to the attribute. The initial state of an iteration's object is
      * undefined.
      *
-     * @param store object to use as each element (cannot be null)
+     * @param store object to use as each element (or null to use a new object)
      * @return iterable
      */
     Iterable<T> write(T store);
+
+    /**
+     * Returns an iterable for iterating over each element of this attribute
+     * and {@code dst}. Iteration objects are assigned with this attribute's value
+     * and then assigned to {@code dst} at the end of each iteration.
+     *
+     * @param dst destination attribute
+     * @param store object to use as each element (or null to use a new object)
+     * @return iterable
+     */
+    Iterable<T> transfer(Attribute<T> dst, T store);
 
     /**
      * Returns an Iterable for iterating over each element index in this attribute.
@@ -99,13 +119,20 @@ public interface Attribute <T> {
     Iterable<Integer> indices();
 
     /**
+     * Returns the number of elements spanned by this attribute.
+     *
+     * @return number of elements
+     */
+    long getNumElements();
+
+    /**
      * Assigns {@code values} each element in order starting from {@code startElement}.
      *
      * @param startElement index of element to start at
      * @param values values to assign (one value per element)
-     * @see #set(int, Object)
+     * @see #set(long, Object)
      */
-    default void set(int startElement, T[] values) {
+    default void set(long startElement, T[] values) {
         for (int i = 0; i < values.length; i++) {
             set(startElement + i, values[i]);
         }
@@ -123,7 +150,7 @@ public interface Attribute <T> {
      *              objects to hold the results
      * @return {@code store} holding the value's of each element in the region
      */
-    default T[] get(int startElement, T[] store) {
+    default T[] get(long startElement, T[] store) {
         for (int i = 0; i < store.length; i++) {
             store[i] = get(startElement + i, store[i]);
         }

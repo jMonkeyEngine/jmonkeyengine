@@ -57,7 +57,7 @@ import java.util.logging.Logger;
  * @author Mark Powell
  * @author Joshua Slack
  */
-public final class Matrix3f implements BufferMember, Savable, Cloneable, java.io.Serializable {
+public final class Matrix3f implements Savable, Cloneable, java.io.Serializable {
 
     static final long serialVersionUID = 1;
 
@@ -558,6 +558,16 @@ public final class Matrix3f implements BufferMember, Savable, Cloneable, java.io
         return this;
     }
 
+    /**
+     * Sets the specified column.
+     *
+     * @param i column index (0, 1, or 2)
+     * @param m0 first row value
+     * @param m1 second row value
+     * @param m2 third row value
+     * @return this current instance
+     * @throws IllegalArgumentException if {@code i} is not 0, 1, or 2
+     */
     public Matrix3f setColumn(int i, float m0, float m1, float m2) {
         switch (i) {
             case 0: {
@@ -575,10 +585,9 @@ public final class Matrix3f implements BufferMember, Savable, Cloneable, java.io
                 m12 = m1;
                 m22 = m2;
             } break;
-            default:
-                logger.warning("Invalid column index.");
-                throw new IllegalArgumentException("Invalid column index. " + i);
+            default: throw new IllegalArgumentException("Invalid column index. " + i);
         }
+        return this;
     }
 
     /**
@@ -1524,18 +1533,6 @@ public final class Matrix3f implements BufferMember, Savable, Cloneable, java.io
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(); // can not happen
         }
-    }
-
-    @Override
-    public void fillBuffer(ByteBuffer buffer) {
-        buffer.putFloat(m00).putFloat(m10).putFloat(m20)
-              .putFloat(m01).putFloat(m11).putFloat(m21)
-              .putFloat(m02).putFloat(m12).putFloat(m22);
-    }
-
-    @Override
-    public int getSizeInBytes() {
-        return 9 * Float.BYTES;
     }
 
     public static Matrix3f storage(Matrix3f store) {

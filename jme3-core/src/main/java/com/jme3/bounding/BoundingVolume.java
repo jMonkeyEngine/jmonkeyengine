@@ -38,6 +38,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
 import com.jme3.math.*;
 import com.jme3.util.TempVars;
+import com.jme3.vulkan.mesh.attribute.Attribute;
 import com.jme3.vulkan.mesh.attribute.Position;
 
 import java.io.IOException;
@@ -151,9 +152,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
      */
     public abstract void computeFromPoints(FloatBuffer points);
 
-    public abstract void computeFromPoints(VertexReader points);
-
-    public abstract void computeFromPoints(Position position);
+    public abstract void computeFromPoints(Attribute<Vector3f> points);
 
     /**
      * <code>merge</code> combines two bounding volumes into a single bounding

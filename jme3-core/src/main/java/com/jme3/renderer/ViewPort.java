@@ -39,8 +39,12 @@ import com.jme3.scene.Spatial;
 import com.jme3.texture.GlFrameBuffer;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
+import com.jme3.vulkan.render.bucket.GeometryBucket;
 
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 /**
  * Represents a view inside the display
@@ -66,6 +70,8 @@ import java.util.function.Predicate;
  */
 public class ViewPort implements Comparable<ViewPort> {
 
+    private static final Logger logger = Logger.getLogger(ViewPort.class.getName());
+
     protected final Camera cam;
     protected final SafeArrayList<Spatial> sceneList = new SafeArrayList<>(Spatial.class);
     protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
@@ -81,7 +87,8 @@ public class ViewPort implements Comparable<ViewPort> {
     private boolean enabled = true;
 
     private final ViewPortArea area = new ViewPortArea(0f, 0f, 128f, 128f);
-
+    private final LinkedHashMap<String, GeometryBucket> buckets = new LinkedHashMap<>();
+    private String defaultBucket;
     private Predicate<Geometry> geometryFilter;
 
     /**
@@ -109,6 +116,62 @@ public class ViewPort implements Comparable<ViewPort> {
     public ViewPort(Camera cam, int viewPriority) {
         this.cam = cam;
         this.viewPriority = viewPriority;
+    }
+
+    /**
+     * Gathers all unculled geometries into a set of buckets for rendering.
+     * The natural iteration order of the returned collection is the order the
+     * buckets are meant to be rendered in.
+     *
+     * @param onVisible if not null, called for each visible spatial
+     * @return buckets containing geometries to render
+     */
+    public Collection<GeometryBucket> gatherGeometry(Consumer<Spatial> onVisible) {
+        if (buckets.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+        buckets.values().forEach(GeometryBucket::clear);
+        Deque<String> batchHint = new ArrayDeque<>();
+        Deque<Spatial.CullHint> cullHint = new ArrayDeque<>();
+        Deque<Camera.FrustumIntersect> intersect = new ArrayDeque<>();
+        String defBucketName = defaultBucket != null ? defaultBucket : buckets.firstEntry().getKey();
+        for (Spatial scene : sceneList) for (Spatial child : scene.iterator(cullHint, batchHint, intersect)) {
+            if (child.getLocalQueueBucket() == null) {
+                batchHint.push(batchHint.isEmpty() ? defBucketName : batchHint.peek());
+            } else {
+                batchHint.push(child.getLocalQueueBucket());
+            }
+            if (child.getLocalCullHint() == Spatial.CullHint.Inherit) {
+                cullHint.push(cullHint.isEmpty() ? Spatial.CullHint.Dynamic : cullHint.peek());
+            } else {
+                cullHint.push(child.getLocalCullHint());
+            }
+            Camera.FrustumIntersect result = intersect.peek();
+            if (cullHint.peek() == Spatial.CullHint.Dynamic && (result == null
+                    || result == Camera.FrustumIntersect.Intersects)) {
+                result = cam.contains(child.getWorldBound());
+            }
+            intersect.push(result);
+            if (cullHint.peek() != Spatial.CullHint.Always && (result != Camera.FrustumIntersect.Outside
+                    || cullHint.peek() == Spatial.CullHint.Never)) {
+                if (onVisible != null) {
+                    onVisible.accept(child);
+                }
+                if (child instanceof Geometry) {
+                    GeometryBucket bucket = buckets.get(batchHint.peek());
+                    if (bucket != null) bucket.add((Geometry)child);
+                }
+            }
+        }
+        return Collections.unmodifiableCollection(buckets.values());
+    }
+
+    public void renderScenes() {
+
+    }
+
+    public void addGeometryBucket(String name, GeometryBucket bucket) {
+        buckets.put(name, bucket);
     }
 
     public Predicate<Geometry> getGeometryFilter() {

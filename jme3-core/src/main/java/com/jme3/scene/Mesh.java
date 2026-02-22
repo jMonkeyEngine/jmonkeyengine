@@ -31,12 +31,14 @@
  */
 package com.jme3.scene;
 
+import com.jme3.export.Savable;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.mesh.*;
 import com.jme3.vulkan.mesh.attribute.Attribute;
 import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.util.IntEnum;
 
+import java.util.Collection;
 import java.util.function.Consumer;
 
 /**
@@ -51,8 +53,14 @@ import java.util.function.Consumer;
  *
  * @author codex
  */
-public interface Mesh {
+public interface Mesh extends Savable {
 
+    /**
+     * Gets the layout object that describes how this mesh's buffers are formatted
+     * and bound.
+     *
+     * @return mesh layout
+     */
     MeshLayout getLayout();
 
     /**
@@ -66,6 +74,10 @@ public interface Mesh {
      */
     <T extends Attribute> T mapAttribute(String name);
 
+    MappableBuffer selectLevelOfDetail(int level);
+
+    MappableBuffer getLevelOfDetail(int level);
+
     /**
      * Gets the vertex buffer data related to the vertex binding.
      *
@@ -73,37 +85,6 @@ public interface Mesh {
      * @return vertex buffer data
      */
     VertexBuffer getVertexBuffer(VertexBinding binding);
-
-    /**
-     * Sets the index buffer for the level of detail. If no index buffer
-     * is selected for rendering when this method is called, {@code buffer}
-     * is selected for rendering.
-     *
-     * @param level level of detail
-     * @param buffer index buffer
-     */
-    void setLevelOfDetail(int level, MappableBuffer buffer);
-
-    /**
-     * Selects the index buffer at or immediately below the specified level
-     * of detail for rendering. The number of triangles represented by the
-     * selected index buffer is determined by its {@link MappableBuffer#size() size}.
-     * If no index buffer exists at or below the specified level, no index
-     * buffer is selected for rendering.
-     *
-     * @param level level of detail
-     * @return selected index buffer
-     */
-    MappableBuffer selectLevelOfDetail(int level);
-
-    /**
-     * Gets the index buffer at or immediately below the specified level
-     * of detail, or null if none exists.
-     *
-     * @param level level of detail
-     * @return index buffer
-     */
-    MappableBuffer getLevelOfDetail(int level);
 
     /**
      * Sets the number of elements for the specified input rate (i.e. vertices
@@ -117,7 +98,7 @@ public interface Mesh {
      * @return the number of elements used for the vertex rate as a result
      * of this method call
      */
-    int setElements(IntEnum<InputRate> rate, int elements);
+    long setElements(IntEnum<InputRate> rate, long elements);
 
     /**
      * Sets the usage hint of the specified attribute. The effectiveness of
@@ -131,14 +112,14 @@ public interface Mesh {
     void setUsage(String attributeName, GlVertexBuffer.Usage usage);
 
     /**
-     * {@link MappableBuffer#push(int, int) Pushes} the specified regions of all buffers
+     * {@link MappableBuffer#stage(long, long) Pushes} the specified regions of all buffers
      * for the given input rate.
      *
      * @param rate rate of vertex buffer to push
      * @param baseElement first element to push
      * @param elements number of elements to push
      */
-    void pushElements(IntEnum<InputRate> rate, int baseElement, int elements);
+    void pushElements(IntEnum<InputRate> rate, long baseElement, long elements);
 
     /**
      * Gets the number of elements for the given input rate.
@@ -146,7 +127,7 @@ public interface Mesh {
      * @param rate rate to get number of elements of
      * @return number of elements
      */
-    int getElements(IntEnum<InputRate> rate);
+    long getElements(IntEnum<InputRate> rate);
 
     /**
      * Gets the maximum number of elements for the given input rate.
@@ -154,7 +135,7 @@ public interface Mesh {
      * @param rate rate to get element capacity of
      * @return number of elements
      */
-    int getCapacity(IntEnum<InputRate> rate);
+    long getCapacity(IntEnum<InputRate> rate);
 
     /**
      * Tests if the named attribute exists for this mesh.
@@ -163,6 +144,13 @@ public interface Mesh {
      * @return true if the attribute exists
      */
     boolean attributeExists(String name);
+
+    /**
+     * Gets all vertex buffers being used in this mesh.
+     *
+     * @return unmodifiable collection of vertex buffers in use
+     */
+    Collection<VertexBuffer> getVertexBuffers();
 
     /**
      * Gets the topology mode of this mesh.

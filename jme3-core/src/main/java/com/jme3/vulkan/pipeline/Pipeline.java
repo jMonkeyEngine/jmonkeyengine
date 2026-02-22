@@ -11,7 +11,7 @@ public interface Pipeline {
 
     PipelineBindPoint getBindPoint();
 
-    long getSortId();
+    long getSortPosition();
 
     boolean isDynamic(IntEnum<DynamicState> state);
 

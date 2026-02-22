@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 public class ObliqueCamera extends ExtensionCamera {
 
     private Plane clipPlane;
-    private Plane.Side side;
+    private Plane.Side side = Plane.Side.Positive;
     private final Matrix4f formerProjMatrix = new Matrix4f();
     private final Matrix4f projOverride = new Matrix4f();
 
@@ -42,15 +42,11 @@ public class ObliqueCamera extends ExtensionCamera {
             return;
         }
         formerProjMatrix.set(currentProj);
-
-        float sideFactor = 1;
-        if (side == Plane.Side.Negative) {
-            sideFactor = -1;
-        }
         if (clipPlane.whichSide(getLocation()) == side) {
             return;
         }
 
+        float sideFactor = side == Plane.Side.Negative ? -1 : 1;
         TempVars vars = TempVars.get();
         try {
             Matrix4f p = projOverride.set(formerProjMatrix);
@@ -79,6 +75,28 @@ public class ObliqueCamera extends ExtensionCamera {
         } finally {
             vars.release();
         }
+    }
+
+    public void setClipPlane(Plane clipPlane) {
+        if (!clipPlane.equals(this.clipPlane)) {
+            this.clipPlane.set(clipPlane);
+            formerProjMatrix.set(Matrix4f.ZERO);
+        }
+    }
+
+    public void setClipPlaneSide(Plane.Side side) {
+        if (side != this.side) {
+            this.side = side;
+            formerProjMatrix.set(Matrix4f.ZERO);
+        }
+    }
+
+    public Plane getClipPlane() {
+        return clipPlane;
+    }
+
+    public Plane.Side getClipPlaneSide() {
+        return side;
     }
 
 }

@@ -1,11 +1,8 @@
 package com.jme3.vulkan.pipeline;
 
-import com.jme3.vulkan.util.AdaptiveEnum;
-import com.jme3.vulkan.util.IntEnum;
+import com.jme3.vulkan.util.AgnosticEnum;
 
-import static org.lwjgl.vulkan.VK10.*;
-
-public enum Topology implements AdaptiveEnum<Topology> {
+public enum Topology implements AgnosticEnum<Topology> {
 
     LineList,
     LineStrip,

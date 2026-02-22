@@ -5,10 +5,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.Spatial;
-import com.jme3.vulkan.util.SceneStack;
-
-import java.util.function.Consumer;
+import com.jme3.vulkan.util.SceneIterationListener;
 
 public abstract class ExtensionCamera implements Camera {
 
@@ -60,11 +57,6 @@ public abstract class ExtensionCamera implements Camera {
     @Override
     public Camera.FrustumIntersect contains(BoundingVolume volume) {
         return base.contains(volume);
-    }
-
-    @Override
-    public SceneStack<FrustumIntersect> createCullStack() {
-        return base.createCullStack();
     }
 
     @Override

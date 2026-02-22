@@ -43,8 +43,8 @@ import com.jme3.math.*;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
+import com.jme3.vulkan.mesh.attribute.Attribute;
 import com.jme3.vulkan.mesh.attribute.Position;
-import com.jme3.vulkan.util.FloatBufferModifier;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -132,11 +132,34 @@ public class BoundingBox extends BoundingVolume {
      */
     @Override
     public void computeFromPoints(FloatBuffer points) {
-        containAABB(new FloatBufferModifier(points, 3));
+        if (points.remaining() < 3) {
+            return;
+        }
+        float minX = Float.POSITIVE_INFINITY,
+                minY = Float.POSITIVE_INFINITY,
+                minZ = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY,
+                maxY = Float.NEGATIVE_INFINITY,
+                maxZ = Float.NEGATIVE_INFINITY;
+        for (int i = points.position(); i < points.limit(); i += 3) {
+            float x = points.get(i);
+            float y = points.get(i + 1);
+            float z = points.get(i + 2);
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            minZ = Math.min(minZ, z);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+            maxZ = Math.max(maxZ, z);
+        }
+        center.set(minX + maxX, minY + maxY, minZ + maxZ).multLocal(0.5f);
+        xExtent = maxX - center.x;
+        yExtent = maxY - center.y;
+        zExtent = maxZ - center.z;
     }
 
     @Override
-    public void computeFromPoints(VertexReader points) {
+    public void computeFromPoints(Attribute<Vector3f> points) {
         containAABB(points);
     }
 
@@ -203,6 +226,7 @@ public class BoundingBox extends BoundingVolume {
         vars.release();
     }
 
+    @Deprecated
     public void computeFromTris(int[] indices, Mesh mesh, int start, int end) {
         if (end - start <= 0) {
             return;
@@ -219,7 +243,8 @@ public class BoundingBox extends BoundingVolume {
         Vector3f point;
 
         for (int i = start; i < end; i++) {
-            mesh.getTriangle(indices[i], triangle);
+            // build error here
+            //mesh.getTriangle(indices[i], triangle);
             point = triangle.get(0);
             checkMinMax(min, max, point);
             point = triangle.get(1);
@@ -267,14 +292,8 @@ public class BoundingBox extends BoundingVolume {
      * @param points
      *            the list of points.
      */
-    public void containAABB(VertexReader points) {
+    public void containAABB(Attribute<Vector3f> points) {
         if (points == null) {
-            return;
-        }
-
-        //points.rewind();
-        if (points.limit() == 0) // we need at least a 3 float vector
-        {
             return;
         }
 
@@ -287,17 +306,13 @@ public class BoundingBox extends BoundingVolume {
                 maxY = Float.NEGATIVE_INFINITY,
                 maxZ = Float.NEGATIVE_INFINITY;
 
-        for (int i = 0, l = points.limit(); i < l; i++) {
-//                vars.vect1.x = tmpArray[j];
-//                vars.vect1.y = tmpArray[j + 1];
-//                vars.vect1.z = tmpArray[j + 2];
-            points.getVector3(i, 0, vars.vect1);
-            minX = Math.min(minX, vars.vect1.x);
-            minY = Math.min(minY, vars.vect1.y);
-            minZ = Math.min(minZ, vars.vect1.z);
-            maxX = Math.max(maxX, vars.vect1.x);
-            maxY = Math.max(maxY, vars.vect1.y);
-            maxZ = Math.max(maxZ, vars.vect1.z);
+        for (Vector3f p : points.read(vars.vect1)) {
+            minX = Math.min(minX, p.x);
+            minY = Math.min(minY, p.y);
+            minZ = Math.min(minZ, p.z);
+            maxX = Math.max(maxX, p.x);
+            maxY = Math.max(maxY, p.y);
+            maxZ = Math.max(maxZ, p.z);
         }
 
         vars.release();

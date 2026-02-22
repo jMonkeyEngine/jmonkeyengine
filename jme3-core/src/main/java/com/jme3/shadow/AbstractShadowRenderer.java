@@ -65,8 +65,8 @@ import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
 import com.jme3.ui.Picture;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-import com.jme3.vulkan.render.GeometryBatch;
-import com.jme3.vulkan.render.GlGeometryBatch;
+import com.jme3.vulkan.render.batching.GeometryBatch;
+import com.jme3.vulkan.render.batching.GlGeometryBatch;
 
 import java.io.IOException;
 import java.util.ArrayList;

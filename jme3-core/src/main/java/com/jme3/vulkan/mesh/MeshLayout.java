@@ -1,16 +1,32 @@
 package com.jme3.vulkan.mesh;
 
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.scene.Mesh;
 import com.jme3.vulkan.mesh.attribute.Attribute;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class MeshLayout {
+public class MeshLayout implements Savable {
 
     private final List<VertexBinding> bindings = new ArrayList<>();
 
     protected MeshLayout() {}
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        out.writeSavableArrayList(new ArrayList<>(bindings), "bindings", null);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -26,10 +42,8 @@ public class MeshLayout {
 
     public <T extends Attribute> T mapAttribute(Mesh mesh, String name) {
         for (VertexBinding vb : bindings) {
-            T attr = vb.mapAttribute(name, mesh.getVertexBuffer(vb).getData(), mesh.getElements(vb.getInputRate()));
-            if (attr != null) {
-                return attr;
-            }
+            T attr = vb.mapAttribute(name, mesh);
+            if (attr != null) return attr;
         }
         return null;
     }
