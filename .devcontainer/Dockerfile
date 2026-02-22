@@ -7,6 +7,8 @@ RUN dnf -y update && \
       # X + desktop
       xorg-x11-server-Xvfb xterm dbus-x11 \
       xfce4-session xfce4-panel xfce4-settings xfce4-terminal thunar \
+      xfwm4 \
+      feh \
       # VNC + web VNC
       x11vnc novnc python3-websockify \
       # OpenGL (Mesa) + GLVND + tools (glxinfo)
@@ -18,3 +20,8 @@ RUN dnf -y update && \
 
 RUN dnf -y install weston xorg-x11-server-Xwayland wayland-utils \
     && dnf clean all
+
+
+COPY assets/wallpaper.jpg /root/wallpaper.jpg
+COPY assets/novnc-index.html /usr/share/novnc/index.html
+ 

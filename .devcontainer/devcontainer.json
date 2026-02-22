@@ -11,9 +11,16 @@
     }
   },
   "containerEnv": {
-    // "LIBGL_ALWAYS_SOFTWARE": "1",
-    // "MESA_LOADER_DRIVER_OVERRIDE": "llvmpipe",
-    // "GALLIUM_DRIVER": "llvmpipe",
+    "JME_DEV_ENVIRONMENT": "yesReally",
+    "LIBGL_ALWAYS_SOFTWARE": "1",
+    "MESA_LOADER_DRIVER_OVERRIDE": "llvmpipe",
+    "GALLIUM_DRIVER": "llvmpipe",
+    "WAYLAND_DISPLAY": "",
+    "WAYLAND_SOCKET": "",
+    "XDG_RUNTIME_DIR": "",
+    "GDK_BACKEND": "x11",
+    "SDL_BACKEND": "x11",
+    "GLFW_PLATFORM": "x11",
     "DISPLAY": ":99"
   },
   "postCreateCommand": "bash .devcontainer/scripts/setup.sh",
