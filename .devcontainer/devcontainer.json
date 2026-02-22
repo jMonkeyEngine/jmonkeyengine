@@ -1,0 +1,29 @@
+{
+  "name": "jME env (SERVER)",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "forwardPorts": [6080],
+  "portsAttributes": {
+    "6080": {
+      "label": "jME Desktop",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "containerEnv": {
+    // "LIBGL_ALWAYS_SOFTWARE": "1",
+    // "MESA_LOADER_DRIVER_OVERRIDE": "llvmpipe",
+    // "GALLIUM_DRIVER": "llvmpipe",
+    "DISPLAY": ":99"
+  },
+  "postCreateCommand": "bash .devcontainer/scripts/setup.sh",
+  "postStartCommand": "bash .devcontainer/scripts/start-desktop.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "workbench.colorTheme": "GitHub Dark Dimmed"
+      }
+    
+    }
+  }
+}

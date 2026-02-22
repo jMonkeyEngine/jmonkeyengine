@@ -129,7 +129,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             if (!alc.isCreated()) {
                 alc.createALC();
             }
-        } catch (UnsatisfiedLinkError ex) {
+        } catch (Exception ex) {
             logger.log(Level.SEVERE, "Failed to load audio library (OpenAL). Audio will be disabled.", ex);
             audioDisabled = true;
             return;
