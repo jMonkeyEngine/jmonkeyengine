@@ -18,7 +18,6 @@ dependencies {
     api libs.vecmath
     api project(':jme3-core')
     api project(':jme3-terrain')
-    compileOnly project(':jme3-vr') //is selectively used if on classpath
     testRuntimeOnly project(':jme3-desktop')
     testRuntimeOnly project(':jme3-testdata')
 }
