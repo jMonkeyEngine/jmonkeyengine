@@ -456,14 +456,14 @@ public abstract class LwjglContext implements JmeContext {
     }
     public void internalCreate() {
         timer = new LwjglTimer();
-        synchronized (createdLock) {
-            created.set(true);
-            createdLock.notifyAll();
-        }
         if (renderable.get()) {
             initContextFirstTime();
         } else {
             assert getType() == Type.Canvas;
+        }
+        synchronized (createdLock) {
+            created.set(true);
+            createdLock.notifyAll();
         }
     }
 
