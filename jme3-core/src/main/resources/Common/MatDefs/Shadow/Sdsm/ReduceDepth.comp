@@ -1,12 +1,14 @@
 #version 430
 
+#import "Common/ShaderLib/MultiSample.glsllib"
+
 /**
  * Finds the global minimum/maximum values of a depth texture.
  */
 
 layout(local_size_x = 16, local_size_y = 16) in;
 
-layout(binding = 0) uniform sampler2D inputDepth;
+layout(binding = 0) uniform DEPTHTEXTURE inputDepth;
 
 layout(std430, binding = 1) buffer MinMaxBuffer {
     uint gMin;
@@ -33,7 +35,7 @@ void main() {
     ivec2 gid = ivec2(gl_GlobalInvocationID.xy);
     ivec2 lid = ivec2(gl_LocalInvocationID.xy);
     uint tid = gl_LocalInvocationIndex;
-    ivec2 inputSize = textureSize(inputDepth, 0);
+    ivec2 inputSize = getTextureSize(inputDepth);
 
     // Each thread samples a 2x2 block
     ivec2 baseCoord = gid * 2;
@@ -43,7 +45,7 @@ void main() {
         for (int x = 0; x < 2; x++) {
             ivec2 coord = baseCoord + ivec2(x, y);
             if (coord.x < inputSize.x && coord.y < inputSize.y) {
-                float depth = texelFetch(inputDepth, coord, 0).r;
+                float depth = getDepthMax(inputDepth, coord, m_NumSamplesDepth).r;
                 // Discard depth == 1.0 (background/sky)
                 if (depth != 1.0) {
                     minMax.x = min(minMax.x, depth);
