@@ -206,14 +206,16 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
 
         // Determine optimal framebuffer format based on renderer capabilities
-        if (fbFormat == null) fbFormat = Format.RGB111110F;
-        if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
-            if (renderer.getCaps().contains(Caps.FloatColorBufferRGB)) {
-                fbFormat = Format.RGB16F;
-            } else if (renderer.getCaps().contains(Caps.FloatColorBufferRGBA)) {
-                fbFormat = Format.RGBA16F;
-            } else {
-                fbFormat = Format.RGB8;
+        if (fbFormat == null) {
+            fbFormat = Format.RGB111110F;
+            if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
+                if (renderer.getCaps().contains(Caps.FloatColorBufferRGB)) {
+                    fbFormat = Format.RGB16F;
+                } else if (renderer.getCaps().contains(Caps.FloatColorBufferRGBA)) {
+                    fbFormat = Format.RGBA16F;
+                } else {
+                    fbFormat = Format.RGB8;
+                }
             }
         }
 
