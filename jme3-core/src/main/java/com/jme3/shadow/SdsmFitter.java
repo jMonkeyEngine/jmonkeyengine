@@ -61,13 +61,13 @@ public class SdsmFitter {
     private final AssetManager assetManager;
     private int maxFrameLag = 3;
 
-    private ComputeShader depthReduceShader;
-    private ComputeShader fitFrustumsShader;
-
-    private ComputeShader depthReduceShaderNoMs;
-    private ComputeShader fitFrustumsShaderNoMs;
-    private ComputeShader depthReduceShaderMs;
-    private ComputeShader fitFrustumsShaderMs;
+    // Because the multisampling status of the depth texture may change anytime,
+    // we store both ms and no-ms versions of the shaders, both initialized
+    // lazily. This avoids recompiling the same set of shaders twice and also
+    // compiling unnecessary shaders if the multisampling status does not
+    // change.
+    private InternalShaders shadersNoMultisampling;
+    private InternalShaders shadersMultisampling;
 
     private final LinkedList<SdsmResultHolder> resultHoldersInFlight = new LinkedList<>();
     private final LinkedList<SdsmResultHolder> resultHoldersReady = new LinkedList<>();
@@ -316,40 +316,57 @@ public class SdsmFitter {
         }
     }
 
+    /**
+     * Manages the pair of depth-reduce and fit-frustums shaders.
+     */
+    private class InternalShaders {
+        public final ComputeShader depthReduceShader;
+        public final ComputeShader fitFrustumsShader;
+
+        InternalShaders(AssetManager assetManager, boolean multisampling) {
+            String reduceSource = (String)assetManager.loadAsset(REDUCE_DEPTH_SHADER);
+            String fitSource = (String)assetManager.loadAsset(FIT_FRUSTUMS_SHADER);
+
+            depthReduceShader = buildShader(reduceSource, multisampling);
+            fitFrustumsShader = buildShader(fitSource, multisampling);
+        }
+
+        private ComputeShader buildShader(String source, boolean multisampling) {
+            ComputeShader shader =
+                    multisampling
+                    ? new ComputeShader(gl4, source, new String[][]{{"RESOLVE_DEPTH_MS", "1"}})
+                    : new ComputeShader(gl4, source);
+            renderer.registerNativeObject(shader);
+            return shader;
+        }
+        
+        /**
+         * Cleans up GPU resources.
+         */
+        public void cleanup(Renderer renderer) {
+            depthReduceShader.deleteObject(renderer);
+            fitFrustumsShader.deleteObject(renderer);
+        }
+    }
+
     public SdsmFitter(GL4 gl, Renderer renderer, AssetManager assetManager) {
         this.gl4 = gl;
         this.renderer = renderer;
         this.assetManager = assetManager;
     }
-
-    private ComputeShader buildShader(String source, boolean multisampling) {
-        ComputeShader shader =
-                multisampling
-                ? new ComputeShader(gl4, source, new String[][]{{"RESOLVE_DEPTH_MS", "1"}})
-                : new ComputeShader(gl4, source);
-        renderer.registerNativeObject(shader);
-        return shader;
-    }
     
-    private void initShaders(Texture depthTexture) {
-        String reduceSource = (String)assetManager.loadAsset(REDUCE_DEPTH_SHADER);
-        String fitSource = (String)assetManager.loadAsset(FIT_FRUSTUMS_SHADER);
-        
-        if (depthTexture.getImage().getMultiSamples() > 1) {
-            if (depthReduceShaderMs == null) {
-                depthReduceShaderMs = buildShader(reduceSource, true);
-                fitFrustumsShaderMs = buildShader(fitSource, true);
+    private InternalShaders initShaders(Texture depthTexture) {
+        boolean multisampling = depthTexture.getImage().getMultiSamples() > 1;
+        if (multisampling) {
+            if (shadersMultisampling == null) {
+                shadersMultisampling = new InternalShaders(assetManager, true);
             }
-            depthReduceShader = depthReduceShaderMs;
-            fitFrustumsShader = fitFrustumsShaderMs;
-
-        } else if (depthTexture.getImage().getMultiSamples() == 1) {
-            if (depthReduceShaderNoMs == null) {
-                depthReduceShaderNoMs = buildShader(reduceSource, false);
-                fitFrustumsShaderNoMs = buildShader(fitSource, false);
+            return shadersMultisampling;
+        } else {
+            if (shadersNoMultisampling == null) {
+                shadersNoMultisampling = new InternalShaders(assetManager, false);
             }
-            depthReduceShader = depthReduceShaderNoMs;
-            fitFrustumsShader = fitFrustumsShaderNoMs;
+            return shadersNoMultisampling;
         }
     }
 
@@ -367,7 +384,9 @@ public class SdsmFitter {
 
         int depthMultiSamples = depthTexture.getImage().getMultiSamples();
 
-        initShaders(depthTexture);
+        InternalShaders shaders = initShaders(depthTexture);
+        ComputeShader depthReduceShader = shaders.depthReduceShader;
+        ComputeShader fitFrustumsShader = shaders.fitFrustumsShader;
 
         SdsmResultHolder holder = getResultHolderForUse();
         holder.parameters = new FitParameters(cameraToLight, splitCount, cameraNear, cameraFar);
@@ -474,17 +493,11 @@ public class SdsmFitter {
         }
         resultHoldersReady.clear();
 
-        if (depthReduceShaderMs != null) {
-            depthReduceShaderMs.deleteObject(renderer);
+        if (shadersMultisampling != null) {
+            shadersMultisampling.cleanup(renderer);
         }
-        if (fitFrustumsShaderMs != null) {
-            fitFrustumsShaderMs.deleteObject(renderer);
-        }
-        if (depthReduceShaderNoMs != null) {
-            depthReduceShaderNoMs.deleteObject(renderer);
-        }
-        if (fitFrustumsShaderNoMs != null) {
-            fitFrustumsShaderNoMs.deleteObject(renderer);
+        if (shadersNoMultisampling != null) {
+            shadersNoMultisampling.cleanup(renderer);
         }
     }
 

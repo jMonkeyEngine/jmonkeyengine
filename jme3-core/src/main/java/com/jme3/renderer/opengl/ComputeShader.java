@@ -50,7 +50,7 @@ import java.nio.IntBuffer;
 public class ComputeShader extends NativeObject {
 
     private final GL4 gl;
-    // These need not be stored, but it helps with debugging.
+    // The source need not be stored, but it helps with debugging.
     private final String source;
 
     /**
@@ -60,19 +60,21 @@ public class ComputeShader extends NativeObject {
         super();
         this.gl = gl;
         this.source = source;
-        // Load this upfront to surface any problems at init time
+        // Load this up front to surface any problems at init time.
         createComputeShader();
     }
 
     /**
      * Creates a new compute shader from GLSL source code and a set of defines.
+     *
+     * @param defines An array of string pairs. The first element of the pair
+     *                is the macro name; the second element, the definition.
      */
     public ComputeShader(GL4 gl, String source, String[][] defines) {
         super();
         this.gl = gl;
         this.source = addDefines(source, defines);
-        System.out.println(this.source);
-        // Load this upfront to surface any problems at init time
+        // Load this up front to surface any problems at init time.
         createComputeShader();
     }
 
@@ -84,15 +86,15 @@ public class ComputeShader extends NativeObject {
     }
 
     private String addDefines(String source, String[][] defines) {
-        String[] sourceLines = (String[])source.split("\\r?\\n");
+        // The #version pragma must appear before anything else. Insert the
+        // defines after it.
+        String[] sourceLines = (String[])source.split("\\r?\\n", 2);
         StringBuilder builder = new StringBuilder();
         builder.append(sourceLines[0] + "\n");
         for (String[] pair : defines) {
             builder.append("#define " + pair[0] + " " + pair[1] + "\n");
         }
-        for (int i = 1; i < sourceLines.length; ++i) {
-            builder.append(sourceLines[i] + "\n");
-        }
+        builder.append(sourceLines[1] + "\n");
         return builder.toString();
     }
 
