@@ -83,8 +83,11 @@ vec4 getColorSingle(in sampler2D tex, in vec2 texC){
 }
 
 vec4 getDepth(in sampler2D tex, in vec2 texC){
-    ivec2 iTexC = ivec2(texC * vec2(textureSize(tex, 0)));
-    return texelFetch(tex, iTexC, 0);
+#if __VERSION__>=430
+    return texture(tex,texC);
+#else
+    return texture2D(tex,texC);
+#endif
 }
 
 vec4 getDepthMax(in sampler2D tex, in ivec2 coord, in int numSamples){
