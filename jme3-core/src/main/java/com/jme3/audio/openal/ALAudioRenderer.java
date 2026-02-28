@@ -50,6 +50,8 @@ import com.jme3.audio.LowPassFilter;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObjectManager;
+import com.jme3.util.TempVars;
+
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -766,14 +768,16 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     }
 
     private void applyListenerRotation(Listener listener) {
-        Vector3f dir = listener.getDirection();
-        Vector3f up = listener.getUp();
+        TempVars vars = TempVars.get();
+        Vector3f dir = listener.getDirection(vars.vect1);
+        Vector3f up = listener.getUp(vars.vect2);
         // Use the shared FloatBuffer fb
         fb.rewind();
         fb.put(dir.x).put(dir.y).put(dir.z);
         fb.put(up.x).put(up.y).put(up.z);
         fb.flip();
         al.alListener(AL_ORIENTATION, fb);
+        vars.release();
     }
 
     private void applyListenerVelocity(Listener listener) {
