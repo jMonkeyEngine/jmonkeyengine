@@ -407,4 +407,16 @@ public class InstancedNode extends GeometryGroupNode {
     public void onGeometryUnassociated(Geometry geom) {
         removeFromInstancedGeometry(geom);
     }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        ex.getCapsule(this).write(control, "control", null);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        control = (InstancedNodeControl) im.getCapsule(this).readSavable("control", null);
+    }
 }
