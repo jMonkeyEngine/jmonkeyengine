@@ -55,6 +55,7 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.shadow.SdsmDirectionalLightShadowFilter;
+import com.jme3.system.AppSettings;
 import com.jme3.util.SkyFactory;
 
 import java.io.File;
@@ -86,6 +87,9 @@ public class TestSdsmDirectionalLightShadow extends SimpleApplication implements
 
     public static void main(String[] args) {
         TestSdsmDirectionalLightShadow app = new TestSdsmDirectionalLightShadow();
+        AppSettings settings = new AppSettings(true);
+        settings.setGraphicsDebug(true);
+        app.setSettings(settings);
         app.start();
     }
 
