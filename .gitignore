@@ -36,11 +36,6 @@
 /jme3-android-native/src/native/jme_decode/Tremor/
 /jme3-android-native/stb_image.h
 /jme3-examples/private/
-!/jme3-vr/src/main/resources/**/*.dylib
-!/jme3-vr/src/main/resources/**/*.so
-!/jme3-vr/src/main/resources/**/*.so.dbg
-!/jme3-vr/src/main/resources/**/*.dll
-!/jme3-vr/src/main/resources/**/*.pdb
 /buildMaven.bat
 /private
 .travis.yml

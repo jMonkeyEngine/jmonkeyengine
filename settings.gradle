@@ -18,7 +18,6 @@ include 'jme3-desktop'
 include 'jme3-lwjgl'
 if (JavaVersion.current().isJava8Compatible()) {
     include 'jme3-lwjgl3'
-    include 'jme3-vr'
 }
 
 // Other external dependencies

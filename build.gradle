@@ -141,7 +141,6 @@ def mergedJavadocSubprojects = [
         ":jme3-niftygui",
         ":jme3-plugins",
         ":jme3-terrain",
-        ":jme3-vr"
 ]
 task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the projects.') {
     title = 'jMonkeyEngine3'
