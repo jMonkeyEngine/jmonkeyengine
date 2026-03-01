@@ -133,12 +133,12 @@ public class CustomContentManager {
         List<String> extensionsRequired = getArrayAsStringList(gltfLoader.getDocRoot(), "extensionsRequired");
         for (String extensionName : extensionsRequired) {
             if (!isExtensionSupported(extensionName)) {
-                if (this.key != null && this.key.isStrict()) {
-                    throw new AssetLoadException(
-                            "Extension " + extensionName + " is required for this file.");
-                } else {
+                if (this.key != null && !this.key.isStrict()) {
                     logger.log(Level.SEVERE, "Extension " + extensionName
                             + " is required for this file. The behavior of the loader is unspecified.");
+                } else {
+                    throw new AssetLoadException(
+                            "Extension " + extensionName + " is required for this file.");
                 }
             }
         }
