@@ -65,15 +65,13 @@ public class GltfModelKey extends ModelKey {
      * encounters an asset that contains an extension in its <code>extensionsRequired</code> declaration that
      * is not supported.
      */
-    private boolean strictExtensionCheck;
+    private boolean strictExtensionCheck = true;
 
     public GltfModelKey(String name) {
         super(name);
-        this.strictExtensionCheck = true;
     }
 
     public GltfModelKey() {
-        this.strictExtensionCheck = true;
     }
     
     /**
