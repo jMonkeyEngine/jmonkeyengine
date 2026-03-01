@@ -1147,7 +1147,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             // Check if we need to sync JME status with OpenAL status.
             if (openALStatus != jmeStatus) {
-                if (openALStatus == Status.Stopped && jmeStatus == Status.Playing) {
+                if (openALStatus == Status.Stopped && jmeStatus != Status.Stopped) {
 
                     // Source stopped playing unexpectedly (finished or starved)
                     if (src.getAudioData() instanceof AudioStream) {
