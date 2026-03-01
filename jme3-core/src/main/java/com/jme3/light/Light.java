@@ -131,6 +131,7 @@ public abstract class Light implements Savable, Cloneable {
     
     protected Light(ColorRGBA color, boolean global) {
         setColor(color);
+        this.global = global;
     }
 
     protected Light(ColorRGBA color) {
