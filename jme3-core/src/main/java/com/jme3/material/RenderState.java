@@ -1165,6 +1165,7 @@ public class RenderState implements Cloneable, Savable {
      */
     public void setFrontStencilMask(int frontStencilMask) {
         this.frontStencilMask = frontStencilMask;
+        cachedHashCode = -1;
     }
 
     /**
@@ -1174,6 +1175,7 @@ public class RenderState implements Cloneable, Savable {
      */
     public void setBackStencilMask(int backStencilMask) {
         this.backStencilMask = backStencilMask;
+        cachedHashCode = -1;
     }
 
     /**
@@ -1183,6 +1185,7 @@ public class RenderState implements Cloneable, Savable {
      */
     public void setFrontStencilReference(int frontStencilReference) {
         this.frontStencilReference = frontStencilReference;
+        cachedHashCode = -1;
     }
 
     /**
@@ -1192,6 +1195,7 @@ public class RenderState implements Cloneable, Savable {
      */
     public void setBackStencilReference(int backStencilReference) {
         this.backStencilReference = backStencilReference;
+        cachedHashCode = -1;
     }
 
     /**
@@ -1789,8 +1793,8 @@ public class RenderState implements Cloneable, Savable {
      */
     public void flipFaceCull() {
         switch (cullMode) {
-            case Back:  cullMode = FaceCullMode.Front; break;
-            case Front: cullMode = FaceCullMode.Back;  break;
+            case Back:  setFaceCullMode(FaceCullMode.Front); break;
+            case Front: setFaceCullMode(FaceCullMode.Back);  break;
         }
     }
     
