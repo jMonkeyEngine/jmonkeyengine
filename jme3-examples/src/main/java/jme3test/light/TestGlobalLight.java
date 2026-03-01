@@ -31,14 +31,10 @@ public class TestGlobalLight extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         flyCam.setEnabled(false);
-        final PointLight globalPointLight = new PointLight(true);
-        final Node lightsAttachedNode = new Node("lightsAttachedNode");
-        Vector3f testOffset = new Vector3f(0, 0, 0);
-
-        lightsAttachedNode.setLocalTranslation(testOffset);
+        PointLight globalPointLight = new PointLight(true);
+        Node lightsAttachedNode = new Node("lightsAttachedNode");
 
         Node lightsNotAttachedNode = new Node("lightsNotAttachedNode");
-        lightsNotAttachedNode.setLocalTranslation(testOffset);
 
         Geometry litByAll = createLitWhiteCube(getAssetManager(), "litByAll");
         litByAll.setLocalTranslation(2, 0, -1);
