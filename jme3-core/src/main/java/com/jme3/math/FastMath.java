@@ -1203,10 +1203,44 @@ public final class FastMath {
     }
 
     /**
-     * Round n to a multiple of p
+     * Align n to a multiple of p, where p must be a power of two.
+     * This is an optimized version that uses bitwise operations.
+     * 
+     * @param n the value to align
+     * @param p the alignment value (must be a power of two)
+     * @return the smallest value greater than or equal to n that is a multiple of p
+     * @throws IllegalArgumentException if p is not a power of two
+     */
+    public static int alignToPowerOfTwo(int n, int p) {
+        if (!isPowerOfTwo(p)) {
+            throw new IllegalArgumentException("p must be a power of two, got: " + p);
+        }
+        return ((n - 1) | (p - 1)) + 1;
+    }
+
+    /**
+     * Round n up to the nearest multiple of p.
+     * This works for any positive integer p.
+     * 
+     * @param n the value to round
+     * @param p the multiple (must be positive)
+     * @return the smallest value greater than or equal to n that is a multiple of p
+     * @throws IllegalArgumentException if p is not positive
      */
     public static int toMultipleOf(int n, int p) {
-        return ((n - 1) | (p - 1)) + 1;
+        if (p <= 0) {
+            throw new IllegalArgumentException("p must be positive, got: " + p);
+        }
+        // For powers of two, use the optimized version
+        if (isPowerOfTwo(p)) {
+            return ((n - 1) | (p - 1)) + 1;
+        }
+        // Generic implementation for any positive integer
+        int remainder = n % p;
+        if (remainder == 0) {
+            return n;
+        }
+        return n + (p - remainder);
     }
 
 }
