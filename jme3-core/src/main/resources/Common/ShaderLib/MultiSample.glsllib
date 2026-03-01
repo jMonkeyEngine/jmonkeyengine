@@ -18,12 +18,12 @@ uniform int m_NumSamplesDepth;
 // NOTE: Only define multisample functions if multisample is available
 #if defined(GL_ARB_texture_multisample) || (defined GL_ES && __VERSION__>=310)
 vec4 textureFetch(in sampler2DMS tex,in vec2 texC, in int numSamples){
-      ivec2 iTexC = ivec2(texC * vec2(textureSize(tex)));
-      vec4 color = vec4(0.0);
-      for (int i = 0; i < numSamples; i++){
-         color += texelFetch(tex, iTexC, i);
-      }
-      return color / float(numSamples);
+    ivec2 iTexC = ivec2(texC * vec2(textureSize(tex)));
+    vec4 color = vec4(0.0);
+    for (int i = 0; i < numSamples; i++){
+       color += texelFetch(tex, iTexC, i);
+    }
+    return color / float(numSamples);
 }
 
 vec4 fetchTextureSample(in sampler2DMS tex,in vec2 texC,in int sampleId){
@@ -40,25 +40,60 @@ vec4 getColorSingle(in sampler2DMS tex, in vec2 texC){
     return texelFetch(tex, iTexC, 0);
 }
 
-vec4 getDepth(in sampler2DMS tex,in vec2 texC){
-      return textureFetch(tex,texC,m_NumSamplesDepth);
+vec4 getDepth(in sampler2DMS tex, in vec2 texC){
+    return textureFetch(tex,texC,m_NumSamplesDepth);
+
 }
 
-#endif
+vec4 getDepthMax(in sampler2DMS tex, in ivec2 coord, in int numSamples){
+    vec4 result = vec4(0.0);
+    for (int i = 0; i < numSamples; i++){
+       result = max(result, texelFetch(tex, coord, i));
+    }
+    return result;
+}
+
+ivec2 getTextureSize(in sampler2DMS tex) {
+    return textureSize(tex);
+}
+#endif // Multisampling
 
 vec4 fetchTextureSample(in sampler2D tex,in vec2 texC,in int sampleId){
+#if __VERSION__>=430
+    return texture(tex,texC);
+#else
     return texture2D(tex,texC);
+#endif
 }
 
 vec4 getColor(in sampler2D tex, in vec2 texC){
+#if __VERSION__>=430
+    return texture(tex,texC);
+#else
     return texture2D(tex,texC);
+#endif
 }
 
 vec4 getColorSingle(in sampler2D tex, in vec2 texC){
-    return texture2D(tex, texC);
-}
-
-vec4 getDepth(in sampler2D tex,in vec2 texC){
+#if __VERSION__>=430
+    return texture(tex,texC);
+#else
     return texture2D(tex,texC);
+#endif
 }
 
+vec4 getDepth(in sampler2D tex, in vec2 texC){
+#if __VERSION__>=430
+    return texture(tex,texC);
+#else
+    return texture2D(tex,texC);
+#endif
+}
+
+vec4 getDepthMax(in sampler2D tex, in ivec2 coord, in int numSamples){
+    return texelFetch(tex, coord, 0);
+}
+
+ivec2 getTextureSize(in sampler2D tex){
+    return textureSize(tex, 0);
+}

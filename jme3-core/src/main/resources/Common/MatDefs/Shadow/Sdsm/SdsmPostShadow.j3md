@@ -31,7 +31,8 @@ MaterialDef Post Shadow {
         Texture2D DepthTexture
 
         Boolean BackfaceShadows //Not used.
-        Int NumSamples //Not used.
+        Int NumSamples
+        Int NumSamplesDepth
     }
 
     Technique {
@@ -47,6 +48,8 @@ MaterialDef Post Shadow {
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
             SHADOWMAP_SIZE : ShadowMapSize
+            RESOLVE_MS : NumSamples
+            RESOLVE_DEPTH_MS : NumSamplesDepth
         }
     }
 }

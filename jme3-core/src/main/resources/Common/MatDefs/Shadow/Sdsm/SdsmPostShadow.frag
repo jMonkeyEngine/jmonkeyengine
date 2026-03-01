@@ -1,9 +1,10 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/MultiSample.glsllib"
 #import "Common/ShaderLib/Shadows.glsllib"
 
 //Stripped version of the usual shadow fragment shader for SDSM; it intentionally leaves out some features.
-uniform sampler2D m_Texture;
-uniform sampler2D m_DepthTexture;
+uniform COLORTEXTURE m_Texture;
+uniform DEPTHTEXTURE m_DepthTexture;
 uniform mat4 m_ViewProjectionMatrixInverse;
 uniform vec4 m_ViewProjectionMatrixRow2;
 
@@ -43,8 +44,8 @@ float determineShadow(int index, vec4 worldPos){
 }
 
 void main() {
-    float depth = texture2D(m_DepthTexture,texCoord).r;
-    vec4 color = texture2D(m_Texture,texCoord);
+    float depth = getColor(m_DepthTexture,texCoord).r;
+    vec4 color  = getDepth(m_Texture,texCoord);
 
     //Discard shadow computation on the sky
     if(depth == 1.0){

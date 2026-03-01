@@ -108,6 +108,9 @@ public class GLSLLoader implements AssetLoader {
                     }
                 } else if (tln.startsWith("#extension ")) {
                     sbExt.append(ln).append('\n');
+                } else if (tln.startsWith("#version ")) {
+                    // #version must appear before the extensions, so treat it like one.
+                    sbExt.append(ln).append('\n');
                 } else {
                     sb.append(ln).append('\n');
                 }
