@@ -773,33 +773,45 @@ public class GltfLoader implements AssetLoader {
         return data;
     }
 
+    /**
+     * Reads the data from the given buffer uri and returns it as a byte buffer.
+     * 
+     * The data is read from the given URI. If the URI is a <code>data:</code> URI, then the data is decoded
+     * and returned. Otherwise, the data is read from the given URI via the asset manager.
+     * 
+     * The buffer index is not used (except for possible error messages).
+     * 
+     * @param bufferIndex
+     *            The index of the buffer
+     * @param uri
+     *            The URI of the buffer
+     * @param bufferLength
+     *            The expected length of the buffer
+     * @return The buffer data
+     * @throws AssetLoadException
+     *             If the given URI is <code>null</code>.
+     * @throws IOException
+     *             If an IO error occurs.
+     */
     protected ByteBuffer getBytes(int bufferIndex, String uri, Integer bufferLength) throws IOException {
-        ByteBuffer data;
-        if (uri != null) {
-            if (uri.startsWith("data:")) {
-                // base 64 embed data
-                data = BufferUtils
-                        .createByteBuffer(Base64.getDecoder().decode(uri.substring(uri.indexOf(",") + 1)));
-            } else {
-                // external file let's load it
-                String decoded = decodeUri(uri);
-                if (!decoded.endsWith(".bin")) {
-                    throw new AssetLoadException(
-                            "Cannot load " + decoded + ", a .bin extension is required.");
-                }
-
-                BinDataKey key = new BinDataKey(info.getKey().getFolder() + decoded);
-                try (InputStream input = (InputStream) info.getManager().loadAsset(key)) {
-                    data = BufferUtils.createByteBuffer(bufferLength);
-                    GltfUtils.readToByteBuffer(input, data, bufferLength);
-                }
-
-            }
-        } else {
+        if (uri == null) {
             // no URI, this should not happen in a gltf file, only in glb files.
             throw new AssetLoadException("Buffer " + bufferIndex + " has no uri");
         }
-        return data;
+        if (uri.startsWith("data:")) {
+            // base 64 embed data
+            ByteBuffer data = BufferUtils
+                    .createByteBuffer(Base64.getDecoder().decode(uri.substring(uri.indexOf(",") + 1)));
+            return data;
+        }
+        // external file let's load it
+        String decoded = decodeUri(uri);
+        BinDataKey key = new BinDataKey(info.getKey().getFolder() + decoded);
+        try (InputStream input = (InputStream) info.getManager().loadAsset(key)) {
+            ByteBuffer data = BufferUtils.createByteBuffer(bufferLength);
+            GltfUtils.readToByteBuffer(input, data, bufferLength);
+            return data;
+        }
     }
 
     public Material readMaterial(int materialIndex) throws IOException {
