@@ -40,8 +40,10 @@ import com.jme3.light.SpotLight;
 import com.jme3.material.plugin.TestMaterialWrite;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.VertexBuffer;
 import com.jme3.system.JmeSystem;
 
 import org.junit.Assert;
@@ -69,8 +71,8 @@ public class GltfLoaderTest {
     public void testLoad() {
         Spatial scene = assetManager.loadModel("gltf/box/box.gltf");
         dumpScene(scene, 0);
-//        scene = assetManager.loadModel("gltf/hornet/scene.gltf");
-//        dumpScene(scene, 0);
+        //        scene = assetManager.loadModel("gltf/hornet/scene.gltf");
+        //        dumpScene(scene, 0);
     }
 
     @Test
@@ -92,6 +94,72 @@ public class GltfLoaderTest {
         } catch (AssetLoadException ex) {
             ex.printStackTrace();
             Assert.fail("Failed to import gltf model with lights punctual extension");
+        }
+    }
+
+
+    @Test
+    public void testRequiredExtensionHandling() {
+
+        // By default, the unsupported extension that is listed in
+        // the 'extensionsRequired' will cause an AssetLoadException
+        Assert.assertThrows(AssetLoadException.class, () -> {
+            GltfModelKey gltfModelKey = new GltfModelKey("gltf/TriangleUnsupportedExtensionRequired.gltf");
+            Spatial scene = assetManager.loadModel(gltfModelKey);
+            dumpScene(scene, 0);
+        });
+
+        // When setting the 'strict' flag to 'false', then the
+        // asset will be loaded despite the unsupported extension
+        try {
+            GltfModelKey gltfModelKey = new GltfModelKey("gltf/TriangleUnsupportedExtensionRequired.gltf");
+            gltfModelKey.setStrict(false);
+            Spatial scene = assetManager.loadModel(gltfModelKey);
+            dumpScene(scene, 0);
+        } catch (AssetLoadException ex) {
+            ex.printStackTrace();
+            Assert.fail("Failed to load TriangleUnsupportedExtensionRequired");
+        }
+
+    }
+
+    @Test
+    public void testDracoExtension() {
+        try {
+            Spatial scene = assetManager.loadModel("gltf/unitSquare11x11_unsignedShortTexCoords-draco.glb");
+
+            Node node0 = (Node) scene;
+            Node node1 = (Node) node0.getChild(0);
+            Node node2 = (Node) node1.getChild(0);
+            Geometry geometry = (Geometry) node2.getChild(0);
+            Mesh mesh = geometry.getMesh();
+
+            // The geometry has 11x11 vertices arranged in a square,
+            // so there are 10 x 10 * 2 triangles
+            VertexBuffer indices = mesh.getBuffer(VertexBuffer.Type.Index);
+            Assert.assertEquals(10 * 10 * 2, indices.getNumElements());
+            Assert.assertEquals(VertexBuffer.Format.UnsignedShort, indices.getFormat());
+
+            // All attributes of the 11 x 11 vertices are stored as Float
+            // attributes (even the texture coordinates, which originally
+            // had been normalized(!) unsigned shorts!)
+            VertexBuffer positions = mesh.getBuffer(VertexBuffer.Type.Position);
+            Assert.assertEquals(11 * 11, positions.getNumElements());
+            Assert.assertEquals(VertexBuffer.Format.Float, positions.getFormat());
+
+            VertexBuffer normal = mesh.getBuffer(VertexBuffer.Type.Normal);
+            Assert.assertEquals(11 * 11, normal.getNumElements());
+            Assert.assertEquals(VertexBuffer.Format.Float, normal.getFormat());
+
+            VertexBuffer texCoord = mesh.getBuffer(VertexBuffer.Type.TexCoord);
+            Assert.assertEquals(11 * 11, texCoord.getNumElements());
+            Assert.assertEquals(VertexBuffer.Format.Float, texCoord.getFormat());
+
+            dumpScene(scene, 0);
+
+        } catch (AssetLoadException ex) {
+            ex.printStackTrace();
+            Assert.fail("Failed to import unitSquare11x11_unsignedShortTexCoords");
         }
     }
 
