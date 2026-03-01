@@ -75,10 +75,11 @@ public class GltfModelKey extends ModelKey {
     }
     
     /**
-     * Set whether the loader should perform stricter consistency checks when loading a model. Details are not
-     * specified for now.
+     * Set whether the loader should perform stricter consistency checks of the supported glTF extensions.
      * 
-     * The default value is <code>true</code>.
+     * When this is <code>true</code> (the default), the loader will cause an <code>AssetLoadException</code> when it
+     * encounters an asset that contains an extension in its <code>extensionsRequired</code> declaration that
+     * is not supported. When <code>false</code>, it will only log a SEVERE message.
      * 
      * @param strict
      *            The flag
@@ -88,8 +89,11 @@ public class GltfModelKey extends ModelKey {
     }
 
     /**
-     * Returns whether the loader should perform stricter consistency checks when loading a model. Details are
-     * not specified for now.
+     * Returns whether the loader should perform stricter consistency checks of the supported glTF extensions.
+     * 
+     * When this is <code>true</code> (the default), the loader will cause an <code>AssetLoadException</code> when it
+     * encounters an asset that contains an extension in its <code>extensionsRequired</code> declaration that
+     * is not supported. When <code>false</code>, it will only log a SEVERE message.
      * 
      * @return The flag
      */
