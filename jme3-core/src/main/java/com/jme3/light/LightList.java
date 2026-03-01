@@ -253,7 +253,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
             doubleSize();
         }
         
-        int localListSize = 0;// local.listSize;
+        int localListSize = 0;
         for(int i=0;i<local.listSize;i++){
             Light l = local.list[i];
             if (filter != null && !filter.test(l))  continue; 
