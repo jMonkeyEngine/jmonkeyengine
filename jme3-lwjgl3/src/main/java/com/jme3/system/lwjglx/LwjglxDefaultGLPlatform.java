@@ -39,7 +39,7 @@ import static org.lwjgl.system.Platform.*;
  * @author wil
  */
 public final class LwjglxDefaultGLPlatform {
-    
+
     /**
      * Returns a drawing platform based on the platform it is running on.
      * @return LwjglxGLPlatform
@@ -58,7 +58,7 @@ public final class LwjglxDefaultGLPlatform {
                 throw new UnsupportedOperationException("Platform " + Platform.get() + " not yet supported");
         }
     }
-    
+
     /**
      * private constructor.
      */
