@@ -202,10 +202,14 @@ public final class NativeLibraryLoader {
                     if (!jmeTempDir.exists()) {
                         jmeTempDir.mkdir();
                     }
-                    extractionFolder = new File(jmeTempDir, "natives_" + Integer.toHexString(computeNativesHash()));
+                    if(!jmeTempDir.canWrite()) {
+                        setExtractionFolderToUserCache();
+                    } else {
+                        extractionFolder = new File(jmeTempDir, "natives_" + Integer.toHexString(computeNativesHash()));
 
-                    if (!extractionFolder.exists()) {
-                        extractionFolder.mkdir();
+                        if (!extractionFolder.exists()) {
+                            extractionFolder.mkdir();
+                        }
                     }
                 } catch (Exception e) {
                     setExtractionFolderToUserCache();
@@ -268,7 +272,7 @@ public final class NativeLibraryLoader {
             extractionFolder.mkdir();
         }
         
-        logger.log(Level.WARNING, "Working directory is not writable. "
+        logger.log(Level.WARNING, "Temp directory is not writable. "
                                 + "Natives will be extracted to:\n{0}", 
                                 extractionFolder);
     }
