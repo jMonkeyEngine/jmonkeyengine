@@ -194,6 +194,8 @@ public class SpotLight extends Light {
      * @param direction the direction of the light.
      * @param range the spotlight range
      * @param color the light's color.
+     * @param global if true, the light affects the entire tree from the root node,
+     * otherwise it only affects the children of the node in which it is attached.
      */
     public SpotLight(Vector3f position, Vector3f direction, float range, ColorRGBA color, boolean global) {
         this(position, direction, range, color);
