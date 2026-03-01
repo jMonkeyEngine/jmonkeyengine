@@ -355,6 +355,15 @@ public final class UserData implements Savable {
                     }
                     list.add(map);
                     break;
+                case TYPE_DOUBLE:
+                    list.add(ic.readDouble(listName + "v" + i, 0.));
+                    break;
+                case TYPE_SHORT:
+                    list.add(ic.readShort(listName + "v" + i, (short)0));
+                    break;
+                case TYPE_BYTE:
+                    list.add(ic.readByte(listName + "v" + i, (byte)0));
+                    break;
                 default:
                     throw new UnsupportedOperationException("Unknown type of stored data in a list: " + type);
             }
