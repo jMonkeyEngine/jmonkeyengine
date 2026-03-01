@@ -48,7 +48,8 @@ public class TestGlobalLight extends SimpleApplication {
         localPointLight.setColor(ColorRGBA.Red);
 
         globalPointLight.setColor(ColorRGBA.Green);
-
+        
+        Vector3f testOffset = new Vector3f(0, 0, 0);
         getCamera().setLocation(testOffset.add(new Vector3f(0, 0, 10)));
         getCamera().lookAt(testOffset, Vector3f.UNIT_Y);
 
