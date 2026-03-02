@@ -7,6 +7,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
+import com.jme3.util.struct.StructLayout;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.material.structs.UnshadedParams;
 import com.jme3.vulkan.mesh.InputRate;
@@ -36,6 +37,10 @@ public class TestJme4 extends SimpleApplication {
             m.addBinding(VertexBinding.build(engine, InputRate.Vertex, b -> {
                 b.add("BindPosition", Format.RGB32_SFloat, i -> new Position(ValueMapper.Float32, i));
             }));
+        });
+
+        MeshLayout l2 = MeshLayout.build(m -> {
+            m.addBinding(new VertexBinding(engine, InputRate.Vertex, () -> new Vertex(StructLayout.std140)));
         });
 
         Geometry g = new Geometry("geom_jme4", new Box(1f, 1f, 1f));
