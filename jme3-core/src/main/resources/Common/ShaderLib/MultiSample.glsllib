@@ -59,35 +59,19 @@ ivec2 getTextureSize(in sampler2DMS tex) {
 #endif // Multisampling
 
 vec4 fetchTextureSample(in sampler2D tex,in vec2 texC,in int sampleId){
-#if __VERSION__>=430
-    return texture(tex,texC);
-#else
     return texture2D(tex,texC);
-#endif
 }
 
 vec4 getColor(in sampler2D tex, in vec2 texC){
-#if __VERSION__>=430
-    return texture(tex,texC);
-#else
     return texture2D(tex,texC);
-#endif
 }
 
 vec4 getColorSingle(in sampler2D tex, in vec2 texC){
-#if __VERSION__>=430
-    return texture(tex,texC);
-#else
     return texture2D(tex,texC);
-#endif
 }
 
 vec4 getDepth(in sampler2D tex, in vec2 texC){
-#if __VERSION__>=430
-    return texture(tex,texC);
-#else
     return texture2D(tex,texC);
-#endif
 }
 
 vec4 getDepthMax(in sampler2D tex, in ivec2 coord, in int numSamples){

@@ -1,5 +1,6 @@
 #version 430
 
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/MultiSample.glsllib"
 
 /**
