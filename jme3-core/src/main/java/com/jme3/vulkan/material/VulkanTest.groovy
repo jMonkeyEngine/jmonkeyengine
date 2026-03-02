@@ -2,7 +2,7 @@ package com.jme3.vulkan.material
 
 import com.jme3.backend.Engine
 import com.jme3.backend.SimpleVulkanEngine.LightData
-import com.jme3.util.struct.StructLayout
+
 import com.jme3.vulkan.buffers.BufferUsage
 import com.jme3.vulkan.buffers.stream.StreamingBuffer
 import com.jme3.vulkan.descriptors.Descriptor

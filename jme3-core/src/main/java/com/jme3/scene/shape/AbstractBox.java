@@ -34,6 +34,9 @@ package com.jme3.scene.shape;
 import com.jme3.export.*;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.GlMesh;
+import com.jme3.vulkan.mesh.AdaptiveMesh;
+import com.jme3.vulkan.mesh.InputRate;
+import com.jme3.vulkan.mesh.MeshLayout;
 
 import java.io.IOException;
 
@@ -50,14 +53,14 @@ import java.io.IOException;
  * @author <a href="mailto:ianp@ianp.org">Ian Phillips</a>
  * @version $Revision: 4131 $, $Date: 2009-03-19 16:15:28 -0400 (Thu, 19 Mar 2009) $
  */
-public abstract class AbstractBox extends GlMesh {
+public abstract class AbstractBox extends AdaptiveMesh {
 
     public final Vector3f center = new Vector3f(0f, 0f, 0f);
 
     public float xExtent, yExtent, zExtent;
-    
-    public AbstractBox() {
-        super();
+
+    public AbstractBox(MeshLayout layout, long vertices, long instances) {
+        super(layout, vertices, instances);
     }
 
     /**
@@ -67,19 +70,19 @@ public abstract class AbstractBox extends GlMesh {
      */
     protected final Vector3f[] computeVertices() {
         Vector3f[] axes = {
-                Vector3f.UNIT_X.mult(xExtent),
-                Vector3f.UNIT_Y.mult(yExtent),
-                Vector3f.UNIT_Z.mult(zExtent)
+            Vector3f.UNIT_X.mult(xExtent),
+            Vector3f.UNIT_Y.mult(yExtent),
+            Vector3f.UNIT_Z.mult(zExtent)
         };
         return new Vector3f[] {
-                center.subtract(axes[0]).subtractLocal(axes[1]).subtractLocal(axes[2]),
-                center.add(axes[0]).subtractLocal(axes[1]).subtractLocal(axes[2]),
-                center.add(axes[0]).addLocal(axes[1]).subtractLocal(axes[2]),
-                center.subtract(axes[0]).addLocal(axes[1]).subtractLocal(axes[2]),
-                center.add(axes[0]).subtractLocal(axes[1]).addLocal(axes[2]),
-                center.subtract(axes[0]).subtractLocal(axes[1]).addLocal(axes[2]),
-                center.add(axes[0]).addLocal(axes[1]).addLocal(axes[2]),
-                center.subtract(axes[0]).addLocal(axes[1]).addLocal(axes[2])
+            center.subtract(axes[0]).subtractLocal(axes[1]).subtractLocal(axes[2]),
+            center.add(axes[0]).subtractLocal(axes[1]).subtractLocal(axes[2]),
+            center.add(axes[0]).addLocal(axes[1]).subtractLocal(axes[2]),
+            center.subtract(axes[0]).addLocal(axes[1]).subtractLocal(axes[2]),
+            center.add(axes[0]).subtractLocal(axes[1]).addLocal(axes[2]),
+            center.subtract(axes[0]).subtractLocal(axes[1]).addLocal(axes[2]),
+            center.add(axes[0]).addLocal(axes[1]).addLocal(axes[2]),
+            center.subtract(axes[0]).addLocal(axes[1]).addLocal(axes[2])
         };
     }
 
@@ -155,7 +158,8 @@ public abstract class AbstractBox extends GlMesh {
         doUpdateGeometryNormals();
         doUpdateGeometryTextures();
         doUpdateGeometryIndices();
-        setStatic();
+        pushElements(InputRate.Vertex);
+        pushElements(InputRate.Instance);
     }
 
     /**

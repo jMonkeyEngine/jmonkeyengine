@@ -44,7 +44,6 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.renderer.Renderer;
 import com.jme3.util.NativeObject;
-import com.jme3.util.struct.StructuredBuffer;
 import com.jme3.vulkan.buffers.NioBuffer;
 import com.jme3.vulkan.buffers.stream.Updateable;
 import com.jme3.vulkan.memory.MemorySize;

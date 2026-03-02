@@ -9,8 +9,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
-import com.jme3.util.struct.Struct;
-import com.jme3.util.struct.StructStd140BufferObject;
 import com.jme3.util.struct.fields.ColorRGBAField;
 import com.jme3.util.struct.fields.FloatField;
 import com.jme3.util.struct.fields.IntField;

@@ -103,6 +103,7 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
     }
 
     @Override
+    @Deprecated
     default Iterator<Integer> iterator() {
         return new IteratorImpl(bits());
     }
@@ -119,7 +120,7 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
         return new FlagImpl<>(flags);
     }
 
-    static <T extends Flag> int bitsOf(Flag... flags) {
+    static int bitsOf(Flag... flags) {
         int result = 0;
         for (Flag f : flags) {
             result |= f.bits();
@@ -128,7 +129,7 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
     }
 
     static boolean is(Flag f1, Flag f2) {
-        return f1 == f2 || (f1 != null && f1.is(f2));
+        return f1 == f2 || (f1 != null && f2 != null && f1.is(f2));
     }
 
     static <T extends Flag> Flag<T> combine(Flag... flags) {

@@ -32,10 +32,8 @@
 package com.jme3.shader.bufferobject.layout;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
@@ -45,7 +43,6 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.shader.bufferobject.BufferRegion;
-import com.jme3.util.struct.Struct;
 
 /**
  * Serializer that respects the <a href="https://www.khronos.org/registry/OpenGL/specs/gl/glspec45.core.pdf#page=159">

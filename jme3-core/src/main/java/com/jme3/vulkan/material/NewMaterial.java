@@ -47,7 +47,7 @@ public class NewMaterial implements VulkanMaterial {
             }
         }
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            LongBuffer sets = stack.mallocLong(descLayouts.size());
+            LongBuffer setsToBind = stack.mallocLong(descLayouts.size());
             for (DescriptorSetLayout descLayout : descLayouts) {
                 CachedDescriptorSet set = setCache.get(descLayout);
                 for (Map.Entry<String, SetLayoutBinding> binding : descLayout.getBindings().entrySet()) {
@@ -55,17 +55,16 @@ public class NewMaterial implements VulkanMaterial {
                     if (!(uniform instanceof VulkanUniform)) { // uniform=null enters block
                         continue;
                     }
-                    DescriptorSetWriter writer = uniform.createWriter(binding.getValue());
+                    DescriptorSetWriter writer = uniform.createWriter(cmd, binding.getValue());
                     if (writer == null) {
                         continue;
                     }
                     set.stageWriter(binding.getKey(), writer);
                 }
                 set.writeChanges();
-                sets.put(set.getSet().getNativeObject());
+                setsToBind.put(set.getSet().getNativeObject());
             }
-            sets.flip();
-            vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getEnum(), layout.getNativeObject(), 0, sets, null);
+            vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getEnum(), layout.getNativeObject(), 0, setsToBind.flip(), null);
             if (!layout.getPushConstants().isEmpty()) {
                 BufferMapping push = new VirtualBufferMapping(stack.malloc(layout.getPushConstantBytes()));
                 for (PushConstantRange constant : layout.getPushConstants()) {
@@ -73,7 +72,7 @@ public class NewMaterial implements VulkanMaterial {
                     if (uniform == null) {
                         throw new NullPointerException("Uniform \"" + constant.getName() + "\" does not exist as requested by layout push constants.");
                     }
-                    uniform.fillPushConstantsBuffer(constant, push);
+                    uniform.fillPushConstantsBuffer(cmd, constant, push);
                 }
                 vkCmdPushConstants(cmd.getBuffer(), layout.getNativeObject(), ShaderStage.All.bits(), 0, push.getBytes());
             }

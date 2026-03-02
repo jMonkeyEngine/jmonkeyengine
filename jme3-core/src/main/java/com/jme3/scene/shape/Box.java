@@ -32,9 +32,12 @@
 // $Id: Box.java 4131 2009-03-19 20:15:28Z blaine.dev $
 package com.jme3.scene.shape;
 
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.util.BufferUtils;
+import com.jme3.vulkan.mesh.MeshLayout;
+import com.jme3.vulkan.mesh.attribute.Attribute;
 
 import java.nio.FloatBuffer;
 
@@ -45,6 +48,8 @@ import java.nio.FloatBuffer;
  * @version $Revision: 4131 $, $Date: 2009-03-19 16:15:28 -0400 (Thu, 19 Mar 2009) $
  */
 public class Box extends AbstractBox {
+
+    private static final int VERTICES = 24;
     
     private static final short[] GEOMETRY_INDICES_DATA = {
          2,  1,  0,  3,  2,  0, // back
@@ -84,8 +89,8 @@ public class Box extends AbstractBox {
      * @param y the size of the box along the y axis, in both directions.
      * @param z the size of the box along the z axis, in both directions.
      */
-    public Box(float x, float y, float z) {
-        super();
+    public Box(MeshLayout layout, float x, float y, float z) {
+        super(layout, VERTICES, 1);
         updateGeometry(Vector3f.ZERO, x, y, z);
     }
 
@@ -105,8 +110,8 @@ public class Box extends AbstractBox {
      * @param z the size of the box along the z axis, in both directions.
      */
     @Deprecated
-    public Box(Vector3f center, float x, float y, float z) {
-        super();
+    public Box(MeshLayout layout, Vector3f center, float x, float y, float z) {
+        super(layout, VERTICES, 1);
         updateGeometry(center, x, y, z);
     }
 
@@ -122,8 +127,8 @@ public class Box extends AbstractBox {
      * @param min the minimum point that defines the box.
      * @param max the maximum point that defines the box.
      */
-    public Box(Vector3f min, Vector3f max) {
-        super();
+    public Box(MeshLayout layout, Vector3f min, Vector3f max) {
+        super(layout, 24, 1);
         updateGeometry(min, max);
     }
 
@@ -142,7 +147,7 @@ public class Box extends AbstractBox {
      */
     @Override
     public Box clone() {
-        return new Box(center.clone(), xExtent, yExtent, zExtent);
+        return new Box(getLayout(), center.clone(), xExtent, yExtent, zExtent);
     }
 
     @Override
@@ -154,32 +159,37 @@ public class Box extends AbstractBox {
 
     @Override
     protected void doUpdateGeometryNormals() {
-        if (getBuffer(Type.Normal) == null){
-            setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(GEOMETRY_NORMALS_DATA));
+        try (Attribute<Vector3f> texCoord = mapAttribute(Type.Normal)) {
+            int i = 0;
+            for (Vector3f n : texCoord.write(new Vector3f())) {
+                n.set(GEOMETRY_NORMALS_DATA[i++], GEOMETRY_NORMALS_DATA[i++], GEOMETRY_NORMALS_DATA[i++]);
+            }
         }
     }
 
     @Override
     protected void doUpdateGeometryTextures() {
-        if (getBuffer(Type.TexCoord) == null){
-            setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(GEOMETRY_TEXTURE_DATA));
+        try (Attribute<Vector2f> texCoord = mapAttribute(Type.TexCoord)) {
+            int i = 0;
+            for (Vector2f tc : texCoord.write(new Vector2f())) {
+                tc.set(GEOMETRY_TEXTURE_DATA[i++], GEOMETRY_TEXTURE_DATA[i++]);
+            }
         }
     }
 
     @Override
     protected void doUpdateGeometryVertices() {
-        FloatBuffer fpb = BufferUtils.createVector3Buffer(24);
-        Vector3f[] v = computeVertices();
-        fpb.put(new float[] {
-                v[0].x, v[0].y, v[0].z, v[1].x, v[1].y, v[1].z, v[2].x, v[2].y, v[2].z, v[3].x, v[3].y, v[3].z, // back
-                v[1].x, v[1].y, v[1].z, v[4].x, v[4].y, v[4].z, v[6].x, v[6].y, v[6].z, v[2].x, v[2].y, v[2].z, // right
-                v[4].x, v[4].y, v[4].z, v[5].x, v[5].y, v[5].z, v[7].x, v[7].y, v[7].z, v[6].x, v[6].y, v[6].z, // front
-                v[5].x, v[5].y, v[5].z, v[0].x, v[0].y, v[0].z, v[3].x, v[3].y, v[3].z, v[7].x, v[7].y, v[7].z, // left
-                v[2].x, v[2].y, v[2].z, v[6].x, v[6].y, v[6].z, v[7].x, v[7].y, v[7].z, v[3].x, v[3].y, v[3].z, // top
-                v[0].x, v[0].y, v[0].z, v[5].x, v[5].y, v[5].z, v[4].x, v[4].y, v[4].z, v[1].x, v[1].y, v[1].z  // bottom
-        });
-        setBuffer(Type.Position, 3, fpb);
-        updateBound();
+        try (Attribute<Vector3f> pos = mapAttribute(Type.Position)) {
+            Vector3f[] v = computeVertices();
+            pos.set(0, new Vector3f[] {
+                v[0], v[1], v[2], v[3], // back
+                v[1], v[4], v[6], v[2], // right
+                v[4], v[5], v[7], v[6], // front
+                v[5], v[0], v[3], v[7], // left
+                v[2], v[6], v[7], v[3], // top
+                v[0], v[5], v[4], v[1]  // bottom
+            });
+        }
     }
 
 }

@@ -11,7 +11,6 @@ import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 
 public class StreamingBuffer extends NioBuffer implements VulkanBuffer {
@@ -39,13 +38,11 @@ public class StreamingBuffer extends NioBuffer implements VulkanBuffer {
     }
 
     @Override
-    public void read(JmeImporter im) throws IOException {
-        super.read(im);
-    }
-
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        super.write(ex);
+    public ResizeResult resize(MemorySize size) {
+        if (gpuBuffer.resize(size) == ResizeResult.DataLost) {
+            regions.add(0, size.getBytes());
+        }
+        return super.resize(size);
     }
 
     @Override

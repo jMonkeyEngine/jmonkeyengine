@@ -2,6 +2,8 @@ package com.jme3.vulkan.commands;
 
 import com.jme3.renderer.ScissorArea;
 import com.jme3.renderer.ViewPortArea;
+import com.jme3.vulkan.buffers.VulkanBuffer;
+import com.jme3.vulkan.buffers.stream.BufferStream;
 import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
@@ -43,12 +45,23 @@ public class CommandBuffer {
     private final Collection<Sync> signals = new ArrayList<>();
     private final Collection<WaitSync> waits = new ArrayList<>();
     private final Collection<Runnable> completionListeners = new ArrayList<>();
+    private final Queue<VulkanBuffer> stagedUploads = new LinkedList<>();
     private TimelineSemaphore completionSemaphore;
     private boolean recording = false;
 
     protected CommandBuffer(CommandPool pool, VkCommandBuffer buffer) {
         this.pool = pool;
         this.buffer = buffer;
+    }
+
+    public void stageBufferUpload(VulkanBuffer buffer) {
+        stagedUploads.add(buffer);
+    }
+
+    public void uploadBuffers(BufferStream stream) {
+        for (VulkanBuffer buf; (buf = stagedUploads.poll()) != null;) {
+            buf.upload(this, stream);
+        }
     }
 
     /**

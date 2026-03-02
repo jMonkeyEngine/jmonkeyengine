@@ -2,9 +2,6 @@ package com.jme3.vulkan.material;
 
 import com.jme3.backend.Engine;
 import com.jme3.math.ColorRGBA;
-import com.jme3.util.struct.Member;
-import com.jme3.util.struct.Struct;
-import com.jme3.util.struct.StructLayout;
 
 public class PBRMaterial extends NewMaterial {
 

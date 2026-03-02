@@ -34,6 +34,7 @@ package com.jme3.math;
 import com.jme3.export.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
+import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -2411,6 +2412,61 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         m31 = cap.readFloat("m31", 0);
         m32 = cap.readFloat("m32", 0);
         m33 = cap.readFloat("m33", 1);
+    }
+
+    /**
+     * Writes this matrix directly to the memory at the address. It is not recommended
+     * to use this method as it can lead to memory corruption.
+     *
+     * @param address memory address
+     * @deprecated can lead to memory corruption
+     */
+    @Deprecated
+    public Matrix4f writeToStdMemory(long address) {
+        MemoryUtil.memPutFloat(address, m00);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m10);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m20);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m30);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m01);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m11);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m21);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m31);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m02);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m12);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m22);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m32);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m03);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m13);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m23);
+        MemoryUtil.memPutFloat(address + Float.BYTES, m33);
+        return this;
+    }
+
+    /**
+     * Reads to this matrix directly to the memory at the address.
+     *
+     * @param address memory address
+     * @deprecated can lead to unexpected values
+     */
+    @Deprecated
+    public Matrix4f readFromStdMemory(long address) {
+        m00 = MemoryUtil.memGetFloat(address);
+        m10 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m20 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m30 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m01 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m11 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m21 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m31 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m02 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m12 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m22 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m32 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m03 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m13 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m23 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m33 = MemoryUtil.memGetFloat(address + Float.BYTES);
+        return this;
     }
 
     /**

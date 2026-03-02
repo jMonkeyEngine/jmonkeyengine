@@ -1,13 +1,12 @@
 package com.jme3.vulkan.material.uniforms;
 
 import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.material.technique.PushConstantRange;
 import com.jme3.vulkan.util.Flag;
-
-import java.nio.ByteBuffer;
 
 public interface VulkanUniform <T> extends Uniform<T> {
 
@@ -22,17 +21,24 @@ public interface VulkanUniform <T> extends Uniform<T> {
      *
      * @return writer, or null if this uniform's value cannot be written to a descriptor set
      */
-    DescriptorSetWriter createWriter(SetLayoutBinding binding);
+    DescriptorSetWriter createWriter(CommandBuffer cmd, SetLayoutBinding binding);
 
     /**
      * Creates a binding from the parameters that can be used to bind this uniform
      *
      * @param binding binding index
-     * @param scope shader stages the binding is accessible from
+     * @param scope   shader stages the binding is accessible from
      * @return created binding
      */
     SetLayoutBinding createBinding(int binding, Flag<ShaderStage> scope);
 
-    void fillPushConstantsBuffer(PushConstantRange constant, BufferMapping mapping);
+    /**
+     * Fills the push constant buffer with this uniform's value.
+     *
+     * @param cmd
+     * @param constant push constant range
+     * @param mapping  buffer mapping
+     */
+    void fillPushConstantsBuffer(CommandBuffer cmd, PushConstantRange constant, BufferMapping mapping);
 
 }

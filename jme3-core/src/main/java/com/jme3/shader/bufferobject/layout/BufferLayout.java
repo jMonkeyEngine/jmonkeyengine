@@ -38,7 +38,6 @@ import java.util.List;
 import com.jme3.math.FastMath;
 import com.jme3.shader.bufferobject.BufferRegion;
 import com.jme3.util.functional.Function;
-import com.jme3.util.struct.Struct;
 
 /**
  * Layout serializer for buffers

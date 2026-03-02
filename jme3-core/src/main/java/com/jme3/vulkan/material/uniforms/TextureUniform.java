@@ -1,14 +1,13 @@
 package com.jme3.vulkan.material.uniforms;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.jme3.backend.Engine;
 import com.jme3.texture.Texture;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.AbstractSetWriter;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.images.VulkanImage;
-import com.jme3.vulkan.material.uniforms.def.UniformDef;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
@@ -17,7 +16,6 @@ import org.lwjgl.vulkan.VkDescriptorImageInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 public class TextureUniform <T extends Texture> implements VulkanUniform<T> {
 
@@ -33,7 +31,7 @@ public class TextureUniform <T extends Texture> implements VulkanUniform<T> {
     }
 
     @Override
-    public DescriptorSetWriter createWriter(SetLayoutBinding binding) {
+    public DescriptorSetWriter createWriter(CommandBuffer cmd, SetLayoutBinding binding) {
         if (value == null) {
             return null;
         }

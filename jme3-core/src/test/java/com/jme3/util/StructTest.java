@@ -10,7 +10,6 @@ import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.shader.bufferobject.BufferRegion;
 import com.jme3.shader.bufferobject.DirtyRegionsIterator;
 import com.jme3.shader.bufferobject.layout.Std140Layout;
-import com.jme3.util.struct.*;
 import com.jme3.util.struct.fields.*;
 
 import org.junit.Test;
@@ -22,7 +21,6 @@ public class StructTest {
         @Member(value = 1) public float subFloatField1 = 100f;
     }
 
-    @Consistent
     static class TestStruct implements Struct {
         @Member(value = 0) public int intField0 = 100;
         @Member(value = 1) public float floatField1 = 100f;

@@ -34,9 +34,9 @@ package com.jme3.math;
 import com.jme3.export.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
+import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.logging.Logger;
 
@@ -1460,6 +1460,48 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
             set(2, 1, hvyz + v.x);
             set(2, 2, e + hvz * v.z);
         }
+    }
+
+    /**
+     * Writes this matrix directly to the memory at the address.
+     *
+     * @param address memory address
+     * @deprecated can lead to memory corruption
+     */
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
+    public Matrix3f writeToStdMemory(long address) {
+        MemoryUtil.memPutFloat(address, m00);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m10);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m20);
+        MemoryUtil.memPutFloat(address += Float.BYTES << 1, m01);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m11);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m21);
+        MemoryUtil.memPutFloat(address += Float.BYTES << 1, m02);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m12);
+        MemoryUtil.memPutFloat(address + Float.BYTES, m22);
+        return this;
+    }
+
+    /**
+     * Reads to this matrix directly to the memory at the address.
+     *
+     * @param address memory address
+     * @deprecated can lead to unexpected values
+     */
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
+    public Matrix3f readFromStdMemory(long address) {
+        m00 = MemoryUtil.memGetFloat(address);
+        m10 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m20 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m01 = MemoryUtil.memGetFloat(address += Float.BYTES << 1);
+        m11 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m21 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m02 = MemoryUtil.memGetFloat(address += Float.BYTES << 1);
+        m12 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m22 = MemoryUtil.memGetFloat(address + Float.BYTES);
+        return this;
     }
 
     /**

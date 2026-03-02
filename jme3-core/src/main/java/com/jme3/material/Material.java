@@ -31,17 +31,10 @@
  */
 package com.jme3.material;
 
-import com.jme3.export.Savable;
-import com.jme3.math.*;
 import com.jme3.scene.Geometry;
-import com.jme3.texture.Texture;
 import com.jme3.util.struct.Struct;
-import com.jme3.util.struct.StructBuffer;
-import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.material.technique.NewTechnique;
 import com.jme3.vulkan.material.uniforms.Uniform;
-
-import java.util.Objects;
 
 /**
  * <code>Material</code> describes the rendering style for a given
@@ -72,6 +65,15 @@ public interface Material {
 
     default void set(String name, Object value) {
         getUniform(name).set(value);
+    }
+
+    default <T> T get(String name) {
+        Uniform<T> u = getUniform(name);
+        return u.get();
+    }
+
+    default <T> T get(String name, Class<T> type) {
+        return get(name);
     }
 
 }

@@ -80,16 +80,15 @@ import java.util.function.Consumer;
 
 public class SimpleVulkanEngine implements RenderEngine {
 
-    public static class LightData implements Struct {
+    public static class LightData extends Struct {
 
         private Light light;
-        @Member(0) public final ColorRGBA color = new ColorRGBA();
-        @Member(1) public final Vector4f position = new Vector4f();
-        @Member(2) public final Vector4f direction = new Vector4f();
-
-        public LightData() {}
+        public final Field<ColorRGBA> color = new Field<>(new ColorRGBA());
+        public final Field<Vector4f> position = new Field<>(new Vector4f());
+        public final Field<Vector4f> direction = new Field<>(new Vector4f());
 
         public LightData(Light light) {
+            addFields(color, position, direction);
             set(light);
         }
 
@@ -105,27 +104,27 @@ public class SimpleVulkanEngine implements RenderEngine {
 
         public void set(DirectionalLight light) {
             this.light = light;
-            color.set(light.getColor());
-            color.a = light.getType().getId();
-            direction.set(light.getDirection()); // this breaks protocol with jme's shaders
+            color.get().set(light.getColor());
+            color.get().a = light.getType().getId();
+            direction.get().set(light.getDirection()); // this breaks protocol with jme's shaders
         }
 
         public void set(PointLight light) {
             this.light = light;
-            color.set(light.getColor());
-            color.a = light.getType().getId();
-            position.set(light.getPosition());
-            position.w = light.getInvRadius();
+            color.get().set(light.getColor());
+            color.get().a = light.getType().getId();
+            position.get().set(light.getPosition());
+            position.get().w = light.getInvRadius();
         }
 
         public void set(SpotLight light) {
             this.light = light;
-            color.set(light.getColor());
-            color.a = light.getType().getId();
-            position.set(light.getPosition());
-            position.w = light.getInvSpotRange();
-            direction.set(light.getDirection());
-            direction.w = light.getPackedAngleCos();
+            color.get().set(light.getColor());
+            color.get().a = light.getType().getId();
+            position.get().set(light.getPosition());
+            position.get().w = light.getInvSpotRange();
+            direction.get().set(light.getDirection());
+            direction.get().w = light.getPackedAngleCos();
         }
 
         public Light getLight() {
@@ -134,14 +133,26 @@ public class SimpleVulkanEngine implements RenderEngine {
 
     }
 
-    public static class Lighting implements Struct {
-        @Member(0) public final List<LightData> lights = new ArrayList<>();
-        @Member(1) public final List<Integer> indices = new ArrayList<>();
+    public static class Lighting extends Struct {
+
+        public final Field<List<LightData>> lights = new Field<>(new ArrayList<>());
+        public final Field<List<Integer>> indices = new Field<>(new ArrayList<>());
+
+        public Lighting() {
+            addFields(lights, indices);
+        }
+
     }
 
-    public static class Transforms implements Struct {
-        @Member(0) public final Matrix4f worldViewProjectionMatrix = new Matrix4f();
-        @Member(1) public final Matrix4f viewProjectionMatrix = new Matrix4f();
+    public static class Transforms extends Struct {
+
+        public final Field<Matrix4f> worldViewProjectionMatrix = new Field<>(new Matrix4f());
+        public final Field<Matrix4f> viewProjectionMatrix = new Field<>(new Matrix4f());
+
+        public Transforms() {
+            addFields(worldViewProjectionMatrix, viewProjectionMatrix);
+        }
+
     }
 
     private final Application app;
@@ -318,12 +329,14 @@ public class SimpleVulkanEngine implements RenderEngine {
 
     @Override
     public <T extends Struct> Uniform<T> createUniformBuffer(StructLayout layout, T struct) {
-        return new StructUniform<>(Descriptor.UniformBuffer, BufferUsage.Uniform, layout, struct, bufferGen);
+        return new StructUniform<>(Descriptor.StorageBuffer, layout, struct,
+                size -> new StreamingBuffer(size, b -> b.setUsage(BufferUsage.Uniform)));
     }
 
     @Override
     public <T extends Struct> Uniform<T> createShaderStorageUniform(StructLayout layout, T struct) {
-        return new StructUniform<>(Descriptor.StorageBuffer, BufferUsage.Storage, layout, struct, bufferGen);
+        return new StructUniform<>(Descriptor.StorageBuffer, layout, struct,
+                size -> new StreamingBuffer(size, b -> b.setUsage(BufferUsage.Storage)));
     }
 
     @Override
@@ -386,10 +399,10 @@ public class SimpleVulkanEngine implements RenderEngine {
             if (!vp.isEnabled() || vp.getScenes().isEmpty()) {
                 return;
             }
-            lighting.lights.clear();
+            lighting.lights.get().clear();
             for (Spatial scene : vp.getScenes()) for (Spatial child : scene) {
                 for (Light l : child.getLocalLightList()) {
-                    lighting.lights.add(new LightData(l));
+                    lighting.lights.get().add(new LightData(l));
                 }
             }
             settings.pushViewPort(vp.getArea());
@@ -408,18 +421,18 @@ public class SimpleVulkanEngine implements RenderEngine {
                     if (e.getMaterial() != currentMaterial) {
                         (currentMaterial = e.getMaterial()).bind(graphics, currentPipeline, descriptorPool);
                     }
-                    lighting.indices.clear();
+                    lighting.indices.get().clear();
                     int lightIndex = 0;
-                    for (LightData l : lighting.lights) {
+                    for (LightData l : lighting.lights.get()) {
                         if (l.getLight().intersectsVolume(e.getGeometry().getWorldBound(), vars)) {
-                            lighting.indices.add(lightIndex);
+                            lighting.indices.get().add(lightIndex);
                         }
                         lightIndex++;
                     }
-                    transforms.viewProjectionMatrix.mult(e.getGeometry().getWorldMatrix(), transforms.worldViewProjectionMatrix);
+                    transforms.viewProjectionMatrix.get().mult(e.getGeometry().getWorldMatrix(), transforms.worldViewProjectionMatrix.get());
                     e.getMaterial().set("Lighting", lighting);
                     e.getMaterial().set("Transforms", transforms);
-                    stream.stream(graphics); // this is a problem because it can bypass wrappers
+                    graphics.uploadBuffers(stream);
                     e.getMesh().render(graphics, currentPipeline);
                 }
                 b.cleanupRender(vp, settings);
@@ -449,17 +462,16 @@ public class SimpleVulkanEngine implements RenderEngine {
 
     }
 
-    private class BufferGeneratorImpl implements BufferGenerator<VulkanBuffer> {
+    private static class BufferGeneratorImpl implements BufferGenerator<VulkanBuffer> {
 
         @Override
         public VulkanBuffer createBuffer(MemorySize size, Flag<BufferUsage> bufUsage, GlVertexBuffer.Usage dataUsage) {
             switch (dataUsage) {
                 case Static: case Dynamic: {
-                    return stream.add(new StreamingBuffer(device, size, bufUsage));
+                    return new StreamingBuffer(size, true, b -> b.setUsage(bufUsage));
                 }
                 case Stream: {
-                    return new PersistentVulkanBuffer<>(HostVisibleBuffer.build(
-                            device, size, b -> b.setUsage(BufferUsage.Vertex)));
+                    return new PersistentVulkanBuffer<>(HostVisibleBuffer.build(size, b -> b.setUsage(BufferUsage.Vertex)));
                 }
                 case CpuOnly: throw new IllegalArgumentException("Cannot create cpu-only buffer for Vulkan.");
                 default: throw new UnsupportedOperationException("Unrecognized: " + dataUsage);
