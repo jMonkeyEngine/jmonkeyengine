@@ -135,11 +135,13 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup the java environment
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
+
       - name: Set up Mesa3D for software OpenGL rendering
         shell: pwsh
         run: |
@@ -147,32 +149,32 @@ jobs:
           $url = "https://github.com/pal1000/mesa-dist-win/releases/download/$version/mesa3d-$version-release-msvc.7z"
           Invoke-WebRequest -Uri $url -OutFile mesa3d.7z
           7z x mesa3d.7z -omesa3d
-          $mesaLibsPath = "${{ github.workspace }}\mesa-libs"
-          New-Item -ItemType Directory -Force -Path $mesaLibsPath
-          # Copy all Mesa DLLs (opengl32.dll and its dependencies) from the x64 directory
-          Copy-Item "mesa3d\x64\*.dll" "$mesaLibsPath\"
-          # Persist env vars so they are available in subsequent steps
-          echo "MESA3D_LIBS_PATH=$mesaLibsPath" | Out-File -FilePath $env:GITHUB_ENV -Append
-          # Use softpipe (pure-software renderer) to avoid slow LLVM JIT initialisation
-          # that llvmpipe requires; softpipe starts up reliably on CI without GPU hardware.
-          echo "GALLIUM_DRIVER=softpipe" | Out-File -FilePath $env:GITHUB_ENV -Append
-          # Tell Mesa to advertise OpenGL 3.3 so that LWJGL3's default renderer is satisfied
-          echo "MESA_GL_VERSION_OVERRIDE=3.3" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "MESA_GLSL_VERSION_OVERRIDE=330" | Out-File -FilePath $env:GITHUB_ENV -Append
-      - name: Report Mesa3D setup
-        shell: pwsh
-        run: |
-          echo "Mesa3D libs path: $env:MESA3D_LIBS_PATH"
-          echo "GALLIUM_DRIVER: $env:GALLIUM_DRIVER"
-          Get-ChildItem "$env:MESA3D_LIBS_PATH" | Select-Object Name
+
+          $javaBin = Join-Path $env:JAVA_HOME "bin"
+
+          # Deploy Mesa next to java.exe, because java.exe is the actual process executable.
+          Copy-Item "mesa3d\x64\*.dll" "$javaBin\" -Force
+
+          # Force app-local DLL resolution for java.exe if the process would otherwise bypass it.
+          New-Item -ItemType File -Force -Path (Join-Path $javaBin "java.exe.local") | Out-Null
+
+          # Start with llvmpipe first; it is Mesa's intended software fallback.
+          "GALLIUM_DRIVER=llvmpipe" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+          # Remove these until base loading works; add back only if you really need them.
+          # "MESA_GL_VERSION_OVERRIDE=3.3" | Out-File -FilePath $env:GITHUB_ENV -Append
+          # "MESA_GLSL_VERSION_OVERRIDE=330" | Out-File -FilePath $env:GITHUB_ENV -Append
+
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
+
       - name: Test with Gradle Wrapper
         shell: bash
         run: |
-          ./gradlew :jme3-screenshot-tests:screenshotTest
+          ./gradlew --no-daemon :jme3-screenshot-tests:screenshotTest
+
       - name: Upload Test Reports
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: screenshot-test-report-windows

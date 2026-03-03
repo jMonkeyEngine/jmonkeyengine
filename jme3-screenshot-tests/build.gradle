@@ -34,15 +34,7 @@ tasks.register("screenshotTest", Test) {
     if (OperatingSystem.current().isMacOsX()) {
         jvmArgs '-XstartOnFirstThread'
     }
-    // On Windows CI, Mesa3D software rendering is needed for OpenGL support.
-    // Set MESA3D_LIBS_PATH to the directory containing Mesa's opengl32.dll and its
-    // dependencies before running the tests. LWJGL3 will extract its own natives to the
-    // same directory, and Windows' DLL search order will then prefer Mesa's opengl32.dll
-    // over the system one.
-    def mesaLibsPath = System.getenv("MESA3D_LIBS_PATH")
-    if (mesaLibsPath) {
-        systemProperty 'org.lwjgl.librarypath', mesaLibsPath
-    }
+
     // Reference images are generated on the Linux CI pipeline. On macOS and Windows the
     // GPU driver may produce slightly different pixel values for the same scene (e.g. minor
     // rounding differences). Allow a small per-channel tolerance so that tests pass despite
