@@ -98,27 +98,26 @@ jobs:
 
   ScreenshotTestsMacOS:
     name: Run Screenshot Tests (macOS)
-    # macos-13 is Intel x86_64 where GLFW/NSOpenGL context creation is well-supported on CI.
-    # macos-latest (Apple Silicon) can fail with "NSGL: Failed to find a suitable pixel format"
-    # when running GLFW 3.4 because Apple's OpenGL compatibility layer has restrictions in
-    # virtualized CI environments.
-    runs-on: macos-13
+    runs-on: macos-15-intel
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup the java environment
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '21'
+
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
+
       - name: Test with Gradle Wrapper
-        run: |
-          ./gradlew :jme3-screenshot-tests:screenshotTest
+        run: ./gradlew --no-daemon :jme3-screenshot-tests:screenshotTest
+
       - name: Upload Test Reports
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: screenshot-test-report-macos
