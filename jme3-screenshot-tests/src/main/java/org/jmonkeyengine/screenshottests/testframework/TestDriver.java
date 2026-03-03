@@ -126,15 +126,17 @@ public class TestDriver extends BaseAppState{
     }
 
     @Override
-    public void update(float tpf){
+    public void update(float tpf) {
         super.update(tpf);
 
-        if(framesToTakeScreenshotsOn.contains(tick)){
+        if (framesToTakeScreenshotsOn.contains(tick)) {
             screenshotAppState.takeScreenshot();
         }
-        if(tick >= tickToTerminateApp){
-            getApplication().stop(true);
+
+        if (tick >= tickToTerminateApp) {
             waitLatch.countDown();
+            getApplication().stop(false);
+            return;
         }
 
         tick++;
