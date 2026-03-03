@@ -98,7 +98,11 @@ jobs:
 
   ScreenshotTestsMacOS:
     name: Run Screenshot Tests (macOS)
-    runs-on: macos-latest
+    # macos-13 is Intel x86_64 where GLFW/NSOpenGL context creation is well-supported on CI.
+    # macos-latest (Apple Silicon) can fail with "NSGL: Failed to find a suitable pixel format"
+    # when running GLFW 3.4 because Apple's OpenGL compatibility layer has restrictions in
+    # virtualized CI environments.
+    runs-on: macos-13
     permissions:
       contents: read
     steps:
@@ -145,14 +149,21 @@ jobs:
           7z x mesa3d.7z -omesa3d
           $mesaLibsPath = "${{ github.workspace }}\mesa-libs"
           New-Item -ItemType Directory -Force -Path $mesaLibsPath
-          # Copy all Mesa DLLs (opengl32.dll and its dependencies)
+          # Copy all Mesa DLLs (opengl32.dll and its dependencies) from the x64 directory
           Copy-Item "mesa3d\x64\*.dll" "$mesaLibsPath\"
+          # Persist env vars so they are available in subsequent steps
           echo "MESA3D_LIBS_PATH=$mesaLibsPath" | Out-File -FilePath $env:GITHUB_ENV -Append
-      - name: Report OpenGL info
+          # Use softpipe (pure-software renderer) to avoid slow LLVM JIT initialisation
+          # that llvmpipe requires; softpipe starts up reliably on CI without GPU hardware.
+          echo "GALLIUM_DRIVER=softpipe" | Out-File -FilePath $env:GITHUB_ENV -Append
+          # Tell Mesa to advertise OpenGL 3.3 so that LWJGL3's default renderer is satisfied
+          echo "MESA_GL_VERSION_OVERRIDE=3.3" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "MESA_GLSL_VERSION_OVERRIDE=330" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Report Mesa3D setup
         shell: pwsh
         run: |
-          $env:MESA_GL_VERSION_OVERRIDE = "4.5"
           echo "Mesa3D libs path: $env:MESA3D_LIBS_PATH"
+          echo "GALLIUM_DRIVER: $env:GALLIUM_DRIVER"
           Get-ChildItem "$env:MESA3D_LIBS_PATH" | Select-Object Name
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3

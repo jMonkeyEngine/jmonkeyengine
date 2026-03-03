@@ -80,7 +80,18 @@ public class TestDriver extends BaseAppState{
 
     private static final Logger logger = Logger.getLogger(TestDriver.class.getName());
 
-    public static final String IMAGES_ARE_DIFFERENT = "Generated images is different from committed image. (If you are running the test locally this is expected, images only reproducible on github CI infrastructure)";
+    public static final String IMAGES_ARE_DIFFERENT = "Generated image is different from committed image. (If you are running the test locally this is expected, images only reproducible on github CI infrastructure)";
+
+    /**
+     * Per-channel pixel tolerance used when comparing screenshots. A value of 0 requires
+     * exact pixel matching (the default). Set the system property
+     * {@code jme.screenshotTest.pixelTolerance} to a positive integer to allow minor
+     * per-pixel differences, which is useful when comparing against Linux-generated
+     * reference images on other platforms (macOS, Windows) where rendering may differ
+     * slightly due to different GPU drivers.
+     */
+    private static final int PIXEL_TOLERANCE = Integer.parseInt(
+            System.getProperty("jme.screenshotTest.pixelTolerance", "0"));
 
     public static final String IMAGES_ARE_DIFFERENT_BETWEEN_SCENARIOS = "Images are different between scenarios.";
 
@@ -188,20 +199,41 @@ public class TestDriver extends BaseAppState{
 
             testDriver.waitLatch = new CountDownLatch(1);
 
+            // Pre-set onError so that context-creation failures (which occur before
+            // TestDriver.initialize() runs) also count down the latch.
+            // TestDriver.initialize() will overwrite this with the same behaviour once
+            // the app has successfully started.
+            final CountDownLatch capturedLatch = testDriver.waitLatch;
+            ((App)app).onError = error -> {
+                logger.log(Level.WARNING, "Error in test application (during startup)", error);
+                capturedLatch.countDown();
+            };
+
             try {
                 if (isMacOs) {
                     // On macOS the app must run on the main thread (GLFW requirement).
                     // app.start() blocks until the app stops, so no latch wait is needed.
                     app.start(JmeContext.Type.Display);
                 } else {
-                    executor.execute(() -> app.start(JmeContext.Type.Display));
+                    executor.execute(() -> {
+                        try {
+                            app.start(JmeContext.Type.Display);
+                        } catch (Throwable t) {
+                            // Catch any unexpected exception during app start (e.g. UnsatisfiedLinkError
+                            // if native libraries cannot be loaded) and unblock the waiting test thread.
+                            logger.log(Level.WARNING, "Exception while starting test application", t);
+                            capturedLatch.countDown();
+                        }
+                    });
 
                     int maxWaitTimeMilliseconds = 45000;
                     boolean exitedProperly = testDriver.waitLatch.await(maxWaitTimeMilliseconds, TimeUnit.MILLISECONDS);
 
                     if (!exitedProperly) {
                         logger.warning("Test driver did not exit in " + maxWaitTimeMilliseconds + "ms. Timed out");
-                        app.stop(true);
+                        // Use non-blocking stop so this thread doesn't deadlock if the app
+                        // thread is itself stuck (e.g. inside glfwTerminate with Mesa3D).
+                        app.stop(false);
                     }
                 }
 
@@ -421,8 +453,9 @@ public class TestDriver extends BaseAppState{
     }
 
     /**
-     * Tests that the images are the same. If they are not the same it will return false (which may fail the test
-     * depending on the test type). Different sizes are so fatal that they will immediately fail the test.
+     * Tests that the images are the same (or within {@link #PIXEL_TOLERANCE}). If they are not
+     * the same it will return false (which may fail the test depending on the test type).
+     * Different sizes are so fatal that they will immediately fail the test.
      */
     private static boolean imagesAreTheSame(BufferedImage img1, BufferedImage img2) {
         if (img1.getWidth() != img2.getWidth() || img1.getHeight() != img2.getHeight()) {
@@ -433,8 +466,12 @@ public class TestDriver extends BaseAppState{
 
         for (int y = 0; y < img1.getHeight(); y++) {
             for (int x = 0; x < img1.getWidth(); x++) {
-                if (img1.getRGB(x, y)  != img2.getRGB(x, y)){
-                    return false;
+                int rgb1 = img1.getRGB(x, y);
+                int rgb2 = img2.getRGB(x, y);
+                if (rgb1 != rgb2) {
+                    if (PIXEL_TOLERANCE == 0 || getMaximumComponentDifference(rgb1, rgb2) > PIXEL_TOLERANCE) {
+                        return false;
+                    }
                 }
             }
         }
