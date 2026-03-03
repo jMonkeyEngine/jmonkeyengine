@@ -15,7 +15,7 @@ jobs:
   monitor-screenshot-tests:
     name: Monitor Screenshot Tests and Comment
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     permissions:
       pull-requests: write
       contents: read
@@ -23,7 +23,7 @@ jobs:
       - name: Wait for GitHub to register the workflow run
         run: sleep 120
 
-      - name: Wait for Screenshot Tests to complete
+      - name: Wait for Screenshot Tests (Linux) to complete
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -31,6 +31,25 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
           allowed-conclusions: success,skipped,failure
+
+      - name: Wait for Screenshot Tests (macOS) to complete
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: 'Run Screenshot Tests (macOS)'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+          allowed-conclusions: success,skipped,failure
+
+      - name: Wait for Screenshot Tests (Windows) to complete
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: 'Run Screenshot Tests (Windows)'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+          allowed-conclusions: success,skipped,failure
+
       - name: Check Screenshot Tests status
         id: check-status
         uses: actions/github-script@v6
@@ -47,38 +66,43 @@ jobs:
               head_sha: ref
             });
 
-            // Find the ScreenshotTests job
-            let screenshotTestRun = null;
+            // Job names to monitor across all platforms
+            const screenshotJobNames = new Set([
+              'Run Screenshot Tests',
+              'Run Screenshot Tests (macOS)',
+              'Run Screenshot Tests (Windows)'
+            ]);
+
+            const failedJobs = new Set();
+
             for (const run of runs.data.workflow_runs) {
-              if (run.name === 'Build jMonkeyEngine') {
-                const jobs = await github.rest.actions.listJobsForWorkflowRun({
-                  owner,
-                  repo,
-                  run_id: run.id
-                });
+              if (run.name !== 'Integration') {
+                continue;
+              }
 
-                for (const job of jobs.data.jobs) {
-                  if (job.name === 'Run Screenshot Tests') {
-                    screenshotTestRun = job;
-                    break;
-                  }
+              const jobs = await github.rest.actions.listJobsForWorkflowRun({
+                owner,
+                repo,
+                run_id: run.id
+              });
+
+              for (const job of jobs.data.jobs) {
+                if (screenshotJobNames.has(job.name) && job.conclusion === 'failure') {
+                  failedJobs.add(job.name);
                 }
-
-                if (screenshotTestRun) break;
               }
             }
 
-            if (!screenshotTestRun) {
-              console.log('Screenshot test job not found');
-              return;
-            }
+            const failedList = Array.from(failedJobs);
 
-            // Check if the job failed
-            if (screenshotTestRun.conclusion === 'failure') {
+            if (failedList.length > 0) {
               core.setOutput('failed', 'true');
+              core.setOutput('failedJobs', failedList.join(', '));
             } else {
               core.setOutput('failed', 'false');
+              core.setOutput('failedJobs', '');
             }
+
       - name: Find Existing Comment
         uses: peter-evans/find-comment@v3
         id: existingCommentId
@@ -95,10 +119,12 @@ jobs:
           body: |
             🖼️ **Screenshot tests have failed.** 
 
+            Failed jobs: ${{ steps.check-status.outputs.failedJobs }}
+
             The purpose of these tests is to ensure that changes introduced in this PR don't break visual features. They are visual unit tests.
 
             📄 **Where to find the report:**
-            - Go to the (failed run) > Summary > Artifacts > screenshot-test-report
+            - Go to the failed run in the Integration workflow > Summary > Artifacts > screenshot-test-report (Linux), screenshot-test-report-macos (macOS), or screenshot-test-report-windows (Windows)
             - Download the zip and open jme3-screenshot-tests/build/reports/ScreenshotDiffReport.html
 
             ⚠️ **If you didn't expect to change anything visual:** 
@@ -110,7 +136,7 @@ jobs:
             ✨ **If you are creating entirely new tests:** 
             Find the new images in jme3-screenshot-tests/build/changed-images and commit the new images at jme3-screenshot-tests/src/test/resources.
 
-            **Note;**  it is very important that the committed reference images are created on the build pipeline, locally created images are not reliable. Similarly tests will fail locally but you can look at the report to check they are "visually similar".
+            **Note:** The reference images are generated on the Linux CI pipeline. macOS and Windows may produce visually similar but not pixel-identical images due to different GPU drivers or rendering backends. If only macOS or Windows screenshot tests fail but Linux passes, the differences may be platform-specific rendering variations rather than regressions.
 
             See https://github.com/jMonkeyEngine/jmonkeyengine/blob/master/jme3-screenshot-tests/README.md for more information
             
