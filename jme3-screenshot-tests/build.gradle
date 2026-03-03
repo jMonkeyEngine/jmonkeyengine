@@ -2,6 +2,8 @@ plugins {
     id 'java'
 }
 
+import org.gradle.internal.os.OperatingSystem
+
 repositories {
     mavenCentral()
 }
@@ -25,6 +27,21 @@ tasks.register("screenshotTest", Test) {
         filter{
             includeTags 'integration'
         }
+    }
+    // On macOS, GLFW (used by LWJGL3) requires all window operations on the main OS thread.
+    // -XstartOnFirstThread makes the JVM main thread the macOS main thread so tests can
+    // start the JME application directly without going through an executor thread.
+    if (OperatingSystem.current().isMacOsX()) {
+        jvmArgs '-XstartOnFirstThread'
+    }
+    // On Windows CI, Mesa3D software rendering is needed for OpenGL support.
+    // Set MESA3D_LIBS_PATH to the directory containing Mesa's opengl32.dll and its
+    // dependencies before running the tests. LWJGL3 will extract its own natives to the
+    // same directory, and Windows' DLL search order will then prefer Mesa's opengl32.dll
+    // over the system one.
+    def mesaLibsPath = System.getenv("MESA3D_LIBS_PATH")
+    if (mesaLibsPath) {
+        systemProperty 'org.lwjgl.librarypath', mesaLibsPath
     }
 }
 

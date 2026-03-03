@@ -153,6 +153,12 @@ public class TestDriver extends BaseAppState{
 
         Collections.sort(framesToTakeScreenshotsOn);
 
+        // On macOS, GLFW requires all window operations to happen on the main OS thread.
+        // With -XstartOnFirstThread, the JVM main thread is the macOS main thread, and
+        // JUnit runs test methods on this thread, so we start the app directly (blocking)
+        // rather than on a background executor thread.
+        boolean isMacOs = System.getProperty("os.name", "").toLowerCase().contains("mac");
+
         List<Path> tempFolders = new ArrayList<>();
         Map<Scenario, List<Path>> imageFilesPerScenario = new HashMap<>();
 
@@ -181,16 +187,22 @@ public class TestDriver extends BaseAppState{
             app.setShowSettings(false);
 
             testDriver.waitLatch = new CountDownLatch(1);
-            executor.execute(() -> app.start(JmeContext.Type.Display));
-
-            int maxWaitTimeMilliseconds = 45000;
 
             try {
-                boolean exitedProperly = testDriver.waitLatch.await(maxWaitTimeMilliseconds, TimeUnit.MILLISECONDS);
+                if (isMacOs) {
+                    // On macOS the app must run on the main thread (GLFW requirement).
+                    // app.start() blocks until the app stops, so no latch wait is needed.
+                    app.start(JmeContext.Type.Display);
+                } else {
+                    executor.execute(() -> app.start(JmeContext.Type.Display));
 
-                if (!exitedProperly) {
-                    logger.warning("Test driver did not exit in " + maxWaitTimeMilliseconds + "ms. Timed out");
-                    app.stop(true);
+                    int maxWaitTimeMilliseconds = 45000;
+                    boolean exitedProperly = testDriver.waitLatch.await(maxWaitTimeMilliseconds, TimeUnit.MILLISECONDS);
+
+                    if (!exitedProperly) {
+                        logger.warning("Test driver did not exit in " + maxWaitTimeMilliseconds + "ms. Timed out");
+                        app.stop(true);
+                    }
                 }
 
                 Thread.sleep(1000); //give time for openGL is fully released before starting a new test (get random JVM crashes without this)

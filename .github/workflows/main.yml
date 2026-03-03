@@ -96,6 +96,81 @@ jobs:
             **/build/changed-images/**
             **/build/test-results/**
 
+  ScreenshotTestsMacOS:
+    name: Run Screenshot Tests (macOS)
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup the java environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+      - name: Test with Gradle Wrapper
+        run: |
+          ./gradlew :jme3-screenshot-tests:screenshotTest
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@master
+        if: always()
+        with:
+          name: screenshot-test-report-macos
+          retention-days: 30
+          path: |
+            **/build/reports/**
+            **/build/changed-images/**
+            **/build/test-results/**
+
+  ScreenshotTestsWindows:
+    name: Run Screenshot Tests (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup the java environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Set up Mesa3D for software OpenGL rendering
+        shell: pwsh
+        run: |
+          $version = "24.2.4"
+          $url = "https://github.com/pal1000/mesa-dist-win/releases/download/$version/mesa3d-$version-release-msvc.7z"
+          Invoke-WebRequest -Uri $url -OutFile mesa3d.7z
+          7z x mesa3d.7z -omesa3d
+          $mesaLibsPath = "${{ github.workspace }}\mesa-libs"
+          New-Item -ItemType Directory -Force -Path $mesaLibsPath
+          # Copy all Mesa DLLs (opengl32.dll and its dependencies)
+          Copy-Item "mesa3d\x64\*.dll" "$mesaLibsPath\"
+          echo "MESA3D_LIBS_PATH=$mesaLibsPath" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Report OpenGL info
+        shell: pwsh
+        run: |
+          $env:MESA_GL_VERSION_OVERRIDE = "4.5"
+          echo "Mesa3D libs path: $env:MESA3D_LIBS_PATH"
+          Get-ChildItem "$env:MESA3D_LIBS_PATH" | Select-Object Name
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+      - name: Test with Gradle Wrapper
+        shell: bash
+        run: |
+          ./gradlew :jme3-screenshot-tests:screenshotTest
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@master
+        if: always()
+        with:
+          name: screenshot-test-report-windows
+          retention-days: 30
+          path: |
+            **/build/reports/**
+            **/build/changed-images/**
+            **/build/test-results/**
+
   # Build iOS natives
   BuildIosNatives:
     name: Build natives for iOS
