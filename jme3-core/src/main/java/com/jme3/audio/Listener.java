@@ -41,19 +41,17 @@ import com.jme3.math.Vector3f;
  */
 public class Listener {
 
-    private final Vector3f location;
-    private final Vector3f velocity;
-    private final Quaternion rotation;
-    private float volume = 1;
+    private final Vector3f location = new Vector3f();
+    private final Vector3f velocity = new Vector3f();
+    private final Quaternion rotation = new Quaternion();
+    private float volume = 1f;
     private AudioRenderer renderer;
+
 
     /**
      * Constructs a new {@code Listener} with default parameters.
      */
     public Listener() {
-        location = new Vector3f();
-        velocity = new Vector3f();
-        rotation = new Quaternion();
     }
 
     /**
@@ -62,9 +60,9 @@ public class Listener {
      * @param source The {@code Listener} to copy the properties from.
      */
     public Listener(Listener source) {
-        this.location = source.location.clone();
-        this.velocity = source.velocity.clone();
-        this.rotation = source.rotation.clone();
+        this.location.set(source.location);
+        this.velocity.set(source.velocity);
+        this.rotation.set(source.rotation);
         this.volume = source.volume;
         this.renderer = source.renderer; // Note: Renderer is also copied
     }
@@ -110,12 +108,34 @@ public class Listener {
     }
 
     /**
+     * Gets the current location of the listener in world space.
+     * 
+     * @param store The vector to store the result in.
+     * @return The listener's location as a {@link Vector3f}.
+     */
+    public Vector3f getLocation(Vector3f store) {
+        if (store == null) store = new Vector3f();
+        return store.set(location);
+    }
+
+    /**
      * Gets the current rotation of the listener in world space.
      *
      * @return The listener's rotation as a {@link Quaternion}.
      */
     public Quaternion getRotation() {
         return rotation;
+    }
+
+    /**
+     * Gets the current rotation of the listener in world space.
+     * 
+     * @param store The quaternion to store the result in.
+     * @return The listener's rotation as a {@link Quaternion}.
+     */
+    public Quaternion getRotation(Quaternion store) {
+        if (store == null) store = new Quaternion();
+        return store.set(rotation);
     }
 
     /**
@@ -129,13 +149,34 @@ public class Listener {
     }
 
     /**
+     * Gets the current velocity of the listener.
+     * 
+     * @param store The vector to store the result in.
+     * @return The listener's velocity as a {@link Vector3f}.
+     */
+    public Vector3f getVelocity(Vector3f store) {
+        if (store == null) store = new Vector3f();
+        return store.set(velocity);
+    }
+
+    /**
      * Gets the left direction vector of the listener.
      * This vector is derived from the listener's rotation.
      *
      * @return The listener's left direction as a {@link Vector3f}.
      */
     public Vector3f getLeft() {
-        return rotation.getRotationColumn(0);
+        return getLeft(null);
+    }
+
+    /**
+     * Gets the left direction vector of the listener. This vector is derived from the listener's rotation.
+     *
+     * @param store The vector to store the result in.
+     * @return The listener's left direction as a {@link Vector3f}.
+     */
+    public Vector3f getLeft(Vector3f store) {
+        return rotation.getRotationColumn(0, store);
     }
 
     /**
@@ -145,7 +186,18 @@ public class Listener {
      * @return The listener's up direction as a {@link Vector3f}.
      */
     public Vector3f getUp() {
-        return rotation.getRotationColumn(1);
+        return getUp(null);
+    }
+
+    /**
+     * Gets the up direction vector of the listener. 
+     * This vector is derived from the listener's rotation.
+     *
+     * @param store The vector to store the result in.
+     * @return The listener's up direction as a {@link Vector3f}.
+     */
+    public Vector3f getUp(Vector3f store) {
+        return rotation.getRotationColumn(1, store);
     }
 
     /**
@@ -155,7 +207,18 @@ public class Listener {
      * @return The listener's forward direction.
      */
     public Vector3f getDirection() {
-        return rotation.getRotationColumn(2);
+        return getDirection(null);
+    }
+
+    /**
+     * Gets the forward direction vector of the listener. 
+     * This vector is derived from the listener's rotation.
+     *
+     * @param store The vector to store the result in.
+     * @return The listener's forward direction.
+     */
+    public Vector3f getDirection(Vector3f store) {
+        return rotation.getRotationColumn(2, store);
     }
 
     /**
