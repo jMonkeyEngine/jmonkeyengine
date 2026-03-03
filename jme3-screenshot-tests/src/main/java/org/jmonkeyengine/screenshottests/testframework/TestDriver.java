@@ -155,7 +155,6 @@ public class TestDriver extends BaseAppState{
     @Override protected void onDisable(){}
     
     private static AppSettings applyPlatformSettings(AppSettings settings) {
-        settings = new AppSettings(settings);
         String os = System.getProperty("os.name", "").toLowerCase();
         if (os.contains("mac")) {
             settings.setSamples(0);
