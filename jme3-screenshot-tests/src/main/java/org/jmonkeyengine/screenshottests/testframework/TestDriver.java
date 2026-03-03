@@ -153,7 +153,19 @@ public class TestDriver extends BaseAppState{
     @Override protected void onEnable(){}
 
     @Override protected void onDisable(){}
-
+    
+    private static AppSettings applyPlatformSettings(AppSettings settings) {
+        settings = new AppSettings(settings);
+        String os = System.getProperty("os.name", "").toLowerCase();
+        if (os.contains("mac")) {
+            settings.setSamples(0);
+            settings.setGammaCorrection(false);
+            settings.setStencilBits(0);
+            settings.setUseRetinaFrameBuffer(false);
+        }
+        return settings;
+    }
+    
     /**
      * Boots up the application on a separate thread (blocks this thread) and then does the following:
      * - Takes screenshots on the requested frames
@@ -194,6 +206,7 @@ public class TestDriver extends BaseAppState{
             states.add(testDriver);
 
             SimpleApplication app = new App(states.toArray(new AppState[0]));
+            appSettings = applyPlatformSettings(appSettings);
             app.setSettings(appSettings);
             app.setShowSettings(false);
 
