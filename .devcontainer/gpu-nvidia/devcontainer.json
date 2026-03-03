@@ -1,0 +1,25 @@
+{
+  "name": "jME env (NVIDIA)",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "runArgs": [
+    "--gpus=all"
+  ],
+  "containerEnv": {
+    "LIBGL_ALWAYS_SOFTWARE": "0",
+    "NVIDIA_VISIBLE_DEVICES": "all",
+    "NVIDIA_DRIVER_CAPABILITIES": "graphics,utility,compute",
+    "__GL_THREADED_OPTIMIZATIONS": "0",
+    "JME3_DIALOGS_FACTORY": ""
+  },
+  "postCreateCommand": "bash .devcontainer/scripts/setup.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "workbench.colorTheme": "GitHub Dark Dimmed"
+      }
+    }
+  }
+}

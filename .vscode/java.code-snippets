@@ -1,0 +1,54 @@
+{
+
+	"logger":{
+		"prefix":"logger",
+		"body": [
+			"private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(${1:${TM_FILENAME_BASE}}.class.getName());"
+		],
+		"description":"Add java.util Logger"
+	},
+	"log":{
+		"prefix": "log",
+		"body":[
+			"if(logger.isLoggable(java.util.logging.Level.$1  )){\n\tlogger.log(java.util.logging.Level.$1, \"$2\");\n}"
+		],
+		
+	},
+	"logfinest":{
+		"prefix": "logfinest",
+		"body":[
+			"logger.finest($1);"
+		]
+	},
+	"logfiner":{
+		"prefix": "logfiner",
+		"body":[
+			"logger.finer($1);"
+		]
+	},
+	"logfine":{
+		"prefix": "logfine",
+		"body":[
+			"logger.fine($1);"
+		]
+	},
+	"loginfo":{
+		"prefix": "loginfo",
+		"body":[
+			"logger.info($1);"
+		]
+	},
+	"logwarning":{
+		"prefix": "logwarning",
+		"body":[
+			"logger.warning($1);"
+		]
+	},
+	"logsevere":{
+		"prefix": "logsevere",
+		"body":[
+			"logger.severe($1);"
+		]	
+	}
+
+}
