@@ -44,8 +44,8 @@ float determineShadow(int index, vec4 worldPos){
 }
 
 void main() {
-    float depth = getColor(m_DepthTexture,texCoord).r;
-    vec4 color  = getDepth(m_Texture,texCoord);
+    float depth = getDepth(m_DepthTexture,texCoord).r;
+    vec4 color  = getColor(m_Texture,texCoord);
 
     //Discard shadow computation on the sky
     if(depth == 1.0){
