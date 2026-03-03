@@ -54,6 +54,57 @@ public class RenderStateTest {
     // new methods exposed
 
     @Test
+    public void testHashInvalidation() {
+        /*
+         * Test that setters properly invalidate the cached hash code.
+         */
+        RenderState state = new RenderState();
+        
+        // Get initial hash to force caching
+        int hash1 = state.contentHashCode();
+        
+        // Test setFrontStencilMask invalidates hash
+        state.setFrontStencilMask(0x12345678);
+        int hash2 = state.contentHashCode();
+        Assert.assertNotEquals("setFrontStencilMask should invalidate hash", hash1, hash2);
+        
+        // Test setBackStencilMask invalidates hash
+        hash1 = state.contentHashCode();
+        state.setBackStencilMask(0x87654321);
+        hash2 = state.contentHashCode();
+        Assert.assertNotEquals("setBackStencilMask should invalidate hash", hash1, hash2);
+        
+        // Test setFrontStencilReference invalidates hash
+        hash1 = state.contentHashCode();
+        state.setFrontStencilReference(42);
+        hash2 = state.contentHashCode();
+        Assert.assertNotEquals("setFrontStencilReference should invalidate hash", hash1, hash2);
+        
+        // Test setBackStencilReference invalidates hash
+        hash1 = state.contentHashCode();
+        state.setBackStencilReference(99);
+        hash2 = state.contentHashCode();
+        Assert.assertNotEquals("setBackStencilReference should invalidate hash", hash1, hash2);
+        
+        // Test flipFaceCull invalidates hash
+        state.setFaceCullMode(RenderState.FaceCullMode.Back);
+        hash1 = state.contentHashCode();
+        state.flipFaceCull();
+        hash2 = state.contentHashCode();
+        Assert.assertNotEquals("flipFaceCull should invalidate hash", hash1, hash2);
+        Assert.assertEquals("flipFaceCull should flip Back to Front", 
+                RenderState.FaceCullMode.Front, state.getFaceCullMode());
+        
+        // Test flipFaceCull again (Front to Back)
+        hash1 = state.contentHashCode();
+        state.flipFaceCull();
+        hash2 = state.contentHashCode();
+        Assert.assertNotEquals("flipFaceCull should invalidate hash (Front to Back)", hash1, hash2);
+        Assert.assertEquals("flipFaceCull should flip Front to Back", 
+                RenderState.FaceCullMode.Back, state.getFaceCullMode());
+    }
+
+    @Test
     public void testCloneRenderState() {
         for (RenderState.BlendEquation equation : RenderState.BlendEquation.values()) {
             testObject.setBlendEquation(equation);
