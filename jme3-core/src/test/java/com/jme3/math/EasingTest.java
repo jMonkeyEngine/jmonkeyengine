@@ -171,4 +171,99 @@ public class EasingTest {
     public void testInQuintMidpoint() {
         Assert.assertEquals(0.03125f, Easing.inQuint.apply(0.5f), TOLERANCE);
     }
+
+    // -----------------------------------------------------------------------
+    // Complex behavioral tests
+    // -----------------------------------------------------------------------
+
+    /** linear must be monotonically non-decreasing on [0, 1]. */
+    @Test
+    public void testMonotonicity_linear() {
+        float prev = Easing.linear.apply(0f);
+        for (int i = 1; i <= 10; i++) {
+            float t = i / 10f;
+            float cur = Easing.linear.apply(t);
+            Assert.assertTrue("linear must be non-decreasing at t=" + t, cur >= prev - TOLERANCE);
+            prev = cur;
+        }
+    }
+
+    /** inQuad must be monotonically increasing on [0, 1]. */
+    @Test
+    public void testMonotonicity_inQuad() {
+        float prev = Easing.inQuad.apply(0f);
+        for (int i = 1; i <= 10; i++) {
+            float t = i / 10f;
+            float cur = Easing.inQuad.apply(t);
+            Assert.assertTrue("inQuad must be non-decreasing at t=" + t, cur >= prev - TOLERANCE);
+            prev = cur;
+        }
+    }
+
+    /** outBounce must start at 0 and end at 1. */
+    @Test
+    public void testMonotonicity_outBounce() {
+        // outBounce starts at 0 and ends at 1 (it "bounces" up, hence not strictly monotone)
+        Assert.assertEquals(0f, Easing.outBounce.apply(0f), TOLERANCE);
+        Assert.assertEquals(1f, Easing.outBounce.apply(1f), TOLERANCE);
+        // Values must stay within [0, 1]
+        for (int i = 0; i <= 20; i++) {
+            float t = i / 20f;
+            float val = Easing.outBounce.apply(t);
+            Assert.assertTrue("outBounce value at t=" + t + " must be >= 0", val >= -TOLERANCE);
+            Assert.assertTrue("outBounce value at t=" + t + " must be <= 1", val <= 1f + TOLERANCE);
+        }
+    }
+
+    /**
+     * inOutQuad must be symmetric around (0.5, 0.5): f(0.5) == 0.5 and
+     * f(1−t) == 1 − f(t) for all t.
+     */
+    @Test
+    public void testInOutSymmetry_inOutQuad() {
+        Assert.assertEquals(0.5f, Easing.inOutQuad.apply(0.5f), TOLERANCE);
+        float[] testPoints = {0.1f, 0.25f, 0.4f, 0.6f, 0.75f, 0.9f};
+        for (float t : testPoints) {
+            float ft  = Easing.inOutQuad.apply(t);
+            float f1t = Easing.inOutQuad.apply(1f - t);
+            Assert.assertEquals("inOutQuad symmetry at t=" + t, 1f - ft, f1t, TOLERANCE);
+        }
+    }
+
+    /** outQuad must progress faster early than inQuad (out is fast then slow). */
+    @Test
+    public void testOutIsFastThenSlow_outQuad() {
+        float tEarly = 0.25f;
+        Assert.assertTrue("outQuad(0.25) must be > inQuad(0.25)",
+                Easing.outQuad.apply(tEarly) > Easing.inQuad.apply(tEarly));
+    }
+
+    /**
+     * smoothStep has zero derivative at the endpoints: f(ε) must be very
+     * close to 0, confirming the flat start.
+     */
+    @Test
+    public void testSmoothStepDerivativeAtEndsIsZero() {
+        float eps = 1e-3f;
+        // At t=0 the derivative is 0, so f(eps)/eps ≈ 0
+        float slope0 = Easing.smoothStep.apply(eps) / eps;
+        Assert.assertEquals(0f, slope0, 1e-2f);
+        // At t=1 the derivative is 0, so (f(1) - f(1-eps))/eps ≈ 0
+        float slope1 = (Easing.smoothStep.apply(1f) - Easing.smoothStep.apply(1f - eps)) / eps;
+        Assert.assertEquals(0f, slope1, 1e-2f);
+    }
+
+    /**
+     * A custom InOut built from inQuad and outCubic must satisfy:
+     * apply(0) == 0, apply(1) == 1, and apply(0.5) is the boundary value
+     * (inQuad(1)/2 == 0.5).
+     */
+    @Test
+    public void testCustomInOut() {
+        EaseFunction custom = new Easing.InOut(Easing.inQuad, Easing.outCubic);
+        Assert.assertEquals(0f, custom.apply(0f), TOLERANCE);
+        Assert.assertEquals(1f, custom.apply(1f), TOLERANCE);
+        // At t=0.5: InOut evaluates in-half: in.apply(1.0)/2 = inQuad(1)/2 = 0.5
+        Assert.assertEquals(0.5f, custom.apply(0.5f), TOLERANCE);
+    }
 }

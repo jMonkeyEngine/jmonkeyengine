@@ -531,4 +531,120 @@ public class Vector2fTest {
         Assert.assertTrue(Float.isNaN(Vector2f.NAN.x));
         Assert.assertTrue(Float.isNaN(Vector2f.NAN.y));
     }
+
+    // -----------------------------------------------------------------------
+    // Complex behavioral tests
+    // -----------------------------------------------------------------------
+
+    /** Perpendicular vectors have dot == 0; same-direction unit vectors have dot == 1. */
+    @Test
+    public void testDotProductGeometry() {
+        Vector2f a = new Vector2f(1f, 0f);
+        Vector2f b = new Vector2f(0f, 1f);
+        Assert.assertEquals(0f, a.dot(b), TOLERANCE);                  // perpendicular
+        Assert.assertEquals(1f, a.dot(new Vector2f(1f, 0f)), TOLERANCE); // parallel unit
+    }
+
+    /** (1,0) × (0,1) z-component = +1; (0,1) × (1,0) z-component = -1. */
+    @Test
+    public void testCrossProductZComponent() {
+        Vector2f x = new Vector2f(1f, 0f);
+        Vector2f y = new Vector2f(0f, 1f);
+        Assert.assertEquals(1f,  x.determinant(y), TOLERANCE);
+        Assert.assertEquals(-1f, y.determinant(x), TOLERANCE);
+    }
+
+    /** After normalize() the length must be exactly 1. */
+    @Test
+    public void testNormalizeProducesUnitVector() {
+        Vector2f v = new Vector2f(3f, 4f);
+        Vector2f n = v.normalize();
+        Assert.assertEquals(1f, n.length(), TOLERANCE);
+    }
+
+    /**
+     * normalize(v) must be parallel to v: the cross-product z-component
+     * (determinant) of the normalised vector with the original is 0.
+     */
+    @Test
+    public void testNormalizePreservesDirection() {
+        Vector2f v = new Vector2f(3f, 4f);
+        Vector2f n = v.normalize();
+        Assert.assertEquals(0f, n.determinant(v), TOLERANCE);
+        // Same quadrant: both components have the same sign
+        Assert.assertTrue(n.x > 0f);
+        Assert.assertTrue(n.y > 0f);
+    }
+
+    /** distance(a,b) must equal (b−a).length(). */
+    @Test
+    public void testLengthAndDistance() {
+        Vector2f a = new Vector2f(1f, 2f);
+        Vector2f b = new Vector2f(4f, 6f);
+        float dist = a.distance(b);
+        float diffLen = b.subtract(a).length();
+        Assert.assertEquals(diffLen, dist, TOLERANCE);
+    }
+
+    /** The smallest angle between axis-aligned unit vectors. */
+    @Test
+    public void testAngleBetween() {
+        Vector2f xAxis = new Vector2f(1f, 0f);
+        Vector2f yAxis = new Vector2f(0f, 1f);
+        Vector2f negX  = new Vector2f(-1f, 0f);
+        Assert.assertEquals(FastMath.HALF_PI, xAxis.smallestAngleBetween(yAxis), TOLERANCE);
+        Assert.assertEquals(FastMath.PI,      xAxis.smallestAngleBetween(negX),  TOLERANCE);
+    }
+
+    /** Interpolating (0,0)→(2,2) at t=0.5 must give (1,1). */
+    @Test
+    public void testInterpolateLocal_HalfwayPoint() {
+        Vector2f start = new Vector2f(0f, 0f);
+        Vector2f end   = new Vector2f(2f, 2f);
+        Vector2f v     = new Vector2f();
+        v.interpolateLocal(start, end, 0.5f);
+        Assert.assertEquals(1f, v.x, TOLERANCE);
+        Assert.assertEquals(1f, v.y, TOLERANCE);
+    }
+
+    /** interpolateLocal at t=0 must return the start vector. */
+    @Test
+    public void testInterpolateLocal_AtZero() {
+        Vector2f start = new Vector2f(3f, 7f);
+        Vector2f end   = new Vector2f(9f, -1f);
+        Vector2f v     = new Vector2f();
+        v.interpolateLocal(start, end, 0f);
+        Assert.assertEquals(start.x, v.x, TOLERANCE);
+        Assert.assertEquals(start.y, v.y, TOLERANCE);
+    }
+
+    /** interpolateLocal at t=1 must return the end vector. */
+    @Test
+    public void testInterpolateLocal_AtOne() {
+        Vector2f start = new Vector2f(3f, 7f);
+        Vector2f end   = new Vector2f(9f, -1f);
+        Vector2f v     = new Vector2f();
+        v.interpolateLocal(start, end, 1f);
+        Assert.assertEquals(end.x, v.x, TOLERANCE);
+        Assert.assertEquals(end.y, v.y, TOLERANCE);
+    }
+
+    /** v + w − w must equal v. */
+    @Test
+    public void testAddSubtractRoundTrip() {
+        Vector2f v = new Vector2f(5f, -3f);
+        Vector2f w = new Vector2f(2f, 7f);
+        Vector2f result = v.add(w).subtract(w);
+        Assert.assertEquals(v.x, result.x, TOLERANCE);
+        Assert.assertEquals(v.y, result.y, TOLERANCE);
+    }
+
+    /** (v * 3) / 3 must equal v. */
+    @Test
+    public void testMultAndDivideAreInverse() {
+        Vector2f v = new Vector2f(4f, 9f);
+        Vector2f result = v.mult(3f).divide(3f);
+        Assert.assertEquals(v.x, result.x, TOLERANCE);
+        Assert.assertEquals(v.y, result.y, TOLERANCE);
+    }
 }

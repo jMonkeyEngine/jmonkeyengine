@@ -529,4 +529,124 @@ public class Vector4fTest {
         Assert.assertEquals(0f, Vector4f.UNIT_W.x, 0f);
         Assert.assertTrue(Float.isNaN(Vector4f.NAN.x));
     }
+
+    // -----------------------------------------------------------------------
+    // Complex behavioral tests
+    // -----------------------------------------------------------------------
+
+    /** Orthogonal unit vectors have dot == 0; a unit vector with itself has dot == 1. */
+    @Test
+    public void testDotProductGeometry() {
+        Vector4f x = new Vector4f(1f, 0f, 0f, 0f);
+        Vector4f y = new Vector4f(0f, 1f, 0f, 0f);
+        Assert.assertEquals(0f, x.dot(y), TOLERANCE);
+        Assert.assertEquals(1f, x.dot(x), TOLERANCE);
+    }
+
+    /** After normalize() the length must be 1. */
+    @Test
+    public void testNormalizeProducesUnitVector() {
+        Vector4f v = new Vector4f(1f, 2f, 3f, 4f);
+        Vector4f n = v.normalize();
+        Assert.assertEquals(1f, n.length(), TOLERANCE);
+        // Original unaffected
+        Assert.assertEquals(1f, v.x, 0f);
+    }
+
+    /**
+     * Projecting a projection of v onto u, back onto u again, must
+     * reproduce the same vector (idempotency).
+     */
+    @Test
+    public void testProjectionIsIdempotent() {
+        Vector4f v = new Vector4f(2f, 3f, 0f, 0f);
+        Vector4f u = new Vector4f(1f, 0f, 0f, 0f);
+        Vector4f proj1 = v.project(u);
+        Vector4f proj2 = proj1.project(u);
+        Assert.assertEquals(proj1.x, proj2.x, TOLERANCE);
+        Assert.assertEquals(proj1.y, proj2.y, TOLERANCE);
+        Assert.assertEquals(proj1.z, proj2.z, TOLERANCE);
+        Assert.assertEquals(proj1.w, proj2.w, TOLERANCE);
+    }
+
+    /** Projecting a vector onto itself must give back the same vector. */
+    @Test
+    public void testProjectionOntoSelf() {
+        Vector4f v = new Vector4f(1f, 0f, 0f, 0f); // use unit vector to avoid scaling
+        Vector4f proj = v.project(v);
+        Assert.assertEquals(v.x, proj.x, TOLERANCE);
+        Assert.assertEquals(v.y, proj.y, TOLERANCE);
+        Assert.assertEquals(v.z, proj.z, TOLERANCE);
+        Assert.assertEquals(v.w, proj.w, TOLERANCE);
+    }
+
+    /** scaleAdd(scalar, add): (2,3,4,5)*3 + (1,0,0,0) == (7,9,12,15). */
+    @Test
+    public void testScaleAddTwoArgForm() {
+        Vector4f a   = new Vector4f(2f, 3f, 4f, 5f);
+        Vector4f add = new Vector4f(1f, 0f, 0f, 0f);
+        a.scaleAdd(3f, add);
+        Assert.assertEquals(7f,  a.x, TOLERANCE);
+        Assert.assertEquals(9f,  a.y, TOLERANCE);
+        Assert.assertEquals(12f, a.z, TOLERANCE);
+        Assert.assertEquals(15f, a.w, TOLERANCE);
+    }
+
+    /** scaleAdd(scalar, mult, add): scalar*(2,3,4,5) + (1,0,0,0) == (7,9,12,15). */
+    @Test
+    public void testScaleAddThreeArgForm() {
+        Vector4f result = new Vector4f();
+        Vector4f mult   = new Vector4f(2f, 3f, 4f, 5f);
+        Vector4f add    = new Vector4f(1f, 0f, 0f, 0f);
+        result.scaleAdd(3f, mult, add);
+        Assert.assertEquals(7f,  result.x, TOLERANCE);
+        Assert.assertEquals(9f,  result.y, TOLERANCE);
+        Assert.assertEquals(12f, result.z, TOLERANCE);
+        Assert.assertEquals(15f, result.w, TOLERANCE);
+    }
+
+    /** minLocal and maxLocal must compute component-wise extremes. */
+    @Test
+    public void testMinMaxLocal() {
+        Vector4f a = new Vector4f(5f, 2f, 8f, 1f);
+        Vector4f b = new Vector4f(3f, 6f, 4f, 7f);
+
+        Vector4f minA = new Vector4f(a);
+        minA.minLocal(b);
+        Assert.assertEquals(3f, minA.x, TOLERANCE);
+        Assert.assertEquals(2f, minA.y, TOLERANCE);
+        Assert.assertEquals(4f, minA.z, TOLERANCE);
+        Assert.assertEquals(1f, minA.w, TOLERANCE);
+
+        Vector4f maxA = new Vector4f(a);
+        maxA.maxLocal(b);
+        Assert.assertEquals(5f, maxA.x, TOLERANCE);
+        Assert.assertEquals(6f, maxA.y, TOLERANCE);
+        Assert.assertEquals(8f, maxA.z, TOLERANCE);
+        Assert.assertEquals(7f, maxA.w, TOLERANCE);
+    }
+
+    /** v + w − w must equal v. */
+    @Test
+    public void testAddSubtractRoundTrip() {
+        Vector4f v = new Vector4f(1f, -2f, 3f, -4f);
+        Vector4f w = new Vector4f(5f,  6f, 7f,  8f);
+        Vector4f result = v.add(w).subtract(w);
+        Assert.assertEquals(v.x, result.x, TOLERANCE);
+        Assert.assertEquals(v.y, result.y, TOLERANCE);
+        Assert.assertEquals(v.z, result.z, TOLERANCE);
+        Assert.assertEquals(v.w, result.w, TOLERANCE);
+    }
+
+    /** negateLocal twice must return the original vector. */
+    @Test
+    public void testNegateLocalTwiceIsOriginal() {
+        Vector4f v = new Vector4f(1f, -2f, 3f, -4f);
+        Vector4f copy = new Vector4f(v);
+        v.negateLocal().negateLocal();
+        Assert.assertEquals(copy.x, v.x, TOLERANCE);
+        Assert.assertEquals(copy.y, v.y, TOLERANCE);
+        Assert.assertEquals(copy.z, v.z, TOLERANCE);
+        Assert.assertEquals(copy.w, v.w, TOLERANCE);
+    }
 }

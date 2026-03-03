@@ -191,4 +191,109 @@ public class LineSegmentTest {
         Assert.assertNotNull(s);
         Assert.assertTrue(s.contains("LineSegment"));
     }
+
+    // -----------------------------------------------------------------------
+    // Complex behavioral tests
+    // -----------------------------------------------------------------------
+
+    /** The distance from a segment to itself must be 0. */
+    @Test
+    public void testDistanceToSelf() {
+        LineSegment seg = new LineSegment(
+                new Vector3f(0f, 0f, 0f),
+                new Vector3f(0f, 1f, 0f),
+                3f);
+        Assert.assertEquals(0f, seg.distance(seg), TOLERANCE);
+    }
+
+    /**
+     * Two parallel segments separated by a known distance must report that
+     * distance.
+     */
+    @Test
+    public void testDistanceBetweenParallelSegments() {
+        // Segment A: along Y axis at x=0, z=0
+        LineSegment a = new LineSegment(
+                new Vector3f(0f, 0f, 0f),
+                new Vector3f(0f, 1f, 0f),
+                5f);
+        // Segment B: along Y axis at x=3, z=0 — perpendicular distance is 3
+        LineSegment b = new LineSegment(
+                new Vector3f(3f, 0f, 0f),
+                new Vector3f(0f, 1f, 0f),
+                5f);
+        Assert.assertEquals(3f, a.distance(b), TOLERANCE);
+    }
+
+    /**
+     * Two perpendicular, non-intersecting segments must report a positive
+     * distance equal to the gap between them.
+     */
+    @Test
+    public void testDistanceBetweenPerpendicularSegments() {
+        // Segment A: along X axis (y=0, z=0), extent 1 → x ∈ [-1, 1]
+        LineSegment a = new LineSegment(
+                new Vector3f(0f, 0f, 0f),
+                new Vector3f(1f, 0f, 0f),
+                1f);
+        // Segment B: along Y axis (x=0, z=5), extent 1 → offset by 5 in Z
+        LineSegment b = new LineSegment(
+                new Vector3f(0f, 0f, 5f),
+                new Vector3f(0f, 1f, 0f),
+                1f);
+        // Closest points are (0,0,0) and (0,0,5) → distance = 5
+        Assert.assertEquals(5f, a.distance(b), TOLERANCE);
+    }
+
+    /**
+     * positiveEnd − negativeEnd must equal 2 * extent * direction.
+     */
+    @Test
+    public void testGetPositiveEndAndNegativeEndAreCorrect() {
+        Vector3f origin    = new Vector3f(1f, 2f, 3f);
+        Vector3f direction = new Vector3f(0f, 1f, 0f);
+        float extent       = 4f;
+        LineSegment seg = new LineSegment(origin, direction, extent);
+
+        Vector3f posEnd = seg.getPositiveEnd(null);
+        Vector3f negEnd = seg.getNegativeEnd(null);
+        Vector3f diff   = posEnd.subtract(negEnd);
+
+        Assert.assertEquals(2f * extent * direction.x, diff.x, TOLERANCE);
+        Assert.assertEquals(2f * extent * direction.y, diff.y, TOLERANCE);
+        Assert.assertEquals(2f * extent * direction.z, diff.z, TOLERANCE);
+    }
+
+    /**
+     * A point that is slightly outside the segment bounds but within the
+     * specified error tolerance must be reported as inside bounds.
+     */
+    @Test
+    public void testIsPointInsideBoundsWithError() {
+        // Segment: origin=(0,0,0), direction=(0,1,0), extent=1 → y ∈ [-1,1]
+        LineSegment seg = new LineSegment(
+                new Vector3f(0f, 0f, 0f),
+                new Vector3f(0f, 1f, 0f),
+                1f);
+        // Point just past the positive end but within error 0.1
+        Vector3f justOutside = new Vector3f(0f, 1.05f, 0f);
+        Assert.assertTrue(seg.isPointInsideBounds(justOutside, 0.1f));
+        // Point well outside must still fail
+        Assert.assertFalse(seg.isPointInsideBounds(new Vector3f(0f, 5f, 0f)));
+    }
+
+    /**
+     * The squared distance from a point at the exact negative endpoint of the
+     * segment to the segment must be 0.
+     */
+    @Test
+    public void testDistanceSquaredPointAtNegativeEnd() {
+        LineSegment seg = new LineSegment(
+                new Vector3f(0f, 0f, 0f),
+                new Vector3f(0f, 1f, 0f),
+                3f);
+        Vector3f negEnd = seg.getNegativeEnd(null);
+        float d2 = seg.distanceSquared(negEnd);
+        Assert.assertEquals(0f, d2, TOLERANCE);
+    }
 }

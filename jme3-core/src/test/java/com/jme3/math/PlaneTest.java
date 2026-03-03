@@ -186,4 +186,101 @@ public class PlaneTest {
         Assert.assertNotNull(s);
         Assert.assertTrue(s.contains("Plane"));
     }
+
+    // -----------------------------------------------------------------------
+    // Complex behavioral tests
+    // -----------------------------------------------------------------------
+
+    /**
+     * Reflecting a point P across a plane yields P' such that
+     * pseudoDistance(P') == −pseudoDistance(P).
+     */
+    @Test
+    public void testReflectPreservesDistanceFromPlane() {
+        Plane plane = new Plane(new Vector3f(0f, 1f, 0f), 0f); // y = 0
+        Vector3f point = new Vector3f(0f, 3f, 0f);
+        float originalDist = plane.pseudoDistance(point);
+
+        Vector3f reflected = plane.reflect(point, null);
+        float reflectedDist = plane.pseudoDistance(reflected);
+
+        Assert.assertEquals(-originalDist, reflectedDist, TOLERANCE);
+    }
+
+    /** Reflecting a point that lies on the plane must return the same point. */
+    @Test
+    public void testReflectPointOnPlaneIsItself() {
+        Plane plane = new Plane(new Vector3f(0f, 1f, 0f), 0f); // y = 0
+        Vector3f onPlane = new Vector3f(1f, 0f, 2f);
+        Vector3f reflected = plane.reflect(onPlane, null);
+        Assert.assertEquals(onPlane.x, reflected.x, TOLERANCE);
+        Assert.assertEquals(onPlane.y, reflected.y, TOLERANCE);
+        Assert.assertEquals(onPlane.z, reflected.z, TOLERANCE);
+    }
+
+    /**
+     * After setPlanePoints(A, B, C), all three points must satisfy
+     * isOnPlane (pseudoDistance ≈ 0).
+     */
+    @Test
+    public void testSetPlanePointsAllPointsAreOnPlane() {
+        Vector3f a = new Vector3f(1f, 0f, 0f);
+        Vector3f b = new Vector3f(0f, 1f, 0f);
+        Vector3f c = new Vector3f(0f, 0f, 1f);
+        Plane plane = new Plane();
+        plane.setPlanePoints(a, b, c);
+
+        Assert.assertTrue("A must be on the plane", plane.isOnPlane(a));
+        Assert.assertTrue("B must be on the plane", plane.isOnPlane(b));
+        Assert.assertTrue("C must be on the plane", plane.isOnPlane(c));
+    }
+
+    /** The result of getClosestPoint must lie on the plane (pseudoDistance ≈ 0). */
+    @Test
+    public void testGetClosestPointIsOnPlane() {
+        Plane plane = new Plane(new Vector3f(0f, 1f, 0f), 0f); // y = 0
+        Vector3f offPlane = new Vector3f(3f, 7f, -2f);
+        Vector3f closest = plane.getClosestPoint(offPlane);
+        Assert.assertTrue(plane.isOnPlane(closest));
+    }
+
+    /**
+     * The closest point to P on the plane must be closer to P than any
+     * other point on the plane.  We verify this by checking that
+     * distance(P, closest) == |pseudoDistance(P)|.
+     */
+    @Test
+    public void testGetClosestPointMinimizesDistance() {
+        Plane plane = new Plane(new Vector3f(0f, 1f, 0f), 0f); // y = 0
+        Vector3f p = new Vector3f(3f, 5f, -1f);
+        Vector3f closest = plane.getClosestPoint(p);
+        float dist = p.distance(closest);
+        Assert.assertEquals(Math.abs(plane.pseudoDistance(p)), dist, TOLERANCE);
+    }
+
+    /**
+     * Plane through the three points (1,0,0), (0,1,0), (0,0,1):
+     * the normal must be proportional to (1,1,1) and all three
+     * defining points satisfy pseudoDistance ≈ 0.
+     */
+    @Test
+    public void testNonAxisAlignedPlane() {
+        Vector3f a = new Vector3f(1f, 0f, 0f);
+        Vector3f b = new Vector3f(0f, 1f, 0f);
+        Vector3f c = new Vector3f(0f, 0f, 1f);
+        Plane plane = new Plane();
+        plane.setPlanePoints(a, b, c);
+
+        Vector3f n = plane.getNormal();
+        // Normal must point along (1,1,1)/sqrt(3) or its negation
+        float expectedComponent = 1f / FastMath.sqrt(3f);
+        Assert.assertEquals(expectedComponent, Math.abs(n.x), TOLERANCE);
+        Assert.assertEquals(expectedComponent, Math.abs(n.y), TOLERANCE);
+        Assert.assertEquals(expectedComponent, Math.abs(n.z), TOLERANCE);
+
+        // All defining points must be on the plane
+        Assert.assertTrue(plane.isOnPlane(a));
+        Assert.assertTrue(plane.isOnPlane(b));
+        Assert.assertTrue(plane.isOnPlane(c));
+    }
 }

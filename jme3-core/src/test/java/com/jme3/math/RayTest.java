@@ -153,4 +153,88 @@ public class RayTest {
         Assert.assertNotNull(s);
         Assert.assertTrue(s.contains("Ray"));
     }
+
+    // -----------------------------------------------------------------------
+    // Complex behavioral tests
+    // -----------------------------------------------------------------------
+
+    /**
+     * A ray that travels parallel to the plane of a triangle (ray direction
+     * lies in the triangle's plane) must not report an intersection.
+     */
+    @Test
+    public void testIntersectWhere_parallelToTriangle() {
+        // Triangle in the XY plane (z=0)
+        Vector3f v0 = new Vector3f(-1f, -1f, 0f);
+        Vector3f v1 = new Vector3f(1f, -1f, 0f);
+        Vector3f v2 = new Vector3f(0f, 1f, 0f);
+        // Ray also travelling in the XY plane: origin inside the triangle's
+        // bounding box but direction along X (no Z component)
+        Ray r = new Ray(new Vector3f(0f, 0f, 0f), new Vector3f(1f, 0f, 0f));
+        Vector3f loc = new Vector3f();
+        boolean hit = r.intersectWhere(v0, v1, v2, loc);
+        Assert.assertFalse("Parallel ray must not intersect the triangle", hit);
+    }
+
+    /**
+     * A triangle that lies entirely behind the ray origin (in the direction
+     * opposite to the ray) must not register a hit.
+     */
+    @Test
+    public void testIntersectWhere_behindOrigin() {
+        // Ray pointing in +Z, origin at z=10
+        Ray r = new Ray(new Vector3f(0f, 0f, 10f), new Vector3f(0f, 0f, 1f));
+        // Triangle centred at z=0 — behind the origin along the ray direction
+        Vector3f v0 = new Vector3f(-1f, -1f, 0f);
+        Vector3f v1 = new Vector3f(1f, -1f, 0f);
+        Vector3f v2 = new Vector3f(0f, 1f, 0f);
+        Vector3f loc = new Vector3f();
+        boolean hit = r.intersectWhere(v0, v1, v2, loc);
+        Assert.assertFalse("Triangle behind the origin must not be hit", hit);
+    }
+
+    /**
+     * A point that lies exactly on the ray must have distanceSquared == 0.
+     */
+    @Test
+    public void testDistanceSquared_pointOnRay() {
+        Ray r = new Ray(new Vector3f(0f, 0f, 0f), new Vector3f(1f, 0f, 0f));
+        // Any point along the X axis is on the ray
+        Vector3f onRay = new Vector3f(7f, 0f, 0f);
+        float d2 = r.distanceSquared(onRay);
+        Assert.assertEquals(0f, d2, TOLERANCE);
+    }
+
+    /**
+     * A point perpendicular to a ray at a known offset must have the correct
+     * squared distance.
+     */
+    @Test
+    public void testDistanceSquared_closestIsMiddle() {
+        // Ray from origin along +X
+        Ray r = new Ray(new Vector3f(0f, 0f, 0f), new Vector3f(1f, 0f, 0f));
+        // Point at (5, 3, 0) — the closest ray point is (5,0,0), distance = 3
+        Vector3f p = new Vector3f(5f, 3f, 0f);
+        float d2 = r.distanceSquared(p);
+        Assert.assertEquals(9f, d2, TOLERANCE);
+    }
+
+    /**
+     * A ray aimed directly at a triangle vertex must report an intersection
+     * at that vertex.
+     */
+    @Test
+    public void testIntersectWhere_edgeCase_vertex() {
+        Vector3f v0 = new Vector3f(0f, 0f, 0f);
+        Vector3f v1 = new Vector3f(1f, 0f, 0f);
+        Vector3f v2 = new Vector3f(0f, 1f, 0f);
+        // Ray aimed straight at v0 from below the XY plane along +Z
+        Ray r = new Ray(new Vector3f(0f, 0f, -5f), new Vector3f(0f, 0f, 1f));
+        Vector3f loc = new Vector3f();
+        boolean hit = r.intersectWhere(v0, v1, v2, loc);
+        Assert.assertTrue("Ray aimed at vertex v0 must hit", hit);
+        Assert.assertEquals(0f, loc.x, TOLERANCE);
+        Assert.assertEquals(0f, loc.y, TOLERANCE);
+        Assert.assertEquals(0f, loc.z, TOLERANCE);
+    }
 }

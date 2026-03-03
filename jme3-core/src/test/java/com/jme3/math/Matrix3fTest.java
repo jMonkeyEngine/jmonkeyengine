@@ -510,4 +510,227 @@ public class Matrix3fTest {
             }
         }
     }
+
+    // -----------------------------------------------------------------------
+    // Complex behavioral / regression tests
+    // -----------------------------------------------------------------------
+
+    /**
+     * REGRESSION: diagonal matrix with det = FLT_EPSILON/2 (below the threshold)
+     * must cause invertLocal() to zero the matrix, not produce garbage.
+     */
+    @Test
+    public void testInvertLocalNearSingularReturnsZero() {
+        float smallVal = FastMath.FLT_EPSILON / 2f;
+        Matrix3f m = new Matrix3f(
+                1f, 0f, 0f,
+                0f, 1f, 0f,
+                0f, 0f, smallVal);
+        // det = smallVal < FLT_EPSILON => should zero out
+        Matrix3f result = m.invertLocal();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                Assert.assertEquals("element (" + i + "," + j + ") must be 0",
+                        0f, result.get(i, j), 0f);
+            }
+        }
+    }
+
+    /**
+     * Verifies that invert() and invertLocal() are consistent for a singular
+     * matrix — both must return an all-zero matrix.
+     */
+    @Test
+    public void testInvertLocalConsistentWithInvert() {
+        // Rows are linearly dependent → singular (det = 0)
+        Matrix3f m = new Matrix3f(
+                1f, 2f, 3f,
+                4f, 5f, 6f,
+                7f, 8f, 9f);
+
+        // invert() (non-destructive)
+        Matrix3f invertResult = m.invert();
+        // invertLocal() on an independent copy
+        Matrix3f copyForLocal = new Matrix3f(m);
+        Matrix3f localResult = copyForLocal.invertLocal();
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                Assert.assertEquals("invert() element (" + i + "," + j + ")",
+                        0f, invertResult.get(i, j), 0f);
+                Assert.assertEquals("invertLocal() element (" + i + "," + j + ")",
+                        0f, localResult.get(i, j), 0f);
+            }
+        }
+    }
+
+    /**
+     * For an invertible matrix, invertLocal() on a copy must produce the same
+     * result as the full inverse: copy.invertLocal() * original == I.
+     */
+    @Test
+    public void testInvertLocalTimesOriginalIsIdentity() {
+        Matrix3f m = new Matrix3f(
+                1f, 2f, 0f,
+                0f, 1f, 3f,
+                0f, 0f, 1f);
+        Matrix3f copy = new Matrix3f(m);
+        copy.invertLocal();
+        Matrix3f product = copy.mult(m);
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                float expected = (i == j) ? 1f : 0f;
+                Assert.assertEquals("product[" + i + "][" + j + "]",
+                        expected, product.get(i, j), TOLERANCE);
+            }
+        }
+    }
+
+    /**
+     * Rotation matrices are orthogonal: R^-1 must equal R^T.
+     * Tests a 90° rotation about the Z axis.
+     */
+    @Test
+    public void testRotationMatrixInverseEqualsTranspose() {
+        Matrix3f r = new Matrix3f();
+        r.fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_Z);
+
+        Matrix3f inv = r.invert();
+        Matrix3f trans = r.transposeNew();
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                Assert.assertEquals("element (" + i + "," + j + ")",
+                        trans.get(i, j), inv.get(i, j), TOLERANCE);
+            }
+        }
+    }
+
+    /**
+     * Matrix multiplication must be associative: (A*B)*C == A*(B*C).
+     */
+    @Test
+    public void testMultAssociativity() {
+        Matrix3f a = new Matrix3f(1f, 2f, 0f,  3f, 1f, 1f,  0f, 2f, 4f);
+        Matrix3f b = new Matrix3f(2f, 0f, 1f,  1f, 3f, 0f,  1f, 1f, 2f);
+        Matrix3f c = new Matrix3f(0f, 1f, 2f,  3f, 0f, 1f,  1f, 2f, 0f);
+
+        Matrix3f abc1 = a.mult(b).mult(c);
+        Matrix3f abc2 = a.mult(b.mult(c));
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                Assert.assertEquals("element (" + i + "," + j + ")",
+                        abc1.get(i, j), abc2.get(i, j), TOLERANCE);
+            }
+        }
+    }
+
+    /**
+     * Matrix multiplication must NOT be commutative in general: A*B != B*A.
+     */
+    @Test
+    public void testMultNonCommutativity() {
+        Matrix3f a = new Matrix3f(1f, 2f, 0f,  0f, 1f, 0f,  0f, 0f, 1f);
+        Matrix3f b = new Matrix3f(1f, 0f, 0f,  3f, 1f, 0f,  0f, 0f, 1f);
+
+        Matrix3f ab = a.mult(b);
+        Matrix3f ba = b.mult(a);
+
+        boolean allEqual = true;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (Math.abs(ab.get(i, j) - ba.get(i, j)) > TOLERANCE) {
+                    allEqual = false;
+                    break;
+                }
+            }
+        }
+        Assert.assertFalse("A*B should not equal B*A for these matrices", allEqual);
+    }
+
+    /**
+     * Rotating (0,1,0) by 90° around the X axis should give (0,0,1).
+     */
+    @Test
+    public void testFromAngleAxisRotation90DegreesAroundX() {
+        Matrix3f m = new Matrix3f();
+        m.fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_X);
+        Vector3f result = m.mult(new Vector3f(0f, 1f, 0f));
+        Assert.assertEquals(0f, result.x, TOLERANCE);
+        Assert.assertEquals(0f, result.y, TOLERANCE);
+        Assert.assertEquals(1f, result.z, TOLERANCE);
+    }
+
+    /**
+     * Rotating (1,0,0) by 180° around the Y axis should give (-1,0,0).
+     */
+    @Test
+    public void testFromAngleAxisRotation180DegreesAroundY() {
+        Matrix3f m = new Matrix3f();
+        m.fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y);
+        Vector3f result = m.mult(new Vector3f(1f, 0f, 0f));
+        Assert.assertEquals(-1f, result.x, TOLERANCE);
+        Assert.assertEquals(0f,  result.y, TOLERANCE);
+        Assert.assertEquals(0f,  result.z, TOLERANCE);
+    }
+
+    /**
+     * The identity M * adj(M) = det(M) * I must hold for any matrix.
+     * Tests with the diagonal matrix diag(2,3,4) whose det = 24.
+     */
+    @Test
+    public void testAdjointTimesOriginalIsDeterminantTimesIdentity() {
+        Matrix3f m = new Matrix3f(
+                2f, 0f, 0f,
+                0f, 3f, 0f,
+                0f, 0f, 4f);
+        float det = m.determinant(); // expected: 24
+        Matrix3f adj = m.adjoint();
+        Matrix3f product = m.mult(adj);
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                float expected = (i == j) ? det : 0f;
+                Assert.assertEquals("product[" + i + "][" + j + "]",
+                        expected, product.get(i, j), TOLERANCE);
+            }
+        }
+    }
+
+    /**
+     * The inverse of diag(2,3,4) must be diag(0.5, 1/3, 0.25).
+     */
+    @Test
+    public void testScaleInverseIsReciprocal() {
+        Matrix3f m = new Matrix3f(
+                2f, 0f, 0f,
+                0f, 3f, 0f,
+                0f, 0f, 4f);
+        Matrix3f inv = m.invert();
+        Assert.assertEquals(0.5f,      inv.get(0, 0), TOLERANCE);
+        Assert.assertEquals(1f / 3f,   inv.get(1, 1), TOLERANCE);
+        Assert.assertEquals(0.25f,     inv.get(2, 2), TOLERANCE);
+        Assert.assertEquals(0f,        inv.get(0, 1), TOLERANCE);
+        Assert.assertEquals(0f,        inv.get(1, 2), TOLERANCE);
+        Assert.assertEquals(0f,        inv.get(2, 0), TOLERANCE);
+    }
+
+    /**
+     * Serialise a matrix to a float[] (row-major) then reconstruct it with
+     * set(float[]) — the two matrices must be equal.
+     */
+    @Test
+    public void testFloatArrayRoundTrip() {
+        Matrix3f original = new Matrix3f(
+                1f, 2f, 3f,
+                4f, 5f, 6f,
+                7f, 8f, 9f);
+        float[] data = new float[9];
+        original.get(data, true); // row-major
+
+        Matrix3f reconstructed = new Matrix3f();
+        reconstructed.set(data, true); // row-major
+        Assert.assertEquals(original, reconstructed);
+    }
 }

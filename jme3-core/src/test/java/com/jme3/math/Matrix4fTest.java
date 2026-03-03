@@ -447,4 +447,174 @@ public class Matrix4fTest {
             }
         }
     }
+
+    // -----------------------------------------------------------------------
+    // Complex behavioral / regression tests
+    // -----------------------------------------------------------------------
+
+    /**
+     * REGRESSION: diagonal matrix with det = FLT_EPSILON/2 (below threshold)
+     * must cause invert() to throw ArithmeticException, not silently produce
+     * garbage by dividing by a near-zero determinant.
+     */
+    @Test(expected = ArithmeticException.class)
+    public void testInvertNearSingularThrows() {
+        float smallVal = FastMath.FLT_EPSILON / 2f;
+        Matrix4f m = new Matrix4f(
+                1f, 0f, 0f, 0f,
+                0f, 1f, 0f, 0f,
+                0f, 0f, 1f, 0f,
+                0f, 0f, 0f, smallVal);
+        m.invert(); // must throw
+    }
+
+    /**
+     * REGRESSION: same near-singular matrix, but invertLocal() must return
+     * an all-zero matrix rather than garbage.
+     */
+    @Test
+    public void testInvertLocalNearSingularReturnsZero() {
+        float smallVal = FastMath.FLT_EPSILON / 2f;
+        Matrix4f m = new Matrix4f(
+                1f, 0f, 0f, 0f,
+                0f, 1f, 0f, 0f,
+                0f, 0f, 1f, 0f,
+                0f, 0f, 0f, smallVal);
+        Matrix4f result = m.invertLocal();
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                Assert.assertEquals("element (" + i + "," + j + ") must be 0",
+                        0f, result.get(i, j), 0f);
+            }
+        }
+    }
+
+    /**
+     * For a non-singular matrix, invertLocal() must produce the same inverse
+     * as invert() called on a fresh copy.
+     */
+    @Test
+    public void testInvertLocal() {
+        Matrix4f m = new Matrix4f(
+                1f, 0f, 0f, 5f,
+                0f, 1f, 0f, 3f,
+                0f, 0f, 1f, 2f,
+                0f, 0f, 0f, 1f);
+        Matrix4f expected = m.invert();     // non-destructive
+        Matrix4f copy = new Matrix4f(m);
+        copy.invertLocal();                  // in-place
+        assertMatricesEqual(expected, copy, TOLERANCE);
+    }
+
+    /**
+     * Two translation matrices composed must equal translation by the sum of
+     * their translation vectors.
+     */
+    @Test
+    public void testTranslationComposition() {
+        // T1: translate by (1, 2, 3)
+        Matrix4f t1 = new Matrix4f(
+                1f, 0f, 0f, 1f,
+                0f, 1f, 0f, 2f,
+                0f, 0f, 1f, 3f,
+                0f, 0f, 0f, 1f);
+        // T2: translate by (4, 5, 6)
+        Matrix4f t2 = new Matrix4f(
+                1f, 0f, 0f, 4f,
+                0f, 1f, 0f, 5f,
+                0f, 0f, 1f, 6f,
+                0f, 0f, 0f, 1f);
+        // Expected: translate by (5, 7, 9)
+        Matrix4f expected = new Matrix4f(
+                1f, 0f, 0f, 5f,
+                0f, 1f, 0f, 7f,
+                0f, 0f, 1f, 9f,
+                0f, 0f, 0f, 1f);
+        Matrix4f result = t1.mult(t2);
+        assertMatricesEqual(expected, result, TOLERANCE);
+    }
+
+    /**
+     * Translation matrix (5,3,2) applied to the point (1,0,0) must give (6,3,2).
+     */
+    @Test
+    public void testMultVector3fWithTranslation() {
+        Matrix4f t = new Matrix4f(
+                1f, 0f, 0f, 5f,
+                0f, 1f, 0f, 3f,
+                0f, 0f, 1f, 2f,
+                0f, 0f, 0f, 1f);
+        Vector3f result = t.mult(new Vector3f(1f, 0f, 0f));
+        Assert.assertEquals(6f, result.x, TOLERANCE);
+        Assert.assertEquals(3f, result.y, TOLERANCE);
+        Assert.assertEquals(2f, result.z, TOLERANCE);
+    }
+
+    /**
+     * Matrix times a homogeneous point (x,y,z,1) must properly apply
+     * translation; the w component of the output must be 1.
+     */
+    @Test
+    public void testMultVector4f_HomogeneousPoint() {
+        Matrix4f t = new Matrix4f(
+                1f, 0f, 0f, 5f,
+                0f, 1f, 0f, 3f,
+                0f, 0f, 1f, 2f,
+                0f, 0f, 0f, 1f);
+        Vector4f result = t.mult(new Vector4f(1f, 0f, 0f, 1f));
+        Assert.assertEquals(6f, result.x, TOLERANCE);
+        Assert.assertEquals(3f, result.y, TOLERANCE);
+        Assert.assertEquals(2f, result.z, TOLERANCE);
+        Assert.assertEquals(1f, result.w, TOLERANCE);
+    }
+
+    /**
+     * Two 90° rotations around Z composed must equal a single 180° rotation
+     * around Z: (1,0,0) → (-1,0,0).
+     */
+    @Test
+    public void testRotationComposition() {
+        Matrix4f r90 = new Matrix4f();
+        r90.fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_Z);
+        Matrix4f r180 = r90.mult(r90);
+        Vector3f result = r180.mult(new Vector3f(1f, 0f, 0f));
+        Assert.assertEquals(-1f, result.x, TOLERANCE);
+        Assert.assertEquals(0f,  result.y, TOLERANCE);
+        Assert.assertEquals(0f,  result.z, TOLERANCE);
+    }
+
+    /**
+     * A scale matrix diag(2,3,4) applied to (1,1,1) must give (2,3,4).
+     */
+    @Test
+    public void testScaleMatrix() {
+        Matrix4f scale = new Matrix4f(
+                2f, 0f, 0f, 0f,
+                0f, 3f, 0f, 0f,
+                0f, 0f, 4f, 0f,
+                0f, 0f, 0f, 1f);
+        Vector3f result = scale.mult(new Vector3f(1f, 1f, 1f));
+        Assert.assertEquals(2f, result.x, TOLERANCE);
+        Assert.assertEquals(3f, result.y, TOLERANCE);
+        Assert.assertEquals(4f, result.z, TOLERANCE);
+    }
+
+    /**
+     * Applying a transform T to a point p and then applying T^-1 to the
+     * result must recover the original point p.
+     */
+    @Test
+    public void testAffineInverseUndoesTransform() {
+        Matrix4f t = new Matrix4f(
+                1f, 0f, 0f, 7f,
+                0f, 1f, 0f, -3f,
+                0f, 0f, 1f, 5f,
+                0f, 0f, 0f, 1f);
+        Vector3f p = new Vector3f(2f, 4f, -1f);
+        Vector3f transformed = t.mult(p);
+        Vector3f recovered = t.invert().mult(transformed);
+        Assert.assertEquals(p.x, recovered.x, TOLERANCE);
+        Assert.assertEquals(p.y, recovered.y, TOLERANCE);
+        Assert.assertEquals(p.z, recovered.z, TOLERANCE);
+    }
 }
