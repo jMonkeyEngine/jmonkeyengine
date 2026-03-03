@@ -855,4 +855,78 @@ public class FastMathTest {
         assertEquals(0.0f, retval.getY(), 0.0f);
         assertEquals(0.0f, retval.getZ(), 0.0f);
     }
+
+    @Test
+    public void testAlignToPowerOfTwo() {
+        // Test with various power-of-two values
+        assertEquals(8, FastMath.alignToPowerOfTwo(5, 4));
+        assertEquals(8, FastMath.alignToPowerOfTwo(8, 4));
+        assertEquals(16, FastMath.alignToPowerOfTwo(15, 16));
+        assertEquals(16, FastMath.alignToPowerOfTwo(16, 16));
+        assertEquals(32, FastMath.alignToPowerOfTwo(17, 16));
+        assertEquals(1, FastMath.alignToPowerOfTwo(1, 1));
+        assertEquals(2, FastMath.alignToPowerOfTwo(2, 2));
+        assertEquals(4, FastMath.alignToPowerOfTwo(3, 4));
+        assertEquals(64, FastMath.alignToPowerOfTwo(50, 64));
+        assertEquals(128, FastMath.alignToPowerOfTwo(100, 128));
+        
+        // Test edge cases
+        assertEquals(256, FastMath.alignToPowerOfTwo(256, 256));
+        assertEquals(512, FastMath.alignToPowerOfTwo(257, 256));
+        
+        // Test that it throws for non-power-of-two values
+        try {
+            FastMath.alignToPowerOfTwo(10, 3);
+            fail("Expected IllegalArgumentException for non-power-of-two");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+        
+        try {
+            FastMath.alignToPowerOfTwo(10, 6);
+            fail("Expected IllegalArgumentException for non-power-of-two");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    public void testToMultipleOf() {
+        // Test with various values including non-powers-of-two
+        assertEquals(6, FastMath.toMultipleOf(5, 3));
+        assertEquals(6, FastMath.toMultipleOf(6, 3));
+        assertEquals(9, FastMath.toMultipleOf(7, 3));
+        assertEquals(10, FastMath.toMultipleOf(10, 5));
+        assertEquals(15, FastMath.toMultipleOf(11, 5));
+        assertEquals(7, FastMath.toMultipleOf(5, 7));
+        assertEquals(7, FastMath.toMultipleOf(7, 7));
+        assertEquals(14, FastMath.toMultipleOf(8, 7));
+        
+        // Test with power-of-two values (should work too)
+        assertEquals(8, FastMath.toMultipleOf(5, 4));
+        assertEquals(8, FastMath.toMultipleOf(8, 4));
+        assertEquals(16, FastMath.toMultipleOf(15, 16));
+        assertEquals(16, FastMath.toMultipleOf(16, 16));
+        assertEquals(32, FastMath.toMultipleOf(17, 16));
+        
+        // Test edge cases
+        assertEquals(1, FastMath.toMultipleOf(1, 1));
+        assertEquals(100, FastMath.toMultipleOf(100, 100));
+        assertEquals(200, FastMath.toMultipleOf(101, 100));
+        
+        // Test that it throws for non-positive values
+        try {
+            FastMath.toMultipleOf(10, 0);
+            fail("Expected IllegalArgumentException for p=0");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+        
+        try {
+            FastMath.toMultipleOf(10, -5);
+            fail("Expected IllegalArgumentException for negative p");
+        } catch (IllegalArgumentException e) {
+            // Expected
+        }
+    }
 }
