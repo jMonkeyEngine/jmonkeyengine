@@ -73,31 +73,36 @@ jobs:
               'Run Screenshot Tests (Windows)'
             ]);
 
-            const failedJobs = [];
-            for (const run of runs.data.workflow_runs) {
-              if (run.name === 'Build jMonkeyEngine') {
-                const jobs = await github.rest.actions.listJobsForWorkflowRun({
-                  owner,
-                  repo,
-                  run_id: run.id
-                });
+            const failedJobs = new Set();
 
-                for (const job of jobs.data.jobs) {
-                  if (screenshotJobNames.has(job.name) && job.conclusion === 'failure') {
-                    failedJobs.push(job.name);
-                  }
+            for (const run of runs.data.workflow_runs) {
+              if (run.name !== 'Integration') {
+                continue;
+              }
+
+              const jobs = await github.rest.actions.listJobsForWorkflowRun({
+                owner,
+                repo,
+                run_id: run.id
+              });
+
+              for (const job of jobs.data.jobs) {
+                if (screenshotJobNames.has(job.name) && job.conclusion === 'failure') {
+                  failedJobs.add(job.name);
                 }
-                break;
               }
             }
 
-            if (failedJobs.length > 0) {
+            const failedList = Array.from(failedJobs);
+
+            if (failedList.length > 0) {
               core.setOutput('failed', 'true');
-              core.setOutput('failedJobs', failedJobs.join(', '));
+              core.setOutput('failedJobs', failedList.join(', '));
             } else {
               core.setOutput('failed', 'false');
               core.setOutput('failedJobs', '');
             }
+
       - name: Find Existing Comment
         uses: peter-evans/find-comment@v3
         id: existingCommentId
@@ -119,7 +124,7 @@ jobs:
             The purpose of these tests is to ensure that changes introduced in this PR don't break visual features. They are visual unit tests.
 
             📄 **Where to find the report:**
-            - Go to the (failed run) > Summary > Artifacts > screenshot-test-report (Linux), screenshot-test-report-macos (macOS), or screenshot-test-report-windows (Windows)
+            - Go to the failed run in the Integration workflow > Summary > Artifacts > screenshot-test-report (Linux), screenshot-test-report-macos (macOS), or screenshot-test-report-windows (Windows)
             - Download the zip and open jme3-screenshot-tests/build/reports/ScreenshotDiffReport.html
 
             ⚠️ **If you didn't expect to change anything visual:** 
