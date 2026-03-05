@@ -229,6 +229,8 @@ public class SaferAllocMemoryGuard {
                 if(LOGGER.isLoggable(Level.FINER)){
                     LOGGER.log(Level.FINER, "!!! Requesting GC...");
                 }
+                // Calling gc() twice is a common heuristic to increase the likelihood of a full
+                // garbage collection cycle, which is important for timely release of native memory.
                 gcInvoker.run();
                 gcInvoker.run();
                 return now;
