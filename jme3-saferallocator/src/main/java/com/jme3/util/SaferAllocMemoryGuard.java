@@ -132,7 +132,7 @@ public class SaferAllocMemoryGuard {
     private static volatile Runnable gcInvoker = System::gc;
 
     public static void beforeAlloc(long size){
-        if (size<=0) return;
+        if (size < 0) return;
         long now = nowSupplier.getAsLong();
         long currentBytes = allocatedBytesSupplier.getAsLong();
         long currentSoftBudget = softBudget.get();
@@ -224,19 +224,21 @@ public class SaferAllocMemoryGuard {
     }
 
     private static void requestGC(long now) {
-        lastGCRun.updateAndGet(last -> {
-            if (now - last >= gcIntervalMillis) {
-                if(LOGGER.isLoggable(Level.FINER)){
-                    LOGGER.log(Level.FINER, "!!! Requesting GC...");
-                }
-                // Calling gc() twice is a common heuristic to increase the likelihood of a full
-                // garbage collection cycle, which is important for timely release of native memory.
-                gcInvoker.run();
-                gcInvoker.run();
-                return now;
+        if (now - lastGCRun.get() >= gcIntervalMillis) {
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.log(Level.FINER, "!!! Requesting GC...");
             }
-            return last;
-        });
+
+            // Calling gc() twice is a common heuristic to increase the likelihood of a full
+            // garbage collection cycle, which is important for timely release of native memory.
+            gcInvoker.run();
+            gcInvoker.run();
+
+            lastGCRun.updateAndGet(v -> {
+                if (v < now) return now;
+                return v;
+            });
+        }
     }
 
     // Test-only hooks to keep unit tests deterministic without real native allocations or GC calls.
@@ -273,16 +275,16 @@ public class SaferAllocMemoryGuard {
     }
 
     private static String human(long bytes) {
-        if (bytes >= 1024L * 1024L * 1024L) {  
-            return String.format(Locale.ROOT, "%.2f GB", bytes / (1024.0 * 1024.0 * 1024.0));  
-        }  
-        if (bytes >= 1024L * 1024L) {  
-            return String.format(Locale.ROOT, "%.2f MB", bytes / (1024.0 * 1024.0));  
-        }  
-        if (bytes >= 1024L) {  
-            return String.format(Locale.ROOT, "%.2f KB", bytes / 1024.0);  
-        }  
-        return bytes + " B";  
+        if (bytes >= 1024L * 1024L * 1024L) {
+            return String.format(Locale.ROOT, "%.2f GB", bytes / (1024.0 * 1024.0 * 1024.0));
+        }
+        if (bytes >= 1024L * 1024L) {
+            return String.format(Locale.ROOT, "%.2f MB", bytes / (1024.0 * 1024.0));
+        }
+        if (bytes >= 1024L) {
+            return String.format(Locale.ROOT, "%.2f KB", bytes / 1024.0);
+        }
+        return bytes + " B";
     }
 
     private static long readLongProperty(String key, long defaultValue, long minValue, long maxValue) {

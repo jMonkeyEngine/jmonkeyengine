@@ -2,12 +2,12 @@ dependencies {
     api project(':jme3-core')
 
     implementation 'org.ngengine:saferalloc:0.0.6'
-    implementation 'org.ngengine:saferalloc-natives-linux-x86_64:0.0.6'
-    implementation 'org.ngengine:saferalloc-natives-linux-aarch64:0.0.6'
-    implementation 'org.ngengine:saferalloc-natives-windows-x86_64:0.0.6'
-    implementation 'org.ngengine:saferalloc-natives-macos-x86_64:0.0.6'
-    implementation 'org.ngengine:saferalloc-natives-macos-aarch64:0.0.6'
-    implementation 'org.ngengine:saferalloc-natives-android:0.0.6'
+    implementation 'org.ngengine:saferalloc-natives-linux-x86_64:0.0.7'
+    implementation 'org.ngengine:saferalloc-natives-linux-aarch64:0.0.7'
+    implementation 'org.ngengine:saferalloc-natives-windows-x86_64:0.0.7'
+    implementation 'org.ngengine:saferalloc-natives-macos-x86_64:0.0.7'
+    implementation 'org.ngengine:saferalloc-natives-macos-aarch64:0.0.7'
+    implementation 'org.ngengine:saferalloc-natives-android:0.0.7'
 }
 javadoc {
     // Disable doclint for JDK8+.

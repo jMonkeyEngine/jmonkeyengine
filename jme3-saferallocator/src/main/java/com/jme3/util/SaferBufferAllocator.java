@@ -208,7 +208,7 @@ public final class SaferBufferAllocator implements BufferAllocator {
             return;
         }
 
-        long address = SaferAlloc.address((ByteBuffer) buffer);
+        long address = SaferAlloc.address(buffer);
         AllocationRef ref = allocations.get(address);
 
         if (ref != null) {
