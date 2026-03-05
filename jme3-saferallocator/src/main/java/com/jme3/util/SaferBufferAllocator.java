@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
-
+import java.util.logging.Level;
 import org.ngengine.saferalloc.SaferAlloc;
 import org.ngengine.saferalloc.SaferAllocFunctionPointers;
 import org.ngengine.saferalloc.SaferAllocNative;

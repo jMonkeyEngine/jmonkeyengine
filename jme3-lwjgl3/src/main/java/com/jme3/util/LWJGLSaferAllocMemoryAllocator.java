@@ -141,7 +141,7 @@ public final class LWJGLSaferAllocMemoryAllocator implements MemoryUtil.MemoryAl
 
         static Bindings create() {
             try {
-                Class<?> clazz = Class.forName(SAFER_BUFFER_ALLOCATOR_CLASS, false,
+                Class<?> clazz = Class.forName(SAFER_BUFFER_ALLOCATOR_CLASS, true,
                         LWJGLSaferAllocMemoryAllocator.class.getClassLoader());
                 MethodHandles.Lookup lookup = MethodHandles.publicLookup();
                 return new Bindings(
@@ -158,7 +158,7 @@ public final class LWJGLSaferAllocMemoryAllocator implements MemoryUtil.MemoryAl
                         lookup.findStatic(clazz, "alignedAlloc",
                                 MethodType.methodType(long.class, long.class, long.class)),
                         lookup.findStatic(clazz, "alignedFree", MethodType.methodType(void.class, long.class)));
-            } catch (Throwable ignored) {
+            } catch (ReflectiveOperationException | LinkageError e) {
                 return null;
             }
         }
