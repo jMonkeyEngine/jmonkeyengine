@@ -39,7 +39,7 @@ public final class SaferBufferAllocator implements BufferAllocator {
                 return;
             } catch (Throwable t) {
                 // Keep the reaper alive even if one cleanup fails.
-                t.printStackTrace();
+                logger.log(Level.SEVERE, "Error in reaper thread", t);
             }
         }
     }
