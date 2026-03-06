@@ -147,7 +147,6 @@ public class SdsmDirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
         sdsmFitter = new SdsmFitter(gl4, renderer, assetManager);
         glInitialized = true;
-
     }
 
     /**
