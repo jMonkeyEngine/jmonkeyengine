@@ -23,6 +23,7 @@ public final class SaferBufferAllocator implements BufferAllocator {
     static {
         reaperThread.setDaemon(true);
         reaperThread.start();
+        SaferAlloc.ensureLoaded();
     }
 
     public SaferBufferAllocator() {

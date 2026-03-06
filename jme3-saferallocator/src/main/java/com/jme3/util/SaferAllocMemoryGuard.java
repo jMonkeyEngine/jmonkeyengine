@@ -6,6 +6,7 @@ import java.util.function.LongSupplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.ngengine.saferalloc.SaferAlloc;
 import org.ngengine.saferalloc.SaferAllocNative;
 
 public class SaferAllocMemoryGuard {
@@ -127,7 +128,7 @@ public class SaferAllocMemoryGuard {
     private static final AtomicLong lastAdaptUpdate = new AtomicLong(0L);
     private static final AtomicLong highPressureCount = new AtomicLong(0L);
     private static final AtomicLong lowPressureCount = new AtomicLong(0L);
-    private static volatile LongSupplier allocatedBytesSupplier = SaferAllocNative::currentAllocatedBytes;
+    private static volatile LongSupplier allocatedBytesSupplier = SaferAlloc::currentAllocatedBytes;
     private static volatile LongSupplier nowSupplier = System::currentTimeMillis;
     private static volatile Runnable gcInvoker = System::gc;
 
