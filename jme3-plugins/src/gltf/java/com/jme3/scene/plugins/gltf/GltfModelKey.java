@@ -57,11 +57,48 @@ public class GltfModelKey extends ModelKey {
     private boolean keepSkeletonPose = false;
     private ExtrasLoader extrasLoader;
 
+    /**
+     * The flag indicating whether the loader should perform stricter consistency checks of the supported glTF
+     * extensions.
+     * 
+     * When this is <code>true</code>, then the loader will cause an <code>AssetLoadException</code> when it
+     * encounters an asset that contains an extension in its <code>extensionsRequired</code> declaration that
+     * is not supported.
+     */
+    private boolean strictExtensionCheck = true;
+
     public GltfModelKey(String name) {
         super(name);
     }
 
     public GltfModelKey() {
+    }
+    
+    /**
+     * Set whether the loader should perform stricter consistency checks of the supported glTF extensions.
+     * 
+     * When this is <code>true</code> (the default), the loader will cause an <code>AssetLoadException</code> when it
+     * encounters an asset that contains an extension in its <code>extensionsRequired</code> declaration that
+     * is not supported. When <code>false</code>, it will only log a SEVERE message.
+     * 
+     * @param strict
+     *            The flag
+     */
+    public void setStrict(boolean strict) {
+        this.strictExtensionCheck = strict;
+    }
+
+    /**
+     * Returns whether the loader should perform stricter consistency checks of the supported glTF extensions.
+     * 
+     * When this is <code>true</code> (the default), the loader will cause an <code>AssetLoadException</code> when it
+     * encounters an asset that contains an extension in its <code>extensionsRequired</code> declaration that
+     * is not supported. When <code>false</code>, it will only log a SEVERE message.
+     * 
+     * @return The flag
+     */
+    public boolean isStrict() {
+        return strictExtensionCheck;
     }
 
     /**
