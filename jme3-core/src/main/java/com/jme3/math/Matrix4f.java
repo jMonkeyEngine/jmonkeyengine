@@ -1512,7 +1512,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         float fB5 = m22 * m33 - m23 * m32;
         float fDet = fA0 * fB5 - fA1 * fB4 + fA2 * fB3 + fA3 * fB2 - fA4 * fB1 + fA5 * fB0;
 
-        if (FastMath.abs(fDet) <= 0f) {
+        if (FastMath.abs(fDet) <= FastMath.FLT_EPSILON) {
             throw new ArithmeticException("This matrix cannot be inverted");
         }
 
@@ -1561,7 +1561,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         float fB5 = m22 * m33 - m23 * m32;
         float fDet = fA0 * fB5 - fA1 * fB4 + fA2 * fB3 + fA3 * fB2 - fA4 * fB1 + fA5 * fB0;
 
-        if (FastMath.abs(fDet) <= 0f) {
+        if (FastMath.abs(fDet) <= FastMath.FLT_EPSILON) {
             return zero();
         }
 
