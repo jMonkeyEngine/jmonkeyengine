@@ -1,0 +1,208 @@
+name: Integration
+
+on:
+  push:
+    branches:
+      - master
+      - v3.7
+      - v3.6
+      - v3.5
+      - v3.4
+      - v3.3
+      - ios-2024_2
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ScreenshotTests:
+    name: Run Screenshot Tests
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/onemillionworlds/opengl-docker-image:v1
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup the java environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Start xvfb
+        run: |
+          Xvfb :99 -ac -screen 0 1024x768x16 &
+          export DISPLAY=:99
+          echo "DISPLAY=:99" >> $GITHUB_ENV
+
+      - name: Report GL/Vulkan
+        run: |
+          set -x
+          echo "DISPLAY=$DISPLAY"
+          glxinfo | grep -E "OpenGL version|OpenGL renderer|OpenGL vendor" || true
+          vulkaninfo --summary || true
+          echo "VK_ICD_FILENAMES=$VK_ICD_FILENAMES"
+          echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
+          echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
+
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Test with Gradle Wrapper
+        run: |
+          ./gradlew --no-daemon :jme3-screenshot-tests:screenshotTest
+
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshot-test-report
+          retention-days: 30
+          path: |
+            **/build/reports/**
+            **/build/changed-images/**
+            **/build/test-results/**
+
+  ScreenshotTestsMacOS:
+    name: Run Screenshot Tests (macOS)
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup the java environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Prepare patched GLFW for macOS software renderer
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! command -v cmake >/dev/null 2>&1; then
+            brew install cmake
+          fi
+
+          curl -L -o glfw-3.4.tar.gz https://github.com/glfw/glfw/archive/refs/tags/3.4.tar.gz
+          tar -xzf glfw-3.4.tar.gz
+          mv glfw-3.4 glfw-src
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("glfw-src/src/nsgl_context.m")
+          text = p.read_text()
+
+          old = "    ADD_ATTRIB(NSOpenGLPFAAccelerated);"
+          new = (
+              "    ADD_ATTRIB(NSOpenGLPFARendererID);\n"
+              "    ADD_ATTRIB(kCGLRendererGenericFloatID);"
+          )
+
+          if old not in text:
+              raise SystemExit("Patch anchor not found in src/nsgl_context.m")
+
+          p.write_text(text.replace(old, new, 1))
+          print("Patched src/nsgl_context.m")
+          PY
+
+          cmake -S glfw-src -B glfw-build \
+            -D BUILD_SHARED_LIBS=ON \
+            -D GLFW_BUILD_EXAMPLES=OFF \
+            -D GLFW_BUILD_TESTS=OFF \
+            -D GLFW_BUILD_DOCS=OFF \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D CMAKE_OSX_ARCHITECTURES=x86_64
+
+          cmake --build glfw-build --config Release --parallel 3
+
+          mkdir -p ci-glfw
+          if [ -f glfw-build/src/libglfw.3.dylib ]; then
+            cp glfw-build/src/libglfw.3.dylib ci-glfw/libglfw-ci.dylib
+          elif [ -f glfw-build/src/libglfw.dylib ]; then
+            cp glfw-build/src/libglfw.dylib ci-glfw/libglfw-ci.dylib
+          else
+            echo "Could not find built GLFW dylib"
+            find glfw-build -name '*.dylib' -print
+            exit 1
+          fi
+
+          file ci-glfw/libglfw-ci.dylib
+          otool -L ci-glfw/libglfw-ci.dylib
+
+      - name: Test with Gradle Wrapper
+        timeout-minutes: 20
+        env:
+          JAVA_TOOL_OPTIONS: -Dorg.lwjgl.glfw.libname=${{ github.workspace }}/ci-glfw/libglfw-ci.dylib
+        run: |
+          ./gradlew --no-daemon --info :jme3-screenshot-tests:screenshotTest
+
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshot-test-report-macos
+          retention-days: 30
+          path: |
+            **/build/reports/**
+            **/build/changed-images/**
+            **/build/test-results/**
+
+  ScreenshotTestsWindows:
+    name: Run Screenshot Tests (Windows)
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup the java environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Set up Mesa3D for software OpenGL rendering
+        shell: pwsh
+        run: |
+          $version = "24.2.4"
+          $url = "https://github.com/pal1000/mesa-dist-win/releases/download/$version/mesa3d-$version-release-msvc.7z"
+          Invoke-WebRequest -Uri $url -OutFile mesa3d.7z
+          7z x mesa3d.7z -omesa3d
+
+          $javaBin = Join-Path $env:JAVA_HOME "bin"
+
+          # Deploy Mesa next to java.exe, because java.exe is the actual process executable.
+          Copy-Item "mesa3d\x64\*.dll" "$javaBin\" -Force
+
+          # Force app-local DLL resolution for java.exe if the process would otherwise bypass it.
+          New-Item -ItemType File -Force -Path (Join-Path $javaBin "java.exe.local") | Out-Null
+
+          # Start with llvmpipe first; it is Mesa's intended software fallback.
+          "GALLIUM_DRIVER=llvmpipe" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Test with Gradle Wrapper
+        shell: bash
+        run: |
+          ./gradlew --no-daemon :jme3-screenshot-tests:screenshotTest
+
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshot-test-report-windows
+          retention-days: 30
+          path: |
+            **/build/reports/**
+            **/build/changed-images/**
+            **/build/test-results/**
