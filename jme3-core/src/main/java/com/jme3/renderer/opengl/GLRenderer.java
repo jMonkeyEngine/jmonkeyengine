@@ -186,7 +186,15 @@ public final class GLRenderer implements Renderer {
             gl3.glGetInteger(GL3.GL_NUM_EXTENSIONS, intBuf16);
             int extensionCount = intBuf16.get(0);
             for (int i = 0; i < extensionCount; i++) {
-                String extension = gl3.glGetString(GL.GL_EXTENSIONS, i);
+                String extension = gl3.glGetString(GL3.GL_EXTENSIONS, i);
+                extensionSet.add(extension);
+            }
+        } else if (caps.contains(Caps.OpenGLES30)) {
+            GLES_30 gles = (GLES_30) gl;
+            gles.glGetInteger(GLES_30.GL_NUM_EXTENSIONS, intBuf16);
+            int extensionCount = intBuf16.get(0);
+            for (int i = 0; i < extensionCount; i++) {
+                String extension = gles.glGetString(GLES_30.GL_EXTENSIONS, i);
                 extensionSet.add(extension);
             }
         } else {
