@@ -21,6 +21,7 @@ dependencies {
     implementation project(':jme3-jogg')
     // implementation project(':jme3-lwjgl')
     implementation project(':jme3-lwjgl3')
+    implementation project(':jme3-saferallocator')
     implementation project(':jme3-networking')
     implementation project(':jme3-niftygui')
     implementation project(':jme3-plugins')
