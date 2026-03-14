@@ -252,10 +252,7 @@ public class SdsmFitter {
         }
 
         SplitFitResult extract() {
-            if (fence != null) {
-                renderer.deleteFence(fence);
-                fence = null;
-            }
+            fence = null;
             SplitFit fit = extractFit();
             return new SplitFitResult(parameters, fit);
         }
@@ -310,9 +307,7 @@ public class SdsmFitter {
         void cleanup() {
             minMaxDepthSsbo.deleteObject(renderer);
             fitFrustumSsbo.deleteObject(renderer);
-            if (fence != null) {
-                fence.deleteObject(renderer);
-            }
+            fence = null;
         }
     }
 
