@@ -31,6 +31,7 @@
  */
 package com.jme3.util;
 
+import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -240,8 +241,14 @@ public class ListSort<T> {
         }
 
         // Merge all remaining runs to complete sort        
-        mergeForceCollapse();        
+        mergeForceCollapse();     
 
+        // Clear temporary array to avoid memory leaks
+        // (e.g. Geometries added to the array by GeometryList#sort() might get
+        // detached from their parent later -> they and their OGL object will not
+        // get garbage collected when subsequent sorts use only portions of the
+        // array)
+        Arrays.fill(tmpArray, null);
     }
 
     /**
