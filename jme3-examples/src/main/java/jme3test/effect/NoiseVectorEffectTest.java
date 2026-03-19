@@ -5,6 +5,7 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.FastNoiseLite;
 import com.jme3.math.FastNoiseLite.NoiseType;
 import com.jme3.math.Vector2f;
 import com.jme3.post.FilterPostProcessor;
