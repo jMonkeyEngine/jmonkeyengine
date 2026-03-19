@@ -21,7 +21,7 @@ import com.jme3.vectoreffect.VectorSupplier;
 
 public class NoiseVectorEffectTest extends SimpleApplication {
 
-    private ColorRGBA colorToShift  = new ColorRGBA(0.0f, 0.0f, 1.0f, 1.0f);;
+    private ColorRGBA colorToShift  = new ColorRGBA(0.0f, 0.0f, 1.0f, 1.0f);
     
     private VectorEffectManagerState vectorEffectManagerState;    
     private PointLight light;
