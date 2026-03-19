@@ -100,6 +100,7 @@ public class NoiseVectorEffect extends AbstractVectorEffect {
     @Override
     public void reset() {
         super.reset(); 
+        timeAccrued = 0.0f;
         originalVectorValues = null;       
     }
 }

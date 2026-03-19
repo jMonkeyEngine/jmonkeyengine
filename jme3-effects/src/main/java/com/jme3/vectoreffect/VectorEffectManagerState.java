@@ -43,7 +43,7 @@ import java.util.Iterator;
  */
 public class VectorEffectManagerState extends BaseAppState {
     
-    private final ArrayList<VectorEffect> activeVectorEffects = new ArrayList();
+    private final ArrayList<VectorEffect> activeVectorEffects = new ArrayList<>();
 
     @Override
     protected void initialize(Application aplctn) {
@@ -65,7 +65,7 @@ public class VectorEffectManagerState extends BaseAppState {
     
     }
     
-    public void registerVectorEffect(VectorEffect vectorEffect){
+    public void playVectorEffect(VectorEffect vectorEffect){
         if(!activeVectorEffects.contains(vectorEffect)){
             activeVectorEffects.add(vectorEffect);
         }     
@@ -88,6 +88,19 @@ public class VectorEffectManagerState extends BaseAppState {
     public void cancelEffects(VectorGroup vectorObject) {
         for(VectorEffect vectorEffect : activeVectorEffects){
             if(vectorEffect.getVectorsToModify().equals(vectorObject)){
+                vectorEffect.setIsFinished(true);
+            }
+        }
+    }
+    
+    public void cancelEffect(VectorEffect vectorEffect){
+        activeVectorEffects.remove(vectorEffect);
+        vectorEffect.setIsFinished(true);
+    }
+    
+    public void cancelEffectsWithName(String name){
+        for(VectorEffect vectorEffect : activeVectorEffects){
+            if(vectorEffect.getName().equals(name)){
                 vectorEffect.setIsFinished(true);
             }
         }

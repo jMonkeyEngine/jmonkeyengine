@@ -44,6 +44,7 @@ public abstract class AbstractVectorEffect implements VectorEffect {
     protected VectorGroup vectorsToModify;    
     private final ArrayList<Runnable> onFinishedCallbacks = new ArrayList<>();    
     protected boolean isFinished = false;       
+    private String name;
    
     public AbstractVectorEffect(){
         
@@ -77,8 +78,15 @@ public abstract class AbstractVectorEffect implements VectorEffect {
     @Override
     public void reset() {
         isFinished = false;
+    }    
+
+    public void setName(String name) {
+        this.name = name;
     }
-    
+
+    public String getName() {
+        return name;
+    }    
     
     public void runOnFinish(Runnable runnable) {
         onFinishedCallbacks.add(runnable);
@@ -90,16 +98,14 @@ public abstract class AbstractVectorEffect implements VectorEffect {
     }    
         
     // convenience registration method so users can avoid repeatedly writing this AppState fetching code
-    public void convenienceRegister(AppStateManager stateManager) {
+    public void registerTo(AppStateManager stateManager) {
         if(stateManager != null){
             VectorEffectManagerState vectorEffectManagerState = stateManager.getState(VectorEffectManagerState.class);
             if(vectorEffectManagerState != null){
-                vectorEffectManagerState.registerVectorEffect(this);
+                vectorEffectManagerState.playVectorEffect(this);
             }
         }
     }
-
-
 }
 
 

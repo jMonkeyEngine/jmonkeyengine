@@ -42,6 +42,7 @@ public interface VectorEffect {
     public void setIsFinished(boolean b);
     public VectorGroup getVectorsToModify();
     public void reset();
-        
+    public String getName();
+    
     
 }

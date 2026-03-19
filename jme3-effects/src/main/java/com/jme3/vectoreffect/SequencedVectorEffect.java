@@ -43,11 +43,11 @@ public class SequencedVectorEffect extends AbstractVectorEffect{
     private final ArrayList<VectorEffect> effects = new ArrayList<>();
     private int currentIndex = 0;
     private boolean isRepeatingInfinitely = false;
-    private float numTimesToRepeat = -1;
-    private float currentCycle = 0;
+    private int numTimesToRepeat = -1;
+    private int currentCycle = 0;
 
     public void setLooping(boolean repeat) {        this.isRepeatingInfinitely = repeat;    }
-    public void setRepeatNumberOfTimes(float repititionCount){ this.numTimesToRepeat = repititionCount; }
+    public void setRepeatNumberOfTimes(int repititionCount){ this.numTimesToRepeat = repititionCount; }
     public void addEffect(VectorEffect effect) {        effects.add(effect);    }
 
     public SequencedVectorEffect(VectorEffect... effects) {
