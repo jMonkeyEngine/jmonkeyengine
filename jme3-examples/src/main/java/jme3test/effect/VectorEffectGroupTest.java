@@ -2,7 +2,6 @@ package jme3test.effect;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.effect.ParticleEmitter;
-import com.jme3.effect.ParticleMesh;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
@@ -21,9 +20,6 @@ import com.jme3.system.AppSettings;
 import com.jme3.vectoreffect.EaseVectorEffect;
 import com.jme3.vectoreffect.VectorEffectManagerState;
 import com.jme3.vectoreffect.VectorGroup;
-import java.awt.DisplayMode;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 
 public class VectorEffectGroupTest extends SimpleApplication {
 
@@ -46,10 +42,6 @@ public class VectorEffectGroupTest extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         flyCam.setMoveSpeed(10f);
-        
-        vectorEffectManagerState = new VectorEffectManagerState();
-        stateManager.attach(vectorEffectManagerState);
-        
         initHudText();
         initInput();
         initPbrRoom(13);
@@ -76,12 +68,12 @@ public class VectorEffectGroupTest extends SimpleApplication {
             switch (name) {
                 case "FadeOut":
                     vectorEffectManagerState.cancelEffects(vectorsToModify);
-                    vectorEffectManagerState.registerVectorEffect(new EaseVectorEffect(vectorsToModify, new VectorGroup(ColorRGBA.Black), 2.5f, Easing.inOutQuad));
+                    vectorEffectManagerState.playVectorEffect(new EaseVectorEffect(vectorsToModify, new VectorGroup(ColorRGBA.Black), 2.5f, Easing.inOutQuad));
                     break;
 
                 case "FadeIn":
                     vectorEffectManagerState.cancelEffects(vectorsToModify);
-                    vectorEffectManagerState.registerVectorEffect( new EaseVectorEffect(vectorsToModify, originalVectorValues, 2.75f, Easing.inOutQuad));
+                    vectorEffectManagerState.playVectorEffect( new EaseVectorEffect(vectorsToModify, originalVectorValues, 2.75f, Easing.inOutQuad));
                     break;
 
                 case "Cancel":

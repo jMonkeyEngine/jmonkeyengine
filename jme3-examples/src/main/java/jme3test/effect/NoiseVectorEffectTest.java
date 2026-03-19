@@ -5,7 +5,6 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.math.FastNoiseLite;
 import com.jme3.math.FastNoiseLite.NoiseType;
 import com.jme3.math.Vector2f;
 import com.jme3.post.FilterPostProcessor;
@@ -40,8 +39,6 @@ public class NoiseVectorEffectTest extends SimpleApplication {
     public void simpleInitApp() {
         flyCam.setMoveSpeed(10f);
         
-        vectorEffectManagerState = new VectorEffectManagerState();
-        stateManager.attach(vectorEffectManagerState);
         
         initBloom();
         initPbrRoom(13);
@@ -87,7 +84,7 @@ public class NoiseVectorEffectTest extends SimpleApplication {
         
       //  noiseVectorEffect.getNoiseGenerator().SetFractalPingPongStrength(speed);// Controls how strong the ping‑pong effect is when using the PingPong fractal type.    
  
-        vectorEffectManagerState.registerVectorEffect(noiseVectorEffect);        
+        vectorEffectManagerState.playVectorEffect(noiseVectorEffect);        
     }
     
     
@@ -96,11 +93,9 @@ public class NoiseVectorEffectTest extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         super.simpleUpdate(tpf);
         
-        //float values like a light's radius cannot be altered by refernce like a vector object, 
-        //so the float value must be manually extracted from the x component of a vector2f and set as radius every from
-        if(lightRadiusVector != null){ 
-           light.setRadius(lightRadiusVector.getX());
-        }
+        // float params like a light's radius cannot be altered by reference like a vector object,
+        // so the float value must be manually extracted from the x component of a vector and set as radius every frame
+        light.setRadius(lightRadiusVector.getX());
     }
     
     private void initBloom() {

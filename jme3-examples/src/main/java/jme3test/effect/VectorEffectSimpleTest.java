@@ -69,8 +69,6 @@ public class VectorEffectSimpleTest extends SimpleApplication {
     public void simpleInitApp() {
         flyCam.setMoveSpeed(10f);
 
-        vectorEffectManagerState = new VectorEffectManagerState();
-        stateManager.attach(vectorEffectManagerState);
 
         initBloom();
         initPbrRoom(13);
@@ -104,7 +102,7 @@ public class VectorEffectSimpleTest extends SimpleApplication {
         finalLoopingEffect.setLooping(true);
 
         // register the effect:
-        vectorEffectManagerState.registerVectorEffect(finalLoopingEffect);
+        vectorEffectManagerState.playVectorEffect(finalLoopingEffect);
 
     }
 
