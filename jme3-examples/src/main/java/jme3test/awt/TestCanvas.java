@@ -206,6 +206,7 @@ public class TestCanvas {
     @SuppressWarnings("unchecked")
     public static void createCanvas(String appClass){
         AppSettings settings = new AppSettings(true);
+        settings.setX11PlatformPreferred(true);
         settings.setWidth(640);
         settings.setHeight(480);
 
