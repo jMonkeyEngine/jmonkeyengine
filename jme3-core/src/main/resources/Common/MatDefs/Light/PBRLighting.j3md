@@ -19,6 +19,9 @@ MaterialDef PBR Lighting {
         // the emissive intensity
         Float EmissiveIntensity : 2.0
 
+        //Optional vec3 for adjusting the final BaseColor in HSV color space
+        Vector3 HSVOffset
+
         // BaseColor map
         Texture2D BaseColorMap
 
@@ -215,6 +218,7 @@ MaterialDef PBR Lighting {
             FOG_LINEAR : LinearFog
             FOG_EXP : ExpFog
             FOG_EXPSQ : ExpSqFog
+            HSV_OFFSET : HSVOffset
         }
     }
 
