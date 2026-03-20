@@ -31,7 +31,6 @@
  */
 package com.jme3.system.lwjgl;
 
-import com.jme3.system.Displays;
 
 /**
  * @author Daniel Johansson

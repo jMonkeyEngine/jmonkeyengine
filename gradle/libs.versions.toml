@@ -33,6 +33,8 @@ lwjgl3-openal   = { module = "org.lwjgl:lwjgl-openal",   version.ref = "lwjgl3" 
 lwjgl3-opencl   = { module = "org.lwjgl:lwjgl-opencl",   version.ref = "lwjgl3" }
 lwjgl3-opengl   = { module = "org.lwjgl:lwjgl-opengl",   version.ref = "lwjgl3" }
 lwjgl3-sdl      = { module = "org.lwjgl:lwjgl-sdl",      version.ref = "lwjgl3" }
+lwjgl3-opengles = { module = "org.lwjgl:lwjgl-opengles", version.ref = "lwjgl3" }
+lwjgl3-egl   = { module = "org.lwjgl:lwjgl-egl", version.ref = "lwjgl3" }
 
 mokito-core = "org.mockito:mockito-core:3.12.4"
 
