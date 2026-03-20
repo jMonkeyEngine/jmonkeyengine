@@ -57,6 +57,11 @@
             uniform sampler2D m_BaseColorMap;
         #endif
 
+        #ifdef HSV_OFFSET
+            #import "Common/ShaderLib/HSVUtils.glsllib"
+            uniform vec3 m_HSVOffset;
+        #endif
+
         #ifdef USE_PACKED_MR
             uniform sampler2D m_MetallicRoughnessMap;
         #else
@@ -342,6 +347,10 @@
 
             #ifdef DISCARD_ALPHA
                 if( baseColor.a < m_AlphaDiscardThreshold) discard;        
+            #endif
+
+            #ifdef HSV_OFFSET
+                baseColor.rgb = alterColorWithHsvOffset(baseColor.rgb, m_HSVOffset);
             #endif
 
             surface.albedo = baseColor.rgb;
