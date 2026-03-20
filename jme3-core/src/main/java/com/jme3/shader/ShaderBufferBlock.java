@@ -54,6 +54,11 @@ public class ShaderBufferBlock extends ShaderVariable {
     protected BufferType type;
 
     /**
+     * The binding point assigned to this block, or -1 if not yet assigned.
+     */
+    protected int binding = -1;
+
+    /**
      * Set the new buffer object.
      *
      * @param bufferObject
@@ -91,10 +96,29 @@ public class ShaderBufferBlock extends ShaderVariable {
     }
 
     /**
+     * Get the binding point assigned to this block.
+     *
+     * @return the binding point, or -1 if not yet assigned.
+     */
+    public int getBinding() {
+        return binding;
+    }
+
+    /**
+     * Set the binding point for this block.
+     *
+     * @param binding the binding point.
+     */
+    public void setBinding(int binding) {
+        this.binding = binding;
+    }
+
+    /**
      * Reset this storage block.
      */
     public void reset() {
         location = -1;
+        binding = -1;
         updateNeeded = true;
     }
 

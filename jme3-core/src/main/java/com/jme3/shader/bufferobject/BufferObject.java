@@ -158,6 +158,7 @@ public class BufferObject extends NativeObject implements Savable {
             BufferUtils.destroyDirectBuffer(data);
         }
         this.data = BufferUtils.createByteBuffer(length);
+        setUpdateNeeded();
     }
 
 
