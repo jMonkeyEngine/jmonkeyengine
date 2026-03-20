@@ -93,9 +93,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             .addNativeVariant(Platform.MacOSX64, "native/angle/osx/x86_64/libEGL.dylib", "libEGL.dylib")
             .addNativeVariant(Platform.MacOSX_ARM64, "native/angle/osx/arm64/libEGL.dylib", "libEGL.dylib");
 
-    private static final LibraryInfo angleEGLLinuxWayland = new LibraryInfo("angleEGLWayland")
-            .addNativeVariant(Platform.Linux64, "native/angle/linux-wayland/x86_64/libEGL.so", "libEGL.so")
-            .addNativeVariant(Platform.Linux_ARM64, "native/angle/linux-wayland/arm64/libEGL.so", "libEGL.so");
 
     private static final LibraryInfo angleGLESv2 = new LibraryInfo("angleGLESv2")
             .addNativeVariant(Platform.Windows64, "native/angle/windows/x86_64/libGLESv2.dll", "libGLESv2.dll")
@@ -105,9 +102,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             .addNativeVariant(Platform.MacOSX64, "native/angle/osx/x86_64/libGLESv2.dylib", "libGLESv2.dylib")
             .addNativeVariant(Platform.MacOSX_ARM64, "native/angle/osx/arm64/libGLESv2.dylib", "libGLESv2.dylib");
 
-    private static final LibraryInfo angleGLESv2LinuxWayland = new LibraryInfo("angleGLESv2Wayland")
-            .addNativeVariant(Platform.Linux64, "native/angle/linux-wayland/x86_64/libGLESv2.so", "libGLESv2.so")
-            .addNativeVariant(Platform.Linux_ARM64, "native/angle/linux-wayland/arm64/libGLESv2.so", "libGLESv2.so");
 
     private static final LibraryInfo d3dcompiler_47 = new LibraryInfo("d3dcompiler_47")
             .addNativeVariant(Platform.Windows64, "native/d3dcompiler/windows/x86_64/d3dcompiler_47.dll")
@@ -116,8 +110,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     static {
         NativeLibraryLoader.registerNativeLibrary(angleEGL);
         NativeLibraryLoader.registerNativeLibrary(angleGLESv2);
-        NativeLibraryLoader.registerNativeLibrary(angleEGLLinuxWayland);
-        NativeLibraryLoader.registerNativeLibrary(angleGLESv2LinuxWayland);
         NativeLibraryLoader.registerNativeLibrary(d3dcompiler_47);
     }
 
@@ -356,21 +348,24 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         String angleEGLPath = null;
         String angleGLESv2Path = null;
         
-        if(isWayland) {
-            // angleEGLPath = NativeLibraryLoader.loadNativeLibrary("angleEGLWayland", true);
+        // angleEGLPath = NativeLibraryLoader.loadNativeLibrary("angleEGLWayland", true);
             // angleGLESv2Path =  NativeLibraryLoader.loadNativeLibrary("angleGLESv2Wayland", true);
 
             // force debug paths
-            angleEGLPath = "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libEGL.so";
-            angleGLESv2Path = "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libGLESv2.so";
-        } else {
-            // angleEGLPath = NativeLibraryLoader.loadNativeLibrary("angleEGL", true);
-            // angleGLESv2Path = NativeLibraryLoader.loadNativeLibrary("angleGLESv2", true);
+            // angleEGLPath =
+            // "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libEGL.so";
+            // angleGLESv2Path =
+            // "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libGLESv2.so";
+            // } else {
+            angleEGLPath = NativeLibraryLoader.loadNativeLibrary("angleEGL", true);
+            angleGLESv2Path = NativeLibraryLoader.loadNativeLibrary("angleGLESv2", true);
 
             // force debug paths
-            angleEGLPath = "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux/x86_64/libEGL.so";
-            angleGLESv2Path = "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux/x86_64/libGLESv2.so";
-        }
+            // angleEGLPath =
+            // "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux/x86_64/libEGL.so";
+            // angleGLESv2Path =
+            // "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux/x86_64/libGLESv2.so";
+            // }
     
 
         NativeLibraryLoader.loadNativeLibrary("d3dcompiler_47", false); // windows only
