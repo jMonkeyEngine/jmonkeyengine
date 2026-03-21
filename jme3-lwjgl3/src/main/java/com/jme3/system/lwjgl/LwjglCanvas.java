@@ -486,7 +486,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         showGLDataEffective.set(settings.getBoolean("GLDataEffectiveDebug"));
         
         glData.alphaSize = settings.getAlphaBits();
-        glData.sRGB = settings.isGammaCorrection(); // Not compatible with very old devices
+        glData.sRGB = settings.isGammaCorrection() && !useAuxFramebufferSrgb();
         
         glData.depthSize = settings.getDepthBits();
         glData.stencilSize = settings.getStencilBits();

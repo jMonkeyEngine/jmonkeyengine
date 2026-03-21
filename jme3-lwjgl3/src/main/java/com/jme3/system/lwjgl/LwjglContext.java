@@ -196,6 +196,7 @@ public abstract class LwjglContext implements JmeContext {
     private void initContext(boolean first) {
 
         final String renderer = settings.getRenderer();
+        final boolean auxFramebufferSrgb = useAuxFramebufferSrgb();
 
         if (first) {
             GL gl;
@@ -276,26 +277,27 @@ public abstract class LwjglContext implements JmeContext {
         this.renderer.initialize();
 
         boolean isSrgbFb = settings.isGammaCorrection();
+        if (!auxFramebufferSrgb) {
+            if (this.renderer.getCaps().contains(Caps.OpenGL30)) {
+                int[] value = new int[1];
+                GL30.glGetFramebufferAttachmentParameteriv(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT,
+                        GL30.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, value);
+                isSrgbFb = (value[0] == GL30.GL_SRGB);
+            } else if (this.renderer.getCaps().contains(Caps.OpenGLES30)) {
+                IntBuffer value = BufferUtils.createIntBuffer(1);
+                GLES30.glGetFramebufferAttachmentParameteriv(GLES30.GL_FRAMEBUFFER, GLES30.GL_COLOR_ATTACHMENT0,
+                        GLES30.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, value);
+                isSrgbFb = (value.get(0) == GLES30.GL_SRGB);
+            }
 
-        if (this.renderer.getCaps().contains(Caps.OpenGL30)) {
-            int[] value = new int[1];
-            GL30.glGetFramebufferAttachmentParameteriv(GL30.GL_FRAMEBUFFER, GL11.GL_BACK_LEFT,
-                    GL30.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, value);
-            isSrgbFb = (value[0] == GL30.GL_SRGB);
-        } else if (this.renderer.getCaps().contains(Caps.OpenGLES30)) {
-            IntBuffer value = BufferUtils.createIntBuffer(1);
-            GLES30.glGetFramebufferAttachmentParameteriv(GLES30.GL_FRAMEBUFFER, GLES30.GL_COLOR_ATTACHMENT0,
-                    GLES30.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, value);
-            isSrgbFb = (value.get(0) == GLES30.GL_SRGB);
+            if (!isSrgbFb && settings.isGammaCorrection()) {
+                logger.warning(
+                        "sRGB framebuffer not supported by the backend platform, disabling gamma correction");
+            }
         }
 
-        if (!isSrgbFb && settings.isGammaCorrection()) {
-            logger.warning(
-                    "sRGB framebuffer not supported by the backend platform, disabling gamma correction");
-        }
-
-        this.renderer.setMainFrameBufferSrgb(isSrgbFb);
-        this.renderer.setLinearizeSrgbImages(isSrgbFb);
+        this.renderer.setMainFrameBufferSrgb(auxFramebufferSrgb ? false : isSrgbFb);
+        this.renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
         if (first) {
             // Init input
@@ -313,6 +315,10 @@ public abstract class LwjglContext implements JmeContext {
         }
 
         renderable.set(true);
+    }
+
+    protected boolean useAuxFramebufferSrgb() {
+        return false;
     }
 
     public void internalDestroy() {

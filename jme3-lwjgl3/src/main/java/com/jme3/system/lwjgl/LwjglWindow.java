@@ -42,6 +42,8 @@ import static org.lwjgl.sdl.SDLSurface.*;
 import static org.lwjgl.sdl.SDLVideo.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+import com.jme3.app.Application;
+import com.jme3.asset.AssetManager;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -49,7 +51,10 @@ import com.jme3.input.TouchInput;
 import com.jme3.input.lwjgl.SdlJoystickInput;
 import com.jme3.input.lwjgl.SdlKeyInput;
 import com.jme3.input.lwjgl.SdlMouseInput;
+import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
+import com.jme3.renderer.Caps;
+import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.jme3.system.Displays;
 import com.jme3.system.JmeContext;
@@ -58,6 +63,13 @@ import com.jme3.system.NanoTimer;
 import com.jme3.system.NativeLibraries.LibraryInfo;
 import com.jme3.system.NativeLibraryLoader;
 import com.jme3.system.Platform;
+import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.Image;
+import com.jme3.texture.Image.Format;
+import com.jme3.texture.Texture2D;
+import com.jme3.texture.image.ColorSpace;
+import com.jme3.ui.Picture;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
 import java.awt.Graphics2D;
@@ -77,6 +89,7 @@ import org.lwjgl.sdl.SDL_Surface;
 import org.lwjgl.sdl.SDLStdinc;
 import org.lwjgl.system.Configuration;
 import org.lwjgl.system.MemoryStack;
+import com.jme3.renderer.opengl.GLRenderer;
 
 /**
  * SDL3-backed window/context implementation for LWJGL 3.4+.
@@ -85,6 +98,7 @@ import org.lwjgl.system.MemoryStack;
  * @author Riccardo Balbo
  */
 public abstract class LwjglWindow extends LwjglContext implements Runnable {
+    private static final String AUX_FRAMEBUFFER_BLIT_MATERIAL = "Common/MatDefs/Post/AuxFramebuffer.j3md";
     private static final LibraryInfo angleEGL = new LibraryInfo("angleEGL")
             .addNativeVariant(Platform.Windows64, "native/angle/windows/x86_64/libEGL.dll", "libEGL.dll")
             .addNativeVariant(Platform.Windows_ARM64, "native/angle/windows/arm64/libEGL.dll", "libEGL.dll")
@@ -195,6 +209,12 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private int oldFramebufferWidth;
     private int oldFramebufferHeight;
     private final Vector2f oldScale = new Vector2f(1, 1);
+    private Material auxFramebufferBlitMaterial;
+    private Picture auxFramebufferBlitGeometry;
+    private FrameBuffer auxFramebuffer;
+    private Texture2D auxFramebufferColorTexture;
+    private boolean auxFramebufferDirty;
+    private boolean auxFramebufferTextureMultisampleWarningIssued;
 
     public LwjglWindow(final JmeContext.Type type) {
         if (!SUPPORTED_TYPES.contains(type)) {
@@ -352,10 +372,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             // angleGLESv2Path =  NativeLibraryLoader.loadNativeLibrary("angleGLESv2Wayland", true);
 
             // force debug paths
-            // angleEGLPath =
-            // "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libEGL.so";
-            // angleGLESv2Path =
-            // "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libGLESv2.so";
+
             // } else {
             angleEGLPath = NativeLibraryLoader.loadNativeLibrary("angleEGL", true);
             angleGLESv2Path = NativeLibraryLoader.loadNativeLibrary("angleGLESv2", true);
@@ -366,7 +383,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             // angleGLESv2Path =
             // "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux/x86_64/libGLESv2.so";
             // }
-    
+            angleEGLPath = "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libEGL.so";
+            angleGLESv2Path = "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libGLESv2.so";
 
         NativeLibraryLoader.loadNativeLibrary("d3dcompiler_47", false); // windows only
 
@@ -400,7 +418,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, settings.getSamples() > 0 ? 1 : 0);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, Math.max(settings.getSamples(), 0));
 
-        if (settings.isGammaCorrection()) {
+        if (settings.isGammaCorrection() && !useAuxFramebufferSrgb()) {
             SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
         }
 
@@ -510,6 +528,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     protected void destroyContext() {
         try {
+            destroyAuxFramebufferResources();
             if (renderer != null) {
                 renderer.cleanup();
             }
@@ -587,6 +606,157 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         return true;
     }
 
+    @Override
+    protected boolean useAuxFramebufferSrgb() {
+        return settings.isGammaCorrection() && (type == Type.Display || type == Type.Canvas)
+                && listener instanceof Application;
+    }
+
+    private Application getApplicationListener() {
+        if (listener instanceof Application) {
+            return (Application) listener;
+        }
+        return null;
+    }
+
+    private int getAuxFramebufferSampleCount() {
+        int samples = Math.max(settings.getSamples(), 1);
+        if (samples > 1 && renderer != null && !renderer.getCaps().contains(Caps.TextureMultisample)) {
+            if (!auxFramebufferTextureMultisampleWarningIssued) {
+                LOGGER.warning(
+                        "AuxFramebuffer sRGB blit requires multisampled textures for MSAA. Falling back to a single-sample auxiliary framebuffer.");
+                auxFramebufferTextureMultisampleWarningIssued = true;
+            }
+            return 1;
+        }
+        return samples;
+    }
+
+    private void rebuildAuxFramebufferIfNeeded() {
+        if (!useAuxFramebufferSrgb()) {
+            destroyAuxFramebufferResources();
+            return;
+        }
+
+        int width = Math.max(settings.getWidth(), 1);
+        int height = Math.max(settings.getHeight(), 1);
+        int samples = getAuxFramebufferSampleCount();
+
+        if (auxFramebuffer != null && auxFramebuffer.getWidth() == width
+                && auxFramebuffer.getHeight() == height && auxFramebuffer.getSamples() == samples) {
+            return;
+        }
+
+        destroyAuxFramebuffer();
+
+        FrameBuffer frameBuffer = new FrameBuffer(width, height, samples);
+        frameBuffer.setName("LWJGL3 AuxFramebuffer");
+        frameBuffer.setSrgb(false);
+
+        Texture2D colorTexture = new Texture2D(
+                new Image(Format.RGBA16F, width, height, null, ColorSpace.Linear));
+        if (samples > 1) {
+            colorTexture.getImage().setMultiSamples(samples);
+        }
+        frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
+
+        if (settings.getDepthBits() > 0 || settings.getStencilBits() > 0) {
+            frameBuffer.setDepthTarget(FrameBufferTarget
+                    .newTarget(settings.getStencilBits() > 0 ? Format.Depth24Stencil8 : Format.Depth));
+        }
+
+        auxFramebufferColorTexture = colorTexture;
+        auxFramebuffer = frameBuffer;
+        auxFramebufferDirty = true;
+    }
+
+    private boolean ensureAuxFramebufferBlitResources() {
+        if (!useAuxFramebufferSrgb()) {
+            return false;
+        }
+
+        Application application = getApplicationListener();
+        if (application == null) {
+            return false;
+        }
+
+        AssetManager assetManager = application.getAssetManager();
+        RenderManager renderManager = application.getRenderManager();
+        if (assetManager == null || renderManager == null) {
+            return false;
+        }
+
+        if (auxFramebufferBlitMaterial == null) {
+            auxFramebufferBlitMaterial = new Material(assetManager, AUX_FRAMEBUFFER_BLIT_MATERIAL);
+            auxFramebufferBlitMaterial.getAdditionalRenderState().setDepthTest(false);
+            auxFramebufferBlitMaterial.getAdditionalRenderState().setDepthWrite(false);
+        }
+
+        if (auxFramebufferBlitGeometry == null) {
+            auxFramebufferBlitGeometry = new Picture("AuxFramebuffer Blit");
+            auxFramebufferBlitGeometry.setWidth(1f);
+            auxFramebufferBlitGeometry.setHeight(1f);
+            auxFramebufferBlitGeometry.setMaterial(auxFramebufferBlitMaterial);
+        }
+
+        if (auxFramebufferDirty && auxFramebufferColorTexture != null) {
+            auxFramebufferBlitMaterial.setTexture("Texture", auxFramebufferColorTexture);
+            if (auxFramebuffer != null && auxFramebuffer.getSamples() > 1) {
+                auxFramebufferBlitMaterial.setInt("NumSamples", auxFramebuffer.getSamples());
+            } else {
+                auxFramebufferBlitMaterial.clearParam("NumSamples");
+            }
+            auxFramebufferDirty = false;
+        }
+
+        return true;
+    }
+
+    private void destroyAuxFramebuffer() {
+        if (auxFramebuffer != null) {
+            auxFramebuffer.dispose();
+            auxFramebuffer = null;
+        }
+        if (auxFramebufferColorTexture != null && auxFramebufferColorTexture.getImage() != null) {
+            auxFramebufferColorTexture.getImage().dispose();
+        }
+        auxFramebufferColorTexture = null;
+        auxFramebufferDirty = true;
+    }
+
+    private void destroyAuxFramebufferResources() {
+        destroyAuxFramebuffer();
+        auxFramebufferBlitMaterial = null;
+        auxFramebufferBlitGeometry = null;
+        auxFramebufferTextureMultisampleWarningIssued = false;
+    }
+
+    private boolean renderFrameWithAuxFramebuffer() {
+        if (!(renderer instanceof GLRenderer) || !useAuxFramebufferSrgb()) {
+            return false;
+        }
+
+        rebuildAuxFramebufferIfNeeded();
+        if (auxFramebuffer == null || !ensureAuxFramebufferBlitResources()) {
+            return false;
+        }
+
+        GLRenderer glRenderer = (GLRenderer) renderer;
+        RenderManager renderManager = getApplicationListener().getRenderManager();
+
+        glRenderer.setMainFrameBufferOverride(auxFramebuffer);
+        try {
+            listener.update();
+        } finally {
+            glRenderer.setMainFrameBufferOverride(null);
+        }
+
+        glRenderer.setFrameBuffer(null);
+        auxFramebufferBlitGeometry.updateGeometricState();
+        renderManager.renderGeometry(auxFramebufferBlitGeometry);
+        return true;
+    }
+
     protected void runLoop() {
         if (needRestart.getAndSet(false)) {
             restartContext();
@@ -596,7 +766,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             throw new IllegalStateException();
         }
 
-        listener.update();
+        if (!renderFrameWithAuxFramebuffer()) {
+            listener.update();
+        }
 
         if (renderable.get()) {
             try {
