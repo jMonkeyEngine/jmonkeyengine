@@ -168,11 +168,12 @@ public class BufferObject extends NativeObject implements Savable {
      * @param data ByteBuffer containing the data to pass
      */
     public void setData(ByteBuffer data) {
-        if (data != null) {
-            BufferUtils.destroyDirectBuffer(data);
+        if (this.data != null) {
+            BufferUtils.destroyDirectBuffer(this.data);
         }
         this.data = BufferUtils.createByteBuffer(data.limit() - data.position());
         this.data.put(data);
+        setUpdateNeeded();
     }
 
 
