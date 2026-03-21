@@ -1,0 +1,8 @@
+MaterialDef ChildRenderState : parent-matdef.j3md {
+    Technique {
+        RenderState {
+            FaceCull Off
+            Blend Alpha
+        }
+    }
+}

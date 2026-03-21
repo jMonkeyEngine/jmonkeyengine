@@ -1,0 +1,5 @@
+MaterialDef ChildTechOnly : parent-matdef.j3md {
+    Technique {
+        FragmentShader GLSL150 GLSL100 : childtech.frag
+    }
+}

@@ -1,0 +1,5 @@
+MaterialDef ChildParamsOnly : parent-matdef.j3md {
+    MaterialParameters {
+        Float Metallic : 0.0
+    }
+}

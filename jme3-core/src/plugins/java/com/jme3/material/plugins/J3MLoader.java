@@ -713,6 +713,314 @@ public class J3MLoader implements AssetLoader {
         presetDefines.clear();
     }
 
+    private void readExtendingDefMaterialParams(List<Statement> paramsList) throws IOException {
+        for (Statement statement : paramsList) {
+            readExtendingDefParam(statement.getLine());
+        }
+    }
+
+    private void readExtendingDefParam(String statement) throws IOException {
+        String name;
+        String defaultVal = null;
+        ColorSpace colorSpace = null;
+
+        String[] split = statement.split(":");
+
+        // Parse default val
+        if (split.length == 1) {
+            // No default value
+        } else {
+            if (split.length != 2) {
+                throw new IOException("Parameter statement syntax incorrect");
+            }
+            statement = split[0].trim();
+            defaultVal = split[1].trim();
+        }
+
+        if (statement.endsWith("-LINEAR")) {
+            colorSpace = ColorSpace.Linear;
+            statement = statement.substring(0, statement.length() - "-LINEAR".length());
+        }
+
+        // Parse ffbinding
+        int startParen = statement.indexOf("(");
+        if (startParen != -1) {
+            int endParen = statement.indexOf(")", startParen);
+            statement = statement.substring(0, startParen);
+        }
+
+        // Parse type + name
+        split = statement.split(whitespacePattern);
+        if (split.length != 2) {
+            throw new IOException("Parameter statement syntax incorrect");
+        }
+
+        VarType type;
+        if (split[0].equals("Color")) {
+            type = VarType.Vector4;
+        } else {
+            type = VarType.valueOf(split[0]);
+        }
+
+        name = split[1];
+
+        MatParam existingParam = materialDef.getMaterialParam(name);
+        if (existingParam != null) {
+            // Validate type matches
+            if (existingParam.getVarType() != type) {
+                throw new IOException("Cannot override parameter '" + name
+                        + "' with type '" + type + "', parent declares it as '" + existingParam.getVarType() + "'");
+            }
+            // Update default value
+            if (defaultVal != null) {
+                Object defaultValObj = readValue(type, defaultVal);
+                existingParam.setValue(defaultValObj);
+            }
+        } else {
+            // New parameter
+            Object defaultValObj = null;
+            if (defaultVal != null) {
+                defaultValObj = readValue(type, defaultVal);
+            }
+            if (type.isTextureType()) {
+                materialDef.addMaterialParamTexture(type, name, colorSpace, (Texture) defaultValObj);
+            } else {
+                materialDef.addMaterialParam(type, name, defaultValObj);
+            }
+        }
+    }
+
+    private void readExtendingDefTechnique(Statement techStat) throws IOException {
+        String[] split = techStat.getLine().split(whitespacePattern);
+
+        String name;
+        if (split.length == 1) {
+            name = TechniqueDef.DEFAULT_TECHNIQUE_NAME;
+        } else if (split.length == 2) {
+            name = split[1];
+        } else {
+            throw new IOException("Technique statement syntax incorrect");
+        }
+
+        List<TechniqueDef> existingTechs = materialDef.getTechniqueDefs(name);
+        if (existingTechs == null || existingTechs.isEmpty()) {
+            // Brand new technique — delegate to normal readTechnique
+            readTechnique(techStat);
+            return;
+        }
+
+        // Parse child's technique block into temporary state
+        EnumMap<Shader.ShaderType, String> childShaderNames = new EnumMap<>(Shader.ShaderType.class);
+        List<EnumMap<Shader.ShaderType, String>> childShaderLanguages = new ArrayList<>();
+        List<Statement> childDefineStatements = new ArrayList<>();
+        List<Statement> childWorldParamStatements = new ArrayList<>();
+        RenderState childRenderState = null;
+        RenderState childForcedRenderState = null;
+        LightMode childLightMode = null;
+        ShadowMode childShadowMode = null;
+        TechniqueDef.LightSpace childLightSpace = null;
+        int childLangSize = 0;
+
+        for (Statement statement : techStat.getContents()) {
+            String[] stSplit = statement.getLine().split("[ \\{]");
+            if (stSplit[0].equals("VertexShader")
+                    || stSplit[0].equals("FragmentShader")
+                    || stSplit[0].equals("GeometryShader")
+                    || stSplit[0].equals("TessellationControlShader")
+                    || stSplit[0].equals("TessellationEvaluationShader")) {
+                // Parse shader statement into childShaderNames/childShaderLanguages
+                String[] sSplit = statement.getLine().split(":");
+                if (sSplit.length != 2) {
+                    throw new IOException("Shader statement syntax incorrect: " + statement.getLine());
+                }
+                String[] typeAndLang = sSplit[0].split(whitespacePattern);
+                String shaderSource = sSplit[1].trim();
+
+                for (Shader.ShaderType shaderType : Shader.ShaderType.values()) {
+                    if (typeAndLang[0].equals(shaderType.toString() + "Shader")) {
+                        childShaderNames.put(shaderType, shaderSource);
+                        String[] languages = Arrays.copyOfRange(typeAndLang, 1, typeAndLang.length);
+                        if (childLangSize != 0 && childLangSize != languages.length) {
+                            throw new AssetLoadException("Child technique must have the same number of languages for each shader type.");
+                        }
+                        childLangSize = languages.length;
+                        for (int i = 0; i < languages.length; i++) {
+                            if (i >= childShaderLanguages.size()) {
+                                childShaderLanguages.add(new EnumMap<>(Shader.ShaderType.class));
+                            }
+                            childShaderLanguages.get(i).put(shaderType, languages[i]);
+                        }
+                    }
+                }
+            } else if (stSplit[0].equals("LightMode")) {
+                String[] lmSplit = statement.getLine().split(whitespacePattern);
+                childLightMode = LightMode.valueOf(lmSplit[1]);
+            } else if (stSplit[0].equals("LightSpace")) {
+                String[] lsSplit = statement.getLine().split(whitespacePattern);
+                childLightSpace = TechniqueDef.LightSpace.valueOf(lsSplit[1]);
+            } else if (stSplit[0].equals("ShadowMode")) {
+                String[] smSplit = statement.getLine().split(whitespacePattern);
+                childShadowMode = ShadowMode.valueOf(smSplit[1]);
+            } else if (stSplit[0].equals("WorldParameters")) {
+                childWorldParamStatements.addAll(statement.getContents());
+            } else if (stSplit[0].equals("RenderState")) {
+                childRenderState = new RenderState();
+                renderState = childRenderState;
+                for (Statement rs : statement.getContents()) {
+                    readRenderStateStatement(rs);
+                }
+                renderState = null;
+            } else if (stSplit[0].equals("ForcedRenderState")) {
+                childForcedRenderState = new RenderState();
+                renderState = childForcedRenderState;
+                for (Statement rs : statement.getContents()) {
+                    readRenderStateStatement(rs);
+                }
+                renderState = null;
+            } else if (stSplit[0].equals("Defines")) {
+                childDefineStatements.addAll(statement.getContents());
+            }
+        }
+
+        // Validate child language variant count matches parent variant count
+        if (!childShaderNames.isEmpty() && childShaderLanguages.size() != existingTechs.size()) {
+            throw new AssetLoadException("Child technique language variant count ("
+                    + childShaderLanguages.size() + ") does not match parent variant count ("
+                    + existingTechs.size() + ") for technique '" + name + "'");
+        }
+
+        // Process defines ONCE on first variant, then replicate
+        ArrayList<String> savedPresetDefines = new ArrayList<>(presetDefines);
+        presetDefines.clear();
+
+        if (!childDefineStatements.isEmpty()) {
+            technique = existingTechs.get(0);
+            for (Statement defSt : childDefineStatements) {
+                readDefine(defSt.getLine());
+            }
+            technique = null;
+            // Replicate mapped defines to remaining variants
+            for (int i = 1; i < existingTechs.size(); i++) {
+                TechniqueDef td = existingTechs.get(i);
+                for (Statement defSt : childDefineStatements) {
+                    String[] defSplit = defSt.getLine().split(":");
+                    if (defSplit.length == 2) {
+                        String defineName = defSplit[0].trim();
+                        String paramName = defSplit[1].trim();
+                        MatParam param = materialDef.getMaterialParam(paramName);
+                        if (param != null) {
+                            td.addShaderParamDefine(paramName, param.getVarType(), defineName);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Apply overrides to each variant by index
+        for (int i = 0; i < existingTechs.size(); i++) {
+            TechniqueDef td = existingTechs.get(i);
+
+            // Shader merge
+            if (!childShaderNames.isEmpty()) {
+                EnumMap<Shader.ShaderType, String> mergedNames = new EnumMap<>(td.getShaderProgramNames());
+                EnumMap<Shader.ShaderType, String> mergedLangs = new EnumMap<>(td.getShaderProgramLanguages());
+                mergedNames.putAll(childShaderNames);
+
+                // Find matching child language variant by comparing the child's declared
+                // language for an overridden shader type against the existing technique variant's
+                // language for that same type. Since parent variants have one language per variant
+                // (e.g. GLSL150 for all types in variant 0, GLSL100 for all types in variant 1),
+                // matching on any overridden shader type works.
+                EnumMap<Shader.ShaderType, String> existingLangs = td.getShaderProgramLanguages();
+                int matchedChildLangIdx = -1;
+                for (int ci = 0; ci < childShaderLanguages.size(); ci++) {
+                    EnumMap<Shader.ShaderType, String> childLangSet = childShaderLanguages.get(ci);
+                    boolean matches = false;
+                    for (Shader.ShaderType st : childShaderNames.keySet()) {
+                        String existingLang = existingLangs.get(st);
+                        String childLang = childLangSet.get(st);
+                        if (existingLang != null && existingLang.equals(childLang)) {
+                            matches = true;
+                            break;
+                        }
+                    }
+                    if (matches) {
+                        matchedChildLangIdx = ci;
+                        break;
+                    }
+                }
+                if (matchedChildLangIdx == -1) {
+                    // Fallback: match by index
+                    matchedChildLangIdx = Math.min(i, childShaderLanguages.size() - 1);
+                }
+                mergedLangs.putAll(childShaderLanguages.get(matchedChildLangIdx));
+                td.setShaderFile(mergedNames, mergedLangs);
+            }
+
+            // World params — additive
+            for (Statement wpSt : childWorldParamStatements) {
+                td.addWorldParam(wpSt.getLine());
+            }
+
+            // RenderState override
+            if (childRenderState != null) {
+                td.setRenderState(childRenderState);
+            }
+            if (childForcedRenderState != null) {
+                td.setForcedRenderState(childForcedRenderState);
+            }
+
+            // LightMode override
+            if (childLightMode != null) {
+                td.setLightMode(childLightMode);
+                switch (childLightMode) {
+                    case Disable:
+                        td.setLogic(new DefaultTechniqueDefLogic(td));
+                        break;
+                    case MultiPass:
+                        td.setLogic(new MultiPassLightingLogic(td));
+                        break;
+                    case SinglePass:
+                        td.setLogic(new SinglePassLightingLogic(td));
+                        break;
+                    case StaticPass:
+                        td.setLogic(new StaticPassLightingLogic(td));
+                        break;
+                    case SinglePassAndImageBased:
+                        td.setLogic(new SinglePassAndImageBasedLightingLogic(td));
+                        break;
+                    default:
+                        throw new IOException("Light mode not supported:" + childLightMode);
+                }
+            }
+
+            // ShadowMode override
+            if (childShadowMode != null) {
+                td.setShadowMode(childShadowMode);
+            }
+
+            // LightSpace override
+            if (childLightSpace != null) {
+                td.setLightSpace(childLightSpace);
+            }
+
+            // Apply preset defines to shader prologue (append to existing)
+            if (!presetDefines.isEmpty()) {
+                String existingPrologue = td.getShaderPrologue();
+                String newPrologue = createShaderPrologue(presetDefines);
+                if (existingPrologue != null && !existingPrologue.isEmpty()) {
+                    td.setShaderPrologue(existingPrologue + newPrologue);
+                } else {
+                    td.setShaderPrologue(newPrologue);
+                }
+            }
+        }
+
+        // Restore saved presetDefines
+        presetDefines.clear();
+        presetDefines.addAll(savedPresetDefines);
+    }
+
     private void loadFromRoot(List<Statement> roots) throws IOException{
         if (roots.size() == 2){
             Statement exception = roots.get(0);
@@ -747,22 +1055,59 @@ public class J3MLoader implements AssetLoader {
             throw new MatParseException("Material name cannot be empty", materialStat);
         }
 
+        boolean extendingDef = false;
+
         if (split.length == 2){
             if (!extending){
-                throw new MatParseException("Must use 'Material' when extending.", materialStat);
+                // MaterialDef with colon — this is MaterialDef inheritance
+                extendingDef = true;
+
+                String parentPath = split[1].trim();
+                MaterialDef parentDef = assetManager.loadAsset(new AssetKey<MaterialDef>(parentPath));
+                if (parentDef == null) {
+                    throw new MatParseException("Parent MaterialDef " + parentPath + " cannot be found.", materialStat);
+                }
+
+                materialDef = new MaterialDef(assetManager, split[0].trim());
+                materialDef.setAssetName(key.getName());
+
+                // Copy all parent params
+                for (MatParam parentParam : parentDef.getMaterialParams()) {
+                    if (parentParam instanceof MatParamTexture) {
+                        MatParamTexture texParam = (MatParamTexture) parentParam;
+                        materialDef.addMaterialParamTexture(texParam.getVarType(), texParam.getName(),
+                                texParam.getColorSpace(), (Texture) texParam.getValue());
+                    } else {
+                        materialDef.addMaterialParam(parentParam.getVarType(), parentParam.getName(), parentParam.getValue());
+                    }
+                }
+
+                // Clone all parent techniques
+                for (String techName : parentDef.getTechniqueDefsNames()) {
+                    List<TechniqueDef> parentTechs = parentDef.getTechniqueDefs(techName);
+                    if (parentTechs != null) {
+                        for (TechniqueDef parentTech : parentTechs) {
+                            try {
+                                TechniqueDef cloned = parentTech.clone();
+                                materialDef.addTechniqueDef(cloned);
+                            } catch (CloneNotSupportedException e) {
+                                throw new AssetLoadException("Failed to clone technique: " + techName, e);
+                            }
+                        }
+                    }
+                }
+            } else {
+                String extendedMat = split[1].trim();
+
+                MaterialDef def = assetManager.loadAsset(new AssetKey<MaterialDef>(extendedMat));
+                if (def == null) {
+                    throw new MatParseException("Extended material " + extendedMat + " cannot be found.", materialStat);
+                }
+
+                material = new Material(def);
+                material.setKey(key);
+                material.setName(split[0].trim());
             }
-
-            String extendedMat = split[1].trim();
-
-            MaterialDef def = assetManager.loadAsset(new AssetKey<MaterialDef>(extendedMat));
-            if (def == null) {
-                throw new MatParseException("Extended material " + extendedMat + " cannot be found.", materialStat);
-            }
-
-            material = new Material(def);
-            material.setKey(key);
-            material.setName(split[0].trim());
-            
         }else if (split.length == 1){
             if (extending){
                 throw new MatParseException("Expected ':', got '{'", materialStat);
@@ -786,6 +1131,14 @@ public class J3MLoader implements AssetLoader {
                     readTransparentStatement(statement.getLine());
                 } else if (statType.equals("ReceivesShadows")) {
                     readReceivesShadowsStatement(statement.getLine());
+                }
+            } else if (extendingDef) {
+                if (statType.equals("MaterialParameters")) {
+                    readExtendingDefMaterialParams(statement.getContents());
+                } else if (statType.equals("Technique")) {
+                    readExtendingDefTechnique(statement);
+                } else {
+                    throw new MatParseException("Expected material statement, got '" + statType + "'", statement);
                 }
             } else {
                 if (statType.equals("Technique")) {

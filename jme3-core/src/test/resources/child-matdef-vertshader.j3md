@@ -1,0 +1,5 @@
+MaterialDef ChildVertShader : parent-matdef.j3md {
+    Technique {
+        VertexShader GLSL150 GLSL100 : childvert.vert
+    }
+}

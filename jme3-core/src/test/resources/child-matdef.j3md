@@ -1,0 +1,12 @@
+MaterialDef Child : parent-matdef.j3md {
+    MaterialParameters {
+        Float Wetness : 0.0
+        Float Roughness : 0.8
+    }
+    Technique {
+        FragmentShader GLSL150 GLSL100 : child.frag
+        Defines {
+            WETNESS : Wetness
+        }
+    }
+}
