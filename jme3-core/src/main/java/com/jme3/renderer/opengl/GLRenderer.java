@@ -1538,28 +1538,41 @@ public final class GLRenderer implements Renderer {
             block.setBinding(binding);
         }
 
-        // Pass 2: detect and resolve collisions
-        Set<Integer> usedBindings = new HashSet<>();
-        int nextFree = 0;
+        // Pass 2: detect and resolve collisions.
+        // UBOs and SSBOs use separate GL binding namespaces, so track them independently.
+        Set<Integer> usedUboBindings = new HashSet<>();
+        Set<Integer> usedSsboBindings = new HashSet<>();
+        int nextFreeUbo = 0;
+        int nextFreeSsbo = 0;
 
         for (int i = 0; i < bufferBlocks.size(); i++) {
             ShaderBufferBlock block = bufferBlocks.getValue(i);
             int binding = block.getBinding();
             if (binding < 0) continue;
 
+            BufferType bufferType = block.getType();
+            Set<Integer> usedBindings;
+            if (bufferType == BufferType.ShaderStorageBufferObject) {
+                usedBindings = usedSsboBindings;
+            } else {
+                usedBindings = usedUboBindings;
+            }
+
             if (!usedBindings.add(binding)) {
-                // Collision — find a free binding point
-                while (usedBindings.contains(nextFree)) {
-                    nextFree++;
+                // Collision within the same namespace — find a free binding point
+                if (bufferType == BufferType.ShaderStorageBufferObject) {
+                    while (usedBindings.contains(nextFreeSsbo)) nextFreeSsbo++;
+                    binding = nextFreeSsbo;
+                } else {
+                    while (usedBindings.contains(nextFreeUbo)) nextFreeUbo++;
+                    binding = nextFreeUbo;
                 }
-                binding = nextFree;
                 usedBindings.add(binding);
                 block.setBinding(binding);
             }
 
             // Set the binding on the shader program
             int blockIndex = block.getLocation();
-            BufferType bufferType = block.getType();
             if (bufferType == BufferType.ShaderStorageBufferObject) {
                 gl4.glShaderStorageBlockBinding(shaderId, blockIndex, binding);
             } else {
