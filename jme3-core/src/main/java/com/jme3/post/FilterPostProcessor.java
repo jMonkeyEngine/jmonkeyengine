@@ -674,6 +674,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * Removes all filters currently added to this processor.
      */
     public void removeAllFilters() {
+        for (Filter filter : filters.getArray()) {
+            filter.cleanup(renderer);
+        }
         filters.clear();
         updateLastFilterIndex();
     }
