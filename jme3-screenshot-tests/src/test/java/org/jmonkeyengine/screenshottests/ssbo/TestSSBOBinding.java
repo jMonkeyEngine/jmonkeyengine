@@ -74,7 +74,7 @@ public class TestSSBOBinding extends ScreenshotTestBase {
                 Arguments.of("ExplicitBindings", "TestSSBOBinding/SSBOExplicitBindings.j3md", TestType.MUST_PASS),
                 Arguments.of("Binding0OnSecond", "TestSSBOBinding/SSBOBinding0OnSecond.j3md", TestType.MUST_PASS),
                 Arguments.of("MixedBindings", "TestSSBOBinding/SSBOMixedBindings.j3md", TestType.MUST_PASS),
-                Arguments.of("Collision", "TestSSBOBinding/SSBOCollision.j3md", TestType.KNOWN_TO_FAIL)
+                Arguments.of("Collision", "TestSSBOBinding/SSBOCollision.j3md", TestType.MUST_PASS)
         );
     }
 
