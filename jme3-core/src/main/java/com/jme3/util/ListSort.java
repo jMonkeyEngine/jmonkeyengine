@@ -62,6 +62,7 @@ import java.util.Comparator;
  * }
  *
  * @author Nehon
+ * @param <T> Type of sorted entries
  */
 public class ListSort<T> {
 
@@ -72,7 +73,7 @@ public class ListSort<T> {
      */
     private static final int MIN_SIZE = 128;
     private T[] array;
-    private T[] tmpArray;
+    T[] tmpArray;
     private Comparator<T> comparator;
     
     /**
@@ -241,14 +242,18 @@ public class ListSort<T> {
         }
 
         // Merge all remaining runs to complete sort        
-        mergeForceCollapse();     
+        mergeForceCollapse();
 
         // Clear temporary array to avoid memory leaks
         // (e.g. Geometries added to the array by GeometryList#sort() might get
         // detached from their parent later -> they and their OGL object will not
         // get garbage collected when subsequent sorts use only portions of the
         // array)
-        Arrays.fill(tmpArray, null);
+        int tmpLen = length >>> 1; // See allocateStack(...)
+        Arrays.fill(tmpArray,
+                0,
+                tmpArray.length > tmpLen ? tmpLen : tmpArray.length,
+                null);
     }
 
     /**
