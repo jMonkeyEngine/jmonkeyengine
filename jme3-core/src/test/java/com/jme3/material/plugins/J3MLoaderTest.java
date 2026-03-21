@@ -17,13 +17,17 @@ import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -392,5 +396,142 @@ public class J3MLoaderTest {
                     td.getShaderParamDefine("DiffuseMap"));
             assertEquals("HAS_DIFFUSEMAP", td.getShaderParamDefine("DiffuseMap"));
         }
+    }
+
+    // ---- Multi-Inheritance helpers ----
+
+    private MaterialDef loadMixinDef(String resourceName) throws IOException {
+        J3MLoader loader = new J3MLoader();
+        AssetInfo info = Mockito.mock(AssetInfo.class);
+        @SuppressWarnings("unchecked")
+        AssetKey<MaterialDef> key = Mockito.mock(AssetKey.class);
+        when(key.getExtension()).thenReturn("j3md");
+        when(key.getName()).thenReturn(resourceName);
+        when(info.getManager()).thenReturn(assetManager);
+        when(info.getKey()).thenReturn(key);
+        when(info.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/" + resourceName));
+        return (MaterialDef) loader.load(info);
+    }
+
+    @SuppressWarnings("unchecked")
+    private MaterialDef loadMultiInheritChildDef(String resourcePath, String... parentResources) throws IOException {
+        // Load each parent
+        final Map<String, MaterialDef> parentDefs = new HashMap<>();
+        for (String parentResource : parentResources) {
+            parentDefs.put(parentResource, loadMixinDef(parentResource));
+        }
+
+        // Mock assetManager.loadAsset to return the correct parent based on path
+        when(assetManager.loadAsset(any(AssetKey.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                AssetKey<?> k = (AssetKey<?>) invocation.getArguments()[0];
+                MaterialDef def = parentDefs.get(k.getName());
+                if (def != null) return def;
+                return null;
+            }
+        });
+
+        J3MLoader childLoader = new J3MLoader();
+        AssetInfo childInfo = Mockito.mock(AssetInfo.class);
+        AssetKey<MaterialDef> childKey = Mockito.mock(AssetKey.class);
+        when(childKey.getExtension()).thenReturn("j3md");
+        when(childKey.getName()).thenReturn(resourcePath);
+        when(childInfo.getManager()).thenReturn(assetManager);
+        when(childInfo.getKey()).thenReturn(childKey);
+        when(childInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/" + resourcePath));
+        return (MaterialDef) childLoader.load(childInfo);
+    }
+
+    // ---- Multi-Inheritance tests ----
+
+    @Test
+    public void multiInheritance_shouldInheritFromMultipleParents() throws IOException {
+        MaterialDef def = loadMultiInheritChildDef("child-multi-inherit.j3md",
+                "mixin-a.j3md", "mixin-b.j3md");
+
+        // Params from mixin-a
+        assertNotNull(def.getMaterialParam("AlphaDiscardThreshold"));
+        assertNotNull(def.getMaterialParam("NumberOfBones"));
+        // Params from mixin-b
+        assertNotNull(def.getMaterialParam("GlowMap"));
+        assertNotNull(def.getMaterialParam("GlowColor"));
+        // Own param
+        assertNotNull(def.getMaterialParam("BaseColor"));
+
+        // Own Default technique
+        assertNotNull(def.getTechniqueDefs("Default"));
+        // PreShadow from mixin-a
+        assertNotNull(def.getTechniqueDefs("PreShadow"));
+        // Glow from mixin-b
+        assertNotNull(def.getTechniqueDefs("Glow"));
+    }
+
+    @Test
+    public void multiInheritance_sharedParamSameType_shouldSucceed() throws IOException {
+        MaterialDef def = loadMultiInheritChildDef("child-multi-shared-param.j3md",
+                "mixin-a.j3md", "mixin-shared-param.j3md");
+
+        // AlphaDiscardThreshold shared between both parents (same type Float) — should succeed
+        assertNotNull(def.getMaterialParam("AlphaDiscardThreshold"));
+        assertEquals(VarType.Float, def.getMaterialParam("AlphaDiscardThreshold").getVarType());
+
+        // Params from mixin-a
+        assertNotNull(def.getMaterialParam("NumberOfBones"));
+        // Params from mixin-shared-param
+        assertNotNull(def.getMaterialParam("UseFog"));
+
+        // Techniques from both
+        assertNotNull(def.getTechniqueDefs("PreShadow"));
+        assertNotNull(def.getTechniqueDefs("Fog"));
+    }
+
+    @Test(expected = IOException.class)
+    public void multiInheritance_conflictingParamType_shouldThrow() throws IOException {
+        loadMultiInheritChildDef("child-multi-conflict-param.j3md",
+                "mixin-a.j3md", "mixin-conflict-param.j3md");
+    }
+
+    @Test(expected = IOException.class)
+    public void multiInheritance_conflictingTechnique_shouldThrow() throws IOException {
+        loadMultiInheritChildDef("child-multi-conflict-technique.j3md",
+                "mixin-a.j3md", "mixin-conflict-technique.j3md");
+    }
+
+    @Test
+    public void multiInheritance_sameTechniqueSameShaders_shouldSucceed() throws IOException {
+        MaterialDef def = loadMultiInheritChildDef("child-multi-same-technique.j3md",
+                "mixin-a.j3md", "mixin-same-technique.j3md");
+
+        // PreShadow from both parents has same shaders — should succeed without duplicating
+        List<TechniqueDef> preShadowTechs = def.getTechniqueDefs("PreShadow");
+        assertNotNull(preShadowTechs);
+        assertEquals(2, preShadowTechs.size()); // 2 variants (GLSL150 + GLSL100), not 4
+
+        // Params from both
+        assertNotNull(def.getMaterialParam("AlphaDiscardThreshold"));
+        assertNotNull(def.getMaterialParam("NumberOfBones"));
+        assertNotNull(def.getMaterialParam("Roughness"));
+    }
+
+    @Test
+    public void multiInheritance_tripleInheritance_shouldWork() throws IOException {
+        MaterialDef def = loadMultiInheritChildDef("child-triple-inherit.j3md",
+                "mixin-a.j3md", "mixin-b.j3md", "mixin-shared-param.j3md");
+
+        // Params from all three parents
+        assertNotNull(def.getMaterialParam("AlphaDiscardThreshold")); // shared A + shared-param
+        assertNotNull(def.getMaterialParam("NumberOfBones"));         // from A
+        assertNotNull(def.getMaterialParam("GlowMap"));               // from B
+        assertNotNull(def.getMaterialParam("GlowColor"));             // from B
+        assertNotNull(def.getMaterialParam("UseFog"));                // from shared-param
+
+        // Techniques from all parents
+        assertNotNull(def.getTechniqueDefs("PreShadow")); // from A
+        assertNotNull(def.getTechniqueDefs("Glow"));      // from B
+        assertNotNull(def.getTechniqueDefs("Fog"));       // from shared-param
+
+        // Own Default technique
+        assertNotNull(def.getTechniqueDefs("Default"));
     }
 }

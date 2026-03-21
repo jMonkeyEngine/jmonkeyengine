@@ -1059,39 +1059,81 @@ public class J3MLoader implements AssetLoader {
 
         if (split.length == 2){
             if (!extending){
-                // MaterialDef with colon — this is MaterialDef inheritance
+                // MaterialDef with colon — this is MaterialDef inheritance (single or multi)
                 extendingDef = true;
 
-                String parentPath = split[1].trim();
-                MaterialDef parentDef = assetManager.loadAsset(new AssetKey<MaterialDef>(parentPath));
-                if (parentDef == null) {
-                    throw new MatParseException("Parent MaterialDef " + parentPath + " cannot be found.", materialStat);
-                }
+                String parentsList = split[1].trim();
+                String[] parentPaths = parentsList.split(",");
 
                 materialDef = new MaterialDef(assetManager, split[0].trim());
                 materialDef.setAssetName(key.getName());
 
-                // Copy all parent params
-                for (MatParam parentParam : parentDef.getMaterialParams()) {
-                    if (parentParam instanceof MatParamTexture) {
-                        MatParamTexture texParam = (MatParamTexture) parentParam;
-                        materialDef.addMaterialParamTexture(texParam.getVarType(), texParam.getName(),
-                                texParam.getColorSpace(), (Texture) texParam.getValue());
-                    } else {
-                        materialDef.addMaterialParam(parentParam.getVarType(), parentParam.getName(), parentParam.getValue());
+                for (String parentPathRaw : parentPaths) {
+                    String parentPath = parentPathRaw.trim();
+                    if (parentPath.isEmpty()) {
+                        continue;
                     }
-                }
 
-                // Clone all parent techniques
-                for (String techName : parentDef.getTechniqueDefsNames()) {
-                    List<TechniqueDef> parentTechs = parentDef.getTechniqueDefs(techName);
-                    if (parentTechs != null) {
-                        for (TechniqueDef parentTech : parentTechs) {
-                            try {
-                                TechniqueDef cloned = parentTech.clone();
-                                materialDef.addTechniqueDef(cloned);
-                            } catch (CloneNotSupportedException e) {
-                                throw new AssetLoadException("Failed to clone technique: " + techName, e);
+                    MaterialDef parentDef = assetManager.loadAsset(new AssetKey<MaterialDef>(parentPath));
+                    if (parentDef == null) {
+                        throw new MatParseException("Parent MaterialDef " + parentPath + " cannot be found.", materialStat);
+                    }
+
+                    // Merge params with conflict detection
+                    for (MatParam parentParam : parentDef.getMaterialParams()) {
+                        MatParam existing = materialDef.getMaterialParam(parentParam.getName());
+                        if (existing != null) {
+                            // Same name — check type match
+                            if (existing.getVarType() != parentParam.getVarType()) {
+                                throw new IOException("Parameter '" + parentParam.getName()
+                                    + "' type conflict: declared as '" + existing.getVarType()
+                                    + "' but '" + parentPath + "' declares it as '" + parentParam.getVarType() + "'");
+                            }
+                            // Same name, same type — OK, skip (already exists from previous parent)
+                        } else {
+                            // New param — add it
+                            if (parentParam instanceof MatParamTexture) {
+                                MatParamTexture texParam = (MatParamTexture) parentParam;
+                                materialDef.addMaterialParamTexture(texParam.getVarType(), texParam.getName(),
+                                        texParam.getColorSpace(), (Texture) texParam.getValue());
+                            } else {
+                                materialDef.addMaterialParam(parentParam.getVarType(), parentParam.getName(),
+                                        parentParam.getValue());
+                            }
+                        }
+                    }
+
+                    // Merge techniques with conflict detection
+                    for (String techName : parentDef.getTechniqueDefsNames()) {
+                        List<TechniqueDef> parentTechs = parentDef.getTechniqueDefs(techName);
+                        if (parentTechs == null) continue;
+
+                        List<TechniqueDef> existingTechs = materialDef.getTechniqueDefs(techName);
+                        if (existingTechs != null && !existingTechs.isEmpty()) {
+                            // Same technique name exists — validate shaders match
+                            for (TechniqueDef parentTech : parentTechs) {
+                                boolean foundMatch = false;
+                                for (TechniqueDef existingTech : existingTechs) {
+                                    if (shadersMatch(parentTech, existingTech)) {
+                                        foundMatch = true;
+                                        break;
+                                    }
+                                }
+                                if (!foundMatch) {
+                                    throw new IOException("Technique '" + techName
+                                        + "' from '" + parentPath + "' conflicts with existing technique '"
+                                        + techName + "' (different shaders)");
+                                }
+                            }
+                            // All variants match — skip, technique already exists
+                        } else {
+                            // New technique — clone and add
+                            for (TechniqueDef parentTech : parentTechs) {
+                                try {
+                                    materialDef.addTechniqueDef(parentTech.clone());
+                                } catch (CloneNotSupportedException e) {
+                                    throw new AssetLoadException("Failed to clone technique: " + techName, e);
+                                }
                             }
                         }
                     }
@@ -1332,5 +1374,16 @@ public class J3MLoader implements AssetLoader {
         public void applyToTexture(final Texture texture) {
             textureOption.applyToTexture(value, texture);
         }
+    }
+
+    private boolean shadersMatch(TechniqueDef a, TechniqueDef b) {
+        EnumMap<Shader.ShaderType, String> aNamesMap = a.getShaderProgramNames();
+        EnumMap<Shader.ShaderType, String> bNamesMap = b.getShaderProgramNames();
+        if (aNamesMap.size() != bNamesMap.size()) return false;
+        for (Map.Entry<Shader.ShaderType, String> entry : aNamesMap.entrySet()) {
+            String bName = bNamesMap.get(entry.getKey());
+            if (!entry.getValue().equals(bName)) return false;
+        }
+        return true;
     }
 }

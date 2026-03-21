@@ -1,0 +1,9 @@
+MaterialDef ChildMulti : mixin-a.j3md, mixin-b.j3md {
+    MaterialParameters {
+        Color BaseColor : 1.0 1.0 1.0 1.0
+    }
+    Technique {
+        VertexShader GLSL150 GLSL100 : child.vert
+        FragmentShader GLSL150 GLSL100 : child.frag
+    }
+}

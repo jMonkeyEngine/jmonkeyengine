@@ -1,0 +1,13 @@
+MaterialDef MixinB {
+    MaterialParameters {
+        Texture2D GlowMap
+        Color GlowColor
+    }
+    Technique Glow {
+        VertexShader GLSL150 GLSL100 : glow.vert
+        FragmentShader GLSL150 GLSL100 : glow.frag
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+}
