@@ -1,5 +1,5 @@
-#extension GL_ARB_texture_multisample : enable
 #import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/MultiSample.glsllib"
 #import "Common/ShaderLib/Hdr.glsllib"
 
 
