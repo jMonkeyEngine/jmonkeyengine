@@ -72,6 +72,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL2 = "LWJGL-OpenGL2";
 
     /**
@@ -101,6 +102,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL30 = "LWJGL-OpenGL30";
 
     /**
@@ -114,6 +116,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL31 = "LWJGL-OpenGL31";
 
     /**
