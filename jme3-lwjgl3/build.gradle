@@ -14,10 +14,10 @@ dependencies {
 
     api libs.lwjgl3.opengles
     api libs.lwjgl3.egl
-    api("io.github.riccardobl:angle-natives:2026-01-24-2")
+    api("io.github.riccardobl:angle-natives:2026-03-21-3")
 
 
-    runtimeOnly("io.github.riccardobl:angle-natives:2026-01-24-2")
+    runtimeOnly("io.github.riccardobl:angle-natives:2026-03-21-3")
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-windows-x86') })
     runtimeOnly(variantOf(libs.lwjgl3.base){ classifier('natives-linux') })
