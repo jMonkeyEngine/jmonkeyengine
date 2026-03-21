@@ -72,7 +72,6 @@ public class TestSSBOBinding extends ScreenshotTestBase {
         return Stream.of(
                 Arguments.of("NoBindings", "TestSSBOBinding/SSBONoBindings.j3md", TestType.MUST_PASS),
                 Arguments.of("ExplicitBindings", "TestSSBOBinding/SSBOExplicitBindings.j3md", TestType.MUST_PASS),
-                Arguments.of("Binding0OnSecond", "TestSSBOBinding/SSBOBinding0OnSecond.j3md", TestType.MUST_PASS),
                 Arguments.of("MixedBindings", "TestSSBOBinding/SSBOMixedBindings.j3md", TestType.MUST_PASS),
                 Arguments.of("Collision", "TestSSBOBinding/SSBOCollision.j3md", TestType.MUST_PASS)
         );

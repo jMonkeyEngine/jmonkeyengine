@@ -1649,6 +1649,45 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    private static final Pattern BUFFER_BLOCK_PATTERN = Pattern.compile(
+            "layout\\s*\\([^)]*\\)\\s*(buffer|uniform)\\s+\\w+");
+
+    private static final Pattern BINDING_ZERO_PATTERN = Pattern.compile(
+            "layout\\s*\\([^)]*binding\\s*=\\s*0[^)]*\\)\\s*(buffer|uniform)\\s+\\w+");
+
+    /**
+     * Checks that layout(binding=0) is not used on a non-first buffer block,
+     * since the GL query cannot distinguish explicit binding=0 from the
+     * default, making collision detection unreliable for that case.
+     *
+     * @param source the GLSL source code.
+     * @param sourceName the name of the shader source for error messages.
+     */
+    private void validateBufferBlockBindings(String source, String sourceName) {
+        Matcher allBlocks = BUFFER_BLOCK_PATTERN.matcher(source);
+        Matcher binding0Blocks = BINDING_ZERO_PATTERN.matcher(source);
+
+        // Find positions of all buffer/uniform block declarations
+        List<Integer> allPositions = new ArrayList<>();
+        while (allBlocks.find()) {
+            allPositions.add(allBlocks.start());
+        }
+
+        if (allPositions.size() < 2) return; // single block, no ambiguity possible
+
+        int firstBlockPos = allPositions.get(0);
+
+        while (binding0Blocks.find()) {
+            if (binding0Blocks.start() != firstBlockPos) {
+                throw new RendererException(
+                        "Shader '" + sourceName + "' uses layout(binding=0) on a non-first "
+                        + "buffer block. This is ambiguous because the GL query cannot "
+                        + "distinguish explicit binding=0 from the default. Use a non-zero "
+                        + "binding or declare this block first in the shader.");
+            }
+        }
+    }
+
     public void updateShaderSourceData(ShaderSource source) {
         int id = source.getId();
         if (id == -1) {
@@ -1713,7 +1752,11 @@ public final class GLRenderer implements Renderer {
         stringBuf.append("#define ").append(source.getType().name().toUpperCase()).append("_SHADER 1\n");
 
         stringBuf.append(source.getDefines());
-        stringBuf.append(source.getSource());
+
+        String sourceCode = source.getSource();
+        validateBufferBlockBindings(sourceCode, source.getName());
+
+        stringBuf.append(sourceCode);
 
 
         intBuf1.clear();
