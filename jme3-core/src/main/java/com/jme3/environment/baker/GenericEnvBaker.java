@@ -121,6 +121,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
         envMap.setMinFilter(MinFilter.Trilinear);
         envMap.setWrap(WrapMode.EdgeClamp);
         envMap.getImage().setColorSpace(ColorSpace.Linear);
+        initializeCubemapFacesToBlack(envMap);
     }
 
     @Override
@@ -176,6 +177,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
             envbakers[i].setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
             envbakers[i].setSrgb(false);
             envbakers[i].addColorTarget(FrameBufferTarget.newTarget(envMap).face(TextureCubeMap.Face.values()[i]));
+            envbakers[i].setMipMapsGenerationHint(i == 5);
         }
 
         if (isTexturePulling()) {
@@ -290,6 +292,15 @@ public abstract class GenericEnvBaker implements EnvBaker {
             nbMipMaps = 6;
         }
         return nbMipMaps;
+    }
+
+    private void initializeCubemapFacesToBlack(TextureCubeMap cubemap) {
+        int bytesPerPixel = cubemap.getImage().getFormat().getBitsPerPixel() / 8;
+        int faceSize = cubemap.getImage().getWidth() * cubemap.getImage().getHeight() * bytesPerPixel;
+        for (int i = 0; i < 6; i++) {
+            cubemap.getImage().setData(i, BufferUtils.createByteBuffer(faceSize));
+        }
+        cubemap.getImage().setUpdateNeeded();
     }
 
 }
