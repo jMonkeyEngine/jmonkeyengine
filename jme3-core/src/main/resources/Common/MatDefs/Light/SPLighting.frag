@@ -38,6 +38,7 @@ varying vec3 SpecularSum;
 #ifndef VERTEX_LIGHTING
     uniform mat4 g_ViewMatrix;
     uniform vec4 g_LightData[NB_LIGHTS];
+    uniform int g_LightCount;
     varying vec3 vPos; 
 #endif
 
@@ -197,6 +198,11 @@ void main(){
         #endif
 
         for( int i = 0;i < NB_LIGHTS; i+=3){
+            #if (defined(GL_ES) && __VERSION__ >= 300) || (!defined(GL_ES) && __VERSION__ >= 150)
+            if(i >= g_LightCount * 3){
+                break;
+            }
+            #endif
             vec4 lightColor = g_LightData[i];
             vec4 lightData1 = g_LightData[i+1];                
             vec4 lightDir;
