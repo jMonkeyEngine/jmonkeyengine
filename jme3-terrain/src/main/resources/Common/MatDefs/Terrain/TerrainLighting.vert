@@ -59,10 +59,12 @@ void main(){
     // specific to normal maps:
     //--------------------------
     #if defined(NORMALMAP) || defined(NORMALMAP_1) || defined(NORMALMAP_2) || defined(NORMALMAP_3) || defined(NORMALMAP_4) || defined(NORMALMAP_5) || defined(NORMALMAP_6) || defined(NORMALMAP_7) || defined(NORMALMAP_8) || defined(NORMALMAP_9) || defined(NORMALMAP_10) || defined(NORMALMAP_11)
+        vec3 tbnNormal = normalize(wvNormal);
         vec3 wvTangent = normalize(g_NormalMatrix * inTangent.xyz);
-        vec3 wvBinormal = cross(wvNormal, wvTangent);
+        wvTangent = normalize(wvTangent - tbnNormal * dot(wvTangent, tbnNormal));
+        vec3 wvBinormal = normalize(cross(tbnNormal, wvTangent)) * inTangent.w;
 
-        mat3 tbnMat = mat3(wvTangent, wvBinormal * inTangent.w,wvNormal);
+        mat3 tbnMat = mat3(wvTangent, wvBinormal, tbnNormal);
 
         vPosition = wvPosition * tbnMat;
         vViewDir  = viewDir * tbnMat;

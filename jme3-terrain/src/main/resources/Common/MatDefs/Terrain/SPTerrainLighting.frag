@@ -609,7 +609,10 @@ void main(){
       #else
         vec3 normal = calculateNormal(texCoord);
       #endif
-      mat3 tbnMat = mat3(normalize(vTangent.xyz) , normalize(vBinormal.xyz) , normalize(vNormal.xyz));
+      vec3 tbnNormal = normalize(vNormal.xyz);
+      vec3 tbnTangent = normalize(vTangent.xyz - tbnNormal * dot(vTangent.xyz, tbnNormal));
+      vec3 tbnBinormal = normalize(cross(tbnNormal, tbnTangent)) * sign(dot(vBinormal.xyz, cross(tbnNormal, tbnTangent)));
+      mat3 tbnMat = mat3(tbnTangent, tbnBinormal, tbnNormal);
     #else
       vec3 normal = vNormal;
     #endif

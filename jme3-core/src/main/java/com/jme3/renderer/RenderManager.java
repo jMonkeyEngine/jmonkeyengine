@@ -123,7 +123,7 @@ public class RenderManager {
     private boolean handleTranslucentBucket = true;
     private AppProfiler prof;
     private LightFilter lightFilter = new DefaultLightFilter();
-    private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
+    private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.SinglePass;
     private int singlePassLightBatchSize = 1;
     private int maxSinglePassLightBatchSize = 16;
     private final MatParamOverride boundDrawBufferId = new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);

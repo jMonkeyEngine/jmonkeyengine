@@ -95,7 +95,10 @@ uniform float m_Shininess;
 void main(){
     #if !defined(VERTEX_LIGHTING)
         #if defined(NORMALMAP)
-             mat3 tbnMat = mat3(vTangent.xyz, vTangent.w * cross( (vNormal), (vTangent.xyz)), vNormal.xyz);
+            vec3 tbnNormal = normalize(vNormal.xyz);
+            vec3 tbnTangent = normalize(vTangent.xyz - tbnNormal * dot(vTangent.xyz, tbnNormal));
+            vec3 tbnBinormal = normalize(cross(tbnNormal, tbnTangent)) * vTangent.w;
+            mat3 tbnMat = mat3(tbnTangent, tbnBinormal, tbnNormal);
 
             if (!gl_FrontFacing)
             {
