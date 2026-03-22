@@ -2,6 +2,8 @@ plugins {
     id 'java'
 }
 
+import org.gradle.internal.os.OperatingSystem
+
 repositories {
     mavenCentral()
 }
@@ -25,6 +27,20 @@ tasks.register("screenshotTest", Test) {
         filter{
             includeTags 'integration'
         }
+    }
+    // On macOS, GLFW (used by LWJGL3) requires all window operations on the main OS thread.
+    // -XstartOnFirstThread makes the JVM main thread the macOS main thread so tests can
+    // start the JME application directly without going through an executor thread.
+    if (OperatingSystem.current().isMacOsX()) {
+        jvmArgs '-XstartOnFirstThread'
+    }
+
+    // Reference images are generated on the Linux CI pipeline. On macOS and Windows the
+    // GPU driver may produce slightly different pixel values for the same scene (e.g. minor
+    // rounding differences). Allow a small per-channel tolerance so that tests pass despite
+    // these platform-level rendering variations while still catching real visual regressions.
+    if (OperatingSystem.current().isMacOsX() || OperatingSystem.current().isWindows()) {
+        systemProperty 'jme.screenshotTest.pixelTolerance', '5'
     }
 }
 
