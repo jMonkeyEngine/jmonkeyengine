@@ -119,6 +119,20 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
         return irradiance;
     }
 
+    /**
+     * Runtime samples the prefiltered map with sqrt(roughness) to recover a
+     * normalized mip coordinate. Bake-time therefore needs the inverse mapping:
+     * roughness = mipNorm^2.
+     */
+    private float roughnessFromMip(int mip) {
+        int mipCount = specular.getImage().getMipMapSizes().length;
+        if (mipCount <= 1) {
+            return 0f;
+        }
+        float mipNorm = (float) mip / (float) (mipCount - 1);
+        return mipNorm * mipNorm;
+    }
+
     private void bakeSpecularIBL(int mip, float roughness, Material mat, Geometry screen) throws Exception {
         mat.setFloat("Roughness", roughness);
 
@@ -171,7 +185,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
         int mip = 0;
         for (; mip < specular.getImage().getMipMapSizes().length; mip++) {
             try {
-                float roughness = (float) mip / (float) (specular.getImage().getMipMapSizes().length - 1);
+                float roughness = roughnessFromMip(mip);
                 bakeSpecularIBL(mip, roughness, mat, screen);
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, "Error while computing mip level " + mip, e);
@@ -187,7 +201,7 @@ public class IBLGLEnvBaker extends GenericEnvBaker implements IBLEnvBaker {
             specular.getImage().setMipmapsGenerated(true);
             if (sizes.length <= 1) {
                 try {
-                    LOGGER.log(Level.WARNING, "Workaround driver BUG: only one mip level available, regenerate it with higher roughness (shiny fix)");
+                    LOGGER.log(Level.WARNING, "Workaround driver BUG: only one mip level is usable, regenerate mip 0 with roughness 1 to avoid an overly shiny fallback");
                     bakeSpecularIBL(0, 1f, mat, screen);
                 } catch (Exception e) {
                     LOGGER.log(Level.FINE, "Error while recomputing mip level 0", e);

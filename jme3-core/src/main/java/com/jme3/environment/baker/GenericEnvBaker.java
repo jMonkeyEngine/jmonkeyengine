@@ -116,7 +116,9 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
         envMap = new TextureCubeMap(env_size, env_size, colorFormat);
         envMap.setMagFilter(MagFilter.Bilinear);
-        envMap.setMinFilter(MinFilter.BilinearNoMipMaps);
+        // Specular prefiltering samples the captured environment with explicit
+        // source LODs, so the capture texture must keep a mip chain available.
+        envMap.setMinFilter(MinFilter.Trilinear);
         envMap.setWrap(WrapMode.EdgeClamp);
         envMap.getImage().setColorSpace(ColorSpace.Linear);
     }
