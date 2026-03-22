@@ -31,6 +31,7 @@
  */
 package com.jme3.util;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Comparator;
 import static org.hamcrest.CoreMatchers.everyItem;
@@ -53,26 +54,26 @@ public class ListSortTest {
 
     @Before
     public void initTestArray() {
-        arrayToSort = new Integer[]{36, 10, 16, 9, 14, 32, 35, 22, 1, 27, 18, 11, 
-            30, 15, 2, 12, 32, 27, 11, 45, 7, 32, 36, 11, 39, 32, 45, 35, 40, 17, 
-            43, 24, 14, 10, 29, 19, 23, 14, 1, 44, 35, 24, 10, 37, 7, 35, 10, 9, 
+        arrayToSort = new Integer[]{36, 10, 16, 9, 14, 32, 35, 22, 1, 27, 18, 11,
+            30, 15, 2, 12, 32, 27, 11, 45, 7, 32, 36, 11, 39, 32, 45, 35, 40, 17,
+            43, 24, 14, 10, 29, 19, 23, 14, 1, 44, 35, 24, 10, 37, 7, 35, 10, 9,
             43, 48, 40, 47, 29, 8, 48, 7, 22, 6, 46, 46, 10, 31, 35, 45};
     }
 
     @Test
-    public void testBinarySortFirstRun() {
+    public void testBinarySortFirstRun() throws ReflectiveOperationException {
         assertTrue("Array to sort must be smaller than merge-sort threshhold.", arrayToSort.length < 128);
         sortAndAssert(arrayToSort, false);
     }
 
     @Test
-    public void testBinarySort() {
+    public void testBinarySort() throws ReflectiveOperationException {
         assertTrue("Array to sort must be smaller than merge-sort threshhold.", arrayToSort.length < 128);
         sortAndAssert(arrayToSort, true);
     }
 
     @Test
-    public void testMergeSortFirstRun() {
+    public void testMergeSortFirstRun() throws ReflectiveOperationException {
         Integer[] bigArray = Arrays.copyOf(arrayToSort, arrayToSort.length * 3);
         System.arraycopy(arrayToSort, 0, bigArray, arrayToSort.length, arrayToSort.length);
         System.arraycopy(arrayToSort, 0, bigArray, arrayToSort.length * 2, arrayToSort.length);
@@ -82,7 +83,7 @@ public class ListSortTest {
     }
 
     @Test
-    public void testMergeSort() {
+    public void testMergeSort() throws ReflectiveOperationException {
         Integer[] bigArray = Arrays.copyOf(arrayToSort, arrayToSort.length * 3);
         System.arraycopy(arrayToSort, 0, bigArray, arrayToSort.length, arrayToSort.length);
         System.arraycopy(arrayToSort, 0, bigArray, arrayToSort.length * 2, arrayToSort.length);
@@ -100,7 +101,7 @@ public class ListSortTest {
      * @param simulateSecondRun If set to {@code true}, simulate list sort being
      * reused by allocating 100 additional entries in tmpArray
      */
-    private void sortAndAssert(Integer[] array, boolean simulateSecondRun) {
+    private void sortAndAssert(Integer[] array, boolean simulateSecondRun) throws ReflectiveOperationException {
         final Integer[] expected = array.clone();
         Arrays.sort(expected);
 
@@ -113,8 +114,12 @@ public class ListSortTest {
 
         assertArrayEquals(expected, array);
 
+        final Field tmpArrayField = ListSort.class.getDeclaredField("tmpArray");
+        tmpArrayField.setAccessible(true);
+        Object[] tmpArray = (Object[]) tmpArrayField.get(listSort);
+
         assertThat("TmpArray must be cleared after sort(...).",
-                Arrays.asList((Object[]) listSort.tmpArray),
+                Arrays.asList(tmpArray),
                 everyItem(nullValue()));
     }
 

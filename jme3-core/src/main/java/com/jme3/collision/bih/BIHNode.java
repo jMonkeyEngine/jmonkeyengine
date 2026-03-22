@@ -140,7 +140,7 @@ public final class BIHNode implements Savable {
         private final BIHNode node;
         private final float min, max;
 
-        public BIHStackData(BIHNode node, float min, float max) {
+        BIHStackData(BIHNode node, float min, float max) {
             this.node = node;
             this.min = min;
             this.max = max;

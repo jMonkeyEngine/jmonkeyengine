@@ -73,7 +73,7 @@ public class ListSort<T> {
      */
     private static final int MIN_SIZE = 128;
     private T[] array;
-    T[] tmpArray;
+    private T[] tmpArray;
     private Comparator<T> comparator;
     
     /**

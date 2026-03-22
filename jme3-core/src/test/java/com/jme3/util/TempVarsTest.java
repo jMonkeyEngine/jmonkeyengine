@@ -35,6 +35,7 @@ import com.jme3.collision.CollisionResult;
 import com.jme3.collision.bih.BIHNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import org.hamcrest.CoreMatchers;
 import static org.hamcrest.CoreMatchers.everyItem;
@@ -43,7 +44,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import org.junit.internal.ArrayComparisonFailure;
 
 /**
  *
@@ -51,11 +51,8 @@ import org.junit.internal.ArrayComparisonFailure;
  */
 public class TempVarsTest {
 
-    public TempVarsTest() {
-    }
-
     @Test
-    public void testStoresValuesUntilRelease() {
+    public void testStoresValuesUntilRelease() throws ReflectiveOperationException {
         {
             final TempVars tempVars = TempVars.get();
             addAndAssertData(tempVars);
@@ -67,9 +64,9 @@ public class TempVarsTest {
         }
     }
 
-    private void addAndAssertData(final TempVars tempVars) throws ArrayComparisonFailure {
-        final BIHNode.BIHStackData bihStackData0 = new BIHNode.BIHStackData(null, 0, 0);
-        final BIHNode.BIHStackData bihStackData1 = new BIHNode.BIHStackData(null, 0, 0);
+    private void addAndAssertData(final TempVars tempVars) throws ReflectiveOperationException {
+        final BIHNode.BIHStackData bihStackData0 = newBIHStackData();
+        final BIHNode.BIHStackData bihStackData1 = newBIHStackData();
         tempVars.bihStack.add(bihStackData0);
         tempVars.bihStack.add(bihStackData1);
 
@@ -101,7 +98,7 @@ public class TempVarsTest {
     }
 
     @Test
-    public void testRemovesValuesOnReleaseAndClose() {
+    public void testRemovesValuesOnReleaseAndClose() throws ReflectiveOperationException {
         {
             final TempVars tempVars = TempVars.get();
             addData(tempVars);
@@ -137,14 +134,20 @@ public class TempVarsTest {
         }
     }
 
-    private void addData(final TempVars tempVars) {
-        tempVars.bihStack.add(new BIHNode.BIHStackData(null, 0, 0));
-        tempVars.bihStack.add(new BIHNode.BIHStackData(null, 0, 0));
+    private void addData(final TempVars tempVars) throws ReflectiveOperationException {
+        tempVars.bihStack.add(newBIHStackData());
+        tempVars.bihStack.add(newBIHStackData());
         tempVars.collisionResults.addCollision(new CollisionResult());
         tempVars.collisionResults.addCollision(new CollisionResult());
         tempVars.collisionResults.addCollision(new CollisionResult());
         tempVars.spatialStack[0] = new Node();
         tempVars.spatialStack[3] = new Node();
+    }
+
+    private BIHNode.BIHStackData newBIHStackData() throws ReflectiveOperationException {
+        Constructor<?> constructor = BIHNode.BIHStackData.class.getDeclaredConstructors()[0];
+        constructor.setAccessible(true);
+        return (BIHNode.BIHStackData) constructor.newInstance(null, 0, 0);
     }
 
 }
