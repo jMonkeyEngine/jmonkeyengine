@@ -108,6 +108,7 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
+    private static final int MAX_SINGLE_PASS_LIGHT_BATCH_SIZE = 16;
     private final MatParamOverride boundDrawBufferId = new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
     private Predicate<Geometry> renderFilter;
 
@@ -775,6 +776,13 @@ public class RenderManager {
             return;
         }
 
+        // Auto-scale singlePassLightBatchSize exponentially (powers of 2) up to
+        // MAX_SINGLE_PASS_LIGHT_BATCH_SIZE to reduce shader recompilations.
+        int nLights = lightList.size();
+        if (nLights > singlePassLightBatchSize && singlePassLightBatchSize < MAX_SINGLE_PASS_LIGHT_BATCH_SIZE) {
+            singlePassLightBatchSize = Math.min(nextPowerOfTwo(nLights), MAX_SINGLE_PASS_LIGHT_BATCH_SIZE);
+        }
+
         this.renderer.pushDebugGroup(geom.getName());
         if (geom.isIgnoreTransform()) {
             setWorldMatrix(Matrix4f.IDENTITY);
@@ -1056,6 +1064,11 @@ public class RenderManager {
     /**
      * Returns the number of lights used for each pass when the light mode is single pass.
      *
+     * <p>This value is automatically scaled up (in powers of two, up to
+     * {@value #MAX_SINGLE_PASS_LIGHT_BATCH_SIZE}) during rendering whenever a geometry
+     * has more lights than the current batch size, reducing the number of rendering passes
+     * and shader recompilations.
+     *
      * @return the number of lights.
      */
     public int getSinglePassLightBatchSize() {
@@ -1065,11 +1078,28 @@ public class RenderManager {
     /**
      * Sets the number of lights to use for each pass when the light mode is single pass.
      *
+     * <p>The value will be automatically scaled up during rendering (in powers of two,
+     * up to {@value #MAX_SINGLE_PASS_LIGHT_BATCH_SIZE}) when geometries with more lights
+     * are encountered. Setting this value explicitly will override the current auto-scaled
+     * value, but it may be increased again by subsequent rendering calls.
+     *
      * @param singlePassLightBatchSize the number of lights.
      */
     public void setSinglePassLightBatchSize(int singlePassLightBatchSize) {
         // Ensure the batch size is no less than 1
         this.singlePassLightBatchSize = Math.max(singlePassLightBatchSize, 1);
+    }
+
+    /**
+     * Returns the smallest power of two that is greater than or equal to {@code n}.
+     *
+     * @param n the value
+     * @return the smallest power of two &ge; {@code n}, or 1 if {@code n} &le; 1
+     */
+    private static int nextPowerOfTwo(int n) {
+        if (n <= 1) return 1;
+        int highest = Integer.highestOneBit(n);
+        return highest < n ? highest << 1 : highest;
     }
 
     /**
