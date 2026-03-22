@@ -99,6 +99,12 @@ public class RenderManager {
      * A value of 4 means one quarter is reserved.
      */
     private static final int RESERVED_UNIFORM_FRACTION = 4;
+    /**
+     * Hard upper limit for the default single-pass light batch size.
+     * This is the value passed to {@link #setMaxSinglePassLightBatchSize(int)}
+     * at construction time; it may be further clamped down by hardware limits.
+     */
+    private static final int MAX_DEFAULT_SINGLE_PASS_LIGHT_BATCH_SIZE = 16;
 
     private final Renderer renderer;
     private final UniformBindingManager uniformBindingManager = new UniformBindingManager();
@@ -138,7 +144,7 @@ public class RenderManager {
         this.forcedOverrides.add(boundDrawBufferId);
         // register default pipeline context
         contexts.put(PipelineContext.class, new DefaultPipelineContext());
-        setMaxSinglePassLightBatchSize(16);
+        setMaxSinglePassLightBatchSize(MAX_DEFAULT_SINGLE_PASS_LIGHT_BATCH_SIZE);
     }
 
     /**
@@ -793,14 +799,22 @@ public class RenderManager {
 
         // Auto-scale singlePassLightBatchSize exponentially (powers of 2) up to
         // maxSinglePassLightBatchSize to reduce shader recompilations.
-        // Only scale on the normal (unforced) rendering path: forced techniques such as
-        // PreShadow do not use NB_LIGHTS / g_LightData, so counting their geometry's
-        // world lights would spuriously inflate the batch size before the main pass.
+        // Only scale when using a SinglePass or SinglePassAndImageBased technique,
+        // since those are the only ones that read NB_LIGHTS / g_LightData.
+        // If no technique has been selected yet for this frame, skip scaling;
+        // it will be applied on subsequent frames once a technique is active.
         int nLights = lightList.size();
         if (forcedTechnique == null && forcedMaterial == null
                 && nLights > singlePassLightBatchSize
                 && singlePassLightBatchSize < maxSinglePassLightBatchSize) {
-            singlePassLightBatchSize = Math.min(FastMath.nearestPowerOfTwo(nLights), maxSinglePassLightBatchSize);
+            Technique activeTechnique = geom.getMaterial().getActiveTechnique();
+            if (activeTechnique != null) {
+                TechniqueDef.LightMode lightMode = activeTechnique.getDef().getLightMode();
+                if (lightMode == TechniqueDef.LightMode.SinglePass
+                        || lightMode == TechniqueDef.LightMode.SinglePassAndImageBased) {
+                    singlePassLightBatchSize = Math.min(FastMath.nearestPowerOfTwo(nLights), maxSinglePassLightBatchSize);
+                }
+            }
         }
 
         this.renderer.pushDebugGroup(geom.getName());
