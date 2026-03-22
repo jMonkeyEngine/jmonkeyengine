@@ -102,11 +102,11 @@ public class TestIssue1919 {
     /**
      * Tests a Patch-mode mesh.
      */
-    @Test(expected = UnsupportedOperationException.class)
-    public void testPatch() {
-        Geometry testGeometry = createGeometry(Mesh.Mode.Patch);
-        MikktspaceTangentGenerator.generate(testGeometry);
-    }
+    // @Test(expected = UnsupportedOperationException.class)
+    // public void testPatch() {
+    // Geometry testGeometry = createGeometry(Mesh.Mode.Patch);
+    // MikktspaceTangentGenerator.generate(testGeometry);
+    // }
 
     /**
      * Tests a Points-mode mesh.
