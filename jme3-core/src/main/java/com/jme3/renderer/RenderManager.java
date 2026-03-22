@@ -87,6 +87,18 @@ public class RenderManager {
 
     private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
 
+    /**
+     * Number of vec4 fragment uniform vectors consumed per light in g_LightData
+     * (lightColor, lightData1, lightData2/spotDir).
+     */
+    private static final int VEC4_UNIFORMS_PER_LIGHT = 3;
+    /**
+     * Fraction of the total fragment uniform budget reserved for shader
+     * parameters other than g_LightData (material params, transforms, etc.).
+     * A value of 4 means one quarter is reserved.
+     */
+    private static final int RESERVED_UNIFORM_FRACTION = 4;
+
     private final Renderer renderer;
     private final UniformBindingManager uniformBindingManager = new UniformBindingManager();
     private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
@@ -109,7 +121,7 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
-    private int maxSinglePassLightBatchSize = 32;
+    private int maxSinglePassLightBatchSize;
     private final MatParamOverride boundDrawBufferId = new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
     private Predicate<Geometry> renderFilter;
 
@@ -125,6 +137,7 @@ public class RenderManager {
         this.forcedOverrides.add(boundDrawBufferId);
         // register default pipeline context
         contexts.put(PipelineContext.class, new DefaultPipelineContext());
+        setMaxSinglePassLightBatchSize(16);
     }
 
     /**
@@ -1098,7 +1111,10 @@ public class RenderManager {
      * Returns the maximum number of lights allowed in a single pass batch.
      *
      * <p>The batch size will never be auto-scaled beyond this value.
-     * The default is 16.
+     * The default is 16, further clamped at construction time by the hardware's
+     * {@link Limits#FragmentUniformVectors} capacity (each light consumes 3 vec4
+     * uniforms; a quarter of the available budget is reserved for other shader
+     * parameters).
      *
      * @return the maximum single pass light batch size.
      */
@@ -1109,6 +1125,13 @@ public class RenderManager {
     /**
      * Sets the maximum number of lights allowed in a single pass batch.
      *
+     * <p>The requested value is clamped to a hardware-safe upper bound derived
+     * from the renderer's {@link Limits#FragmentUniformVectors} capacity.
+     * Each light consumes 3 vec4 uniforms in {@code g_LightData}; one quarter
+     * of the available uniform budget is reserved for other shader parameters.
+     * If the hardware limit cannot be queried (e.g., renderer not yet
+     * initialised), the requested value is used as-is.
+     *
      * <p>If the current {@link #getSinglePassLightBatchSize() batch size} exceeds the
      * new maximum, it is clamped down to the new maximum. Otherwise the current
      * batch size is left unchanged and will continue to auto-scale up to the new limit.
@@ -1117,6 +1140,16 @@ public class RenderManager {
      */
     public void setMaxSinglePassLightBatchSize(int maxSinglePassLightBatchSize) {
         this.maxSinglePassLightBatchSize = Math.max(maxSinglePassLightBatchSize, 1);
+        // Clamp to a hardware-safe value.
+        // Each light uses 3 vec4 uniforms in g_LightData; reserve 1/4 of the
+        // fragment uniform budget for other shader parameters (material params,
+        // transforms, etc.).
+        Integer fragUniformVecs = renderer.getLimits().get(Limits.FragmentUniformVectors);
+        if (fragUniformVecs != null && fragUniformVecs > 0) {
+            int reservedUniforms = Math.max(fragUniformVecs / RESERVED_UNIFORM_FRACTION, 1);
+            int maxByHardware = Math.max((fragUniformVecs - reservedUniforms) / VEC4_UNIFORMS_PER_LIGHT, 1);
+            this.maxSinglePassLightBatchSize = Math.min(this.maxSinglePassLightBatchSize, maxByHardware);
+        }
         if (singlePassLightBatchSize > this.maxSinglePassLightBatchSize) {
             singlePassLightBatchSize = this.maxSinglePassLightBatchSize;
         }
