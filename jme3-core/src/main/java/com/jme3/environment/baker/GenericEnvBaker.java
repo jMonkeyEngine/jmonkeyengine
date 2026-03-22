@@ -57,7 +57,7 @@ import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.image.ColorSpace;
-
+import com.jme3.util.BufferUtils;
 /**
  * Render the environment into a cubemap
  *
