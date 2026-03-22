@@ -81,7 +81,7 @@ jobs:
           echo "MESA_LOADER_DRIVER_OVERRIDE=$MESA_LOADER_DRIVER_OVERRIDE"
           echo "GALLIUM_DRIVER=$GALLIUM_DRIVER"
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v4
       - name: Test with Gradle Wrapper
         run: |
           ./gradlew :jme3-screenshot-test:screenshotTest
@@ -122,7 +122,7 @@ jobs:
           fetch-depth: 1
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v4
 
       - name: Build
         run: |
@@ -164,7 +164,7 @@ jobs:
           cmake --version
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v4
 
       - name: Build
         run: |
@@ -228,7 +228,7 @@ jobs:
           path: jme3-ios-native/template/META-INF/robovm/ios/libs/jme3-ios-native.xcframework
 
       - name: Validate the Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v3
+        uses: gradle/actions/wrapper-validation@v4
       - name: Build Engine
         shell: bash
         run: |
