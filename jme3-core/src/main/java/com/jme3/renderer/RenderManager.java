@@ -844,12 +844,12 @@ public class RenderManager {
                     //forcing forced technique renderState
                     forcedRenderState = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
                 }
-
-                // resize light batch if needed before rendering
-                maybeResizeLightBatch(geom.getMaterial().getActiveTechnique().getDef(), lightList.size());
-
+                
                 // use geometry's material
                 material.render(geom, lightList, this);
+                
+                // resize light batch if needed before rendering
+                maybeResizeLightBatch(geom.getMaterial().getActiveTechnique().getDef(), lightList.size());
                 material.selectTechnique(previousTechniqueName, this);
 
                 //restoring forcedRenderState
@@ -859,23 +859,21 @@ public class RenderManager {
                 // If forcedTechnique does not exist and forcedMaterial is not set,
                 // the geometry MUST NOT be rendered.
             } else if (forcedMaterial != null) {
-                // resize light batch if needed before rendering
-                maybeResizeLightBatch(forcedMaterial.getActiveTechnique().getDef(), lightList.size());
-
                 // use forced material
                 forcedMaterial.render(geom, lightList, this);
+
+                // resize light batch if needed before rendering
+                maybeResizeLightBatch(forcedMaterial.getActiveTechnique().getDef(), lightList.size());
             }
         } else if (forcedMaterial != null) {
-            // resize light batch if needed before rendering
-            maybeResizeLightBatch(forcedMaterial.getActiveTechnique().getDef(), lightList.size());
-
             // use forced material
             forcedMaterial.render(geom, lightList, this);
+            // resize light batch if needed before rendering
+            maybeResizeLightBatch(forcedMaterial.getActiveTechnique().getDef(), lightList.size());
         } else {
+            material.render(geom, lightList, this);
             // resize light batch if needed before rendering
             maybeResizeLightBatch(geom.getMaterial().getActiveTechnique().getDef(), lightList.size());
-
-            material.render(geom, lightList, this);
         }
         this.renderer.popDebugGroup();
     }
