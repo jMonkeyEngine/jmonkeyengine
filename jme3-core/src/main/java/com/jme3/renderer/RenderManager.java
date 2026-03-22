@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -1148,6 +1149,12 @@ public class RenderManager {
         if (fragUniformVecs != null && fragUniformVecs > 0) {
             int reservedUniforms = Math.max(fragUniformVecs / RESERVED_UNIFORM_FRACTION, 1);
             int maxByHardware = Math.max((fragUniformVecs - reservedUniforms) / VEC4_UNIFORMS_PER_LIGHT, 1);
+            if (this.maxSinglePassLightBatchSize > 16 && maxByHardware < 16) {
+                logger.log(Level.WARNING,
+                        "setMaxSinglePassLightBatchSize({0}) was requested but hardware only supports"
+                        + " {1} lights per pass (FragmentUniformVectors={2}); clamping to {1}.",
+                        new Object[]{maxSinglePassLightBatchSize, maxByHardware, fragUniformVecs});
+            }
             this.maxSinglePassLightBatchSize = Math.min(this.maxSinglePassLightBatchSize, maxByHardware);
         }
         if (singlePassLightBatchSize > this.maxSinglePassLightBatchSize) {
