@@ -132,6 +132,6 @@ public class TestPBRSimple extends SimpleApplication {
         pbrMat.setFloat("Metallic", metallic);
         pbrMat.setFloat("Roughness", roughness);
         System.out.println(
-                "Tank material -> metallic: " + metallic + ", roughness: " + roughness + " (PgUp/PgDn)");
+                "Tank material -> metallic: " + metallic + ", roughness: " + roughness + " (N/P)");
     }
 }
