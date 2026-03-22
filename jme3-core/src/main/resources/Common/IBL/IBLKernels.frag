@@ -78,6 +78,16 @@ void prefilteredEnvKernel(){
 
     float roughness = clamp(m_Roughness, 0.0, 1.0);
     float alpha = roughness * roughness;
+    float envMapResolution = float(textureSize(m_EnvMap, 0).x);
+    float texelSolidAngle = (4.0 * PI) / max(6.0 * envMapResolution * envMapResolution, 1.0);
+    float maxSourceLod = max(log2(envMapResolution), 0.0);
+
+    // The GGX distribution becomes singular for an ideal mirror. For mip 0,
+    // skip the importance-sampled integration and keep the sharp source env.
+    if (roughness <= 0.0) {
+        outFragColor = vec4(textureLod(m_EnvMap, R, 0.0).rgb, 1.0);
+        return;
+    }
 
     const uint SAMPLE_COUNT = 1024u;
     float totalWeight = 0.0;   
@@ -89,7 +99,14 @@ void prefilteredEnvKernel(){
         vec3 L  = normalize(2.0 * VoH * H - V);
         float NdotL = max(dot(N, L), 0.0);
         if(NdotL > 0.0) {
-            vec3 sampleColor = texture(m_EnvMap, L).rgb;
+            float NdotH = max(dot(N, H), 0.0);
+            float pdf = ImportanceSampleGGXPdf(NdotH, VoH, alpha);
+            float sampleSolidAngle = 1.0 / max(float(SAMPLE_COUNT) * pdf, 1e-4);
+            // Approximate each cubemap texel as equal-area and select a source mip
+            // from the ratio between the GGX sample cone and a texel footprint.
+            float sourceLod = roughness <= 0.0 ? 0.0 : 0.5 * log2(sampleSolidAngle / texelSolidAngle);
+            sourceLod = clamp(sourceLod, 0.0, maxSourceLod);
+            vec3 sampleColor = textureLod(m_EnvMap, L, sourceLod).rgb;
             prefilteredColor += sampleColor * NdotL;
             totalWeight      += NdotL;
         }

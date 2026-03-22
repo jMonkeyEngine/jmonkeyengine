@@ -57,6 +57,7 @@ import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.image.ColorSpace;
+import com.jme3.util.BufferUtils;
 
 /**
  * Render the environment into a cubemap
@@ -115,9 +116,12 @@ public abstract class GenericEnvBaker implements EnvBaker {
 
         envMap = new TextureCubeMap(env_size, env_size, colorFormat);
         envMap.setMagFilter(MagFilter.Bilinear);
-        envMap.setMinFilter(MinFilter.BilinearNoMipMaps);
+        // Specular prefiltering samples the captured environment with explicit
+        // source LODs, so the capture texture must keep a mip chain available.
+        envMap.setMinFilter(MinFilter.Trilinear);
         envMap.setWrap(WrapMode.EdgeClamp);
         envMap.getImage().setColorSpace(ColorSpace.Linear);
+        initializeCubemapFacesToBlack(envMap);
     }
 
     @Override
@@ -173,6 +177,7 @@ public abstract class GenericEnvBaker implements EnvBaker {
             envbakers[i].setDepthTarget(FrameBufferTarget.newTarget(depthFormat));
             envbakers[i].setSrgb(false);
             envbakers[i].addColorTarget(FrameBufferTarget.newTarget(envMap).face(TextureCubeMap.Face.values()[i]));
+            envbakers[i].setMipMapsGenerationHint(i == 5);
         }
 
         if (isTexturePulling()) {
@@ -287,6 +292,15 @@ public abstract class GenericEnvBaker implements EnvBaker {
             nbMipMaps = 6;
         }
         return nbMipMaps;
+    }
+
+    private void initializeCubemapFacesToBlack(TextureCubeMap cubemap) {
+        int bytesPerPixel = cubemap.getImage().getFormat().getBitsPerPixel() / 8;
+        int faceSize = cubemap.getImage().getWidth() * cubemap.getImage().getHeight() * bytesPerPixel;
+        for (int i = 0; i < 6; i++) {
+            cubemap.getImage().setData(i, BufferUtils.createByteBuffer(faceSize));
+        }
+        cubemap.getImage().setUpdateNeeded();
     }
 
 }
