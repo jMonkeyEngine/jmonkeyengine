@@ -706,8 +706,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
                 i++;
             }
 
-            vars.release();
-
             for (int j = i; j >= 0; j--) {
                 rootNode = stack[j];
                 //rootNode.worldTransform.set(rootNode.localTransform);
@@ -715,6 +713,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
                 //rootNode.refreshFlags &= ~RF_TRANSFORM;
                 rootNode.updateWorldTransforms();
             }
+            
+            vars.release();
         }
     }
 

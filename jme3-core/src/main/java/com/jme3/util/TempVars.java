@@ -40,6 +40,7 @@ import java.io.Closeable;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Temporary variables assigned to each thread. Engine classes may access
@@ -48,7 +49,7 @@ import java.util.ArrayList;
  * This returns an available instance of the TempVar class ensuring this 
  * particular instance is never used elsewhere in the meantime.
  */
-public class TempVars implements Closeable{
+public class TempVars implements Closeable {
 
     /**
      * Allow X instances of TempVars in a single thread.
@@ -128,6 +129,7 @@ public class TempVars implements Closeable{
             throw new IllegalStateException("This instance of TempVars was already released!");
         }
 
+        clear();
         isUsed = false;
 
         TempVarsStack stack = varsLocal.get();
@@ -155,7 +157,7 @@ public class TempVars implements Closeable{
      */
     public final float[] skinPositions = new float[512 * 3];
     public final float[] skinNormals = new float[512 * 3];
-     //tangent buffer as 4 components by elements
+    // tangent buffer has 4 components by elements
     public final float[] skinTangents = new float[512 * 4];
     /**
      * Fetching triangle from mesh
@@ -194,7 +196,7 @@ public class TempVars implements Closeable{
      */
     public final Matrix3f tempMat3 = new Matrix3f();
     public final Matrix4f tempMat4 = new Matrix4f();
-    public final Matrix4f tempMat42 = new Matrix4f();    
+    public final Matrix4f tempMat42 = new Matrix4f();
     /**
      * General quaternions.
      */
@@ -228,8 +230,22 @@ public class TempVars implements Closeable{
     public final float[] bihSwapTmp = new float[9];
     public final ArrayList<BIHStackData> bihStack = new ArrayList<>();
 
+    /**
+     * Removes all references held to other object by the tempVars instance to
+     * avoid memory leaks.
+     *
+     * (E.g. Spatial added to spatialStack might get detached from their parent,
+     * but they would not be found by the garbage collector without removing
+     * their reference from this stack.)
+     */
+    private void clear() {
+        collisionResults.clear();
+        bihStack.clear();
+        Arrays.fill(spatialStack, null);
+    }
+
     @Override
-    public void close(){
+    public void close() {
         release();
     }
 }
