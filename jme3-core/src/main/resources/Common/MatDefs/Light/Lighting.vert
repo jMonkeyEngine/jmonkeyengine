@@ -128,9 +128,11 @@ void main(){
    vec4 lightColor = g_LightColor;
 
    #if (defined(NORMALMAP) || defined(PARALLAXMAP)) && !defined(VERTEX_LIGHTING)
+     vec3 tbnNormal = normalize(wvNormal);
      vec3 wvTangent = normalize(TransformNormal(modelSpaceTan));
-     vec3 wvBinormal = cross(wvNormal, wvTangent);
-     mat3 tbnMat = mat3(wvTangent, wvBinormal * inTangent.w,wvNormal);
+     wvTangent = normalize(wvTangent - tbnNormal * dot(wvTangent, tbnNormal));
+     vec3 wvBinormal = normalize(cross(tbnNormal, wvTangent)) * inTangent.w;
+     mat3 tbnMat = mat3(wvTangent, wvBinormal, tbnNormal);
    #endif
  
    #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)

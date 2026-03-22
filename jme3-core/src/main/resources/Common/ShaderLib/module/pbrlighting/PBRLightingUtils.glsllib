@@ -305,8 +305,10 @@
             surface.envLightContribution = vec3(0.0);
 
             #ifdef ENABLE_PBRLightingUtils_getWorldTangent
-                vec3 tan = normalize(wTangent.xyz); 
-                surface.tbnMat = mat3(tan, wTangent.w * cross( surface.geometryNormal, tan), surface.geometryNormal);
+                vec3 n = normalize(surface.geometryNormal);
+                vec3 tan = normalize(wTangent.xyz - n * dot(wTangent.xyz, n));
+                vec3 bitan = normalize(cross(n, tan)) * wTangent.w;
+                surface.tbnMat = mat3(tan, bitan, n);
                 surface.hasTangents = true;
             #endif
 

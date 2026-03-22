@@ -6,6 +6,8 @@ void Tangent_ComputeVS(out vec3 outNormal, out vec3 outTangent){
 }
 
 mat3 Tangent_GetBasis(){
-    vec3 wvBinormal = cross(wvNormal, wvTangent);
-    return mat3(wvTangent, wvBinormal, wvNormal);
+    vec3 n = normalize(wvNormal);
+    vec3 t = normalize(wvTangent - n * dot(wvTangent, n));
+    vec3 b = normalize(cross(n, t));
+    return mat3(t, b, n);
 }
