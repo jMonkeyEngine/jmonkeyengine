@@ -44,6 +44,7 @@ import com.jme3.material.MaterialDef;
 import com.jme3.material.RenderState;
 import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
+import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
@@ -108,7 +109,7 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
-    private static final int MAX_SINGLE_PASS_LIGHT_BATCH_SIZE = 16;
+    private int maxSinglePassLightBatchSize = 16;
     private final MatParamOverride boundDrawBufferId = new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
     private Predicate<Geometry> renderFilter;
 
@@ -777,10 +778,10 @@ public class RenderManager {
         }
 
         // Auto-scale singlePassLightBatchSize exponentially (powers of 2) up to
-        // MAX_SINGLE_PASS_LIGHT_BATCH_SIZE to reduce shader recompilations.
+        // maxSinglePassLightBatchSize to reduce shader recompilations.
         int nLights = lightList.size();
-        if (nLights > singlePassLightBatchSize && singlePassLightBatchSize < MAX_SINGLE_PASS_LIGHT_BATCH_SIZE) {
-            singlePassLightBatchSize = Math.min(nextPowerOfTwo(nLights), MAX_SINGLE_PASS_LIGHT_BATCH_SIZE);
+        if (nLights > singlePassLightBatchSize && singlePassLightBatchSize < maxSinglePassLightBatchSize) {
+            singlePassLightBatchSize = Math.min(FastMath.nearestPowerOfTwo(nLights), maxSinglePassLightBatchSize);
         }
 
         this.renderer.pushDebugGroup(geom.getName());
@@ -1065,7 +1066,7 @@ public class RenderManager {
      * Returns the number of lights used for each pass when the light mode is single pass.
      *
      * <p>This value is automatically scaled up (in powers of two, up to
-     * {@value #MAX_SINGLE_PASS_LIGHT_BATCH_SIZE}) during rendering whenever a geometry
+     * {@link #getMaxSinglePassLightBatchSize()}) during rendering whenever a geometry
      * has more lights than the current batch size, reducing the number of rendering passes
      * and shader recompilations.
      *
@@ -1076,30 +1077,49 @@ public class RenderManager {
     }
 
     /**
-     * Sets the number of lights to use for each pass when the light mode is single pass.
+     * Sets the number of lights to use for each pass when the light mode is single pass,
+     * and simultaneously sets the maximum batch size to the same value.
      *
-     * <p>The value will be automatically scaled up during rendering (in powers of two,
-     * up to {@value #MAX_SINGLE_PASS_LIGHT_BATCH_SIZE}) when geometries with more lights
-     * are encountered. Setting this value explicitly will override the current auto-scaled
-     * value, but it may be increased again by subsequent rendering calls.
+     * <p>This effectively pins the batch size and disables the automatic scaling,
+     * which is useful when you know in advance how many lights your scene uses and
+     * want predictable shader compilation.
      *
-     * @param singlePassLightBatchSize the number of lights.
+     * <p>To set only the upper limit while still allowing automatic scaling,
+     * use {@link #setMaxSinglePassLightBatchSize(int)} instead.
+     *
+     * @param singlePassLightBatchSize the number of lights (minimum 1).
      */
     public void setSinglePassLightBatchSize(int singlePassLightBatchSize) {
-        // Ensure the batch size is no less than 1
         this.singlePassLightBatchSize = Math.max(singlePassLightBatchSize, 1);
+        this.maxSinglePassLightBatchSize = this.singlePassLightBatchSize;
     }
 
     /**
-     * Returns the smallest power of two that is greater than or equal to {@code n}.
+     * Returns the maximum number of lights allowed in a single pass batch.
      *
-     * @param n the value
-     * @return the smallest power of two &ge; {@code n}, or 1 if {@code n} &le; 1
+     * <p>The batch size will never be auto-scaled beyond this value.
+     * The default is 16.
+     *
+     * @return the maximum single pass light batch size.
      */
-    private static int nextPowerOfTwo(int n) {
-        if (n <= 1) return 1;
-        int highest = Integer.highestOneBit(n);
-        return highest < n ? highest << 1 : highest;
+    public int getMaxSinglePassLightBatchSize() {
+        return maxSinglePassLightBatchSize;
+    }
+
+    /**
+     * Sets the maximum number of lights allowed in a single pass batch.
+     *
+     * <p>If the current {@link #getSinglePassLightBatchSize() batch size} exceeds the
+     * new maximum, it is clamped down to the new maximum. Otherwise the current
+     * batch size is left unchanged and will continue to auto-scale up to the new limit.
+     *
+     * @param maxSinglePassLightBatchSize the maximum number of lights (minimum 1).
+     */
+    public void setMaxSinglePassLightBatchSize(int maxSinglePassLightBatchSize) {
+        this.maxSinglePassLightBatchSize = Math.max(maxSinglePassLightBatchSize, 1);
+        if (singlePassLightBatchSize > this.maxSinglePassLightBatchSize) {
+            singlePassLightBatchSize = this.maxSinglePassLightBatchSize;
+        }
     }
 
     /**
