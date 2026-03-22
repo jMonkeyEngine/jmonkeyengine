@@ -44,6 +44,7 @@ import com.jme3.material.MaterialDef;
 import com.jme3.material.RenderState;
 import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
+import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
@@ -74,6 +75,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -85,6 +87,21 @@ import java.util.logging.Logger;
 public class RenderManager {
 
     private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
+
+    /**
+     * Number of vec4 fragment uniform vectors consumed per light in g_LightData (lightColor, lightData1,
+     * lightData2/spotDir).
+     */
+    private static final int VEC4_UNIFORMS_PER_LIGHT = 3;
+    /**
+     * Fraction of the total fragment uniform budget reserved for shader parameters other than g_LightData
+     * (material params, transforms, etc.). A value of 4 means one quarter is reserved.
+     */
+    private static final int RESERVED_UNIFORM_FRACTION = 4;
+    /**
+     * Hard upper limit for reserved uniform budget
+     */
+    private static final int RESERVED_UNIFORMS_MAX = 16;
 
     private final Renderer renderer;
     private final UniformBindingManager uniformBindingManager = new UniformBindingManager();
@@ -108,6 +125,7 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
+    private int maxSinglePassLightBatchSize = 16;
     private final MatParamOverride boundDrawBufferId = new MatParamOverride(VarType.Int, "BoundDrawBuffer", 0);
     private Predicate<Geometry> renderFilter;
 
@@ -123,6 +141,7 @@ public class RenderManager {
         this.forcedOverrides.add(boundDrawBufferId);
         // register default pipeline context
         contexts.put(PipelineContext.class, new DefaultPipelineContext());
+        setMaxSinglePassLightBatchSize(maxSinglePassLightBatchSize);
     }
 
     /**
@@ -762,6 +781,20 @@ public class RenderManager {
     }
 
     /**
+     * Auto-scale singlePassLightBatchSize exponentially (powers of 2) up to maxSinglePassLightBatchSize only
+     * when a tecnique needs it
+     * 
+     * @param tech
+     * @param nLights
+     */
+    private void maybeResizeLightBatch(TechniqueDef tech, int nLights) {
+        boolean isSPL = tech.getLightMode() == TechniqueDef.LightMode.SinglePass || tech.getLightMode() == TechniqueDef.LightMode.SinglePassAndImageBased;
+        if (isSPL && nLights > singlePassLightBatchSize && singlePassLightBatchSize < maxSinglePassLightBatchSize) {
+            singlePassLightBatchSize = Math.min(FastMath.nearestPowerOfTwo(nLights), maxSinglePassLightBatchSize);
+        }
+    }
+
+    /**
      * Renders a single {@link Geometry} with a specific list of lights.
      * This method applies the world transform, handles forced materials and techniques,
      * and manages the `BoundDrawBuffer` parameter for multi-target frame buffers.
@@ -811,8 +844,12 @@ public class RenderManager {
                     //forcing forced technique renderState
                     forcedRenderState = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
                 }
+                
                 // use geometry's material
                 material.render(geom, lightList, this);
+                
+                // resize light batch if needed before rendering
+                maybeResizeLightBatch(geom.getMaterial().getActiveTechnique().getDef(), lightList.size());
                 material.selectTechnique(previousTechniqueName, this);
 
                 //restoring forcedRenderState
@@ -824,12 +861,19 @@ public class RenderManager {
             } else if (forcedMaterial != null) {
                 // use forced material
                 forcedMaterial.render(geom, lightList, this);
+
+                // resize light batch if needed before rendering
+                maybeResizeLightBatch(forcedMaterial.getActiveTechnique().getDef(), lightList.size());
             }
         } else if (forcedMaterial != null) {
             // use forced material
             forcedMaterial.render(geom, lightList, this);
+            // resize light batch if needed before rendering
+            maybeResizeLightBatch(forcedMaterial.getActiveTechnique().getDef(), lightList.size());
         } else {
             material.render(geom, lightList, this);
+            // resize light batch if needed before rendering
+            maybeResizeLightBatch(geom.getMaterial().getActiveTechnique().getDef(), lightList.size());
         }
         this.renderer.popDebugGroup();
     }
@@ -1056,6 +1100,11 @@ public class RenderManager {
     /**
      * Returns the number of lights used for each pass when the light mode is single pass.
      *
+     * <p>
+     * This value is automatically scaled up (in powers of two, up to
+     * {@link #getMaxSinglePassLightBatchSize()}) during rendering whenever a geometry has more lights than
+     * the current batch size.
+     *
      * @return the number of lights.
      */
     public int getSinglePassLightBatchSize() {
@@ -1063,13 +1112,67 @@ public class RenderManager {
     }
 
     /**
-     * Sets the number of lights to use for each pass when the light mode is single pass.
+     * Sets the number of lights to use for each pass when the light mode is single pass, and simultaneously
+     * sets the maximum batch size to the same value.
      *
-     * @param singlePassLightBatchSize the number of lights.
+     * <p>
+     * This effectively pins the batch size and disables the automatic scaling, which is useful when you know
+     * in advance how many lights your scene uses.
+     *
+     * <p>
+     * To set only the upper limit while still allowing automatic scaling, use
+     * {@link #setMaxSinglePassLightBatchSize(int)} instead.
+     *
+     * @param singlePassLightBatchSize the number of lights (minimum 1).
      */
     public void setSinglePassLightBatchSize(int singlePassLightBatchSize) {
-        // Ensure the batch size is no less than 1
         this.singlePassLightBatchSize = Math.max(singlePassLightBatchSize, 1);
+        this.maxSinglePassLightBatchSize = this.singlePassLightBatchSize;
+    }
+
+    /**
+     * Returns the maximum number of lights allowed in a single pass batch.
+     *
+     * <p>
+     * The batch size will never be auto-scaled beyond this value. 
+     *
+     * @return the maximum single pass light batch size.
+     */
+    public int getMaxSinglePassLightBatchSize() {
+        return maxSinglePassLightBatchSize;
+    }
+
+    /**
+     * Sets the maximum number of lights allowed in a single pass batch.
+     *
+     * <p>
+     * The requested value is clamped to a hardware-safe upper bound.
+     *
+     * <p>
+     * If the current {@link #getSinglePassLightBatchSize() batch size} exceeds the new maximum, it is clamped
+     * down to the new maximum. Otherwise the current batch size is left unchanged and will continue to
+     * auto-scale up to the new limit.
+     *
+     * @param maxSinglePassLightBatchSize    the maximum number of lights (minimum 1).
+     */
+    public void setMaxSinglePassLightBatchSize(int maxSinglePassLightBatchSize) {
+        this.maxSinglePassLightBatchSize = Math.max(maxSinglePassLightBatchSize, 1);
+        // Clamp to a hardware-safe value.
+        Integer fragUniformVecs = renderer.getLimits().get(Limits.FragmentUniformVectors);
+        if (fragUniformVecs != null && fragUniformVecs > 0) {
+            int reservedUniforms = Math.min(Math.max(fragUniformVecs / RESERVED_UNIFORM_FRACTION, 1), RESERVED_UNIFORMS_MAX);
+            int maxBatchForHardware = Math.max((fragUniformVecs - reservedUniforms) / VEC4_UNIFORMS_PER_LIGHT, 1);
+            if (this.maxSinglePassLightBatchSize > 16 && maxBatchForHardware < 16) {
+                logger.log(Level.WARNING,
+                        "setMaxSinglePassLightBatchSize({0}) was requested but hardware only supports"
+                                + " {1} lights per pass (FragmentUniformVectors={2}); clamping to {1}.",
+                        new Object[] { maxSinglePassLightBatchSize, maxBatchForHardware, fragUniformVecs });
+            }
+            this.maxSinglePassLightBatchSize = Math.min(this.maxSinglePassLightBatchSize, maxBatchForHardware);
+        }
+        if (singlePassLightBatchSize > this.maxSinglePassLightBatchSize) {
+            singlePassLightBatchSize = this.maxSinglePassLightBatchSize;
+        }
     }
 
     /**
