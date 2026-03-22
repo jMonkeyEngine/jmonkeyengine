@@ -123,6 +123,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
 
         Uniform lightData = shader.getUniform("g_LightData");
         lightData.setVector4Length(numLights * 3);//8 lights * max 3
+        Uniform lightCount = shader.getUniform("g_LightCount");
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
 
         // Matrix4f
@@ -231,6 +232,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             }
         }
         vars.release();
+        lightCount.setValue(VarType.Int, lightDataIndex / 3);
 
         // pad unused buffer space
         while (lightDataIndex < numLights * 3) {
