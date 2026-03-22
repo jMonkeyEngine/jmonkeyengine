@@ -204,11 +204,6 @@ public abstract class GenericEnvBaker implements EnvBaker {
             renderManager.renderViewPort(viewPort, 0.16f);
             renderManager.setRenderFilter(ofilter);
 
-            // force mipmap generation
-            FrameBuffer fb = renderManager.getRenderer().getCurrentFrameBuffer();
-            renderManager.getRenderer().setFrameBuffer(null);
-            renderManager.getRenderer().setFrameBuffer(fb);
-
             if (isTexturePulling()) {
                 pull(envbaker, envMap, i);
             }
