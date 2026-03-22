@@ -57,7 +57,14 @@ vec4 Hammersley(uint i, uint N){
 // alpha2 = alpha * alpha
 //
 // ImportanceSampleGGX() and GeometrySmith() both expect alpha.
+const float MIN_GGX_ALPHA = 0.0064;
+
+float SafeGGXAlpha(float alpha) {
+    return max(alpha, MIN_GGX_ALPHA);
+}
+
 vec3 ImportanceSampleGGX(vec4 Xi, float alpha, vec3 N){
+    alpha = SafeGGXAlpha(alpha);
     float alpha2 = alpha * alpha;
     float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (alpha2 - 1.0) * Xi.y));
     float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
@@ -78,9 +85,10 @@ vec3 ImportanceSampleGGX(vec4 Xi, float alpha, vec3 N){
 }
 
 float DistributionGGX(float NdotH, float alpha) {
+    alpha = SafeGGXAlpha(alpha);
     float alpha2 = alpha * alpha;
     float denom = (NdotH * NdotH) * (alpha2 - 1.0) + 1.0;
-    return alpha2 / max(PI * denom * denom, 1e-4);
+    return alpha2 / (PI * denom * denom);
 }
 
 float ImportanceSampleGGXPdf(float NdotH, float VdotH, float alpha) {
@@ -89,6 +97,7 @@ float ImportanceSampleGGXPdf(float NdotH, float VdotH, float alpha) {
 }
 
 float GeometrySchlickGGX(float NdotV, float alpha){
+    alpha = SafeGGXAlpha(alpha);
     float k = alpha / 2.0;
 
     float nom   = NdotV;

@@ -6,6 +6,12 @@
     #define NB_PROBES 0
 #endif
 
+// Internal GGX stability floor. This does not change the user-facing
+// roughness convention or probe LOD mapping; it only prevents extremely sharp
+// microfacet lobes from reaching pathological peaks that can destabilize some
+// drivers and screenshot-test software renderers.
+const float MIN_GGX_ALPHA = 0.0064;
+
 // BEGIN-@jhonkkk,Specular AA --------------------------------------------------------------
 // see:http://www.jp.square-enix.com/tech/library/pdf/ImprovedGeometricSpecularAA(slides).pdf
 // https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@15.0/manual/Geometric-Specular-Anti-Aliasing.html
@@ -55,6 +61,7 @@ float Inner_PBR_ComputeDirectLight(
                             vec3 normal, vec3 halfVec, vec3 lightDir, vec3 viewDir,
                             vec3 lightColor, vec3 fZero, float alpha, float ndotv,
                             out vec3 outDiffuse, out vec3 outSpecular){
+    alpha = max(alpha, MIN_GGX_ALPHA);
 
     // Compute ndotl, ndoth,  vdoth terms which are needed later.
     float ndotl = max( dot(normal,   lightDir), 0.0);
@@ -67,7 +74,7 @@ float Inner_PBR_ComputeDirectLight(
     float alpha2 = alpha * alpha;
     float sum  = ((ndoth * ndoth) * (alpha2 - 1.0) + 1.0);
     float denom = PI * sum * sum;
-    float D = alpha2 / max(denom, 1e-4);
+    float D = alpha2 / denom;
 
     // Compute Fresnel function via Schlick's approximation.
     vec3 fresnel = F_Shlick(hdotv, fZero);
@@ -258,5 +265,3 @@ float renderProbe(vec3 viewDir, vec3 worldPos, vec3 normal, vec3 norm, float Rou
     color = indirectLighting * step( 0.0, probePos.w);
     return ndf;
 }
-
-

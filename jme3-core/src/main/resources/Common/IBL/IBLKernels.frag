@@ -82,6 +82,13 @@ void prefilteredEnvKernel(){
     float texelSolidAngle = (4.0 * PI) / max(6.0 * envMapResolution * envMapResolution, 1.0);
     float maxSourceLod = max(log2(envMapResolution), 0.0);
 
+    // The GGX distribution becomes singular for an ideal mirror. For mip 0,
+    // skip the importance-sampled integration and keep the sharp source env.
+    if (roughness <= 0.0) {
+        outFragColor = vec4(textureLod(m_EnvMap, R, 0.0).rgb, 1.0);
+        return;
+    }
+
     const uint SAMPLE_COUNT = 1024u;
     float totalWeight = 0.0;   
     vec3 prefilteredColor = vec3(0.0);     
