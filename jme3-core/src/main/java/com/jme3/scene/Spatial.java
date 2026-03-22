@@ -708,12 +708,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable,
 
             for (int j = i; j >= 0; j--) {
                 rootNode = stack[j];
-                // Clear stack to avoid memory leaks
-                // (Spatials added to the stack might get detached from their parent
-                // after this method has been called -> they and their OGL object will not 
-                // get garbage collected when subsequent calls to checkDoTransformUpdate() 
-                // require only smaller stacks)
-                stack[j] = null;
                 //rootNode.worldTransform.set(rootNode.localTransform);
                 //rootNode.worldTransform.combineWithParent(rootNode.parent.worldTransform);
                 //rootNode.refreshFlags &= ~RF_TRANSFORM;
