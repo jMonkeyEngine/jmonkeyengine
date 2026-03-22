@@ -793,8 +793,13 @@ public class RenderManager {
 
         // Auto-scale singlePassLightBatchSize exponentially (powers of 2) up to
         // maxSinglePassLightBatchSize to reduce shader recompilations.
+        // Only scale on the normal (unforced) rendering path: forced techniques such as
+        // PreShadow do not use NB_LIGHTS / g_LightData, so counting their geometry's
+        // world lights would spuriously inflate the batch size before the main pass.
         int nLights = lightList.size();
-        if (nLights > singlePassLightBatchSize && singlePassLightBatchSize < maxSinglePassLightBatchSize) {
+        if (forcedTechnique == null && forcedMaterial == null
+                && nLights > singlePassLightBatchSize
+                && singlePassLightBatchSize < maxSinglePassLightBatchSize) {
             singlePassLightBatchSize = Math.min(FastMath.nearestPowerOfTwo(nLights), maxSinglePassLightBatchSize);
         }
 
