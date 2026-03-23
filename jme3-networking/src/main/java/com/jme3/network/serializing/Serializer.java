@@ -354,7 +354,8 @@ public abstract class Serializer {
         if (cls.isArray()) return registerClass(cls, arraySerializer);
 
         if (java.io.Serializable.class.isAssignableFrom(cls)) { 
-            return getExactSerializerRegistration(java.io.Serializable.class);
+            reg = getExactSerializerRegistration(java.io.Serializable.class);
+            if (reg != null) return reg;
         }
 
         // See if the class could be safely auto-registered
