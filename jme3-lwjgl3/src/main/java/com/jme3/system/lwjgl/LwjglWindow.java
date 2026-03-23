@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2025 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,222 +31,218 @@
  */
 package com.jme3.system.lwjgl;
 
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_FALSE;
+import static org.lwjgl.sdl.SDLError.*;
+import static org.lwjgl.sdl.SDLEvents.*;
+import static org.lwjgl.sdl.SDLHints.*;
+import static org.lwjgl.sdl.SDLInit.*;
+import static org.lwjgl.sdl.SDLKeyboard.*;
+import static org.lwjgl.sdl.SDLMouse.*;
+import static org.lwjgl.sdl.SDLPixels.*;
+import static org.lwjgl.sdl.SDLSurface.*;
+import static org.lwjgl.sdl.SDLVideo.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+import com.jme3.app.Application;
+import com.jme3.asset.AssetManager;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
-import com.jme3.input.lwjgl.GlfwJoystickInput;
-import com.jme3.input.lwjgl.GlfwKeyInput;
-import com.jme3.input.lwjgl.GlfwMouseInput;
 import com.jme3.input.lwjgl.SdlJoystickInput;
+import com.jme3.input.lwjgl.SdlKeyInput;
+import com.jme3.input.lwjgl.SdlMouseInput;
+import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
+import com.jme3.renderer.Caps;
+import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.jme3.system.Displays;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
+import com.jme3.system.NativeLibraries.LibraryInfo;
+import com.jme3.system.NativeLibraryLoader;
+import com.jme3.system.Platform;
+import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
+import com.jme3.texture.Image;
+import com.jme3.texture.Image.Format;
+import com.jme3.texture.Texture2D;
+import com.jme3.texture.image.ColorSpace;
+import com.jme3.ui.Picture;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.Version;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
-import org.lwjgl.glfw.GLFWImage;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.glfw.GLFWWindowFocusCallback;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
-import org.lwjgl.system.Platform;
+import org.lwjgl.sdl.SDL_DisplayMode;
+import org.lwjgl.sdl.SDL_Event;
+import org.lwjgl.sdl.SDL_Surface;
+import org.lwjgl.sdl.SDLStdinc;
+import org.lwjgl.system.Configuration;
+import org.lwjgl.system.MemoryStack;
+import com.jme3.renderer.opengl.GLRenderer;
 
 /**
- * A wrapper class over the GLFW framework in LWJGL 3.
+ * SDL3-backed window/context implementation for LWJGL 3.4+.
  *
  * @author Daniel Johansson
+ * @author Riccardo Balbo
  */
 public abstract class LwjglWindow extends LwjglContext implements Runnable {
+    private static final String AUX_FRAMEBUFFER_BLIT_MATERIAL = "Common/MatDefs/Post/AuxFramebuffer.j3md";
+    private static final LibraryInfo angleEGL = new LibraryInfo("angleEGL")
+            .addNativeVariant(Platform.Windows64, "native/angle/windows/x86_64/libEGL.dll", "libEGL.dll")
+            .addNativeVariant(Platform.Windows_ARM64, "native/angle/windows/arm64/libEGL.dll", "libEGL.dll")
+            .addNativeVariant(Platform.Linux64, "native/angle/linux/x86_64/libEGL.so", "libEGL.so")
+            .addNativeVariant(Platform.Linux_ARM64, "native/angle/linux/arm64/libEGL.so", "libEGL.so")
+            .addNativeVariant(Platform.MacOSX64, "native/angle/osx/x86_64/libEGL.dylib", "libEGL.dylib")
+            .addNativeVariant(Platform.MacOSX_ARM64, "native/angle/osx/arm64/libEGL.dylib", "libEGL.dylib");
+
+
+    private static final LibraryInfo angleGLESv2 = new LibraryInfo("angleGLESv2")
+            .addNativeVariant(Platform.Windows64, "native/angle/windows/x86_64/libGLESv2.dll", "libGLESv2.dll")
+            .addNativeVariant(Platform.Windows_ARM64, "native/angle/windows/arm64/libGLESv2.dll", "libGLESv2.dll")
+            .addNativeVariant(Platform.Linux64, "native/angle/linux/x86_64/libGLESv2.so", "libGLESv2.so")
+            .addNativeVariant(Platform.Linux_ARM64, "native/angle/linux/arm64/libGLESv2.so", "libGLESv2.so")
+            .addNativeVariant(Platform.MacOSX64, "native/angle/osx/x86_64/libGLESv2.dylib", "libGLESv2.dylib")
+            .addNativeVariant(Platform.MacOSX_ARM64, "native/angle/osx/arm64/libGLESv2.dylib", "libGLESv2.dylib");
+
+
+    private static final LibraryInfo d3dcompiler_47 = new LibraryInfo("d3dcompiler_47")
+            .addNativeVariant(Platform.Windows64, "native/d3dcompiler/windows/x86_64/d3dcompiler_47.dll")
+            .addNativeVariant(Platform.Windows_ARM64, "native/d3dcompiler/windows/arm64/d3dcompiler_47.dll");
+
+    static {
+        NativeLibraryLoader.registerNativeLibrary(angleEGL);
+        NativeLibraryLoader.registerNativeLibrary(angleGLESv2);
+        NativeLibraryLoader.registerNativeLibrary(d3dcompiler_47);
+    }
 
     private static final Logger LOGGER = Logger.getLogger(LwjglWindow.class.getName());
+    private static final int SDL_WINDOW_SUBSYSTEM_FLAGS = SDL_INIT_VIDEO | SDL_INIT_EVENTS;
 
     private static final EnumSet<JmeContext.Type> SUPPORTED_TYPES = EnumSet.of(
-        JmeContext.Type.Display,
-        JmeContext.Type.Canvas,
-        JmeContext.Type.OffscreenSurface
+            JmeContext.Type.Display,
+            JmeContext.Type.Canvas,
+            JmeContext.Type.OffscreenSurface
     );
 
     private static final Map<String, Runnable> RENDER_CONFIGS = new HashMap<>();
 
     static {
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL30,
-            () -> {
-                // Based on GLFW docs for OpenGL version below 3.2,
-                // GLFW_OPENGL_ANY_PROFILE must be used.
-                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL31,
-            () -> {
-                // Based on GLFW docs for OpenGL version below 3.2,
-                // GLFW_OPENGL_ANY_PROFILE must be used.
-                glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL32,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL33,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL40,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL41,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL42,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL43,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL44,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
-            }
-        );
-        RENDER_CONFIGS.put(
-            AppSettings.LWJGL_OPENGL45,
-            () -> {
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-                glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-            }
-        );
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL32, () -> {
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL33, () -> {
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL40, () -> {
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL41, () -> {
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL42, () -> {
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL43, () -> {
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL44, () -> {
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL45, () -> {
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        });
+        RENDER_CONFIGS.put(AppSettings.ANGLE_GLES3, () -> {
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+        });
     }
 
     protected final AtomicBoolean needClose = new AtomicBoolean(false);
     protected final AtomicBoolean needRestart = new AtomicBoolean(false);
 
     private final JmeContext.Type type;
-    private final SafeArrayList<WindowSizeListener> windowSizeListeners = new SafeArrayList<>(
-        WindowSizeListener.class
-    );
-
-    private GLFWErrorCallback errorCallback;
-    private GLFWWindowSizeCallback windowSizeCallback;
-    private GLFWFramebufferSizeCallback framebufferSizeCallback;
-    private GLFWWindowFocusCallback windowFocusCallback;
+    private final SafeArrayList<WindowSizeListener> windowSizeListeners = new SafeArrayList<>(WindowSizeListener.class);
+    private final AtomicBoolean windowCloseRequested = new AtomicBoolean(false);
 
     private Thread mainThread;
 
-    private long monitor = NULL;
+    private long display = 0L;
     private long window = NULL;
+    private long glContext = NULL;
+    private int windowId;
     private int frameRateLimit = -1;
 
     protected boolean wasActive = false;
     protected boolean autoFlush = true;
     protected boolean allowSwapBuffers = false;
 
-    // temp variables used for glfw calls
-    private final int width[] = new int[1];
-    private final int height[] = new int[1];
-
     // state maintained by updateSizes()
     private int oldFramebufferWidth;
     private int oldFramebufferHeight;
     private final Vector2f oldScale = new Vector2f(1, 1);
+    private Material auxFramebufferBlitMaterial;
+    private Picture auxFramebufferBlitGeometry;
+    private FrameBuffer auxFramebuffer;
+    private Texture2D auxFramebufferColorTexture;
+    private boolean auxFramebufferDirty;
+    private boolean auxFramebufferTextureMultisampleWarningIssued;
 
     public LwjglWindow(final JmeContext.Type type) {
         if (!SUPPORTED_TYPES.contains(type)) {
             throw new IllegalArgumentException("Unsupported type '" + type.name() + "' provided");
         }
-
         this.type = type;
     }
 
-    /**
-     * Registers the specified listener to get notified when window size changes.
-     *
-     * @param listener The WindowSizeListener to register.
-     */
     public void registerWindowSizeListener(WindowSizeListener listener) {
         windowSizeListeners.add(listener);
     }
 
-    /**
-     * Removes the specified listener from the listeners list.
-     *
-     * @param listener The WindowSizeListener to remove.
-     */
     public void removeWindowSizeListener(WindowSizeListener listener) {
         windowSizeListeners.remove(listener);
     }
 
-    /**
-     * @return Type.Display or Type.Canvas
-     */
     @Override
     public JmeContext.Type getType() {
         return type;
     }
 
-    /**
-     * Set the title if it's a windowed display
-     *
-     * @param title the title to set
-     */
     @Override
     public void setTitle(final String title) {
         if (created.get() && window != NULL) {
-            glfwSetWindowTitle(window, title);
+            SDL_SetWindowTitle(window, title);
         }
     }
 
-    /**
-     * Restart if it's a windowed or full-screen display.
-     */
     @Override
     public void restart() {
         if (created.get()) {
@@ -256,383 +252,298 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
     }
 
-    /**
-     * Apply the settings, changing resolution, etc.
-     *
-     * @param settings the settings to apply when creating the context.
-     */
     protected void createContext(final AppSettings settings) {
-        glfwSetErrorCallback(
-            errorCallback =
-                new GLFWErrorCallback() {
-                    @Override
-                    public void invoke(int error, long description) {
-                        final String message = GLFWErrorCallback.getDescription(description);
-                        listener.handleError(message, new Exception(message));
-                    }
-                }
-        );
+        configureVideoDriverHints(settings);
+        configureAngleHints(settings);
 
-        if (glfwPlatformSupported(GLFW_PLATFORM_WAYLAND)) {
-
-            /*
-             * Change the platform GLFW uses to enable GLX on Wayland as long as you 
-             * have XWayland (X11 compatibility)
-             */
-            if (settings.isX11PlatformPreferred() && glfwPlatformSupported(GLFW_PLATFORM_X11)) {
-                glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
-            }
-
-            // Disables the libdecor bar when creating a fullscreen context
-            // https://www.glfw.org/docs/latest/intro_guide.html#init_hints_wayland
-            glfwInitHint(GLFW_WAYLAND_LIBDECOR, settings.isFullscreen() ? GLFW_WAYLAND_DISABLE_LIBDECOR : GLFW_WAYLAND_PREFER_LIBDECOR);
+        if (!SDL_InitSubSystem(SDL_WINDOW_SUBSYSTEM_FLAGS)) {
+            throw new IllegalStateException("Unable to initialize SDL video subsystem: " + SDL_GetError());
         }
 
-        if (!glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW");
-        }
+        SDL_SetHint(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE, "0");
+        SDL_GL_ResetAttributes();
+        configureGLAttributes(settings);
 
-        glfwDefaultWindowHints();
+        display = settings.isFullscreen() ? getDisplay(settings.getDisplay()) : SDL_GetPrimaryDisplay();
+        SDL_DisplayMode videoMode = SDL_GetCurrentDisplayMode((int) display);
 
-        final String renderer = settings.getRenderer();
-
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-        RENDER_CONFIGS
-            .computeIfAbsent(
-                renderer,
-                s ->
-                    () -> {
-                        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE);
-                        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-                        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-                        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-                    }
-            )
-            .run();
-
-        if (settings.getBoolean("RendererDebug")) {
-            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-        }
-
-        if (settings.isGammaCorrection()) {
-            glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
-        }
-
-        glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
-        glfwWindowHint(GLFW_RESIZABLE, settings.isResizable() ? GLFW_TRUE : GLFW_FALSE);
-        glfwWindowHint(GLFW_DEPTH_BITS, settings.getDepthBits());
-        glfwWindowHint(GLFW_STENCIL_BITS, settings.getStencilBits());
-        glfwWindowHint(GLFW_SAMPLES, settings.getSamples());
-        glfwWindowHint(GLFW_STEREO, settings.useStereo3D() ? GLFW_TRUE : GLFW_FALSE);
-        glfwWindowHint(
-            GLFW_REFRESH_RATE,
-            settings.getFrequency() <= 0 ? GLFW_DONT_CARE : settings.getFrequency()
-        );
-        glfwWindowHint(
-            GLFW_COCOA_RETINA_FRAMEBUFFER,
-            settings.isUseRetinaFrameBuffer() ? GLFW_TRUE : GLFW_FALSE
-        );
-
-        if (settings.getBitsPerPixel() == 24) {
-            glfwWindowHint(GLFW_RED_BITS, 8);
-            glfwWindowHint(GLFW_GREEN_BITS, 8);
-            glfwWindowHint(GLFW_BLUE_BITS, 8);
-        } else if (settings.getBitsPerPixel() == 16) {
-            glfwWindowHint(GLFW_RED_BITS, 5);
-            glfwWindowHint(GLFW_GREEN_BITS, 6);
-            glfwWindowHint(GLFW_BLUE_BITS, 5);
-        }
-
-        glfwWindowHint(GLFW_ALPHA_BITS, settings.getAlphaBits());
-
-        //        long monitor = NULL;
-
-        /**
-         * Let's grab the display selected, if not found it will return
-         * primaryMonitor. if not full screen just use primary display data.
-         */
-        if (settings.isFullscreen()) {
-            monitor = getDisplay(settings.getDisplay());
-        } else {
-            monitor = glfwGetPrimaryMonitor();
-        }
-
-        final GLFWVidMode videoMode = glfwGetVideoMode(monitor);
         int requestWidth = settings.getWindowWidth();
         int requestHeight = settings.getWindowHeight();
         if (requestWidth <= 0 || requestHeight <= 0) {
-            requestWidth = videoMode.width();
-            requestHeight = videoMode.height();
+            if (videoMode != null) {
+                requestWidth = videoMode.w();
+                requestHeight = videoMode.h();
+            } else {
+                requestWidth = 1280;
+                requestHeight = 720;
+            }
         }
-        int requestX = GLFW_ANY_POSITION;
-        int requestY = GLFW_ANY_POSITION;
+
+        int requestX = SDL_WINDOWPOS_UNDEFINED_DISPLAY((int) display);
+        int requestY = SDL_WINDOWPOS_UNDEFINED_DISPLAY((int) display);
         if (!settings.isFullscreen()) {
             if (settings.getCenterWindow()) {
-                // Center the window
-                requestX = (videoMode.width() - requestWidth) / 2;
-                requestY = (videoMode.height() - requestHeight) / 2;
+                requestX = SDL_WINDOWPOS_CENTERED_DISPLAY((int) display);
+                requestY = SDL_WINDOWPOS_CENTERED_DISPLAY((int) display);
             } else {
                 requestX = settings.getWindowXPosition();
                 requestY = settings.getWindowYPosition();
             }
-            glfwWindowHint(GLFW_POSITION_X, requestX);
-            glfwWindowHint(GLFW_POSITION_Y, requestY);
         }
-        // Lets use the monitor selected from AppSettings if FullScreen is
-        // set.
+
+        long windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
+        if (settings.isResizable()) {
+            windowFlags |= SDL_WINDOW_RESIZABLE;
+        }
+        if (settings.isUseRetinaFrameBuffer()) {
+            windowFlags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
+        }
         if (settings.isFullscreen()) {
-            window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), monitor, NULL);
-        } else {
-            window = glfwCreateWindow(requestWidth, requestHeight, settings.getTitle(), NULL, NULL);
+            windowFlags |= SDL_WINDOW_FULLSCREEN;
         }
+
+        window = SDL_CreateWindow(settings.getTitle(), requestWidth, requestHeight, windowFlags);
         if (window == NULL) {
-            throw new RuntimeException("Failed to create the GLFW window");
+            throw new RuntimeException("Failed to create SDL window: " + SDL_GetError());
         }
 
-        glfwSetWindowFocusCallback(
-            window,
-            windowFocusCallback =
-                new GLFWWindowFocusCallback() {
-                    @Override
-                    public void invoke(final long window, final boolean focus) {
-                        if (wasActive != focus) {
-                            if (!wasActive) {
-                                listener.gainFocus();
-                                timer.reset();
-                            } else {
-                                listener.loseFocus();
-                            }
-                            wasActive = !wasActive;
-                        }
-                    }
-                }
-        );
+        windowId = SDL_GetWindowID(window);
+        windowCloseRequested.set(false);
 
-        int platformId = glfwGetPlatform();
-        if (settings.isX11PlatformPreferred()) {
-            if (platformId == GLFW_PLATFORM_X11) {
-                LOGGER.log(Level.INFO, "Active X11 server for GLX management:\n * Platform: GLFW_PLATFORM_X11|XWayland ({0})", platformId);
-            } else {
-                LOGGER.log(Level.WARNING, "Can't change platform to X11 (GLX), check if you have XWayland enabled");
-            }
-        }
-        
-        if (platformId != GLFW_PLATFORM_WAYLAND && !settings.isFullscreen()) {
-            /*
-             * in case the window positioning hints above were ignored, but not
-             * on Wayland, since Wayland doesn't support window positioning
-             */
-            glfwSetWindowPos(window, requestX, requestY);
+        if (!settings.isFullscreen()) {
+            SDL_SetWindowPosition(window, requestX, requestY);
         }
 
-        // Make the OpenGL context current
-        glfwMakeContextCurrent(window);
+        glContext = SDL_GL_CreateContext(window);
+        if (glContext == NULL) {
+            throw new RuntimeException("Failed to create SDL GL context: " + SDL_GetError());
+        }
 
-        // Enable vsync
-        if (settings.isVSync()) {
-            glfwSwapInterval(1);
-        } else {
-            glfwSwapInterval(0);
+        if (!SDL_GL_MakeCurrent(window, glContext)) {
+            throw new RuntimeException("Failed to make SDL GL context current: " + SDL_GetError());
+        }
+
+        if (!SDL_GL_SetSwapInterval(settings.isVSync() ? 1 : 0)) {
+            LOGGER.log(Level.WARNING, "Unable to set SDL swap interval: {0}", SDL_GetError());
         }
 
         setWindowIcon(settings);
         showWindow();
 
-        // HACK: the framebuffer seems to be initialized with the wrong size
-        // on some HiDPI platforms until glfwPollEvents is called 2 or 3 times
-        for (int i = 0; i < 4; i++) glfwPollEvents();
-
-        // Windows resize callback
-        glfwSetWindowSizeCallback(
-            window,
-            windowSizeCallback =
-                new GLFWWindowSizeCallback() {
-                    @Override
-                    public void invoke(final long window, final int width, final int height) {
-                        updateSizes();
-                    }
-                }
-        );
-
-        // Add a framebuffer resize callback which delegates to the listener
-        glfwSetFramebufferSizeCallback(
-            window,
-            framebufferSizeCallback =
-                new GLFWFramebufferSizeCallback() {
-                    @Override
-                    public void invoke(final long window, final int width, final int height) {
-                        updateSizes();
-                    }
-                }
-        );
+        // Some platforms report wrong initial scale until a couple of polls happen.
+        for (int i = 0; i < 4; i++) {
+            pollEvents(false);
+        }
 
         allowSwapBuffers = settings.isSwapBuffers();
-
-        // Create OpenCL
-        if (settings.isOpenCLSupport()) {
-            initOpenCL(window);
-        }
 
         updateSizes();
     }
 
-    private void updateSizes() {
-        // framebuffer size (resolution) may differ from window size (e.g. HiDPI)
-
-        glfwGetWindowSize(window, width, height);
-        int windowWidth = width[0] < 16 ? 16 : width[0];
-        int windowHeight = height[0] < 16 ? 16 : height[0];
-        if (settings.getWindowWidth() != windowWidth || settings.getWindowHeight() != windowHeight) {
-            settings.setWindowSize(windowWidth, windowHeight);
-            for (WindowSizeListener wsListener : windowSizeListeners.getArray()) {
-                wsListener.onWindowSizeChanged(windowWidth, windowHeight);
+    private void configureVideoDriverHints(AppSettings settings) {
+        if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.LINUX) {
+            boolean isWaylandSession = "wayland".equalsIgnoreCase(System.getenv("XDG_SESSION_TYPE"));
+            if (settings.isX11PlatformPreferred()) {
+                SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "x11");
+            } else if (isWaylandSession) {
+                SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "wayland");
             }
         }
 
-        glfwGetFramebufferSize(window, width, height);
-        int framebufferWidth = width[0] < 16 ? 16 : width[0];
-        int framebufferHeight = height[0] < 16 ? 16 : height[0];
-        if (framebufferWidth != oldFramebufferWidth || framebufferHeight != oldFramebufferHeight) {
-            settings.setResolution(framebufferWidth, framebufferHeight);
-            listener.reshape(framebufferWidth, framebufferHeight);
+        if (settings.isFullscreen()) {
+            SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_ALLOW_LIBDECOR, "0");
+        } else {
+            SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_PREFER_LIBDECOR, "1");
+        }
+    }
 
-            oldFramebufferWidth = framebufferWidth;
-            oldFramebufferHeight = framebufferHeight;
+    private void configureAngleHints(AppSettings settings) {
+        if (!useAngle) {
+            return;
         }
 
-        float xScale = (float) framebufferWidth / windowWidth;
-        float yScale = (float) framebufferHeight / windowHeight;
-        if (oldScale.x != xScale || oldScale.y != yScale) {
-            listener.rescale(xScale, yScale);
+        boolean isWayland = !settings.isX11PlatformPreferred()
+                && "wayland".equalsIgnoreCase(System.getenv("XDG_SESSION_TYPE"));
 
-            oldScale.set(xScale, yScale);
+        String angleEGLPath = null;
+        String angleGLESv2Path = null;
+        
+        // angleEGLPath = NativeLibraryLoader.loadNativeLibrary("angleEGLWayland", true);
+            // angleGLESv2Path =  NativeLibraryLoader.loadNativeLibrary("angleGLESv2Wayland", true);
+
+            // force debug paths
+
+            // } else {
+            angleEGLPath = NativeLibraryLoader.loadNativeLibrary("angleEGL", true);
+            angleGLESv2Path = NativeLibraryLoader.loadNativeLibrary("angleGLESv2", true);
+
+            // force debug paths
+            // angleEGLPath =
+            // "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux/x86_64/libEGL.so";
+            // angleGLESv2Path =
+            // "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux/x86_64/libGLESv2.so";
+            // }
+            angleEGLPath = "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libEGL.so";
+            angleGLESv2Path = "/home/riccardobl/Desktop/angle-build/dist/angle-natives-local-dev/native/angle/linux-wayland/x86_64/libGLESv2.so";
+
+        NativeLibraryLoader.loadNativeLibrary("d3dcompiler_47", false); // windows only
+
+        Configuration.OPENGLES_LIBRARY_NAME.set(angleGLESv2Path);
+        Configuration.EGL_LIBRARY_NAME.set(angleEGLPath);
+
+        SDL_SetHint(SDL_HINT_EGL_LIBRARY, angleEGLPath);
+        SDL_SetHint(SDL_HINT_OPENGL_LIBRARY, angleGLESv2Path);
+        SDL_SetHint(SDL_HINT_OPENGL_ES_DRIVER, angleGLESv2Path);
+        SDL_SetHint(SDL_HINT_VIDEO_FORCE_EGL, "1");
+    }
+
+    private void configureGLAttributes(AppSettings settings) {
+        final String renderer = settings.getRenderer();
+        final boolean glesContext = AppSettings.ANGLE_GLES3.equals(renderer);
+        RENDER_CONFIGS.getOrDefault(renderer, RENDER_CONFIGS.get(AppSettings.LWJGL_OPENGL32)).run();
+
+        int contextFlags = 0;
+        if (settings.getBoolean("RendererDebug")) {
+            contextFlags |= SDL_GL_CONTEXT_DEBUG_FLAG;
+        }
+        if (!glesContext) {
+            contextFlags |= SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG;
+        }
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, contextFlags);
+
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, settings.getDepthBits());
+        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, settings.getStencilBits());
+        SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, settings.getAlphaBits());
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, settings.getSamples() > 0 ? 1 : 0);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, Math.max(settings.getSamples(), 0));
+
+        if (settings.isGammaCorrection() && !useAuxFramebufferSrgb()) {
+            SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
+        }
+
+        if (settings.getBitsPerPixel() == 24) {
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+        } else if (settings.getBitsPerPixel() == 16) {
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+        }
+    }
+
+    private void updateSizes() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer winW = stack.mallocInt(1);
+            IntBuffer winH = stack.mallocInt(1);
+            if (!SDL_GetWindowSize(window, winW, winH)) {
+                return;
+            }
+
+            int windowWidth = Math.max(winW.get(0), 16);
+            int windowHeight = Math.max(winH.get(0), 16);
+            if (settings.getWindowWidth() != windowWidth || settings.getWindowHeight() != windowHeight) {
+                settings.setWindowSize(windowWidth, windowHeight);
+                for (WindowSizeListener wsListener : windowSizeListeners.getArray()) {
+                    wsListener.onWindowSizeChanged(windowWidth, windowHeight);
+                }
+            }
+
+            IntBuffer fbW = stack.mallocInt(1);
+            IntBuffer fbH = stack.mallocInt(1);
+            if (!SDL_GetWindowSizeInPixels(window, fbW, fbH)) {
+                return;
+            }
+
+            int framebufferWidth = Math.max(fbW.get(0), 16);
+            int framebufferHeight = Math.max(fbH.get(0), 16);
+            if (framebufferWidth != oldFramebufferWidth || framebufferHeight != oldFramebufferHeight) {
+                settings.setResolution(framebufferWidth, framebufferHeight);
+                listener.reshape(framebufferWidth, framebufferHeight);
+                oldFramebufferWidth = framebufferWidth;
+                oldFramebufferHeight = framebufferHeight;
+            }
+
+            float xScale = (float) framebufferWidth / windowWidth;
+            float yScale = (float) framebufferHeight / windowHeight;
+            if (oldScale.x != xScale || oldScale.y != yScale) {
+                listener.rescale(xScale, yScale);
+                oldScale.set(xScale, yScale);
+            }
         }
     }
 
     protected void showWindow() {
-        glfwShowWindow(window);
+        SDL_ShowWindow(window);
     }
 
-    /**
-     * Set custom icons to the window of this application.
-     *
-     * @param settings settings for getting the icons
-     */
     protected void setWindowIcon(final AppSettings settings) {
-        if (glfwGetPlatform() == GLFW_PLATFORM_WAYLAND) {
-            // Wayland doesn't support custom icons.
+        final Object[] icons = settings.getIcons();
+        if (icons == null || icons.length == 0) {
             return;
         }
 
-        final Object[] icons = settings.getIcons();
-        if (icons == null) return;
+        String driver = SDL_GetCurrentVideoDriver();
+        if ("wayland".equalsIgnoreCase(driver)) {
+            // Wayland compositors generally ignore custom icons.
+            return;
+        }
 
-        final GLFWImage[] images = imagesToGLFWImages(icons);
-
-        try (final GLFWImage.Buffer iconSet = GLFWImage.malloc(images.length)) {
-            for (int i = images.length - 1; i >= 0; i--) {
-                final GLFWImage image = images[i];
-                iconSet.put(i, image);
-            }
-
-            glfwSetWindowIcon(window, iconSet);
+        BufferedImage image = (BufferedImage) icons[0];
+        SDL_Surface surface = imageToSdlSurface(image);
+        if (surface != null) {
+            SDL_SetWindowIcon(window, surface);
+            SDL_DestroySurface(surface);
         }
     }
 
-    /**
-     * Convert array of images to array of {@link GLFWImage}.
-     */
-    private GLFWImage[] imagesToGLFWImages(final Object[] images) {
-        final GLFWImage[] out = new GLFWImage[images.length];
-
-        for (int i = 0; i < images.length; i++) {
-            final BufferedImage image = (BufferedImage) images[i];
-            out[i] = imageToGLFWImage(image);
-        }
-
-        return out;
-    }
-
-    /**
-     * Convert the {@link BufferedImage} to the {@link GLFWImage}.
-     */
-    private GLFWImage imageToGLFWImage(BufferedImage image) {
+    private SDL_Surface imageToSdlSurface(BufferedImage image) {
         if (image.getType() != BufferedImage.TYPE_INT_ARGB_PRE) {
-            final BufferedImage convertedImage = new BufferedImage(
-                image.getWidth(),
-                image.getHeight(),
-                BufferedImage.TYPE_INT_ARGB_PRE
+            BufferedImage convertedImage = new BufferedImage(
+                    image.getWidth(),
+                    image.getHeight(),
+                    BufferedImage.TYPE_INT_ARGB_PRE
             );
-            final Graphics2D graphics = convertedImage.createGraphics();
-
-            final int targetWidth = image.getWidth();
-            final int targetHeight = image.getHeight();
-
-            graphics.drawImage(image, 0, 0, targetWidth, targetHeight, null);
+            Graphics2D graphics = convertedImage.createGraphics();
+            graphics.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
             graphics.dispose();
-
             image = convertedImage;
         }
 
-        final ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * 4);
-
-        for (int i = 0; i < image.getHeight(); i++) {
-            for (int j = 0; j < image.getWidth(); j++) {
-                int colorSpace = image.getRGB(j, i);
-                buffer.put((byte) ((colorSpace << 8) >> 24));
-                buffer.put((byte) ((colorSpace << 16) >> 24));
-                buffer.put((byte) ((colorSpace << 24) >> 24));
-                buffer.put((byte) (colorSpace >> 24));
+        ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * 4);
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                int color = image.getRGB(x, y);
+                buffer.put((byte) ((color >> 16) & 0xFF));
+                buffer.put((byte) ((color >> 8) & 0xFF));
+                buffer.put((byte) (color & 0xFF));
+                buffer.put((byte) ((color >> 24) & 0xFF));
             }
         }
-
         buffer.flip();
-
-        final GLFWImage result = GLFWImage.create();
-        result.set(image.getWidth(), image.getHeight(), buffer);
-
-        return result;
+        return SDL_CreateSurfaceFrom(image.getWidth(), image.getHeight(), SDL_PIXELFORMAT_RGBA32, buffer,
+                image.getWidth() * 4);
     }
 
-    /**
-     * Destroy the context.
-     */
     protected void destroyContext() {
         try {
+            destroyAuxFramebufferResources();
             if (renderer != null) {
                 renderer.cleanup();
             }
 
-            if (errorCallback != null) {
-                // We need to specifically set this to null as we might set a new callback before we reinit GLFW
-                glfwSetErrorCallback(null);
-
-                errorCallback.close();
-                errorCallback = null;
-            }
-
-            if (windowSizeCallback != null) {
-                windowSizeCallback.close();
-                windowSizeCallback = null;
-            }
-
-            if (framebufferSizeCallback != null) {
-                framebufferSizeCallback.close();
-                framebufferSizeCallback = null;
-            }
-
-            if (windowFocusCallback != null) {
-                windowFocusCallback.close();
-                windowFocusCallback = null;
+            if (glContext != NULL) {
+                SDL_GL_DestroyContext(glContext);
+                glContext = NULL;
             }
 
             if (window != NULL) {
-                glfwDestroyWindow(window);
+                SDL_DestroyWindow(window);
                 window = NULL;
+                windowId = 0;
             }
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             listener.handleError("Failed to destroy context", ex);
         }
     }
@@ -644,8 +555,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return;
         }
 
-        if (Platform.get() == Platform.MACOSX) {
-            // NOTE: this is required for Mac OS X!
+        if (org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.MACOSX) {
             mainThread = Thread.currentThread();
             mainThread.setName("jME3 Main");
             if (waitFor) {
@@ -661,33 +571,18 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
     }
 
-    /**
-     * Does LWJGL display initialization in the OpenGL thread
-     *
-     * @return returns {@code true} if the context initialization was successful
-     */
     protected boolean initInThread() {
         try {
             if (!JmeSystem.isLowPermissions()) {
-                // Enable uncaught exception handler only for current thread
-                Thread
-                    .currentThread()
-                    .setUncaughtExceptionHandler((thread, thrown) -> {
-                        listener.handleError("Uncaught exception thrown in " + thread.toString(), thrown);
-                        if (needClose.get()) {
-                            // listener.handleError() has requested the
-                            // context to close. Satisfy request.
-                            deinitInThread();
-                        }
-                    });
+                Thread.currentThread().setUncaughtExceptionHandler((thread, thrown) -> {
+                    listener.handleError("Uncaught exception thrown in " + thread, thrown);
+                    if (needClose.get()) {
+                        deinitInThread();
+                    }
+                });
             }
 
             timer = new NanoTimer();
-
-            // For canvas, this will create a PBuffer,
-            // allowing us to query information.
-            // When the canvas context becomes available, it will
-            // be replaced seamlessly.
             createContext(settings);
             printContextInitInfo();
 
@@ -696,28 +591,173 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         } catch (Exception ex) {
             try {
                 if (window != NULL) {
-                    glfwDestroyWindow(window);
+                    SDL_DestroyWindow(window);
                     window = NULL;
                 }
             } catch (Exception ex2) {
                 LOGGER.log(Level.WARNING, null, ex2);
             }
-
             listener.handleError("Failed to create display", ex);
-            return false; // if we failed to create display, do not continue
+            return false;
         }
 
         listener.initialize();
         updateSizes();
+        return true;
+    }
+
+    @Override
+    protected boolean useAuxFramebufferSrgb() {
+        return settings.isGammaCorrection() && (type == Type.Display || type == Type.Canvas)
+                && listener instanceof Application;
+    }
+
+    private Application getApplicationListener() {
+        if (listener instanceof Application) {
+            return (Application) listener;
+        }
+        return null;
+    }
+
+    private int getAuxFramebufferSampleCount() {
+        int samples = Math.max(settings.getSamples(), 1);
+        if (samples > 1 && renderer != null && !renderer.getCaps().contains(Caps.TextureMultisample)) {
+            if (!auxFramebufferTextureMultisampleWarningIssued) {
+                LOGGER.warning(
+                        "AuxFramebuffer sRGB blit requires multisampled textures for MSAA. Falling back to a single-sample auxiliary framebuffer.");
+                auxFramebufferTextureMultisampleWarningIssued = true;
+            }
+            return 1;
+        }
+        return samples;
+    }
+
+    private void rebuildAuxFramebufferIfNeeded() {
+        if (!useAuxFramebufferSrgb()) {
+            destroyAuxFramebufferResources();
+            return;
+        }
+
+        int width = Math.max(settings.getWidth(), 1);
+        int height = Math.max(settings.getHeight(), 1);
+        int samples = getAuxFramebufferSampleCount();
+
+        if (auxFramebuffer != null && auxFramebuffer.getWidth() == width
+                && auxFramebuffer.getHeight() == height && auxFramebuffer.getSamples() == samples) {
+            return;
+        }
+
+        destroyAuxFramebuffer();
+
+        FrameBuffer frameBuffer = new FrameBuffer(width, height, samples);
+        frameBuffer.setName("LWJGL3 AuxFramebuffer");
+        frameBuffer.setSrgb(false);
+
+        Texture2D colorTexture = new Texture2D(
+                new Image(Format.RGBA16F, width, height, null, ColorSpace.Linear));
+        if (samples > 1) {
+            colorTexture.getImage().setMultiSamples(samples);
+        }
+        frameBuffer.addColorTarget(FrameBufferTarget.newTarget(colorTexture));
+
+        if (settings.getDepthBits() > 0 || settings.getStencilBits() > 0) {
+            frameBuffer.setDepthTarget(FrameBufferTarget
+                    .newTarget(settings.getStencilBits() > 0 ? Format.Depth24Stencil8 : Format.Depth));
+        }
+
+        auxFramebufferColorTexture = colorTexture;
+        auxFramebuffer = frameBuffer;
+        auxFramebufferDirty = true;
+    }
+
+    private boolean ensureAuxFramebufferBlitResources() {
+        if (!useAuxFramebufferSrgb()) {
+            return false;
+        }
+
+        Application application = getApplicationListener();
+        if (application == null) {
+            return false;
+        }
+
+        AssetManager assetManager = application.getAssetManager();
+        RenderManager renderManager = application.getRenderManager();
+        if (assetManager == null || renderManager == null) {
+            return false;
+        }
+
+        if (auxFramebufferBlitMaterial == null) {
+            auxFramebufferBlitMaterial = new Material(assetManager, AUX_FRAMEBUFFER_BLIT_MATERIAL);
+            auxFramebufferBlitMaterial.getAdditionalRenderState().setDepthTest(false);
+            auxFramebufferBlitMaterial.getAdditionalRenderState().setDepthWrite(false);
+        }
+
+        if (auxFramebufferBlitGeometry == null) {
+            auxFramebufferBlitGeometry = new Picture("AuxFramebuffer Blit");
+            auxFramebufferBlitGeometry.setWidth(1f);
+            auxFramebufferBlitGeometry.setHeight(1f);
+            auxFramebufferBlitGeometry.setMaterial(auxFramebufferBlitMaterial);
+        }
+
+        if (auxFramebufferDirty && auxFramebufferColorTexture != null) {
+            auxFramebufferBlitMaterial.setTexture("Texture", auxFramebufferColorTexture);
+            if (auxFramebuffer != null && auxFramebuffer.getSamples() > 1) {
+                auxFramebufferBlitMaterial.setInt("NumSamples", auxFramebuffer.getSamples());
+            } else {
+                auxFramebufferBlitMaterial.clearParam("NumSamples");
+            }
+            auxFramebufferDirty = false;
+        }
 
         return true;
     }
 
-    /**
-     * execute one iteration of the render loop in the OpenGL thread
-     */
+    private void destroyAuxFramebuffer() {
+        if (auxFramebuffer != null) {
+            auxFramebuffer.dispose();
+            auxFramebuffer = null;
+        }
+        if (auxFramebufferColorTexture != null && auxFramebufferColorTexture.getImage() != null) {
+            auxFramebufferColorTexture.getImage().dispose();
+        }
+        auxFramebufferColorTexture = null;
+        auxFramebufferDirty = true;
+    }
+
+    private void destroyAuxFramebufferResources() {
+        destroyAuxFramebuffer();
+        auxFramebufferBlitMaterial = null;
+        auxFramebufferBlitGeometry = null;
+        auxFramebufferTextureMultisampleWarningIssued = false;
+    }
+
+    private boolean renderFrameWithAuxFramebuffer() {
+        if (!(renderer instanceof GLRenderer) || !useAuxFramebufferSrgb()) {
+            return false;
+        }
+
+        rebuildAuxFramebufferIfNeeded();
+        if (auxFramebuffer == null || !ensureAuxFramebufferBlitResources()) {
+            return false;
+        }
+
+        GLRenderer glRenderer = (GLRenderer) renderer;
+        RenderManager renderManager = getApplicationListener().getRenderManager();
+
+        glRenderer.setMainFrameBufferOverride(auxFramebuffer);
+        try {
+            listener.update();
+        } finally {
+            glRenderer.setMainFrameBufferOverride(null);
+        }
+
+        glRenderer.setFrameBuffer(null);
+        auxFramebufferBlitGeometry.updateGeometricState();
+        renderManager.renderGeometry(auxFramebufferBlitGeometry);
+        return true;
+    }
+
     protected void runLoop() {
-        // If a restart is required, lets recreate the context.
         if (needRestart.getAndSet(false)) {
             restartContext();
         }
@@ -726,25 +766,20 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             throw new IllegalStateException();
         }
 
-        listener.update();
+        if (!renderFrameWithAuxFramebuffer()) {
+            listener.update();
+        }
 
-        // All this does is call glfwSwapBuffers().
-        // If the canvas is not active, there's no need to waste time
-        // doing that.
         if (renderable.get()) {
             try {
-                // If type is 'Canvas'; lwjgl-awt takes care of swap buffers.
                 if ((type != Type.Canvas) && allowSwapBuffers && autoFlush) {
-                    // calls swap buffers, etc.
-                    glfwSwapBuffers(window);
+                    SDL_GL_SwapWindow(window);
                 }
             } catch (Throwable ex) {
                 listener.handleError("Error while swapping buffers", ex);
             }
         }
 
-        // Subclasses just call GLObjectManager. Clean up objects here.
-        // It is safe ... for now.
         if (renderer != null) {
             renderer.postFrame();
         }
@@ -758,8 +793,74 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         Sync.sync(frameRateLimit);
+        pollEvents(true);
+    }
 
-        glfwPollEvents();
+    private void pollEvents(boolean dispatchToInputs) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            SDL_Event event = SDL_Event.malloc(stack);
+            while (SDL_PollEvent(event)) {
+                handleWindowEvent(event);
+                if (dispatchToInputs) {
+                    dispatchSDLEvent(event);
+                }
+            }
+        }
+    }
+
+    private void handleWindowEvent(SDL_Event event) {
+        int type = event.type();
+        if (type == SDL_EVENT_QUIT) {
+            windowCloseRequested.set(true);
+            return;
+        }
+
+        if (type < SDL_EVENT_WINDOW_FIRST || type > SDL_EVENT_WINDOW_LAST) {
+            return;
+        }
+
+        if (event.window().windowID() != windowId) {
+            return;
+        }
+
+        switch (type) {
+            case SDL_EVENT_WINDOW_FOCUS_GAINED:
+                if (!wasActive) {
+                    listener.gainFocus();
+                    timer.reset();
+                    wasActive = true;
+                }
+                break;
+            case SDL_EVENT_WINDOW_FOCUS_LOST:
+                if (wasActive) {
+                    listener.loseFocus();
+                    wasActive = false;
+                }
+                break;
+            case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+            case SDL_EVENT_WINDOW_DESTROYED:
+                windowCloseRequested.set(true);
+                break;
+            case SDL_EVENT_WINDOW_RESIZED:
+            case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+            case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
+                updateSizes();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void dispatchSDLEvent(SDL_Event event) {
+        if (keyInput instanceof SdlKeyInput) {
+            ((SdlKeyInput) keyInput).onSDLEvent(event);
+        }
+        if (mouseInput instanceof SdlMouseInput) {
+            ((SdlMouseInput) mouseInput).onSDLEvent(event);
+        }
+        if (joyInput instanceof SdlJoystickInput) {
+            ((SdlJoystickInput) joyInput).onSDLEvent(event);
+        }
     }
 
     private void restartContext() {
@@ -769,15 +870,14 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Failed to set display settings!", ex);
         }
-        // Reinitialize context flags and such
+
         reinitContext();
 
-        // We need to reinit the mouse and keyboard input as they are tied to a window handle
-        if (keyInput != null && keyInput.isInitialized()) {
-            keyInput.resetContext();
+        if (keyInput != null && keyInput.isInitialized() && keyInput instanceof SdlKeyInput) {
+            ((SdlKeyInput) keyInput).resetContext();
         }
-        if (mouseInput != null && mouseInput.isInitialized()) {
-            mouseInput.resetContext();
+        if (mouseInput != null && mouseInput.isInitialized() && mouseInput instanceof SdlMouseInput) {
+            ((SdlMouseInput) mouseInput).resetContext();
         }
 
         LOGGER.fine("Display restarted.");
@@ -787,15 +887,14 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         this.frameRateLimit = frameRateLimit;
     }
 
-    /**
-     * De-initialize in the OpenGL thread.
-     */
     protected void deinitInThread() {
         listener.destroy();
-
         destroyContext();
         super.internalDestroy();
-        glfwTerminate();
+
+        if ((SDL_WasInit(SDL_WINDOW_SUBSYSTEM_FLAGS) & SDL_WINDOW_SUBSYSTEM_FLAGS) != 0) {
+            SDL_QuitSubSystem(SDL_WINDOW_SUBSYSTEM_FLAGS);
+        }
 
         LOGGER.fine("Display destroyed.");
     }
@@ -804,8 +903,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     public void run() {
         if (listener == null) {
             throw new IllegalStateException(
-                "SystemListener is not set on context!" + "Must set with JmeContext.setSystemListener()."
-            );
+                    "SystemListener is not set on context!Must set with JmeContext.setSystemListener().");
         }
 
         LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
@@ -822,7 +920,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 break;
             }
 
-            if (glfwWindowShouldClose(window)) {
+            if (windowCloseRequested.get()) {
                 listener.requestClose(false);
             }
         }
@@ -833,19 +931,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     @Override
     public JoyInput getJoyInput() {
         if (joyInput == null) {
-            boolean useSdl = true;
-
-            String mapper = settings.getJoysticksMapper();
-            if (AppSettings.JOYSTICKS_LEGACY_MAPPER.equals(mapper)
-                    || AppSettings.JOYSTICKS_XBOX_LEGACY_MAPPER.equals(mapper)) {
-                useSdl = false;
-            }
-
-            if (useSdl) {
-                joyInput = new SdlJoystickInput(settings);
-            } else {
-                joyInput = new GlfwJoystickInput(settings);
-            }
+            joyInput = new SdlJoystickInput(settings);
         }
         return joyInput;
     }
@@ -853,7 +939,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     @Override
     public MouseInput getMouseInput() {
         if (mouseInput == null) {
-            mouseInput = new GlfwMouseInput(this);
+            mouseInput = new SdlMouseInput(this);
         }
         return mouseInput;
     }
@@ -861,7 +947,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     @Override
     public KeyInput getKeyInput() {
         if (keyInput == null) {
-            keyInput = new GlfwKeyInput(this);
+            keyInput = new SdlKeyInput(this);
         }
         return keyInput;
     }
@@ -881,7 +967,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         needClose.set(true);
 
         if (mainThread == Thread.currentThread()) {
-            // Ignore waitFor.
             return;
         }
 
@@ -894,153 +979,140 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         return window;
     }
 
-    /**
-     * Get the window content scale, for HiDPI support.
-     *
-     * The content scale is the ratio between the current DPI and the platform's default DPI.
-     * This is especially important for text and any UI elements. If the pixel dimensions of
-     * your UI scaled by this look appropriate on your machine then it should appear at a
-     * reasonable size on other machines regardless of their DPI and scaling settings. This
-     * relies on the system DPI and scaling settings being somewhat correct.
-     *
-     * @param store A vector2f to store the result
-     * @return The window content scale
-     * @see <a href="https://www.glfw.org/docs/latest/window_guide.html#window_scale">Window content scale</a>
-     */
+    public int getWindowId() {
+        return windowId;
+    }
+
     public Vector2f getWindowContentScale(Vector2f store) {
-        if (store == null) store = new Vector2f();
+        if (store == null) {
+            store = new Vector2f();
+        }
 
-        glfwGetFramebufferSize(window, width, height);
-        store.set(width[0], height[0]);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer fbW = stack.mallocInt(1);
+            IntBuffer fbH = stack.mallocInt(1);
+            IntBuffer winW = stack.mallocInt(1);
+            IntBuffer winH = stack.mallocInt(1);
 
-        glfwGetWindowSize(window, width, height);
-        store.x /= width[0];
-        store.y /= height[0];
+            SDL_GetWindowSizeInPixels(window, fbW, fbH);
+            SDL_GetWindowSize(window, winW, winH);
+
+            float wx = Math.max(winW.get(0), 1);
+            float wy = Math.max(winH.get(0), 1);
+            store.set(fbW.get(0) / wx, fbH.get(0) / wy);
+        }
 
         return store;
     }
 
-    /**
-     * Returns the height of the framebuffer.
-     *
-     * @return the height (in pixels)
-     */
     @Override
     public int getFramebufferHeight() {
-        glfwGetFramebufferSize(window, width, height);
-        int result = height[0];
-        return result;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            if (!SDL_GetWindowSizeInPixels(window, w, h)) {
+                return 0;
+            }
+            return h.get(0);
+        }
     }
 
-    /**
-     * Returns the width of the framebuffer.
-     *
-     * @return the width (in pixels)
-     */
     @Override
     public int getFramebufferWidth() {
-        glfwGetFramebufferSize(window, width, height);
-        int result = width[0];
-        return result;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer w = stack.mallocInt(1);
+            IntBuffer h = stack.mallocInt(1);
+            if (!SDL_GetWindowSizeInPixels(window, w, h)) {
+                return 0;
+            }
+            return w.get(0);
+        }
     }
 
-    /**
-     * Returns the screen X coordinate of the left edge of the content area.
-     *
-     * @return the screen X coordinate
-     */
     @Override
     public int getWindowXPosition() {
-        glfwGetWindowPos(window, width, height);
-        int result = width[0];
-        return result;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer x = stack.mallocInt(1);
+            IntBuffer y = stack.mallocInt(1);
+            if (!SDL_GetWindowPosition(window, x, y)) {
+                return 0;
+            }
+            return x.get(0);
+        }
     }
 
-    /**
-     * Returns the screen Y coordinate of the top edge of the content area.
-     *
-     * @return the screen Y coordinate
-     */
     @Override
     public int getWindowYPosition() {
-        glfwGetWindowPos(window, width, height);
-        int result = height[0];
-        return result;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer x = stack.mallocInt(1);
+            IntBuffer y = stack.mallocInt(1);
+            if (!SDL_GetWindowPosition(window, x, y)) {
+                return 0;
+            }
+            return y.get(0);
+        }
     }
 
-    /**
-     * Returns the Primary Monitor position number from the list of monitors
-     * returned by glfwGetPrimaryMonitor().  If primary monitor not found
-     * it will return -1 and report the error.
-     *
-     * @return returns the Primary Monitor Position.
-     */
     @Override
     public int getPrimaryDisplay() {
-        long prim = glfwGetPrimaryMonitor();
+        int primary = SDL_GetPrimaryDisplay();
         Displays monitors = getDisplays();
         for (int i = 0; i < monitors.size(); i++) {
-            long monitorI = monitors.get(i).getDisplay();
-            if (monitorI == prim) return i;
+            if ((int) monitors.get(i).getDisplay() == primary) {
+                return i;
+            }
         }
 
-        LOGGER.log(Level.SEVERE, "Couldn't locate Primary Monitor in the list of Monitors.");
+        LOGGER.log(Level.SEVERE, "Couldn't locate Primary Display in the list of displays.");
         return -1;
     }
 
-    /**
-     * This routines return the display ID by position in an array of display returned
-     * by glfwGetMonitors().
-     *
-     * @param pos  the position of the display in the list of displays returned.
-     * @return return the displayID if found otherwise return Primary display
-     */
     private long getDisplay(int pos) {
         Displays displays = getDisplays();
-        if (pos < displays.size()) return displays.get(pos).getDisplay();
+        if (pos < displays.size()) {
+            return displays.get(pos).getDisplay();
+        }
 
-        LOGGER.log(
-            Level.SEVERE,
-            "Couldn't locate Display requested in the list of Displays. pos:" +
-            pos +
-            " size: " +
-            displays.size()
-        );
-        return glfwGetPrimaryMonitor();
+        LOGGER.log(Level.SEVERE, "Couldn't locate Display requested in the list of Displays. pos: {0} size: {1}",
+                new Object[]{pos, displays.size()});
+        return SDL_GetPrimaryDisplay();
     }
-
-    /**
-     * This returns an arraylist of all the Display returned by OpenGL get Monitor
-     * call.  It will also has some limited information about each display, like:
-     * width, height and refresh rate.
-     *
-     * @return returns an ArrayList of all Display returned by glfwGetMonitors()
-     */
 
     @Override
     public Displays getDisplays() {
-        PointerBuffer displays = glfwGetMonitors();
-        long primary = glfwGetPrimaryMonitor();
         Displays displayList = new Displays();
-
-        for (int i = 0; i < displays.limit(); i++) {
-            long monitorI = displays.get(i);
-            int monPos = displayList.addNewMonitor(monitorI);
-            //lets check if this display is the primary display. If use mark it as such.
-            if (primary == monitorI) displayList.setPrimaryDisplay(monPos);
-
-            final GLFWVidMode modes = glfwGetVideoMode(monitorI);
-            String name = glfwGetMonitorName(monitorI);
-
-            int width = modes.width();
-            int height = modes.height();
-            int rate = modes.refreshRate();
-            displayList.setInfo(monPos, name, width, height, rate);
-            LOGGER.log(
-                Level.INFO,
-                "Display id: " + monitorI + " Resolution: " + width + " x " + height + " @ " + rate
-            );
+        IntBuffer displays = SDL_GetDisplays();
+        if (displays == null) {
+            return displayList;
         }
+
+        int primary = SDL_GetPrimaryDisplay();
+        try {
+            for (int i = 0; i < displays.limit(); i++) {
+                int displayId = displays.get(i);
+                int monPos = displayList.addNewMonitor(displayId);
+                if (primary == displayId) {
+                    displayList.setPrimaryDisplay(monPos);
+                }
+
+                SDL_DisplayMode mode = SDL_GetCurrentDisplayMode(displayId);
+                String name = SDL_GetDisplayName(displayId);
+                if (name == null || name.trim().isEmpty()) {
+                    name = "Display " + i;
+                }
+
+                int width = mode != null ? mode.w() : 0;
+                int height = mode != null ? mode.h() : 0;
+                int rate = mode != null ? Math.round(mode.refresh_rate()) : 0;
+                displayList.setInfo(monPos, name, width, height, rate);
+
+                LOGGER.log(Level.INFO, "Display id: {0} Resolution: {1} x {2} @ {3}",
+                        new Object[]{displayId, width, height, rate});
+            }
+        } finally {
+            SDLStdinc.SDL_free(displays);
+        }
+
         return displayList;
     }
 }

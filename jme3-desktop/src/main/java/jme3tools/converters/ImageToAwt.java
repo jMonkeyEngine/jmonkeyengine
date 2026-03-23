@@ -183,6 +183,16 @@ public class ImageToAwt {
     private ImageToAwt() {
     }
 
+    private static Format toGLESFormat(Format format){
+        if (format == Format.BGR8) {
+            return Format.RGB8;
+        }
+        if (format == Format.BGRA8 || format == Format.ABGR8 || format == Format.ARGB8) {
+            return Format.RGBA8;
+        }
+        return format;
+    }
+
     private static int Ix(int x, int y, int w){
         return y * w + x;
     }
@@ -214,6 +224,8 @@ public class ImageToAwt {
      * @param buf the output buffer (not null, modified)
      */
     public static void convert(BufferedImage image, Format format, ByteBuffer buf) {
+        format = toGLESFormat(format);
+
         DecodeParams p = params.get(format);
         if (p == null)
             throw new UnsupportedOperationException("Image format " + format + " is not supported");

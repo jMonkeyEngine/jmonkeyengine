@@ -72,6 +72,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL2 = "LWJGL-OpenGL2";
 
     /**
@@ -101,6 +102,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL30 = "LWJGL-OpenGL30";
 
     /**
@@ -114,6 +116,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL31 = "LWJGL-OpenGL31";
 
     /**
@@ -219,6 +222,8 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public static final String LWJGL_OPENAL = "LWJGL";
 
+    public static final String ANGLE_GLES3 = "ANGLE_GLES3";
+
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
      * <p>
@@ -296,18 +301,18 @@ public final class AppSettings extends HashMap<String, Object> {
     static {
         defaults.put("Display", 0);
         defaults.put("CenterWindow", true);
-        defaults.put("Width", 640);
-        defaults.put("Height", 480);
+        defaults.put("Width", 1440);
+        defaults.put("Height", 900);
         defaults.put("WindowWidth", Integer.MIN_VALUE);
         defaults.put("WindowHeight", Integer.MIN_VALUE);
         defaults.put("BitsPerPixel", 24);
-        defaults.put("Frequency", 60);
+        defaults.put("Frequency", 0);
         defaults.put("DepthBits", 24);
         defaults.put("StencilBits", 0);
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
         defaults.put("Title", JmeVersion.FULL_NAME);
-        defaults.put("Renderer", LWJGL_OPENGL32);
+        defaults.put("Renderer", ANGLE_GLES3);
         defaults.put("AudioRenderer", LWJGL_OPENAL);
         defaults.put("DisableJoysticks", true);
         defaults.put("UseInput", true);
@@ -317,7 +322,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("MinHeight", 0);
         defaults.put("MinWidth", 0);
         defaults.put("GammaCorrection", true);
-        defaults.put("Resizable", false);
+        defaults.put("Resizable", true);
         defaults.put("SwapBuffers", true);
         defaults.put("OpenCL", false);
         defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());

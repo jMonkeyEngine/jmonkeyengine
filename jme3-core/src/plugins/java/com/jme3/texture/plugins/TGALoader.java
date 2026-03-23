@@ -72,6 +72,14 @@ public final class TGALoader implements AssetLoader {
     // 11 - run-length encoded, black and white image
     public static final int TYPE_BLACKANDWHITE_RLE = 11;
 
+    private static void convertBGRtoRGB(byte[] data, int dl){
+        for (int i = 0; i < data.length; i += dl) {
+            byte tmp = data[i];
+            data[i] = data[i + 2];
+            data[i + 2] = tmp;
+        }
+    }
+
     @Override
     public Object load(AssetInfo info) throws IOException {
         if (!(info.getKey() instanceof TextureKey)) {
@@ -261,7 +269,8 @@ public final class TGALoader implements AssetLoader {
 //                        rawData[rawDataIndex++] = blue;
 //                    }
                 }
-                format = Format.BGR8;
+                convertBGRtoRGB(rawData, dl);
+                format = Format.RGB8;
             } else if (pixelDepth == 32) {
                 for (int i = 0; i <= (height - 1); i++) {
                     if (!flip) {

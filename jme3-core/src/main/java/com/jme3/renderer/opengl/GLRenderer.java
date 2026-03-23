@@ -186,7 +186,15 @@ public final class GLRenderer implements Renderer {
             gl3.glGetInteger(GL3.GL_NUM_EXTENSIONS, intBuf16);
             int extensionCount = intBuf16.get(0);
             for (int i = 0; i < extensionCount; i++) {
-                String extension = gl3.glGetString(GL.GL_EXTENSIONS, i);
+                String extension = gl3.glGetString(GL3.GL_EXTENSIONS, i);
+                extensionSet.add(extension);
+            }
+        } else if (caps.contains(Caps.OpenGLES30)) {
+            GLES_30 gles = (GLES_30) gl;
+            gles.glGetInteger(GLES_30.GL_NUM_EXTENSIONS, intBuf16);
+            int extensionCount = intBuf16.get(0);
+            for (int i = 0; i < extensionCount; i++) {
+                String extension = gles.glGetString(GLES_30.GL_EXTENSIONS, i);
                 extensionSet.add(extension);
             }
         } else {
@@ -517,7 +525,8 @@ public final class GLRenderer implements Renderer {
                 limits.put(Limits.FrameBufferSamples, getInteger(GLExt.GL_MAX_SAMPLES_EXT));
             }
 
-            if (hasExtension("GL_ARB_texture_multisample") || caps.contains(Caps.OpenGLES31)
+            if (hasExtension("GL_ARB_texture_multisample")
+                    || hasExtension("GL_EXT_multisampled_render_to_texture") || caps.contains(Caps.OpenGLES31)
                     || (JmeSystem.getPlatform().getOs() == Platform.Os.MacOS
                             && caps.contains(Caps.OpenGL32))) { // GLES31 does not fully support it
                 caps.add(Caps.TextureMultisample);

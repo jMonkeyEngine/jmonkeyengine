@@ -13,8 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.lwjgl.sdl.*;
-import org.lwjgl.system.MemoryStack;
-
 import static org.lwjgl.sdl.SDLInit.*;
 import static org.lwjgl.sdl.SDLEvents.*;
 import static org.lwjgl.sdl.SDLGamepad.*;
@@ -245,8 +243,28 @@ public class SdlJoystickInput implements JoyInput {
 
     @Override
     public void update() {
-        handleConnectionEvents();
         handleInputEvents();
+    }
+
+    public void onSDLEvent(SDL_Event evt) {
+        int type = evt.type();
+        if (type == SDL_EVENT_GAMEPAD_ADDED) {
+            if (loadGamepads) {
+                int which = evt.gdevice().which();
+                onDeviceConnected(which, true);
+            }
+        } else if (type == SDL_EVENT_GAMEPAD_REMOVED) {
+            int which = evt.gdevice().which();
+            onDeviceDisconnected(which);
+        } else if (type == SDL_EVENT_JOYSTICK_ADDED) {
+            if (loadRaw) {
+                int which = evt.jdevice().which();
+                onDeviceConnected(which, false);
+            }
+        } else if (type == SDL_EVENT_JOYSTICK_REMOVED) {
+            int which = evt.jdevice().which();
+            onDeviceDisconnected(which);
+        }
     }
 
     private void handleInputEvents() {
@@ -266,7 +284,7 @@ public class SdlJoystickInput implements JoyInput {
                     value = rawValue; // SDL handles scaling
                     updateAxis(axis, value, rawValue);
 
-                    // Virtual trigger buttons (same idea as your GLFW code)
+                    // Virtual trigger buttons.
                     if (virtualTriggerThreshold > 0f) {
                         if (jmeAxisId == JoystickAxis.AXIS_XBOX_LEFT_TRIGGER) {
                             updateButton(js.getButton(JoystickButton.BUTTON_XBOX_LT),
@@ -325,32 +343,6 @@ public class SdlJoystickInput implements JoyInput {
                 for (JoystickButton button : js.getButtons()) {
                     boolean pressed = SDL_GetJoystickButton(joy, button.getButtonId());
                     updateButton(button, pressed);
-                }
-            }
-        }
-    }
-
-    private void handleConnectionEvents() {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            SDL_Event evt = SDL_Event.malloc(stack);
-            while (SDL_PollEvent(evt)) {
-                int type = evt.type();
-                if (type == SDL_EVENT_GAMEPAD_ADDED) {
-                    if (loadGamepads) {
-                        int which = evt.gdevice().which();
-                        onDeviceConnected(which, true);
-                    }
-                } else if (type == SDL_EVENT_GAMEPAD_REMOVED) {
-                    int which = evt.gdevice().which();
-                    onDeviceDisconnected(which);
-                } else if (type == SDL_EVENT_JOYSTICK_ADDED) {
-                    if (loadRaw) {
-                        int which = evt.jdevice().which();
-                        onDeviceConnected(which, false);
-                    }
-                } else if (type == SDL_EVENT_JOYSTICK_REMOVED) {
-                    int which = evt.jdevice().which();
-                    onDeviceDisconnected(which);
                 }
             }
         }

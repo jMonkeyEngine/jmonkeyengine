@@ -110,53 +110,45 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         Register the different versions.
     */
     static {
-        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL30, (data) -> {
-            data.majorVersion = 3;
-            data.minorVersion = 0;
-        });
-        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL31, (data) -> {
-            data.majorVersion = 3;
-            data.minorVersion = 1;
-        });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL32, (data) -> {
             data.majorVersion = 3;
             data.minorVersion = 2;
-            data.profile = GLData.Profile.COMPATIBILITY;
+            data.profile = GLData.Profile.CORE;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL33, (data) -> {
             data.majorVersion = 3;
             data.minorVersion = 3;
-            data.profile = GLData.Profile.COMPATIBILITY;
+            data.profile = GLData.Profile.CORE;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL40, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 0;
-            data.profile = GLData.Profile.COMPATIBILITY;
+            data.profile = GLData.Profile.CORE;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL41, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 1;
-            data.profile = GLData.Profile.COMPATIBILITY;
+            data.profile = GLData.Profile.CORE;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL42, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 2;
-            data.profile = GLData.Profile.COMPATIBILITY;
+            data.profile = GLData.Profile.CORE;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL43, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 3;
-            data.profile = GLData.Profile.COMPATIBILITY;
+            data.profile = GLData.Profile.CORE;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL44, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 4;
-            data.profile = GLData.Profile.COMPATIBILITY;
+            data.profile = GLData.Profile.CORE;
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL45, (data) -> {
             data.majorVersion = 4;
             data.minorVersion = 5;
-            data.profile = GLData.Profile.COMPATIBILITY;
+            data.profile = GLData.Profile.CORE;
         });
     }
     
@@ -470,12 +462,8 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         }
         
         super.createContext(settings);
-        RENDER_CONFIGS.computeIfAbsent(settings.getRenderer(), (t) -> {
-            return (data) -> {
-                data.majorVersion = 2;
-                data.minorVersion = 0;
-            };
-        }).accept(glData);
+        RENDER_CONFIGS.getOrDefault(settings.getRenderer(), RENDER_CONFIGS.get(AppSettings.LWJGL_OPENGL32))
+                .accept(glData);
         
         if (settings.getBitsPerPixel() == 24) {
             glData.redSize = 8;
@@ -498,7 +486,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         showGLDataEffective.set(settings.getBoolean("GLDataEffectiveDebug"));
         
         glData.alphaSize = settings.getAlphaBits();
-        glData.sRGB = settings.isGammaCorrection(); // Not compatible with very old devices
+        glData.sRGB = settings.isGammaCorrection() && !useAuxFramebufferSrgb();
         
         glData.depthSize = settings.getDepthBits();
         glData.stencilSize = settings.getStencilBits();
@@ -507,6 +495,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
        
         glData.debug = settings.isGraphicsDebug();
         glData.api = GLData.API.GL;
+        glData.forwardCompatible = true;
     }
     
     /**
