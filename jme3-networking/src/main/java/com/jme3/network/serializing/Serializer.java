@@ -347,7 +347,7 @@ public abstract class Serializer {
         if (reg != null) return reg;
 
         for (Map.Entry<Class, SerializerRegistration> entry : classRegistrations.entrySet()) {
-            if (entry.getKey().isAssignableFrom(java.io.Serializable.class)) continue;
+            if (entry.getKey().equals(java.io.Serializable.class)) continue;
             if (entry.getKey().isAssignableFrom(cls)) return entry.getValue();
         }
 
