@@ -3,6 +3,9 @@
 #import "Common/ShaderLib/Lighting.glsllib"
 
 uniform float m_Shininess;
+#ifdef SPECULARMAP
+  uniform sampler2D m_SpecularMap;
+#endif
 
 varying vec4 AmbientSum;
 varying vec4 DiffuseSum;
@@ -620,6 +623,20 @@ void main(){
 
 
     //-----------------------
+    // read shininess or specularColor from specularMap
+    //-----------------------
+    vec4 specularColor = vec4(1.0);
+    float finalShininessValue = m_Shininess;
+    #ifdef SPECULARMAP
+      vec4 specularMapColor = texture2D(m_SpecularMap, texCoord);
+      #ifdef USE_SPECULARMAP_AS_SHININESS
+        finalShininessValue = specularMapColor.r; //assumes that specularMap is a gray-scale reflectivity/shininess map
+      #else
+        specularColor = specularMapColor;
+      #endif
+    #endif
+
+    //-----------------------
     // lighting calculations
     //-----------------------
     gl_FragColor = AmbientSum * diffuseColor;
@@ -655,9 +672,9 @@ void main(){
             vec3 viewDir = normalize(-vPos.xyz);
         #endif
 
-        vec2 light = computeLighting(normal, viewDir, lightDir.xyz, lightDir.w  * spotFallOff, m_Shininess);       
+        vec2 light = computeLighting(normal, viewDir, lightDir.xyz, lightDir.w  * spotFallOff, finalShininessValue);       
         gl_FragColor.rgb += DiffuseSum.rgb * lightColor.rgb * diffuseColor.rgb  * vec3(light.x) +
-                            SpecularSum.rgb * vec3(light.y);
+                            SpecularSum.rgb * specularColor.rgb * vec3(light.y);
     }
 
 }
