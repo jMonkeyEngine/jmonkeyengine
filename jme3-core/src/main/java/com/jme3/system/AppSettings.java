@@ -296,12 +296,12 @@ public final class AppSettings extends HashMap<String, Object> {
     static {
         defaults.put("Display", 0);
         defaults.put("CenterWindow", true);
-        defaults.put("Width", 640);
-        defaults.put("Height", 480);
+        defaults.put("Width", 1440);
+        defaults.put("Height", 900);
         defaults.put("WindowWidth", Integer.MIN_VALUE);
         defaults.put("WindowHeight", Integer.MIN_VALUE);
         defaults.put("BitsPerPixel", 24);
-        defaults.put("Frequency", 60);
+        defaults.put("Frequency", 0);
         defaults.put("DepthBits", 24);
         defaults.put("StencilBits", 0);
         defaults.put("Samples", 0);
@@ -317,7 +317,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("MinHeight", 0);
         defaults.put("MinWidth", 0);
         defaults.put("GammaCorrection", true);
-        defaults.put("Resizable", false);
+        defaults.put("Resizable", true);
         defaults.put("SwapBuffers", true);
         defaults.put("OpenCL", false);
         defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());

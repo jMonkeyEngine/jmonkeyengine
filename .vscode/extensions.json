@@ -1,6 +1,13 @@
 {
-	"recommendations": [
-                "vscjava.vscode-java-pack",
-                "slevesque.shader"
-	]
+    "recommendations": [
+        "vscjava.vscode-java-pack",
+        "slevesque.shader",
+        // "github.vscode-github-actions",
+        "Anthropic.claude-code",
+        "ms-vscode-remote.remote-containers",
+        // "GitHub.codespaces",
+        "GitHub.copilot-chat",
+        "ms-vscode.remote-server",
+        // "HarryHopkinson.vim-theme"
+    ]
 }
