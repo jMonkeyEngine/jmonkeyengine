@@ -33,8 +33,7 @@ package com.jme3.cinematic.events;
 
 import com.jme3.animation.AnimationUtils;
 import com.jme3.animation.LoopMode;
-import com.jme3.app.Application;
-import com.jme3.cinematic.Cinematic;
+import com.jme3.cinematic.CinematicHandler;
 import com.jme3.cinematic.PlayState;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -60,6 +59,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     protected float speed = 1;
     protected float time = 0;
     protected boolean resuming = false;
+    protected CinematicHandler cinematic;
 
     /**
      * The list of listeners.
@@ -294,6 +294,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
         oc.write(speed, "speed", 1);
         oc.write(initialDuration, "initalDuration", 10);
         oc.write(loopMode, "loopMode", LoopMode.DontLoop);
+        oc.write(cinematic, "cinematic", null);
     }
 
     /**
@@ -308,6 +309,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
         speed = ic.readFloat("speed", 1);
         initialDuration = ic.readFloat("initalDuration", 10);
         loopMode = ic.readEnum("loopMode", LoopMode.class, LoopMode.DontLoop);
+        cinematic = (CinematicHandler) ic.readSavable("cinematic", null);
     }
 
     /**
@@ -317,7 +319,8 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
      * @param cinematic ignored
      */
     @Override
-    public void initEvent(Application app, Cinematic cinematic) {
+    public void initEvent(CinematicHandler cinematic) {
+        this.cinematic = cinematic;
     }
 
     /**
@@ -370,4 +373,13 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     @Override
     public void dispose() {
     }
+
+    public CinematicHandler getCinematic() {
+        return cinematic;
+    }
+
+    public void setCinematic(CinematicHandler cinematic) {
+        this.cinematic = cinematic;
+    }
+
 }
