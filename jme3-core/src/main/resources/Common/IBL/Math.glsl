@@ -51,32 +51,54 @@ vec4 Hammersley(uint i, uint N){
 // }
 
 
-vec3 ImportanceSampleGGX(vec4 Xi, float a2, vec3 N){
-	
-    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a2 - 1.0) * Xi.y));
+// Shared roughness convention for the IBL bake path:
+// roughness = perceptual roughness in [0, 1]
+// alpha = roughness * roughness
+// alpha2 = alpha * alpha
+//
+// ImportanceSampleGGX() and GeometrySmith() both expect alpha.
+const float MIN_GGX_ALPHA = 0.0064;
+
+float SafeGGXAlpha(float alpha) {
+    return max(alpha, MIN_GGX_ALPHA);
+}
+
+vec3 ImportanceSampleGGX(vec4 Xi, float alpha, vec3 N){
+    alpha = SafeGGXAlpha(alpha);
+    float alpha2 = alpha * alpha;
+    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (alpha2 - 1.0) * Xi.y));
     float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
-	
+
     // from spherical coordinates to cartesian coordinates
     vec3 H;
     H.x = Xi.z * sinTheta;
     H.y = Xi.w * sinTheta;
     H.z = cosTheta;
-	
+
     // from tangent-space vector to world-space sample vector
     vec3 up        = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
     vec3 tangent   = normalize(cross(up, N));
     vec3 bitangent = cross(N, tangent);
-	
+
     vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
     return normalize(sampleVec);
-}  
+}
 
+float DistributionGGX(float NdotH, float alpha) {
+    alpha = SafeGGXAlpha(alpha);
+    float alpha2 = alpha * alpha;
+    float denom = (NdotH * NdotH) * (alpha2 - 1.0) + 1.0;
+    return alpha2 / (PI * denom * denom);
+}
 
+float ImportanceSampleGGXPdf(float NdotH, float VdotH, float alpha) {
+    float D = DistributionGGX(NdotH, alpha);
+    return max((D * NdotH) / max(4.0 * VdotH, 1e-4), 0.0);
+}
 
-
-float GeometrySchlickGGX(float NdotV, float roughness){
-    float a = roughness;
-    float k = (a * a) / 2.0;
+float GeometrySchlickGGX(float NdotV, float alpha){
+    alpha = SafeGGXAlpha(alpha);
+    float k = alpha / 2.0;
 
     float nom   = NdotV;
     float denom = NdotV * (1.0 - k) + k;
@@ -84,12 +106,12 @@ float GeometrySchlickGGX(float NdotV, float roughness){
     return nom / denom;
 }
 // ----------------------------------------------------------------------------
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness){
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float alpha){
     float NdotV = max(dot(N, V), 0.0);
     float NdotL = max(dot(N, L), 0.0);
-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+    float ggx2 = GeometrySchlickGGX(NdotV, alpha);
+    float ggx1 = GeometrySchlickGGX(NdotL, alpha);
 
     return ggx1 * ggx2;
-}  
+}
     
