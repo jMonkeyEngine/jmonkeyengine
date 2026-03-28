@@ -133,6 +133,13 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
      */
     private transient Matrix4f[] boneOffsetMatrices;
 
+    /**
+     * When true, the bounding volumes of animated geometries are updated each
+     * frame to match the current pose, ensuring correct frustum culling.
+     * Disabled by default because it adds CPU cost every frame.
+     */
+    private boolean updateBounds = false;
+
     private MatParamOverride numberOfJointsParam = new MatParamOverride(VarType.Int, "NumberOfBones", null);
     private MatParamOverride jointMatricesParam = new MatParamOverride(VarType.Matrix4Array, "BoneMatrices", null);
 
@@ -249,6 +256,32 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     }
 
     /**
+     * Enables or disables per-frame bounding-volume updates for animated
+     * geometries. When enabled, the bounding volume of each deformed geometry
+     * is recomputed every render frame to match the current animation pose,
+     * ensuring correct frustum culling at the cost of additional CPU work.
+     * Disabled by default.
+     *
+     * @param updateBounds true to update bounds each frame, false to keep
+     *                     static bind-pose bounds (default=false)
+     * @see #isUpdateBounds()
+     */
+    public void setUpdateBounds(boolean updateBounds) {
+        this.updateBounds = updateBounds;
+    }
+
+    /**
+     * Returns whether per-frame bounding-volume updates are enabled for
+     * animated geometries.
+     *
+     * @return true if bounds are updated each frame, false otherwise
+     * @see #setUpdateBounds(boolean)
+     */
+    public boolean isUpdateBounds() {
+        return updateBounds;
+    }
+
+    /**
      * Recursively finds and adds animated geometries to the targets list.
      *
      * @param sp The spatial to search within.
@@ -299,8 +332,10 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
             // NOTE: This assumes code higher up has already ensured this mesh is animated.
             // Otherwise, a crash will happen in skin update.
             applySoftwareSkinning(mesh, boneOffsetMatrices);
-            // Update the mesh bounding volume to reflect the animated vertex positions.
-            geometry.updateModelBound();
+            if (updateBounds) {
+                // Update the mesh bounding volume to reflect the animated vertex positions.
+                geometry.updateModelBound();
+            }
         }
     }
 
@@ -311,13 +346,15 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         boneOffsetMatrices = armature.computeSkinningMatrices();
         jointMatricesParam.setValue(boneOffsetMatrices);
 
-        // Hardware skinning transforms vertices on the GPU, so the CPU-side vertex
-        // buffer is not updated. Compute the animated bounding volume from the bind
-        // pose positions and the current skinning matrices so culling is correct.
-        for (Geometry geometry : targets) {
-            Mesh mesh = geometry.getMesh();
-            if (mesh != null && mesh.isAnimated()) {
-                updateSkinnedMeshBound(geometry, mesh, boneOffsetMatrices);
+        if (updateBounds) {
+            // Hardware skinning transforms vertices on the GPU, so the CPU-side vertex
+            // buffer is not updated. Compute the animated bounding volume from the bind
+            // pose positions and the current skinning matrices so culling is correct.
+            for (Geometry geometry : targets) {
+                Mesh mesh = geometry.getMesh();
+                if (mesh != null && mesh.isAnimated()) {
+                    updateSkinnedMeshBound(geometry, mesh, boneOffsetMatrices);
+                }
             }
         }
     }
@@ -879,6 +916,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(armature, "armature", null);
+        oc.write(updateBounds, "updateBounds", false);
     }
 
     /**
@@ -893,6 +931,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
         armature = (Armature) in.readSavable("armature", null);
+        updateBounds = in.readBoolean("updateBounds", false);
 
         for (MatParamOverride mpo : spatial.getLocalMatParamOverrides().getArray()) {
             if (mpo.getName().equals("NumberOfBones") || mpo.getName().equals("BoneMatrices")) {

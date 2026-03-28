@@ -150,6 +150,8 @@ public class PreventCoreIssueRegressions {
 
         // Force software skinning so bounds are computed from CPU vertex positions.
         sControl.setHardwareSkinningPreferred(false);
+        // Enable per-frame bounds update (off by default).
+        sControl.setUpdateBounds(true);
 
         // Record the world bound in the bind pose.
         cgModel.updateGeometricState();

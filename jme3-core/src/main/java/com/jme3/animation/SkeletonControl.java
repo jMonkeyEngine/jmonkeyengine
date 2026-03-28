@@ -108,6 +108,13 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      */
     private transient Matrix4f[] offsetMatrices;
 
+    /**
+     * When true, the bounding volumes of animated geometries are updated each
+     * frame to match the current pose, ensuring correct frustum culling.
+     * Disabled by default because it adds CPU cost every frame.
+     */
+    private boolean updateBounds = false;
+
     private MatParamOverride numberOfBonesParam;
     private MatParamOverride boneMatricesParam;
 
@@ -194,6 +201,32 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     /**
+     * Enables or disables per-frame bounding-volume updates for animated
+     * geometries. When enabled, the bounding volume of each deformed geometry
+     * is recomputed every render frame to match the current animation pose,
+     * ensuring correct frustum culling at the cost of additional CPU work.
+     * Disabled by default.
+     *
+     * @param updateBounds true to update bounds each frame, false to keep
+     *                     static bind-pose bounds (default=false)
+     * @see #isUpdateBounds()
+     */
+    public void setUpdateBounds(boolean updateBounds) {
+        this.updateBounds = updateBounds;
+    }
+
+    /**
+     * Returns whether per-frame bounding-volume updates are enabled for
+     * animated geometries.
+     *
+     * @return true if bounds are updated each frame, false otherwise
+     * @see #setUpdateBounds(boolean)
+     */
+    public boolean isUpdateBounds() {
+        return updateBounds;
+    }
+
+    /**
      * Creates a skeleton control. The list of targets will be acquired
      * automatically when the control is attached to a node.
      *
@@ -261,8 +294,10 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
             // already ensured this mesh is animated.
             // Otherwise a crash will happen in skin update.
             softwareSkinUpdate(mesh, offsetMatrices);
-            // Update the mesh bounding volume to reflect the animated vertex positions.
-            geometry.updateModelBound();
+            if (updateBounds) {
+                // Update the mesh bounding volume to reflect the animated vertex positions.
+                geometry.updateModelBound();
+            }
         }
     }
 
@@ -270,13 +305,15 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         offsetMatrices = skeleton.computeSkinningMatrices();
         boneMatricesParam.setValue(offsetMatrices);
 
-        // Hardware skinning transforms vertices on the GPU, so the CPU-side vertex
-        // buffer is not updated. Compute the animated bounding volume from the bind
-        // pose positions and the current skinning matrices so culling is correct.
-        for (Geometry geometry : targets) {
-            Mesh mesh = geometry.getMesh();
-            if (mesh != null && mesh.isAnimated()) {
-                updateSkinnedMeshBound(geometry, mesh, offsetMatrices);
+        if (updateBounds) {
+            // Hardware skinning transforms vertices on the GPU, so the CPU-side vertex
+            // buffer is not updated. Compute the animated bounding volume from the bind
+            // pose positions and the current skinning matrices so culling is correct.
+            for (Geometry geometry : targets) {
+                Mesh mesh = geometry.getMesh();
+                if (mesh != null && mesh.isAnimated()) {
+                    updateSkinnedMeshBound(geometry, mesh, offsetMatrices);
+                }
             }
         }
     }
@@ -827,6 +864,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
         oc.write(numberOfBonesParam, "numberOfBonesParam", null);
         oc.write(boneMatricesParam, "boneMatricesParam", null);
+        oc.write(updateBounds, "updateBounds", false);
     }
 
     @Override
@@ -837,6 +875,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
         numberOfBonesParam = (MatParamOverride) in.readSavable("numberOfBonesParam", null);
         boneMatricesParam = (MatParamOverride) in.readSavable("boneMatricesParam", null);
+        updateBounds = in.readBoolean("updateBounds", false);
 
         if (numberOfBonesParam == null) {
             numberOfBonesParam = new MatParamOverride(VarType.Int, "NumberOfBones", null);
