@@ -139,6 +139,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     protected boolean zoomin;
     protected boolean hideCursorOnRotate = true;
+    protected CameraCollider cameraCollider = null;
 
     /**
      * Constructs the chase camera
@@ -522,6 +523,10 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                 }
                 //computing the position
                 computePosition();
+                //checking for collision with the environment
+                if (cameraCollider != null) {
+                    cameraCollider.collide(target.getWorldTranslation(), pos);
+                }
                 //setting the position at last
                 cam.setLocation(pos.addLocal(lookAtOffset));
             } else {
@@ -530,6 +535,10 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                 rotation = targetRotation;
                 distance = targetDistance;
                 computePosition();
+                //checking for collision with the environment
+                if (cameraCollider != null) {
+                    cameraCollider.collide(target.getWorldTranslation(), pos);
+                }
                 cam.setLocation(pos.addLocal(lookAtOffset));
             }
             //keeping track on the previous position of the target
@@ -1004,6 +1013,34 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      */
     public Vector3f getUpVector() {
         return initialUpVec;
+    }
+
+    /**
+     * Returns the {@link CameraCollider} used to prevent the camera from
+     * passing through scene geometry, or {@code null} if collision detection
+     * is disabled (the default).
+     *
+     * @return the current camera collider, or {@code null}
+     */
+    public CameraCollider getCameraCollider() {
+        return cameraCollider;
+    }
+
+    /**
+     * Sets the {@link CameraCollider} that will be used to prevent the camera
+     * from passing through scene geometry. Set to {@code null} (the default)
+     * to disable collision detection.
+     *
+     * <p>The built-in {@link SceneCameraCollider} supports ray-casting against
+     * one or more scene nodes with optional per-geometry exclusion via
+     * userData. Custom implementations can integrate with physics engines or
+     * any other collision system.</p>
+     *
+     * @param cameraCollider the collider to use, or {@code null} to disable
+     * @see SceneCameraCollider
+     */
+    public void setCameraCollider(CameraCollider cameraCollider) {
+        this.cameraCollider = cameraCollider;
     }
 
     public boolean isHideCursorOnRotate() {
