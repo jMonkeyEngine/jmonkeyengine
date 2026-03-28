@@ -477,7 +477,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
             return bv.collideWith(this, results);
         } else if (other instanceof AbstractTriangle) {
             AbstractTriangle tri = (AbstractTriangle) other;
-            Vector2f baryCoords = new Vector2f();
+            Vector2f baryCoords = results.isRequiresBaryCoords() ? new Vector2f() : null;
             float d = intersects(tri.get1(), tri.get2(), tri.get3(), baryCoords);
             if (Float.isInfinite(d) || Float.isNaN(d)) {
                 return 0;
@@ -485,7 +485,9 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
 
             Vector3f point = new Vector3f(direction).multLocal(d).addLocal(origin);
             CollisionResult cr = new CollisionResult(point, d);
-            cr.setContactBaryCoords(baryCoords);
+            if (baryCoords != null) {
+                cr.setContactBaryCoords(baryCoords);
+            }
             results.addCollision(cr);
             return 1;
         } else {

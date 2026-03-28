@@ -166,7 +166,7 @@ public class RayCollisionTest {
 
     /**
      * Verifies that CollisionResult contains barycentric coords when a ray
-     * collides with an AbstractTriangle.
+     * collides with an AbstractTriangle and the flag is enabled.
      */
     @Test
     public void testCollisionResultContainsBaryCoords() {
@@ -181,6 +181,7 @@ public class RayCollisionTest {
 
         Triangle tri = new Triangle(v0, v1, v2);
         CollisionResults results = new CollisionResults();
+        results.setRequiresBaryCoords(true);
         int count = ray.collideWith(tri, results);
 
         Assert.assertEquals("Expected exactly 1 collision", 1, count);
@@ -189,9 +190,35 @@ public class RayCollisionTest {
         Assert.assertNotNull("CollisionResult should not be null", cr);
 
         Vector2f bary = cr.getContactBaryCoords();
-        Assert.assertNotNull("Barycentric coords should be set", bary);
+        Assert.assertNotNull("Barycentric coords should be set when flag is enabled", bary);
         Assert.assertEquals("u should be 1/3", 1f / 3f, bary.x, DELTA);
         Assert.assertEquals("v should be 1/3", 1f / 3f, bary.y, DELTA);
+    }
+
+    /**
+     * Verifies that barycentric coords are NOT computed when the flag is
+     * disabled (the default).
+     */
+    @Test
+    public void testCollisionResultNoBaryCoordsByDefault() {
+        Vector3f v0 = new Vector3f(0f, 0f, 0f);
+        Vector3f v1 = new Vector3f(1f, 0f, 0f);
+        Vector3f v2 = new Vector3f(0f, 1f, 0f);
+
+        float cx = (v0.x + v1.x + v2.x) / 3f;
+        float cy = (v0.y + v1.y + v2.y) / 3f;
+        Ray ray = new Ray(new Vector3f(cx, cy, 5f), new Vector3f(0f, 0f, -1f));
+
+        Triangle tri = new Triangle(v0, v1, v2);
+        CollisionResults results = new CollisionResults(); // flag defaults to false
+        int count = ray.collideWith(tri, results);
+
+        Assert.assertEquals("Expected exactly 1 collision", 1, count);
+
+        CollisionResult cr = results.getClosestCollision();
+        Assert.assertNotNull("CollisionResult should not be null", cr);
+        Assert.assertNull("Barycentric coords should be null when flag is disabled",
+                cr.getContactBaryCoords());
     }
 
     /**

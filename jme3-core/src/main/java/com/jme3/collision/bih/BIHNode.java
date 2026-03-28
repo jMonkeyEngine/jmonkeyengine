@@ -402,7 +402,7 @@ public final class BIHNode implements Savable {
             for (int i = node.leftIndex; i <= node.rightIndex; i++) {
                 tree.getTriangle(i, v1, v2, v3);
 
-                Vector2f baryCoords = new Vector2f();
+                Vector2f baryCoords = results.isRequiresBaryCoords() ? new Vector2f() : null;
                 float t = r.intersects(v1, v2, v3, baryCoords);
                 if (!Float.isInfinite(t)) {
                     if (worldMatrix != null) {
@@ -424,7 +424,9 @@ public final class BIHNode implements Savable {
                         CollisionResult cr = new CollisionResult(contactPoint, worldSpaceDist);
                         cr.setContactNormal(contactNormal);
                         cr.setTriangleIndex(tree.getTriangleIndex(i));
-                        cr.setContactBaryCoords(baryCoords);
+                        if (baryCoords != null) {
+                            cr.setContactBaryCoords(baryCoords);
+                        }
                         results.addCollision(cr);
                         cols++;
                     }
