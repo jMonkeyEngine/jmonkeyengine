@@ -46,6 +46,38 @@ public class CollisionResults implements Iterable<CollisionResult> {
 
     private ArrayList<CollisionResult> results = null;
     private boolean sorted = true;
+    private boolean requiresBaryCoords = false;
+
+    /**
+     * Returns whether collision queries against this instance will compute and
+     * store barycentric coordinates in each {@link CollisionResult}.
+     *
+     * <p>Barycentric coordinate computation is disabled by default.
+     * Enable it when you need the (u, v) weights for texture-coordinate
+     * interpolation or other per-hit surface lookups.
+     *
+     * @return true if barycentric coordinates will be computed
+     * @see #setRequiresBaryCoords(boolean)
+     */
+    public boolean isRequiresBaryCoords() {
+        return requiresBaryCoords;
+    }
+
+    /**
+     * Controls whether collision queries against this instance should compute
+     * and store barycentric coordinates in each {@link CollisionResult}.
+     *
+     * <p>Barycentric coordinate computation is disabled by default.
+     * Enable it when you need the (u, v) weights for texture-coordinate
+     * interpolation or other per-hit surface lookups.
+     *
+     * @param requiresBaryCoords true to enable barycentric coordinate
+     *     computation, false (the default) to skip it
+     * @see #isRequiresBaryCoords()
+     */
+    public void setRequiresBaryCoords(boolean requiresBaryCoords) {
+        this.requiresBaryCoords = requiresBaryCoords;
+    }
 
     /**
      * Clears all collision results added to this list
