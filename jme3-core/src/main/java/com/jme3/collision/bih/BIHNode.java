@@ -39,6 +39,7 @@ import com.jme3.export.*;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Ray;
 import com.jme3.math.Triangle;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.util.TempVars;
 import java.io.IOException;
@@ -401,13 +402,14 @@ public final class BIHNode implements Savable {
             for (int i = node.leftIndex; i <= node.rightIndex; i++) {
                 tree.getTriangle(i, v1, v2, v3);
 
-                float t = r.intersects(v1, v2, v3);
+                Vector2f baryCoords = new Vector2f();
+                float t = r.intersects(v1, v2, v3, baryCoords);
                 if (!Float.isInfinite(t)) {
                     if (worldMatrix != null) {
                         worldMatrix.mult(v1, v1);
                         worldMatrix.mult(v2, v2);
                         worldMatrix.mult(v3, v3);
-                        float t_world = new Ray(o, d).intersects(v1, v2, v3);
+                        float t_world = new Ray(o, d).intersects(v1, v2, v3, baryCoords);
                         t = t_world;
                     }
 
@@ -422,6 +424,7 @@ public final class BIHNode implements Savable {
                         CollisionResult cr = new CollisionResult(contactPoint, worldSpaceDist);
                         cr.setContactNormal(contactNormal);
                         cr.setTriangleIndex(tree.getTriangleIndex(i));
+                        cr.setContactBaryCoords(baryCoords);
                         results.addCollision(cr);
                         cols++;
                     }
