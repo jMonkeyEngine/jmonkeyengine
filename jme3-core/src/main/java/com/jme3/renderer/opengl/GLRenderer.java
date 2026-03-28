@@ -2922,6 +2922,10 @@ public final class GLRenderer implements Renderer {
 
             //statistics.onNewVertexBuffer();
 
+            if (debug && caps.contains(Caps.GLDebug)) {
+                glext.glObjectLabel(GLExt.GL_BUFFER, bufId, vb.getName());
+            }
+
             created = true;
         }
 
@@ -3218,9 +3222,6 @@ public final class GLRenderer implements Renderer {
                 }
                 attribs[slot] = vb.getWeakRef();
             }
-        }
-        if (debug && caps.contains(Caps.GLDebug)) {
-            if (vb.getName() != null) glext.glObjectLabel(GLExt.GL_BUFFER, vb.getId(), vb.getName());
         }
     }
 
