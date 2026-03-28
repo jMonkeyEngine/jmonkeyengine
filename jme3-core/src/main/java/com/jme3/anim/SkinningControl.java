@@ -31,6 +31,8 @@
  */
 package com.jme3.anim;
 
+import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -58,6 +60,8 @@ import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -130,6 +134,29 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
      * the armature's current pose.
      */
     private transient Matrix4f[] boneOffsetMatrices;
+
+    /**
+     * When true, the bounding volumes of animated geometries are updated each
+     * frame to match the current pose, ensuring correct frustum culling.
+     * Disabled by default because it adds CPU cost every frame.
+     */
+    private boolean updateBounds = false;
+
+    /**
+     * Maximum number of vertices processed per frame when updating bounding
+     * volumes during hardware skinning. Processing is spread across multiple
+     * frames (the cursor resumes where it left off), keeping each frame's cost
+     * bounded. {@link Integer#MAX_VALUE} (the default) means all vertices are
+     * processed in one frame, matching the old behaviour.
+     */
+    private int boundingUpdateBudget = Integer.MAX_VALUE;
+
+    /**
+     * Per-geometry state for incremental bounding-volume updates. Only used
+     * when {@link #boundingUpdateBudget} is smaller than the vertex count of
+     * the mesh, allowing the work to be spread over several frames.
+     */
+    private transient Map<Geometry, BoundsUpdateState> boundsUpdateStates = new HashMap<>();
 
     private MatParamOverride numberOfJointsParam = new MatParamOverride(VarType.Int, "NumberOfBones", null);
     private MatParamOverride jointMatricesParam = new MatParamOverride(VarType.Matrix4Array, "BoneMatrices", null);
@@ -247,6 +274,69 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     }
 
     /**
+     * Enables or disables per-frame bounding-volume updates for animated
+     * geometries. When enabled, the bounding volume of each deformed geometry
+     * is recomputed every render frame to match the current animation pose,
+     * ensuring correct frustum culling at the cost of additional CPU work.
+     * Disabled by default.
+     *
+     * @param updateBounds true to update bounds each frame, false to keep
+     *                     static bind-pose bounds (default=false)
+     * @see #isUpdateBounds()
+     */
+    public void setUpdateBounds(boolean updateBounds) {
+        this.updateBounds = updateBounds;
+    }
+
+    /**
+     * Returns whether per-frame bounding-volume updates are enabled for
+     * animated geometries.
+     *
+     * @return true if bounds are updated each frame, false otherwise
+     * @see #setUpdateBounds(boolean)
+     */
+    public boolean isUpdateBounds() {
+        return updateBounds;
+    }
+
+    /**
+     * Sets the maximum number of vertices considered per frame when updating
+     * bounding volumes during hardware skinning. Use this to distribute the
+     * CPU cost of the bounds update across several frames instead of paying the
+     * full price in a single frame.
+     *
+     * <p>The update cursor advances by at most {@code budget} vertices each
+     * frame and resumes where it left off the next frame. When a full pass over
+     * all vertices is complete, the geometry's model bound is refreshed with
+     * the newly computed values. In the meantime, the geometry keeps the bound
+     * from the previous completed pass.
+     *
+     * <p>A value of {@link Integer#MAX_VALUE} (the default) processes all
+     * vertices in one frame, matching the original behaviour. Values &le; 0
+     * are treated as {@link Integer#MAX_VALUE}.
+     *
+     * @param budget max vertices per frame (any positive integer; values
+     *               &le; 0 are normalized to {@link Integer#MAX_VALUE})
+     * @see #getBoundingUpdateBudget()
+     * @see #setUpdateBounds(boolean)
+     */
+    public void setBoundingUpdateBudget(int budget) {
+        this.boundingUpdateBudget = (budget <= 0) ? Integer.MAX_VALUE : budget;
+        boundsUpdateStates.clear();
+    }
+
+    /**
+     * Returns the maximum number of vertices processed per frame when updating
+     * bounding volumes during hardware skinning.
+     *
+     * @return the bounding-update vertex budget
+     * @see #setBoundingUpdateBudget(int)
+     */
+    public int getBoundingUpdateBudget() {
+        return boundingUpdateBudget;
+    }
+
+    /**
      * Recursively finds and adds animated geometries to the targets list.
      *
      * @param sp The spatial to search within.
@@ -297,6 +387,10 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
             // NOTE: This assumes code higher up has already ensured this mesh is animated.
             // Otherwise, a crash will happen in skin update.
             applySoftwareSkinning(mesh, boneOffsetMatrices);
+            if (updateBounds) {
+                // Update the mesh bounding volume to reflect the animated vertex positions.
+                geometry.updateModelBound();
+            }
         }
     }
 
@@ -306,6 +400,18 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     private void controlRenderHardware() {
         boneOffsetMatrices = armature.computeSkinningMatrices();
         jointMatricesParam.setValue(boneOffsetMatrices);
+
+        if (updateBounds) {
+            // Hardware skinning transforms vertices on the GPU, so the CPU-side vertex
+            // buffer is not updated. Compute the animated bounding volume from the bind
+            // pose positions and the current skinning matrices so culling is correct.
+            for (Geometry geometry : targets) {
+                Mesh mesh = geometry.getMesh();
+                if (mesh != null && mesh.isAnimated()) {
+                    updateSkinnedMeshBound(geometry, mesh, boneOffsetMatrices);
+                }
+            }
+        }
     }
 
     @Override
@@ -752,6 +858,171 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
     }
 
     /**
+     * Computes (or incrementally advances) the bounding volume of an animated
+     * mesh from the bind-pose positions and the current skinning matrices, then
+     * sets it on the geometry once a full pass is complete.
+     *
+     * <p>When {@link #boundingUpdateBudget} is smaller than the vertex count,
+     * at most {@code boundingUpdateBudget} vertices are processed each call.
+     * The per-geometry {@link BoundsUpdateState} records the cursor and the
+     * in-progress min/max so subsequent calls resume from where they left off.
+     * The geometry's bound is only updated after all vertices have been visited
+     * in a single pass; in the meantime it keeps the bound from the last
+     * completed pass.
+     *
+     * @param geometry       the geometry whose bound needs to be updated
+     * @param mesh           the animated mesh
+     * @param offsetMatrices the bone offset matrices for this frame
+     */
+    private void updateSkinnedMeshBound(Geometry geometry, Mesh mesh,
+            Matrix4f[] offsetMatrices) {
+        VertexBuffer bindPosVB = mesh.getBuffer(Type.BindPosePosition);
+        if (bindPosVB == null) {
+            return;
+        }
+        VertexBuffer boneIndexVB = mesh.getBuffer(Type.BoneIndex);
+        VertexBuffer boneWeightVB = mesh.getBuffer(Type.BoneWeight);
+        if (boneIndexVB == null || boneWeightVB == null) {
+            return;
+        }
+        int maxWeightsPerVert = mesh.getMaxNumWeights();
+        if (maxWeightsPerVert <= 0) {
+            return;
+        }
+        int fourMinusMaxWeights = 4 - maxWeightsPerVert;
+
+        FloatBuffer bindPos = (FloatBuffer) bindPosVB.getData();
+        IndexBuffer boneIndex = IndexBuffer.wrapIndexBuffer(boneIndexVB.getData());
+        FloatBuffer boneWeightBuf = (FloatBuffer) boneWeightVB.getData();
+        // Use array() when available (heap buffer), otherwise copy to a local array.
+        float[] weights;
+        if (boneWeightBuf.hasArray()) {
+            weights = boneWeightBuf.array();
+        } else {
+            weights = new float[boneWeightBuf.limit()];
+            boneWeightBuf.rewind();
+            boneWeightBuf.get(weights);
+        }
+
+        int numVerts = bindPos.limit() / 3;
+
+        // Decide whether we need incremental (multi-frame) processing.
+        boolean incremental = (boundingUpdateBudget < numVerts);
+        BoundsUpdateState state = null;
+        if (incremental) {
+            state = boundsUpdateStates.get(geometry);
+            if (state == null) {
+                state = new BoundsUpdateState();
+                boundsUpdateStates.put(geometry, state);
+            }
+        }
+
+        // Starting vertex and accumulated min/max for this pass.
+        int startVertex;
+        float minX, minY, minZ, maxX, maxY, maxZ;
+        if (state != null && state.nextVertex > 0) {
+            // Resume an in-progress pass.
+            startVertex = state.nextVertex;
+            minX = state.minX; minY = state.minY; minZ = state.minZ;
+            maxX = state.maxX; maxY = state.maxY; maxZ = state.maxZ;
+        } else {
+            // Start a fresh pass.
+            startVertex = 0;
+            minX = Float.POSITIVE_INFINITY; minY = Float.POSITIVE_INFINITY;
+            minZ = Float.POSITIVE_INFINITY;
+            maxX = Float.NEGATIVE_INFINITY; maxY = Float.NEGATIVE_INFINITY;
+            maxZ = Float.NEGATIVE_INFINITY;
+        }
+
+        int budget = incremental ? boundingUpdateBudget : numVerts;
+        int endVertex = Math.min(startVertex + budget, numVerts);
+
+        // Position the bind-pose buffer at the correct vertex.
+        bindPos.position(startVertex * 3);
+        int idxWeights = startVertex * 4;
+
+        for (int v = startVertex; v < endVertex; v++) {
+            float vtx = bindPos.get();
+            float vty = bindPos.get();
+            float vtz = bindPos.get();
+
+            float rx, ry, rz;
+            if (weights[idxWeights] == 0) {
+                idxWeights += 4;
+                rx = vtx;
+                ry = vty;
+                rz = vtz;
+            } else {
+                rx = 0;
+                ry = 0;
+                rz = 0;
+                for (int w = 0; w < maxWeightsPerVert; w++) {
+                    float weight = weights[idxWeights];
+                    Matrix4f mat = offsetMatrices[boneIndex.get(idxWeights++)];
+                    rx += (mat.m00 * vtx + mat.m01 * vty + mat.m02 * vtz + mat.m03) * weight;
+                    ry += (mat.m10 * vtx + mat.m11 * vty + mat.m12 * vtz + mat.m13) * weight;
+                    rz += (mat.m20 * vtx + mat.m21 * vty + mat.m22 * vtz + mat.m23) * weight;
+                }
+                idxWeights += fourMinusMaxWeights;
+            }
+
+            if (rx < minX) minX = rx;
+            if (rx > maxX) maxX = rx;
+            if (ry < minY) minY = ry;
+            if (ry > maxY) maxY = ry;
+            if (rz < minZ) minZ = rz;
+            if (rz > maxZ) maxZ = rz;
+        }
+
+        if (endVertex < numVerts) {
+            // Pass not yet complete – save state and wait for the next frame.
+            state.nextVertex = endVertex;
+            state.minX = minX; state.minY = minY; state.minZ = minZ;
+            state.maxX = maxX; state.maxY = maxY; state.maxZ = maxZ;
+            return;
+        }
+
+        // Full pass complete – reset cursor and commit the bounding box.
+        if (state != null) {
+            state.nextVertex = 0;
+        }
+
+        // Reuse the existing BoundingBox if possible to avoid allocation.
+        BoundingVolume bv = mesh.getBound();
+        BoundingBox bbox;
+        if (bv instanceof BoundingBox) {
+            bbox = (BoundingBox) bv;
+        } else {
+            bbox = new BoundingBox();
+        }
+        TempVars vars = TempVars.get();
+        try {
+            vars.vect1.set(minX, minY, minZ);
+            vars.vect2.set(maxX, maxY, maxZ);
+            bbox.setMinMax(vars.vect1, vars.vect2);
+        } finally {
+            vars.release();
+        }
+        // setModelBound() updates the mesh bound and triggers a world-bound refresh.
+        geometry.setModelBound(bbox);
+    }
+
+    /**
+     * Holds the incremental bounding-volume update state for a single geometry
+     * when {@link #boundingUpdateBudget} limits processing to fewer than all
+     * vertices per frame.
+     */
+    private static final class BoundsUpdateState {
+        int nextVertex = 0;
+        float minX = Float.POSITIVE_INFINITY;
+        float minY = Float.POSITIVE_INFINITY;
+        float minZ = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY;
+        float maxY = Float.NEGATIVE_INFINITY;
+        float maxZ = Float.NEGATIVE_INFINITY;
+    }
+
+    /**
      * Serialize this Control to the specified exporter, for example when saving
      * to a J3O file.
      *
@@ -763,6 +1034,8 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(armature, "armature", null);
+        oc.write(updateBounds, "updateBounds", false);
+        oc.write(boundingUpdateBudget, "boundingUpdateBudget", Integer.MAX_VALUE);
     }
 
     /**
@@ -777,6 +1050,9 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
         armature = (Armature) in.readSavable("armature", null);
+        updateBounds = in.readBoolean("updateBounds", false);
+        boundingUpdateBudget = in.readInt("boundingUpdateBudget", Integer.MAX_VALUE);
+        boundsUpdateStates = new HashMap<>();
 
         for (MatParamOverride mpo : spatial.getLocalMatParamOverrides().getArray()) {
             if (mpo.getName().equals("NumberOfBones") || mpo.getName().equals("BoneMatrices")) {
@@ -794,6 +1070,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
      */
     private void updateAnimationTargets(Spatial spatial) {
         targets.clear();
+        boundsUpdateStates.clear();
         collectAnimatedGeometries(spatial);
     }
 

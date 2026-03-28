@@ -40,6 +40,7 @@ import com.jme3.app.state.AppState;
 import com.jme3.app.state.ScreenshotAppState;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
+import com.jme3.bounding.BoundingVolume;
 import com.jme3.input.InputManager;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
@@ -129,5 +130,50 @@ public class PreventCoreIssueRegressions {
             Assert.assertTrue("Invalid translation for joint " + joint.getName(),
                     Vector3f.isValidVector(joint.getLocalTranslation()));
         }
+    }
+
+    /**
+     * Test case for JME issue #343: Animated models should have proper model bound.
+     *
+     * <p>When software skinning is used, calling controlRender should update the
+     * bounding volumes of the animated geometries to reflect their current pose.
+     */
+    @Test
+    public void testIssue343() {
+        AssetManager am = JmeSystem.newAssetManager(
+                PreventCoreIssueRegressions.class.getResource("/com/jme3/asset/Desktop.cfg"));
+        Node cgModel = (Node) am.loadModel("Models/Elephant/Elephant.mesh.xml");
+        cgModel.scale(0.04f);
+
+        AnimComposer composer = cgModel.getControl(AnimComposer.class);
+        SkinningControl sControl = cgModel.getControl(SkinningControl.class);
+
+        // Force software skinning so bounds are computed from CPU vertex positions.
+        sControl.setHardwareSkinningPreferred(false);
+        // Enable per-frame bounds update (off by default).
+        sControl.setUpdateBounds(true);
+
+        // Record the world bound in the bind pose.
+        cgModel.updateGeometricState();
+        BoundingVolume bindPoseBound = cgModel.getWorldBound().clone();
+
+        // Advance the "legUp" animation, which raises a leg well beyond the bind pose.
+        composer.setCurrentAction("legUp");
+        cgModel.updateLogicalState(0.5f);
+
+        // Simulate the render pass: controlRender applies software skinning and
+        // calls geometry.updateModelBound() on each target.
+        RenderManager rm = new RenderManager(new NullRenderer());
+        ViewPort vp = rm.createMainView("test", new Camera(1, 1));
+        sControl.render(rm, vp);
+
+        // Propagate the refreshed bounds up the scene graph.
+        cgModel.updateGeometricState();
+        BoundingVolume animatedBound = cgModel.getWorldBound().clone();
+
+        // The bounding volume must differ from the bind pose bound.
+        Assert.assertFalse(
+                "Model bound should change after animation is applied via software skinning",
+                bindPoseBound.equals(animatedBound));
     }
 }
