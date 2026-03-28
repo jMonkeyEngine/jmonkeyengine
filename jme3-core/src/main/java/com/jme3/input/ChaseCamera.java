@@ -31,15 +31,19 @@
  */
 package com.jme3.input;
 
+import com.jme3.collision.CollisionResult;
+import com.jme3.collision.CollisionResults;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.input.controls.*;
 import com.jme3.math.FastMath;
+import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.jme3.util.clone.Cloner;
@@ -139,6 +143,11 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     protected boolean zoomin;
     protected boolean hideCursorOnRotate = true;
+    protected boolean checkCollision = false;
+    protected Node collisionNode = null;
+    protected float collisionMinDistance = 0.1f;
+    private final CollisionResults collisionResults = new CollisionResults();
+    private final Ray collisionRay = new Ray();
 
     /**
      * Constructs the chase camera
@@ -522,6 +531,10 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                 }
                 //computing the position
                 computePosition();
+                //checking for collision with the environment
+                if (checkCollision && collisionNode != null) {
+                    checkCameraCollision();
+                }
                 //setting the position at last
                 cam.setLocation(pos.addLocal(lookAtOffset));
             } else {
@@ -530,6 +543,10 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
                 rotation = targetRotation;
                 distance = targetDistance;
                 computePosition();
+                //checking for collision with the environment
+                if (checkCollision && collisionNode != null) {
+                    checkCameraCollision();
+                }
                 cam.setLocation(pos.addLocal(lookAtOffset));
             }
             //keeping track on the previous position of the target
@@ -1004,6 +1021,105 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      */
     public Vector3f getUpVector() {
         return initialUpVec;
+    }
+
+    /**
+     * Checks for collisions between the camera and the collision node.
+     * If a collision is detected along the ray from the target to the
+     * computed camera position, the camera is moved to
+     * {@code collisionMinDistance} units in front of the collision point
+     * to prevent clipping through geometry.
+     */
+    protected void checkCameraCollision() {
+        Vector3f targetPos = target.getWorldTranslation();
+        // Direction from target to computed camera position
+        Vector3f camDir = pos.subtract(targetPos);
+        float maxDist = camDir.length();
+        if (maxDist < FastMath.ZERO_TOLERANCE) {
+            return;
+        }
+        camDir.normalizeLocal();
+        collisionRay.setOrigin(targetPos);
+        collisionRay.setDirection(camDir);
+        collisionRay.setLimit(maxDist);
+
+        collisionResults.clear();
+        collisionNode.collideWith(collisionRay, collisionResults);
+
+        if (collisionResults.size() > 0) {
+            CollisionResult closest = collisionResults.getClosestCollision();
+            float collisionDist = closest.getDistance();
+            if (collisionDist < maxDist) {
+                // Place camera just in front of the collision point
+                float adjustedDist = Math.max(collisionDist - collisionMinDistance, 0);
+                pos.set(targetPos).addLocal(camDir.mult(adjustedDist));
+            }
+        }
+    }
+
+    /**
+     * Returns whether camera collision detection with the environment is enabled.
+     *
+     * @return true if collision detection is enabled, false otherwise (default=false)
+     */
+    public boolean isCheckCollision() {
+        return checkCollision;
+    }
+
+    /**
+     * Enables or disables camera collision detection with the environment.
+     * When enabled, the camera will not pass through geometry in the
+     * collision node. This feature is disabled by default.
+     *
+     * @param checkCollision true to enable collision detection, false to disable
+     * @see #setCollisionNode(Node)
+     */
+    public void setCheckCollision(boolean checkCollision) {
+        this.checkCollision = checkCollision;
+    }
+
+    /**
+     * Returns the node used for camera collision detection.
+     *
+     * @return the collision node, or null if none is set
+     */
+    public Node getCollisionNode() {
+        return collisionNode;
+    }
+
+    /**
+     * Sets the node to use for camera collision detection.
+     * When the chase camera has collision detection enabled, it will cast
+     * a ray from the target to the camera position and stop the camera
+     * before any geometry in this node.
+     *
+     * @param collisionNode the node to collide with (alias created), or null to disable
+     * @see #setCheckCollision(boolean)
+     */
+    public void setCollisionNode(Node collisionNode) {
+        this.collisionNode = collisionNode;
+    }
+
+    /**
+     * Returns the minimum distance to maintain between the camera and a
+     * collision point when collision detection is enabled.
+     *
+     * @return the minimum distance (in world units, default=0.1)
+     */
+    public float getCollisionMinDistance() {
+        return collisionMinDistance;
+    }
+
+    /**
+     * Sets the minimum distance to maintain between the camera and a
+     * collision point when collision detection is enabled. The camera will
+     * be placed this far in front of any detected collision.
+     *
+     * @param collisionMinDistance the desired minimum distance (in world units,
+     * default=0.1)
+     */
+    public void setCollisionMinDistance(float collisionMinDistance) {
+        this.collisionMinDistance = collisionMinDistance;
     }
 
     public boolean isHideCursorOnRotate() {
