@@ -72,19 +72,39 @@ public class TestBoundingBox {
     }
 
     /**
-     * Verify that merge() does not modify the original bounding box, and that
-     * the returned box contains both inputs. This was a bug: merge() used to
-     * call mergeLocal(), which modifies the receiver in place.
+     * Verify that merge() still modifies the original BoundingBox in place
+     * (deprecated behavior preserved for backward compatibility).
      */
     @Test
-    public void testMergeDoesNotModifyReceiver() {
+    @SuppressWarnings("deprecation")
+    public void testMergeModifiesReceiver() {
+        BoundingBox bb1 = new BoundingBox(new Vector3f(0f, 0f, 0f), 1f, 1f, 1f);
+        BoundingBox bb2 = new BoundingBox(new Vector3f(4f, 0f, 0f), 1f, 1f, 1f);
+
+        BoundingBox bb1Before = (BoundingBox) bb1.clone();
+
+        BoundingVolume result = bb1.merge(bb2);
+
+        // merge() delegates to mergeLocal(), so bb1 IS modified.
+        Assert.assertNotEquals(bb1Before, bb1);
+
+        // The result is the same object as bb1.
+        Assert.assertSame(bb1, result);
+    }
+
+    /**
+     * Verify that mergeWith() does not modify the original bounding box, and
+     * that the returned box contains both inputs.
+     */
+    @Test
+    public void testMergeWithDoesNotModifyReceiver() {
         BoundingBox bb1 = new BoundingBox(new Vector3f(0f, 0f, 0f), 1f, 1f, 1f);
         BoundingBox bb2 = new BoundingBox(new Vector3f(4f, 0f, 0f), 1f, 1f, 1f);
 
         // Record the original state of bb1 before merging.
         BoundingBox bb1Before = (BoundingBox) bb1.clone();
 
-        BoundingVolume result = bb1.merge(bb2);
+        BoundingVolume result = bb1.mergeWith(bb2);
 
         // bb1 must be unmodified.
         Assert.assertEquals(bb1Before, bb1);
@@ -92,7 +112,7 @@ public class TestBoundingBox {
         // The result must be a different object than bb1.
         Assert.assertNotSame(bb1, result);
 
-        // The result must contain bb2's extent (i.e. the merged region).
+        // The result must contain both inputs' centers.
         Assert.assertTrue(result instanceof BoundingBox);
         BoundingBox merged = (BoundingBox) result;
         Assert.assertTrue(merged.contains(bb2.getCenter()));

@@ -404,18 +404,22 @@ public class BoundingBox extends BoundingVolume {
     }
 
     /**
-     * <code>merge</code> combines this bounding box with a second bounding
-     * volume. The result contains both the original box and the second volume.
-     * The current instance is unaffected.
+     * <code>merge</code> combines this bounding box locally with a second
+     * bounding volume. The result contains both the original box and the second
+     * volume.
      *
      * @param volume the bounding volume to combine with this box (or null) (not
      * altered)
-     * @return a new BoundingBox, or null if the second volume is of some type
-     * other than AABB or Sphere
+     * @return this box (with its components modified) or null if the second
+     * volume is of some type other than AABB or Sphere
+     * @deprecated This method modifies the receiver in place, which is
+     *     inconsistent with {@link BoundingSphere#merge}. Use
+     *     {@link #mergeWith} instead.
      */
+    @Deprecated
     @Override
     public BoundingVolume merge(BoundingVolume volume) {
-        return clone(new BoundingBox()).mergeLocal(volume);
+        return mergeLocal(volume);
     }
 
     /**

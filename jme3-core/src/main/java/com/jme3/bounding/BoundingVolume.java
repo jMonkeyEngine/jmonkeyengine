@@ -150,13 +150,30 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     public abstract void computeFromPoints(FloatBuffer points);
 
     /**
+     * Combines this bounding volume with a second bounding volume so that the
+     * result contains both volumes. Returns a new bounding volume without
+     * modifying either input.
+     *
+     * @param volume the volume to combine with this one (may be null)
+     * @return a new bounding volume containing both volumes
+     */
+    public BoundingVolume mergeWith(BoundingVolume volume) {
+        return clone(null).mergeLocal(volume);
+    }
+
+    /**
      * <code>merge</code> combines two bounding volumes into a single bounding
      * volume that contains both this bounding volume and the parameter volume.
      *
      * @param volume
      *            the volume to combine.
      * @return the new merged bounding volume.
+     * @deprecated This method has inconsistent behavior across subclasses
+     *     ({@link BoundingBox#merge} modifies the receiver, while
+     *     {@link BoundingSphere#merge} returns a new instance).
+     *     Use {@link #mergeWith} instead.
      */
+    @Deprecated
     public abstract BoundingVolume merge(BoundingVolume volume);
 
     /**
