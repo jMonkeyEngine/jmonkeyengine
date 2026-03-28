@@ -4,20 +4,30 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
+import com.jme3.material.MatParam;
 import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
+import com.jme3.material.RenderState;
+import com.jme3.material.TechniqueDef;
 import com.jme3.renderer.Caps;
+import com.jme3.shader.Shader;
+import com.jme3.shader.UniformBinding;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -144,5 +154,384 @@ public class J3MLoaderTest {
         when(assetManager.loadTexture(textureKey)).thenReturn(texture);
 
         return textureKey;
+    }
+
+    // ---- MaterialDef Inheritance helpers ----
+
+    private MaterialDef loadParentDef() throws IOException {
+        J3MLoader parentLoader = new J3MLoader();
+        AssetInfo parentInfo = Mockito.mock(AssetInfo.class);
+        @SuppressWarnings("unchecked")
+        AssetKey<MaterialDef> parentKey = Mockito.mock(AssetKey.class);
+        when(parentKey.getExtension()).thenReturn("j3md");
+        when(parentKey.getName()).thenReturn("parent-matdef.j3md");
+        when(parentInfo.getManager()).thenReturn(assetManager);
+        when(parentInfo.getKey()).thenReturn(parentKey);
+        when(parentInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/parent-matdef.j3md"));
+        return (MaterialDef) parentLoader.load(parentInfo);
+    }
+
+    @SuppressWarnings("unchecked")
+    private MaterialDef loadChildDef(String resourcePath) throws IOException {
+        MaterialDef parentDef = loadParentDef();
+
+        when(assetManager.loadAsset(any(AssetKey.class))).thenReturn(parentDef);
+
+        J3MLoader childLoader = new J3MLoader();
+        AssetInfo childInfo = Mockito.mock(AssetInfo.class);
+        AssetKey<MaterialDef> childKey = Mockito.mock(AssetKey.class);
+        when(childKey.getExtension()).thenReturn("j3md");
+        when(childKey.getName()).thenReturn(resourcePath);
+        when(childInfo.getManager()).thenReturn(assetManager);
+        when(childInfo.getKey()).thenReturn(childKey);
+        when(childInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/" + resourcePath));
+        return (MaterialDef) childLoader.load(childInfo);
+    }
+
+    // ---- MaterialDef Inheritance tests ----
+
+    @Test
+    public void materialDefInheritance_shouldInheritParentParams() throws IOException {
+        MaterialDef def = loadChildDef("child-matdef.j3md");
+
+        // Should have parent's params + child's new param
+        assertNotNull(def.getMaterialParam("Roughness"));
+        assertNotNull(def.getMaterialParam("DiffuseMap"));
+        assertNotNull(def.getMaterialParam("Wetness"));
+
+        // Roughness default overridden to 0.8
+        assertEquals(0.8f, (float) def.getMaterialParam("Roughness").getValue(), 0.001f);
+
+        // Wetness default is 0.0
+        assertEquals(0.0f, (float) def.getMaterialParam("Wetness").getValue(), 0.001f);
+    }
+
+    @Test(expected = IOException.class)
+    public void materialDefInheritance_paramTypeMismatch_shouldThrow() throws IOException {
+        loadChildDef("child-matdef-type-mismatch.j3md");
+    }
+
+    @Test
+    public void materialDefInheritance_shouldOverrideFragShaderOnly() throws IOException {
+        MaterialDef def = loadChildDef("child-matdef.j3md");
+
+        List<TechniqueDef> defaultTechs = def.getTechniqueDefs("Default");
+        assertNotNull(defaultTechs);
+        assertEquals(2, defaultTechs.size());
+
+        // Both variants should have child's frag shader and parent's vert shader
+        for (TechniqueDef td : defaultTechs) {
+            assertEquals("child.frag", td.getShaderProgramNames().get(Shader.ShaderType.Fragment));
+            assertEquals("parent.vert", td.getShaderProgramNames().get(Shader.ShaderType.Vertex));
+        }
+
+        // Check languages per variant
+        // When parent is loaded, the clone() in TechniqueDef produces variants.
+        // After child inheritance cloning, variant order depends on addTechniqueDef order.
+        // Find each variant by checking its required caps.
+        TechniqueDef glsl150 = null, glsl100 = null;
+        for (TechniqueDef td : defaultTechs) {
+            if (td.getRequiredCaps().contains(Caps.GLSL150)) {
+                glsl150 = td;
+            } else {
+                glsl100 = td;
+            }
+        }
+        assertNotNull(glsl150);
+        assertNotNull(glsl100);
+        assertEquals("GLSL150", glsl150.getShaderProgramLanguages().get(Shader.ShaderType.Fragment));
+        assertEquals("GLSL150", glsl150.getShaderProgramLanguages().get(Shader.ShaderType.Vertex));
+        assertEquals("GLSL100", glsl100.getShaderProgramLanguages().get(Shader.ShaderType.Fragment));
+        assertEquals("GLSL100", glsl100.getShaderProgramLanguages().get(Shader.ShaderType.Vertex));
+    }
+
+    @Test
+    public void materialDefInheritance_shouldMergeDefinesAdditively() throws IOException {
+        MaterialDef def = loadChildDef("child-matdef.j3md");
+
+        List<TechniqueDef> defaultTechs = def.getTechniqueDefs("Default");
+        assertNotNull(defaultTechs);
+
+        // Parent's HAS_DIFFUSEMAP define should still exist
+        TechniqueDef td = defaultTechs.get(0);
+        assertNotNull(td.getShaderParamDefine("DiffuseMap"));
+        assertEquals("HAS_DIFFUSEMAP", td.getShaderParamDefine("DiffuseMap"));
+
+        // Child's WETNESS define should be added
+        assertNotNull(td.getShaderParamDefine("Wetness"));
+        assertEquals("WETNESS", td.getShaderParamDefine("Wetness"));
+    }
+
+    @Test
+    public void materialDefInheritance_shouldSupportNewTechniques() throws IOException {
+        MaterialDef def = loadChildDef("child-matdef-new-technique.j3md");
+
+        // Parent techniques should still exist
+        assertNotNull(def.getTechniqueDefs("Default"));
+        assertNotNull(def.getTechniqueDefs("PreShadow"));
+
+        // New technique should be added
+        List<TechniqueDef> glowTechs = def.getTechniqueDefs("Glow");
+        assertNotNull(glowTechs);
+        assertEquals(2, glowTechs.size());
+        assertEquals("glow.frag", glowTechs.get(0).getShaderProgramNames().get(Shader.ShaderType.Fragment));
+    }
+
+    @Test
+    public void materialDefInheritance_paramsOnly_shouldInheritTechniques() throws IOException {
+        MaterialDef def = loadChildDef("child-matdef-params-only.j3md");
+
+        // New param should exist
+        assertNotNull(def.getMaterialParam("Metallic"));
+
+        // Parent params should exist
+        assertNotNull(def.getMaterialParam("Roughness"));
+        assertNotNull(def.getMaterialParam("DiffuseMap"));
+
+        // Parent techniques should be inherited unchanged
+        assertNotNull(def.getTechniqueDefs("Default"));
+        assertNotNull(def.getTechniqueDefs("PreShadow"));
+        assertEquals(2, def.getTechniqueDefs("Default").size());
+        assertEquals(2, def.getTechniqueDefs("PreShadow").size());
+    }
+
+    @Test
+    public void materialDefInheritance_techniqueOnly_shouldInheritParams() throws IOException {
+        MaterialDef def = loadChildDef("child-matdef-technique-only.j3md");
+
+        // Parent params should be inherited
+        assertNotNull(def.getMaterialParam("Roughness"));
+        assertNotNull(def.getMaterialParam("DiffuseMap"));
+        assertEquals(0.5f, (float) def.getMaterialParam("Roughness").getValue(), 0.001f);
+
+        // Default technique should have overridden frag shader
+        List<TechniqueDef> defaultTechs = def.getTechniqueDefs("Default");
+        for (TechniqueDef td : defaultTechs) {
+            assertEquals("childtech.frag", td.getShaderProgramNames().get(Shader.ShaderType.Fragment));
+            assertEquals("parent.vert", td.getShaderProgramNames().get(Shader.ShaderType.Vertex));
+        }
+    }
+
+    @Test
+    public void materialDefInheritance_emptyChild_shouldInheritEverything() throws IOException {
+        MaterialDef def = loadChildDef("child-matdef-empty.j3md");
+
+        // All parent params should be inherited
+        assertNotNull(def.getMaterialParam("Roughness"));
+        assertNotNull(def.getMaterialParam("DiffuseMap"));
+        assertEquals(0.5f, (float) def.getMaterialParam("Roughness").getValue(), 0.001f);
+
+        // All parent techniques should be inherited
+        assertNotNull(def.getTechniqueDefs("Default"));
+        assertNotNull(def.getTechniqueDefs("PreShadow"));
+        assertEquals(2, def.getTechniqueDefs("Default").size());
+        assertEquals(2, def.getTechniqueDefs("PreShadow").size());
+
+        // Shader files should be parent's
+        TechniqueDef td = def.getTechniqueDefs("Default").get(0);
+        assertEquals("parent.vert", td.getShaderProgramNames().get(Shader.ShaderType.Vertex));
+        assertEquals("parent.frag", td.getShaderProgramNames().get(Shader.ShaderType.Fragment));
+    }
+
+    @Test
+    public void materialDefInheritance_shouldOverrideRenderState() throws IOException {
+        MaterialDef def = loadChildDef("child-matdef-renderstate.j3md");
+
+        List<TechniqueDef> defaultTechs = def.getTechniqueDefs("Default");
+        assertNotNull(defaultTechs);
+
+        for (TechniqueDef td : defaultTechs) {
+            RenderState rs = td.getRenderState();
+            assertNotNull(rs);
+            assertEquals(RenderState.FaceCullMode.Off, rs.getFaceCullMode());
+            assertEquals(RenderState.BlendMode.Alpha, rs.getBlendMode());
+        }
+    }
+
+    @Test
+    public void materialDefInheritance_shouldMergeWorldParamsAdditively() throws IOException {
+        MaterialDef def = loadChildDef("child-matdef-worldparams.j3md");
+
+        List<TechniqueDef> defaultTechs = def.getTechniqueDefs("Default");
+        assertNotNull(defaultTechs);
+
+        for (TechniqueDef td : defaultTechs) {
+            List<UniformBinding> worldBinds = td.getWorldBindings();
+            assertTrue(worldBinds.contains(UniformBinding.WorldViewProjectionMatrix));
+            assertTrue(worldBinds.contains(UniformBinding.ViewMatrix));
+        }
+    }
+
+    @Test
+    public void materialDefInheritance_shouldOverrideVertShaderOnly() throws IOException {
+        MaterialDef def = loadChildDef("child-matdef-vertshader.j3md");
+
+        List<TechniqueDef> defaultTechs = def.getTechniqueDefs("Default");
+        assertNotNull(defaultTechs);
+
+        for (TechniqueDef td : defaultTechs) {
+            assertEquals("childvert.vert", td.getShaderProgramNames().get(Shader.ShaderType.Vertex));
+            assertEquals("parent.frag", td.getShaderProgramNames().get(Shader.ShaderType.Fragment));
+        }
+    }
+
+    @Test
+    public void materialDefInheritance_definesOnBothVariants() throws IOException {
+        MaterialDef def = loadChildDef("child-matdef.j3md");
+
+        List<TechniqueDef> defaultTechs = def.getTechniqueDefs("Default");
+        assertNotNull(defaultTechs);
+        assertEquals(2, defaultTechs.size());
+
+        // Both variants should have the child's WETNESS define
+        for (TechniqueDef td : defaultTechs) {
+            assertNotNull("WETNESS define should be present on variant with caps " + td.getRequiredCaps(),
+                    td.getShaderParamDefine("Wetness"));
+            assertEquals("WETNESS", td.getShaderParamDefine("Wetness"));
+        }
+
+        // Both variants should still have the parent's HAS_DIFFUSEMAP define
+        for (TechniqueDef td : defaultTechs) {
+            assertNotNull("HAS_DIFFUSEMAP define should be present on variant with caps " + td.getRequiredCaps(),
+                    td.getShaderParamDefine("DiffuseMap"));
+            assertEquals("HAS_DIFFUSEMAP", td.getShaderParamDefine("DiffuseMap"));
+        }
+    }
+
+    // ---- Multi-Inheritance helpers ----
+
+    private MaterialDef loadMixinDef(String resourceName) throws IOException {
+        J3MLoader loader = new J3MLoader();
+        AssetInfo info = Mockito.mock(AssetInfo.class);
+        @SuppressWarnings("unchecked")
+        AssetKey<MaterialDef> key = Mockito.mock(AssetKey.class);
+        when(key.getExtension()).thenReturn("j3md");
+        when(key.getName()).thenReturn(resourceName);
+        when(info.getManager()).thenReturn(assetManager);
+        when(info.getKey()).thenReturn(key);
+        when(info.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/" + resourceName));
+        return (MaterialDef) loader.load(info);
+    }
+
+    @SuppressWarnings("unchecked")
+    private MaterialDef loadMultiInheritChildDef(String resourcePath, String... parentResources) throws IOException {
+        // Load each parent
+        final Map<String, MaterialDef> parentDefs = new HashMap<>();
+        for (String parentResource : parentResources) {
+            parentDefs.put(parentResource, loadMixinDef(parentResource));
+        }
+
+        // Mock assetManager.loadAsset to return the correct parent based on path
+        when(assetManager.loadAsset(any(AssetKey.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                AssetKey<?> k = (AssetKey<?>) invocation.getArguments()[0];
+                MaterialDef def = parentDefs.get(k.getName());
+                if (def != null) return def;
+                return null;
+            }
+        });
+
+        J3MLoader childLoader = new J3MLoader();
+        AssetInfo childInfo = Mockito.mock(AssetInfo.class);
+        AssetKey<MaterialDef> childKey = Mockito.mock(AssetKey.class);
+        when(childKey.getExtension()).thenReturn("j3md");
+        when(childKey.getName()).thenReturn(resourcePath);
+        when(childInfo.getManager()).thenReturn(assetManager);
+        when(childInfo.getKey()).thenReturn(childKey);
+        when(childInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/" + resourcePath));
+        return (MaterialDef) childLoader.load(childInfo);
+    }
+
+    // ---- Multi-Inheritance tests ----
+
+    @Test
+    public void multiInheritance_shouldInheritFromMultipleParents() throws IOException {
+        MaterialDef def = loadMultiInheritChildDef("child-multi-inherit.j3md",
+                "mixin-a.j3md", "mixin-b.j3md");
+
+        // Params from mixin-a
+        assertNotNull(def.getMaterialParam("AlphaDiscardThreshold"));
+        assertNotNull(def.getMaterialParam("NumberOfBones"));
+        // Params from mixin-b
+        assertNotNull(def.getMaterialParam("GlowMap"));
+        assertNotNull(def.getMaterialParam("GlowColor"));
+        // Own param
+        assertNotNull(def.getMaterialParam("BaseColor"));
+
+        // Own Default technique
+        assertNotNull(def.getTechniqueDefs("Default"));
+        // PreShadow from mixin-a
+        assertNotNull(def.getTechniqueDefs("PreShadow"));
+        // Glow from mixin-b
+        assertNotNull(def.getTechniqueDefs("Glow"));
+    }
+
+    @Test
+    public void multiInheritance_sharedParamSameType_shouldSucceed() throws IOException {
+        MaterialDef def = loadMultiInheritChildDef("child-multi-shared-param.j3md",
+                "mixin-a.j3md", "mixin-shared-param.j3md");
+
+        // AlphaDiscardThreshold shared between both parents (same type Float) — should succeed
+        assertNotNull(def.getMaterialParam("AlphaDiscardThreshold"));
+        assertEquals(VarType.Float, def.getMaterialParam("AlphaDiscardThreshold").getVarType());
+
+        // Params from mixin-a
+        assertNotNull(def.getMaterialParam("NumberOfBones"));
+        // Params from mixin-shared-param
+        assertNotNull(def.getMaterialParam("UseFog"));
+
+        // Techniques from both
+        assertNotNull(def.getTechniqueDefs("PreShadow"));
+        assertNotNull(def.getTechniqueDefs("Fog"));
+    }
+
+    @Test(expected = IOException.class)
+    public void multiInheritance_conflictingParamType_shouldThrow() throws IOException {
+        loadMultiInheritChildDef("child-multi-conflict-param.j3md",
+                "mixin-a.j3md", "mixin-conflict-param.j3md");
+    }
+
+    @Test(expected = IOException.class)
+    public void multiInheritance_conflictingTechnique_shouldThrow() throws IOException {
+        loadMultiInheritChildDef("child-multi-conflict-technique.j3md",
+                "mixin-a.j3md", "mixin-conflict-technique.j3md");
+    }
+
+    @Test
+    public void multiInheritance_sameTechniqueSameShaders_shouldSucceed() throws IOException {
+        MaterialDef def = loadMultiInheritChildDef("child-multi-same-technique.j3md",
+                "mixin-a.j3md", "mixin-same-technique.j3md");
+
+        // PreShadow from both parents has same shaders — should succeed without duplicating
+        List<TechniqueDef> preShadowTechs = def.getTechniqueDefs("PreShadow");
+        assertNotNull(preShadowTechs);
+        assertEquals(2, preShadowTechs.size()); // 2 variants (GLSL150 + GLSL100), not 4
+
+        // Params from both
+        assertNotNull(def.getMaterialParam("AlphaDiscardThreshold"));
+        assertNotNull(def.getMaterialParam("NumberOfBones"));
+        assertNotNull(def.getMaterialParam("Roughness"));
+    }
+
+    @Test
+    public void multiInheritance_tripleInheritance_shouldWork() throws IOException {
+        MaterialDef def = loadMultiInheritChildDef("child-triple-inherit.j3md",
+                "mixin-a.j3md", "mixin-b.j3md", "mixin-shared-param.j3md");
+
+        // Params from all three parents
+        assertNotNull(def.getMaterialParam("AlphaDiscardThreshold")); // shared A + shared-param
+        assertNotNull(def.getMaterialParam("NumberOfBones"));         // from A
+        assertNotNull(def.getMaterialParam("GlowMap"));               // from B
+        assertNotNull(def.getMaterialParam("GlowColor"));             // from B
+        assertNotNull(def.getMaterialParam("UseFog"));                // from shared-param
+
+        // Techniques from all parents
+        assertNotNull(def.getTechniqueDefs("PreShadow")); // from A
+        assertNotNull(def.getTechniqueDefs("Glow"));      // from B
+        assertNotNull(def.getTechniqueDefs("Fog"));       // from shared-param
+
+        // Own Default technique
+        assertNotNull(def.getTechniqueDefs("Default"));
     }
 }

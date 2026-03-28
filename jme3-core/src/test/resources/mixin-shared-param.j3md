@@ -1,0 +1,10 @@
+MaterialDef MixinSharedParam {
+    MaterialParameters {
+        Float AlphaDiscardThreshold
+        Boolean UseFog
+    }
+    Technique Fog {
+        VertexShader GLSL150 GLSL100 : fog.vert
+        FragmentShader GLSL150 GLSL100 : fog.frag
+    }
+}

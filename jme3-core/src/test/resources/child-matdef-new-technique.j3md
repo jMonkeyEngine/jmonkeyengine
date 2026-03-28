@@ -1,0 +1,6 @@
+MaterialDef ChildWithNewTech : parent-matdef.j3md {
+    Technique Glow {
+        VertexShader GLSL150 GLSL100 : glow.vert
+        FragmentShader GLSL150 GLSL100 : glow.frag
+    }
+}
