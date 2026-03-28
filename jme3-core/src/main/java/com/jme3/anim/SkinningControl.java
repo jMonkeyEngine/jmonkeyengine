@@ -1052,6 +1052,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         armature = (Armature) in.readSavable("armature", null);
         updateBounds = in.readBoolean("updateBounds", false);
         boundingUpdateBudget = in.readInt("boundingUpdateBudget", Integer.MAX_VALUE);
+        boundsUpdateStates = new HashMap<>();
 
         for (MatParamOverride mpo : spatial.getLocalMatParamOverrides().getArray()) {
             if (mpo.getName().equals("NumberOfBones") || mpo.getName().equals("BoneMatrices")) {
