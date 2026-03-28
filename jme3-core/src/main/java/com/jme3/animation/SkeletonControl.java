@@ -32,8 +32,6 @@
 package com.jme3.animation;
 
 import com.jme3.anim.SkinningControl;
-import com.jme3.bounding.BoundingBox;
-import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.*;
 import com.jme3.material.MatParamOverride;
 import com.jme3.math.FastMath;
@@ -107,13 +105,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * Bone offset matrices, recreated each frame
      */
     private transient Matrix4f[] offsetMatrices;
-
-    /**
-     * When true, the bounding volumes of animated geometries are updated each
-     * frame to match the current pose, ensuring correct frustum culling.
-     * Disabled by default because it adds CPU cost every frame.
-     */
-    private boolean updateBounds = false;
 
     private MatParamOverride numberOfBonesParam;
     private MatParamOverride boneMatricesParam;
@@ -201,32 +192,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     /**
-     * Enables or disables per-frame bounding-volume updates for animated
-     * geometries. When enabled, the bounding volume of each deformed geometry
-     * is recomputed every render frame to match the current animation pose,
-     * ensuring correct frustum culling at the cost of additional CPU work.
-     * Disabled by default.
-     *
-     * @param updateBounds true to update bounds each frame, false to keep
-     *                     static bind-pose bounds (default=false)
-     * @see #isUpdateBounds()
-     */
-    public void setUpdateBounds(boolean updateBounds) {
-        this.updateBounds = updateBounds;
-    }
-
-    /**
-     * Returns whether per-frame bounding-volume updates are enabled for
-     * animated geometries.
-     *
-     * @return true if bounds are updated each frame, false otherwise
-     * @see #setUpdateBounds(boolean)
-     */
-    public boolean isUpdateBounds() {
-        return updateBounds;
-    }
-
-    /**
      * Creates a skeleton control. The list of targets will be acquired
      * automatically when the control is attached to a node.
      *
@@ -294,28 +259,12 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
             // already ensured this mesh is animated.
             // Otherwise a crash will happen in skin update.
             softwareSkinUpdate(mesh, offsetMatrices);
-            if (updateBounds) {
-                // Update the mesh bounding volume to reflect the animated vertex positions.
-                geometry.updateModelBound();
-            }
         }
     }
 
     private void controlRenderHardware() {
         offsetMatrices = skeleton.computeSkinningMatrices();
         boneMatricesParam.setValue(offsetMatrices);
-
-        if (updateBounds) {
-            // Hardware skinning transforms vertices on the GPU, so the CPU-side vertex
-            // buffer is not updated. Compute the animated bounding volume from the bind
-            // pose positions and the current skinning matrices so culling is correct.
-            for (Geometry geometry : targets) {
-                Mesh mesh = geometry.getMesh();
-                if (mesh != null && mesh.isAnimated()) {
-                    updateSkinnedMeshBound(geometry, mesh, offsetMatrices);
-                }
-            }
-        }
     }
 
     @Override
@@ -754,108 +703,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         tb.updateData(ftb);
     }
 
-    /**
-     * Computes the bounding volume of an animated mesh from the bind pose
-     * positions and the current skinning matrices, then sets it on the geometry.
-     * This is used during hardware skinning to keep culling correct, since the
-     * GPU-transformed vertex positions are not reflected in the CPU-side vertex
-     * buffer.
-     *
-     * @param geometry       the geometry whose bound needs to be updated
-     * @param mesh           the animated mesh
-     * @param offsetMatrices the bone offset matrices for this frame
-     */
-    private static void updateSkinnedMeshBound(Geometry geometry, Mesh mesh,
-            Matrix4f[] offsetMatrices) {
-        VertexBuffer bindPosVB = mesh.getBuffer(Type.BindPosePosition);
-        if (bindPosVB == null) {
-            return;
-        }
-        VertexBuffer boneIndexVB = mesh.getBuffer(Type.BoneIndex);
-        VertexBuffer boneWeightVB = mesh.getBuffer(Type.BoneWeight);
-        if (boneIndexVB == null || boneWeightVB == null) {
-            return;
-        }
-        int maxWeightsPerVert = mesh.getMaxNumWeights();
-        if (maxWeightsPerVert <= 0) {
-            return;
-        }
-        int fourMinusMaxWeights = 4 - maxWeightsPerVert;
-
-        FloatBuffer bindPos = (FloatBuffer) bindPosVB.getData();
-        bindPos.rewind();
-        IndexBuffer boneIndex = IndexBuffer.wrapIndexBuffer(boneIndexVB.getData());
-        FloatBuffer boneWeightBuf = (FloatBuffer) boneWeightVB.getData();
-        boneWeightBuf.rewind();
-        // Use array() when available (heap buffer), otherwise copy to a local array.
-        float[] weights;
-        if (boneWeightBuf.hasArray()) {
-            weights = boneWeightBuf.array();
-        } else {
-            weights = new float[boneWeightBuf.limit()];
-            boneWeightBuf.get(weights);
-        }
-        int idxWeights = 0;
-
-        int numVerts = bindPos.limit() / 3;
-        float minX = Float.POSITIVE_INFINITY, minY = Float.POSITIVE_INFINITY,
-                minZ = Float.POSITIVE_INFINITY;
-        float maxX = Float.NEGATIVE_INFINITY, maxY = Float.NEGATIVE_INFINITY,
-                maxZ = Float.NEGATIVE_INFINITY;
-
-        for (int v = 0; v < numVerts; v++) {
-            float vtx = bindPos.get();
-            float vty = bindPos.get();
-            float vtz = bindPos.get();
-
-            float rx, ry, rz;
-            if (weights[idxWeights] == 0) {
-                idxWeights += 4;
-                rx = vtx;
-                ry = vty;
-                rz = vtz;
-            } else {
-                rx = 0;
-                ry = 0;
-                rz = 0;
-                for (int w = 0; w < maxWeightsPerVert; w++) {
-                    float weight = weights[idxWeights];
-                    Matrix4f mat = offsetMatrices[boneIndex.get(idxWeights++)];
-                    rx += (mat.m00 * vtx + mat.m01 * vty + mat.m02 * vtz + mat.m03) * weight;
-                    ry += (mat.m10 * vtx + mat.m11 * vty + mat.m12 * vtz + mat.m13) * weight;
-                    rz += (mat.m20 * vtx + mat.m21 * vty + mat.m22 * vtz + mat.m23) * weight;
-                }
-                idxWeights += fourMinusMaxWeights;
-            }
-
-            if (rx < minX) minX = rx;
-            if (rx > maxX) maxX = rx;
-            if (ry < minY) minY = ry;
-            if (ry > maxY) maxY = ry;
-            if (rz < minZ) minZ = rz;
-            if (rz > maxZ) maxZ = rz;
-        }
-
-        // Reuse the existing BoundingBox if possible to avoid allocation.
-        BoundingVolume bv = mesh.getBound();
-        BoundingBox bbox;
-        if (bv instanceof BoundingBox) {
-            bbox = (BoundingBox) bv;
-        } else {
-            bbox = new BoundingBox();
-        }
-        TempVars vars = TempVars.get();
-        try {
-            vars.vect1.set(minX, minY, minZ);
-            vars.vect2.set(maxX, maxY, maxZ);
-            bbox.setMinMax(vars.vect1, vars.vect2);
-        } finally {
-            vars.release();
-        }
-        // setModelBound() updates the mesh bound and triggers a world-bound refresh.
-        geometry.setModelBound(bbox);
-    }
-
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -864,7 +711,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
         oc.write(numberOfBonesParam, "numberOfBonesParam", null);
         oc.write(boneMatricesParam, "boneMatricesParam", null);
-        oc.write(updateBounds, "updateBounds", false);
     }
 
     @Override
@@ -875,7 +721,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
         numberOfBonesParam = (MatParamOverride) in.readSavable("numberOfBonesParam", null);
         boneMatricesParam = (MatParamOverride) in.readSavable("boneMatricesParam", null);
-        updateBounds = in.readBoolean("updateBounds", false);
 
         if (numberOfBonesParam == null) {
             numberOfBonesParam = new MatParamOverride(VarType.Int, "NumberOfBones", null);
