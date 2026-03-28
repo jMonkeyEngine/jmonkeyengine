@@ -227,4 +227,20 @@ public interface GL3 extends GL2 {
      *                            uniformBlockIndex within program.
      */
     public void glUniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glGetActiveUniformBlock">Reference Page</a></p>
+     *
+     * Queries information about an active uniform block.
+     *
+     * @param program           the name of a program containing the uniform block.
+     * @param uniformBlockIndex the index of the uniform block within program.
+     * @param pname             the name of the parameter to query. One of:
+     *  {@link #GL_UNIFORM_BLOCK_BINDING}
+     *  {@link #GL_UNIFORM_BLOCK_DATA_SIZE}
+     *  {@link #GL_UNIFORM_BLOCK_NAME_LENGTH}
+     *  {@link #GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS}
+     * @return the value of the queried parameter.
+     */
+    public int glGetActiveUniformBlocki(int program, int uniformBlockIndex, int pname);
 }

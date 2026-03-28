@@ -31,6 +31,8 @@
  */
 package com.jme3.renderer.opengl;
 
+import java.nio.IntBuffer;
+
 /**
  * GL functions only available on vanilla desktop OpenGL 4.0.
  * 
@@ -76,6 +78,11 @@ public interface GL4 extends GL3 {
      */
     public static final int GL_SHADER_STORAGE_BUFFER = 0x90D2;
     public static final int GL_SHADER_STORAGE_BLOCK = 0x92E6;
+
+    /**
+     * Accepted by the {@code props} parameter of GetProgramResourceiv.
+     */
+    public static final int GL_BUFFER_BINDING = 0x9302;
 
     /**
      *  Accepted by the &lt;pname&gt; parameter of GetIntegerv, GetBooleanv,
@@ -124,7 +131,22 @@ public interface GL4 extends GL3 {
      * @param storageBlockBinding The index storage block binding to associate with the specified storage block.
      */
     public void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding);
-    
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glGetProgramResource">Reference Page</a></p>
+     *
+     * Retrieves values for multiple properties of a single active resource within a program object.
+     *
+     * @param program          the name of a program object whose resources to query.
+     * @param programInterface a token identifying the interface within program containing the resource named name.
+     * @param index            the active resource index.
+     * @param props            an array of properties to query.
+     * @param length           an array that will receive the number of values written to params.
+     * @param params           an array that will receive the property values.
+     */
+    public void glGetProgramResourceiv(int program, int programInterface, int index, IntBuffer props, IntBuffer length, IntBuffer params);
+
+
     /**
      * Binds a single level of a texture to an image unit for the purpose of reading
      * and writing it from shaders.
