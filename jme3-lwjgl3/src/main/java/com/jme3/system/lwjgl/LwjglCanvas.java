@@ -223,7 +223,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                 listener.handleError("Exception while creating the OpenGL context", e);
             }
         }
-        
+        /** (non-Javadoc) */
         public boolean hasContext() {
             synchronized (lock) {
                 return context != NULL;
@@ -360,7 +360,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         public void destroy() {
             platformCanvas.destroy();
         }
-        
+        /** (non-Javadoc) */
         public void deleteContext() {
             platformCanvas.deleteContext(context);
         }
@@ -396,9 +396,12 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     
     /** Used to notify the canvas status ({@code remove()/add()}). */
     private final AtomicBoolean hasNativePeer = new AtomicBoolean(false);
-    /** It is used to create the initial context and all the resources that will be activated only once. */
+    /**
+     * It is used to create the initial context and all the resources that will
+     * be activated only once.
+     */
     private final AtomicBoolean initialize = new AtomicBoolean(false);
-    
+    /** Notify the context reintegration, invalidating the current renderer. */
     private final AtomicBoolean reinitcontext = new AtomicBoolean(false);
     
     /** Notify if there is a change in canvas dimensions. */
@@ -762,8 +765,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     }
 
     /** (non-Javadoc) */
-    @Override
-    public TouchInput getTouchInput() { return null; }
+    @Override public TouchInput getTouchInput() { return null; }
     /** (non-Javadoc) */
     @Override protected void updateSizes() { }
     /** (non-Javadoc) */
@@ -874,6 +876,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         return this.framebufferWidth;
     }
 
+    /** (non-Javadoc) */
     @Override
     public int getWindowXPosition() {
         Component component = SwingUtilities.getRoot(canvas);
@@ -883,6 +886,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         return component.getX();
     }
 
+    /** (non-Javadoc) */
     @Override
     public int getWindowYPosition() {
         Component component = SwingUtilities.getRoot(canvas);
@@ -892,15 +896,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         return component.getY();
     }
 
-    @Override
-    public Displays getDisplays() {
-        return null;
-    }
-
-    @Override
-    public int getPrimaryDisplay() {
-        return 0;
-    }
+    /** (non-Javadoc) */
+    @Override public Displays getDisplays() { return null; }
+    /** (non-Javadoc) */
+    @Override public int getPrimaryDisplay() { return 0; }
 
     /**
      * Returns the AWT component where it is drawn (canvas).
