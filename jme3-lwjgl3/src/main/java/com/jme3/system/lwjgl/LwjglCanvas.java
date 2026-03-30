@@ -711,8 +711,8 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         
         // This will activate the "effective data" scrubber.
         if (settings.getBoolean("GLDataEffectiveDebug")) {
-            System.out.println(MessageFormat.format("[ DEBUGGER ] :Effective data to initialize the LWJGL3-AWT context\n{0}", 
-                                                getPrintContextInitInfo(canvas.getGLDataEffective())));
+            LOGGER.log(Level.INFO, "[ DEBUGGER ] :Effective data to initialize the LWJGL3-AWT context\n{0}",
+                                                getPrintContextInitInfo(canvas.getGLDataEffective()));
         }
         // Create OpenCL
         if (settings.isOpenCLSupport()) {
