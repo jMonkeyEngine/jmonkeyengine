@@ -306,15 +306,8 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
         InputCapsule ic = im.getCapsule(this);
         playState = ic.readEnum("playState", PlayState.class, PlayState.Stopped);
         speed = ic.readFloat("speed", 1);
-        // Originally, "initialDuration" was serialized with the name "initalDuration".
-        // The next code ensure backward compatibility.
-        initialDuration = ic.readFloat("initialDuration", -1);
-        if (initialDuration < 0) {
-            initialDuration = ic.readFloat("initalDuration", -1);
-            if (initialDuration < 0) {
-                initialDuration = 10;
-            }
-        }
+        // Maintain backward compatibility for a typo in the serialization key "initalDuration".
+        initialDuration = ic.readFloat("initialDuration", ic.readFloat("initalDuration", 10));
         loopMode = ic.readEnum("loopMode", LoopMode.class, LoopMode.DontLoop);
     }
 
