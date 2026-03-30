@@ -531,8 +531,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                         createContext(settings);
                         reinitContext();
                         
-                        renderer.cleanup();
-                        renderer.invalidateState();
                         listener.gainFocus();
                     }
                 }
