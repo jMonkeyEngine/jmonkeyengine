@@ -565,7 +565,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                     }
                 }
             } else {
-                //canvas.doDisposeCanvas();
+                canvas.doDisposeCanvas();
                 try {
                     Thread.sleep(16);
                 } catch (InterruptedException ignore) { }
