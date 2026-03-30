@@ -349,7 +349,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             
             // GL context is dead at this point
             LOGGER.log(Level.FINE, "EDT: Acknowledged receipt of canvas death");
-            System.out.println("<remove>");
             super.removeNotify();
         }
         
@@ -714,6 +713,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         if (settings.getBoolean("GLDataEffectiveDebug")) {
             System.out.println(MessageFormat.format("[ DEBUGGER ] :Effective data to initialize the LWJGL3-AWT context\n{0}", 
                                                 getPrintContextInitInfo(canvas.getGLDataEffective())));
+        }
+        // Create OpenCL
+        if (settings.isOpenCLSupport()) {
+            
         }
     }
 
