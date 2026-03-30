@@ -504,8 +504,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                     LOGGER.log(Level.FINE, "LWJGX: Destroying display ..");
                     
                     listener.loseFocus();
-                    renderer.invalidateState();
-                    renderer.cleanup();
+                    if (renderer != null) {
+                        renderer.invalidateState();
+                        renderer.cleanup();
+                    }
                     
                     canvas.releaseContext();
                     canvas.deleteContext();
