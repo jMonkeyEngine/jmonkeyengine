@@ -183,7 +183,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private long monitor = NULL;
     private long window = NULL;
-    private int frameRateLimit = -1;
+    protected int frameRateLimit = -1;
 
     protected boolean wasActive = false;
     protected boolean autoFlush = true;
@@ -478,7 +478,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         updateSizes();
     }
 
-    private void updateSizes() {
+    protected void updateSizes() {
         // framebuffer size (resolution) may differ from window size (e.g. HiDPI)
 
         glfwGetWindowSize(window, width, height);
@@ -762,7 +762,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glfwPollEvents();
     }
 
-    private void restartContext() {
+    protected void restartContext() {
         try {
             destroyContext();
             createContext(settings);
@@ -783,7 +783,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         LOGGER.fine("Display restarted.");
     }
 
-    private void setFrameRateLimit(int frameRateLimit) {
+    protected final void setFrameRateLimit(int frameRateLimit) {
         this.frameRateLimit = frameRateLimit;
     }
 

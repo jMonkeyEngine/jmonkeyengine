@@ -40,6 +40,17 @@ import static org.lwjgl.system.Platform.*;
  */
 public final class LwjglxDefaultGLPlatform {
     
+    public static boolean isWayland() {
+        Platform platform = Platform.get();
+        if (platform == LINUX || platform == FREEBSD) {
+            // The following matches the test GLFW does to enable the Wayland backend.
+            if ("wayland".equals(System.getenv("XDG_SESSION_TYPE")) && System.getenv("WAYLAND_DISPLAY") != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Returns a drawing platform based on the platform it is running on.
      * @return LwjglxGLPlatform
@@ -49,7 +60,7 @@ public final class LwjglxDefaultGLPlatform {
         switch (Platform.get()) {
             case WINDOWS:
                 return new Win32GLPlatform();
-            //case FREEBSD:  -> In future versions of lwjgl3 (possibly)
+            case FREEBSD:
             case LINUX:
                 return new X11GLPlatform();
             case MACOSX:
