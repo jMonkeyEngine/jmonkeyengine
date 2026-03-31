@@ -289,7 +289,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         public void unlock() {
             synchronized (lock) {
                 try {
-                platformCanvas.unlock();// <- MUST unlock on Linux
+                    platformCanvas.unlock();// <- MUST unlock on Linux
                 } catch (AWTException e) {
                     listener.handleError("Failed to unlock Canvas", e);
                 }
@@ -535,7 +535,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                     }
                 } else {                    
                     if (!canvas.hasContext()) {
-                        LOGGER.log(Level.FINE, "OGL: Creating display ..");
+                        LOGGER.log(Level.FINE, "AWT: Creating display ..");
                         createContext(settings);
                         reinitContext();
                         
