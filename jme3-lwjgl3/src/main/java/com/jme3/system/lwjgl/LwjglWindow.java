@@ -472,7 +472,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         // Create OpenCL
         if (settings.isOpenCLSupport()) {
-            initOpenCL(window);
+            initOpenCL(window, null);
         }
 
         updateSizes();

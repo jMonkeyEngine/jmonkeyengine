@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2025 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.geom.AffineTransform;
-import java.text.MessageFormat;
+
+import javax.swing.SwingUtilities;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -67,9 +69,13 @@ import org.lwjgl.awthacks.NonClearGraphics;
 import org.lwjgl.awthacks.NonClearGraphics2D;
 import org.lwjgl.opengl.awt.GLData;
 
-import javax.swing.*;
-
 import org.lwjgl.system.Configuration;
+import org.lwjgl.opencl.APPLEGLSharing;
+import org.lwjgl.opencl.KHRGLSharing;
+import org.lwjgl.opengl.CGL;
+import org.lwjgl.opengl.WGL;
+import org.lwjgl.system.Platform;
+
 import static org.lwjgl.system.MemoryUtil.*;
 import static com.jme3.system.lwjglx.LwjglxDefaultGLPlatform.*;
 
@@ -716,7 +722,30 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
         }
         // Create OpenCL
         if (settings.isOpenCLSupport()) {
-            
+            initOpenCL(canvas.context, (properties, context) -> {
+                switch (Platform.get()) {
+                    case WINDOWS:
+                        properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR)
+                                .put(context)
+                                .put(KHRGLSharing.CL_WGL_HDC_KHR)
+                                .put(WGL.wglGetCurrentDC());
+                        break;
+                    case FREEBSD:
+                    case LINUX:
+                        properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR)
+                                .put(context)
+                                .put(KHRGLSharing.CL_GLX_DISPLAY_KHR)
+                                .put(getX11Display(canvas.platformCanvas));
+                        break;
+                    case MACOSX:
+                        properties.put(APPLEGLSharing.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE)
+                                .put(CGL.CGLGetShareGroup(CGL.CGLGetCurrentContext()));
+                        break;
+                    default:
+                        break; // Unknown Platform, do nothing.
+                }
+                return null;
+            });
         }
     }
 

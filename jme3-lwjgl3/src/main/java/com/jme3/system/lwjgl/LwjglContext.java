@@ -62,6 +62,7 @@ import static com.jme3.util.LWJGLBufferAllocator.PROPERTY_CONCURRENT_BUFFER_ALLO
 import java.nio.IntBuffer;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toSet;
@@ -327,7 +328,7 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     @SuppressWarnings("unchecked")
-    protected void initOpenCL(final long window) {
+    protected void initOpenCL(final long window, BiFunction<PointerBuffer, Long, Void> sharing) {
         logger.info("Initialize OpenCL with LWJGL3");
         
 //        try {
@@ -433,7 +434,7 @@ public abstract class LwjglContext implements JmeContext {
         
         // create context
         try {
-            long context = createContext(platform.getPlatform(), deviceIds, window);
+            long context = createContext(platform.getPlatform(), deviceIds, window, sharing);
             clContext = new com.jme3.opencl.lwjgl.LwjglContext(context, (List<LwjglDevice>) chosenDevices);
         } catch (final Exception ex) {
             logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
@@ -443,7 +444,7 @@ public abstract class LwjglContext implements JmeContext {
         logger.info("OpenCL context created");
     }
 
-    private long createContext(final long platform, final long[] devices, long window) {
+    private long createContext(final long platform, final long[] devices, long window, BiFunction<PointerBuffer, Long, Void> sharing) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
 
             final int propertyCount = 2 + 4 + 1;
@@ -453,25 +454,29 @@ public abstract class LwjglContext implements JmeContext {
             // https://github.com/glfw/glfw/issues/104
             // https://github.com/LWJGL/lwjgl3/blob/master/modules/core/src/test/java/org/lwjgl/demo/opencl/Mandelbrot.java
             // TODO: test on Linux and MacOSX
-            switch (Platform.get()) {
-                case WINDOWS:
-                    properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR)
-                            .put(org.lwjgl.glfw.GLFWNativeWGL.glfwGetWGLContext(window))
-                            .put(KHRGLSharing.CL_WGL_HDC_KHR)
-                            .put(org.lwjgl.opengl.WGL.wglGetCurrentDC());
-                    break;
-                case LINUX:
-                    properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR)
-                            .put(org.lwjgl.glfw.GLFWNativeGLX.glfwGetGLXContext(window))
-                            .put(KHRGLSharing.CL_GLX_DISPLAY_KHR)
-                            .put(org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Display());
-                    break;
-                case MACOSX:
-                    properties.put(APPLEGLSharing.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE)
-                            .put(org.lwjgl.opengl.CGL.CGLGetShareGroup(org.lwjgl.opengl.CGL.CGLGetCurrentContext()));
-                    break;
-                default:
-                    break; // Unknown Platform, do nothing.
+            if (sharing == null) {
+                switch (Platform.get()) {
+                    case WINDOWS:
+                        properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR)
+                                .put(org.lwjgl.glfw.GLFWNativeWGL.glfwGetWGLContext(window))
+                                .put(KHRGLSharing.CL_WGL_HDC_KHR)
+                                .put(org.lwjgl.opengl.WGL.wglGetCurrentDC());
+                        break;
+                    case LINUX:
+                        properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR)
+                                .put(org.lwjgl.glfw.GLFWNativeGLX.glfwGetGLXContext(window))
+                                .put(KHRGLSharing.CL_GLX_DISPLAY_KHR)
+                                .put(org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Display());
+                        break;
+                    case MACOSX:
+                        properties.put(APPLEGLSharing.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE)
+                                .put(org.lwjgl.opengl.CGL.CGLGetShareGroup(org.lwjgl.opengl.CGL.CGLGetCurrentContext()));
+                        break;
+                    default:
+                        break; // Unknown Platform, do nothing.
+                }
+            } else {
+                sharing.apply(properties, window);
             }
 
             properties.put(CL_CONTEXT_PLATFORM).put(platform);

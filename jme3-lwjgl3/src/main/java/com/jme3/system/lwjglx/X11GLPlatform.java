@@ -45,6 +45,10 @@ import static org.lwjgl.system.jawt.JAWTFunctions.*;
  * @author wil
  */
 final class X11GLPlatform extends PlatformLinuxGLCanvas implements LwjglxGLPlatform {
+
+    public long getDisplay() {
+        return display;
+    }
     
     /**
      * (non-Javadoc)

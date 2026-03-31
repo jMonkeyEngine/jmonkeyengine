@@ -32,6 +32,8 @@
 package com.jme3.system.lwjglx;
 
 import org.lwjgl.system.Platform;
+
+import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.system.Platform.*;
 
 /**
@@ -39,7 +41,12 @@ import static org.lwjgl.system.Platform.*;
  * @author wil
  */
 public final class LwjglxDefaultGLPlatform {
-    
+
+    /**
+     * Detects if you are in a Wayland session.
+     *
+     * @return boolean
+     */
     public static boolean isWayland() {
         Platform platform = Platform.get();
         if (platform == LINUX || platform == FREEBSD) {
@@ -52,9 +59,27 @@ public final class LwjglxDefaultGLPlatform {
     }
 
     /**
+     * Returns the pointer to a {@code Display*} that uses X11.
+     *
+     * @param platform the AWT/GL platform
+     * @return Display
+     */
+    public static long getX11Display(LwjglxGLPlatform platform) {
+        if (platform == null) {
+            return NULL;
+        }
+        if (platform instanceof X11GLPlatform) {
+            return ((X11GLPlatform) platform).getDisplay();
+        }
+        return NULL;
+    }
+
+    /**
      * Returns a drawing platform based on the platform it is running on.
+     *
      * @return LwjglxGLPlatform
-     * @throws UnsupportedOperationException throws exception if platform is not supported
+     * @throws UnsupportedOperationException throws exception if platform is not
+     * supported
      */
     public static LwjglxGLPlatform createLwjglxGLPlatform() throws UnsupportedOperationException {
         switch (Platform.get()) {
