@@ -34,9 +34,9 @@ public class ConcurrentBuffer <T extends MappableBuffer> implements MappableBuff
     }
 
     @Override
-    public ResizeResult resize(MemorySize size) {
+    public void resize(long bytes) {
         mappingLock.lock();
-        ResizeResult result = buffer.resize(size);
+        ResizeResult result = buffer.resize(bytes);
         mappingLock.unlock();
         return result;
     }
@@ -87,8 +87,8 @@ public class ConcurrentBuffer <T extends MappableBuffer> implements MappableBuff
         }
 
         @Override
-        public void push(long offset, long size) {
-            mapping.push(this.offset + offset, size);
+        public void stage(long offset, long size) {
+            mapping.stage(this.offset + offset, size);
         }
 
         @Override

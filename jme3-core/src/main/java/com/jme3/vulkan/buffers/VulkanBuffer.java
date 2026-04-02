@@ -19,4 +19,8 @@ public interface VulkanBuffer extends MappableBuffer {
 
     IntEnum<SharingMode> getSharingMode();
 
+    default boolean isMemoryMappable() {
+        return getMemoryProperties().contains(MemoryProp.HostVisible);
+    }
+
 }

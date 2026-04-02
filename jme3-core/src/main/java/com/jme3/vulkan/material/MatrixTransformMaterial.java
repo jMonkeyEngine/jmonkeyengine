@@ -2,7 +2,7 @@ package com.jme3.vulkan.material;
 
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorPool;
-import com.jme3.vulkan.material.uniforms.StructUniform;
+import com.jme3.vulkan.material.uniforms.BufferUniform;
 import com.jme3.vulkan.material.shader.ShaderStage;
 
 /**
@@ -10,7 +10,7 @@ import com.jme3.vulkan.material.shader.ShaderStage;
  */
 public class MatrixTransformMaterial extends NewMaterial {
 
-    private final StructUniform transforms = new StructUniform("Transforms",
+    private final BufferUniform transforms = new BufferUniform("Transforms",
             Descriptor.UniformBuffer, 0, ShaderStage.Vertex);
 
     public MatrixTransformMaterial(DescriptorPool pool) {
@@ -18,7 +18,7 @@ public class MatrixTransformMaterial extends NewMaterial {
         addSet(0, transforms);
     }
 
-    public StructUniform getTransforms() {
+    public BufferUniform getTransforms() {
         return transforms;
     }
 

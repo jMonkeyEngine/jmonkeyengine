@@ -3,78 +3,54 @@ package com.jme3.vulkan.mesh;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.bih.BIHTree;
+import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.scene.GlMesh;
-import com.jme3.scene.GlVertexBuffer;
-import com.jme3.vulkan.buffers.BufferMapping;
-import com.jme3.vulkan.buffers.GlNativeBuffer;
-import com.jme3.vulkan.buffers.GpuBuffer;
-import com.jme3.vulkan.buffers.MappableBuffer;
+import com.jme3.scene.Mesh;
+import com.jme3.util.struct.FieldSequence;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructField;
+import com.jme3.vulkan.VulkanEnums;
+import com.jme3.vulkan.buffers.*;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.mesh.attribute.Attribute;
+import com.jme3.vulkan.mesh.attributes.AttributeMapping;
+import com.jme3.vulkan.mesh.attributes.CommonAttributes;
 import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.pipeline.VertexPipeline;
-import com.jme3.vulkan.tmp.EffectivelyFinal;
-import com.jme3.vulkan.tmp.EffectivelyFinalWriter;
+import com.jme3.vulkan.tmp.FinalWriter;
 import com.jme3.vulkan.tmp.SerializationOnly;
-import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
-import java.nio.LongBuffer;
 import java.util.*;
+import java.util.function.IntFunction;
 
 import static org.lwjgl.vulkan.VK10.*;
 
-public class AdaptiveMesh implements VulkanMesh, GlMesh {
+public class AdaptiveMesh implements VulkanMesh, GlMesh, Mesh {
 
-    @EffectivelyFinal
-    private MeshLayout layout;
-    @EffectivelyFinal
-    private long vertexCapacity, instanceCapacity;
-
-    private final Map<VertexBinding, VertexBuffer> vertexBuffers = new IdentityHashMap<>();
-    protected final List<MappableBuffer> indexBuffers = new ArrayList<>(1);
-    private final Map<String, GlVertexBuffer.Usage> attributeUsages = new HashMap<>();
-    private MappableBuffer selectedIndex;
-    private long vertices, instances;
-    private final BoundingVolume volume = new BoundingBox();
+    private final Collection<VertexBuffer> vertexBuffers = new ArrayList<>();
+    private final List<IdxBuffer> indexBuffers = new ArrayList<>();
+    private IdxBuffer activeIndex;
+    private int vertexCapacity, instanceCapacity;
+    private int vertices, instances;
+    private Topology topology = Topology.TriangleList;
+    private BoundingVolume volume = new BoundingBox();
     private BIHTree collisionTree;
-    private IntEnum<Topology> topology = Topology.TriangleList;
 
     @SerializationOnly
-    protected AdaptiveMesh() {}
-
-    public AdaptiveMesh(MeshLayout layout, long vertices, long instances) {
-        this.layout = layout;
-        this.vertices = this.vertexCapacity = vertices;
-        this.instances = this.instanceCapacity = instances;
+    protected AdaptiveMesh() {
+        vertices = vertexCapacity = 1;
+        instances = instanceCapacity = 1;
     }
 
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule out = ex.getCapsule(this);
-        out.write(layout, "layout", null);
-        out.write(vertexCapacity, "vertexCapacity", 0);
-        out.write(instanceCapacity, "instanceCapacity", 0);
-        out.write(vertices, "vertices", 0);
-        out.write(instances, "instances", 0);
-        out.write(indexBuffers.size(), "numLodLevels", 0);
-        for (ListIterator<MappableBuffer> it = indexBuffers.listIterator(); it.hasNext();) {
-            MappableBuffer buf = it.next();
-            if (buf != null) try (BufferMapping m = buf.map()) {
-                out.write(m.getBytes(), "lod" + it.previousIndex(), null);
-            }
-        }
-    }
-
-    @Override
-    @EffectivelyFinalWriter
-    public void read(JmeImporter im) throws IOException {
-
+    public AdaptiveMesh(int vertexCapacity, int instanceCapacity) {
+        this.vertices = this.vertexCapacity = vertexCapacity;
+        this.instances = this.instanceCapacity = instanceCapacity;
     }
 
     @Override
@@ -83,21 +59,24 @@ public class AdaptiveMesh implements VulkanMesh, GlMesh {
             return;
         }
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            LongBuffer verts = stack.mallocLong(layout.getBindings().size());
-            LongBuffer offsets = stack.mallocLong(layout.getBindings().size());
-            for (VertexBinding b : layout.getBindings()) {
-                if (pipeline.isVertexBindingCompatible(b)) {
-                    verts.put(((GpuBuffer<Long>)getVertexBuffer(b).getData().getBuffer()).getGpuObject());
-                    offsets.put(b.getOffset());
-                }
-            }
-            vkCmdBindVertexBuffers(cmd.getBuffer(), 0, verts.flip(), offsets.flip());
+            pipeline.bindVertexBuffers(stack, cmd, vertexBuffers);
         }
-        if (selectedIndex == null) {
+        if (activeIndex == null) {
             selectLevelOfDetail(0);
         }
-        vkCmdBindIndexBuffer(cmd.getBuffer(), ((GpuBuffer<Long>)selectedIndex).getGpuObject(), 0, IndexType.of(selectedIndex).getEnum());
-        vkCmdDrawIndexed(cmd.getBuffer(), (int)selectedIndex.size().getElements(), (int)instances, 0, 0, 0);
+        if (activeIndex != null) {
+            vkCmdBindIndexBuffer(cmd.getBuffer(),
+                    ((VulkanBuffer)activeIndex.getBuffer()).getBufferId(cmd.getPool().getDevice()),
+                    0, activeIndex.getType().getEnum(VulkanEnums.instance));
+            vkCmdDrawIndexed(cmd.getBuffer(), activeIndex.getElements(), instances, 0, 0, 0);
+        } else {
+            vkCmdDraw(cmd.getBuffer(), vertices, instances, 0, 0);
+        }
+    }
+
+    @Override
+    public VertexInput declareVertexInput(VertexPipeline pipeline) {
+        return new VertexInput(pipeline, vertexBuffers);
     }
 
     @Override
@@ -105,121 +84,210 @@ public class AdaptiveMesh implements VulkanMesh, GlMesh {
         if (vertices <= 0 || instances <= 0) {
             return;
         }
-        for (VertexBuffer vb : vertexBuffers.values()) {
+        for (VertexBuffer vb : vertexBuffers) {
             renderer.setVertexAttrib(vb);
         }
         renderer.clearVertexAttribs();
-        if (selectedIndex == null) {
+        if (activeIndex == null) {
             selectLevelOfDetail(0);
         }
-        renderer.drawTriangleList((GlNativeBuffer)selectedIndex, topology, (int)instances, (int)vertices);
-    }
-
-    @Override
-    public <T extends Attribute> T mapAttribute(String name) {
-        return layout.mapAttribute(this, name);
-    }
-
-    @Override
-    public MappableBuffer getIndexBuffer() {
-        return indexBuffers.get(0);
-    }
-
-    @Override
-    public MappableBuffer selectLevelOfDetail(int level) {
-        selectedIndex = null;
-        for (; level >= 0; level--) {
-            if ((selectedIndex = indexBuffers.get(level)) != null) break;
+        if (activeIndex != null) {
+            renderer.drawTriangleList(activeIndex, topology, instances, vertices);
+        } else {
+            renderer.drawTriangleArray(topology, instances, vertices);
         }
-        if (selectedIndex == null) {
-            throw new NullPointerException("No index buffer found at or below the specified level of detail.");
-        }
-        return selectedIndex;
     }
 
     @Override
-    public MappableBuffer getLevelOfDetail(int level) {
-        for (; level >= 0; level--) {
-            MappableBuffer index = indexBuffers.get(level);
-            if (index != null) return index;
+    public void setIndexBuffer(int lod, IdxBuffer buffer) {
+        while (lod >= indexBuffers.size()) {
+            indexBuffers.add(null);
+        }
+        indexBuffers.set(lod, buffer);
+    }
+
+    @Override
+    public int selectLevelOfDetail(int lod) {
+        lod = Math.min(lod, indexBuffers.size() - 1);
+        for (; lod >= 0; lod--) {
+            activeIndex = indexBuffers.get(lod);
+            if (activeIndex != null) return lod;
+        }
+        activeIndex = null;
+        return 0;
+    }
+
+    @Override
+    public IdxBuffer getIndexBuffer(int lod) {
+        return indexBuffers.get(lod);
+    }
+
+    @Override
+    public IdxBuffer getLevelOfDetail(int lod) {
+        lod = Math.min(lod, indexBuffers.size() - 1);
+        for (; lod >= 0; lod--) {
+            IdxBuffer idx = indexBuffers.get(lod);
+            if (idx != null) return idx;
         }
         return null;
     }
 
     @Override
-    public VertexBuffer getVertexBuffer(VertexBinding binding) {
-        VertexBuffer vb = vertexBuffers.get(binding);
-        if (vb == null) {
-            GlVertexBuffer.Usage usage = GlVertexBuffer.Usage.Static;
-            for (NamedAttribute attr : binding.getAttributes()) {
-                GlVertexBuffer.Usage u = attributeUsages.get(attr.getName());
-                if (u != null && u.ordinal() > usage.ordinal()) {
-                    usage = u;
-                }
-            }
-            vertexBuffers.put(binding, vb = new VertexBuffer(binding, getCapacity(binding.getInputRate()), usage));
-        }
-        return vb;
+    public void stageIndices(int lod) {
+        IdxBuffer buf = indexBuffers.get(lod);
+        if (buf != null) buf.stage();
     }
 
     @Override
-    public long setElements(IntEnum<InputRate> rate, long elements) {
-        if (rate.is(InputRate.Vertex)) return vertices = Math.min(elements, vertexCapacity);
-        if (rate.is(InputRate.Instance)) return instances = Math.min(elements, instanceCapacity);
-        throw new IllegalArgumentException("Input rate enum \"" + rate + "\" is not supported.");
+    public void stageLevelOfDetail(int lod) {
+        IdxBuffer buf = getLevelOfDetail(lod);
+        if (buf != null) buf.stage();
     }
 
     @Override
-    public void pushElements(IntEnum<InputRate> rate, long baseElement, long elements) {
-        for (VertexBuffer vb : vertexBuffers.values()) {
-            if (vb.getBinding().getInputRate().is(rate)) {
-                vb.getData().stage(vb.getBinding().getOffset() + baseElement * vb.getBinding().getStride(), elements * vb.getBinding().getStride());
-            }
+    public void stageIndices() {
+        for (IdxBuffer buf : indexBuffers) {
+            if (buf != null) buf.stage();
         }
     }
 
     @Override
-    public void pushElements(IntEnum<InputRate> rate) {
-        pushElements(rate, 0, getElements(rate));
-    }
-
-    @Override
-    public long getElements(IntEnum<InputRate> rate) {
-        if (rate.is(InputRate.Vertex)) return vertices;
-        if (rate.is(InputRate.Instance)) return instances;
-        return 0;
-    }
-
-    @Override
-    public long getCapacity(IntEnum<InputRate> rate) {
-        if (rate.is(InputRate.Vertex)) return vertexCapacity;
-        if (rate.is(InputRate.Instance)) return instanceCapacity;
-        return 0;
+    public void addVertexBuffer(VertexBuffer vertexBuffer) {
+        vertexBuffer.resize(getElementCapacity(vertexBuffer.getRate()));
+        vertexBuffers.add(vertexBuffer);
     }
 
     @Override
     public Collection<VertexBuffer> getVertexBuffers() {
-        return Collections.unmodifiableCollection(vertexBuffers.values());
+        return Collections.unmodifiableCollection(vertexBuffers);
     }
 
     @Override
-    public IntEnum<Topology> getTopology() {
+    public AttributeMapping mapAttributes(InputRate rate, String... attributes) {
+        Queue<StructField> fields = new LinkedList<>();
+        Map<Struct, VertexBuffer> bindings = new IdentityHashMap<>();
+        for (String n : attributes) {
+            VertexBuffer vb = vertexBuffers.stream()
+                    .filter(v -> v.getRate() == rate && v.getAttribute(n) != null)
+                    .findFirst().orElse(null);
+            if (vb != null) {
+                fields.add(vb.getAttribute(n));
+                bindings.put(vb.getStruct(), vb);
+            } else {
+                throw new NullPointerException("Attribute \"" + n + "\" does not exist.");
+            }
+        }
+        return new AttributeMapping(getElementCount(rate), bindings.values(), fields);
+    }
+
+    @Override
+    public void stageVertices(int baseVertex, int vertices) {
+        for (VertexBuffer vb : vertexBuffers) {
+            if (vb.getRate() == InputRate.Vertex) {
+                vb.stage(baseVertex, vertices);
+            }
+        }
+    }
+
+    @Override
+    public void stageInstances(int baseInstance, int instances) {
+        for (VertexBuffer vb : vertexBuffers) {
+            if (vb.getRate() == InputRate.Instance) {
+                vb.stage(baseInstance, instances);
+            }
+        }
+    }
+
+    @Override
+    public void setVertexCapacity(int vertexCapacity) {
+        this.vertexCapacity = vertexCapacity;
+        for (VertexBuffer vb : vertexBuffers) {
+            if (vb.getRate() == InputRate.Vertex) {
+                vb.resize(vertexCapacity);
+            }
+        }
+    }
+
+    @Override
+    public void setInstanceCapacity(int instanceCapacity) {
+        for (VertexBuffer vb : vertexBuffers) {
+            if (vb.getRate() == InputRate.Instance) {
+                vb.resize(instanceCapacity);
+            }
+        }
+    }
+
+    @Override
+    public int setVertexCount(int vertices) {
+        return this.vertices = Math.min(vertices, vertexCapacity);
+    }
+
+    @Override
+    public int setInstanceCount(int instances) {
+        return this.instances = Math.min(instances, instanceCapacity);
+    }
+
+    @Override
+    public void setTopology(Topology topology) {
+        this.topology = topology;
+    }
+
+    @Override
+    public int getVertexCount() {
+        return vertices;
+    }
+
+    @Override
+    public int getInstanceCount() {
+        return instances;
+    }
+
+    @Override
+    public int getVertexCapacity() {
+        return vertexCapacity;
+    }
+
+    @Override
+    public int getInstanceCapacity() {
+        return instanceCapacity;
+    }
+
+    @Override
+    public Topology getTopology() {
         return topology;
     }
 
     @Override
-    public void setUsage(String attributeName, GlVertexBuffer.Usage usage) {
-        attributeUsages.put(attributeName, usage);
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        out.writeSavableArrayList(new ArrayList(vertexBuffers), "vertexBuffers", null);
+        out.writeSavableArrayList(new ArrayList(indexBuffers), "indexBuffers", null);
+        out.write(vertices, "vertices", 1);
+        out.write(instances, "instances", 1);
+        out.write(vertexCapacity, "vertexCapacity", Math.max(vertices, 1));
+        out.write(instanceCapacity, "instanceCapacity", Math.max(instances, 1));
+        out.write(topology, "topology", Topology.TriangleList);
+        out.write(volume, "volume", null);
     }
 
     @Override
-    public boolean attributeExists(String name) {
-        return layout.attributeExists(name);
+    @FinalWriter
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        vertexBuffers.addAll(in.readSavableArrayList("vertexBuffers", null));
+        indexBuffers.addAll(in.readSavableArrayList("indexBuffers", null));
+        vertices = in.readInt("vertices", 1);
+        instances = in.readInt("instances", 1);
+        vertexCapacity = in.readInt("vertexCapacity", Math.max(vertices, 1));
+        instanceCapacity = in.readInt("instanceCapacity", Math.max(instances, 1));
+        topology = in.readEnum("topology", Topology.class, Topology.TriangleList);
+        volume = (BoundingVolume)in.readSavable("volume", null);
     }
 
-    @Override
-    public MeshLayout getLayout() {
-        return layout;
+    public void updateBound() {
+        try (AttributeMapping m = mapAttributes(InputRate.Vertex, CommonAttributes.Position)) {
+            volume.computeFromPoints(new FieldSequence<>(m, m.poll()));
+        }
     }
 
 }

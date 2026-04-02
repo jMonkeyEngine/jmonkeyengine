@@ -40,7 +40,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.math.*;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
-import com.jme3.vulkan.mesh.attribute.Attribute;
+import com.jme3.util.struct.FieldSequence;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
@@ -127,7 +127,7 @@ public class BoundingSphere extends BoundingVolume {
     }
 
     @Override
-    public void computeFromPoints(Attribute<Vector3f> points) {
+    public void computeFromPoints(FieldSequence<Vector3f> points) {
         calcWelzl(points);
     }
 
@@ -186,13 +186,14 @@ public class BoundingSphere extends BoundingVolume {
      * @param points
      *            The points to calculate the minimum bounds from.
      */
-    public void calcWelzl(Attribute<Vector3f> points) {
+    public void calcWelzl(FieldSequence<Vector3f> points) {
         if (center == null) {
             center = new Vector3f();
         }
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer buf = stack.mallocFloat((int)points.getNumElements() * 3);
-            for (Vector3f p : points.read()) {
+            for (int i : points) {
+                Vector3f p = points.field().get();
                 buf.put(p.x).put(p.y).put(p.z);
             }
             recurseMini(buf.flip(), (int)points.getNumElements(), 0, 0);

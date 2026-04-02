@@ -6,6 +6,7 @@ import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.Swizzle;
+import com.jme3.vulkan.VulkanEnums;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.vulkan.VkImageViewCreateInfo;
@@ -110,7 +111,7 @@ public class VulkanImageView extends AbstractNative<Long> implements ImageView<V
                     .sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO)
                     .image(image.getId())
                     .viewType(type.getEnum())
-                    .format(image.getFormat().getEnum());
+                    .format(image.getFormat().getEnum(VulkanEnums.instance));
             create.components()
                     .r(swizzleR.getEnum())
                     .g(swizzleG.getEnum())

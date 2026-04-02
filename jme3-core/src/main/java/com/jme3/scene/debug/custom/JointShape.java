@@ -32,44 +32,84 @@
 
 package com.jme3.scene.debug.custom;
 
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructMapping;
+import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.IdxBuffer;
+import com.jme3.vulkan.buffers.saving.UpdateHint;
+import com.jme3.vulkan.frames.UpdateFrame;
+import com.jme3.vulkan.mesh.*;
+import com.jme3.vulkan.mesh.attributes.CommonAttributes;
+import com.jme3.vulkan.tmp.SerializationOnly;
 
-public class JointShape extends GlMesh {
+public class JointShape extends AdaptiveMesh {
 
     /**
      * Serialization only. Do not use.
      */
-    protected JointShape() {
+    @SerializationOnly
+    protected JointShape() {}
+
+    public static JointShape create() {
+        JointShape shape = new JointShape();
+        shape.setVertexCount(4, 0);
+        shape.setInstanceCount(1, 0);
+        VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
+                JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Static));
+        shape.addVertexBuffer(buffer);
         float width = 1;
         float height = 1;
-        setBuffer(Type.Position, 3, new float[]{-width * 0.5f, -width * 0.5f, 0,
-                width * 0.5f, -width * 0.5f, 0,
-                width * 0.5f, height * 0.5f, 0,
-                -width * 0.5f, height * 0.5f, 0
-        });
-
-
-        setBuffer(Type.TexCoord, 2, new float[]{0, 0,
-                1, 0,
-                1, 1,
-                0, 1});
-
-        setBuffer(Type.Normal, 3, new float[]{0, 0, 1,
-                0, 0, 1,
-                0, 0, 1,
-                0, 0, 1});
-
-        setBuffer(Type.Color, 4, new float[]{1, 1, 1, 1,
-                1, 1, 1, 1,
-                1, 1, 1, 1,
-                1, 1, 1, 1});
-
-        setBuffer(Type.Index, 3, new short[]{0, 1, 2,
-                0, 2, 3});
-
-
-        updateBound();
-        setStatic();
+        try (StructMapping<Vertex> m = buffer.map()) {
+            Vertex v = m.get();
+            m.sample(0);
+            v.position.set(v.position.alias().set(-width * 0.5f, -height * 0.5f, 0));
+            v.texCoord.set(v.texCoord.alias().set(0, 0));
+            v.normal.set(Vector3f.UNIT_Z);
+            v.color.set(ColorRGBA.White);
+            m.increment();
+            v.position.set(v.position.alias().set(width * 0.5f, -height * 0.5f, 0));
+            v.texCoord.set(v.texCoord.alias().set(1, 0));
+            v.normal.set(Vector3f.UNIT_Z);
+            v.color.set(ColorRGBA.White);
+            m.increment();
+            v.position.set(v.position.alias().set(width * 0.5f, height * 0.5f, 0));
+            v.texCoord.set(v.texCoord.alias().set(1, 1));
+            v.normal.set(Vector3f.UNIT_Z);
+            v.color.set(ColorRGBA.White);
+            m.increment();
+            v.position.set(v.position.alias().set(-width * 0.5f, height * 0.5f, 0));
+            v.texCoord.set(v.texCoord.alias().set(0, 1));
+            v.normal.set(Vector3f.UNIT_Z);
+            v.color.set(ColorRGBA.White);
+        }
+        IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
+                6L * Short.BYTES, BufferUsage.Index, UpdateHint.Static));
+        shape.setBaseIndexBuffer(index);
+        try (BufferMapping m = index.map()) {
+            m.getShorts().put(new short[]{0, 1, 2, 0, 2, 3});
+        }
+        shape.updateBound();
+        return shape;
     }
+
+    private static class Vertex extends Struct<VertexAttr> {
+
+        public final VertexAttr<Vector3f> position = new VertexAttr<>(CommonAttributes.Position, new Vector3f());
+        public final VertexAttr<Vector2f> texCoord = new VertexAttr<>(CommonAttributes.TexCoord, new Vector2f());
+        public final VertexAttr<Vector3f> normal = new VertexAttr<>(CommonAttributes.Normal, new Vector3f());
+        public final VertexAttr<ColorRGBA> color = new VertexAttr<>(CommonAttributes.Color, new ColorRGBA());
+
+        public Vertex() {
+            addFields(position, texCoord, normal, color);
+        }
+
+    }
+
 }

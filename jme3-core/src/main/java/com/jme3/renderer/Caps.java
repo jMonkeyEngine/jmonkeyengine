@@ -33,8 +33,8 @@ package com.jme3.renderer;
 
 import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.ShaderProgram.ShaderSource;
-import com.jme3.texture.GlFrameBuffer;
-import com.jme3.texture.GlFrameBuffer.RenderBuffer;
+import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture;
@@ -49,7 +49,7 @@ import java.util.Collection;
 public enum Caps {
 
     /**
-     * Supports {@link GlFrameBuffer FrameBuffers}.
+     * Supports {@link FrameBuffer FrameBuffers}.
      *
      * <p>OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
      * OpenGL ES: Renderer supports OpenGL ES 2.0.
@@ -540,7 +540,7 @@ public enum Caps {
      * @param fb The framebuffer to check
      * @return True if it is supported, false otherwise.
      */
-    public static boolean supports(Collection<Caps> caps, GlFrameBuffer fb) {
+    public static boolean supports(Collection<Caps> caps, FrameBuffer fb) {
         if (!caps.contains(Caps.FrameBuffer)) {
             return false;
         }

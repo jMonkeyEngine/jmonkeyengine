@@ -140,14 +140,6 @@ public class VulkanUtils {
         return buffer.rewind();
     }
 
-    public static LongBuffer accumulate(MemoryStack stack, Native<Long>... natives) {
-        LongBuffer buf = stack.mallocLong(natives.length);
-        for (int i = 0; i < buf.limit(); i++) {
-            buf.put(i, natives[i].getNativeObject());
-        }
-        return buf;
-    }
-
     public static class NativeIterator <T> implements Iterable<T>, Iterator<T> {
 
         private final PointerBuffer pointers;

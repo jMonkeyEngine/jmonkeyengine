@@ -4,15 +4,16 @@ import com.jme3.util.AbstractNativeBuilder;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
+import com.jme3.vulkan.VulkanEnums;
+import com.jme3.vulkan.buffers.SharingMode;
 import com.jme3.vulkan.formats.Format;
-import com.jme3.vulkan.SharingMode;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemoryRegion;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
-import com.jme3.vulkan.util.VulkanEnums;
+import com.jme3.vulkan.util.LegacyEnumConverter;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkImageCreateInfo;
 import org.lwjgl.vulkan.VkImageMemoryBarrier;
@@ -32,6 +33,7 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
 
     private int width, height, depth;
     private int mipmaps, layers;
+    private int samples = VK_SAMPLE_COUNT_1_BIT;
     private Flag<ImageUsage> usage;
     private Format format = Format.RGBA8_SRGB;
     private IntEnum<Tiling> tiling = Tiling.Optimal;
@@ -86,6 +88,11 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
     }
 
     @Override
+    public int getSamples() {
+        return samples;
+    }
+
+    @Override
     public Flag<ImageUsage> getUsage() {
         return usage;
     }
@@ -116,27 +123,28 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
     }
 
     @Override
-    public void transitionLayout(CommandBuffer commands, Layout dstLayout) {
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            //int[] args = VulkanImage.Layout.getTransferArguments(srcLayout, dstLayout);
-            VkImageMemoryBarrier.Buffer barrier = VkImageMemoryBarrier.calloc(1, stack)
-                    .sType(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER)
-                    .oldLayout(layout.getEnum())
-                    .newLayout(dstLayout.getEnum())
-                    .srcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-                    .dstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED) // for transfering queue ownership
-                    .image(object)
-                    .srcAccessMask(layout.getAccessHint().bits())
-                    .dstAccessMask(dstLayout.getAccessHint().bits());
-            barrier.subresourceRange()
-                    .baseMipLevel(0)
-                    .levelCount(mipmaps)
-                    .baseArrayLayer(0)
-                    .layerCount(layers)
-                    .aspectMask(VulkanEnums.imageAspects(format.getAspects()));
-            vkCmdPipelineBarrier(commands.getBuffer(), layout.getStageHint().bits(), dstLayout.getStageHint().bits(), 0, null, null, barrier);
-            layout = dstLayout;
+    public void transitionLayout(MemoryStack stack, CommandBuffer commands, Layout layout) {
+        if (layout == this.layout) {
+            return;
         }
+        VkImageMemoryBarrier.Buffer barrier = VkImageMemoryBarrier.calloc(1, stack)
+                .sType(VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER)
+                .oldLayout(this.layout.getEnum())
+                .newLayout(layout.getEnum())
+                .srcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+                .dstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED) // for transfering queue ownership
+                .image(object)
+                .srcAccessMask(this.layout.getAccessHint().bits())
+                .dstAccessMask(layout.getAccessHint().bits());
+        barrier.subresourceRange()
+                .baseMipLevel(0)
+                .levelCount(mipmaps)
+                .baseArrayLayer(0)
+                .layerCount(layers)
+                .aspectMask(LegacyEnumConverter.imageAspects(format.getAspects()));
+        vkCmdPipelineBarrier(commands.getBuffer(), this.layout.getStageHint().bits(),
+                layout.getStageHint().bits(), 0, null, null, barrier);
+        this.layout = layout;
     }
 
     public static BasicVulkanImage build(LogicalDevice<?> device, IntEnum<GpuImage.Type> type, Consumer<Builder> config) {
@@ -156,11 +164,11 @@ public class BasicVulkanImage extends AbstractNative<Long> implements VulkanImag
                     .imageType(type.getEnum())
                     .mipLevels(mipmaps)
                     .arrayLayers(layers)
-                    .format(format.getEnum())
+                    .format(format.getEnum(VulkanEnums.instance))
                     .tiling(tiling.getEnum())
                     .initialLayout(layout.getEnum())
                     .usage(usage.bits())
-                    .samples(VK_SAMPLE_COUNT_1_BIT) // todo: multisampling
+                    .samples(samples)
                     .sharingMode(sharing.getEnum());
             create.extent().width(width).height(height).depth(depth);
             LongBuffer idBuf = stack.mallocLong(1);

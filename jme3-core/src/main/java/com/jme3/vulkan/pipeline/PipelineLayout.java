@@ -88,8 +88,8 @@ public class PipelineLayout extends AbstractNative<Long> {
                 VkPushConstantRange.Buffer ranges = VkPushConstantRange.malloc(pushConstants.size(), stack);
                 for (PushConstantRange p : pushConstants) {
                     ranges.get().stageFlags(p.getScope().bits())
-                            .offset(p.getOffset())
-                            .size(p.getSize());
+                            .offset((int)p.getSize().getOffset())
+                            .size((int)p.getSize().getBytes());
                     pushConstantBytes += p.getSize();
                 }
                 int limit = device.getPhysicalDevice().getProperties().limits().maxPushConstantsSize();

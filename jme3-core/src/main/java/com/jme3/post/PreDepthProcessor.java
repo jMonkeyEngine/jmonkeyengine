@@ -39,7 +39,7 @@ import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.GlFrameBuffer;
+import com.jme3.texture.FrameBuffer;
 
 /**
  * Processor that lays depth first, this can improve performance in complex
@@ -93,7 +93,7 @@ public class PreDepthProcessor implements SceneProcessor {
     }
 
     @Override
-    public void postFrame(GlFrameBuffer out) {
+    public void postFrame(FrameBuffer out) {
         rm.setForcedRenderState(null);
     }
 

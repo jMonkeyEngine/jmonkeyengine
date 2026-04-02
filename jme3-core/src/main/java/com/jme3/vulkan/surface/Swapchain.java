@@ -6,6 +6,7 @@ import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.*;
+import com.jme3.vulkan.buffers.SharingMode;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.commands.CommandQueue;
 import com.jme3.vulkan.devices.LogicalDevice;
@@ -14,7 +15,7 @@ import com.jme3.vulkan.images.GpuImage;
 import com.jme3.vulkan.images.ImageUsage;
 import com.jme3.vulkan.images.VulkanImageView;
 import com.jme3.vulkan.images.VulkanImage;
-import com.jme3.vulkan.pipeline.framebuffer.VulkanFrameBuffer;
+import com.jme3.vulkan.pipeline.framebuffer.GeneralFrameBuffer;
 import com.jme3.vulkan.pass.RenderPass;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
@@ -76,7 +77,7 @@ public class Swapchain extends AbstractNative<Long> {
         this.object = VK_NULL_HANDLE;
         ref = DisposableManager.reference(this);
         device.getReference().addDependent(ref);
-        surface.getNativeReference().addDependent(ref);
+        surface.getReference().addDependent(ref);
     }
 
     @Override
@@ -84,9 +85,9 @@ public class Swapchain extends AbstractNative<Long> {
         return () -> KHRSwapchain.vkDestroySwapchainKHR(device.getNativeObject(), object, null);
     }
 
-    public void createFrameBuffers(RenderPass compat, VulkanImageView depthStencil) {
+    public void createFrameBuffers(RenderPass compat) {
         for (PresentImage img : images) {
-            img.createFrameBuffer(compat, depthStencil);
+            img.createFrameBuffer(compat);
         }
     }
 
@@ -197,7 +198,7 @@ public class Swapchain extends AbstractNative<Long> {
         private final LogicalDevice<?> device;
         private final long id;
         private final VulkanImageView colorView;
-        private VulkanFrameBuffer frameBuffer;
+        private GeneralFrameBuffer frameBuffer;
 
         private PresentImage(LogicalDevice<?> device, long id) {
             this.device = device;
@@ -246,6 +247,11 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
+        public int getSamples() {
+            return 1;
+        }
+
+        @Override
         public Flag<ImageUsage> getUsage() {
             return imageUsage;
         }
@@ -271,17 +277,20 @@ public class Swapchain extends AbstractNative<Long> {
         }
 
         @Override
-        public void transitionLayout(CommandBuffer commands, Layout dstLayout) {
+        public void transitionLayout(CommandBuffer commands, Layout layout) {
             throw new UnsupportedOperationException("Cannot transition swapchain image.");
         }
 
-        public void createFrameBuffer(RenderPass compat, VulkanImageView depthStencil) {
-            frameBuffer = new VulkanFrameBuffer(getDevice(), compat, extent.x, extent.y, 1);
-            frameBuffer.addColorTarget(colorView);
-            frameBuffer.setDepthTarget(depthStencil);
+        public VulkanImageView getColorView() {
+            return colorView;
         }
 
-        public VulkanFrameBuffer getFrameBuffer() {
+        public void createFrameBuffer(RenderPass compat) {
+            frameBuffer = new GeneralFrameBuffer(compat, extent.x, extent.y);
+            frameBuffer.addColorTarget(frameBuffer.createColorTarget(colorView));
+        }
+
+        public GeneralFrameBuffer getFrameBuffer() {
             return frameBuffer;
         }
 
@@ -336,13 +345,13 @@ public class Swapchain extends AbstractNative<Long> {
             VkSurfaceCapabilitiesKHR caps = VkSurfaceCapabilitiesKHR.calloc(stack);
             KHRSurface.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
                     device.getPhysicalDevice().getDeviceHandle(), surface.getNativeObject(), caps);
-            format = Format.byVkEnum(selectedFormat.format());
+            format = Format.byEnum(VulkanEnums.instance, selectedFormat.format());
             extent = new Extent2(selectedExtent);
             VkSwapchainCreateInfoKHR create = VkSwapchainCreateInfoKHR.calloc(stack)
                     .sType(KHRSwapchain.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR)
                     .surface(surface.getNativeObject())
                     .minImageCount(selectedImageCount)
-                    .imageFormat(format.getEnum())
+                    .imageFormat(selectedFormat.format())
                     .imageColorSpace(selectedFormat.colorSpace())
                     .imageExtent(selectedExtent)
                     .imageArrayLayers(imageLayers)
@@ -395,7 +404,7 @@ public class Swapchain extends AbstractNative<Long> {
         public VkSurfaceFormatKHR selectFormat(FormatColorSpace... preferredFormats) {
             for (VkSurfaceFormatKHR f : formats) {
                 for (int i = 0; i < preferredFormats.length; i += 2) {
-                    if (f.format() == preferredFormats[i].format.getEnum()
+                    if (f.format() == preferredFormats[i].format.getEnum(VulkanEnums.instance)
                             && f.colorSpace() == preferredFormats[i].colorSpace.getEnum()) {
                         return (selectedFormat = f);
                     }

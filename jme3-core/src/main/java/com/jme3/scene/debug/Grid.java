@@ -31,9 +31,20 @@
  */
 package com.jme3.scene.debug;
 
+import com.jme3.math.Vector3f;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructMapping;
+import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.IdxBuffer;
+import com.jme3.vulkan.buffers.saving.UpdateHint;
+import com.jme3.vulkan.mesh.*;
+import com.jme3.vulkan.mesh.attributes.CommonAttributes;
+import com.jme3.vulkan.pipeline.Topology;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
@@ -43,7 +54,7 @@ import java.nio.ShortBuffer;
  *
  * @author Kirill Vainer
  */
-public class Grid extends GlMesh {
+public class Grid extends AdaptiveMesh {
 
     public Grid() {
     }
@@ -55,54 +66,58 @@ public class Grid extends GlMesh {
      * @param yLines number of lines parallel to the Y axis
      * @param lineDist the separation between consecutive lines (in world units)
      */
-    public Grid(int xLines, int yLines, float lineDist){
-        xLines -= 2;
-        yLines -= 2;
-        int lineCount = xLines + yLines + 4;
+    public Grid(int xLines, int yLines, float lineDist) {
+        VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
+                JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Static));
+        addVertexBuffer(buffer);
 
-        FloatBuffer fpb = BufferUtils.createFloatBuffer(6 * lineCount);
-        ShortBuffer sib = BufferUtils.createShortBuffer(2 * lineCount);
+        int lineCount = xLines + yLines;
+        setVertexCount(lineCount * 6, 0);
+        IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
+                2L * lineCount * Short.BYTES, BufferUsage.Index, UpdateHint.Static));
+        setBaseIndexBuffer(index);
 
-        float xLineLen = (yLines + 1) * lineDist;
-        float yLineLen = (xLines + 1) * lineDist;
-        int curIndex = 0;
+        float xLineLen = (yLines - 1) * lineDist;
+        float yLineLen = (xLines - 1) * lineDist;
+        short curIndex = 0;
 
-        // add lines along X
-        for (int i = 0; i < xLines + 2; i++){
-            float y = (i) * lineDist;
-
-            // positions
-            fpb.put(0)       .put(0).put(y);
-            fpb.put(xLineLen).put(0).put(y);
-
-            // indices
-            sib.put((short) (curIndex++));
-            sib.put((short) (curIndex++));
+        try (StructMapping<Vertex> vertMap = buffer.map(); BufferMapping idxMap = index.map()) {
+            Vertex v = vertMap.get();
+            vertMap.sample(0);
+            ShortBuffer shorts = idxMap.getShorts();
+            // add lines along X
+            for (int i = 0; i < xLines; i++) {
+                float y = (i) * lineDist;
+                v.position.set(v.position.alias().set(0, 0, y));
+                vertMap.increment();
+                v.position.set(v.position.alias().set(xLineLen, 0, y));
+                vertMap.increment();
+                shorts.put(curIndex++);
+                shorts.put(curIndex++);
+            }
+            // add lines along Y
+            for (int i = 0; i < yLines; i++) {
+                float x = (i) * lineDist;
+                v.position.set(v.position.alias().set(x, 0, 0));
+                vertMap.increment();
+                v.position.set(v.position.alias().set(x, 0, yLineLen));
+                vertMap.increment();
+                shorts.put(curIndex++);
+                shorts.put(curIndex++);
+            }
         }
-
-        // add lines along Y
-        for (int i = 0; i < yLines + 2; i++) {
-            float x = (i) * lineDist;
-
-            // positions
-            fpb.put(x).put(0).put(0);
-            fpb.put(x).put(0).put(yLineLen);
-
-            // indices
-            sib.put((short) (curIndex++));
-            sib.put((short) (curIndex++));
-        }
-
-        fpb.flip();
-        sib.flip();
-
-        setBuffer(Type.Position, 3, fpb);
-        setBuffer(Type.Index, 2, sib);
-
-        setMode(Mode.Lines);
-
+        setTopology(Topology.LineList);
         updateBound();
-        updateCounts();
-        setStatic();
     }
+
+    private static class Vertex extends Struct<VertexAttr> {
+
+        public final VertexAttr<Vector3f> position = new VertexAttr<>(CommonAttributes.Position, new Vector3f());
+
+        public Vertex() {
+            addFields(position);
+        }
+
+    }
+
 }

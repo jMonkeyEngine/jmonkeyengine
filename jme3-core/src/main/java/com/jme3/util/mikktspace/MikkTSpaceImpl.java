@@ -59,16 +59,16 @@ public class MikkTSpaceImpl implements MikkTSpaceContext {
     public MikkTSpaceImpl(Mesh mesh) {
 
         // todo: if the mesh lacks indices, generate a virtual index buffer.
-        this.index = mesh.getIndexBuffer().mapIndices();
-        this.triangleCount = mesh.getIndexBuffer().size().getElements() / 3;
+        this.index = mesh.getBaseIndexBuffer().mapIndices();
+        this.triangleCount = mesh.getBaseIndexBuffer().size().getElements() / 3;
 
-        positions = Objects.requireNonNull(mesh.mapAttribute(GlVertexBuffer.Type.Position),
+        positions = Objects.requireNonNull(mesh.mapAttributes(GlVertexBuffer.Type.Position),
                 "Position attribute required to generate tangents.");
-        texCoords = Objects.requireNonNull(mesh.mapAttribute(GlVertexBuffer.Type.TexCoord),
+        texCoords = Objects.requireNonNull(mesh.mapAttributes(GlVertexBuffer.Type.TexCoord),
                 "TexCoord attribute required to generate tangents.");
-        normals = Objects.requireNonNull(mesh.mapAttribute(GlVertexBuffer.Type.Normal),
+        normals = Objects.requireNonNull(mesh.mapAttributes(GlVertexBuffer.Type.Normal),
                 "Normal attribute required to generate tangents.");
-        tangents = Objects.requireNonNull(mesh.mapAttribute(GlVertexBuffer.Type.Tangent),
+        tangents = Objects.requireNonNull(mesh.mapAttributes(GlVertexBuffer.Type.Tangent),
                 "Tangent attribute required to generate tangents.");
 
     }

@@ -11,7 +11,7 @@ import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.vulkan.buffers.BufferUsage;
-import com.jme3.vulkan.buffers.GlNativeBuffer;
+import com.jme3.vulkan.buffers.GlBuffer;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.render.batching.GeometryBatch;
@@ -94,7 +94,7 @@ public class OpenGLEngine implements RenderEngine {
 
     @Override
     public MappableBuffer createBuffer(MemorySize size, Flag<BufferUsage> bufUsage, GlVertexBuffer.Usage dataUsage) {
-        return new GlNativeBuffer(size);
+        return new GlBuffer(size);
     }
 
     @Override

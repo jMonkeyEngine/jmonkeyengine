@@ -97,9 +97,7 @@ public class VulkanTechnique implements NewTechnique {
                 for (Define d : uniformDefines.values()) {
                     if (d.scope.containsAny(shaderInfo.getKey())) {
                         Uniform<?> u = material.getUniform(d.uniform);
-                        if (u != null) {
-                            s.setDefine(d.define, u.getDefineValue());
-                        }
+                        if (u != null) s.setDefine(d.define, u.getDefineValue());
                     }
                 }
             }));

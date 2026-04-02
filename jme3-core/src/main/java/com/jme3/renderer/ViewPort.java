@@ -36,7 +36,6 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.post.SceneProcessor;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.GlFrameBuffer;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
@@ -48,7 +47,7 @@ import java.util.logging.Logger;
 
 /**
  * Represents a view inside the display
- * window or a {@link GlFrameBuffer} to which scenes will be rendered.
+ * window or a {@link FrameBuffer} to which scenes will be rendered.
  *
  * <p>A viewport has a camera
  * which is used to render a set of {@link #attachScene(com.jme3.scene.Spatial) scenes}.
@@ -68,7 +67,7 @@ import java.util.logging.Logger;
  * @see Spatial
  * @see Camera
  */
-public class ViewPort implements Comparable<ViewPort> {
+public class ViewPort {
 
     private static final Logger logger = Logger.getLogger(ViewPort.class.getName());
 
@@ -76,9 +75,7 @@ public class ViewPort implements Comparable<ViewPort> {
     protected final SafeArrayList<Spatial> sceneList = new SafeArrayList<>(Spatial.class);
     protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<>(SceneProcessor.class);
     protected RenderPipeline pipeline;
-    protected GlFrameBuffer out = null;
-
-    protected int viewPriority;
+    protected FrameBuffer out = null;
 
     protected final ColorRGBA backColor = new ColorRGBA(0, 0, 0, 0);
     protected boolean clearDepth = false;
@@ -86,36 +83,21 @@ public class ViewPort implements Comparable<ViewPort> {
     protected boolean clearStencil = false;
     private boolean enabled = true;
 
-    private final ViewPortArea area = new ViewPortArea(0f, 0f, 128f, 128f);
+    private final ViewPortArea area;
     private final LinkedHashMap<String, GeometryBucket> buckets = new LinkedHashMap<>();
     private String defaultBucket;
     private Predicate<Geometry> geometryFilter;
 
     /**
-     * Creates a new viewport. User code should generally use these methods instead:<br>
-     * <ul>
-     * <li>{@link RenderManager#createPreView(java.lang.String, com.jme3.renderer.Camera) }</li>
-     * <li>{@link RenderManager#createMainView(java.lang.String, com.jme3.renderer.Camera)  }</li>
-     * <li>{@link RenderManager#createPostView(java.lang.String, com.jme3.renderer.Camera)  }</li>
-     * </ul>
+     * Creates a new viewport.
      *
      * @param cam The camera through which the viewport is rendered. The camera
      *     cannot be swapped to a different one after creating the viewport.
+     * @param area area of the output framebuffer that this viewport should render to
      */
-    public ViewPort(Camera cam) {
-        this(cam, 0);
-    }
-
-    /**
-     * Creates a new viewport.
-     *
-     * @param cam camera used to render the viewport
-     * @param viewPriority indicates the order in which viewports are rendered values
-     *                     closer to negative infinity are rendered first (defaults to 0)
-     */
-    public ViewPort(Camera cam, int viewPriority) {
+    public ViewPort(Camera cam, ViewPortArea area) {
         this.cam = cam;
-        this.viewPriority = viewPriority;
+        this.area = area;
     }
 
     /**
@@ -124,7 +106,7 @@ public class ViewPort implements Comparable<ViewPort> {
      * buckets are meant to be rendered in.
      *
      * @param onVisible if not null, called for each visible spatial
-     * @return buckets containing geometries to render
+     * @return unmodifiable collection of buckets containing geometries to render
      */
     public Collection<GeometryBucket> gatherGeometry(Consumer<Spatial> onVisible) {
         if (buckets.isEmpty()) {
@@ -164,10 +146,6 @@ public class ViewPort implements Comparable<ViewPort> {
             }
         }
         return Collections.unmodifiableCollection(buckets.values());
-    }
-
-    public void renderScenes() {
-
     }
 
     public void addGeometryBucket(String name, GeometryBucket bucket) {
@@ -306,19 +284,6 @@ public class ViewPort implements Comparable<ViewPort> {
     }
 
     /**
-     * Sets the view priority of this viewport. Values closer to negative infinity
-     * relative to other viewports causes this viewport to be rendered before them.
-     * Ties result in an arbitrary order.
-     *
-     * <p>default=0</p>
-     *
-     * @param viewPriority view priority
-     */
-    public void setViewPriority(int viewPriority) {
-        this.viewPriority = viewPriority;
-    }
-
-    /**
      * Enables or disables clearing of the stencil buffer for this ViewPort.
      *
      * <p>Stencil clearing is disabled by default.</p>
@@ -353,9 +318,9 @@ public class ViewPort implements Comparable<ViewPort> {
      * @return the framebuffer where this ViewPort's scenes are
      *     rendered to.
      *
-     * @see #setOutputFrameBuffer(GlFrameBuffer)
+     * @see #setOutputFrameBuffer(FrameBuffer)
      */
-    public FrameBuffer<?> getOutputFrameBuffer() {
+    public com.jme3.vulkan.pipeline.framebuffer.FrameBuffer<?> getOutputFrameBuffer() {
         return out;
     }
 
@@ -369,18 +334,8 @@ public class ViewPort implements Comparable<ViewPort> {
      * @param out The framebuffer to render scenes to, or null if to render
      *     to the screen.
      */
-    public void setOutputFrameBuffer(GlFrameBuffer out) {
+    public void setOutputFrameBuffer(FrameBuffer out) {
         this.out = out;
-    }
-
-    /**
-     * Gets the view priority of this viewport.
-     *
-     * @return view priority
-     * @see #setViewPriority(int)
-     */
-    public int getViewPriority() {
-        return viewPriority;
     }
 
     /**
@@ -516,11 +471,6 @@ public class ViewPort implements Comparable<ViewPort> {
      */
     public RenderPipeline getPipeline() {
         return pipeline;
-    }
-
-    @Override
-    public int compareTo(ViewPort o) {
-        return Integer.compare(viewPriority, o.viewPriority);
     }
 
 }

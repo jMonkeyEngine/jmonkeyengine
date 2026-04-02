@@ -1,18 +1,28 @@
 package com.jme3.vulkan.buffers.newbuf;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.util.natives.AbstractNative;
+import com.jme3.util.natives.Disposable;
 import com.jme3.util.natives.DisposableManager;
+import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.buffers.*;
+import com.jme3.vulkan.buffers.stream.BufferStream;
+import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemoryRegion;
 import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.tmp.SerializationOnly;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.vulkan.VkBufferCreateInfo;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.util.function.Consumer;
@@ -26,36 +36,62 @@ public abstract class AbstractVulkanBuffer implements VulkanBuffer {
     protected Flag<BufferUsage> usage = BufferUsage.Storage;
     protected Flag<MemoryProp> memProps = Flag.empty();
     protected IntEnum<SharingMode> sharing = SharingMode.Exclusive;
+    protected final Flag<MemoryProp> implicitMemProps;
     private BufferHandle handle;
-    private ByteBuffer tempBuffer;
+    private TempBuffer temp;
 
-    protected AbstractVulkanBuffer(MemorySize size) {
-        this.size = size;
+    @SerializationOnly
+    protected AbstractVulkanBuffer(Flag<MemoryProp> implicitMemProps) {
+        this.implicitMemProps = implicitMemProps;
+    }
+
+    protected AbstractVulkanBuffer(long bytes, Flag<MemoryProp> implicitMemProps) {
+        this.size = new MemorySize(bytes);
+        this.implicitMemProps = implicitMemProps;
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(size.getBytes(), "size", 0L);
+        out.write(usage.bits(), "usage", BufferUsage.Vertex.bits());
+        out.write(memProps.bits(), "memoryProps", implicitMemProps.bits());
+        out.write(sharing.getEnum(), "sharingMode", SharingMode.Exclusive.getEnum());
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        size = new MemorySize(in.readLong("size", 0L));
+        Builder b = new Builder();
+        b.setUsage(Flag.of(in.readInt("usage", BufferUsage.Vertex.bits())));
+        b.setMemoryProps(Flag.of(in.readInt("memoryProps", implicitMemProps.bits())));
+        b.setSharingMode(IntEnum.of(in.readInt("sharingMode", SharingMode.Exclusive.getEnum())));
     }
 
     @Override
     public BufferMapping map(long offset, long size) {
+        if (!isMemoryMappable()) {
+            throw new UnsupportedOperationException("Device local memory cannot be mapped.");
+        }
         if (handle != null) {
             return mapNative(handle, offset, size);
         } else {
-            if (tempBuffer == null) {
-                tempBuffer = MemoryUtil.memAlloc((int)this.size.getBytes());
+            if (temp == null) {
+                temp = new TempBuffer(this.size.getBytes());
             }
-            return new VirtualBufferMapping(MemoryUtil.memByteBuffer(MemoryUtil.memAddress(tempBuffer, (int)offset), (int)size));
+            return new DirectBufferMapping(temp.getBuffer().position((int)offset).limit((int)(offset + size)).slice());
         }
     }
 
     @Override
-    public ResizeResult resize(MemorySize size) {
-        this.size = size;
+    public void resize(long bytes) {
+        size = size.setBytes(bytes);
         if (handle != null && size.getEnd() > handle.memory.getSize()) {
             initialize(null);
-            return ResizeResult.Realloc;
-        } else if (tempBuffer != null && size.getEnd() > tempBuffer.capacity()) {
-            tempBuffer = MemoryUtil.memRealloc(tempBuffer, (int)size.getEnd());
-            return ResizeResult.Realloc;
+        } else if (temp != null && size.getEnd() > temp.getBuffer().capacity()) {
+            temp.buffer = MemoryUtil.memRealloc(temp.getBuffer(), (int)size.getEnd());
         }
-        return ResizeResult.Success;
     }
 
     @Override
@@ -86,10 +122,21 @@ public abstract class AbstractVulkanBuffer implements VulkanBuffer {
         return handle.getNativeObject();
     }
 
+    @Override
+    public void upload(CommandBuffer cmd, BufferStream stream) {
+
+    }
+
+    @Override
+    public void stage(long offset, long size) {
+
+    }
+
     protected void initialize(LogicalDevice<?> device) {
         if (device == null && (handle == null || (device = handle.device) == null)) {
             throw new IllegalStateException("Logical device not specified.");
         }
+        memProps = memProps.add(implicitMemProps);
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkBufferCreateInfo create = VkBufferCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO)
@@ -99,17 +146,17 @@ public abstract class AbstractVulkanBuffer implements VulkanBuffer {
             BufferHandle handle = new BufferHandle(stack, device, this, create, m -> m.setFlags(memProps));
             if (this.handle != null) {
                 moveToNewBuffer(this.handle, handle);
-            } else if (tempBuffer != null) {
-                long size = Math.min(tempBuffer.capacity(), handle.getMemory().getSize());
-                tempBuffer.position(0).limit((int)size);
+            } else if (temp != null) {
+                if (!isMemoryMappable()) {
+                    throw new UnsupportedOperationException("Unable to copy from temporary buffer: device local memory cannot be mapped.");
+                }
+                long size = Math.min(temp.getBuffer().capacity(), handle.getMemory().getSize());
+                temp.getBuffer().position(0).limit((int)size);
                 try (BufferMapping m = mapNative(handle, 0, size)) {
-                    MemoryUtil.memCopy(tempBuffer, m.getBytes());
+                    MemoryUtil.memCopy(temp.getBuffer(), m.getBytes());
                 }
             }
-            if (tempBuffer != null) {
-                MemoryUtil.memFree(tempBuffer);
-                tempBuffer = null;
-            }
+            temp = null;
             this.handle = handle;
         }
     }
@@ -153,6 +200,32 @@ public abstract class AbstractVulkanBuffer implements VulkanBuffer {
 
         public MemoryRegion getMemory() {
             return memory;
+        }
+
+    }
+
+    protected static class TempBuffer implements Disposable {
+
+        private ByteBuffer buffer;
+        private final DisposableReference ref;
+
+        public TempBuffer(long bytes) {
+            buffer = MemoryUtil.memCalloc((int)bytes);
+            ref = DisposableManager.reference(this);
+        }
+
+        @Override
+        public Runnable createDestroyer() {
+            return () -> MemoryUtil.memFree(buffer);
+        }
+
+        @Override
+        public DisposableReference getReference() {
+            return ref;
+        }
+
+        public ByteBuffer getBuffer() {
+            return buffer;
         }
 
     }

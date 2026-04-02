@@ -40,6 +40,8 @@ public interface GpuImage {
 
     int getLayers();
 
+    int getSamples();
+
     Format getFormat();
 
 }

@@ -1,10 +1,25 @@
 package com.jme3.vulkan.commands;
 
-import com.jme3.renderer.ScissorArea;
+import com.jme3.asset.AssetManager;
+import com.jme3.material.RenderState;
 import com.jme3.renderer.ViewPortArea;
+import com.jme3.scene.Geometry;
+import com.jme3.texture.ImageView;
 import com.jme3.vulkan.buffers.VulkanBuffer;
 import com.jme3.vulkan.buffers.stream.BufferStream;
-import com.jme3.vulkan.pipeline.PipelineStage;
+import com.jme3.vulkan.descriptors.DescriptorSetLayout;
+import com.jme3.vulkan.images.GpuImage;
+import com.jme3.vulkan.images.VulkanImage;
+import com.jme3.vulkan.material.VulkanMaterial;
+import com.jme3.vulkan.material.shader.ShaderModule;
+import com.jme3.vulkan.mesh.VulkanMesh;
+import com.jme3.vulkan.pipeline.*;
+import com.jme3.vulkan.pipeline.cache.Cache;
+import com.jme3.vulkan.pipeline.cache.PipelineCache;
+import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
+import com.jme3.vulkan.pipeline.framebuffer.VulkanFrameBuffer;
+import com.jme3.vulkan.pipeline.framebuffer.VulkanRenderTarget;
+import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.TimelineSemaphore;
@@ -20,7 +35,7 @@ import java.util.*;
 import static com.jme3.renderer.vulkan.VulkanUtils.*;
 import static org.lwjgl.vulkan.VK14.*;
 
-public class CommandBuffer {
+public class CommandBuffer implements RenderCommands {
 
     public enum Level implements IntEnum<Level> {
 
@@ -49,9 +64,101 @@ public class CommandBuffer {
     private TimelineSemaphore completionSemaphore;
     private boolean recording = false;
 
+    private VulkanFrameBuffer activeFrameBuffer;
+    private Pipeline activePipeline;
+    private VulkanMaterial activeMaterial;
+    private final Map<VulkanImage, VulkanImage.Layout> imageLayouts = new IdentityHashMap<>();
+    private final ViewPortArea activeViewPort = new ViewPortArea(0f, 0f);
+    private RenderState forcedRenderState;
+
+    private AssetManager assetManager;
+    private Cache<Pipeline> pipelineCache;
+    private Cache<PipelineLayout> layoutCache;
+    private Cache<ShaderModule> shaderCache;
+    private Cache<DescriptorSetLayout> setLayoutCache;
+
     protected CommandBuffer(CommandPool pool, VkCommandBuffer buffer) {
         this.pool = pool;
         this.buffer = buffer;
+    }
+
+    @Override
+    public void bindFrameBuffer(FrameBuffer fbo, VulkanImage.Load colorLoad, VulkanImage.Store colorStore, VulkanImage.Load depthLoad, VulkanImage.Store depthStore) {
+        activeFrameBuffer = (VulkanFrameBuffer)fbo;
+        activeFrameBuffer.beginDynamicRender(this, colorLoad, colorStore, depthLoad, depthStore);
+    }
+
+    @Override
+    public void setViewPort(ViewPortArea area) {
+        if (activeViewPort.equals(area)) {
+            return;
+        }
+        activeViewPort.set(area);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            VkViewport.Buffer vp = VkViewport.malloc(1, stack);
+            float x = area.getLeft() * area.getWidth();
+            float y = area.getTop() * area.getHeight();
+            float w = area.getRight() * area.getWidth() - x;
+            float h = area.getBottom() * area.getHeight() - y;
+            vp.get().set(x, y, w, h, area.getMinDepth(), area.getMaxDepth());
+            vkCmdSetViewport(buffer, 0, vp.flip());
+        }
+    }
+
+    @Override
+    public void renderGeometry(Geometry geometry) {
+        VertexPipeline pipeline = GraphicsPipeline.build(pool.getDevice(), b -> {
+            b.setCache(pipelineCache);
+            b.setLayoutCache(layoutCache);
+            b.setShaderCache(shaderCache);
+            b.setSetLayoutCache(setLayoutCache);
+            b.setFrameBuffer(activeFrameBuffer);
+            b.setDynamic(DynamicState.ViewPort, true);
+            b.setDynamic(DynamicState.Scissor, true);
+            b.setDepthClamp(true);
+            b.applyGeometry(assetManager, geometry, activeTechnique);
+            b.applyRenderState(new RenderState().integrateGeometryStates(geometry, forcedState,
+                    geometry.getMaterial().getAdditionalRenderState(),
+                    geometry.getMaterial().getActiveTechnique().getRenderState()));
+        });
+        if (pipeline != activePipeline) {
+            (activePipeline = pipeline).bind(this);
+        }
+        if (geometry.getMaterial() != activeMaterial) {
+            activeMaterial = (VulkanMaterial)geometry.getMaterial();
+            activeMaterial.bind(this, pipeline, descriptorPool);
+        }
+        uploadBuffers(stream);
+        ((VulkanMesh)geometry.getMesh()).render(this, pipeline);
+    }
+
+    @Override
+    public void transitionImage(GpuImage image, VulkanImage.Layout layout) {
+        VulkanImage img = (VulkanImage)image;
+        img.transitionLayout(this, layout);
+        imageLayouts.put(img, layout);
+    }
+
+    @Override
+    public void blitFrameBuffer(FrameBuffer src, FrameBuffer dst, Flag<VulkanImage.Aspect> aspects) {
+        if (aspects.isEmpty()) return;
+        VulkanFrameBuffer<VulkanRenderTarget> source = (VulkanFrameBuffer)src;
+        VulkanFrameBuffer<VulkanRenderTarget> dest = (VulkanFrameBuffer)dst;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            if (aspects.containsAny(VulkanImage.Aspect.Color)) {
+                for (ListIterator<VulkanRenderTarget> s = source.getColorTargets().listIterator(),
+                        d = dest.getColorTargets().listIterator(); s.hasNext() && d.hasNext();) {
+                    s.next().getView().getImage().copyTo(stack, this, d.next().getView().getImage(), aspects);
+                }
+            }
+            if (aspects.containsAny(VulkanImage.Aspect.DepthStencil)) {
+                source.getDepthTarget().getView().getImage().copyTo(stack, this, dest.getDepthTarget().getView().getImage(), aspects);
+            }
+        }
+    }
+
+    public VulkanImage.Layout getKnownLayout(VulkanImage image) {
+        return imageLayouts.getOrDefault(image, VulkanImage.Layout.Undefined);
     }
 
     public void stageBufferUpload(VulkanBuffer buffer) {

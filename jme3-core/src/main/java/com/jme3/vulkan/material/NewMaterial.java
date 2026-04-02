@@ -2,7 +2,7 @@ package com.jme3.vulkan.material;
 
 import com.jme3.material.RenderState;
 import com.jme3.vulkan.buffers.BufferMapping;
-import com.jme3.vulkan.buffers.VirtualBufferMapping;
+import com.jme3.vulkan.buffers.DirectBufferMapping;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.material.shader.ShaderStage;
@@ -66,7 +66,7 @@ public class NewMaterial implements VulkanMaterial {
             }
             vkCmdBindDescriptorSets(cmd.getBuffer(), pipeline.getBindPoint().getEnum(), layout.getNativeObject(), 0, setsToBind.flip(), null);
             if (!layout.getPushConstants().isEmpty()) {
-                BufferMapping push = new VirtualBufferMapping(stack.malloc(layout.getPushConstantBytes()));
+                BufferMapping push = new DirectBufferMapping(stack.malloc(layout.getPushConstantBytes()));
                 for (PushConstantRange constant : layout.getPushConstants()) {
                     VulkanUniform uniform = uniforms.get(constant.getName());
                     if (uniform == null) {

@@ -43,12 +43,10 @@ import com.jme3.math.*;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
-import com.jme3.vulkan.mesh.attribute.Attribute;
-import com.jme3.vulkan.mesh.attribute.Position;
+import com.jme3.util.struct.FieldSequence;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
-//import com.jme.scene.TriMesh;
 import java.util.Objects;
 
 /**
@@ -159,19 +157,15 @@ public class BoundingBox extends BoundingVolume {
     }
 
     @Override
-    public void computeFromPoints(Attribute<Vector3f> points) {
-        containAABB(points);
-    }
-
-    @Override
-    public void computeFromPoints(Position position) {
+    public void computeFromPoints(FieldSequence<Vector3f> field) {
         float minX = Float.POSITIVE_INFINITY,
                 minY = Float.POSITIVE_INFINITY,
                 minZ = Float.POSITIVE_INFINITY;
         float maxX = Float.NEGATIVE_INFINITY,
                 maxY = Float.NEGATIVE_INFINITY,
                 maxZ = Float.NEGATIVE_INFINITY;
-        for (Vector3f p : position.read(new Vector3f())) {
+        for (int i : field) {
+            Vector3f p = field.field().get();
             minX = Math.min(minX, p.x);
             minY = Math.min(minY, p.y);
             minZ = Math.min(minZ, p.z);
@@ -289,11 +283,11 @@ public class BoundingBox extends BoundingVolume {
      * box of the points, then selects the smallest enclosing sphere of the box
      * with the sphere centered at the boxes center.
      *
-     * @param points
+     * @param field
      *            the list of points.
      */
-    public void containAABB(Attribute<Vector3f> points) {
-        if (points == null) {
+    public void containAABB(FieldSequence<Vector3f> field) {
+        if (field == null) {
             return;
         }
 
@@ -306,7 +300,8 @@ public class BoundingBox extends BoundingVolume {
                 maxY = Float.NEGATIVE_INFINITY,
                 maxZ = Float.NEGATIVE_INFINITY;
 
-        for (Vector3f p : points.read(vars.vect1)) {
+        for (int i : field) {
+            Vector3f p = field.field().get();
             minX = Math.min(minX, p.x);
             minY = Math.min(minY, p.y);
             minZ = Math.min(minZ, p.z);

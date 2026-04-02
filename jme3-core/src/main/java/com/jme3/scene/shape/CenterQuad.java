@@ -35,8 +35,20 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructMapping;
+import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.IdxBuffer;
+import com.jme3.vulkan.buffers.saving.UpdateHint;
+import com.jme3.vulkan.mesh.*;
+import com.jme3.vulkan.mesh.attributes.CommonAttributes;
+
 import java.io.IOException;
 
 /**
@@ -51,10 +63,13 @@ import java.io.IOException;
  *
  * @author Kirill Vainer
  */
-public class CenterQuad extends GlMesh {
+public class CenterQuad extends AdaptiveMesh {
 
     private float width;
     private float height;
+
+    private final VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
+            JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Static));
 
     /**
      * For serialization only. Do not use.
@@ -70,6 +85,7 @@ public class CenterQuad extends GlMesh {
      * @param height the desired Y extent or height
      */
     public CenterQuad(float width, float height) {
+        addVertexBuffer(buffer);
         updateGeometry(width, height, false);
     }
 
@@ -82,6 +98,7 @@ public class CenterQuad extends GlMesh {
      *     y=height/2) or false to leave them unflipped (v=1 when y=height/2)
      */
     public CenterQuad(float width, float height, boolean flipCoords) {
+        addVertexBuffer(buffer);
         updateGeometry(width, height, flipCoords);
     }
 
@@ -141,49 +158,51 @@ public class CenterQuad extends GlMesh {
 
         float x = width / 2;
         float y = height / 2;
-        setBuffer(Type.Position, 3, new float[]{
-            -x, -y, 0f,
-            +x, -y, 0f,
-            +x, +y, 0f,
-            -x, +y, 0f
-        });
 
-        if (flipCoords) {
-            setBuffer(Type.TexCoord, 2, new float[]{
-                0f, 1f,
-                1f, 1f,
-                1f, 0f,
-                0f, 0f
-            });
-        } else {
-            setBuffer(Type.TexCoord, 2, new float[]{
-                0f, 0f,
-                1f, 0f,
-                1f, 1f,
-                0f, 1f
-            });
+        try (StructMapping<Vertex> m = buffer.map()) {
+            Vertex v = m.get();
+            Vector3f vec3 = v.position.alias();
+            Vector2f vec2 = v.texCoord.alias();
+            m.sample(0);
+            v.position.set(vec3.set(-x, -y, 0));
+            v.texCoord.set(vec2.set(0f, flipCoords ? 1 : 0));
+            v.normal.set(Vector3f.UNIT_Z);
+            m.increment();
+            v.position.set(vec3.set(x, -y, 0f));
+            v.texCoord.set(vec2.set(1f, flipCoords ? 1 : 0));
+            v.normal.set(Vector3f.UNIT_Z);
+            m.increment();
+            v.position.set(vec3.set(x, y, 0f));
+            v.texCoord.set(vec2.set(1f, flipCoords ? 0 : 1));
+            v.normal.set(Vector3f.UNIT_Z);
+            m.increment();
+            v.position.set(vec3.set(-x, y, 0f));
+            v.texCoord.set(vec2.set(0f, flipCoords ? 0 : 1));
+            v.normal.set(Vector3f.UNIT_Z);
         }
 
-        setBuffer(Type.Normal, 3, new float[]{
-            0f, 0f, 1f,
-            0f, 0f, 1f,
-            0f, 0f, 1f,
-            0f, 0f, 1f
-        });
-
-        if (width * height < 0f) {
-            setBuffer(Type.Index, 3, new byte[]{
-                0, 2, 1,
-                0, 3, 2
-            });
-        } else {
-            setBuffer(Type.Index, 3, new byte[]{
-                0, 1, 2,
-                0, 2, 3
-            });
+        IdxBuffer index = new IdxBuffer(IndexType.UInt8, JmePlatform.allocateStandardBuffer(6 * Byte.BYTES, BufferUsage.Index, UpdateHint.Static));
+        try (BufferMapping m = index.map()) {
+            if (width * height < 0f) {
+                m.getBytes().put(new byte[]{0, 2, 1, 0, 3, 2});
+            } else {
+                m.getBytes().put(new byte[]{0, 1, 2, 0, 2, 3});
+            }
         }
 
         updateBound();
-        setStatic();
     }
+
+    private static class Vertex extends Struct<VertexAttr> {
+
+        public final VertexAttr<Vector3f> position = new VertexAttr<>(CommonAttributes.Position, new Vector3f());
+        public final VertexAttr<Vector2f> texCoord = new VertexAttr<>(CommonAttributes.TexCoord, new Vector2f());
+        public final VertexAttr<Vector3f> normal = new VertexAttr<>(CommonAttributes.Normal, new Vector3f());
+
+        public Vertex() {
+            addFields(position, texCoord, normal);
+        }
+
+    }
+
 }

@@ -45,7 +45,7 @@ import com.jme3.scene.GlVertexBuffer;
 import com.jme3.shader.ShaderProgram;
 import com.jme3.shader.ShaderProgram.ShaderSource;
 import com.jme3.shader.bufferobject.BufferObject;
-import com.jme3.texture.GlFrameBuffer;
+import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.TextureImage;
@@ -139,32 +139,32 @@ public class NullRenderer implements Renderer {
     public void deleteShaderSource(ShaderSource source) {
     }
 
-    public void copyFrameBuffer(GlFrameBuffer src, GlFrameBuffer dst) {
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
     }
 
     @Override
-    public void copyFrameBuffer(GlFrameBuffer src, GlFrameBuffer dst, boolean copyDepth) {
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
     }
 
     @Override
-    public void copyFrameBuffer(GlFrameBuffer src, GlFrameBuffer dst, boolean copyColor, boolean copyDepth) {
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyColor, boolean copyDepth) {
     }
     
     
     @Override
-    public void setMainFrameBufferOverride(GlFrameBuffer fb) {
+    public void setMainFrameBufferOverride(FrameBuffer fb) {
     }
     
     @Override
-    public void setFrameBuffer(GlFrameBuffer fb) {
+    public void setFrameBuffer(FrameBuffer fb) {
     }
 
     @Override
-    public void readFrameBuffer(GlFrameBuffer fb, ByteBuffer byteBuf) {
+    public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
     }
 
     @Override
-    public void deleteFrameBuffer(GlFrameBuffer fb) {
+    public void deleteFrameBuffer(FrameBuffer fb) {
     }
 
     @Override
@@ -248,7 +248,7 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void readFrameBufferWithFormat(GlFrameBuffer fb, ByteBuffer byteBuf, GlImage.Format format) {
+    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, GlImage.Format format) {
     }
 
     @Override
@@ -298,7 +298,7 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public GlFrameBuffer getCurrentFrameBuffer() {
+    public FrameBuffer getCurrentFrameBuffer() {
         return null;
     }
     

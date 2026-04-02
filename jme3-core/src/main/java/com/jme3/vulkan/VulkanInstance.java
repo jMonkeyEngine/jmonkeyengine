@@ -21,6 +21,7 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
 
     public static final String ENGINE_NAME = "jMonkeyEngine";
     public static final String LUNARG_LAYER = "VK_LAYER_KHRONOS_validation";
+    public static final String DYNAMIC_RENDERING_EXT = "VK_KHR_dynamic_rendering";
 
     public enum Version implements IntEnum<Version> {
 
@@ -48,6 +49,7 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
     private String appName = "Unnamed App";
     private int appVersion = VK_MAKE_VERSION(0, 0, 0);
     private IntEnum<Version> apiVersion;
+    private VulkanLogger logger;
 
     protected VulkanInstance(IntEnum<Version> apiVersion) {
         this.apiVersion = apiVersion;
@@ -68,6 +70,10 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
     @Override
     public int hashCode() {
         return Objects.hashCode(object.address());
+    }
+
+    public VulkanLogger createLogger(VulkanLogger.Severity severity, VulkanLogger.Type type) {
+        return logger = new VulkanLogger(this, severity, type);
     }
 
     public IntEnum<Version> getApiVersion() {
@@ -158,8 +164,8 @@ public class VulkanInstance extends AbstractNative<VkInstance> {
             extensions.add(EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         }
 
-        public void addRobustness2Extension() {
-            extensions.add(EXTRobustness2.VK_EXT_ROBUSTNESS_2_EXTENSION_NAME);
+        public void addDynamicRenderingExtension() {
+            extensions.add(DYNAMIC_RENDERING_EXT);
         }
 
         public void addLunarGLayer() {

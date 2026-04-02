@@ -1,46 +1,79 @@
 package com.jme3.renderer;
 
+import com.jme3.export.*;
+
+import java.io.IOException;
 import java.util.Objects;
 
-public class ViewPortArea implements Cloneable {
+public class ViewPortArea implements Cloneable, Savable {
 
-    private float x, y, width, height;
-    private float minDepth, maxDepth;
-
-    public ViewPortArea() {
-        minDepth = 0;
-        maxDepth = 1;
-    }
+    private float width, height;
+    private float left = 0;
+    private float right = 1;
+    private float top = 0;
+    private float bottom = 1;
+    private float minDepth = 0;
+    private float maxDepth = 1;
 
     public ViewPortArea(ViewPortArea area) {
         set(area);
     }
 
-    public ViewPortArea(float x, float y, float width, float height) {
-        set(x, y, width, height);
-        minDepth = 0;
-        maxDepth = 1;
+    public ViewPortArea(float width, float height) {
+        setSize(width, height);
     }
 
-    public ViewPortArea(float x, float y, float width, float height, float minDepth, float maxDepth) {
-        set(x, y, width, height, minDepth, maxDepth);
+    public ViewPortArea(float width, float height, float left, float right, float top, float bottom) {
+        setSize(width, height).setArea(left, right, top, bottom);
+    }
+
+    public ViewPortArea(float width, float height, float left, float right, float top, float bottom, float minDepth, float maxDepth) {
+        set(width, height, left, right, top, bottom, minDepth, maxDepth);
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(width, "width", 0f);
+        out.write(height, "height", 0f);
+        out.write(left, "left", 0f);
+        out.write(right, "right", 1f);
+        out.write(top, "top", 0f);
+        out.write(bottom, "bottom", 1f);
+        out.write(minDepth, "minDepth", 0f);
+        out.write(maxDepth, "maxDepth", 1f);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        width = in.readFloat("width", 0f);
+        height = in.readFloat("height", 0f);
+        left = in.readFloat("left", 0f);
+        right = in.readFloat("right", 1f);
+        top = in.readFloat("top", 0f);
+        bottom = in.readFloat("bottom", 1f);
+        minDepth = in.readFloat("minDepth", 0f);
+        maxDepth = in.readFloat("maxDepth", 1f);
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         ViewPortArea that = (ViewPortArea) o;
-        return Float.compare(x, that.x) == 0
-                && Float.compare(y, that.y) == 0
-                && Float.compare(width, that.width) == 0
+        return Float.compare(width, that.width) == 0
                 && Float.compare(height, that.height) == 0
+                && Float.compare(left, that.left) == 0
+                && Float.compare(right, that.right) == 0
+                && Float.compare(top, that.top) == 0
+                && Float.compare(bottom, that.bottom) == 0
                 && Float.compare(minDepth, that.minDepth) == 0
                 && Float.compare(maxDepth, that.maxDepth) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y, width, height, minDepth, maxDepth);
+        return Objects.hash(width, height, left, right, top, bottom, minDepth, maxDepth);
     }
 
     @Override
@@ -52,35 +85,46 @@ public class ViewPortArea implements Cloneable {
         }
     }
 
+    @Deprecated
     public ScissorArea toScissor(ScissorArea store) {
-        return ScissorArea.storage(store).set((int)x, (int)y, (int)width, (int)height);
+        return ScissorArea.storage(store).set(0, 0, (int)width, (int)height);
     }
 
     public ViewPortArea set(ViewPortArea area) {
-        this.x = area.x;
-        this.y = area.y;
         this.width = area.width;
         this.height = area.height;
+        this.left = area.left;
+        this.right = area.right;
+        this.top = area.top;
+        this.bottom = area.bottom;
         this.minDepth = area.minDepth;
         this.maxDepth = area.maxDepth;
         return this;
     }
 
-    public ViewPortArea set(float x, float y, float width, float height) {
-        this.x = x;
-        this.y = y;
+    public ViewPortArea set(float width, float height, float left, float right, float top, float bottom, float minDepth, float maxDepth) {
+        this.width = width;
+        this.height = height;
+        this.left = left;
+        this.right = right;
+        this.top = top;
+        this.bottom = bottom;
+        this.minDepth = minDepth;
+        this.maxDepth = maxDepth;
+        return this;
+    }
+
+    public ViewPortArea setSize(float width, float height) {
         this.width = width;
         this.height = height;
         return this;
     }
 
-    public ViewPortArea set(float x, float y, float width, float height, float minDepth, float maxDepth) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.minDepth = minDepth;
-        this.maxDepth = maxDepth;
+    public ViewPortArea setArea(float left, float right, float top, float bottom) {
+        this.left = left;
+        this.right = right;
+        this.top = top;
+        this.bottom = bottom;
         return this;
     }
 
@@ -100,16 +144,6 @@ public class ViewPortArea implements Cloneable {
         return this;
     }
 
-    public ViewPortArea setX(float x) {
-        this.x = x;
-        return this;
-    }
-
-    public ViewPortArea setY(float y) {
-        this.y = y;
-        return this;
-    }
-
     public ViewPortArea setWidth(float width) {
         this.width = width;
         return this;
@@ -117,6 +151,26 @@ public class ViewPortArea implements Cloneable {
 
     public ViewPortArea setHeight(float height) {
         this.height = height;
+        return this;
+    }
+
+    public ViewPortArea setLeft(float left) {
+        this.left = left;
+        return this;
+    }
+
+    public ViewPortArea setRight(float right) {
+        this.right = right;
+        return this;
+    }
+
+    public ViewPortArea setTop(float top) {
+        this.top = top;
+        return this;
+    }
+
+    public ViewPortArea setBottom(float bottom) {
+        this.bottom = bottom;
         return this;
     }
 
@@ -130,20 +184,28 @@ public class ViewPortArea implements Cloneable {
         return this;
     }
 
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
     public float getWidth() {
         return width;
     }
 
     public float getHeight() {
         return height;
+    }
+
+    public float getLeft() {
+        return left;
+    }
+
+    public float getRight() {
+        return right;
+    }
+
+    public float getTop() {
+        return top;
+    }
+
+    public float getBottom() {
+        return bottom;
     }
 
     public float getMinDepth() {
@@ -154,8 +216,20 @@ public class ViewPortArea implements Cloneable {
         return maxDepth;
     }
 
-    public static ViewPortArea storage(ViewPortArea store) {
-        return store != null ? store : new ViewPortArea();
+    public float getViewX() {
+        return width * left;
+    }
+
+    public float getViewY() {
+        return height * top;
+    }
+
+    public float getViewWidth() {
+        return width * (right - left);
+    }
+
+    public float getViewHeight() {
+        return height * (bottom - top);
     }
 
 }

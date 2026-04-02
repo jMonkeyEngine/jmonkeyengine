@@ -42,12 +42,11 @@ import com.jme3.material.GlMaterial;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.GlFrameBuffer;
+import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.TextureCubeMap;
-import com.jme3.texture.GlFrameBuffer.FrameBufferTarget;
+import com.jme3.texture.FrameBuffer.FrameBufferTarget;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.GlTexture.MagFilter;
 import com.jme3.texture.GlTexture.MinFilter;
@@ -117,16 +116,16 @@ public class IBLHybridEnvBakerLight extends GenericEnvBaker implements IBLEnvBak
         int mipWidth = (int) (specular.getImage().getWidth() * FastMath.pow(0.5f, mip));
         int mipHeight = (int) (specular.getImage().getHeight() * FastMath.pow(0.5f, mip));
 
-        GlFrameBuffer specularbakers[] = new GlFrameBuffer[6];
+        FrameBuffer specularbakers[] = new FrameBuffer[6];
         for (int i = 0; i < 6; i++) {
-            specularbakers[i] = new GlFrameBuffer(mipWidth, mipHeight, 1);
+            specularbakers[i] = new FrameBuffer(mipWidth, mipHeight, 1);
             specularbakers[i].setSrgb(false);
             specularbakers[i].addColorTarget(FrameBufferTarget.newTarget(specular).level(mip).face(i));
             specularbakers[i].setMipMapsGenerationHint(false);
         }
 
         for (int i = 0; i < 6; i++) {
-            GlFrameBuffer specularbaker = specularbakers[i];
+            FrameBuffer specularbaker = specularbakers[i];
             mat.setInt("FaceId", i);
 
             screen.updateLogicalState(0);

@@ -239,7 +239,7 @@ public class TangentBinormalGenerator {
 
     private static List<VertexData> processTriangles(Mesh mesh,
                                                      int[] index, Vector3f[] v, Vector2f[] t, boolean splitMirrored) {
-        IndexBuffer indexBuffer = mesh.getIndexBuffer();
+        IndexBuffer indexBuffer = mesh.getBaseIndexBuffer();
         FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
         if (mesh.getBuffer(Type.TexCoord) == null) {
             throw new IllegalArgumentException("Can only generate tangents for "
@@ -449,7 +449,7 @@ public class TangentBinormalGenerator {
     private static List<VertexData> processTriangleStrip(Mesh mesh,
                                                          int[] index, Vector3f[] v, Vector2f[] t) {
         
-        IndexBuffer indexBuffer = mesh.getIndexBuffer();
+        IndexBuffer indexBuffer = mesh.getBaseIndexBuffer();
         FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
         FloatBuffer textureBuffer = (FloatBuffer) mesh.getBuffer(Type.TexCoord).getData();
 
@@ -498,7 +498,7 @@ public class TangentBinormalGenerator {
     private static List<VertexData> processTriangleFan(Mesh mesh,
                                                        int[] index, Vector3f[] v, Vector2f[] t) {
         
-        IndexBuffer indexBuffer = mesh.getIndexBuffer();
+        IndexBuffer indexBuffer = mesh.getBaseIndexBuffer();
         FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
         FloatBuffer textureBuffer = (FloatBuffer) mesh.getBuffer(Type.TexCoord).getData();
 

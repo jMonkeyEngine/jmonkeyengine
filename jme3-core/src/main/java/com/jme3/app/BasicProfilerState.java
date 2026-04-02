@@ -39,16 +39,20 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
-import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffers.BufferMapping;
 import com.jme3.vulkan.buffers.BufferUsage;
-import com.jme3.vulkan.buffers.MappableBuffer;
-import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.mesh.attribute.Color;
-import com.jme3.vulkan.mesh.attribute.Position;
+import com.jme3.vulkan.buffers.IdxBuffer;
+import com.jme3.vulkan.buffers.saving.UpdateHint;
+import com.jme3.vulkan.material.structs.UnshadedParams;
+import com.jme3.vulkan.mesh.*;
+import com.jme3.vulkan.mesh.attributes.CommonAttributes;
+import com.jme3.vulkan.mesh.attributes.SingleAttrStruct;
 
 /**
  *  Provides a basic profiling visualization that shows
@@ -122,66 +126,9 @@ public class BasicProfilerState extends BaseAppState {
     }
 
     protected void refreshBackground() {
-        Mesh mesh = background.getMesh();
-
         int size = profiler.getFrameCount();
         float frameTime = 1000f / 60;
-
-        Position pos = mesh.mapAttribute(Type.Position);
-        Color color = mesh.mapAttribute(Type.Color);
-        pos.set(0, new float[] {
-            // first quad
-            0, 0, 0,
-            size, 0, 0,
-            size, frameTime, 0,
-            0, frameTime, 0,
-            // second quad
-            0, frameTime, 0,
-            size, frameTime, 0,
-            size, frameTime * 2, 0,
-            0, frameTime * 2, 0,
-
-            // A lower dark border just to frame the
-            // 'update' stats against bright backgrounds
-            0, -2, 0,
-            size, -2, 0,
-            size, 0, 0,
-            0, 0, 0
-        });
-        color.set(0, new float[] {
-            // first quad, within normal frame limits
-            0, 1, 0, 0.25f,
-            0, 1, 0, 0.25f,
-            0, 0.25f, 0, 0.25f,
-            0, 0.25f, 0, 0.25f,
-
-            // Second quad, dropped frames
-            0.25f, 0, 0, 0.25f,
-            0.25f, 0, 0, 0.25f,
-            1, 0, 0, 0.25f,
-            1, 0, 0, 0.25f,
-
-            0, 0, 0, 0.5f,
-            0, 0, 0, 0.5f,
-            0, 0, 0, 0.5f,
-            0, 0, 0, 0.5f
-        });
-        pos.close();
-        color.close();
-
-        MappableBuffer indices = mesh.setIndexBufferIfAbsent(() -> getEngine().createBuffer(
-                MemorySize.shorts(6 * 3), BufferUsage.Index, GlVertexBuffer.Usage.Static));
-        indices.mapShorts().put(new short[] {
-            0, 1, 2,
-            0, 2, 3,
-            4, 5, 6,
-            4, 6, 7,
-            8, 9, 10,
-            8, 10, 11
-        });
-        indices.unmap();
-        indices.stage();
-
+        ((BackgroundMesh)background.getMesh()).update(size, frameTime);
     }
 
     @Override
@@ -190,15 +137,17 @@ public class BasicProfilerState extends BaseAppState {
 
         //Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         Material mat = getEngine().createMaterial("Common/MatDefs/Misc/Unshaded.j4md");
-        mat.setBoolean("VertexColor", true);
+        UnshadedParams params = mat.get("Parameters");
+        params.vertexColor.set(true);
         graph.setMaterial(mat);
         graph.setLocalTranslation(0, 300, 0);
         graph.setLocalScale(1, scale, 1);
 
-        Mesh mesh = getEngine().createMesh(12);
+        Mesh mesh = new BackgroundMesh();
         background = new Geometry("profiler.background", mesh);
-        mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setBoolean("VertexColor", true);
+        mat = getEngine().createMaterial("Common/MatDefs/Misc/Unshaded.j3md");
+        params = mat.get("Parameters");
+        params.vertexColor.set(true);
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
         background.setMaterial(mat);
         background.setLocalTranslation(0, 300, -1);
@@ -225,7 +174,7 @@ public class BasicProfilerState extends BaseAppState {
     @Override
     protected void onEnable() {
         // Set the number of visible frames to the current width of the screen
-        setFrameCount(getApplication().getCamera().getWidth());
+        setFrameCount((int)getApplication().getViewPort().getArea().getWidth());
 
         getApplication().setAppProfiler(profiler);
         Node gui = ((SimpleApplication) getApplication()).getGuiNode();
@@ -249,4 +198,81 @@ public class BasicProfilerState extends BaseAppState {
             toggleProfiler();
         }
     }
+
+    private static class BackgroundMesh extends AdaptiveMesh {
+
+        private static final float[] colorData = {
+            // first quad, within normal frame limits
+            0, 1, 0, 0.25f,
+            0, 1, 0, 0.25f,
+            0, 0.25f, 0, 0.25f,
+            0, 0.25f, 0, 0.25f,
+            // second quad, dropped frames
+            0.25f, 0, 0, 0.25f,
+            0.25f, 0, 0, 0.25f,
+            1, 0, 0, 0.25f,
+            1, 0, 0, 0.25f,
+            // third quad
+            0, 0, 0, 0.5f,
+            0, 0, 0, 0.5f,
+            0, 0, 0, 0.5f,
+            0, 0, 0, 0.5f
+        };
+
+        private static final short[] idxData = {
+            0, 1, 2,
+            0, 2, 3,
+            4, 5, 6,
+            4, 6, 7,
+            8, 9, 10,
+            8, 10, 11
+        };
+
+        private final VertexBuffer position = new VertexBuffer<>(InputRate.Vertex,
+                new SingleAttrStruct<>(CommonAttributes.Position, new Vector3f()),
+                JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Dynamic));
+
+        public BackgroundMesh() {
+            super(12, 1);
+            addVertexBuffer(position);
+            VertexBuffer color = new VertexBuffer<>(InputRate.Vertex,
+                    new SingleAttrStruct<>(CommonAttributes.Color, new ColorRGBA()),
+                    JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Static));
+            addVertexBuffer(color);
+            try (BufferMapping m = color.getBuffer().map()) {
+                m.getFloats().put(colorData);
+            }
+            IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
+                    (long)idxData.length * Short.BYTES, BufferUsage.Index, UpdateHint.Static));
+            try (BufferMapping m = index.map()) {
+                m.getShorts().put(idxData);
+            }
+            setBaseIndexBuffer(index);
+        }
+
+        public void update(int size, float frameTime) {
+            try (BufferMapping m = position.getBuffer().map()) {
+                m.getFloats().put(new float[] {
+                    // first quad
+                    0, 0, 0,
+                    size, 0, 0,
+                    size, frameTime, 0,
+                    0, frameTime, 0,
+                    // second quad
+                    0, frameTime, 0,
+                    size, frameTime, 0,
+                    size, frameTime * 2, 0,
+                    0, frameTime * 2, 0,
+                    // A lower dark border just to frame the 'update' stats against bright backgrounds
+                    0, -2, 0,
+                    size, -2, 0,
+                    size, 0, 0,
+                    0, 0, 0
+                });
+            }
+            updateBound();
+        }
+
+    }
+
 }

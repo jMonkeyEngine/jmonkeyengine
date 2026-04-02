@@ -1,6 +1,7 @@
 package com.jme3.vulkan.devices;
 
 import com.jme3.vulkan.util.PNextChain;
+import org.lwjgl.vulkan.VkPhysicalDeviceDynamicRenderingFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures2;
 import org.lwjgl.vulkan.VkPhysicalDeviceRobustness2FeaturesEXT;
 
@@ -10,8 +11,8 @@ public interface DeviceFeature {
 
     Float evaluateSupport(PNextChain features);
 
-    static DeviceFeature anisotropy(float pass, boolean rejectOnFail) {
-        return new BooleanDeviceFeature(pass, rejectOnFail) {
+    static DeviceFeature anisotropy(Float pass) {
+        return new BooleanDeviceFeature(pass) {
             @Override
             public void enableFeature(PNextChain features) {
                 features.get(VkPhysicalDeviceFeatures2.class, f -> f.features().samplerAnisotropy(true));
@@ -23,8 +24,8 @@ public interface DeviceFeature {
         };
     }
 
-    static DeviceFeature nullDescriptor(float pass, boolean rejectOnFail) {
-        return new BooleanDeviceFeature(pass, rejectOnFail) {
+    static DeviceFeature nullDescriptor(Float pass) {
+        return new BooleanDeviceFeature(pass) {
             @Override
             public void enableFeature(PNextChain features) {
                 features.get(VkPhysicalDeviceRobustness2FeaturesEXT.class, f -> f.nullDescriptor(true));
@@ -37,19 +38,32 @@ public interface DeviceFeature {
         };
     }
 
+    static DeviceFeature dynamicRendering(Float pass) {
+        return new BooleanDeviceFeature(pass) {
+            @Override
+            protected boolean isFeatureSupported(PNextChain features) {
+                return features.get(VkPhysicalDeviceDynamicRenderingFeatures.class, false,
+                        VkPhysicalDeviceDynamicRenderingFeatures::dynamicRendering);
+            }
+            @Override
+            public void enableFeature(PNextChain features) {
+                features.get(VkPhysicalDeviceDynamicRenderingFeatures.class, f -> f.dynamicRendering(true));
+            }
+        };
+    }
+
     abstract class BooleanDeviceFeature implements DeviceFeature {
 
-        private final Float pass;
-        private final boolean rejectOnFail;
+        private final Float score;
 
-        public BooleanDeviceFeature(float pass, boolean rejectOnFail) {
-            this.pass = pass;
-            this.rejectOnFail = rejectOnFail;
+        public BooleanDeviceFeature(Float score) {
+            this.score = score;
         }
 
         @Override
         public Float evaluateSupport(PNextChain features) {
-            return isFeatureSupported(features) ? pass : (rejectOnFail ? null : 0f);
+            boolean rejectOnFail = score == null;
+            return isFeatureSupported(features) ? (rejectOnFail ? 0f : score) : (rejectOnFail ? null : 0f);
         }
 
         protected abstract boolean isFeatureSupported(PNextChain features);

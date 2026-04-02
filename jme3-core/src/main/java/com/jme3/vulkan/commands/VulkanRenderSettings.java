@@ -21,11 +21,12 @@ public class VulkanRenderSettings implements StandardRenderSettings {
         @Override
         protected void apply(ViewPortArea value) {
             try (MemoryStack stack = MemoryStack.stackPush()) {
+                float x = value.getWidth() * value.getLeft();
+                float y = value.getHeight() * value.getTop();
+                float w = value.getWidth() * value.getRight() - x;
+                float h = value.getHeight() * value.getBottom() - y;
                 VkViewport.Buffer vp = VkViewport.malloc(1, stack)
-                        .x(value.getX())
-                        .y(value.getY())
-                        .width(value.getWidth())
-                        .height(value.getHeight())
+                        .x(x).y(y).width(w).height(h)
                         .minDepth(value.getMinDepth())
                         .maxDepth(value.getMaxDepth());
                 vkCmdSetViewport(cmd.getBuffer(), 0, vp);

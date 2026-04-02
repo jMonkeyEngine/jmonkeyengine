@@ -38,6 +38,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Map;
 
@@ -154,4 +155,15 @@ public interface OutputCapsule {
     // enums
 
     public void write(Enum value, String name, Enum defVal) throws IOException;
+    default void write(Enum[] value, String name, Enum[] defVal) throws IOException {
+        if (Arrays.equals(value, defVal)) {
+            write((int[])null, name, null);
+        }
+        int[] ordinals = new int[value.length];
+        for (int i = 0; i < ordinals.length; i++) {
+            ordinals[i] = value[i].ordinal();
+        }
+        write(ordinals, name, null);
+    }
+
 }

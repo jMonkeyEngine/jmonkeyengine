@@ -5,8 +5,8 @@ import com.jme3.util.natives.Disposable;
 import com.jme3.util.natives.DisposableManager;
 import com.jme3.util.natives.DisposableReference;
 import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.tmp.EffectivelyFinal;
-import com.jme3.vulkan.tmp.EffectivelyFinalWriter;
+import com.jme3.vulkan.tmp.Final;
+import com.jme3.vulkan.tmp.FinalWriter;
 import com.jme3.vulkan.tmp.SerializationOnly;
 import org.lwjgl.system.MemoryUtil;
 
@@ -15,27 +15,27 @@ import java.nio.*;
 
 public class NioBuffer implements MappableBuffer, Disposable, Savable {
 
-    @EffectivelyFinal
-    protected DisposableReference ref;
+    private final boolean clearMem;
+    @Final protected DisposableReference ref;
 
     private ByteBuffer buffer;
     private MemorySize size;
 
-    @SerializationOnly
-    protected NioBuffer() {}
-
-    public NioBuffer(MemorySize size) {
-        this(size, true);
+    public NioBuffer() {
+        this(1, true);
     }
 
-    public NioBuffer(MemorySize size, boolean clearMem) {
-        this.size = size;
-        if (clearMem) {
-            buffer = MemoryUtil.memCalloc((int)size.getBytes());
-        } else {
-            buffer = MemoryUtil.memAlloc((int)size.getBytes());
-        }
-        ref = DisposableManager.reference(this);
+    public NioBuffer(long bytes) {
+        this(bytes, true);
+    }
+
+    public NioBuffer(boolean clearMem) {
+        this(1, clearMem);
+    }
+
+    public NioBuffer(long bytes, boolean clearMem) {
+        this.size = new MemorySize(bytes);
+        this.clearMem = clearMem;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class NioBuffer implements MappableBuffer, Disposable, Savable {
     }
 
     @Override
-    @EffectivelyFinalWriter
+    @FinalWriter
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         size = (MemorySize)in.readSavable("size", null);
@@ -61,10 +61,22 @@ public class NioBuffer implements MappableBuffer, Disposable, Savable {
 
     @Override
     public BufferMapping map(long offset, long size) {
+        if (buffer == null) {
+            if (ref != null) {
+                ref.destroy();
+            }
+            if (clearMem) {
+                buffer = MemoryUtil.memCalloc((int)this.size.getEnd());
+            } else {
+                buffer = MemoryUtil.memAlloc((int)this.size.getEnd());
+            }
+            ref = DisposableManager.reference(this);
+        }
         if (offset == 0) {
-            return new VirtualBufferMapping(buffer.duplicate());
+            return new DirectBufferMapping(buffer.duplicate());
         } else {
-            return new VirtualBufferMapping(buffer.position((int)offset).limit((int)(offset + size)).slice());
+            return new DirectBufferMapping(buffer.position((int)(this.size.getOffset() + offset))
+                    .limit((int)(this.size.getOffset() + offset + size)).slice());
         }
     }
 
@@ -87,17 +99,15 @@ public class NioBuffer implements MappableBuffer, Disposable, Savable {
     public void stage(long offset, long size) {}
 
     @Override
-    public ResizeResult resize(MemorySize size) {
-        this.size = size;
-        if (size.getBytes() > buffer.capacity()) {
-            ByteBuffer newBuffer = MemoryUtil.memRealloc(buffer, (int)size.getBytes());
+    public void resize(long bytes) {
+        size = size.setBytes(bytes);
+        if (buffer != null && size.getEnd() > buffer.capacity()) {
+            ByteBuffer newBuffer = MemoryUtil.memRealloc(buffer, (int)size.getEnd());
             if (newBuffer != buffer) {
                 buffer = newBuffer;
                 ref.refresh();
             }
-            return ResizeResult.Realloc;
         }
-        return ResizeResult.Success;
     }
 
 }

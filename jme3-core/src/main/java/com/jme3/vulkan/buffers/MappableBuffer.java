@@ -1,59 +1,11 @@
 package com.jme3.vulkan.buffers;
 
-import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.scene.mesh.IndexByteBuffer;
-import com.jme3.scene.mesh.IndexIntBuffer;
-import com.jme3.scene.mesh.IndexShortBuffer;
+import com.jme3.export.Savable;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.memory.MemorySize;
 
-import java.nio.*;
-
-public interface MappableBuffer extends Mappable {
-
-    enum ResizeResult {
-
-        /**
-         * The buffer's size was changed without any side effects.
-         */
-        Success(true),
-
-        /**
-         * The buffer's size was changed but the buffer's data had to be copied
-         * to a new memory region. For {@link GpuBuffer GpuBuffers} this often
-         * means that a new native buffer of the correct size was created.
-         */
-        Realloc(true),
-
-        /**
-         * The buffer's size was changed by allocating a new memory region, but
-         * the buffer's data was lost in the process. This is often unavoidable for
-         * certain types of buffers ({@link com.jme3.vulkan.buffers.newbuf.DeviceLocalBuffer
-         * DeviceLocalBuffer} for example) where copying the current data to the
-         * new region is not feasible.
-         */
-        DataLost(true),
-
-        /**
-         * The buffer was not resized.
-         */
-        Failure(false);
-
-        private final boolean resized;
-
-        ResizeResult(boolean resized) {
-            this.resized = resized;
-        }
-
-        /**
-         * Returns true if the buffer had to be resized to fit the new size.
-         *
-         * @return true if resized
-         */
-        public boolean isResized() {
-            return resized;
-        }
-
-    }
+public interface MappableBuffer extends Mappable, Savable {
 
     /**
      * Maps the memory of this buffer and returns a pointer to the mapped
@@ -79,10 +31,16 @@ public interface MappableBuffer extends Mappable {
     /**
      * Resizes this buffer.
      *
-     * @param size size to resize to
-     * @return result of the resize operation
+     * @param bytes@return result of the resize operation
      */
-    ResizeResult resize(MemorySize size);
+    void resize(long bytes);
+
+    /**
+     * Returns the memory size of this buffer.
+     *
+     * @return memory size
+     */
+    MemorySize size();
 
     /**
      * Marks this entire buffer as needing to be pushed to the GPU or
@@ -92,20 +50,6 @@ public interface MappableBuffer extends Mappable {
      */
     default void stage() {
         stage(0, size().getBytes());
-    }
-
-    /**
-     * Verifies that there are enough bytes in the buffer to represent {@code elements}
-     * with {@code bytesPerElement}.
-     *
-     * @param elements number of elements
-     * @param bytesPerElement number of bytes needed per element
-     * @throws BufferOverflowException if this buffer is not large enough
-     */
-    default void verifyBufferSize(long elements, int bytesPerElement) {
-        if (elements * bytesPerElement > size().getBytes()) {
-            throw new BufferOverflowException();
-        }
     }
 
     /**
@@ -125,9 +69,32 @@ public interface MappableBuffer extends Mappable {
      * @return pointer to the mapped region
      * @see #map(long, long)
      */
-    @Override
     default BufferMapping map() {
         return map(0, size().getBytes());
+    }
+
+    default <T extends Struct> StructMapping<T> mapStruct(T struct) {
+        return new StructMapping<>(struct, this, 0, 1);
+    }
+
+    default <T extends Struct> StructMapping<T> mapStruct(T struct, int offset) {
+        return new StructMapping<>(struct, this, offset, 1);
+    }
+
+    default <T extends Struct> StructMapping<T> mapStructs(T struct, int elements) {
+        return new StructMapping<>(struct, this, 0, elements);
+    }
+
+    default <T extends Struct> StructMapping<T> mapStructs(T struct, int offset, int elements) {
+        return new StructMapping<>(struct, this, offset, elements);
+    }
+
+    default <T extends Struct> StructMapping<T> mapAllStructs(T struct) {
+        return new StructMapping<>(struct, this);
+    }
+
+    default <T extends Struct> StructMapping<T> mapAllStructs(T struct, int offset) {
+        return new StructMapping<>(struct, this, offset);
     }
 
 }

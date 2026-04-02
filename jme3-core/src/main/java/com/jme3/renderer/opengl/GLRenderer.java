@@ -50,8 +50,6 @@ import com.jme3.system.JmeSystem;
 import com.jme3.system.Platform;
 import com.jme3.shader.ShaderBufferBlock.BufferType;
 import com.jme3.shader.bufferobject.BufferObject;
-import com.jme3.texture.GlFrameBuffer;
-import com.jme3.texture.GlFrameBuffer.RenderBuffer;
 import com.jme3.texture.GlImage;
 import com.jme3.texture.GlTexture;
 import com.jme3.texture.Texture2D;
@@ -65,15 +63,17 @@ import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObject;
 import com.jme3.util.NativeObjectManager;
 
+import com.jme3.util.struct.Struct;
+import com.jme3.vulkan.OpenGLEnums;
 import com.jme3.vulkan.buffers.BufferMapping;
-import com.jme3.vulkan.buffers.GlNativeBuffer;
+import com.jme3.vulkan.buffers.GlBuffer;
+import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.buffers.stream.DirtyRegions;
-import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.mesh.InputRate;
-import com.jme3.vulkan.mesh.NamedAttribute;
+import com.jme3.vulkan.mesh.VertexAttr;
 import com.jme3.vulkan.mesh.VertexBuffer;
 import com.jme3.vulkan.pipeline.Topology;
-import com.jme3.vulkan.util.IntEnum;
+import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 import jme3tools.shader.ShaderDebug;
 
 import java.lang.ref.WeakReference;
@@ -114,7 +114,7 @@ public final class GLRenderer implements Renderer {
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
     private final EnumMap<Limits, Integer> limits = new EnumMap<>(Limits.class);
 
-    private GlFrameBuffer mainFbOverride = null;
+    private FrameBuffer mainFbOverride = null;
     private int defaultFBO = 0;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
@@ -129,7 +129,7 @@ public final class GLRenderer implements Renderer {
     private final TextureUtil texUtil = new TextureUtil();
     private boolean debug = false;
     private int debugGroupId = 0;
-    
+
     /**
      * Enable/Disable default automatic generation of mipmaps for framebuffers
      * @param v  Default is true
@@ -159,14 +159,14 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    
+
 
     @Override
     public Statistics getStatistics() {
         return statistics;
     }
 
-    @Override 
+    @Override
     public EnumSet<Caps> getCaps() {
         return caps;
     }
@@ -711,7 +711,7 @@ public final class GLRenderer implements Renderer {
 //            } else if (gl instanceof GLES_30) {
 //                ((GLES_30)gl).glGenVertexArrays(intBuf16);
 //                int vaoId = intBuf16.get(0);
-//                ((GLES_30)gl).glBindVertexArray(vaoId);                
+//                ((GLES_30)gl).glBindVertexArray(vaoId);
             } else {
                 throw new UnsupportedOperationException("Core profile not supported");
             }
@@ -1290,7 +1290,7 @@ public final class GLRenderer implements Renderer {
         }
         return true;
     }
-    
+
     private boolean isValidNumber(Vector2f v) {
         return isValidNumber(v.x) && isValidNumber(v.y);
     }
@@ -1455,7 +1455,7 @@ public final class GLRenderer implements Renderer {
 
         final BufferObject bufferObject = bufferBlock.getBufferObject();
         final BufferType bufferType = bufferBlock.getType();
-        
+
 
         if (bufferObject.isUpdateNeeded()) {
             if (bufferType == BufferType.ShaderStorageBufferObject) {
@@ -1485,7 +1485,7 @@ public final class GLRenderer implements Renderer {
                     }
                     if (bufferBlock.getLocation() != NativeObject.INVALID_ID) {
                         glUniformBlockBinding(shaderId, bufferBlock.getLocation(), bindingPoint);
-                    } 
+                    }
                 }
                 break;
             }
@@ -1615,7 +1615,7 @@ public final class GLRenderer implements Renderer {
             }
 
         }
-        
+
         if (linearizeSrgbImages) {
             stringBuf.append("#define SRGB 1\n");
         }
@@ -1749,7 +1749,7 @@ public final class GLRenderer implements Renderer {
     public void setShader(ShaderProgram shader) {
         if (shader == null) {
             throw new IllegalArgumentException("Shader cannot be null");
-        } else {            
+        } else {
             if (shader.isUpdateNeeded()) {
                 updateShaderData(shader);
             }
@@ -1806,17 +1806,17 @@ public final class GLRenderer implements Renderer {
      * @param src the source buffer (unaffected)
      * @param dst the destination buffer
      */
-    public void copyFrameBuffer(GlFrameBuffer src, GlFrameBuffer dst) {
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
         copyFrameBuffer(src, dst, true, true);
     }
 
     @Override
-    public void copyFrameBuffer(GlFrameBuffer src, GlFrameBuffer dst, boolean copyDepth) {
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
         copyFrameBuffer(src, dst, true, copyDepth);
     }
 
     @Override
-    public void copyFrameBuffer(GlFrameBuffer src, GlFrameBuffer dst, boolean copyColor, boolean copyDepth) {
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyColor, boolean copyDepth) {
         if (caps.contains(Caps.FrameBufferBlit)) {
             int srcX0 = 0;
             int srcY0 = 0;
@@ -1855,8 +1855,8 @@ public final class GLRenderer implements Renderer {
                 srcY1 = vpY + vpH;
             } else {
                 glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, src.getNativeObject());
-                srcX1 = src.getWidth();
-                srcY1 = src.getHeight();
+                srcX1 = (int)src.getWidth();
+                srcY1 = (int)src.getHeight();
             }
             if (dst == null) {
                 glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
@@ -1866,8 +1866,8 @@ public final class GLRenderer implements Renderer {
                 dstY1 = vpY + vpH;
             } else {
                 glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, dst.getNativeObject());
-                dstX1 = dst.getWidth();
-                dstY1 = dst.getHeight();
+                dstX1 = (int)dst.getWidth();
+                dstY1 = (int)dst.getHeight();
             }
 
             int mask = 0;
@@ -1922,7 +1922,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private void updateRenderBuffer(GlFrameBuffer fb, RenderBuffer rb) {
+    private void updateRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
         int id = rb.getRenderBufferId();
         if (id == -1) {
             glGenRenderbuffersEXT(intBuf1);
@@ -1964,9 +1964,9 @@ public final class GLRenderer implements Renderer {
 
     private int convertAttachmentSlot(int attachmentSlot) {
         // can also add support for stencil here
-        if (attachmentSlot == GlFrameBuffer.SLOT_DEPTH) {
+        if (attachmentSlot == FrameBuffer.SLOT_DEPTH) {
             return GL_DEPTH_ATTACHMENT_EXT;
-        } else if (attachmentSlot == GlFrameBuffer.SLOT_DEPTH_STENCIL) {
+        } else if (attachmentSlot == FrameBuffer.SLOT_DEPTH_STENCIL) {
             // NOTE: Using depth stencil format requires GL3, this is already
             // checked via render caps.
             return GL_DEPTH_STENCIL_ATTACHMENT;
@@ -1977,8 +1977,8 @@ public final class GLRenderer implements Renderer {
         return GL_COLOR_ATTACHMENT0_EXT + attachmentSlot;
     }
 
-    public void updateRenderTexture(GlFrameBuffer fb, RenderBuffer rb) {
-        GlTexture tex = rb.getTexture();
+    public void updateRenderTexture(FrameBuffer fb, RenderBuffer rb) {
+        GlTexture tex = (GlTexture)rb.getTexture();
         GlImage image = tex.getImage();
         if (image.isUpdateNeeded()) {
             // Check NPOT requirements
@@ -2007,7 +2007,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    public void updateFrameBufferAttachment(GlFrameBuffer fb, RenderBuffer rb) {
+    public void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb) {
         boolean needAttach;
         if (rb.getTexture() == null) {
             // if it hasn't been created yet, then attach is required.
@@ -2025,7 +2025,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    private void bindFrameBuffer(GlFrameBuffer fb) {
+    private void bindFrameBuffer(FrameBuffer fb) {
         if (fb == null) {
             if (context.boundFBO != defaultFBO) {
                 glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, defaultFBO);
@@ -2046,7 +2046,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    public void updateFrameBuffer(GlFrameBuffer fb) {
+    public void updateFrameBuffer(FrameBuffer fb) {
         if (fb.getColorTargets().isEmpty() && fb.getDepthTarget() == null) {
             throw new IllegalArgumentException("The framebuffer: " + fb
                     + "\nDoesn't have any color/depth buffers");
@@ -2062,12 +2062,12 @@ public final class GLRenderer implements Renderer {
 
         bindFrameBuffer(fb);
 
-        GlFrameBuffer.RenderBuffer depthBuf = fb.getDepthTarget();
+        FrameBuffer.RenderBuffer depthBuf = fb.getDepthTarget();
         if (depthBuf != null) {
             updateFrameBufferAttachment(fb, depthBuf);
         }
 
-        for (GlFrameBuffer.RenderBuffer colorBuf : fb.getColorTargets()) {
+        for (FrameBuffer.RenderBuffer colorBuf : fb.getColorTargets()) {
             updateFrameBufferAttachment(fb, colorBuf);
         }
 
@@ -2077,7 +2077,7 @@ public final class GLRenderer implements Renderer {
         fb.clearUpdateNeeded();
     }
 
-    public Vector2f[] getFrameBufferSamplePositions(GlFrameBuffer fb) {
+    public Vector2f[] getFrameBufferSamplePositions(FrameBuffer fb) {
         if (fb.getSamples() <= 1) {
             throw new IllegalArgumentException("Framebuffer must be multisampled");
         }
@@ -2099,7 +2099,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void setMainFrameBufferOverride(GlFrameBuffer fb) {
+    public void setMainFrameBufferOverride(FrameBuffer fb) {
         mainFbOverride = null;
         if (context.boundFBO == 0) {
             // Main FB is now set to fb, make sure its bound
@@ -2110,25 +2110,25 @@ public final class GLRenderer implements Renderer {
 
 
     @Override
-    public GlFrameBuffer getCurrentFrameBuffer() {
+    public FrameBuffer getCurrentFrameBuffer() {
         if(mainFbOverride!=null){
             return mainFbOverride;
         }
         return context.boundFB;
     }
 
-    public void setReadDrawBuffers(GlFrameBuffer fb) {
+    public void setReadDrawBuffers(FrameBuffer fb) {
         if (glVersion < 200) {
             return;
         }
 
         if (fb != null) {
-          
+
             if (fb.getColorTargets().isEmpty()) {
                 // make sure to select NONE as draw buf
-                // no color buffer attached.                
-                glDrawBuffer(GL_NONE);             
-                glReadBuffer(GL_NONE);                 
+                // no color buffer attached.
+                glDrawBuffer(GL_NONE);
+                glReadBuffer(GL_NONE);
             } else {
                 if (fb.getColorTargets().size() > limits.get(Limits.FrameBufferAttachments)) {
                     throw new RendererException("Framebuffer has more color "
@@ -2166,7 +2166,7 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void setFrameBuffer(GlFrameBuffer fb) {
+    public void setFrameBuffer(FrameBuffer fb) {
         if (fb == null && mainFbOverride != null) {
             fb = mainFbOverride;
         }
@@ -2191,11 +2191,11 @@ public final class GLRenderer implements Renderer {
         // generate mipmaps for last FB if needed
         if (context.boundFB != null && (context.boundFB.getMipMapsGenerationHint()!=null?context.boundFB.getMipMapsGenerationHint():generateMipmapsForFramebuffers)) {
             for (RenderBuffer rb : context.boundFB.getColorTargets()) {
-                GlTexture tex = rb.getTexture();
+                GlTexture tex = (GlTexture)rb.getTexture();
                 if (tex != null && tex.getMinFilter().usesMipMapLevels()) {
                     try {
                         final int textureUnitIndex = 0;
-                        setTexture(textureUnitIndex, rb.getTexture());
+                        setTexture(textureUnitIndex, tex);
                     } catch (TextureUnitException exception) {
                         throw new RuntimeException("Renderer lacks texture units?");
                     }
@@ -2232,11 +2232,11 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void readFrameBuffer(GlFrameBuffer fb, ByteBuffer byteBuf) {
+    public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
         readFrameBufferWithGLFormat(fb, byteBuf, GL_RGBA, GL_UNSIGNED_BYTE);
     }
 
-    private void readFrameBufferWithGLFormat(GlFrameBuffer fb, ByteBuffer byteBuf, int glFormat, int dataType) {
+    private void readFrameBufferWithGLFormat(FrameBuffer fb, ByteBuffer byteBuf, int glFormat, int dataType) {
         if (fb != null) {
             RenderBuffer rb = fb.getColorTarget();
             if (rb == null) {
@@ -2245,7 +2245,7 @@ public final class GLRenderer implements Renderer {
             }
 
             setFrameBuffer(fb);
-         
+
 
         } else {
             setFrameBuffer(null);
@@ -2255,18 +2255,18 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void readFrameBufferWithFormat(GlFrameBuffer fb, ByteBuffer byteBuf, GlImage.Format format) {
+    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, GlImage.Format format) {
         GLImageFormat glFormat = texUtil.getImageFormatWithError(format, false);
         readFrameBufferWithGLFormat(fb, byteBuf, glFormat.format, glFormat.dataType);
     }
 
-    private void deleteRenderBuffer(GlFrameBuffer fb, RenderBuffer rb) {
+    private void deleteRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
         intBuf1.put(0, rb.getRenderBufferId());
         glDeleteRenderbuffersEXT(intBuf1);
     }
 
     @Override
-    public void deleteFrameBuffer(GlFrameBuffer fb) {
+    public void deleteFrameBuffer(FrameBuffer fb) {
         if (fb.getNativeObject() != -1) {
             if (context.boundFBO == fb.getNativeObject()) {
                 glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -2724,7 +2724,7 @@ public final class GLRenderer implements Renderer {
         if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
             throw new TextureUnitException();
         }
-        
+
         GlImage image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
             // Check NPOT requirements
@@ -2755,7 +2755,7 @@ public final class GLRenderer implements Renderer {
             if (tex.getName() != null) glObjectLabel(GL_TEXTURE, tex.getImage().getNativeObject(), tex.getName());
         }
     }
-    
+
     @Override
     public void setTextureImage(int unit, TextureImage tex) throws TextureUnitException {
         if (unit < 0 || unit >= RenderContext.maxTextureUnits) {
@@ -2768,7 +2768,7 @@ public final class GLRenderer implements Renderer {
             tex.bindImage(texUtil, unit);
         }
     }
-    
+
     @Override
     public void setUniformBufferObject(int bindingPoint, BufferObject bufferObject) {
         if (bufferObject.isUpdateNeeded()) {
@@ -2918,14 +2918,15 @@ public final class GLRenderer implements Renderer {
         glDeleteBuffers(bufferId);
     }
 
-    public void updateBufferData(GlNativeBuffer buffer, int bindTarget) {
+    public void updateBufferData(GlBuffer buffer, int bindTarget) {
         if (!buffer.isInitialized()) {
             glGenBuffers(intBuf1);
             buffer.initialize(this, intBuf1.get(0));
         }
         bindBuffer(buffer, bindTarget);
-        glBufferData(bindTarget, buffer.mapBytes(), convertUsage(buffer.getUsage()));
-        buffer.unmap();
+        try (BufferMapping m = buffer.map()) {
+            glBufferData(bindTarget, m.getBytes(), convertUsage(buffer.getUsage()));
+        }
         buffer.clearUpdateNeeded();
     }
 
@@ -3008,7 +3009,7 @@ public final class GLRenderer implements Renderer {
                 ByteBuffer data = m.getBytes();
                 glBindBuffer(type, bufferId);
                 for (DirtyRegions.Region r : regions) {
-                    glBufferSubData(type, r.getOffset(), data.position(r.getOffset()).limit(r.getEnd()));
+                    glBufferSubData(type, r.getOffset(), data.position((int)r.getOffset()).limit((int)r.getEnd()));
                 }
                 regions.clear();
                 glBindBuffer(type, 0);
@@ -3076,136 +3077,112 @@ public final class GLRenderer implements Renderer {
         for (int i = 0; i < attribList.oldLen; i++) {
             int idx = attribList.oldList[i];
             glDisableVertexAttribArray(idx);
-            WeakReference<VertexBuffer> ref = context.boundAttribs[idx];
-            if (ref != null) {
-                VertexBuffer buffer = ref.get();
-                if (buffer != null && buffer.getBinding().getInputRate().is(InputRate.Instance)) {
-                    glVertexAttribDivisorARB(idx, 0);
-                }
-                context.boundAttribs[idx] = null;
-            }
+            context.boundAttribs[idx] = null;
         }
         attribList.copyNewToOld();
     }
 
-    public void setVertexAttrib(VertexBuffer vb) {
+    public void setVertexAttrib(VertexBuffer<Struct<VertexAttr>> vb) {
         if (context.boundShaderProgram <= 0) {
             throw new IllegalStateException("Cannot render mesh without shader bound");
         }
-        if (vb.getBinding().getAttributes().size() != 1) {
-            throw new IllegalArgumentException("Vertex buffers must contain exactly one attribute.");
+        if (vb.getStruct().getFields().size() != 1) {
+            throw new UnsupportedOperationException("Interleaved vertex buffers are not supported with OpenGL.");
         }
-        NamedAttribute attrInfo = vb.getBinding().getFirstAttribute();
-        ShaderAttribute shaderAttr = context.boundShader.getAttribute(attrInfo.getName());
+        //NamedAttribute attrInfo = vb.getBinding().getFirstAttribute();
+        VertexAttr attr = vb.getStruct().getFields().getFirst();
+        ShaderAttribute shaderAttr = context.boundShader.getAttribute(attr.getName());
         int loc = shaderAttr.getLocation();
         if (loc == ShaderVariable.LOC_UNKNOWN) {
-            loc = Math.max(ShaderVariable.LOC_NOT_DEFINED, glGetAttribLocation(context.boundShaderProgram, "in" + attrInfo.getName()));
+            loc = Math.max(ShaderVariable.LOC_NOT_DEFINED, glGetAttribLocation(context.boundShaderProgram, "in" + attr.getName()));
             shaderAttr.setLocation(loc);
         }
         if (loc == ShaderVariable.LOC_NOT_DEFINED) {
             return;
         }
 
-        if (vb.getBinding().getInputRate().is(InputRate.Instance)) {
-            if (!caps.contains(Caps.MeshInstancing)) {
-                throw new RendererException("Instancing is required, "
-                        + "but not supported by the "
-                        + "graphics hardware");
-            }
+        if (vb.getRate() == InputRate.Instance && !caps.contains(Caps.MeshInstancing)) {
+            throw new RendererException("Instancing is not supported by the graphics hardware.");
         }
-        int slotsRequired = attrInfo.getFormats().length;
+        int slotsRequired = attr.getFormats().length;
 
-        GlNativeBuffer buffer = (GlNativeBuffer)vb.getData().getBuffer();
+        GlBuffer buffer = (GlBuffer)vb.getBuffer();
         if (buffer.isUpdateNeeded()) {
             updateBufferData(buffer, GL_ARRAY_BUFFER);
         }
 
-        WeakReference<VertexBuffer>[] attribs = context.boundAttribs;
         for (int i = 0; i < slotsRequired; i++) {
             if (!context.attribIndexList.moveToNew(loc + i)) {
                 glEnableVertexAttribArray(loc + i);
             }
         }
-        if (attribs[loc] == null || attribs[loc].get() != vb) {
+        if (context.boundAttribs[loc] == null || context.boundAttribs[loc].get() != buffer) {
             assert buffer.isInitialized();
             bindBuffer(buffer, GL_ARRAY_BUFFER);
-            int slotOffset = attrInfo.getOffset();
+            int slotOffset = attr.getOffset();
             for (int i = 0; i < slotsRequired; i++) {
                 int slot = loc + i;
-                com.jme3.vulkan.formats.Format f = attrInfo.getFormats()[i];
+                com.jme3.vulkan.formats.Format f = attr.getFormats()[i];
                 glVertexAttribPointer(slot,
                         f.getComponents(),
-                        f.getGlBufferComponentType(),
+                        f.getGlComponent(),
                         f.getSpace().isNormalized(),
-                        vb.getBinding().getStride(),
+                        vb.getStride(),
                         slotOffset);
                 slotOffset += f.getBytes();
-                boolean instanced = vb.getBinding().getInputRate().is(InputRate.Instance);
-                if (instanced && (attribs[slot] == null || attribs[slot].get() == null || !attribs[slot].get().getBinding().getInputRate().is(InputRate.Instance))) {
+                boolean instanced = vb.getRate() == InputRate.Instance;
+                if (instanced && context.boundAttribRate[slot] != InputRate.Instance) {
                     // non-instanced -> instanced
                     glVertexAttribDivisorARB(slot, 1); // to conform with vulkan, instance span is set to 1
-                } else if (!instanced && attribs[slot] != null && attribs[slot].get() != null && attribs[slot].get().getBinding().getInputRate().is(InputRate.Instance)) {
+                } else if (!instanced && context.boundAttribRate[slot] == InputRate.Instance) {
                     // instanced -> non-instanced
                     glVertexAttribDivisorARB(slot, 0);
                 }
-                attribs[slot] = vb.getWeakRef();
+                context.boundAttribs[slot] = buffer.getWeakReference();
+                context.boundAttribRate[slot] = vb.getRate();
             }
         }
         if (debug && caps.contains(Caps.GLDebug)) {
-            glObjectLabel(GL_BUFFER, ((GlNativeBuffer)vb.getData().getBuffer()).getNativeObject(), attrInfo.getName());
+            glObjectLabel(GL_BUFFER, buffer.getId(), attr.getName());
         }
     }
 
-    public void drawTriangleArray(IntEnum<Topology> topology, int instances, int vertices) {
+    public void drawTriangleArray(Topology topology, int instances, int vertices) {
         boolean useInstancing = instances > 1 && caps.contains(Caps.MeshInstancing);
         if (useInstancing) {
-            glDrawArraysInstancedARB(topology.getEnum(), 0, vertices, instances);
+            glDrawArraysInstancedARB(topology.getEnum(OpenGLEnums.instance), 0, vertices, instances);
         } else {
-            glDrawArrays(topology.getEnum(), 0, vertices);
+            glDrawArrays(topology.getEnum(OpenGLEnums.instance), 0, vertices);
         }
     }
 
-    public void drawTriangleList(GlNativeBuffer indexBuf, IntEnum<Topology> topology, int instances, int vertices) {
-        if (indexBuf.isUpdateNeeded()) {
-            updateBufferData(indexBuf, GL_ELEMENT_ARRAY_BUFFER);
+    public void drawTriangleList(IdxBuffer<GlBuffer> indexBuf, Topology topology, int instances, int vertices) {
+        if (indexBuf.getBuffer().isUpdateNeeded()) {
+            updateBufferData(indexBuf.getBuffer(), GL_ELEMENT_ARRAY_BUFFER);
         }
 
-        bindBuffer(indexBuf, GL_ELEMENT_ARRAY_BUFFER);
+        bindBuffer(indexBuf.getBuffer(), GL_ELEMENT_ARRAY_BUFFER);
         boolean useInstancing = instances > 1 && caps.contains(Caps.MeshInstancing);
         if (useInstancing) {
-            glDrawElementsInstancedARB(topology.getEnum(),
-                    (int)indexBuf.size().getElements(),
-                    indexFormat(indexBuf.size()),
+            glDrawElementsInstancedARB(topology.getEnum(OpenGLEnums.instance),
+                    (int)indexBuf.size().getBytes() / indexBuf.getType().getBytes(),
+                    indexBuf.getType().getEnum(OpenGLEnums.instance),
                     0,
                     instances);
         } else {
-            glDrawRangeElements(topology.getEnum(),
+            glDrawRangeElements(topology.getEnum(OpenGLEnums.instance),
                     0,
                     vertices,
-                    (int)indexBuf.size().getElements(),
-                    indexFormat(indexBuf.size()),
+                    (int)indexBuf.size().getBytes() / indexBuf.getType().getBytes(),
+                    indexBuf.getType().getEnum(OpenGLEnums.instance),
                     0);
         }
     }
 
-    private int indexFormat(MemorySize size) {
-        switch (size.getBytesPerElement()) {
-            case Byte.BYTES: return GL_UNSIGNED_BYTE;
-            case Short.BYTES: return GL_UNSIGNED_SHORT;
-            case Integer.BYTES: {
-                if (!caps.contains(Caps.IntegerIndexBuffer)) {
-                    throw new RendererException("32-bit index buffers are not supported by the video hardware.");
-                }
-                return GL_UNSIGNED_INT;
-            }
-            default: throw new IllegalArgumentException("Index size must specify bytes, shorts, or integers.");
-        }
-    }
-
-    private void bindBuffer(GlNativeBuffer buffer, int target) {
-        if (!Objects.equals(context.boundBuffers.get(target), buffer.getNativeObject())) {
-            glBindBuffer(target, buffer.getNativeObject());
-            context.boundBuffers.put(target, buffer.getNativeObject());
+    private void bindBuffer(GlBuffer buffer, int target) {
+        if (!Objects.equals(context.boundBuffers.get(target), buffer.getId())) {
+            glBindBuffer(target, buffer.getId());
+            context.boundBuffers.put(target, buffer.getId());
         }
     }
 
@@ -3213,73 +3190,9 @@ public final class GLRenderer implements Renderer {
     |* Render Calls *|
     \*==============*/
 
-    @Deprecated
-    private void renderMeshDefault(GlMesh mesh, int lod, int count, GlVertexBuffer[] instanceData) {
-
-        // this method is completely non-functional. Please delete!
-
-        // Here while count is still passed in.  Can be removed when/if
-        // the method is collapsed again.  -pspeed
-        count = Math.max(mesh.getElements(InputRate.Instance), count);
-
-        // we shouldn't be using an explicit interleaved buffer anymore
-//        GlVertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
-//        if (interleavedData != null && interleavedData.isUpdateNeeded()) {
-//            //updateBufferData(interleavedData);
-//            throw new UnsupportedOperationException("Interleaved data is not supported.");
-//        }
-
-        // Instance data is explicitly stored within the mesh.
-        // Please don't pull shenanigans needing mesh data outside the mesh!
-//        if (instanceData != null) {
-//            for (GlVertexBuffer vb : instanceData) {
-//                setVertexAttrib(vb, null);
-//            }
-//        }
-
-//        for (GlVertexBuffer vb : mesh.getVertices()) {
-//            // no buffers in the vertex buffer list should need skipping
-//            if (vb.getBufferType() == Type.InterleavedData
-//                    || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
-//                   || vb.getBufferType() == Type.Index) {
-//                continue;
-//            }
-//
-//            // these functions should be called, but vb is incompatible at the moment
-//            if (vb.getStride() == 0) { // not interleaved
-//                //setVertexAttrib(vb);
-//            } else { // interleaved
-//                //setVertexAttrib(vb, interleavedData);
-//            }
-//        }
-
-        clearVertexAttribs();
-
-//        if (mesh.getNumLodLevels() > 0) {
-//            // commented out for incompatible arguments
-//            //drawTriangleList(mesh.getIndexBuffer(lod), mesh, count);
-//        } else {
-//            drawTriangleArray(mesh.getTopology(), count, mesh.getVertexCount());
-//        }
-    }
-
     @Override
     @Deprecated // meshes should handle at least the upper layer of rendering now
-    public void renderMesh(GlMesh mesh, GlMesh.Mode mode, int lod, int count, GlVertexBuffer[] instanceData) {
-//        if (mesh.getVertexCount() == 0 || mesh.getTriangleCount() == 0 || count == 0) {
-//            return;
-//        }
-//
-//        if (count > 1 && !caps.contains(Caps.MeshInstancing)) {
-//            throw new RendererException("Mesh instancing is not supported by the video hardware");
-//        }
-//
-//        if (glVersion >= 400 && context.meshMode.equals(Mode.Patch)) {
-//            glPatchParameteri(GL_PATCH_VERTICES, mesh.getPatchVertexCount());
-//        }
-//        statistics.onMeshDrawn(mesh, lod, count);
-//        renderMeshDefault(mesh, lod, count, instanceData);
-    }
+    public void renderMesh(GlMesh mesh, GlMesh.Mode mode, int lod, int count, GlVertexBuffer[] instanceData) {}
 
     @Override
     public void setMainFrameBufferSrgb(boolean enableSrgb) {
@@ -3299,14 +3212,14 @@ public final class GLRenderer implements Renderer {
                 JmeSystem.getPlatform().getOs() != Platform.Os.MacOS
                 && !getBoolean(GL_FRAMEBUFFER_SRGB_CAPABLE_EXT)
             ) {
-                logger.warning("Driver claims that default framebuffer " + "is not sRGB capable. Enabling anyway.");
+                logger.warning("Driver claims that default framebuffer is not sRGB capable. Enabling anyway.");
             }
             glEnable(GL_FRAMEBUFFER_SRGB_EXT);
             //mainFbSrgb = true;
 
             logger.log(Level.FINER, "SRGB FrameBuffer enabled (Gamma Correction)");
         } else {
-            glDisable(GL_FRAMEBUFFER_SRGB_EXT); 
+            glDisable(GL_FRAMEBUFFER_SRGB_EXT);
             //mainFbSrgb = false;
         }
     }

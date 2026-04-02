@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
+import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.SetLayoutBinding;
 import com.jme3.vulkan.material.NewMaterialDef;
-import com.jme3.vulkan.material.technique.PushConstantRange;
 import com.jme3.vulkan.material.technique.VulkanTechnique;
-import com.jme3.vulkan.material.uniforms.StructUniform;
+import com.jme3.vulkan.material.uniforms.BufferUniform;
 import com.jme3.vulkan.material.uniforms.TextureUniform;
 import com.jme3.vulkan.material.uniforms.VulkanUniform;
 import com.jme3.vulkan.material.shader.ShaderStage;
@@ -33,7 +33,8 @@ public class VulkanMaterialLoader implements AssetLoader {
                 "texture3d",
                 "texturecubemap",
                 "texturearray");
-        addUniformLoader(StructUniform::new, "uniformbuffer");
+        addUniformLoader(json -> new BufferUniform<>(json, Descriptor.UniformBuffer), "uniformbuffer", "uniform");
+        addUniformLoader(json -> new BufferUniform<>(json, Descriptor.StorageBuffer), "storagebuffer", "storage");
         addShaderStage(ShaderStage.Vertex, "vertex", "vert");
         addShaderStage(ShaderStage.Fragment, "fragment", "frag");
     }
@@ -76,28 +77,14 @@ public class VulkanMaterialLoader implements AssetLoader {
                         tech.linkDefine(m.define, m.name, m.scope);
                     }
                 }
-                if (technique.has("pushConstants")) {
-                    int offset = 0;
-                    for (JsonNode push : root.get("pushConstants")) {
-                        int stageMask = 0;
-                        for (JsonNode stage : push.get("scope")) {
-                            stageMask |= stages.get(stage.asText()).bits();
-                        }
-                        PushConstantRange constants = new PushConstantRange(Flag.of(stageMask), offset);
-                        for (JsonNode name : push.get("members")) {
-                            String uniformName = name.asText();
-                            VulkanUniform<?> uniform = uniforms.get(uniformName);
-                            if (uniform.getPushConstantSize() <= 0) {
-                                throw new IOException("Uniform \"" + uniformName + "\" must be push constant compatible.");
-                            }
-                            constants.addUniform(uniformName, uniform);
-                        }
-                        tech.addPushConstants(constants);
-                        offset += constants.getSize();
-                    }
-                }
                 String name = technique.get("name").asText();
-                for (JsonNode shader : Objects.requireNonNull(technique.get("shaders"), "Technique \"" + name + "\" has no shader entries.")) {
+                for (Iterator<Map.Entry<String, JsonNode>> it = technique.get("shaders").fields(); it.hasNext();) {
+                    Map.Entry<String, JsonNode> shader = it.next();
+                    if (shader.getValue().isTextual()) {
+                        tech.setShaderSource(ShaderStage.valueOf(shader.getKey()), shader.getValue().asText());
+                    } else {
+
+                    }
                     if (shader.has("shader")) {
                         String[] params = shader.get("shader").asText().split(":");
                         if (params.length < 2) {

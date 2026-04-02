@@ -6,8 +6,8 @@ import com.jme3.util.natives.DisposableManager;
 import com.jme3.vulkan.formats.Format;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
-import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
 import com.jme3.vulkan.pipeline.PipelineBindPoint;
+import com.jme3.vulkan.pipeline.framebuffer.GeneralFrameBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -36,11 +36,11 @@ public class RenderPass extends AbstractNative<Long> {
         return () -> vkDestroyRenderPass(device.getNativeObject(), object, null);
     }
 
-    public void begin(CommandBuffer cmd, FrameBuffer<?> fbo) {
+    public void begin(CommandBuffer cmd, GeneralFrameBuffer fbo) {
         begin(cmd, fbo, true);
     }
 
-    public void begin(CommandBuffer cmd, FrameBuffer<?> fbo, boolean inline) {
+    public void begin(CommandBuffer cmd, GeneralFrameBuffer fbo, boolean commandsInline) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkClearValue.Buffer clear = VkClearValue.calloc(attachments.size(), stack);
             for (Attachment a : attachments) {
@@ -52,12 +52,12 @@ public class RenderPass extends AbstractNative<Long> {
             VkRenderPassBeginInfo begin = VkRenderPassBeginInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO)
                     .renderPass(object)
-                    .framebuffer(fbo.getId())
+                    .framebuffer(fbo.getBufferId(cmd.getPool().getDevice()))
                     .clearValueCount(clear.limit())
                     .pClearValues(clear);
-            begin.renderArea().offset().set(0, 0);
-            begin.renderArea().extent().width(fbo.getWidth()).height(fbo.getHeight());
-            vkCmdBeginRenderPass(cmd.getBuffer(), begin, inline ? VK_SUBPASS_CONTENTS_INLINE : VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+            begin.renderArea().offset().set(fbo.getAreaX(), fbo.getAreaY());
+            begin.renderArea().extent().set(fbo.getAreaWidth(), fbo.getAreaHeight());
+            vkCmdBeginRenderPass(cmd.getBuffer(), begin, commandsInline ? VK_SUBPASS_CONTENTS_INLINE : VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
         }
     }
 

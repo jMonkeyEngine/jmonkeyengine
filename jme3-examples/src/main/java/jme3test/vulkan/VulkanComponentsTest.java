@@ -21,7 +21,6 @@ import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.mesh.AdaptiveMesh;
 import com.jme3.vulkan.mesh.InputRate;
-import com.jme3.vulkan.mesh.MeshLayout;
 import com.jme3.vulkan.mesh.attribute.Position;
 import com.jme3.vulkan.pipeline.DynamicState;
 import com.jme3.vulkan.pipeline.PipelineLayout;

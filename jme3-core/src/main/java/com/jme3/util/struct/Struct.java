@@ -1,102 +1,239 @@
 package com.jme3.util.struct;
 
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.Savable;
 import com.jme3.math.FastMath;
+import com.jme3.vulkan.buffers.BufferMapping;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
-public abstract class Struct {
+/**
+ * Defines the layout of properties in native memory. In contrast to traditional struct patterns,
+ * {@code Struct} does not directly contain any data. Rather, it dictates how the data is read from
+ * and written to memory. This design allows a single Struct instance to be used to read and write
+ * data from multiple memory locations instead of needing a seperate instance for each unique memory
+ * location.
+ *
+ * <p>Struct fields are expected to be added sometime during initialization through {@link #addFields(StructField[])}
+ * and at no other point. Adding or altering fields post-initialization can result in undefined behavior.</p>
+ *
+ * <p>The precise layout represented by a Struct is determined by assigning {@link FieldDesc} to each
+ * member field depending on their type from a specific {@link StructLayout}. Structs (unless otherwise
+ * stated by an implementation) are initialized without a StructLayout assigned. Attempting to access
+ * statistics or fields of a struct without a layout results in undefined behavior.</p>
+ *
+ * @param <T> field type accepted by the struct
+ */
+public abstract class Struct <T extends StructField> implements Savable {
 
-    private final List<Field> fields = new LinkedList<>();
-    private StructLayout layout;
+    private static final Map<Class, List<java.lang.reflect.Field>> structFieldCache = new HashMap<>();
+
+    private final List<T> fields = new LinkedList<>();
+    protected StructLayout layout;
+    protected BufferMapping mapping;
+    protected int position;
     private int size, alignment;
 
-    public Struct() {}
+    @Override
+    public void write(JmeExporter ex) throws IOException {}
 
-    public Struct(StructLayout layout, long address) {
-        read(layout, address);
-    }
+    @Override
+    public void read(JmeImporter im) throws IOException {}
 
-    public void write(StructLayout layout, long address) {
-        setLayout(layout);
-        for (Field f : fields) {
-            f.write(layout, address);
-        }
-    }
-
-    public void read(StructLayout layout, long address) {
-        setLayout(layout);
-        for (Field f : fields) {
-            f.read(layout, address);
-        }
-    }
-
-    protected void addFields(Field... fields) {
+    @SafeVarargs
+    protected final void addFields(T... fields) {
         this.fields.addAll(Arrays.asList(fields));
     }
 
-    public void setLayout(StructLayout layout) {
+    public void bind(StructLayout layout, BufferMapping mapping, int position) {
+        bind(layout);
+        this.mapping = mapping;
+        this.position = position;
+    }
+
+    public void bind(BufferMapping mapping, int position) {
+        this.mapping = mapping;
+        this.position = position;
+    }
+
+    public void bind(Struct struct) {
+        bind(struct.getLayout(), struct.getMapping(), struct.getPosition());
+    }
+
+    /**
+     * Binds this struct with a layout defined by {@code layout}. If the layout
+     * is changed, this struct is {@link #computeOffsets() recomputed}.
+     *
+     * @param <E> struct type to return
+     * @param layout layout
+     * @return this instance, as a builder convenience
+     */
+    public <E extends Struct> E bind(StructLayout layout) {
         if (this.layout == layout) {
-            return;
+            return (E)this;
         }
         this.layout = layout;
-        size = 0;
-        alignment = Float.BYTES * 4;
-        for (Field f : fields) {
-            FieldDesc d = layout.getFieldDescription(f.get().getClass());
-            int align = d.getAlignment(layout, f.get());
-            f.bind(d, size = FastMath.toMultipleOf(size, align));
-            size += d.getSize(layout, f.get());
-            alignment = Math.max(alignment, align);
+        computeOffsets();
+        return (E)this;
+    }
+
+    /**
+     * Computes field offsets, struct size, and struct alignment based on
+     * the currently bound layout.
+     */
+    public void computeOffsets() {
+        this.size = 0;
+        this.alignment = layout.getMinStructAlignment();
+        for (T f : fields) if (f.isEnabled()) {
+            size = f.bind(this, size) + f.getSize();
+            alignment = Math.max(alignment, f.getAlignment());
         }
         size = FastMath.toMultipleOf(size, alignment);
     }
 
+    /**
+     * Gets this struct's member fields in the order they were registered
+     * as an unmodifiable list.
+     *
+     * @return unmodifiable list of fields
+     */
+    public List<T> getFields() {
+        return Collections.unmodifiableList(fields);
+    }
+
+    /**
+     * Gets the StructLayout this struct is currently bound to.
+     *
+     * @return bound layout
+     */
     public StructLayout getLayout() {
         return layout;
     }
 
-    public int getSize(StructLayout layout) {
-        setLayout(layout);
+    public BufferMapping getMapping() {
+        return mapping;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    /**
+     * Gets the size in bytes of this struct as defined by the bound layout.
+     *
+     * @return size in bytes
+     */
+    public int getSize() {
         return size;
     }
 
-    public int getAlignment(StructLayout layout) {
-        setLayout(layout);
+    /**
+     * Gets the alignment in bytes of this struct as defined by the bound layout.
+     * Must be a power of two.
+     *
+     * @return alignment in bytes
+     */
+    public int getAlignment() {
         return alignment;
     }
 
-    public static class Field <T> {
+    /**
+     * Gets the aligned size in bytes of this struct as defined by the bound layout.
+     * The aligned size is {@link #getSize()} rounded up to the nearest {@link #getAlignment()}.
+     *
+     * @return aligned size in bytes
+     */
+    public int getAlignedSize() {
+        return FastMath.toMultipleOf(size, alignment);
+    }
 
-        private T value;
+    /**
+     * Standard {@link StructField} implementation.
+     *
+     * @param <T> field type
+     */
+    public static class Field <T> implements StructField<T> {
+
+        private String name;
+        private T alias;
+        private Struct struct;
         private FieldDesc<T> description;
         private int offset;
+        private boolean enabled = true;
 
-        public Field(T value) {
-            assert value != null : "Struct value cannot be null.";
-            this.value = value;
+        public Field(T alias) {
+            this(null, alias);
         }
 
-        protected void bind(FieldDesc<T> description, int offset) {
-            this.description = description;
-            this.offset = offset;
+        public Field(String name, T alias) {
+            assert alias != null : "Alias cannot be null.";
+            this.name = name;
+            this.alias = alias;
         }
 
-        protected void write(StructLayout layout, long structAddress) {
-            description.write(layout, structAddress + offset, value);
+        @Override
+        public int bind(Struct struct, int offset) {
+            this.struct = struct;
+            this.description = struct.getLayout().getFieldDescription(getType());
+            return this.offset = FastMath.toMultipleOf(offset, getAlignment());
         }
 
-        protected void read(StructLayout layout, long structAddress) {
-            value = description.read(layout, structAddress + offset, value);
-        }
-
+        @Override
         public void set(T value) {
-            this.value = value;
+            if (!enabled) return;
+            assert description != null : "Struct not bound: unable to write.";
+            description.write(struct.getLayout(), struct.getMapping(), struct.getPosition() + offset, value);
         }
 
+        @Override
         public T get() {
-            return value;
+            if (!enabled) return alias;
+            assert description != null : "Struct not bound: unable to read.";
+            return alias = description.read(struct.getLayout(), struct.getMapping(), struct.getPosition() + offset, alias);
+        }
+
+        @Override
+        public T alias() {
+            return alias;
+        }
+
+        @Override
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public void enable(boolean enable) {
+            this.enabled = enable;
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        @Override
+        public Class getType() {
+            return alias.getClass();
+        }
+
+        @Override
+        public int getSize() {
+            assert description != null : "Struct not bound to a layout: size unknown.";
+            return description.getSize(struct.getLayout(), alias);
+        }
+
+        @Override
+        public int getAlignment() {
+            assert description != null : "Struct not bound to a layout: alignment unknown.";
+            return description.getAlignment(struct.getLayout(), alias);
         }
 
         public FieldDesc<T> getDescription() {

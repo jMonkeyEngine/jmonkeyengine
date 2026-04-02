@@ -32,14 +32,13 @@
 package com.jme3.scene;
 
 import com.jme3.export.Savable;
-import com.jme3.vulkan.buffers.MappableBuffer;
+import com.jme3.vulkan.buffers.IdxBuffer;
 import com.jme3.vulkan.mesh.*;
-import com.jme3.vulkan.mesh.attribute.Attribute;
+import com.jme3.vulkan.mesh.attributes.AttributeMapping;
+import com.jme3.vulkan.mesh.VertexBuffer;
 import com.jme3.vulkan.pipeline.Topology;
-import com.jme3.vulkan.util.IntEnum;
 
 import java.util.Collection;
-import java.util.function.Consumer;
 
 /**
  * Stores the vertex, index, and instance data for drawing indexed meshes.
@@ -55,203 +54,100 @@ import java.util.function.Consumer;
  */
 public interface Mesh extends Savable {
 
-    /**
-     * Gets the layout object that describes how this mesh's buffers are formatted
-     * and bound.
-     *
-     * @return mesh layout
-     */
-    MeshLayout getLayout();
+    int selectLevelOfDetail(int lod);
 
-    /**
-     * Creates and returns an {@link Attribute} object which maps to the
-     * specified vertex attribute, regardless of where and how the attribute
-     * is stored in the mesh.
-     *
-     * @param name name of the attribute to map
-     * @return Attribute object
-     * @param <T> type of Attribute object
-     */
-    <T extends Attribute> T mapAttribute(String name);
+    void setIndexBuffer(int lod, IdxBuffer buffer);
 
-    MappableBuffer selectLevelOfDetail(int level);
+    IdxBuffer getIndexBuffer(int lod);
 
-    MappableBuffer getLevelOfDetail(int level);
+    IdxBuffer getLevelOfDetail(int lod);
 
-    /**
-     * Gets the vertex buffer data related to the vertex binding.
-     *
-     * @param binding binding related to the vertex buffer
-     * @return vertex buffer data
-     */
-    VertexBuffer getVertexBuffer(VertexBinding binding);
+    void stageIndices(int lod);
 
-    /**
-     * Sets the number of elements for the specified input rate (i.e. vertices
-     * or instances) that are rendered. The actual number used may be different
-     * from {@code elements}, usually depending on the capacity for that input
-     * rate. If set to zero or less than zero, implementations may choose to
-     * skip rendering for this mesh.
-     *
-     * @param rate vertex rate
-     * @param elements number of elements associated with that vertex rate
-     * @return the number of elements used for the vertex rate as a result
-     * of this method call
-     */
-    long setElements(IntEnum<InputRate> rate, long elements);
+    void stageLevelOfDetail(int lod);
 
-    /**
-     * Sets the usage hint of the specified attribute. The effectiveness of
-     * a usage hint depends on the exact implementation. It is generally
-     * most effective to set an attribute's usage hint before the attribute's
-     * vertex buffer is first interacted with.
-     *
-     * @param attributeName name of the attribute
-     * @param usage usage hint
-     */
-    void setUsage(String attributeName, GlVertexBuffer.Usage usage);
+    void stageIndices();
 
-    /**
-     * {@link MappableBuffer#stage(long, long) Pushes} the specified regions of all buffers
-     * for the given input rate.
-     *
-     * @param rate rate of vertex buffer to push
-     * @param baseElement first element to push
-     * @param elements number of elements to push
-     */
-    void pushElements(IntEnum<InputRate> rate, long baseElement, long elements);
+    void addVertexBuffer(VertexBuffer vertexBuffer);
 
-    /**
-     * Gets the number of elements for the given input rate.
-     *
-     * @param rate rate to get number of elements of
-     * @return number of elements
-     */
-    long getElements(IntEnum<InputRate> rate);
-
-    /**
-     * Gets the maximum number of elements for the given input rate.
-     *
-     * @param rate rate to get element capacity of
-     * @return number of elements
-     */
-    long getCapacity(IntEnum<InputRate> rate);
-
-    /**
-     * Tests if the named attribute exists for this mesh.
-     *
-     * @param name attribute name
-     * @return true if the attribute exists
-     */
-    boolean attributeExists(String name);
-
-    /**
-     * Gets all vertex buffers being used in this mesh.
-     *
-     * @return unmodifiable collection of vertex buffers in use
-     */
     Collection<VertexBuffer> getVertexBuffers();
 
-    /**
-     * Gets the topology mode of this mesh.
-     *
-     * @return topology mode
-     */
-    IntEnum<Topology> getTopology();
+    AttributeMapping mapAttributes(InputRate rate, String... attributes);
 
-    /**
-     * {@link #mapAttribute(String) Maps} the named attribute.
-     *
-     * @param type attribute name
-     * @return mapped attribute
-     * @param <T> attribute type
-     */
-    default <T extends Attribute> T mapAttribute(GlVertexBuffer.Type type) {
-        return mapAttribute(type.name());
+    void stageVertices(int baseVertex, int vertices);
+
+    void stageInstances(int baseInstance, int instances);
+
+    int setVertexCount(int vertices);
+
+    int setInstanceCount(int instances);
+
+    void setVertexCapacity(int vertexCapacity);
+
+    void setInstanceCapacity(int instanceCapacity);
+
+    void setTopology(Topology topology);
+
+    int getVertexCount();
+
+    int getInstanceCount();
+
+    int getVertexCapacity();
+
+    int getInstanceCapacity();
+
+    Topology getTopology();
+
+    default void setBaseIndexBuffer(IdxBuffer buffer) {
+        setIndexBuffer(0, buffer);
     }
 
-    /**
-     * {@link #mapAttribute(String) Maps} and sets the {@link #setUsage(GlVertexBuffer.Type,
-     * GlVertexBuffer.Usage) usage flag} of the named attribute.
-     *
-     * @param name attribute name
-     * @param usage usage hint
-     * @return mapped attribute
-     * @param <T> attribute type
-     */
-    default <T extends Attribute> T mapAttribute(String name, GlVertexBuffer.Usage usage) {
-        setUsage(name, usage);
-        return mapAttribute(name);
+    default IdxBuffer getBaseIndexBuffer() {
+        return getIndexBuffer(0);
     }
 
-    /**
-     * {@link #mapAttribute(String) Maps} and sets the {@link #setUsage(GlVertexBuffer.Type,
-     * GlVertexBuffer.Usage) usage flag} of the named attribute.
-     *
-     * @param type attribute name
-     * @param usage usage hint
-     * @return mapped attribute
-     * @param <T> attribute type
-     */
-    default <T extends Attribute> T mapAttribute(GlVertexBuffer.Type type, GlVertexBuffer.Usage usage) {
-        setUsage(type, usage);
-        return mapAttribute(type);
+    default void stageAll() {
+        stageIndices();
+        stageVertices();
+        stageInstances();
     }
 
-    /**
-     * {@link #mapAttribute(String) Maps} the named attribute and passes the mapped
-     * attribute to a config Consumer.
-     *
-     * @param name attribute name
-     * @param config Consumer accepting the attribute
-     * @param <T> attribute type
-     */
-    default <T extends Attribute> void mapAttribute(String name, Consumer<T> config) {
-        T attr = mapAttribute(name);
-        if (attr != null) config.accept(attr);
+    default void stageVertices() {
+        stageVertices(0, getVertexCount());
     }
 
-    /**
-     * {@link #mapAttribute(String) Maps} the named attribute and passes the mapped
-     * attribute to a config Consumer.
-     *
-     * @param type attribute name
-     * @param config Consumer accepting the attribute
-     * @param <T> attribute type
-     */
-    default <T extends Attribute> void mapAttribute(GlVertexBuffer.Type type, Consumer<T> config) {
-        mapAttribute(type.name(), config);
+    default void stageInstances() {
+        stageInstances(0, getInstanceCount());
     }
 
-    /**
-     * Sets the usage hint of the named attribute.
-     *
-     * @param type attribute name
-     * @param usage usage hint
-     * @see #setUsage(String, GlVertexBuffer.Usage)
-     */
-    default void setUsage(GlVertexBuffer.Type type, GlVertexBuffer.Usage usage) {
-        setUsage(type.name(), usage);
+    default void setVertexCount(int vertices, int resizePadding) {
+        if (resizePadding >= 0 && vertices > getVertexCapacity()) {
+            setVertexCapacity(vertices + resizePadding);
+        }
+        setVertexCount(vertices);
     }
 
-    /**
-     * Pushes all elements for the given input rate.
-     *
-     * @param rate input rate to push
-     * @see #pushElements(IntEnum, int, int)
-     */
-    default void pushElements(IntEnum<InputRate> rate) {
-        pushElements(rate, 0, getElements(rate));
+    default void setInstanceCount(int instances, int resizePadding) {
+        if (resizePadding >= 0 && instances > getInstanceCapacity()) {
+            setInstanceCapacity(instances + resizePadding);
+        }
+        setInstanceCount(instances);
     }
 
-    /**
-     * Tests if the named attribute exists for this mesh.
-     *
-     * @param type attribute name
-     * @return true if the attribute exists
-     */
-    default boolean attributeExists(GlVertexBuffer.Type type) {
-        return attributeExists(type.name());
+    default int getElementCount(InputRate rate) {
+        switch (rate) {
+            case Vertex: return getVertexCount();
+            case Instance: return getInstanceCount();
+            default: return 0;
+        }
+    }
+
+    default int getElementCapacity(InputRate rate) {
+        switch (rate) {
+            case Vertex: return getVertexCapacity();
+            case Instance: return getInstanceCapacity();
+            default: return 0;
+        }
     }
 
 }

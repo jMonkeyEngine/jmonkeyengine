@@ -37,11 +37,23 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.GlVertexBuffer.Type;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructMapping;
+import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.IdxBuffer;
+import com.jme3.vulkan.buffers.saving.UpdateHint;
+import com.jme3.vulkan.mesh.*;
+import com.jme3.vulkan.mesh.attributes.CommonAttributes;
+
 import java.io.IOException;
+import java.nio.ShortBuffer;
 
 /**
  * A simple cylinder, defined by its height and radius.
@@ -50,7 +62,7 @@ import java.io.IOException;
  * @author Mark Powell
  * @version $Revision: 4131 $, $Date: 2009-03-19 16:15:28 -0400 (Thu, 19 Mar 2009) $
  */
-public class Cylinder extends GlMesh {
+public class Cylinder extends AdaptiveMesh {
 
     private int axisSamples;
 
@@ -62,6 +74,9 @@ public class Cylinder extends GlMesh {
     private float height;
     private boolean closed;
     private boolean inverted;
+
+    private final VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
+            JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Static));
 
     /**
      * constructor for serialization only. Do not use.
@@ -144,6 +159,7 @@ public class Cylinder extends GlMesh {
     public Cylinder(int axisSamples, int radialSamples,
             float radius, float radius2, float height, boolean closed, boolean inverted) {
         super();
+        addVertexBuffer(buffer);
         updateGeometry(axisSamples, radialSamples, radius, radius2, height, closed, inverted);
     }
 
@@ -211,11 +227,7 @@ public class Cylinder extends GlMesh {
     public void updateGeometry(int axisSamples, int radialSamples,
             float topRadius, float bottomRadius, float height, boolean closed, boolean inverted) {
         // Ensure there's at least two axis samples and 3 radial samples, and positive dimensions.
-        if (axisSamples < 2
-            || radialSamples < 3
-            || topRadius <= 0
-            || bottomRadius <= 0
-            || height <= 0) {
+        if (axisSamples < 2 || radialSamples < 3 || topRadius <= 0 || bottomRadius <= 0 || height <= 0) {
             throw new IllegalArgumentException("Cylinders must have at least 2 axis samples and 3 radial samples, and positive dimensions.");
         }
 
@@ -271,157 +283,110 @@ public class Cylinder extends GlMesh {
             circleNormals[circlePoint] = normal.normalizeLocal();
         }
 
-        float[] vertices = new float[verticesCount * 3];
-        float[] normals = new float[verticesCount * 3];
-        float[] textureCoords = new float[verticesCount * 2];
-        int currentIndex = 0;
+        try (StructMapping<Vertex> m = buffer.map()) {
+            Vertex v = m.get();
+            m.sample(0);
+            for (int axisSample = 0; axisSample < axisSamples; axisSample++) {
+                float currentHeight = -height / 2 + height * axisSample / (axisSamples - 1);
+                float currentRadius = bottomRadius + (topRadius - bottomRadius) * axisSample / (axisSamples - 1);
 
-        // Add a circle of points for each axis sample.
-        for (int axisSample = 0; axisSample < axisSamples; axisSample++) {
-            float currentHeight = -height / 2 + height * axisSample / (axisSamples - 1);
-            float currentRadius = bottomRadius + (topRadius - bottomRadius) * axisSample / (axisSamples - 1);
+                for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++) {
+                    // Position, by multiplying the position on a unit circle with the current radius.
+                    v.position.alias().set(circlePoints[circlePoint][0] * currentRadius, circlePoints[circlePoint][1], currentHeight);
+                    v.position.set();
 
-            for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++) {
-                // Position, by multiplying the position on a unit circle with the current radius.
-                vertices[currentIndex*3] = circlePoints[circlePoint][0] * currentRadius;
-                vertices[currentIndex*3 +1] = circlePoints[circlePoint][1] * currentRadius;
-                vertices[currentIndex*3 +2] = currentHeight;
+                    // Normal
+                    v.normal.set(circleNormals[circlePoint]);
 
-                // Normal
-                Vector3f currentNormal = circleNormals[circlePoint];
-                normals[currentIndex*3] = currentNormal.x;
-                normals[currentIndex*3+1] = currentNormal.y;
-                normals[currentIndex*3+2] = currentNormal.z;
-
-                // Texture
-                // The X is the angular position of the point.
-                textureCoords[currentIndex * 2] = (float) circlePoint / radialSamples;
-                // Depending on whether there is a cap, the Y is either the height scaled to [0,1], or the radii of
-                // the cap count as well.
-                if (closed)
-                    textureCoords[currentIndex * 2 + 1] = (bottomRadius + height / 2 + currentHeight)
-                            / (bottomRadius + height + topRadius);
-                else
-                    textureCoords[currentIndex * 2 + 1] = height / 2 + currentHeight;
-
-                currentIndex++;
+                    // Texture
+                    // The X is the angular position of the point.
+                    v.texCoord.alias().x = (float)circlePoint / radialSamples;
+                    // Depending on whether there is a cap, the Y is either the height scaled to [0,1], or the radii of
+                    // the cap count as well.
+                    if (closed) {
+                        v.texCoord.alias().y = (bottomRadius + height / 2 + currentHeight) / (bottomRadius + height + topRadius);
+                    } else {
+                        v.texCoord.alias().y = height / 2 + currentHeight;
+                    }
+                    v.texCoord.set();
+                    m.increment();
+                }
             }
-        }
+            // fill in top and bottom caps if closed
+            if (closed) {
+                // Bottom
+                for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++) {
+                    v.position.alias().set(circlePoints[circlePoint][0] * bottomRadius, circlePoints[circlePoint][1] * bottomRadius, -height/2);
+                    v.position.set();
+                    v.normal.set(v.normal.alias().set(0, 0, -1));
+                    v.texCoord.alias().set((float)circlePoint / radialSamples, bottomRadius / (bottomRadius + height + topRadius));
+                    v.texCoord.set();
+                    m.increment();
+                }
+                // Top
+                for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++) {
+                    v.position.alias().set(circlePoints[circlePoint][0] * topRadius, circlePoints[circlePoint][1] * topRadius, height/2);
+                    v.position.set();
+                    v.normal.set(v.normal.alias().set(0, 0, 1));
+                    v.texCoord.alias().set((float)circlePoint / radialSamples, (bottomRadius + height) / (bottomRadius + height + topRadius));
+                    v.texCoord.set();
+                    m.increment();
+                }
 
-        // If closed, add duplicate rims on top and bottom, with normals facing up and down.
-        if (closed) {
-            // Bottom
-            for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++) {
-                vertices[currentIndex*3] = circlePoints[circlePoint][0] * bottomRadius;
-                vertices[currentIndex*3 +1] = circlePoints[circlePoint][1] * bottomRadius;
-                vertices[currentIndex*3 +2] = -height/2;
-
-                normals[currentIndex*3] = 0;
-                normals[currentIndex*3+1] = 0;
-                normals[currentIndex*3+2] = -1;
-
-                textureCoords[currentIndex *2] = (float) circlePoint / radialSamples;
-                textureCoords[currentIndex *2 +1] = bottomRadius / (bottomRadius + height + topRadius);
-
-                currentIndex++;
+                // Add the centers of the caps.
+                v.position.set(v.position.alias().set(0, 0, -height/2));
+                v.normal.set(v.normal.alias().set(0, 0, -1));
+                v.texCoord.set(v.texCoord.alias().set(0.5f, 0f));
+                m.increment();
+                v.position.set(v.position.alias().set(0, 0, height/2));
+                v.normal.set(v.normal.alias().set(0, 0, 1));
+                v.texCoord.set(v.texCoord.alias().set(0.5f, 1f));
             }
-            // Top
-            for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++) {
-                vertices[currentIndex*3] = circlePoints[circlePoint][0] * topRadius;
-                vertices[currentIndex*3 +1] = circlePoints[circlePoint][1] * topRadius;
-                vertices[currentIndex*3 +2] = height/2;
-
-                normals[currentIndex*3] = 0;
-                normals[currentIndex*3+1] = 0;
-                normals[currentIndex*3+2] = 1;
-
-                textureCoords[currentIndex *2] = (float) circlePoint / radialSamples;
-                textureCoords[currentIndex *2 +1] = (bottomRadius + height) / (bottomRadius + height + topRadius);
-
-                currentIndex++;
+            if (inverted) for (int i : m) {
+                v.normal.set(v.normal.get().negateLocal());
             }
-
-            // Add the centers of the caps.
-            vertices[currentIndex*3] = 0;
-            vertices[currentIndex*3 +1] = 0;
-            vertices[currentIndex*3 +2] = -height/2;
-
-            normals[currentIndex*3] = 0;
-            normals[currentIndex*3+1] = 0;
-            normals[currentIndex*3+2] = -1;
-
-            textureCoords[currentIndex *2] = 0.5f;
-            textureCoords[currentIndex *2+1] = 0f;
-
-            currentIndex++;
-
-            vertices[currentIndex*3] = 0;
-            vertices[currentIndex*3 +1] = 0;
-            vertices[currentIndex*3 +2] = height/2;
-
-            normals[currentIndex*3] = 0;
-            normals[currentIndex*3+1] = 0;
-            normals[currentIndex*3+2] = 1;
-
-            textureCoords[currentIndex *2] = 0.5f;
-            textureCoords[currentIndex *2+1] = 1f;
         }
 
         // Add the triangles indexes.
-        short[] indices = new short[trianglesCount * 3];
-        currentIndex = 0;
-        for (short axisSample = 0; axisSample < axisSamples - 1; axisSample++) {
-            for (int circlePoint = 0; circlePoint < radialSamples; circlePoint++) {
-                indices[currentIndex++] = (short) (axisSample * (radialSamples + 1) + circlePoint);
-                indices[currentIndex++] =  (short) (axisSample * (radialSamples + 1) + circlePoint + 1);
-                indices[currentIndex++] =  (short) ((axisSample + 1) * (radialSamples + 1) + circlePoint);
-
-                indices[currentIndex++] =  (short) ((axisSample + 1) * (radialSamples + 1) + circlePoint);
-                indices[currentIndex++] =  (short) (axisSample * (radialSamples + 1) + circlePoint + 1);
-                indices[currentIndex++] =  (short) ((axisSample + 1) * (radialSamples + 1) + circlePoint + 1);
+        IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
+                (long)trianglesCount * 3 * Short.BYTES, BufferUsage.Index, UpdateHint.Static));
+        try (BufferMapping m = index.map()) {
+            ShortBuffer shorts = m.getShorts();
+            for (short axisSample = 0; axisSample < axisSamples - 1; axisSample++) {
+                for (int circlePoint = 0; circlePoint < radialSamples; circlePoint++) {
+                    shorts.put((short)(axisSample * (radialSamples + 1) + circlePoint));
+                    shorts.put((short)(axisSample * (radialSamples + 1) + circlePoint + 1));
+                    shorts.put((short)((axisSample + 1) * (radialSamples + 1) + circlePoint));
+                    shorts.put((short)((axisSample + 1) * (radialSamples + 1) + circlePoint));
+                    shorts.put((short)(axisSample * (radialSamples + 1) + circlePoint + 1));
+                    shorts.put((short)((axisSample + 1) * (radialSamples + 1) + circlePoint + 1));
+                }
+            }
+            // Add caps if needed.
+            if (closed) {
+                short bottomCapIndex = (short) (verticesCount - 2);
+                short topCapIndex = (short) (verticesCount - 1);
+                int bottomRowOffset = (axisSamples) * (radialSamples + 1);
+                int topRowOffset = (axisSamples+1) * (radialSamples + 1);
+                for (int circlePoint = 0; circlePoint < radialSamples; circlePoint++) {
+                    shorts.put((short)(bottomRowOffset + circlePoint + 1));
+                    shorts.put((short)(bottomRowOffset + circlePoint));
+                    shorts.put(bottomCapIndex);
+                    shorts.put((short)(topRowOffset + circlePoint));
+                    shorts.put((short)(topRowOffset + circlePoint +1));
+                    shorts.put(topCapIndex);
+                }
+            }
+            shorts.flip();
+            if (inverted) for (int i = 0; i < shorts.limit() / 2; i++) {
+                short temp = shorts.get(i);
+                shorts.put(i, shorts.get(shorts.limit() - 1 - i));
+                shorts.put(shorts.limit() - 1 - i, temp);
             }
         }
-        // Add caps if needed.
-        if(closed) {
-            short bottomCapIndex = (short) (verticesCount - 2);
-            short topCapIndex = (short) (verticesCount - 1);
-
-            int bottomRowOffset = (axisSamples) * (radialSamples +1 );
-            int topRowOffset = (axisSamples+1) * (radialSamples +1 );
-
-            for (int circlePoint = 0; circlePoint < radialSamples; circlePoint++) {
-                indices[currentIndex++] =  (short) (bottomRowOffset + circlePoint +1);
-                indices[currentIndex++] = (short) (bottomRowOffset + circlePoint);
-                indices[currentIndex++] =  bottomCapIndex;
-
-
-                indices[currentIndex++] = (short) (topRowOffset + circlePoint);
-                indices[currentIndex++] =  (short) (topRowOffset + circlePoint +1);
-                indices[currentIndex++] =  topCapIndex;
-            }
-        }
-
-        // If inverted, the triangles and normals are all reverted.
-        if (inverted) {
-            for (int i = 0; i < indices.length / 2; i++) {
-                short temp = indices[i];
-                indices[i] = indices[indices.length - 1 - i];
-                indices[indices.length - 1 - i] = temp;
-            }
-
-            for (int i = 0; i< normals.length; i++) {
-                normals[i] = -normals[i];
-            }
-        }
-
-        // Fill in the buffers.
-        setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(vertices));
-        setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(normals));
-        setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(textureCoords));
-        setBuffer(Type.Index, 3, BufferUtils.createShortBuffer(indices));
+        setBaseIndexBuffer(index);
 
         updateBound();
-        setStatic();
     }
 
     @Override
@@ -449,4 +414,17 @@ public class Cylinder extends GlMesh {
         capsule.write(closed, "closed", false);
         capsule.write(inverted, "inverted", false);
     }
+
+    private static class Vertex extends Struct<VertexAttr> {
+
+        public final VertexAttr<Vector3f> position = new VertexAttr<>(CommonAttributes.Position, new Vector3f());
+        public final VertexAttr<Vector2f> texCoord = new VertexAttr<>(CommonAttributes.TexCoord, new Vector2f());
+        public final VertexAttr<Vector3f> normal = new VertexAttr<>(CommonAttributes.Normal, new Vector3f());
+
+        public Vertex() {
+            addFields(position, texCoord, normal);
+        }
+
+    }
+
 }

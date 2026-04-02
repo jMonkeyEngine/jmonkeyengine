@@ -32,10 +32,22 @@
 package com.jme3.scene.debug;
 
 import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GlMesh;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.scene.GlVertexBuffer.Type;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructField;
+import com.jme3.util.struct.StructMapping;
+import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.IdxBuffer;
+import com.jme3.vulkan.buffers.saving.UpdateHint;
+import com.jme3.vulkan.mesh.*;
+import com.jme3.vulkan.mesh.attributes.AttributeMapping;
+import com.jme3.vulkan.mesh.attributes.CommonAttributes;
+
 import java.nio.FloatBuffer;
 
 /**
@@ -45,7 +57,7 @@ import java.nio.FloatBuffer;
  * 
  * @author Kirill Vainer
  */
-public class Arrow extends GlMesh {
+public class Arrow extends AdaptiveMesh {
     
     private final Quaternion tempQuat = new Quaternion();
     private final Vector3f tempVec = new Vector3f();
@@ -59,11 +71,13 @@ public class Arrow extends GlMesh {
         0, -0.05f, 0.9f, // tip bottom
     };
 
+    private final VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
+            JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Static));
+
     /**
      * Serialization only. Do not use.
      */
-    protected Arrow() {
-    }
+    protected Arrow() {}
 
     /**
      * Creates an arrow mesh with the given extent.
@@ -79,31 +93,23 @@ public class Arrow extends GlMesh {
         tempQuat.lookAt(dir, Vector3f.UNIT_Y);
         tempQuat.normalizeLocal();
 
-        float[] newPositions = new float[positions.length];
-        for (int i = 0; i < positions.length; i += 3) {
-            Vector3f vec = tempVec.set(positions[i],
-                    positions[i + 1],
-                    positions[i + 2]);
-            vec.multLocal(len);
-            tempQuat.mult(vec, vec);
-
-            newPositions[i] = vec.getX();
-            newPositions[i + 1] = vec.getY();
-            newPositions[i + 2] = vec.getZ();
+        try (StructMapping<Vertex> m = buffer.map()) {
+            Vertex v = m.get();
+            for (int i : m) {
+                i *= 3;
+                v.position.alias().set(positions[i], positions[i + 1], positions[i + 2]).multLocal(len);
+                tempQuat.mult(v.position.alias(), v.position.alias());
+                v.position.set();
+            }
         }
 
-        setBuffer(Type.Position, 3, newPositions);
-        setBuffer(Type.Index, 2,
-                new short[]{
-                    0, 1,
-                    1, 2,
-                    1, 3,
-                    1, 4,
-                    1, 5,});
-        setMode(Mode.Lines);
+        IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(10 * Short.BYTES, BufferUsage.Index, UpdateHint.Static));
+        try (BufferMapping m = index.map()) {
+            m.getShorts().put(new short[]{0, 1, 1, 2, 1, 3, 1, 4, 1, 5});
+        }
+        setBaseIndexBuffer(index);
 
         updateBound();
-        updateCounts();
     }
 
     /**
@@ -119,24 +125,27 @@ public class Arrow extends GlMesh {
         tempQuat.lookAt(extent, Vector3f.UNIT_Y);
         tempQuat.normalizeLocal();
 
-        GlVertexBuffer pvb = getBuffer(Type.Position);
-        FloatBuffer buffer = (FloatBuffer)pvb.getData(); 
-        buffer.rewind();
-        for (int i = 0; i < positions.length; i += 3) {
-            Vector3f vec = tempVec.set(positions[i],
-                    positions[i + 1],
-                    positions[i + 2]);
-            vec.multLocal(len);
-            tempQuat.mult(vec, vec);
-
-            buffer.put(vec.x);
-            buffer.put(vec.y);
-            buffer.put(vec.z);
+        try (StructMapping<Vertex> m = buffer.map()) {
+            Vertex v = m.get();
+            for (int i : m) {
+                i *= 3;
+                v.position.alias().set(positions[i], positions[i + 1], positions[i + 2]).multLocal(len);
+                tempQuat.mult(v.position.alias(), v.position.alias());
+                v.position.set();
+            }
         }
-        
-        pvb.updateData(buffer);
 
         updateBound();
-        updateCounts();
     }
+
+    protected static class Vertex extends Struct<VertexAttr> {
+
+        private final VertexAttr<Vector3f> position = new VertexAttr<>(CommonAttributes.Position, new Vector3f());
+
+        public Vertex() {
+            addFields(position);
+        }
+
+    }
+
 }

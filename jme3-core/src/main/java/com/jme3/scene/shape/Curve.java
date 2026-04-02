@@ -36,8 +36,21 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlMesh;
 import com.jme3.scene.GlVertexBuffer;
+import com.jme3.scene.mesh.IndexBuffer;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructMapping;
+import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.IdxBuffer;
+import com.jme3.vulkan.buffers.saving.UpdateHint;
+import com.jme3.vulkan.mesh.*;
+import com.jme3.vulkan.mesh.attributes.CommonAttributes;
+import com.jme3.vulkan.pipeline.Topology;
+
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * A
@@ -48,15 +61,18 @@ import java.util.List;
  *
  * @author Nehon
  */
-public class Curve extends GlMesh {
+public class Curve extends AdaptiveMesh {
 
     private Spline spline;
     private Vector3f temp = new Vector3f();
+    private final VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
+            JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Dynamic));
 
     /**
      * Serialization only. Do not use.
      */
     protected Curve() {
+        addVertexBuffer(buffer);
     }
 
     /**
@@ -76,7 +92,8 @@ public class Curve extends GlMesh {
      * @param nbSubSegments the number of subsegments between the control points
      */
     public Curve(Spline spline, int nbSubSegments) {
-        super();
+        super(1, 1);
+        addVertexBuffer(buffer);
         this.spline = spline;
         switch (spline.getType()) {
             case CatmullRom:
@@ -96,48 +113,30 @@ public class Curve extends GlMesh {
     }
 
     private void createCatmullRomMesh(int nbSubSegments) {
-        float[] array = new float[((spline.getControlPoints().size() - 1) * nbSubSegments + 1) * 3];
-        short[] indices = new short[(spline.getControlPoints().size() - 1) * nbSubSegments * 2];
-        int i = 0;
-        int cptCP = 0;
-        for (Iterator<Vector3f> it = spline.getControlPoints().iterator(); it.hasNext();) {
-            Vector3f vector3f = it.next();
-            array[i] = vector3f.x;
-            i++;
-            array[i] = vector3f.y;
-            i++;
-            array[i] = vector3f.z;
-            i++;
-            if (it.hasNext()) {
-                for (int j = 1; j < nbSubSegments; j++) {
-                    spline.interpolate((float) j / nbSubSegments, cptCP, temp);
-                    array[i] = temp.getX();
-                    i++;
-                    array[i] = temp.getY();
-                    i++;
-                    array[i] = temp.getZ();
-                    i++;
+        setVertexCount((spline.getControlPoints().size() - 1) * nbSubSegments + 1, 0);
+        try (StructMapping<Vertex> m = buffer.map()) {
+            Vertex v = m.get();
+            m.sample(0);
+            for (ListIterator<Vector3f> it = spline.getControlPoints().listIterator(); it.hasNext();) {
+                v.position.set(it.next());
+                m.increment();
+                if (it.hasNext()) for (int j = 1; j < nbSubSegments; j++) {
+                    spline.interpolate((float)j / nbSubSegments, it.previousIndex(), v.position.alias());
+                    v.position.set();
+                    m.increment();
                 }
             }
-            cptCP++;
         }
-
-        i = 0;
-        int k;
-        for (int j = 0; j < (spline.getControlPoints().size() - 1) * nbSubSegments; j++) {
-            k = j;
-            indices[i] = (short) k;
-            i++;
-            k++;
-            indices[i] = (short) k;
-            i++;
+        IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
+                (long)(spline.getControlPoints().size() - 1) * nbSubSegments * 2 * Short.BYTES, BufferUsage.Index, UpdateHint.Static));
+        short i = 0;
+        try (BufferMapping m = index.map()) {
+            m.getShorts().put(i);
+            m.getShorts().put(++i);
         }
-
-        this.setMode(GlMesh.Mode.Lines);
-        this.setBuffer(GlVertexBuffer.Type.Position, 3, array);
-        this.setBuffer(GlVertexBuffer.Type.Index, 2, indices);//(spline.getControlPoints().size() - 1) * nbSubSegments * 2
-        this.updateBound();
-        this.updateCounts();
+        setBaseIndexBuffer(index);
+        setTopology(Topology.LineList);
+        updateBound();
     }
 
     /**
@@ -151,6 +150,13 @@ public class Curve extends GlMesh {
             nbSubSegments = 1;
         }
         int centerPointsAmount = (spline.getControlPoints().size() + 2) / 3;
+
+        setVertexCount((centerPointsAmount - 1) * nbSubSegments + 1);
+        try (StructMapping<Vertex> m = buffer.map()) {
+            Vertex v = m.get();
+            m.sample(0);
+            // todo: complete
+        }
 
         //calculating vertices
         float[] array = new float[((centerPointsAmount - 1) * nbSubSegments + 1) * 3];
@@ -278,4 +284,15 @@ public class Curve extends GlMesh {
     public float getLength() {
         return spline.getTotalLength();
     }
+
+    private static class Vertex extends Struct<VertexAttr> {
+
+        public final VertexAttr<Vector3f> position = new VertexAttr<>(CommonAttributes.Position, new Vector3f());
+
+        public Vertex() {
+            addFields(position);
+        }
+
+    }
+
 }

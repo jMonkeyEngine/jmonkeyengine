@@ -155,5 +155,14 @@ public interface InputCapsule {
     // enums
 
     public <T extends Enum<T>> T readEnum(String name, Class<T> enumType, T defVal) throws IOException;
+    default <T extends Enum<T>> T[] readEnumArray(String name, T[] enumValues, T[] defVal) throws IOException {
+        int[] ordinals = readIntArray(name, null);
+        if (ordinals == null) return defVal;
+        T[] value = (T[])new Enum[ordinals.length];
+        for (int i = 0; i < value.length; i++) {
+            value[i] = enumValues[ordinals[i]];
+        }
+        return value;
+    }
 
 }

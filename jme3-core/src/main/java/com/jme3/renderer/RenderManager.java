@@ -58,7 +58,7 @@ import com.jme3.shader.UniformBindingManager;
 import com.jme3.shader.VarType;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
-import com.jme3.texture.GlFrameBuffer;
+import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.render.batching.GlGeometryBatch;
 
@@ -82,6 +82,7 @@ import java.util.logging.Logger;
  * @see ViewPort
  * @see Spatial
  */
+@Deprecated
 public class RenderManager {
 
     private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
@@ -799,7 +800,7 @@ public class RenderManager {
 
         // Use material override to pass the current target index (used in api such as GL ES
         // that do not support glDrawBuffer)
-        GlFrameBuffer currentFb = this.renderer.getCurrentFrameBuffer();
+        FrameBuffer currentFb = this.renderer.getCurrentFrameBuffer();
         if (currentFb != null && !currentFb.isMultiTarget()) {
             this.boundDrawBufferId.setValue(currentFb.getTargetIndex());
         }

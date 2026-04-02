@@ -1,5 +1,7 @@
 package com.jme3.vulkan.buffers;
 
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructSequence;
 import org.lwjgl.PointerBuffer;
 
 import java.nio.*;
@@ -31,7 +33,7 @@ public class SourceBufferMapping implements BufferMapping {
     }
 
     @Override
-    public void push(long offset, long size) {
+    public void stage(long offset, long size) {
         source.stage(offset, size);
     }
 

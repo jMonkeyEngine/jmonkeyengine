@@ -50,10 +50,6 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import com.jme3.util.SafeArrayList;
 import com.jme3.vulkan.buffers.MappableBuffer;
-import com.jme3.vulkan.mesh.AttributeMappingInfo;
-import com.jme3.vulkan.mesh.MeshLayout;
-import com.jme3.vulkan.mesh.NamedAttribute;
-import com.jme3.vulkan.mesh.VertexBinding;
 import com.jme3.vulkan.mesh.attribute.*;
 import com.jme3.vulkan.pipeline.Topology;
 import com.jme3.vulkan.util.IntEnum;
@@ -596,6 +592,7 @@ public class OldGlMesh implements Mesh, Savable {
      *
      * @return Number of vertices on the mesh
      */
+    @Override
     public int getVertexCount() {
         return vertCount;
     }
@@ -606,6 +603,7 @@ public class OldGlMesh implements Mesh, Savable {
      *
      * @return the number of instances
      */
+    @Override
     public int getInstanceCount() {
         return instanceCount;
     }
@@ -664,6 +662,7 @@ public class OldGlMesh implements Mesh, Savable {
         vertexArrayID = id;
     }
 
+    @Override
     public GlVertexBuffer getIndexBuffer(int lod) {
         return indexBuffers.get(lod);
     }
@@ -854,7 +853,7 @@ public class OldGlMesh implements Mesh, Savable {
         if (mode == Mode.Hybrid) {
             throw new UnsupportedOperationException("Hybrid mode not supported");
         }
-        IndexBuffer ib = getIndexBuffer();
+        IndexBuffer ib = getBaseIndexBuffer();
         if (ib != null) {
             if (mode.isListMode()) {
                 // already in list mode
@@ -879,7 +878,8 @@ public class OldGlMesh implements Mesh, Savable {
      *
      * @see Type#Index
      */
-    public IndexBuffer getIndexBuffer() {
+    @Override
+    public IndexBuffer getBaseIndexBuffer() {
         GlVertexBuffer vb = getBuffer(Type.Index);
         if (vb == null) {
             return null;
@@ -918,7 +918,7 @@ public class OldGlMesh implements Mesh, Savable {
 
     /**
      * Extracts the vertex attributes from the given mesh into
-     * this mesh, by using this mesh's {@link #getIndexBuffer() index buffer}
+     * this mesh, by using this mesh's {@link #getBaseIndexBuffer() index buffer}
      * to index into the attributes of the other mesh.
      * Note that this will also change this mesh's index buffer so that
      * the references to the vertex data match the new indices.
@@ -931,7 +931,7 @@ public class OldGlMesh implements Mesh, Savable {
         // between old indices to new indices (since we avoid duplicating
         // vertices, this is a map and not an array).
         GlVertexBuffer oldIdxBuf = getBuffer(Type.Index);
-        IndexBuffer indexBuf = getIndexBuffer();
+        IndexBuffer indexBuf = getBaseIndexBuffer();
         int numIndices = indexBuf.size();
 
         IntMap<Integer> oldIndicesToNewIndices = new IntMap<>(numIndices);

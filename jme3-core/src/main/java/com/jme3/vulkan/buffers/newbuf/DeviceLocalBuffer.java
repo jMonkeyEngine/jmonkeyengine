@@ -1,52 +1,50 @@
 package com.jme3.vulkan.buffers.newbuf;
 
+import com.jme3.export.*;
 import com.jme3.vulkan.buffers.BufferMapping;
 import com.jme3.vulkan.buffers.BufferUsage;
 import com.jme3.vulkan.buffers.SharingMode;
-import com.jme3.vulkan.buffers.VulkanBuffer;
+import com.jme3.vulkan.buffers.alloc.BufferAllocRequest;
 import com.jme3.vulkan.buffers.stream.BufferStream;
 import com.jme3.vulkan.commands.CommandBuffer;
-import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.memory.MemoryProp;
 import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.tmp.Final;
+import com.jme3.vulkan.tmp.FinalWriter;
+import com.jme3.vulkan.tmp.SerializationOnly;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.vulkan.VK10;
 import org.lwjgl.vulkan.VkBufferCopy;
-import org.lwjgl.vulkan.VkPhysicalDeviceHdrVividFeaturesHUAWEI;
 
+import java.io.IOException;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static org.lwjgl.vulkan.VK10.vkCmdCopyBuffer;
 
 public class DeviceLocalBuffer extends AbstractVulkanBuffer {
 
-    private BufferStream stream;
     private BufferHandle oldHandle;
 
-    protected DeviceLocalBuffer(MemorySize size, BufferStream stream) {
-        super(size);
-        this.stream = stream;
+    @SerializationOnly
+    protected DeviceLocalBuffer() {
+        super(MemoryProp.DeviceLocal);
     }
 
-    @Override
-    public BufferMapping map(long offset, long size) {
-        throw new UnsupportedOperationException("Device local buffer cannot be mapped by the CPU.");
+    protected DeviceLocalBuffer(long bytes) {
+        super(bytes, MemoryProp.DeviceLocal);
     }
 
     @Override
     protected BufferMapping mapNative(BufferHandle handle, long offset, long size) {
-        throw new UnsupportedOperationException("Device local buffer cannot be mapped by the CPU.");
+        throw new UnsupportedOperationException("Device local memory cannot be mapped.");
     }
 
     @Override
     protected void moveToNewBuffer(BufferHandle oldHandle, BufferHandle newHandle) {
         this.oldHandle = oldHandle;
     }
-
-    @Override
-    public void stage(long offset, long size) {}
 
     @Override
     public void upload(CommandBuffer cmd, BufferStream stream) {
@@ -61,33 +59,60 @@ public class DeviceLocalBuffer extends AbstractVulkanBuffer {
     }
 
     @Override
-    public ResizeResult resize(MemorySize size) {
-        this.size = size;
-        if (size.getEnd() > getHandle().getMemory().getSize()) {
+    public void resize(long bytes) {
+        size = size.setBytes(bytes);
+        if (getHandle() != null && size.getEnd() > getHandle().getMemory().getSize()) {
             initialize(null);
-            return stream != null ? ResizeResult.Realloc : ResizeResult.DataLost;
         }
-        return ResizeResult.Success;
     }
 
-    @Override
-    protected void initialize(LogicalDevice<?> device) {
-        memProps = memProps.add(MemoryProp.DeviceLocal);
-        super.initialize(device);
-    }
-
-    public void setStream(BufferStream stream) {
-        this.stream = stream;
-    }
-
-    public BufferStream getStream() {
-        return stream;
-    }
-
-    public static DeviceLocalBuffer build(MemorySize size, Consumer<Builder> config) {
-        DeviceLocalBuffer b = new DeviceLocalBuffer(size, null);
+    public static DeviceLocalBuffer build(long bytes, Consumer<Builder> config) {
+        DeviceLocalBuffer b = new DeviceLocalBuffer(bytes);
         config.accept(b.new Builder());
         return b;
+    }
+
+    public static class Alloc implements BufferAllocRequest<DeviceLocalBuffer> {
+
+        @Final private Flag<BufferUsage> usage;
+
+        @SerializationOnly
+        protected Alloc() {}
+
+        public Alloc(Flag<BufferUsage> usage) {
+            this.usage = usage;
+        }
+
+        @Override
+        public DeviceLocalBuffer create(long bytes) {
+            return build(bytes, b -> b.setUsage(usage));
+        }
+
+        @Override
+        public void write(JmeExporter ex) throws IOException {
+            OutputCapsule out = ex.getCapsule(this);
+            out.write(usage.bits(), "usage", BufferUsage.Vertex.bits());
+        }
+
+        @Override
+        @FinalWriter
+        public void read(JmeImporter im) throws IOException {
+            InputCapsule in = im.getCapsule(this);
+            usage = Flag.of(in.readInt("usage", BufferUsage.Vertex.bits()));
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            Alloc that = (Alloc)o;
+            return Flag.is(usage, that.usage);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(usage.bits());
+        }
+
     }
 
 }

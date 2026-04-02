@@ -74,8 +74,33 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
         else return remove(flag);
     }
 
+    default Flag<T> and(Flag flag) {
+        return new FlagImpl<>(bits() & flag.bits());
+    }
+
+    default Flag<T> and(Flag... flag) {
+        int bits = bits();
+        for (Flag f : flag) {
+            bits &= f.bits();
+        }
+        return new FlagImpl<>(bits);
+    }
+
+    default Flag<T> and(int bits) {
+        return new FlagImpl<>(bits() & bits);
+    }
+
     default boolean contains(Flag flag) {
         return contains(flag.bits());
+    }
+
+    default boolean contains(Flag... flags) {
+        for (Flag f : flags) {
+            if (!contains(f)) {
+                return false;
+            }
+        }
+        return false;
     }
 
     default boolean contains(int bits) {
@@ -84,6 +109,15 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
 
     default boolean containsAny(Flag flag) {
         return containsAny(flag.bits());
+    }
+
+    default boolean containsAny(Flag... flags) {
+        for (Flag f : flags) {
+            if (containsAny(f.bits())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     default boolean containsAny(int bits) {
@@ -140,16 +174,6 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
         return of(bits);
     }
 
-    @Deprecated
-    static <T extends Flag> AgnosticFlag<T> agnostic() {
-        return new AgnosticFlag<>();
-    }
-
-    @Deprecated
-    static <T extends Flag> AgnosticFlag<T> agnostic(int... bits) {
-        return new AgnosticFlag<>(bits);
-    }
-
     class FlagImpl <T extends Flag> implements Flag<T> {
 
         private final int bits;
@@ -165,35 +189,6 @@ public interface Flag <T extends Flag> extends Iterable<Integer> {
         @Override
         public int bits() {
             return bits;
-        }
-
-    }
-
-    class AgnosticFlag <T extends Flag> implements Flag<T> {
-
-        private final int[] bits;
-
-        public AgnosticFlag() {
-            this.bits = new int[GraphicsAPI.values().length];
-        }
-
-        public AgnosticFlag(int... bits) {
-            if (bits.length == GraphicsAPI.values().length) {
-                this.bits = bits;
-            } else {
-                this.bits = new int[GraphicsAPI.values().length];
-                System.arraycopy(bits, 0, this.bits, 0, bits.length);
-            }
-        }
-
-        public AgnosticFlag<T> set(GraphicsAPI api, int bits) {
-            this.bits[api.ordinal()] = bits;
-            return this;
-        }
-
-        @Override
-        public int bits() {
-            return bits[GraphicsAPI.getActiveAPI().ordinal()];
         }
 
     }

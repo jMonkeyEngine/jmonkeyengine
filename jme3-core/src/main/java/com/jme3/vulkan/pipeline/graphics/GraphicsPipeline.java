@@ -8,20 +8,25 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.util.natives.CacheableNativeBuilder;
 import com.jme3.util.natives.DisposableManager;
+import com.jme3.vulkan.VulkanEnums;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.DescriptorSetLayout;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.VulkanMaterial;
 import com.jme3.vulkan.material.shader.ShaderModule;
 import com.jme3.vulkan.material.technique.VulkanTechnique;
-import com.jme3.vulkan.mesh.MeshLayout;
 import com.jme3.vulkan.mesh.VulkanMesh;
+import com.jme3.vulkan.mesh.VertexBuffer;
+import com.jme3.vulkan.mesh.VertexInput;
 import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pipeline.*;
 import com.jme3.vulkan.pipeline.cache.Cache;
+import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
+import com.jme3.vulkan.pipeline.framebuffer.RenderTarget;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
-import com.jme3.vulkan.util.VulkanEnums;
+import com.jme3.vulkan.util.LegacyEnumConverter;
+import com.jme3.vulkan.util.PNextChain;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -30,7 +35,7 @@ import java.nio.LongBuffer;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static org.lwjgl.vulkan.VK10.*;
+import static org.lwjgl.vulkan.VK13.*;
 
 public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPipeline {
 
@@ -43,11 +48,11 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
     private final Collection<ShaderModule> shaders = new ArrayList<>();
 
     // vertex input
-    private MeshLayout mesh;
+    private VertexInput vertexInput;
     private final Map<String, Integer> attributeLocations = new HashMap<>();
 
     // input assembly
-    private IntEnum<Topology> topology = Topology.TriangleList;
+    private Topology topology = Topology.TriangleList;
     private boolean primitiveRestart = false;
 
     // depth stencil
@@ -82,6 +87,11 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
     // dynamic
     private final Set<Integer> dynamicStates = new HashSet<>();
 
+    // dynamic render attachments
+    private int[] colorFormats;
+    private int depthFormat = -1;
+    private boolean usingStencilAtt = false;
+
     protected GraphicsPipeline(LogicalDevice<?> device) {
         super(device, PipelineBindPoint.Graphics);
     }
@@ -99,36 +109,44 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
                 && stencilTest == that.stencilTest
                 && depthClamp == that.depthClamp
                 && rasterizerDiscard == that.rasterizerDiscard
-                && (isDynamic(DynamicState.DepthBias) || depthBias == that.depthBias)
                 && rasterizationSamples == that.rasterizationSamples
                 && sampleShading == that.sampleShading
+                && topology == that.topology
                 && blendLogicEnabled == that.blendLogicEnabled
+                && depthFormat == that.depthFormat
+                && usingStencilAtt == that.usingStencilAtt
                 && Flag.is(createFlags, that.createFlags)
                 && Flag.is(cullMode, that.cullMode)
-                && IntEnum.is(topology, that.topology)
                 && IntEnum.is(depthCompare, that.depthCompare)
                 && IntEnum.is(polygonMode, that.polygonMode)
                 && IntEnum.is(faceWinding, that.faceWinding)
                 && IntEnum.is(blendLogic, that.blendLogic)
-                && (isDynamic(DynamicState.LineWidth) || Float.compare(lineWidth, that.lineWidth) == 0)
-                && Objects.equals(mesh, that.mesh)
+                && Objects.equals(vertexInput, that.vertexInput)
                 && Objects.equals(shaders, that.shaders)
                 && Objects.equals(attributeLocations, that.attributeLocations)
                 && Objects.equals(blendAttachments, that.blendAttachments)
+                && (isDynamic(DynamicState.LineWidth) || Float.compare(lineWidth, that.lineWidth) == 0)
+                && (isDynamic(DynamicState.DepthBias) || depthBias == that.depthBias)
                 && ((isDynamic(DynamicState.ViewPort) && viewports.size() == that.viewports.size()) || Objects.equals(viewports, that.viewports))
                 && ((isDynamic(DynamicState.Scissor) && scissors.size() == that.scissors.size()) || Objects.equals(scissors, that.scissors))
-                && Objects.equals(dynamicStates, that.dynamicStates);
+                && Objects.equals(dynamicStates, that.dynamicStates)
+                && Arrays.equals(colorFormats, that.colorFormats);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(subpass, parent, createFlags, shaders, mesh, attributeLocations, topology, primitiveRestart,
+        return Objects.hash(subpass, parent, createFlags, shaders, vertexInput, attributeLocations, topology, primitiveRestart,
                 depthTest, depthWrite, depthBoundsTest, stencilTest, depthCompare, polygonMode, cullMode, faceWinding,
                 lineWidth, depthClamp, rasterizerDiscard, rasterizationSamples, sampleShading, blendAttachments,
-                blendLogicEnabled, blendLogic, dynamicStates,
+                blendLogicEnabled, blendLogic, dynamicStates, Arrays.hashCode(colorFormats), depthFormat, usingStencilAtt,
                 (isDynamic(DynamicState.ViewPort) ? viewports.size() : viewports),
                 (isDynamic(DynamicState.Scissor) ? scissors.size() : scissors),
                 (isDynamic(DynamicState.DepthBias) ? 0 : depthBias));
+    }
+
+    @Override
+    public void bindVertexBuffers(MemoryStack stack, CommandBuffer cmd, Collection<VertexBuffer> vertexBuffers) {
+        vertexInput.bindVertexBuffers(stack, cmd, this, vertexBuffers);
     }
 
     public void setDynamicLineWidth(CommandBuffer cmd, float lineWidth) {
@@ -179,11 +197,11 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
         return shaders;
     }
 
-    public MeshLayout getMesh() {
-        return mesh;
+    public VertexInput getVertexInput() {
+        return vertexInput;
     }
 
-    public IntEnum<Topology> getTopology() {
+    public Topology getTopology() {
         return topology;
     }
 
@@ -277,11 +295,6 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
     }
 
     @Override
-    public int getNumAttributes() {
-        return attributeLocations.size();
-    }
-
-    @Override
     public Integer getAttributeLocation(String attributeName) {
         return attributeLocations.get(attributeName);
     }
@@ -302,13 +315,26 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
         private Cache<PipelineLayout> layoutCache;
         private Cache<ShaderModule> shaderCache;
         private Cache<DescriptorSetLayout> setCache;
+        private FrameBuffer<RenderTarget> frameBuffer;
 
         @Override
         public GraphicsPipeline build() {
             Objects.requireNonNull(layout, "Pipeline layout not specified.");
-            Objects.requireNonNull(mesh, "Mesh layout not specified.");
-            if (viewports.isEmpty()) setNextViewPort(new ViewPortArea());
+            Objects.requireNonNull(vertexInput, "Vertex input not specified.");
+            if (viewports.isEmpty()) setNextViewPort(new ViewPortArea(128, 128));
             if (scissors.isEmpty()) setNextScissor(new ScissorArea());
+            if (subpass == null) {
+                assert frameBuffer != null : "Frame buffer required for dynamic rendering.";
+                colorFormats = new int[frameBuffer.getColorTargets().size() + 2];
+                int i = 0;
+                for (RenderTarget t : frameBuffer.getColorTargets()) {
+                    colorFormats[i++] = t.getView().getImage().getFormat().getEnum(VulkanEnums.instance);
+                }
+                if (frameBuffer.getDepthTarget() != null) {
+                    depthFormat = frameBuffer.getDepthTarget().getView().getImage().getFormat().getEnum(VulkanEnums.instance);
+                    usingStencilAtt = frameBuffer.isUsingStencil();
+                }
+            }
             return super.build();
         }
 
@@ -328,12 +354,11 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
         }
 
         protected VkGraphicsPipelineCreateInfo.Buffer createPipelineInfo() {
+            PNextChain chain = new PNextChain();
             VkGraphicsPipelineCreateInfo.Buffer create = VkGraphicsPipelineCreateInfo.calloc(1, stack)
                     .sType(VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO)
                     .flags(createFlags.addIf(parent != null, Create.Derivative).bits())
                     .layout(layout.getNativeObject())
-                    .renderPass(subpass.getPass().getNativeObject())
-                    .subpass(subpass.getPosition())
                     .pVertexInputState(createVertexInput())
                     .pInputAssemblyState(createInputAssembly())
                     .pDepthStencilState(createDepthStencil())
@@ -342,13 +367,20 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
                     .pColorBlendState(createColorBlend())
                     .pViewportState(createViewport())
                     .pDynamicState(createDynamic());
+            if (subpass != null) {
+                create.get(0).renderPass(subpass.getPass().getNativeObject())
+                        .subpass(subpass.getPosition());
+            } else {
+                chain.add(id -> createDynamicRenderingInfo().pNext(id));
+            }
             if (!shaders.isEmpty()) {
                 fillShaderStages(create.get(0));
             }
             if (parent != null) {
                 fillParent(create.get(0));
             }
-            return create.flip();
+            chain.add(id -> create.get(0).pNext(id));
+            return create;
         }
 
         protected void fillParent(VkGraphicsPipelineCreateInfo struct) {
@@ -364,17 +396,35 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             struct.stageCount(stageBuf.limit()).pStages(stageBuf);
         }
 
+        protected VkPipelineRenderingCreateInfo createDynamicRenderingInfo() {
+            assert colorFormats != null : "Attachment formats not initialized.";
+            VkPipelineRenderingCreateInfo info = VkPipelineRenderingCreateInfo.calloc(stack)
+                    .sType(VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO);
+            IntBuffer colorFmtBuf = stack.mallocInt(colorFormats.length);
+            for (int f : colorFormats) {
+                colorFmtBuf.put(f);
+            }
+            info.colorAttachmentCount(colorFormats.length).pColorAttachmentFormats(colorFmtBuf.flip());
+            if (depthFormat >= 0) {
+                info.depthAttachmentFormat(depthFormat);
+                if (usingStencilAtt) {
+                    info.stencilAttachmentFormat(depthFormat);
+                }
+            }
+            return info;
+        }
+
         protected VkPipelineVertexInputStateCreateInfo createVertexInput() {
             return VkPipelineVertexInputStateCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
-                    .pVertexBindingDescriptions(getBindingInfo(stack, mesh))
-                    .pVertexAttributeDescriptions(getAttributeInfo(stack, mesh));
+                    .pVertexBindingDescriptions(vertexInput.getBindings(stack))
+                    .pVertexAttributeDescriptions(vertexInput.getAttributes(stack));
         }
 
         protected VkPipelineInputAssemblyStateCreateInfo createInputAssembly() {
             return VkPipelineInputAssemblyStateCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO)
-                    .topology(topology.getEnum())
+                    .topology(topology.getEnum(VulkanEnums.instance))
                     .primitiveRestartEnable(primitiveRestart);
         }
 
@@ -429,21 +479,22 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
         protected VkPipelineViewportStateCreateInfo createViewport() {
             VkViewport.Buffer vpBuf = VkViewport.calloc(viewports.size(), stack);
             for (ViewPortArea v : viewports) {
-                vpBuf.get().x(v.getX()).y(v.getY()).width(v.getWidth()).height(v.getHeight())
-                        .minDepth(v.getMaxDepth()).maxDepth(v.getMaxDepth());
+                float x = v.getWidth() * v.getLeft();
+                float y = v.getHeight() * v.getTop();
+                float w = v.getWidth() * v.getRight() - x;
+                float h = v.getHeight() * v.getBottom() - y;
+                vpBuf.get().x(x).y(y).width(w).height(h).minDepth(v.getMaxDepth()).maxDepth(v.getMaxDepth());
             }
-            vpBuf.flip();
             VkRect2D.Buffer scissorBuf = VkRect2D.calloc(scissors.size(), stack);
             for (ScissorArea s : scissors) {
                 VkRect2D e = scissorBuf.get();
                 e.offset().set(s.getX(), s.getY());
                 e.extent().set(s.getWidth(), s.getHeight());
             }
-            scissorBuf.flip();
             return VkPipelineViewportStateCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO)
-                    .pViewports(vpBuf)
-                    .pScissors(scissorBuf);
+                    .pViewports(vpBuf.flip())
+                    .pScissors(scissorBuf.flip());
         }
 
         protected VkPipelineDynamicStateCreateInfo createDynamic() {
@@ -459,13 +510,16 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
 
         public void applyGeometry(AssetManager assetManager, Geometry geometry, String technique) {
             VulkanMaterial mat = (VulkanMaterial)geometry.getMaterial();
-            applyGeometry(assetManager, (VulkanMesh)geometry.getMesh(), (VulkanMaterial)geometry.getMaterial(), mat.getTechnique(technique));
+            applyGeometry(assetManager,
+                    (VulkanMesh)geometry.getMesh(),
+                    (VulkanMaterial)geometry.getMaterial(),
+                    (VulkanTechnique)mat.getTechnique(technique));
         }
 
         public void applyGeometry(AssetManager assetManager, VulkanMesh mesh, VulkanMaterial material, VulkanTechnique tech) {
             setLayout(tech.getLayout(device, layoutCache, setCache));
             addShaders(tech.getShaders(device, assetManager, shaderCache, material));
-            setMeshLayout(mesh.getLayout());
+            setVertexInput(mesh.declareVertexInput(GraphicsPipeline.this));
             setTopology(mesh.getTopology());
             attributeLocations.putAll(tech.getAttributeLocations());
         }
@@ -473,8 +527,8 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
         public void applyRenderState(RenderState state) {
             addBlendAttachment(new ColorBlendAttachment(state));
             setPolygonMode(state.isWireframe() ? PolygonMode.Line : PolygonMode.Fill);
-            setCullMode(VulkanEnums.faceCull(state.getFaceCullMode()));
-            setDepthCompare(VulkanEnums.depthFunc(state.getDepthFunc()));
+            setCullMode(LegacyEnumConverter.faceCull(state.getFaceCullMode()));
+            setDepthCompare(LegacyEnumConverter.depthFunc(state.getDepthFunc()));
             setStencilTest(state.isStencilTest());
             setLineWidth(state.getLineWidth());
             setDepthTest(state.isDepthTest());
@@ -489,8 +543,15 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             GraphicsPipeline.this.subpass = subpass;
         }
 
-        public void setMeshLayout(MeshLayout mesh) {
-            GraphicsPipeline.this.mesh = mesh;
+        /**
+         * Sets the vertex input that describes how vertex attributes are laid
+         * out in the pipeline. Only meshes that match the described vertex input
+         * can be rendered by this pipeline.
+         *
+         * @param vertexInput vertex input description
+         */
+        public void setVertexInput(VertexInput vertexInput) {
+            GraphicsPipeline.this.vertexInput = vertexInput;
         }
 
         public void addShader(ShaderModule shader) {
@@ -501,6 +562,14 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             GraphicsPipeline.this.shaders.addAll(shaders);
         }
 
+        /**
+         * Adds a blend attachment to this pipeline that dictates how the corresponding
+         * color attachment is blended during the blend stage.
+         *
+         * @param attachment blend attachment
+         * @return index of the blend attachment, which is also the index of the
+         * affected color attachment
+         */
         public int addBlendAttachment(ColorBlendAttachment attachment) {
             blendAttachments.add(attachment);
             return blendAttachments.size() - 1;
@@ -510,18 +579,47 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             blendAttachments.set(i, attachment);
         }
 
+        /**
+         * Sets the pipeline layout cache. When generating a pipeline from a geometry,
+         * the layout cache ensures existing layouts are used instead of creating
+         * new ones when possible. Otherwise a new layout is created for each geometry.
+         *
+         * @param layout layout cache (can be null)
+         */
         public void setLayoutCache(Cache<PipelineLayout> layout) {
-            this.layoutCache = layoutCache;
+            this.layoutCache = layout;
         }
 
+        /**
+         * Sets the shader cache. When generating a pipeline from a geometry, the shader cache
+         * ensures existing shaders are used instead of creating new ones when possible.
+         * Otherwise a new shader is created for each geometry.
+         *
+         * @param shaderCache shader cache (can be null)
+         */
         public void setShaderCache(Cache<ShaderModule> shaderCache) {
             this.shaderCache = shaderCache;
         }
 
+        /**
+         * Sets the descriptor set layout cache. When generating a pipeline from a geometry,
+         * the set layout cache ensures existing layouts are used when possible. Otherwise
+         * new layouts are created for each geometry.
+         *
+         * @param setCache descriptor set layout cache
+         */
         public void setSetLayoutCache(Cache<DescriptorSetLayout> setCache) {
             this.setCache = setCache;
         }
 
+        /**
+         * Enables or disables the specified dynamic state. If a dynamic state is enabled,
+         * the corresponding render property must be set in the command buffer before the
+         * pipeline is used for rendering.
+         *
+         * @param state dynamic state
+         * @param enable enable or disable the state
+         */
         public void setDynamic(IntEnum<DynamicState> state, boolean enable) {
             if (enable) dynamicStates.add(state.getEnum());
             else dynamicStates.remove(state.getEnum());
@@ -535,10 +633,17 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             scissors.add(scissor);
         }
 
+        /**
+         * Sets the location of the named attribute in the vertex shader.
+         *
+         * @param attribute attribute name
+         * @param location attribute location (as specified in the shader source code)
+         */
         public void setAttributeLocation(String attribute, int location) {
             attributeLocations.put(attribute, location);
         }
 
+        @Deprecated
         public void setAttributeLocation(GlVertexBuffer.Type attribute, int location) {
             setAttributeLocation(attribute.name(), location);
         }
@@ -547,8 +652,14 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             attributeLocations.putAll(locations);
         }
 
+        /**
+         * Sets the parent pipeline of this pipeline. Using a parent pipeline can have better
+         * performance if they share similar properties.
+         *
+         * @param parent parent pipeline (can be null)
+         */
         public void setParent(GraphicsPipeline parent) {
-            if (!parent.getCreateFlags().contains(Create.AllowDerivatives)) {
+            if (parent != null && !parent.getCreateFlags().contains(Create.AllowDerivatives)) {
                 throw new IllegalArgumentException("Parent pipeline must allow derivatives.");
             }
             GraphicsPipeline.this.parent = parent;
@@ -558,7 +669,13 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             GraphicsPipeline.this.createFlags = flags;
         }
 
-        public void setTopology(IntEnum<Topology> topology) {
+        /**
+         * Sets the mesh topology to render by. When generating a pipeline from geometry, this
+         * is automatically assigned from the geometry's mesh.
+         *
+         * @param topology mesh topology
+         */
+        public void setTopology(Topology topology) {
             GraphicsPipeline.this.topology = topology;
         }
 
@@ -566,10 +683,20 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
             GraphicsPipeline.this.primitiveRestart = primitiveRestart;
         }
 
+        /**
+         * Enables testing against the depth attachment.
+         *
+         * @param depthTest true to enable depth testing
+         */
         public void setDepthTest(boolean depthTest) {
             GraphicsPipeline.this.depthTest = depthTest;
         }
 
+        /**
+         * Enables writing to the depth attachment.
+         *
+         * @param depthWrite true to enable depth writing
+         */
         public void setDepthWrite(boolean depthWrite) {
             GraphicsPipeline.this.depthWrite = depthWrite;
         }
@@ -628,6 +755,10 @@ public class GraphicsPipeline extends AbstractVulkanPipeline implements VertexPi
 
         public void setBlendLogic(IntEnum<LogicOp> blendLogic) {
             GraphicsPipeline.this.blendLogic = blendLogic;
+        }
+
+        public void setFrameBuffer(FrameBuffer<RenderTarget> frameBuffer) {
+            this.frameBuffer = frameBuffer;
         }
 
     }

@@ -5,7 +5,7 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.texture.GlFrameBuffer;
+import com.jme3.texture.FrameBuffer;
 
 /**
  * Pre normal caching class.
@@ -19,7 +19,7 @@ import com.jme3.texture.GlFrameBuffer;
 @Deprecated
 public class PreNormalCaching {
     
-    private static GlFrameBuffer cachedPreNormals;
+    private static FrameBuffer cachedPreNormals;
     private static int lastNormalPassesCount, curCount;
     
     /**

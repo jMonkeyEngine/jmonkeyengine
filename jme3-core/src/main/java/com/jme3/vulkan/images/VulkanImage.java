@@ -1,15 +1,19 @@
 package com.jme3.vulkan.images;
 
 import com.jme3.util.natives.DisposableReference;
-import com.jme3.vulkan.SharingMode;
+import com.jme3.vulkan.buffers.SharingMode;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.devices.LogicalDevice;
+import com.jme3.vulkan.formats.EnumInterpreter;
 import com.jme3.vulkan.pipeline.Access;
 import com.jme3.vulkan.pipeline.PipelineStage;
 import com.jme3.vulkan.util.Flag;
 import com.jme3.vulkan.util.IntEnum;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.KHRSwapchain;
 import org.lwjgl.vulkan.VK14;
+import org.lwjgl.vulkan.VkImageCopy;
+import org.lwjgl.vulkan.VkImageResolve;
 
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -108,39 +112,22 @@ public interface VulkanImage extends GpuImage {
 
     }
 
-    enum Load implements IntEnum<Load> {
+    enum Load {
 
-        Clear(VK_ATTACHMENT_LOAD_OP_CLEAR),
-        Load(VK_ATTACHMENT_LOAD_OP_LOAD),
-        DontCare(VK_ATTACHMENT_LOAD_OP_DONT_CARE);
+        Clear, Load, DontCare;
 
-        private final int vkEnum;
-
-        Load(int vkEnum) {
-            this.vkEnum = vkEnum;
-        }
-
-        @Override
-        public int getEnum() {
-            return vkEnum;
+        public int getEnum(EnumInterpreter interpreter) {
+            return interpreter.getLoadEnum(this);
         }
 
     }
 
-    enum Store implements IntEnum<Store> {
+    enum Store {
 
-        Store(VK_ATTACHMENT_STORE_OP_STORE),
-        DontCare(VK_ATTACHMENT_STORE_OP_DONT_CARE);
+        Store, DontCare;
 
-        private final int vkEnum;
-
-        Store(int vkEnum) {
-            this.vkEnum = vkEnum;
-        }
-
-        @Override
-        public int getEnum() {
-            return vkEnum;
+        public int getEnum(EnumInterpreter interpreter) {
+            return interpreter.getStoreEnum(this);
         }
 
     }
@@ -150,7 +137,8 @@ public interface VulkanImage extends GpuImage {
         Color(VK_IMAGE_ASPECT_COLOR_BIT),
         Depth(VK_IMAGE_ASPECT_DEPTH_BIT),
         Stencil(VK_IMAGE_ASPECT_STENCIL_BIT),
-        MetaData(VK_IMAGE_ASPECT_METADATA_BIT);
+        MetaData(VK_IMAGE_ASPECT_METADATA_BIT),
+        DepthStencil(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
 
         private final int bits;
 
@@ -175,6 +163,59 @@ public interface VulkanImage extends GpuImage {
 
     void addNativeDependent(DisposableReference ref);
 
-    void transitionLayout(CommandBuffer commands, Layout dstLayout);
+    /**
+     * Transitions this image to {@code layout}, if it is not already in that layout.
+     * Operations often require images to be of a particular layout.
+     *
+     * @param stack memory stack
+     * @param cmd command buffer
+     * @param layout layout to transition to
+     */
+    void transitionLayout(MemoryStack stack, CommandBuffer cmd, Layout layout);
+
+    default void transitionLayout(CommandBuffer cmd, Layout layout) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            transitionLayout(stack, cmd, layout);
+        }
+    }
+
+    /**
+     * Copies the contents of this image to {@code dst}. The dimensions of the images need not
+     * match. If the number of samples in this image is greater than 1 and {@code dst} has exactly
+     * 1 samples, then the multisampled contents of this image will be resolved into {@code dst}.
+     * Otherwise the number of samples in each image must match and the contents will be copied
+     * normally.
+     *
+     * @param stack memory stack
+     * @param cmd command buffer
+     * @param dst copy destination image
+     */
+    default void copyTo(MemoryStack stack, CommandBuffer cmd, VulkanImage dst, Flag<VulkanImage.Aspect> aspects) {
+        int w = Math.min(getWidth(), dst.getWidth());
+        int h = Math.min(getHeight(), dst.getHeight());
+        int d = Math.min(getDepth(), dst.getDepth());
+        transitionLayout(cmd, Layout.TransferSrcOptimal);
+        dst.transitionLayout(cmd, Layout.TransferDstOptimal);
+        aspects = aspects.and(getFormat().getAspects().getImageAspect(), dst.getFormat().getAspects().getImageAspect());
+        if (getSamples() > 1 && dst.getSamples() == 1) {
+            // resolve multisampled data into dst
+            VkImageResolve resolve = VkImageResolve.calloc(stack);
+            resolve.extent().set(w, h, d);
+            resolve.srcSubresource().aspectMask(aspects.bits());
+            resolve.dstSubresource().aspectMask(aspects.bits());
+            vkCmdResolveImage(cmd.getBuffer(), getId(), cmd.getKnownLayout(this).getEnum(),
+                    dst.getId(), cmd.getKnownLayout(dst).getEnum(), resolve);
+        } else if (getSamples() == dst.getSamples()) {
+            VkImageCopy.Buffer copy = VkImageCopy.calloc(1, stack);
+            copy.extent().set(w, h, d);
+            copy.srcSubresource().aspectMask(aspects.bits());
+            copy.dstSubresource().aspectMask(aspects.bits());
+            vkCmdCopyImage(cmd.getBuffer(), getId(), cmd.getKnownLayout(this).getEnum(),
+                    dst.getId(), cmd.getKnownLayout(dst).getEnum(), copy);
+        } else {
+            throw new UnsupportedOperationException("Unable to copy from image with " + getSamples() + " samples to an " +
+                    "image with " + dst.getSamples() + " samples. Must be from N to 1 or from N to N.");
+        }
+    }
 
 }

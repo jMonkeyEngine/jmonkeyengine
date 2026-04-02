@@ -1,10 +1,10 @@
-name: "VulkanTest"
+name: "Unshaded"
 
 parameters:
 
-  - name: "MetallicRoughness"
+  - name: "Parameters"
     type: UniformBuffer
-    struct: MetallicRoughnessPBR
+    struct: com.jme3.vulkan.material.structs.UnshadedParams
 
   - name: "Lighting"
     type: UniformBuffer
@@ -14,6 +14,7 @@ parameters:
     type: Texture
     default: "Common/Textures/MissingTexture.jpg"
 
+  # example of a parameter that only controls a macro
   - name: "NormalUnpacker"
     type: String
     default: "normal.xyz"
@@ -25,24 +26,22 @@ renderState:
 techniques:
   - name: "main"
     shaders:
-      - file: "Shaders/VulkanVertTest.glsl"
+      vertex:
+        file: "Shaders/VulkanVertTest.glsl"
         entry: "main" # entry is "main" by default
-        version: 450
-        type: Vertex
-      - file: "Shaders/VulkanFragTest.yml"
-        version: 450
-        type: Fragment
+        version: 450 # version is 450 by default
+      fragment: "Shaders/VulkanFragTest.yml"
     bindings:
       - name: "ColorMap"
         location: [0, 0] # [set, binding]
-        scope: [Fragment]
+        scope: [Fragment] # default scope is all
         define: "COLOR_MAP"
       - name: "NormalUnpacker"
         scope: [Fragment]
         define: "NORMAL_UNPACKER"
         # location not defined: is not a writable uniform in this case
     pushConstants:
-      - scope: [Vertex]
+      - scope: [Vertex] # default scope is all
         uniform: "Transforms"
     renderState:
       cullMode: None

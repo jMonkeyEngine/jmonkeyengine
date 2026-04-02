@@ -37,6 +37,7 @@ import com.jme3.util.TempVars;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.logging.Logger;
 
@@ -2442,6 +2443,14 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         return this;
     }
 
+    public Matrix4f writeToBuffer(ByteBuffer buffer) {
+        buffer.putFloat(m00).putFloat(m10).putFloat(m20).putFloat(m30);
+        buffer.putFloat(m01).putFloat(m11).putFloat(m21).putFloat(m31);
+        buffer.putFloat(m02).putFloat(m12).putFloat(m22).putFloat(m32);
+        buffer.putFloat(m03).putFloat(m13).putFloat(m23).putFloat(m33);
+        return this;
+    }
+
     /**
      * Reads to this matrix directly to the memory at the address.
      *
@@ -2466,6 +2475,26 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         m13 = MemoryUtil.memGetFloat(address += Float.BYTES);
         m23 = MemoryUtil.memGetFloat(address += Float.BYTES);
         m33 = MemoryUtil.memGetFloat(address + Float.BYTES);
+        return this;
+    }
+
+    public Matrix4f readFromBuffer(ByteBuffer buffer) {
+        m00 = buffer.getFloat();
+        m10 = buffer.getFloat();
+        m20 = buffer.getFloat();
+        m30 = buffer.getFloat();
+        m01 = buffer.getFloat();
+        m11 = buffer.getFloat();
+        m21 = buffer.getFloat();
+        m31 = buffer.getFloat();
+        m02 = buffer.getFloat();
+        m12 = buffer.getFloat();
+        m22 = buffer.getFloat();
+        m32 = buffer.getFloat();
+        m03 = buffer.getFloat();
+        m13 = buffer.getFloat();
+        m23 = buffer.getFloat();
+        m33 = buffer.getFloat();
         return this;
     }
 

@@ -1,11 +1,14 @@
 package com.jme3.vulkan.formats;
 
+import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.util.Flag;
 
 import static org.lwjgl.vulkan.VK10.*;
 import static com.jme3.vulkan.formats.GlComponent.*;
 
 public enum Format {
+
+    // todo: implement more formats
 
     RGBA32_SFloat(16, 4, Space.SFloat, Aspects.Color, GL_FLOAT),
     RGB32_SFloat(12, 3, Space.SFloat, Aspects.Color, GL_FLOAT),
@@ -47,16 +50,18 @@ public enum Format {
 
     public enum Aspects {
 
-        Color(true, false, false),
-        Depth(false, true, false),
-        DepthStencil(false, true, true);
+        Color(true, false, false, VulkanImage.Aspect.Color),
+        Depth(false, true, false, VulkanImage.Aspect.Depth),
+        DepthStencil(false, true, true, VulkanImage.Aspect.DepthStencil);
 
         private final boolean color, depth, stencil;
+        private final Flag<VulkanImage.Aspect> imageAspect;
 
-        Aspects(boolean color, boolean depth, boolean stencil) {
+        Aspects(boolean color, boolean depth, boolean stencil, Flag<VulkanImage.Aspect> imageAspect) {
             this.color = color;
             this.depth = depth;
             this.stencil = stencil;
+            this.imageAspect = imageAspect;
         }
 
         public boolean isColor() {
@@ -71,6 +76,9 @@ public enum Format {
             return stencil;
         }
 
+        public Flag<VulkanImage.Aspect> getImageAspect() {
+            return imageAspect;
+        }
     }
 
     private final int bytes;
@@ -87,8 +95,8 @@ public enum Format {
         this.glComponent = glComponent;
     }
 
-    public int getEnum(FormatInterpreter interpreter) {
-        return interpreter.getEnum(this);
+    public int getEnum(EnumInterpreter interpreter) {
+        return interpreter.getFormatEnum(this);
     }
 
     public int getBytes() {
@@ -111,33 +119,11 @@ public enum Format {
         return glComponent;
     }
 
-    public enum Feature implements Flag<Feature> {
-
-        DepthStencilAttachment(VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT),
-        BlitDst(VK_FORMAT_FEATURE_BLIT_DST_BIT),
-        BlitSrc(VK_FORMAT_FEATURE_BLIT_SRC_BIT),
-        ColorAttachment(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT),
-        SampledImage(VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT),
-        ColorAttachmentBlend(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT),
-        SampledImageFilterLinear(VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT),
-        StorageImageAtomic(VK_FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT),
-        StorageImage(VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT),
-        StorageTexelBufferAtomic(VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_ATOMIC_BIT),
-        StorageTexelBuffer(VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_BIT),
-        UniformTexelBuffer(VK_FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT),
-        VertexBuffer(VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT);
-
-        private final int bits;
-
-        Feature(int bits) {
-            this.bits = bits;
+    public static Format byEnum(EnumInterpreter interpreter, int enm) {
+        for (Format f : values()) {
+            if (f.getEnum(interpreter) == enm) return f;
         }
-
-        @Override
-        public int bits() {
-            return bits;
-        }
-
+        throw new IllegalArgumentException("Format enum " + enm + " is not supported.");
     }
 
 }

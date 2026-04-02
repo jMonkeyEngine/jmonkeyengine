@@ -32,7 +32,6 @@ public class SetLayoutBinding {
         this.stages = stages;
     }
 
-    @SuppressWarnings("DataFlowIssue")
     public void fillLayoutBinding(VkDescriptorSetLayoutBinding layoutBinding) {
         layoutBinding.descriptorType(type.getEnum())
                 .binding(binding)

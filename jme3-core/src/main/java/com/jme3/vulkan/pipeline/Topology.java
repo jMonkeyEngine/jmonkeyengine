@@ -1,8 +1,8 @@
 package com.jme3.vulkan.pipeline;
 
-import com.jme3.vulkan.util.AgnosticEnum;
+import com.jme3.vulkan.formats.EnumInterpreter;
 
-public enum Topology implements AgnosticEnum<Topology> {
+public enum Topology {
 
     LineList,
     LineStrip,
@@ -17,17 +17,8 @@ public enum Topology implements AgnosticEnum<Topology> {
     TriangleStrip,
     TriangleStripAdjacency;
 
-    private int vkEnum = -1;
-
-    @Override
-    public int getEnum() {
-        return vkEnum;
-    }
-
-    @Override
-    public Topology set(int enumVal) {
-        this.vkEnum = enumVal;
-        return this;
+    public int getEnum(EnumInterpreter interpreter) {
+        return interpreter.getTopologyEnum(this);
     }
 
 }

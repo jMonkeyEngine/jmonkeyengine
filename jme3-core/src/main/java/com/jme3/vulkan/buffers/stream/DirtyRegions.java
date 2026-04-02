@@ -2,6 +2,7 @@ package com.jme3.vulkan.buffers.stream;
 
 import java.util.Iterator;
 
+@Deprecated
 public class DirtyRegions implements Iterable<DirtyRegions.Region> {
 
     private final Region head = new Region(0, 0);

@@ -32,13 +32,4 @@ public interface VulkanUniform <T> extends Uniform<T> {
      */
     SetLayoutBinding createBinding(int binding, Flag<ShaderStage> scope);
 
-    /**
-     * Fills the push constant buffer with this uniform's value.
-     *
-     * @param cmd
-     * @param constant push constant range
-     * @param mapping  buffer mapping
-     */
-    void fillPushConstantsBuffer(CommandBuffer cmd, PushConstantRange constant, BufferMapping mapping);
-
 }

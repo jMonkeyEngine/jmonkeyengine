@@ -2,6 +2,7 @@ package com.jme3.vulkan.buffers;
 
 import com.jme3.vulkan.memory.MemorySize;
 
+@Deprecated
 public class BufferPartition <T extends MappableBuffer> implements MappableBuffer {
 
     private final T buffer;
@@ -30,12 +31,10 @@ public class BufferPartition <T extends MappableBuffer> implements MappableBuffe
     }
 
     @Override
-    public ResizeResult resize(MemorySize size) {
-        if (buffer.size().getBytes() < size.getEnd()) {
-            return ResizeResult.Failure;
+    public void resize(long bytes) {
+        if (buffer.size().getEnd() < size.getOffset() + bytes) {
+            buffer.resize();
         }
-        this.size = size;
-        return ResizeResult.Success;
     }
 
     @Override

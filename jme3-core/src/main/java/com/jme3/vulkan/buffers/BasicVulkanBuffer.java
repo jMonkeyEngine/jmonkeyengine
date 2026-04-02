@@ -75,9 +75,9 @@ public class BasicVulkanBuffer extends AbstractNative<Long> implements VulkanBuf
     }
 
     @Override
-    public ResizeResult resize(MemorySize size) {
-        this.size = size;
-        if (memory != null && size.getBytes() > memory.getSize()) {
+    public void resize(long bytes) {
+        this.size = this.size;
+        if (memory != null && this.size.getBytes() > memory.getSize()) {
             Builder b = new Builder();
             b.setMemFlags(getMemoryProperties());
             b.build();

@@ -35,7 +35,7 @@ import com.jme3.export.*;
 import com.jme3.util.*;
 import com.jme3.util.natives.GlNative;
 import com.jme3.vulkan.buffers.ConcurrentBuffer;
-import com.jme3.vulkan.buffers.GlBuffer;
+import com.jme3.vulkan.buffers.UpdateFlagBuffer;
 import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.memory.MemorySize;
 import com.jme3.vulkan.mesh.*;
@@ -362,7 +362,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
      * derived from components * format.getComponentSize()
      */
     protected transient int componentsLength = 0;
-    protected ConcurrentBuffer<GlBuffer> data;
+    protected ConcurrentBuffer<UpdateFlagBuffer> data;
     protected Function<AttributeMappingInfo, Attribute> mapper;
     protected Usage usage;
     protected Format format;
@@ -402,7 +402,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
 
     @Override
     public MappableBuffer createBuffer(int elements, Usage usage) {
-        return new ConcurrentBuffer<>(new GlBuffer(new MemorySize(elements, format.getComponentSize())));
+        return new ConcurrentBuffer<>(new UpdateFlagBuffer(new MemorySize(elements, format.getComponentSize())));
     }
 
     @Override
@@ -618,7 +618,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
         this.format = format;
         this.components = components;
         this.componentsLength = components * format.getComponentSize();
-        data = new ConcurrentBuffer<>(new GlBuffer(new MemorySize(vertices * components, format.getComponentSize()), padding * components));
+        data = new ConcurrentBuffer<>(new UpdateFlagBuffer(new MemorySize(vertices * components, format.getComponentSize()), padding * components));
     }
 
     /**
@@ -649,7 +649,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
 //            }
 //        }
 
-        this.data = new ConcurrentBuffer<>(new GlBuffer(new MemorySize(data)));
+        this.data = new ConcurrentBuffer<>(new UpdateFlagBuffer(new MemorySize(data)));
         this.data.copy(data);
         this.components = components;
         this.usage = usage;
@@ -725,7 +725,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
             throw new NullPointerException("No data present to copy.");
         }
         if (outVb.data == null) {
-            outVb.data = new ConcurrentBuffer<>(new GlBuffer(data.size(), data.getBuffer().getPadding()));
+            outVb.data = new ConcurrentBuffer<>(new UpdateFlagBuffer(data.size(), data.getBuffer().getPadding()));
         } else if (outVb.data.size().getBytesPerElement() != data.size().getBytesPerElement()) {
             throw new IllegalArgumentException("Buffer element size mismatch.");
         } else {
@@ -810,7 +810,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
         vb.components = components;
         vb.componentsLength = componentsLength;
         if (data != null) {
-            vb.data = new ConcurrentBuffer<>(new GlBuffer(data.size(), 0, false));
+            vb.data = new ConcurrentBuffer<>(new UpdateFlagBuffer(data.size(), 0, false));
             vb.data.copy(data);
         }
         vb.format = format;
@@ -878,7 +878,7 @@ public class GlVertexBuffer extends GlNative implements VertexBinding, Savable, 
         componentsLength = components * format.getComponentSize();
         ByteBuffer data = ic.readByteBuffer("data", null);
         if (data != null) {
-            this.data = new ConcurrentBuffer<>(new GlBuffer(MemorySize.dynamic(data.capacity(), format.getComponentSize())));
+            this.data = new ConcurrentBuffer<>(new UpdateFlagBuffer(MemorySize.dynamic(data.capacity(), format.getComponentSize())));
             this.data.copy(data);
         }
     }

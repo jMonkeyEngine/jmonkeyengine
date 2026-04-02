@@ -33,10 +33,8 @@ package com.jme3.scene.shape;
 
 import com.jme3.export.*;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GlMesh;
 import com.jme3.vulkan.mesh.AdaptiveMesh;
 import com.jme3.vulkan.mesh.InputRate;
-import com.jme3.vulkan.mesh.MeshLayout;
 
 import java.io.IOException;
 
@@ -59,8 +57,8 @@ public abstract class AbstractBox extends AdaptiveMesh {
 
     public float xExtent, yExtent, zExtent;
 
-    public AbstractBox(MeshLayout layout, long vertices, long instances) {
-        super(layout, vertices, instances);
+    public AbstractBox(int vertices, int instances) {
+        super(vertices, instances);
     }
 
     /**
@@ -158,8 +156,7 @@ public abstract class AbstractBox extends AdaptiveMesh {
         doUpdateGeometryNormals();
         doUpdateGeometryTextures();
         doUpdateGeometryIndices();
-        pushElements(InputRate.Vertex);
-        pushElements(InputRate.Instance);
+        stageAll();
     }
 
     /**
@@ -174,7 +171,7 @@ public abstract class AbstractBox extends AdaptiveMesh {
      * @param z the Z extent of the box in each direction.
      */
     public final void updateGeometry(Vector3f center, float x, float y, float z) {
-        if (center != null) {this.center.set(center); }
+        if (center != null) { this.center.set(center); }
         this.xExtent = x;
         this.yExtent = y;
         this.zExtent = z;

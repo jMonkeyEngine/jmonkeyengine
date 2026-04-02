@@ -4,30 +4,32 @@ import com.jme3.texture.ImageView;
 
 import java.util.List;
 
-public interface FrameBuffer <T extends ImageView> {
+public interface FrameBuffer <T extends RenderTarget> {
 
-    long getId();
+    T createColorTarget(ImageView view);
 
-    int getWidth();
+    T createDepthTarget(ImageView view);
 
-    int getHeight();
+    void addColorTarget(T target);
 
-    void addColorTarget(T image);
+    void addColorTarget(int i, T target);
 
-    void setColorTarget(int i, T image);
+    void setColorTarget(int i, T target);
 
-    void removeColorTarget(int i);
-
-    void removeColorTarget(T image);
+    boolean removeColorTarget(T target);
 
     void clearColorTargets();
 
-    void setDepthTarget(T image);
+    void setDepthTarget(T target);
 
     List<T> getColorTargets();
 
-    T getColorTarget(int i);
-
     T getDepthTarget();
+
+    boolean isUsingStencil();
+
+    float getWidth();
+
+    float getHeight();
 
 }

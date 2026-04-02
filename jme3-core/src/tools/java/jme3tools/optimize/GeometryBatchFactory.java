@@ -207,7 +207,7 @@ public class GeometryBatchFactory {
                     int components = compsForBuf[bufType];
 
                     IndexBuffer inIdx = inMesh.getIndicesAsList();
-                    IndexBuffer outIdx = outMesh.getIndexBuffer();
+                    IndexBuffer outIdx = outMesh.getBaseIndexBuffer();
 
                     for (int tri = 0; tri < geomTriCount; tri++) {
                         for (int comp = 0; comp < components; comp++) {

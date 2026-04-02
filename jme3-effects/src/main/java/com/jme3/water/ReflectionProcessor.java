@@ -38,7 +38,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.GlFrameBuffer;
+import com.jme3.texture.FrameBuffer;
 
 /**
  * Reflection Processor
@@ -49,7 +49,7 @@ public class ReflectionProcessor implements SceneProcessor {
     private RenderManager rm;
     private ViewPort vp;
     private Camera reflectionCam;
-    private GlFrameBuffer reflectionBuffer;
+    private FrameBuffer reflectionBuffer;
     private Plane reflectionClipPlane;
 
     /**
@@ -58,7 +58,7 @@ public class ReflectionProcessor implements SceneProcessor {
      * @param reflectionBuffer the FrameBuffer to render to
      * @param reflectionClipPlane the clipping plane
      */
-    public ReflectionProcessor(Camera reflectionCam, GlFrameBuffer reflectionBuffer, Plane reflectionClipPlane) {
+    public ReflectionProcessor(Camera reflectionCam, FrameBuffer reflectionBuffer, Plane reflectionClipPlane) {
         this.reflectionCam = reflectionCam;
         this.reflectionBuffer = reflectionBuffer;
         this.reflectionClipPlane = reflectionClipPlane;
@@ -101,7 +101,7 @@ public class ReflectionProcessor implements SceneProcessor {
     }
 
     @Override
-    public void postFrame(GlFrameBuffer out) {
+    public void postFrame(FrameBuffer out) {
     }
 
     @Override
@@ -118,7 +118,7 @@ public class ReflectionProcessor implements SceneProcessor {
      * returns the frame buffer
      * @return the pre-existing buffer
      */
-    public GlFrameBuffer getReflectionBuffer() {
+    public FrameBuffer getReflectionBuffer() {
         return reflectionBuffer;
     }
 
@@ -128,7 +128,7 @@ public class ReflectionProcessor implements SceneProcessor {
      *
      * @param reflectionBuffer the FrameBuffer to use (alias created)
      */
-    public void setReflectionBuffer(GlFrameBuffer reflectionBuffer) {
+    public void setReflectionBuffer(FrameBuffer reflectionBuffer) {
         this.reflectionBuffer = reflectionBuffer;
     }
 

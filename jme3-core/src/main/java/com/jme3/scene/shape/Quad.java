@@ -35,10 +35,14 @@ package com.jme3.scene.shape;
 import com.jme3.export.*;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GlVertexBuffer.Type;
-import com.jme3.vulkan.mesh.AdaptiveMesh;
-import com.jme3.vulkan.mesh.MeshLayout;
-import com.jme3.vulkan.mesh.attribute.Attribute;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructMapping;
+import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.IdxBuffer;
+import com.jme3.vulkan.buffers.saving.UpdateHint;
+import com.jme3.vulkan.mesh.*;
 
 import java.io.IOException;
 
@@ -55,10 +59,8 @@ public class Quad extends AdaptiveMesh {
     private float width;
     private float height;
 
-    protected Quad(MeshLayout layout) {
-        super(layout, 4, 1);
-        
-    }
+    private final VertexBuffer<Vertex> buffer = new VertexBuffer<>(InputRate.Vertex, new Vertex(),
+            JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Static));
 
     /**
      * Create a quad with the given width and height. The quad
@@ -67,8 +69,9 @@ public class Quad extends AdaptiveMesh {
      * @param width The X extent or width
      * @param height The Y extent or width
      */
-    public Quad(MeshLayout layout, float width, float height) {
-        this(layout);
+    public Quad(float width, float height) {
+        super(4, 1);
+        addVertexBuffer(buffer);
         updateGeometry(width, height);
     }
 
@@ -81,8 +84,9 @@ public class Quad extends AdaptiveMesh {
      * @param flipCoords If true, the texture coordinates will be flipped
      * along the Y axis.
      */
-    public Quad(MeshLayout layout, float width, float height, boolean flipCoords) {
-        this(layout);
+    public Quad(float width, float height, boolean flipCoords) {
+        super(4, 1);
+        addVertexBuffer(buffer);
         updateGeometry(width, height, flipCoords);
     }
 
@@ -101,37 +105,40 @@ public class Quad extends AdaptiveMesh {
     public void updateGeometry(float width, float height, boolean flipCoords) {
         this.width = width;
         this.height = height;
-        try (Attribute<Vector3f> pos = mapAttribute(Type.Position)) {
-            Vector3f temp = pos.createStorageObject(null);
-            pos.set(0, temp.set(0, 0, 0));
-            pos.set(1, temp.set(width, 0, 0));
-            pos.set(2, temp.set(width, height, 0));
-            pos.set(3, temp.set(0, height, 0));
+        try (StructMapping<Vertex> m = buffer.map()) {
+            Vertex v = m.get();
+            Vector3f vec3 = v.position.alias();
+            Vector2f vec2 = v.texCoord.alias();
+            m.sample(0);
+            v.position.set(vec3.set(0, 0, 0));
+            v.texCoord.set(vec2.set(0, flipCoords ? 1 : 0));
+            v.normal.set(vec3.set(0, 0, 1));
+            m.increment();
+            v.position.set(vec3.set(width, 0, 0));
+            v.texCoord.set(vec2.set(1, flipCoords ? 1 : 0));
+            v.normal.set(vec3.set(0, 0, 1));
+            m.increment();
+            v.position.set(vec3.set(width, height, 0));
+            v.texCoord.set(vec2.set(1, flipCoords ? 0 : 1));
+            v.normal.set(vec3.set(0, 0, 1));
+            m.increment();
+            v.position.set(vec3.set(0, height, 0));
+            v.texCoord.set(vec2.set(0, flipCoords ? 0 : 1));
+            v.normal.set(vec3.set(0, 0, 1));
         }
-        try (Attribute<Vector2f> texCoord = mapAttribute(Type.TexCoord)) {
-            Vector2f temp = texCoord.createStorageObject(null);
-            texCoord.set(0, temp.set(0, flipCoords ? 1 : 0));
-            texCoord.set(1, temp.set(1, flipCoords ? 1 : 0));
-            texCoord.set(2, temp.set(1, flipCoords ? 0 : 1));
-            texCoord.set(3, temp.set(0, flipCoords ? 0 : 1));
-        }
-        try (Attribute<Vector3f> normal = mapAttribute(Type.Normal)) {
-            for (Vector3f n : normal.write(null)) {
-                n.set(0, 0, 1);
+
+        IdxBuffer index = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
+                6 * Short.BYTES, BufferUsage.Index, UpdateHint.Static));
+        try (BufferMapping m = index.map()) {
+            if (height < 0) {
+                m.getShorts().put(new short[]{0, 2, 1, 0, 3, 2});
+            } else {
+                m.getShorts().put(new short[]{0, 1, 2, 0, 2, 3});
             }
         }
-
-        if (height < 0) {
-            setBuffer(Type.Index, 3, new short[]{0, 2, 1,
-                                                 0, 3, 2});
-        } else {
-            setBuffer(Type.Index, 3, new short[]{0, 1, 2,
-                                                 0, 2, 3});
-        }
-        indexBuffers.add(0, new );
+        setBaseIndexBuffer(index);
 
         updateBound();
-        setStatic();
     }
 
     @Override
@@ -148,6 +155,18 @@ public class Quad extends AdaptiveMesh {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(width, "width", 0);
         capsule.write(height, "height", 0);
+    }
+
+    protected static class Vertex extends Struct<VertexAttr> {
+
+        public final VertexAttr<Vector3f> position = new VertexAttr<>("Position", new Vector3f());
+        public final VertexAttr<Vector2f> texCoord = new VertexAttr<>("TexCoord", new Vector2f());
+        public final VertexAttr<Vector3f> normal = new VertexAttr<>("Normal", new Vector3f());
+
+        public Vertex() {
+            addFields(position, texCoord, normal);
+        }
+
     }
 
 }

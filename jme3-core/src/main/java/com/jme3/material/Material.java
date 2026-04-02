@@ -33,7 +33,11 @@ package com.jme3.material;
 
 import com.jme3.scene.Geometry;
 import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructMapping;
+import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.material.technique.NewTechnique;
+import com.jme3.vulkan.material.uniforms.BufferUniform;
+import com.jme3.vulkan.material.uniforms.StructUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
 
 /**
@@ -49,18 +53,26 @@ import com.jme3.vulkan.material.uniforms.Uniform;
  */
 public interface Material {
 
-    <T extends Uniform> T setUniform(String name, T uniform);
+    void selectTechnique(String name);
 
     void setTechnique(String name, NewTechnique technique);
 
-    <T extends Uniform> T getUniform(String name);
+    NewTechnique getActiveTechnique();
 
     NewTechnique getTechnique(String name);
+
+    <T extends Uniform> T setUniform(String name, T uniform);
+
+    <T extends Uniform> T getUniform(String name);
 
     RenderState getAdditionalRenderState();
 
     default int getSortId() {
         return 0;
+    }
+
+    default <T extends Uniform> T getUniform(String name, Class<T> type) {
+        return getUniform(name);
     }
 
     default void set(String name, Object value) {
@@ -74,6 +86,16 @@ public interface Material {
 
     default <T> T get(String name, Class<T> type) {
         return get(name);
+    }
+
+    default <T extends Struct> StructMapping<T> mapStruct(String name, T struct) {
+        BufferUniform u = getUniform(name);
+        return u.map(struct);
+    }
+
+    default <T extends Struct> StructMapping<T> mapStruct(String name) {
+        StructUniform<MappableBuffer, T> u = getUniform(name);
+        return u.map();
     }
 
 }

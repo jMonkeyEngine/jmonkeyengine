@@ -48,7 +48,7 @@ import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.GlFrameBuffer;
+import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.GlImage.Format;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
@@ -65,7 +65,7 @@ public class BasicShadowRenderer implements SceneProcessor {
     private static final LightFilter NULL_LIGHT_FILTER = new NullLightFilter();
     private RenderManager renderManager;
     private ViewPort viewPort;
-    private final GlFrameBuffer shadowFB;
+    private final FrameBuffer shadowFB;
     private final Texture2D shadowMap;
     private final Camera shadowCam;
     private final Material preshadowMat;
@@ -86,14 +86,14 @@ public class BasicShadowRenderer implements SceneProcessor {
      * @param size the size of the shadow map (the map is square)
      */
     public BasicShadowRenderer(AssetManager manager, int size) {
-        shadowFB = new GlFrameBuffer(size, size, 1);
+        shadowFB = new FrameBuffer(size, size, 1);
         shadowMap = new Texture2D(size, size, Format.Depth);
-        shadowFB.setDepthTarget(GlFrameBuffer.newTarget(shadowMap));
+        shadowFB.setDepthTarget(FrameBuffer.newTarget(shadowMap));
         shadowCam = new Camera(size, size);
         
          //DO NOT COMMENT THIS (It prevents the OSX incomplete read buffer crash.)
         dummyTex = new Texture2D(size, size, Format.RGBA8);
-        shadowFB.addColorTarget(GlFrameBuffer.newTarget(dummyTex));
+        shadowFB.addColorTarget(FrameBuffer.newTarget(dummyTex));
         shadowMapSize = size;
         preshadowMat = new GlMaterial(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
         postshadowMat = new GlMaterial(manager, "Common/MatDefs/Shadow/BasicPostShadow.j3md");
@@ -219,7 +219,7 @@ public class BasicShadowRenderer implements SceneProcessor {
     }
 
     @Override
-    public void postFrame(GlFrameBuffer out) {
+    public void postFrame(FrameBuffer out) {
         if (!noOccluders) {
             postshadowMat.setMatrix4("LightViewProjectionMatrix", shadowCam.getViewProjectionMatrix());
             renderManager.setForcedMaterial(postshadowMat);

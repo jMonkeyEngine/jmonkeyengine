@@ -12,14 +12,14 @@ import com.jme3.vulkan.images.VulkanImage
 import com.jme3.vulkan.material.shader.ShaderStage
 import com.jme3.vulkan.material.technique.VulkanTechnique
 import com.jme3.vulkan.material.uniforms.TextureUniform
-import com.jme3.vulkan.material.uniforms.StructUniform
+import com.jme3.vulkan.material.uniforms.BufferUniform
 import com.jme3.vulkan.memory.MemorySize
 
 Engine engine = null
 LogicalDevice device = null
 
 mat = engine.createMaterial()
-mat.setUniform "PBR", new StructUniform<>(StructLayout.std140, new LightData(), (MemorySize size) -> {
+mat.setUniform "PBR", new BufferUniform<>(StructLayout.std140, new LightData(), (MemorySize size) -> {
     return new StreamingBuffer(device, size, BufferUsage.Uniform)
 })
 mat.setUniform "ColorMap", new TextureUniform(VulkanImage.Layout.ShaderReadOnlyOptimal)

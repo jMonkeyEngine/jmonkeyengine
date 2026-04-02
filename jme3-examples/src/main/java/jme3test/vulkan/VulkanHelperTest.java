@@ -12,7 +12,6 @@ import com.jme3.vulkan.ColorSpace;
 import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.pipeline.cache.PipelineCache;
 import com.jme3.vulkan.pipeline.graphics.ColorBlendAttachment;
-import com.jme3.vulkan.pipeline.states.IShaderState;
 import com.jme3.vulkan.render.batching.GeometryBatch;
 import com.jme3.vulkan.render.batching.VulkanGeometryBatch;
 import com.jme3.vulkan.shaderc.ShadercLoader;

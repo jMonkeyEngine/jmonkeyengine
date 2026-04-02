@@ -83,7 +83,7 @@ public class ArmatureNode extends Node {
     public ArmatureNode(Armature armature, Node joints, Node wires, Node outlines, List<Joint> deformingJoints) {
         this.armature = armature;
 
-        Geometry origin = new Geometry("Armature Origin", new JointShape());
+        Geometry origin = new Geometry("Armature Origin", JointShape.create());
         setColor(origin, ColorRGBA.Green);
         attach(joints, true, origin);
 
@@ -108,7 +108,7 @@ public class ArmatureNode extends Node {
 
         boolean deforms = deformingJoints.contains(joint);
 
-        Geometry jGeom = new Geometry(joint.getName() + "Joint", new JointShape());
+        Geometry jGeom = new Geometry(joint.getName() + "Joint", JointShape.create());
         jGeom.setLocalTranslation(start);
         attach(joints, deforms, jGeom);
         Geometry bGeom = null;

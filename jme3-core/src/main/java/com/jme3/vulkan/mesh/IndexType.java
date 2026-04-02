@@ -1,38 +1,23 @@
 package com.jme3.vulkan.mesh;
 
-import com.jme3.vulkan.buffers.MappableBuffer;
-import com.jme3.vulkan.util.IntEnum;
+import com.jme3.vulkan.formats.EnumInterpreter;
 
-import static org.lwjgl.vulkan.VK10.*;
+public enum IndexType {
 
-public enum IndexType implements IntEnum<IndexType> {
+    UInt8(Byte.BYTES), UInt16(Short.BYTES), UInt32(Integer.BYTES);
 
-    UInt32(VK_INDEX_TYPE_UINT32, 2),
-    UInt16(VK_INDEX_TYPE_UINT16, 4);
-
-    private final int vkEnum;
     private final int bytes;
 
-    IndexType(int vkEnum, int bytes) {
-        this.vkEnum = vkEnum;
+    IndexType(int bytes) {
         this.bytes = bytes;
     }
 
-    @Override
-    public int getEnum() {
-        return vkEnum;
+    public int getEnum(EnumInterpreter interpreter) {
+        return interpreter.getIndexTypeEnum(this);
     }
 
     public int getBytes() {
         return bytes;
-    }
-
-    public static IndexType of(MappableBuffer buffer) {
-        if (buffer.size().getBytesPerElement() <= UInt16.bytes) {
-            return UInt16;
-        } else {
-            return UInt32;
-        }
     }
 
 }

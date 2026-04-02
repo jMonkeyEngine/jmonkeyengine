@@ -5,19 +5,25 @@ import com.jme3.backend.Engine;
 import com.jme3.backend.SimpleVulkanEngine;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.Camera;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.ViewPortArea;
+import com.jme3.renderer.camera.PerspectiveCamera;
+import com.jme3.renderer.queue.OpaqueComparator;
+import com.jme3.renderer.queue.TransparentComparator;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.util.struct.StructLayout;
-import com.jme3.vulkan.formats.Format;
+import com.jme3.util.struct.StructMapping;
+import com.jme3.vulkan.commands.StandardRenderSettings;
 import com.jme3.vulkan.material.structs.UnshadedParams;
-import com.jme3.vulkan.mesh.InputRate;
-import com.jme3.vulkan.mesh.MeshLayout;
-import com.jme3.vulkan.mesh.VertexBinding;
-import com.jme3.vulkan.mesh.attribute.*;
+import com.jme3.vulkan.render.bucket.GeometryBucket;
+import com.sun.tools.javac.util.List;
+import org.graalvm.compiler.lir.amd64.AMD64BinaryConsumer;
 
 public class TestJme4 extends SimpleApplication {
 
-    private final Engine engine = new SimpleVulkanEngine(this, 3);
+    private Engine engine;
 
     public static void main(String[] args) {
         TestJme4 app = new TestJme4();
@@ -27,31 +33,42 @@ public class TestJme4 extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
-        MeshLayout layout = MeshLayout.build(m -> {
-            m.addBinding(VertexBinding.build(engine, InputRate.Vertex, b -> {
-                b.add("Position", Format.RGB32_SFloat, i -> new Position(ValueMapper.Float32, i));
-                b.add("TexCoord", Format.RG32_SFloat, i -> new TexCoord(ValueMapper.Float32, i));
-                b.add("Normal", Format.RGB32_SFloat, i -> new Normal(ValueMapper.Float32, i));
-                b.add("Tangent", Format.RGBA32_SFloat, i -> new Tangent(ValueMapper.Float32, i));
-            }));
-            m.addBinding(VertexBinding.build(engine, InputRate.Vertex, b -> {
-                b.add("BindPosition", Format.RGB32_SFloat, i -> new Position(ValueMapper.Float32, i));
-            }));
-        });
-
-        MeshLayout l2 = MeshLayout.build(m -> {
-            m.addBinding(new VertexBinding(engine, InputRate.Vertex, () -> new Vertex(StructLayout.std140)));
-        });
+        engine = new SimpleVulkanEngine(this, 3);
 
         Geometry g = new Geometry("geom_jme4", new Box(1f, 1f, 1f));
-        Material m = engine.createMaterial("Common/MatDefs/Misc/Unshaded.j3md");
-        UnshadedParams p = m.get("Parameters");
-        p.color.get().set(ColorRGBA.Blue);
-        p.glowColor.set(ColorRGBA.Blue.mult(0.2f));
-        p.vertexColor.set(true);
-        g.setMaterial(m);
+        Material mat = engine.createMaterial("Common/MatDefs/Misc/Unshaded.j3md");
+        try (StructMapping<UnshadedParams> m = mat.mapStruct("Parameters")) {
+            UnshadedParams p = m.get();
+            p.color.set(ColorRGBA.Blue);
+            p.glowColor.set(ColorRGBA.Blue.mult(0.2f));
+            p.vertexColor.set(true);
+        }
+        g.setMaterial(mat);
         rootNode.attachChild(g);
 
+        Camera cam = new PerspectiveCamera();
+        ViewPort vp = new ViewPort(cam, new ViewPortArea(1024, 1024));
+        vp.addGeometryBucket("Opaque", new GeometryBucket(new OpaqueComparator()));
+        vp.addGeometryBucket("Sky", new GeometryBucket(new OpaqueComparator()) {
+            @Override
+            public void setupRender(ViewPort vp, StandardRenderSettings settings) {
+                super.setupRender(vp, settings);
+                settings.pushViewPort(vp.getArea().clone().toMaxDepth());
+            }
+            @Override
+            public void cleanupRender(ViewPort vp, StandardRenderSettings settings) {
+                super.cleanupRender(vp, settings);
+                settings.popViewPort();
+            }
+        });
+        vp.addGeometryBucket("Transparent", new GeometryBucket(new TransparentComparator()));
+        vp.addGeometryBucket("Translucent", new GeometryBucket(new TransparentComparator()));
+
+    }
+
+    @Override
+    public void simpleRender(RenderManager rm) {
+        engine.render(List.of(viewPort, guiViewPort));
     }
 
     @Override

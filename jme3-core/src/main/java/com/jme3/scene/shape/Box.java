@@ -34,12 +34,15 @@ package com.jme3.scene.shape;
 
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.GlVertexBuffer.Type;
-import com.jme3.util.BufferUtils;
-import com.jme3.vulkan.mesh.MeshLayout;
-import com.jme3.vulkan.mesh.attribute.Attribute;
-
-import java.nio.FloatBuffer;
+import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffers.BufferMapping;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.IdxBuffer;
+import com.jme3.vulkan.buffers.saving.UpdateHint;
+import com.jme3.vulkan.mesh.IndexType;
+import com.jme3.vulkan.mesh.InputRate;
+import com.jme3.vulkan.mesh.VertexBuffer;
+import com.jme3.vulkan.mesh.attributes.SingleAttrStruct;
 
 /**
  * A box with solid (filled) faces.
@@ -89,8 +92,8 @@ public class Box extends AbstractBox {
      * @param y the size of the box along the y axis, in both directions.
      * @param z the size of the box along the z axis, in both directions.
      */
-    public Box(MeshLayout layout, float x, float y, float z) {
-        super(layout, VERTICES, 1);
+    public Box(float x, float y, float z) {
+        super(VERTICES, 1);
         updateGeometry(Vector3f.ZERO, x, y, z);
     }
 
@@ -110,8 +113,8 @@ public class Box extends AbstractBox {
      * @param z the size of the box along the z axis, in both directions.
      */
     @Deprecated
-    public Box(MeshLayout layout, Vector3f center, float x, float y, float z) {
-        super(layout, VERTICES, 1);
+    public Box(Vector3f center, float x, float y, float z) {
+        super(VERTICES, 1);
         updateGeometry(center, x, y, z);
     }
 
@@ -127,8 +130,8 @@ public class Box extends AbstractBox {
      * @param min the minimum point that defines the box.
      * @param max the maximum point that defines the box.
      */
-    public Box(MeshLayout layout, Vector3f min, Vector3f max) {
-        super(layout, 24, 1);
+    public Box(Vector3f min, Vector3f max) {
+        super(24, 1);
         updateGeometry(min, max);
     }
 
@@ -136,7 +139,7 @@ public class Box extends AbstractBox {
      * Empty constructor for serialization only. Do not use.
      */
     protected Box(){
-        super();
+        super(24, 1);
     }
 
     /**
@@ -147,49 +150,64 @@ public class Box extends AbstractBox {
      */
     @Override
     public Box clone() {
-        return new Box(getLayout(), center.clone(), xExtent, yExtent, zExtent);
+        return new Box(center.clone(), xExtent, yExtent, zExtent);
     }
 
     @Override
     protected void doUpdateGeometryIndices() {
-        if (getBuffer(Type.Index) == null){
-            setBuffer(Type.Index, 3, BufferUtils.createShortBuffer(GEOMETRY_INDICES_DATA));
+        IdxBuffer buf = new IdxBuffer(IndexType.UInt16, JmePlatform.allocateStandardBuffer(
+                GEOMETRY_INDICES_DATA.length * Short.BYTES, BufferUsage.Index, UpdateHint.Static));
+        try (BufferMapping m = buf.map()) {
+            m.getShorts().put(GEOMETRY_INDICES_DATA);
+            m.stage();
         }
+        setBaseIndexBuffer(buf);
     }
 
     @Override
     protected void doUpdateGeometryNormals() {
-        try (Attribute<Vector3f> texCoord = mapAttribute(Type.Normal)) {
-            int i = 0;
-            for (Vector3f n : texCoord.write(new Vector3f())) {
-                n.set(GEOMETRY_NORMALS_DATA[i++], GEOMETRY_NORMALS_DATA[i++], GEOMETRY_NORMALS_DATA[i++]);
-            }
+        // todo: fix: does not replace existing normal buffer (ditto for other buffers)
+        VertexBuffer buf = new VertexBuffer(InputRate.Vertex, new SingleAttrStruct<>("Normal", new Vector3f()),
+                JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Static));
+        try (BufferMapping m = buf.getBuffer().map()) {
+            m.getFloats().put(GEOMETRY_NORMALS_DATA);
+            m.stage();
         }
+        addVertexBuffer(buf);
     }
 
     @Override
     protected void doUpdateGeometryTextures() {
-        try (Attribute<Vector2f> texCoord = mapAttribute(Type.TexCoord)) {
-            int i = 0;
-            for (Vector2f tc : texCoord.write(new Vector2f())) {
-                tc.set(GEOMETRY_TEXTURE_DATA[i++], GEOMETRY_TEXTURE_DATA[i++]);
-            }
+        VertexBuffer buf = new VertexBuffer(InputRate.Vertex, new SingleAttrStruct<>("TexCoord", new Vector2f()),
+                JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Static));
+        try (BufferMapping m = buf.getBuffer().map()) {
+            m.getFloats().put(GEOMETRY_TEXTURE_DATA);
+            m.stage();
         }
+        addVertexBuffer(buf);
     }
 
     @Override
     protected void doUpdateGeometryVertices() {
-        try (Attribute<Vector3f> pos = mapAttribute(Type.Position)) {
+        VertexBuffer buf = new VertexBuffer(InputRate.Vertex, new SingleAttrStruct<>("Position", new Vector3f()),
+                JmePlatform.allocateStandardBuffer(1, BufferUsage.Vertex, UpdateHint.Static));
+        try (BufferMapping m = buf.getBuffer().map()) {
             Vector3f[] v = computeVertices();
-            pos.set(0, new Vector3f[] {
-                v[0], v[1], v[2], v[3], // back
-                v[1], v[4], v[6], v[2], // right
-                v[4], v[5], v[7], v[6], // front
-                v[5], v[0], v[3], v[7], // left
-                v[2], v[6], v[7], v[3], // top
-                v[0], v[5], v[4], v[1]  // bottom
-            });
+            m.getFloats().put(rearrangeToFloats(v, 0, 1, 2, 3, 1, 4, 6, 2, 4, 5, 7, 6, 5, 0, 3, 7, 2, 6, 7, 3, 0, 5, 4, 1));
+            m.stage();
         }
+        addVertexBuffer(buf);
+    }
+
+    private float[] rearrangeToFloats(Vector3f[] vecs, int... indices) {
+        float[] floats = new float[indices.length * 3];
+        int j = 0;
+        for (int i : indices) {
+            floats[j++] = vecs[i].x;
+            floats[j++] = vecs[i].y;
+            floats[j++] = vecs[i].z;
+        }
+        return floats;
     }
 
 }

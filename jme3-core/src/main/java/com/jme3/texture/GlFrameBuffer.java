@@ -391,9 +391,9 @@ public class GlFrameBuffer extends GlNative implements FrameBuffer<GlFrameBuffer
     }
 
     @Override
-    public void setDepthTarget(RenderBuffer image) {
-        image.verifyTextureProperties(width, height, samples, true);
-        this.depthBuf = image;
+    public void setDepthTarget(RenderBuffer target) {
+        target.verifyTextureProperties(width, height, samples, true);
+        this.depthBuf = target;
         this.depthBuf.slot =  this.depthBuf.getFormat().isDepthStencilFormat() ? SLOT_DEPTH_STENCIL : SLOT_DEPTH;
     }
 
@@ -541,7 +541,7 @@ public class GlFrameBuffer extends GlNative implements FrameBuffer<GlFrameBuffer
      * @return The height in pixels of this framebuffer.
      */
     @Override
-    public int getHeight() {
+    public int getAreaHeight() {
         return height;
     }
 
@@ -554,7 +554,7 @@ public class GlFrameBuffer extends GlNative implements FrameBuffer<GlFrameBuffer
      * @return The width in pixels of this framebuffer.
      */
     @Override
-    public int getWidth() {
+    public int getAreaWidth() {
         return width;
     }
 

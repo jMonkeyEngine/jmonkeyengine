@@ -37,6 +37,7 @@ import com.jme3.util.TempVars;
 import org.lwjgl.system.MemoryUtil;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.logging.Logger;
 
@@ -1483,6 +1484,36 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
         return this;
     }
 
+    public Matrix3f writeToStdBuffer(ByteBuffer buffer) {
+        buffer.putFloat(m00).putFloat(m10).putFloat(m20);
+        buffer.position(buffer.position() + Float.BYTES);
+        buffer.putFloat(m01).putFloat(m11).putFloat(m21);
+        buffer.position(buffer.position() + Float.BYTES);
+        buffer.putFloat(m02).putFloat(m12).putFloat(m22);
+        return this;
+    }
+
+    @Deprecated
+    public Matrix3f writeToPackedMemory(long address) {
+        MemoryUtil.memPutFloat(address, m00);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m10);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m20);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m01);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m11);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m21);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m02);
+        MemoryUtil.memPutFloat(address += Float.BYTES, m12);
+        MemoryUtil.memPutFloat(address + Float.BYTES, m22);
+        return this;
+    }
+
+    public Matrix3f writeToPackedBuffer(ByteBuffer buffer) {
+        buffer.putFloat(m00).putFloat(m10).putFloat(m20);
+        buffer.putFloat(m01).putFloat(m11).putFloat(m21);
+        buffer.putFloat(m02).putFloat(m12).putFloat(m22);
+        return this;
+    }
+
     /**
      * Reads to this matrix directly to the memory at the address.
      *
@@ -1501,6 +1532,48 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
         m02 = MemoryUtil.memGetFloat(address += Float.BYTES << 1);
         m12 = MemoryUtil.memGetFloat(address += Float.BYTES);
         m22 = MemoryUtil.memGetFloat(address + Float.BYTES);
+        return this;
+    }
+
+    public Matrix3f readFromStdBuffer(ByteBuffer buffer) {
+        m00 = buffer.getFloat();
+        m10 = buffer.getFloat();
+        m20 = buffer.getFloat();
+        buffer.position(buffer.position() + Float.BYTES);
+        m01 = buffer.getFloat();
+        m11 = buffer.getFloat();
+        m21 = buffer.getFloat();
+        buffer.position(buffer.position() + Float.BYTES);
+        m02 = buffer.getFloat();
+        m12 = buffer.getFloat();
+        m22 = buffer.getFloat();
+        return this;
+    }
+
+    @Deprecated
+    public Matrix3f readFromPackedMemory(long address) {
+        m00 = MemoryUtil.memGetFloat(address);
+        m10 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m20 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m01 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m11 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m21 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m02 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m12 = MemoryUtil.memGetFloat(address += Float.BYTES);
+        m22 = MemoryUtil.memGetFloat(address + Float.BYTES);
+        return this;
+    }
+
+    public Matrix3f readFromPackedBuffer(ByteBuffer buffer) {
+        m00 = buffer.getFloat();
+        m10 = buffer.getFloat();
+        m20 = buffer.getFloat();
+        m01 = buffer.getFloat();
+        m11 = buffer.getFloat();
+        m21 = buffer.getFloat();
+        m02 = buffer.getFloat();
+        m12 = buffer.getFloat();
+        m22 = buffer.getFloat();
         return this;
     }
 

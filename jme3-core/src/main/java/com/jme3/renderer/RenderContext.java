@@ -37,14 +37,14 @@ import com.jme3.scene.GlMesh;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlVertexBuffer;
 import com.jme3.shader.ShaderProgram;
-import com.jme3.texture.GlFrameBuffer;
+import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.GlImage;
 import java.lang.ref.WeakReference;
 import com.jme3.shader.bufferobject.BufferObject;
 import com.jme3.texture.GlTexture;
 import com.jme3.util.IntMap;
-import com.jme3.vulkan.buffers.GlNativeBuffer;
-import com.jme3.vulkan.mesh.VertexBuffer;
+import com.jme3.vulkan.buffers.GlBuffer;
+import com.jme3.vulkan.mesh.InputRate;
 
 /**
  * Represents the current state of the graphics library. This class is used
@@ -212,21 +212,21 @@ public class RenderContext {
     /**
      * ID of the bound FrameBuffer.
      *
-     * @see Renderer#setFrameBuffer(GlFrameBuffer)
+     * @see Renderer#setFrameBuffer(FrameBuffer)
      */
     public int boundFBO;
 
     /**
      * Currently bound FrameBuffer.
      *
-     * @see Renderer#setFrameBuffer(GlFrameBuffer)
+     * @see Renderer#setFrameBuffer(FrameBuffer)
      */
-    public GlFrameBuffer boundFB;
+    public FrameBuffer boundFB;
 
     /**
      * Currently bound Renderbuffer.
      *
-     * @see Renderer#setFrameBuffer(GlFrameBuffer)
+     * @see Renderer#setFrameBuffer(FrameBuffer)
      */
     public int boundRB;
 
@@ -319,7 +319,13 @@ public class RenderContext {
      * Vertex attribs currently bound and enabled. If a slot is null, then
      * it is disabled.
      */
-    public final WeakReference<VertexBuffer>[] boundAttribs = new WeakReference[16];
+    public final WeakReference<GlBuffer>[] boundAttribs = new WeakReference[16];
+
+    /**
+     * Stores the input rate of each bound attribute, or null if no attribute
+     * is bound there. This array mirrors {@link #boundAttribs}.
+     */
+    public final InputRate[] boundAttribRate = new InputRate[16];
 
     /**
      * IDList for vertex attributes.

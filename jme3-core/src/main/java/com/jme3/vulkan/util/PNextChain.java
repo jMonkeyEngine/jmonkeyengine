@@ -6,22 +6,23 @@ import org.lwjgl.system.Struct;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.LongFunction;
 
 public class PNextChain {
 
-    private final Queue<Function<Long, ? extends Struct>> contructors = new LinkedList<>();
+    private final Queue<LongFunction<? extends Struct>> contructors = new LinkedList<>();
     private final Map<Class, Struct> chain = new HashMap<>();
     private Struct head;
 
     public PNextChain copyStructure() {
         PNextChain copy = new PNextChain();
-        for (Function<Long, ? extends Struct> c : contructors) {
+        for (LongFunction<? extends Struct> c : contructors) {
             copy.add(c);
         }
         return copy;
     }
 
-    public <T extends Struct> T add(Function<Long, T> constructor) {
+    public <T extends Struct> T add(LongFunction<T> constructor) {
         contructors.add(constructor);
         T s;
         head = s = constructor.apply(head != null ? head.address() : MemoryUtil.NULL);
@@ -88,7 +89,7 @@ public class PNextChain {
         }
 
         @Override
-        public <T extends Struct> T add(Function<Long, T> constructor) {
+        public <T extends Struct> T add(LongFunction<T> constructor) {
             throw new UnsupportedOperationException("Cannot add to read-only pnext chain.");
         }
 

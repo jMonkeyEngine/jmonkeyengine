@@ -18,7 +18,7 @@ public class PersistentBuffer <T extends MappableBuffer> implements MappableBuff
                 mapping = buffer.map(offset, size);
             }
         }
-        return new VirtualBufferMapping(mapping.getAddress() + offset, size);
+        return new DirectBufferMapping(mapping.getAddress() + offset, size);
     }
 
     @Override
@@ -27,11 +27,11 @@ public class PersistentBuffer <T extends MappableBuffer> implements MappableBuff
     }
 
     @Override
-    public ResizeResult resize(MemorySize size) {
+    public void resize(long bytes) {
         if (mapping != null) {
             forceUnmap();
         }
-        return buffer.resize(size);
+        return buffer.resize(bytes);
     }
 
     @Override

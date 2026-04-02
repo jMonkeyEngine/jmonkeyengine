@@ -16,21 +16,15 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.TransparentComparator;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.GlVertexBuffer;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.ImageView;
-import com.jme3.texture.Texture;
 import com.jme3.util.TempVars;
 import com.jme3.util.struct.*;
 import com.jme3.vulkan.ColorSpace;
 import com.jme3.vulkan.FormatFeature;
 import com.jme3.vulkan.VulkanInstance;
 import com.jme3.vulkan.VulkanLogger;
-import com.jme3.vulkan.buffers.*;
-import com.jme3.vulkan.buffers.newbuf.HostVisibleBuffer;
 import com.jme3.vulkan.buffers.stream.BufferStream;
-import com.jme3.vulkan.buffers.stream.StreamingBuffer;
 import com.jme3.vulkan.commands.*;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorPool;
@@ -41,28 +35,16 @@ import com.jme3.vulkan.devices.DeviceFilter;
 import com.jme3.vulkan.devices.GeneralPhysicalDevice;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.formats.Format;
-import com.jme3.vulkan.formats.VulkanEnums;
 import com.jme3.vulkan.images.*;
 import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.material.NewMaterialDef;
 import com.jme3.vulkan.material.VulkanMaterial;
 import com.jme3.vulkan.material.shader.ShaderModule;
-import com.jme3.vulkan.material.uniforms.TextureUniform;
-import com.jme3.vulkan.material.uniforms.Uniform;
-import com.jme3.vulkan.material.uniforms.StructUniform;
 import com.jme3.vulkan.memory.MemoryProp;
-import com.jme3.vulkan.memory.MemorySize;
-import com.jme3.vulkan.mesh.*;
-import com.jme3.vulkan.mesh.attribute.*;
-import com.jme3.vulkan.pass.Attachment;
-import com.jme3.vulkan.pass.RenderPass;
-import com.jme3.vulkan.pass.Subpass;
 import com.jme3.vulkan.pipeline.*;
 import com.jme3.vulkan.pipeline.cache.Cache;
-import com.jme3.vulkan.pipeline.framebuffer.FrameBuffer;
-import com.jme3.vulkan.pipeline.framebuffer.OutputFrameBuffer;
+import com.jme3.vulkan.pipeline.framebuffer.*;
 import com.jme3.vulkan.pipeline.graphics.GraphicsPipeline;
-import com.jme3.vulkan.render.*;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
 import com.jme3.vulkan.render.bucket.VulkanBucketElement;
 import com.jme3.vulkan.surface.Surface;
@@ -71,14 +53,12 @@ import com.jme3.vulkan.sync.BinarySemaphore;
 import com.jme3.vulkan.sync.Fence;
 import com.jme3.vulkan.sync.Semaphore;
 import com.jme3.vulkan.sync.TimelineSemaphore;
-import com.jme3.vulkan.util.Flag;
-import org.lwjgl.vulkan.EXTRobustness2;
-import org.lwjgl.vulkan.VkPhysicalDeviceRobustness2FeaturesEXT;
+import org.lwjgl.vulkan.*;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-public class SimpleVulkanEngine implements RenderEngine {
+public class SimpleVulkanEngine implements Engine {
 
     public static class LightData extends Struct {
 
@@ -160,17 +140,13 @@ public class SimpleVulkanEngine implements RenderEngine {
     private long frameCount = -1;
 
     private VulkanInstance instance;
-    private VulkanLogger logger;
     private Surface surface;
     private LogicalDevice<GeneralPhysicalDevice> device;
     private Swapchain swapchain;
     private DescriptorPool descriptorPool;
     private CommandPool graphicsPool, transientGraphicsPool;
-    private RenderPass renderPass;
     private BufferStream stream;
-    private MeshLayout meshLayout;
     private OutputFrameBuffer outFrameBuffer;
-    private final BufferGenerator<VulkanBuffer> bufferGen = new BufferGeneratorImpl();
 
     private final Cache<Pipeline> pipelineCache = new Cache<>();
     private final Cache<PipelineLayout> pipelineLayoutCache = new Cache<>();
@@ -201,17 +177,15 @@ public class SimpleVulkanEngine implements RenderEngine {
 
     private void initialize() {
 
-        // assign vulkan enums to engine enums
-        VulkanEnums.setup();
-
         app.getAssetManager().registerLoader(VulkanMaterialLoader.class, "j4md");
 
         instance = VulkanInstance.build(VulkanInstance.Version.v11, i -> {
             i.addGlfwExtensions();
             i.addDebugExtension();
+            i.addDynamicRenderingExtension();
             i.addLunarGLayer();
         });
-        logger = new VulkanLogger(instance, VulkanLogger.Severity.All, VulkanLogger.Type.All);
+        instance.createLogger(VulkanLogger.Severity.All, VulkanLogger.Type.All);
 
         surface = new Surface(instance, app);
 
@@ -221,8 +195,10 @@ public class SimpleVulkanEngine implements RenderEngine {
             d.addCriticalExtension(Swapchain.EXTENSION_NAME);
             d.addOptionalExtension(EXTRobustness2.VK_EXT_ROBUSTNESS_2_EXTENSION_NAME, 1f);
             d.addFeatureContainer(p -> VkPhysicalDeviceRobustness2FeaturesEXT.calloc().pNext(p));
-            d.addFeature(DeviceFeature.anisotropy(1f, true));
-            d.addFeature(DeviceFeature.nullDescriptor(1f, false));
+            d.addFeatureContainer(p -> VkPhysicalDeviceDynamicRenderingFeatures.calloc().pNext(p));
+            d.addFeature(DeviceFeature.anisotropy(1f));
+            d.addFeature(DeviceFeature.nullDescriptor(1f));
+            d.addFeature(DeviceFeature.dynamicRendering(null));
         });
 
         descriptorPool = new DescriptorPool(device, 1000,
@@ -250,50 +226,14 @@ public class SimpleVulkanEngine implements RenderEngine {
         });
         swapchain.setUpdater(new SwapchainUpdater());
 
-        renderPass = RenderPass.build(device, r -> {
-            Attachment sceneColor = r.createAttachment(Format.RGBA8_SRGB, 1, a -> {
-                a.setLoad(VulkanImage.Load.Clear);
-                a.setStore(VulkanImage.Store.DontCare);
-                a.setInitialLayout(VulkanImage.Layout.Undefined);
-                a.setFinalLayout(VulkanImage.Layout.ColorAttachmentOptimal);
-            });
-            Attachment depth = r.createAttachment(renderDepth.getImage().getFormat(), 1, a -> {
-                a.setLoad(VulkanImage.Load.Clear);
-                a.setStore(VulkanImage.Store.DontCare);
-                a.setInitialLayout(VulkanImage.Layout.Undefined);
-                a.setFinalLayout(VulkanImage.Layout.DepthStencilAttachmentOptimal);
-            });
-            Subpass scene = r.createSubpass(PipelineBindPoint.Graphics, s -> {
-                s.addColorAttachment(sceneColor.createReference(VulkanImage.Layout.ColorAttachmentOptimal));
-                s.setDepthStencilAttachment(depth.createReference(VulkanImage.Layout.DepthStencilAttachmentOptimal));
-            });
-            r.createDependency(null, scene, d -> {
-                d.setSrcStageMask(Flag.of(PipelineStage.ColorAttachmentOutput, PipelineStage.EarlyFragmentTests));
-                d.setSrcAccessMask(Flag.of(scene.getPosition()));
-                d.setDstStageMask(Flag.of(PipelineStage.ColorAttachmentOutput, PipelineStage.EarlyFragmentTests));
-                d.setDstAccessMask(Flag.of(Access.ColorAttachmentWrite, Access.DepthStencilAttachmentWrite));
-            });
-        });
-
-        meshLayout = MeshLayout.build(m -> {
-            m.addBinding(VertexBinding.build(this, InputRate.Vertex, v -> {
-                v.add(GlVertexBuffer.Type.Position, Format.RGB32_SFloat, i -> new Position(ValueMapper.Float32, i));
-                v.add(GlVertexBuffer.Type.TexCoord, Format.RG32_SFloat, i -> new TexCoord(ValueMapper.Float32, i));
-            }));
-            m.addBinding(VertexBinding.build(this, InputRate.Vertex, v -> {
-                v.add(GlVertexBuffer.Type.Normal, Format.RGB32_SFloat, i -> new Normal(ValueMapper.Float32, i));
-                v.add(GlVertexBuffer.Type.Tangent, Format.RGBA32_SFloat, i -> new Tangent(ValueMapper.Float32, i));
-            }));
-        });
-
-        outFrameBuffer = new OutputFrameBuffer(swapchain, renderPass);
+        outFrameBuffer = new OutputFrameBuffer(swapchain, null);
         stream = new BufferStream(device, 500);
         for (int i = 0; i < framesInFlight.length; i++) {
             framesInFlight[i] = new Frame();
         }
 
         initEvent.awaitSignal(3000L);
-        outFrameBuffer.setDepthTarget(renderDepth);
+        outFrameBuffer.setDepthTarget(VulkanRenderTarget.createDepthTarget(renderDepth));
 
     }
 
@@ -323,33 +263,6 @@ public class SimpleVulkanEngine implements RenderEngine {
     }
 
     @Override
-    public Mesh createMesh(int vertices, int instances) {
-        return new AdaptiveMesh(meshLayout, vertices, instances);
-    }
-
-    @Override
-    public <T extends Struct> Uniform<T> createUniformBuffer(StructLayout layout, T struct) {
-        return new StructUniform<>(Descriptor.StorageBuffer, layout, struct,
-                size -> new StreamingBuffer(size, b -> b.setUsage(BufferUsage.Uniform)));
-    }
-
-    @Override
-    public <T extends Struct> Uniform<T> createShaderStorageUniform(StructLayout layout, T struct) {
-        return new StructUniform<>(Descriptor.StorageBuffer, layout, struct,
-                size -> new StreamingBuffer(size, b -> b.setUsage(BufferUsage.Storage)));
-    }
-
-    @Override
-    public Uniform<Texture> createTextureUniform() {
-        return new TextureUniform(VulkanImage.Layout.ShaderReadOnlyOptimal);
-    }
-
-    @Override
-    public VulkanBuffer createBuffer(MemorySize size, Flag<BufferUsage> bufUsage, GlVertexBuffer.Usage dataUsage) {
-        return bufferGen.createBuffer(size, bufUsage, dataUsage);
-    }
-
-    @Override
     public void render(Collection<ViewPort> viewPorts) {
         frameCount++;
         getCurrentFrame().render(viewPorts);
@@ -359,11 +272,7 @@ public class SimpleVulkanEngine implements RenderEngine {
         return framesInFlight[(int)(frameCount % framesInFlight.length)];
     }
 
-    public void setMeshLayout(MeshLayout meshLayout) {
-        this.meshLayout = meshLayout;
-    }
-
-    public FrameBuffer<?> getOutputFrameBuffer() {
+    public com.jme3.vulkan.pipeline.framebuffer.FrameBuffer<?> getOutputFrameBuffer() {
         return outFrameBuffer;
     }
 
@@ -377,21 +286,21 @@ public class SimpleVulkanEngine implements RenderEngine {
 
         public boolean render(Collection<ViewPort> viewPorts) {
             inFlight.block(5000L);
-            if (!outFrameBuffer.acquireNextImage(imageAcquired, null, 5000L)) {
+            if (!outFrameBuffer.acquireNextTarget(imageAcquired, null, 5000L)) {
                 return false;
             }
             graphics.reset();
             graphics.beginRecording();
-            renderPass.begin(graphics, outFrameBuffer);
             for (ViewPort vp : viewPorts) {
                 render(vp);
             }
-            renderPass.end(graphics);
+            Swapchain.PresentImage present = outFrameBuffer.getCurrentImage();
+            present.transitionLayout(graphics, VulkanImage.Layout.PresentSrc);
             graphics.await(imageAcquired, PipelineStage.ColorAttachmentOutput);
             graphics.signal(renderComplete);
             graphics.endRecording();
             graphics.submit(inFlight);
-            swapchain.present(device.getPhysicalDevice().getPresent(), outFrameBuffer.getCurrentImage(), renderComplete);
+            swapchain.present(device.getPhysicalDevice().getPresent(), present, renderComplete);
             return true;
         }
 
@@ -399,12 +308,20 @@ public class SimpleVulkanEngine implements RenderEngine {
             if (!vp.isEnabled() || vp.getScenes().isEmpty()) {
                 return;
             }
-            lighting.lights.get().clear();
+            VulkanFrameBuffer fbo = (VulkanFrameBuffer)vp.getOutputFrameBuffer();
+            fbo.beginDynamicRender(graphics,
+                    VulkanImage.Load.DontCare, VulkanImage.Store.Store,
+                    VulkanImage.Load.DontCare, VulkanImage.Store.DontCare);
+            transforms.viewProjectionMatrix.alias().set(vp.getCamera().getViewProjectionMatrix());
+            transforms.viewProjectionMatrix.set();
+            lighting.lights.alias().clear();
             for (Spatial scene : vp.getScenes()) for (Spatial child : scene) {
                 for (Light l : child.getLocalLightList()) {
-                    lighting.lights.get().add(new LightData(l));
+                    lighting.lights.alias().add(new LightData(l));
                 }
             }
+            lighting.computeOffsets();
+            lighting.lights.set();
             settings.pushViewPort(vp.getArea());
             settings.pushScissor(vp.getArea().toScissor(null));
             TempVars vars = TempVars.get();
@@ -413,7 +330,7 @@ public class SimpleVulkanEngine implements RenderEngine {
             for (GeometryBucket b : vp.gatherGeometry(s -> s.runControlRender(SimpleVulkanEngine.this, vp))) {
                 b.setupRender(vp, settings);
                 settings.applySettings();
-                for (VulkanBucketElement e : b.sort(g -> new EngineBucketElement(vp.getCamera(), g, null))) {
+                for (VulkanBucketElement e : b.sort(g -> new EngineBucketElement(vp.getCamera(), g, null, vp.getOutputFrameBuffer()))) {
                     if (e.getPipeline() != currentPipeline) {
                         (currentPipeline = e.getPipeline()).bind(graphics);
                         currentMaterial = null;
@@ -421,15 +338,19 @@ public class SimpleVulkanEngine implements RenderEngine {
                     if (e.getMaterial() != currentMaterial) {
                         (currentMaterial = e.getMaterial()).bind(graphics, currentPipeline, descriptorPool);
                     }
-                    lighting.indices.get().clear();
+                    lighting.indices.alias().clear();
                     int lightIndex = 0;
                     for (LightData l : lighting.lights.get()) {
                         if (l.getLight().intersectsVolume(e.getGeometry().getWorldBound(), vars)) {
-                            lighting.indices.get().add(lightIndex);
+                            lighting.indices.alias().add(lightIndex);
                         }
                         lightIndex++;
                     }
-                    transforms.viewProjectionMatrix.get().mult(e.getGeometry().getWorldMatrix(), transforms.worldViewProjectionMatrix.get());
+                    lighting.computeOffsets();
+                    lighting.indices.set();
+                    transforms.viewProjectionMatrix.alias().mult(e.getGeometry().getWorldMatrix(),
+                            transforms.worldViewProjectionMatrix.alias());
+                    transforms.worldViewProjectionMatrix.set();
                     e.getMaterial().set("Lighting", lighting);
                     e.getMaterial().set("Transforms", transforms);
                     graphics.uploadBuffers(stream);
@@ -438,6 +359,9 @@ public class SimpleVulkanEngine implements RenderEngine {
                 b.cleanupRender(vp, settings);
             }
             vars.release();
+            settings.popViewPort();
+            settings.popScissor();
+            fbo.endDynamicRender(graphics);
         }
 
     }
@@ -457,43 +381,28 @@ public class SimpleVulkanEngine implements RenderEngine {
             cmd.endRecording();
             cmd.submit();
             event.awaitSignal(1000L);
-            outFrameBuffer.setDepthTarget(depth);
-        }
-
-    }
-
-    private static class BufferGeneratorImpl implements BufferGenerator<VulkanBuffer> {
-
-        @Override
-        public VulkanBuffer createBuffer(MemorySize size, Flag<BufferUsage> bufUsage, GlVertexBuffer.Usage dataUsage) {
-            switch (dataUsage) {
-                case Static: case Dynamic: {
-                    return new StreamingBuffer(size, true, b -> b.setUsage(bufUsage));
-                }
-                case Stream: {
-                    return new PersistentVulkanBuffer<>(HostVisibleBuffer.build(size, b -> b.setUsage(BufferUsage.Vertex)));
-                }
-                case CpuOnly: throw new IllegalArgumentException("Cannot create cpu-only buffer for Vulkan.");
-                default: throw new UnsupportedOperationException("Unrecognized: " + dataUsage);
-            }
+            outFrameBuffer.setDepthTarget(VulkanRenderTarget.createDepthTarget(depth));
         }
 
     }
 
     private class EngineBucketElement extends VulkanBucketElement {
 
-        public EngineBucketElement(Camera camera, Geometry geometry, String technique) {
+        private final FrameBuffer frameBuffer;
+
+        public EngineBucketElement(Camera camera, Geometry geometry, String technique, FrameBuffer frameBuffer) {
             super(camera, geometry, technique);
+            this.frameBuffer = frameBuffer;
         }
 
         @Override
         protected VertexPipeline createPipeline() {
             return GraphicsPipeline.build(device, p -> {
+                p.setFrameBuffer(frameBuffer);
                 p.setCache(pipelineCache);
                 p.setLayoutCache(pipelineLayoutCache);
                 p.setShaderCache(shaderCache);
                 p.setSetLayoutCache(descSetLayoutCache);
-                p.setSubpass(renderPass.getSubpass(0));
                 p.setDynamic(DynamicState.ViewPort, true);
                 p.setDynamic(DynamicState.Scissor, true);
                 p.setDepthClamp(true);

@@ -71,7 +71,7 @@ public class Texture2D extends GlTexture {
      * Creates a new two-dimensional texture for the purpose of offscreen
      * rendering.
      *
-     * @see GlFrameBuffer
+     * @see FrameBuffer
      *
      * @param width the desired width (in pixels)
      * @param height the desired height (in pixels)
@@ -85,7 +85,7 @@ public class Texture2D extends GlTexture {
      * Creates a new two-dimensional texture for the purpose of offscreen
      * rendering.
      *
-     * @see GlFrameBuffer
+     * @see FrameBuffer
      *
      * @param width the desired width (in pixels)
      * @param height the desired height (in pixels)

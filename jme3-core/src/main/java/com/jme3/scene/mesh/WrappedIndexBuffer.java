@@ -33,7 +33,7 @@ package com.jme3.scene.mesh;
 
 import com.jme3.scene.Mesh;
 import com.jme3.scene.GlMesh.Mode;
-import com.jme3.scene.GlVertexBuffer.Type;
+
 import java.nio.Buffer;
 
 /**
@@ -52,7 +52,7 @@ public class WrappedIndexBuffer extends VirtualIndexBuffer {
 
     public WrappedIndexBuffer(Mesh mesh){
         super(mesh.getVertexCount(), mesh.getMode());
-        this.ib = mesh.getIndexBuffer();
+        this.ib = mesh.getBaseIndexBuffer();
         switch (meshMode){
             case Points:
                 numIndices = mesh.getTriangleCount();

@@ -3,8 +3,6 @@ package com.jme3.vulkan.pipeline.cache;
 import com.jme3.asset.AssetManager;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.pipeline.Pipeline;
-import com.jme3.vulkan.pipeline.states.BasePipelineState;
-import com.jme3.vulkan.pipeline.states.IShaderState;
 import com.jme3.vulkan.material.shader.ShaderModule;
 
 import java.util.*;

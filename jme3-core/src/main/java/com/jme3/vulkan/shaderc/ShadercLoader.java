@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -61,6 +63,9 @@ public class ShadercLoader implements AssetLoader {
             StringBuilder code = new StringBuilder();
             for (String line; (line = reader.readLine()) != null; ) {
                 code.append(line).append('\n');
+            }
+            for (Matcher m = buffer.matcher(code); m.find();) {
+
             }
             return compile(key, code.toString());
         }

@@ -1813,15 +1813,16 @@ public class RenderState implements Cloneable, Savable {
         return cullMode == FaceCullMode.Front || cullMode == FaceCullMode.Back;
     }
 
-    public RenderState integrateGeometryStates(Geometry geometry, RenderState forcedState, RenderState additionalState, RenderState techState) {
+    public RenderState integrateGeometryStates(Geometry geometry, RenderState forcedState) {
         if (forcedState != null) {
             copyFrom(forcedState);
-        } else if (techState != null) {
+        } else if (geometry.getMaterial().getActiveTechnique().getRenderState() != null) {
             copyFrom(DEFAULT);
-            techState.copyMergedTo(additionalState, this);
+            geometry.getMaterial().getActiveTechnique().getRenderState().copyMergedTo(
+                    geometry.getMaterial().getAdditionalRenderState(), this);
         } else {
             copyFrom(DEFAULT);
-            RenderState.DEFAULT.copyMergedTo(additionalState, this);
+            RenderState.DEFAULT.copyMergedTo(geometry.getMaterial().getAdditionalRenderState(), this);
         }
         if (isFaceCullFlippable() && isNormalsBackward(geometry.getWorldScale())) {
             flipFaceCull();
