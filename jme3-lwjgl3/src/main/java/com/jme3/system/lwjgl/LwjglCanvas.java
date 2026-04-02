@@ -497,35 +497,36 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     public void run() {
         if (listener == null) {
             throw new IllegalStateException(
-                "SystemListener is not set on context! Must set with JmeContext.setSystemListener()."
+                    "SystemListener is not set on context! Must set with JmeContext.setSystemListener()."
             );
         }
 
-        LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());        
+        LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
 
         while (true) {
             if (needResize.getAndSet(false)) {
                 settings.setResolution(framebufferWidth, framebufferHeight);
                 listener.reshape(framebufferWidth, framebufferHeight);
             }
-            
+
             synchronized (lock) {
                 if (reinitcontext.getAndSet(false)) {
                     LOGGER.log(Level.FINE, "LWJGX: Destroying display ..");
 
-                    listener.loseFocus();
-                    if (renderer != null) {
-                        renderer.invalidateState();
-                        renderer.cleanup();
+                    try {
+                        if (renderer != null) {
+                            renderer.invalidateState();
+                            renderer.cleanup();
+                        }
+
+                        canvas.releaseContext();
+                        canvas.deleteContext();
+                        canvas.doDisposeCanvas();
+                        canvas.context = NULL;
+                    } finally {
+                        renderable.set(false);
+                        lock.notifyAll();
                     }
-
-                    canvas.releaseContext();
-                    canvas.deleteContext();
-                    canvas.doDisposeCanvas();
-                    canvas.context = NULL;
-
-                    renderable.set(false);
-                    lock.notifyAll();
                 }
             }
 
