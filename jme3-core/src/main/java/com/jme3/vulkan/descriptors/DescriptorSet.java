@@ -23,7 +23,7 @@ public class DescriptorSet extends AbstractNative<Long> {
         this.object = id;
         if (pool.getFlags().contains(DescriptorPool.Create.FreeDescriptorSets)) {
             ref = DisposableManager.reference(this);
-            pool.getNativeReference().addDependent(ref);
+            pool.getReference().addDependent(ref);
         }
     }
 

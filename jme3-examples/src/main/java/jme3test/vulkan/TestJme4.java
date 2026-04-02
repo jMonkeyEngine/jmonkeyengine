@@ -5,6 +5,8 @@ import com.jme3.backend.Engine;
 import com.jme3.backend.SimpleVulkanEngine;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -17,6 +19,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.commands.StandardRenderSettings;
 import com.jme3.vulkan.material.structs.UnshadedParams;
+import com.jme3.vulkan.mesh.attributes.AttributeMapping;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
 import com.sun.tools.javac.util.List;
 import org.graalvm.compiler.lir.amd64.AMD64BinaryConsumer;
@@ -37,11 +40,8 @@ public class TestJme4 extends SimpleApplication {
 
         Geometry g = new Geometry("geom_jme4", new Box(1f, 1f, 1f));
         Material mat = engine.createMaterial("Common/MatDefs/Misc/Unshaded.j3md");
-        try (StructMapping<UnshadedParams> m = mat.mapStruct("Parameters")) {
-            UnshadedParams p = m.get();
-            p.color.set(ColorRGBA.Blue);
-            p.glowColor.set(ColorRGBA.Blue.mult(0.2f));
-            p.vertexColor.set(true);
+        try (MyParams p = mat.mapParameters()) {
+            p.getColor().set(ColorRGBA.Blue);
         }
         g.setMaterial(mat);
         rootNode.attachChild(g);

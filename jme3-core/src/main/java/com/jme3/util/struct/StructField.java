@@ -41,17 +41,6 @@ public interface StructField <T> {
     T alias();
 
     /**
-     * Enables or disables this field. When enabled, the field will be mapped to an offset
-     * relative to its struct and read/write from that location. When disabled, no data
-     * will be read or written on {@link #get()} or {@link #set()}.
-     *
-     * <p>If changed, the struct should be {@link Struct#computeOffsets() recomputed}.</p>
-     *
-     * @param enable true to enable this field
-     */
-    void enable(boolean enable);
-
-    /**
      * Sets the name of this field. When created inside a {@link Struct}, the name will be
      * assigned reflectively if no name is assigned manually.
      *
@@ -89,13 +78,6 @@ public interface StructField <T> {
      * @return alignment in bytes
      */
     int getAlignment();
-
-    /**
-     * Returns true if this field is {@link #enable(boolean) enabled}.
-     *
-     * @return true if enabled
-     */
-    boolean isEnabled();
 
     /**
      * Serializes {@link #alias()} to the proper memory address through

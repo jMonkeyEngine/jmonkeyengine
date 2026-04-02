@@ -26,4 +26,8 @@ public class StructUniform <T extends MappableBuffer, S extends Struct> extends 
         return get().mapAllStructs(struct);
     }
 
+    public S getStruct() {
+        return struct;
+    }
+
 }

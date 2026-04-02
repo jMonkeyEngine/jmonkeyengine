@@ -1,14 +1,23 @@
 package com.jme3.vulkan.material;
 
 import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
+import com.jme3.util.struct.Struct;
+import com.jme3.util.struct.StructField;
+import com.jme3.util.struct.StructMapping;
+import com.jme3.util.struct.StructSequence;
 import com.jme3.vulkan.buffers.BufferMapping;
 import com.jme3.vulkan.buffers.DirectBufferMapping;
+import com.jme3.vulkan.buffers.MappableBuffer;
 import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.material.shader.ShaderStage;
+import com.jme3.vulkan.material.structs.UnshadedParams;
 import com.jme3.vulkan.material.technique.NewTechnique;
 import com.jme3.vulkan.material.technique.PushConstantRange;
 import com.jme3.vulkan.material.technique.VulkanTechnique;
+import com.jme3.vulkan.material.test.ShaderParameters;
+import com.jme3.vulkan.material.uniforms.StructUniform;
 import com.jme3.vulkan.material.uniforms.Uniform;
 import com.jme3.vulkan.material.uniforms.VulkanUniform;
 import com.jme3.vulkan.pipeline.Pipeline;
@@ -106,6 +115,109 @@ public class NewMaterial implements VulkanMaterial {
     @Override
     public RenderState getAdditionalRenderState() {
         return renderState;
+    }
+
+    private final Map<StructUniform, StructMapping> paramMappings = new IdentityHashMap<>();
+
+    public StructField<ColorRGBA> getColor() {
+        StructUniform<MappableBuffer, UnshadedParams> s = getUniform("Parameters");
+        return new FieldMapping<>(s, s.getStruct().color);
+    }
+
+    public void flushParameters() {
+        for (StructMapping m : paramMappings.values()) {
+            m.close();
+        }
+        paramMappings.clear();
+    }
+
+    private void mapUniformBuffer() {}
+
+    public MyParams mapParameters() {
+        return new MyParams();
+    }
+
+    public class MyParams implements ShaderParameters {
+
+        private final Map<MappableBuffer, StructMapping> paramMappings = new IdentityHashMap<>();
+
+        @Override
+        public void close() {
+            for (StructMapping m : paramMappings.values()) {
+                m.close();
+            }
+        }
+
+        public StructField<ColorRGBA> getColor() {
+            StructUniform<MappableBuffer, UnshadedParams> s = getUniform("Parameters");
+            paramMappings.computeIfAbsent(s.get(), k -> k.mapStruct(s.getStruct()));
+            return s.getStruct().color;
+        }
+
+    }
+
+    private class FieldMapping <T> implements StructField<T> {
+
+        private final StructUniform<MappableBuffer, ? extends Struct> uniform;
+        private final StructField<T> delegate;
+        private StructMapping mapping;
+
+        public FieldMapping(StructUniform<MappableBuffer, ? extends Struct> uniform, StructField<T> delegate) {
+            this.uniform = uniform;
+            this.delegate = delegate;
+        }
+
+        @Override
+        public int bind(Struct struct, int offset) {
+            return delegate.bind(struct, offset);
+        }
+
+        @Override
+        public void set(T value) {
+            if (mapping == null) {
+                mapping = paramMappings.computeIfAbsent(uniform, StructUniform::map);
+            }
+            delegate.set(value);
+        }
+
+        @Override
+        public T get() {
+            if (mapping == null) {
+                mapping = paramMappings.computeIfAbsent(uniform, StructUniform::map);
+            }
+            return delegate.get();
+        }
+
+        @Override
+        public T alias() {
+            return delegate.alias();
+        }
+
+        @Override
+        public void setName(String name) {
+            delegate.setName(name);
+        }
+
+        @Override
+        public String getName() {
+            return delegate.getName();
+        }
+
+        @Override
+        public Class getType() {
+            return delegate.getType();
+        }
+
+        @Override
+        public int getSize() {
+            return delegate.getSize();
+        }
+
+        @Override
+        public int getAlignment() {
+            return delegate.getAlignment();
+        }
+
     }
 
     protected static class CachedDescriptorSet {

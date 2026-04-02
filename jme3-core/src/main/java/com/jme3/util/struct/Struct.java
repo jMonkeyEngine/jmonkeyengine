@@ -86,7 +86,7 @@ public abstract class Struct <T extends StructField> implements Savable {
     public void computeOffsets() {
         this.size = 0;
         this.alignment = layout.getMinStructAlignment();
-        for (T f : fields) if (f.isEnabled()) {
+        for (T f : fields) {
             size = f.bind(this, size) + f.getSize();
             alignment = Math.max(alignment, f.getAlignment());
         }
@@ -161,7 +161,6 @@ public abstract class Struct <T extends StructField> implements Savable {
         private Struct struct;
         private FieldDesc<T> description;
         private int offset;
-        private boolean enabled = true;
 
         public Field(T alias) {
             this(null, alias);
@@ -182,14 +181,12 @@ public abstract class Struct <T extends StructField> implements Savable {
 
         @Override
         public void set(T value) {
-            if (!enabled) return;
             assert description != null : "Struct not bound: unable to write.";
             description.write(struct.getLayout(), struct.getMapping(), struct.getPosition() + offset, value);
         }
 
         @Override
         public T get() {
-            if (!enabled) return alias;
             assert description != null : "Struct not bound: unable to read.";
             return alias = description.read(struct.getLayout(), struct.getMapping(), struct.getPosition() + offset, alias);
         }
@@ -207,16 +204,6 @@ public abstract class Struct <T extends StructField> implements Savable {
         @Override
         public String getName() {
             return name;
-        }
-
-        @Override
-        public void enable(boolean enable) {
-            this.enabled = enable;
-        }
-
-        @Override
-        public boolean isEnabled() {
-            return enabled;
         }
 
         @Override
