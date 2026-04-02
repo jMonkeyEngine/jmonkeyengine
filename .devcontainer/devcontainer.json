@@ -3,11 +3,16 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
+
   "forwardPorts": [6080],
   "portsAttributes": {
     "6080": {
-      "label": "jME Desktop",
-      "onAutoForward": "openPreview"
+      "label": "jME Desktop (Xpra HTML5)",
+      "onAutoForward": "openBrowser"
+    },
+    "5900": {
+      "label": "VNC",
+      "onAutoForward": "ignore"
     }
   },
   "containerEnv": {
@@ -22,13 +27,15 @@
     "SDL_BACKEND": "x11",
     "GLFW_PLATFORM": "x11",
     "DISPLAY": ":99"
+
   },
   "postCreateCommand": "bash .devcontainer/scripts/setup.sh",
   "postStartCommand": "bash .devcontainer/scripts/start-desktop.sh",
   "customizations": {
     "vscode": {
       "settings": {
-        "workbench.colorTheme": "GitHub Dark Dimmed"
+        "workbench.colorTheme": "GitHub Dark Dimmed",
+        "java.jdt.ls.java.home": "/root/.sdkman/candidates/java/25-tem/"
       }
     
     }

@@ -1,7 +1,6 @@
 {
-    "java.configuration.updateBuildConfiguration": "automatic",
     "java.compile.nullAnalysis.mode": "automatic",
-    "java.format.settings.url": "./.vscode/JME_style.xml",
+    "java.format.settings.url": "${workspaceFolder}/.vscode/JME_style.xml",
     "editor.formatOnPaste": false,
     "editor.formatOnType": false,
     "editor.formatOnSave": false,

@@ -4,6 +4,10 @@
     "dockerfile": "../Dockerfile",
     "context": ".."
   },
+  "mounts": [
+    "source=${localEnv:XDG_RUNTIME_DIR}/pulse/native,target=/tmp/pulse/native,type=bind",
+    "source=${localEnv:HOME}/.config/pulse/cookie,target=/tmp/pulse/cookie,type=bind,readonly"
+  ],
   "runArgs": [
     "--gpus=all"
   ],
@@ -12,14 +16,16 @@
     "NVIDIA_VISIBLE_DEVICES": "all",
     "NVIDIA_DRIVER_CAPABILITIES": "graphics,utility,compute",
     "__GL_THREADED_OPTIMIZATIONS": "0",
-    "JME3_DIALOGS_FACTORY": ""
+    "JME3_DIALOGS_FACTORY": "",
+    "PULSE_SERVER": "unix:/tmp/pulse/native",
+    "PULSE_COOKIE": "/tmp/pulse/cookie"
   },
   "postCreateCommand": "bash .devcontainer/scripts/setup.sh",
   "customizations": {
     "vscode": {
       "settings": {
         "workbench.colorTheme": "GitHub Dark Dimmed",
-        "java.jdt.ls.java.home": "/usr/bin/java"
+        "java.jdt.ls.java.home": "/root/.sdkman/candidates/java/25-tem/"
       }
     }
   }

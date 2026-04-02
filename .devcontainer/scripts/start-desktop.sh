@@ -32,6 +32,25 @@ if ! pgrep -u "$(id -u)" -f "dbus-daemon.*--session" >/dev/null 2>&1; then
   eval "$(dbus-launch --sh-syntax)"
 fi
 
+# Start a PolicyKit agent to avoid XFCE PolicyKitAgent errors (if available)
+start_polkit_agent() {
+  if command -v polkit-gnome-authentication-agent-1 >/dev/null 2>&1; then
+    nohup polkit-gnome-authentication-agent-1 >/tmp/polkit-agent.log 2>&1 &
+    return
+  fi
+  if command -v xfce-polkit >/dev/null 2>&1; then
+    nohup xfce-polkit >/tmp/xfce-polkit.log 2>&1 &
+    return
+  fi
+  if [ -x "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1" ]; then
+    nohup /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 >/tmp/polkit-agent.log 2>&1 &
+    return
+  fi
+  echo "No PolicyKit agent found; PolicyKit dialogs may show an error."
+}
+
+start_polkit_agent
+
 
 
 if [ "$JME_DEV_ENVIRONMENT" != "yesReally" ];
@@ -58,9 +77,17 @@ fi
 # Set wallpaper
 feh --no-fehbg --bg-fill "/root/wallpaper.jpg"
 
+# Start PulseAudio for app sound forwarding (used by Xpra speaker stream).
+if command -v pulseaudio >/dev/null 2>&1; then
+  if ! pgrep -u "$(id -u)" -x pulseaudio >/dev/null 2>&1; then
+    nohup pulseaudio --start >/tmp/pulseaudio.log 2>&1 || true
+  fi
+fi
+
 # Start VNC server (no password; fine for Codespaces)
 if ! pgrep -f "x11vnc.*-rfbport 5900" >/dev/null 2>&1; then
-  nohup x11vnc -display "${DISPLAY}" -nopw -forever -shared -cursor arrow -rfbport 5900 >/tmp/x11vnc.log 2>&1 &
+   nohup x11vnc -display "${DISPLAY}" -nopw -forever -shared -cursor arrow -rfbport 5900 \
+     -nowf -noxdamage -xwarppointer -noxrecord -noxfixes >/tmp/x11vnc.log 2>&1 &
 fi
 
 # Start noVNC (websockify)
