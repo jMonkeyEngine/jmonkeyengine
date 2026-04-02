@@ -76,7 +76,9 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     @Override
     public JmeContext newContext(AppSettings settings, Type contextType) {
-        if (settings.getAudioRenderer().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
+        if (settings.getAudioRenderer() == null) {
+            audioRendererType = null;
+        } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
             audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
         } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_OPENAL_SOFT)) {
             audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
@@ -92,6 +94,9 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     @Override
     public AudioRenderer newAudioRenderer(AppSettings settings) {
+        if (settings.getAudioRenderer() == null) {
+            return null;
+        }
         ALC alc = new AndroidALC();
         AL al = new AndroidAL();
         EFX efx = new AndroidEFX();
