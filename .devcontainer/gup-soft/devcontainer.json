@@ -1,0 +1,24 @@
+{
+  "name": "jME env",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "runArgs": [
+    "--device=/dev/dri",
+    "--group-add=video",
+    "--group-add=render"
+  ],
+  "containerEnv": {
+    "LIBGL_ALWAYS_SOFTWARE": "0",
+    "JME3_DIALOGS_FACTORY": ""
+  },
+  "postCreateCommand": "bash .devcontainer/scripts/setup.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "workbench.colorTheme": "GitHub Dark Dimmed"
+      }
+    }
+  }
+}

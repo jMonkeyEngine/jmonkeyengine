@@ -66,7 +66,13 @@ public abstract class JmeSystemDelegate {
     protected Consumer<String> errorMessageHandler = (message) -> {
         JmeDialogsFactory dialogFactory = null;
         try {
-             dialogFactory = (JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
+            String dialogFactoryClass = System.getenv("JME3_DIALOGS_FACTORY");
+            if(dialogFactoryClass == null) {
+                dialogFactoryClass = System.getProperty("jme3.dialogsFactory","com.jme3.system.JmeDialogsFactoryImpl");
+            }
+            if(dialogFactoryClass != null && !dialogFactoryClass.trim().isEmpty()){
+                dialogFactory = (JmeDialogsFactory)Class.forName(dialogFactoryClass).getConstructor().newInstance();
+            }
         } catch(ClassNotFoundException e){
             logger.warning("JmeDialogsFactory implementation not found.");    
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
@@ -79,7 +85,14 @@ public abstract class JmeSystemDelegate {
     protected BiFunction<AppSettings,Boolean,Boolean> settingsHandler = (settings,loadFromRegistry) -> {
         JmeDialogsFactory dialogFactory = null;
         try {
-            dialogFactory = (JmeDialogsFactory)Class.forName("com.jme3.system.JmeDialogsFactoryImpl").getConstructor().newInstance();
+            String dialogFactoryClass = System.getenv("JME3_DIALOGS_FACTORY");
+            if(dialogFactoryClass == null) {
+                dialogFactoryClass = System.getProperty("jme3.dialogsFactory","com.jme3.system.JmeDialogsFactoryImpl");
+            }
+            if(dialogFactoryClass != null && !dialogFactoryClass.trim().isEmpty()){
+                dialogFactory = (JmeDialogsFactory)Class.forName(dialogFactoryClass).getConstructor().newInstance();
+            }            
+            dialogFactory = (JmeDialogsFactory)Class.forName(dialogFactoryClass).getConstructor().newInstance();
         } catch(ClassNotFoundException e){
             logger.warning("JmeDialogsFactory implementation not found.");    
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {

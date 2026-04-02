@@ -1,15 +1,9 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.compile.nullAnalysis.mode": "automatic",
-    "java.refactor.renameFromFileExplorer": "prompt",
     "java.format.settings.url": "./.vscode/JME_style.xml",
-    "editor.formatOnPaste": true,
+    "editor.formatOnPaste": false,
     "editor.formatOnType": false,
-    "editor.formatOnSave": true,
-    "editor.formatOnSaveMode": "modifications" ,
-
-    "prettier.tabWidth": 4,
-    "prettier.printWidth": 110,
-    "prettier.enable": true,
-    "prettier.resolveGlobalModules": true
+    "editor.formatOnSave": false,
+    "editor.formatOnSaveMode": "modifications",
 }
