@@ -17,7 +17,8 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "workbench.colorTheme": "GitHub Dark Dimmed"
+        "workbench.colorTheme": "GitHub Dark Dimmed",
+          "java.jdt.ls.java.home": "/usr/bin/java"
       }
     }
   }
