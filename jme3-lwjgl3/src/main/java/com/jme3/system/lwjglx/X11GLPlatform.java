@@ -31,23 +31,44 @@
  */
 package com.jme3.system.lwjglx;
 
-import org.lwjgl.opengl.awt.PlatformLinuxGLCanvas;
+import org.lwjgl.opengl.awt.*;
+
+import static org.lwjgl.opengl.GLX.*;
+import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.system.jawt.JAWTFunctions.*;
 
 /**
- * Class <code>X11GLPlatform</code>; overrides the following methods: <code>swapBuffers()</code> 
- * and <code>makeCurrent(long context)</code>. So that the canvas can be removed and 
- * added back from its parent component.
- * 
- * <p>
- * Works only for <b>Linux</b> based platforms
+ * <code>X11GLPlatform</code> class that implements the {@link com.jme3.system.lwjglx.LwjglxGLPlatform} 
+ * interface for the Linux (Based) platform.
  * 
  * @author wil
  */
 final class X11GLPlatform extends PlatformLinuxGLCanvas implements LwjglxGLPlatform {
 
+    /**
+     * Returns a pointer to the {@code Display*} of the current X11 window using
+     * AWT.
+     *
+     * @return long
+     */
     public long getDisplay() {
         return display;
+    }
+
+    /**
+     * Delete the previously created context.
+     *
+     * @param context long
+     * @return boolean
+     */
+    @Override
+    public boolean deleteContext(long context) {
+        if (context == NULL || display == NULL) {
+            return false;
+        }
+
+        glXDestroyContext(display, context);
+        return true;
     }
     
     /**
