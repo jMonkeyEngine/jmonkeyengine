@@ -806,6 +806,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     @Override protected void showWindow() { }
     /** (non-Javadoc) */
     @Override  protected void setWindowIcon(final AppSettings settings) { }
+    /**(non-Javadoc) */
+    @Override public Vector2f getWindowContentScale(Vector2f store) {
+        return store == null ? new Vector2f() : store;
+    }
 
     /**
      * {@inheritDoc }
@@ -837,25 +841,6 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                 needRescale.set(true);
             }
         }
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    @Override
-    public Vector2f getWindowContentScale(Vector2f store) {
-        if (store == null) store = new Vector2f();
-
-        GraphicsConfiguration gc = canvas.getGraphicsConfiguration();
-        if (gc == null) {
-            return store;
-        }
-        AffineTransform at = gc.getDefaultTransform();
-        float sx = (float) at.getScaleX(),
-              sy = (float) at.getScaleY();
-
-        store.set(sx, sy);
-        return store;
     }
 
     /**
