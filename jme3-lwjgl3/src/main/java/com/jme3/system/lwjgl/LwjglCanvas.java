@@ -576,6 +576,12 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
                         listener.handleError("Error while swapping buffers", ex);
                     }
                 }
+            } else {
+                // HACK: If the GL context is not rendering, the thread will
+                //       enter a waiting state, thus avoiding CPU overload.
+                try {
+                    Thread.sleep(16);
+                } catch (InterruptedException ignore) { }
             }
 
             if (needClose.get()) {
