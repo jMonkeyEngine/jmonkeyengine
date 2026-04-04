@@ -401,7 +401,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
      * Configuration data to start the AWT context, this is used by the
      * {@code lwjgl-awt} library.
      */
-    private GLData glData;
+    private final GLData glData;
     
     /** Used to notify the canvas status ({@code remove()/add()}). */
     private final AtomicBoolean hasNativePeer = new AtomicBoolean(false);
@@ -414,20 +414,26 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     private final AtomicBoolean reinitcontext = new AtomicBoolean(false);
     
     /** Notify if there is a change in canvas dimensions. */
-    private AtomicBoolean needResize = new AtomicBoolean(false);
+    private final AtomicBoolean needResize = new AtomicBoolean(false);
+    /** Notify if there are changes to the canvas scales. */
+    private final AtomicBoolean needRescale = new AtomicBoolean(false);
     
     /**
      * Flag that uses the context to check if it is initialized or not, this prevents
      * it from being initialized multiple times and potentially breaking the JVM.
      */
-    private AtomicBoolean contextFlag = new AtomicBoolean(false);
+    private final AtomicBoolean contextFlag = new AtomicBoolean(false);
     
     /** lock-object. */
     private final Object lock = new Object();
     
-    /** Framebuffer width. */
-    private int framebufferWidth = 1;
+    /** Scale of the component in {@code x}  */
+    private float xScale = 1;
+    /** Scale of the component in {@code y} */
+    private float yScale = 1;
     
+    /** Framebuffer width. */
+    private int framebufferWidth = 1;    
     /** Framebuffer height. */
     private int framebufferHeight = 1;
 
@@ -453,23 +459,7 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             @Override
             public void componentResized(ComponentEvent e) {                
                 synchronized (lock) {
-                    GraphicsConfiguration gc = canvas.getGraphicsConfiguration();
-                    if (gc == null) {
-                        return;
-                    }
-                    
-                    AffineTransform at = gc.getDefaultTransform();
-                    float sx = (float) at.getScaleX(),
-                          sy = (float) at.getScaleY();
-
-                    int fw = (int) (canvas.getWidth() * sx);
-                    int fh = (int) (canvas.getHeight() * sy);
-
-                    if (fw != framebufferWidth || fh != framebufferHeight) {
-                        framebufferWidth = Math.max(fw, 1);
-                        framebufferHeight = Math.max(fh, 1);
-                        needResize.set(true);
-                    }
+                    updateSizes();
                 }
             }            
         });
@@ -507,6 +497,10 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
             if (needResize.getAndSet(false)) {
                 settings.setResolution(framebufferWidth, framebufferHeight);
                 listener.reshape(framebufferWidth, framebufferHeight);
+            }
+
+            if (needRescale.getAndSet(false)) {
+                listener.rescale(xScale, yScale);
             }
 
             synchronized (lock) {
@@ -807,15 +801,61 @@ public class LwjglCanvas extends LwjglWindow implements JmeCanvasContext, Runnab
     @Override public TouchInput getTouchInput() { return null; }
     /** (non-Javadoc) */
     @Override public void setTitle(String title) { }
-    /** (non-Javadoc) */
-    @Override protected void updateSizes() { }
+
     /** (non-Javadoc) */
     @Override protected void showWindow() { }
     /** (non-Javadoc) */
     @Override  protected void setWindowIcon(final AppSettings settings) { }
-    /** (non-Javadoc) */
-    @Override public Vector2f getWindowContentScale(Vector2f store) {
-        return store == null ? new Vector2f() : store;
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    protected void updateSizes() {
+        synchronized (lock) {
+            GraphicsConfiguration gc = canvas.getGraphicsConfiguration();
+            if (gc == null) {
+                return;
+            }
+
+            AffineTransform at = gc.getDefaultTransform();
+            float sx = (float) at.getScaleX(),
+                  sy = (float) at.getScaleY();
+
+            int fw = (int) (canvas.getWidth() * sx);
+            int fh = (int) (canvas.getHeight() * sy);
+
+            if (fw != framebufferWidth || fh != framebufferHeight) {
+                framebufferWidth  = Math.max(fw, 1);
+                framebufferHeight = Math.max(fh, 1);
+                needResize.set(true);
+            }
+
+            if (xScale != sx || yScale != sy) {
+                xScale = sx;
+                yScale = sy;
+                needRescale.set(true);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc }
+     */
+    @Override
+    public Vector2f getWindowContentScale(Vector2f store) {
+        if (store == null) store = new Vector2f();
+
+        GraphicsConfiguration gc = canvas.getGraphicsConfiguration();
+        if (gc == null) {
+            return store;
+        }
+        AffineTransform at = gc.getDefaultTransform();
+        float sx = (float) at.getScaleX(),
+              sy = (float) at.getScaleY();
+
+        store.set(sx, sy);
+        return store;
     }
 
     /**
