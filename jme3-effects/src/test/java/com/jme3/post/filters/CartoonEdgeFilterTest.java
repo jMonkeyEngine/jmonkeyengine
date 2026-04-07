@@ -1,7 +1,7 @@
 package com.jme3.post.filters;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
@@ -32,13 +32,13 @@ public class CartoonEdgeFilterTest {
 
         CartoonEdgeFilter filter = BinaryExporter.saveAndLoad(assetManager, cartoon);
 
-        Assert.assertEquals(ColorRGBA.Red, filter.getEdgeColor());
-        Assert.assertEquals(.5f, filter.getEdgeIntensity(), 0.0001);
-        Assert.assertEquals(1, filter.getEdgeWidth(), 0.0001);
-        Assert.assertEquals(2, filter.getNormalSensitivity(), 0.0001);
-        Assert.assertEquals(1, filter.getNormalThreshold(), 0.0001);
-        Assert.assertEquals(20, filter.getDepthSensitivity(), 0.0001);
-        Assert.assertEquals(2, filter.getDepthThreshold(), 0.0001);
+        Assertions.assertEquals(ColorRGBA.Red, filter.getEdgeColor());
+        Assertions.assertEquals(.5f, filter.getEdgeIntensity(), 0.0001);
+        Assertions.assertEquals(1, filter.getEdgeWidth(), 0.0001);
+        Assertions.assertEquals(2, filter.getNormalSensitivity(), 0.0001);
+        Assertions.assertEquals(1, filter.getNormalThreshold(), 0.0001);
+        Assertions.assertEquals(20, filter.getDepthSensitivity(), 0.0001);
+        Assertions.assertEquals(2, filter.getDepthThreshold(), 0.0001);
     }
 
 }

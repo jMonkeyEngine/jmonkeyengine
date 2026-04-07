@@ -32,8 +32,8 @@
 package com.jme3.bounding;
 
 import com.jme3.math.Vector3f;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for the BoundingBox class.
@@ -59,16 +59,16 @@ public class TestBoundingBox {
         bb6.setCheckPlane(1);
 
         // Clones are equal to their base instances:
-        Assert.assertEquals(bb1, bb1.clone());
-        Assert.assertEquals(bb2, bb2.clone());
-        Assert.assertEquals(bb3, bb3.clone());
-        Assert.assertEquals(bb4, bb4.clone());
-        Assert.assertEquals(bb5, bb5.clone());
-        Assert.assertEquals(bb6, bb6.clone());
+        Assertions.assertEquals(bb1, bb1.clone());
+        Assertions.assertEquals(bb2, bb2.clone());
+        Assertions.assertEquals(bb3, bb3.clone());
+        Assertions.assertEquals(bb4, bb4.clone());
+        Assertions.assertEquals(bb5, bb5.clone());
+        Assertions.assertEquals(bb6, bb6.clone());
 
-        Assert.assertNotEquals(bb1, bb2); // because their extents differ
-        Assert.assertNotEquals(bb3, bb4); // because their centers differ
-        Assert.assertEquals(bb5, bb6); // because check planes are ignored
+        Assertions.assertNotEquals(bb1, bb2); // because their extents differ
+        Assertions.assertNotEquals(bb3, bb4); // because their centers differ
+        Assertions.assertEquals(bb5, bb6); // because check planes are ignored
     }
 
     /**
@@ -86,10 +86,10 @@ public class TestBoundingBox {
         BoundingVolume result = bb1.merge(bb2);
 
         // merge() delegates to mergeLocal(), so bb1 IS modified.
-        Assert.assertNotEquals(bb1Before, bb1);
+        Assertions.assertNotEquals(bb1Before, bb1);
 
         // The result is the same object as bb1.
-        Assert.assertSame(bb1, result);
+        Assertions.assertSame(bb1, result);
     }
 
     /**
@@ -107,16 +107,16 @@ public class TestBoundingBox {
         BoundingVolume result = bb1.mergeWith(bb2);
 
         // bb1 must be unmodified.
-        Assert.assertEquals(bb1Before, bb1);
+        Assertions.assertEquals(bb1Before, bb1);
 
         // The result must be a different object than bb1.
-        Assert.assertNotSame(bb1, result);
+        Assertions.assertNotSame(bb1, result);
 
         // The result must contain both inputs' centers.
-        Assert.assertTrue(result instanceof BoundingBox);
+        Assertions.assertTrue(result instanceof BoundingBox);
         BoundingBox merged = (BoundingBox) result;
-        Assert.assertTrue(merged.contains(bb2.getCenter()));
-        Assert.assertTrue(merged.contains(bb1.getCenter()));
+        Assertions.assertTrue(merged.contains(bb2.getCenter()));
+        Assertions.assertTrue(merged.contains(bb1.getCenter()));
     }
 
     /**
@@ -136,12 +136,12 @@ public class TestBoundingBox {
         BoundingBox bb6 = (BoundingBox) bb5.clone();
         bb6.setCheckPlane(1);
 
-        Assert.assertFalse(bb1.isSimilar(bb2, 0.09999f));
-        Assert.assertTrue(bb1.isSimilar(bb2, 0.10001f));
+        Assertions.assertFalse(bb1.isSimilar(bb2, 0.09999f));
+        Assertions.assertTrue(bb1.isSimilar(bb2, 0.10001f));
 
-        Assert.assertFalse(bb3.isSimilar(bb4, 0.09999f));
-        Assert.assertTrue(bb3.isSimilar(bb4, 0.10001f));
+        Assertions.assertFalse(bb3.isSimilar(bb4, 0.09999f));
+        Assertions.assertTrue(bb3.isSimilar(bb4, 0.10001f));
 
-        Assert.assertTrue(bb5.isSimilar(bb6, 0f)); // check planes are ignored
+        Assertions.assertTrue(bb5.isSimilar(bb6, 0f)); // check planes are ignored
     }
 }

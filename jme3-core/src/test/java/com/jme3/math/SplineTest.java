@@ -37,8 +37,8 @@ import com.jme3.export.binary.BinaryExporter;
 import com.jme3.util.clone.Cloner;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verifies that the {@link Spline} class works correctly.
@@ -146,16 +146,16 @@ public class SplineTest {
     private static void assertListEquals(List<?> a1, List<?> a2) {
         if (a1 == null || a2 == null) {
             // If either list is null, verify that both are null:
-            Assert.assertNull(a1);
-            Assert.assertNull(a2);
+            Assertions.assertNull(a1);
+            Assertions.assertNull(a2);
 
         } else {
             // Verify that the lists are distinct and and of equal length:
-            Assert.assertTrue(a1 != a2);
-            Assert.assertEquals(a1.size(), a2.size());
+            Assertions.assertTrue(a1 != a2);
+            Assertions.assertEquals(a1.size(), a2.size());
 
             for (int i = 0; i < a1.size(); ++i) {
-                Assert.assertEquals(a1.get(i), a2.get(i));
+                Assertions.assertEquals(a1.get(i), a2.get(i));
             }
         }
     }
@@ -167,25 +167,25 @@ public class SplineTest {
      * @param s2 the 2nd split to compare (not null, unaffected)
      */
     private static void assertSplineEquals(Spline s1, Spline s2) {
-        Assert.assertEquals(s1.getType(), s2.getType());
-        Assert.assertEquals(s1.isCycle(), s2.isCycle());
+        Assertions.assertEquals(s1.getType(), s2.getType());
+        Assertions.assertEquals(s1.isCycle(), s2.isCycle());
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 s1.getBasisFunctionDegree(), s2.getBasisFunctionDegree());
         assertListEquals(s1.getControlPoints(), s2.getControlPoints());
-        Assert.assertEquals(s1.getCurveTension(), s2.getCurveTension(), 0f);
+        Assertions.assertEquals(s1.getCurveTension(), s2.getCurveTension(), 0f);
         assertListEquals(s1.getKnots(), s2.getKnots());
 
         if (s1.getType() == Spline.SplineType.Nurb) {
             // These methods throw NPEs on non-NURB splines.
-            Assert.assertEquals(s1.getMaxNurbKnot(), s2.getMaxNurbKnot(), 0f);
-            Assert.assertEquals(s1.getMinNurbKnot(), s2.getMinNurbKnot(), 0f);
+            Assertions.assertEquals(s1.getMaxNurbKnot(), s2.getMaxNurbKnot(), 0f);
+            Assertions.assertEquals(s1.getMinNurbKnot(), s2.getMinNurbKnot(), 0f);
         }
 
         assertListEquals(s1.getSegmentsLength(), s2.getSegmentsLength());
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 s1.getTotalLength(), s2.getTotalLength(), 0f);
-        Assert.assertArrayEquals(s1.getWeights(), s2.getWeights(), 0f);
+        Assertions.assertArrayEquals(s1.getWeights(), s2.getWeights(), 0f);
     }
 
     /**

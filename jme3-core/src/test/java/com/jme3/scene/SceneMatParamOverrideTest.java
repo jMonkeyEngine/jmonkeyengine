@@ -34,10 +34,10 @@ package com.jme3.scene;
 import com.jme3.asset.AssetManager;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.material.MatParamOverride;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.jme3.scene.MPOTestUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.jme3.system.TestUtil;
 import java.util.List;

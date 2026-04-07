@@ -34,8 +34,8 @@ package com.jme3.post.filters;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Automated tests for the {@code PosterizationFilter} class.
@@ -67,10 +67,10 @@ public class PosterizationFilterTest {
                 = BinaryExporter.saveAndLoad(assetManager, filter);
 
         // Verify the parameter values of the duplicate:
-        Assert.assertEquals(0.7f, copy.getGamma(), 0f);
-        Assert.assertEquals(4, copy.getNumColors(), 0f);
-        Assert.assertEquals(0.8f, copy.getStrength(), 0f);
-        Assert.assertFalse(copy.isEnabled());
+        Assertions.assertEquals(0.7f, copy.getGamma(), 0f);
+        Assertions.assertEquals(4, copy.getNumColors(), 0f);
+        Assertions.assertEquals(0.8f, copy.getStrength(), 0f);
+        Assertions.assertFalse(copy.isEnabled());
     }
 
     /**
@@ -80,9 +80,9 @@ public class PosterizationFilterTest {
      * @param filter (not null, unaffected)
      */
     private void verifyDefaults(PosterizationFilter filter) {
-        Assert.assertEquals(0.6f, filter.getGamma(), 0f);
-        Assert.assertEquals(8, filter.getNumColors(), 0f);
-        Assert.assertEquals(1f, filter.getStrength(), 0f);
-        Assert.assertTrue(filter.isEnabled());
+        Assertions.assertEquals(0.6f, filter.getGamma(), 0f);
+        Assertions.assertEquals(8, filter.getNumColors(), 0f);
+        Assertions.assertEquals(1f, filter.getStrength(), 0f);
+        Assertions.assertTrue(filter.isEnabled());
     }
 }

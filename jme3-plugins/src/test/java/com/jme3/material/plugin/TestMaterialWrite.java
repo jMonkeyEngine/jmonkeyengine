@@ -42,8 +42,8 @@ import com.jme3.material.plugins.J3MLoader;
 import com.jme3.math.ColorRGBA;
 import com.jme3.system.JmeSystem;
 import com.jme3.texture.Texture;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -51,13 +51,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestMaterialWrite {
 
     private AssetManager assetManager;
 
-    @Before
+    @BeforeEach
     public void init() {
         URL configFile = TestMaterialWrite.class.getResource("/com/jme3/asset/Desktop.cfg");
         assetManager = JmeSystem.newAssetManager(configFile);

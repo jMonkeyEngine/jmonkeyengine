@@ -4,8 +4,8 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.math.Vector3f;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Automated tests for the {@code ParticleInfluencer} class.
@@ -30,18 +30,18 @@ public class ParticleInfluencerTest {
 
         NewtonianParticleInfluencer clone = (NewtonianParticleInfluencer) inf.clone();
         assertEquals(inf, clone);
-        Assert.assertNotSame(inf.temp, clone.temp);
+        Assertions.assertNotSame(inf.temp, clone.temp);
 
         NewtonianParticleInfluencer copy = BinaryExporter.saveAndLoad(assetManager, inf);
         assertEquals(inf, copy);
     }
 
     private void assertEquals(NewtonianParticleInfluencer inf, NewtonianParticleInfluencer clone) {
-        Assert.assertEquals(inf.getNormalVelocity(), clone.getNormalVelocity(), 0.001f);
-        Assert.assertEquals(inf.getSurfaceTangentFactor(), clone.getSurfaceTangentFactor(), 0.001f);
-        Assert.assertEquals(inf.getSurfaceTangentRotation(), clone.getSurfaceTangentRotation(), 0.001f);
-        Assert.assertEquals(inf.getInitialVelocity(), clone.getInitialVelocity());
-        Assert.assertEquals(inf.getVelocityVariation(), clone.getVelocityVariation(), 0.001f);
+        Assertions.assertEquals(inf.getNormalVelocity(), clone.getNormalVelocity(), 0.001f);
+        Assertions.assertEquals(inf.getSurfaceTangentFactor(), clone.getSurfaceTangentFactor(), 0.001f);
+        Assertions.assertEquals(inf.getSurfaceTangentRotation(), clone.getSurfaceTangentRotation(), 0.001f);
+        Assertions.assertEquals(inf.getInitialVelocity(), clone.getInitialVelocity());
+        Assertions.assertEquals(inf.getVelocityVariation(), clone.getVelocityVariation(), 0.001f);
     }
 
     /**
@@ -60,19 +60,19 @@ public class ParticleInfluencerTest {
 
         RadialParticleInfluencer clone = (RadialParticleInfluencer) inf.clone();
         assertEquals(inf, clone);
-        Assert.assertNotSame(inf.temp, clone.temp);
-        Assert.assertNotSame(inf.getOrigin(), clone.getOrigin());
+        Assertions.assertNotSame(inf.temp, clone.temp);
+        Assertions.assertNotSame(inf.getOrigin(), clone.getOrigin());
 
         RadialParticleInfluencer copy = BinaryExporter.saveAndLoad(assetManager, inf);
         assertEquals(inf, copy);
     }
 
     private void assertEquals(RadialParticleInfluencer inf, RadialParticleInfluencer clone) {
-        Assert.assertEquals(inf.isHorizontal(), clone.isHorizontal());
-        Assert.assertEquals(inf.getOrigin(), clone.getOrigin());
-        Assert.assertEquals(inf.getRadialVelocity(), clone.getRadialVelocity(), 0.001f);
-        Assert.assertEquals(inf.getInitialVelocity(), clone.getInitialVelocity());
-        Assert.assertEquals(inf.getVelocityVariation(), clone.getVelocityVariation(), 0.001f);
+        Assertions.assertEquals(inf.isHorizontal(), clone.isHorizontal());
+        Assertions.assertEquals(inf.getOrigin(), clone.getOrigin());
+        Assertions.assertEquals(inf.getRadialVelocity(), clone.getRadialVelocity(), 0.001f);
+        Assertions.assertEquals(inf.getInitialVelocity(), clone.getInitialVelocity());
+        Assertions.assertEquals(inf.getVelocityVariation(), clone.getVelocityVariation(), 0.001f);
     }
 
 }
