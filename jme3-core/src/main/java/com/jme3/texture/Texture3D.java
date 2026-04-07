@@ -100,6 +100,7 @@ public class Texture3D extends Texture {
     }
 
     @Override
+    @Deprecated
     public Texture createSimpleClone() {
         Texture3D clone = new Texture3D();
         createSimpleClone(clone);
@@ -107,6 +108,7 @@ public class Texture3D extends Texture {
     }
 
     @Override
+    @Deprecated
     public Texture createSimpleClone(Texture rVal) {
         rVal.setWrap(WrapAxis.S, wrapS);
         rVal.setWrap(WrapAxis.T, wrapT);

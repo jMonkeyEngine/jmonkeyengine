@@ -85,7 +85,7 @@ public class DisconnectMessage extends AbstractMessage {
     public static class DisconnectSerializer extends Serializer {
      
         @Override
-        public DisconnectMessage readObject( ByteBuffer data, Class c ) throws IOException {
+        public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
     
             // Read the null/non-null marker
             if (data.get() == 0x0)
@@ -96,7 +96,7 @@ public class DisconnectMessage extends AbstractMessage {
             msg.reason = StringSerializer.readString(data);
             msg.type = StringSerializer.readString(data);
             
-            return msg;
+            return c.cast(msg);
         }
 
         @Override

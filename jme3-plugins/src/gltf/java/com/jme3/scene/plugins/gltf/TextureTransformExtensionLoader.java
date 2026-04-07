@@ -129,7 +129,7 @@ public class TextureTransformExtensionLoader implements ExtensionLoader {
             }     
             if (jsonObject.has("texCoord")) {
                 texCoord = jsonObject.get("texCoord").getAsInt(); // it overrides the parent's texCoord value
-            }                 
+            }
             Matrix3f transform = translation.mult(rotation).mult(scale);
             Mesh meshLast = loader.fetchFromCache("textureTransformData", 0, Mesh.class);
             Map<Integer, Matrix3f> transformMap = loader.fetchFromCache("textureTransformData", 1, HashMap.class);

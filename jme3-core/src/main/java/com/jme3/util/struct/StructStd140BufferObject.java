@@ -120,7 +120,7 @@ public class StructStd140BufferObject extends BufferObject {
         try {
             String rootClass = ic.readString("rootClass", null);
             if (rootClass == null) throw new Exception("rootClass is undefined");
-            Class<? extends Struct> rootStructClass = (Class<? extends Struct>) Class.forName(rootClass);
+            Class<? extends Struct> rootStructClass = Class.forName(rootClass).asSubclass(Struct.class);
             Struct rootStruct = rootStructClass.newInstance();
             loadLayout(rootStruct);
         } catch (Exception e) {

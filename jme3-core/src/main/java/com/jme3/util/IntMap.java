@@ -47,7 +47,7 @@ import java.util.NoSuchElementException;
  */
 public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeCloneable {
 
-    private Entry[] table;
+    private Entry<T>[] table;
     private final float loadFactor;
     private int size, mask, capacity, threshold;
 
@@ -75,7 +75,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         }
         this.loadFactor = loadFactor;
         this.threshold = (int) (capacity * loadFactor);
-        this.table = new Entry[capacity];
+        this.table = newTable(capacity);
         this.mask = capacity - 1;
     }
 
@@ -117,9 +117,9 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
     }
 
     public boolean containsValue(Object value) {
-        Entry[] table = this.table;
+        Entry<T>[] table = this.table;
         for (int i = table.length; i-- > 0;){
-            for (Entry e = table[i]; e != null; e = e.next){
+            for (Entry<T> e = table[i]; e != null; e = e.next){
                 if (e.value.equals(value)){
                     return true;
                 }
@@ -130,7 +130,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
 
     public boolean containsKey(int key) {
         int index = ((int) key) & mask;
-        for (Entry e = table[index]; e != null; e = e.next){
+        for (Entry<T> e = table[index]; e != null; e = e.next){
             if (e.key == key){
                 return true;
             }
@@ -141,9 +141,9 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
     @SuppressWarnings("unchecked")
     public T get(int key) {
         int index = key & mask;
-        for (Entry e = table[index]; e != null; e = e.next){
+        for (Entry<T> e = table[index]; e != null; e = e.next){
             if (e.key == key){
-                return (T) e.value;
+                return e.value;
             }
         }
         return null;
@@ -153,27 +153,27 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
     public T put(int key, T value) {
         int index = key & mask;
         // Check if key already exists.
-        for (Entry e = table[index]; e != null; e = e.next){
+        for (Entry<T> e = table[index]; e != null; e = e.next){
             if (e.key != key){
                 continue;
             }
-            Object oldValue = e.value;
+            T oldValue = e.value;
             e.value = value;
-            return (T) oldValue;
+            return oldValue;
         }
         table[index] = new Entry(key, value, table[index]);
         if (size++ >= threshold){
             // Rehash.
             int newCapacity = 2 * capacity;
-            Entry[] newTable = new Entry[newCapacity];
-            Entry[] src = table;
+            Entry<T>[] newTable = newTable(newCapacity);
+            Entry<T>[] src = table;
             int bucketMask = newCapacity - 1;
             for (int j = 0; j < src.length; j++){
-                Entry e = src[j];
+                Entry<T> e = src[j];
                 if (e != null){
                     src[j] = null;
                     do{
-                        Entry next = e.next;
+                        Entry<T> next = e.next;
                         index = e.key & bucketMask;
                         e.next = newTable[index];
                         newTable[index] = e;
@@ -192,10 +192,10 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
     @SuppressWarnings("unchecked")
     public T remove(int key) {
         int index = key & mask;
-        Entry prev = table[index];
-        Entry e = prev;
+        Entry<T> prev = table[index];
+        Entry<T> e = prev;
         while (e != null){
-            Entry next = e.next;
+            Entry<T> next = e.next;
             if (e.key == key){
                 size--;
                 if (prev == e){
@@ -203,7 +203,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
                 }else{
                     prev.next = next;
                 }
-                return (T) e.value;
+                return e.value;
             }
             prev = e;
             e = next;
@@ -216,7 +216,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
     }
 
     public void clear() {
-        Entry[] table = this.table;
+        Entry<T>[] table = this.table;
         for (int index = table.length; --index >= 0;) {
             table[index] = null;
         }
@@ -235,7 +235,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         /**
          * Current entry.
          */
-        private Entry cur;
+        private Entry<T> cur;
 
         /**
          * Entry in the table
@@ -262,13 +262,12 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public Entry next() {
+        public Entry<T> next() {
             if (el >= size)
                 throw new NoSuchElementException("No more elements!");
 
             if (cur != null) {
-                Entry e = cur;
+                Entry<T> e = cur;
                 cur = cur.next;
                 el++;
                 return e;
@@ -286,7 +285,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
                 cur = table[++idx];
             } while (cur == null);
 
-            Entry e = cur;
+            Entry<T> e = cur;
             cur = cur.next;
             el ++;
 
@@ -298,13 +297,18 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         }
     }
 
+    private static <T> Entry<T>[] newTable(int size) {
+        Entry<T>[] table = (Entry<T>[]) new Entry<?>[size];
+        return table;
+    }
+
     public static final class Entry<T> implements Cloneable, JmeCloneable {
 
         final int key;
         T value;
-        Entry next;
+        Entry<T> next;
 
-        Entry(int k, T v, Entry n) {
+        Entry(int k, T v, Entry<T> n) {
             key = k;
             value = v;
             next = n;

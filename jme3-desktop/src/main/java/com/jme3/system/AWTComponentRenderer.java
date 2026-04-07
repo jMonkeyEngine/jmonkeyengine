@@ -186,8 +186,8 @@ public class AWTComponentRenderer {
       this.frameBuffer = frameBuffer;
     } else {
       this.frameBuffer = new FrameBuffer(width, height, 1);
-      this.frameBuffer.setDepthBuffer(Image.Format.Depth);
-      this.frameBuffer.setColorBuffer(Image.Format.RGBA8);
+      this.frameBuffer.setDepthTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.Depth));
+      this.frameBuffer.addColorTarget(FrameBuffer.FrameBufferTarget.newTarget(Image.Format.RGBA8));
       this.frameBuffer.setSrgb(true);
     }
 

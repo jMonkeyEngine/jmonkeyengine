@@ -25,8 +25,9 @@ java {
 }
 
 tasks.withType(JavaCompile) { // compile-time options:
-    //options.compilerArgs << '-Xlint:deprecation' // to show deprecation warnings
+    options.compilerArgs << '-Xlint:deprecation'
     options.compilerArgs << '-Xlint:unchecked'
+    options.compilerArgs << '-Xlint:-options'
     options.encoding = 'UTF-8'
     options.release = 8
 }

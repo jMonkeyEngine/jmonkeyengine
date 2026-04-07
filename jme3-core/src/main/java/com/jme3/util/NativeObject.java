@@ -167,6 +167,7 @@ public abstract class NativeObject implements Cloneable {
             obj.objectManager = null;
             obj.id = INVALID_ID;
             obj.updateNeeded = true;
+            obj.weakRef = null;
             return obj;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();

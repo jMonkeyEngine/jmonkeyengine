@@ -32,6 +32,7 @@
 package com.jme3.renderer;
 
 import com.jme3.renderer.pipeline.RenderPipeline;
+import com.jme3.renderer.pipeline.PipelineContext;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.queue.RenderQueue;
@@ -88,7 +89,7 @@ public class ViewPort {
     /**
      * Dedicated pipeline.
      */
-    protected RenderPipeline pipeline;
+    protected RenderPipeline<? extends PipelineContext> pipeline;
     /**
      * FrameBuffer for output.
      */
@@ -440,7 +441,7 @@ public class ViewPort {
      * 
      * @param pipeline pipeline, or null to use render manager's pipeline
      */
-    public void setPipeline(RenderPipeline pipeline) {
+    public void setPipeline(RenderPipeline<? extends PipelineContext> pipeline) {
         this.pipeline = pipeline;
     }
     
@@ -449,7 +450,7 @@ public class ViewPort {
      * 
      * @return 
      */
-    public RenderPipeline getPipeline() {
+    public RenderPipeline<? extends PipelineContext> getPipeline() {
         return pipeline;
     }
 

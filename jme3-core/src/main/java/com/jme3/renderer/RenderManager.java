@@ -1386,12 +1386,15 @@ public class RenderManager {
         if (!vp.isEnabled()) {
             return;
         }
-        RenderPipeline pipeline = vp.getPipeline();
+        RenderPipeline<? extends PipelineContext> pipeline = vp.getPipeline();
         if (pipeline == null) {
             pipeline = defaultPipeline;
         }
+        renderViewPort(vp, tpf, pipeline);
+    }
 
-        PipelineContext context = pipeline.fetchPipelineContext(this);
+    private <T extends PipelineContext> void renderViewPort(ViewPort vp, float tpf, RenderPipeline<T> pipeline) {
+        T context = pipeline.fetchPipelineContext(this);
         if (context == null) {
             throw new NullPointerException("Failed to fetch pipeline context.");
         }

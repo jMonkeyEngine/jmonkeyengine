@@ -97,6 +97,7 @@ public class Texture2D extends Texture {
     }
 
     @Override
+    @Deprecated
     public Texture createSimpleClone() {
         Texture2D clone = new Texture2D();
         createSimpleClone(clone);
@@ -104,6 +105,7 @@ public class Texture2D extends Texture {
     }
 
     @Override
+    @Deprecated
     public Texture createSimpleClone(Texture rVal) {
         rVal.setWrap(WrapAxis.S, wrapS);
         rVal.setWrap(WrapAxis.T, wrapT);
