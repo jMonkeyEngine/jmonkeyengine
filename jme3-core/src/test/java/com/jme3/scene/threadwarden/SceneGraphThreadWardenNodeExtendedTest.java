@@ -5,40 +5,34 @@ import com.jme3.material.MatParamOverride;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.shader.VarType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.mockito.Mockito;
-
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Parameterized tests for SceneGraphThreadWarden class.
  * These tests verify that various scene graph mutations are properly checked for thread safety.
  */
-@RunWith(Parameterized.class)
 public class SceneGraphThreadWardenNodeExtendedTest {
 
     private static ExecutorService executorService;
 
-    private final String testName;
-    private final Consumer<Node> action;
-
     @SuppressWarnings({"ReassignedVariable", "AssertWithSideEffects"})
-    @BeforeClass
+    @BeforeAll
     public static void setupClass() {
         // Make sure assertions are enabled
         boolean assertsEnabled = false;
@@ -48,66 +42,40 @@ public class SceneGraphThreadWardenNodeExtendedTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         executorService = newSingleThreadDaemonExecutor();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         executorService.shutdown();
         SceneGraphThreadWarden.reset();
     }
 
     /**
-     * Constructor for the parameterized test.
-     * 
-     * @param testName A descriptive name for the test
-     * @param action The action to perform on the spatial
-     */
-    public SceneGraphThreadWardenNodeExtendedTest(String testName, Consumer<Node> action) {
-        this.testName = testName;
-        this.action = action;
-    }
-
-    /**
      * Define the parameters for the test.
      * Each parameter is a pair of (test name, action to perform on spatial).
      */
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> data() {
+    static Stream<Arguments> data() {
         Material mockMaterial = Mockito.mock(Material.class);
         MatParamOverride override = new MatParamOverride(VarType.Float, "TestParam", 1.0f);
 
-        return Arrays.asList(new Object[][] {
-            { 
-                "setMaterial", 
-                (Consumer<Node>) spatial -> spatial.setMaterial(mockMaterial)
-            },
-            { 
-                "setLodLevel", 
-                (Consumer<Node>) spatial -> spatial.setLodLevel(1)
-            },
-            { 
-                "addMatParamOverride", 
-                (Consumer<Node>) spatial -> spatial.addMatParamOverride(override)
-            },
-            { 
-                "removeMatParamOverride", 
-                (Consumer<Node>) spatial -> spatial.removeMatParamOverride(override)
-            },
-            { 
-                "clearMatParamOverrides", 
-                (Consumer<Node>) Spatial::clearMatParamOverrides
-            }
-        });
+        return Stream.of(
+                Arguments.of("setMaterial", (Consumer<Node>) spatial -> spatial.setMaterial(mockMaterial)),
+                Arguments.of("setLodLevel", (Consumer<Node>) spatial -> spatial.setLodLevel(1)),
+                Arguments.of("addMatParamOverride", (Consumer<Node>) spatial -> spatial.addMatParamOverride(override)),
+                Arguments.of("removeMatParamOverride", (Consumer<Node>) spatial -> spatial.removeMatParamOverride(override)),
+                Arguments.of("clearMatParamOverrides", (Consumer<Node>) Spatial::clearMatParamOverrides)
+        );
     }
 
     /**
      * Test that scene graph mutation is fine on the main thread when the object is attached to the root.
      */
-    @Test
-    public void testMutationOnMainThreadOnAttachedObject() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testMutationOnMainThreadOnAttachedObject(String testName, Consumer<Node> action) {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
@@ -122,8 +90,9 @@ public class SceneGraphThreadWardenNodeExtendedTest {
     /**
      * Test that scene graph mutation is fine on the main thread when the object is not attached to the root.
      */
-    @Test
-    public void testMutationOnMainThreadOnDetachedObject() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testMutationOnMainThreadOnDetachedObject(String testName, Consumer<Node> action) {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
@@ -137,8 +106,10 @@ public class SceneGraphThreadWardenNodeExtendedTest {
     /**
      * Test that scene graph mutation is fine on a non-main thread when the object is not attached to the root.
      */
-    @Test
-    public void testMutationOnNonMainThreadOnDetachedObject() throws ExecutionException, InterruptedException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testMutationOnNonMainThreadOnDetachedObject(String testName, Consumer<Node> action)
+            throws ExecutionException, InterruptedException {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
@@ -158,8 +129,10 @@ public class SceneGraphThreadWardenNodeExtendedTest {
     /**
      * Test that scene graph mutation is not allowed on a non-main thread when the object is attached to the root.
      */
-    @Test
-    public void testMutationOnNonMainThreadOnAttachedObject() throws InterruptedException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testMutationOnNonMainThreadOnAttachedObject(String testName, Consumer<Node> action)
+            throws InterruptedException {
         Node rootNode = new Node("root");
         SceneGraphThreadWarden.setup(rootNode);
 
@@ -178,8 +151,8 @@ public class SceneGraphThreadWardenNodeExtendedTest {
             fail("Expected an IllegalThreadSceneGraphMutation exception");
         } catch (ExecutionException e) {
             // This is expected - verify it's the right exception type
-            assertTrue("Expected IllegalThreadSceneGraphMutation, got: " + e.getCause().getClass().getName(),
-                    e.getCause() instanceof IllegalThreadSceneGraphMutation);
+            assertTrue(e.getCause() instanceof IllegalThreadSceneGraphMutation,
+                    "Expected IllegalThreadSceneGraphMutation, got: " + e.getCause().getClass().getName());
         }
     }
 

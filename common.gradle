@@ -38,9 +38,12 @@ repositories {
 
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
-    testImplementation libs.junit4
+    testImplementation platform(libs.junit.bom)
+    testImplementation libs.junit.jupiter
     testImplementation libs.mokito.core
+    testImplementation libs.mokito.junit.jupiter
     testImplementation libs.groovy.test
+    testRuntimeOnly libs.junit.platform.launcher
 }
 
 // Uncomment if you want to see the status of every test that is run and
@@ -76,6 +79,7 @@ javadoc {
 }
 
 test {
+    useJUnitPlatform()
     testLogging {
         exceptionFormat = 'full'
     }
