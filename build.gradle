@@ -11,7 +11,6 @@ buildscript {
     }
     dependencies {
         classpath libs.android.build.gradle
-        classpath libs.gradle.retrolambda
         classpath libs.spotbugs.gradle.plugin
     }
 }
@@ -32,8 +31,6 @@ ext.license = file("$rootDir/source-file-header-template.txt")
 apply plugin: 'base'
 apply plugin: 'com.github.spotbugs'
 apply from: file('version.gradle')
-
-apply plugin: 'me.tatarka.retrolambda'
 
 // This is applied to all sub projects
 subprojects {
@@ -245,10 +242,4 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
 
         assemble.dependsOn extractPrebuiltNatives
     }
-}
-
-retrolambda {
-  javaVersion JavaVersion.VERSION_1_7
-  incremental true
-    jvmArgs '-noverify'
 }
