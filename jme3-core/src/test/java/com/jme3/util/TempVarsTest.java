@@ -41,9 +41,10 @@ import org.hamcrest.CoreMatchers;
 import static org.hamcrest.CoreMatchers.everyItem;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
@@ -82,11 +83,11 @@ public class TempVarsTest {
         tempVars.spatialStack[0] = spatial0;
         tempVars.spatialStack[3] = spatial1;
 
-        assertArrayEquals("bihStack must contain two matching entries.",
-                new BIHNode.BIHStackData[]{bihStackData0, bihStackData1},
-                tempVars.bihStack.toArray());
+        assertArrayEquals(new BIHNode.BIHStackData[]{bihStackData0, bihStackData1},
+                tempVars.bihStack.toArray(),
+                "bihStack must contain two matching entries.");
 
-        assertEquals("collisionResults must contain three entries.", 3, tempVars.collisionResults.size());
+        assertEquals(3, tempVars.collisionResults.size(), "collisionResults must contain three entries.");
         assertThat("collisionResults must contain three matching entries.",
                 tempVars.collisionResults,
                 CoreMatchers.hasItems(collisionResult0, collisionResult1, collisionResult2));
@@ -94,7 +95,8 @@ public class TempVarsTest {
         final Spatial[] expectedSpatialStack = new Spatial[tempVars.spatialStack.length];
         expectedSpatialStack[0] = spatial0;
         expectedSpatialStack[3] = spatial1;
-        assertArrayEquals("spatialStack must contain two matching entries.", expectedSpatialStack, tempVars.spatialStack);
+        assertArrayEquals(expectedSpatialStack, tempVars.spatialStack,
+                "spatialStack must contain two matching entries.");
     }
 
     @Test
@@ -104,8 +106,9 @@ public class TempVarsTest {
             addData(tempVars);
             tempVars.release();
 
-            assertEquals("bihStack must be empty after releasing tempVars.", 0, tempVars.bihStack.size());
-            assertEquals("collisionResults must be empty after releasing tempVars.", 0, tempVars.collisionResults.size());
+            assertEquals(0, tempVars.bihStack.size(), "bihStack must be empty after releasing tempVars.");
+            assertEquals(0, tempVars.collisionResults.size(),
+                    "collisionResults must be empty after releasing tempVars.");
             assertThat("All entries in spatialStack must be null after releasing tempVars.",
                     Arrays.asList(tempVars.spatialStack),
                     everyItem(nullValue(Spatial.class)));
@@ -113,8 +116,10 @@ public class TempVarsTest {
 
         {
             final TempVars tempVars = TempVars.get();
-            assertEquals("bihStack must be empty after releasing and getting the same tempVars.", 0, tempVars.bihStack.size());
-            assertEquals("collisionResults must be empty after releasing and getting the same tempVars.", 0, tempVars.collisionResults.size());
+            assertEquals(0, tempVars.bihStack.size(),
+                    "bihStack must be empty after releasing and getting the same tempVars.");
+            assertEquals(0, tempVars.collisionResults.size(),
+                    "collisionResults must be empty after releasing and getting the same tempVars.");
             assertThat("All entries in spatialStack must be null after releasing and getting tempVars.",
                     Arrays.asList(tempVars.spatialStack),
                     everyItem(nullValue(Spatial.class)));
@@ -126,8 +131,10 @@ public class TempVarsTest {
         }
 
         try (final TempVars tempVars = TempVars.get()) {
-            assertEquals("bihStack must be empty after closing and getting the same tempVars.", 0, tempVars.bihStack.size());
-            assertEquals("collisionResults must be empty after closing and getting the same tempVars.", 0, tempVars.collisionResults.size());
+            assertEquals(0, tempVars.bihStack.size(),
+                    "bihStack must be empty after closing and getting the same tempVars.");
+            assertEquals(0, tempVars.collisionResults.size(),
+                    "collisionResults must be empty after closing and getting the same tempVars.");
             assertThat("All entries in spatialStack must be null after closing and getting tempVars.",
                     Arrays.asList(tempVars.spatialStack),
                     everyItem(nullValue(Spatial.class)));

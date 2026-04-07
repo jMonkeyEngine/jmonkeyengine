@@ -3,22 +3,24 @@ package com.jme3.util;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SaferAllocMemoryGuardTest {
 
     private static final long MIB = 1024L * 1024L;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         SaferAllocMemoryGuard.resetStateForTests();
         SaferAllocMemoryGuard.setTestHooks(null, null, null);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         SaferAllocMemoryGuard.resetStateForTests();
         SaferAllocMemoryGuard.setTestHooks(null, null, null);
@@ -42,8 +44,8 @@ public class SaferAllocMemoryGuardTest {
         SaferAllocMemoryGuard.beforeAlloc(0L);
 
         long grownBudget = SaferAllocMemoryGuard.getSoftBudgetForTests();
-        Assert.assertTrue("Expected budget to grow under sustained high pressure", grownBudget > initialBudget);
-        Assert.assertEquals("Should not request GC while still below budget", 0, gcCalls.get());
+        assertTrue(grownBudget > initialBudget, "Expected budget to grow under sustained high pressure");
+        assertEquals(0, gcCalls.get(), "Should not request GC while still below budget");
 
         currentBytes.set(0L);
         for (int i = 0; i < 8; i++) {
@@ -52,7 +54,7 @@ public class SaferAllocMemoryGuardTest {
         }
 
         long shrunkBudget = SaferAllocMemoryGuard.getSoftBudgetForTests();
-        Assert.assertTrue("Expected budget to shrink under sustained low pressure", shrunkBudget < grownBudget);
+        assertTrue(shrunkBudget < grownBudget, "Expected budget to shrink under sustained low pressure");
     }
 
     @Test
@@ -73,13 +75,13 @@ public class SaferAllocMemoryGuardTest {
         SaferAllocMemoryGuard.beforeAlloc(0L);
 
         long grownBudget = SaferAllocMemoryGuard.getSoftBudgetForTests();
-        Assert.assertTrue(grownBudget > initialBudget);
+        assertTrue(grownBudget > initialBudget);
 
         currentBytes.set(grownBudget + 64L * MIB);
         now.addAndGet(3_000L);
         SaferAllocMemoryGuard.beforeAlloc(0L);
 
-        Assert.assertTrue("Expected explicit GC request on over-budget burst", gcCalls.get() >= 2);
+        assertTrue(gcCalls.get() >= 2, "Expected explicit GC request on over-budget burst");
     }
 
     @Test
@@ -94,11 +96,11 @@ public class SaferAllocMemoryGuardTest {
         currentBytes.set((long) (budget * 0.50f));
 
         SaferAllocMemoryGuard.beforeAlloc(0L);
-        Assert.assertEquals(0, gcCalls.get());
+        assertEquals(0, gcCalls.get());
 
         now.set(61_000L);
         SaferAllocMemoryGuard.beforeAlloc(0L);
 
-        Assert.assertTrue("Expected maintenance GC after long silence under non-trivial usage", gcCalls.get() >= 2);
+        assertTrue(gcCalls.get() >= 2, "Expected maintenance GC after long silence under non-trivial usage");
     }
 }

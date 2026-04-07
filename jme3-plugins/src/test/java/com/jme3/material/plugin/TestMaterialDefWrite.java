@@ -37,20 +37,21 @@ import com.jme3.material.plugin.export.materialdef.J3mdExporter;
 import com.jme3.material.plugins.J3MLoader;
 import com.jme3.shader.*;
 import com.jme3.system.JmeSystem;
-import org.junit.*;
 
 import java.io.*;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestMaterialDefWrite {
 
     private AssetManager assetManager;
 
-    @Before
+    @BeforeEach
     public void init() {
         assetManager = JmeSystem.newAssetManager(
                 TestMaterialDefWrite.class.getResource("/com/jme3/asset/Desktop.cfg"));
@@ -87,7 +88,7 @@ public class TestMaterialDefWrite {
 
         for (MatParam refParam : ref.getMaterialParams()) {
             MatParam matParam = matDef.getMaterialParam(refParam.getName());
-            assertTrue(refParam != null);
+            assertNotNull(refParam);
             assertEquals(refParam,matParam);
         }
 
