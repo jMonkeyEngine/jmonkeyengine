@@ -31,10 +31,10 @@
  */
 package com.jme3.renderer;
 
-import com.jme3.renderer.pipeline.RenderPipeline;
-import com.jme3.renderer.pipeline.PipelineContext;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.SceneProcessor;
+import com.jme3.renderer.pipeline.PipelineContext;
+import com.jme3.renderer.pipeline.RenderPipeline;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;

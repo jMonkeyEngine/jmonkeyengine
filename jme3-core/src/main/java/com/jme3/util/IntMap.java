@@ -84,7 +84,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
     public IntMap<T> clone(){
         try {
             IntMap<T> clone = (IntMap<T>) super.clone();
-            Entry[] newTable = new Entry[table.length];
+            Entry<T>[] newTable = newTable(table.length);
             for (int i = table.length - 1; i >= 0; i--){
                 if (table[i] != null)
                     newTable[i] = table[i].clone();
@@ -138,7 +138,6 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     public T get(int key) {
         int index = key & mask;
         for (Entry<T> e = table[index]; e != null; e = e.next){
@@ -149,7 +148,6 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public T put(int key, T value) {
         int index = key & mask;
         // Check if key already exists.
@@ -161,7 +159,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
             e.value = value;
             return oldValue;
         }
-        table[index] = new Entry(key, value, table[index]);
+        table[index] = new Entry<>(key, value, table[index]);
         if (size++ >= threshold){
             // Rehash.
             int newCapacity = 2 * capacity;
@@ -189,7 +187,6 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public T remove(int key) {
         int index = key & mask;
         Entry<T> prev = table[index];
@@ -297,9 +294,9 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeClonea
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> Entry<T>[] newTable(int size) {
-        Entry<T>[] table = (Entry<T>[]) new Entry<?>[size];
-        return table;
+        return (Entry<T>[]) new Entry<?>[size];
     }
 
     public static final class Entry<T> implements Cloneable, JmeCloneable {

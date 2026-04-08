@@ -31,10 +31,6 @@
  */
 package com.jme3.renderer;
 
-import com.jme3.renderer.pipeline.ForwardPipeline;
-import com.jme3.renderer.pipeline.DefaultPipelineContext;
-import com.jme3.renderer.pipeline.RenderPipeline;
-import com.jme3.renderer.pipeline.PipelineContext;
 import com.jme3.light.DefaultLightFilter;
 import com.jme3.light.LightFilter;
 import com.jme3.light.LightList;
@@ -50,6 +46,10 @@ import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.AppStep;
 import com.jme3.profile.VpStep;
+import com.jme3.renderer.pipeline.DefaultPipelineContext;
+import com.jme3.renderer.pipeline.ForwardPipeline;
+import com.jme3.renderer.pipeline.PipelineContext;
+import com.jme3.renderer.pipeline.RenderPipeline;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
