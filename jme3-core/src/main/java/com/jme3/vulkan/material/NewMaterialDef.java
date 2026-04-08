@@ -7,7 +7,7 @@ import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.vulkan.material.technique.NewTechnique;
 import com.jme3.vulkan.material.technique.VulkanTechnique;
-import com.jme3.vulkan.material.uniforms.Uniform;
+import com.jme3.vulkan.material.uniforms.ShaderParam;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,14 +18,14 @@ import java.util.Map;
  */
 public class NewMaterialDef <T extends Material> implements CloneableSmartAsset {
 
-    private final Map<String, Uniform<?>> uniforms = new HashMap<>();
+    private final Map<String, ShaderParam<?>> uniforms = new HashMap<>();
     private final Map<String, NewTechnique> techniques = new HashMap<>();
     private final RenderState renderState = new RenderState();
     private AssetKey key;
 
     public T createMaterial(Engine engine) {
         T mat = (T)engine.createMaterial();
-        for (Map.Entry<String, Uniform<?>> u : uniforms.entrySet()) {
+        for (Map.Entry<String, ShaderParam<?>> u : uniforms.entrySet()) {
             mat.setUniform(u.getKey(), u.getValue().clone(engine));
         }
         for (Map.Entry<String, NewTechnique> t : techniques.entrySet()) {
@@ -58,7 +58,7 @@ public class NewMaterialDef <T extends Material> implements CloneableSmartAsset 
         return key;
     }
 
-    public void setUniform(String name, Uniform<?> def) {
+    public void setUniform(String name, ShaderParam<?> def) {
         uniforms.put(name, def);
     }
 
@@ -66,7 +66,7 @@ public class NewMaterialDef <T extends Material> implements CloneableSmartAsset 
         techniques.put(name, technique);
     }
 
-    public Uniform<?> getUniform(String name) {
+    public ShaderParam<?> getUniform(String name) {
         return uniforms.get(name);
     }
 

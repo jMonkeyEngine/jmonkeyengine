@@ -6,7 +6,7 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.AbstractSetWriter;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
-import com.jme3.vulkan.descriptors.SetLayoutBinding;
+import com.jme3.vulkan.descriptors.UniformBinding;
 import com.jme3.vulkan.images.VulkanImage;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
@@ -31,7 +31,7 @@ public class TextureUniform <T extends Texture> implements VulkanUniform<T> {
     }
 
     @Override
-    public DescriptorSetWriter createWriter(CommandBuffer cmd, SetLayoutBinding binding) {
+    public DescriptorSetWriter createWriter(CommandBuffer cmd, UniformBinding binding) {
         if (value == null) {
             return null;
         }
@@ -39,8 +39,8 @@ public class TextureUniform <T extends Texture> implements VulkanUniform<T> {
     }
 
     @Override
-    public SetLayoutBinding createBinding(int binding, Flag<ShaderStage> scope) {
-        return new SetLayoutBinding(Descriptor.CombinedImageSampler, binding, 1, scope);
+    public UniformBinding createBinding(int binding, Flag<ShaderStage> scope) {
+        return new UniformBinding(Descriptor.CombinedImageSampler, binding, 1, scope);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class TextureUniform <T extends Texture> implements VulkanUniform<T> {
 
     @Override
     public String getDefineValue() {
-        return value == null ? null : Uniform.ENABLED_DEFINE;
+        return value == null ? null : ShaderParam.ENABLED_DEFINE;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class TextureUniform <T extends Texture> implements VulkanUniform<T> {
         private final long samplerId, viewId;
         private final IntEnum<VulkanImage.Layout> layout;
 
-        public Writer(SetLayoutBinding binding, Texture<?, ?> texture, IntEnum<VulkanImage.Layout> layout) {
+        public Writer(UniformBinding binding, Texture<?, ?> texture, IntEnum<VulkanImage.Layout> layout) {
             super(binding, 0, 1);
             this.samplerId = texture.getId();
             this.viewId = texture.getView().getId();

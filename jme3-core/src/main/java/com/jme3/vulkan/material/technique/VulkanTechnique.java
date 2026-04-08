@@ -3,10 +3,10 @@ package com.jme3.vulkan.material.technique;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.RenderState;
 import com.jme3.vulkan.descriptors.DescriptorSetLayout;
-import com.jme3.vulkan.descriptors.SetLayoutBinding;
+import com.jme3.vulkan.descriptors.UniformBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.VulkanMaterial;
-import com.jme3.vulkan.material.uniforms.Uniform;
+import com.jme3.vulkan.material.uniforms.ShaderParam;
 import com.jme3.vulkan.pipeline.PipelineLayout;
 import com.jme3.vulkan.pipeline.cache.Cache;
 import com.jme3.vulkan.material.shader.ShaderModule;
@@ -17,7 +17,7 @@ import java.util.*;
 
 public class VulkanTechnique implements NewTechnique {
 
-    private final List<Map<String, SetLayoutBinding>> bindings = new ArrayList<>();
+    private final List<Map<String, UniformBinding>> bindings = new ArrayList<>();
     private final List<PushConstantRange> pushConstants = new ArrayList<>();
     private final Map<ShaderStage, String> shaders = new HashMap<>();
     private final Map<String, Define> uniformDefines = new HashMap<>();
@@ -25,11 +25,11 @@ public class VulkanTechnique implements NewTechnique {
     private final RenderState state = new RenderState();
     
     @Override
-    public void setBinding(int set, String name, SetLayoutBinding binding) {
+    public void setBinding(int set, String name, UniformBinding binding) {
         while (set >= bindings.size()) {
             bindings.add(null);
         }
-        Map<String, SetLayoutBinding> bindingMap = bindings.get(set);
+        Map<String, UniformBinding> bindingMap = bindings.get(set);
         if (bindingMap == null) {
             bindings.set(set, bindingMap = new HashMap<>());
         }
@@ -60,7 +60,7 @@ public class VulkanTechnique implements NewTechnique {
     public NewTechnique clone() {
         try {
             VulkanTechnique clone = (VulkanTechnique)super.clone();
-            for (Map<String, SetLayoutBinding> set : bindings) {
+            for (Map<String, UniformBinding> set : bindings) {
                 clone.bindings.add(new HashMap<>(set));
             }
             clone.pushConstants.addAll(pushConstants);
@@ -96,7 +96,7 @@ public class VulkanTechnique implements NewTechnique {
                 s.setStage(shaderInfo.getKey());
                 for (Define d : uniformDefines.values()) {
                     if (d.scope.containsAny(shaderInfo.getKey())) {
-                        Uniform<?> u = material.getUniform(d.uniform);
+                        ShaderParam<?> u = material.getUniform(d.uniform);
                         if (u != null) s.setDefine(d.define, u.getDefineValue());
                     }
                 }
@@ -109,7 +109,7 @@ public class VulkanTechnique implements NewTechnique {
                                     Cache<DescriptorSetLayout> setCache) {
         return PipelineLayout.build(device, p -> {
             p.setCache(layoutCache);
-            for (Map<String, SetLayoutBinding> set : bindings) {
+            for (Map<String, UniformBinding> set : bindings) {
                 if (set == null) {
                     throw new IllegalStateException("Each set layout must have at least one binding.");
                 }
@@ -129,7 +129,7 @@ public class VulkanTechnique implements NewTechnique {
 
     public VulkanTechnique copy() {
         VulkanTechnique copy = new VulkanTechnique();
-        for (Map<String, SetLayoutBinding> set : bindings) {
+        for (Map<String, UniformBinding> set : bindings) {
             copy.bindings.add(new HashMap<>(set));
         }
         copy.shaders.putAll(shaders);

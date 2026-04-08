@@ -18,13 +18,13 @@ import static org.lwjgl.vulkan.VK10.*;
 public class DescriptorSetLayout extends AbstractNative<Long> {
 
     private final LogicalDevice<?> device;
-    private final Map<String, SetLayoutBinding> bindings = new HashMap<>();
+    private final Map<String, UniformBinding> bindings = new HashMap<>();
 
     protected DescriptorSetLayout(LogicalDevice<?> device) {
         this.device = device;
     }
 
-    protected DescriptorSetLayout(LogicalDevice<?> device, Map<String, SetLayoutBinding> bindings) {
+    protected DescriptorSetLayout(LogicalDevice<?> device, Map<String, UniformBinding> bindings) {
         this(device);
         this.bindings.putAll(bindings);
     }
@@ -38,19 +38,15 @@ public class DescriptorSetLayout extends AbstractNative<Long> {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         DescriptorSetLayout that = (DescriptorSetLayout) o;
-        return Objects.equals(device, that.device) && Objects.equals(bindings, that.bindings);
+        return Objects.equals(bindings, that.bindings);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(device, bindings);
+        return Objects.hash(bindings);
     }
 
-    public DescriptorSetLayout copy() {
-        return new DescriptorSetLayout(device, bindings);
-    }
-
-    public Map<String, SetLayoutBinding> getBindings() {
+    public Map<String, UniformBinding> getBindings() {
         return Collections.unmodifiableMap(bindings);
     }
 
@@ -60,11 +56,11 @@ public class DescriptorSetLayout extends AbstractNative<Long> {
         return b.build();
     }
 
-    public static DescriptorSetLayout build(LogicalDevice<?> device, Map<String, SetLayoutBinding> bindings) {
+    public static DescriptorSetLayout build(LogicalDevice<?> device, Map<String, UniformBinding> bindings) {
         return new DescriptorSetLayout(device, bindings).new Builder().build();
     }
 
-    public static DescriptorSetLayout build(LogicalDevice<?> device, Map<String, SetLayoutBinding> bindings, Cache<DescriptorSetLayout> cache) {
+    public static DescriptorSetLayout build(LogicalDevice<?> device, Map<String, UniformBinding> bindings, Cache<DescriptorSetLayout> cache) {
         return new DescriptorSetLayout(device, bindings).new Builder(cache).build();
     }
 
@@ -79,7 +75,7 @@ public class DescriptorSetLayout extends AbstractNative<Long> {
         @Override
         protected void construct() {
             VkDescriptorSetLayoutBinding.Buffer layoutBindings = VkDescriptorSetLayoutBinding.calloc(bindings.size(), stack);
-            for (SetLayoutBinding b : bindings.values()) {
+            for (UniformBinding b : bindings.values()) {
                 b.fillLayoutBinding(layoutBindings.get());
             }
             layoutBindings.flip();
@@ -99,8 +95,8 @@ public class DescriptorSetLayout extends AbstractNative<Long> {
             return DescriptorSetLayout.this;
         }
 
-        public void addBinding(String uniform, SetLayoutBinding binding) {
-            bindings.put(uniform, binding);
+        public void addBinding(String name, UniformBinding binding) {
+            bindings.put(name, binding);
         }
 
     }

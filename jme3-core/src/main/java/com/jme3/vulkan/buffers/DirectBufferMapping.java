@@ -32,6 +32,11 @@ public class DirectBufferMapping implements BufferMapping {
     public void close() {}
 
     @Override
+    public boolean isMapped() {
+        return true;
+    }
+
+    @Override
     public void stage(long offset, long size) {}
 
     @Override

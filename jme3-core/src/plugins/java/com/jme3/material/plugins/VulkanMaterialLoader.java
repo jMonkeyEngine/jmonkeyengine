@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.vulkan.descriptors.Descriptor;
-import com.jme3.vulkan.descriptors.SetLayoutBinding;
+import com.jme3.vulkan.descriptors.UniformBinding;
 import com.jme3.vulkan.material.NewMaterialDef;
 import com.jme3.vulkan.material.technique.VulkanTechnique;
 import com.jme3.vulkan.material.uniforms.BufferUniform;
@@ -149,7 +149,7 @@ public class VulkanMaterialLoader implements AssetLoader {
             }
         }
 
-        public SetLayoutBinding createBinding(VulkanUniform<?> u) {
+        public UniformBinding createBinding(VulkanUniform<?> u) {
             return u.createBinding(binding, scope);
         }
 

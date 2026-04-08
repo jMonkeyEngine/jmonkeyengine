@@ -5,10 +5,10 @@ import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
 public abstract class AbstractSetWriter implements DescriptorSetWriter {
 
-    protected final SetLayoutBinding binding;
+    protected final UniformBinding binding;
     protected final int arrayElement, count;
 
-    protected AbstractSetWriter(SetLayoutBinding binding, int arrayElement, int count) {
+    protected AbstractSetWriter(UniformBinding binding, int arrayElement, int count) {
         this.binding = binding;
         this.arrayElement = arrayElement;
         this.count = count;

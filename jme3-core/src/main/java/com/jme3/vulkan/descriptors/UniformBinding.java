@@ -7,30 +7,20 @@ import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding;
 
 import java.util.Objects;
 
-public class SetLayoutBinding {
+public abstract class UniformBinding <T> {
 
     private final IntEnum<Descriptor> type;
     private final int binding, descriptors;
     private final Flag<ShaderStage> stages;
 
-    public SetLayoutBinding(IntEnum<Descriptor> type, int binding) {
-        this(type, binding, 1, ShaderStage.All);
-    }
-
-    public SetLayoutBinding(IntEnum<Descriptor> type, int binding, int descriptors) {
-        this(type, binding, descriptors, ShaderStage.All);
-    }
-
-    public SetLayoutBinding(IntEnum<Descriptor> type, int binding, Flag<ShaderStage> stages) {
-        this(type, binding, 1, stages);
-    }
-
-    public SetLayoutBinding(IntEnum<Descriptor> type, int binding, int descriptors, Flag<ShaderStage> stages) {
+    public UniformBinding(IntEnum<Descriptor> type, int binding, int descriptors, Flag<ShaderStage> stages) {
         this.type = type;
         this.binding = binding;
         this.descriptors = descriptors;
         this.stages = stages;
     }
+
+    public abstract DescriptorSetWriter createWriter(T value);
 
     public void fillLayoutBinding(VkDescriptorSetLayoutBinding layoutBinding) {
         layoutBinding.descriptorType(type.getEnum())
@@ -59,7 +49,7 @@ public class SetLayoutBinding {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        SetLayoutBinding that = (SetLayoutBinding) o;
+        UniformBinding that = (UniformBinding) o;
         return binding == that.binding
                 && descriptors == that.descriptors
                 && Objects.equals(type, that.type)

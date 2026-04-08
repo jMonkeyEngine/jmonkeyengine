@@ -16,6 +16,11 @@ public class VirtualBufferMapping implements BufferMapping {
     public void close() {}
 
     @Override
+    public boolean isMapped() {
+        return source.isMapped();
+    }
+
+    @Override
     public void stage(long offset, long size) {
         source.stage(offset, size);
     }

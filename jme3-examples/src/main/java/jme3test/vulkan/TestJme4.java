@@ -3,10 +3,7 @@ package jme3test.vulkan;
 import com.jme3.app.SimpleApplication;
 import com.jme3.backend.Engine;
 import com.jme3.backend.SimpleVulkanEngine;
-import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -16,13 +13,11 @@ import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.TransparentComparator;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.commands.StandardRenderSettings;
-import com.jme3.vulkan.material.structs.UnshadedParams;
-import com.jme3.vulkan.mesh.attributes.AttributeMapping;
+import com.jme3.vulkan.material.NewMaterial;
+import com.jme3.vulkan.material.experimental.Unlit;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
 import com.sun.tools.javac.util.List;
-import org.graalvm.compiler.lir.amd64.AMD64BinaryConsumer;
 
 public class TestJme4 extends SimpleApplication {
 
@@ -39,9 +34,10 @@ public class TestJme4 extends SimpleApplication {
         engine = new SimpleVulkanEngine(this, 3);
 
         Geometry g = new Geometry("geom_jme4", new Box(1f, 1f, 1f));
-        Material mat = engine.createMaterial("Common/MatDefs/Misc/Unshaded.j3md");
-        try (MyParams p = mat.mapParameters()) {
-            p.getColor().set(ColorRGBA.Blue);
+        NewMaterial mat = (NewMaterial)engine.createMaterial("Common/MatDefs/Misc/Unshaded.j3md");
+        try (Unlit u = new Unlit()) {
+            u.setBaseColor(ColorRGBA.White);
+            u.setColorMap(null);
         }
         g.setMaterial(mat);
         rootNode.attachChild(g);

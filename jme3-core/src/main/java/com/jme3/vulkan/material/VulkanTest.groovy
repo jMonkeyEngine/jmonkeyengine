@@ -6,7 +6,7 @@ import com.jme3.backend.SimpleVulkanEngine.LightData
 import com.jme3.vulkan.buffers.BufferUsage
 import com.jme3.vulkan.buffers.stream.StreamingBuffer
 import com.jme3.vulkan.descriptors.Descriptor
-import com.jme3.vulkan.descriptors.SetLayoutBinding
+import com.jme3.vulkan.descriptors.UniformBinding
 import com.jme3.vulkan.devices.LogicalDevice
 import com.jme3.vulkan.images.VulkanImage
 import com.jme3.vulkan.material.shader.ShaderStage
@@ -27,6 +27,6 @@ mat.setUniform "ColorMap", new TextureUniform(VulkanImage.Layout.ShaderReadOnlyO
 technique = new VulkanTechnique()
 technique.setShaderSource ShaderStage.Vertex, "Test/VulkanTest.vert"
 technique.setShaderSource ShaderStage.Fragment, "Test/VulkanTest.frag"
-technique.setBinding 0, "PBR", new SetLayoutBinding(Descriptor.UniformBuffer, 0, ShaderStage.Fragment)
-technique.setBinding 0, "ColorMap", new SetLayoutBinding(Descriptor.CombinedImageSampler, 1, ShaderStage.Fragment)
+technique.setBinding 0, "PBR", new UniformBinding(Descriptor.UniformBuffer, 0, ShaderStage.Fragment)
+technique.setBinding 0, "ColorMap", new UniformBinding(Descriptor.CombinedImageSampler, 1, ShaderStage.Fragment)
 mat.setTechnique "main", technique

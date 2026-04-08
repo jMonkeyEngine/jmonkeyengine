@@ -1,5 +1,7 @@
 package com.jme3.util.struct;
 
+import java.util.Objects;
+
 /**
  * Struct field member that serializes and deserializes values to native memory
  * relative to the bound struct's memory address.
@@ -41,27 +43,11 @@ public interface StructField <T> {
     T alias();
 
     /**
-     * Sets the name of this field. When created inside a {@link Struct}, the name will be
-     * assigned reflectively if no name is assigned manually.
-     *
-     * @param name field name
-     */
-    void setName(String name);
-
-    /**
      * Gets the name of this field.
      *
      * @return name of this field
      */
     String getName();
-
-    /**
-     * Gets the object type represented by this field. This is used for selecting
-     * the field description to bind to this field.
-     *
-     * @return object type
-     */
-    Class getType();
 
     /**
      * Gets the size in bytes of this field. The managing struct
@@ -93,6 +79,15 @@ public interface StructField <T> {
             throw new NullPointerException("Name required.");
         }
         return n;
+    }
+
+    default boolean compareAndSet(T value) {
+        T current = get();
+        if (!Objects.equals(current, value)) {
+            set(value);
+            return true;
+        }
+        return false;
     }
 
 }

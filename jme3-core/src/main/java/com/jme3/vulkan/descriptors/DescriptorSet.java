@@ -35,7 +35,9 @@ public class DescriptorSet extends AbstractNative<Long> {
     }
 
     public void write(Collection<DescriptorSetWriter> writers) {
-        if (writers.isEmpty()) return;
+        if (writers.isEmpty()) {
+            return;
+        }
         try (MemoryStack stack = MemoryStack.stackPush()) {
             VkWriteDescriptorSet.Buffer write = VkWriteDescriptorSet.calloc(writers.size(), stack);
             for (DescriptorSetWriter w : writers) {

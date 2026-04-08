@@ -3,7 +3,7 @@ package com.jme3.vulkan.pipeline;
 import com.jme3.util.natives.AbstractNative;
 import com.jme3.util.natives.CacheableNativeBuilder;
 import com.jme3.util.natives.DisposableManager;
-import com.jme3.vulkan.descriptors.DescriptorSetLayout;
+import com.jme3.vulkan.descriptors.*;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.technique.PushConstantRange;
 import org.lwjgl.vulkan.VkPipelineLayoutCreateInfo;
@@ -42,6 +42,46 @@ public class PipelineLayout extends AbstractNative<Long> {
     @Override
     public int hashCode() {
         return Objects.hashCode(layouts);
+    }
+
+    public <T extends UniformBinding> T getBinding(String name) {
+        for (DescriptorSetLayout l : layouts) {
+            UniformBinding b = l.getBindings().get(name);
+            if (b != null) return (T)b;
+        }
+        return null;
+    }
+
+    public void allocate(DescriptorPool pool, Map<DescriptorSetLayout, CachedDescriptorSet> sets) {
+        List<DescriptorSetLayout> toAlloc = new LinkedList<>();
+        for (DescriptorSetLayout l : layouts) {
+            if (!sets.containsKey(l)) {
+                toAlloc.add(l);
+            }
+        }
+        if (!toAlloc.isEmpty()) {
+            DescriptorSet[] allocated = pool.allocateSets(toAlloc);
+            for (ListIterator<DescriptorSetLayout> it = toAlloc.listIterator(); it.hasNext();) {
+                sets.put(it.next(), new CachedDescriptorSet(allocated[it.previousIndex()]));
+            }
+        }
+    }
+
+    public void write(Map<DescriptorSetLayout, CachedDescriptorSet> sets, String name, Object value) {
+        for (DescriptorSetLayout l : layouts) {
+            UniformBinding b = l.getBindings().get(name);
+            if (b != null) {
+                DescriptorSetWriter writer = b.createWriter(value);
+                if (writer == null) {
+                    continue;
+                }
+                CachedDescriptorSet set = sets.get(l);
+                if (set == null) {
+                    continue;
+                }
+                set.stageWriter(name, writer);
+            }
+        }
     }
 
     public List<DescriptorSetLayout> getSetLayouts() {

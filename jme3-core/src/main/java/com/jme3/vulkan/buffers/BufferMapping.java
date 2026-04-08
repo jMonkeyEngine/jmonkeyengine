@@ -14,6 +14,8 @@ public interface BufferMapping extends AutoCloseable {
     @Override
     void close();
 
+    boolean isMapped();
+
     void stage(long offset, long size);
 
     long getAddress();
@@ -38,24 +40,12 @@ public interface BufferMapping extends AutoCloseable {
         stage(0, getSize());
     }
 
-    default <T extends Struct> StructSequence<T> getStructs(T alias) {
-        return new StructSequence<>(alias, getAddress());
-    }
-
     default <T> T get(LongFunction<T> factory) {
         return factory.apply(getAddress());
     }
 
     default <T> T get(BiFunction<Long, Long, T> factory) {
         return factory.apply(getAddress(), getSize());
-    }
-
-    default <T extends Struct> StructMapping<T> toStructs(T struct) {
-        return new StructMapping<>(struct, this);
-    }
-
-    default <T extends Struct> StructMapping<T> toStructs(T struct, long offset) {
-        return new StructMapping<>(struct, this, offset);
     }
 
 }

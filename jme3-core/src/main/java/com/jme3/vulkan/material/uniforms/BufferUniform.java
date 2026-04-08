@@ -1,6 +1,5 @@
 package com.jme3.vulkan.material.uniforms;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructLayout;
 import com.jme3.util.struct.StructMapping;
@@ -9,7 +8,7 @@ import com.jme3.vulkan.commands.CommandBuffer;
 import com.jme3.vulkan.descriptors.AbstractSetWriter;
 import com.jme3.vulkan.descriptors.Descriptor;
 import com.jme3.vulkan.descriptors.DescriptorSetWriter;
-import com.jme3.vulkan.descriptors.SetLayoutBinding;
+import com.jme3.vulkan.descriptors.UniformBinding;
 import com.jme3.vulkan.devices.LogicalDevice;
 import com.jme3.vulkan.material.shader.ShaderStage;
 import com.jme3.vulkan.util.Flag;
@@ -18,7 +17,6 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkDescriptorBufferInfo;
 import org.lwjgl.vulkan.VkWriteDescriptorSet;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class BufferUniform <T extends MappableBuffer> implements VulkanUniform<T> {
@@ -34,7 +32,7 @@ public class BufferUniform <T extends MappableBuffer> implements VulkanUniform<T
     }
 
     @Override
-    public DescriptorSetWriter createWriter(CommandBuffer cmd, SetLayoutBinding binding) {
+    public DescriptorSetWriter createWriter(CommandBuffer cmd, UniformBinding binding) {
         if (buffer == null) {
             return null;
         }
@@ -44,8 +42,8 @@ public class BufferUniform <T extends MappableBuffer> implements VulkanUniform<T
     }
 
     @Override
-    public SetLayoutBinding createBinding(int binding, Flag<ShaderStage> scope) {
-        return new SetLayoutBinding(descriptor, binding, 1, scope);
+    public UniformBinding createBinding(int binding, Flag<ShaderStage> scope) {
+        return new UniformBinding(descriptor, binding, 1, scope);
     }
 
     @Override
@@ -60,7 +58,7 @@ public class BufferUniform <T extends MappableBuffer> implements VulkanUniform<T
 
     @Override
     public String getDefineValue() {
-        return buffer == null ? null : Uniform.ENABLED_DEFINE;
+        return buffer == null ? null : ShaderParam.ENABLED_DEFINE;
     }
 
     public <S extends Struct> StructMapping<S> map(S struct) {
@@ -72,7 +70,7 @@ public class BufferUniform <T extends MappableBuffer> implements VulkanUniform<T
 
         private final long id, offset, bytes;
 
-        private Writer(LogicalDevice<?> device, SetLayoutBinding binding, VulkanBuffer data) {
+        private Writer(LogicalDevice<?> device, UniformBinding binding, VulkanBuffer data) {
             super(binding, 0, 1);
             this.id = data.getBufferId(device);
             this.offset = data.size().getOffset();

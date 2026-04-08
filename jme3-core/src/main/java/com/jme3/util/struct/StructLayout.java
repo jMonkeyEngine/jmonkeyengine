@@ -5,16 +5,21 @@ import com.jme3.vulkan.buffers.BufferMapping;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class StructLayout {
-
+    
+    private static final Logger logger = Logger.getLogger(StructLayout.class.getName());
+    
     private static final int VEC2_WIDTH = Float.BYTES * 2;
     private static final int VEC3_WIDTH = Float.BYTES * 3;
     private static final int VEC4_WIDTH = Float.BYTES * 4;
 
-    public static final StructLayout std140 = new StructLayout(VEC4_WIDTH);
-    public static final StructLayout std430 = new StructLayout(VEC4_WIDTH);
-    public static final StructLayout packed = new StructLayout(Byte.BYTES);
+    public static final StructLayout std140 = new StructLayout("std140", VEC4_WIDTH);
+    public static final StructLayout std430 = new StructLayout("std430", VEC4_WIDTH);
+    public static final StructLayout packed = new StructLayout("packed", Byte.BYTES);
+    private static final Map<String, StructLayout> layouts = new HashMap<>();
 
     private static void addToAllLayouts(FieldDesc desc, Class... types) {
         std140.addFieldDescription(desc, types);
@@ -27,9 +32,13 @@ public class StructLayout {
             l.addFieldDescription(desc, types);
         }
     }
+    
+    public static StructLayout getLayoutByIdentifier(String identifier) {
+        return layouts.get(identifier);
+    }
 
     static {
-
+        
         final StructLayout[] stds = {std140, std430};
 
         // general descriptions
@@ -67,7 +76,7 @@ public class StructLayout {
                 return mapping.getBytes().getFloat(position);
             }
         }, float.class, Float.class);
-        addToLayouts(new ObjectDesc<Vector2f>(Float.BYTES << 1, Float.BYTES << 1) {
+        addToLayouts(new ObjectDesc<Vector2f>(VEC2_WIDTH, VEC2_WIDTH) {
             @Override
             public void write(StructLayout layout, BufferMapping mapping, int position, Vector2f value) {
                 ByteBuffer buf = mapping.getBytes();
@@ -80,7 +89,7 @@ public class StructLayout {
                 return store.set(buf.getFloat(), buf.getFloat());
             }
         }, stds, Vector2f.class);
-        addToLayouts(new ObjectDesc<Vector3f>(Float.BYTES * 3, Float.BYTES << 2) {
+        addToLayouts(new ObjectDesc<Vector3f>(Float.BYTES * 3, VEC4_WIDTH) {
             @Override
             public void write(StructLayout layout, BufferMapping mapping, int position, Vector3f value) {
                 ByteBuffer buf = mapping.getBytes();
@@ -93,7 +102,7 @@ public class StructLayout {
                 return store.set(buf.getFloat(), buf.getFloat(), buf.getFloat());
             }
         }, stds, Vector3f.class);
-        addToLayouts(new ObjectDesc<Vector4f>(Float.BYTES << 2, Float.BYTES << 2) {
+        addToLayouts(new ObjectDesc<Vector4f>(VEC4_WIDTH, VEC4_WIDTH) {
             @Override
             public void write(StructLayout layout, BufferMapping mapping, int position, Vector4f value) {
                 ByteBuffer buf = mapping.getBytes();
@@ -106,7 +115,7 @@ public class StructLayout {
                 return store.set(buf.getFloat(), buf.getFloat(), buf.getFloat(), buf.getFloat());
             }
         }, stds, Vector4f.class);
-        addToLayouts(new ObjectDesc<ColorRGBA>(Float.BYTES << 2, Float.BYTES << 2) {
+        addToLayouts(new ObjectDesc<ColorRGBA>(VEC4_WIDTH, VEC4_WIDTH) {
             @Override
             public void write(StructLayout layout, BufferMapping mapping, int position, ColorRGBA value) {
                 ByteBuffer buf = mapping.getBytes();
@@ -119,7 +128,7 @@ public class StructLayout {
                 return store.set(buf.getFloat(), buf.getFloat(), buf.getFloat(), buf.getFloat());
             }
         }, stds, ColorRGBA.class);
-        addToLayouts(new ObjectDesc<Matrix3f>(Float.BYTES * 12, Float.BYTES << 2) {
+        addToLayouts(new ObjectDesc<Matrix3f>(Float.BYTES * 12, VEC4_WIDTH) {
             @Override
             public void write(StructLayout layout, BufferMapping mapping, int position, Matrix3f value) {
                 value.writeToStdBuffer(mapping.getBytes().position(position));
@@ -130,7 +139,7 @@ public class StructLayout {
                 return store.readFromStdBuffer(mapping.getBytes().position(position));
             }
         }, stds, Matrix3f.class);
-        addToLayouts(new ObjectDesc<Matrix4f>(Float.BYTES << 4, Float.BYTES << 2) {
+        addToLayouts(new ObjectDesc<Matrix4f>(Float.BYTES << 4, VEC4_WIDTH) {
             @Override
             public void write(StructLayout layout, BufferMapping mapping, int position, Matrix4f value) {
                 value.writeToBuffer(mapping.getBytes().position(position));
@@ -143,7 +152,7 @@ public class StructLayout {
         }, stds, Matrix4f.class);
 
         // std140 descriptions
-        std140.addFieldDescription(new DirectArrayDesc<boolean[], Boolean>(std140.getFieldDescription(boolean.class), Float.BYTES, Float.BYTES << 2) {
+        std140.addFieldDescription(new DirectArrayDesc<boolean[], Boolean>(std140.getFieldDescription(boolean.class), Float.BYTES, VEC4_WIDTH) {
             @Override
             protected void setElement(boolean[] array, int index, Boolean element) {
                 array[index] = element;
@@ -157,7 +166,7 @@ public class StructLayout {
                 return array.length;
             }
         }, boolean[].class);
-        std140.addFieldDescription(new DirectArrayDesc<int[], Integer>(std140.getFieldDescription(int.class), Float.BYTES, Float.BYTES << 2) {
+        std140.addFieldDescription(new DirectArrayDesc<int[], Integer>(std140.getFieldDescription(int.class), Float.BYTES, VEC4_WIDTH) {
             @Override
             protected void setElement(int[] array, int index, Integer element) {
                 array[index] = element;
@@ -171,7 +180,7 @@ public class StructLayout {
                 return array.length;
             }
         }, int[].class);
-        std140.addFieldDescription(new DirectArrayDesc<float[], Float>(std140.getFieldDescription(float.class), Float.BYTES, Float.BYTES << 2) {
+        std140.addFieldDescription(new DirectArrayDesc<float[], Float>(std140.getFieldDescription(float.class), Float.BYTES, VEC4_WIDTH) {
             @Override
             protected void setElement(float[] array, int index, Float element) {
                 array[index] = element;
@@ -185,17 +194,17 @@ public class StructLayout {
                 return array.length;
             }
         }, float[].class);
-        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Boolean.class), Float.BYTES << 2), Boolean[].class);
-        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Integer.class), Float.BYTES << 2), Integer[].class);
-        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Float.class), Float.BYTES << 2), Float[].class);
-        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Vector2f.class), Float.BYTES << 2), Vector2f[].class);
-        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Vector3f.class), Float.BYTES << 2), Vector3f[].class);
-        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Vector4f.class), Float.BYTES << 2), Vector4f[].class);
-        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(ColorRGBA.class), Float.BYTES << 2), ColorRGBA[].class);
-        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Matrix3f.class), Float.BYTES << 2), Matrix3f[].class);
-        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Matrix4f.class), Float.BYTES << 2), Matrix4f[].class);
-        std140.addFieldDescription(new ArrayDesc(null, Float.BYTES << 2), Object[].class);
-        std140.addFieldDescription(new ListDesc(Float.BYTES << 2), List.class, ArrayList.class, LinkedList.class);
+        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Boolean.class), VEC4_WIDTH), Boolean[].class);
+        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Integer.class), VEC4_WIDTH), Integer[].class);
+        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Float.class), VEC4_WIDTH), Float[].class);
+        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Vector2f.class), VEC4_WIDTH), Vector2f[].class);
+        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Vector3f.class), VEC4_WIDTH), Vector3f[].class);
+        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Vector4f.class), VEC4_WIDTH), Vector4f[].class);
+        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(ColorRGBA.class), VEC4_WIDTH), ColorRGBA[].class);
+        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Matrix3f.class), VEC4_WIDTH), Matrix3f[].class);
+        std140.addFieldDescription(new ArrayDesc(std140.getFieldDescription(Matrix4f.class), VEC4_WIDTH), Matrix4f[].class);
+        std140.addFieldDescription(new ArrayDesc(null, VEC4_WIDTH), Object[].class);
+        std140.addFieldDescription(new ListDesc(VEC4_WIDTH), List.class, ArrayList.class, LinkedList.class);
 
         // std340 descriptions
         std430.addFieldDescription(new DirectArrayDesc<boolean[], Boolean>(std140.getFieldDescription(boolean.class), Float.BYTES, Float.BYTES) {
@@ -243,16 +252,16 @@ public class StructLayout {
         std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Boolean.class), Float.BYTES), Boolean[].class);
         std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Integer.class), Float.BYTES), Integer[].class);
         std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Float.class), Float.BYTES), Float[].class);
-        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Vector2f.class), Float.BYTES << 1), Vector2f[].class);
-        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Vector3f.class), Float.BYTES << 2), Vector3f[].class);
-        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Vector4f.class), Float.BYTES << 2), Vector4f[].class);
-        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(ColorRGBA.class), Float.BYTES << 2), ColorRGBA[].class);
-        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Matrix3f.class), Float.BYTES << 2), Matrix3f[].class);
-        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Matrix4f.class), Float.BYTES << 2), Matrix4f[].class);
+        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Vector2f.class), VEC2_WIDTH), Vector2f[].class);
+        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Vector3f.class), VEC4_WIDTH), Vector3f[].class);
+        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Vector4f.class), VEC4_WIDTH), Vector4f[].class);
+        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(ColorRGBA.class), VEC4_WIDTH), ColorRGBA[].class);
+        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Matrix3f.class), VEC4_WIDTH), Matrix3f[].class);
+        std430.addFieldDescription(new ArrayDesc(std430.getFieldDescription(Matrix4f.class), VEC4_WIDTH), Matrix4f[].class);
         std430.addFieldDescription(new ArrayDesc(null, 0), Object[].class);
         std430.addFieldDescription(new ListDesc(0), List.class, ArrayList.class, LinkedList.class);
 
-        // vertex descriptions
+        // packed descriptions
         packed.addFieldDescription(new ObjectDesc<Vector2f>(VEC2_WIDTH, Float.BYTES) {
             @Override
             public void write(StructLayout layout, BufferMapping mapping, int position, Vector2f value) {
@@ -327,13 +336,22 @@ public class StructLayout {
         }, Matrix4f.class);
 
     }
-
+    
+    private final String identifier;
     private final int minStructAlignment;
     private final Map<Class, FieldDesc> fields = new HashMap<>();
     private final Map<Class, Class> typeRemappings = new HashMap<>();
 
-    public StructLayout(int minStructAlignment) {
+    public StructLayout(String identifier, int minStructAlignment) {
+        this.identifier = identifier;
         this.minStructAlignment = minStructAlignment;
+        if (layouts.put(identifier, this) != null) {
+            logger.log(Level.WARNING, "Overwriting layout \"{0}\" can result in incoherent data.", identifier);
+        }
+    }
+    
+    public String getIdentifier() {
+        return identifier;
     }
 
     public void addFieldDescription(FieldDesc desc, Class... types) {
@@ -370,11 +388,13 @@ public class StructLayout {
 
         @Override
         public int getSize(StructLayout layout, Struct value) {
+            value.bind(layout);
             return value.getSize();
         }
 
         @Override
         public int getAlignment(StructLayout layout, Struct value) {
+            value.bind(layout);
             return value.getAlignment();
         }
 

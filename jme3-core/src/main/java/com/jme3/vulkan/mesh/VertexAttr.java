@@ -43,7 +43,6 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
     private Struct struct;
     private FieldDesc<T> description;
     private int offset;
-    private boolean enabled = true;
 
     @SerializationOnly
     public VertexAttr() {}
@@ -87,7 +86,7 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
     @Override
     public int bind(Struct struct,  int offset) {
         this.struct = struct;
-        this.description = struct.getLayout().getFieldDescription(getType());
+        this.description = struct.getLayout().getFieldDescription(alias.getClass());
         return this.offset = FastMath.toMultipleOf(offset, getAlignment());
     }
 
@@ -104,21 +103,6 @@ public class VertexAttr <T extends Savable> implements StructField<T>, Savable, 
     @Override
     public T alias() {
         return alias;
-    }
-
-    @Override
-    public void enable(boolean enable) {
-        this.enabled = enable;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    @Override
-    public Class getType() {
-        return alias.getClass();
     }
 
     @Override

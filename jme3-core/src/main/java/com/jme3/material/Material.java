@@ -32,13 +32,7 @@
 package com.jme3.material;
 
 import com.jme3.scene.Geometry;
-import com.jme3.util.struct.Struct;
-import com.jme3.util.struct.StructMapping;
-import com.jme3.vulkan.buffers.MappableBuffer;
-import com.jme3.vulkan.material.technique.NewTechnique;
-import com.jme3.vulkan.material.uniforms.BufferUniform;
-import com.jme3.vulkan.material.uniforms.StructUniform;
-import com.jme3.vulkan.material.uniforms.Uniform;
+import com.jme3.vulkan.material.experimental.ShaderInterface;
 
 /**
  * <code>Material</code> describes the rendering style for a given
@@ -53,49 +47,14 @@ import com.jme3.vulkan.material.uniforms.Uniform;
  */
 public interface Material {
 
-    void selectTechnique(String name);
+    void setParameter(String name, Object value);
 
-    void setTechnique(String name, NewTechnique technique);
+    <P> P getParameter(String name);
 
-    NewTechnique getActiveTechnique();
+    void enableInterface(Class<? extends ShaderInterface> interfaceType, boolean enable);
 
-    NewTechnique getTechnique(String name);
-
-    <T extends Uniform> T setUniform(String name, T uniform);
-
-    <T extends Uniform> T getUniform(String name);
+    boolean isInterfaceEnabled(Class<? extends ShaderInterface> interfaceType);
 
     RenderState getAdditionalRenderState();
-
-    default int getSortId() {
-        return 0;
-    }
-
-    default <T extends Uniform> T getUniform(String name, Class<T> type) {
-        return getUniform(name);
-    }
-
-    default void set(String name, Object value) {
-        getUniform(name).set(value);
-    }
-
-    default <T> T get(String name) {
-        Uniform<T> u = getUniform(name);
-        return u.get();
-    }
-
-    default <T> T get(String name, Class<T> type) {
-        return get(name);
-    }
-
-    default <T extends Struct> StructMapping<T> mapStruct(String name, T struct) {
-        BufferUniform u = getUniform(name);
-        return u.map(struct);
-    }
-
-    default <T extends Struct> StructMapping<T> mapStruct(String name) {
-        StructUniform<MappableBuffer, T> u = getUniform(name);
-        return u.map();
-    }
 
 }

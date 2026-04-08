@@ -12,6 +12,7 @@ public class SourceBufferMapping implements BufferMapping {
     private final PointerBuffer address;
     private final long size;
     private final Runnable unmap;
+    private boolean mapped = true;
     private ByteBuffer bytes;
     private ShortBuffer shorts;
     private IntBuffer ints;
@@ -30,6 +31,12 @@ public class SourceBufferMapping implements BufferMapping {
     @Override
     public void close() {
         unmap.run();
+        mapped = false;
+    }
+
+    @Override
+    public boolean isMapped() {
+        return mapped;
     }
 
     @Override

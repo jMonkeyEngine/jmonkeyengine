@@ -1,13 +1,13 @@
 package com.jme3.util.struct;
 
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.Savable;
+import com.jme3.export.*;
 import com.jme3.math.FastMath;
 import com.jme3.vulkan.buffers.BufferMapping;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Defines the layout of properties in native memory. In contrast to traditional struct patterns,
@@ -28,7 +28,7 @@ import java.util.*;
  */
 public abstract class Struct <T extends StructField> implements Savable {
 
-    private static final Map<Class, List<java.lang.reflect.Field>> structFieldCache = new HashMap<>();
+    protected static final Logger logger = Logger.getLogger(Struct.class.getName());
 
     private final List<T> fields = new LinkedList<>();
     protected StructLayout layout;
@@ -37,10 +37,26 @@ public abstract class Struct <T extends StructField> implements Savable {
     private int size, alignment;
 
     @Override
-    public void write(JmeExporter ex) throws IOException {}
+    public void write(JmeExporter ex) throws IOException {
+        if (layout != null) {
+            OutputCapsule out = ex.getCapsule(this);
+            out.write(layout.getIdentifier(), "layoutId", null);
+        }
+    }
 
     @Override
-    public void read(JmeImporter im) throws IOException {}
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        String layoutId = in.readString("layoutId", null);
+        if (layoutId != null) {
+            StructLayout l = StructLayout.getLayoutByIdentifier(layoutId);
+            if (l != null) {
+                bind(l);
+            } else {
+                logger.log(Level.WARNING, "Layout \"{0}\" is unknown. No layout assigned to struct.", layoutId);
+            }
+        }
+    }
 
     @SafeVarargs
     protected final void addFields(T... fields) {
@@ -54,6 +70,9 @@ public abstract class Struct <T extends StructField> implements Savable {
     }
 
     public void bind(BufferMapping mapping, int position) {
+        if (layout == null) {
+            bind(StructLayout.packed);
+        }
         this.mapping = mapping;
         this.position = position;
     }
@@ -66,17 +85,32 @@ public abstract class Struct <T extends StructField> implements Savable {
      * Binds this struct with a layout defined by {@code layout}. If the layout
      * is changed, this struct is {@link #computeOffsets() recomputed}.
      *
-     * @param <E> struct type to return
      * @param layout layout
-     * @return this instance, as a builder convenience
      */
-    public <E extends Struct> E bind(StructLayout layout) {
+    public void bind(StructLayout layout) {
         if (this.layout == layout) {
-            return (E)this;
+            return;
         }
         this.layout = layout;
         computeOffsets();
-        return (E)this;
+    }
+
+    /**
+     * Reformats the currently bound buffer region according to the {@code layout},
+     * if this struct is not already bound to {@code layout}.
+     *
+     * @param layout new layout
+     */
+    public void reformat(StructLayout layout) {
+        if (this.layout != null && this.layout != layout) {
+            for (T f : fields) {
+                f.get(); // read to alias
+            }
+            bind(layout);
+            for (T f : fields) {
+                f.set(); // write from alias
+            }
+        }
     }
 
     /**
@@ -175,7 +209,7 @@ public abstract class Struct <T extends StructField> implements Savable {
         @Override
         public int bind(Struct struct, int offset) {
             this.struct = struct;
-            this.description = struct.getLayout().getFieldDescription(getType());
+            this.description = struct.getLayout().getFieldDescription(alias.getClass());
             return this.offset = FastMath.toMultipleOf(offset, getAlignment());
         }
 
@@ -197,18 +231,8 @@ public abstract class Struct <T extends StructField> implements Savable {
         }
 
         @Override
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        @Override
         public String getName() {
             return name;
-        }
-
-        @Override
-        public Class getType() {
-            return alias.getClass();
         }
 
         @Override

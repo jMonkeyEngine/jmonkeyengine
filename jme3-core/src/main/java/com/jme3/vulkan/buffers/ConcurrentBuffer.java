@@ -1,9 +1,16 @@
 package com.jme3.vulkan.buffers;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.vulkan.memory.MemorySize;
+import com.jme3.vulkan.tmp.Final;
+import com.jme3.vulkan.tmp.FinalWriter;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 
+import java.io.IOException;
 import java.nio.*;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
@@ -11,10 +18,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class ConcurrentBuffer <T extends MappableBuffer> implements MappableBuffer {
 
-    private final T buffer;
+    @Final private T buffer;
     private BufferMapping mapping;
     private int numMappings = 0;
     private final Lock mappingLock = new ReentrantLock();
+
+    protected ConcurrentBuffer() {}
 
     public ConcurrentBuffer(T buffer) {
         this.buffer = Objects.requireNonNull(buffer, "Buffer cannot be null.");
@@ -36,14 +45,26 @@ public class ConcurrentBuffer <T extends MappableBuffer> implements MappableBuff
     @Override
     public void resize(long bytes) {
         mappingLock.lock();
-        ResizeResult result = buffer.resize(bytes);
+        buffer.resize(bytes);
         mappingLock.unlock();
-        return result;
     }
 
     @Override
     public MemorySize size() {
         return buffer.size();
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule out = ex.getCapsule(this);
+        out.write(buffer, "buffer", null);
+    }
+
+    @Override
+    @FinalWriter
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule in = im.getCapsule(this);
+        buffer = (T)in.readSavable("buffer", null);
     }
 
     public T getBuffer() {
@@ -84,6 +105,11 @@ public class ConcurrentBuffer <T extends MappableBuffer> implements MappableBuff
                 mapping = null;
             }
             mappingLock.unlock();
+        }
+
+        @Override
+        public boolean isMapped() {
+            return mapping != null;
         }
 
         @Override
