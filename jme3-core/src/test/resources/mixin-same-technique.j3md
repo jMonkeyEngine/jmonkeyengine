@@ -1,0 +1,12 @@
+MaterialDef MixinSameTechnique {
+    MaterialParameters {
+        Float Roughness
+    }
+    Technique PreShadow {
+        VertexShader GLSL150 GLSL100 : shadow.vert
+        FragmentShader GLSL150 GLSL100 : shadow.frag
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+}

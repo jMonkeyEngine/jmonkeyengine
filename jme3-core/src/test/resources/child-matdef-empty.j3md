@@ -1,0 +1,2 @@
+MaterialDef ChildEmpty : parent-matdef.j3md {
+}

@@ -1,0 +1,20 @@
+MaterialDef Parent {
+    MaterialParameters {
+        Float Roughness : 0.5
+        Texture2D DiffuseMap
+    }
+    Technique {
+        VertexShader GLSL150 GLSL100 : parent.vert
+        FragmentShader GLSL150 GLSL100 : parent.frag
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+        Defines {
+            HAS_DIFFUSEMAP : DiffuseMap
+        }
+    }
+    Technique PreShadow {
+        VertexShader GLSL150 GLSL100 : shadow.vert
+        FragmentShader GLSL150 GLSL100 : shadow.frag
+    }
+}

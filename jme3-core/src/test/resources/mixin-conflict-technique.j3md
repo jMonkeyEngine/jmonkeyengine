@@ -1,0 +1,9 @@
+MaterialDef MixinConflictTechnique {
+    MaterialParameters {
+        Float Roughness
+    }
+    Technique PreShadow {
+        VertexShader GLSL150 GLSL100 : other-shadow.vert
+        FragmentShader GLSL150 GLSL100 : other-shadow.frag
+    }
+}

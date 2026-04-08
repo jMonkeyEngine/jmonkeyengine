@@ -1,0 +1,6 @@
+MaterialDef ChildSameTech : mixin-a.j3md, mixin-same-technique.j3md {
+    Technique {
+        VertexShader GLSL150 GLSL100 : child.vert
+        FragmentShader GLSL150 GLSL100 : child.frag
+    }
+}

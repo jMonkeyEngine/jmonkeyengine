@@ -1,0 +1,9 @@
+MaterialDef MixinConflictParam {
+    MaterialParameters {
+        Vector4 AlphaDiscardThreshold
+    }
+    Technique SomePass {
+        VertexShader GLSL150 GLSL100 : some.vert
+        FragmentShader GLSL150 GLSL100 : some.frag
+    }
+}

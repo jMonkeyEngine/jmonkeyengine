@@ -1,0 +1,7 @@
+MaterialDef ChildWorldParams : parent-matdef.j3md {
+    Technique {
+        WorldParameters {
+            ViewMatrix
+        }
+    }
+}

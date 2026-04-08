@@ -1,0 +1,5 @@
+MaterialDef BadChild : parent-matdef.j3md {
+    MaterialParameters {
+        Vector4 Roughness : 1.0 1.0 1.0 1.0
+    }
+}
