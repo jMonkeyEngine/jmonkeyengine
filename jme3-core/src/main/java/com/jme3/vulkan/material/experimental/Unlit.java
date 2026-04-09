@@ -2,65 +2,53 @@ package com.jme3.vulkan.material.experimental;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Texture;
+import com.jme3.util.struct.Struct;
 import com.jme3.util.struct.StructLayout;
 import com.jme3.util.struct.StructMapping;
-import com.jme3.vulkan.descriptors.CachedDescriptorSet;
-import com.jme3.vulkan.descriptors.DescriptorPool;
-import com.jme3.vulkan.descriptors.DescriptorSetLayout;
+import com.jme3.vulkan.JmePlatform;
+import com.jme3.vulkan.buffers.BufferUsage;
+import com.jme3.vulkan.buffers.MappableBuffer;
+import com.jme3.vulkan.buffers.saving.UpdateHint;
 import com.jme3.vulkan.material.structs.UnshadedParams;
-import com.jme3.vulkan.pipeline.PipelineLayout;
+import com.jme3.vulkan.util.Flag;
 
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-public class Unlit implements ShaderInterface {
+public class Unlit {
 
-    private final Map<DescriptorSetLayout, CachedDescriptorSet> sets = new IdentityHashMap<>();
-    private final UnshadedParams params = new UnshadedParams();
+    private final Map<String, Object> parameters = new HashMap<>();
+    private final Map<MappableBuffer, StructMapping> mappings = new IdentityHashMap<>();
+    private final MappableBuffer visualBuffer = JmePlatform.allocateStandardBuffer(1, BufferUsage.Uniform, UpdateHint.Dynamic);
+    private final UnshadedParams visuals = new UnshadedParams();
 
     {
-        params.bind(StructLayout.std140);
+        visuals.bind(StructLayout.std140);
+        visualBuffer.resize(visuals.getSize());
     }
 
-    public void update(PipelineLayout pipeline, DescriptorPool pool, ParameterPool parameters) {
-        pipeline.allocate(pool, sets);
-        pipeline.write(sets, "ColorMap", parameters.get("ColorMap"));
-        try (StructMapping<UnshadedParams> m = parameters.mapBuffer("Params", params)) {
-            params.color.compareAndSet(parameters.get("Color"));
+    protected <T extends Struct> T map(MappableBuffer buffer, T struct) {
+        StructMapping<T> map = mappings.get(buffer);
+        if (map == null) {
+            mappings.put(buffer, map = buffer.mapStruct(struct));
         }
+        return map.get();
     }
 
-    @Override
-    public void close() {
-
+    public void flush() {
+        for (StructMapping m : mappings.values()) {
+            m.close();
+        }
+        mappings.clear();
     }
 
-    protected UnshadedParams getUnshaded() {
-        return getStruct("Unshaded", UnshadedParams::new, StructLayout.std140);
-    }
-
-    public void setBaseColor(ColorRGBA color) {
-        getUnshaded().color.set(color);
-    }
-
-    public void setVertexColor(boolean vertexColor) {
-        getUnshaded().vertexColor.set(true);
+    public void setColor(ColorRGBA color) {
+        map(visualBuffer, visuals).color.set(color);
     }
 
     public void setColorMap(Texture texture) {
         parameters.put("ColorMap", texture);
-    }
-
-    public ColorRGBA getBaseColor() {
-        return getUnshaded().color.get();
-    }
-
-    public boolean isVertexColor() {
-        return getUnshaded().vertexColor.get();
-    }
-
-    public Texture getColorMap() {
-        return (Texture)parameters.get("ColorMap");
     }
 
 }

@@ -87,12 +87,13 @@ public abstract class Struct <T extends StructField> implements Savable {
      *
      * @param layout layout
      */
-    public void bind(StructLayout layout) {
+    public <E extends Struct> E bind(StructLayout layout) {
         if (this.layout == layout) {
-            return;
+            return (E)this;
         }
         this.layout = layout;
         computeOffsets();
+        return (E)this;
     }
 
     /**

@@ -13,9 +13,11 @@ import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.TransparentComparator;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
+import com.jme3.util.struct.StructMapping;
 import com.jme3.vulkan.commands.StandardRenderSettings;
 import com.jme3.vulkan.material.NewMaterial;
 import com.jme3.vulkan.material.experimental.Unlit;
+import com.jme3.vulkan.material.structs.UnshadedParams;
 import com.jme3.vulkan.render.bucket.GeometryBucket;
 import com.sun.tools.javac.util.List;
 
@@ -35,10 +37,10 @@ public class TestJme4 extends SimpleApplication {
 
         Geometry g = new Geometry("geom_jme4", new Box(1f, 1f, 1f));
         NewMaterial mat = (NewMaterial)engine.createMaterial("Common/MatDefs/Misc/Unshaded.j3md");
-        try (Unlit u = new Unlit()) {
-            u.setBaseColor(ColorRGBA.White);
-            u.setColorMap(null);
+        try (StructMapping<UnshadedParams> m = mat.getInterface(Unlit.class).mapVisuals()) {
+            m.get().color.set(ColorRGBA.Blue);
         }
+        mat.getInterface(Unlit.class).setColorMap(myTexture);
         g.setMaterial(mat);
         rootNode.attachChild(g);
 
