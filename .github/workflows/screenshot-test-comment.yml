@@ -75,6 +75,8 @@ jobs:
               return;
             }
 
+            core.setOutput('run_url', `https://github.com/${owner}/${repo}/actions/runs/${workflowRunId}`);
+
             // Check if the job failed
             if (screenshotTestRun.conclusion === 'failure') {
               // Now check if the changed images artifact exists
@@ -84,9 +86,10 @@ jobs:
                 run_id: workflowRunId
               });
 
-              const hasChangedImages = artifacts.data.artifacts.some(a => a.name === 'screenshot-test-report');
-              if (hasChangedImages) {
+              const artifact = artifacts.data.artifacts.find(a => a.name === 'screenshot-test-report');
+              if (artifact) {
                 core.setOutput('failed', 'true');
+                core.setOutput('artifact_url', `https://github.com/${owner}/${repo}/actions/runs/${workflowRunId}/artifacts/${artifact.id}`);
               } else {
                 console.log('Job failed but no changed images were generated.');
                 core.setOutput('failed', 'false');
@@ -113,7 +116,8 @@ jobs:
             The purpose of these tests is to ensure that changes introduced in this PR don't break visual features. They are visual unit tests.
 
             📄 **Where to find the report:**
-            - Go to the (failed run) > Summary > Artifacts > screenshot-test-report
+            - **[Direct Download: screenshot-test-report](${{ steps.check-status.outputs.artifact_url }})**
+            - Alternatively, go to the [failed run summary](${{ steps.check-status.outputs.run_url }}) > Artifacts > screenshot-test-report
             - Download the zip and open jme3-screenshot-tests/build/reports/ScreenshotDiffReport.html
 
             ⚠️ **If you didn't expect to change anything visual:** 
