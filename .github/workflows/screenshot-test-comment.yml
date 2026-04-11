@@ -49,8 +49,10 @@ jobs:
 
             // Find the ScreenshotTests job
             let screenshotTestRun = null;
+            let workflowRunId = null;
             for (const run of runs.data.workflow_runs) {
               if (run.name === 'Build jMonkeyEngine') {
+                workflowRunId = run.id;
                 const jobs = await github.rest.actions.listJobsForWorkflowRun({
                   owner,
                   repo,
@@ -75,7 +77,20 @@ jobs:
 
             // Check if the job failed
             if (screenshotTestRun.conclusion === 'failure') {
-              core.setOutput('failed', 'true');
+              // Now check if the changed images artifact exists
+              const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                owner,
+                repo,
+                run_id: workflowRunId
+              });
+
+              const hasChangedImages = artifacts.data.artifacts.some(a => a.name === 'screenshot-test-report');
+              if (hasChangedImages) {
+                core.setOutput('failed', 'true');
+              } else {
+                console.log('Job failed but no changed images were generated.');
+                core.setOutput('failed', 'false');
+              }
             } else {
               core.setOutput('failed', 'false');
             }
