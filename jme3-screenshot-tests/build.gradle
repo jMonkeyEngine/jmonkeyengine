@@ -15,7 +15,7 @@ dependencies {
     implementation project(':jme3-plugins')
 
     implementation 'com.aventstack:extentreports:5.1.2'
-    implementation platform('org.junit:junit-bom:5.9.1')
+    implementation platform('org.junit:junit-bom:6.0.3')
     implementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly project(':jme3-testdata')

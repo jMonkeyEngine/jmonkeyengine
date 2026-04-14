@@ -21,7 +21,7 @@ jbullet = "com.github.stephengold:jbullet:1.0.3"
 jinput = "net.java.jinput:jinput:2.0.9"
 jna = "net.java.dev.jna:jna:5.18.1"
 jnaerator-runtime = "com.nativelibs4java:jnaerator-runtime:0.12"
-junit-bom = "org.junit:junit-bom:5.13.4"
+junit-bom = "org.junit:junit-bom:6.0.3"
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 lwjgl2 = "org.jmonkeyengine:lwjgl:2.9.5"
