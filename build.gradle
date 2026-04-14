@@ -13,6 +13,8 @@ buildscript {
 }
 
 import org.gradle.api.file.RelativePath
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 // Set the license for IDEs that understand this
 ext.license = file("$rootDir/source-file-header-template.txt")
@@ -25,7 +27,7 @@ allprojects {
         mavenCentral()
         google()
     }
-    tasks.withType(Jar) {
+    tasks.withType(Jar).configureEach {
         duplicatesStrategy = 'include'
     }
 }
@@ -47,7 +49,7 @@ subprojects {
             toolVersion = libs.versions.spotbugs.get()
         }
 
-        tasks.withType(com.github.spotbugs.snom.SpotBugsTask ) {
+        tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
             reports {
                 html.required = !project.hasProperty("xml-reports")
                 xml.required = project.hasProperty("xml-reports")
@@ -63,39 +65,57 @@ tasks.register('run') {
 
 defaultTasks 'run'
 
+def fileSystemOperations = services.get(FileSystemOperations)
+def libDistDir = layout.buildDirectory.dir('libDist')
+def libDistArchives = subprojects.collectMany { subproject ->
+    if (subproject.hasProperty('mainClassName')) {
+        return []
+    }
+    subproject.tasks.withType(Jar).matching { task ->
+        task.name == 'jar' ||
+                task.name == 'sourcesJar' ||
+                (buildJavaDoc == "true" && task.name == 'javadocJar')
+    }.collect { archiveTask ->
+        [
+                projectName: subproject.name,
+                archiveFile: archiveTask.archiveFile,
+                archiveClassifier: archiveTask.archiveClassifier,
+                archiveExtension: archiveTask.archiveExtension,
+        ]
+    }
+}
+
 def libDist = tasks.register('libDist') {
-    dependsOn(subprojects.collect { it.tasks.named('build') })
+    dependsOn(libDistArchives.collect { it.archiveFile })
     description = 'Builds and copies the engine binaries, sources and javadoc to build/libDist'
+    inputs.files(libDistArchives.collect { it.archiveFile })
+    outputs.dir(libDistDir)
 
     doLast {
-        File libFolder = mkdir("$buildDir/libDist/lib")
-        File sourceFolder = mkdir("$buildDir/libDist/sources")
-        File javadocFolder = mkdir("$buildDir/libDist/javadoc")
-        subprojects.each {project ->
-            if(!project.hasProperty('mainClassName')){
-                project.tasks.withType(Jar).each {archiveTask ->
-                    String classifier = archiveTask.archiveClassifier.get()
-                    String ext = archiveTask.archiveExtension.get()
-                    File archiveFile = archiveTask.archiveFile.get().asFile
-                    if (classifier == "sources") {
-                        copy {
-                            from archiveFile
-                                into sourceFolder
-                                rename {project.name + '-' + classifier + '.' + ext}
-                        }
-                    } else if (classifier == "javadoc") {
-                        copy {
-                            from archiveFile
-                                into javadocFolder
-                                rename {project.name + '-' + classifier + '.' + ext}
-                        }
-                    } else{
-                        copy {
-                            from archiveFile
-                                into libFolder
-                                rename {project.name + '.' + ext}
-                        }
-                    }
+        File libFolder = libDistDir.get().dir('lib').asFile
+        File sourceFolder = libDistDir.get().dir('sources').asFile
+        File javadocFolder = libDistDir.get().dir('javadoc').asFile
+        libDistArchives.each { archive ->
+            String classifier = archive.archiveClassifier.get()
+            String ext = archive.archiveExtension.get()
+            File archiveFile = archive.archiveFile.get().asFile
+            if (classifier == "sources") {
+                fileSystemOperations.copy {
+                    from archiveFile
+                        into sourceFolder
+                        rename {archive.projectName + '-' + classifier + '.' + ext}
+                }
+            } else if (classifier == "javadoc") {
+                fileSystemOperations.copy {
+                    from archiveFile
+                        into javadocFolder
+                        rename {archive.projectName + '-' + classifier + '.' + ext}
+                }
+            } else{
+                fileSystemOperations.copy {
+                    from archiveFile
+                        into libFolder
+                        rename {archive.projectName + '.' + ext}
                 }
             }
         }
@@ -145,7 +165,13 @@ def mergedJavadocSubprojects = [
         ":jme3-plugins",
         ":jme3-terrain",
 ]
+def mergedJavadocClasspath = providers.provider {
+    mergedJavadocSubprojects.collectMany { projectPath ->
+        project(projectPath).sourceSets.main.compileClasspath.files as List<File>
+    }
+}
 tasks.register('mergedJavadoc', Javadoc) {
+    dependsOn mergedJavadocSubprojects.collect { project(it).tasks.named('classes') }
     description = 'Creates Javadoc from all the projects.'
     title = 'jMonkeyEngine3'
     destinationDir = file("dist/javadoc")
@@ -157,7 +183,7 @@ tasks.register('mergedJavadoc', Javadoc) {
 
     options.overview = file("javadoc-overview.html")
     source = mergedJavadocSubprojects.collect { project(it).sourceSets.main.allJava }
-    classpath = files(mergedJavadocSubprojects.collect { project(it).sourceSets.main.compileClasspath })
+    classpath = files(mergedJavadocClasspath)
 }
 
 def cleanMergedJavadoc = tasks.register('cleanMergedJavadoc', Delete) {
@@ -238,37 +264,32 @@ gradle.rootProject.ext.set("usePrebuildNatives", buildNativeProjects!="true");
 
 if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
     File nativesSnapshotPropF = file('natives-snapshot.properties')
+    String prebuildNativesUrlTemplate = PREBUILD_NATIVES_URL
 
     if (nativesSnapshotPropF.exists()) {
-        def readNativesConfig = {
-            Properties nativesSnapshotProp = new Properties()
-            nativesSnapshotPropF.withInputStream { nativesSnapshotProp.load(it) }
+        Properties nativesSnapshotProp = new Properties()
+        nativesSnapshotPropF.withInputStream { nativesSnapshotProp.load(it) }
 
-            String nativesSnapshot = nativesSnapshotProp.getProperty("natives.snapshot")
-            if (!nativesSnapshot) {
-                throw new GradleException("Missing 'natives.snapshot' in ${nativesSnapshotPropF}")
-            }
-
-            [
-                snapshot: nativesSnapshot,
-                url: PREBUILD_NATIVES_URL.replace('${natives.snapshot}', nativesSnapshot),
-                zipFile: layout.buildDirectory.file("${nativesSnapshot}-natives.zip"),
-                nativeDir: layout.buildDirectory.dir("native"),
-            ]
+        String nativesSnapshot = nativesSnapshotProp.getProperty("natives.snapshot")
+        if (!nativesSnapshot) {
+            throw new GradleException("Missing 'natives.snapshot' in ${nativesSnapshotPropF}")
         }
 
-        def nativesZipFile = providers.provider { readNativesConfig().zipFile.get().asFile }
+        String nativesUrl = prebuildNativesUrlTemplate.replace('${natives.snapshot}', nativesSnapshot)
+        File nativesZipFile = layout.buildDirectory.file("${nativesSnapshot}-natives.zip").get().asFile
         def nativesPath = layout.buildDirectory.dir("native")
 
         def getNativesZipFile = tasks.register('getNativesZipFile') {
+            inputs.property('nativesUrl', nativesUrl)
             outputs.file(nativesZipFile)
             doFirst {
-                def nativesConfig = readNativesConfig()
-                File target = nativesConfig.zipFile.get().asFile
-                println("Use natives snapshot: ${nativesConfig.url}")
-                println("Download natives from ${nativesConfig.url} to ${target}")
-                target.getParentFile().mkdirs()
-                ant.get(src: nativesConfig.url, dest: target)
+                println("Use natives snapshot: ${nativesUrl}")
+                println("Download natives from ${nativesUrl} to ${nativesZipFile}")
+                nativesZipFile.getParentFile().mkdirs()
+                File tempFile = new File(nativesZipFile.parentFile, "${nativesZipFile.name}.part")
+                tempFile.delete()
+                ant.get(src: nativesUrl, dest: tempFile)
+                Files.move(tempFile.toPath(), nativesZipFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
             }
         }
 
@@ -276,7 +297,7 @@ if (skipPrebuildLibraries != "true" && buildNativeProjects != "true") {
             dependsOn(getNativesZipFile)
             into(nativesPath)
             from({
-                zipTree(readNativesConfig().zipFile.get().asFile)
+                zipTree(nativesZipFile)
             }) {
                 eachFile { details ->
                     def segments = details.relativePath.segments

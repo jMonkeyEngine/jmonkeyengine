@@ -33,3 +33,14 @@ ext {
 apply from: file('openalsoft.gradle')
 apply from: file('decode.gradle')
 apply from: file('bufferallocator.gradle')
+
+def androidCompileJava = project(':jme3-android').tasks.named('compileJava')
+tasks.named('copyJmeHeadersOpenAL') {
+    dependsOn androidCompileJava
+}
+tasks.named('copyJmeHeadersDecode') {
+    dependsOn androidCompileJava
+}
+tasks.named('copyJmeHeadersBufferAllocator') {
+    dependsOn androidCompileJava
+}
