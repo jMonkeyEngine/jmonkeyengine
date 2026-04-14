@@ -36,8 +36,8 @@ lwjgl3-opencl   = { module = "org.lwjgl:lwjgl-opencl",   version.ref = "lwjgl3" 
 lwjgl3-opengl   = { module = "org.lwjgl:lwjgl-opengl",   version.ref = "lwjgl3" }
 lwjgl3-sdl      = { module = "org.lwjgl:lwjgl-sdl",      version.ref = "lwjgl3" }
 
-mokito-core = "org.mockito:mockito-core:3.12.4"
-mokito-junit-jupiter = "org.mockito:mockito-junit-jupiter:3.12.4"
+mokito-core = "org.mockito:mockito-core:5.23.0"
+mokito-junit-jupiter = "org.mockito:mockito-junit-jupiter:5.23.0"
 
 nifty                  = { module = "com.github.nifty-gui:nifty",                  version.ref = "nifty" }
 nifty-default-controls = { module = "com.github.nifty-gui:nifty-default-controls", version.ref = "nifty" }
