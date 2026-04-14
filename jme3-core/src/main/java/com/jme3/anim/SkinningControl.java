@@ -753,7 +753,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         vars.release();
 
         vb.updateData(fvb);
-        if (nb != null) {
+        if (fnb != null) {
             nb.updateData(fnb);
         }
         tb.updateData(ftb);
