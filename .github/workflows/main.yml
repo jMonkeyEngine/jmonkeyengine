@@ -138,7 +138,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v6.1.0
       - name: Test with Gradle Wrapper
         run: |
-          ./gradlew :jme3-screenshot-test:screenshotTest
+          ./gradlew :jme3-screenshot-tests:screenshotTest
       - name: Upload Test Reports
         uses: actions/upload-artifact@v7.0.0
         if: always()
@@ -277,8 +277,7 @@ jobs:
         shell: bash
         run: |
           # Normal build plus ZIP distribution and merged javadoc
-          ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true \
-          -x checkstyleMain -x checkstyleTest \
+          ./gradlew -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true -PbuildJavaDoc=true \
           build createZipDistribution mergedJavadoc
 
           if [ "${{ matrix.deploy }}" = "true" ];
@@ -298,13 +297,13 @@ jobs:
               echo "SIGNING_KEY, SIGNING_PASSWORD"
 
               ./gradlew publishMavenPublicationToDistRepository \
-              -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+              -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true -PbuildJavaDoc=true \
               --console=plain --stacktrace
             else
               ./gradlew publishMavenPublicationToDistRepository \
               -PsigningKey='${{ secrets.SIGNING_KEY }}' \
               -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
-              -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true \
+              -PskipPrebuildLibraries=true -PuseCommitHashAsVersionName=true -PbuildJavaDoc=true \
               --console=plain --stacktrace
             fi
 
@@ -482,6 +481,7 @@ jobs:
             -PcentralUsername=${{ secrets.CENTRAL_USERNAME }} \
             -PsigningKey='${{ secrets.SIGNING_KEY }}' \
             -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
+            -PbuildJavaDoc=true \
             --console=plain --stacktrace
           fi
 
@@ -545,6 +545,7 @@ jobs:
               -PsigningKey='${{ secrets.SIGNING_KEY }}' \
               -PsigningPassword='${{ secrets.SIGNING_PASSWORD }}' \
               -PuseCommitHashAsVersionName=true \
+              -PbuildJavaDoc=true \
               --console=plain --stacktrace
             .github/actions/tools/uploadToCentral.sh \
               -p '${{ secrets.CENTRAL_PASSWORD }}' \

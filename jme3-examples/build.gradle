@@ -1,10 +1,11 @@
-ext.mainClassName = 'jme3test.TestChooser'
+def examplesMainClassName = 'jme3test.TestChooser'
+ext.mainClassName = examplesMainClassName
 
 def androidProject = project(':jme3-android')
 def androidNativeProject = project(':jme3-android-native')
 
 task run(dependsOn: 'build', type:JavaExec) {
-    mainClass = mainClassName
+    mainClass = examplesMainClassName
     classpath = sourceSets.main.runtimeClasspath
 
     if (System.properties['java.util.logging.config.file'] != null) {
@@ -208,7 +209,7 @@ jar.doFirst{
 //                'Implementation-Title'   : appName,
 //                'Implementation-Version' : version,
 //                'Implementation-Vendor'  : vendor,
-                'Main-Class'             : getProperty('mainClassName'),
+                'Main-Class'             : examplesMainClassName,
                 // Add dependencies to manifest, remove version
                 'Class-Path'             : configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.collect {
                                                         'lib/' +

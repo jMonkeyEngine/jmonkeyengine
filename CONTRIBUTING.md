@@ -139,12 +139,14 @@ Run the Gradle wrapper:
 
 After a successful build,
 snapshot jars will be found in the "*/build/libs" subfolders.
+The default build skips JavaDoc and source archives for speed; release and
+publishing tasks build them explicitly.
 
 ### Related Gradle tasks
 
 You can install the Maven artifacts to your local repository:
- + using Bash or PowerShell:  `./gradlew install`
- + using Windows Command Prompt:  `.\gradlew install`
+ + using Bash or PowerShell:  `./gradlew -PbuildJavaDoc=true install`
+ + using Windows Command Prompt:  `.\gradlew -PbuildJavaDoc=true install`
 
 You can restore the project to a pristine state:
  + using Bash or PowerShell: `./gradlew clean`

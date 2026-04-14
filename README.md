@@ -97,10 +97,12 @@ Read our [contribution guide](https://github.com/jMonkeyEngine/jmonkeyengine/blo
 
 After a successful build,
 fresh JARs will be found in "*/build/libs".
+The default build skips JavaDoc and source archives for speed; release and
+publishing tasks build them explicitly.
 
 You can install the JARs to your local Maven repository:
-+ using Bash or Fish or PowerShell or Zsh: `./gradlew install`
-+ using Windows Command Prompt: `.\gradlew install`
++ using Bash or Fish or PowerShell or Zsh: `./gradlew -PbuildJavaDoc=true install`
++ using Windows Command Prompt: `.\gradlew -PbuildJavaDoc=true install`
 
 You can run the "jme3-examples" app:
 + using Bash or Fish or PowerShell or Zsh: `./gradlew run`
