@@ -66,7 +66,7 @@ public class TestLightScattering extends SimpleApplication {
         flyCam.setMoveSpeed(10);
         Material mat = assetManager.loadMaterial("Textures/Terrain/Rocky/Rocky.j3m");
         Spatial scene = assetManager.loadModel("Models/Terrain/Terrain.gltf");
-        MikktspaceTangentGenerator.generate(((Geometry) ((Node) scene).getChild(0)).getMesh());
+        MikktspaceTangentGenerator.generate(scene);
         scene.setMaterial(mat);
         scene.setShadowMode(ShadowMode.CastAndReceive);
         scene.setLocalScale(400);

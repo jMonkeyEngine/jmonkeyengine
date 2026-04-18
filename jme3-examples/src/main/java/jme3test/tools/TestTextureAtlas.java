@@ -55,13 +55,13 @@ public class TestTextureAtlas extends SimpleApplication {
         Node scene = new Node("Scene");
         Spatial obj1 = assetManager.loadModel("Models/Ferrari/Car.scene");
         obj1.setLocalTranslation(-4, 0, 0);
-        Spatial obj2 = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Spatial obj2 = assetManager.loadModel("Models/Elephant/Elephant.gltf");
         obj2.setLocalTranslation(-2, 0, 0);
         Spatial obj3 = assetManager.loadModel("Models/Ninja/Ninja.gltf");
         obj3.setLocalTranslation(-0, 0, 0);
-        Spatial obj4 = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        Spatial obj4 = assetManager.loadModel("Models/Sinbad/Sword.gltf");
         obj4.setLocalTranslation(2, 0, 0);
-        Spatial obj5 = assetManager.loadModel("Models/Tree/Tree.mesh.j3o");
+        Spatial obj5 = assetManager.loadModel("Models/Tree/Tree.gltf");
         obj5.setLocalTranslation(4, 0, 0);
         scene.attachChild(obj1);
         scene.attachChild(obj2);

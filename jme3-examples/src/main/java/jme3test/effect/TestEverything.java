@@ -152,10 +152,7 @@ public class TestEverything extends SimpleApplication {
 //    }
 
     public void setupRobotGuy(){
-        Node model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        Material mat = assetManager.loadMaterial("Models/Oto/Oto.j3m");
-        model.getChild(0).setMaterial(mat);
-//        model.setAnimation("Walk");
+        Node model = (Node) assetManager.loadModel("Models/Elephant/Elephant.gltf");
         model.setLocalTranslation(30, 10.5f, 30);
         model.setLocalScale(2);
         model.setShadowMode(ShadowMode.CastAndReceive);
