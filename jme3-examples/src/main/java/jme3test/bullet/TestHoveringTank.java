@@ -138,7 +138,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
     }
 
     private void buildPlayer() {
-        spaceCraft = assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
+        spaceCraft = assetManager.loadModel("Models/HoverTank/Tank2.gltf");
         CollisionShape colShape = CollisionShapeFactory.createDynamicMeshShape(spaceCraft);
         spaceCraft.setShadowMode(ShadowMode.CastAndReceive);
         spaceCraft.setLocalTranslation(startLocation);
@@ -164,7 +164,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         Quaternion rot = spaceCraft.getWorldRotation();
         Vector3f dir = rot.getRotationColumn(2);
 
-        Spatial missile = assetManager.loadModel("Models/SpaceCraft/Rocket.mesh.xml");
+        Spatial missile = assetManager.loadModel("Models/SpaceCraft/Rocket.gltf");
         missile.scale(0.5f);
         missile.rotate(0, FastMath.PI, 0);
         missile.updateGeometricState();

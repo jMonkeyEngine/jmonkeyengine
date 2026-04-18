@@ -59,7 +59,13 @@ import static com.jme3.util.xml.SAXUtil.*;
 
 /**
  * Loads Ogre3D mesh.xml files.
+ * 
+ * @deprecated The Ogre format is outdated and no longer maintained. 
+ *             Use glTF (.gltf/.glb) or J3O format instead.
+ *             See the <a href="https://jmonkeyengine.org/wiki/">jMonkeyEngine Wiki</a>
+ *             for migration guidance.
  */
+@Deprecated
 public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(MeshLoader.class.getName());

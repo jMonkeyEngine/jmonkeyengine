@@ -36,8 +36,14 @@ import com.jme3.material.MaterialList;
 
 /**
  * <code>OgreMaterialKey</code> allows specifying material extensions, which map
- * from Ogre3D base materials to jME3 materials
+ * from Ogre3D base materials to jME3 materials.
+ * 
+ * @deprecated The Ogre format is outdated and no longer maintained.
+ *             Use glTF (.gltf/.glb) or J3O format instead.
+ *             See the <a href="https://jmonkeyengine.org/wiki/">jMonkeyEngine Wiki</a>
+ *             for migration guidance.
  */
+@Deprecated
 public class OgreMaterialKey extends AssetKey<MaterialList> {
 
     private MaterialExtensionSet matExts;

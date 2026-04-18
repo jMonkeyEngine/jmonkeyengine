@@ -112,7 +112,7 @@ public class TestSpotLight extends SimpleApplication {
 
 
     public void setupSignpost(){
-        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.mesh.xml");
+        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.gltf");
         Material mat = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
       //   mat.setBoolean("VertexLighting", true);
         signpost.setMaterial(mat);

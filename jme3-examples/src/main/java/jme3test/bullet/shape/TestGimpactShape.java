@@ -262,19 +262,19 @@ public class TestGimpactShape extends SimpleApplication {
     }
 
     private void dropPot(Vector3f offset) {
-        drop(offset.add(-12, 7, 15), "Models/Teapot/Teapot.mesh.xml", 1.0f, 2);
+        drop(offset.add(-12, 7, 15), "Models/Teapot/Teapot.gltf", 1.0f, 2);
     }
 
     private void dropSword(Vector3f offset) {
-        drop(offset.add(-10, 5, 3), "Models/Sinbad/Sword.mesh.xml", 1.0f, 2);
+        drop(offset.add(-10, 5, 3), "Models/Sinbad/Sword.gltf", 1.0f, 2);
     }
 
     private void dropSign(Vector3f offset) {
-        drop(offset.add(9, 15, 5), "Models/Sign Post/Sign Post.mesh.xml", 1.0f, 1);
+        drop(offset.add(9, 15, 5), "Models/Sign Post/Sign Post.gltf", 1.0f, 1);
     }
 
     private void dropRocket(Vector3f offset) {
-        RigidBodyControl c = drop(offset.add(26, 4, 7), "Models/SpaceCraft/Rocket.mesh.xml", 4.0f, 3);
+        RigidBodyControl c = drop(offset.add(26, 4, 7), "Models/SpaceCraft/Rocket.gltf", 4.0f, 3);
         c.setAngularDamping(0.5f);
         c.setLinearDamping(0.5f);
     }

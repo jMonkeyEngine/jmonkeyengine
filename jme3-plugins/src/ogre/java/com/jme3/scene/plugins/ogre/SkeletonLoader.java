@@ -47,6 +47,15 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
+/**
+ * Loads Ogre3D .skeleton.xml skeleton animations into jMonkey.
+ * 
+ * @deprecated The Ogre format is outdated and no longer maintained.
+ *             Use glTF (.gltf/.glb) or J3O format instead.
+ *             See the <a href="https://jmonkeyengine.org/wiki/">jMonkeyEngine Wiki</a>
+ *             for migration guidance.
+ */
+@Deprecated
 public class SkeletonLoader extends DefaultHandler implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());

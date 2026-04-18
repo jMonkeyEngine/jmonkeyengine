@@ -57,7 +57,7 @@ public class TestTextureAtlas extends SimpleApplication {
         obj1.setLocalTranslation(-4, 0, 0);
         Spatial obj2 = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         obj2.setLocalTranslation(-2, 0, 0);
-        Spatial obj3 = assetManager.loadModel("Models/Ninja/Ninja.mesh.xml");
+        Spatial obj3 = assetManager.loadModel("Models/Ninja/Ninja.gltf");
         obj3.setLocalTranslation(-0, 0, 0);
         Spatial obj4 = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         obj4.setLocalTranslation(2, 0, 0);

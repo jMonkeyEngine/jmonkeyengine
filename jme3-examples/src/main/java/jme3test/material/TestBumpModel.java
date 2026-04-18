@@ -57,7 +57,7 @@ public class TestBumpModel extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        Spatial signpost = assetManager.loadAsset(new OgreMeshKey("Models/Sign Post/Sign Post.mesh.xml"));
+        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.gltf");
         signpost.setMaterial(assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m"));
         MikktspaceTangentGenerator.generate(signpost);
         rootNode.attachChild(signpost);

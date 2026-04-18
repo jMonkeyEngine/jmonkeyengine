@@ -56,7 +56,7 @@ public class TestBatchLod extends SimpleApplication {
         dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
         rootNode.addLight(dl);
 
-        Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.mesh.xml");
+        Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.gltf");
         Geometry teapot = (Geometry) teapotNode.getChild(0);
 
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
