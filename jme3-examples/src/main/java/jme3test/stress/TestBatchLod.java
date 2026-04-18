@@ -57,7 +57,7 @@ public class TestBatchLod extends SimpleApplication {
         rootNode.addLight(dl);
 
         Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.gltf");
-        Geometry teapot = (Geometry) teapotNode.getChild(0);
+        Geometry teapot = findFirstGeometry(teapotNode);
 
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setFloat("Shininess", 16f);
@@ -84,5 +84,25 @@ public class TestBatchLod extends SimpleApplication {
         cam.setLocation(new Vector3f(-1.0748308f, 1.35778f, -1.5380064f));
         cam.setRotation(new Quaternion(0.18343268f, 0.34531063f, -0.069015436f, 0.9177962f));
 
+    }
+
+    /**
+     * Recursively finds the first Geometry in a spatial hierarchy.
+     * Handles both simple flat structures and complex nested node trees.
+     */
+    private Geometry findFirstGeometry(com.jme3.scene.Spatial spatial) {
+        if (spatial instanceof Geometry) {
+            return (Geometry) spatial;
+        }
+        if (spatial instanceof Node) {
+            Node node = (Node) spatial;
+            for (com.jme3.scene.Spatial child : node.getChildren()) {
+                Geometry geom = findFirstGeometry(child);
+                if (geom != null) {
+                    return geom;
+                }
+            }
+        }
+        return null;
     }
 }
