@@ -803,6 +803,16 @@ public class GltfLoader implements AssetLoader {
     }
 
     public Material readMaterial(int materialIndex) throws IOException {
+        // Fallback to the old material adapter system, if the legacy flag is set.
+        if (GltfUtils.isMaterialAdaptersEnabled(info)) {
+            return readMaterialUsingMaterialAdapters(materialIndex);
+        }
+
+        // TODO Implement new material factory system.
+        return defaultMat;
+    }
+
+    protected Material readMaterialUsingMaterialAdapters(int materialIndex) throws IOException {
         assertNotNull(materials, "There is no material defined yet a mesh references one");
 
         JsonObject matData = materials.get(materialIndex).getAsJsonObject();

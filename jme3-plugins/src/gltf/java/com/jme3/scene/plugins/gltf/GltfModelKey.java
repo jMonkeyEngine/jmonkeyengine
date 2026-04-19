@@ -52,6 +52,13 @@ import java.util.Objects;
  */
 public class GltfModelKey extends ModelKey {
 
+    /**
+     * Enables or disables the legacy material adapter system.
+     * This should only be used in older projects for backward compatibility.
+     */
+    // TODO Set the default to false, after the new material creation process has been implemented
+    private boolean materialAdaptersEnabled = true;
+
     private Map<String, MaterialAdapter> materialAdapters = new HashMap<>();
     private static Map<String, ExtensionLoader> extensionLoaders = new HashMap<>();
     private boolean keepSkeletonPose = false;
@@ -99,6 +106,20 @@ public class GltfModelKey extends ModelKey {
      */
     public boolean isStrict() {
         return strictExtensionCheck;
+    }
+
+    public boolean isMaterialAdaptersEnabled() {
+        return materialAdaptersEnabled;
+    }
+
+    /**
+     * Enables or disables the legacy material adapter system.
+     * This should only be used in older projects for backward compatibility.
+     *
+     * @param materialAdaptersEnabled The value to set.
+     */
+    public void setMaterialAdaptersEnabled(boolean materialAdaptersEnabled) {
+        this.materialAdaptersEnabled = materialAdaptersEnabled;
     }
 
     /**
