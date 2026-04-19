@@ -154,6 +154,11 @@ public class GltfLoader implements AssetLoader {
 
     private static SafeArrayList<GltfMaterialFactory> materialFactoryList = new SafeArrayList<>(GltfMaterialFactory.class);
 
+    static {
+        materialFactoryList.add(new UnshadedMaterialFactory());
+        materialFactoryList.add(new PBRLightingMaterialFactory());
+    }
+
     public GltfLoader() {
         defaultMaterialAdapters.put("pbrMetallicRoughness", new PBRMetalRoughMaterialAdapter());
     }
