@@ -46,6 +46,7 @@ public class UnlitExtensionLoader implements ExtensionLoader {
 
     private static final Logger logger = Logger.getLogger(UnlitExtensionLoader.class.getName());
 
+    @Deprecated
     private final UnlitMaterialAdapter materialAdapter = new UnlitMaterialAdapter();
 
     @Override
@@ -64,6 +65,7 @@ public class UnlitExtensionLoader implements ExtensionLoader {
         return input;
     }
 
+    @Deprecated
     private Object handleExtensionForMaterialAdapter(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
         MaterialAdapter adapter = materialAdapter;
         AssetKey key = loader.getInfo().getKey();

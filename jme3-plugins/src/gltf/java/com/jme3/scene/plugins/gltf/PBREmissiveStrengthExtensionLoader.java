@@ -54,6 +54,7 @@ public class PBREmissiveStrengthExtensionLoader implements ExtensionLoader {
 
     private static final Logger logger = Logger.getLogger(PBREmissiveStrengthExtensionLoader.class.getName());
 
+    @Deprecated
     private PBREmissiveStrengthMaterialAdapter materialAdapter = new PBREmissiveStrengthMaterialAdapter();
 
     @Override
@@ -75,6 +76,7 @@ public class PBREmissiveStrengthExtensionLoader implements ExtensionLoader {
         return input;
     }
 
+    @Deprecated
     private Object handleExtensionForMaterialAdapter(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
         MaterialAdapter adapter = materialAdapter;
         AssetKey key = loader.getInfo().getKey();

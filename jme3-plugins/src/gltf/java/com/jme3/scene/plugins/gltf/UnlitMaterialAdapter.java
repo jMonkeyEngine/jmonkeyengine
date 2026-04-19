@@ -37,7 +37,11 @@ import com.jme3.material.RenderState;
 
 /**
  * @author Markil 3
+ *
+ * @deprecated This will be removed in a future version of the engine. To migrate,
+ * create a custom {@link GltfMaterialFactory} and register it with the {@link GltfLoader}.
  */
+@Deprecated
 public class UnlitMaterialAdapter extends MaterialAdapter {
 
     public UnlitMaterialAdapter() {

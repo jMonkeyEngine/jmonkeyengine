@@ -721,6 +721,7 @@ public class GltfUtils {
         return key != null && key.isMaterialAdaptersEnabled();
     }
 
+    @Deprecated
     public static MaterialAdapter getAdapterForMaterial(AssetInfo info, String defName) {
         GltfModelKey key = getKey(info);
         if (key == null) {

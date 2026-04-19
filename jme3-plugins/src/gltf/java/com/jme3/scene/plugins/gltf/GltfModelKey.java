@@ -58,7 +58,9 @@ public class GltfModelKey extends ModelKey {
      */
     private boolean materialAdaptersEnabled = false;
 
+    @Deprecated
     private Map<String, MaterialAdapter> materialAdapters = new HashMap<>();
+
     private static Map<String, ExtensionLoader> extensionLoaders = new HashMap<>();
     private boolean keepSkeletonPose = false;
     private ExtrasLoader extrasLoader;
@@ -127,7 +129,11 @@ public class GltfModelKey extends ModelKey {
      *
      * @param gltfMaterialName the name of the gltf material
      * @param adapter          the material adapter
+     *
+     * @deprecated This will be removed in a future version of the engine. To migrate,
+     * create a custom {@link GltfMaterialFactory} and register it with the {@link GltfLoader}.
      */
+    @Deprecated
     public void registerMaterialAdapter(String gltfMaterialName, MaterialAdapter adapter) {
         materialAdapters.put(gltfMaterialName, adapter);
     }
@@ -144,6 +150,7 @@ public class GltfModelKey extends ModelKey {
         extensionLoaders.put(extensionName, loader);
     }
 
+    @Deprecated
     public MaterialAdapter getAdapterForMaterial(String gltfMaterialName) {
         return materialAdapters.get(gltfMaterialName);
     }

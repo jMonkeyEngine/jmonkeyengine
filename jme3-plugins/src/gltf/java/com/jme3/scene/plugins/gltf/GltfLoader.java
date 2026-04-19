@@ -145,7 +145,7 @@ public class GltfLoader implements AssetLoader {
     private final Vector3fArrayPopulator vector3fArrayPopulator = new Vector3fArrayPopulator();
     private final QuaternionArrayPopulator quaternionArrayPopulator = new QuaternionArrayPopulator();
     private final Matrix4fArrayPopulator matrix4fArrayPopulator = new Matrix4fArrayPopulator();
-    private final Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
+    @Deprecated private final Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
     private final CustomContentManager customContentManager = new CustomContentManager();
     private boolean useNormalsFlag = false;
 
@@ -877,6 +877,7 @@ public class GltfLoader implements AssetLoader {
         return defaultMat;
     }
 
+    @Deprecated
     protected Material readMaterialUsingMaterialAdapters(int materialIndex) throws IOException {
         assertNotNull(materials, "There is no material defined yet a mesh references one");
 

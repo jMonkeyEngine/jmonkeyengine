@@ -37,7 +37,11 @@ import com.jme3.material.*;
  * Adapts GLTF PBR materials to JME PBR materials.
  * 
  * @author Nehon
+ *
+ * @deprecated This will be removed in a future version of the engine. To migrate,
+ * create a custom {@link GltfMaterialFactory} and register it with the {@link GltfLoader}.
  */
+@Deprecated
 public abstract class PBRMaterialAdapter extends MaterialAdapter {
     
     /**

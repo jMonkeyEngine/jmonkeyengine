@@ -35,7 +35,11 @@ package com.jme3.scene.plugins.gltf;
  * Adapter for converting GLTF emissive strength to JME emissive intensity.
  * 
  * @author codex
+ *
+ * @deprecated This will be removed in a future version of the engine. To migrate,
+ * create a custom {@link GltfMaterialFactory} and register it with the {@link GltfLoader}.
  */
+@Deprecated
 public class PBREmissiveStrengthMaterialAdapter extends PBRMaterialAdapter {
     
     public PBREmissiveStrengthMaterialAdapter() {
