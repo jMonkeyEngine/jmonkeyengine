@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.gltf;
 
+import static com.jme3.scene.plugins.gltf.GltfMaterialData.*;
 import static com.jme3.scene.plugins.gltf.GltfUtils.assertNotNull;
 import static com.jme3.scene.plugins.gltf.GltfUtils.findCommonAncestor;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAdapterForMaterial;
@@ -109,6 +110,7 @@ import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferInputStream;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
+import com.jme3.util.SafeArrayList;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 /**
@@ -149,6 +151,8 @@ public class GltfLoader implements AssetLoader {
 
     Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
     private final IntMap<SkinBuffers> skinBuffers = new IntMap<>();
+
+    private static SafeArrayList<GltfMaterialFactory> materialFactoryList = new SafeArrayList<>(GltfMaterialFactory.class);
 
     public GltfLoader() {
         defaultMaterialAdapters.put("pbrMetallicRoughness", new PBRMetalRoughMaterialAdapter());
@@ -808,7 +812,63 @@ public class GltfLoader implements AssetLoader {
             return readMaterialUsingMaterialAdapters(materialIndex);
         }
 
-        // TODO Implement new material factory system.
+        assertNotNull(materials, "There is no material defined yet a mesh references one");
+        JsonObject materialJson = materials.get(materialIndex).getAsJsonObject();
+
+        GltfMaterialData gltfMaterialData = readStandardMaterialParameters(materialJson);
+        gltfMaterialData = customContentManager.readExtensionAndExtras("material", materialJson, gltfMaterialData);
+        return createMaterial(gltfMaterialData, materialIndex);
+    }
+
+    protected GltfMaterialData readStandardMaterialParameters(JsonObject materialJson) throws IOException {
+        GltfMaterialData gltfMaterialData = new GltfMaterialData();
+        gltfMaterialData.setGltfParam(MATERIAL_NAME_PARAM, getAsString(materialJson, "name"));
+
+        JsonObject pbrMetallicRoughnessJson = materialJson.getAsJsonObject("pbrMetallicRoughness");
+        if (pbrMetallicRoughnessJson != null) {
+            gltfMaterialData.setGltfParam(BASE_COLOR_PARAM, getAsColor(pbrMetallicRoughnessJson, "baseColorFactor", ColorRGBA.White));
+            gltfMaterialData.setGltfParam(BASE_COLOR_TEXTURE_PARAM, getAsTexture2D(pbrMetallicRoughnessJson, "baseColorTexture"));
+            gltfMaterialData.setGltfParam(METALLIC_FACTOR_PARAM, getAsFloat(pbrMetallicRoughnessJson, "metallicFactor", 1f));
+            gltfMaterialData.setGltfParam(ROUGHNESS_FACTOR_PARAM, getAsFloat(pbrMetallicRoughnessJson, "roughnessFactor", 1f));
+            gltfMaterialData.setGltfParam(METALLIC_ROUGHNESS_TEXTURE_PARAM, getAsTexture2D(pbrMetallicRoughnessJson, "metallicRoughnessTexture"));
+        }
+
+        JsonObject normalTextureJson = materialJson.getAsJsonObject("normalTexture");
+        if (normalTextureJson != null) {
+            gltfMaterialData.setGltfParam(NORMAL_TEXTURE_PARAM, readTexture(normalTextureJson));
+            gltfMaterialData.setGltfParam(NORMAL_SCALE_PARAM, getAsFloat(normalTextureJson, "scale"));
+            useNormalsFlag = true;
+        }
+
+        JsonObject occlusionTextureJson = materialJson.getAsJsonObject("occlusionTexture");
+        if (occlusionTextureJson != null) {
+            gltfMaterialData.setGltfParam(OCCLUSION_TEXTURE_PARAM, readTexture(occlusionTextureJson));
+            gltfMaterialData.setGltfParam(OCCLUSION_TEXTURE_STRENGTH_PARAM, getAsFloat(occlusionTextureJson, "strength"));
+        }
+
+        gltfMaterialData.setGltfParam(EMISSIV_TEXTURE_PARAM, getAsTexture2D(materialJson, "emissiveTexture"));
+        gltfMaterialData.setGltfParam(EMISSIV_COLOR_PARAM, getAsColor(materialJson, "emissiveFactor", ColorRGBA.Black));
+
+        String alphaMode = getAsString(materialJson, "alphaMode");
+        gltfMaterialData.setGltfParam(ALPHA_MODE_PARAM, alphaMode);
+        if ("MASK".equals(alphaMode)) {
+            gltfMaterialData.setGltfParam(ALPHA_CUTOFF_PARAM, getAsFloat(materialJson, "alphaCutoff"));
+        }
+
+        gltfMaterialData.setGltfParam(DOUBLE_SIDED_PARAM, getAsBoolean(materialJson, "doubleSided"));
+
+        return gltfMaterialData;
+    }
+
+    protected Material createMaterial(GltfMaterialData gltfMaterialData, int materialIndex) {
+        for (GltfMaterialFactory gltfMaterialFactory : materialFactoryList) {
+            if (gltfMaterialFactory.accepts(info.getKey(), gltfMaterialData)) {
+                return gltfMaterialFactory.createMaterial(info.getManager(), info.getKey(), gltfMaterialData);
+            }
+        }
+
+        logger.log(Level.WARNING, "Couldn't find any matching GltfMaterialFactory for material " + materialIndex);
+        useNormalsFlag = false;
         return defaultMat;
     }
 
@@ -930,6 +990,10 @@ public class GltfLoader implements AssetLoader {
             cam = customContentManager.readExtensionAndExtras("camera", camObj, cam);
             addToCache("cameras", i, cam, cameras.size());
         }
+    }
+
+    protected Texture2D getAsTexture2D(JsonObject jsonObject, String textureName) throws IOException {
+        return readTexture(jsonObject.getAsJsonObject(textureName));
     }
 
     public Texture2D readTexture(JsonObject texture) throws IOException {
@@ -1724,5 +1788,45 @@ public class GltfLoader implements AssetLoader {
      */
     public static void unregisterDefaultExtrasLoader() {
         CustomContentManager.defaultExtraLoaderClass = UserDataLoader.class;
+    }
+
+    /**
+     * Registers a new material factory and places it before all existing factories.<br/>
+     * The ordering of these factories defines their priority. When a new material needs to be created,
+     * the loader searches for the first material factory that accepts the given material data.
+     *
+     * @param materialFactory The {@link GltfMaterialFactory} to register.
+     */
+    public static void registerMaterialFactoryFirst(GltfMaterialFactory materialFactory) {
+            unregisterMaterialFactory(materialFactory.getClass());
+            materialFactoryList.add(0, materialFactory);
+    }
+
+    /**
+     * Registers a new material factory and places it behind all existing factories.<br/>
+     * The ordering of these factories defines their priority. When a new material needs to be created,
+     * the loader searches for the first material factory that accepts the given material data.
+     *
+     * @param materialFactory The {@link GltfMaterialFactory} to register.
+     */
+    public static void registerMaterialFactoryLast(GltfMaterialFactory materialFactory) {
+        unregisterMaterialFactory(materialFactory.getClass());
+        materialFactoryList.add(materialFactory);
+    }
+
+    /**
+     * Unregisters a material factory by its class.
+     *
+     * @param materialFactoryClass The class of the {@link GltfMaterialFactory} to unregister.
+     */
+    public static void unregisterMaterialFactory(Class<? extends GltfMaterialFactory> materialFactoryClass) {
+        materialFactoryList.removeIf(materialFactoryClass::isInstance);
+    }
+
+    /**
+     * Unregisters all material factories.
+     */
+    public static void unregisterAllMaterialFactories() {
+        materialFactoryList.clear();
     }
 }
