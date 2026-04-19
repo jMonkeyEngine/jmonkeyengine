@@ -33,7 +33,13 @@ package com.jme3.scene.plugins.gltf;
 
 import com.jme3.asset.AssetKey;
 import com.jme3.plugins.json.JsonElement;
+import com.jme3.plugins.json.JsonObject;
+
 import java.io.IOException;
+import java.util.logging.Logger;
+
+import static com.jme3.scene.plugins.gltf.GltfMaterialData.MATERIAL_EXTENSION_PARAM_PREFIX;
+import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
 
 /**
  * Extension loader for "KHR_materials_emissive_strength".
@@ -41,11 +47,35 @@ import java.io.IOException;
  * @author codex
  */
 public class PBREmissiveStrengthExtensionLoader implements ExtensionLoader {
-    
+
+    public static final String EXTENSION_NAME = "KHR_materials_emissive_strength";
+
+    public static final String EMISSIVE_STRENGTH_PARAM = MATERIAL_EXTENSION_PARAM_PREFIX + EXTENSION_NAME + ".emissiveStrength";
+
+    private static final Logger logger = Logger.getLogger(PBREmissiveStrengthExtensionLoader.class.getName());
+
     private PBREmissiveStrengthMaterialAdapter materialAdapter = new PBREmissiveStrengthMaterialAdapter();
-    
+
     @Override
     public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
+        if (input instanceof GltfMaterialData) {
+            GltfMaterialData gltfMaterialData = (GltfMaterialData) input;
+            gltfMaterialData.addGltfExtension(EXTENSION_NAME);
+
+            JsonObject extensionJson = extension.getAsJsonObject();
+            gltfMaterialData.setGltfParam(EMISSIVE_STRENGTH_PARAM, getAsFloat(extensionJson, "emissiveStrength"));
+
+        } else if (input instanceof MaterialAdapter) {
+            return handleExtensionForMaterialAdapter(loader, parentName, parent, extension, input);
+
+        } else {
+            logger.warning(EXTENSION_NAME + " extension added on unsupported element");
+        }
+
+        return input;
+    }
+
+    private Object handleExtensionForMaterialAdapter(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
         MaterialAdapter adapter = materialAdapter;
         AssetKey key = loader.getInfo().getKey();
         //check for a custom adapter for emissive strength

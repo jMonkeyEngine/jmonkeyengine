@@ -34,7 +34,12 @@ package com.jme3.scene.plugins.gltf;
 import com.jme3.asset.AssetKey;
 
 import java.io.IOException;
+import java.util.logging.Logger;
+
 import com.jme3.plugins.json.JsonElement;
+import com.jme3.plugins.json.JsonObject;
+
+import static com.jme3.scene.plugins.gltf.GltfMaterialData.MATERIAL_EXTENSION_PARAM_PREFIX;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsColor;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
 
@@ -44,10 +49,46 @@ import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
  */
 public class PBRSpecGlossExtensionLoader implements ExtensionLoader {
 
+    public static final String EXTENSION_NAME = "KHR_materials_pbrSpecularGlossiness";
+
+    public static final String DIFFUSE_COLOR_PARAM = MATERIAL_EXTENSION_PARAM_PREFIX + EXTENSION_NAME + ".diffuseFactor";
+
+    public static final String SPECULAR_COLOR_PARAM = MATERIAL_EXTENSION_PARAM_PREFIX + EXTENSION_NAME + ".specularFactor";
+
+    public static final String GLOSSINESS_FACTOR_PARAM = MATERIAL_EXTENSION_PARAM_PREFIX + EXTENSION_NAME + ".glossinessFactor";
+
+    public static final String DIFFUSE_TEXTURE_PARAM = MATERIAL_EXTENSION_PARAM_PREFIX + EXTENSION_NAME + ".diffuseTexture";
+
+    public static final String SPECULAR_GLOSSINESS_TEXTURE_PARAM = MATERIAL_EXTENSION_PARAM_PREFIX + EXTENSION_NAME + ".specularGlossinessTexture";
+
+    private static final Logger logger = Logger.getLogger(PBRSpecGlossExtensionLoader.class.getName());
+
     private PBRSpecGlossMaterialAdapter materialAdapter = new PBRSpecGlossMaterialAdapter();
 
     @Override
     public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
+        if (input instanceof GltfMaterialData) {
+            GltfMaterialData gltfMaterialData = (GltfMaterialData) input;
+            gltfMaterialData.addGltfExtension(EXTENSION_NAME);
+
+            JsonObject extensionJson = extension.getAsJsonObject();
+            gltfMaterialData.setGltfParam(DIFFUSE_COLOR_PARAM, getAsColor(extensionJson, "diffuseFactor"));
+            gltfMaterialData.setGltfParam(SPECULAR_COLOR_PARAM, getAsColor(extensionJson, "specularFactor"));
+            gltfMaterialData.setGltfParam(GLOSSINESS_FACTOR_PARAM, getAsFloat(extensionJson, "glossinessFactor"));
+            gltfMaterialData.setGltfParam(DIFFUSE_TEXTURE_PARAM, loader.getAsTexture2D(extensionJson,"diffuseTexture"));
+            gltfMaterialData.setGltfParam(SPECULAR_GLOSSINESS_TEXTURE_PARAM, loader.getAsTexture2D(extensionJson,"specularGlossinessTexture"));
+
+        } else if (input instanceof MaterialAdapter) {
+            return handleExtensionForMaterialAdapter(loader, parentName, parent, extension, input);
+
+        } else {
+            logger.warning(EXTENSION_NAME + " extension added on unsupported element");
+        }
+
+        return input;
+    }
+
+    private Object handleExtensionForMaterialAdapter(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
         MaterialAdapter adapter = materialAdapter;
         AssetKey key = loader.getInfo().getKey();
         //check for a custom adapter for spec/gloss pipeline

@@ -34,16 +34,37 @@ package com.jme3.scene.plugins.gltf;
 import com.jme3.plugins.json.JsonElement;
 import com.jme3.asset.AssetKey;
 
+import java.util.logging.Logger;
+
 /**
  * Material adapter for the Unlit pipeline
  * @author Markil 3
  */
 public class UnlitExtensionLoader implements ExtensionLoader {
 
+    public static final String EXTENSION_NAME = "KHR_materials_unlit";
+
+    private static final Logger logger = Logger.getLogger(UnlitExtensionLoader.class.getName());
+
     private final UnlitMaterialAdapter materialAdapter = new UnlitMaterialAdapter();
 
     @Override
     public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
+        if (input instanceof GltfMaterialData) {
+            GltfMaterialData gltfMaterialData = (GltfMaterialData) input;
+            gltfMaterialData.addGltfExtension(EXTENSION_NAME);
+
+        } else if (input instanceof MaterialAdapter) {
+            return handleExtensionForMaterialAdapter(loader, parentName, parent, extension, input);
+
+        } else {
+            logger.warning(EXTENSION_NAME + " extension added on unsupported element");
+        }
+
+        return input;
+    }
+
+    private Object handleExtensionForMaterialAdapter(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
         MaterialAdapter adapter = materialAdapter;
         AssetKey key = loader.getInfo().getKey();
         //check for a custom adapter for spec/gloss pipeline
