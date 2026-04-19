@@ -35,6 +35,7 @@ import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
 
 import static com.jme3.scene.plugins.gltf.GltfMaterialData.*;
 
@@ -53,9 +54,9 @@ public class UnshadedMaterialFactory implements GltfMaterialFactory {
 		Material material = new Material(assetManager,getMaterialDefPath());
 		material.setName((String) gltfMaterialData.getGltfParam(MATERIAL_NAME_PARAM));
 
-		setParam(material, "Color", gltfMaterialData.getGltfParam(BASE_COLOR_PARAM));
+		setParam(material, "Color", gltfMaterialData.getGltfParam(BASE_COLOR_PARAM), ColorRGBA.White);
 		setParam(material, "ColorMap", gltfMaterialData.getGltfParam(BASE_COLOR_TEXTURE_PARAM));
-		setParam(material, "GlowColor", gltfMaterialData.getGltfParam(EMISSIV_COLOR_PARAM));
+		setParam(material, "GlowColor", gltfMaterialData.getGltfParam(EMISSIV_COLOR_PARAM), ColorRGBA.Black);
 		setParam(material, "GlowMap", gltfMaterialData.getGltfParam(EMISSIV_TEXTURE_PARAM));
 
 		if (gltfMaterialData.containsGltfParam(ALPHA_MODE_PARAM)) {
@@ -63,7 +64,7 @@ public class UnshadedMaterialFactory implements GltfMaterialFactory {
 			switch (alphaMode) {
 				case "MASK":
 					// "MASK" -> BlendMode.Off
-					setParam(material, "AlphaDiscardThreshold", gltfMaterialData.getGltfParam(ALPHA_CUTOFF_PARAM));
+					setParam(material, "AlphaDiscardThreshold", gltfMaterialData.getGltfParam(ALPHA_CUTOFF_PARAM), 0.5f);
 					break;
 				case "BLEND":
 					material.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
@@ -90,6 +91,10 @@ public class UnshadedMaterialFactory implements GltfMaterialFactory {
 		if (value != null) {
 			material.setParam(paramName, value);
 		}
+	}
+
+	protected void setParam(Material material, String paramName, Object value, Object defaultValue) {
+		setParam(material, paramName, value != null ? value : defaultValue);
 	}
 
 }

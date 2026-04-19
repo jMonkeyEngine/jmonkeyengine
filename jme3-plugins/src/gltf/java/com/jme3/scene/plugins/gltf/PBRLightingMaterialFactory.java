@@ -35,6 +35,7 @@ import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
+import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Texture;
 
 import static com.jme3.scene.plugins.gltf.GltfMaterialData.*;
@@ -98,7 +99,7 @@ public class PBRLightingMaterialFactory implements GltfMaterialFactory {
 		}
 
 		setParam(material, "EmissiveMap", gltfMaterialData.getGltfParam(EMISSIV_TEXTURE_PARAM));
-		setParam(material, "Emissive", gltfMaterialData.getGltfParam(EMISSIV_COLOR_PARAM));
+		setParam(material, "Emissive", gltfMaterialData.getGltfParam(EMISSIV_COLOR_PARAM), ColorRGBA.Black);
 		setParam(material, "EmissiveIntensity", gltfMaterialData.getGltfParam(EMISSIVE_STRENGTH_PARAM));
 
 		if (gltfMaterialData.containsGltfParam(ALPHA_MODE_PARAM)) {
@@ -106,7 +107,7 @@ public class PBRLightingMaterialFactory implements GltfMaterialFactory {
 			switch (alphaMode) {
 				case "MASK":
 					// "MASK" -> BlendMode.Off
-					setParam(material, "AlphaDiscardThreshold", gltfMaterialData.getGltfParam(ALPHA_CUTOFF_PARAM));
+					setParam(material, "AlphaDiscardThreshold", gltfMaterialData.getGltfParam(ALPHA_CUTOFF_PARAM), 0.5f);
 					break;
 				case "BLEND":
 					material.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
@@ -124,10 +125,10 @@ public class PBRLightingMaterialFactory implements GltfMaterialFactory {
 	}
 
 	protected void setMetallicRoughnessParams(Material material, GltfMaterialData gltfMaterialData) {
-		setParam(material, "BaseColor", gltfMaterialData.getGltfParam(BASE_COLOR_PARAM));
+		setParam(material, "BaseColor", gltfMaterialData.getGltfParam(BASE_COLOR_PARAM), ColorRGBA.White);
 		setParam(material, "BaseColorMap", gltfMaterialData.getGltfParam(BASE_COLOR_TEXTURE_PARAM));
-		setParam(material, "Metallic", gltfMaterialData.getGltfParam(METALLIC_FACTOR_PARAM));
-		setParam(material, "Roughness", gltfMaterialData.getGltfParam(ROUGHNESS_FACTOR_PARAM));
+		setParam(material, "Metallic", gltfMaterialData.getGltfParam(METALLIC_FACTOR_PARAM), 1f);
+		setParam(material, "Roughness", gltfMaterialData.getGltfParam(ROUGHNESS_FACTOR_PARAM), 1f);
 		setParam(material, "MetallicRoughnessMap", gltfMaterialData.getGltfParam(METALLIC_ROUGHNESS_TEXTURE_PARAM));
 	}
 
@@ -144,6 +145,10 @@ public class PBRLightingMaterialFactory implements GltfMaterialFactory {
 		if (value != null) {
 			material.setParam(paramName, value);
 		}
+	}
+
+	protected void setParam(Material material, String paramName, Object value, Object defaultValue) {
+		setParam(material, paramName, value != null ? value : defaultValue);
 	}
 
 }

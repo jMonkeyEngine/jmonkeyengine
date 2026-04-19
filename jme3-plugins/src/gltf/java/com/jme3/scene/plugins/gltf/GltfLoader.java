@@ -831,10 +831,10 @@ public class GltfLoader implements AssetLoader {
 
         JsonObject pbrMetallicRoughnessJson = materialJson.getAsJsonObject("pbrMetallicRoughness");
         if (pbrMetallicRoughnessJson != null) {
-            gltfMaterialData.setGltfParam(BASE_COLOR_PARAM, getAsColor(pbrMetallicRoughnessJson, "baseColorFactor", ColorRGBA.White));
+            gltfMaterialData.setGltfParam(BASE_COLOR_PARAM, getAsColor(pbrMetallicRoughnessJson, "baseColorFactor"));
             gltfMaterialData.setGltfParam(BASE_COLOR_TEXTURE_PARAM, getAsTexture2D(pbrMetallicRoughnessJson, "baseColorTexture"));
-            gltfMaterialData.setGltfParam(METALLIC_FACTOR_PARAM, getAsFloat(pbrMetallicRoughnessJson, "metallicFactor", 1f));
-            gltfMaterialData.setGltfParam(ROUGHNESS_FACTOR_PARAM, getAsFloat(pbrMetallicRoughnessJson, "roughnessFactor", 1f));
+            gltfMaterialData.setGltfParam(METALLIC_FACTOR_PARAM, getAsFloat(pbrMetallicRoughnessJson, "metallicFactor"));
+            gltfMaterialData.setGltfParam(ROUGHNESS_FACTOR_PARAM, getAsFloat(pbrMetallicRoughnessJson, "roughnessFactor"));
             gltfMaterialData.setGltfParam(METALLIC_ROUGHNESS_TEXTURE_PARAM, getAsTexture2D(pbrMetallicRoughnessJson, "metallicRoughnessTexture"));
         }
 
@@ -852,7 +852,7 @@ public class GltfLoader implements AssetLoader {
         }
 
         gltfMaterialData.setGltfParam(EMISSIV_TEXTURE_PARAM, getAsTexture2D(materialJson, "emissiveTexture"));
-        gltfMaterialData.setGltfParam(EMISSIV_COLOR_PARAM, getAsColor(materialJson, "emissiveFactor", ColorRGBA.Black));
+        gltfMaterialData.setGltfParam(EMISSIV_COLOR_PARAM, getAsColor(materialJson, "emissiveFactor"));
 
         String alphaMode = getAsString(materialJson, "alphaMode");
         gltfMaterialData.setGltfParam(ALPHA_MODE_PARAM, alphaMode);
