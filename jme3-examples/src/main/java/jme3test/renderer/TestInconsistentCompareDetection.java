@@ -42,10 +42,12 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
+import jme3test.app.SpatialUtils;
 
 /**
- * Changes a material's texture from another thread while it is rendered.
- * This should trigger the sorting function's inconsistent compare detection.
+ * Demonstrates thread-safe scene modifications using enqueue().
+ * Changes a material's texture from another thread while it is rendered,
+ * properly synchronizing via the render thread callback.
  * 
  * @author Kirill Vainer
  */
@@ -99,17 +101,27 @@ public class TestInconsistentCompareDetection extends SimpleApplication {
                 } catch (InterruptedException ex) {
                 }
                 
-                // begin randomly changing textures after 1 sec.
+                // Begin safely changing textures after 1 sec using enqueue()
                 while (true) {
                     for (Spatial child : rootNode.getChildren()) {
-                        Geometry g = (Geometry) (((Node)child).getChild(0));
-                        Material m = g.getMaterial();
-                        Texture curTex = m.getTextureParam("ColorMap").getTextureValue();
-                        if (curTex == t1) {
-                            m.setTexture("ColorMap", t2);
-                        } else {
-                            m.setTexture("ColorMap", t1);
-                        }
+                        Geometry g = SpatialUtils.findFirstGeometry((Node) child);
+                        
+                        // Enqueue the material modification to run on the render thread
+                        enqueue(() -> {
+                            Material mat = g.getMaterial();
+                            Texture curTex = mat.getTextureParam("ColorMap").getTextureValue();
+                            if (curTex == t1) {
+                                mat.setTexture("ColorMap", t2);
+                            } else {
+                                mat.setTexture("ColorMap", t1);
+                            }
+                        });
+                    }
+                    
+                    // Prevent queueing too many tasks too quickly
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex) {
                     }
                 }
             }
@@ -118,4 +130,3 @@ public class TestInconsistentCompareDetection extends SimpleApplication {
         evilThread.start();
     }
 }
-

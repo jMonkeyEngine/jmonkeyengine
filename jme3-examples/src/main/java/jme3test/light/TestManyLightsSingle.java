@@ -57,6 +57,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.MaterialDebugAppState;
+import jme3test.app.SpatialUtils;
 
 public class TestManyLightsSingle extends SimpleApplication {
 
@@ -81,7 +82,7 @@ public class TestManyLightsSingle extends SimpleApplication {
         rootNode.attachChild(scene);
         Node n = (Node) rootNode.getChild(0);
         final LightList lightList = n.getWorldLightList();
-        final Geometry g = (Geometry) n.getChild("Grid-geom-1");
+        final Geometry g = SpatialUtils.findGeometryByName(n, "Grid-geom-1");
 
         g.getMaterial().setColor("Ambient", new ColorRGBA(0.2f, 0.2f, 0.2f, 1f));
 

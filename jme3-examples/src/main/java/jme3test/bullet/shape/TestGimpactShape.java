@@ -56,6 +56,7 @@ import com.jme3.scene.shape.Torus;
 import com.jme3.system.AppSettings;
 import java.util.ArrayList;
 import java.util.List;
+import jme3test.app.SpatialUtils;
 import jme3test.bullet.PhysicsTestHelper;
 
 /**
@@ -270,7 +271,7 @@ public class TestGimpactShape extends SimpleApplication {
     }
 
     private void dropSign(Vector3f offset) {
-        drop(offset.add(9, 15, 5), "Models/Sign Post/Sign Post.gltf", 1.0f, 1);
+        drop(offset.add(9, 15, 5), "Models/Sign Post/SignPost.gltf", 1.0f, 1);
     }
 
     private void dropRocket(Vector3f offset) {
@@ -285,7 +286,7 @@ public class TestGimpactShape extends SimpleApplication {
         n.setLocalTranslation(offset);
         n.rotate(0, 0, -FastMath.HALF_PI);
 
-        Geometry tp = ((Geometry) n.getChild(0));
+        Geometry tp = SpatialUtils.findFirstGeometry(n);
         tp.scale(scale);
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         tp.setMaterial(mat);

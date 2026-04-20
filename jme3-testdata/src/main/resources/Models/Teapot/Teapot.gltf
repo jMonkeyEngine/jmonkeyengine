@@ -1,149 +1,121 @@
 {
-    "asset": {
-        "version": "2.0",
-        "generator": "Open Asset Import Library (assimp v5.2.0)"
-    },
-    "extensionsUsed": [
-        "KHR_materials_volume",
-        "FB_ngon_encoding"
-    ],
-    "accessors": [
-        {
-            "bufferView": 0,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 3241,
-            "type": "VEC3",
-            "max": [
-                3.3138298988342287,
-                3.0397698879241945,
-                1.9300099611282349
-            ],
-            "min": [
-                -2.895020008087158,
-                0.0,
-                -1.9300099611282349
-            ]
-        },
-        {
-            "bufferView": 1,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 3241,
-            "type": "VEC3",
-            "max": [
-                0.9996100068092346,
-                1.0,
-                0.9999998807907105
-            ],
-            "min": [
-                -0.9997578859329224,
-                -1.0,
-                -0.9999998807907105
-            ]
-        },
-        {
-            "bufferView": 2,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 3241,
-            "type": "VEC2",
-            "max": [
-                1.0001800060272217,
-                0.9995009899139404
-            ],
-            "min": [
-                0.0005000000237487257,
-                0.0004990100860595703
-            ]
-        },
-        {
-            "bufferView": 3,
-            "byteOffset": 0,
-            "componentType": 5125,
-            "count": 18960,
-            "type": "SCALAR",
-            "max": [
-                3240
-            ],
-            "min": [
-                0
-            ]
-        }
-    ],
-    "buffers": [
-        {
-            "byteLength": 179552,
-            "uri": "Teapot.bin"
-        }
-    ],
-    "bufferViews": [
-        {
-            "buffer": 0,
-            "byteOffset": 0,
-            "byteLength": 38892,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 38892,
-            "byteLength": 38892,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 77784,
-            "byteLength": 25928,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 103712,
-            "byteLength": 75840,
-            "target": 34963
-        }
-    ],
-    "materials": [
-        {
-            "name": "DefaultMaterial",
-            "pbrMetallicRoughness": {
-                "baseColorFactor": [
-                    0.6000000238418579,
-                    0.6000000238418579,
-                    0.6000000238418579,
-                    1.0
-                ],
-                "metallicFactor": 0.0
-            }
-        }
-    ],
-    "meshes": [
-        {
-            "primitives": [
-                {
-                    "mode": 4,
-                    "material": 0,
-                    "indices": 3,
-                    "attributes": {
-                        "POSITION": 0,
-                        "NORMAL": 1,
-                        "TEXCOORD_0": 2
-                    }
-                }
-            ]
-        }
-    ],
-    "nodes": [
-        {
-            "mesh": 0
-        }
-    ],
-    "scenes": [
-        {
-            "nodes": [
-                0
-            ]
-        }
-    ],
-    "scene": 0
+	"asset":{
+		"generator":"Khronos glTF Blender I/O v5.1.19",
+		"version":"2.0"
+	},
+	"scene":0,
+	"scenes":[
+		{
+			"name":"Scene",
+			"nodes":[
+				0
+			]
+		}
+	],
+	"nodes":[
+		{
+			"mesh":0,
+			"name":"Teapot"
+		}
+	],
+	"materials":[
+		{
+			"doubleSided":true,
+			"name":"Material.001",
+			"pbrMetallicRoughness":{
+				"baseColorFactor":[
+					0.800000011920929,
+					0.800000011920929,
+					0.800000011920929,
+					1
+				],
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		}
+	],
+	"meshes":[
+		{
+			"name":"Teapot",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":0,
+						"NORMAL":1,
+						"TEXCOORD_0":2
+					},
+					"indices":3,
+					"material":0
+				}
+			]
+		}
+	],
+	"accessors":[
+		{
+			"bufferView":0,
+			"componentType":5126,
+			"count":3242,
+			"max":[
+				3.3138298988342285,
+				3.0397698879241943,
+				1.9300099611282349
+			],
+			"min":[
+				-2.895020008087158,
+				0,
+				-1.9300099611282349
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":1,
+			"componentType":5126,
+			"count":3242,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":2,
+			"componentType":5126,
+			"count":3242,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":3,
+			"componentType":5123,
+			"count":18960,
+			"type":"SCALAR"
+		}
+	],
+	"bufferViews":[
+		{
+			"buffer":0,
+			"byteLength":38904,
+			"byteOffset":0,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":38904,
+			"byteOffset":38904,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":25936,
+			"byteOffset":77808,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":37920,
+			"byteOffset":103744,
+			"target":34963
+		}
+	],
+	"buffers":[
+		{
+			"byteLength":141664,
+			"uri":"Teapot.bin"
+		}
+	]
 }

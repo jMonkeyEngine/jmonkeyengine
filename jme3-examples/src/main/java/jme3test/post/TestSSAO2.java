@@ -40,6 +40,7 @@ import com.jme3.app.DetailedProfilerState;
 import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.scene.*;
 import com.jme3.scene.shape.Box;
+import jme3test.app.SpatialUtils;
 
 public class TestSSAO2 extends SimpleApplication {
 
@@ -69,7 +70,7 @@ public class TestSSAO2 extends SimpleApplication {
         rootNode.attachChild(floor);
 
         Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.gltf");
-        Geometry teapot = findFirstGeometry(teapotNode);
+        Geometry teapot = SpatialUtils.findFirstGeometry(teapotNode);
         teapot.setMaterial(mat);
 //        Sphere sph = new Sphere(16, 16, 4);
 //        Geometry teapot = new Geometry("teapot", sph);
@@ -112,25 +113,5 @@ public class TestSSAO2 extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf) {
-    }
-
-    /**
-     * Recursively finds the first Geometry in a spatial hierarchy.
-     * Handles both simple flat structures and complex nested node trees.
-     */
-    private Geometry findFirstGeometry(com.jme3.scene.Spatial spatial) {
-        if (spatial instanceof Geometry) {
-            return (Geometry) spatial;
-        }
-        if (spatial instanceof Node) {
-            Node node = (Node) spatial;
-            for (com.jme3.scene.Spatial child : node.getChildren()) {
-                Geometry geom = findFirstGeometry(child);
-                if (geom != null) {
-                    return geom;
-                }
-            }
-        }
-        return null;
     }
 }

@@ -1,530 +1,383 @@
 {
-    "asset": {
-        "version": "2.0",
-        "generator": "Open Asset Import Library (assimp v5.2.0)"
-    },
-    "extensionsUsed": [
-        "KHR_materials_pbrSpecularGlossiness",
-        "FB_ngon_encoding"
-    ],
-    "accessors": [
-        {
-            "bufferView": 0,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 132,
-            "type": "VEC3",
-            "max": [
-                0.1692499965429306,
-                0.9428380131721497,
-                0.6371889710426331
-            ],
-            "min": [
-                -0.16968299448490144,
-                -0.9286580085754395,
-                -0.1476919949054718
-            ]
-        },
-        {
-            "bufferView": 1,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 132,
-            "type": "VEC3",
-            "max": [
-                0.9997795224189758,
-                0.9984170198440552,
-                1.0
-            ],
-            "min": [
-                -0.9997795224189758,
-                -0.9981931447982788,
-                -1.0
-            ]
-        },
-        {
-            "bufferView": 2,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 132,
-            "type": "VEC2",
-            "max": [
-                0.9929580092430115,
-                0.9823169708251953
-            ],
-            "min": [
-                0.012113000266253949,
-                0.32163798809051516
-            ]
-        },
-        {
-            "bufferView": 3,
-            "byteOffset": 0,
-            "componentType": 5125,
-            "count": 372,
-            "type": "SCALAR",
-            "max": [
-                131
-            ],
-            "min": [
-                0
-            ]
-        },
-        {
-            "bufferView": 4,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 77,
-            "type": "VEC3",
-            "max": [
-                0.1737779974937439,
-                0.17201100289821626,
-                -0.12992799282073975
-            ],
-            "min": [
-                -0.17421099543571473,
-                -0.17597800493240357,
-                -1.7466399669647217
-            ]
-        },
-        {
-            "bufferView": 5,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 77,
-            "type": "VEC3",
-            "max": [
-                1.0,
-                1.0,
-                0.4392681121826172
-            ],
-            "min": [
-                -1.0,
-                -1.0,
-                -1.0
-            ]
-        },
-        {
-            "bufferView": 6,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 77,
-            "type": "VEC2",
-            "max": [
-                0.9979270100593567,
-                0.33086299896240237
-            ],
-            "min": [
-                0.068121999502182,
-                0.019604027271270753
-            ]
-        },
-        {
-            "bufferView": 7,
-            "byteOffset": 0,
-            "componentType": 5125,
-            "count": 288,
-            "type": "SCALAR",
-            "max": [
-                76
-            ],
-            "min": [
-                0
-            ]
-        },
-        {
-            "bufferView": 8,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 86,
-            "type": "VEC3",
-            "max": [
-                0.08562599867582321,
-                1.0013699531555176,
-                5.516310214996338
-            ],
-            "min": [
-                -0.08605899661779404,
-                -0.26499998569488528,
-                0.10970599949359894
-            ]
-        },
-        {
-            "bufferView": 9,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 86,
-            "type": "VEC3",
-            "max": [
-                0.9990907907485962,
-                0.21537192165851594,
-                0.049166999757289889
-            ],
-            "min": [
-                -0.9990907907485962,
-                -0.37309321761131289,
-                -0.026674004271626474
-            ]
-        },
-        {
-            "bufferView": 10,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 86,
-            "type": "VEC2",
-            "max": [
-                0.9924499988555908,
-                0.9094280004501343
-            ],
-            "min": [
-                0.14754100143909455,
-                0.023000001907348634
-            ]
-        },
-        {
-            "bufferView": 11,
-            "byteOffset": 0,
-            "componentType": 5125,
-            "count": 234,
-            "type": "SCALAR",
-            "max": [
-                85
-            ],
-            "min": [
-                0
-            ]
-        },
-        {
-            "bufferView": 12,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 72,
-            "type": "VEC3",
-            "max": [
-                0.23798799514770509,
-                0.34813499450683596,
-                0.11823099851608277
-            ],
-            "min": [
-                -0.23826900124549867,
-                -0.34821000695228579,
-                -0.11900100111961365
-            ]
-        },
-        {
-            "bufferView": 13,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 72,
-            "type": "VEC3",
-            "max": [
-                0.8549204468727112,
-                0.6392547488212586,
-                0.4762948751449585
-            ],
-            "min": [
-                -0.8549204468727112,
-                -0.6392547488212586,
-                -0.4762941300868988
-            ]
-        },
-        {
-            "bufferView": 14,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 72,
-            "type": "VEC2",
-            "max": [
-                0.08695299923419953,
-                0.1768050193786621
-            ],
-            "min": [
-                0.030249999836087228,
-                0.11484599113464356
-            ]
-        },
-        {
-            "bufferView": 15,
-            "byteOffset": 0,
-            "componentType": 5125,
-            "count": 72,
-            "type": "SCALAR",
-            "max": [
-                71
-            ],
-            "min": [
-                0
-            ]
-        }
-    ],
-    "buffers": [
-        {
-            "byteLength": 15608,
-            "uri": "Sword.bin"
-        }
-    ],
-    "bufferViews": [
-        {
-            "buffer": 0,
-            "byteOffset": 0,
-            "byteLength": 1584,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 1584,
-            "byteLength": 1584,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 3168,
-            "byteLength": 1056,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 4224,
-            "byteLength": 1488,
-            "target": 34963
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 5712,
-            "byteLength": 924,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 6636,
-            "byteLength": 924,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 7560,
-            "byteLength": 616,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 8176,
-            "byteLength": 1152,
-            "target": 34963
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 9328,
-            "byteLength": 1032,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 10360,
-            "byteLength": 1032,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 11392,
-            "byteLength": 688,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 12080,
-            "byteLength": 936,
-            "target": 34963
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 13016,
-            "byteLength": 864,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 13880,
-            "byteLength": 864,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 14744,
-            "byteLength": 576,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 15320,
-            "byteLength": 288,
-            "target": 34963
-        }
-    ],
-    "images": [
-        {
-            "uri": "sinbad_sword.jpg"
-        }
-    ],
-    "materials": [
-        {
-            "name": "Sinbad/Hilt",
-            "pbrMetallicRoughness": {
-                "baseColorTexture": {
-                    "index": 0
-                },
-                "baseColorFactor": [
-                    0.800000011920929,
-                    0.800000011920929,
-                    0.800000011920929,
-                    1.0
-                ],
-                "metallicFactor": 0.0
-            },
-            "extensions": {
-                "KHR_materials_pbrSpecularGlossiness": {
-                    "diffuseFactor": [
-                        0.800000011920929,
-                        0.800000011920929,
-                        0.800000011920929,
-                        1.0
-                    ],
-                    "specularFactor": [
-                        0.30000001192092898,
-                        0.30000001192092898,
-                        0.20000000298023225
-                    ],
-                    "diffuseTexture": {
-                        "index": 0
-                    }
-                }
-            }
-        },
-        {
-            "name": "Sinbad/Handle",
-            "pbrMetallicRoughness": {
-                "baseColorTexture": {
-                    "index": 0
-                },
-                "metallicFactor": 0.0
-            },
-            "extensions": {
-                "KHR_materials_pbrSpecularGlossiness": {
-                    "specularFactor": [
-                        0.05000000074505806,
-                        0.05000000074505806,
-                        0.05000000074505806
-                    ],
-                    "diffuseTexture": {
-                        "index": 0
-                    }
-                }
-            }
-        },
-        {
-            "name": "Sinbad/Blade",
-            "pbrMetallicRoughness": {
-                "baseColorTexture": {
-                    "index": 0
-                },
-                "metallicFactor": 0.0
-            },
-            "extensions": {
-                "KHR_materials_pbrSpecularGlossiness": {
-                    "diffuseTexture": {
-                        "index": 0
-                    }
-                }
-            }
-        },
-        {
-            "name": "Sinbad/Ruby",
-            "pbrMetallicRoughness": {
-                "baseColorTexture": {
-                    "index": 0
-                },
-                "metallicFactor": 0.0
-            },
-            "extensions": {
-                "KHR_materials_pbrSpecularGlossiness": {
-                    "specularFactor": [
-                        0.75,
-                        0.75,
-                        0.75
-                    ],
-                    "diffuseTexture": {
-                        "index": 0
-                    }
-                }
-            }
-        }
-    ],
-    "meshes": [
-        {
-            "primitives": [
-                {
-                    "mode": 4,
-                    "material": 0,
-                    "indices": 3,
-                    "attributes": {
-                        "POSITION": 0,
-                        "NORMAL": 1,
-                        "TEXCOORD_0": 2
-                    }
-                },
-                {
-                    "mode": 4,
-                    "material": 1,
-                    "indices": 7,
-                    "attributes": {
-                        "POSITION": 4,
-                        "NORMAL": 5,
-                        "TEXCOORD_0": 6
-                    }
-                },
-                {
-                    "mode": 4,
-                    "material": 2,
-                    "indices": 11,
-                    "attributes": {
-                        "POSITION": 8,
-                        "NORMAL": 9,
-                        "TEXCOORD_0": 10
-                    }
-                },
-                {
-                    "mode": 4,
-                    "material": 3,
-                    "indices": 15,
-                    "attributes": {
-                        "POSITION": 12,
-                        "NORMAL": 13,
-                        "TEXCOORD_0": 14
-                    }
-                }
-            ]
-        }
-    ],
-    "nodes": [
-        {
-            "mesh": 0
-        }
-    ],
-    "samplers": [
-        {}
-    ],
-    "scenes": [
-        {
-            "nodes": [
-                0
-            ]
-        }
-    ],
-    "textures": [
-        {
-            "source": 0,
-            "sampler": 0
-        }
-    ],
-    "scene": 0
+	"asset":{
+		"generator":"Khronos glTF Blender I/O v5.1.19",
+		"version":"2.0"
+	},
+	"scene":0,
+	"scenes":[
+		{
+			"name":"Scene",
+			"nodes":[
+				0
+			]
+		}
+	],
+	"nodes":[
+		{
+			"mesh":0,
+			"name":"Sword"
+		}
+	],
+	"materials":[
+		{
+			"doubleSided":true,
+			"name":"Sinbad/Ruby",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":0
+				},
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		},
+		{
+			"doubleSided":true,
+			"name":"Sinbad/Hilt",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":1
+				},
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		},
+		{
+			"doubleSided":true,
+			"name":"Sinbad/Handle",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":2
+				},
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		},
+		{
+			"doubleSided":true,
+			"name":"Sinbad/Blade",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":3
+				},
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		}
+	],
+	"meshes":[
+		{
+			"name":"Sword",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":0,
+						"NORMAL":1,
+						"TEXCOORD_0":2
+					},
+					"indices":3,
+					"material":0
+				},
+				{
+					"attributes":{
+						"POSITION":4,
+						"NORMAL":5,
+						"TEXCOORD_0":6
+					},
+					"indices":7,
+					"material":1
+				},
+				{
+					"attributes":{
+						"POSITION":8,
+						"NORMAL":9,
+						"TEXCOORD_0":10
+					},
+					"indices":11,
+					"material":2
+				},
+				{
+					"attributes":{
+						"POSITION":12,
+						"NORMAL":13,
+						"TEXCOORD_0":14
+					},
+					"indices":15,
+					"material":3
+				}
+			]
+		}
+	],
+	"textures":[
+		{
+			"sampler":0,
+			"source":0
+		},
+		{
+			"sampler":0,
+			"source":0
+		},
+		{
+			"sampler":0,
+			"source":0
+		},
+		{
+			"sampler":0,
+			"source":0
+		}
+	],
+	"images":[
+		{
+			"mimeType":"image/jpeg",
+			"name":"sinbad_sword",
+			"uri":"sinbad_sword.jpg"
+		}
+	],
+	"accessors":[
+		{
+			"bufferView":0,
+			"componentType":5126,
+			"count":72,
+			"max":[
+				0.23798799514770508,
+				0.34813499450683594,
+				0.11823099851608276
+			],
+			"min":[
+				-0.23826900124549866,
+				-0.34821000695228577,
+				-0.11900100111961365
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":1,
+			"componentType":5126,
+			"count":72,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":2,
+			"componentType":5126,
+			"count":72,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":3,
+			"componentType":5123,
+			"count":72,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":4,
+			"componentType":5126,
+			"count":132,
+			"max":[
+				0.1692499965429306,
+				0.9428380131721497,
+				0.6371889710426331
+			],
+			"min":[
+				-0.16968299448490143,
+				-0.9286580085754395,
+				-0.1476919949054718
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":5,
+			"componentType":5126,
+			"count":132,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":6,
+			"componentType":5126,
+			"count":132,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":7,
+			"componentType":5123,
+			"count":372,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":8,
+			"componentType":5126,
+			"count":77,
+			"max":[
+				0.1737779974937439,
+				0.17201100289821625,
+				-0.12992799282073975
+			],
+			"min":[
+				-0.17421099543571472,
+				-0.17597800493240356,
+				-1.7466399669647217
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":9,
+			"componentType":5126,
+			"count":77,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":10,
+			"componentType":5126,
+			"count":77,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":11,
+			"componentType":5123,
+			"count":288,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":12,
+			"componentType":5126,
+			"count":86,
+			"max":[
+				0.08562599867582321,
+				1.0013699531555176,
+				5.516310214996338
+			],
+			"min":[
+				-0.08605899661779404,
+				-0.26499998569488525,
+				0.10970599949359894
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":13,
+			"componentType":5126,
+			"count":86,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":14,
+			"componentType":5126,
+			"count":86,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":15,
+			"componentType":5123,
+			"count":234,
+			"type":"SCALAR"
+		}
+	],
+	"bufferViews":[
+		{
+			"buffer":0,
+			"byteLength":864,
+			"byteOffset":0,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":864,
+			"byteOffset":864,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":576,
+			"byteOffset":1728,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":144,
+			"byteOffset":2304,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":1584,
+			"byteOffset":2448,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":1584,
+			"byteOffset":4032,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":1056,
+			"byteOffset":5616,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":744,
+			"byteOffset":6672,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":924,
+			"byteOffset":7416,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":924,
+			"byteOffset":8340,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":616,
+			"byteOffset":9264,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":576,
+			"byteOffset":9880,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":1032,
+			"byteOffset":10456,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":1032,
+			"byteOffset":11488,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":688,
+			"byteOffset":12520,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":468,
+			"byteOffset":13208,
+			"target":34963
+		}
+	],
+	"samplers":[
+		{
+			"magFilter":9729,
+			"minFilter":9987
+		}
+	],
+	"buffers":[
+		{
+			"byteLength":13676,
+			"uri":"Sword.bin"
+		}
+	]
 }

@@ -42,8 +42,11 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import jme3tools.optimize.TextureAtlas;
 
+/**
+ * Demonstrates creating a texture atlas from multiple glTF models.
+ * All models have been converted from legacy formats to glTF.
+ */
 public class TestTextureAtlas extends SimpleApplication {
-
     public static void main(String[] args) {
         TestTextureAtlas app = new TestTextureAtlas();
         app.start();
@@ -53,38 +56,56 @@ public class TestTextureAtlas extends SimpleApplication {
     public void simpleInitApp() {
         flyCam.setMoveSpeed(50);
         Node scene = new Node("Scene");
-        Spatial obj1 = assetManager.loadModel("Models/Ferrari/Car.scene");
+        
+        Spatial obj1 = assetManager.loadModel("Models/Oto/Oto.gltf");
         obj1.setLocalTranslation(-4, 0, 0);
-        Spatial obj2 = assetManager.loadModel("Models/Elephant/Elephant.gltf");
+        
+        Spatial obj2 = assetManager.loadModel("Models/Ninja/Ninja.gltf");
         obj2.setLocalTranslation(-2, 0, 0);
-        Spatial obj3 = assetManager.loadModel("Models/Ninja/Ninja.gltf");
-        obj3.setLocalTranslation(-0, 0, 0);
-        Spatial obj4 = assetManager.loadModel("Models/Sinbad/Sword.gltf");
+        
+        Spatial obj3 = assetManager.loadModel("Models/Sinbad/Sinbad.gltf");
+        obj3.setLocalTranslation(0, 0, 0);
+        
+        Spatial obj4 = assetManager.loadModel("Models/Ferrari/CarScene.gltf");
         obj4.setLocalTranslation(2, 0, 0);
+        
         Spatial obj5 = assetManager.loadModel("Models/Tree/Tree.gltf");
         obj5.setLocalTranslation(4, 0, 0);
+        
         scene.attachChild(obj1);
         scene.attachChild(obj2);
         scene.attachChild(obj3);
         scene.attachChild(obj4);
         scene.attachChild(obj5);
-
-        Geometry geom = TextureAtlas.makeAtlasBatch(scene, assetManager, 2048);
-
+        
+        Geometry geom = null;
+        try {
+            geom = TextureAtlas.makeAtlasBatch(scene, assetManager, 2048);
+        } catch (IllegalStateException e) {
+            System.err.println("Warning: Could not create texture atlas - " + e.getMessage());
+            System.err.println("Falling back to non-atlased rendering");
+            geom = null;
+        }
+        
         AmbientLight al = new AmbientLight();
         rootNode.addLight(al);
-
+        
         DirectionalLight sun = new DirectionalLight();
         sun.setDirection(new Vector3f(0.69077975f, -0.6277887f, -0.35875428f).normalizeLocal());
         sun.setColor(ColorRGBA.White.clone().multLocal(2));
         rootNode.addLight(sun);
-
-        rootNode.attachChild(geom);
-
-        //quad to display material
-        Geometry box = new Geometry("displayquad", new Quad(4, 4));
-        box.setMaterial(geom.getMaterial());
-        box.setLocalTranslation(0, 1, 3);
-        rootNode.attachChild(box);
+        
+        if (geom != null) {
+            rootNode.attachChild(geom);
+            
+            // Quad to display atlased material
+            Geometry box = new Geometry("displayquad", new Quad(4, 4));
+            box.setMaterial(geom.getMaterial());
+            box.setLocalTranslation(0, 1, 3);
+            rootNode.attachChild(box);
+        } else {
+            // Fallback: attach original scene without atlasing
+            rootNode.attachChild(scene);
+        }
     }
 }

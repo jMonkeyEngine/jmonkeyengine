@@ -1,184 +1,124 @@
 {
-    "asset": {
-        "version": "2.0",
-        "generator": "Open Asset Import Library (assimp v5.2.0)"
-    },
-    "extensionsUsed": [
-        "KHR_materials_pbrSpecularGlossiness",
-        "FB_ngon_encoding"
-    ],
-    "accessors": [
-        {
-            "bufferView": 0,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 793,
-            "type": "VEC3",
-            "max": [
-                1.4143760204315186,
-                1.741929054260254,
-                3.0946900844573976
-            ],
-            "min": [
-                -1.4354170560836793,
-                0.1716489940881729,
-                -3.0715110301971437
-            ]
-        },
-        {
-            "bufferView": 1,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 793,
-            "type": "VEC3",
-            "max": [
-                1.0,
-                0.9987658858299255,
-                0.99950110912323
-            ],
-            "min": [
-                -1.0,
-                -0.9999949932098389,
-                -1.0
-            ]
-        },
-        {
-            "bufferView": 2,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 793,
-            "type": "VEC2",
-            "max": [
-                0.9200839996337891,
-                0.9600690007209778
-            ],
-            "min": [
-                0.004463000223040581,
-                0.0158500075340271
-            ]
-        },
-        {
-            "bufferView": 3,
-            "byteOffset": 0,
-            "componentType": 5125,
-            "count": 3288,
-            "type": "SCALAR",
-            "max": [
-                792
-            ],
-            "min": [
-                0
-            ]
-        }
-    ],
-    "buffers": [
-        {
-            "byteLength": 38528,
-            "uri": "Car.bin"
-        }
-    ],
-    "bufferViews": [
-        {
-            "buffer": 0,
-            "byteOffset": 0,
-            "byteLength": 9516,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 9516,
-            "byteLength": 9516,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 19032,
-            "byteLength": 6344,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 25376,
-            "byteLength": 13152,
-            "target": 34963
-        }
-    ],
-    "images": [
-        {
-            "uri": "Car.jpg"
-        }
-    ],
-    "materials": [
-        {
-            "name": "fskin.002/SOLID/TEX/fskin.jpg",
-            "pbrMetallicRoughness": {
-                "baseColorTexture": {
-                    "index": 0
-                },
-                "baseColorFactor": [
-                    0.5058820247650147,
-                    0.5058820247650147,
-                    0.5058820247650147,
-                    1.0
-                ],
-                "metallicFactor": 0.0
-            },
-            "extensions": {
-                "KHR_materials_pbrSpecularGlossiness": {
-                    "diffuseFactor": [
-                        0.5058820247650147,
-                        0.5058820247650147,
-                        0.5058820247650147,
-                        1.0
-                    ],
-                    "specularFactor": [
-                        0.5,
-                        0.5,
-                        0.5
-                    ],
-                    "diffuseTexture": {
-                        "index": 0
-                    }
-                }
-            }
-        }
-    ],
-    "meshes": [
-        {
-            "primitives": [
-                {
-                    "mode": 4,
-                    "material": 0,
-                    "indices": 3,
-                    "attributes": {
-                        "POSITION": 0,
-                        "NORMAL": 1,
-                        "TEXCOORD_0": 2
-                    }
-                }
-            ]
-        }
-    ],
-    "nodes": [
-        {
-            "mesh": 0
-        }
-    ],
-    "samplers": [
-        {}
-    ],
-    "scenes": [
-        {
-            "nodes": [
-                0
-            ]
-        }
-    ],
-    "textures": [
-        {
-            "source": 0,
-            "sampler": 0
-        }
-    ],
-    "scene": 0
+	"asset":{
+		"generator":"Khronos glTF Blender I/O v5.1.19",
+		"version":"2.0"
+	},
+	"scene":0,
+	"scenes":[
+		{
+			"name":"Scene",
+			"nodes":[
+				0
+			]
+		}
+	],
+	"nodes":[
+		{
+			"mesh":0,
+			"name":"Car"
+		}
+	],
+	"materials":[
+		{
+			"doubleSided":true,
+			"name":"fskin.002/SOLID/TEX/fskin.jpg",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":0
+				},
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		}
+	],
+	"meshes":[
+		{
+			"name":"Car",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":0,
+						"NORMAL":1
+					},
+					"indices":2,
+					"material":0
+				}
+			]
+		}
+	],
+	"textures":[
+		{
+			"sampler":0,
+			"source":0
+		}
+	],
+	"images":[
+		{
+			"mimeType":"image/jpeg",
+			"name":"Car",
+			"uri":"Car.jpg"
+		}
+	],
+	"accessors":[
+		{
+			"bufferView":0,
+			"componentType":5126,
+			"count":798,
+			"max":[
+				1.4143760204315186,
+				1.741929054260254,
+				3.0946900844573975
+			],
+			"min":[
+				-1.4354170560836792,
+				0.1716489940881729,
+				-3.0715110301971436
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":1,
+			"componentType":5126,
+			"count":798,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":2,
+			"componentType":5123,
+			"count":3288,
+			"type":"SCALAR"
+		}
+	],
+	"bufferViews":[
+		{
+			"buffer":0,
+			"byteLength":9576,
+			"byteOffset":0,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":9576,
+			"byteOffset":9576,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":6576,
+			"byteOffset":19152,
+			"target":34963
+		}
+	],
+	"samplers":[
+		{
+			"magFilter":9729,
+			"minFilter":9987
+		}
+	],
+	"buffers":[
+		{
+			"byteLength":25728,
+			"uri":"Car.bin"
+		}
+	]
 }

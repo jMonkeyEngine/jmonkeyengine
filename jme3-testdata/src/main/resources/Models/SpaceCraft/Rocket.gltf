@@ -1,160 +1,124 @@
 {
-    "asset": {
-        "version": "2.0",
-        "generator": "Open Asset Import Library (assimp v5.2.0)"
-    },
-    "extensionsUsed": [
-        "KHR_materials_volume",
-        "FB_ngon_encoding"
-    ],
-    "accessors": [
-        {
-            "bufferView": 0,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 174,
-            "type": "VEC3",
-            "max": [
-                0.4230769872665405,
-                0.4230769872665405,
-                1.067463994026184
-            ],
-            "min": [
-                -0.4230769872665405,
-                -0.4230769872665405,
-                -0.9325349926948547
-            ]
-        },
-        {
-            "bufferView": 1,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 174,
-            "type": "VEC3",
-            "max": [
-                0.9922441244125366,
-                0.9922441244125366,
-                1.0
-            ],
-            "min": [
-                -1.0,
-                -1.0,
-                -1.0
-            ]
-        },
-        {
-            "bufferView": 2,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 174,
-            "type": "VEC2",
-            "max": [
-                1.0,
-                1.0
-            ],
-            "min": [
-                0.0,
-                0.0
-            ]
-        },
-        {
-            "bufferView": 3,
-            "byteOffset": 0,
-            "componentType": 5125,
-            "count": 804,
-            "type": "SCALAR",
-            "max": [
-                173
-            ],
-            "min": [
-                0
-            ]
-        }
-    ],
-    "buffers": [
-        {
-            "byteLength": 8784,
-            "uri": "Rocket.bin"
-        }
-    ],
-    "bufferViews": [
-        {
-            "buffer": 0,
-            "byteOffset": 0,
-            "byteLength": 2088,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 2088,
-            "byteLength": 2088,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 4176,
-            "byteLength": 1392,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 5568,
-            "byteLength": 3216,
-            "target": 34963
-        }
-    ],
-    "images": [
-        {
-            "uri": "Rocket.png"
-        }
-    ],
-    "materials": [
-        {
-            "name": "SOLID/TEX/Rocket.tga",
-            "pbrMetallicRoughness": {
-                "baseColorTexture": {
-                    "index": 0
-                },
-                "metallicFactor": 0.0
-            }
-        }
-    ],
-    "meshes": [
-        {
-            "primitives": [
-                {
-                    "mode": 4,
-                    "material": 0,
-                    "indices": 3,
-                    "attributes": {
-                        "POSITION": 0,
-                        "NORMAL": 1,
-                        "TEXCOORD_0": 2
-                    }
-                }
-            ]
-        }
-    ],
-    "nodes": [
-        {
-            "mesh": 0
-        }
-    ],
-    "samplers": [
-        {}
-    ],
-    "scenes": [
-        {
-            "nodes": [
-                0
-            ]
-        }
-    ],
-    "textures": [
-        {
-            "source": 0,
-            "sampler": 0
-        }
-    ],
-    "scene": 0
+	"asset":{
+		"generator":"Khronos glTF Blender I/O v5.1.19",
+		"version":"2.0"
+	},
+	"scene":0,
+	"scenes":[
+		{
+			"name":"Scene",
+			"nodes":[
+				0
+			]
+		}
+	],
+	"nodes":[
+		{
+			"mesh":0,
+			"name":"Rocket"
+		}
+	],
+	"materials":[
+		{
+			"doubleSided":true,
+			"name":"SOLID/TEX/Rocket.tga",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":0
+				},
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		}
+	],
+	"meshes":[
+		{
+			"name":"Rocket",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":0,
+						"NORMAL":1
+					},
+					"indices":2,
+					"material":0
+				}
+			]
+		}
+	],
+	"textures":[
+		{
+			"sampler":0,
+			"source":0
+		}
+	],
+	"images":[
+		{
+			"mimeType":"image/png",
+			"name":"Rocket",
+			"uri":"Rocket.png"
+		}
+	],
+	"accessors":[
+		{
+			"bufferView":0,
+			"componentType":5126,
+			"count":179,
+			"max":[
+				0.4230769872665405,
+				0.4230769872665405,
+				1.067463994026184
+			],
+			"min":[
+				-0.4230769872665405,
+				-0.4230769872665405,
+				-0.9325349926948547
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":1,
+			"componentType":5126,
+			"count":179,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":2,
+			"componentType":5123,
+			"count":804,
+			"type":"SCALAR"
+		}
+	],
+	"bufferViews":[
+		{
+			"buffer":0,
+			"byteLength":2148,
+			"byteOffset":0,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":2148,
+			"byteOffset":2148,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":1608,
+			"byteOffset":4296,
+			"target":34963
+		}
+	],
+	"samplers":[
+		{
+			"magFilter":9729,
+			"minFilter":9987
+		}
+	],
+	"buffers":[
+		{
+			"byteLength":5904,
+			"uri":"Rocket.bin"
+		}
+	]
 }

@@ -51,6 +51,7 @@ import com.jme3.scene.shape.Dome;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jme3test.app.SpatialUtils;
 
 /**
  * @author Kyle "bonechilla" Williams
@@ -276,7 +277,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
             for (int i = 0; i < cubeField.size(); i++){
 
                 //better way to check collision
-                Geometry playerModel = (Geometry) player.getChild(0);
+                Geometry playerModel = SpatialUtils.findFirstGeometry(player);
                 Geometry cubeModel = cubeField.get(i);
 
                 BoundingVolume pVol = playerModel.getWorldBound();

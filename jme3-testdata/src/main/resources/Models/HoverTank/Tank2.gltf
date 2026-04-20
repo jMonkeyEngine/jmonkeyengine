@@ -1,149 +1,149 @@
 {
-    "asset": {
-        "version": "2.0",
-        "generator": "Open Asset Import Library (assimp v5.2.0)"
-    },
-    "extensionsUsed": [
-        "KHR_materials_volume",
-        "FB_ngon_encoding"
-    ],
-    "accessors": [
-        {
-            "bufferView": 0,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 5884,
-            "type": "VEC3",
-            "max": [
-                4.938399791717529,
-                2.7506000995635988,
-                6.065849781036377
-            ],
-            "min": [
-                -4.938399791717529,
-                -1.1489100456237794,
-                -5.820030212402344
-            ]
-        },
-        {
-            "bufferView": 1,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 5884,
-            "type": "VEC3",
-            "max": [
-                1.0,
-                1.0,
-                1.0
-            ],
-            "min": [
-                -1.0,
-                -1.0,
-                -1.0
-            ]
-        },
-        {
-            "bufferView": 2,
-            "byteOffset": 0,
-            "componentType": 5126,
-            "count": 5884,
-            "type": "VEC2",
-            "max": [
-                0.9905189871788025,
-                0.9913250207901001
-            ],
-            "min": [
-                0.001892999978736043,
-                0.0003809928894042969
-            ]
-        },
-        {
-            "bufferView": 3,
-            "byteOffset": 0,
-            "componentType": 5125,
-            "count": 29076,
-            "type": "SCALAR",
-            "max": [
-                5883
-            ],
-            "min": [
-                0
-            ]
-        }
-    ],
-    "buffers": [
-        {
-            "byteLength": 304592,
-            "uri": "Tank2.bin"
-        }
-    ],
-    "bufferViews": [
-        {
-            "buffer": 0,
-            "byteOffset": 0,
-            "byteLength": 70608,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 70608,
-            "byteLength": 70608,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 141216,
-            "byteLength": 47072,
-            "target": 34962
-        },
-        {
-            "buffer": 0,
-            "byteOffset": 188288,
-            "byteLength": 116304,
-            "target": 34963
-        }
-    ],
-    "materials": [
-        {
-            "name": "DefaultMaterial",
-            "pbrMetallicRoughness": {
-                "baseColorFactor": [
-                    0.6000000238418579,
-                    0.6000000238418579,
-                    0.6000000238418579,
-                    1.0
-                ],
-                "metallicFactor": 0.0
-            }
-        }
-    ],
-    "meshes": [
-        {
-            "primitives": [
-                {
-                    "mode": 4,
-                    "material": 0,
-                    "indices": 3,
-                    "attributes": {
-                        "POSITION": 0,
-                        "NORMAL": 1,
-                        "TEXCOORD_0": 2
-                    }
-                }
-            ]
-        }
-    ],
-    "nodes": [
-        {
-            "mesh": 0
-        }
-    ],
-    "scenes": [
-        {
-            "nodes": [
-                0
-            ]
-        }
-    ],
-    "scene": 0
+	"asset":{
+		"generator":"Khronos glTF Blender I/O v5.1.19",
+		"version":"2.0"
+	},
+	"scene":0,
+	"scenes":[
+		{
+			"name":"Scene",
+			"nodes":[
+				0
+			]
+		}
+	],
+	"nodes":[
+		{
+			"mesh":0,
+			"name":"Tank2"
+		}
+	],
+	"materials":[
+		{
+			"doubleSided":true,
+			"name":"Models/HoverTank/tank.j3m",
+			"pbrMetallicRoughness":{
+				"baseColorFactor":[
+					0.800000011920929,
+					0.800000011920929,
+					0.800000011920929,
+					1
+				],
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		}
+	],
+	"meshes":[
+		{
+			"name":"Tank2",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":0,
+						"NORMAL":1,
+						"TEXCOORD_0":2,
+						"COLOR_0":3,
+						"COLOR_1":4
+					},
+					"indices":5,
+					"material":0
+				}
+			]
+		}
+	],
+	"accessors":[
+		{
+			"bufferView":0,
+			"componentType":5126,
+			"count":6639,
+			"max":[
+				4.938399791717529,
+				2.7506000995635986,
+				6.065849781036377
+			],
+			"min":[
+				-4.938399791717529,
+				-1.1489100456237793,
+				-5.820030212402344
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":1,
+			"componentType":5126,
+			"count":6639,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":2,
+			"componentType":5126,
+			"count":6639,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":3,
+			"componentType":5121,
+			"count":6639,
+			"normalized":true,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":4,
+			"componentType":5123,
+			"count":6639,
+			"normalized":true,
+			"type":"VEC4"
+		},
+		{
+			"bufferView":5,
+			"componentType":5123,
+			"count":29076,
+			"type":"SCALAR"
+		}
+	],
+	"bufferViews":[
+		{
+			"buffer":0,
+			"byteLength":79668,
+			"byteOffset":0,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":79668,
+			"byteOffset":79668,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":53112,
+			"byteOffset":159336,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":26556,
+			"byteOffset":212448,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":53112,
+			"byteOffset":239004,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":58152,
+			"byteOffset":292116,
+			"target":34963
+		}
+	],
+	"buffers":[
+		{
+			"byteLength":350268,
+			"uri":"Tank2.bin"
+		}
+	]
 }
