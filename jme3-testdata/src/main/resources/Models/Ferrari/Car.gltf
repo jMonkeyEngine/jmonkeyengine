@@ -1,6 +1,6 @@
 {
 	"asset":{
-		"generator":"Khronos glTF Blender I/O v5.1.19",
+		"generator":"Khronos glTF Blender I/O v4.2.83",
 		"version":"2.0"
 	},
 	"scene":0,
@@ -33,14 +33,15 @@
 	],
 	"meshes":[
 		{
-			"name":"Car",
+			"name":"Car.001",
 			"primitives":[
 				{
 					"attributes":{
 						"POSITION":0,
-						"NORMAL":1
+						"NORMAL":1,
+						"TEXCOORD_0":2
 					},
-					"indices":2,
+					"indices":3,
 					"material":0
 				}
 			]
@@ -65,14 +66,14 @@
 			"componentType":5126,
 			"count":798,
 			"max":[
-				1.4143760204315186,
-				1.741929054260254,
+				1.4143799543380737,
+				1.7419300079345703,
 				3.0946900844573975
 			],
 			"min":[
-				-1.4354170560836792,
+				-1.435420036315918,
 				0.1716489940881729,
-				-3.0715110301971436
+				-3.071510076522827
 			],
 			"type":"VEC3"
 		},
@@ -84,6 +85,12 @@
 		},
 		{
 			"bufferView":2,
+			"componentType":5126,
+			"count":798,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":3,
 			"componentType":5123,
 			"count":3288,
 			"type":"SCALAR"
@@ -104,8 +111,14 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":6576,
+			"byteLength":6384,
 			"byteOffset":19152,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":6576,
+			"byteOffset":25536,
 			"target":34963
 		}
 	],
@@ -117,7 +130,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":25728,
+			"byteLength":32112,
 			"uri":"Car.bin"
 		}
 	]

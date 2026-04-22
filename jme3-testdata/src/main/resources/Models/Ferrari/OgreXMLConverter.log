@@ -1,0 +1,16 @@
+23:40:31: Creating resource group General
+23:40:31: Creating resource group OgreInternal
+23:40:31: Creating resource group OgreAutodetect
+23:40:31: Registering ResourceManager for type Mesh
+23:40:31: Registering ResourceManager for type Material
+23:40:31: Registering ResourceManager for type Skeleton
+23:40:31: XMLMeshSerializer writing mesh data to C:\Users\USER\Desktop\Projects\Open Source\jmonkeyengine\jme3-testdata\src\main\resources\Models\Ferrari\WheelFrontLeft.mesh.xml...
+23:40:31: Populating DOM...
+23:40:31: Writing submesh...
+23:40:31: Dedicated geometry bone assignments exported.
+23:40:31: Submesh exported.
+23:40:31: DOM populated, writing XML file..
+23:40:31: XMLMeshSerializer export successful.
+23:40:31: Unregistering ResourceManager for type Skeleton
+23:40:31: Unregistering ResourceManager for type Material
+23:40:31: Unregistering ResourceManager for type Mesh

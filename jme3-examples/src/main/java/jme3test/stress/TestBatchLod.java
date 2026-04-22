@@ -38,9 +38,11 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.control.LodControl;
 import jme3test.app.SpatialUtils;
 import jme3tools.optimize.GeometryBatchFactory;
+import jme3tools.optimize.LodGenerator;
 
 public class TestBatchLod extends SimpleApplication {
 
@@ -59,6 +61,11 @@ public class TestBatchLod extends SimpleApplication {
 
         Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.gltf");
         Geometry teapot = SpatialUtils.findFirstGeometry(teapotNode);
+
+        // Generate LOD if not already present (glTF models typically don't have LOD data)
+        if (teapot.getMesh().getNumLodLevels() == 0) {
+            generateLOD(teapot, 0.75f, 0.5f, 0.25f);
+        }
 
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setFloat("Shininess", 16f);
@@ -87,5 +94,18 @@ public class TestBatchLod extends SimpleApplication {
         cam.setLocation(new Vector3f(-1.0748308f, 1.35778f, -1.5380064f));
         cam.setRotation(new Quaternion(0.18343268f, 0.34531063f, -0.069015436f, 0.9177962f));
 
+    }
+
+    /**
+     * Generate LOD levels for a geometry if it doesn't already have them.
+     * glTF models typically don't include LOD data, so this generates them on-the-fly.
+     *
+     * @param geometry the geometry to generate LODs for
+     * @param reductionLevels proportional reduction values (0-1): higher % keeps more vertices
+     */
+    private void generateLOD(Geometry geometry, float... reductionLevels) {
+        LodGenerator lodGenerator = new LodGenerator(geometry);
+        lodGenerator.bakeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionLevels);
+        geometry.addControl(new LodControl());
     }
 }

@@ -1,6 +1,6 @@
 {
 	"asset":{
-		"generator":"Khronos glTF Blender I/O v5.1.19",
+		"generator":"Khronos glTF Blender I/O v4.2.83",
 		"version":"2.0"
 	},
 	"scene":0,
@@ -33,14 +33,15 @@
 	],
 	"meshes":[
 		{
-			"name":"WheelBackLeft",
+			"name":"WheelBackLeft.001",
 			"primitives":[
 				{
 					"attributes":{
 						"POSITION":0,
-						"NORMAL":1
+						"NORMAL":1,
+						"TEXCOORD_0":2
 					},
-					"indices":2,
+					"indices":3,
 					"material":0
 				}
 			]
@@ -67,12 +68,12 @@
 			"max":[
 				-0.9168620109558105,
 				0.946304976940155,
-				2.573935031890869
+				2.5739400386810303
 			],
 			"min":[
-				-1.3459980487823486,
+				-1.3459999561309814,
 				0.0008440000237897038,
-				1.629017949104309
+				1.6290199756622314
 			],
 			"type":"VEC3"
 		},
@@ -84,6 +85,12 @@
 		},
 		{
 			"bufferView":2,
+			"componentType":5126,
+			"count":174,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":3,
 			"componentType":5123,
 			"count":732,
 			"type":"SCALAR"
@@ -104,8 +111,14 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":1464,
+			"byteLength":1392,
 			"byteOffset":4176,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":1464,
+			"byteOffset":5568,
 			"target":34963
 		}
 	],
@@ -117,7 +130,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":5640,
+			"byteLength":7032,
 			"uri":"WheelBackLeft.bin"
 		}
 	]

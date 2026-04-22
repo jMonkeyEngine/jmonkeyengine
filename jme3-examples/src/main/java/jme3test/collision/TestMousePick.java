@@ -119,7 +119,7 @@ public class TestMousePick extends SimpleApplication {
         shootables.attachChild(torus);
 
         // load a character from jme3-testdata
-        Spatial golem = assetManager.loadModel("Models/Elephant/Elephant.gltf");
+        Spatial golem = assetManager.loadModel("Models/Oto/Oto.gltf");
         golem.scale(0.5f);
         golem.setLocalTranslation(-1.0f, -1.5f, -0.6f);
         shootables.attachChild(golem);

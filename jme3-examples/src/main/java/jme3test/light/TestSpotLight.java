@@ -36,7 +36,11 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -112,7 +116,7 @@ public class TestSpotLight extends SimpleApplication {
 
 
     public void setupSignpost(){
-        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.gltf");
+        Spatial signpost = assetManager.loadModel("Models/Sign Post/SignPost.gltf");
         Material mat = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
       //   mat.setBoolean("VertexLighting", true);
         signpost.setMaterial(mat);

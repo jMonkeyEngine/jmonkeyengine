@@ -1,6 +1,6 @@
 {
 	"asset":{
-		"generator":"Khronos glTF Blender I/O v5.1.19",
+		"generator":"Khronos glTF Blender I/O v4.2.83",
 		"version":"2.0"
 	},
 	"scene":0,
@@ -21,7 +21,7 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Models/HoverTank/tank.j3m",
+			"name":"Models/HoverTank/tank.j3m.001",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
 					0.800000011920929,
@@ -30,13 +30,13 @@
 					1
 				],
 				"metallicFactor":0,
-				"roughnessFactor":0.5
+				"roughnessFactor":0.4000000059604645
 			}
 		}
 	],
 	"meshes":[
 		{
-			"name":"Tank2",
+			"name":"Tank2.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -56,7 +56,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":6639,
+			"count":6640,
 			"max":[
 				4.938399791717529,
 				2.7506000995635986,
@@ -72,28 +72,27 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":6639,
+			"count":6640,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":6639,
+			"count":6640,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5121,
-			"count":6639,
+			"count":6640,
 			"normalized":true,
 			"type":"VEC4"
 		},
 		{
 			"bufferView":4,
-			"componentType":5123,
-			"count":6639,
-			"normalized":true,
-			"type":"VEC4"
+			"componentType":5126,
+			"count":6640,
+			"type":"VEC3"
 		},
 		{
 			"bufferView":5,
@@ -105,44 +104,44 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":79668,
+			"byteLength":79680,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":79668,
-			"byteOffset":79668,
+			"byteLength":79680,
+			"byteOffset":79680,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":53112,
-			"byteOffset":159336,
+			"byteLength":53120,
+			"byteOffset":159360,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":26556,
-			"byteOffset":212448,
+			"byteLength":26560,
+			"byteOffset":212480,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":53112,
-			"byteOffset":239004,
+			"byteLength":79680,
+			"byteOffset":239040,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":58152,
-			"byteOffset":292116,
+			"byteOffset":318720,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":350268,
+			"byteLength":376872,
 			"uri":"Tank2.bin"
 		}
 	]

@@ -69,7 +69,7 @@ public class TestShadowBug extends SimpleApplication {
     characters.setShadowMode(ShadowMode.Cast);
     rootNode.attachChild(characters);
 
-    Spatial golem = assetManager.loadModel("Models/Elephant/Elephant.gltf");
+      Spatial golem = assetManager.loadModel("Models/Oto/Oto.gltf");
     golem.scale(0.5f);
     golem.setLocalTranslation(200.0f, -6f, 200f);
     golem.setShadowMode(ShadowMode.CastAndReceive);

@@ -38,7 +38,11 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -84,7 +88,7 @@ public class TestParallax extends SimpleApplication {
     }
 
     public void setupSignpost() {
-        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.gltf");
+        Spatial signpost = assetManager.loadModel("Models/Sign Post/SignPost.gltf");
         Material matSp = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
         MikktspaceTangentGenerator.generate(signpost);
         signpost.setMaterial(matSp);

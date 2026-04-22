@@ -31,12 +31,14 @@
  */
 package jme3test.light;
 
+import java.util.logging.Logger;
+
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
-import java.util.logging.Logger;
+
 import jme3test.bullet.TestIssue1125;
 
 /**
@@ -81,7 +83,7 @@ public class TestIssue2209 extends SimpleApplication {
         dlsr.setLight(dl);
         viewPort.addProcessor(dlsr);
 
-        Node player = (Node) assetManager.loadModel("Models/Elephant/Elephant.gltf");
+        Node player = (Node) assetManager.loadModel("Models/Oto/Oto.gltf");
         player.setShadowMode(RenderQueue.ShadowMode.Cast);
         rootNode.attachChild(player);
     }

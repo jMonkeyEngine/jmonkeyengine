@@ -40,7 +40,6 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.plugins.ogre.OgreMeshKey;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
@@ -57,7 +56,7 @@ public class TestBumpModel extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.gltf");
+        Spatial signpost = assetManager.loadModel("Models/Sign Post/SignPost.gltf");
         signpost.setMaterial(assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m"));
         MikktspaceTangentGenerator.generate(signpost);
         rootNode.attachChild(signpost);

@@ -57,16 +57,16 @@ public class TestTextureAtlas extends SimpleApplication {
         flyCam.setMoveSpeed(50);
         Node scene = new Node("Scene");
         
-        Spatial obj1 = assetManager.loadModel("Models/Oto/Oto.gltf");
+        Spatial obj1 = assetManager.loadModel("Models/Ferrari/CarScene.gltf");
         obj1.setLocalTranslation(-4, 0, 0);
         
-        Spatial obj2 = assetManager.loadModel("Models/Ninja/Ninja.gltf");
+        Spatial obj2 = assetManager.loadModel("Models/Oto/Oto.gltf");
         obj2.setLocalTranslation(-2, 0, 0);
         
-        Spatial obj3 = assetManager.loadModel("Models/Sinbad/Sinbad.gltf");
+        Spatial obj3 = assetManager.loadModel("Models/Ninja/Ninja.gltf");
         obj3.setLocalTranslation(0, 0, 0);
         
-        Spatial obj4 = assetManager.loadModel("Models/Ferrari/CarScene.gltf");
+Spatial obj4 = assetManager.loadModel("Models/Sinbad/Sinbad.gltf");
         obj4.setLocalTranslation(2, 0, 0);
         
         Spatial obj5 = assetManager.loadModel("Models/Tree/Tree.gltf");

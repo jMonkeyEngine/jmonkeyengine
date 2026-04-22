@@ -37,9 +37,14 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.*;
+import com.jme3.post.filters.FadeFilter;
+import com.jme3.post.filters.RadialBlurFilter;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
@@ -120,7 +125,7 @@ public class TestPostFilters extends SimpleApplication implements ActionListener
     }
 
     public void setupSignpost() {
-        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.gltf");
+        Spatial signpost = assetManager.loadModel("Models/Sign Post/SignPost.gltf");
         Material mat = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
         signpost.setMaterial(mat);
         signpost.rotate(0, FastMath.HALF_PI, 0);

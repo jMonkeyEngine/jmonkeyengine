@@ -1,0 +1,42 @@
+02:11:07: Creating resource group General
+02:11:07: Creating resource group OgreInternal
+02:11:07: Creating resource group OgreAutodetect
+02:11:07: Registering ResourceManager for type Mesh
+02:11:07: Registering ResourceManager for type Material
+02:11:07: Registering ResourceManager for type Skeleton
+02:11:07: XMLSkeletonSerializer writing  skeleton data to C:\Users\USER\Desktop\Projects\Open Source\jmonkeyengine\jme3-testdata\src\main\resources\Models\Oto\Oto.skeleton.xml...
+02:11:07: Populating DOM...
+02:11:07: Exporting bones..
+02:11:07: There are 15 bones.
+02:11:07:    Exporting Bone number 0
+02:11:07:    Exporting Bone number 1
+02:11:07:    Exporting Bone number 2
+02:11:07:    Exporting Bone number 3
+02:11:07:    Exporting Bone number 4
+02:11:07:    Exporting Bone number 5
+02:11:07:    Exporting Bone number 6
+02:11:07:    Exporting Bone number 7
+02:11:07:    Exporting Bone number 8
+02:11:07:    Exporting Bone number 9
+02:11:07:    Exporting Bone number 10
+02:11:07:    Exporting Bone number 11
+02:11:07:    Exporting Bone number 12
+02:11:07:    Exporting Bone number 13
+02:11:07:    Exporting Bone number 14
+02:11:07: Bones exported.
+02:11:07: Exporting animations, count=5
+02:11:07: Exporting animation: Dodge
+02:11:07: Animation exported.
+02:11:07: Exporting animation: Walk
+02:11:07: Animation exported.
+02:11:07: Exporting animation: pull
+02:11:07: Animation exported.
+02:11:07: Exporting animation: push
+02:11:07: Animation exported.
+02:11:07: Exporting animation: stand
+02:11:07: Animation exported.
+02:11:07: DOM populated, writing XML file..
+02:11:07: XMLSkeletonSerializer export successful.
+02:11:07: Unregistering ResourceManager for type Skeleton
+02:11:07: Unregistering ResourceManager for type Material
+02:11:07: Unregistering ResourceManager for type Mesh

@@ -35,7 +35,6 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.input.ChaseCamera;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
@@ -43,12 +42,18 @@ import com.jme3.scene.Node;
 import jme3test.post.BloomUI;
 
 /**
- * Demonstrates loading a glTF tank model with chase camera and bloom post-processing.
- * Note: LOD control has been removed as glTF models do not include LOD metadata by default.
- * 
+ * Demonstrates loading a glTF tank model with chase camera and bloom
+ * post-processing.
+ *
+ * Note: glTF models do not include LOD (Level of Detail) metadata by default.
+ * The legacy Ogre format supported pre-baked LOD levels, but glTF does not. For
+ * performance optimization with glTF models, consider using viewport-based
+ * culling or shader-based LOD techniques instead of mesh LOD.
+ *
  * @author Nehon
  */
 public class TestHoverTank extends SimpleApplication {
+
     public static void main(String[] args) {
         TestHoverTank app = new TestHoverTank();
         app.start();
@@ -61,24 +66,24 @@ public class TestHoverTank extends SimpleApplication {
         ChaseCamera chaseCam = new ChaseCamera(cam, tank, inputManager);
         chaseCam.setSmoothMotion(true);
         chaseCam.setMaxDistance(100000);
-        chaseCam.setMinVerticalRotation(-FastMath.PI / 2);
+        chaseCam.setMinVerticalRotation(-1.5707963f); // -PI/2 in radians
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
-        
+
         rootNode.attachChild(tank);
-        
+
         Vector3f lightDir = new Vector3f(-0.8719428f, -0.46824604f, 0.14304268f);
         DirectionalLight dl = new DirectionalLight();
         dl.setColor(new ColorRGBA(1.0f, 0.92f, 0.75f, 1f));
         dl.setDirection(lightDir);
-        
+
         Vector3f lightDir2 = new Vector3f(0.70518064f, 0.5902297f, -0.39287305f);
         DirectionalLight dl2 = new DirectionalLight();
         dl2.setColor(new ColorRGBA(0.7f, 0.85f, 1.0f, 1f));
         dl2.setDirection(lightDir2);
-        
+
         rootNode.addLight(dl);
         rootNode.addLight(dl2);
-        
+
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         BloomFilter bf = new BloomFilter(BloomFilter.GlowMode.Objects);
         bf.setBloomIntensity(2.0f);

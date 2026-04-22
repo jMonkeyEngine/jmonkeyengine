@@ -39,13 +39,15 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.control.LodControl;
 import jme3test.app.SpatialUtils;
+import jme3tools.optimize.LodGenerator;
 
 /**
- * Stress test that clones many geometries with optional LOD support.
- * Only applies LodControl if the mesh has LOD levels defined.
- * glTF meshes typically do not include LOD data by default, so the test
- * gracefully handles this by checking before applying LOD.
+ * Stress test that clones many geometries with LOD support.
+ * LOD (Level of Detail) is generated programmatically on model load for performance optimization.
+ * glTF meshes typically do not include LOD data by default, so LOD levels are created dynamically
+ * using the LodGenerator class.
  */
 public class TestLodStress extends SimpleApplication {
 
@@ -64,6 +66,11 @@ public class TestLodStress extends SimpleApplication {
 
         Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.gltf");
         Geometry teapot = SpatialUtils.findFirstGeometry(teapotNode);
+        
+        // Generate LOD if not already present (glTF models typically don't have LOD data)
+        if (teapot.getMesh().getNumLodLevels() == 0) {
+            generateLOD(teapot, 0.75f, 0.5f, 0.25f);
+        }
         
 //        Sphere sph = new Sphere(16, 16, 4);
 //        Geometry teapot = new Geometry("teapot", sph);
@@ -84,15 +91,25 @@ public class TestLodStress extends SimpleApplication {
                 clonePot.setLocalTranslation(x * .5f, 0, y * .5f);
                 clonePot.setLocalScale(.15f);
                 
-                // Note: LOD is not available for glTF models as they don't include LOD metadata by default.
-                // For LOD support, use models with built-in LOD data or manually configure LOD levels.
-                
                 rootNode.attachChild(clonePot);
             }
         }
 
         cam.setLocation(new Vector3f(8.378951f, 5.4324f, 8.795956f));
         cam.setRotation(new Quaternion(-0.083419204f, 0.90370524f, -0.20599906f, -0.36595422f));
+    }
+
+    /**
+     * Generate LOD levels for a geometry if it doesn't already have them.
+     * glTF models typically don't include LOD data, so this generates them on-the-fly.
+     *
+     * @param geometry the geometry to generate LODs for
+     * @param reductionLevels proportional reduction values (0-1): higher % keeps more vertices
+     */
+    private void generateLOD(Geometry geometry, float... reductionLevels) {
+        LodGenerator lodGenerator = new LodGenerator(geometry);
+        lodGenerator.bakeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionLevels);
+        geometry.addControl(new LodControl());
     }
 
 }

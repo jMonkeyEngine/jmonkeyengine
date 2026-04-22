@@ -35,7 +35,11 @@ package jme3test.effect;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.Caps;
@@ -152,7 +156,7 @@ public class TestEverything extends SimpleApplication {
 //    }
 
     public void setupRobotGuy(){
-        Node model = (Node) assetManager.loadModel("Models/Elephant/Elephant.gltf");
+        Node model = (Node) assetManager.loadModel("Models/Oto/Oto.gltf");
         model.setLocalTranslation(30, 10.5f, 30);
         model.setLocalScale(2);
         model.setShadowMode(ShadowMode.CastAndReceive);
@@ -160,7 +164,7 @@ public class TestEverything extends SimpleApplication {
     }
 
     public void setupSignpost(){
-        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.gltf");
+        Spatial signpost = assetManager.loadModel("Models/Sign Post/SignPost.gltf");
         Material mat = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
         signpost.setMaterial(mat);
         signpost.rotate(0, FastMath.HALF_PI, 0);

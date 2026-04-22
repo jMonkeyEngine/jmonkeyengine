@@ -1,0 +1,116 @@
+00:34:33: Creating resource group General
+00:34:33: Creating resource group OgreInternal
+00:34:33: Creating resource group OgreAutodetect
+00:34:33: Registering ResourceManager for type Mesh
+00:34:33: Registering ResourceManager for type Material
+00:34:33: Registering ResourceManager for type Skeleton
+00:34:34: XMLSkeletonSerializer writing  skeleton data to C:\Users\USER\Desktop\Projects\Open Source\jmonkeyengine\jme3-testdata\src\main\resources\Models\Sinbad\Sinbad.skeleton.xml...
+00:34:34: Populating DOM...
+00:34:34: Exporting bones..
+00:34:34: There are 69 bones.
+00:34:34:    Exporting Bone number 0
+00:34:34:    Exporting Bone number 1
+00:34:34:    Exporting Bone number 2
+00:34:34:    Exporting Bone number 3
+00:34:34:    Exporting Bone number 4
+00:34:34:    Exporting Bone number 5
+00:34:34:    Exporting Bone number 6
+00:34:34:    Exporting Bone number 7
+00:34:34:    Exporting Bone number 8
+00:34:34:    Exporting Bone number 9
+00:34:34:    Exporting Bone number 10
+00:34:34:    Exporting Bone number 11
+00:34:34:    Exporting Bone number 12
+00:34:34:    Exporting Bone number 13
+00:34:34:    Exporting Bone number 14
+00:34:34:    Exporting Bone number 15
+00:34:34:    Exporting Bone number 16
+00:34:34:    Exporting Bone number 17
+00:34:34:    Exporting Bone number 18
+00:34:34:    Exporting Bone number 19
+00:34:34:    Exporting Bone number 20
+00:34:34:    Exporting Bone number 21
+00:34:34:    Exporting Bone number 22
+00:34:34:    Exporting Bone number 23
+00:34:34:    Exporting Bone number 24
+00:34:34:    Exporting Bone number 25
+00:34:34:    Exporting Bone number 26
+00:34:34:    Exporting Bone number 27
+00:34:34:    Exporting Bone number 28
+00:34:34:    Exporting Bone number 29
+00:34:34:    Exporting Bone number 30
+00:34:34:    Exporting Bone number 31
+00:34:34:    Exporting Bone number 32
+00:34:34:    Exporting Bone number 33
+00:34:34:    Exporting Bone number 34
+00:34:34:    Exporting Bone number 35
+00:34:34:    Exporting Bone number 36
+00:34:34:    Exporting Bone number 37
+00:34:34:    Exporting Bone number 38
+00:34:34:    Exporting Bone number 39
+00:34:34:    Exporting Bone number 40
+00:34:34:    Exporting Bone number 41
+00:34:34:    Exporting Bone number 42
+00:34:34:    Exporting Bone number 43
+00:34:34:    Exporting Bone number 44
+00:34:34:    Exporting Bone number 45
+00:34:34:    Exporting Bone number 46
+00:34:34:    Exporting Bone number 47
+00:34:34:    Exporting Bone number 48
+00:34:34:    Exporting Bone number 49
+00:34:34:    Exporting Bone number 50
+00:34:34:    Exporting Bone number 51
+00:34:34:    Exporting Bone number 52
+00:34:34:    Exporting Bone number 53
+00:34:34:    Exporting Bone number 54
+00:34:34:    Exporting Bone number 55
+00:34:34:    Exporting Bone number 56
+00:34:34:    Exporting Bone number 57
+00:34:34:    Exporting Bone number 58
+00:34:34:    Exporting Bone number 59
+00:34:34:    Exporting Bone number 60
+00:34:34:    Exporting Bone number 61
+00:34:34:    Exporting Bone number 62
+00:34:34:    Exporting Bone number 63
+00:34:34:    Exporting Bone number 64
+00:34:34:    Exporting Bone number 65
+00:34:34:    Exporting Bone number 66
+00:34:34:    Exporting Bone number 67
+00:34:34:    Exporting Bone number 68
+00:34:34: Bones exported.
+00:34:34: Exporting animations, count=15
+00:34:34: Exporting animation: Dance
+00:34:34: Animation exported.
+00:34:34: Exporting animation: DrawSwords
+00:34:34: Animation exported.
+00:34:34: Exporting animation: HandsClosed
+00:34:34: Animation exported.
+00:34:34: Exporting animation: HandsRelaxed
+00:34:34: Animation exported.
+00:34:34: Exporting animation: IdleBase
+00:34:34: Animation exported.
+00:34:34: Exporting animation: IdleTop
+00:34:34: Animation exported.
+00:34:34: Exporting animation: JumpEnd
+00:34:34: Animation exported.
+00:34:34: Exporting animation: JumpLoop
+00:34:34: Animation exported.
+00:34:34: Exporting animation: JumpStart
+00:34:34: Animation exported.
+00:34:34: Exporting animation: RunBase
+00:34:34: Animation exported.
+00:34:34: Exporting animation: RunTop
+00:34:34: Animation exported.
+00:34:34: Exporting animation: SliceHorizontal
+00:34:34: Animation exported.
+00:34:34: Exporting animation: SliceVertical
+00:34:34: Animation exported.
+00:34:34: Exporting animation: StandUpBack
+00:34:34: Animation exported.
+00:34:34: Exporting animation: StandUpFront
+00:34:34: Animation exported.
+00:34:34: DOM populated, writing XML file..
+00:34:35: XMLSkeletonSerializer export successful.
+00:34:35: Unregistering ResourceManager for type Skeleton
+00:34:35: Unregistering ResourceManager for type Material
+00:34:35: Unregistering ResourceManager for type Mesh
