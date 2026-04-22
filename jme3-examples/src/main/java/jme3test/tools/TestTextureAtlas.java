@@ -78,14 +78,7 @@ Spatial obj4 = assetManager.loadModel("Models/Sinbad/Sinbad.gltf");
         scene.attachChild(obj4);
         scene.attachChild(obj5);
         
-        Geometry geom = null;
-        try {
-            geom = TextureAtlas.makeAtlasBatch(scene, assetManager, 2048);
-        } catch (IllegalStateException e) {
-            System.err.println("Warning: Could not create texture atlas - " + e.getMessage());
-            System.err.println("Falling back to non-atlased rendering");
-            geom = null;
-        }
+        Geometry geom = TextureAtlas.makeAtlasBatch(scene, assetManager, 2048);
         
         AmbientLight al = new AmbientLight();
         rootNode.addLight(al);
@@ -95,17 +88,12 @@ Spatial obj4 = assetManager.loadModel("Models/Sinbad/Sinbad.gltf");
         sun.setColor(ColorRGBA.White.clone().multLocal(2));
         rootNode.addLight(sun);
         
-        if (geom != null) {
-            rootNode.attachChild(geom);
+        rootNode.attachChild(geom);
             
-            // Quad to display atlased material
-            Geometry box = new Geometry("displayquad", new Quad(4, 4));
-            box.setMaterial(geom.getMaterial());
-            box.setLocalTranslation(0, 1, 3);
-            rootNode.attachChild(box);
-        } else {
-            // Fallback: attach original scene without atlasing
-            rootNode.attachChild(scene);
-        }
+        // Quad to display atlased material
+        Geometry box = new Geometry("displayquad", new Quad(4, 4));
+        box.setMaterial(geom.getMaterial());
+        box.setLocalTranslation(0, 1, 3);
+        rootNode.attachChild(box);
     }
 }

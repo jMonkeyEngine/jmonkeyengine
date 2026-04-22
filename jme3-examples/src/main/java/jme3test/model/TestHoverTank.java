@@ -35,11 +35,16 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.input.ChaseCamera;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.control.LodControl;
+import jme3test.app.SpatialUtils;
 import jme3test.post.BloomUI;
+import jme3tools.optimize.LodGenerator;
 
 /**
  * Demonstrates loading a glTF tank model with chase camera and bloom
@@ -62,13 +67,18 @@ public class TestHoverTank extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         Node tank = (Node) assetManager.loadModel("Models/HoverTank/Tank2.gltf");
+
+        Geometry tankGeom = SpatialUtils.findFirstGeometry(tank);
+        generateLOD(tankGeom, 0.5f, 0.25f); // Generate LOD levels at 50% and 25% of original triangle count
+
         flyCam.setEnabled(false);
         ChaseCamera chaseCam = new ChaseCamera(cam, tank, inputManager);
         chaseCam.setSmoothMotion(true);
         chaseCam.setMaxDistance(100000);
-        chaseCam.setMinVerticalRotation(-1.5707963f); // -PI/2 in radians
+        chaseCam.setMinVerticalRotation(-FastMath.PI / 2);
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
 
+        //Attach Lod Generation Here
         rootNode.attachChild(tank);
 
         Vector3f lightDir = new Vector3f(-0.8719428f, -0.46824604f, 0.14304268f);
@@ -91,5 +101,11 @@ public class TestHoverTank extends SimpleApplication {
         fpp.addFilter(bf);
         BloomUI bui = new BloomUI(inputManager, bf);
         viewPort.addProcessor(fpp);
+    }
+
+    private void generateLOD(Geometry geometry, float... reductionLevels) {
+        LodGenerator lodGenerator = new LodGenerator(geometry);
+        lodGenerator.bakeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionLevels);
+        geometry.addControl(new LodControl());
     }
 }

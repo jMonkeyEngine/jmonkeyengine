@@ -54,6 +54,8 @@ import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
+import jme3test.app.SpatialUtils;
+
 public class TestEverything extends SimpleApplication {
 
     private DirectionalLightShadowRenderer dlsr;
@@ -155,8 +157,12 @@ public class TestEverything extends SimpleApplication {
 //
 //    }
 
-    public void setupRobotGuy(){
+    public void setupRobotGuy() {
         Node model = (Node) assetManager.loadModel("Models/Oto/Oto.gltf");
+        Geometry otoGeometry = SpatialUtils.findFirstGeometry(model);
+        Material mat = assetManager.loadMaterial("Models/Oto/Oto.j3m");
+        otoGeometry.setMaterial(mat);
+
         model.setLocalTranslation(30, 10.5f, 30);
         model.setLocalScale(2);
         model.setShadowMode(ShadowMode.CastAndReceive);
@@ -167,6 +173,7 @@ public class TestEverything extends SimpleApplication {
         Spatial signpost = assetManager.loadModel("Models/Sign Post/SignPost.gltf");
         Material mat = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
         signpost.setMaterial(mat);
+
         signpost.rotate(0, FastMath.HALF_PI, 0);
         signpost.setLocalTranslation(12, 3.5f, 30);
         signpost.setLocalScale(4);
