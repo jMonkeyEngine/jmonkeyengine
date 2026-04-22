@@ -3,8 +3,8 @@ package com.jme3.audio;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Automated tests for the Filter class.
@@ -24,8 +24,8 @@ public class AudioFilterTest {
         LowPassFilter copy = BinaryExporter.saveAndLoad(assetManager, f);
 
         float delta = 0.001f;
-        Assert.assertEquals(f.getVolume(), copy.getVolume(), delta);
-        Assert.assertEquals(f.getHighFreqVolume(), copy.getHighFreqVolume(), delta);
+        Assertions.assertEquals(f.getVolume(), copy.getVolume(), delta);
+        Assertions.assertEquals(f.getHighFreqVolume(), copy.getHighFreqVolume(), delta);
     }
 
     /**
@@ -39,8 +39,8 @@ public class AudioFilterTest {
         HighPassFilter copy = BinaryExporter.saveAndLoad(assetManager, f);
 
         float delta = 0.001f;
-        Assert.assertEquals(f.getVolume(), copy.getVolume(), delta);
-        Assert.assertEquals(f.getLowFreqVolume(), copy.getLowFreqVolume(), delta);
+        Assertions.assertEquals(f.getVolume(), copy.getVolume(), delta);
+        Assertions.assertEquals(f.getLowFreqVolume(), copy.getLowFreqVolume(), delta);
     }
 
     /**
@@ -54,9 +54,9 @@ public class AudioFilterTest {
         BandPassFilter copy = BinaryExporter.saveAndLoad(assetManager, f);
 
         float delta = 0.001f;
-        Assert.assertEquals(f.getVolume(), copy.getVolume(), delta);
-        Assert.assertEquals(f.getHighFreqVolume(), copy.getHighFreqVolume(), delta);
-        Assert.assertEquals(f.getLowFreqVolume(), copy.getLowFreqVolume(), delta);
+        Assertions.assertEquals(f.getVolume(), copy.getVolume(), delta);
+        Assertions.assertEquals(f.getHighFreqVolume(), copy.getHighFreqVolume(), delta);
+        Assertions.assertEquals(f.getLowFreqVolume(), copy.getLowFreqVolume(), delta);
     }
 
 }

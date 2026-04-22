@@ -31,8 +31,8 @@
  */
 package com.jme3.math;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test various toString() methods using JUnit. See also
@@ -71,16 +71,16 @@ public class TestToString {
         String triangleString = triangle.toString();
 
         // Verify that the results match the javadoc:
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 "Line [Origin: (1.0, 0.0, 0.0)  Direction: (0.0, 1.0, 0.0)]",
                 lineString);
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 "LineSegment [Origin: (1.0, 0.0, 0.0)  Direction: (0.0, 1.0, 0.0)  Extent: 1.0]",
                 segmentString);
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 "Rectangle [A: (1.0, 0.0, 0.0)  B: (2.0, 0.0, 0.0)  C: (1.0, 2.0, 0.0)]",
                 rectangleString);
-        Assert.assertEquals(
+        Assertions.assertEquals(
                 "Triangle [V1: (1.0, 0.0, 0.0)  V2: (0.0, 1.0, 0.0)  V3: (0.0, 0.0, 1.0)]",
                 triangleString);
     }

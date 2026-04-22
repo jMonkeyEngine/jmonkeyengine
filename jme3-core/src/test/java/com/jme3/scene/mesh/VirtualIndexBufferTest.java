@@ -1,23 +1,18 @@
 package com.jme3.scene.mesh;
 
 import com.jme3.scene.Mesh.Mode;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import java.nio.IntBuffer;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class VirtualIndexBufferTest {
 
-    @Rule public ExpectedException thrown = ExpectedException.none();
-
     @Test
     public void testHybrid() {
-        thrown.expect(UnsupportedOperationException.class);
-        new VirtualIndexBuffer(8, Mode.Hybrid);
+        assertThrows(UnsupportedOperationException.class, () -> new VirtualIndexBuffer(8, Mode.Hybrid));
     }
 
     @Test
@@ -224,8 +219,7 @@ public class VirtualIndexBufferTest {
     @Test
     public void testGet_Patch() {
         final VirtualIndexBuffer bufferPatch = new VirtualIndexBuffer(27, Mode.Patch);
-        thrown.expect(UnsupportedOperationException.class);
-        bufferPatch.get();
+        assertThrows(UnsupportedOperationException.class, bufferPatch::get);
     }
 
     @Test

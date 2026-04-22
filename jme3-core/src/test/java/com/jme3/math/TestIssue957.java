@@ -31,7 +31,7 @@
  */
 package com.jme3.math;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verify that a Triangle center and normal get recomputed after a change. This

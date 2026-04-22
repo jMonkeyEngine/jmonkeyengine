@@ -35,8 +35,8 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.math.ColorRGBA;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Automated tests for the {@code CrossHatchFilter} class.
@@ -71,20 +71,20 @@ public class CrossHatchFilterTest {
         CrossHatchFilter copy = BinaryExporter.saveAndLoad(assetManager, filter);
 
         // Verify the parameter values of the copy:
-        Assert.assertEquals(0.7f, copy.getColorInfluenceLine(), 0f);
-        Assert.assertEquals(0.2f, copy.getColorInfluencePaper(), 0f);
-        Assert.assertEquals(0.95f, copy.getFillValue(), 0f);
-        Assert.assertEquals(ColorRGBA.Blue, copy.getLineColor());
-        Assert.assertEquals(3f, copy.getLineDistance(), 0f);
-        Assert.assertEquals(0.9f, copy.getLineThickness(), 0f);
-        Assert.assertEquals(0.95f, copy.getLuminance1(), 0f);
-        Assert.assertEquals(0.75f, copy.getLuminance2(), 0f);
-        Assert.assertEquals(0.54f, copy.getLuminance3(), 0f);
-        Assert.assertEquals(0.32f, copy.getLuminance4(), 0f);
-        Assert.assertEquals(0.21f, copy.getLuminance5(), 0f);
-        Assert.assertEquals("CrossHatchFilter", copy.getName());
-        Assert.assertEquals(ColorRGBA.Yellow, copy.getPaperColor());
-        Assert.assertFalse(copy.isEnabled());
+        Assertions.assertEquals(0.7f, copy.getColorInfluenceLine(), 0f);
+        Assertions.assertEquals(0.2f, copy.getColorInfluencePaper(), 0f);
+        Assertions.assertEquals(0.95f, copy.getFillValue(), 0f);
+        Assertions.assertEquals(ColorRGBA.Blue, copy.getLineColor());
+        Assertions.assertEquals(3f, copy.getLineDistance(), 0f);
+        Assertions.assertEquals(0.9f, copy.getLineThickness(), 0f);
+        Assertions.assertEquals(0.95f, copy.getLuminance1(), 0f);
+        Assertions.assertEquals(0.75f, copy.getLuminance2(), 0f);
+        Assertions.assertEquals(0.54f, copy.getLuminance3(), 0f);
+        Assertions.assertEquals(0.32f, copy.getLuminance4(), 0f);
+        Assertions.assertEquals(0.21f, copy.getLuminance5(), 0f);
+        Assertions.assertEquals("CrossHatchFilter", copy.getName());
+        Assertions.assertEquals(ColorRGBA.Yellow, copy.getPaperColor());
+        Assertions.assertFalse(copy.isEnabled());
     }
 
     /**
@@ -94,19 +94,19 @@ public class CrossHatchFilterTest {
      * @param filter (not null, unaffected)
      */
     private void verifyDefaults(CrossHatchFilter filter) {
-        Assert.assertEquals(0.8f, filter.getColorInfluenceLine(), 0f);
-        Assert.assertEquals(0.1f, filter.getColorInfluencePaper(), 0f);
-        Assert.assertEquals(0.9f, filter.getFillValue(), 0f);
-        Assert.assertEquals(ColorRGBA.Black, filter.getLineColor());
-        Assert.assertEquals(4f, filter.getLineDistance(), 0f);
-        Assert.assertEquals(1f, filter.getLineThickness(), 0f);
-        Assert.assertEquals(0.9f, filter.getLuminance1(), 0f);
-        Assert.assertEquals(0.7f, filter.getLuminance2(), 0f);
-        Assert.assertEquals(0.5f, filter.getLuminance3(), 0f);
-        Assert.assertEquals(0.3f, filter.getLuminance4(), 0f);
-        Assert.assertEquals(0f, filter.getLuminance5(), 0f);
-        Assert.assertEquals("CrossHatchFilter", filter.getName());
-        Assert.assertEquals(ColorRGBA.White, filter.getPaperColor());
-        Assert.assertTrue(filter.isEnabled());
+        Assertions.assertEquals(0.8f, filter.getColorInfluenceLine(), 0f);
+        Assertions.assertEquals(0.1f, filter.getColorInfluencePaper(), 0f);
+        Assertions.assertEquals(0.9f, filter.getFillValue(), 0f);
+        Assertions.assertEquals(ColorRGBA.Black, filter.getLineColor());
+        Assertions.assertEquals(4f, filter.getLineDistance(), 0f);
+        Assertions.assertEquals(1f, filter.getLineThickness(), 0f);
+        Assertions.assertEquals(0.9f, filter.getLuminance1(), 0f);
+        Assertions.assertEquals(0.7f, filter.getLuminance2(), 0f);
+        Assertions.assertEquals(0.5f, filter.getLuminance3(), 0f);
+        Assertions.assertEquals(0.3f, filter.getLuminance4(), 0f);
+        Assertions.assertEquals(0f, filter.getLuminance5(), 0f);
+        Assertions.assertEquals("CrossHatchFilter", filter.getName());
+        Assertions.assertEquals(ColorRGBA.White, filter.getPaperColor());
+        Assertions.assertTrue(filter.isEnabled());
     }
 }

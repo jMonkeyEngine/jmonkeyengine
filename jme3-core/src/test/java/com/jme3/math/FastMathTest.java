@@ -31,15 +31,12 @@
  */
 package com.jme3.math;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-import org.junit.Ignore;
-
 import java.lang.Math;
 
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Verifies that algorithms in {@link FastMath} are working correctly.
@@ -47,8 +44,6 @@ import org.junit.rules.ExpectedException;
  * @author Kirill Vainer
  */
 public class FastMathTest {
-
-    @Rule public ExpectedException thrown = ExpectedException.none();
     
     private int nearestPowerOfTwoSlow(int number) {
         return (int) Math.pow(2, Math.ceil(Math.log(number) / Math.log(2)));
@@ -77,7 +72,7 @@ public class FastMathTest {
                             FastMath.nextRandomFloat());
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void testCounterClockwise() {
         for (int i = 0; i < 100; i++) {
@@ -344,8 +339,7 @@ public class FastMathTest {
 
     @Test
     public void testConvertFloatToHalfUnsupportedOperationException() {
-        thrown.expect(UnsupportedOperationException.class);
-        FastMath.convertFloatToHalf(Float.NaN);
+        assertThrows(UnsupportedOperationException.class, () -> FastMath.convertFloatToHalf(Float.NaN));
     }
 
     @Test

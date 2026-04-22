@@ -412,7 +412,11 @@ public class BoundingBox extends BoundingVolume {
      * altered)
      * @return this box (with its components modified) or null if the second
      * volume is of some type other than AABB or Sphere
+     * @deprecated This method modifies the receiver in place, which is
+     *     inconsistent with {@link BoundingSphere#merge}. Use
+     *     {@link #mergeWith} instead.
      */
+    @Deprecated
     @Override
     public BoundingVolume merge(BoundingVolume volume) {
         return mergeLocal(volume);

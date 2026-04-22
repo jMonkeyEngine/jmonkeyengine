@@ -46,9 +46,9 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.system.JmeSystem;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -60,7 +60,7 @@ public class GltfLoaderTest {
 
     private AssetManager assetManager;
 
-    @Before
+    @BeforeEach
     public void init() {
         assetManager = JmeSystem.newAssetManager(
                 TestMaterialWrite.class.getResource("/com/jme3/asset/Desktop.cfg"));
@@ -82,7 +82,7 @@ public class GltfLoaderTest {
             dumpScene(scene, 0);
         } catch (AssetLoadException ex) {
             ex.printStackTrace();
-            Assert.fail("Failed to import gltf model with empty scene");
+            Assertions.fail("Failed to import gltf model with empty scene");
         }
     }
 
@@ -93,7 +93,7 @@ public class GltfLoaderTest {
             dumpScene(scene, 0);
         } catch (AssetLoadException ex) {
             ex.printStackTrace();
-            Assert.fail("Failed to import gltf model with lights punctual extension");
+            Assertions.fail("Failed to import gltf model with lights punctual extension");
         }
     }
 
@@ -103,7 +103,7 @@ public class GltfLoaderTest {
 
         // By default, the unsupported extension that is listed in
         // the 'extensionsRequired' will cause an AssetLoadException
-        Assert.assertThrows(AssetLoadException.class, () -> {
+        Assertions.assertThrows(AssetLoadException.class, () -> {
             GltfModelKey gltfModelKey = new GltfModelKey("gltf/TriangleUnsupportedExtensionRequired.gltf");
             Spatial scene = assetManager.loadModel(gltfModelKey);
             dumpScene(scene, 0);
@@ -118,7 +118,7 @@ public class GltfLoaderTest {
             dumpScene(scene, 0);
         } catch (AssetLoadException ex) {
             ex.printStackTrace();
-            Assert.fail("Failed to load TriangleUnsupportedExtensionRequired");
+            Assertions.fail("Failed to load TriangleUnsupportedExtensionRequired");
         }
 
     }
@@ -137,29 +137,29 @@ public class GltfLoaderTest {
             // The geometry has 11x11 vertices arranged in a square,
             // so there are 10 x 10 * 2 triangles
             VertexBuffer indices = mesh.getBuffer(VertexBuffer.Type.Index);
-            Assert.assertEquals(10 * 10 * 2, indices.getNumElements());
-            Assert.assertEquals(VertexBuffer.Format.UnsignedShort, indices.getFormat());
+            Assertions.assertEquals(10 * 10 * 2, indices.getNumElements());
+            Assertions.assertEquals(VertexBuffer.Format.UnsignedShort, indices.getFormat());
 
             // All attributes of the 11 x 11 vertices are stored as Float
             // attributes (even the texture coordinates, which originally
             // had been normalized(!) unsigned shorts!)
             VertexBuffer positions = mesh.getBuffer(VertexBuffer.Type.Position);
-            Assert.assertEquals(11 * 11, positions.getNumElements());
-            Assert.assertEquals(VertexBuffer.Format.Float, positions.getFormat());
+            Assertions.assertEquals(11 * 11, positions.getNumElements());
+            Assertions.assertEquals(VertexBuffer.Format.Float, positions.getFormat());
 
             VertexBuffer normal = mesh.getBuffer(VertexBuffer.Type.Normal);
-            Assert.assertEquals(11 * 11, normal.getNumElements());
-            Assert.assertEquals(VertexBuffer.Format.Float, normal.getFormat());
+            Assertions.assertEquals(11 * 11, normal.getNumElements());
+            Assertions.assertEquals(VertexBuffer.Format.Float, normal.getFormat());
 
             VertexBuffer texCoord = mesh.getBuffer(VertexBuffer.Type.TexCoord);
-            Assert.assertEquals(11 * 11, texCoord.getNumElements());
-            Assert.assertEquals(VertexBuffer.Format.Float, texCoord.getFormat());
+            Assertions.assertEquals(11 * 11, texCoord.getNumElements());
+            Assertions.assertEquals(VertexBuffer.Format.Float, texCoord.getFormat());
 
             dumpScene(scene, 0);
 
         } catch (AssetLoadException ex) {
             ex.printStackTrace();
-            Assert.fail("Failed to import unitSquare11x11_unsignedShortTexCoords");
+            Assertions.fail("Failed to import unitSquare11x11_unsignedShortTexCoords");
         }
     }
 

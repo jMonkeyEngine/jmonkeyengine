@@ -37,10 +37,11 @@ import java.util.Comparator;
 import static org.hamcrest.CoreMatchers.everyItem;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Verifies order of entries sorted by {@link ListSort} and checks if all
@@ -52,7 +53,7 @@ public class ListSortTest {
 
     private Integer[] arrayToSort;
 
-    @Before
+    @BeforeEach
     public void initTestArray() {
         arrayToSort = new Integer[]{36, 10, 16, 9, 14, 32, 35, 22, 1, 27, 18, 11,
             30, 15, 2, 12, 32, 27, 11, 45, 7, 32, 36, 11, 39, 32, 45, 35, 40, 17,
@@ -62,13 +63,13 @@ public class ListSortTest {
 
     @Test
     public void testBinarySortFirstRun() throws ReflectiveOperationException {
-        assertTrue("Array to sort must be smaller than merge-sort threshhold.", arrayToSort.length < 128);
+        assertTrue(arrayToSort.length < 128, "Array to sort must be smaller than merge-sort threshhold.");
         sortAndAssert(arrayToSort, false);
     }
 
     @Test
     public void testBinarySort() throws ReflectiveOperationException {
-        assertTrue("Array to sort must be smaller than merge-sort threshhold.", arrayToSort.length < 128);
+        assertTrue(arrayToSort.length < 128, "Array to sort must be smaller than merge-sort threshhold.");
         sortAndAssert(arrayToSort, true);
     }
 
@@ -78,7 +79,7 @@ public class ListSortTest {
         System.arraycopy(arrayToSort, 0, bigArray, arrayToSort.length, arrayToSort.length);
         System.arraycopy(arrayToSort, 0, bigArray, arrayToSort.length * 2, arrayToSort.length);
 
-        assertTrue("Array to sort must be bigger than merge-sort threshhold.", bigArray.length > 128);
+        assertTrue(bigArray.length > 128, "Array to sort must be bigger than merge-sort threshhold.");
         sortAndAssert(bigArray, false);
     }
 
@@ -88,7 +89,7 @@ public class ListSortTest {
         System.arraycopy(arrayToSort, 0, bigArray, arrayToSort.length, arrayToSort.length);
         System.arraycopy(arrayToSort, 0, bigArray, arrayToSort.length * 2, arrayToSort.length);
 
-        assertTrue("Array to sort must be bigger than merge-sort threshhold.", bigArray.length > 128);
+        assertTrue(bigArray.length > 128, "Array to sort must be bigger than merge-sort threshhold.");
         sortAndAssert(bigArray, true);
     }
 

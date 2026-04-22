@@ -35,8 +35,12 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.control.UpdateControl;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests selected methods of the Spatial class.
@@ -48,41 +52,41 @@ public class SpatialTest {
     /**
      * Tests addControlAt() with a duplicate Control.
      */
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void addControlAtDuplicate() {
         Spatial testSpatial = new Node("testSpatial");
         UpdateControl control1 = new UpdateControl();
         testSpatial.addControlAt(0, control1);
-        testSpatial.addControlAt(1, control1);
+        assertThrows(IllegalStateException.class, () -> testSpatial.addControlAt(1, control1));
     }
 
     /**
      * Tests addControlAt() with a negative index.
      */
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void addControlAtNegativeIndex() {
         Spatial testSpatial = new Node("testSpatial");
         UpdateControl control1 = new UpdateControl();
-        testSpatial.addControlAt(-1, control1);
+        assertThrows(IndexOutOfBoundsException.class, () -> testSpatial.addControlAt(-1, control1));
     }
 
     /**
      * Tests addControlAt() with a null argument.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void addControlAtNullControl() {
         Spatial testSpatial = new Node("testSpatial");
-        testSpatial.addControlAt(0, null);
+        assertThrows(IllegalArgumentException.class, () -> testSpatial.addControlAt(0, null));
     }
 
     /**
      * Tests addControlAt() with an out-of-range positive index.
      */
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void addControlAtOutOfRange() {
         Spatial testSpatial = new Node("testSpatial");
         UpdateControl control1 = new UpdateControl();
-        testSpatial.addControlAt(1, control1);
+        assertThrows(IndexOutOfBoundsException.class, () -> testSpatial.addControlAt(1, control1));
     }
 
     /**
@@ -96,31 +100,31 @@ public class SpatialTest {
         UpdateControl control1 = new UpdateControl();
         testSpatial.addControlAt(0, control1);
 
-        Assert.assertEquals(1, testSpatial.getNumControls());
-        Assert.assertEquals(control1, testSpatial.getControl(0));
-        Assert.assertEquals(testSpatial, control1.getSpatial());
+        assertEquals(1, testSpatial.getNumControls());
+        assertEquals(control1, testSpatial.getControl(0));
+        assertEquals(testSpatial, control1.getSpatial());
 
         // Add at the end of a non-empty list.
         UpdateControl control2 = new UpdateControl();
         testSpatial.addControlAt(1, control2);
 
-        Assert.assertEquals(2, testSpatial.getNumControls());
-        Assert.assertEquals(control1, testSpatial.getControl(0));
-        Assert.assertEquals(control2, testSpatial.getControl(1));
-        Assert.assertEquals(testSpatial, control1.getSpatial());
-        Assert.assertEquals(testSpatial, control2.getSpatial());
+        assertEquals(2, testSpatial.getNumControls());
+        assertEquals(control1, testSpatial.getControl(0));
+        assertEquals(control2, testSpatial.getControl(1));
+        assertEquals(testSpatial, control1.getSpatial());
+        assertEquals(testSpatial, control2.getSpatial());
 
         // Add at the beginning of a non-empty list.
         UpdateControl control0 = new UpdateControl();
         testSpatial.addControlAt(0, control0);
 
-        Assert.assertEquals(3, testSpatial.getNumControls());
-        Assert.assertEquals(control0, testSpatial.getControl(0));
-        Assert.assertEquals(control1, testSpatial.getControl(1));
-        Assert.assertEquals(control2, testSpatial.getControl(2));
-        Assert.assertEquals(testSpatial, control0.getSpatial());
-        Assert.assertEquals(testSpatial, control1.getSpatial());
-        Assert.assertEquals(testSpatial, control2.getSpatial());
+        assertEquals(3, testSpatial.getNumControls());
+        assertEquals(control0, testSpatial.getControl(0));
+        assertEquals(control1, testSpatial.getControl(1));
+        assertEquals(control2, testSpatial.getControl(2));
+        assertEquals(testSpatial, control0.getSpatial());
+        assertEquals(testSpatial, control1.getSpatial());
+        assertEquals(testSpatial, control2.getSpatial());
     }
 
     @Test
@@ -136,19 +140,19 @@ public class SpatialTest {
         Vector3f worldTranslation = testNode.getWorldTranslation().clone();
         Quaternion worldRotation = testNode.getWorldRotation().clone();
 
-        Assert.assertTrue(worldTranslation.isSimilar(testNode.getWorldTranslation(),1e-6f));
-        Assert.assertTrue(worldRotation.isSimilar(testNode.getWorldRotation(),1e-6f));
+        assertTrue(worldTranslation.isSimilar(testNode.getWorldTranslation(),1e-6f));
+        assertTrue(worldRotation.isSimilar(testNode.getWorldRotation(),1e-6f));
 
         nodeB.attachChild(testNode);
 
-        Assert.assertFalse(worldTranslation.isSimilar(testNode.getWorldTranslation(),1e-6f));
-        Assert.assertFalse(worldRotation.isSimilar(testNode.getWorldRotation(),1e-6f));
+        assertFalse(worldTranslation.isSimilar(testNode.getWorldTranslation(),1e-6f));
+        assertFalse(worldRotation.isSimilar(testNode.getWorldRotation(),1e-6f));
 
         testNode.setLocalTranslation(nodeB.worldToLocal(worldTranslation,null));
-        Assert.assertTrue(worldTranslation.isSimilar(testNode.getWorldTranslation(),1e-6f));
+        assertTrue(worldTranslation.isSimilar(testNode.getWorldTranslation(),1e-6f));
 
         testNode.setLocalRotation(nodeB.worldToLocal(worldRotation,null));
         System.out.println(testNode.getWorldRotation());
-        Assert.assertTrue(worldRotation.isSimilar(testNode.getWorldRotation(),1e-6f));
+        assertTrue(worldRotation.isSimilar(testNode.getWorldRotation(),1e-6f));
     }
 }

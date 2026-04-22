@@ -1,5 +1,8 @@
 ext.mainClassName = 'jme3test.TestChooser'
 
+def androidProject = project(':jme3-android')
+def androidNativeProject = project(':jme3-android-native')
+
 task run(dependsOn: 'build', type:JavaExec) {
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
@@ -69,21 +72,21 @@ task dist (dependsOn: ['build', ':jme3-android:jar', ':jme3-android-native:jar']
             }
         }
         copy {
-            from jar.archivePath
+            from tasks.named('jar').flatMap { it.archiveFile }
             into '../dist'
             rename { "jMonkeyEngine3.jar" }
         }
 
         // Copy android packages, remove version
         copy {
-            from project(':jme3-android').jar.archivePath
+            from androidProject.tasks.named('jar').flatMap { it.archiveFile }
             into '../dist/opt/android'
-            rename {project(':jme3-android').name+".jar"}
+            rename { androidProject.name + ".jar" }
         }
         copy {
-            from project(':jme3-android-native').jar.archivePath
+            from androidNativeProject.tasks.named('jar').flatMap { it.archiveFile }
             into '../dist/opt/android'
-            rename {project(':jme3-android-native').name+".jar"}
+            rename { androidNativeProject.name + ".jar" }
         }
     }
 }

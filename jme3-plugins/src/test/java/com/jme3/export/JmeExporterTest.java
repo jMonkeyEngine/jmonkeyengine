@@ -37,19 +37,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import java.util.stream.Stream;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetManager;
@@ -62,81 +56,87 @@ import com.jme3.export.xml.XMLImporter;
 import com.jme3.material.Material;
 import com.jme3.material.plugin.export.material.J3MExporter;
 import com.jme3.scene.Node;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests the methods on classes that implements the JmeExporter interface.
  */
-@RunWith(Parameterized.class)
 public class JmeExporterTest {
 
     // test saving with a material since the J3MExporter expects one
     private static Material material;
 
-    private final JmeExporter exporter;
+    @TempDir
+    Path tempDir;
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         AssetManager assetManager = new DesktopAssetManager(true);
         material = new Material(assetManager, "Common/MatDefs/Gui/Gui.j3md");
     }
 
-    public JmeExporterTest(JmeExporter exporter) {
-        this.exporter = exporter;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<JmeExporter> defineExporters() {
-        return Arrays.asList(new BinaryExporter(), new XMLExporter(), new J3MExporter());
+    static Stream<JmeExporter> defineExporters() {
+        return Stream.of(new BinaryExporter(), new XMLExporter(), new J3MExporter());
     }
 
     private File fileWithMissingParent() {
-        File dir = new File(folder.getRoot(), "missingDir");
+        File dir = tempDir.resolve("missingDir").toFile();
         return new File(dir, "afile.txt");
     }
 
     private File fileWithExistingParent() throws IOException {
-        File dir = folder.newFolder();
+        File dir = Files.createTempDirectory(tempDir, "exporter-test").toFile();
         return new File(dir, "afile.txt");
     }
 
-    @Test
-    public void testSaveWhenPathDoesntExist() throws IOException {
+    @ParameterizedTest
+    @MethodSource("defineExporters")
+    public void testSaveWhenPathDoesntExist(JmeExporter exporter) throws IOException {
         File file = fileWithMissingParent();
-        Assert.assertFalse(file.exists());
+        assertFalse(file.exists());
         exporter.save(material, file);
-        Assert.assertTrue(file.exists());
+        assertTrue(file.exists());
     }
 
-    @Test
-    public void testSaveWhenPathDoesExist() throws IOException {
+    @ParameterizedTest
+    @MethodSource("defineExporters")
+    public void testSaveWhenPathDoesExist(JmeExporter exporter) throws IOException {
         File file = fileWithExistingParent();
         exporter.save(material, file);
-        Assert.assertTrue(file.exists());
+        assertTrue(file.exists());
     }
 
-    @Test(expected = FileNotFoundException.class)
-    public void testSaveWhenPathDoesntExistWithoutCreateDirs() throws IOException {
+    @ParameterizedTest
+    @MethodSource("defineExporters")
+    public void testSaveWhenPathDoesntExistWithoutCreateDirs(JmeExporter exporter) throws IOException {
         File file = fileWithMissingParent();
-        exporter.save(material, file, false);
-        Assert.assertTrue(file.exists());
+        assertThrows(FileNotFoundException.class, () -> exporter.save(material, file, false));
     }
 
-    @Test
-    public void testSaveWithNullParent() throws IOException {
+    @ParameterizedTest
+    @MethodSource("defineExporters")
+    public void testSaveWithNullParent(JmeExporter exporter) throws IOException {
         File file = new File("someFile.txt");
         try {
             exporter.save(material, file);
-            Assert.assertTrue(file.exists());
+            assertTrue(file.exists());
         } finally {
             file.delete();
         }
     }
 
-    @Test
-    public void testExporterConsistency() {
+    @ParameterizedTest
+    @MethodSource("defineExporters")
+    public void testExporterConsistency(JmeExporter currentExporter) {
         //
         final boolean testXML = true;
         final boolean testLists = false;
@@ -189,7 +189,7 @@ public class JmeExporterTest {
             try {
                 exporter.save(origin, outs[i]);
             } catch (IOException ex) {
-                Assert.fail(ex.getMessage());
+                fail(ex.getMessage());
             }
         }
 
@@ -222,7 +222,7 @@ public class JmeExporterTest {
                 };
                 nodes[i + 1] = (Node) importer.load(info);
             } catch (IOException ex) {
-                Assert.fail(ex.getMessage());
+                fail(ex.getMessage());
             }
         }
 
@@ -243,22 +243,22 @@ public class JmeExporterTest {
         // check if all maps have the same keys and values for those keys
         for (int i = 1; i < maps.length; i++) {
             Map<String, Object> map = maps[i];
-            Assert.assertEquals("Map " + i + " keys do not match", keys.length, map.size());
+            assertEquals(keys.length, map.size(), "Map " + i + " keys do not match");
             for (String key : keys) {
-                Assert.assertTrue("Missing key " + key + " in map " + i, map.containsKey(key));
+                assertTrue(map.containsKey(key), "Missing key " + key + " in map " + i);
                 Object v1 = maps[0].get(key);
                 Object v2 = map.get(key);
                 if (v1.getClass().isArray()) {
                     boolean c = Arrays.equals((Object[]) v1, (Object[]) v2);
                     if (c) System.out.println(key + " match");
-                    Assert.assertTrue("Value does not match in map " + i + " for key " + key + " expected "
+                    assertTrue(c, "Value does not match in map " + i + " for key " + key + " expected "
                             + Arrays.deepToString((Object[]) v1) + " but got "
-                            + Arrays.deepToString((Object[]) v2), c);
+                            + Arrays.deepToString((Object[]) v2));
                 } else {
                     boolean c = v1.equals(v2);
                     if (c) System.out.println(key + " match");
-                    Assert.assertTrue("Value does not match in map " + i + " for key " + key + " expected "
-                            + v1 + " but got " + v2, c);
+                    assertTrue(c, "Value does not match in map " + i + " for key " + key + " expected "
+                            + v1 + " but got " + v2);
                 }
             }
         }

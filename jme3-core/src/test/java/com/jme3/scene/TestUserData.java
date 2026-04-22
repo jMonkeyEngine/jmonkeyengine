@@ -31,15 +31,17 @@
  */
 package com.jme3.scene;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class TestUserData extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestUserData {
 
     public static void userDataTest(Spatial sp, Object v) {
         sp.setUserData("test", v);
-        assertTrue("UserData is null", sp.getUserData("test") != null);
-        assertEquals("UserData value is different than input value", sp.getUserData("test"), v);
+        assertNotNull(sp.getUserData("test"), "UserData is null");
+        assertEquals(v, sp.getUserData("test"), "UserData value is different than input value");
         sp.setUserData("test", null);
     }
 

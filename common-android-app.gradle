@@ -3,8 +3,6 @@ apply plugin: 'com.android.application'
 group   = 'org.jmonkeyengine'
 version = jmeFullVersion
 
-sourceCompatibility = '1.6'
-
 repositories {
     mavenCentral()
     maven {

@@ -30,6 +30,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * import meshes from an FBX asset
+ * Import meshes from an FBX asset.
+ *
+ * @deprecated FBX support is deprecated and will be removed in a future release.
+ * Prefer glTF assets instead.
  */
+@Deprecated
 package com.jme3.scene.plugins.fbx.mesh;

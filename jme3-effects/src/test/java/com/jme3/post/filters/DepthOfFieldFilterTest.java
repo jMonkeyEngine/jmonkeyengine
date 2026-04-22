@@ -34,8 +34,8 @@ package com.jme3.post.filters;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Automated tests for the {@code DepthOfFieldFilter} class.
@@ -67,13 +67,13 @@ public class DepthOfFieldFilterTest {
         DepthOfFieldFilter copy = BinaryExporter.saveAndLoad(assetManager, filter);
 
         // Verify the parameter values of the copy:
-        Assert.assertEquals(10.5f, copy.getBlurScale(), 0f);
-        Assert.assertEquals(0.1f, copy.getBlurThreshold(), 0f);
-        Assert.assertTrue(copy.getDebugUnfocus());
-        Assert.assertEquals(66f, copy.getFocusDistance(), 0f);
-        Assert.assertEquals(15f, copy.getFocusRange(), 0f);
-        Assert.assertEquals("Depth Of Field", copy.getName());
-        Assert.assertFalse(copy.isEnabled());
+        Assertions.assertEquals(10.5f, copy.getBlurScale(), 0f);
+        Assertions.assertEquals(0.1f, copy.getBlurThreshold(), 0f);
+        Assertions.assertTrue(copy.getDebugUnfocus());
+        Assertions.assertEquals(66f, copy.getFocusDistance(), 0f);
+        Assertions.assertEquals(15f, copy.getFocusRange(), 0f);
+        Assertions.assertEquals("Depth Of Field", copy.getName());
+        Assertions.assertFalse(copy.isEnabled());
     }
 
     /**
@@ -83,12 +83,12 @@ public class DepthOfFieldFilterTest {
      * @param filter (not null, unaffected)
      */
     private void verifyDefaults(DepthOfFieldFilter filter) {
-        Assert.assertEquals(1f, filter.getBlurScale(), 0f);
-        Assert.assertEquals(0.2f, filter.getBlurThreshold(), 0f);
-        Assert.assertFalse(filter.getDebugUnfocus());
-        Assert.assertEquals(50f, filter.getFocusDistance(), 0f);
-        Assert.assertEquals(10f, filter.getFocusRange(), 0f);
-        Assert.assertEquals("Depth Of Field", filter.getName());
-        Assert.assertTrue(filter.isEnabled());
+        Assertions.assertEquals(1f, filter.getBlurScale(), 0f);
+        Assertions.assertEquals(0.2f, filter.getBlurThreshold(), 0f);
+        Assertions.assertFalse(filter.getDebugUnfocus());
+        Assertions.assertEquals(50f, filter.getFocusDistance(), 0f);
+        Assertions.assertEquals(10f, filter.getFocusRange(), 0f);
+        Assertions.assertEquals("Depth Of Field", filter.getName());
+        Assertions.assertTrue(filter.isEnabled());
     }
 }

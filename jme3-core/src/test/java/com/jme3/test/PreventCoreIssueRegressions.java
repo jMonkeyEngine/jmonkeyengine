@@ -50,11 +50,14 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.NullRenderer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The Test Suite to prevent regressions from previously fixed Core issues
@@ -86,21 +89,21 @@ public class PreventCoreIssueRegressions {
 
         app.getRenderManager().createPostView("null", new Camera(1, 1));
 
-        Assert.assertTrue(app.getStateManager().attach(screenshotAppState));
+        assertTrue(app.getStateManager().attach(screenshotAppState));
         app.getStateManager().update(0f); // Causes SAS#initialize to be called
 
         // Confirm that the SceneProcessor is attached.
         List<ViewPort> vps = app.getRenderManager().getPostViews();
-        Assert.assertEquals(1, vps.size());
-        Assert.assertEquals(1, vps.get(0).getProcessors().size());
-        Assert.assertTrue(app.getInputManager().hasMapping("ScreenShot")); // Confirm that KEY_SYSRQ is mapped.
-        Assert.assertTrue(app.getStateManager().detach(screenshotAppState));
+        assertEquals(1, vps.size());
+        assertEquals(1, vps.get(0).getProcessors().size());
+        assertTrue(app.getInputManager().hasMapping("ScreenShot")); // Confirm that KEY_SYSRQ is mapped.
+        assertTrue(app.getStateManager().detach(screenshotAppState));
 
         app.getStateManager().update(0f); // Causes SAS#cleanup to be called
 
         // Check whether the SceneProcessor is still attached.
-        Assert.assertEquals(0, vps.get(0).getProcessors().size());
-        Assert.assertFalse(app.getInputManager().hasMapping("ScreenShot")); // Confirm that KEY_SYSRQ is unmapped.
+        assertEquals(0, vps.get(0).getProcessors().size());
+        assertFalse(app.getInputManager().hasMapping("ScreenShot")); // Confirm that KEY_SYSRQ is unmapped.
     }
 
     /**
@@ -118,16 +121,16 @@ public class PreventCoreIssueRegressions {
         SkinningControl sControl = cgModel.getControl(SkinningControl.class);
 
         for (Joint joint : sControl.getArmature().getJointList()) {
-            Assert.assertTrue("Invalid translation for joint " + joint.getName(),
-                    Vector3f.isValidVector(joint.getLocalTranslation()));
+            assertTrue(Vector3f.isValidVector(joint.getLocalTranslation()),
+                    "Invalid translation for joint " + joint.getName());
         }
 
         cgModel.updateLogicalState(1.0f);
         cgModel.updateGeometricState();
 
         for (Joint joint : sControl.getArmature().getJointList()) {
-            Assert.assertTrue("Invalid translation for joint " + joint.getName(),
-                    Vector3f.isValidVector(joint.getLocalTranslation()));
+            assertTrue(Vector3f.isValidVector(joint.getLocalTranslation()),
+                    "Invalid translation for joint " + joint.getName());
         }
     }
 }

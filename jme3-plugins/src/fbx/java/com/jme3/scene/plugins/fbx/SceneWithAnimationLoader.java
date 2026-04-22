@@ -14,6 +14,13 @@ import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.ModelKey;
 
+/**
+ * Loads FBX scenes using an auxiliary animation-list descriptor.
+ *
+ * @deprecated FBX support is deprecated and will be removed in a future release.
+ * Prefer glTF assets instead.
+ */
+@Deprecated
 public class SceneWithAnimationLoader implements AssetLoader {
 
     private Pattern splitStrings = Pattern.compile("([^\"]\\S*|\".+?\")\\s*");

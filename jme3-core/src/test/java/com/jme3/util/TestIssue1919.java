@@ -36,8 +36,11 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import java.nio.FloatBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Verifies how MikktspaceTangentGenerator handles various mesh modes. This was
@@ -54,10 +57,10 @@ public class TestIssue1919 {
     /**
      * Tests a Hybrid-mode mesh.
      */
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testHybrid() {
-        Geometry testGeometry = createGeometry(Mesh.Mode.Hybrid);
-        MikktspaceTangentGenerator.generate(testGeometry);
+        assertThrows(UnsupportedOperationException.class,
+                () -> MikktspaceTangentGenerator.generate(createGeometry(Mesh.Mode.Hybrid)));
     }
 
     /**
@@ -70,7 +73,7 @@ public class TestIssue1919 {
 
         Mesh mesh = testGeometry.getMesh();
         VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
-        Assert.assertNull(tangents); /// skipped this mesh
+        assertNull(tangents); /// skipped this mesh
     }
 
     /**
@@ -83,7 +86,7 @@ public class TestIssue1919 {
 
         Mesh mesh = testGeometry.getMesh();
         VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
-        Assert.assertNull(tangents); /// skipped this mesh
+        assertNull(tangents); /// skipped this mesh
     }
 
     /**
@@ -96,16 +99,16 @@ public class TestIssue1919 {
 
         Mesh mesh = testGeometry.getMesh();
         VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
-        Assert.assertNull(tangents); // skipped this mesh
+        assertNull(tangents); // skipped this mesh
     }
 
     /**
      * Tests a Patch-mode mesh.
      */
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testPatch() {
-        Geometry testGeometry = createGeometry(Mesh.Mode.Patch);
-        MikktspaceTangentGenerator.generate(testGeometry);
+        assertThrows(UnsupportedOperationException.class,
+                () -> MikktspaceTangentGenerator.generate(createGeometry(Mesh.Mode.Patch)));
     }
 
     /**
@@ -118,7 +121,7 @@ public class TestIssue1919 {
 
         Mesh mesh = testGeometry.getMesh();
         VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
-        Assert.assertNull(tangents); // skipped this mesh
+        assertNull(tangents); // skipped this mesh
     }
 
     /**
@@ -131,7 +134,7 @@ public class TestIssue1919 {
 
         Mesh mesh = testGeometry.getMesh();
         VertexBuffer tangents = mesh.getBuffer(VertexBuffer.Type.Tangent);
-        Assert.assertNotNull(tangents); // generated tangents
+        assertNotNull(tangents); // generated tangents
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.jme3.math;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author capdevon
@@ -16,15 +16,15 @@ public class ColorRGBATest {
         int abgr = color.asIntABGR();
         int argb = color.asIntARGB();
 
-        Assert.assertEquals(-13395508, rgba);
-        Assert.assertEquals(-862374913, abgr);
-        Assert.assertEquals(-855690343, argb);
+        Assertions.assertEquals(-13395508, rgba);
+        Assertions.assertEquals(-862374913, abgr);
+        Assertions.assertEquals(-855690343, argb);
 
         ColorRGBA copy = new ColorRGBA();
 
-        Assert.assertEquals(color, copy.fromIntRGBA(rgba));
-        Assert.assertEquals(color, copy.fromIntABGR(abgr));
-        Assert.assertEquals(color, copy.fromIntARGB(argb));
+        Assertions.assertEquals(color, copy.fromIntRGBA(rgba));
+        Assertions.assertEquals(color, copy.fromIntABGR(abgr));
+        Assertions.assertEquals(color, copy.fromIntARGB(argb));
     }
 
 }

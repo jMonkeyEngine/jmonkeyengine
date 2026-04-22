@@ -40,15 +40,15 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.system.TestUtil;
 import com.jme3.texture.Image;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OBJLoaderTest {
     private AssetManager assetManager;
     
-    @Before
+    @BeforeEach
     public void init() {
         assetManager = TestUtil.createAssetManager();
         // texture loaders are outside of core, so creating stub

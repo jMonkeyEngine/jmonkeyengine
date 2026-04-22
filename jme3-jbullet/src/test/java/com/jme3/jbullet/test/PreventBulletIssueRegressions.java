@@ -54,8 +54,8 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -112,10 +112,10 @@ public class PreventBulletIssueRegressions {
         gc.setPhysicsSpace(space);
         rootNode.addControl(gc);
 
-        Assert.assertFalse(space.getRigidBodyList().contains(rbc));
-        Assert.assertFalse(tickListeners.contains(bcc));
-        Assert.assertFalse(space.getRigidBodyList().contains(bcc_rb));
-        Assert.assertFalse(space.getGhostObjectList().contains(gc));
+        Assertions.assertFalse(space.getRigidBodyList().contains(rbc));
+        Assertions.assertFalse(tickListeners.contains(bcc));
+        Assertions.assertFalse(space.getRigidBodyList().contains(bcc_rb));
+        Assertions.assertFalse(space.getGhostObjectList().contains(gc));
     }
 
     /**
@@ -149,8 +149,8 @@ public class PreventBulletIssueRegressions {
         rbc.setAngularVelocity(new Vector3f(0.04f, 0.05f, 0.06f));
         rbc.setLinearVelocity(new Vector3f(0.26f, 0.27f, 0.28f));
 
-        Assert.assertEquals(new Vector3f(0.04f, 0.05f, 0.06f), rbc.getAngularVelocity());
-        Assert.assertEquals(new Vector3f(0.26f, 0.27f, 0.28f), rbc.getLinearVelocity());
+        Assertions.assertEquals(new Vector3f(0.04f, 0.05f, 0.06f), rbc.getAngularVelocity());
+        Assertions.assertEquals(new Vector3f(0.26f, 0.27f, 0.28f), rbc.getLinearVelocity());
 
         // Write/Serialize the RBC
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -166,9 +166,9 @@ public class PreventBulletIssueRegressions {
             }
         });
 
-        Assert.assertNotNull(rbcCopy);
-        Assert.assertEquals(new Vector3f(0.04f, 0.05f, 0.06f), rbcCopy.getAngularVelocity());
-        Assert.assertEquals(new Vector3f(0.26f, 0.27f, 0.28f), rbcCopy.getLinearVelocity());
+        Assertions.assertNotNull(rbcCopy);
+        Assertions.assertEquals(new Vector3f(0.04f, 0.05f, 0.06f), rbcCopy.getAngularVelocity());
+        Assertions.assertEquals(new Vector3f(0.26f, 0.27f, 0.28f), rbcCopy.getLinearVelocity());
     }
 
     /**

@@ -31,8 +31,10 @@
  */
 package com.jme3.renderer;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Automated tests for "Camera Viewport Dimensions not Checked" (issue #2333 at
@@ -50,10 +52,10 @@ public class Issue2333Test {
         Camera c = new Camera(1, 1);
 
         // Verify some Camera defaults:
-        Assert.assertEquals(0f, c.getViewPortBottom(), 0f);
-        Assert.assertEquals(0f, c.getViewPortLeft(), 0f);
-        Assert.assertEquals(1f, c.getViewPortRight(), 0f);
-        Assert.assertEquals(1f, c.getViewPortTop(), 0f);
+        assertEquals(0f, c.getViewPortBottom(), 0f);
+        assertEquals(0f, c.getViewPortLeft(), 0f);
+        assertEquals(1f, c.getViewPortRight(), 0f);
+        assertEquals(1f, c.getViewPortTop(), 0f);
 
         // Try some valid settings:
         new Camera(1, 1).setViewPort(0.5f, 0.7f, 0.1f, 0.3f);
@@ -67,175 +69,183 @@ public class Issue2333Test {
      * Verifies that setViewPort() with left = right throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase01() {
-        new Camera(1, 1).setViewPort(0.5f, 0.5f, 0f, 1f);
+        assertThrows(IllegalArgumentException.class,
+                () -> new Camera(1, 1).setViewPort(0.5f, 0.5f, 0f, 1f));
     }
 
     /**
      * Verifies that setViewPort() with left > right throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase02() {
-        new Camera(1, 1).setViewPort(0.7f, 0.5f, 0f, 1f);
+        assertThrows(IllegalArgumentException.class,
+                () -> new Camera(1, 1).setViewPort(0.7f, 0.5f, 0f, 1f));
     }
 
     /**
      * Verifies that setViewPortLeft() resulting in left = right throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase03() {
-        new Camera(1, 1).setViewPortLeft(1f);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortLeft(1f));
     }
 
     /**
      * Verifies that setViewPortLeft() resulting in left > right throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase04() {
-        new Camera(1, 1).setViewPortLeft(1.1f);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortLeft(1.1f));
     }
 
     /**
      * Verifies that setViewPortRight() resulting in left = right throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase05() {
-        new Camera(1, 1).setViewPortRight(0f);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortRight(0f));
     }
 
     /**
      * Verifies that setViewPortRight() resulting in left > right throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase06() {
-        new Camera(1, 1).setViewPortRight(-0.1f);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortRight(-0.1f));
     }
 
     /**
      * Verifies that setViewPort() with bottom = top throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase07() {
-        new Camera(1, 1).setViewPort(0f, 1f, 0.5f, 0.5f);
+        assertThrows(IllegalArgumentException.class,
+                () -> new Camera(1, 1).setViewPort(0f, 1f, 0.5f, 0.5f));
     }
 
     /**
      * Verifies that setViewPort() with bottom > top throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase08() {
-        new Camera(1, 1).setViewPort(0f, 1f, 0.7f, 0.6f);
+        assertThrows(IllegalArgumentException.class,
+                () -> new Camera(1, 1).setViewPort(0f, 1f, 0.7f, 0.6f));
     }
 
     /**
      * Verifies that setViewPortBottom() resulting in bottom = top throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase09() {
-        new Camera(1, 1).setViewPortBottom(1f);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortBottom(1f));
     }
 
     /**
      * Verifies that setViewPortBottom() resulting in bottom > top throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase10() {
-        new Camera(1, 1).setViewPortBottom(2f);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortBottom(2f));
     }
 
     /**
      * Verifies that setViewPortTop() resulting in bottom = top throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase11() {
-        new Camera(1, 1).setViewPortTop(0f);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortTop(0f));
     }
 
     /**
      * Verifies that setViewPortTop() resulting in bottom > top throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase12() {
-        new Camera(1, 1).setViewPortTop(-1f);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortTop(-1f));
     }
 
     /**
      * Verifies that setViewPort() with left = NaN throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase13() {
-        new Camera(1, 1).setViewPort(Float.NaN, 1f, 0f, 1f);
+        assertThrows(IllegalArgumentException.class,
+                () -> new Camera(1, 1).setViewPort(Float.NaN, 1f, 0f, 1f));
     }
 
     /**
      * Verifies that setViewPort() with right = NaN throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase14() {
-        new Camera(1, 1).setViewPort(0f, Float.NaN, 0f, 1f);
+        assertThrows(IllegalArgumentException.class,
+                () -> new Camera(1, 1).setViewPort(0f, Float.NaN, 0f, 1f));
     }
 
     /**
      * Verifies that setViewPort() with bottom = NaN throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase15() {
-        new Camera(1, 1).setViewPort(0f, 1f, Float.NaN, 1f);
+        assertThrows(IllegalArgumentException.class,
+                () -> new Camera(1, 1).setViewPort(0f, 1f, Float.NaN, 1f));
     }
 
     /**
      * Verifies that setViewPort() with top = NaN throws an
      * IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase16() {
-        new Camera(1, 1).setViewPort(0f, 1f, 0f, Float.NaN);
+        assertThrows(IllegalArgumentException.class,
+                () -> new Camera(1, 1).setViewPort(0f, 1f, 0f, Float.NaN));
     }
 
     /**
      * Verifies that setViewPortBottom(NaN) throws an IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase17() {
-        new Camera(1, 1).setViewPortBottom(Float.NaN);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortBottom(Float.NaN));
     }
 
     /**
      * Verifies that setViewPortLeft(NaN) throws an IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase18() {
-        new Camera(1, 1).setViewPortLeft(Float.NaN);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortLeft(Float.NaN));
     }
 
     /**
      * Verifies that setViewPortRight(NaN) throws an IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase19() {
-        new Camera(1, 1).setViewPortRight(Float.NaN);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortRight(Float.NaN));
     }
 
     /**
      * Verifies that setViewPortTop(NaN) throws an IllegalArgumentException.
      */
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeCase20() {
-        new Camera(1, 1).setViewPortTop(Float.NaN);
+        assertThrows(IllegalArgumentException.class, () -> new Camera(1, 1).setViewPortTop(Float.NaN));
     }
 }

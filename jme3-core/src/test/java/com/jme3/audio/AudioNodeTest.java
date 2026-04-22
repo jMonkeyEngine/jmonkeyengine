@@ -3,8 +3,8 @@ package com.jme3.audio;
 import com.jme3.asset.AssetManager;
 import com.jme3.math.Vector3f;
 import com.jme3.system.JmeSystem;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Automated tests for the {@code AudioNode} class.
@@ -26,23 +26,23 @@ public class AudioNodeTest {
 
         AudioNode clone = audio.clone();
 
-        Assert.assertNotNull(clone.previousWorldTranslation);
-        Assert.assertNotSame(audio.previousWorldTranslation, clone.previousWorldTranslation);
-        Assert.assertEquals(audio.previousWorldTranslation, clone.previousWorldTranslation);
+        Assertions.assertNotNull(clone.previousWorldTranslation);
+        Assertions.assertNotSame(audio.previousWorldTranslation, clone.previousWorldTranslation);
+        Assertions.assertEquals(audio.previousWorldTranslation, clone.previousWorldTranslation);
 
-        Assert.assertNotNull(clone.getDirection());
-        Assert.assertNotSame(audio.getDirection(), clone.getDirection());
-        Assert.assertEquals(audio.getDirection(), clone.getDirection());
+        Assertions.assertNotNull(clone.getDirection());
+        Assertions.assertNotSame(audio.getDirection(), clone.getDirection());
+        Assertions.assertEquals(audio.getDirection(), clone.getDirection());
 
-        Assert.assertNotNull(clone.getVelocity());
-        Assert.assertNotSame(audio.getVelocity(), clone.getVelocity());
-        Assert.assertEquals(audio.getVelocity(), clone.getVelocity());
+        Assertions.assertNotNull(clone.getVelocity());
+        Assertions.assertNotSame(audio.getVelocity(), clone.getVelocity());
+        Assertions.assertEquals(audio.getVelocity(), clone.getVelocity());
 
-        Assert.assertNotNull(clone.getDryFilter());
-        Assert.assertNotSame(audio.getDryFilter(), clone.getDryFilter());
+        Assertions.assertNotNull(clone.getDryFilter());
+        Assertions.assertNotSame(audio.getDryFilter(), clone.getDryFilter());
 
-        Assert.assertNotNull(clone.getReverbFilter());
-        Assert.assertNotSame(audio.getReverbFilter(), clone.getReverbFilter());
+        Assertions.assertNotNull(clone.getReverbFilter());
+        Assertions.assertNotSame(audio.getReverbFilter(), clone.getReverbFilter());
     }
 
 }

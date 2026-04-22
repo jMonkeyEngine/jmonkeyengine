@@ -44,7 +44,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.shape.Quad;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.MockJmeSystemDelegate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verify that collideWith() works with ignoreTransforms. This was issue #744 at
