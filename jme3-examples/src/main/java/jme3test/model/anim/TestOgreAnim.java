@@ -74,7 +74,7 @@ public class TestOgreAnim extends SimpleApplication implements ActionListener {
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
 
-        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Spatial model = assetManager.loadModel("Models/Oto/Oto.gltf");
         model.center();
 
         animComposer = model.getControl(AnimComposer.class);

@@ -221,7 +221,7 @@ public class TestCinematic extends SimpleApplication {
 
     private void createScene() {
 
-        model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        model = assetManager.loadModel("Models/Oto/Oto.gltf");
         model.center();
         model.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(model);

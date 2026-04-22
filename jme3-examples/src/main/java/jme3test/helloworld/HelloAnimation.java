@@ -70,8 +70,8 @@ public class HelloAnimation extends SimpleApplication {
     dl.setDirection(new Vector3f(-0.1f, -1f, -1).normalizeLocal());
     rootNode.addLight(dl);
 
-    /* Load a model that contains animation */
-    Node player = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+    /* Load a gltf model that contains animation */
+    Node player = (Node) assetManager.loadModel("Models/Oto/Oto.gltf");
     player.setLocalScale(0.5f);
     rootNode.attachChild(player);
 

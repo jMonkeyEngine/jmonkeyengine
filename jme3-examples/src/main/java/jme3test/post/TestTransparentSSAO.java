@@ -46,7 +46,7 @@ public class TestTransparentSSAO extends SimpleApplication {
         rootNode.attachChild(geom);
 
         // create the geometry and attach it
-        Spatial teaGeom = assetManager.loadModel("Models/Tree/Tree.mesh.j3o");
+        Spatial teaGeom = assetManager.loadModel("Models/Tree/Tree.gltf");
         teaGeom.setQueueBucket(Bucket.Transparent);
         teaGeom.setShadowMode(ShadowMode.Cast);
 

@@ -70,7 +70,7 @@ public class TestOgreComplexAnim extends SimpleApplication {
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
 
-        Node model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Node model = (Node) assetManager.loadModel("Models/Oto/Oto.gltf");
 
         skinningControl = model.getControl(SkinningControl.class);
         AnimComposer ac = model.getControl(AnimComposer.class);
