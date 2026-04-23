@@ -57,8 +57,7 @@ import java.util.HashSet;
  */
 public class LightsPunctualExtensionLoader implements ExtensionLoader {
     private static final boolean COMPUTE_LIGHT_RANGE = true;
-    private static final boolean APPLY_POINTLIGHT_DIV4PI = true;
-    private static final float GLTF_LIGHT_COMPAT_SCALE = 0.002f;
+    private static final float GLTF_LIGHT_COMPAT_SCALE = 0.0014f;
 
     private final HashSet<NodeNeedingLight> pendingNodes = new HashSet<>();
     private final HashMap<Integer, Light> lightDefinitions = new HashMap<>();
@@ -189,8 +188,8 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         String name = obj.has("name") ? obj.get("name").getAsString() : "";
 
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
-        ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
-        if (APPLY_POINTLIGHT_DIV4PI) intensity /= (4.0f * FastMath.PI);
+        ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color")
+                                           : new ColorRGBA(ColorRGBA.White);
         
         float scaledIntensity = toCompatIntensity(intensity);
 
