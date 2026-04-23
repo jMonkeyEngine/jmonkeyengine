@@ -6,6 +6,12 @@
     #define NB_PROBES 0
 #endif
 
+// Internal GGX stability floor. This does not change the user-facing
+// roughness convention or probe LOD mapping; it only prevents extremely sharp
+// microfacet lobes from reaching pathological peaks that can destabilize some
+// drivers and screenshot-test software renderers.
+const float MIN_GGX_ALPHA = 0.0064;
+
 // BEGIN-@jhonkkk,Specular AA --------------------------------------------------------------
 // see:http://www.jp.square-enix.com/tech/library/pdf/ImprovedGeometricSpecularAA(slides).pdf
 // https://docs.unity3d.com/Packages/com.unity.render-pipelines.high-definition@15.0/manual/Geometric-Specular-Anti-Aliasing.html
@@ -55,16 +61,12 @@ float Inner_PBR_ComputeDirectLight(
                             vec3 normal, vec3 halfVec, vec3 lightDir, vec3 viewDir,
                             vec3 lightColor, vec3 fZero, float alpha, float ndotv,
                             out vec3 outDiffuse, out vec3 outSpecular){
+    alpha = max(alpha, MIN_GGX_ALPHA);
 
     // Compute ndotl, ndoth,  vdoth terms which are needed later.
     float ndotl = max( dot(normal,   lightDir), 0.0);
     float ndoth = max( dot(normal,   halfVec),  0.0);       
     float hdotv = max( dot(viewDir,  halfVec),  0.0);
-
-    // Compute diffuse using energy-conserving Lambert.
-    // Alternatively, use Oren-Nayar for really rough 
-    // materials or if you have lots of processing power ...
-    outDiffuse = vec3(ndotl) * lightColor;
 
     //cook-torrence, microfacet BRDF : http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
    
@@ -72,10 +74,14 @@ float Inner_PBR_ComputeDirectLight(
     float alpha2 = alpha * alpha;
     float sum  = ((ndoth * ndoth) * (alpha2 - 1.0) + 1.0);
     float denom = PI * sum * sum;
-    float D = alpha2 / denom;  
+    float D = alpha2 / denom;
 
     // Compute Fresnel function via Schlick's approximation.
     vec3 fresnel = F_Shlick(hdotv, fZero);
+    // Lambert diffuse BRDF with a Fresnel-based energy split.
+    // The caller multiplies this term by diffuseColor, which already encodes
+    // the metallic workflow's (1 - metallic) factor.
+    outDiffuse = vec3(ndotl / PI) * lightColor * (vec3(1.0) - fresnel);
     
     //G Schlick GGX Geometry shadowing term,  k = alpha/2
     float k = alpha * 0.5;
@@ -136,12 +142,19 @@ vec3 integrateBRDFApprox( const in vec3 specular, float roughness, float NoV ){
     return specular * AB.x + AB.y;
 }
 
+float computeSpecularAO(float ao, float roughness, float NoV) {
+    float exponent = exp2(-16.0 * roughness - 1.0);
+    return clamp(pow(NoV + ao, exponent) - 1.0 + ao, 0.0, 1.0);
+}
+
 // from Sebastien Lagarde https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf page 69
-vec3 getSpecularDominantDir(const in vec3 N, const in vec3 R, const in float realRoughness){
+// The Frostbite note's "real roughness" here is the microfacet alpha term,
+// not perceptual roughness. Callers should pass alpha = roughness * roughness.
+vec3 getSpecularDominantDir(const in vec3 N, const in vec3 R, const in float alpha){
     vec3 dominant;
 
-    float smoothness = 1.0 - realRoughness;
-    float lerpFactor = smoothness * (sqrt(smoothness) + realRoughness);
+    float smoothness = 1.0 - alpha;
+    float lerpFactor = smoothness * (sqrt(smoothness) + alpha);
     // The result is not normalized as we fetch in a cubemap
     dominant = mix(N, R, lerpFactor);
 
@@ -149,9 +162,12 @@ vec3 getSpecularDominantDir(const in vec3 N, const in vec3 R, const in float rea
 }
 
 vec3 ApproximateSpecularIBL(samplerCube envMap,sampler2D integrateBRDF, vec3 SpecularColor , float Roughness, float ndotv, vec3 refVec, float nbMipMaps){
+    // The specular bake stores roughness quadratically across mip levels:
+    // mipNorm = mip / (nbMipMaps - 1), roughness = mipNorm * mipNorm.
+    // Runtime therefore samples with sqrt(roughness) to recover mipNorm.
     float Lod = sqrt( Roughness ) * (nbMipMaps - 1.0);
     vec3 PrefilteredColor =  textureCubeLod(envMap, refVec.xyz,Lod).rgb;
-    vec2 EnvBRDF = texture2D(integrateBRDF,vec2(Roughness, ndotv)).rg;
+    vec2 EnvBRDF = texture2D(integrateBRDF,vec2(ndotv, Roughness)).rg;
     return PrefilteredColor * ( SpecularColor * EnvBRDF.x+ EnvBRDF.y );    
 }
 
@@ -242,13 +258,10 @@ float renderProbe(vec3 viewDir, vec3 worldPos, vec3 normal, vec3 norm, float Rou
         indirectSpecular *= vec3(horiz);
     #endif
 
-    vec3 indirectLighting = (indirectDiffuse + indirectSpecular) * ao;
+    float diffuseAO = clamp(ao.r, 0.0, 1.0);
+    float specularAO = computeSpecularAO(diffuseAO, Roughness, ndotv);
+    vec3 indirectLighting = indirectDiffuse * diffuseAO + indirectSpecular * specularAO;
 
     color = indirectLighting * step( 0.0, probePos.w);
     return ndf;
 }
-
-
-
-
-

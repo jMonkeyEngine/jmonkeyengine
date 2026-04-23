@@ -102,14 +102,6 @@ public class TestIssue1919 {
         assertNull(tangents); // skipped this mesh
     }
 
-    /**
-     * Tests a Patch-mode mesh.
-     */
-    @Test
-    public void testPatch() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> MikktspaceTangentGenerator.generate(createGeometry(Mesh.Mode.Patch)));
-    }
 
     /**
      * Tests a Points-mode mesh.

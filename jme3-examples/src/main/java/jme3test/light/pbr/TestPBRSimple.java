@@ -34,7 +34,10 @@ package jme3test.light.pbr;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.environment.EnvironmentProbeControl;
+import com.jme3.input.KeyInput;
 import com.jme3.input.ChaseCamera;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.scene.Geometry;
@@ -47,6 +50,12 @@ import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
  */
 public class TestPBRSimple extends SimpleApplication {
     private boolean REALTIME_BAKING = false;
+    private static final String INCREASE_METALLIC = "IncreaseMetallic";
+    private static final String DECREASE_METALLIC = "DecreaseMetallic";
+
+    private Material pbrMat;
+    private float metallic = 0.0f;
+    private float roughness = 1.0f;
 
     public static void main(String[] args) {
         new TestPBRSimple().start();
@@ -59,7 +68,7 @@ public class TestPBRSimple extends SimpleApplication {
         Geometry model = (Geometry) assetManager.loadModel("Models/Tank/tank.j3o");
         MikktspaceTangentGenerator.generate(model);
 
-        Material pbrMat = assetManager.loadMaterial("Models/Tank/tank.j3m");
+        pbrMat = assetManager.loadMaterial("Models/Tank/tank.j3m");
         model.setMaterial(pbrMat);
         rootNode.attachChild(model);
 
@@ -78,10 +87,14 @@ public class TestPBRSimple extends SimpleApplication {
         // Create baker control
         EnvironmentProbeControl envProbe=new EnvironmentProbeControl(assetManager,256);
         rootNode.addControl(envProbe);
-       
         // Tag the sky, only the tagged spatials will be rendered in the env map
         envProbe.tag(sky);
 
+        inputManager.addMapping(INCREASE_METALLIC, new KeyTrigger(KeyInput.KEY_N));
+        inputManager.addMapping(DECREASE_METALLIC, new KeyTrigger(KeyInput.KEY_P));
+        inputManager.addListener(metallicListener, INCREASE_METALLIC, DECREASE_METALLIC);
+
+        updateMaterial();
 
         
     }
@@ -97,5 +110,28 @@ public class TestPBRSimple extends SimpleApplication {
                 lastBake = 0;
             }
         }
+    }
+
+    private final ActionListener metallicListener = (name, isPressed, tpf) -> {
+        if (!isPressed) {
+            return;
+        }
+
+        if (INCREASE_METALLIC.equals(name)) {
+            metallic = FastMath.clamp(metallic + 0.1f, 0.0f, 1.0f);
+            roughness = FastMath.clamp(roughness - 0.1f, 0.0f, 1.0f);
+        } else if (DECREASE_METALLIC.equals(name)) {
+            metallic = FastMath.clamp(metallic - 0.1f, 0.0f, 1.0f);
+            roughness = FastMath.clamp(roughness + 0.1f, 0.0f, 1.0f);
+        }
+
+        updateMaterial();
+    };
+
+    private void updateMaterial() {
+        pbrMat.setFloat("Metallic", metallic);
+        pbrMat.setFloat("Roughness", roughness);
+        System.out.println(
+                "Tank material -> metallic: " + metallic + ", roughness: " + roughness + " (N/P)");
     }
 }
