@@ -52,15 +52,27 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
+ * Tests binary export/import of glTF models with animations.
+ *
+ * This test loads a glTF model (which has replaced the legacy Ogre mesh.xml
+ * format), converts it to jME3's binary format, and then reloads it. The model
+ * is animated, and the animation is played back to verify the serialization
+ * preserves animation data.
+ *
+ * Note: This test now uses glTF format models as the Ogre mesh.xml loader is
+ * deprecated.
+ *
  * @author Richard Tingle (aka richtea)
  */
 public class TestOgreConvert extends ScreenshotTestBase{
 
     /**
-     * This tests loads an Ogre model, converts it to binary, and then reloads it.
+     * This test loads a glTF model, converts it to binary jME3 format, and then
+     * reloads it.
      * <p>
      * Note that the model is animated and the animation is played back. That is why
-     * two screenshots are taken
+     * two screenshots are taken (frame 1 and frame 5 to show animation
+     * progression).
      * </p>
      */
     @Test
@@ -73,7 +85,9 @@ public class TestOgreConvert extends ScreenshotTestBase{
                         AssetManager assetManager = app.getAssetManager();
                         Node rootNode = ((SimpleApplication)app).getRootNode();
                         Camera cam = app.getCamera();
-                        Spatial ogreModel = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+
+                        // Load glTF model (Ogre mesh.xml format is deprecated)
+                        Spatial ogreModel = assetManager.loadModel("Models/Oto/Oto.gltf");
 
                         DirectionalLight dl = new DirectionalLight();
                         dl.setColor(ColorRGBA.White);
@@ -92,6 +106,7 @@ public class TestOgreConvert extends ScreenshotTestBase{
                             imp.setAssetManager(assetManager);
                             Node ogreModelReloaded = (Node) imp.load(bais, null, null);
 
+                            // Verify AnimComposer is preserved through serialization
                             AnimComposer composer = ogreModelReloaded.getControl(AnimComposer.class);
                             composer.setCurrentAction("Walk");
 
