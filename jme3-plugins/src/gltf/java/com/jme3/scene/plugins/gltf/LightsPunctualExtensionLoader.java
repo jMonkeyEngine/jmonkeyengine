@@ -57,7 +57,7 @@ import java.util.HashSet;
  */
 public class LightsPunctualExtensionLoader implements ExtensionLoader {
     private static final boolean COMPUTE_LIGHT_RANGE = true;
-    private static final float GLTF_LIGHT_COMPAT_SCALE = 0.0014f;
+    private static final float GLTF_LIGHT_COMPAT_SCALE = 0.0009f;
 
     private final HashSet<NodeNeedingLight> pendingNodes = new HashSet<>();
     private final HashMap<Integer, Light> lightDefinitions = new HashMap<>();
