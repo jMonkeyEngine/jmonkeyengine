@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2024 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,12 +53,12 @@ import java.util.HashSet;
  *
  * Supports directional, point, and spot lights.
  *
- * Created by Trevor Flynn - 3/23/2021
+ * @author Trevor Flynn, Riccardo Balbo
  */
 public class LightsPunctualExtensionLoader implements ExtensionLoader {
     private static final boolean COMPUTE_LIGHT_RANGE = true;
-    private static final boolean APPLY_INTENSITY_CONVERSION = true;
-    private static final boolean SKIP_HDR_CONVERSION = true;
+    private static final boolean APPLY_POINTLIGHT_DIV4PI = true;
+    private static final float GLTF_LIGHT_COMPAT_SCALE = 0.002f;
 
     private final HashSet<NodeNeedingLight> pendingNodes = new HashSet<>();
     private final HashMap<Integer, Light> lightDefinitions = new HashMap<>();
@@ -132,8 +132,8 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
 
         //Spot specific
         JsonObject spot = obj.getAsJsonObject("spot");
-        float innerConeAngle = spot != null && spot.has("innerConeAngle") ? spot.get("innerConeAngle").getAsFloat() : 0f;
-        float outerConeAngle = spot != null && spot.has("outerConeAngle") ? spot.get("outerConeAngle").getAsFloat() : ((float) Math.PI) / 4f;
+        float innerConeAngle = (spot != null && spot.has("innerConeAngle")) ? spot.get("innerConeAngle").getAsFloat() : 0f;
+        float outerConeAngle = (spot != null && spot.has("outerConeAngle"))? spot.get("outerConeAngle").getAsFloat() : (FastMath.PI / 4f);
 
         /*
         Correct floating point error on half PI, GLTF spec says that the outerConeAngle
@@ -144,18 +144,12 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
             outerConeAngle = FastMath.HALF_PI - 0.000001f;
         }
 
-        if(APPLY_INTENSITY_CONVERSION)  {
-            float solidAngle = 2.0f * FastMath.PI * (1.0f - FastMath.cos(outerConeAngle));
-            intensity = intensity / solidAngle;
-        }
+        float scaledIntensity = toCompatIntensity(intensity);
 
-        float range = obj.has("range") ? obj.get("range").getAsFloat() : (COMPUTE_LIGHT_RANGE ? getCutoffDistance(color, intensity) : Float.POSITIVE_INFINITY);
-
-        color = lumensToColor(color, intensity);
-      
+        float range = obj.has("range") ? obj.get("range").getAsFloat() : (COMPUTE_LIGHT_RANGE ? getCutoffDistance(color, scaledIntensity) : Float.POSITIVE_INFINITY);
         SpotLight spotLight = new SpotLight(true);
         spotLight.setName(name);
-        spotLight.setColor(color);
+        spotLight.setColor(applyScaledIntensity(color, scaledIntensity));
         spotLight.setSpotRange(range);
         spotLight.setSpotInnerAngle(innerConeAngle);
         spotLight.setSpotOuterAngle(outerConeAngle);
@@ -175,11 +169,11 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
 
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
         ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
-        color = lumensToColor(color, intensity);
+        float scaledIntensity = toCompatIntensity(intensity);
 
         DirectionalLight directionalLight = new DirectionalLight(true);
         directionalLight.setName(name);
-        directionalLight.setColor(color);
+        directionalLight.setColor(applyScaledIntensity(color, scaledIntensity));
         directionalLight.setDirection(Vector3f.UNIT_Z.negate());
 
         return directionalLight;
@@ -196,15 +190,15 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
 
         float intensity = obj.has("intensity") ? obj.get("intensity").getAsFloat() : 1.0f;
         ColorRGBA color = obj.has("color") ? GltfUtils.getAsColor(obj, "color") : new ColorRGBA(ColorRGBA.White);
+        if (APPLY_POINTLIGHT_DIV4PI) intensity /= (4.0f * FastMath.PI);
         
-        if(APPLY_INTENSITY_CONVERSION) intensity = intensity / (4.0f * FastMath.PI);
+        float scaledIntensity = toCompatIntensity(intensity);
 
-        float range = obj.has("range") ? obj.get("range").getAsFloat() : (COMPUTE_LIGHT_RANGE ? getCutoffDistance(color, intensity) : Float.POSITIVE_INFINITY);
-        color = lumensToColor(color, intensity);
+        float range = obj.has("range") ? obj.get("range").getAsFloat() : (COMPUTE_LIGHT_RANGE ? getCutoffDistance(color, scaledIntensity) : Float.POSITIVE_INFINITY);
 
         PointLight pointLight = new PointLight(true);
         pointLight.setName(name);
-        pointLight.setColor(color);
+        pointLight.setColor(applyScaledIntensity(color, scaledIntensity));
         pointLight.setRadius(range);
 
         return pointLight;
@@ -219,8 +213,7 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
      */
     private void addLight(Node parent, Node node, int lightIndex) {
         if (lightDefinitions.containsKey(lightIndex)) {
-            Light light = lightDefinitions.get(lightIndex);
-            light = light.clone();
+            Light light = lightDefinitions.get(lightIndex).clone();
             parent.addLight(light);
             LightControl control = new LightControl(light);
             control.setInvertAxisDirection(true);
@@ -228,61 +221,19 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
         } else {
             throw new AssetLoadException("KHR_lights_punctual extension accessed undefined light at index " + lightIndex);
         }
-    } 
-
- /**
-     * Convert a floating point lumens value into a color that
-     * represents both color and brightness of the light.
-     *
-     * @param color The base color of the light
-     * @param lumens The lumens value to convert to a color
-     * @return A color representing the intensity of the given lumens encoded into the given color
-     */
-    private ColorRGBA lumensToColor(ColorRGBA color, float lumens) {
-        ColorRGBA brightnessModifier = lumensToColor(lumens);
-        return color.mult(brightnessModifier);
     }
 
-    /**
-     * Convert a floating point lumens value into a grayscale color that
-     * represents a brightness.
-     *
-     * @param lumens The lumens value to convert to a color
-     * @return A color representing the intensity of the given lumens
-     */
-    private ColorRGBA lumensToColor(float lumens) {
-        if(SKIP_HDR_CONVERSION){
-            lumens = 0.003f * lumens;
-            return new ColorRGBA(lumens, lumens, lumens, 1f);
-        }
-        /*
-        Taken from /Common/ShaderLib/Hdr.glsllib
-        vec4 HDR_EncodeLum(in float lum){
-        float Le = 2.0 * log2(lum + epsilon) + 127.0;
-        vec4 result = vec4(0.0);
-        result.a = fract(Le);
-        result.rgb = vec3((Le - (floor(result.a * 255.0)) / 255.0) / 255.0);
-        return result;
-         */
-        float epsilon = 0.0001f;
-
-        double Le = 2f * Math.log(lumens * epsilon) / Math.log(2) + 127.0;
-        ColorRGBA color = new ColorRGBA();
-        color.a = (float) (Le - Math.floor(Le)); //Get fractional part
-        float val = (float) ((Le - (Math.floor(color.a * 255.0)) / 255.0) / 255.0);
-        color.r = val;
-        color.g = val;
-        color.b = val;
-
-        return color;
+    private float toCompatIntensity(float intensity) {
+        return intensity * GLTF_LIGHT_COMPAT_SCALE;
     }
 
-    /**
-     * A bean to contain the relation between a node and a light index
-     */
+    private ColorRGBA applyScaledIntensity(ColorRGBA color, float scaledIntensity) {
+        return color.mult(scaledIntensity);
+    }
+
     private static class NodeNeedingLight {
-        private Node node;
-        private int lightIndex;
+        private final Node node;
+        private final int lightIndex;
 
         private NodeNeedingLight(Node node, int lightIndex) {
             this.node = node;
@@ -293,42 +244,33 @@ public class LightsPunctualExtensionLoader implements ExtensionLoader {
             return node;
         }
 
-        private void setNode(Node node) {
-            this.node = node;
-        }
-
         private int getLightIndex() {
             return lightIndex;
         }
-
-        private void setLightIndex(int lightIndex) {
-            this.lightIndex = lightIndex;
-        }
     }
-
-
     /**
-     * Computes the effective cutoff distance of a light based on its raw color and intensity.
-     * Uses inverse-square attenuation and a perceptual visibility threshold.
+     * Computes the effective cutoff distance of a light based on its raw color and intensity. Uses
+     * inverse-square attenuation and a perceptual visibility threshold.
      *
-     * @param color     The base RGB color of the light (linear space)
-     * @param intensity The light's intensity in lumens (or equivalent)
+     * @param color
+     *            The base RGB color of the light (linear space)
+     * @param intensity
+     *            The light's intensity in lumens (or equivalent)
      * @return The cutoff distance where the light falls below a visible threshold
      */
-    public float getCutoffDistance(ColorRGBA color, float intensity) {
-        final float visibleThreshold = 0.001f; 
+    private float getCutoffDistance(ColorRGBA color, float scaledIntensity) {
+        final float visibleThreshold = 0.001f;
         final float maxRange = 10000f;
 
         // Compute the max channel (R/G/B) for luminance estimation
         float maxComponent = Math.max(Math.max(color.r, color.g), color.b);
 
-        if (maxComponent <= 0f || intensity <= 0f) {
+        if (maxComponent <= 0f || scaledIntensity <= 0f) {
             return 0f;
         }
 
         // The actual light output (lux at 1 meter) per component
-        float effectiveIntensity = maxComponent * intensity;
-
+        float effectiveIntensity = maxComponent * scaledIntensity;
         // Inverse-square attenuation: intensity / d^2 = visibleThreshold
         float range = (float) Math.sqrt(effectiveIntensity / visibleThreshold);
         return Math.min(range, maxRange);

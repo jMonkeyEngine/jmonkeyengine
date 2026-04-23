@@ -795,7 +795,8 @@ public class GltfUtils {
             return null;
         }
         JsonArray color = el.getAsJsonArray();
-        return new ColorRGBA().setAsSrgb(
+        // glTF colors are authored in linear space unless the spec says otherwise.
+        return new ColorRGBA().set(
             color.get(0).getAsFloat(), color.get(1).getAsFloat(), color.get(2).getAsFloat(), color.size() > 3 ? color.get(3).getAsFloat() : 1f
         );
     }
