@@ -35,7 +35,7 @@ import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.shader.plugins.GLSLLoader;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.MockJmeSystemDelegate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LoadShaderSourceTest {
 

@@ -4,8 +4,8 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.post.ssao.SSAOFilter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Automated tests for the {@code SSAOFilter} class.
@@ -37,13 +37,13 @@ public class SSAOFilterTest {
         SSAOFilter copy = BinaryExporter.saveAndLoad(assetManager, filter);
 
         // Verify the parameter values of the copy:
-        Assert.assertEquals("SSAOFilter", copy.getName());
-        Assert.assertEquals(4.5f, copy.getSampleRadius(), 0f);
-        Assert.assertEquals(1.8f, copy.getIntensity(), 0f);
-        Assert.assertEquals(0.4f, copy.getScale(), 0f);
-        Assert.assertEquals(0.5f, copy.getBias(), 0f);
-        Assert.assertTrue(copy.isApproximateNormals());
-        Assert.assertFalse(copy.isEnabled());
+        Assertions.assertEquals("SSAOFilter", copy.getName());
+        Assertions.assertEquals(4.5f, copy.getSampleRadius(), 0f);
+        Assertions.assertEquals(1.8f, copy.getIntensity(), 0f);
+        Assertions.assertEquals(0.4f, copy.getScale(), 0f);
+        Assertions.assertEquals(0.5f, copy.getBias(), 0f);
+        Assertions.assertTrue(copy.isApproximateNormals());
+        Assertions.assertFalse(copy.isEnabled());
     }
 
     /**
@@ -52,12 +52,12 @@ public class SSAOFilterTest {
      * @param filter (not null, unaffected)
      */
     private void verifyDefaults(SSAOFilter filter) {
-        Assert.assertEquals("SSAOFilter", filter.getName());
-        Assert.assertEquals(5.1f, filter.getSampleRadius(), 0f);
-        Assert.assertEquals(1.5f, filter.getIntensity(), 0f);
-        Assert.assertEquals(0.2f, filter.getScale(), 0f);
-        Assert.assertEquals(0.1f, filter.getBias(), 0f);
-        Assert.assertFalse(filter.isApproximateNormals());
-        Assert.assertTrue(filter.isEnabled());
+        Assertions.assertEquals("SSAOFilter", filter.getName());
+        Assertions.assertEquals(5.1f, filter.getSampleRadius(), 0f);
+        Assertions.assertEquals(1.5f, filter.getIntensity(), 0f);
+        Assertions.assertEquals(0.2f, filter.getScale(), 0f);
+        Assertions.assertEquals(0.1f, filter.getBias(), 0f);
+        Assertions.assertFalse(filter.isApproximateNormals());
+        Assertions.assertTrue(filter.isEnabled());
     }
 }

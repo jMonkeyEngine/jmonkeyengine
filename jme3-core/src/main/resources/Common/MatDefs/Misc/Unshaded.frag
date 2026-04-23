@@ -16,6 +16,11 @@ uniform sampler2D m_LightMap;
     uniform float m_DesaturationValue;
 #endif
 
+#ifdef HSV_OFFSET
+    #import "Common/ShaderLib/HSVUtils.glsllib"
+    uniform vec3 m_HSVOffset;
+#endif
+
 varying vec2 texCoord1;
 varying vec2 texCoord2;
 
@@ -48,6 +53,10 @@ void main(){
         if(color.a < m_AlphaDiscardThreshold){
            discard;
         }
+    #endif
+
+    #ifdef HSV_OFFSET
+        color.rgb = alterColorWithHsvOffset(color.rgb, m_HSVOffset);
     #endif
     
     #ifdef DESATURATION

@@ -41,7 +41,11 @@ import java.util.Objects;
  * <code>firstFrame</code> and <code>lastFrame</code> defines animation time interval.<br>
  * Use <code>layerName</code> also to define source animation layer in the case of multiple layers in the scene.<br>
  * Skeletal animations will be created if only scene contain skeletal bones</p>
+ *
+ * @deprecated FBX support is deprecated and will be removed in a future release.
+ * Prefer glTF assets instead.
  */
+@Deprecated
 public class AnimationList {
 
     List<AnimInverval> list = new ArrayList<>();

@@ -31,7 +31,7 @@
  */
 package com.jme3.scene;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verify that an empty Node gets a valid bounding volume. This was issue #954

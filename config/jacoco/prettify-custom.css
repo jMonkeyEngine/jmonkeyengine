@@ -1,0 +1,13 @@
+/* Pretty printing styles — jMonkeyEngine dark theme. Used with prettify.js. */
+
+.pln { color: #e7e7e7; }              /* plain text */
+.kwd { color: #ffd000; font-weight: bold; }  /* keyword — gold accent */
+.str { color: #7fcc00; }              /* string — green */
+.com { color: #6a7f8c; font-style: italic; } /* comment — muted blue-grey */
+.typ { color: #80cfff; }              /* type — light blue */
+.lit { color: #ff9f43; }              /* literal — orange */
+.pun { color: #b1b1b1; }              /* punctuation — dim */
+.tag { color: #ffd000; }              /* tag */
+.atn { color: #80cfff; }              /* attribute name */
+.atv { color: #7fcc00; }              /* attribute value */
+.dec { color: #ff9f43; }              /* declaration */

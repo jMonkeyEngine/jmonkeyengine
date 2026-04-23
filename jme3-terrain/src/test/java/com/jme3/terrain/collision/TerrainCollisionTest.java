@@ -7,14 +7,14 @@ import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TerrainCollisionTest extends BaseAWTTest {
     TerrainQuad quad;
 
-    @Before
+    @BeforeEach
     public void initQuad() {
         Texture heightMapImage = getAssetManager().loadTexture("Textures/Terrain/splat/mountains512.png");
         AbstractHeightMap map = new ImageBasedHeightMap(heightMapImage.getImage(), 0.25f);
@@ -35,10 +35,10 @@ public class TerrainCollisionTest extends BaseAWTTest {
         int cw = quad.collideWith(r, cr);
         System.out.println((System.nanoTime() - l) + " ns");
 
-        Assert.assertEquals(0, cw);
-        Assert.assertEquals(0, cr.size());
-        Assert.assertEquals(null, cr.getClosestCollision());
-        Assert.assertEquals(null, cr.getFarthestCollision());
+        Assertions.assertEquals(0, cw);
+        Assertions.assertEquals(0, cr.size());
+        Assertions.assertEquals(null, cr.getClosestCollision());
+        Assertions.assertEquals(null, cr.getFarthestCollision());
     }
 
     @Test
@@ -47,12 +47,12 @@ public class TerrainCollisionTest extends BaseAWTTest {
         CollisionResults cr = new CollisionResults();
         int cw = quad.collideWith(r, cr);
 
-        Assert.assertEquals(1, cw);
-        Assert.assertEquals(1, cr.size());
-        Assert.assertEquals(new Vector3f(0f, 28f, 0f), cr.getClosestCollision().getContactPoint());
-        Assert.assertEquals(new Vector3f(-0.5144958f, 0.6859944f, 0.5144958f), cr.getClosestCollision().getContactNormal());
-        Assert.assertEquals(12, cr.getClosestCollision().getDistance(), 0.01d);
-        Assert.assertEquals(0, cr.getClosestCollision().getTriangleIndex());
+        Assertions.assertEquals(1, cw);
+        Assertions.assertEquals(1, cr.size());
+        Assertions.assertEquals(new Vector3f(0f, 28f, 0f), cr.getClosestCollision().getContactPoint());
+        Assertions.assertEquals(new Vector3f(-0.5144958f, 0.6859944f, 0.5144958f), cr.getClosestCollision().getContactNormal());
+        Assertions.assertEquals(12, cr.getClosestCollision().getDistance(), 0.01d);
+        Assertions.assertEquals(0, cr.getClosestCollision().getTriangleIndex());
     }
 
     @Test
@@ -64,8 +64,8 @@ public class TerrainCollisionTest extends BaseAWTTest {
         long l = System.nanoTime();
         int cw = quad.collideWith(r, cr);
         System.out.println((System.nanoTime() - l) + " ns");
-        Assert.assertEquals(6, cw);
-        Assert.assertEquals(6, cr.size());
+        Assertions.assertEquals(6, cw);
+        Assertions.assertEquals(6, cr.size());
 
     }
 
@@ -78,10 +78,10 @@ public class TerrainCollisionTest extends BaseAWTTest {
         CollisionResults cr = new CollisionResults();
         quad.collideWith(r, cr);
 
-        Assert.assertEquals(3, cr.size());
-        Assert.assertEquals(68.1499f, cr.getClosestCollision().getDistance(), 0.01f);
-        Assert.assertEquals(new Vector3f(73.07381f, 39.88039f, 66.11114f), cr.getClosestCollision().getContactPoint());
-        Assert.assertEquals(new Vector3f(0.9103665f, 0.33104235f, -0.24828176f), cr.getClosestCollision().getContactNormal());
+        Assertions.assertEquals(3, cr.size());
+        Assertions.assertEquals(68.1499f, cr.getClosestCollision().getDistance(), 0.01f);
+        Assertions.assertEquals(new Vector3f(73.07381f, 39.88039f, 66.11114f), cr.getClosestCollision().getContactPoint());
+        Assertions.assertEquals(new Vector3f(0.9103665f, 0.33104235f, -0.24828176f), cr.getClosestCollision().getContactNormal());
     }
 
 }

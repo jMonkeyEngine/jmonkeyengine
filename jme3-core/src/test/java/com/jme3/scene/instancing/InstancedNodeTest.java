@@ -34,8 +34,10 @@ package com.jme3.scene.instancing;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.export.binary.BinaryExporter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Verifies that the {@link InstancedNode} class works correctly.
@@ -55,18 +57,18 @@ public class InstancedNodeTest {
         InstancedNode instancedNode = new InstancedNode("test_instanced_node");
 
         // Verify the control exists before serialization
-        Assert.assertEquals("InstancedNode should have 1 control before serialization", 
-                            1, instancedNode.getNumControls());
+        assertEquals(1, instancedNode.getNumControls(),
+                "InstancedNode should have 1 control before serialization");
 
         // Serialize and deserialize
         InstancedNode loaded = (InstancedNode) BinaryExporter.saveAndLoad(assetManager, instancedNode);
 
         // Verify the control exists after deserialization
-        Assert.assertNotNull("Loaded InstancedNode should not be null", loaded);
-        Assert.assertEquals("InstancedNode should have 1 control after deserialization", 
-                            1, loaded.getNumControls());
+        assertNotNull(loaded, "Loaded InstancedNode should not be null");
+        assertEquals(1, loaded.getNumControls(),
+                "InstancedNode should have 1 control after deserialization");
         
         // Verify the control is the right type
-        Assert.assertNotNull("Control should not be null", loaded.getControl(0));
+        assertNotNull(loaded.getControl(0), "Control should not be null");
     }
 }

@@ -31,8 +31,8 @@
  */
 package com.jme3.math;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verify the order in which Tait-Bryan angles are applied by the Quaternion
@@ -112,15 +112,15 @@ public class TestIssue1388 {
 
     private void assertEquals(float[] expected, float[] actual,
             float tolerance) {
-        Assert.assertEquals(expected[0], actual[0], tolerance);
-        Assert.assertEquals(expected[1], actual[1], tolerance);
-        Assert.assertEquals(expected[2], actual[2], tolerance);
+        Assertions.assertEquals(expected[0], actual[0], tolerance);
+        Assertions.assertEquals(expected[1], actual[1], tolerance);
+        Assertions.assertEquals(expected[2], actual[2], tolerance);
     }
 
     private void assertEquals(Vector3f expected, Vector3f actual,
             float tolerance) {
-        Assert.assertEquals(expected.x, actual.x, tolerance);
-        Assert.assertEquals(expected.y, actual.y, tolerance);
-        Assert.assertEquals(expected.z, actual.z, tolerance);
+        Assertions.assertEquals(expected.x, actual.x, tolerance);
+        Assertions.assertEquals(expected.y, actual.y, tolerance);
+        Assertions.assertEquals(expected.z, actual.z, tolerance);
     }
 }

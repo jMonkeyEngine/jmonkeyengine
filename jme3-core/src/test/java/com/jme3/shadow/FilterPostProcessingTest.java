@@ -10,8 +10,8 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.Filter;
 import com.jme3.post.FilterPostProcessor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Automated tests for the {@code FilterPostProcessing} class.

@@ -34,6 +34,13 @@ package com.jme3.scene.plugins.fbx;
 import com.jme3.asset.ModelKey;
 import java.util.Objects;
 
+/**
+ * Asset key for FBX scene loading.
+ *
+ * @deprecated FBX support is deprecated and will be removed in a future release.
+ * Prefer glTF assets instead.
+ */
+@Deprecated
 public class SceneKey extends ModelKey {
 
     private final AnimationList animList;

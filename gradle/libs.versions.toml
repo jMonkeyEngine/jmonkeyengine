@@ -2,26 +2,29 @@
 
 [versions]
 
-checkstyle = "9.3"
+checkstyle = "13.3.0"
+jacoco = "0.8.12"
 lwjgl3 = "3.4.1"
 nifty = "1.4.3"
+spotbugs = "4.9.8"
 
 [libraries]
 
-android-build-gradle = "com.android.tools.build:gradle:4.2.0"
+androidx-annotation = "androidx.annotation:annotation:1.7.1"
+androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.7.0"
+android-build-gradle = "com.android.tools.build:gradle:9.1.0"
 android-support-appcompat = "com.android.support:appcompat-v7:28.0.0"
-androidx-annotation = "androidx.annotation:annotation:1.3.0"
-androidx-lifecycle-common = "androidx.lifecycle:lifecycle-common:2.4.0"
 gradle-git = "org.ajoberstar:gradle-git:1.2.0"
-gradle-retrolambda = "me.tatarka:gradle-retrolambda:3.7.1"
-groovy-test = "org.codehaus.groovy:groovy-test:3.0.24"
-gson = "com.google.code.gson:gson:2.9.1"
+groovy-test = "org.apache.groovy:groovy-test:4.0.31"
+gson = "com.google.code.gson:gson:2.13.2"
 j-ogg-vorbis = "com.github.stephengold:j-ogg-vorbis:1.0.6"
 jbullet = "com.github.stephengold:jbullet:1.0.3"
 jinput = "net.java.jinput:jinput:2.0.9"
-jna = "net.java.dev.jna:jna:5.10.0"
+jna = "net.java.dev.jna:jna:5.18.1"
 jnaerator-runtime = "com.nativelibs4java:jnaerator-runtime:0.12"
-junit4 = "junit:junit:4.13.2"
+junit-bom = "org.junit:junit-bom:5.13.4"
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 lwjgl2 = "org.jmonkeyengine:lwjgl:2.9.5"
 lwjgl3-awt = "org.jmonkeyengine:lwjgl3-awt:0.2.4"
 
@@ -34,16 +37,18 @@ lwjgl3-opencl   = { module = "org.lwjgl:lwjgl-opencl",   version.ref = "lwjgl3" 
 lwjgl3-opengl   = { module = "org.lwjgl:lwjgl-opengl",   version.ref = "lwjgl3" }
 lwjgl3-sdl      = { module = "org.lwjgl:lwjgl-sdl",      version.ref = "lwjgl3" }
 
-mokito-core = "org.mockito:mockito-core:3.12.4"
+mokito-core = "org.mockito:mockito-core:5.23.0"
+mokito-junit-jupiter = "org.mockito:mockito-junit-jupiter:5.23.0"
 
 nifty                  = { module = "com.github.nifty-gui:nifty",                  version.ref = "nifty" }
 nifty-default-controls = { module = "com.github.nifty-gui:nifty-default-controls", version.ref = "nifty" }
 nifty-examples         = { module = "com.github.nifty-gui:nifty-examples",         version.ref = "nifty" }
 nifty-style-black      = { module = "com.github.nifty-gui:nifty-style-black",      version.ref = "nifty" }
 
-spotbugs-gradle-plugin = "com.github.spotbugs.snom:spotbugs-gradle-plugin:6.0.18"
+spotbugs-gradle-plugin = "com.github.spotbugs.snom:spotbugs-gradle-plugin:6.4.8"
 vecmath = "javax.vecmath:vecmath:1.5.2"
 
 [bundles]
 
 [plugins]
+jacoco = { id = "jacoco", version.ref = "jacoco" }

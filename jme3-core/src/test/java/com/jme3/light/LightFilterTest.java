@@ -38,8 +38,8 @@ import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.TempVars;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test light filtering for various light types.
@@ -61,7 +61,7 @@ public class LightFilterTest {
         assert list.size() == expected;
     }
     
-    @Before
+    @BeforeEach
     public void setUp() {
         filter = new DefaultLightFilter();
         

@@ -1,10 +1,10 @@
 package com.jme3.scene.threadwarden;
 
 import com.jme3.scene.Node;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -12,8 +12,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for SceneGraphThreadWarden class.
@@ -29,7 +29,7 @@ public class SceneGraphThreadWardenTest {
     private static ExecutorService executorService2;
 
     @SuppressWarnings({"ReassignedVariable", "AssertWithSideEffects"})
-    @BeforeClass
+    @BeforeAll
     public static void setupClass() {
         // Make sure assertions are enabled
         boolean assertsEnabled = false;
@@ -40,13 +40,13 @@ public class SceneGraphThreadWardenTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         executorService = newSingleThreadDaemonExecutor();
         executorService2 = newSingleThreadDaemonExecutor();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         executorService.shutdown();
         executorService2.shutdown();
@@ -85,8 +85,8 @@ public class SceneGraphThreadWardenTest {
             fail("Expected an IllegalThreadSceneGraphMutation exception");
         } catch (ExecutionException e) {
             // This is expected - verify it's the right exception type
-            assertTrue("Expected IllegalStateException, got: " + e.getCause().getClass().getName(),
-                    e.getCause() instanceof IllegalStateException);
+            assertTrue(e.getCause() instanceof IllegalStateException,
+                    "Expected IllegalStateException, got: " + e.getCause().getClass().getName());
         }
     }
 
@@ -416,8 +416,8 @@ public class SceneGraphThreadWardenTest {
             fail("Expected an IllegalThreadSceneGraphMutation exception");
         } catch (ExecutionException e) {
             // This is expected - verify it's the right exception type
-            assertTrue("Expected IllegalThreadSceneGraphMutation, got: " + e.getCause().getClass().getName(),
-                    e.getCause() instanceof IllegalThreadSceneGraphMutation);
+            assertTrue(e.getCause() instanceof IllegalThreadSceneGraphMutation,
+                    "Expected IllegalThreadSceneGraphMutation, got: " + e.getCause().getClass().getName());
         } catch (InterruptedException e){
             fail("Unexpected InterruptedException");
         }

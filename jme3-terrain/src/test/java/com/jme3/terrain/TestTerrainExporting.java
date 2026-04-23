@@ -39,8 +39,8 @@ import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test saving/loading terrain.
@@ -63,9 +63,9 @@ public class TestTerrainExporting extends BaseAWTTest {
 
         TerrainQuad saveAndLoad = BinaryExporter.saveAndLoad(getAssetManager(), terrain);
 
-        Assert.assertEquals(513, saveAndLoad.getTotalSize());
-        Assert.assertEquals(65, saveAndLoad.getPatchSize());
-        Assert.assertArrayEquals(terrain.getHeightMap(), saveAndLoad.getHeightMap(), FastMath.ZERO_TOLERANCE);
+        Assertions.assertEquals(513, saveAndLoad.getTotalSize());
+        Assertions.assertEquals(65, saveAndLoad.getPatchSize());
+        Assertions.assertArrayEquals(terrain.getHeightMap(), saveAndLoad.getHeightMap(), FastMath.ZERO_TOLERANCE);
     }
 
 }

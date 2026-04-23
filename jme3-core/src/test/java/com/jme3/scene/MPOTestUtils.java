@@ -39,7 +39,7 @@ import com.jme3.texture.Texture2D;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MPOTestUtils {
 
@@ -75,7 +75,7 @@ public class MPOTestUtils {
             current = current.getParent();
         }
 
-        assertEquals("For " + scene, expectedOverrides, actualOverrides);
+        assertEquals(expectedOverrides, actualOverrides, "For " + scene);
     }
     
     public static void validateScene(Spatial scene) {

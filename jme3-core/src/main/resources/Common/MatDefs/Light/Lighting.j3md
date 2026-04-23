@@ -22,6 +22,9 @@ MaterialDef Phong Lighting {
         // Diffuse color
         Color Diffuse
 
+        //Optional vec3 for adjusting the final Color in HSV color space
+        Vector3 HSVOffset
+
         // Specular color
         Color Specular
 
@@ -173,12 +176,14 @@ MaterialDef Phong Lighting {
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
             NORMAL_TYPE: NormalType
+            HSV_OFFSET : HSVOffset
 
             // fog - jayfella
             USE_FOG : UseFog
             FOG_LINEAR : LinearFog
             FOG_EXP : ExpFog
             FOG_EXPSQ : ExpSqFog
+
         }
     }
 

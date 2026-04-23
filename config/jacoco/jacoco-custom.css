@@ -1,0 +1,413 @@
+/* jMonkeyEngine JaCoCo Report Custom Styles */
+
+/* Based on jmonkeyengine.org color scheme:
+   - Background: #1b1b1b, #272727
+   - Highlight: #ffd000
+   - Text: #b1b1b1, #c5c5c5, #e7e7e7
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --fontFamily: 'Ubuntu', Arial, sans-serif;
+  --foreground: #b1b1b1;
+  --foreground2: #c5c5c5;
+  --foreground3: #e7e7e7;
+  --highlightFg: #ffd000;
+  --highlightFg2: #c07302;
+  --background: #1b1b1b;
+  --background4: #111;
+  --background3: #000000;
+  --background2: #272727;
+}
+
+body {
+  font-family: var(--fontFamily);
+  background: var(--background) !important;
+  color: var(--foreground);
+  margin: 0;
+  padding: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Header */
+h1, h2, h3 {
+  color: var(--highlightFg);
+  margin: 0;
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+h1 {
+  font-size: 1.8rem;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+h2 {
+  font-size: 1.4rem;
+  padding: 0.8rem 0;
+}
+
+pre {
+  background: var(--background2);
+  color: var(--foreground3);
+  padding: 1rem;
+  font-family: 'PT Mono', monospace;
+  overflow: auto;
+}
+
+code, pre, .Tree .Element {
+  font-family: 'PT Mono', monospace;
+}
+
+/* Links */
+a {
+  color: var(--highlightFg);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Breadcrumb */
+.BreadCrumb,
+.breadcrumb {
+  background: var(--background2);
+  border-radius: 0.3rem;
+  padding: 0.8rem 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.BreadCrumb a,
+.breadcrumb a {
+  color: var(--foreground2);
+  margin-right: 0.5rem;
+}
+
+.breadcrumb .info {
+  display: inline;
+}
+
+.breadcrumb .el_home::after,
+.breadcrumb .info a::after {
+  content: " | ";
+  color: var(--foreground);
+  padding: 0 0.2rem;
+}
+
+.breadcrumb .info a:last-of-type::after {
+  content: "";
+}
+
+.breadcrumb .el_home {
+  color: var(--highlightFg);
+  font-weight: bold;
+}
+
+.breadcrumb .el_report,
+.breadcrumb .el_package {
+  display: inline-block;
+  margin: 0 0.3rem;
+}
+
+/* Report container */
+.Report {
+  padding: 1rem;
+}
+
+.Report .header {
+  background: var(--background2);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.3rem;
+  text-align: center;
+}
+
+.Report .footer {
+  background: var(--background2);
+  padding: 0.8rem;
+  margin-top: 1rem;
+  border-radius: 0.3rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--foreground2);
+}
+
+/* Counter */
+.Counter {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3rem;
+  margin: 0.1rem;
+  font-family: 'PT Mono', monospace;
+  font-weight: bold;
+}
+
+.Counter.total {
+  background: var(--background2);
+  color: var(--foreground3);
+}
+
+.Counter.hit {
+  background: #2d5a2d;
+  color: #8fd98f;
+}
+
+.Counter.missed {
+  background: #5a2d2d;
+  color: #f59898;
+}
+
+.Counter.skipped {
+  background: #4a4a2d;
+  color: #f5e698;
+}
+
+/* Report sections */
+section {
+  margin: 1rem 0;
+}
+
+section > article {
+  background: var(--background2);
+  border-radius: 0.3rem;
+  margin: 0.5rem 0;
+}
+
+article .content {
+  padding: 0.8rem;
+}
+
+/* Package list tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5rem 0;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--background);
+}
+
+th {
+  background: var(--background4);
+  color: var(--highlightFg);
+  font-weight: bold;
+}
+
+tr:hover {
+  background: var(--background4);
+}
+
+td {
+  color: var(--foreground2);
+}
+
+a.group, .Group a {
+  color: var(--highlightFg);
+}
+
+/* Color differences for coverage */
+.Pct0 { color: #ff6b6b; }
+.Pct0-39 { color: #f5b075; }
+.Pct40-59 { color: #f5e675; }
+.Pct60-89 { color: #b5f575; }
+.Pct90-100 { color: #8fd98f; }
+
+/* Bar graphs */
+.bar {
+  display: inline-block;
+  height: 1rem;
+  border-radius: 0.2rem;
+  margin-right: 0.3rem;
+}
+
+.bar.hit {
+  background: #4caf50;
+}
+
+.bar.missed {
+  background: #f44336;
+}
+
+.bar.covered {
+  background: #4caf50;
+}
+
+.bar.unchecked {
+  background: #ff9800;
+}
+
+/* Source files */
+.Source {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.Source li {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--background);
+}
+
+/* Code lines */
+pre.Code {
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border-radius: 0.3rem;
+  background: var(--background3);
+  overflow-x: auto;
+}
+
+/* Source view line coverage highlighting */
+.fc  { background-color: #1a5c1a; color: #ffffff; }
+.nc  { background-color: #5c1a1a; color: #ffffff; }
+.pc  { background-color: #5c4a00; color: #ffffff; }
+
+.bfc { background-color: #1a5c1a; }
+.bpc { background-color: #5c4a00; }
+.bnc { background-color: #5c1a1a; }
+
+code.linenumber {
+  color: var(--foreground2);
+  padding-right: 0.8rem;
+}
+
+/* Instructions */
+.Pc,
+.Mi,
+.Si {
+  display: inline-block;
+  min-width: 1.5rem;
+  text-align: right;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.2rem;
+  font-family: 'PT Mono', monospace;
+  font-size: 0.85rem;
+}
+
+.Pc {
+  background: #2d5a2d;
+  color: #8fd98f;
+}
+
+.Mi {
+  background: #5a2d2d;
+  color: #f59898;
+}
+
+.Si {
+  background: #4a4a2d;
+  color: #f5e698;
+}
+
+/* Tags */
+.tag {
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.2rem;
+  font-size: 0.75rem;
+  margin-right: 0.3rem;
+}
+
+/* Session */
+.session .title {
+  background: var(--background4);
+  padding: 0.5rem 1rem;
+  border-radius: 0.3rem 0.3rem 0 0;
+}
+
+/* Container */
+.container {
+  background: var(--background2);
+  border-radius: 0.3rem;
+  padding: 1rem;
+}
+
+/* Results */
+.Results {
+  margin-top: 1rem;
+}
+
+.Results li {
+  padding: 0.3rem 0;
+}
+
+/* Information */
+.Information {
+  padding: 0.8rem;
+  background: var(--background4);
+  border-radius: 0.3rem;
+  margin: 0.5rem 0;
+}
+
+/* Table headers in content */
+table.legacy,
+table.legacy td,
+table.legacy th {
+  border: 1px solid var(--background4);
+}
+
+table.legacy th {
+  background: var(--background4);
+}
+
+/* Tree styling */
+.Tree div {
+  padding: 0.3rem 0;
+}
+
+.Tree .Element {
+  font-family: 'PT Mono', monospace;
+}
+
+.Tree .Element a {
+  color: var(--highlightFg);
+}
+
+/* Percent */
+.Percent {
+  font-family: 'PT Mono', monospace;
+  color: var(--highlightFg);
+  font-weight: bold;
+}
+
+/* Container row */
+.Container .container_row {
+  padding: 0.3rem;
+  border-bottom: 1px solid var(--background);
+}
+
+.Container .container_row:hover {
+  background: var(--background4);
+}
+
+/* Errors */
+.error {
+  color: #ff6b6b;
+  background: #3d2020;
+  padding: 0.5rem;
+  border-radius: 0.3rem;
+}
+
+/* Screen reader only */
+.sr_only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -35,8 +35,11 @@ import com.jme3.anim.tween.action.Action;
 import com.jme3.util.clone.Cloner;
 import java.util.Set;
 import java.util.TreeSet;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Remy Van Doosselaer
@@ -47,16 +50,16 @@ public class AnimComposerTest {
     public void testGetAnimClips() {
         AnimComposer composer = new AnimComposer();
 
-        Assert.assertNotNull(composer.getAnimClips());
-        Assert.assertEquals(0, composer.getAnimClips().size());
+        assertNotNull(composer.getAnimClips());
+        assertEquals(0, composer.getAnimClips().size());
     }
 
     @Test
     public void testGetAnimClipsNames() {
         AnimComposer composer = new AnimComposer();
 
-        Assert.assertNotNull(composer.getAnimClipsNames());
-        Assert.assertEquals(0, composer.getAnimClipsNames().size());
+        assertNotNull(composer.getAnimClipsNames());
+        assertEquals(0, composer.getAnimClipsNames().size());
     }
 
     @Test
@@ -71,8 +74,8 @@ public class AnimComposerTest {
         layers.add("Default");
         layers.add(layerName);
 
-        Assert.assertNotNull(composer.getLayer(layerName));
-        Assert.assertEquals(layers, composer.getLayerNames());
+        assertNotNull(composer.getLayer(layerName));
+        assertEquals(layers, composer.getLayerNames());
     }
 
     @Test
@@ -86,21 +89,23 @@ public class AnimComposerTest {
 
         final Action action = composer.makeAction(animName);
 
-        Assert.assertNotNull(action);
+        assertNotNull(action);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testGetAnimClipsIsNotModifiable() {
         AnimComposer composer = new AnimComposer();
 
-        composer.getAnimClips().add(new AnimClip("test"));
+        assertThrows(UnsupportedOperationException.class,
+                () -> composer.getAnimClips().add(new AnimClip("test")));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testGetAnimClipsNamesIsNotModifiable() {
         AnimComposer composer = new AnimComposer();
 
-        composer.getAnimClipsNames().add("test");
+        assertThrows(UnsupportedOperationException.class,
+                () -> composer.getAnimClipsNames().add("test"));
     }
 
     @Test
@@ -108,7 +113,7 @@ public class AnimComposerTest {
         AnimComposer composer = new AnimComposer();
 
         AnimLayer defaultLayer = composer.getLayer("Default");
-        Assert.assertNotNull(defaultLayer);
+        assertNotNull(defaultLayer);
     }
 
     @Test
@@ -122,7 +127,7 @@ public class AnimComposerTest {
 
         AnimComposer clone = (AnimComposer) composer.jmeClone();
         clone.cloneFields(new Cloner(), composer);
-        Assert.assertNotNull(clone.getLayer(AnimComposer.DEFAULT_LAYER));
+        assertNotNull(clone.getLayer(AnimComposer.DEFAULT_LAYER));
     }
 
 }

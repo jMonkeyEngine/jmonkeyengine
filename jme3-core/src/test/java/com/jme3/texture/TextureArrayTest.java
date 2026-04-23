@@ -31,7 +31,7 @@
  */
 package com.jme3.texture;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
@@ -43,7 +43,7 @@ import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TextureArrayTest {
 

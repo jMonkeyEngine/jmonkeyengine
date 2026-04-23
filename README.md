@@ -109,3 +109,18 @@ You can run the "jme3-examples" app:
 You can restore the project to a pristine state:
 + using Bash or Fish or PowerShell or Zsh: `./gradlew clean`
 + using Windows Command Prompt: `.\gradlew clean`
+
+## Running Tests 
+
+To run all tests and generate a JaCoCo code coverage report, run the `testCodeCoverageReport` Gradle task. To avoid the generation of the report, use the `test` task instead.
+
+This runs all subproject tests and produces two sets of HTML reports:
+
+- **Aggregated report** (all modules combined):
+  `build/reports/jacoco/testCodeCoverageReport/html/index.html`
+- **Per-module reports**:
+  `<module>/build/reports/jacoco/test/html/index.html`
+
+A summary index linking to every per-module report is also generated at:
+`build/reports/jacoco/index.html`
+

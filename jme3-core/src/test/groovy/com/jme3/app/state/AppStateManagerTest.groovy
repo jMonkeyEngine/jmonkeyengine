@@ -1,6 +1,7 @@
 package com.jme3.app.state;
 
 import com.jme3.app.LegacyApplication;
+import groovy.test.GroovyTestCase;
 
 class AppStateManagerTest {
 

@@ -12,23 +12,23 @@ import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import java.io.IOException;
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Daniel Johansson
  * @since 2015-07-20
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class J3MLoaderTest {
 
     private J3MLoader j3MLoader;
@@ -45,13 +45,13 @@ public class J3MLoaderTest {
     @Mock
     private MaterialDef materialDef;
 
-    @Before
+    @BeforeEach
     @SuppressWarnings("unchecked")
     public void setUp() throws Exception {
         when(assetKey.getExtension()).thenReturn(".j3m");
         when(assetInfo.getManager()).thenReturn(assetManager);
         when(assetInfo.getKey()).thenReturn(assetKey);
-        when(assetManager.loadAsset(any(AssetKey.class))).thenReturn(materialDef);
+        Mockito.lenient().when(assetManager.loadAsset(any(AssetKey.class))).thenReturn(materialDef);
 
         j3MLoader = new J3MLoader();
     }

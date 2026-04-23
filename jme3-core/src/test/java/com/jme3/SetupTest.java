@@ -31,7 +31,9 @@
  */
 package com.jme3;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  *
@@ -39,8 +41,10 @@ import org.junit.Test;
  */
 public class SetupTest {
     
-   @Test(expected=AssertionError.class)
+   @Test
    public void testAssertionEnabled() {
-       assert false;
+       assertThrows(AssertionError.class, () -> {
+           assert false;
+       });
    }
 }

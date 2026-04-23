@@ -1,11 +1,9 @@
-apply plugin: 'java'
-
 dependencies {
     //added annotations used by JmeSurfaceView.
     compileOnly libs.androidx.annotation
     compileOnly libs.androidx.lifecycle.common
     api project(':jme3-core')
-    compileOnly 'android:android'
+    compileOnly files(rootProject.file('lib/android.jar'))
 }
 
 compileJava {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2025 jMonkeyEngine
+ * Copyright (c) 2009-2026 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -522,8 +522,10 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         fvb.rewind();
 
         VertexBuffer nb = mesh.getBuffer(Type.Normal);
-        FloatBuffer fnb = (FloatBuffer) nb.getData();
-        fnb.rewind();
+        FloatBuffer fnb = (nb == null) ? null : (FloatBuffer) nb.getData();
+        if (fnb != null) {
+            fnb.rewind();
+        }
 
         // get boneIndexes and weights for mesh
         IndexBuffer ib = IndexBuffer.wrapIndexBuffer(mesh.getBuffer(Type.BoneIndex).getData());
@@ -545,7 +547,9 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
             // read next set of positions and normals from native buffer
             bufLength = Math.min(posBuf.length, fvb.remaining());
             fvb.get(posBuf, 0, bufLength);
-            fnb.get(normBuf, 0, bufLength);
+            if (fnb != null) {
+                fnb.get(normBuf, 0, bufLength);
+            }
             int verts = bufLength / 3;
             int idxPositions = 0;
 
@@ -593,14 +597,18 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
 
             fvb.position(fvb.position() - bufLength);
             fvb.put(posBuf, 0, bufLength);
-            fnb.position(fnb.position() - bufLength);
-            fnb.put(normBuf, 0, bufLength);
+            if (fnb != null) {
+                fnb.position(fnb.position() - bufLength);
+                fnb.put(normBuf, 0, bufLength);
+            }
         }
 
         vars.release();
 
         vb.updateData(fvb);
-        nb.updateData(fnb);
+        if (nb != null) {
+            nb.updateData(fnb);
+        }
     }
 
     /**
@@ -745,7 +753,7 @@ public class SkinningControl extends AbstractControl implements JmeCloneable {
         vars.release();
 
         vb.updateData(fvb);
-        if (nb != null) {
+        if (fnb != null) {
             nb.updateData(fnb);
         }
         tb.updateData(ftb);

@@ -66,6 +66,17 @@ public class PointLight extends Light {
      * Creates a PointLight
      */
     public PointLight() {
+        super();
+    }
+
+    /**
+     * Creates a PointLight
+     * @param global if true, the light affects the entire tree from the root node,
+     * otherwise it only affects the children of the node in which it is attached.
+     */
+    public PointLight(boolean global) {
+        this();
+        this.global = global;
     }
 
     /**
@@ -73,7 +84,19 @@ public class PointLight extends Light {
      * @param position the position in world space
      */
     public PointLight(Vector3f position) {
+        super();
         setPosition(position);
+    }
+    
+    /**
+     * Creates a PointLight at the given position
+     * @param position the position in world space
+     * @param global if true, the light affects the entire tree from the root node,
+     * otherwise it only affects the children of the node in which it is attached.
+     */
+    public PointLight(Vector3f position, boolean global) {
+        this(position);
+        this.global = global;
     }
 
     /**
@@ -87,6 +110,18 @@ public class PointLight extends Light {
     }
 
     /**
+     * Creates a PointLight at the given position and with the given color
+     * @param position the position in world space
+     * @param color the light color
+     * @param global if true, the light affects the entire tree from the root node,
+     * otherwise it only affects the children of the node in which it is attached.
+     */
+    public PointLight(Vector3f position, ColorRGBA color, boolean global) {
+        this(position, color);
+        this.global = global;
+    }
+
+    /**
      * Creates a PointLight at the given position, with the given color and the
      * given radius
      * @param position the position in world space
@@ -97,6 +132,20 @@ public class PointLight extends Light {
         this(position, color);
         setRadius(radius);
     }
+    
+    /**
+     * Creates a PointLight at the given position, with the given color and the
+     * given radius
+     * @param position the position in world space
+     * @param color the light color
+     * @param radius the light radius
+     * @param global if true, the light affects the entire tree from the root node,
+     * otherwise it only affects the children of the node in which it is attached.
+     */
+    public PointLight(Vector3f position, ColorRGBA color, float radius, boolean global) {
+        this(position, color, radius);
+        this.global = global;
+    }
 
     /**
      * Creates a PointLight at the given position, with the given radius
@@ -106,6 +155,18 @@ public class PointLight extends Light {
     public PointLight(Vector3f position, float radius) {
         this(position);
         setRadius(radius);
+    }
+    
+    /**
+     * Creates a PointLight at the given position, with the given radius
+     * @param position the position in world space
+     * @param radius the light radius
+     * @param global if true, the light affects the entire tree from the root node,
+     * otherwise it only affects the children of the node in which it is attached.
+     */
+    public PointLight(Vector3f position, float radius, boolean global) {
+        this(position, radius);
+        this.global = global;
     }
 
     @Override

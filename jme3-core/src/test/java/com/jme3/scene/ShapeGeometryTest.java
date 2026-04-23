@@ -37,7 +37,7 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.shape.Cylinder;
 import java.util.Random;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Ensures that geometries behave correctly, by casting rays and ensure they don't break.
