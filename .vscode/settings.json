@@ -5,6 +5,5 @@
     "editor.formatOnPaste": false,
     "editor.formatOnType": false,
     "editor.formatOnSave": false,
-    "editor.formatOnSaveMode": "modifications" ,
     "java.jdt.ls.vmargs": "-Xms512M -Xmx6G -XX:+UseG1GC -XX:+UseStringDeduplication  -XX:AdaptiveSizePolicyWeight=90"
 }
