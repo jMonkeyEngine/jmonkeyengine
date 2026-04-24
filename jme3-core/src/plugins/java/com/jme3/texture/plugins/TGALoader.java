@@ -46,15 +46,16 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 /**
- * <code>TextureManager</code> provides static methods for building a
- * <code>Texture</code> object. Typically, the information supplied is the
- * filename and the texture properties.
+ * <code>TextureManager</code> provides static methods for building a <code>Texture</code> object. Typically,
+ * the information supplied is the filename and the texture properties.
  * 
  * @author Mark Powell
  * @author Joshua Slack - cleaned, commented, added ability to read 16bit true color and color-mapped TGAs.
  * @author Kirill Vainer - ported to jME3
  * @version $Id: TGALoader.java 4131 2009-03-19 20:15:28Z blaine.dev $
+ * @deprecated use {@link StbImageLoader} instead
  */
+@Deprecated
 public final class TGALoader implements AssetLoader {
 
     // 0 - no image data in file

@@ -106,10 +106,18 @@ abstract class ImageCodec {
         params.put(Format.RGB32F,        new ByteAlignedImageCodec(12, FLAG_F32,
                                                                    0,  4, 4, 4,
                                                                    0,  0, 4, 8));
-        
+
+        params.put(Format.R16F,          new ByteAlignedImageCodec(2, FLAG_F16,
+                                                                   0,  2, 0, 0,
+                                                                   0,  0, 0, 0));
+
+        params.put(Format.RG16F,         new ByteAlignedImageCodec(4, FLAG_F16,
+                                                                   0,  2, 2, 0,
+                                                                   0,  0, 2, 0));
+
         ByteAlignedImageCodec rgb16f = new ByteAlignedImageCodec(6, FLAG_F16,
                                                             0, 2, 2, 2,
-                                                            0, 0, 2, 4); 
+                                                            0, 0, 2, 4);
         params.put(Format.RGB16F, rgb16f);
         params.put(Format.RGB16F_to_RGB111110F, rgb16f);
         params.put(Format.RGB16F_to_RGB9E5, rgb16f);
