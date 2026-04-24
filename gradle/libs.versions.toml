@@ -48,7 +48,7 @@ nifty-style-black      = { module = "com.github.nifty-gui:nifty-style-black",   
 spotbugs-gradle-plugin = "com.github.spotbugs.snom:spotbugs-gradle-plugin:6.4.8"
 vecmath = "javax.vecmath:vecmath:1.5.2"
 
-stb-image = "org.ngengine:stb-image:2.30.3"
+stb-image = "org.ngengine:stb-image:2.30.4"
 
 [bundles]
 
