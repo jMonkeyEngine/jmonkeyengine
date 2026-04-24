@@ -110,7 +110,7 @@ public class StbImageLoader implements AssetLoader {
 
             ByteBuffer jmeImageBuffer = convertImageData(imgData, jmeFormat);
 
-            Image jmeImage = new Image(jmeFormat, width, height, jmeImageBuffer, sRGB?ColorSpace.sRGB:ColorSpace.Linear);
+            Image jmeImage = new Image(jmeFormat, width, height, jmeImageBuffer, sRGB ? ColorSpace.sRGB : ColorSpace.Linear);
             return jmeImage;
         }
     }
