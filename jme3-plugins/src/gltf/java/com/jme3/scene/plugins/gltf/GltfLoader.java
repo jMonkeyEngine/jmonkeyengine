@@ -84,6 +84,7 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
+import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
@@ -535,9 +536,10 @@ public class GltfLoader implements AssetLoader {
                     geom.setMaterial(defaultMat);
                 } else {
                     useNormalsFlag = false;
-                    geom.setMaterial(readMaterial(materialIndex, useVertexColors));
-                    if (geom.getMaterial().getAdditionalRenderState()
-                            .getBlendMode() == RenderState.BlendMode.Alpha) {
+                    Material material = readMaterial(materialIndex, useVertexColors);
+                    geom.setMaterial(material);
+                    BlendMode blendMode = material.getAdditionalRenderState().getBlendMode();
+                    if (blendMode == BlendMode.Alpha || blendMode == BlendMode.AlphaAdditive) {
                         // Alpha blending is enabled for this material. Let's place the geom in the
                         // transparent bucket.
                         geom.setQueueBucket(RenderQueue.Bucket.Transparent);
