@@ -34,7 +34,7 @@ public class StbImageLoader implements AssetLoader {
 
         try(InputStream is = assetInfo.openStream()) {
             byte[] data = ByteUtils.getByteContent(is);
-            ByteBuffer buffer = BufferUtils.createByteBuffer(data);
+            ByteBuffer buffer = ByteBuffer.wrap(data);
             stbImage.setConvertIphonePngToRgb(true);
             stbImage.setUnpremultiplyOnLoad(true);
 
