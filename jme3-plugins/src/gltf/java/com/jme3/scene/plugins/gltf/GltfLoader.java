@@ -940,8 +940,9 @@ public class GltfLoader implements AssetLoader {
         }
 
         JsonObject textureData = textures.get(textureIndex).getAsJsonObject();
-        Integer sourceIndex = getAsInteger(textureData, "source");
+        Integer sourceIndex = TextureWebpExtensionLoader.getTextureSourceIndex(textureData);
         Integer samplerIndex = getAsInteger(textureData, "sampler");
+        assertNotNull(sourceIndex, "Texture has no source");
 
         texture2d = readImage(sourceIndex, flip);
 

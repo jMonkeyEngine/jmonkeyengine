@@ -15,6 +15,7 @@ dependencies {
     implementation project(':jme3-plugins-json')
     implementation project(':jme3-plugins-json-gson')
     implementation libs.stb.image
+    implementation libs.imagewebp
 
     testRuntimeOnly project(':jme3-desktop')
 }
