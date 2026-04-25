@@ -535,7 +535,7 @@ public class GltfLoader implements AssetLoader {
                     geom.setMaterial(defaultMat);
                 } else {
                     useNormalsFlag = false;
-                    geom.setMaterial(readMaterial(materialIndex));
+                    geom.setMaterial(readMaterial(materialIndex, useVertexColors));
                     if (geom.getMaterial().getAdditionalRenderState()
                             .getBlendMode() == RenderState.BlendMode.Alpha) {
                         // Alpha blending is enabled for this material. Let's place the geom in the
@@ -547,10 +547,6 @@ public class GltfLoader implements AssetLoader {
                         // MikktSpace
                         MikktspaceTangentGenerator.generate(geom);
                     }
-                }
-
-                if (useVertexColors) {
-                    geom.getMaterial().setBoolean("UseVertexColor", useVertexColors);
                 }
 
                 geom.setName(name + "_" + index);
@@ -811,7 +807,7 @@ public class GltfLoader implements AssetLoader {
         return data;
     }
 
-    public Material readMaterial(int materialIndex) throws IOException {
+    public Material readMaterial(int materialIndex, boolean usesVertexColors) throws IOException {
         // Fallback to the old material adapter system, if the legacy flag is set.
         if (GltfUtils.isMaterialAdaptersEnabled(info)) {
             return readMaterialUsingMaterialAdapters(materialIndex);
@@ -821,6 +817,7 @@ public class GltfLoader implements AssetLoader {
         JsonObject materialJson = materials.get(materialIndex).getAsJsonObject();
 
         GltfMaterialData gltfMaterialData = readStandardMaterialParameters(materialJson);
+        gltfMaterialData.setHasVertexColors(usesVertexColors);
         gltfMaterialData = customContentManager.readExtensionAndExtras("material", materialJson, gltfMaterialData);
         return createMaterial(gltfMaterialData, materialIndex);
     }

@@ -122,6 +122,8 @@ public class PBRLightingMaterialFactory implements GltfMaterialFactory {
 				material.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Off);
 			}
 		}
+
+		setParam(material, "UseVertexColor", gltfMaterialData.hasVertexColors());
 	}
 
 	protected void setMetallicRoughnessParams(Material material, GltfMaterialData gltfMaterialData) {

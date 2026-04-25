@@ -101,6 +101,11 @@ public class GltfMaterialData {
 
 	private Set<String> gltfExtensions = new HashSet<>();
 
+	/**
+	 * Indicates the existence of a vertex color buffer.
+	 */
+	private boolean hasVertexColors;
+
 
 	/**
 	 * Checks if the material provides the given GLTF extension.
@@ -171,6 +176,23 @@ public class GltfMaterialData {
 	 */
 	public Object removeGltfParam(String gltfParamName) {
 		return gltfParamMap.remove(gltfParamName);
+	}
+
+
+	/**
+	 * @return Indicates the existence of a vertex color buffer.
+	 */
+	public boolean hasVertexColors() {
+		return hasVertexColors;
+	}
+
+	/**
+	 * Sets the vertex color flag.
+	 *
+	 * @param hasVertexColors The value to set.
+	 */
+	public void setHasVertexColors(boolean hasVertexColors) {
+		this.hasVertexColors = hasVertexColors;
 	}
 
 }

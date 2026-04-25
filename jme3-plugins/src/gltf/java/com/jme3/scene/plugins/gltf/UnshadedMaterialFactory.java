@@ -80,6 +80,8 @@ public class UnshadedMaterialFactory implements GltfMaterialFactory {
 			}
 		}
 
+		setParam(material, "VertexColor", gltfMaterialData.hasVertexColors());
+
 		return material;
 	}
 
