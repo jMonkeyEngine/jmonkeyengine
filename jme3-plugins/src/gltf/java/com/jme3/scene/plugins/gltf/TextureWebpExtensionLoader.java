@@ -42,30 +42,12 @@ import java.io.IOException;
  * Handles EXT_texture_webp texture source selection.
  */
 public class TextureWebpExtensionLoader implements ExtensionLoader {
-
-    static final String EXTENSION_NAME = "EXT_texture_webp";
-
-    static Integer getTextureSourceIndex(JsonObject textureData) {
-        Integer sourceIndex = getAsInteger(textureData, "source");
-
-        JsonObject extensions = textureData.getAsJsonObject("extensions");
-        if (extensions == null) {
-            return sourceIndex;
-        }
-
-        JsonObject webpExtension = extensions.getAsJsonObject(EXTENSION_NAME);
-        if (webpExtension == null) {
-            return sourceIndex;
-        }
-
-        Integer webpSourceIndex = getAsInteger(webpExtension, "source");
-        assertNotNull(webpSourceIndex, EXTENSION_NAME + " extension has no source");
-        return webpSourceIndex;
-    }
-
     @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension,
+    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement webpExtension,
             Object input) throws IOException {
-        return input;
+        if(!parentName.equals("texture_source"))return input;
+        Integer webpSourceIndex = getAsInteger((JsonObject)webpExtension, "source");
+        assertNotNull(webpSourceIndex, "EXT_texture_webp extension has no source");
+        return webpSourceIndex;
     }
 }
