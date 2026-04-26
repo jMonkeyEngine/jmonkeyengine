@@ -34,7 +34,7 @@ public class StbImageLoader implements AssetLoader {
 
         try(InputStream is = assetInfo.openStream()) {
             byte[] data = ByteUtils.getByteContent(is);
-            ByteBuffer buffer = BufferUtils.createByteBuffer(data);
+            ByteBuffer buffer = ByteBuffer.wrap(data);
             stbImage.setConvertIphonePngToRgb(true);
             stbImage.setUnpremultiplyOnLoad(true);
 
@@ -110,7 +110,7 @@ public class StbImageLoader implements AssetLoader {
 
             ByteBuffer jmeImageBuffer = convertImageData(imgData, jmeFormat);
 
-            Image jmeImage = new Image(jmeFormat, width, height, jmeImageBuffer, sRGB?ColorSpace.sRGB:ColorSpace.Linear);
+            Image jmeImage = new Image(jmeFormat, width, height, jmeImageBuffer, sRGB ? ColorSpace.sRGB : ColorSpace.Linear);
             return jmeImage;
         }
     }
