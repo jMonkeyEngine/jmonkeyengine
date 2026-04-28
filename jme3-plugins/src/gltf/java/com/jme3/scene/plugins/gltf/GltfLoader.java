@@ -83,7 +83,6 @@ import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -850,8 +849,8 @@ public class GltfLoader implements AssetLoader {
             gltfMaterialData.setGltfParam(OCCLUSION_TEXTURE_STRENGTH_PARAM, getAsFloat(occlusionTextureJson, "strength"));
         }
 
-        gltfMaterialData.setGltfParam(EMISSIV_TEXTURE_PARAM, getAsTexture2D(materialJson, "emissiveTexture"));
-        gltfMaterialData.setGltfParam(EMISSIV_COLOR_PARAM, getAsColor(materialJson, "emissiveFactor"));
+        gltfMaterialData.setGltfParam(EMISSIVE_TEXTURE_PARAM, getAsTexture2D(materialJson, "emissiveTexture"));
+        gltfMaterialData.setGltfParam(EMISSIVE_COLOR_PARAM, getAsColor(materialJson, "emissiveFactor"));
 
         String alphaMode = getAsString(materialJson, "alphaMode");
         gltfMaterialData.setGltfParam(ALPHA_MODE_PARAM, alphaMode);

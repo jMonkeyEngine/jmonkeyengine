@@ -82,9 +82,9 @@ public class GltfMaterialData {
 
 	public static final String OCCLUSION_TEXTURE_STRENGTH_PARAM = "material.occlusionTextureInfo.strength";
 
-	public static final String EMISSIV_TEXTURE_PARAM = "material.emissiveTexture";
+	public static final String EMISSIVE_TEXTURE_PARAM = "material.emissiveTexture";
 
-	public static final String EMISSIV_COLOR_PARAM = "material.emissiveFactor";
+	public static final String EMISSIVE_COLOR_PARAM = "material.emissiveFactor";
 
 	public static final String ALPHA_MODE_PARAM = "material.alphaMode";
 

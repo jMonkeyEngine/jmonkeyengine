@@ -98,8 +98,8 @@ public class PBRLightingMaterialFactory implements GltfMaterialFactory {
 			material.setBoolean("AoPackedInMRMap", isAoPackedInMRMap);
 		}
 
-		setParam(material, "EmissiveMap", gltfMaterialData.getGltfParam(EMISSIV_TEXTURE_PARAM));
-		setParam(material, "Emissive", gltfMaterialData.getGltfParam(EMISSIV_COLOR_PARAM), ColorRGBA.Black);
+		setParam(material, "EmissiveMap", gltfMaterialData.getGltfParam(EMISSIVE_TEXTURE_PARAM));
+		setParam(material, "Emissive", gltfMaterialData.getGltfParam(EMISSIVE_COLOR_PARAM), ColorRGBA.Black);
 		setParam(material, "EmissiveIntensity", gltfMaterialData.getGltfParam(EMISSIVE_STRENGTH_PARAM));
 
 		if (gltfMaterialData.containsGltfParam(ALPHA_MODE_PARAM)) {

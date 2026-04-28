@@ -56,8 +56,8 @@ public class UnshadedMaterialFactory implements GltfMaterialFactory {
 
 		setParam(material, "Color", gltfMaterialData.getGltfParam(BASE_COLOR_PARAM), ColorRGBA.White);
 		setParam(material, "ColorMap", gltfMaterialData.getGltfParam(BASE_COLOR_TEXTURE_PARAM));
-		setParam(material, "GlowColor", gltfMaterialData.getGltfParam(EMISSIV_COLOR_PARAM), ColorRGBA.Black);
-		setParam(material, "GlowMap", gltfMaterialData.getGltfParam(EMISSIV_TEXTURE_PARAM));
+		setParam(material, "GlowColor", gltfMaterialData.getGltfParam(EMISSIVE_COLOR_PARAM), ColorRGBA.Black);
+		setParam(material, "GlowMap", gltfMaterialData.getGltfParam(EMISSIVE_TEXTURE_PARAM));
 
 		if (gltfMaterialData.containsGltfParam(ALPHA_MODE_PARAM)) {
 			String alphaMode = (String) gltfMaterialData.getGltfParam(ALPHA_MODE_PARAM);
