@@ -274,7 +274,7 @@ public class TestGimpactShape extends SimpleApplication {
     }
 
     private void dropRocket(Vector3f offset) {
-        RigidBodyControl c = drop(offset.add(26, 4, 7), "Models/SpaceCraft/Rocket.j3os", 4.0f, 3);
+        RigidBodyControl c = drop(offset.add(26, 4, 7), "Models/SpaceCraft/Rocket.j3o", 4.0f, 3);
         c.setAngularDamping(0.5f);
         c.setLinearDamping(0.5f);
     }
