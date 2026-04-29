@@ -223,9 +223,9 @@ public final class GLRenderer implements Renderer {
 
         if (extensionName.startsWith("GL_")) {
             return extensions.contains(extensionName.substring(3));
+        } else {
+            return extensions.contains("GL_" + extensionName);
         }
-
-        return extensions.contains("GL_" + extensionName);
     }
 
     private boolean hasAnyExtension(String... extensionNames) {
