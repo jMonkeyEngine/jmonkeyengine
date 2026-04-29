@@ -476,7 +476,6 @@ public final class GLRenderer implements Renderer {
         }
 
         if (hasAnyExtension("GL_ARB_texture_compression_bptc",
-                "GL_EXT_texture_compression_bptc",
                 "EXT_texture_compression_bptc")) {
             caps.add(Caps.TextureCompressionBPTC);
         }
