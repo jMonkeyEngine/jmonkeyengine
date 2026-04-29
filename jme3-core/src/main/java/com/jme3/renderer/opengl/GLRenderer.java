@@ -2057,7 +2057,7 @@ public final class GLRenderer implements Renderer {
         boolean isSrgb = fb == null ? mainFrameBufferSrgb : fb.isSrgb();
 
         if (isSrgb != context.srgbWriteEnabled) {
-            if (caps.contains(Caps.SrgbWriteControl) && caps.contains(Caps.Srgb)) {
+            if (caps.contains(Caps.Srgb)) {
                 if (isSrgb) {
                     gl.glEnable(GLExt.GL_FRAMEBUFFER_SRGB_EXT);
                 } else {
