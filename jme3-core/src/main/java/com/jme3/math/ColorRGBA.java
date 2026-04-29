@@ -319,8 +319,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Saturate that color ensuring all channels have a value between 0 and 1
-     */
+    * Saturates this color by clamping all four channels (r, g, b, a)
+    * to the range [0.0, 1.0] in place.
+    * Values below 0.0 are raised to 0.0; values above 1.0 are lowered to 1.0.
+    */
     public void clamp() {
         r = FastMath.clamp(r, 0f, 1f);
         g = FastMath.clamp(g, 0f, 1f);
@@ -807,22 +809,33 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Helper method to convert a float (0-1) to a byte (0-255).
-     */
+    * Converts a normalized float channel value to an unsigned byte.
+    * @param channel the float color channel value, expected in the range [0.0, 1.0]
+    * @return the channel value scaled to the range [0, 255] and packed as a byte
+    */
     private byte toByte(float channel) {
         return (byte) ((int) (channel * 255) & 0xFF);
     }
 
     /**
-     * Helper method to convert an int (shifted byte) to a float (0-1).
-     */
+    * Converts a raw shifted integer (representing an unsigned byte) back to a
+    * normalized float channel value in the range [0.0, 1.0].
+    * @param channelByte the raw shifted integer from which the lowest 8 bits are extracted
+    * @return the normalized float channel value in the range [0.0, 1.0]
+    */
     private float fromByte(int channelByte) {
         return ((byte) (channelByte) & 0xFF) / 255f;
     }
 
     /**
-     * Helper method to combine four float channels into an int.
-     */
+    * Combines four normalized float color channels into a single packed 32-bit integer.
+    * Each channel is scaled from [0.0, 1.0] to [0, 255] and packed into 8-bit segments.
+    * @param c1 the first channel (occupies bits 24–31)
+    * @param c2 the second channel (occupies bits 16–23)
+    * @param c3 the third channel (occupies bits 8–15)
+    * @param c4 the fourth channel (occupies bits 0–7)
+    * @return the four channels combined into a single int
+    */
     private int toInt(float c1, float c2, float c3, float c4) {
         int r = ((int) (c1 * 255) & 0xFF);
         int g = ((int) (c2 * 255) & 0xFF);
