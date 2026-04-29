@@ -1,0 +1,155 @@
+# Files Using Ogre Models - jMonkeyEngine Project
+
+## Files SPECIFICALLY Showcasing Ogre Loader (Marked with *)
+
+* .\jme3-examples\src\main\java\jme3test\model\TestOgreLoading.java
+  - Primary Ogre loading example
+  - Loads: Models/Elephant/Elephant.mesh.xml
+  - Demonstrates basic Ogre .mesh.xml file loading
+
+* .\jme3-examples\src\main\java\jme3test\model\anim\TestOgreAnim.java
+  - Ogre animation example
+  - Loads: Models/Oto/Oto.mesh.xml
+  - Demonstrates Ogre skeletal animation features
+
+* .\jme3-examples\src\main\java\jme3test\model\anim\TestOgreComplexAnim.java
+  - Complex Ogre animations example
+  - Loads: Models/Oto/Oto.mesh.xml
+  - Demonstrates advanced Ogre animation capabilities (armature masks, complex blending)
+
+* .\jme3-examples\src\main\java\jme3test\export\TestOgreConvert.java
+  - Ogre model conversion/export test
+  - Loads: Models/Oto/Oto.mesh.xml
+  - Demonstrates Ogre to jME3 format conversion
+
+* .\jme3-screenshot-tests\src\test\java\org\jmonkeyengine\screenshottests\export\TestOgreConvert.java
+  - Screenshot test for Ogre conversion
+  - Tests Ogre conversion with visual verification
+
+
+## All Files Using Ogre Models (.mesh.xml and .scene files)
+
+### Core Ogre Loader Implementation
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\MeshLoader.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\SceneLoader.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\SkeletonLoader.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\MeshAnimationLoader.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\SceneMeshLoader.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\SceneMaterialLoader.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\MaterialLoader.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\AnimData.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\OgreMeshKey.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\matext\OgreMaterialKey.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\matext\MaterialExtensionSet.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\matext\MaterialExtensionLoader.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\matext\MaterialExtension.java
+.\jme3-plugins\src\ogre\java\com\jme3\scene\plugins\ogre\package-info.java
+
+### Example Files Using .mesh.xml (Ogre Mesh Format)
+
+** Primary Showcase Examples **
+* .\jme3-examples\src\main\java\jme3test\model\TestOgreLoading.java
+* .\jme3-examples\src\main\java\jme3test\model\anim\TestOgreAnim.java
+* .\jme3-examples\src\main\java\jme3test\model\anim\TestOgreComplexAnim.java
+* .\jme3-examples\src\main\java\jme3test\export\TestOgreConvert.java
+
+** Hello World / Introductory Examples **
+.\jme3-examples\src\main\java\jme3test\helloworld\HelloAssets.java (Ninja.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\helloworld\HelloAnimation.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\helloworld\HelloPicking.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\helloworld\HelloCollision.java (main.scene) done
+
+** Animation/Skeletal Examples **
+.\jme3-examples\src\main\java\jme3test\model\anim\TestAnimMigration.java (Oto/Sinbad/Elephant.mesh.xml - commented) done
+.\jme3-examples\src\main\java\jme3test\model\anim\TestHWSkinning.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\model\anim\TestIssue1395.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\model\anim\TestModelExportingCloning.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\model\anim\TestSkeletonControlRefresh.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\animation\TestCinematic.java (Oto.mesh.xml) done
+
+** Collision/Physics Examples **
+.\jme3-examples\src\main\java\jme3test\collision\TestMousePick.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\collision\TestTriangleCollision.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\collision\TestRayCasting.java (Teapot.mesh.xml) done
+
+** Bullet Physics Examples **
+.\jme3-examples\src\main\java\jme3test\bullet\TestPhysicsCharacter.java (Sinbad.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\bullet\TestPhysicsRayCast.java (Elephant.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\bullet\TestRagdollCharacter.java (Sinbad.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\bullet\TestWalkingChar.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\bullet\TestBoneRagdoll.java (Sinbad.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\bullet\TestHoveringTank.java (Tank2.mesh.xml, Rocket.mesh.xml)
+* .\jme3-examples\src\main\java\jme3test\bullet\TestFancyCar.java (Car.scene)
+
+** Effects Examples **
+.\jme3-examples\src\main\java\jme3test\effect\TestEverything.java (Oto.mesh.xml, Sign Post.mesh.xml)
+
+** Model Examples **
+.\jme3-examples\src\main\java\jme3test\model\TestHoverTank.java (Tank2.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\model\TestMonkeyHead.java (MonkeyHead.mesh.xml)
+
+** Post-Processing Examples **
+.\jme3-examples\src\main\java\jme3test\post\TestCartoonEdge.java (MonkeyHead.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\post\TestIssue1798.java (MonkeyHead.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\post\TestLightScattering.java (Terrain.mesh.xml)
+.\jme3-examples\src\main\java\jme3test\post\TestPostFilters.java (Sign Post.mesh.xml)
+.\jme3-examples\src\main\java\jme3test\post\TestSoftBloom.java (Tank2.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\post\TestSSAO2.java (Teapot.mesh.xml)
+.\jme3-examples\src\main\java\jme3test\post\TestMultiplesFilters.java (main.scene)
+
+** LOD/Stress Examples **
+.\jme3-examples\src\main\java\jme3test\stress\TestBatchLod.java (Teapot.mesh.xml)
+.\jme3-examples\src\main\java\jme3test\stress\TestLodGeneration.java (Sinbad.mesh.xml - commented) done
+.\jme3-examples\src\main\java\jme3test\stress\TestLodStress.java (Teapot.mesh.xml)
+
+** Tool Examples **
+.\jme3-examples\src\main\java\jme3test\tools\TestSaveGame.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\tools\TestTextureAtlas.java (Oto.mesh.xml, Ninja.mesh.xml, Sinbad.mesh.xml, Car.scene)
+
+** Water Examples **
+.\jme3-examples\src\main\java\jme3test\water\TestSimpleWater.java (WaterTest.mesh.xml)
+.\jme3-examples\src\main\java\jme3test\water\TestSceneWater.java (main.scene)
+.\jme3-examples\src\main\java\jme3test\water\TestPostWaterLake.java (main.scene)
+
+** Lighting Examples **
+.\jme3-examples\src\main\java\jme3test\light\TestSpotLight.java (Sign Post.mesh.xml)
+.\jme3-examples\src\main\java\jme3test\light\TestSpotLightShadows.java (Sign Post.mesh.xml)
+.\jme3-examples\src\main\java\jme3test\light\TestShadowBug.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\light\TestIssue2209.java (Oto.mesh.xml) done
+.\jme3-examples\src\main\java\jme3test\light\TestManyLights.java (Main.scene)
+.\jme3-examples\src\main\java\jme3test\light\TestManyLightsSingle.java (Main.scene)
+
+** Material Examples **
+.\jme3-examples\src\main\java\jme3test\material\TestParallax.java (Sign Post.mesh.xml)
+.\jme3-examples\src\main\java\jme3test\material\TestParallaxPBR.java (Sign Post.mesh.xml)
+
+** Scene Examples **
+.\jme3-examples\src\main\java\jme3test\scene\TestSceneLoading.java (main.scene)
+.\jme3-examples\src\main\java\jme3test\scene\TestUserData.java (DotScene.scene)
+
+** Renderer Examples **
+.\jme3-examples\src\main\java\jme3test\renderer\TestAspectFov.java (main.scene)
+
+
+
+
+
+
+import com.jme3.light.AmbientLight;
+AmbientLight ambient = new AmbientLight();
+ambient.setColor(ColorRGBA.White.mult(0.5f));
+rootNode.addLight(ambient);
+cam.setLocation(new Vector3f(0, 5, 20));
+cam.lookAt(new Vector3f(0, 2, 0), Vector3f.UNIT_Y);
+
+
+
+
+
+WARNING: Cannot locate Models/Sign Post/signpost_color.jpg (Mipmapped) for material Signpost/SOLID/TEX/signpost_color.jpg
+WARNING: Cannot locate Models/MonkeyHead/MonkeyHead.material for model Models/MonkeyHead/MonkeyHead.mesh.xml
+SEVERE: Cannot locate texture Models/Sign Post/signpost_color.jpg (Mipmapped)
+
+
+
+

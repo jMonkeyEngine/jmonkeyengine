@@ -160,8 +160,9 @@ public class TestRagdollCharacter
                 physicsSpace);
         initWall(2f, 1f, 1f);
 
-        model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.j3o");
         rootNode.attachChild(model);
+        
         model.lookAt(new Vector3f(0f, 0f, -1f), Vector3f.UNIT_Y);
         model.setLocalTranslation(4f, 0f, -7f);
 

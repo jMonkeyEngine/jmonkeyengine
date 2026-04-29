@@ -77,7 +77,7 @@ public class TestManyLightsSingle extends SimpleApplication {
 
         flyCam.setMoveSpeed(10);
 
-        Node scene = (Node) assetManager.loadModel("Scenes/ManyLights/Main.scene");
+        Node scene = (Node) assetManager.loadModel("Scenes/ManyLights/Main.j3o");
         rootNode.attachChild(scene);
         Node n = (Node) rootNode.getChild(0);
         final LightList lightList = n.getWorldLightList();

@@ -88,7 +88,7 @@ public class TestParallaxPBR extends SimpleApplication {
     }
 
     public void setupSignpost() {
-        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.mesh.xml");
+        Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.j3o");
         Material mat = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
         MikktspaceTangentGenerator.generate(signpost);
         signpost.setMaterial(mat);

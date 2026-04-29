@@ -63,6 +63,15 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+/**
+ * Loads Ogre3D .scene files.
+ * 
+ * @deprecated as of jMonkeyEngine 3.6, for removal in a future version.
+ * The Ogre model format is deprecated. Consider migrating to glTF (.glb/.gltf) 
+ * or other modern model formats for better performance, broader tool support, and future compatibility.
+ * See <a href="https://jmonkeyengine.org/docs/3.6/manual/upgrading_to_glTF/">glTF migration guide</a>.
+ */
+@Deprecated
 public class SceneLoader extends DefaultHandler implements AssetLoader {
 
     private static final int DEFAULT_CAM_WIDTH = 640;

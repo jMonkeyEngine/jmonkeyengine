@@ -56,8 +56,14 @@ import org.xml.sax.helpers.DefaultHandler;
  * used by the SceneLoader doesn't support reading bottom XML nodes
  * before reading the top nodes.
  * 
+ * @deprecated as of jMonkeyEngine 3.6, for removal in a future version.
+ * The Ogre model format is deprecated. Consider migrating to glTF (.glb/.gltf) 
+ * or other modern model formats for better performance, broader tool support, and future compatibility.
+ * See <a href="https://jmonkeyengine.org/docs/3.6/manual/upgrading_to_glTF/">glTF migration guide</a>.
+ * 
  * @author Kirill Vainer
  */
+@Deprecated
 class SceneMaterialLoader extends DefaultHandler {
     
     private static final Logger logger = Logger.getLogger(SceneMaterialLoader.class.getName());

@@ -30,6 +30,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * import 3-D models in formats defined by the OGRE 3-D engine
+ * Import 3-D models in formats defined by the OGRE 3-D engine.
+ * 
+ * <h2>Deprecation Notice</h2>
+ * <p>
+ * <strong>The Ogre model format support is deprecated as of jMonkeyEngine 3.6 and will be removed in a future version.</strong>
+ * </p>
+ * <p>
+ * Users are strongly encouraged to migrate to modern, open-source model formats such as:
+ * </p>
+ * <ul>
+ *   <li><strong>glTF 2.0</strong> (.glb, .gltf) - Recommended and widely supported</li>
+ *   <li>USD/USDZ</li>
+ *   <li>FBX (via community-contributed loaders)</li>
+ * </ul>
+ * <p>
+ * Benefits of migrating to glTF:
+ * </p>
+ * <ul>
+ *   <li>Better performance and smaller file sizes</li>
+ *   <li>Broader tool support (Blender, Unreal, Unity, Three.js, Babylon.js, etc.)</li>
+ *   <li>Future-proof for continued jMonkeyEngine development</li>
+ *   <li>Better animation and material support</li>
+ * </ul>
+ * <p>
+ * For migration guidance, see the 
+ * <a href="https://jmonkeyengine.org/docs/3.6/manual/upgrading_to_glTF/">glTF Migration Guide</a>.
+ * </p>
+ * 
+ * @deprecated as of jMonkeyEngine 3.6, for removal in a future version.
  */
+@Deprecated
 package com.jme3.scene.plugins.ogre;
